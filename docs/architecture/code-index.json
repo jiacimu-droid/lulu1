@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:43:44.814141+00:00",
-  "commit": "90490f16f5ac8b427a790ae4ad02ba50ff3a8227",
+  "generatedAt": "2026-10-24T10:44:46.648818+00:00",
+  "commit": "4496d7ea9590eb5274f0b257efddb3ac89a9b871",
   "branch": "main",
-  "sourceFingerprint": "39ba7869849298bbfb45f35cd10c0e0d29013158b73b671f89382cae123cabc7",
+  "sourceFingerprint": "1aa9f64d1d7e1c6d2e452d73a4a1077ab181fa8bd49720cfcded40741cf1a937",
   "summary": {
     "files": 874,
-    "lines": 169276,
+    "lines": 169290,
     "symbols": 2533
   },
   "symbolIndex": {
@@ -5555,7 +5555,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 471
+        "line": 485
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -9425,25 +9425,25 @@
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 42
+        "line": 46
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 51
+        "line": 55
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 54
+        "line": 58
       }
     ],
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 201
+        "line": 205
       }
     ],
     "plan": [
@@ -23452,28 +23452,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 519,
-      "sha256": "8d9274bf1fcd1c0756a33a9c7ee9bb99407dbf4b3411ca9a47a865258624ddef",
+      "lines": 533,
+      "sha256": "c8182f9a99bffbb8345b2a68b602ca833eb73cea6c6fcb1f4fb791d076340310",
       "symbols": [
         {
           "name": "planForApp",
-          "line": 42
+          "line": 46
         },
         {
           "name": "attemptedToday",
-          "line": 51
+          "line": 55
         },
         {
           "name": "planFor",
-          "line": 54
+          "line": 58
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 201
+          "line": 205
         },
         {
           "name": "schedule",
-          "line": 471
+          "line": 485
         }
       ]
     },
