@@ -1061,6 +1061,16 @@ object CharacterInnerLifeStore {
         if (success && CharacterMotiveState.isActive(motive)) {
             motive.put("status", "waiting_feedback")
             motive.put("waitingFor", "动作已送达，等待实际效果或后续反馈")
+        } else if (!success && CharacterMotiveState.isActive(motive)) {
+            // Failure of one execution cannot satisfy or discard a continuing goal.
+            // Review via the existing motive scheduler, never blindly replay tools.
+            motive.put("status", "active")
+            motive.put("waitingFor", "上次行动未成功，重新考虑下一步")
+            val due = runCatching { Instant.parse(motive.optString("reviewAfter")) }.getOrNull()
+            if (due == null || !due.isAfter(now)) {
+                motive.put("reviewAfter", now.plusSeconds(120).toString())
+                motive.remove("reviewedPlan")
+            }
         }
         motive.put("outcomes", JSONArray().apply {
             for (i in maxOf(0, previous.length() - 7) until previous.length()) put(previous.opt(i))

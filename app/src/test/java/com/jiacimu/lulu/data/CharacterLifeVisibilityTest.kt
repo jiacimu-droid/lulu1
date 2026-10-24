@@ -84,7 +84,7 @@ class CharacterLifeVisibilityTest {
         val visible = CharacterLifeVisibility.matters(role, at.plusSeconds(2))
         assertTrue(visible.any { it.category == "持续意愿" && it.title.contains("故事") })
         assertTrue(visible.any { it.category == "正在琢磨" && it.title.contains("伏笔") })
-        assertTrue(visible.any { it.category == "心声" })
+        assertFalse(visible.any { it.category == "心声" || it.category == "心路历程" })
         assertTrue(visible.all { it.evidenceId == origin })
         assertTrue(CharacterLifeVisibility.matters(another, at.plusSeconds(2)).isEmpty())
         // Recording a wish/question does not create a real tool receipt.

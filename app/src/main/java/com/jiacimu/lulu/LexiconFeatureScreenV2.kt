@@ -252,64 +252,109 @@ fun LexiconFeatureScreenV2(
 
 
 /** The personal-life library projects existing thoughts; it never mutates motives or schedules. */
+
+/** Read-only dashboard of unfinished matters; passing voices stay in their history. */
 @Composable
 private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = Modifier) {
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
-    var historyLimit by rememberSaveable(characterId) { mutableIntStateOf(80) }
-    val historyPage by produceState(
-        initialValue = Pair(emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(), false),
-        characterId, mindRevision, curiosityRevision, evidenceRevision, historyLimit,
+    var selected by rememberSaveable(characterId) { mutableStateOf("全部") }
+    val entries by produceState(
+        initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
+        characterId, mindRevision, curiosityRevision, evidenceRevision,
     ) {
         value = withContext(Dispatchers.Default) {
-            CharacterLifeVisibility.matters(characterId, historyLimit = historyLimit) to
-                CharacterInnerLifeStore.hasOlderPrivateHistory(characterId, historyLimit)
+            CharacterLifeVisibility.matters(characterId)
         }
     }
-    val entries = historyPage.first
-    val hasOlder = historyPage.second
-    val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声", "心路历程")
+    val sections = listOf("挂心", "持续意愿", "正在琢磨")
+    val shown = entries.filter { selected == "全部" || selected == it.category }
     LazyColumn(modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 36.dp),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 36.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (entries.isEmpty()) {
-            item(key = "empty-matters") {
-                LexiconV2Card {
-                    Text("暂时没有留下心事", fontWeight = FontWeight.Medium)
-                }
-            }
-        }
-        sections.forEach { section ->
-            val group = entries.filter { it.category == section }
-            if (group.isNotEmpty()) {
-                item(key = "matter-title:$section") {
-                    Text(section, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                        color = LuluColors.Ink, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
-                }
-                itemsIndexed(group, key = { index, entry ->
-                    "${entry.category}:${entry.evidenceId}:${entry.at}:$index"
-                }) { _, entry ->
-                    Surface(modifier = Modifier.fillMaxWidth(), color = Color.White,
-                        shape = RoundedCornerShape(18.dp),
-                        border = BorderStroke(1.dp, LuluColors.Border)) {
-                        Column(Modifier.fillMaxWidth().padding(17.dp),
-                            verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                            Text(entry.at.atZone(ZoneId.systemDefault())
-                                .format(DateTimeFormatter.ofPattern("MM月dd日 HH:mm")),
-                                fontSize = 11.sp, color = LuluColors.Muted)
-                            Text(entry.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                                color = LuluColors.Ink)
-                            Text(entry.detail, fontSize = 13.sp, lineHeight = 22.sp,
-                                color = LuluColors.Ink)
-                        }
+        item(key = "matter-overview") {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("还放在心上的事", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+                    color = LuluColors.Ink)
+                Text("只看尚未结束的牵挂、目标与探索",
+                    fontSize = 12.sp, color = LuluColors.Muted)
+                Row(Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    (listOf("全部") + sections).forEach { option ->
+                        FilterChip(selected = option == selected,
+                            onClick = { selected = option },
+                            label = { Text(option + "  " +
+                                (if (option == "全部") entries.size else entries.count { it.category == option }),
+                                fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFECEFF0),
+                                selectedLabelColor = LuluColors.Ink,
+                                containerColor = Color.White))
                     }
                 }
             }
         }
-        if (hasOlder) item(key = "older-matters") {
-            TextButton(onClick = { historyLimit += 80 }, modifier = Modifier.fillMaxWidth()) {
-                Text("查看更多心事")
+        if (shown.isEmpty()) item(key = "empty-matters") {
+            Surface(color = Color.White, shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, LuluColors.Border)) {
+                Column(Modifier.fillMaxWidth().padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text("目前没有待延续的心事", fontWeight = FontWeight.Medium,
+                        color = LuluColors.Ink)
+                    Text("已完成的事情与过去的心声仍留在原始经历中。",
+                        fontSize = 12.sp, color = LuluColors.Muted)
+                }
+            }
+        }
+        sections.filter { selected == "全部" || selected == it }.forEach { section ->
+            val group = shown.filter { it.category == section }
+            if (group.isNotEmpty()) {
+                item(key = "matter-section:" + section) {
+                    Row(Modifier.fillMaxWidth().padding(top = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(section, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                            color = LuluColors.Ink)
+                        Spacer(Modifier.weight(1f))
+                        Text(group.size.toString() + " 件", fontSize = 11.sp,
+                            color = LuluColors.Muted)
+                    }
+                }
+                itemsIndexed(group, key = { index, entry ->
+                    entry.category + ":" + entry.evidenceId + ":" + entry.at + ":" + index
+                }) { _, entry ->
+                    var expanded by remember(entry.evidenceId, entry.title) { mutableStateOf(false) }
+                    Surface(onClick = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth(), color = Color.White,
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border)) {
+                        Column(Modifier.padding(17.dp),
+                            verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(when (section) {
+                                    "挂心" -> "仍在牵挂"
+                                    "持续意愿" -> "希望推进"
+                                    else -> "尚待探索"
+                                }, fontSize = 11.sp, color = Color(0xFF666B70))
+                                Spacer(Modifier.weight(1f))
+                                Text(entry.at.atZone(ZoneId.systemDefault())
+                                    .format(DateTimeFormatter.ofPattern("MM月dd日")),
+                                    fontSize = 11.sp, color = LuluColors.Muted)
+                            }
+                            Text(entry.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                                lineHeight = 23.sp, color = LuluColors.Ink)
+                            if (entry.detail.isNotBlank()) {
+                                Text(entry.detail, fontSize = 13.sp, lineHeight = 21.sp,
+                                    color = Color(0xFF66666A),
+                                    maxLines = if (expanded) Int.MAX_VALUE else 3,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                if (entry.detail.lines().size > 3 || entry.detail.length > 120)
+                                    Text(if (expanded) "收起" else "查看缘由与进展",
+                                        fontSize = 11.sp, color = LuluColors.Muted)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

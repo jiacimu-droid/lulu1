@@ -80,8 +80,8 @@ internal object CharacterLifeVisibility {
      * Every displayed entry must still have its own role-scoped source.
      */
     fun matters(role: String, now: Instant = Instant.now(),
-        historyLimit: Int = 160): List<CharacterLifeVisible> = buildList {
-        val mind = CharacterInnerLifeStore.historySnapshot(role, historyLimit)
+        @Suppress("UNUSED_PARAMETER") historyLimit: Int = 160): List<CharacterLifeVisible> = buildList {
+        val mind = CharacterInnerLifeStore.snapshot(role)
         fun include(at: Instant?, category: String, title: String, detail: String, id: String) {
             if (at == null || at.isAfter(now) || id.isBlank() ||
                 detail.isBlank() || source(role, id) == null) return
@@ -111,24 +111,13 @@ internal object CharacterLifeVisibility {
             }
 
 
-        jsonEntries(motives).filter {
-            it.optString("status") in setOf("released", "achieved")
-        }.forEach { motive ->
-            val status = if (motive.optString("status") == "achieved") "已经完成" else "选择放下"
-            val closureId = motive.optString("closureEvidenceId").ifBlank { motive.optString("evidenceId") }
-            include(parse(motive.optString("closedAt")), "心路历程",
-                motive.optString("aim").take(180),
-                status + (motive.optString("closedBecause").takeIf(String::isNotBlank)
-                    ?.let { "\n$it" }.orEmpty()),
-                closureId)
-        }
-
         val recentConcerns = CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
             .mapTo(hashSetOf()) { it.optString("id") }
         jsonEntries(mind.optJSONArray("openConcerns")).forEach { concern ->
             val detail = listOf(concern.optString("whyItMatters"),
                 concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
-                concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" })
+                concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "下一步：$it" },
+                concern.optJSONObject("lastOutcome")?.optString("summary")?.takeIf(String::isNotBlank)?.let { "最近尝试：$it" })
                 .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
                 "挂心", concern.optString("focus").take(180),
@@ -137,15 +126,6 @@ internal object CharacterLifeVisibility {
                 concern.optString("evidenceId"))
         }
 
-
-        jsonEntries(mind.optJSONArray("closedConcerns")).forEach { concern ->
-            val closureId = concern.optString("closureEvidenceId")
-            include(parse(concern.optString("closedAt")), "心路历程",
-                concern.optString("focus").take(180),
-                (if (concern.optString("closedAs") == "settled") "已经想通" else "已经放下") +
-                    (concern.optString("resolution").takeIf(String::isNotBlank)
-                        ?.let { "\n$it" }.orEmpty()), closureId)
-        }
 
         CharacterCuriosityRuntime.visibleQuestions(role).forEach { q ->
             include(parse(q.optString("at")), "正在琢磨", q.optString("topic").take(90),
@@ -170,34 +150,7 @@ internal object CharacterLifeVisibility {
         }
 
 
-        // Appraisal's private parallel thoughts are not necessarily promoted into
-        // innerLife.thoughts or spoken out loud. The original causal trace owns them.
-        jsonEntries(mind.optJSONArray("causalTransitions")).forEach { transition ->
-            val at = parse(transition.optString("at"))
-            val originId = transition.optString("evidenceId")
-            val ideas = transition.optJSONObject("appraisal")?.optJSONArray("privateIdeas")
-            for (i in 0 until (ideas?.length() ?: 0)) {
-                val idea = ideas?.optString(i).orEmpty().trim()
-                if (idea.isNotBlank()) include(at, "心声", "当时闪过的想法", idea, originId)
-            }
-        }
-        val voices = jsonEntries(mind.optJSONArray("innerVoices"))
-        voices.forEach { voice ->
-            include(parse(voice.optString("occurredAt")), "心声", "心里想的",
-                voice.optString("thought"), voice.optString("evidenceId"))
-        }
-        jsonEntries(mind.optJSONArray("thoughts")).forEach { thought ->
-            // A separate impulse can coexist with an authored inner voice. Avoid
-            // echoing an exact projection of the same source and same words.
-            val sameVoice = voices.any { voice ->
-                voice.optString("evidenceId") == thought.optString("evidenceId") &&
-                    CharacterHeartVoicePolicy.sameMeaning(
-                        voice.optString("thought"), thought.optString("thought"))
-            }
-            if (!sameVoice) include(parse(thought.optString("at")), "心声",
-                "一闪而过的念头", thought.optString("thought"), thought.optString("evidenceId"))
-        }
     }.distinctBy { listOf(it.category, it.title, it.detail, it.evidenceId).joinToString("|") }
-        .sortedWith(compareByDescending<CharacterLifeVisible> { it.at }.thenBy { it.title })
+        .sortedWith(compareBy<CharacterLifeVisible> { when (it.category) { "挂心" -> 0; "持续意愿" -> 1; else -> 2 } }.thenByDescending { it.at }.thenBy { it.title })
 
 }

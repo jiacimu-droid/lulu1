@@ -281,7 +281,7 @@ object ProactivePerceptionRuntime {
                         trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER) ||
                         trigger.startsWith("在线持续感知")
                     if (sleeping && sleepDeferredReview && onlineExpiryAtMillis == 0L &&
-                        !explicitUserWake) continue
+                        !explicitUserWake && !preserveOffline) continue
                     if (!force) {
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
                                 CommitmentTaskStore.snapshot(characterId), now)) continue
@@ -299,7 +299,7 @@ object ProactivePerceptionRuntime {
                         trigger.startsWith("角色自己刚完成") ||
                         trigger.startsWith("居民小事到了") ||
                         trigger.startsWith("强烈情绪的后续整理")
-                    if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L) {
+                    if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L && !preserveOffline) {
                         val previousAt = prefs.getLong("last_evaluation_$characterId", 0L)
                         val eligibleAt = previousAt + policy.onlinePulseSeconds * 1_000L
                         val nowMs = now.toEpochMilli()
@@ -1693,6 +1693,14 @@ object ProactivePerceptionRuntime {
                         characterId, message.id, message.createdAt, refreshAfterDelivery = true,
                     )
                 }
+        }
+        if (onlineExpiryAtMillis > 0L && decision.action != Action.SILENT &&
+            !execution.success && CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) {
+            // The expiry decision preceded the executor receipt. A failed
+            // action can change what the role now wants; review the real outcome
+            // on the existing offline aftercare lane, not by replaying the tool.
+            ProactivePerceptionScheduler.scheduleEmotionalAftercare(
+                appContext, characterId, delayMillis = 90_000L)
         }
         if (decision.action != Action.SILENT && !execution.success) {
             // Keep the previous factual presence intact. Failure details belong to perception history.

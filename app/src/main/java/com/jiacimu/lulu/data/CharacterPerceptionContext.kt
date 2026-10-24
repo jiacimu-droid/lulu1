@@ -57,13 +57,16 @@ internal object CharacterPerceptionContext {
         val execution = runCatching { JSONObject(content) }.getOrNull() ?: return null
         if (execution.optString("tool") !in CharacterActivityExpectation.tools ||
             execution.optString("status") !in setOf("succeeded", "failed")) return null
+        val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return null
         if (execution.optString("tool") == "digital_world_action") {
             val args = runCatching { JSONObject(execution.optString("fingerprint").substringAfter(':')) }.getOrNull()
                 ?: return null
-            if (args.optString("worldAction") !in setOf("interact_resident", "handle_incident",
-                    "build_home_item", "move_home_item", "remove_home_item")) return null
+            // Routine successful movement is not a psychological stimulus;
+            // an actual failure in any world action is useful follow-up evidence.
+            if (result.optBoolean("success") && args.optString("worldAction") !in setOf(
+                    "interact_resident", "handle_incident", "build_home_item",
+                    "move_home_item", "remove_home_item")) return null
         }
-        val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return null
         val summary = result.optString("summary").ifBlank { result.optString("error") }.trim()
         if (summary.isBlank()) return null
         return "本人实际尝试 ${execution.optString("tool")}；执行成功=${result.optBoolean("success")}；$summary"
