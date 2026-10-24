@@ -14,6 +14,21 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class VoicePerformanceTest {
+    @Test fun chatVoiceAudioTrackIsSeparateAndCannotRewriteTheTranscript() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        val words = "我在呢。"
+        val annotated = "[softly] 我在呢。"
+        prefs.edit().putString("tts_provider", "elevenlabs")
+            .putString("eleven_tts_model", "eleven_v4").commit()
+        assertEquals(annotated, ChatAutoVoicePlayback.voiceNoteAudioText(context, words, annotated))
+        assertEquals(words, ChatAutoVoicePlayback.voiceNoteAudioText(context, words, "[angry] 你走吧。"))
+        prefs.edit().putString("eleven_tts_model", "eleven_flash_v2_5").commit()
+        assertEquals(words, ChatAutoVoicePlayback.voiceNoteAudioText(context, words, annotated))
+        prefs.edit().putString("tts_provider", "system").commit()
+        assertEquals(words, ChatAutoVoicePlayback.voiceNoteAudioText(context, words, annotated))
+    }
+
     @Test fun tagsReachExpressiveModelsButNeverLegacyVoicesOrSubtitles() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
