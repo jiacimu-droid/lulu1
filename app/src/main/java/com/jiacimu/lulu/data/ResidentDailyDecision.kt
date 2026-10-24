@@ -49,6 +49,9 @@ internal object ResidentDailyDecision {
     internal fun date(at: Instant, zone: ZoneId = ZoneId.systemDefault()): String =
         at.atZone(zone).toLocalDate().toString()
 
+    fun attemptedToday(context: Context, residentId: String, at: Instant = Instant.now()): Boolean =
+        prefs(context).getString("attempt:$residentId", "") == date(at)
+
     fun planFor(context: Context, residentId: String, at: Instant): JSONObject? = runCatching {
         val root = JSONObject(prefs(context).getString("plan:$residentId", "{}").orEmpty())
         root.takeIf { it.optString("date") == date(at) }
@@ -352,8 +355,18 @@ internal object ResidentDailyDecision {
             connectionOverride = selected,
             contextMode = CompanionContextMode.CharacterAndScenario,
             maxTokens = 1_500,
-        ).getOrNull()
-        val json = reply?.text?.let(ModelStructuredOutput::objectOrNull) ?: return false
+        ).onFailure { error ->
+            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "数字世界居民日程", title = "${native.name}今天规划失败",
+                message = error.message.orEmpty().take(180))
+        }.getOrNull()
+        val json = reply?.text?.let(ModelStructuredOutput::objectOrNull)
+        if (json == null) {
+            if (reply != null) com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "数字世界居民日程", title = "${native.name}规划格式不完整",
+                message = "模型未返回可解析的当天日程 JSON，原消息未当作真实安排")
+            return false
+        }
         val lunch = allowedLeisureLocation(json.optString("lunch")) ?: "cafe"
         val evening = allowedLeisureLocation(json.optString("evening")) ?: "home"
         val plan = JSONObject()
@@ -454,6 +467,7 @@ internal object ResidentDailyDecision {
     fun schedule(context: Context) {
         val app = context.applicationContext
         appContext = app
+        ScopedModelSelections.initialize(app)
         val manager = WorkManager.getInstance(app)
         // Migrate away from a rolling 24-hour period: local 08:00 is a stable calendar time.
         manager.cancelUniqueWork(WORK_PERIODIC)
