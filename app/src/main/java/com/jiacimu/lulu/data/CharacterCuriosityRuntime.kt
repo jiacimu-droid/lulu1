@@ -329,9 +329,11 @@ internal object CharacterCuriosityRuntime {
         }.take(4)
         return buildString {
             appendLine("【持续好奇心｜允许新探索、深入、放弃或独处】")
-            profile?.optString("interests")?.takeIf(String::isNotBlank)?.let {
-                appendLine("用户设定的初始兴趣：" + it.take(230))
-            }
+            // The full authored profile is already provided by CharacterRuntime.
+            // Repeating the first 230 chars here both wastes tokens and unfairly
+            // favors whichever hobby happens to be written first.
+            if (profile?.optString("interests")?.isNotBlank() == true)
+                appendLine("当前人设中的兴趣与审美都是可以主动探索的起点；结合上方完整的本人设定，不只盯着最近一次用户发言。")
             if (learned.isNotEmpty()) appendLine("反复真实经历形成的兴趣：" +
                 learned.joinToString("；") { it.content.take(110) })
             if (unanswered.isNotEmpty()) {
@@ -369,7 +371,9 @@ internal object CharacterCuriosityRuntime {
             }
             if (recentActions.takeLast(5).count { it == "SILENT" } >= 3)
                 appendLine("最近多次安静：区分「不想打扰用户」与「自己不想做事」；若有正在在意的事情，认真比较可执行的小行动，但不强制活跃。")
-            appendLine("从人设、兴趣、疑问与眼前真实环境提出自己的选择：继续、接触新知识、体验、表达、休息。行动后才能形成新经历；别把探索当成定时表演。")
+            appendLine("把稳定人设的不同侧面当成可独立产生问题的来源：自己喜欢的知识领域可以在没有任何新用户消息时想到『最近有没有新进展、我哪里还不懂』；自己的幽默、温柔、社交倾向、审美也可能产生完全不同的念头。上次聊天只是一份线索，不是所有想法的唯一起点。")
+            appendLine("若真想了解具体外部知识，并且能力提示明确显示已配置且已授权，可在本轮直接用 web_search(search_read) 真正搜读，或选择 read_xiaohongshu(keyword) 接触不同经历与评论；需要合适图片素材时选 image_search，但检索结果标题不等于已看见图片。不要因为还没明确列出网址就不敢探索；也不要只说想去查却不提交工具动作。成功回执进入原时间线和学习系统后，再独立判断进一步探索、分享、排进个人日程或放下；未读正文不能声称掌握。")
+            appendLine("从兴趣、疑问与真实环境作选择：继续、探索新知、体验、表达、休息都可以。单调感是有时会影响求新的身体线索，不是强制出门、搜索或打扰用户的阈值；没有兴趣也允许安静。")
         }.trim()
     }
 }
