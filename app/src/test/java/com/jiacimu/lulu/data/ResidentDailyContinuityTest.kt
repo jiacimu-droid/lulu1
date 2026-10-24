@@ -26,6 +26,68 @@ class ResidentDailyContinuityTest {
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
     }
 
+    @Test fun fixedMorningSlotAndAgendaTimesAreCalendarBased() {
+        val zone = java.time.ZoneId.of("Asia/Shanghai")
+        val day = java.time.LocalDate.of(2026, 10, 24)
+        val seven = day.atTime(7, 30).atZone(zone).toInstant()
+        val eight = day.atTime(8, 0).atZone(zone).toInstant()
+        assertEquals(eight, ResidentDailyDecision.nextPlanningTime(seven, zone))
+        assertEquals(day.plusDays(1).atTime(8, 0).atZone(zone).toInstant(),
+            ResidentDailyDecision.nextPlanningTime(eight, zone))
+        assertEquals(day.atTime(18, 20).atZone(zone).toInstant(),
+            ResidentDailyDecision.agendaTime(seven, "18:20", zone))
+        assertNull(ResidentDailyDecision.agendaTime(seven, "07:25", zone))
+        assertNull(ResidentDailyDecision.agendaTime(seven, "36:91", zone))
+    }
+
+    @Test fun residentsShareTheRealCalendarAndCannotPlanMessagesToInventedFriends() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        DigitalWorldExpansionStore.initialize(app)
+        ResidentSocialMailbox.initialize(app)
+        val localDay = java.time.LocalDate.of(2026, 10, 25)
+        val today = localDay.atTime(8, 5).atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val person = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "排程居民${UUID.randomUUID().toString().take(5)}",
+            identity = "世界书籍整理员", homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+            currentLocationCode = DigitalWorldPublicPlaces.CAFE, createdAt = today))
+        val peer = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "同场朋友${UUID.randomUUID().toString().take(5)}",
+            identity = "手工艺工作者", homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+            currentLocationCode = DigitalWorldPublicPlaces.CAFE, createdAt = today))
+        ResidentCharacterBridge.sync(app, today)
+        val actor = ResidentCharacterBridge.characterId(person.id)
+        val friend = ResidentCharacterBridge.characterId(peer.id)
+        assertTrue(ResidentSocialMailbox.visibleContacts(actor).contains(friend))
+        fun item(clock: String, title: String, action: String, args: JSONObject,
+                 recipient: String = "", place: String = "") = JSONObject()
+            .put("at", clock).put("title", title).put("intent", "我自己想认真做这件事")
+            .put("activityAction", action).put("activityArgs", args)
+            .put("targetCharacterId", recipient).put("locationCode", place)
+        val agenda = JSONArray()
+            .put(item("12:15", "给朋友写信", "send_character_message",
+                JSONObject().put("targetCharacterId", friend).put("text", "晚些来聊一聊？"), friend))
+            .put(item("15:10", "去庭院转转", "digital_world_action",
+                JSONObject().put("worldAction", "visit_public_place")
+                    .put("locationCode", DigitalWorldPublicPlaces.COURTYARD),
+                place = DigitalWorldPublicPlaces.COURTYARD))
+            .put(item("18:30", "分享自己的新发现", "publish_moment",
+                JSONObject().put("text", "今天整理了有趣的地图。")))
+            .put(item("19:30", "联系没有见过的人", "send_character_message",
+                JSONObject().put("targetCharacterId", "resident:not-real")
+                    .put("text", "你好"), "resident:not-real"))
+        val scheduled = ResidentDailyDecision.saveAgenda(app, person,
+            JSONObject().put("agenda", agenda), today)
+        assertEquals(3, scheduled.size)
+        assertTrue(scheduled.all { it.selfInitiated && it.status == "planned" })
+        assertEquals(listOf("send_character_message", "digital_world_action", "publish_moment"),
+            scheduled.map { it.activityAction })
+        assertEquals(friend, scheduled[0].targetCharacterId)
+        assertEquals(DigitalWorldPublicPlaces.COURTYARD, scheduled[1].locationCode)
+        assertTrue(RoleDayScheduleStore.plans(app, actor).map { it.id }
+            .containsAll(scheduled.map { it.id }))
+    }
+
     @Test(timeout = 60_000) fun dailyWorkerRestoresModelRuntimeWithoutAnActivityOrSilentChatBilling() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         app.getSharedPreferences("lulu_scoped_model_selections_v1", android.content.Context.MODE_PRIVATE)
