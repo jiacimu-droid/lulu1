@@ -8,6 +8,7 @@ import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
+import { createSpeechMouthRuntime } from './speech-mouth.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
@@ -205,8 +206,6 @@ let motionRevision = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
 let blinkProgress = -1
-let smoothedMouthOpen = 0
-let mouthReleaseUntil = 0
 let lastRealMouthSignalAt = 0
 let lastMouthSignal = 0
 let speakingBeganAt = 0
@@ -227,6 +226,9 @@ const tactileExpressionLayer = createTouchExpressionLayer({
 
 const visualLayers = createVisualLayerRuntime({
   has: hasParameter, read: getParameter, write: setParameter,
+})
+const speechMouth = createSpeechMouthRuntime({
+  has: hasParameter, write: setParameter,
 })
 const performanceRuntime = createPerformanceRuntime()
 const mouthExpressionGate = createSpeechExpressionGate()
@@ -557,35 +559,14 @@ function applyFinalParameters(core, deltaMs) {
   if (audibleMouth && hasParameter(core, 'ParamTongueOut')) {
     setParameter(core, 'ParamTongueOut', 0)
   }
-  if (hasParameter(core, 'ParamMouthOpenY')) {
-    // AIRI uses a speech-release tail rather than snapping the jaw shut on
-    // the very first silent frame. Don't permanently own the mouth during
-    // idle, either: the model's own expression may need this parameter.
-    if (playing && !mouthExpressionGate.state().active) {
-      const realSignal = Math.min(1, Math.max(0, mouth))
-      // The PCM callback is not provided by every platform TTS engine; for
-      // those we approximate light syllables, only while speech is audible.
-      const duration = Math.max(0, timeNow - speakingBeganAt)
-      const syllables = .5 + .5 * Math.sin(duration * .029 + fallbackSpeechSeed) *
-        Math.sin(duration * .011 + .4)
-      const fallback = .24 + .43 * Math.abs(syllables)
-      // A real zero-amplitude PCM sample must remain a genuine silent pause.
-      const target = pcmAvailable ? realSignal : fallback
-      const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .045 : .031))
-      smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
-      mouthReleaseUntil = timeNow + 470
-      setParameter(core, 'ParamMouthOpenY', smoothedMouthOpen)
-    } else if (mouthExpressionGate.state().active) {
-      // Tongue/covered-mouth gestures cannot coexist with talking mouth shape.
-      smoothedMouthOpen = 0
-      mouthReleaseUntil = 0
-      setParameter(core, 'ParamMouthOpenY', 0)
-    } else if (timeNow < mouthReleaseUntil || smoothedMouthOpen > .012) {
-      smoothedMouthOpen += (0 - smoothedMouthOpen) * Math.min(1, deltaMs * .019)
-      if (smoothedMouthOpen < .012) smoothedMouthOpen = 0
-      setParameter(core, 'ParamMouthOpenY', smoothedMouthOpen)
-    }
-  }
+  // One owner for all supported lip/jaw actuators after model expressions.
+  speechMouth.update(core, {
+    deltaMs, speaking: playing, pcmAvailable, level: mouth,
+    elapsedMs: Math.max(0, timeNow - speakingBeganAt), seed: fallbackSpeechSeed,
+    blocked: mouthExpressionGate.state().active,
+    jawOverride: tactilePose?.face?.jawOpen ?? visibleFace?.jawOpen,
+    poutOverride: tactilePose?.face?.pout ?? visibleFace?.pout,
+  })
 }
 function installFinalParameterControl(loadedModel) {
   const internal = loadedModel.internalModel
@@ -761,6 +742,7 @@ async function load(modelURL) {
     // Neither a prior call's eye/pose interpolation nor its queued speech
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
+    speechMouth.reset()
     touchReflex = null
     tactileContact = null
     performanceRuntime.reset()
@@ -870,10 +852,7 @@ function onPlaybackEvent(phase) {
   else lastSpeechSoundAt = Date.now()
   // Keep the mouth's short release tail on normal completion. Interruptions
   // should cancel immediately rather than make the role keep talking.
-  if (phase === 'interrupted') {
-    smoothedMouthOpen = 0
-    mouthReleaseUntil = 0
-  }
+  if (phase === 'interrupted') speechMouth.reset()
 }
 function update(next) {
   const wasPlaying = playing

@@ -4,6 +4,7 @@ import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
+import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
 import { resolveTouchRegion } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from '../src/touch-reflex.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from '../src/speech-expression-gate.mjs'
@@ -97,7 +98,9 @@ assert.doesNotMatch(fullscreenVideo, /Text\(rendererPerformance, fontSize/)
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 assert.match(stage, /internal\.on\('beforeModelUpdate'/)
 assert.doesNotMatch(stage, /\.getParameterIndex\(|\.setParameterValueById\(/)
-assert.match(stage, /setParameter\(core, 'ParamMouthOpenY', smoothedMouthOpen\)/)
+assert.match(stage, /speechMouth\.update\(core, \{/)
+assert.match(stage, /speechMouth\.reset\(\)/)
+assert.doesNotMatch(stage, /smoothedMouthOpen/)
 assert.match(stage, /visualLayers\.update\(core, \{/)
 assert.match(stage, /performanceRuntime\.tick\(beat =>/)
 assert.match(stage, /performanceRuntime\.stopSpeech\(\)/)
@@ -114,6 +117,39 @@ assert.match(stage, /app\.ticker\.maxFPS = nativeStreamEnabled \? 36 : 0/)
 assert.match(stage, /if \(app\?\.ticker\) app\.ticker\.maxFPS = 0/)
 assert.doesNotMatch(stage, /app\.ticker\.maxFPS = 60/)
 assert.doesNotMatch(stage, /scheduleNativeStreamFrame\(Math\.max\(0, 34 -/)
+
+
+const lip = new Map([
+  ['ParamMouthOpenY', 0], ['ParamJawOpen', 0],
+  ['ParamMouthPuckerWiden', 0], ['ParamMouthFunnel', 0],
+  ['ParamMouthShrug', 0],
+])
+const lips = createSpeechMouthRuntime({
+  has: (_core, id) => lip.has(id),
+  write: (_core, id, value) => { lip.set(id, value); return true },
+})
+const speechValues = { deltaMs: 16, speaking: true, pcmAvailable: true, level: .9 }
+for (let i = 0; i < 25; i++) lips.update(core, speechValues)
+assert.ok(lip.get('ParamMouthOpenY') > .83, 'PCM must open the mouth smoothly')
+assert.ok(lip.get('ParamJawOpen') > .48, 'jaw follows mouth with its own latency')
+assert.ok(lip.get('ParamMouthPuckerWiden') > .07, 'wolf's secondary mouth rig is used')
+lips.update(core, { ...speechValues, level: 0 })
+assert.ok(lip.get('ParamMouthOpenY') > .2, 'silence should start closing rather than snap')
+for (let i = 0; i < 85; i++) lips.update(core, { deltaMs: 16, speaking: false })
+assert.ok(lip.get('ParamMouthOpenY') < .015 && lip.get('ParamJawOpen') < .015,
+  'mouth and jaw return without sticking open')
+lips.reset()
+lips.update(core, { deltaMs: 16, speaking: true, pcmAvailable: true,
+  level: 1, blocked: true })
+assert.equal(lip.get('ParamMouthOpenY'), 0, 'tongue/cover owns the speaking mouth')
+const onlyOpen = new Map([['ParamMouthOpenY', 0]])
+const basic = createSpeechMouthRuntime({
+  has: (_core, id) => onlyOpen.has(id),
+  write: (_core, id, value) => onlyOpen.set(id, value),
+})
+basic.update(core, { speaking: true, deltaMs: 16, pcmAvailable: true, level: .8 })
+assert.ok(onlyOpen.get('ParamMouthOpenY') > 0,
+  'models without wolf secondary mouth channels still work')
 
 // Final-layer Cubism ownership must be tested by executing writes rather
 // than searching the former monolithic stage for string names.
