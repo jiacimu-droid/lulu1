@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:49:13.011022+00:00",
-  "commit": "8cf41a2f92b47a10f2518ad68ca825a2e45cbee2",
+  "generatedAt": "2026-10-24T04:49:34.739720+00:00",
+  "commit": "5f0123f9747556aa2a480b73da1f178cd6656b38",
   "branch": "main",
-  "sourceFingerprint": "dabab1586321c8cc65b11f214b96a1178fdd3558489d5cb80fe9a001abbda4c4",
+  "sourceFingerprint": "ef5fc6ead755e198e575fb8209205b2068ff23f33c02cfd2c309a2e35633131b",
   "summary": {
     "files": 872,
-    "lines": 167747,
+    "lines": 167766,
     "symbols": 2521
   },
   "symbolIndex": {
@@ -8981,7 +8981,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2283
+        "line": 2284
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -18277,8 +18277,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-      "lines": 272,
-      "sha256": "14854229308038c747e322250594e9830c49a154004181d306864f40fcad5c91",
+      "lines": 273,
+      "sha256": "833bf94806a393464d2c589edcfb2b6c2a2befd79a698006d9625656025f41cf",
       "symbols": [
         {
           "name": "memoryLane",
@@ -19261,8 +19261,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 237,
-      "sha256": "0cde44c62fc03448b21369c62a818da98aa7193c884d19b7a96d9688d1ddaf07",
+      "lines": 254,
+      "sha256": "ecf0bb6e478a6c57a3643976daac7d65a02562e88d319be0cbf01ddf6996fd87",
       "symbols": [
         {
           "name": "groupedFields",
@@ -22917,8 +22917,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2350,
-      "sha256": "fef4640808f59717b20cefa88f72c0c44f67777419ffa209e643c4e466262d50",
+      "lines": 2351,
+      "sha256": "b0d7e6c135871005f482e2085c4a9d3316c0c641420f18b534ce96224460021e",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22950,7 +22950,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2283
+          "line": 2284
         }
       ]
     },
