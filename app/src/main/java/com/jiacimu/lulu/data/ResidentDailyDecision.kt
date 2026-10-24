@@ -12,6 +12,11 @@ import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.time.Instant
@@ -36,7 +41,6 @@ internal object ResidentDailyDecision {
     /** Shared local planning hour. WorkManager is durable but Android may defer its exact delivery. */
     internal val DAILY_PLANNING_TIME: LocalTime = LocalTime.of(8, 0)
     private const val MAX_AGENDA_ITEMS = 8
-    private const val MAX_RESIDENTS_PER_DAY = 24
     private const val MAX_MESSAGE = 500
     @Volatile private var appContext: Context? = null
 
@@ -451,17 +455,27 @@ internal object ResidentDailyDecision {
         MomentsStore.initialize(app)
         CharacterInnerLifeStore.initialize(app)
         ScopedModelSelections.initialize(app)
-        var succeeded = 0
-        for (native in DigitalWorldExpansionStore.residents().take(MAX_RESIDENTS_PER_DAY)) {
-            try {
-                if (runOnce(app, native, now)) succeeded++
-            } catch (cancel: kotlinx.coroutines.CancellationException) {
-                throw cancel
-            } catch (error: Exception) {
-                com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                    source = "数字世界居民日程", title = "一位居民的每日安排未完成",
-                    message = error.message.orEmpty().take(180))
-            }
+        // Every registered resident gets a chance; the old .take(24) left later
+        // residents permanently unscheduled. Bound concurrent remote requests instead.
+        val semaphore = Semaphore(3)
+        val succeeded = coroutineScope {
+            DigitalWorldExpansionStore.residents().map { native ->
+                async(Dispatchers.IO) {
+                    semaphore.withPermit {
+                        try {
+                            runOnce(app, native, now)
+                        } catch (cancel: kotlinx.coroutines.CancellationException) {
+                            throw cancel
+                        } catch (error: Exception) {
+                            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                                source = "数字世界居民日程",
+                                title = "${native.name}的每日安排未完成",
+                                message = error.message.orEmpty().take(180))
+                            false
+                        }
+                    }
+                }
+            }.awaitAll().count { it }
         }
         // A completed planning decision may change today's free time if it
         // wasn't already reached, without rewriting a finished duty receipt.
