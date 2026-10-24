@@ -411,7 +411,9 @@ fun CharacterSettingsScreenV2(
                         Text("午休 / 晚间 · ${today.optString("lunch")} / ${today.optString("evening")}")
                     } else {
                         Text(if (residentModelId == null) "尚未选择居民规划模型"
-                            else "今日计划尚未生成，可在性能监测查看失败原因",
+                            else if (ResidentDailyDecision.attemptedToday(context, nativeResident.id))
+                                "今日规划未成功 · 请查看性能监测"
+                            else "今日尚未到规划时间",
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text("今天的个人行程", fontWeight = FontWeight.SemiBold)
