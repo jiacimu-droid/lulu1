@@ -1013,6 +1013,7 @@ internal object OrderedCharacterActions {
         userEvidenceIds: Set<String> = emptySet(),
         userText: String = "",
         explicitScreenRequest: Boolean = false,
+        autonomousLifeTurn: Boolean = false,
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1048,6 +1049,7 @@ internal object OrderedCharacterActions {
                     intentionId = intentionId,
                     userRequested = if (name == "capture_screen") explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
+                    autonomousLifeTurn = autonomousLifeTurn,
                 ))
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
