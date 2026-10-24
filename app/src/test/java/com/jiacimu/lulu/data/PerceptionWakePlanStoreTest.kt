@@ -79,6 +79,11 @@ class PerceptionWakePlanStoreTest {
         CharacterIdentityStore.initialize(context)
         DigitalLifeProfileStore.initialize(context)
         CompanionOnlineStore.initialize(context)
+        // Robolectric does not launch AndroidX Startup in this test manifest.
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context,
+                androidx.work.Configuration.Builder().build())
+        }
         val role = MigratedDomainStores.characters.create("自主日程间隔测试").characterId
         MigratedDomainStores.chat.ensureConversation(role, "自主日程间隔测试")
         CompanionOnlineStore.resetCharacter(role)
@@ -123,6 +128,11 @@ class PerceptionWakePlanStoreTest {
         CharacterIdentityStore.initialize(context)
         DigitalLifeProfileStore.initialize(context)
         CompanionOnlineStore.initialize(context)
+        // Robolectric does not launch AndroidX Startup in this test manifest.
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context,
+                androidx.work.Configuration.Builder().build())
+        }
         val role = MigratedDomainStores.characters.create("独立生活来源回归测试").characterId
         MigratedDomainStores.chat.ensureConversation(role, "独立生活来源回归测试")
         CompanionOnlineStore.resetCharacter(role)
