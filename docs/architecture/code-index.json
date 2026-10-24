@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:34:45.210155+00:00",
-  "commit": "9c2b83e32d828d0bbf21e7f1e8e1a61fc1ec38dc",
+  "generatedAt": "2026-10-24T02:35:07.263654+00:00",
+  "commit": "014d554fa7f8bbf51dee7b654e7a6f6636eb1171",
   "branch": "main",
-  "sourceFingerprint": "ca796e3503bca0a72f79709a62844dcfd80114902c5e928b8abc338ea76c1ac1",
+  "sourceFingerprint": "b58adf7a8081a540b70e9ee57736e87db12bdd9c4c0d730913fb607e8e6d46b1",
   "summary": {
     "files": 868,
-    "lines": 166292,
-    "symbols": 2510
+    "lines": 166347,
+    "symbols": 2511
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12204,28 +12204,34 @@
         "line": 276
       }
     ],
+    "scheduledReminder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
+        "line": 339
+      }
+    ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 334
+        "line": 389
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 344
+        "line": 399
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 374
+        "line": 429
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 386
+        "line": 441
       }
     ],
     "showCapture": [
@@ -26772,8 +26778,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 433,
-      "sha256": "5ace50894a1c676fa81d932fdc548609286950f0bb216620cdc092cc5f53298c",
+      "lines": 488,
+      "sha256": "09f88780aa5baab7fd5beeb8b79f7c5f7a4a33a69247f720f6730b3c510b8d0a",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -26828,20 +26834,24 @@
           "line": 276
         },
         {
+          "name": "scheduledReminder",
+          "line": 339
+        },
+        {
           "name": "recentAppActivity",
-          "line": 334
+          "line": 389
         },
         {
           "name": "addUntil",
-          "line": 344
+          "line": 399
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 374
+          "line": 429
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 386
+          "line": 441
         }
       ]
     },
