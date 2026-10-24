@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -38,6 +39,12 @@ internal object DigitalWorldResidentInteractionRuntime {
             // impersonate the native citizen's entire side of the conversation.
             val nativeId = ResidentCharacterBridge.characterId(resident.id)
             ResidentCharacterBridge.sync(context, now)
+            // Resident-to-resident dialogue uses the separately selected cheap model.
+            // A protagonist meeting a resident retains the original identity model.
+            val residentConnection = if (characterId.startsWith("resident:")) {
+                ScopedModelSelections.initialize(context)
+                ScopedModelSelections.resolveConnection(ResidentDailyDecision.SCOPE)
+            } else null
             val actorReply = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = "你此刻在数字世界$location，与真正同处现场的${resident.name}交流。居民身份=${resident.identity}，正在做=${resident.dutyActivity}。\n" +
@@ -50,6 +57,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     自然、独立、有理由，可以简短；没有真实执行回执不声称做完另一件事。
                 """.trimIndent(),
                 source = "数字世界居民交流", title = "与${resident.name}说话", maxTokens = 1300,
+                connectionOverride = residentConnection,
             ).getOrThrow()
             val actorJson = ModelStructuredOutput.objectOrNull(actorReply.text)
                 ?: error("角色自己没有形成可发送的交流台词")
@@ -73,6 +81,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     }.orEmpty()}
                 """.trimIndent(),
                 source = "数字世界原住民交流", title = "与${character.displayName}交谈", maxTokens = if (episodeStep == null) 1400 else 1900,
+                connectionOverride = residentConnection,
             ).getOrThrow()
             val nativeJson = ModelStructuredOutput.objectOrNull(nativeReply.text)
                 ?: error("居民本人没有形成可发送的答复")
