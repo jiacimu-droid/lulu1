@@ -599,7 +599,7 @@ class CharacterLifeStoreTest {
         assertEquals("继续学习AI", upgraded.getJSONObject("intention").getString("aim"))
         val prompt = CharacterRuntime.definition(stock.characterId).promptSection()
         assertTrue(prompt.contains("清俊明朗"))
-        assertTrue(prompt.contains("AI、记忆"))
+        assertTrue(prompt.contains("AI前沿"))
         assertTrue(prompt.contains("认真问题能讲透"))
         assertEquals("我独特的表达风格",
             CharacterLifeStore.state(edited.characterId).getJSONObject("profile").getString("expression"))
