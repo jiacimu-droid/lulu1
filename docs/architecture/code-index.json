@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:23:13.871573+00:00",
-  "commit": "498d744099a38be3970258abe15df8802628972d",
+  "generatedAt": "2026-10-24T12:25:10.951021+00:00",
+  "commit": "825680989bd895b05aa43688d2b9299de29a6ae4",
   "branch": "main",
-  "sourceFingerprint": "f31b55e1896c8904fb20187d20b2c6a7e82d276e318ccda6f178c3be09ac9f1c",
+  "sourceFingerprint": "4703abc8f980953caea31694a66f12490b4d86c639f8bef825ed55da6ef6e8c2",
   "summary": {
     "files": 879,
-    "lines": 170962,
+    "lines": 170969,
     "symbols": 2562
   },
   "symbolIndex": {
@@ -5589,7 +5589,7 @@
     "include": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 84
+        "line": 85
       }
     ],
     "CharacterMessageFavorites": [
@@ -15478,8 +15478,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 518,
-      "sha256": "e7325ae4f15af5680377b00d9af475efdbe64ba675dedddf2a89e34c762f9c64",
+      "lines": 524,
+      "sha256": "8333ddecc6dd00233a016bc93f0ef4798e1897bd9ffc8d621e68354ddee74ae6",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -19326,8 +19326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 203,
-      "sha256": "7803ded39fca6ea300b0647ea90c4b4b238a0f4fd2c1d75b0ca814615570d714",
+      "lines": 204,
+      "sha256": "eb27bd29f48983c8f3e503be8da79707960afeb1f5d3e6d5e37ce06547feb140",
       "symbols": [
         {
           "name": "current",
@@ -19339,7 +19339,7 @@
         },
         {
           "name": "include",
-          "line": 84
+          "line": 85
         }
       ]
     },
@@ -19913,7 +19913,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
       "lines": 341,
-      "sha256": "0f5d2dd669fc8191fa0b24654909c7b5e4492c0df044f5f51d1892273e93c06c",
+      "sha256": "d89fdbefd85a5b189df89e90467dc69486a67259536d130e14c360707f12a4c0",
       "symbols": [
         {
           "name": "entries",
