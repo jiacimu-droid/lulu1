@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:26:55.640487+00:00",
-  "commit": "050a3802a9df2fa97e77da59ece0dd57832edeeb",
+  "generatedAt": "2026-10-24T11:56:59.216346+00:00",
+  "commit": "d341df620a897f44e6d78bf1ecff551096f4537a",
   "branch": "main",
-  "sourceFingerprint": "5b4d1dc931cdfc8270ad6580c455ab78000ac8ecf1608acd0ba4c9fe619a6b12",
+  "sourceFingerprint": "36753a21ebab54d7ab10a2732492c1fea86dc22fc9d8817c61fb48dbd4891816",
   "summary": {
     "files": 878,
-    "lines": 170423,
-    "symbols": 2553
+    "lines": 170609,
+    "symbols": 2555
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1537,7 +1537,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 60
+        "line": 65
       }
     ],
     "recordListening": [
@@ -5540,6 +5540,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 107
+      }
+    ],
+    "matters": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 82
+      }
+    ],
+    "include": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 84
       }
     ],
     "CharacterMessageFavorites": [
@@ -13379,7 +13391,7 @@
     "followThrough": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-        "line": 88
+        "line": 127
       }
     ],
     "CharacterMomentSnapshotIdeasTest": [
@@ -15428,12 +15440,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 453,
-      "sha256": "05e94378188a19b0a3fade6b5d7cdfc5d8055ea07698ed44ea16c303831d1cde",
+      "lines": 511,
+      "sha256": "2e827c88aa0b311f74b28d3adf50f17e4b7d1426c70f0f3a4992951650e38fb3",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 60
+          "line": 65
         }
       ]
     },
@@ -19241,12 +19253,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 77,
-      "sha256": "a8a64e1ecdfaa8ab3f0a36377aae089328580e8c0b546afa566e41c76f7809ce",
+      "lines": 166,
+      "sha256": "5abd890b7fb5fbab50d6b19247b2066da58ff445de799f838d3833531ed68cc3",
       "symbols": [
         {
           "name": "current",
           "line": 33
+        },
+        {
+          "name": "matters",
+          "line": 82
+        },
+        {
+          "name": "include",
+          "line": 84
         }
       ]
     },
@@ -28814,8 +28834,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-      "lines": 110,
-      "sha256": "e47f7a6f597575575977fd92d58ab7d864f5129b5b431183a791708c612a2dca",
+      "lines": 149,
+      "sha256": "42ef6ecd04d4f2892e35081a39941244e1808ffcaa00aa0a927b4c6d1719a26c",
       "symbols": [
         {
           "name": "CharacterLifeVisibilityTest",
@@ -28823,7 +28843,7 @@
         },
         {
           "name": "followThrough",
-          "line": 88
+          "line": 127
         }
       ]
     },
