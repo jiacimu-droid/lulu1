@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:46:27.767294+00:00",
-  "commit": "660a9003d54a857ad8a6eaa67290a2da5a294e22",
+  "generatedAt": "2026-10-24T04:46:41.644080+00:00",
+  "commit": "eb0c5d888caa1e6cb4dfdb36bcee8e0d354c6e3d",
   "branch": "main",
-  "sourceFingerprint": "605d74c04f1a20cce34d85aa7a5aa53fda00cb69e84398cf3be07ac07be94f21",
+  "sourceFingerprint": "5015c6cc88fec28cf2fd908e36a53b6c5c309274470227b726f0cd22d420095f",
   "summary": {
     "files": 872,
-    "lines": 167621,
+    "lines": 167622,
     "symbols": 2521
   },
   "symbolIndex": {
@@ -14603,7 +14603,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 619,
-      "sha256": "180573384bdacf0fcae2311ee87e059e8b0b56d4bd7e6382e03d019bc01fe4d5",
+      "sha256": "b923103c6ba51e2f75c448a5f42e2df15ceb5baa18a3bec764d66bd5825fa240",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -14773,8 +14773,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 792,
-      "sha256": "1ec307f290e8af788198b149e14e9b510ac8badd207eeed2778c1285d357b803",
+      "lines": 793,
+      "sha256": "36ba2810583f66aa97be9a4e6d7dc4ca44354b149999ecebf200c0ac778d37d5",
       "symbols": []
     },
     {
