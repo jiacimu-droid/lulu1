@@ -216,6 +216,9 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
                 },
             )
         }
+        // The alarm has really been registered. Now it is safe to remove a
+        // duplicate daily self-plan while preserving this exact ringing task.
+        if (task.deliveryAction == "start_call") CommitmentTaskStore.mergeDailyDuplicates()
     }.onFailure { error ->
         CommitmentTaskStore.update(task.id) { current ->
             current.copy(
