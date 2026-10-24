@@ -112,7 +112,7 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
                                         hasAudio && entry.messageId.startsWith("voice-") -> "播放收藏的通话原声"
                                         hasAudio -> "播放收藏语音"
                                         entry.messageId.startsWith("voice-") -> "重新合成朗读（非通话原声）"
-                                        else -> "朗读并保存语音"
+                                        else -> "重新合成朗读（非原声）"
                                     }
                                 )
                             }
