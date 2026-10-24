@@ -30,9 +30,11 @@ internal object CallVoiceConfiguration {
     fun canSwitchSttNow(
         capturingSpeech: Boolean,
         userSpeaking: Boolean,
+        inputHasPendingUtterance: Boolean,
         recognitionPendingUntil: Long,
         now: Long,
-    ): Boolean = !capturingSpeech && !userSpeaking && recognitionPendingUntil <= now
+    ): Boolean = !capturingSpeech && !userSpeaking && !inputHasPendingUtterance &&
+        recognitionPendingUntil <= now
 
     /** STT is independent from character TTS. Never silently switch paid ASR providers. */
     fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
