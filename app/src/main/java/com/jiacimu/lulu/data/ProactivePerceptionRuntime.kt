@@ -2355,7 +2355,7 @@ object ProactivePerceptionRuntime {
         val notification = NotificationCompat.Builder(context, CALL_CHANNEL_ID)
             .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
             .setContentTitle("$title 想给你打电话")
-            .setContentText(text.take(160))
+            .setContentText("来电邀请 · 接听后开始说话")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setAutoCancel(true)
