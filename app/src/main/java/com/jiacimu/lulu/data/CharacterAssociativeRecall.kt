@@ -139,13 +139,14 @@ internal object CharacterAssociativeRecall {
         return (found + extras).distinctBy { it.second }.take(9)
     }
 
-    fun render(characterId: String, now: Instant = Instant.now()): String {
+    fun render(characterId: String, now: Instant = Instant.now(),
+        includePersonaLenses: Boolean = true): String {
         if (characterId.isBlank()) return ""
         val character = MigratedDomainStores.characters.get(characterId)
-        val lenses = perspectiveSeeds(
+        val lenses = if (includePersonaLenses) perspectiveSeeds(
             CharacterIdentityStore.get(characterId), character.persona,
             CharacterLifeStore.state(characterId).optJSONObject("profile"),
-        )
+        ) else emptyList()
         val inner = CharacterInnerLifeStore.snapshot(characterId)
         val motives = CharacterMotiveState.active(inner.optJSONArray("motives"))
             .sortedByDescending { it.optInt("priority", 2) }.take(4)
