@@ -113,7 +113,7 @@ internal object CharacterLifeVisibility {
             val detail = listOf(concern.optString("whyItMatters"),
                 concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
                 concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" })
-                .filter(String::isNotBlank).joinToString("\n")
+                .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
                 "挂心", concern.optString("focus").take(180),
                 (if (concern.optString("id") in recentConcerns) "尚未想通" else "暂时沉淀") +
@@ -126,7 +126,7 @@ internal object CharacterLifeVisibility {
                 listOf(q.optString("question"),
                     q.optString("hypothesis").takeIf(String::isNotBlank)?.let { "待验证：$it" },
                     q.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
-                    .filter(String::isNotBlank).joinToString("\n"),
+                    .filterNotNull().filter(String::isNotBlank).joinToString("\n"),
                 q.optString("observedId"))
         }
         CharacterCuriosityRuntime.activeThreads(role).forEach { thread ->
@@ -139,7 +139,7 @@ internal object CharacterLifeVisibility {
                 listOf(thread.optString("question"),
                     step.optString("receipt").takeIf(String::isNotBlank)?.let { "上次实际结果：$it" },
                     thread.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
-                    .filter(String::isNotBlank).joinToString("\n"),
+                    .filterNotNull().filter(String::isNotBlank).joinToString("\n"),
                 step.optString("evidenceId"))
         }
 
