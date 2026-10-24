@@ -301,7 +301,8 @@ object LuluDeviceToolBridge {
             - bubbles 中只放真的发给对方看的话；心情、心理活动与动作留在结构化状态里，不写舞台旁白。发送前自然收束：如果下一句只是在修饰上一句而不推进交流，可以不发。
             - 如果本人决定逗人开心、示好、开个玩笑、给一句亲昵回应，必须让对方真正收到一件有内容、有趣味或有温度的小互动，而不只是宣布“你说要我干嘛我都做”。可用语言、拟声、表情或自然的虚拟动作意象表达；绝不假装已经完成现实身体接触或数字世界操作。是否这么做、怎样做由关系和当下愿望决定，而非套用固定模板。
             - 标点、颜文字、emoji 和已经收藏的表情包都是个人表达的自然组成部分。认真、生气、得意、无语、撒娇、犯困时的节奏可以不同，但不规定频率、也不要每句都塞颜文字。没有合适的图就自然只发文字。
-            - 一个气泡通常只承担一个局部互动动作。气泡边界只能通过 JSON 的 bubbles 数组表达，不要在任何正文里输出 BUBBLE、分隔符或解释控制协议。普通换行只是气泡内排版，不代表发送。
+            - 先按普通文字聊天的自然节奏安排 bubbles：一个气泡通常只承担一个局部互动动作，完整短句/意群分别成泡。确定气泡以后，再逐条决定 delivery=text 或 voice；语音只是朗读该气泡原文，不允许因为想用语音就合并成一整段、跳过分泡，也不必为了发语音额外拆句。可以全部文字、全部语音或混合，按本人意愿决定。
+            - 气泡边界只能通过 JSON 的 bubbles 数组表达，不要在任何正文里输出 BUBBLE、分隔符或解释控制协议。普通换行只是气泡内排版，不代表发送。
             - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
             - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
         """.trimIndent()
@@ -1376,7 +1377,7 @@ object LuluDeviceToolBridge {
                             已有的幽默、态度、颜文字或 emoji 如果仍贴合语境就保留，不要把消除客服腔误做成删掉全部情绪。
                             保持这个角色自己的词汇、节奏、幽默感、关系称呼与分寸；不要把“自然”理解成统一的短句网感，也不要故意加口头禅。
                             只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。确实更适合传达声音的一句可设 delivery="voice"，该气泡可选填 speechText（与 text 原话相同，仅在真实情绪转折处加少量英文音频标签），不在正文写标签；无须为了润色强行增加语音；不要改变角色本人已经选好的语气意图。
-                            每个气泡是容易阅读的完整意群；规划阶段的互动动作数量不是可视气泡的数量。一个动作可用数个短气泡说清，不要强塞成一个长框；不把没说完的词句拆开，也不为了凑数量发空话。
+                            先按普通文字聊天的自然节奏确定每个完整意群的气泡，再为每个气泡选 text 或 voice；语音只是朗读这条气泡的原话，不要把原本会分开的文字气泡合并成长语音。规划阶段的互动动作数量不是可视气泡的数量。一个动作可用数个短气泡说清，不把没说完的词句拆开，也不为了凑数量发空话。
                         """.trimIndent(),
                         source = "聊天表达自然度修复",
                         title = title,
@@ -1411,8 +1412,11 @@ object LuluDeviceToolBridge {
                 val voiceChoices = com.jiacimu.lulu.data.ModelStructuredOutput.voiceBubbleTexts(chosenResult.text)
                 val speechTracks = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(chosenResult.text)
                     ?.let(com.jiacimu.lulu.data.ModelStructuredOutput::bubbleSpeechTracks).orEmpty()
-                val spoken = (com.jiacimu.lulu.data.ModelStructuredOutput.voiceAwareReplyBubbles(chosenResult.text)
-                    ?: com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(chosenBubbles, maxBubbles = 8))
+                // Carry the authored text bubbles and voice choices together. The
+                // shared chat sender builds identical visual bubbles first, then
+                // synthesizes audio only for the ones selected as voice.
+                val spoken = (com.jiacimu.lulu.data.ModelStructuredOutput.authoredReplyBubbles(chosenResult.text)
+                    ?: com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(chosenBubbles, maxBubbles = Int.MAX_VALUE))
                     .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                 chosenResult.copy(
                     text = spoken,
