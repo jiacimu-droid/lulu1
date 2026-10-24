@@ -285,19 +285,6 @@ internal fun LuluGroupVoiceCallScreen(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = ::closeCall) { Icon(Icons.Outlined.KeyboardArrowDown, "收起群聊电话") }
-                    Spacer(Modifier.weight(1f))
-                    ModelArchiveTextButton(
-                        usage = ModelUsage.VoiceCall,
-                        title = "电话模型",
-                        subtitle = "单人和群聊电话默认跟随私聊模型，也可单独选择电话模型。",
-                        activeLabel = activeLabel,
-                        icon = Icons.Outlined.Tune,
-                        accent = Color(0xFF5F77A9),
-                        textColor = Color(0xFF1D1D1F),
-                        background = Color.White,
-                        muted = Color(0xFF77777B),
-                        border = Color(0xFFE7E7E7),
-                    )
                 }
 
                 Text("${group.name}（${group.members.size + 1}）", fontWeight = FontWeight.Bold, fontSize = 22.sp)
