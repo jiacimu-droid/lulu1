@@ -148,7 +148,7 @@ class Live2DVisualActionBusTest {
                 JSONObject().put("performance", JSONObject().put("feeling", "tearful"))))
             val tearful = Live2DVisualActionBus.cues.value[role]!!
             assertEquals("流泪", tearful.expression)
-            assertTrue(tearful.beats.any { (it.face?.values?.get("pout") ?: 0f) >= 0f })
+            assertTrue(tearful.beats.any { (it.face?.values?.get("pout") ?: 0f) > 0f })
             assertFalse(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("expression", "黑脸")))
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
