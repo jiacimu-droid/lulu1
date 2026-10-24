@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:46:02.028549+00:00",
-  "commit": "05c8107671a20cea42280ee53d3ac177c684114c",
+  "generatedAt": "2026-10-24T10:46:37.735372+00:00",
+  "commit": "b80e62fda67b8aa9b8720c9b3682f1b10de84739",
   "branch": "main",
-  "sourceFingerprint": "64a3ed2001a11ca586dbdc812f72fee41669f910414e6213103d89d5b4ef42aa",
+  "sourceFingerprint": "29f24d38361fdbd7ef34859e6d4ba85508f001bf7f2007e6f13da7f9110fa639",
   "summary": {
     "files": 876,
-    "lines": 169836,
+    "lines": 169837,
     "symbols": 2542
   },
   "symbolIndex": {
@@ -23539,8 +23539,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 533,
-      "sha256": "c8182f9a99bffbb8345b2a68b602ca833eb73cea6c6fcb1f4fb791d076340310",
+      "lines": 534,
+      "sha256": "1dc366d535f75ce26aa17ea06201ab79e2d5c5d811551ac5d27a8245badd1a6a",
       "symbols": [
         {
           "name": "planForApp",
