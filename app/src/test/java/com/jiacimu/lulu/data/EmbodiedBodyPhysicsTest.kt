@@ -122,6 +122,26 @@ class EmbodiedBodyPhysicsTest {
         assertEquals(14.0, EmbodiedBodySnapshot.fromJson(legacy)!!.boredom, 0.001)
     }
 
+    @Test fun offlineRecoveryRestoresEnergyWithoutWipingNeedForNovelty() {
+        val awake = EmbodiedBodyPhysics.fresh(start).copy(
+            energy = 24.0, sleepPressure = 68.0, boredom = 28.0)
+        val sleeping = awake.copy(recoveryMode = "offline_sleep")
+        val later = EmbodiedBodyPhysics.advance(sleeping, start.plusSeconds(8 * 3600))
+        assertTrue(later.energy > awake.energy)
+        assertTrue(later.sleepPressure < awake.sleepPressure)
+        assertTrue("A sleeping role still has its own independent curiosity",
+            later.boredom > awake.boredom)
+        assertTrue(later.boredom < 100.0)
+        // Mere intent or ordering a drink is not stimulating experience.
+        assertEquals(later.boredom,
+            EmbodiedBodyPhysics.applyWorldActivity(later, "cafe_order_tea",
+                later.lastAt, null).boredom, 0.001)
+        val actualResearch = EmbodiedBodyPhysics.afterExploration(
+            later, start.plusSeconds(8 * 3600 + 60))
+        assertTrue(actualResearch.boredom < later.boredom)
+        assertEquals(actualResearch, EmbodiedBodyPhysics.advance(actualResearch, actualResearch.lastAt))
+    }
+
     @Test fun outdoorTemperatureIsSimulationNotInventedRealWorldWeather() {
         val cold = EmbodiedBodyRuntime.environmentalSensation(
             DigitalWorldPublicPlaces.COURTYARD, 5)
