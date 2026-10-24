@@ -228,14 +228,14 @@ internal object CharacterCuriosityRuntime {
             SharedExperienceTimeline.eventsByIds(characterId, listOf(origin)).isEmpty()) return
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
-        val entries = entries(root.optJSONArray("threads")).map { JSONObject(it.toString()) }.toMutableList()
+        val threadRecords = entries(root.optJSONArray("threads")).map { JSONObject(it.toString()) }.toMutableList()
         val pending = entries(root.optJSONArray("questions"))
         val selectedQuestion = matching(pending, proposal)
-        val match = matching(entries, proposal)
+        val match = matching(threadRecords, proposal)
         // Legacy callers that have no ID can continue a uniquely named prior topic,
         // but must never steal the history of one of several same-topic branches.
         val legacyThread = if (proposal?.optString("threadId").isNullOrBlank() &&
-            selectedQuestion == null && match == null) entries.filter {
+            selectedQuestion == null && match == null) threadRecords.filter {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
         val selected = match ?: legacyThread
@@ -264,9 +264,9 @@ internal object CharacterCuriosityRuntime {
                 .ifBlank { current.optString("parentThreadId") })
             .put("parentTopic", proposal?.optString("parentTopic").orEmpty().ifBlank { current.optString("parentTopic") })
             .put("updatedAt", now.toString())
-        if (selected != null) entries.removeAll { identity(it) == identity(selected) }
-        entries.add(current)
-        root.put("threads", JSONArray().apply { entries.forEach(::put) })
+        if (selected != null) threadRecords.removeAll { identity(it) == identity(selected) }
+        threadRecords.add(current)
+        root.put("threads", JSONArray().apply { threadRecords.forEach(::put) })
         // Only resolve the exact inquiry that produced this action, not sibling
         // questions under the same topic.
         val questions = root.optJSONArray("questions") ?: JSONArray()
