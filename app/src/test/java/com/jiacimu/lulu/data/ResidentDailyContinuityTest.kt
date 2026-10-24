@@ -45,7 +45,7 @@ class ResidentDailyContinuityTest {
         initializeBackgroundRuntime(app)
         DigitalWorldExpansionStore.initialize(app)
         ResidentSocialMailbox.initialize(app)
-        val localDay = java.time.LocalDate.of(2026, 10, 25)
+        val localDay = java.time.LocalDate.now().plusDays(1)
         val today = localDay.atTime(8, 5).atZone(java.time.ZoneId.systemDefault()).toInstant()
         val person = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
             name = "排程居民${UUID.randomUUID().toString().take(5)}",
