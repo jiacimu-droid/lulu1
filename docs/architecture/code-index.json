@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T05:22:45.328218+00:00",
-  "commit": "f440eb0f8214be5fc7e482944461e06b8dca55dc",
+  "generatedAt": "2026-10-24T05:23:29.156467+00:00",
+  "commit": "61a3186e9ce9966e1d3b00be93247f572378ef90",
   "branch": "main",
-  "sourceFingerprint": "60cf859d8fa9dae73ff81577345bc90e13acfad9b4dea44ca5efbc1c16e6693c",
+  "sourceFingerprint": "81a6d2b90d6a7e4b21045d92bcffc7ab258f3c6061a4ad097ce311471280ad4b",
   "summary": {
     "files": 872,
-    "lines": 167870,
-    "symbols": 2522
+    "lines": 167931,
+    "symbols": 2523
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13184,34 +13184,40 @@
         "line": 662
       }
     ],
-    "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
+    "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 709
       }
     ],
+    "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 770
+      }
+    ],
     "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 758
+        "line": 819
       }
     ],
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 801
+        "line": 862
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 855
+        "line": 916
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 883
+        "line": 944
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -28409,8 +28415,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 912,
-      "sha256": "74ef34bb3364ecba05592a4c02227f244a2a2c5bf7fb52f13a728409d20186e3",
+      "lines": 973,
+      "sha256": "7f549eca54530e2acc306fcd08a3822c6201c9c6abd4f1663bebf247e6430afe",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -28465,24 +28471,28 @@
           "line": 662
         },
         {
-          "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
+          "name": "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions",
           "line": 709
         },
         {
+          "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
+          "line": 770
+        },
+        {
           "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
-          "line": 758
+          "line": 819
         },
         {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 801
+          "line": 862
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 855
+          "line": 916
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 883
+          "line": 944
         }
       ]
     },
