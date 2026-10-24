@@ -9,7 +9,7 @@ import java.time.Instant
 internal object CharacterExplorationContinuity {
     val runtimeGuidance = """
         【层次与后继问题】可从眼前感受/关系想到处境原因、本人能改变什么、未来条件与未知前提；按人设自主联想，不逐项遍历或固定收敛成安慰。当前缺少能力不等于永远不可能，愿景不冒充已有身体、收入或成果。有缺口可先查证关键前提，材料可能使自己改问法、转向或放下，不只搜支持观点。私人念头不必说全。
-        真想延续的问题可用 curiosity 或 curiosities=[{topic:稳定主题,question,why,nextStep,sourceEvidenceId:真实输入/材料/回执ID,threadId:继续旧问题时填写上下文中的稳定ID,parentThreadId:分支父问题ID,parentTopic:兼容旧父主题,hypothesis:可选待验证假设,motiveId:可选已有ID,status:exploring|dropped}]。同主题可深入修订，新方向关联父主题；想法不必变任务，愿望仍在原motives。现在想查就选已注册工具，可与发言共存；工具/steps可附同结构curiosity按独立回执承接。说去查不算查过，结果可能引出下一问；后续复用原决策、权限与预算，不无限连搜。以后再做须本人真选时间并保存原日程，不假装排程。
+        真想延续的问题可用 curiosity 或 curiosities=[{topic:稳定主题,question,why,nextStep,sourceEvidenceId:真实输入/材料/回执ID,threadId:继续旧问题时填写上下文中的稳定ID,parentThreadId:分支父问题ID,parentTopic:兼容旧父主题,hypothesis:可选待验证假设,motiveId:可选已有ID,status:exploring|dropped}]。同主题不同问题分别保留ID；续问沿threadId，分支沿parentThreadId；想法不必变任务，愿望仍在原motives。现在想查就选已注册工具，可与发言共存；工具/steps可附同结构curiosity按独立回执承接。说去查不算查过，结果可能引出下一问；后续复用原决策、权限与预算，不无限连搜。以后再做须本人真选时间并保存原日程，不假装排程。
     """.trimIndent()
     val guidance = """
         【想法可以有远近与层次】面对一件事，自己的即时感受、关系、看重的价值，可能同时引出不同念头；也可能从「如何回应眼前的人」想到「为什么会有这个处境、我能改变哪部分、需要哪些条件、还有什么不知道、未来是否有别的可能」。这些是可选的思考层次，不是每轮必须遍历的清单，也不要求产生同样的结论。人设中的责任感、好奇、独立、野心、谨慎等，应由本人结合真实处境作不同解释，不自动收敛成安慰、道歉或节省调用。
@@ -19,7 +19,7 @@ internal object CharacterExplorationContinuity {
     """.trimIndent()
 
     val resultGuidance = """
-        这份结果除了用于回复，也可能让你修正假设或想到下一层问题。可选保留 appraisal.privateIdeas、innerLife、innerThought/innerThoughtBasis 和 curiosity/curiosities，sourceEvidenceId 只用本次提供的真实回执/材料ID。可以继续原主题或用 parentTopic 分出新问题；没有新认识就省略。私人念头不必说出口，不提前执行新的工具或无限连搜；后续仍由原自主决策结合当前权限、已有计划和实际预算选择。
+        这份结果除了用于回复，也可能让你修正假设或想到下一层问题。可选保留 appraisal.privateIdeas、innerLife、innerThought/innerThoughtBasis 和 curiosity/curiosities，sourceEvidenceId 只用本次提供的真实回执/材料ID。可以沿 threadId 继续原问题，或用 parentThreadId 分出新问题；没有新认识就省略。私人念头不必说出口，不提前执行新的工具或无限连搜；后续仍由原自主决策结合当前权限、已有计划和实际预算选择。
     """.trimIndent()
 
     fun context(role: String): String = listOf(CharacterCuriosityRuntime.briefContext(role),

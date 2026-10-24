@@ -492,7 +492,7 @@ internal object CharacterCuriosityRuntime {
             if (unanswered.isNotEmpty()) {
                 appendLine("之前由真实观察引发、尚未采取行动的疑问（只是好奇，不等于经历）：")
                 unanswered.forEach { q ->
-                    appendLine("- " + q.optString("topic") + "：" + q.optString("question") +
+                    appendLine("- threadId=" + identity(q) + "；" + q.optString("topic") + "：" + q.optString("question") +
                         "；当时确实观察到：" + q.optString("observed").take(120) +
                         "；threadId=" + identity(q) + "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
                         "；待验证假设=" + q.optString("hypothesis") + "；可能下一步：" + q.optString("nextStep"))
@@ -506,7 +506,7 @@ internal object CharacterCuriosityRuntime {
                     val hours = runCatching {
                         Duration.between(Instant.parse(t.optString("updatedAt")), now).toHours()
                     }.getOrDefault(0L).coerceAtLeast(0L)
-                    appendLine("- " + t.optString("topic") + "；问题=" + t.optString("question") +
+                    appendLine("- threadId=" + identity(t) + "；" + t.optString("topic") + "；问题=" + t.optString("question") +
                         "；最近真实行动结果=" + last?.optString("receipt").orEmpty().take(150) +
                         "；约" + hours + "小时前；可选下一步=" + t.optString("nextStep"))
                 }
