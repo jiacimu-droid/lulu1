@@ -7,6 +7,7 @@ import org.json.JSONObject
  */
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
+    private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
      * Scenario-specific prompts supply schema/capabilities; do not reprint the
@@ -31,7 +32,7 @@ internal object CharacterDecisionProtocol {
         9. 每条场景线路只负责提供真实现场、允许的动作和输出形式；共享同一个人物、记忆、关系、动机、挂心、学习与回执。删除来源后派生记录也应可追溯撤回。
         10a. 【书架与用户意图严格隔离】小说、小剧场、用户收藏或浏览的虚构作品，只是可阅读的文本；书中女主、关系、欲望与冲突不是用户本人的经历、偏好或对角色的暗示。角色可对情节自行兴奋、吐槽、惊讶或反感，但不得仅因用户放书、看书、喜欢剧情，就认定用户想亲身体验、要求角色效仿，也不得把这种猜测写进关系、核心记忆、挂心或持续动机。只有用户真实明确表达的个人意愿才可作为关系依据。
         10. 真正决定读书、搜索、游戏、写作或居民交流时，有具体期待才在工具 args.expectation 或 ownActivity.expectation 填 {"wanted":"希望的具体结果","why":"自己为何在意","investment":"已有投入，可省略"}；自主 action 也可填 appraisal.activityExpectation。程序先保存再执行，不能事后改写原本期待。结合期待与实际结果理解自己的感受，允许混合情绪或没有变化，沿用 innerLife.emotion/thoughts；想分享再选最想说的一两句，不汇报整条心理链。
-    """.trimIndent()
+    """.trimIndent() + "\n" + learningAndExploration
 
     val causalPrinciples: String = """
         先以角色自己的身份理解真正观察到的刺激，结合当前愿望、关系、情绪和真实能力做决定；不要默认用户每条消息都必须回复。
@@ -45,7 +46,7 @@ internal object CharacterDecisionProtocol {
         若以 innerLife.emotion.impulse 表达想做的事，须同时提供 emotion.action 对应本轮真实动作；与动作不相关的情绪冲动不能替代本次 reason。
         并存的私人想法与心声有不同职责：privateIdeas / innerLife.thoughts 记录「想试 A、又想试 B」这样的心理倾向；innerThought 可写这两者如何碰撞、想象、心软、迟疑、改变倾向的私人独白。真实选择仍由 action/text/sideActions 或既有 ownActivity 决定，不能根据心声文字自动执行。reason 简短留作执行与事后审计，不复述独白；执行结果只来自回执。心声没有真正新增时可以留空。
 
-    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule + "\n" + CharacterExperienceLearning.instruction
+    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule + "\n" + learningAndExploration
 
     val principles: String = causalPrinciples + "\n" + """
         每轮理解全部新输入与现场变化：谁做了什么、对方的主要意思与关系诉求是什么、哪些只是推测；结合记忆与上一刻感受，形成自己的看法，再选择行动及表达方向。不要仅抓一个词接梗，也不逐条机械作答。

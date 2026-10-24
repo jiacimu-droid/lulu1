@@ -18,7 +18,8 @@ object ToolRouter {
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false,
         intentionId: String = "", autonomousLifeTurn: Boolean = false,
         learningApplication: JSONObject? = null, causeEvidenceId: String = "",
-        reason: String = ""): String = requests.withLock("$characterId:$requestId") {
+        reason: String = "", curiosity: JSONObject? = null): String = requests.withLock("$characterId:$requestId") {
+        CharacterCuriosityRuntime.initialize(context)
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
         mutex.withLock("$characterId:" + when (name) {
@@ -85,10 +86,16 @@ object ToolRouter {
                 .put("causeEvidenceId", CharacterActionEvidence.resolve(characterId, causeEvidenceId)
                     ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }?.id.orEmpty())
                 .put("reason", reason)
+                .put("curiosity", curiosity?.let { JSONObject(it.toString()).apply {
+                    if (optString("sourceEvidenceId").isBlank()) put("sourceEvidenceId", causeEvidenceId)
+                } })
             CharacterInnerLifeStore.initialize(context)
             CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
                 args.optJSONObject("expectation"))
             check(prefs.edit().putString(key, execution.toString()).commit())
+            CharacterExplorationContinuity.remember(context, characterId,
+                execution.optJSONObject("curiosity"), null,
+                listOf(execution.optString("causeEvidenceId")).filter(String::isNotBlank))
             // Once accepted, complete and persist the actual effect even if speech is interrupted.
             withContext(NonCancellable) {
                 val result = runCatching {
@@ -196,6 +203,14 @@ object ToolRouter {
         CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
             native?.id ?: receiptId, if (native != null) outboundAction else receipt.tool,
             receipt.success, receipt.summary)
+        execution.optJSONObject("curiosity")?.let { inquiry ->
+            // This metadata was authored BEFORE the result was available. It
+            // cannot claim that the answer is already satisfactory afterwards.
+            if (receipt.success) CharacterCuriosityRuntime.recordOutcome(characterId,
+                JSONObject(inquiry.toString()).put("status", "exploring"), receipt.tool,
+                true, receipt.summary, native?.id ?: receiptId)
+            else CharacterCuriosityRuntime.recordFailure(characterId, inquiry, receipt.tool, receipt.summary)
+        }
     }
 
     /** Permission acceptance is not the screenshot. Apply only the later real observation. */

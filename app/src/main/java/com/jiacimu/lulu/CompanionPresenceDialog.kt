@@ -585,20 +585,21 @@ private fun loadPresenceLifeEntries(
                     ?.let { "实际结果：$it" },
             ).joinToString("\n"), factual = status == "有完成回执")
     }
-    (0 until (questions?.length() ?: 0)).mapNotNull { questions?.optJSONObject(it) }
-        .filter { q -> SharedExperienceTimeline.eventsByIds(
-            characterId, listOf(q.optString("observedId"))).isNotEmpty() }
+    CharacterCuriosityRuntime.visibleQuestions(characterId)
         .takeLast(3).asReversed().forEach { q ->
             val question = q.optString("question").ifBlank { q.optString("topic") }
             if (question.isNotBlank()) ideas += LifeThoughtEntry(
                 "还没弄清楚", question, "好奇中",
                 listOfNotNull(q.optString("why").takeIf(String::isNotBlank)
                     ?.let { "为什么好奇：$it" },
+                    q.optString("parentTopic").takeIf(String::isNotBlank)
+                        ?.let { "从「$it」想到" },
+                    q.optString("hypothesis").takeIf(String::isNotBlank)
+                        ?.let { "待验证：$it" },
                     q.optString("nextStep").takeIf(String::isNotBlank)
                         ?.let { "想尝试：$it" }).joinToString("\n"))
         }
-    (0 until (threads?.length() ?: 0)).mapNotNull { threads?.optJSONObject(it) }
-        .filter { it.optString("status") == "exploring" }.takeLast(2).asReversed()
+    CharacterCuriosityRuntime.activeThreads(characterId).takeLast(2).asReversed()
         .forEach { t ->
             val steps = t.optJSONArray("steps")
             val last = steps?.optJSONObject((steps.length() - 1).coerceAtLeast(0))
@@ -630,6 +631,7 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
     val revisions by CharacterInnerLifeStore.revisions.collectAsState()
     val lives by CharacterLifeStore.states.collectAsState()
     val sourceRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     var expandedKey by remember(characterId) { mutableStateOf("") }
     var showOlder by remember(characterId) { mutableStateOf(false) }
     // Never scan years of causal evidence synchronously when the user taps
@@ -637,7 +639,7 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
     // on a worker. The real stores remain the sole source of truth.
     val ideas by produceState(initialValue = emptyList<LifeThoughtEntry>(),
         characterId, now.epochSecond / 15L, revisions, lives[characterId],
-        sourceRevision, showOlder) {
+        sourceRevision, curiosityRevision, showOlder) {
         value = withContext(Dispatchers.Default) {
             loadPresenceLifeEntries(context, characterId, now, showOlder)
         }

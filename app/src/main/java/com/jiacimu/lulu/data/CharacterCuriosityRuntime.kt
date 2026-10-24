@@ -14,17 +14,16 @@ import java.time.Instant
  */
 internal object CharacterCuriosityRuntime {
     private const val PREFS = "lulu_curiosity_threads_v1"
-    private const val MAX_THREADS = 8
-    private const val MAX_STEPS = 5
-    private const val MAX_QUESTIONS = 6
     private var prefs: SharedPreferences? = null
+    private val changes = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions: kotlinx.coroutines.flow.StateFlow<Long> = changes
 
     @Synchronized fun initialize(context: Context) {
         if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
 
     @Synchronized fun clear(characterId: String) {
-        if (characterId.isNotBlank()) prefs?.edit()?.remove(characterId)?.commit()
+        if (characterId.isNotBlank() && prefs?.edit()?.remove(characterId)?.commit() == true) changes.value += 1
     }
 
     @Synchronized fun snapshot(characterId: String): JSONObject = runCatching {
@@ -32,7 +31,8 @@ internal object CharacterCuriosityRuntime {
     }.getOrDefault(JSONObject())
 
     private fun save(characterId: String, state: JSONObject) {
-        prefs?.edit()?.putString(characterId, state.toString())?.commit()
+        check(prefs?.edit()?.putString(characterId, state.toString())?.commit() == true) { "探索线索未能保存" }
+        changes.value += 1
     }
 
     private fun normalized(value: String) = value.lowercase().filter(Char::isLetterOrDigit)
@@ -56,46 +56,122 @@ internal object CharacterCuriosityRuntime {
         }.orEmpty()
     }
 
+    private fun validQuestion(q: JSONObject, sources: Map<String, SharedTimelineEvent>): Boolean {
+        val event = sources[q.optString("observedId")] ?: return false
+        if (!CharacterExplorationContinuity.canGroundQuestion(event)) return false
+        if (event.revision != q.optLong("observedRevision", event.revision)) return false
+        val parentId = q.optString("parentEvidenceId")
+        if (parentId.isBlank()) return true
+        val parent = sources[parentId] ?: return false
+        return parent.revision == q.optLong("parentRevision", parent.revision)
+    }
+
+    private fun pendingQuestions(role: String, root: JSONObject): List<JSONObject> {
+        val q = root.optJSONArray("questions") ?: JSONArray()
+        val entries = (0 until q.length()).mapNotNull(q::optJSONObject)
+        val sources = SharedExperienceTimeline.eventsByIds(role, entries.flatMap {
+            listOf(it.optString("observedId"), it.optString("parentEvidenceId"))
+        }).associateBy { it.id }
+        return entries.filter { validQuestion(it, sources) }
+    }
+
+    fun visibleQuestions(role: String): List<JSONObject> = pendingQuestions(role, snapshot(role))
+
+    fun activeThreads(role: String, root: JSONObject = snapshot(role)): List<JSONObject> {
+        val pendingTopics = pendingQuestions(role, root).mapTo(hashSetOf()) { normalized(it.optString("topic")) }
+        val threads = root.optJSONArray("threads") ?: return emptyList()
+        return (0 until threads.length()).mapNotNull(threads::optJSONObject).filter {
+            it.optString("status") == "exploring" && normalized(it.optString("topic")) !in pendingTopics &&
+                lastRealStep(role, it) != null
+        }
+    }
+
+    private fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
+        val steps = thread.optJSONArray("steps") ?: return null
+        for (i in steps.length() - 1 downTo 0) {
+            val step = steps.optJSONObject(i) ?: continue
+            val event = CharacterActionEvidence.resolve(role, step.optString("evidenceId")) ?: continue
+            if (event.revision == step.optLong("revision", event.revision) &&
+                CharacterActionEvidence.supports(event, step.optString("action"))) return step
+        }
+        return null
+    }
+
+    /** IDs already visible in the shared brief context, not an unrestricted history search. */
+    fun continuityEvidenceIds(role: String): List<String> {
+        val root = snapshot(role)
+        val threads = root.optJSONArray("threads") ?: JSONArray()
+        return pendingQuestions(role, root).takeLast(3).map { it.optString("observedId") } +
+            (0 until threads.length()).mapNotNull(threads::optJSONObject)
+                .filter { it.optString("status") == "exploring" }.takeLast(2)
+                .mapNotNull { lastRealStep(role, it)?.optString("evidenceId") }
+    }
+
+    private fun previousResult(role: String, root: JSONObject, topic: String): String {
+        val threads = root.optJSONArray("threads") ?: return ""
+        return (0 until threads.length()).mapNotNull(threads::optJSONObject)
+            .firstOrNull { normalized(it.optString("topic")) == normalized(topic) }
+            ?.let { lastRealStep(role, it)?.optString("receipt") }.orEmpty()
+    }
+
     /** A genuine observed situation may make the character wonder; it is NOT progress. */
     @Synchronized fun recordInquiry(
         characterId: String, proposal: JSONObject?, observedId: String,
         observedText: String, now: Instant = Instant.now(),
-    ) {
-        if (prefs == null || characterId.isBlank() || observedId.isBlank() ||
-            observedText.isBlank()) return
-        val observed = SharedExperienceTimeline.eventsByIds(characterId, listOf(observedId)).firstOrNull() ?: return
-        if (observed.evidenceKind !in setOf(EventEvidenceKind.UserStatement,
-                EventEvidenceKind.Observation, EventEvidenceKind.ToolResult) &&
-            !(observed.evidenceKind == EventEvidenceKind.Legacy &&
-                observed.source.startsWith("reading:"))) return
-        val fields = proposalFields(proposal) ?: return
+    ): Boolean {
+        if (prefs == null || characterId.isBlank() || observedId.isBlank() || observedText.isBlank()) return false
+        val observed = SharedExperienceTimeline.eventsByIds(characterId, listOf(observedId)).firstOrNull() ?: return false
+        if (observed.occurredAt.isAfter(now) || !CharacterExplorationContinuity.canGroundQuestion(observed)) return false
+        val fields = proposalFields(proposal) ?: return false
         val root = snapshot(characterId)
-        val progress = root.optJSONArray("threads") ?: JSONArray()
-        if ((0 until progress.length()).any {
-                normalized(progress.optJSONObject(it)?.optString("topic").orEmpty()) == normalized(fields[0]) &&
-                    progress.optJSONObject(it)?.optString("status") == "exploring"
-            }) return
+        val threads = root.optJSONArray("threads") ?: JSONArray()
         val old = root.optJSONArray("questions") ?: JSONArray()
+        val all = (0 until old.length()).mapNotNull(old::optJSONObject) +
+            (0 until threads.length()).mapNotNull(threads::optJSONObject)
+        val parentTopic = proposal?.optString("parentTopic").orEmpty().trim()
+        val parent = if (parentTopic.isBlank()) null else {
+            all.firstOrNull { normalized(it.optString("topic")) == normalized(parentTopic) } ?: return false
+        }
+        if (parent != null) {
+            var ancestor: JSONObject? = parent
+            val visited = mutableSetOf(normalized(fields[0]))
+            while (ancestor != null) {
+                if (!visited.add(normalized(ancestor.optString("topic")))) return false
+                val key = normalized(ancestor.optString("parentTopic"))
+                ancestor = all.firstOrNull { normalized(it.optString("topic")) == key }
+            }
+        }
         val existing = (0 until old.length()).mapNotNull(old::optJSONObject).firstOrNull {
             normalized(it.optString("topic")) == normalized(fields[0])
         }
-        // A silent repeat of the same unresolved question is not a fresh thought.
         if (existing?.optString("observedId") == observedId &&
-            existing.optString("question") == fields[1] &&
-            existing.optString("nextStep") == fields[3]) return
-        val retained = (0 until old.length()).mapNotNull(old::optJSONObject).filterNot {
-            normalized(it.optString("topic")) == normalized(fields[0])
-        }.takeLast(MAX_QUESTIONS - 1)
+            existing.optLong("observedRevision", observed.revision) == observed.revision &&
+            existing.optString("question") == fields[1] && existing.optString("nextStep") == fields[3] &&
+            existing.optString("hypothesis") == proposal?.optString("hypothesis").orEmpty()) return false
+        // A deeper question is a new subjective state, even after this topic has
+        // actual steps. Keep the old receipts, rather than discarding the question.
         val item = JSONObject().put("topic", fields[0]).put("question", fields[1])
             .put("why", fields[2]).put("nextStep", fields[3])
             .put("motiveId", linkedMotiveId(characterId, proposal))
-            .put("observedId", observedId).put("observed", observedText.take(220))
-            .put("at", now.toString())
+            .put("hypothesis", proposal?.optString("hypothesis").orEmpty())
+            .put("parentTopic", parentTopic)
+            .put("observedId", observedId).put("observedRevision", observed.revision)
+            .put("observed", observedText.take(220)).put("at", now.toString())
+        if (parent != null) {
+            val id = parent.optString("observedId").ifBlank {
+                val steps = parent.optJSONArray("steps")
+                steps?.optJSONObject((steps.length() - 1))?.optString("evidenceId").orEmpty()
+            }
+            val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull() ?: return false
+            item.put("parentEvidenceId", id).put("parentRevision", event.revision)
+        }
         root.put("questions", JSONArray().apply {
-            retained.forEach { put(it) }
+            (0 until old.length()).mapNotNull(old::optJSONObject)
+                .filterNot { normalized(it.optString("topic")) == normalized(fields[0]) }.forEach(::put)
             put(item)
         })
         save(characterId, root)
+        return true
     }
 
     /** Never credit a model's claimed action without a real, time-lined receipt. */
@@ -103,7 +179,7 @@ internal object CharacterCuriosityRuntime {
         characterId: String, proposal: JSONObject?, action: String, succeeded: Boolean,
         receipt: String, evidenceId: String, now: Instant = Instant.now(),
     ) {
-        if (!succeeded || action == "silent" || characterId.isBlank() ||
+        if (!succeeded || !CharacterExplorationContinuity.informativeAction(action) || characterId.isBlank() ||
             receipt.isBlank() || evidenceId.isBlank() || prefs == null) return
         val verified = CharacterActionEvidence.resolve(characterId, evidenceId) ?: return
         if (!CharacterActionEvidence.supports(verified, action)) return
@@ -123,10 +199,11 @@ internal object CharacterCuriosityRuntime {
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
-        for (i in maxOf(0, steps.length() - MAX_STEPS + 1) until steps.length()) kept.put(steps.opt(i))
+        for (i in 0 until steps.length()) kept.put(steps.opt(i))
         val status = if (proposal?.optString("status") == "satisfied") "satisfied" else "exploring"
         kept.put(JSONObject().put("evidenceId", evidenceId)
             .put("sourceEvidenceId", proposal?.optString("sourceEvidenceId").orEmpty().take(180))
+            .put("revision", verified.revision)
             .put("at", now.toString())
             .put("action", action.take(60)).put("receipt", receipt.take(240))
             .put("question", fields[1]).put("why", fields[2])
@@ -136,15 +213,18 @@ internal object CharacterCuriosityRuntime {
                 .ifBlank { current.optString("motiveId") })
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status)
+            .put("parentTopic", proposal?.optString("parentTopic").orEmpty().ifBlank { current.optString("parentTopic") })
             .put("updatedAt", now.toString())
         entries.add(current)
-        root.put("threads", JSONArray().apply { entries.takeLast(MAX_THREADS).forEach { put(it) } })
+        root.put("threads", JSONArray().apply { entries.forEach { put(it) } })
         // An actually explored question is no longer an untouched curiosity.
         val questions = root.optJSONArray("questions") ?: JSONArray()
         root.put("questions", JSONArray().apply {
             for (i in 0 until questions.length()) {
                 val q = questions.optJSONObject(i) ?: continue
-                if (normalized(q.optString("topic")) != normalized(fields[0])) put(q)
+                val at = runCatching { Instant.parse(q.optString("at")) }.getOrNull()
+                if (normalized(q.optString("topic")) != normalized(fields[0]) ||
+                    q.optString("observedId") == evidenceId || at?.isAfter(now) == true) put(q)
             }
         })
         // A successful new way forward clears the transient failed attempt on this topic.
@@ -216,18 +296,15 @@ internal object CharacterCuriosityRuntime {
     /** The character may choose a concrete next attempt or abandon the topic. */
     fun pendingDecisionCues(characterId: String): List<String> {
         val state = snapshot(characterId)
-        val unanswered = state.optJSONArray("questions") ?: JSONArray()
-        val threads = state.optJSONArray("threads") ?: JSONArray()
-        val questions = (0 until unanswered.length()).mapNotNull(unanswered::optJSONObject)
-            .filter { q -> SharedExperienceTimeline.eventsByIds(characterId,
-                listOf(q.optString("observedId"))).isNotEmpty() }
+        val questions = pendingQuestions(characterId, state)
             .takeLast(2).map { q ->
                 "自己仍好奇：" + q.optString("topic").take(60) +
                     "；真正的问题：" + q.optString("question").take(130) +
+                    "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
+                    "；此前真实结果=" + previousResult(characterId, state, q.optString("topic")).take(120) +
                     "；可以自选是否实践：" + q.optString("nextStep").take(110)
             }
-        val ongoing = (0 until threads.length()).mapNotNull(threads::optJSONObject)
-            .filter { it.optString("status") == "exploring" }.takeLast(1)
+        val ongoing = activeThreads(characterId, state).takeLast(1)
             .map { t ->
                 "曾尝试的兴趣：" + t.optString("topic").take(60) +
                     "；仍想知道：" + t.optString("question").take(110) +
@@ -266,7 +343,7 @@ internal object CharacterCuriosityRuntime {
             val keptQuestions = JSONArray()
             for (i in 0 until questions.length()) {
                 val q = questions.optJSONObject(i) ?: continue
-                if (q.optString("observedId") == eventId) changed = true else keptQuestions.put(q)
+                if (q.optString("observedId") == eventId || q.optString("parentEvidenceId") == eventId) changed = true else keptQuestions.put(q)
             }
             if (changed) {
                 root.put("threads", keptThreads).put("questions", keptQuestions)
@@ -283,9 +360,8 @@ internal object CharacterCuriosityRuntime {
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
         val questions = root.optJSONArray("questions") ?: JSONArray()
-        val active = (0 until threads.length()).mapNotNull(threads::optJSONObject)
-            .filter { it.optString("status") == "exploring" }.takeLast(2)
-        val pending = (0 until questions.length()).mapNotNull(questions::optJSONObject).takeLast(2)
+        val active = activeThreads(characterId, root).takeLast(2)
+        val pending = pendingQuestions(characterId, root).takeLast(2)
         if (active.isEmpty() && pending.isEmpty()) return ""
         return buildString {
             appendLine("【本人尚未结束的兴趣线索｜内部连续性，不要像报告一样念出来】")
@@ -294,13 +370,17 @@ internal object CharacterCuriosityRuntime {
                 val receipt = steps.optJSONObject(steps.length() - 1)?.optString("receipt").orEmpty()
                 appendLine("- 真正尝试过「" + t.optString("topic").take(70) + "」，最近结果=" +
                     receipt.take(120) + "；还想知道=" + t.optString("question").take(110) +
+                    "；源事件ID=" + lastRealStep(characterId, t)?.optString("evidenceId").orEmpty() +
                     "；可选下一步=" + t.optString("nextStep").take(120))
             }
             pending.forEach { q ->
                 appendLine("- 之前看到「" + q.optString("observed").take(110) +
                     "」后对「" + q.optString("topic").take(70) +
                     "」感到好奇：" + q.optString("question").take(105) +
-                    "（尚未实践，不是客观结论）")
+                    "；父主题=" + q.optString("parentTopic") + "；待验证假设=" + q.optString("hypothesis") +
+                    "；源事件ID=" + q.optString("observedId") + "；可选下一步=" + q.optString("nextStep") +
+                    "；此前真实结果=" + previousResult(characterId, root, q.optString("topic")).take(120) +
+                    "（这个新问题尚未实践，不是客观结论）")
             }
             appendLine("兴趣影响注意、观点和话题选择，不要因此自动改变当前聊天主题；过去接触到的信息范围以真实记录为限。")
         }.trim()
@@ -316,10 +396,9 @@ internal object CharacterCuriosityRuntime {
             .takeLast(4)
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
-        val active = (0 until threads.length()).mapNotNull(threads::optJSONObject)
-            .filter { it.optString("status") == "exploring" }.takeLast(4)
+        val active = activeThreads(characterId, root).takeLast(4)
         val questions = root.optJSONArray("questions") ?: JSONArray()
-        val unanswered = (0 until questions.length()).mapNotNull(questions::optJSONObject).takeLast(3)
+        val unanswered = pendingQuestions(characterId, root).takeLast(3)
         val failures = root.optJSONArray("failures") ?: JSONArray()
         val recentFailures = (0 until failures.length()).mapNotNull(failures::optJSONObject).takeLast(3)
         val lived = SharedExperienceTimeline.all(characterId).asReversed().filter {
@@ -341,7 +420,8 @@ internal object CharacterCuriosityRuntime {
                 unanswered.forEach { q ->
                     appendLine("- " + q.optString("topic") + "：" + q.optString("question") +
                         "；当时确实观察到：" + q.optString("observed").take(120) +
-                        "；可能下一步：" + q.optString("nextStep"))
+                        "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
+                        "；待验证假设=" + q.optString("hypothesis") + "；可能下一步：" + q.optString("nextStep"))
                 }
             }
             if (active.isNotEmpty()) {

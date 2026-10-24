@@ -858,7 +858,8 @@ object LuluDeviceToolBridge {
                             .isExplicitUserToolRequest(userText, tool),
                         intentionId = plan.intentionId,
                         learningApplication = effect.optJSONObject("learningApplication"),
-                        causeEvidenceId = groundingEvidenceId, reason = plan.reason))
+                        causeEvidenceId = groundingEvidenceId, reason = plan.reason,
+                        curiosity = effect.optJSONObject("curiosity")))
                 }.getOrElse { error ->
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
@@ -1146,8 +1147,9 @@ object LuluDeviceToolBridge {
             val canonicalInnerLife = com.jiacimu.lulu.data.CharacterMotivationOwnership.canonicalInnerLife(
                 plan.intention, plan.innerLife,
             )
-            com.jiacimu.lulu.data.CharacterConversationAgency.rememberInquiry(
-                appContext, characterId, plan.curiosity, causalEvidenceId, now,
+            com.jiacimu.lulu.data.CharacterExplorationContinuity.remember(
+                appContext, characterId, plan.curiosity, plan.curiosities,
+                (verifiedSources.map { it.id } + observedSources.map { it.evidenceId } + listOf(causalEvidenceId)).distinct(), now,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
                 characterId, causalEvidenceId, combined?.description.orEmpty(),
@@ -1532,7 +1534,7 @@ object LuluDeviceToolBridge {
             requestId = requestId,
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId,
             learningApplication = plan.learningApplication,
-            causeEvidenceId = groundingEvidenceId, reason = plan.reason)
+            causeEvidenceId = groundingEvidenceId, reason = plan.reason, curiosity = plan.curiosity)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
         val actionReceipt = "tool-$characterId-$requestId"
         val executedSuccess = actual?.optBoolean("success") == true
@@ -1569,6 +1571,8 @@ object LuluDeviceToolBridge {
                     appendLine("动作前一瞬的角色状态：${plan.statusText}；动作：${plan.gesture}；心情：${plan.mood}；没说出口：${plan.innerThought}")
                 }
                 appendLine("这个动作刚刚产生的真实新结果：$toolResult")
+                appendLine("真实工具回执ID=$actionReceipt")
+                appendLine(com.jiacimu.lulu.data.CharacterExplorationContinuity.context(characterId))
                 if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
             },
             instruction = """
@@ -1581,6 +1585,7 @@ object LuluDeviceToolBridge {
                 只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
                 {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"动作结果让内部状态新增/改变了什么","unsaidWhy":"为何没直接说"},"mood":"动作后的简短心情"}
                 如果工具真实成功或失败使角色改变了一个想法、想继续尝试或意识到失误，可以选填 innerLife 的 emotion/motives/selfCorrection 字段；仅依据上面明确给出的工具结果，失败绝不能写成成功。
+                ${com.jiacimu.lulu.data.CharacterExplorationContinuity.resultGuidance}
                 若工具成功或失败真的引发新的情绪，可额外填写 afterglow:{"feeling":"第一拍心声","impulse":"尚未执行的冲动","holdHours":1到48的整数}；不是必须填写。
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
                 不要解释内部工具协议。innerThought 不是工具决策理由，gesture 不得编造未发生的工具结果或现实场景。
@@ -1701,16 +1706,11 @@ object LuluDeviceToolBridge {
                     momentChanged = toolResultPrivateDelta?.meaningful == true,
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
-                    "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
-                com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-                    characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
-                    toolResult, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(finalPlan.innerLife, finalPlan.afterglow, toolResult), emptySet(),
-                )
-                com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-                    characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
-                    finalPlan.innerThought,
-                    causeFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
-                )
+                    "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow, evidenceId = actionReceipt)
+                runCatching { com.jiacimu.lulu.data.CharacterExplorationContinuity.returned(appContext, characterId,
+                    com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(result.text),
+                    listOf(actionReceipt, actual?.optString("evidenceId").orEmpty()).filter(String::isNotBlank)) }
+                    .onFailure { android.util.Log.w("CharacterExploration", "Tool-result continuity was not saved", it) }
                 if (!finalPlan.endCall && sceneContext.contains("电话") &&
                     phoneCallId.isNotBlank() && finalPlan.hangupAfterSeconds in 0..86_400)
                     onTimedHangup?.invoke(finalPlan.hangupAfterSeconds)
@@ -2041,6 +2041,7 @@ object LuluDeviceToolBridge {
                 dialogueMove = json.optJSONObject("dialogueMove"),
                 sleepContinuation = json.optJSONObject("sleepContinuation"),
                 curiosity = json.optJSONObject("curiosity"),
+                curiosities = json.optJSONArray("curiosities"),
                 learningApplication = json.optJSONObject("learningApplication"),
                 experienceLearning = json.optJSONObject("experienceLearning"),
                 learningFeedback = json.optJSONObject("learningFeedback"),
@@ -2112,6 +2113,7 @@ private data class ToolPlan(
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
     val curiosity: JSONObject? = null,
+    val curiosities: org.json.JSONArray? = null,
     val learningApplication: JSONObject? = null,
     val experienceLearning: JSONObject? = null,
     val learningFeedback: JSONObject? = null,

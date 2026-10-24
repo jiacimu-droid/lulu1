@@ -166,7 +166,7 @@ internal object AutonomousLearningRuntime {
                     这是有原文可看的复习，不是闭卷测验。不得伪造测试成绩、用户反馈或新来源；不因复习成功宣称成熟技能。
                 """.trimIndent()
             }
-            val generated = understand(facts, instruction + "\n若实际材料/练习确实改变当下感受，可以可选填写innerLife（emotion/thoughts）与curiosity（topic/question/why/nextStep），不为填字段制造情绪或宣称已掌握。")
+            val generated = understand(facts, instruction + "\n" + CharacterExplorationContinuity.resultGuidance + "\n若实际材料/练习确实改变当下感受，可以可选填写innerLife（emotion/thoughts）与curiosity（topic/question/why/nextStep），不为填字段制造情绪或宣称已掌握。")
             val response = ModelStructuredOutput.objectOrNull(generated) ?: error("学习结果格式不完整")
             require(CharacterLearningAgenda.get(role, id)?.optString("materialId") == material.id) {
                 "学习期间材料或起因被删除，结果不再保存"
@@ -182,6 +182,8 @@ internal object AutonomousLearningRuntime {
                             .put("failures", 0)
                         it.remove("retryAt"); it.remove("error")
                     }
+                    runCatching { CharacterExplorationContinuity.returned(context, role, response,
+                        listOf(material.id), finished) }
                     return CompanionActionResult(true,
                         "确实阅读了材料，但尚未形成可信理解；可换资料继续研究。证据=" + material.id +
                             "；goalId=" + id, evidenceId = material.id)
@@ -215,11 +217,7 @@ internal object AutonomousLearningRuntime {
             }
             // Optional subjective after-effects cannot erase the committed material or exercise.
             runCatching {
-                CharacterInnerLifeStore.observe(role, receiptId,
-                    "实际完成自主学习$op：${goal.optString("topic")}；只是材料理解/练习，不是掌握证明",
-                    response.optJSONObject("innerLife"), emptySet(), finished)
-                CharacterCuriosityRuntime.recordInquiry(role, response.optJSONObject("curiosity"),
-                    material.id, "实际读到${goal.optString("topic")}相关材料，仍可提出问题", finished)
+                CharacterExplorationContinuity.returned(context, role, response, listOf(material.id, receiptId), finished)
             }
             if (op == "study" || op == "understand") runCatching {
                 // Learning's raw receipts deliberately skip per-event memory extraction.

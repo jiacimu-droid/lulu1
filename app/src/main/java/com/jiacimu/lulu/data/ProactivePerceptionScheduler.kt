@@ -579,7 +579,7 @@ object ProactivePerceptionScheduler {
      * not a forced action. All resulting choices still go through the ordinary
      * ProactivePerceptionRuntime decision and ToolRouter executor.
      */
-    fun scheduleOwnIdeaFollowThrough(context: Context, characterId: String) {
+    fun scheduleOwnIdeaFollowThrough(context: Context, characterId: String, requireOnline: Boolean = false) {
         if (characterId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
         val app = context.applicationContext
@@ -591,6 +591,7 @@ object ProactivePerceptionScheduler {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("trigger", "角色自己先前有过一种尚未决定的生活念头，重新看看此刻还想不想做；可以执行真实动作、换想法或放下，不要机械照旧做。")
+                .putBoolean("requireOnline", requireOnline)
                 .putString("characterId", characterId).putBoolean("force", true).build())
             .build()
         prefs.edit().putLong("scheduled:$characterId", now).apply()

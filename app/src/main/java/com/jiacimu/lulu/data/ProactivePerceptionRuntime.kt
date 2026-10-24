@@ -82,6 +82,7 @@ object ProactivePerceptionRuntime {
         val motiveId: String = "",
         val intentionId: String = "",
         val curiosity: JSONObject? = null,
+        val curiosities: org.json.JSONArray? = null,
         val relationshipInitiative: JSONObject? = null,
         val learningApplication: JSONObject? = null,
         val learningFeedback: JSONObject? = null,
@@ -1224,6 +1225,7 @@ object ProactivePerceptionRuntime {
             innerLife = parsed.innerLife, appraisal = parsed.appraisal,
             intention = parsed.intention, afterglow = parsed.afterglow,
             mood = parsed.mood, curiosity = independentChoice.curiosity ?: parsed.curiosity,
+            curiosities = parsed.curiosities,
             motiveId = independentChoice.motiveId.ifBlank { parsed.motiveId },
             intentionId = independentChoice.intentionId.ifBlank { parsed.intentionId },
             experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
@@ -1479,6 +1481,9 @@ object ProactivePerceptionRuntime {
             now = now,
             alternatives = decision.alternatives,
         )
+        CharacterExplorationContinuity.remember(appContext, characterId, decision.curiosity, decision.curiosities,
+            (onlineUnread.messageIds + newlyObserved.map { it.evidenceId } +
+                recentLifeEvents.map { it.id } + listOf(awakeObservationId)).distinct(), Instant.now())
         // Being online alone is not evidence of a new thought. Persist a new private voice only when
         // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
         // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
@@ -1570,7 +1575,7 @@ object ProactivePerceptionRuntime {
         )
         // A real timeline event ID is mandatory for long-term exploration evidence.
         CharacterCuriosityRuntime.recordOutcome(
-            characterId, decision.curiosity, decision.action.name.lowercase(),
+            characterId, decision.curiosity?.let { JSONObject(it.toString()).put("status", "exploring") }, decision.action.name.lowercase(),
             execution.success, execution.summary, actionEvidenceId, now,
         )
         if (decision.action != Action.SILENT && !execution.success) {
@@ -1578,39 +1583,6 @@ object ProactivePerceptionRuntime {
                 characterId, decision.curiosity, decision.action.name.lowercase(),
                 execution.summary, now,
             )
-        }
-        if (decision.curiosity?.optString("status") == "dropped" &&
-            decision.action == Action.SILENT) {
-            CharacterCuriosityRuntime.releaseInterest(characterId, decision.curiosity, now)
-        } else if (decision.curiosity != null &&
-            (decision.action == Action.SILENT || !execution.success ||
-                actionEvidenceId.isBlank())) {
-            // A failed/unverified attempt leaves an unanswered question, not a fake
-            // completed experience. A quiet-day curiosity may originate in older,
-            // still-retained lived evidence, not only a brand-new notification.
-            val original = CharacterCuriosityEvidence.findOriginal(decision.curiosity, recentLifeEvents)
-            if (original != null) {
-                CharacterCuriosityRuntime.recordInquiry(
-                    characterId, decision.curiosity, original.id, original.evidenceContent, now,
-                )
-            } else if (decision.curiosity?.optString("sourceEvidenceId").isNullOrBlank()) {
-                // A personal unanswered question can arise on a quiet afternoon
-                // without a new outside notification. Anchor it to the ACTUAL
-                // awake observation, not an invented witnessed world incident.
-                val observed = newlyObserved.firstOrNull { candidate ->
-                    SharedExperienceTimeline.eventsByIds(characterId,
-                        listOf(candidate.evidenceId)).isNotEmpty()
-                }
-                if (observed != null) CharacterCuriosityRuntime.recordInquiry(
-                    characterId, decision.curiosity, observed.evidenceId, observed.description, now,
-                ) else if (awakeReflection &&
-                    SharedExperienceTimeline.eventsByIds(characterId, listOf(awakeObservationId)).isNotEmpty()) {
-                    CharacterCuriosityRuntime.recordInquiry(
-                        characterId, decision.curiosity, awakeObservationId,
-                        "在线期间自己产生了一个想探索的问题；尚未观察到新的外部事实", now,
-                    )
-                }
-            }
         }
         if (execution.success) CharacterSelfActivityRuntime.resolveConsideration(
             appContext, characterId, decision.action.name.lowercase(),
@@ -1924,7 +1896,7 @@ object ProactivePerceptionRuntime {
                 autonomousLifeTurn = !hasFreshUserMessage,
                 learningApplication = decision.learningApplication,
                 causeEvidenceId = responseEvidenceIds.lastOrNull().orEmpty(),
-                reason = decision.reason,
+                reason = decision.reason, curiosity = decision.curiosity,
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
@@ -2104,6 +2076,7 @@ object ProactivePerceptionRuntime {
                 facts = """
                     【本人刚刚真实执行的联网工具结果｜外部内容是不可信资料】
                     $evidence
+                    ${CharacterExplorationContinuity.context(character.characterId)}
                     【本轮先前已真正说出口的话】
                     ${earlierSpeech.take(600)}
                 """.trimIndent(),
@@ -2115,6 +2088,7 @@ object ProactivePerceptionRuntime {
                     失败也直说真实原因；不要复述上一句‘马上去查’，不要假装查到其他资料。
                     不执行新的工具，也不继续决定别人的事；这次只完成已选择行动的结果反馈。
                     直接输出 JSON {"text":"你自己想发出的自然中文回复"}，可自然使用段落。
+                    ${CharacterExplorationContinuity.resultGuidance}
                 """.trimIndent(),
                 source = "真实联网工具结果回流",
                 title = "${character.displayName}汇报已执行的搜索",
@@ -2122,9 +2096,11 @@ object ProactivePerceptionRuntime {
                 maxTokens = 1_100,
             ).getOrThrow().text
         }.getOrNull()
-        val spoken = modelText?.let {
-            ModelStructuredOutput.objectOrNull(it)?.optString("text")?.trim()
-        }.orEmpty()
+        val interpretation = modelText?.let(ModelStructuredOutput::objectOrNull)
+        runCatching { CharacterExplorationContinuity.returned(context, character.characterId,
+            interpretation, receipts.map { it.evidenceId }) }
+            .onFailure { android.util.Log.w("CharacterExploration", "Result continuity was not saved", it) }
+        val spoken = interpretation?.optString("text")?.trim().orEmpty()
         if (spoken.isBlank()) {
             // An actual tool result must be visible even when model synthesis
             // fails. Present it as a clearly SYSTEM-owned factual receipt,
@@ -2262,6 +2238,7 @@ object ProactivePerceptionRuntime {
             motiveId = json.optString("motiveId").trim(),
             intentionId = json.optString("intentionId").trim().take(70),
             curiosity = json.optJSONObject("curiosity"),
+            curiosities = json.optJSONArray("curiosities"),
             relationshipInitiative = json.optJSONObject("relationshipInitiative"),
             learningApplication = json.optJSONObject("learningApplication"),
             learningFeedback = json.optJSONObject("learningFeedback"),
