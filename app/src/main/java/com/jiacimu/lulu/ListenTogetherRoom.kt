@@ -39,6 +39,10 @@ internal data class SharedListeningTrack(
     val title: String, val artist: String, val packageName: String, val playing: Boolean,
 )
 
+/** Playback shares an explicitly selected file once per room entry; manual retry stays available. */
+internal fun shouldAutoAnalyzeSharedAudio(selectedUri: String, lastAttemptUri: String, busy: Boolean): Boolean =
+    selectedUri.isNotBlank() && selectedUri != lastAttemptUri && !busy
+
 /** Metadata is NOT audible waveform evidence; no player control can change this distinction. */
 internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, String> {
     val root = runCatching { JSONObject(raw) }.getOrNull()
@@ -95,6 +99,7 @@ internal fun ListenTogetherRoom(
     var duration by remember { mutableIntStateOf(0) }
     var status by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
+    var lastAnalysisAttemptUri by remember(conversationId) { mutableStateOf("") }
     var draft by remember { mutableStateOf("") }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
 
@@ -113,6 +118,25 @@ internal fun ListenTogetherRoom(
         track = result.first
         sessionError = result.second
     }
+
+    fun analyzeSharedFile(selectedUri: String, retry: Boolean = false) {
+        if (busy || selectedUri.isBlank()) return
+        if (!retry && !shouldAutoAnalyzeSharedAudio(selectedUri, lastAnalysisAttemptUri, busy)) return
+        lastAnalysisAttemptUri = selectedUri
+        busy = true
+        status = "正在分析实际音频，完成后角色才能了解声音内容…"
+        scope.launch {
+            val result = LuluMusicSensoryRuntime.senseSelected(
+                context, characterId, Uri.parse(selectedUri))
+            if (selectedUri == uri) {
+                status = result.fold(
+                    onSuccess = { "音频已分享给角色：" + it },
+                    onFailure = { "音频分析失败：" + (it.message ?: "未知错误") })
+            }
+            busy = false
+        }
+    }
+
     LaunchedEffect(mode) {
         if (mode == "system") {
             while (isActive) {
@@ -129,7 +153,9 @@ internal fun ListenTogetherRoom(
                     picked, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }.isSuccess
             if (persisted) {
+                mode = "local"
                 uri = picked.toString()
+                lastAnalysisAttemptUri = ""
                 prefs.edit().putString(key + "audio", uri).putInt(key + "position", 0).apply()
                 status = ""
             } else status = "无法持久读取这份音频，请重新选择"
@@ -200,7 +226,7 @@ internal fun ListenTogetherRoom(
                     Text(track?.let { "${it.title} · ${it.artist}" }
                         ?: sessionError.ifBlank { "正在查看播放器" },
                         style = MaterialTheme.typography.bodyLarge)
-                    Text("只能从音乐 App 的媒体会话获取曲名和播放状态，不能冒充听到了实际声音。",
+                    Text("这里只能读取曲名和播放状态。如果想让角色真正分析声音，请从手机中选择对应的音频文件。",
                         style = MaterialTheme.typography.bodySmall)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = ::refreshExternal) { Text("刷新歌曲") }
@@ -213,6 +239,9 @@ internal fun ListenTogetherRoom(
                             }
                         }) { Text("加入一起听") }
                     }
+                    OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }) {
+                        Text("提供音频 · 让角色真正听")
+                    }
                 } else {
                     OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }) {
                         Text("选择本地歌曲")
@@ -223,34 +252,31 @@ internal fun ListenTogetherRoom(
                         horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                         Button(enabled = player != null, onClick = {
                             player?.let { active ->
-                                if (active.isPlaying) {
-                                    active.pause()
-                                } else {
-                                    active.start()
-                                    recordListening("用户与角色开始在同一房间播放本地音频：$audioName。" +
-                                        "播放器实际开始播放；角色尚未获得声波分析，不能声称已经听懂音乐。")
-                                }
-                                playing = active.isPlaying
+                                runCatching {
+                                    if (active.isPlaying) {
+                                        active.pause()
+                                    } else {
+                                        active.start()
+                                        if (active.isPlaying) {
+                                            recordListening("用户与角色在同一房间开始播放本地音频：$audioName。" +
+                                                "播放本身不代表已理解声音；以随后独立音频感知回执为准。")
+                                            analyzeSharedFile(uri)
+                                        }
+                                    }
+                                    playing = active.isPlaying
+                                }.onFailure { status = "播放操作失败：" + it.message.orEmpty() }
                             }
-                        }) { Text(if (playing) "暂停" else "播放") }
+                        }) { Text(if (playing) "暂停" else "播放并分享") }
                         Text("${elapsed / 60000}:${(elapsed / 1000 % 60).toString().padStart(2, '0')} / " +
                             "${duration / 60000}:${(duration / 1000 % 60).toString().padStart(2, '0')}",
                             style = MaterialTheme.typography.bodySmall)
                     }
-                    Button(enabled = uri.isNotBlank() && !busy, onClick = {
-                        val selected = uri
-                        busy = true
-                        status = "正在用已选线路分析真实音频…"
-                        scope.launch {
-                            val result = LuluMusicSensoryRuntime.senseSelected(
-                                context, characterId, Uri.parse(selected))
-                            status = result.fold(
-                                onSuccess = { "实际音频感知完成：" + it },
-                                onFailure = { "无法分析音频：" + (it.message ?: "未知错误") })
-                            busy = false
-                        }
-                    }) { Text(if (busy) "正在听音频…" else "让角色真正分析这首歌") }
-                    Text("使用已配置的听觉模型可能收费；未配置时仅支持符合格式的 PCM16 WAV 免费波形观察。",
+                    OutlinedButton(enabled = uri.isNotBlank() && !busy, onClick = {
+                        analyzeSharedFile(uri, retry = true)
+                    }) { Text(if (busy) "正在分析音频…" else "重新分析这首歌") }
+                    Text("点击“播放并分享”会分析所选音频，并交给已配置的听觉服务（可能收费）；" +
+                        "同一文件与同一模型的有效结果会复用。未配置模型时仅能免费测量 PCM16 WAV 的声音强弱。" +
+                        "这不是实时监听其他音乐 App。",
                         style = MaterialTheme.typography.bodySmall)
                 }
                 if (status.isNotBlank()) Text(status, style = MaterialTheme.typography.bodySmall)
