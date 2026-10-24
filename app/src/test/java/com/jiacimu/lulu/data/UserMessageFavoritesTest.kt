@@ -13,6 +13,34 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class UserMessageFavoritesTest {
+    @Test fun pruningOldVoiceNotesCannotDeleteFavoriteOriginalsOrNewAudio() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        UserMessageFavorites.initialize(context)
+        val directory = File(context.filesDir, "chat_voice_notes").apply { mkdirs() }
+        val now = System.currentTimeMillis()
+        fun cached(id: String): File {
+            val key = java.security.MessageDigest.getInstance("SHA-256")
+                .digest(id.toByteArray()).joinToString("") { "%02x".format(it) }
+            return File(directory, "$key.mp3").apply {
+                writeBytes(byteArrayOf(1, 2, 3))
+                setLastModified(now - 40L * 24 * 60 * 60 * 1000)
+            }
+        }
+        val old = cached("prune-old-unstarred")
+        val protected = cached("prune-old-favorite")
+        val favorite = LuluChatMessage(id = "prune-old-favorite", conversationId = "chat",
+            sender = LuluChatMessage.Sender.Character, content = "把这段声音留下来。", voiceNote = true)
+        assertTrue(UserMessageFavorites.store.save(favorite, "r", "朋友", null, "私聊", protected))
+        val recent = cached("prune-recent").apply { setLastModified(now) }
+        ChatAutoVoicePlayback.pruneVoiceNotes(context, now)
+        assertFalse(old.exists())
+        assertTrue(protected.exists())
+        assertTrue(recent.exists())
+        val entry = UserMessageFavorites.store.entries.value.first { it.messageId == favorite.id }
+        assertArrayEquals(byteArrayOf(1, 2, 3), UserMessageFavorites.store.audioFile(entry)!!.readBytes())
+        UserMessageFavorites.store.remove(favorite.id)
+    }
+
     @Test fun originalAudioAndExactTextSurviveChatCacheDeletionAndRestart() {
         val context = RuntimeEnvironment.getApplication() as Context
         val original = File(context.cacheDir, "original.mp3").apply { writeBytes(byteArrayOf(1, 9, 3, 7)) }
