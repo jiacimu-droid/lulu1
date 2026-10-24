@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b6838d891a039b2dcc2597ea80ce776bdc19cc58`
+- 基准提交：`ba7d563ba8629e09527aaee5bf1830516b46f709`
 - 分支：`main`
 - 已索引文件：879
-- 已索引代码/文本行：171324
+- 已索引代码/文本行：171328
 - 已发现符号：2565
 
 | 文件 | 行数 | 符号数 |
@@ -366,7 +366,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 223 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1165 | 36 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1166 | 36 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 328 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
@@ -694,7 +694,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 96 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 67 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 160 | 1 |
