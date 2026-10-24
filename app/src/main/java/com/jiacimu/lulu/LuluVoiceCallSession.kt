@@ -1537,13 +1537,8 @@ internal object LuluVoiceCallSession {
             // Messages arriving during TTS remain unread for their own turn.
             val pendingCallTextIds = if (!opening && !autonomousSleep &&
                 !autonomousSilence && spoken.isNotBlank()) {
-                val unread = com.jiacimu.lulu.data.CompanionOnlineStore
-                    .unreadChatSnapshot(latest.characterId).messageIds
-                MigratedDomainStores.chat.messages(latest.conversationId).value
-                    .filter { it.id in unread && it.sender == LuluChatMessage.Sender.User &&
-                        it.status == LuluChatMessage.Status.Sent &&
-                        !it.createdAt.isAfter(userTurnReceivedAt) }
-                    .mapTo(mutableSetOf()) { it.id }
+                com.jiacimu.lulu.data.CompanionOnlineStore.pendingPrivateCallTextIds(
+                    latest.characterId, latest.conversationId, userTurnReceivedAt)
             } else emptySet()
             val callTextTurnIds = pendingCallTextIds +
                 turnUserEvidenceIds.filterNot { it.startsWith("voice-") }
