@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:02:36.580643+00:00",
-  "commit": "5835e8b75ac0b31a7e17634dc9790ecbe65bc2e3",
+  "generatedAt": "2026-10-24T11:06:33.410516+00:00",
+  "commit": "224a8c188fe971a4dc7e93d868ff8a6d512ae55f",
   "branch": "main",
-  "sourceFingerprint": "7efa8c29805a71d1046db44a558411a5c1d704f636655e1d5b3c80d289c1422f",
+  "sourceFingerprint": "3277d8efb63939e882117d3a9b1061fc4d4b08d54cd2b7211bf257f0b89ec8b4",
   "summary": {
     "files": 876,
-    "lines": 169902,
+    "lines": 169939,
     "symbols": 2543
   },
   "symbolIndex": {
@@ -263,7 +263,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 161
+        "line": 198
       }
     ],
     "update": [
@@ -443,7 +443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 249
+        "line": 286
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -1923,11 +1923,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 90
+        "line": 114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 119
+        "line": 147
       }
     ],
     "boundedBody": [
@@ -3749,7 +3749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 64
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -7453,61 +7453,61 @@
     "fresh": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 63
+        "line": 72
       }
     ],
     "applyWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 112
+        "line": 140
       }
     ],
     "afterExploration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 153
+        "line": 190
       }
     ],
     "endWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 157
+        "line": 194
       }
     ],
     "number": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 163
+        "line": 200
       }
     ],
     "sensorySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 183
+        "line": 220
       }
     ],
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 203
+        "line": 240
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 216
+        "line": 253
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 272
+        "line": 309
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 283
+        "line": 320
       }
     ],
     "qualifies": [
@@ -21323,8 +21323,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 291,
-      "sha256": "59ae43cef01a99d26fdb1c4357949bcc418a478745091136c54fa96a4f76905b",
+      "lines": 328,
+      "sha256": "5d13908d13664c292daffef6d97ef945a38a3d9fc221a7c1fc66b6e13a372fe7",
       "symbols": [
         {
           "name": "toJson",
@@ -21340,63 +21340,63 @@
         },
         {
           "name": "fresh",
-          "line": 63
+          "line": 72
         },
         {
           "name": "advance",
-          "line": 64
+          "line": 74
         },
         {
           "name": "bounded",
-          "line": 90
+          "line": 114
         },
         {
           "name": "applyWorldActivity",
-          "line": 112
+          "line": 140
         },
         {
           "name": "bounded",
-          "line": 119
+          "line": 147
         },
         {
           "name": "afterExploration",
-          "line": 153
+          "line": 190
         },
         {
           "name": "endWorldActivity",
-          "line": 157
+          "line": 194
         },
         {
           "name": "prompt",
-          "line": 161
+          "line": 198
         },
         {
           "name": "number",
-          "line": 163
+          "line": 200
         },
         {
           "name": "sensorySnapshot",
-          "line": 183
+          "line": 220
         },
         {
           "name": "onPresenceSleep",
-          "line": 203
+          "line": 240
         },
         {
           "name": "onPresenceWake",
-          "line": 216
+          "line": 253
         },
         {
           "name": "context",
-          "line": 249
+          "line": 286
         },
         {
           "name": "onWorldActivity",
-          "line": 272
+          "line": 309
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 283
+          "line": 320
         }
       ]
     },
