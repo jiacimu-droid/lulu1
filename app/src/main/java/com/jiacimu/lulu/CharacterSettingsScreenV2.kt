@@ -37,6 +37,7 @@ import com.jiacimu.lulu.data.ResidentCharacterBridge
 import com.jiacimu.lulu.data.ResidentDailyRoutine
 import com.jiacimu.lulu.data.EmbodiedBodyRuntime
 import com.jiacimu.lulu.data.ResidentDailyDecision
+import com.jiacimu.lulu.data.RoleDayScheduleStore
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -81,6 +82,7 @@ fun CharacterSettingsScreenV2(
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val residentScheduleRevision by RoleDayScheduleStore.changes.collectAsState()
     val nativeResident = remember(characterId, residentRevision) {
         ResidentCharacterBridge.nativeResident(characterId)
     }
@@ -396,9 +398,42 @@ fun CharacterSettingsScreenV2(
                     Text("当前活动 · ${nativeResident.dutyActivity.ifBlank { "自由活动" }}")
                     Text("所在地点 · ${nativeResident.currentLocationCode}")
                     val today = ResidentDailyDecision.planFor(context, nativeResident.id, Instant.now())
+                    val todayDate = java.time.LocalDate.now()
+                    val agenda = remember(characterId, residentScheduleRevision, todayDate) {
+                        RoleDayScheduleStore.plans(context, characterId).filter {
+                            it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == todayDate
+                        }
+                    }
+                    Text("每日规划 · 08:00", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (today != null) {
-                        Text("今天想法 · ${today.optString("thought").take(95)}")
+                        if (today.optString("thought").isNotBlank())
+                            Text("今天想法 · ${today.optString("thought").take(95)}")
                         Text("午休 / 晚间 · ${today.optString("lunch")} / ${today.optString("evening")}")
+                    } else {
+                        Text(if (residentModelId == null) "尚未选择居民规划模型"
+                            else "今日计划尚未生成，可在性能监测查看失败原因",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("今天的个人行程", fontWeight = FontWeight.SemiBold)
+                    if (agenda.isEmpty()) {
+                        Text("暂无已确认的自主行程", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else agenda.forEach { item ->
+                        val whenLocal = item.dueAt.atZone(ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofPattern("HH:mm"))
+                        val statusLabel = when (item.status) {
+                            "completed" -> "已完成"
+                            "cancelled" -> "已取消"
+                            "due" -> "待执行"
+                            else -> "已安排"
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text(whenLocal, fontWeight = FontWeight.Medium)
+                            Column(Modifier.weight(1f)) {
+                                Text(item.title, fontSize = 14.sp)
+                                Text("${item.intent.take(110)} · $statusLabel",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                            }
+                        }
                     }
                     OutlinedButton(onClick = { chooseResidentModel = true },
                         modifier = Modifier.fillMaxWidth()) {
