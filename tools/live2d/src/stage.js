@@ -1114,10 +1114,15 @@ function setNativeStreaming(enabled) {
       }
     }
     nativeStreamBusy = false
-    // Decode ACK is our backpressure. Avoid overlapping encoding and keep
-    // a regular ~30fps pacing when the pipeline is fast; when it is slow
-    // resume immediately rather than introducing an extra fixed wait.
-    scheduleNativeStreamFrame(Math.max(0, 34 - (performance.now() - nativeStreamLastFrameAt)))
+    // ACK already prevents accumulating work. The previous fixed 34ms
+    // interval silently capped a healthy JPEG/Android bridge near 30 FPS,
+    // even while Pixi was rendering at 45 FPS. Try ~45Hz only when the
+    // observed end-to-end ACK budget permits it; fall back to 36/30Hz
+    // automatically under codec/GPU pressure.
+    const frameBudgetMs = nativeStreamAckMeanMs < 28 ? 22 :
+      nativeStreamAckMeanMs < 40 ? 28 : 34
+    scheduleNativeStreamFrame(Math.max(0,
+      frameBudgetMs - (performance.now() - nativeStreamLastFrameAt)))
   }
   notify('diagnostic', '已启用 Android WebMessage 二进制桥接（带解码回执）')
   scheduleNativeStreamFrame()
