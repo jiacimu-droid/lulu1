@@ -484,6 +484,29 @@ object CompanionOnlineStore {
     ): Boolean = after == null || timestamp.isAfter(after) ||
         (timestamp == after && cursorAt == after && id !in seenIds)
 
+    /**
+     * Text sent before/during a voice call can be consumed by that same
+     * character's spoken turn. Freeze only truly unread user messages from
+     * this private conversation at the start of the phone model decision.
+     * A subsequent text bubble or another scene must never be acknowledged
+     * by an earlier call response.
+     */
+    internal fun pendingPrivateCallTextIds(
+        characterId: String, conversationId: String, observedThrough: Instant,
+    ): Set<String> {
+        val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull {
+            it.id == conversationId && it.groupChat == null && it.characterId == characterId
+        } ?: return emptySet()
+        val unreadIds = unreadChatSnapshot(characterId).messageIds
+        if (unreadIds.isEmpty()) return emptySet()
+        return MigratedDomainStores.chat.messages(conversation.id).value.asSequence()
+            .filter { it.id in unreadIds &&
+                it.sender == LuluChatMessage.Sender.User &&
+                it.status == LuluChatMessage.Status.Sent &&
+                !it.createdAt.isAfter(observedThrough) }
+            .map { it.id }.toSet()
+    }
+
     fun unreadChatSnapshot(characterId: String, limit: Int = 30): CompanionUnreadSnapshot {
         val acknowledged = synchronized(lock) { deliveredIdsLocked(characterId).toHashSet() }
         val state = mutableStates.value[characterId]
