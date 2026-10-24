@@ -172,9 +172,10 @@ class CharacterExplorationContinuityTest {
     }
 
     @Test fun bothLivePrivateChatAndLegacyProtocolReceiveTheSameOptionalExplorationContract() {
-        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(CharacterExplorationContinuity.guidance))
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(CharacterExplorationContinuity.runtimeGuidance))
         assertTrue(CharacterDecisionProtocol.causalPrinciples.contains(CharacterExplorationContinuity.guidance))
-        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(CharacterExperienceLearning.instruction))
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(CharacterExperienceLearning.runtimeInstruction))
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.length < 3000)
         assertTrue(proactiveDecisionInstruction(role, directPrivateChat = true).contains("curiosities="))
         val raw = JSONObject().put("action", "message").put("text", "眼前想说的话")
             .put("curiosities", JSONArray().put(question("还想继续弄清的问题")))

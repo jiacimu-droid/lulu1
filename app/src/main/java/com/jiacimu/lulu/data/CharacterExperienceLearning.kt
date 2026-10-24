@@ -7,6 +7,9 @@ import java.time.Instant
 /** Projections and validation over the existing timeline/learning ledger; no second store. */
 internal object CharacterExperienceLearning {
     private val experienceSchema = """{"topic":"稳定主题","situationEvidenceId":"当时需求/观察的真实ID","actionEvidenceId":"当次tool-router回执或已完成的屏幕观察ID","understanding":"这次发现及下次怎样改","applicableWhen":"适用情境","avoidWhen":"不适用/停止条件","uncertainty":"仍未知之处","feedbackEvidenceId":"可选的后来用户原话ID","feedbackQuote":"该原话中的逐字引用","revisesEvidenceId":"确有修订时旧经验ID"}"""
+    val runtimeInstruction = """
+        【资源与相处经验】自己判断信息缺口、实际能力和旧方法是否适用，需要核实时主动选择已配置搜索；不等点名工具，不按关键词派发。真实日常/失败也可产生 experienceLearning=$experienceSchema。仅用提供的原始ID；工具成功、沉默或谢谢不代表满意，单次请求不升级为习惯/权限。复用所学可在主行动或各steps项写 learningApplication={sourceEvidenceId,action:本项实际工具名或message/phone_reply,howApplied}，独立回执归因；用户本轮明确评价旧应用才写 learningFeedback={sourceEvidenceId,actionEvidenceId,evaluation:helped|unhelpful|mixed,quote:本轮逐字原话,why}，反例写 learningChallenge={sourceEvidenceId,issue}。最新拒绝与反例优先；都可省略，不为好评反复追问，不增加反思调用。
+    """.trimIndent()
     val reflectionInstruction = """
         数组中的工具经验项使用 kind=ToolExperience，其余字段为 $experienceSchema。回看当时目标、已有信息、真正用了什么、结果与反馈，形成适用和停止条件及下次调整。可从失败学习局限；只有后来用户原话才是用户反馈，不将邻近发言自动当评价。已有同主题经验确被新尝试修订时填 revisesEvidenceId，保留原始来源；单次请求不升级为固定习惯。工具成功不证明对用户有效，用户沉默不证明失败。没有新认识就不重复保存，不需要slot或disposition。
     """.trimIndent()
