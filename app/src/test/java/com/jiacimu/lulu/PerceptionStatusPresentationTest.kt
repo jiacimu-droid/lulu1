@@ -18,8 +18,16 @@ class PerceptionStatusPresentationTest {
             lastPerceptionAt = now, lastPerceptionNote = "最近已更新")
         val lines = PerceptionStatusPresentation.lines(state, policy, plan, false, false, now, zone)
         assertTrue(lines.any { it.contains("最近感知 · 10-10 16:00") })
-        assertTrue(lines.any { it.contains("下次预计醒来 · 10-10 17:00") })
+        assertTrue(lines.any { it.contains("下次兜底感知 · 10-10 17:00") })
         assertTrue(lines.any { it.contains("60 分钟（自适应）") })
+    }
+    @Test fun selfDirectedPlanShowsOwnActivityInsteadOfPassiveTimer() {
+        val selfPlan = plan.copy(policySignature = "role:zone:self-directed=2026-10-10T10:00:00Z:v4",
+            dueAt = now.plusSeconds(7200), intervalMinutes = 120)
+        val lines = PerceptionStatusPresentation.lines(null, policy, selfPlan, false, false, now, zone)
+        assertTrue(lines.any { it.contains("下次本人活动") })
+        assertTrue(lines.any { it.contains("角色自己的日程") })
+        assertFalse(lines.any { it.contains("兜底间隔") })
     }
     @Test fun failedAttemptAndOverdueWakeAreVisibleRatherThanShownAsSuccess() {
         val state = CompanionPresenceState("role", lastPerceptionAt = now,
