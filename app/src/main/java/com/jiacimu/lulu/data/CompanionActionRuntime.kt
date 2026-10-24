@@ -81,7 +81,7 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
-        appendLine("- go_offline，args={}：角色自主立刻休眠/下线，数字身体同时开始恢复。不必等五分钟到期；要先告别就先回复，再把 go_offline 作为 steps 最后一步，依赖消息真正送达。已安排的本人日程会在准确时间唤醒你，例如15点阅读、18点见朋友；两项之间不用为了默认两小时感知额外上线。没有日程才使用原来的可调自适应唤醒。不会清除记忆、未读、计划或唤醒闹钟；通话中需先挂断。")
+        appendLine("- go_offline，args={}：角色自主立刻休眠/下线，数字身体同时开始恢复。不必等五分钟到期；要先告别就先回复，再把 go_offline 作为 steps 最后一步，依赖消息真正送达。已安排的本人日程会在准确时间唤醒你，例如15点阅读、18点见朋友；两项之间不用为了默认两小时感知额外上线。只有**实际由你自己自主选择的近期生活活动**才能让其独立唤醒接管兜底感知；用户交代的提醒不算。无本人近期计划时才使用可调自适应唤醒。不会清除记忆、未读、计划或唤醒闹钟；通话中需先挂断。")
         com.jiacimu.lulu.StickerLibraryStore.initialize(context)
         val stickerChoices = com.jiacimu.lulu.StickerLibraryStore.items.value
         if (stickerChoices.isNotEmpty()) {
@@ -210,6 +210,7 @@ internal object CompanionActionRuntime {
         action: String,
         args: JSONObject,
         now: Instant = Instant.now(),
+        selfInitiatedLifeTurn: Boolean = false,
     ): CompanionActionResult = runCatching {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
@@ -545,6 +546,7 @@ internal object CompanionActionRuntime {
                     locationCode = args.optString("locationCode"),
                     activityArgs = args.optJSONObject("activityArgs") ?: JSONObject(),
                     commitmentTaskId = args.optString("commitmentTaskId"),
+                    selfInitiated = selfInitiatedLifeTurn,
                 )
                 CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
                     evidenceId = "own-plan-${plan.id}")
