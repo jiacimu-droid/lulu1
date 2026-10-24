@@ -55,6 +55,15 @@ class DailyCommitmentRecurrenceTest {
         assertEquals(1, next.atZone(zone).dayOfMonth)
     }
 
+    @Test fun bedtimeSupervisionIsNotAnAlarmToWakeTheUser() {
+        assertFalse(CommitmentTask(characterId = "role",
+            goal = "每天晚上十一点半打电话叫我睡觉").isWakeResponsibility())
+        assertFalse(CommitmentTask(characterId = "role",
+            goal = "每天23:30监督用户入睡").isWakeResponsibility())
+        assertTrue(CommitmentTask(characterId = "role",
+            goal = "明天上午九点叫醒我起床").isWakeResponsibility())
+    }
+
     @Test fun sameClockAndPurposeMustMatchToDeduplicate() {
         val a = at(2026, 10, 24, 23, 30)
         assertTrue(sameDailyClockAndPurpose("每晚监督她睡觉", a,
