@@ -55,12 +55,10 @@ internal object CallVoiceConfiguration {
         require(uri.scheme == "https" && !uri.host.isNullOrBlank()) { "MiniMax 接口必须是 HTTPS 地址" }
         return URI("https", null, uri.host, uri.port, "/v1/speech_to_text", null, null).toString()
     }
-    fun preflight(context: Context, characterId: String): String? {
+    /** Checks the selected capture route without rejecting a healthy live call for unrelated TTS preferences. */
+    fun sttPreflight(context: Context): String? {
         val p = context.getSharedPreferences("lulu_advanced_settings", 0)
-        if (!p.getBoolean("tts_enabled", true)) return "语音服务已关闭，请在语音设置启用"
-        val provider = provider(context)
-        val stt = sttEngine(context)
-        when (stt) {
+        when (sttEngine(context)) {
             "local" -> {
                 LocalWhisperTranscriber.runtimeError()?.let { return it }
                 if (LocalWhisperModels.installedFile(context, LocalWhisperModels.selected(context)) == null)
@@ -74,6 +72,14 @@ internal object CallVoiceConfiguration {
                 return "请在 ElevenLabs 语音服务设置中配置 API Key，Scribe 识别会使用你的积分"
             else -> return "请选择一种语音转文字线路"
         }
+        return null
+    }
+
+    fun preflight(context: Context, characterId: String): String? {
+        val p = context.getSharedPreferences("lulu_advanced_settings", 0)
+        if (!p.getBoolean("tts_enabled", true)) return "语音服务已关闭，请在语音设置启用"
+        sttPreflight(context)?.let { return it }
+        val provider = provider(context)
         val key = p.getString(if (provider == "minimax") "minimax_api_key" else "eleven_api_key", "").orEmpty()
         val voice = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: p.getString(if (provider == "minimax") "minimax_voice_id" else "eleven_voice_id", "")
         if (provider != "system" && key.isBlank()) return "${label(provider)} API Key 未填写"
