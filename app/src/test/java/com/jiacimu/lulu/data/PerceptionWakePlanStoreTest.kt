@@ -148,7 +148,7 @@ class PerceptionWakePlanStoreTest {
             now.plusSeconds(11 * 3600L), now = now)
         val selfActivity = RoleDayScheduleStore.arrange(context, role,
             "自己继续看书", "我还对这本书后面的故事很感兴趣",
-            now.plusSeconds(3 * 3600L), now = now,
+            now.plusSeconds(2 * 3600L + 30 * 60L), now = now,
             activityAction = "play_solo_game",
             activityArgs = org.json.JSONObject().put("gameId", "memory_match"),
             selfInitiated = true)
