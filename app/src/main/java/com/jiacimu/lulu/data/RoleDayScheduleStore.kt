@@ -345,8 +345,7 @@ object RoleDayScheduleStore {
         val candidates = all(context).filter { it.status in setOf("planned", "due") }
         candidates.forEach { plan ->
             val task = CommitmentTaskStore.snapshot(plan.characterId).firstOrNull { c ->
-                c.status == CommitmentTaskStatus.Scheduled && c.linkedAlarmId != null &&
-                    duplicatesScheduledReminder(plan, c)
+                isAuthoritativeScheduledReminder(c) && duplicatesScheduledReminder(plan, c)
             } ?: return@forEach
             // An older pair may have put "daily" on the plan and "once"
             // on the promise; the single surviving alarm inherits recurrence.
@@ -512,6 +511,15 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         val current = RoleDayScheduleStore.plans(applicationContext, role).firstOrNull { it.id == planId }
             ?: return Result.success()
         if (current.status !in setOf("planned", "due")) return Result.success()
+        // A legacy personal-plan worker can still be running when its alarm
+        // counterpart has just been registered. Recheck authority at DISPATCH.
+        val covered = CommitmentTaskStore.snapshot(role).any {
+            isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(current, it)
+        }
+        if (covered) {
+            RoleDayScheduleStore.mergeMatchingDailyCallPlans(applicationContext)
+            return Result.success()
+        }
         if (Instant.now().isBefore(current.dueAt)) return Result.retry()
         val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
             ?: return Result.success()
@@ -524,6 +532,14 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             Result.success()
         }.getOrElse { Result.retry() }
     }
+}
+
+/** The promise actually owns a native alarm or one already claimed execution. */
+internal fun isAuthoritativeScheduledReminder(task: CommitmentTask): Boolean = when (task.status) {
+    CommitmentTaskStatus.Scheduled -> !task.linkedAlarmId.isNullOrBlank()
+    CommitmentTaskStatus.Running -> !task.executionToken.isNullOrBlank()
+    CommitmentTaskStatus.WaitingForFeedback -> task.lastAlarmReceivedAt != null
+    else -> false
 }
 
 /**
