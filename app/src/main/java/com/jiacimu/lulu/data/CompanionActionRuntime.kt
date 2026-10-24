@@ -11,6 +11,7 @@ import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import org.json.JSONObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.withLock
 import com.jiacimu.lulu.study.*
@@ -1048,6 +1049,30 @@ internal object SearchReceiptFeedback {
         return VerifiedSearchReceipt(tool, op, success, detail,
             result.optString("evidenceId"))
     }
+}
+
+/**
+ * A live search has two obligations owned by the same user turn: the ToolRouter
+ * effect AND the eventual role-authored reply. Online chat batches may be
+ * superseded while external IO is underway. Once search started, cancellation
+ * must not strand a factual receipt with no final reply.
+ *
+ * This protects ONLY the accepted result-bearing turn after the ordinary
+ * pre-execution supersession check. It does not wake periodic perception,
+ * fabricate a successful search or authorize a new tool.
+ */
+internal object SearchResultContinuation {
+    private val receiptTools = setOf("web_search", "image_search", "read_xiaohongshu")
+
+    fun requiresCompletion(hasUnreadUserRequest: Boolean, mainTool: String,
+        sideActions: org.json.JSONArray?): Boolean =
+        hasUnreadUserRequest && (mainTool in receiptTools ||
+            (0 until (sideActions?.length() ?: 0)).any { i ->
+                sideActions?.optJSONObject(i)?.optString("tool") in receiptTools
+            })
+
+    suspend fun <T> finishAcceptedTurn(protect: Boolean, block: suspend () -> T): T =
+        if (protect) withContext(NonCancellable) { block() } else block()
 }
 
 internal object OrderedCharacterActions {
