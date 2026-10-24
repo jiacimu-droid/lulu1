@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:05:41.911425+00:00",
-  "commit": "48da1ffc2ca8658a414a249744b10a6db6c8e0af",
+  "generatedAt": "2026-10-24T09:07:46.229896+00:00",
+  "commit": "59c682c78d1ac6b92d73bc532a8646a0c807f641",
   "branch": "main",
-  "sourceFingerprint": "5cec25e18f07c8e0ee3b08cb54ac20fc68e3f7b89568a228343fdcac2795b991",
+  "sourceFingerprint": "9059a0114ea963808e3a32984d3985a5607f7365bc233aca7e6b0204759adec4",
   "summary": {
     "files": 874,
-    "lines": 168747,
-    "symbols": 2530
+    "lines": 168819,
+    "symbols": 2531
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13974,6 +13974,12 @@
         "line": 15
       }
     ],
+    "cached": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
+        "line": 21
+      }
+    ],
     "WakeActionPlannerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
@@ -27874,8 +27880,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 166,
-      "sha256": "aa391acf2958748c06a1d6a2a4ea27cea41ef54bdb5005aefb04f17df7828103",
+      "lines": 181,
+      "sha256": "73140935393f28e1353b4bfc93d0577732b6075f26268e11da0dfde815eb3312",
       "symbols": [
         {
           "name": "VoicePerformanceTest",
@@ -29357,8 +29363,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 261,
-      "sha256": "39d63e386bb952420ea45b93694ead20a13d6ba38d242fa090dd0c00261c84d0",
+      "lines": 282,
+      "sha256": "bd040f6d6ea1abd2646d58ecf34481ca0731bd2d2b9dd2ce55c403d161a9a297",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
@@ -29665,8 +29671,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
-      "lines": 129,
-      "sha256": "e1d42c559b869d78479743ee8905d6ef81e8fbe6ae1c58eb358c2a786d98e095",
+      "lines": 137,
+      "sha256": "977eb19dad51433b4e1855dd3a51752717239669cc232efb57caec7ef4659d18",
       "symbols": [
         {
           "name": "ResidentMailCausalIntegrationTest",
@@ -29813,12 +29819,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 275,
-      "sha256": "2f945e468e23406913882e978868f2f981a916987bc080f4c450b389144b2383",
+      "lines": 303,
+      "sha256": "351cee5dbc597ff2b3ec687d280b46ac9bb497abec13e3027491626eb2e7f67e",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
           "line": 15
+        },
+        {
+          "name": "cached",
+          "line": 21
         }
       ]
     },
