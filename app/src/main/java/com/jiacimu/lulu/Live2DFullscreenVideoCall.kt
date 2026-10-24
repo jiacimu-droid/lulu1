@@ -146,9 +146,9 @@ internal fun Live2DFullscreenVideoCall(
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
     var videoMenuExpanded by remember(modelUrl) { mutableStateOf(false) }
     var expressionPickerExpanded by remember(modelUrl) { mutableStateOf(false) }
-    // These only tune the JPEG bridge's resolution budget; they do not
-    // change model assets or interrupt the call/audio session.
-    var qualityMode by remember(modelUrl) { mutableStateOf("smooth") }
+    // Compatibility-only resolution budget; it is never a user-facing
+    // renderer selector. Direct WebGL and GPU Surface keep full model quality.
+    val qualityMode = "smooth"
     var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
     var interactionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
     var interactionForce by remember(modelUrl) { mutableFloatStateOf(.55f) }
@@ -248,20 +248,18 @@ internal fun Live2DFullscreenVideoCall(
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var videoPerformance by remember(modelUrl) { mutableStateOf("") }
     var rendererPerformance by remember(modelUrl) { mutableStateOf("") }
-    // WebView direct output is opt-in until it has proved visible on this
-    // particular device/model. A successful probe enables retry on later calls.
+    // One public video experience, three internal recovery stages:
+    // WebGL direct (least overhead), GPU Surface (verified on this device),
+    // then only a hidden JPEG safety fallback if neither is visible.
+    // The existing JPEG first frame is retained until native display startup
+    // can be independently verified; never show a black avatar to simplify UI.
     val displayPrefs = remember(cameraContext) {
         cameraContext.getSharedPreferences("lulu_live2d_display_v1", Context.MODE_PRIVATE)
     }
     var directWebGL by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var directVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
-    // Independent compositor path for WebViews that draw correctly offscreen
-    // but show black on the normal Android window. Always explicit opt-in.
     var gpuSurfaceRequested by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var gpuSurfaceVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
-    // Both presentations use the same Pixi/WebGL model renderer. Only the
-    // native surface pixel probe verifies the GPU presentation path; neither
-    // its reported refresh rate nor renderer FPS measures physical display FPS.
     val displayChannelLabel = when {
         gpuSurfaceVerified -> "显示 · GPU Surface 已验证 · 屏幕 FPS 未测"
         gpuSurfaceRequested -> "显示 · GPU Surface 验证中（JPEG 兜底）"
@@ -276,18 +274,26 @@ internal fun Live2DFullscreenVideoCall(
         gpuSurfaceRequested || directWebGL -> ""
         else -> videoPerformance.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()
     }
-    var autoDirectAttempted by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    var autoDisplayAttempted by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    // Start from a verified JPEG frame, then select ONE high-quality display
+    // automatically. Remember the last successful transport for this model so
+    // a known-black WebGL path isn't retried on every new video call.
     LaunchedEffect(modelUrl, nativeFrameReady, renderRetry) {
-        if (modelUrl != null && nativeFrameReady && !autoDirectAttempted) {
-            autoDirectAttempted = true
-            if (displayPrefs.getBoolean("direct:$modelUrl", false)) directWebGL = true
+        if (modelUrl != null && nativeFrameReady && !autoDisplayAttempted) {
+            autoDisplayAttempted = true
+            videoPerformance = ""
+            if (displayPrefs.getString("preferred:$modelUrl", "") == "gpu") {
+                gpuSurfaceRequested = true
+            } else {
+                directWebGL = true
+            }
         }
     }
     LaunchedEffect(directWebGL, nativeFrameReady, expressionStage, renderRetry) {
         if (!directWebGL || !nativeFrameReady || expressionStage == null) return@LaunchedEffect
         directVerified = false
-        // Wait for Android to compose a new WebView frame after removing the
-        // native overlay. A model-loaded JS signal alone is NOT enough.
+        // Prove actual Android composition, not merely an offscreen GL frame.
+        // The native JPEG overlay is temporarily removed ONLY for this probe.
         delay(700)
         val first = withTimeoutOrNull(2_000L) {
             probePresentedWebGL(cameraContext, expressionStage)
@@ -295,19 +301,16 @@ internal fun Live2DFullscreenVideoCall(
         if (!directWebGL) return@LaunchedEffect
         if (first != null && first >= 100) {
             directVerified = true
-            // The last decoded-JPEG FPS is now historical, not a direct
-            // display metric; never show it as live direct-display speed.
             videoPerformance = "直显已验证"
             if (modelUrl != null) displayPrefs.edit()
-                .putBoolean("direct:$modelUrl", true).apply()
+                .putString("preferred:$modelUrl", "direct").apply()
         } else {
-            // Fail closed: keep the existing video/audio session and restore
-            // the proven JPEG/Bitmap fallback without reloading the model.
+            // Same WebView/session; Android restores its JPEG visible layer
+            // before a GPU Surface trial. Only the failing path is discarded.
             directWebGL = false
             directVerified = false
-            if (modelUrl != null) displayPrefs.edit()
-                .remove("direct:$modelUrl").apply()
-            videoPerformance = "直显未验证，已恢复兼容画面"
+            gpuSurfaceRequested = true
+            videoPerformance = "WebGL 直显未通过，正在尝试 GPU 画面"
         }
     }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
@@ -368,9 +371,19 @@ internal fun Live2DFullscreenVideoCall(
                 nativeMirrorEnabled = !directWebGL && !gpuSurfaceVerified,
                 gpuSurfaceRequested = gpuSurfaceRequested,
                 onGpuSurfaceResult = { ok, reason ->
+                    // A real surface pixel probe, not GPU ticker FPS, owns
+                    // transport success. Only proven surfaces stop the JPEG
+                    // bridge; errors keep the working fallback.
                     gpuSurfaceVerified = ok
-                    if (!ok) gpuSurfaceRequested = false
                     videoPerformance = reason
+                    if (ok) {
+                        if (modelUrl != null) displayPrefs.edit()
+                            .putString("preferred:$modelUrl", "gpu").apply()
+                    } else {
+                        gpuSurfaceRequested = false
+                        if (modelUrl != null) displayPrefs.edit()
+                            .remove("preferred:$modelUrl").apply()
+                    }
                 },
                 framingMode = framingMode,
                 qualityMode = qualityMode,
@@ -677,51 +690,6 @@ internal fun Live2DFullscreenVideoCall(
                                 videoMenuExpanded = false
                             },
                             leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(if (qualityMode == "quality")
-                                "✓ 高清优先 · 点击切流畅" else "✓ 流畅优先 · 点击切高清") },
-                            onClick = {
-                                qualityMode = if (qualityMode == "quality") "smooth" else "quality"
-                                videoMenuExpanded = false
-                            },
-                            leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(if (directVerified) "✓ WebGL 直显"
-                                else if (directWebGL) "验证直显中…"
-                                else "试用 WebGL 直显") },
-                            enabled = nativeFrameReady,
-                            onClick = {
-                                directWebGL = !directWebGL
-                                videoPerformance = ""
-                                if (directWebGL) {
-                                    gpuSurfaceRequested = false
-                                    gpuSurfaceVerified = false
-                                }
-                                if (!directWebGL) {
-                                    directVerified = false
-                                    if (modelUrl != null) displayPrefs.edit()
-                                        .remove("direct:$modelUrl").apply()
-                                }
-                                videoMenuExpanded = false
-                            },
-                            leadingIcon = { Icon(Icons.Outlined.Speed, null) },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(when {
-                                gpuSurfaceVerified -> "✓ GPU 无压缩画面"
-                                gpuSurfaceRequested -> "GPU 通道验证中…"
-                                else -> "试用 GPU 无压缩画面"
-                            }) },
-                            enabled = nativeFrameReady && !directWebGL,
-                            onClick = {
-                                gpuSurfaceRequested = !gpuSurfaceRequested
-                                gpuSurfaceVerified = false
-                                videoPerformance = ""
-                                videoMenuExpanded = false
-                            },
-                            leadingIcon = { Icon(Icons.Outlined.Speed, null) },
                         )
                         HorizontalDivider()
                         DropdownMenuItem(

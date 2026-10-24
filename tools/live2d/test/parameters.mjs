@@ -68,13 +68,21 @@ assert.match(androidStage, /lastBinaryFrameAt\.set\(/)
 assert.match(androidStage, /lastBinaryFrameAt\.get\(\)/)
 assert.doesNotMatch(androidStage, /var lastBinaryFrameAt by remember\(webView\)/)
 assert.match(androidStage, /Live2DFrameStats\(reportIntervalMs = 2_000L\)/)
-assert.match(fullscreenVideo, /qualityMode by remember\(modelUrl\) \{ mutableStateOf\("smooth"\) \}/)
+assert.match(fullscreenVideo, /val qualityMode = "smooth"/)
 // WebGL direct trial MUST verify the real Android surface and revert without
 // restarting the call. The old JPEG bridge remains present for HyperOS.
 assert.match(fullscreenVideo, /probePresentedWebGL\(cameraContext, expressionStage\)/)
 assert.match(fullscreenVideo, /PixelCopy\.request\(window, rect, image/)
 assert.match(fullscreenVideo, /directWebGL = false/)
 assert.match(fullscreenVideo, /nativeMirrorEnabled = !directWebGL/)
+assert.match(fullscreenVideo, /autoDisplayAttempted by remember/)
+assert.match(fullscreenVideo, /directWebGL = true/)
+assert.match(fullscreenVideo, /gpuSurfaceRequested = true/)
+assert.match(fullscreenVideo, /putString\("preferred:\$modelUrl", "direct"\)/)
+assert.match(fullscreenVideo, /putString\("preferred:\$modelUrl", "gpu"\)/)
+assert.match(fullscreenVideo, /if \(!ok\) gpuSurfaceRequested = false|gpuSurfaceRequested = false/)
+assert.doesNotMatch(fullscreenVideo, /试用 WebGL 直显|试用 GPU 无压缩画面|点击切流畅|点击切高清/)
+assert.doesNotMatch(fullscreenVideo, /DropdownMenuItem\([\s\S]*?gpuSurfaceRequested = !gpuSurfaceRequested/)
 assert.match(fullscreenVideo, /rendererPerformance = detail/)
 // Both display paths run the same WebGL model; presentation is a separate
 // verified fact, not a second rendering-FPS counter.
