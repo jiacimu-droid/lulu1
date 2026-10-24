@@ -31,8 +31,8 @@ class RoleDayScheduleStoreTest {
         assertTrue(duplicatesScheduledReminder(study, promise))
         assertTrue(isAuthoritativeScheduledReminder(promise))
         assertFalse(isAuthoritativeScheduledReminder(promise.copy(linkedAlarmId = null)))
-        assertFalse(duplicatesScheduledReminder(study.copy(dueAt = time.plusSeconds(86400)), promise),
-            "One-off reminders on different dates are independent")
+        assertFalse("One-off reminders on different dates are independent",
+            duplicatesScheduledReminder(study.copy(dueAt = time.plusSeconds(86400)), promise))
         assertFalse(duplicatesScheduledReminder(study.copy(title = "和居民读书",
             intent = "自己去图书馆读书", activityAction = "read_book"), promise))
         assertFalse(duplicatesScheduledReminder(study.copy(title = "十点半提醒用户吃饭",
@@ -49,8 +49,8 @@ class RoleDayScheduleStoreTest {
             goal = "每晚23:30打电话督促睡觉", dueAt = time.plusSeconds(86400),
             deliveryAction = "start_call", repeat = "daily",
             status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "native-call-alarm")
-        assertTrue(duplicatesScheduledReminder(bedtime, promise),
-            "Same recurring wall-clock belongs to a single alarm task")
+        assertTrue("Same recurring wall-clock belongs to a single alarm task",
+            duplicatesScheduledReminder(bedtime, promise))
         assertFalse(duplicatesScheduledReminder(bedtime.copy(title = "每天复习",
             intent = "监督背书"), promise))
     }
