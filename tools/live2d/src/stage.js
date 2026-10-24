@@ -1078,7 +1078,12 @@ function setNativeStreaming(enabled) {
   // Base64 compatibility path.
   nativeStreamBusy = false
   nativeStreamLastTickerTime = -1
-  if (!nativeStreamEnabled) return
+  if (!nativeStreamEnabled) {
+    // WebGL direct output avoids JPEG/IPC entirely: let the visual model
+    // update at a real 60Hz target instead of inheriting JPEG's 30/36/45 cap.
+    if (app?.ticker) app.ticker.maxFPS = 60
+    return
+  }
   const bridge = window.LuluNativeFrames
   if (!bridge || typeof bridge.postMessage !== 'function') {
     notify('diagnostic', 'Android System WebView 未提供二进制消息桥接，使用兼容画面路线')
