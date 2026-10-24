@@ -79,8 +79,9 @@ internal object CharacterLifeVisibility {
      * subjective state. Neither a new diary nor an alternative goal/task store.
      * Every displayed entry must still have its own role-scoped source.
      */
-    fun matters(role: String, now: Instant = Instant.now()): List<CharacterLifeVisible> = buildList {
-        val mind = CharacterInnerLifeStore.snapshot(role)
+    fun matters(role: String, now: Instant = Instant.now(),
+        historyLimit: Int = 160): List<CharacterLifeVisible> = buildList {
+        val mind = CharacterInnerLifeStore.historySnapshot(role, historyLimit)
         fun include(at: Instant?, category: String, title: String, detail: String, id: String) {
             if (at == null || at.isAfter(now) || id.isBlank() ||
                 detail.isBlank() || source(role, id) == null) return

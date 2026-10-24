@@ -16,7 +16,7 @@ internal data class CharacterStateHistoryRow(
 /** One chronological view of the original snapshots, thoughts and decisions. No new persistence. */
 internal object CharacterStateHistory {
     fun entries(characterId: String, history: List<CompanionPresenceState>, cutoff: Instant,
-        mind: JSONObject = CharacterInnerLifeStore.snapshot(characterId),
+        mind: JSONObject = CharacterInnerLifeStore.historySnapshot(characterId, 200),
         decisions: List<CharacterRecordProjection.DecisionMoment> = CharacterRecordProjection.decisions(characterId, cutoff),
         maxEntries: Int = Int.MAX_VALUE,
     ): List<CharacterStateHistoryRow> {

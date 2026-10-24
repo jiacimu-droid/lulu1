@@ -257,12 +257,13 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
+    var historyLimit by rememberSaveable(characterId) { mutableIntStateOf(80) }
     val entries by produceState(
         initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
-        characterId, mindRevision, curiosityRevision, evidenceRevision,
+        characterId, mindRevision, curiosityRevision, evidenceRevision, historyLimit,
     ) {
         value = withContext(Dispatchers.Default) {
-            CharacterLifeVisibility.matters(characterId)
+            CharacterLifeVisibility.matters(characterId, historyLimit = historyLimit)
         }
     }
     val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声", "心路历程")
@@ -301,6 +302,11 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                         }
                     }
                 }
+            }
+        }
+        if (entries.isNotEmpty()) item(key = "older-matters") {
+            TextButton(onClick = { historyLimit += 80 }, modifier = Modifier.fillMaxWidth()) {
+                Text("查看更多心事")
             }
         }
     }
