@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:38:12.083998+00:00",
-  "commit": "88e60b0631e84857e9cf21b8735e2206ecc7d1d8",
+  "generatedAt": "2026-10-24T02:40:22.201336+00:00",
+  "commit": "960f41ad17fb896cdcf21ea0cfebe31e6e61f2bd",
   "branch": "main",
-  "sourceFingerprint": "864baffc599fabc036c32ae256c42e3e9eb14c3e4668e90a5eb236e9e817313b",
+  "sourceFingerprint": "7687875bb10ba10420e10acc8b43e1f58d0f30117c8a2e783110d81b588f8ff2",
   "summary": {
     "files": 869,
-    "lines": 166462,
+    "lines": 166505,
     "symbols": 2512
   },
   "symbolIndex": {
@@ -187,7 +187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 292
+        "line": 297
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -957,7 +957,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 309
+        "line": 314
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -5043,7 +5043,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 490
+        "line": 498
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -9467,19 +9467,19 @@
     "removeLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 320
+        "line": 325
       }
     ],
     "mergeMatchingDailyCallPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 338
+        "line": 344
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 356
+        "line": 364
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -9489,31 +9489,31 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 399
+        "line": 407
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 414
+        "line": 422
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 454
+        "line": 462
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 466
+        "line": 474
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 497
+        "line": 505
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -19866,8 +19866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 257,
-      "sha256": "b465c763cb6d92c0bc01eaf21379cb812a01ccdc516cf7a54db6a38fa29ba4b0",
+      "lines": 258,
+      "sha256": "2c70677e66d1804ed7640e42a400981a3ad0541386ff9b316d73477d4344bd70",
       "symbols": []
     },
     {
@@ -23346,8 +23346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 520,
-      "sha256": "45d30b6f6577b80c0523b9428549feba4f2c38abb6aa43114d3fcb85395d3084",
+      "lines": 562,
+      "sha256": "ee59f3de03c1012023ac68d9116da7596ec2f005594a239c5e39425e0bd2cf41",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -23387,47 +23387,47 @@
         },
         {
           "name": "cancel",
-          "line": 292
+          "line": 297
         },
         {
           "name": "remove",
-          "line": 309
+          "line": 314
         },
         {
           "name": "removeLinkedCommitmentPlans",
-          "line": 320
+          "line": 325
         },
         {
           "name": "mergeMatchingDailyCallPlans",
-          "line": 338
+          "line": 344
         },
         {
           "name": "reschedule",
-          "line": 356
+          "line": 364
         },
         {
           "name": "canBegin",
-          "line": 399
+          "line": 407
         },
         {
           "name": "completeFromReceipt",
-          "line": 414
+          "line": 422
         },
         {
           "name": "markDue",
-          "line": 454
+          "line": 462
         },
         {
           "name": "dueContext",
-          "line": 466
+          "line": 474
         },
         {
           "name": "clearCharacter",
-          "line": 490
+          "line": 498
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 497
+          "line": 505
         }
       ]
     },
