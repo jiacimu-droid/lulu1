@@ -706,6 +706,67 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+
+        val stock = MigratedDomainStores.characters.create(
+            "江渡", CharacterProfileSchema.jiangDuV22Persona)
+        val authored = MigratedDomainStores.characters.create(
+            "江渡", "我自己写的完整人物简介")
+        val other = MigratedDomainStores.characters.create(
+            "别的角色", "截然不同的性格")
+        val stockProfile = JSONObject().apply {
+            CharacterProfileSchema.jiangDuV22Overrides.forEach { (key, value) -> put(key, value) }
+            CharacterProfileSchema.jiangDuV23Overrides.forEach { (key, value) -> put(key, value) }
+        }
+        val authoredProfile = JSONObject(stockProfile.toString()).apply {
+            put("interests", "我自己编辑的天文兴趣")
+            put("care", "")
+            put("respect", "我自己编辑的关系边界")
+        }
+        val authoredBond = JSONObject().put("user", JSONObject()
+            .put("title", "我自己编辑的关系").put("details", "保留当事人的实际约定"))
+        val prefs = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit()
+            .putString(stock.characterId, JSONObject().put("jiangDuPresetVersion", 23)
+                .put("profile", stockProfile)
+                .put("relationshipAgreements", JSONObject().put("user", JSONObject()
+                    .put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
+                    .put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV23)))
+                .toString())
+            .putString(authored.characterId, JSONObject().put("jiangDuPresetVersion", 23)
+                .put("profile", authoredProfile)
+                .put("relationshipAgreements", authoredBond).toString())
+            .commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        assertEquals(CharacterProfileSchema.jiangDuPresetVersion,
+            CharacterLifeStore.state(stock.characterId).getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV24Persona,
+            MigratedDomainStores.characters.get(stock.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("interests"),
+            CharacterLifeStore.state(stock.characterId).getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV24,
+            CharacterLifeStore.state(stock.characterId).getJSONObject("relationshipAgreements")
+                .getJSONObject("user").getString("details"))
+        val customized = CharacterLifeStore.state(authored.characterId)
+        assertEquals("我自己写的完整人物简介",
+            MigratedDomainStores.characters.get(authored.characterId).persona)
+        assertEquals("我自己编辑的天文兴趣", customized.getJSONObject("profile").getString("interests"))
+        assertEquals("", customized.getJSONObject("profile").getString("care"))
+        assertEquals("我自己编辑的关系边界", customized.getJSONObject("profile").getString("respect"))
+        assertEquals("保留当事人的实际约定",
+            customized.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
+        assertEquals(other, MigratedDomainStores.characters.get(other.characterId))
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
