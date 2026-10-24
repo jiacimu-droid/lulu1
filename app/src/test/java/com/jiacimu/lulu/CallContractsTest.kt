@@ -27,11 +27,13 @@ class CallContractsTest {
     }
     @Test fun hotSwitchWaitsForRealUtteranceBoundaryWithoutRedial() {
         val now = 100_000L
-        assertFalse(CallVoiceConfiguration.canSwitchSttNow(true, false, 0L, now))
-        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, true, 0L, now))
-        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, false, now + 1L, now))
-        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, now, now))
-        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, 0L, now))
+        // Still recording or holding audio chunks means the old model owns the turn.
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(true, false, false, 0L, now))
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, true, false, 0L, now))
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, false, true, 0L, now))
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, false, false, now + 1L, now))
+        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, false, now, now))
+        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, false, 0L, now))
     }
     @Test fun elevenLabsUploadAndRealtimeUseDistinctPathsFromSettings() {
         assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
