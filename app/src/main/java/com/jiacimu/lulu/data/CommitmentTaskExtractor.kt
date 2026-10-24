@@ -33,7 +33,7 @@ internal suspend fun extractCommitmentTaskDrafts(
             if (activeTasks.isNotEmpty()) {
                 appendLine("现有未完成任务（完整列表，不能因数量多忽略旧任务）：")
                 activeTasks.forEach { task ->
-                    appendLine("- id=${task.id}; goal=${task.goal}; deliveryAction=${task.deliveryAction}; dueAt=${task.dueAt}; status=${task.status}; revision=${task.revision}")
+                    appendLine("- id=${task.id}; goal=${task.goal}; deliveryAction=${task.deliveryAction}; repeat=${task.repeat}; dueAt=${task.dueAt}; status=${task.status}; revision=${task.revision}")
                 }
             }
         },
