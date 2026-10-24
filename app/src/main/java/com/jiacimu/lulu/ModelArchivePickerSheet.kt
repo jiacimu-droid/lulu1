@@ -27,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -107,15 +106,6 @@ internal fun ModelArchivePickerSheet(
             }
 
             HorizontalDivider(color = border)
-            if (usage == ModelUsage.VoiceCall) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("跟随私聊模型", modifier = Modifier.weight(1f), color = ink)
-                    Switch(checked = library.voiceCallFollowsChat,
-                        onCheckedChange = LuluAiServices.connectionStore::setVoiceCallFollowsChat)
-                }
-                Text("选下方模型将改为独立电话模型", color = muted, fontSize = 11.sp)
-            }
-
             if (library.archives.isEmpty()) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
