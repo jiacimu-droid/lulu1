@@ -135,7 +135,50 @@ object CommitmentTaskStore {
         if (changed) persist(next)
         // One-time migration of unequivocal duplicate daily self-plan/call tasks.
         // No chat events or independent commitments are deleted.
-        appContext?.let(RoleDayScheduleStore::mergeMatchingDailyCallPlans)
+        appContext?.let {
+            RoleDayScheduleStore.mergeMatchingDailyCallPlans(it)
+            restoreMissedDailyCalls(it, now)
+        }
+    }
+
+    /**
+     * Never replay an alarm missed while the app was stopped. The recurrence
+     * itself survives restart: move directly to the next future local slot.
+     * An in-flight call is left intact, even when the Activity reopens.
+     */
+    @Synchronized
+    private fun restoreMissedDailyCalls(context: Context, now: Instant) {
+        val overdue = mutableTasks.value.filter { task ->
+            task.repeat == "daily" && task.dueAt != null &&
+                task.status !in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.NeedsClarification) &&
+                !task.dueAt.isAfter(now.minusSeconds(120)) &&
+                (task.executionToken == null || inFlight[task.id] != task.executionToken)
+        }
+        overdue.forEach { task ->
+            val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+                ?: java.time.ZoneId.systemDefault()
+            val next = nextDailyCommitmentDue(task.dueAt!!, now, zone)
+            task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+            val character = MigratedDomainStores.characters.get(task.characterId)
+            if (task.deliveryAction == "start_call" &&
+                !character.contactPolicy.proactiveCallsEnabled) {
+                update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Blocked,
+                    linkedAlarmId = null, nextCheckAt = null, executionToken = null,
+                    lastActionResult = "每日来电权限关闭；没有登记新的电话") }
+                return@forEach
+            }
+            LuluAlarmSystem.create(task.characterId, character.displayName, next,
+                task.goal, commitmentTaskId = task.id).onSuccess { alarm ->
+                update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Scheduled,
+                    dueAt = next, nextCheckAt = next, linkedAlarmId = alarm.id,
+                    executionToken = null, attemptCount = 0,
+                    lastActionResult = "已跳过错过的时段并恢复下一次每日安排；未补打旧电话") }
+            }.onFailure { error ->
+                update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Blocked,
+                    linkedAlarmId = null, nextCheckAt = null, executionToken = null,
+                    lastActionResult = "每日安排恢复失败：${error.message.orEmpty().take(120)}") }
+            }
+        }
     }
 
     /**
