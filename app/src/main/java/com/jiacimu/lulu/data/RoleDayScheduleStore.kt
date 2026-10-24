@@ -511,23 +511,26 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         val current = RoleDayScheduleStore.plans(applicationContext, role).firstOrNull { it.id == planId }
             ?: return Result.success()
         if (current.status !in setOf("planned", "due")) return Result.success()
-        // A legacy personal-plan worker can still be running when its alarm
-        // counterpart has just been registered. Recheck authority at DISPATCH.
+        // A cold WorkManager process has not loaded CommitmentTaskStore yet.
+        // Read the durable alarm authority BEFORE deciding to wake the role.
+        if (runCatching {
+                initializeBackgroundRuntime(applicationContext)
+                ProactivePerceptionRuntime.initialize(applicationContext)
+            }.isFailure) return Result.retry()
+        val latest = RoleDayScheduleStore.plans(applicationContext, role)
+            .firstOrNull { it.id == planId } ?: return Result.success()
+        if (latest.status !in setOf("planned", "due")) return Result.success()
         val covered = CommitmentTaskStore.snapshot(role).any {
-            isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(current, it)
+            isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(latest, it)
         }
         if (covered) {
             RoleDayScheduleStore.mergeMatchingDailyCallPlans(applicationContext)
             return Result.success()
         }
-        if (Instant.now().isBefore(current.dueAt)) return Result.retry()
+        if (Instant.now().isBefore(latest.dueAt)) return Result.retry()
         val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
             ?: return Result.success()
         return runCatching {
-            // The app may be completely closed when this WorkManager job fires.
-            // Initialize role stores and the online executor before dispatching.
-            initializeBackgroundRuntime(applicationContext)
-            ProactivePerceptionRuntime.initialize(applicationContext)
             ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
             Result.success()
         }.getOrElse { Result.retry() }
