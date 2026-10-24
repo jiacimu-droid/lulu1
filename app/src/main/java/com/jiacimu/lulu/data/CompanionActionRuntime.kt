@@ -51,9 +51,16 @@ internal object CompanionActionRuntime {
      * Only called for independent life turns, never for every user bubble.
      */
     fun autonomousDiscoveryContext(context: Context, characterId: String): String {
-        val tools = capabilityContext(context, characterId,
-            allowSleepReward = false, includeWorldContext = false)
-            .lineSequence().filter { line ->
+        val tools = discoveryToolLines(capabilityContext(context, characterId,
+            allowSleepReward = false, includeWorldContext = false))
+        return if (tools.isBlank()) "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
+            else "【此刻外部探索真实工具与配置】\n$tools\n" +
+                "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
+    }
+
+    /** Pure projection of existing tool information, never another capability registry. */
+    internal fun discoveryToolLines(catalog: String): String =
+        catalog.lineSequence().filter { line ->
                 val clean = line.trimStart()
                 clean.startsWith("- web_search") ||
                     clean.startsWith("- image_search") ||
@@ -61,10 +68,6 @@ internal object CompanionActionRuntime {
                     clean.startsWith("当前可复用阅读会话=") ||
                     clean.startsWith("- learn_topic")
             }.joinToString("\n").trim()
-        return if (tools.isBlank()) "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
-            else "【此刻外部探索真实工具与配置】\n$tools\n" +
-                "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
-    }
 
     fun capabilityContext(
         context: Context,
