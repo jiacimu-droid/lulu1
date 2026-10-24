@@ -155,6 +155,12 @@ object ProactivePerceptionRuntime {
             val characterId = conversation.characterId.ifBlank { "lulu" }
             val policy = ProactivePerceptionPolicyStore.get(characterId)
             if (!policy.enabled || CompanionPresenceStore.isInCall(characterId)) return@mapNotNull null
+            // A genuinely self-directed upcoming activity already owns its own
+            // durable wake worker. Do not pay again for a passive two-hour tick.
+            // Owner-requested alarms and old plans do not satisfy this condition.
+            if (!CompanionOnlineStore.isOnline(characterId, now) &&
+                RoleDayScheduleStore.nextSelfDirectedWakeAt(context, characterId, now) != null)
+                return@mapNotNull null
             // An imminent executable alarm owns its action slot, but must not
             // erase this character's *next* autonomous wake from WorkManager.
             // Re-evaluate after the promised alarm has had time to execute.
@@ -397,13 +403,12 @@ object ProactivePerceptionRuntime {
         val offline = !CompanionOnlineStore.isOnline(characterId, now)
         val asleepSince = if (offline) CompanionOnlineStore.states.value[characterId]?.onlineUntil else null
         val anchor = listOfNotNull(lastChat, lastEvaluation, asleepSince).maxOrNull() ?: now
-        // Personal appointments have their own durable RoleScheduleWakeWorker.
-        // They must NEVER replace or postpone the independent passive thinking
-        // deadline: an 11-hour gap between two activities still needs its ordinary
-        // (possibly adaptive) perception opportunities. A real activity wake
-        // advances last_evaluation, naturally moving the fallback forward.
-        // Version the signature to replace old persisted personal-only wake plans.
-        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:passive-v3"
+        // Self-authored near-term plans are the primary wake authority. The
+        // adjustable passive interval is only a safety net when the role has no
+        // real plan of its own. User reminders can never silence that safety net.
+        val selfDue = if (offline)
+            RoleDayScheduleStore.nextSelfDirectedWakeAt(context, characterId, now) else null
+        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:self-directed=${selfDue ?: "none"}:v4"
         val plan = PerceptionWakePlanStore.resolve(characterId, anchor, signature) {
             val timingVariation = if (policy.adaptiveFrequency) {
                 val latestUserAt = messages.asSequence()
@@ -425,8 +430,9 @@ object ProactivePerceptionRuntime {
             } else 1.0
             val interval = policy.intervalMinutes(timingVariation)
             val ordinaryDue = deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy)
-            val selectedMinutes = Duration.between(anchor, ordinaryDue).toMinutes().coerceAtLeast(1L)
-            PerceptionWakePlan(characterId, anchor, ordinaryDue, selectedMinutes, signature)
+            val chosenDue = selfDue ?: ordinaryDue
+            val selectedMinutes = Duration.between(anchor, chosenDue).toMinutes().coerceAtLeast(1L)
+            PerceptionWakePlan(characterId, anchor, chosenDue, selectedMinutes, signature)
         }
         if (plan.dueAt <= now && isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
             return PerceptionWakePlanStore.deferUntil(characterId, deferPastQuietHours(now, policy))?.dueAt ?: plan.dueAt
@@ -1849,6 +1855,7 @@ object ProactivePerceptionRuntime {
                 requestId = requestId, intentionId = decision.intentionId,
                 userRequested = (tool == "capture_screen" && explicitScreenRequest) ||
                     CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, tool),
+                autonomousLifeTurn = !hasFreshUserMessage,
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
@@ -1888,6 +1895,7 @@ object ProactivePerceptionRuntime {
                         resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
                     userEvidenceIds = responseEvidenceIds, userText = userText,
                     explicitScreenRequest = explicitScreenRequest,
+                    autonomousLifeTurn = !hasFreshUserMessage,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -1897,6 +1905,7 @@ object ProactivePerceptionRuntime {
                 resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
             userEvidenceIds = responseEvidenceIds, userText = userText,
             explicitScreenRequest = explicitScreenRequest,
+            autonomousLifeTurn = !hasFreshUserMessage,
         )
         val sideActionSucceeded = stepReport.anyAccepted
         effectNotes.addAll(stepReport.notes)
