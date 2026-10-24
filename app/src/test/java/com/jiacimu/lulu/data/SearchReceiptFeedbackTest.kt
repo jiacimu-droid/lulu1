@@ -1,6 +1,10 @@
 package com.jiacimu.lulu.data
 
 import org.json.JSONObject
+import org.json.JSONArray
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,6 +15,41 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class SearchReceiptFeedbackTest {
+    @Test fun cancellingAnAcceptedSearchDoesNotSeparateItsToolReceiptFromFinalReply() = runBlocking {
+        val toolStarted = CompletableDeferred<Unit>()
+        val allowToolToFinish = CompletableDeferred<Unit>()
+        val effects = mutableListOf<String>()
+        val job = launch {
+            SearchResultContinuation.finishAcceptedTurn(protect = true) {
+                effects += "search receipt"
+                toolStarted.complete(Unit)
+                allowToolToFinish.await()
+                // Exactly this missing continuation formerly ran only at the
+                // next ordinary perception cycle after cancellation.
+                effects += "role final reply"
+            }
+        }
+        toolStarted.await()
+        job.cancel() // A newer user bubble supersedes the old online batch.
+        allowToolToFinish.complete(Unit)
+        job.join()
+        assertEquals(listOf("search receipt", "role final reply"), effects)
+    }
+
+    @Test fun onlyAcceptedUserSearchesOwnTheProtectedContinuation() {
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "web_search", null))
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "read_xiaohongshu", null))
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "",
+            JSONArray().put(JSONObject().put("tool", "image_search"))))
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "send_private_message",
+            JSONArray().put(JSONObject().put("tool", "control_volume"))
+                .put(JSONObject().put("tool", "web_search"))))
+        assertFalse(SearchResultContinuation.requiresCompletion(false, "web_search", null))
+        assertFalse(SearchResultContinuation.requiresCompletion(true, "control_volume", null))
+        assertFalse(SearchResultContinuation.requiresCompletion(true, "send_private_message",
+            JSONArray().put(JSONObject().put("tool", "go_offline"))))
+    }
+
     @Test fun webSearchAndReadPreserveRealExecutorEvidence() {
         val args = JSONObject().put("op", "search_read").put("query", "第五人格活动")
         val actual = JSONObject().put("success", true)
