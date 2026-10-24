@@ -60,6 +60,16 @@ internal data class EmbodiedBodySnapshot(
  * has successfully persisted the activity receipt.
  */
 internal object EmbodiedBodyPhysics {
+    // Game-like 0–100 sensations, not medical measures. One hour is meaningful:
+    // a few hours without novelty, food or water can change a person's attention.
+    // Pure elapsed-time projection means refresh frequency never changes the rate.
+    private const val AWAKE_ENERGY_DRAIN_PER_HOUR = 5.2
+    private const val AWAKE_SLEEP_PRESSURE_PER_HOUR = 6.5
+    private const val AWAKE_HUNGER_PER_HOUR = 7.0
+    private const val AWAKE_THIRST_PER_HOUR = 8.5
+    private const val AWAKE_COMFORT_DRAIN_PER_HOUR = 2.0
+    private const val AWAKE_MONOTONY_PER_HOUR = 9.5
+
     fun fresh(at: Instant): EmbodiedBodySnapshot = EmbodiedBodySnapshot(lastAt = at)
 
     fun advance(before: EmbodiedBodySnapshot, now: Instant): EmbodiedBodySnapshot {
@@ -76,35 +86,53 @@ internal object EmbodiedBodyPhysics {
         val awakeHours = (hours - recoveryHours).coerceAtLeast(0.0)
         val mode = before.recoveryMode
         val energyGain = when (mode) {
-            "sleep", "offline_sleep" -> 19.0
-            "nap" -> 15.0
-            "rest" -> 6.0
+            "sleep", "offline_sleep" -> 12.5
+            "nap" -> 17.0
+            "rest" -> 5.0
             else -> 0.0
         }
         val sleepRelief = when (mode) {
-            "sleep", "offline_sleep" -> 23.0
-            "nap" -> 20.0
+            "sleep", "offline_sleep" -> 15.0
+            "nap" -> 19.0
+            "rest" -> 5.0
+            else -> 0.0
+        }
+        // A person generally does not get as hungry or thirsty while asleep as
+        // while actively awake, but neither need is magically reset by rest.
+        val sleepHungerRate = when (mode) {
+            "sleep", "offline_sleep" -> 1.1
+            "nap" -> 2.0
+            "rest" -> 4.0
+            else -> 0.0
+        }
+        val sleepThirstRate = when (mode) {
+            "sleep", "offline_sleep" -> 2.0
+            "nap" -> 2.8
             "rest" -> 5.0
             else -> 0.0
         }
         fun bounded(n: Double) = n.coerceIn(0.0, 100.0)
+        // Rest is not entertainment. Retain existing curiosity and allow only
+        // very slow saturation toward 100 during real sleep/offline sleep.
+        // The exponential form is stable whether the app checks once after
+        // eight hours or eight times during the same interval.
+        val restingNovelty = before.boredom + (100.0 - before.boredom) *
+            (1.0 - kotlin.math.exp(-recoveryHours *
+                (if (offlineSleep) 0.55 else 0.35) / 100.0))
         val finished = !offlineSleep && (end == null || !end.isAfter(now))
         return before.copy(
             lastAt = now,
-            energy = bounded(before.energy - awakeHours * 1.4 + recoveryHours * energyGain),
-            sleepPressure = bounded(before.sleepPressure + awakeHours * 3.1 - recoveryHours * sleepRelief),
-            hunger = bounded(before.hunger + hours * 1.7),
-            thirst = bounded(before.thirst + hours * 2.6),
-            comfort = bounded(before.comfort - awakeHours * 0.65 + recoveryHours * 4.0),
-            // Physical sleep restores energy but cannot replace interesting
-            // experiences. An offline role used to clear its boredom completely
-            // on every sleep cycle, so its own curiosity rarely became salient.
-            // Novelty appetite grows slowly during rest (diminishing near 100),
-            // more quickly during awake monotony; only real engaging activity
-            // and verified exploration reduce it. Never triggers a model call.
-            boredom = bounded(before.boredom + awakeHours * 4.5 +
-                recoveryHours * (if (offlineSleep) 1.8 else 0.4) *
-                (1.0 - before.boredom / 100.0)),
+            energy = bounded(before.energy - awakeHours * AWAKE_ENERGY_DRAIN_PER_HOUR +
+                recoveryHours * energyGain),
+            sleepPressure = bounded(before.sleepPressure + awakeHours * AWAKE_SLEEP_PRESSURE_PER_HOUR -
+                recoveryHours * sleepRelief),
+            hunger = bounded(before.hunger + awakeHours * AWAKE_HUNGER_PER_HOUR +
+                recoveryHours * sleepHungerRate),
+            thirst = bounded(before.thirst + awakeHours * AWAKE_THIRST_PER_HOUR +
+                recoveryHours * sleepThirstRate),
+            comfort = bounded(before.comfort - awakeHours * AWAKE_COMFORT_DRAIN_PER_HOUR +
+                recoveryHours * 3.0),
+            boredom = bounded(restingNovelty + awakeHours * AWAKE_MONOTONY_PER_HOUR),
             recoveryMode = if (finished) "" else mode,
             recoveryUntil = if (finished) null else end,
         )
@@ -127,12 +155,21 @@ internal object EmbodiedBodyPhysics {
         if (recovery.isNotBlank() && plannedEndAt != null && plannedEndAt.isAfter(at)) {
             return current.copy(recoveryMode = recovery, recoveryUntil = plannedEndAt)
         }
-        // A real-world action can break monotony; merely ordering food is not
-        // a completed experience. Keep the motive distinct from food/energy.
-        val engaging = !activityId.startsWith("cafe_order_") &&
-            activityId !in setOf("sleep", "nap", "rest", "cloud_rest",
-                "reading_rest", "home_quiet_rest", "lie_down", "lie_on_rug", "curl_up")
-        val experienced = if (engaging) current.copy(boredom = bounded(current.boredom - 10.0)) else current
+        // Ordinary motions (looking at a clock, opening a lamp, making a bed,
+        // ordering food) are NOT novel experiences. They used to each reduce
+        // boredom by 10, wiping out hours of elapsed-time growth. Only a
+        // recorded, actually experienced change of scene can ease monotony.
+        val noveltyRelief = when (activityId) {
+            "cloud_walk", "cloud_edge", "courtyard_walk", "courtyard_linger",
+            "discovered_walk", "discovered_observe", "browse_games",
+            "choose_arcade" -> 8.0
+            "cloud_feel", "watch_sky", "water_edge", "window_cafe",
+            "admire_art", "play_with_decor", "people_watch", "garden_pause",
+            "cafe_linger", "arcade_linger", "discovered_pause" -> 4.0
+            else -> 0.0
+        }
+        val experienced = if (noveltyRelief > 0.0)
+            current.copy(boredom = bounded(current.boredom - noveltyRelief)) else current
         DigitalCafeMenu.byConsume(activityId)?.let { item ->
             return experienced.copy(
                 thirst = bounded(current.thirst - item.thirstRelief),
@@ -152,7 +189,7 @@ internal object EmbodiedBodyPhysics {
     /** Only a confirmed, not pending, search/read/game receipt changes novelty. */
     fun afterExploration(before: EmbodiedBodySnapshot, at: Instant): EmbodiedBodySnapshot =
         if (at.isBefore(before.lastAt)) before else advance(before, at).let {
-            it.copy(boredom = (it.boredom - 14.0).coerceAtLeast(0.0))
+            it.copy(boredom = (it.boredom - 20.0).coerceAtLeast(0.0))
         }
 
     fun endWorldActivity(before: EmbodiedBodySnapshot, at: Instant): EmbodiedBodySnapshot =
@@ -168,7 +205,7 @@ internal object EmbodiedBodyPhysics {
                 appendLine("当前离线休眠中；模拟身体正在按真实经过的时间恢复。")
             else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
-            appendLine("饥饿和口渴可影响想吃喝的意愿；睡眠压力高、精力低可以使本人倾向休息。单调感反映一段时间缺少新体验：即使离线睡眠使精力恢复，对知识/变化的期待也可能缓慢积累；真实游戏、阅读、探索回执可缓解单调感。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。各项只是决策线索，绝非必须搜索、强制发消息或改变性格的数值阈值，不越过已有权限和费用限制；点单不代表已食用。")
+            appendLine("饥饿和口渴可影响想吃喝的意愿；清醒几小时不进食、饮水或休息时感觉会逐渐明显，睡眠中则变慢。睡眠压力高、精力低可以使本人倾向休息。单调感表示清醒时一段时间缺少有变化的体验：普通整理、查看时间和吃喝不会自动消除；真正的散步、观察新风景有少量缓解，实际游戏、阅读、探索回执能明显缓解。离线休眠恢复体力但不清空好奇心。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。这些只是决策线索，绝非必须搜索、强制发消息或改变性格的阈值，不越过已有权限和费用限制；点单不代表已食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }
