@@ -116,6 +116,49 @@ class PerceptionWakePlanStoreTest {
         }
     }
 
+    @Test fun onlyRealSelfChosenNearTermPlansReplacePassiveFallback() {
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("独立生活来源回归测试").characterId
+        MigratedDomainStores.chat.ensureConversation(role, "独立生活来源回归测试")
+        CompanionOnlineStore.resetCharacter(role)
+        ProactivePerceptionPolicyStore.update(role) {
+            it.copy(enabled = true, adaptiveFrequency = false,
+                quietHoursEnabled = false, intervalValue = 2,
+                intervalUnit = PerceptionIntervalUnit.Hours)
+        }
+        val now = Instant.now()
+        val ordinary = requireNotNull(ProactivePerceptionRuntime.wakePlanFor(context, role, now))
+        val ownerRequest = RoleDayScheduleStore.arrange(context, role,
+            "主人交代的事项", "按照主人此前的吩咐按时提醒她",
+            now.plusSeconds(11 * 3600L), now = now)
+        val selfActivity = RoleDayScheduleStore.arrange(context, role,
+            "自己继续看书", "我还对这本书后面的故事很感兴趣",
+            now.plusSeconds(3 * 3600L), now = now, selfInitiated = true)
+        try {
+            val restored = RoleDayScheduleStore.plans(context, role)
+            assertFalse(restored.first { it.id == ownerRequest.id }.selfInitiated)
+            assertTrue(restored.first { it.id == selfActivity.id }.selfInitiated)
+            assertEquals(selfActivity.dueAt,
+                RoleDayScheduleStore.nextSelfDirectedWakeAt(context, role, now))
+            val ownWake = requireNotNull(ProactivePerceptionRuntime.wakePlanFor(context, role, now))
+            assertEquals(selfActivity.dueAt, ownWake.dueAt)
+            assertTrue(ownWake.policySignature.contains(":self-directed="))
+            assertTrue(RoleDayScheduleStore.cancel(context, role, selfActivity.id))
+            assertNull(RoleDayScheduleStore.nextSelfDirectedWakeAt(context, role, now))
+            assertEquals("A user-only task cannot suppress character's independent fallback",
+                ordinary.dueAt,
+                requireNotNull(ProactivePerceptionRuntime.wakePlanFor(context, role, now)).dueAt)
+        } finally {
+            RoleDayScheduleStore.remove(context, role, ownerRequest.id)
+            RoleDayScheduleStore.remove(context, role, selfActivity.id)
+        }
+    }
+
     @Test fun onlineThinkingCadenceIsIndependentOfBackgroundTimingAndNeverFastByAccident() {
         val defaultPolicy = ProactivePerceptionPolicy()
         assertEquals(120L, defaultPolicy.baseIntervalMinutes)
