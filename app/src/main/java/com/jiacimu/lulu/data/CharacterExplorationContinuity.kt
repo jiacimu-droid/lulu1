@@ -93,7 +93,12 @@ internal object CharacterExplorationContinuity {
         val appraisal = response.optJSONObject("appraisal")
         val basis = response.optJSONObject("innerThoughtBasis")
         val previous = CharacterInnerLifeStore.snapshot(role)
-        val delta = PrivateStateDeltaEngine.evaluate(previous, inner, appraisal, basis, response.optString("innerThought"))
+        val delta = PrivateStateDeltaEngine.evaluate(
+            previous, inner, appraisal, basis, response.optString("innerThought"),
+            // An actual tool result can genuinely shift the character's focus
+            // without forcing an emotion/motive entry into long-term state.
+            hasChosenToolAction = event.evidenceKind == EventEvidenceKind.ToolResult,
+        )
         val thought = CharacterHeartVoicePolicy.keepOrBlank(response.optString("innerThought"),
             outward = response.optString("text"), innerLife = inner, basis = basis,
             delta = delta, hasFreshEvidence = true)
