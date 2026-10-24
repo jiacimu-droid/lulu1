@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:44:30.390482+00:00",
-  "commit": "cc24c3c234e4b5d7d7e626aa910cd30ab9dac683",
+  "generatedAt": "2026-10-24T02:51:53.978438+00:00",
+  "commit": "ddf54a44484b642c66541d99e67775be1f9a616b",
   "branch": "main",
-  "sourceFingerprint": "1793cdd806c946eb6c039dff72272e1b689b043496864acd6738aeff291008a1",
+  "sourceFingerprint": "c7f5af931282d4f3357f433d8822ebb9376017a16143edf8d2ae84f159bae017",
   "summary": {
     "files": 869,
-    "lines": 166621,
+    "lines": 166620,
     "symbols": 2512
   },
   "symbolIndex": {
@@ -28739,8 +28739,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
-      "lines": 92,
-      "sha256": "558fa0dcc439aa92f67503c76e59086bf243f4002e9dd9d0a21c033c459e3f6c",
+      "lines": 91,
+      "sha256": "dd6eaee0e6a5ff160c08bfc98fb59f761e7359f929efa5d111d0a041b2ae6b04",
       "symbols": [
         {
           "name": "DailyCommitmentRecurrenceTest",
@@ -29468,7 +29468,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
       "lines": 212,
-      "sha256": "743d01954e1493b6d32e94f0a49fb1f562057972274212e0c8235b991e7a756d",
+      "sha256": "ad5297f0216a7442e505859369c2253ebcbdcb4d71bdfa05b40dee0c963bbbb9",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
