@@ -20,7 +20,7 @@ internal class Live2DFrameStats(
         val mode: String,
     ) {
         fun label(): String =
-            "%s · %.1f FPS · %d×%dpx · p95 %dms · 解码 %.0fms".format(
+            "%s · 送达 %.1f FPS · %d×%dpx · p95 %dms · 解码 %.0fms".format(
                 java.util.Locale.ROOT, mode, fps, width, height, p95GapMs,
                 averageDecodeMs)
     }
