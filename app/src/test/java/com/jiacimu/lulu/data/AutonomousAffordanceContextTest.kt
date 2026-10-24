@@ -42,15 +42,22 @@ class AutonomousAffordanceContextTest {
             books = listOf(AutonomousAffordanceContext.Book("readable-1", "晚点想读的书")),
             groups = emptyList(),
         )
+        // This layer projects concrete opportunities, not a second copy of the
+        // full schedule protocol. Time formats, permissions and step ordering
+        // belong to the existing decision and registered-executor contracts.
         assertTrue(text.contains("plan_personal_activity"))
         assertTrue(text.contains("activityAction"))
-        assertTrue(text.contains("ISO8601"))
-        assertTrue(text.contains("本人日程工具"))
-        assertTrue(text.contains("只在心声里写"))
-        assertTrue(text.contains("暂时不行动"))
-        assertTrue(text.contains("到点由本人醒来选择真实执行"))
-        assertTrue(text.contains("ToolRouter 权限和状态核验"))
-        assertTrue(text.contains("无需主人发号施令或者指定几点"))
+        assertTrue(text.contains("read_book"))
+        assertTrue(text.contains("play_solo_game"))
+        assertTrue(text.contains("digital_world_action"))
+        assertTrue(text.contains("稍后安排"))
+        assertTrue(text.contains("独处"))
+        assertTrue(text.contains("不是强制任务"))
+        assertTrue(text.contains("日程只保存意愿"))
+        assertTrue(text.contains("到点仍须实际执行和取得回执"))
+        assertTrue(text.contains("已配置且授权"))
+        // The current list must never pretend it is also a completed action.
+        assertFalse(text.contains("已自动完成"))
     }
 
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
