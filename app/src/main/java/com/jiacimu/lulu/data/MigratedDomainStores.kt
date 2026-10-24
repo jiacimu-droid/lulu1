@@ -22,6 +22,8 @@ data class LuluChatMessage(
     val replyToMessageId: String? = null,
     /** Actual role-generation turn; consecutive bubbles in the same turn share one avatar. */
     val replyBatchId: String? = null,
+    /** Character-chosen voice note with original text as its transcript. */
+    val voiceNote: Boolean = false,
 ) {
     enum class Sender { User, Character, System }
     enum class Status { Sending, Sent, Failed }
@@ -86,6 +88,7 @@ interface LuluChatStore {
         authorCharacterId: String? = null,
         replyToMessageId: String? = null,
         replyBatchId: String? = null,
+        voiceNote: Boolean = false,
     ): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String? = null): LuluChatMessage
@@ -393,6 +396,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         authorCharacterId: String?,
         replyToMessageId: String?,
         replyBatchId: String?,
+        voiceNote: Boolean,
     ): LuluChatMessage {
         val quoteRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
         val favoriteRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
@@ -430,6 +434,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             authorCharacterId = authorCharacterId,
             replyToMessageId = effectiveReplyId,
             replyBatchId = effectiveBatchId,
+            voiceNote = voiceNote,
         ).also { message ->
             val visible = CharacterMessageNotifications.visibleConversation(conversationId)
             append(conversationId, message, incrementUnread = !visible, durable = !visible)
@@ -814,6 +819,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("authorCharacterId", value.authorCharacterId ?: JSONObject.NULL)
         .put("replyToMessageId", value.replyToMessageId ?: JSONObject.NULL)
         .put("replyBatchId", value.replyBatchId ?: JSONObject.NULL)
+        .put("voiceNote", value.voiceNote)
 
     private fun decodeMessage(item: JSONObject): LuluChatMessage = LuluChatMessage(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -826,6 +832,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         authorCharacterId = item.nullableString("authorCharacterId"),
         replyToMessageId = item.nullableString("replyToMessageId"),
         replyBatchId = item.nullableString("replyBatchId"),
+        voiceNote = item.optBoolean("voiceNote", false),
     )
 
     private fun conversationOrdering(): Comparator<LuluConversation> =

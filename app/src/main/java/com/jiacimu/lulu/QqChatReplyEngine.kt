@@ -95,6 +95,7 @@ internal data class CharacterReplyPresentation(
     val favoriteMessageId: String? = null,
     val recallBubbleNumber: Int? = null,
     val pokeUser: Boolean = false,
+    val voiceBubbleTexts: List<String> = emptyList(),
 )
 
 internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresentation = CharacterReplyPresentation(
@@ -131,14 +132,19 @@ internal suspend fun appendRoleReplyWithPacing(
     val quoteId = presentation.quoteMessageId?.takeIf { id -> id in allowed && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowed }?.let { id -> before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val spoken = mutableListOf<LuluChatMessage>()
+    val pendingVoice = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
     val replyBatchId = UUID.randomUUID().toString()
     delay(roleTypingLeadDelayMillis(characterId))
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
         val visibleBubble = sanitizePersistedChatText(bubble)
         if (visibleBubble.isBlank()) return@forEachIndexed
+        val voicePosition = pendingVoice.indexOfFirst { it == visibleBubble }
+        val sendVoiceNote = voicePosition >= 0 && decodeQqChatImage(visibleBubble) == null
+        if (sendVoiceNote) pendingVoice.removeAt(voicePosition)
         val created = MigratedDomainStores.chat.appendCharacterMessage(
             conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
+            voiceNote = sendVoiceNote,
         )
         // Only actual delivered bubbles influence the character's future
         // expression style. A mere planner selection is not a real message.
@@ -185,7 +191,8 @@ internal suspend fun appendRoleReplyWithPacing(
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
     // A sticker is a real visual message, never raw base64 read aloud by TTS.
-    spoken.filter { decodeQqChatImage(it.content) == null }
+    spoken.filter { it.voiceNote }.forEach { ChatAutoVoicePlayback.prepareVoiceNote(characterId, it.id, it.content, conversationId) }
+    spoken.filter { !it.voiceNote && decodeQqChatImage(it.content) == null }
         .forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
 }

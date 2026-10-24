@@ -183,6 +183,49 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
+    /** Generate a durable attachment, never audible until the owner taps play. */
+    suspend fun synthesizeVoiceNoteToCache(text: String, base: File, voiceId: String?): Boolean {
+        if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) return false
+        if (cachedAudioFile(base) != null) return true
+        base.parentFile?.mkdirs()
+        val provider = prefs.getString("tts_provider", "system")
+        val extension = if (provider in setOf("elevenlabs", "minimax")) "mp3" else "wav"
+        val target = File(base.parentFile, "${base.name}.$extension")
+        val temporary = File(base.parentFile, "${base.name}.$extension.partial")
+        return try {
+            if (provider == "system") {
+                val ready = kotlinx.coroutines.CompletableDeferred<Boolean>()
+                val completed = kotlinx.coroutines.CompletableDeferred<Boolean>()
+                val voice = TextToSpeech(appContext) { status ->
+                    if (!ready.isCompleted) ready.complete(status == TextToSpeech.SUCCESS)
+                }
+                try {
+                    if (kotlinx.coroutines.withTimeoutOrNull(12_000L) { ready.await() } != true) return false
+                    voice.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                        override fun onStart(utteranceId: String?) = Unit
+                        override fun onDone(utteranceId: String?) { if (!completed.isCompleted) completed.complete(true) }
+                        @Deprecated("Deprecated in Java")
+                        override fun onError(utteranceId: String?) { if (!completed.isCompleted) completed.complete(false) }
+                        override fun onError(utteranceId: String?, errorCode: Int) { if (!completed.isCompleted) completed.complete(false) }
+                    })
+                    if (voice.synthesizeToFile(text, null, temporary, "note-${base.name}") != TextToSpeech.SUCCESS ||
+                        kotlinx.coroutines.withTimeoutOrNull(45_000L) { completed.await() } != true) return false
+                } finally { voice.shutdown() }
+            } else {
+                val bytes = if (provider == "elevenlabs") elevenSpeech.synthesize(text, voiceId, "chat_voice_note")
+                    else requestMiniMaxAudio(text, voiceId)
+                if (bytes.isEmpty()) return false
+                withContext(Dispatchers.IO) { temporary.writeBytes(bytes) }
+            }
+            if (!prefs.getBoolean("tts_enabled", true) || !temporary.exists() || temporary.length() <= 0L) return false
+            withContext(Dispatchers.IO) { temporary.renameTo(target) || run {
+                temporary.copyTo(target, overwrite = true)
+                temporary.delete()
+                true
+            } }
+        } finally { if (temporary.exists()) temporary.delete() }
+    }
+
     fun playCached(file: File, onFinished: (() -> Unit)? = null): Boolean {
         if (!file.exists() || file.length() <= 0L) return false
         stop()

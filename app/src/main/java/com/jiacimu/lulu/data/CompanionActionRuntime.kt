@@ -412,9 +412,12 @@ internal object CompanionActionRuntime {
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
+                val voiceTexts = args.optJSONArray("voiceBubbles")?.let { notes ->
+                    (0 until notes.length()).mapNotNull { notes.optString(it).trim().takeIf(String::isNotBlank) }
+                }.orEmpty()
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        com.jiacimu.lulu.parseCharacterReplyPresentation(text),
+                        com.jiacimu.lulu.parseCharacterReplyPresentation(text).copy(voiceBubbleTexts = voiceTexts),
                      actionableUserMessageIds = replyEvidenceIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value

@@ -255,7 +255,25 @@ internal fun QqMessageRow(
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = 15.sp, lineHeight = 22.sp)
+                                if (message.voiceNote && !mine && index == 0) {
+                                    Row(
+                                        modifier = Modifier.clickable { ChatAutoVoicePlayback.replayCached(message.id) }
+                                            .padding(vertical = 3.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    ) {
+                                        Icon(Icons.Outlined.PlayArrow, contentDescription = "播放语音",
+                                            modifier = Modifier.size(27.dp), tint = QqInk)
+                                        Column {
+                                            Text("语音消息", color = QqInk, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                            Text("点击播放", color = QqMuted, fontSize = 11.sp)
+                                        }
+                                    }
+                                    Spacer(Modifier.height(5.dp))
+                                    HorizontalDivider(color = QqBorder.copy(alpha = 0.45f))
+                                    Spacer(Modifier.height(5.dp))
+                                }
+                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = if (message.voiceNote) 13.sp else 15.sp, lineHeight = 22.sp)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
                                     Text("★ 已收藏", color = if (mine && !journal) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)

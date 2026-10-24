@@ -30,6 +30,7 @@ object ChatAutoVoicePlayback {
         val text: String,
         val voiceId: String?,
         val requireAutoPlay: Boolean,
+        val prepareOnly: Boolean = false,
     )
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -37,6 +38,7 @@ object ChatAutoVoicePlayback {
     // Two rapid "朗读" taps or duplicate UI callbacks must not each
     // purchase a fresh synthesis for the same uncached message.
     private val queuedOrSynthesizing = mutableSetOf<String>()
+    private val playAfterPreparation = mutableSetOf<String>()
     private fun sendOnce(request: Request): Boolean = synchronized(this) {
         if (!queuedOrSynthesizing.add(request.messageId)) return@synchronized true
         if (queue.trySend(request).isSuccess) true
@@ -74,7 +76,7 @@ object ChatAutoVoicePlayback {
                 scope.launch {
                     for (request in queue) {
                         try {
-                        if (!AutomaticVoiceForeground.visible()) continue
+                        if (!request.prepareOnly && !AutomaticVoiceForeground.visible()) continue
                         if (request.requireAutoPlay && visibleConversationId != request.conversationId) continue
                         if (request.requireAutoPlay && (autoPlaySuppressed() ||
                             !VoiceSynthesisPolicy.chatAutomaticAllowed(applicationContext, request.characterId))) continue
@@ -83,6 +85,19 @@ object ChatAutoVoicePlayback {
                         val base = cacheBase(request.messageId) ?: continue
                         activeRequest = request
                         try {
+                            if (request.prepareOnly) {
+                                val produced = runCatching {
+                                    engine?.synthesizeVoiceNoteToCache(speech, base, request.voiceId) == true
+                                }.getOrDefault(false)
+                                val shouldPlay = synchronized(this@ChatAutoVoicePlayback) {
+                                    playAfterPreparation.remove(request.messageId)
+                                }
+                                if (produced) cachedFile(request.messageId)?.let { audio ->
+                                    runCatching { UserMessageFavorites.retainAudio(request.messageId, audio) }
+                                    if (shouldPlay && AutomaticVoiceForeground.visible()) engine?.playCached(audio)
+                                }
+                                continue
+                            }
                             suspendCancellableCoroutine<Unit> { continuation ->
                                 engine?.speakAndCache(
                                     text = speech,
@@ -180,6 +195,16 @@ object ChatAutoVoicePlayback {
         )
     }
 
+    /** Prepare character-chosen speech silently; never auto-play a sent voice note. */
+    fun prepareVoiceNote(characterId: String, messageId: String, text: String, conversationId: String): Boolean {
+        val context = appContext ?: return false
+        if (!VoiceSynthesisPolicy.enabled(context) || text.isBlank() || messageId.isBlank()) return false
+        if (hasCached(messageId)) return true
+        return sendOnce(Request(characterId, messageId, conversationId, text,
+            CharacterVoicePreferenceStore.playbackVoiceId(characterId),
+            requireAutoPlay = false, prepareOnly = true))
+    }
+
     /**
      * QQ-style "朗读": cached audio wins. If this message never generated voice before, synthesize it
      * now, persist the cache, then play it. Returns false only when the message cannot be resolved.
@@ -195,6 +220,13 @@ object ChatAutoVoicePlayback {
         // An old phone transcript has no original performance to replay.
         // Never silently synthesize a different voice and pretend it was the call.
         if (messageId.startsWith("voice-")) return false
+        val characterMessage = resolveCharacterMessage(messageId)?.second
+        if (characterMessage?.voiceNote == true) synchronized(this) {
+            if (messageId in queuedOrSynthesizing) {
+                playAfterPreparation.add(messageId)
+                return true
+            }
+        }
 
         val target = resolveCharacterMessage(messageId) ?: return false
         val characterId = target.first
@@ -246,7 +278,8 @@ object ChatAutoVoicePlayback {
     fun hasCached(messageId: String): Boolean = cachedFile(messageId) != null
 
     fun remove(messageId: String) {
-        cacheBase(messageId)?.let { base ->
+        synchronized(this) { playAfterPreparation.remove(messageId) }
+        listOfNotNull(cacheBase(messageId), voiceNoteBase(messageId)).forEach { base ->
             File(base.parentFile, "${base.name}.mp3").delete()
             File(base.parentFile, "${base.name}.wav").delete()
         }
@@ -270,8 +303,14 @@ object ChatAutoVoicePlayback {
         return null
     }
 
+    private fun voiceNoteBase(messageId: String): File? {
+        val context = appContext ?: return null
+        return File(File(context.filesDir, "chat_voice_notes").apply { mkdirs() }, sha256(messageId))
+    }
+
     private fun cacheBase(messageId: String): File? {
         val context = appContext ?: return null
+        if (resolveCharacterMessage(messageId)?.second?.voiceNote == true) return voiceNoteBase(messageId)
         val directory = File(context.filesDir, "chat_voice_cache").apply { mkdirs() }
         return File(directory, sha256(messageId))
     }
