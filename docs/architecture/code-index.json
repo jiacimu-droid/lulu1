@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:05:24.216891+00:00",
-  "commit": "c025176744bc80c1763533c239a7e11cc0f80bb6",
+  "generatedAt": "2026-10-24T09:05:41.911425+00:00",
+  "commit": "48da1ffc2ca8658a414a249744b10a6db6c8e0af",
   "branch": "main",
-  "sourceFingerprint": "ed159ce24c540716cab6da260d8ffe963195a19eb1b35b57020d4f5d4fed927a",
+  "sourceFingerprint": "5cec25e18f07c8e0ee3b08cb54ac20fc68e3f7b89568a228343fdcac2795b991",
   "summary": {
     "files": 874,
-    "lines": 168687,
+    "lines": 168747,
     "symbols": 2530
   },
   "symbolIndex": {
@@ -623,13 +623,13 @@
     "ChatAutoVoicePlayback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 55
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
@@ -899,19 +899,19 @@
     "suppressAutoPlay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 144
+        "line": 153
       }
     ],
     "resumeAutoPlay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 150
+        "line": 159
       }
     ],
     "enqueue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 179
+        "line": 188
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -925,25 +925,25 @@
     "prepareVoiceNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 200
+        "line": 209
       }
     ],
     "replayCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 215
+        "line": 224
       }
     ],
     "hasCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 282
+        "line": 298
       }
     ],
     "remove": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 284
+        "line": 300
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
@@ -14680,44 +14680,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 350,
-      "sha256": "b274b8ed0e13af088d46b989fb78cfc845b2447ebac1968c74f7e91eaff5037d",
+      "lines": 410,
+      "sha256": "9c8a601eef02605cf1ae2fbdb7eb0fd4258ca92317ac8ddee2770e2114a83133",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
-          "line": 26
+          "line": 27
         },
         {
           "name": "initialize",
-          "line": 55
+          "line": 57
         },
         {
           "name": "suppressAutoPlay",
-          "line": 144
+          "line": 153
         },
         {
           "name": "resumeAutoPlay",
-          "line": 150
+          "line": 159
         },
         {
           "name": "enqueue",
-          "line": 179
+          "line": 188
         },
         {
           "name": "prepareVoiceNote",
-          "line": 200
+          "line": 209
         },
         {
           "name": "replayCached",
-          "line": 215
+          "line": 224
         },
         {
           "name": "hasCached",
-          "line": 282
+          "line": 298
         },
         {
           "name": "remove",
-          "line": 284
+          "line": 300
         }
       ]
     },
