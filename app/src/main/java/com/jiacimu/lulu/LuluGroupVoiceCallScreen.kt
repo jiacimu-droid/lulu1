@@ -290,7 +290,7 @@ internal fun LuluGroupVoiceCallScreen(
                 Text("${group.name}（${group.members.size + 1}）", fontWeight = FontWeight.Bold, fontSize = 22.sp)
                 Text(
                     when {
-                        activeArchive == null -> "请先选择电话模型"
+                        activeArchive == null -> "请先在聊天页选择模型"
                         phase == GroupCallPhase.Ready -> "尚未拨打"
                         phase == GroupCallPhase.Dialing -> "正在呼叫群成员…"
                         phase == GroupCallPhase.Ended -> "通话已结束"
