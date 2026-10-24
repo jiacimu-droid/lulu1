@@ -44,6 +44,36 @@ class ActionFailureDiagnosticsTest {
         assertEquals(1, LuluRepositories.performance.errorRecords.first().count { it.message.contains("failed-world") })
     }
 
+    @Test fun chosenActivityCanTravelToItsUniqueRealLocationBeforeExecution() = runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure)
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
+        LuluRepositories.initialize(context)
+        MigratedDomainStores.characters.initialize(context)
+        DigitalWorldStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("活动路线测试", "喜欢散步")
+        DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "测试创造者")
+        val args = JSONObject().put("worldAction", "use_location").put("activityId", "cloud_walk")
+        val result = JSONObject(ToolRouter.execute(context, role.characterId,
+            "digital_world_action", args, requestId = "unique-location-activity"))
+        assertTrue(result.toString(), result.getBoolean("success"))
+        assertEquals(DigitalWorldStore.CLOUD_MEADOW, DigitalWorldStore.locationOf(role.characterId))
+        assertEquals(listOf("visit_cloud_meadow", "use_location"),
+            DigitalWorldStore.state.value.events.filter { it.characterId == role.characterId }
+                .takeLast(2).map { it.kind })
+        val eventsBefore = DigitalWorldStore.state.value.events.size
+        val invalid = JSONObject(ToolRouter.execute(context, role.characterId,
+            "digital_world_action", JSONObject().put("worldAction", "use_location")
+                .put("activityId", "nonexistent-activity"), requestId = "invalid-activity"))
+        assertFalse(invalid.getBoolean("success"))
+        assertTrue(invalid.toString().contains("nonexistent-activity"))
+        assertEquals(eventsBefore, DigitalWorldStore.state.value.events.size)
+        ToolRouter.execute(context, role.characterId, "digital_world_action", args,
+            requestId = "unique-location-activity")
+        assertEquals(eventsBefore, DigitalWorldStore.state.value.events.size)
+    }
+
     @Test fun formattedUseLocationExecutesTheRealActivityWithoutBypassingLocationValidation() {
         val context = RuntimeEnvironment.getApplication()
         if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure)
