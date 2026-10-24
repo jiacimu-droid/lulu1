@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T05:17:48.542132+00:00",
-  "commit": "4e4dd82d05c384179e54a0d415f9dfbba06a80a8",
+  "generatedAt": "2026-10-24T05:18:46.388676+00:00",
+  "commit": "a0602800ba734e53136f8066241dbe5230627ba0",
   "branch": "main",
-  "sourceFingerprint": "ac1540b10e6bcc54a9d3f0b92cb3af8d7e7707b8169e240ade0ae7f3a8ccf5eb",
+  "sourceFingerprint": "4850e2abe276b795b5fc84fde1757bb23ff3b480bc9a82d5817208e23d0f8954",
   "summary": {
     "files": 872,
-    "lines": 167861,
+    "lines": 167866,
     "symbols": 2522
   },
   "symbolIndex": {
@@ -12871,7 +12871,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-        "line": 66
+        "line": 71
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -12971,7 +12971,7 @@
     "CharacterAssociativeRecallTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-        "line": 11
+        "line": 17
       }
     ],
     "CharacterBehaviorMotivationTest": [
@@ -28155,16 +28155,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-      "lines": 102,
-      "sha256": "c13637c5237c423d7071d09657ccef5c2ecd79901a829ed7f537a8ef6748453f",
+      "lines": 107,
+      "sha256": "986bdf609c2b65ff8cf7a2c624eaa94aa1b3003d3a32c79b0bf0bea0c52b9a58",
       "symbols": [
         {
           "name": "CharacterAssociativeRecallTest",
-          "line": 11
+          "line": 17
         },
         {
           "name": "event",
-          "line": 66
+          "line": 71
         }
       ]
     },
@@ -28410,7 +28410,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 912,
-      "sha256": "22b1ae2bcd71b99151b1261f947c304e0de09b287188c35fbd89299a9286b5eb",
+      "sha256": "74ef34bb3364ecba05592a4c02227f244a2a2c5bf7fb52f13a728409d20186e3",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -29303,7 +29303,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 714,
-      "sha256": "5450547529e4f3d21eceb682352890dcdbaf4f2be232142ac0b5bd4b506c69ae",
+      "sha256": "b9ccba8c34b7c6dbf90c0f622c0cce165549676bb8546ffc6edcc35d46479911",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
