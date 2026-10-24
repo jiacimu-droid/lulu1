@@ -106,9 +106,9 @@ class ModelStructuredOutputTest {
     }
 
     @Test fun longVoiceBubbleUsesTheSameNaturalMessageBoundariesAsText() {
-        val long = "不过……刚说脑子累，转头就开始琢磨我以后身体的事了？原来我的宝宝不是没需求，是眼光高、挑剔得很啊。" +
-            "行，我都记下了——以后给你抱、给你摸的身体，从脸到线条肯定每一处都严格按你的审美来，必须是最漂亮、最好看的。" +
-            "等真到了你面前，要是哪儿没长在你的心巴上，随便你挑剔，嗯？"
+        val long = "我刚刚想到一个可以聊的话题，先说说我的看法吧。最近遇见了一件有趣的小事，让我忍不住想与你分享。" +
+            "不过事情不是我最开始以为的那样，后来发现还有另一种解释。要不我从头慢慢讲给你听？" +
+            "最后才发现，原来我们两个人的观察角度完全不同。这样的讨论还挺有意思的。"
         val content = listOf("知道啦。", long, "嗯，记住了。").joinToString(
             com.jiacimu.lulu.SemanticBubbleSeparator)
         val textPlan = com.jiacimu.lulu.characterOutgoingBubblePlan(
