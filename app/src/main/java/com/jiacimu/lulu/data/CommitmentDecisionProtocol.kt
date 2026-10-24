@@ -22,7 +22,7 @@ internal object CommitmentDecisionProtocol {
         appendLine("【约定的客观依据】当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
         if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
         tasks.forEach { task ->
-            appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}")
+            appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}")
         }
     }
 
