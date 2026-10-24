@@ -65,9 +65,11 @@ fun ScheduleFeatureScreen(
             // creating a separate stored task for every date.
             !selectedDate.isBefore(task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate()) &&
                 !selectedDate.isBefore(task.dueAt.atZone(ZoneId.systemDefault()).toLocalDate())
-        } else task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
-            ?.let { it == selectedDate }
-            ?: (task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate)
+        } else {
+            val targetDate = task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
+                ?: task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate()
+            targetDate == selectedDate
+        }
     }
     val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
     val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&
