@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:09:31.025054+00:00",
-  "commit": "b8651a6fc893e021d93a87d3153a498d7775d13c",
+  "generatedAt": "2026-10-24T09:11:27.679514+00:00",
+  "commit": "3e53b3d29280d2ffbb489c7c1f25e218475b10f1",
   "branch": "main",
-  "sourceFingerprint": "3a99388ca7f3c8ef0ce4a2cf3018f58ad7c5dac35ca90a989e862636b7405586",
+  "sourceFingerprint": "aacf88779e59ef53105240c7bd363c68126d47793b50de04775367255bd4624d",
   "summary": {
     "files": 874,
-    "lines": 168835,
+    "lines": 168839,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -29671,8 +29671,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
-      "lines": 137,
-      "sha256": "977eb19dad51433b4e1855dd3a51752717239669cc232efb57caec7ef4659d18",
+      "lines": 141,
+      "sha256": "83dec059efa2cf28e4099a18f56c4a1a1681d0b0f2718f782b3ba2825937f1e3",
       "symbols": [
         {
           "name": "ResidentMailCausalIntegrationTest",
