@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T16:32:09.466661+00:00",
-  "commit": "f028014d31b459b91f0242ee2dab4c69cab5a8f2",
+  "generatedAt": "2026-10-24T16:35:55.962274+00:00",
+  "commit": "fefdc265cb5c99104ceb68ef31857ba4e1cc607d",
   "branch": "main",
-  "sourceFingerprint": "a682f55a6b72a415c13cafd12c929e128e44b04c4ee4bfd4b075bc7b472e5828",
+  "sourceFingerprint": "a85be427566489010d5b251dd0932eedd3c11b186a4e9275c3c2bc97eb6e67f6",
   "summary": {
     "files": 879,
-    "lines": 171246,
+    "lines": 171274,
     "symbols": 2565
   },
   "symbolIndex": {
@@ -9191,7 +9191,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2310
+        "line": 2316
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -20692,8 +20692,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 439,
-      "sha256": "b6e2c5227f3b25ab56c33b9378d612dda94bce43295c1538f2cb4a57c401a883",
+      "lines": 440,
+      "sha256": "31a81280b99377215a9b5619d68e7e03c97bee9fcdcac13f92866157d10f0dd8",
       "symbols": [
         {
           "name": "fromWire",
@@ -23335,8 +23335,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2377,
-      "sha256": "25841c6e61ec91a380772875836c52b668e7db4b147975278c6742dc1465c6a5",
+      "lines": 2383,
+      "sha256": "8541744c296d1767a4b55d5d733f8e19205950106b177e17dd043bac8be68bba",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -23368,7 +23368,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2310
+          "line": 2316
         }
       ]
     },
@@ -28758,8 +28758,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 360,
-      "sha256": "b858d3dd784ea9246acf687912215fd376244199defea85b4347db536b7a8d1a",
+      "lines": 381,
+      "sha256": "dd7e1095c717c9d5b4be48b0c9d1d226b6c0bc6bb2237bb74f3f1f716c5fda76",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
