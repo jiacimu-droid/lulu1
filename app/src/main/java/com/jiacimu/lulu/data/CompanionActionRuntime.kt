@@ -448,6 +448,9 @@ internal object CompanionActionRuntime {
                 val voiceTexts = args.optJSONArray("voiceBubbles")?.let { notes ->
                     (0 until notes.length()).mapNotNull { notes.optString(it).trim().takeIf(String::isNotBlank) }
                 }.orEmpty()
+                val speechTracks = args.optJSONArray("bubbleSpeechTracks")?.let { tracks ->
+                    (0 until tracks.length()).map { tracks.optString(it).take(4_000) }
+                }.orEmpty()
                 val presentation = com.jiacimu.lulu.parseCharacterReplyPresentation(text).let { parsed ->
                     if (bubbleModes.isNotEmpty() &&
                         text.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank) == bubbleModes.size) {
@@ -455,6 +458,7 @@ internal object CompanionActionRuntime {
                         parsed.copy(
                             content = com.jiacimu.lulu.stripCharacterReplyDirective(text),
                             bubbleDeliveryModes = bubbleModes,
+                            bubbleSpeechTracks = speechTracks.takeIf { it.size == bubbleModes.size }.orEmpty(),
                         )
                     } else parsed.copy(voiceBubbleTexts = voiceTexts)
                 }
