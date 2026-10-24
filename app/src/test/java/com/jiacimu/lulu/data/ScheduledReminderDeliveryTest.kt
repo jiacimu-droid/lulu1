@@ -26,6 +26,8 @@ class ScheduledReminderDeliveryTest {
             dueAt = timed, deliveryAction = "send_private_message")
         val wake = bedtime.copy(goal = "早上九点叫醒我起床")
         assertTrue(shouldShowScheduledReminderPopup(bedtime))
+        assertTrue(shouldShowScheduledReminderPopup(bedtime.copy(goal = "十点半叫我学习")))
+        assertTrue(shouldShowScheduledReminderPopup(bedtime.copy(goal = "下午喊我回来")))
         assertFalse(shouldShowScheduledReminderPopup(wake))
     }
 }
