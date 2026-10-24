@@ -330,6 +330,61 @@ object LuluScreenAwareness {
                 else "已发送「请求返回露露机」通知；主人是否点击尚未确认").toString()
     }
 
+    /**
+     * A scheduled request to return has an explicit owner-chosen action.
+     * The overlay is a first-class UI, the notification only a fallback when
+     * Android blocks overlays. Merely showing it is NOT confirmation the
+     * owner returned or completed the task.
+     */
+    fun scheduledReminder(context: Context, characterId: String, title: String,
+        requestId: String, conversationId: String = ""): String {
+        if (characterId.isBlank() || requestId.isBlank()) return rejected(
+            context, "定时提醒缺少角色或事件ID", "failed")
+        val app = context.applicationContext
+        val canNotify = (Build.VERSION.SDK_INT < 33 ||
+            ContextCompat.checkSelfPermission(app, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED) &&
+            NotificationManagerCompat.from(app).areNotificationsEnabled()
+        if (!canNotify && !LuluScreenRequestPopup.available(app))
+            return rejected(app, "定时提醒需要通知或悬浮窗权限；未显示", "failed")
+        val launch = Intent(app, com.jiacimu.lulu.MigrationActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        if (conversationId.isNotBlank()) launch.putExtra("open_conversation_id", conversationId)
+        val noticeId = "scheduled:$requestId".hashCode()
+        val pending = PendingIntent.getActivity(app, noticeId, launch,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val roleName = runCatching { MigratedDomainStores.characters.get(characterId).displayName }
+            .getOrNull()?.takeIf(String::isNotBlank) ?: "角色"
+        val shortTitle = title.trim().take(34).ifBlank { "约好的时间到了" }
+        val manager = app.getSystemService(NotificationManager::class.java)
+        val channel = "lulu_scheduled_return_v1"
+        manager.createNotificationChannel(NotificationChannel(channel,
+            "角色日程邀请", NotificationManager.IMPORTANCE_HIGH))
+        val notificationReady = canNotify &&
+            manager.getNotificationChannel(channel)?.importance != NotificationManager.IMPORTANCE_NONE
+        if (notificationReady) manager.notify(noticeId, Notification.Builder(app, channel)
+            .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
+            .setContentTitle("$roleName 来喊你啦")
+            .setContentText(shortTitle)
+            .setCategory(Notification.CATEGORY_REMINDER)
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setContentIntent(pending).setAutoCancel(true).build())
+        val popup = LuluScreenRequestPopup.showScheduledReminder(app, roleName, shortTitle,
+            requestId,
+            onReturn = { manager.cancel(noticeId); runCatching { pending.send() } },
+            onLater = { manager.cancel(noticeId) },
+            onFailure = { report(app, "系统未能显示定时提醒悬浮窗" +
+                if (notificationReady) "；已保留通知" else "；通知不可用") },
+        )
+        if (!popup && !notificationReady)
+            return rejected(app, "悬浮窗被禁止，通知不可用", "failed")
+        report(app, if (popup) "已尝试显示定时提醒悬浮弹窗，等待主人选择"
+            else "定时提醒改用通知后备")
+        return JSONObject().put("success", true)
+            .put("status", if (popup) "popup_requested" else "notification_posted")
+            .put("summary", "定时邀请已请求显示；未确认主人已返回或完成事项").toString()
+    }
+
     /** Local UsageEvents estimate; no database and no screenshot transmission. */
     fun recentAppActivity(context: Context, nowMillis: Long = System.currentTimeMillis()): String {
         if (!appTracking(context)) return "用户已关闭应用使用感知"
