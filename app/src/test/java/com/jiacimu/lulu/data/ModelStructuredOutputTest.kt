@@ -26,7 +26,13 @@ class ModelStructuredOutputTest {
                 bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
                 bubbleSpeechTracks = tracks))
         assertEquals(listOf(true, false, true), plan.map { it.voiceNote })
-        assertEquals(tracks, plan.map { it.speechText })
+        // Segmentation may normalize whitespace next to the direction tags.
+        // The invariant is the same spoken words and preserved audio-only cues.
+        assertEquals(tracks.map(com.jiacimu.lulu.VoicePerformance::plain),
+            plan.map { com.jiacimu.lulu.VoicePerformance.plain(it.speechText) })
+        assertTrue(plan[0].speechText.contains("[softly]"))
+        assertEquals("", plan[1].speechText)
+        assertTrue(plan[2].speechText.contains("[hesitant]"))
         assertEquals(listOf("我在呢。", "你说。", "慢慢来。"), plan.map { it.text })
     }
 
