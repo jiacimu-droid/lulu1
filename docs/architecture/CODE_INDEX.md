@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6a9fbe963d51bdfe2951ae54b7b56d030cf03b0d`
+- 基准提交：`4b5857a19120c37216e8170d00cef93e2d8d91b4`
 - 分支：`main`
 - 已索引文件：872
-- 已索引代码/文本行：167313
-- 已发现符号：2518
+- 已索引代码/文本行：167331
+- 已发现符号：2519
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -327,7 +327,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 362 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1070 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1072 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 781 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
@@ -438,7 +438,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 331 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 127 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 172 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 581 | 20 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 597 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 690 | 21 |
