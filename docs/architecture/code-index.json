@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T01:37:00.726531+00:00",
-  "commit": "95e9216fad5b2cee812e6927eb9ff394ce913e37",
+  "generatedAt": "2026-10-24T01:39:14.323722+00:00",
+  "commit": "f22cd0ec3c2ad14e75f7c1d310d3ffd9ee6ac79e",
   "branch": "main",
-  "sourceFingerprint": "373330e53e8a7246cbe545328e77a41e59d23cdd6d19911dc0661608aeeb3c8e",
+  "sourceFingerprint": "637fe9c466b0f9210d5f5345458d91bc78a001bbf843cfa2a8efdce9e6c9998d",
   "summary": {
     "files": 867,
-    "lines": 165848,
+    "lines": 165728,
     "symbols": 2506
   },
   "symbolIndex": {
@@ -1673,7 +1673,7 @@
     "toggleSelfCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-        "line": 130
+        "line": 128
       }
     ],
     "prepare": [
@@ -2263,13 +2263,13 @@
     "LuluVoiceCallScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-        "line": 63
+        "line": 62
       }
     ],
     "installCoreIfNeeded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-        "line": 107
+        "line": 104
       }
     ],
     "selectStt": [
@@ -15312,12 +15312,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 815,
-      "sha256": "b6becae54dbbdda54a3610599ecdce09253a256762d16559bfbb8328821d6dd8",
+      "lines": 794,
+      "sha256": "58016f6237484f72475c7ed00e4ccd3a3c67bed1e6345852981b5ff774e943f4",
       "symbols": [
         {
           "name": "toggleSelfCamera",
-          "line": 130
+          "line": 128
         }
       ]
     },
@@ -15837,16 +15837,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 838,
-      "sha256": "67741ff8b87bb2e0a8477e05adf556bc155aa1be18a94e5f3b849a82f1fede75",
+      "lines": 739,
+      "sha256": "59e0e8e3775966b8b71d7e9177c38f56447b0433722aca0471b6a6414d7dcb2e",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
-          "line": 63
+          "line": 62
         },
         {
           "name": "installCoreIfNeeded",
-          "line": 107
+          "line": 104
         }
       ]
     },

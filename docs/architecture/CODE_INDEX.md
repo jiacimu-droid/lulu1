@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`95e9216fad5b2cee812e6927eb9ff394ce913e37`
+- 基准提交：`f22cd0ec3c2ad14e75f7c1d310d3ffd9ee6ac79e`
 - 分支：`main`
 - 已索引文件：867
-- 已索引代码/文本行：165848
+- 已索引代码/文本行：165728
 - 已发现符号：2506
 
 | 文件 | 行数 | 符号数 |
@@ -102,7 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 132 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 815 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 794 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 420 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 62 | 1 |
@@ -131,7 +131,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 475 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 838 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 739 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2347 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
