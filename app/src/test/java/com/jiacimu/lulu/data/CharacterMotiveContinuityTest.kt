@@ -4,6 +4,7 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,7 +22,13 @@ class CharacterMotiveContinuityTest {
     private lateinit var context: Context
 
     @Before fun begin() {
+        MemoryTestEnvironment.release()
         context = RuntimeEnvironment.getApplication()
+        // Robolectric replaces Application per test but retains Kotlin objects.
+        // Bind this test's first write to THIS Application's preferences before
+        // testing a reload; otherwise the writes go to the previous sandbox app.
+        CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
         SharedExperienceTimeline.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterInnerLifeStore.clear(role)
@@ -33,6 +40,8 @@ class CharacterMotiveContinuityTest {
             it.copy(enabled = false, intervalValue = 2, intervalUnit = PerceptionIntervalUnit.Hours)
         }
     }
+
+    @After fun finish() { MemoryTestEnvironment.release() }
 
     private fun goal() = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
     private fun change(op: String, at: Instant, fields: JSONObject = JSONObject()) {
