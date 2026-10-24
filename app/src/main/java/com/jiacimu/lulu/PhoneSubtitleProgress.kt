@@ -10,8 +10,9 @@ internal object PhoneSubtitleProgress {
         // (PhoneSubtitleLayout.liveLines) prevents revealing sentence five during
         // sentence two; slightly leading the voice is acceptable.
         val count = line.count { !it.isWhitespace() }
-        val punctuationPause = line.count { it in "。！？!?；;" } * 200L +
-            line.count { it in "，," } * 100L
-        return (count * 240L + punctuationPause).coerceIn(650L, 14_000L)
+        val punctuationPause = line.count { it in "。！？!?；;" } * 150L +
+            line.count { it in "，," } * 75L
+        // Lead typical conversational TTS slightly rather than lagging its PCM playback.
+        return (count * 195L + punctuationPause).coerceIn(500L, 12_000L)
     }
 }
