@@ -84,7 +84,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                         it in setOf("start_call", "alarm_only", "send_private_message")
                     } ?: if (action == "create" && !isWake) "send_private_message" else "",
                     promiseKind = item.optString("promiseKind").trim().takeIf(String::isNotBlank),
-                    repeat = item.optString("repeat", "once").takeIf { it == "daily" } ?: "once",
+                    repeat = item.optString("repeat").takeIf { it in setOf("once", "daily") },
                     needsClarification = wakeMethodMissing ||
                         item.optBoolean("needsClarification", dueAt == null && action == "create"),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
