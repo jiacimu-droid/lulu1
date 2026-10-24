@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T17:04:58.488645+00:00",
-  "commit": "5c14ba7c92b72348496671bef42ecedc8dd674a1",
+  "generatedAt": "2026-10-24T17:06:57.741895+00:00",
+  "commit": "d4992955831b7ea9d8c73f38d04028d2740f0328",
   "branch": "main",
-  "sourceFingerprint": "d60ce52c2dd57919103cf2286f9945ff84cb45c7c062f2eeddc62ef0906553f2",
+  "sourceFingerprint": "61bcfbe9e00c5641cc219518c451a7f155f3d0c885958d3d030092ec02cd5cb0",
   "summary": {
     "files": 879,
-    "lines": 171338,
+    "lines": 171336,
     "symbols": 2565
   },
   "symbolIndex": {
@@ -9191,7 +9191,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2324
+        "line": 2323
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14591,7 +14591,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
       "lines": 27,
-      "sha256": "5951df823bd2879d45800c57441c3250a105ea4fe6535fdb18e5796724a89bdd",
+      "sha256": "de66108d58fd4f5fd18c26b6f6585a65f88ff3ff3ce0b0d2527cfc274cac6c15",
       "symbols": [
         {
           "name": "claim",
@@ -23335,8 +23335,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2391,
-      "sha256": "98752f52ad05261c9b81f2b93bd37511e64ab9da89d656a3e05257f026c57f9a",
+      "lines": 2389,
+      "sha256": "9ac883cf74a0be55e31a1433136ad9ff1be48f31f64820d1aaea416afbcad12a",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -23368,7 +23368,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2324
+          "line": 2323
         }
       ]
     },
@@ -27499,7 +27499,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
       "lines": 249,
-      "sha256": "0b5e94090ae98269f47e5a44f943df93c24cd5b10f9bae9f926e537d0942b153",
+      "sha256": "bcda580370f1c589cff5cb58b07607fefb02e7f6c062d5e55dfb9ad67123a8ba",
       "symbols": [
         {
           "name": "CallContractsTest",
