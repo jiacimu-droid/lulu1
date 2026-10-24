@@ -108,6 +108,40 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+    @Test fun succeedingInOneQuestionDoesNotClearAnotherSameTopicFailure() {
+        begin()
+        val main = proposal("章节之后怎么发展")
+        val other = proposal("作者用了什么叙事方法")
+        // Independent feedback may arrive before either question was persisted.
+        CharacterCuriosityRuntime.recordFailure(id, main, "reading", "第一项暂时读不到", at)
+        CharacterCuriosityRuntime.recordFailure(id, other, "reading", "第二项网络失败", at)
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+
+        realRead("first-question-success", at.plusSeconds(60))
+        CharacterCuriosityRuntime.recordOutcome(id, main, "reading", true,
+            "第一项成功", "first-question-success", at.plusSeconds(60))
+        val after = CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures")
+        assertEquals(1, after.length())
+        assertEquals(other.getString("question"), after.getJSONObject(0).getString("question"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun failureForLinkedThreadIsClearedByMatchingVerifiedReceipt() {
+        begin()
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "真实看到的问题", at)
+        val pending = CharacterCuriosityRuntime.visibleQuestions(id).single()
+        val identity = pending.getString("threadId")
+        val owned = proposal().put("threadId", identity)
+        CharacterCuriosityRuntime.recordFailure(id, owned, "reading", "读书失败", at)
+        assertEquals(identity, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures")
+            .getJSONObject(0).getString("threadId"))
+        realRead("completed-reading", at.plusSeconds(60))
+        CharacterCuriosityRuntime.recordOutcome(id, owned, "reading", true,
+            "已实际读到后续内容", "completed-reading", at.plusSeconds(60))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun characterCanDropAnInterestWithoutErasingItsRealPast() {
         begin()
         realRead("past-chapter", at)
