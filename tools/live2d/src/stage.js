@@ -649,7 +649,7 @@ function ensureApp() {
   // Allow smoother Cubism motion on capable Android GPUs. The native frame
   // bridge remains backpressured by its real decode ACK; do not capture
   // duplicate frames or tie pose timing to JPEG delivery.
-  app.ticker.maxFPS = 36
+  app.ticker.maxFPS = nativeStreamEnabled ? 36 : 60
   window.addEventListener('resize', fit)
   new ResizeObserver(() => fit()).observe(root)
   app.view.addEventListener('webglcontextlost', event => {
