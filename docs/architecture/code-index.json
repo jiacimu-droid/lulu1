@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T17:04:35.413839+00:00",
-  "commit": "04a9d611b54884b33ee428ef5a9adc161611befb",
+  "generatedAt": "2026-10-24T17:04:58.488645+00:00",
+  "commit": "5c14ba7c92b72348496671bef42ecedc8dd674a1",
   "branch": "main",
-  "sourceFingerprint": "2f9866d192b19d9de3a95fda406eae45abeb3949c676020b1f831d9c1ef4ff04",
+  "sourceFingerprint": "d60ce52c2dd57919103cf2286f9945ff84cb45c7c062f2eeddc62ef0906553f2",
   "summary": {
     "files": 879,
-    "lines": 171333,
+    "lines": 171338,
     "symbols": 2565
   },
   "symbolIndex": {
@@ -23336,7 +23336,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2391,
-      "sha256": "dc21eeaf92e5c06264af1b6e39fe84c40a8a00d7d6798544a042b8ae3349f805",
+      "sha256": "98752f52ad05261c9b81f2b93bd37511e64ab9da89d656a3e05257f026c57f9a",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -27498,8 +27498,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 244,
-      "sha256": "b49668c47c8823ec6ddaf450178904a5492af95ee9ffe9277728c5c2bdd2d7c7",
+      "lines": 249,
+      "sha256": "0b5e94090ae98269f47e5a44f943df93c24cd5b10f9bae9f926e537d0942b153",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -27928,7 +27928,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt",
       "lines": 37,
-      "sha256": "2e983c6df69e19e56002c51a487f5fb99ce0f7abc60e85db73697d6196abb28c",
+      "sha256": "3da9ceec9ace2a1f1a284f9bc88a93dc37be940e37e97aef2b698d66692432b7",
       "symbols": [
         {
           "name": "PhoneSubtitleProgressTest",
