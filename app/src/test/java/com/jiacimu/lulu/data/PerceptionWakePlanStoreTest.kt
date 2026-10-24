@@ -72,7 +72,12 @@ class PerceptionWakePlanStoreTest {
     }
 
     @Test fun distantOrEarlierPersonalAppointmentsCannotPostponePassiveThinking() {
-        initializeStores(context)
+        // Initialize the real stores for the integrated scheduler regression test.
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
         CompanionOnlineStore.initialize(context)
         val role = MigratedDomainStores.characters.create("自主日程间隔测试").characterId
         MigratedDomainStores.chat.ensureConversation(role, "自主日程间隔测试")
