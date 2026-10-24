@@ -742,6 +742,14 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                // The normal autonomous model previously saw generic references
+                // to search, but not the live provider/permission/argument contract.
+                // Reuse the executable registry's existing catalogue; avoid
+                // paying for this extra context on ordinary user chat turns.
+                if (privateDialogue.isEmpty()) {
+                    appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
+                        appContext, characterId))
+                }
                 // Private replies already have the normal character context.
                 // Reserve the dedicated life-planning context for independent
                 // turns instead of charging it on every incoming chat bubble.
