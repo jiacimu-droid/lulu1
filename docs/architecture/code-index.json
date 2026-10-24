@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:57:29.146144+00:00",
-  "commit": "fb1170922f74f3d014643aa77b3b2482bfbf4c53",
+  "generatedAt": "2026-10-24T11:01:35.252987+00:00",
+  "commit": "e104fa541c342429bf1e4e80677ef2e5ce85ddf7",
   "branch": "main",
-  "sourceFingerprint": "eceb4056e4de4762e46a5ed899b402f747218df53916ec50c6f1650d7443ba26",
+  "sourceFingerprint": "278379737e23ebb559f2acad2ec7ec985b036862625f7d0215093cf7a67dc723",
   "summary": {
     "files": 876,
-    "lines": 169825,
-    "symbols": 2542
+    "lines": 169850,
+    "symbols": 2543
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1965,7 +1965,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1034
+        "line": 1035
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4443,7 +4443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 71
+        "line": 72
       }
     ],
     "Attempt": [
@@ -6403,19 +6403,25 @@
     "asJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "autonomousDiscoveryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1001
+        "line": 1002
+      }
+    ],
+    "requiresCompletion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 1066
       }
     ],
     "age": [
@@ -20220,28 +20226,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1125,
-      "sha256": "fa1e16eb950dd29e39294618c1354d4a0b97c646b524c169eff3950ea04593e7",
+      "lines": 1150,
+      "sha256": "4f7857245f3ad2286f56d78595decd9365038f3bed9dbf5c81036b469496dae2",
       "symbols": [
         {
           "name": "asJson",
-          "line": 26
+          "line": 27
         },
         {
           "name": "autonomousDiscoveryContext",
-          "line": 53
+          "line": 54
         },
         {
           "name": "capabilityContext",
-          "line": 71
+          "line": 72
         },
         {
           "name": "world",
-          "line": 1001
+          "line": 1002
         },
         {
           "name": "from",
-          "line": 1034
+          "line": 1035
+        },
+        {
+          "name": "requiresCompletion",
+          "line": 1066
         }
       ]
     },
