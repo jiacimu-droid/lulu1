@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:15:33.932891+00:00",
-  "commit": "53b653dfa9e3cd3935003ff074f8b604adde7475",
+  "generatedAt": "2026-10-24T02:15:46.878473+00:00",
+  "commit": "422f62d4509473b69686165f495fd7fe880c2948",
   "branch": "main",
-  "sourceFingerprint": "c51a10797b60bde94877f09464987fa4caf39281acaa66c4589911c728ea4378",
+  "sourceFingerprint": "0caac53f212e3edd41828dc975f5942b401249b3a864f8d79098f7823da6c506",
   "summary": {
     "files": 868,
-    "lines": 166009,
+    "lines": 166052,
     "symbols": 2509
   },
   "symbolIndex": {
@@ -183,7 +183,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 204
+        "line": 247
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -945,7 +945,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 280
+        "line": 323
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -5015,7 +5015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 307
+        "line": 350
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -6299,13 +6299,13 @@
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 147
+        "line": 190
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 300
+        "line": 343
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -19894,8 +19894,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 319,
-      "sha256": "605b5b41bafd984fa5424d5b50aae4ed18f7d4af6a98c5c516252eb3c1adf47e",
+      "lines": 362,
+      "sha256": "116dc3dd47bdf67ec12e818fd14348804006f9972e3fda9597fa105d5fafa4d1",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -19927,23 +19927,23 @@
         },
         {
           "name": "claimAlarmExecution",
-          "line": 147
+          "line": 190
         },
         {
           "name": "cancel",
-          "line": 204
+          "line": 247
         },
         {
           "name": "remove",
-          "line": 280
+          "line": 323
         },
         {
           "name": "removeBySourceEvent",
-          "line": 300
+          "line": 343
         },
         {
           "name": "clearCharacter",
-          "line": 307
+          "line": 350
         }
       ]
     },
