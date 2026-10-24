@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:19:56.740307+00:00",
-  "commit": "695d899a7f810607a2b5eb7fe2750a22a8da1a03",
+  "generatedAt": "2026-10-24T01:37:00.726531+00:00",
+  "commit": "95e9216fad5b2cee812e6927eb9ff394ce913e37",
   "branch": "main",
-  "sourceFingerprint": "4e7836173c01b8d435b9b767aa89e80ce81528908e2e095d3775785e59f93aac",
+  "sourceFingerprint": "373330e53e8a7246cbe545328e77a41e59d23cdd6d19911dc0661608aeeb3c8e",
   "summary": {
     "files": 867,
-    "lines": 165855,
+    "lines": 165848,
     "symbols": 2506
   },
   "symbolIndex": {
@@ -2395,19 +2395,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1976
+        "line": 1969
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2128
+        "line": 2121
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2268
+        "line": 2261
       }
     ],
     "returnToList": [
@@ -15852,8 +15852,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2354,
-      "sha256": "48d4447f86400d627e787d2299bef788a547c948da0ace72eec9105987b45ef6",
+      "lines": 2347,
+      "sha256": "e54e2899dd6952f4349423709a6e442b3802cfaddca41d5ba0016cf7ceee8b81",
       "symbols": [
         {
           "name": "selectStt",
@@ -15941,15 +15941,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1976
+          "line": 1969
         },
         {
           "name": "retryListening",
-          "line": 2128
+          "line": 2121
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2268
+          "line": 2261
         }
       ]
     },
