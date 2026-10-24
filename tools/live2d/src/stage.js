@@ -53,6 +53,31 @@ let nativeStreamWarned = false
 // slower than the Android bridge. Capture only after a NEW rendered frame.
 let nativeStreamLastTickerTime = -1
 let nativeStreamAckMeanMs = 45
+// Bounded, renderer-only timings. No user audio, images, model contents or
+// permanent telemetry. GPU FPS below means Pixi render cadence, NOT display FPS.
+const framePerf = { startedAt: 0, renders: 0, captures: 0,
+  renderCostMs: 0, copyCostMs: 0, encodeCostMs: 0, ackCostMs: 0 }
+function recordRenderTick(costMs, now) {
+  if (!framePerf.startedAt) framePerf.startedAt = now
+  framePerf.renders++
+  framePerf.renderCostMs += costMs
+  const span = now - framePerf.startedAt
+  if (span < 4000) return
+  if (model && previewObserved && !paused) {
+    const mean = (value, count) => count ? Math.round(value / count) : 0
+    const rendererFps = (framePerf.renders * 1000 / Math.max(1, span)).toFixed(1)
+    notify('performance', 'WebGL ' + rendererFps + ' FPS · 绘制 ' +
+      mean(framePerf.renderCostMs, framePerf.renders) + 'ms · 拷贝 ' +
+      mean(framePerf.copyCostMs, framePerf.captures) + 'ms · JPEG ' +
+      mean(framePerf.encodeCostMs, framePerf.captures) + 'ms · 桥接 ' +
+      mean(framePerf.ackCostMs, framePerf.captures) + 'ms')
+  }
+  framePerf.startedAt = now
+  framePerf.renders = 0
+  framePerf.captures = 0
+  framePerf.renderCostMs = framePerf.copyCostMs =
+    framePerf.encodeCostMs = framePerf.ackCostMs = 0
+}
 // Full body for diagnostics; video calls may request a closer waist-up view.
 let framingMode = window.__luluFramingMode === 'portrait' ? 'portrait' : 'full'
 let gpuLost = false
@@ -612,8 +637,10 @@ function ensureApp() {
   // AIRI's Canvas.vue wraps ticker renders so animation exceptions cannot
   // silently terminate rendering while Android still shows a "ready" status.
   app.ticker.add(() => {
+    const started = performance.now()
     try {
       app.render()
+      recordRenderTick(performance.now() - started, performance.now())
     } catch (error) {
       app.ticker.stop()
       status('Live2D 动画渲染中断：' + (error?.message || String(error)), 'error')
@@ -991,6 +1018,7 @@ function sendNativeStreamFrame() {
   const bridge = window.LuluNativeFrames
   if (!bridge || typeof bridge.postMessage !== 'function') return
   let canvas
+  const copyStartedAt = performance.now()
   try {
     canvas = drawNativeCapture(nativeStreamMaxEdge)
   } catch (error) {
@@ -1003,12 +1031,16 @@ function sendNativeStreamFrame() {
     scheduleNativeStreamFrame(250)
     return
   }
+  framePerf.copyCostMs += performance.now() - copyStartedAt
+  framePerf.captures++
   nativeStreamBusy = true
   if (Number.isFinite(tickerTime)) nativeStreamLastTickerTime = tickerTime
   nativeStreamLastFrameAt = performance.now()
+  const encodingStartedAt = nativeStreamLastFrameAt
   try {
     // Asynchronous JPEG encoding avoids a blocking toDataURL on every frame.
     canvas.toBlob(async blob => {
+      framePerf.encodeCostMs += performance.now() - encodingStartedAt
       if (!nativeStreamEnabled) { nativeStreamBusy = false; return }
       if (!blob) {
         nativeStreamBusy = false
@@ -1058,6 +1090,7 @@ function setNativeStreaming(enabled) {
     if (reply.startsWith('next:')) {
       const maxEdge = Number(reply.substring(5))
       const ackMs = performance.now() - nativeStreamLastFrameAt
+      framePerf.ackCostMs += ackMs
       nativeStreamAckMeanMs = nativeStreamAckMeanMs * .8 + ackMs * .2
     // Avoid wasting render/GPU readback bandwidth when JPEG transport cannot
     // sustain high cadence. Raise the ticker only after stable fast ACKs.
