@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T15:55:20.613560+00:00",
-  "commit": "7b10e95d1c5b370a4440256c0b07530912227e83",
+  "generatedAt": "2026-10-24T15:56:01.478682+00:00",
+  "commit": "61d02ec622da538662f104c80f5a8caba7cb5ce3",
   "branch": "main",
-  "sourceFingerprint": "3de0d870415587b3edcb935520b2eaaa35d3038aebb83e9749355a76f4fa8c1d",
+  "sourceFingerprint": "0d9f582b8252d76821cadc554e14125514e408759da88e48143df2b3bd49f79e",
   "summary": {
     "files": 879,
-    "lines": 171149,
+    "lines": 171183,
     "symbols": 2565
   },
   "symbolIndex": {
@@ -28670,8 +28670,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 144,
-      "sha256": "f59e9a42a0321273ada765087ac92a3a6f52ee6f155148e0d28e77bbe9502338",
+      "lines": 178,
+      "sha256": "a2c8181e9b69fb054c4e9bbe6cb71cd9133b6cca09716ab2d5084b9d512b1ef2",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
