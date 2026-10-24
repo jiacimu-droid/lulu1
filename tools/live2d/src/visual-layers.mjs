@@ -14,7 +14,8 @@ export const FACE_BINDINGS = Object.freeze({
   eyeSmile: ['ParamEyeLSmile', 'ParamEyeRSmile'],
   eyeOpen: ['ParamEyeLOpen', 'ParamEyeROpen'],
   browX: ['ParamBrowLX', 'ParamBrowRX'],
-  browY: ['ParamBrowLY', 'ParamBrowRY'],
+  // One writer per eyebrow. The legacy bilateral 'browY' face cue is
+  // interpreted as a fallback for each side, never as a second write pass.
   // Independent brow actuators are present in the supplied CDI3 rig.
   browLeftY: ['ParamBrowLY'], browRightY: ['ParamBrowRY'],
   browAngle: ['ParamBrowLAngle', 'ParamBrowRAngle'],
@@ -159,7 +160,11 @@ export function createVisualLayerRuntime({ has, read, write }) {
           Math.max(0, Math.sin(seconds * 2.1)) : 0
       const speechBrow = key === 'browLeftY' ? emphasis :
         key === 'browRightY' ? emphasis * .35 : null
+      const pairedBrow = key === 'browLeftY' || key === 'browRightY'
+      const bilateralBrow = pairedBrow
+        ? touchReflex?.face?.browY ?? face?.browY : null
       const requested = touchReflex?.face?.[key] ?? face?.[key] ??
+        bilateralBrow ??
         (speechBrow != null && speechBrow > .008 ? speechBrow : null)
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       if (authoredMotion && requested == null) {

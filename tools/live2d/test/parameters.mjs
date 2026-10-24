@@ -132,7 +132,7 @@ const speechValues = { deltaMs: 16, speaking: true, pcmAvailable: true, level: .
 for (let i = 0; i < 25; i++) lips.update(core, speechValues)
 assert.ok(lip.get('ParamMouthOpenY') > .83, 'PCM must open the mouth smoothly')
 assert.ok(lip.get('ParamJawOpen') > .48, 'jaw follows mouth with its own latency')
-assert.ok(lip.get('ParamMouthPuckerWiden') > .07, 'wolf's secondary mouth rig is used')
+assert.ok(lip.get('ParamMouthPuckerWiden') > .07, "wolf secondary mouth rig is used")
 lips.update(core, { ...speechValues, level: 0 })
 assert.ok(lip.get('ParamMouthOpenY') > .2, 'silence should start closing rather than snap')
 for (let i = 0; i < 85; i++) lips.update(core, { deltaMs: 16, speaking: false })
