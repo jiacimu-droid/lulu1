@@ -510,9 +510,19 @@ private fun Live2DNativeFrameOverlay(
                     // The old 650px smooth floor blurred the face, while
                     // 1950px bursts could overwhelm the JPEG readback path.
                     // Prefer bounded changes and use actual received FPS/jitter.
-                    resolution = Live2DNativeFrameBudget.next(
-                        resolution, lastQuality, sample.fps, sample.p95GapMs,
-                    )
+                    val floor = if (lastQuality == "smooth") 800 else 1000
+                    val ceiling = if (lastQuality == "smooth") 1350 else 1600
+                    resolution = when {
+                        sample.fps < 13f || sample.p95GapMs > 115L ->
+                            (resolution - 130).coerceAtLeast(floor)
+                        sample.fps < 19f || sample.p95GapMs > 75L ->
+                            (resolution - 75).coerceAtLeast(floor)
+                        sample.fps > 26f && sample.p95GapMs < 48L ->
+                            (resolution + 90).coerceAtMost(ceiling)
+                        sample.fps > 23f && sample.p95GapMs < 60L ->
+                            (resolution + 65).coerceAtMost(ceiling)
+                        else -> resolution
+                    }
                     receiver.value("performance", sample.label())
                 }
             }

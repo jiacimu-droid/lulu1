@@ -79,29 +79,3 @@ internal class Live2DFrameStats(
         return result
     }
 }
-
-/**
- * Single owner for native JPEG frame size. Smooth mode protects delivered
- * cadence first; it must never upscale a 25 FPS / 59 ms p95 video merely
- * because it passed the previous lax >23 FPS heuristic.
- *
- * Uses two-second decoded-frame measurements, with separated down/up
- * thresholds to avoid quality oscillation. Does not alter the Cubism model,
- * its original textures or the WebGL viewport.
- */
-internal object Live2DNativeFrameBudget {
-    fun next(resolution: Int, qualityMode: String, fps: Float, p95GapMs: Long): Int {
-        val smooth = qualityMode == "smooth"
-        val floor = if (smooth) 800 else 1000
-        val ceiling = if (smooth) 1280 else 1600
-        val step = when {
-            fps < 13f || p95GapMs > 115L -> -150
-            smooth && (fps < 28f || p95GapMs > 54L) -> -85
-            !smooth && (fps < 20f || p95GapMs > 75L) -> -75
-            smooth && fps > 33f && p95GapMs < 40L -> 50
-            !smooth && fps > 27f && p95GapMs < 48L -> 75
-            else -> 0
-        }
-        return (resolution + step).coerceIn(floor, ceiling)
-    }
-}
