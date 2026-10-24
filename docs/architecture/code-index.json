@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:07:46.229896+00:00",
-  "commit": "59c682c78d1ac6b92d73bc532a8646a0c807f641",
+  "generatedAt": "2026-10-24T09:09:14.471924+00:00",
+  "commit": "ff3cf6e353e4e0a4a1cd7a02d291b658846d66c5",
   "branch": "main",
-  "sourceFingerprint": "9059a0114ea963808e3a32984d3985a5607f7365bc233aca7e6b0204759adec4",
+  "sourceFingerprint": "3a99388ca7f3c8ef0ce4a2cf3018f58ad7c5dac35ca90a989e862636b7405586",
   "summary": {
     "files": 874,
-    "lines": 168819,
+    "lines": 168835,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -14686,8 +14686,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 410,
-      "sha256": "9c8a601eef02605cf1ae2fbdb7eb0fd4258ca92317ac8ddee2770e2114a83133",
+      "lines": 423,
+      "sha256": "5ce04fe0aed498bfa2800be33a58759d33b96e91ab003a02f78e861c1494a55d",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
@@ -16829,8 +16829,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 418,
-      "sha256": "0b951c05f0381de3b60d5068ac8dc676269f10059b8b83a261840b6bac4ca9c5",
+      "lines": 419,
+      "sha256": "b397496f690c88dbe8a54a2cca7246d93bc733f807f7ab6dd59849fe0ffabf2f",
       "symbols": []
     },
     {
@@ -22904,8 +22904,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 162,
-      "sha256": "3ed563096b8b3326ae4c21eb103beab9fd75d8c0f4609ca2840ac98acb52d538",
+      "lines": 163,
+      "sha256": "3a9976b1093c29c9690188e07af6953fb2b65a1e6a91b86e3f4275a72c8eebd8",
       "symbols": []
     },
     {
@@ -26864,8 +26864,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2114,
-      "sha256": "615d11a1e175286cc89ce3f46cd2ecb40817c2eb85acf8a54bb077970ac6f505",
+      "lines": 2115,
+      "sha256": "7d215bc26b0cb2bed5a0a4a9867c0b01f7480b120a010e34c960ef70cb5a72a3",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
