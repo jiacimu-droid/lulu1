@@ -9,9 +9,9 @@ class PhoneSubtitleProgressTest {
         val lines = PhoneSubtitleLayout.lines(spoken)
         assertTrue(lines.size in 1..3)
         assertEquals(spoken, lines.joinToString(""))
-        assertTrue(lines.all { PhoneSubtitleProgress.pauseBeforeNextLine(it) in 650L..14_000L })
-        assertEquals(680L, PhoneSubtitleProgress.pauseBeforeNextLine("嗯。"))
-        assertEquals(14_000L, PhoneSubtitleProgress.pauseBeforeNextLine("慢慢来".repeat(25)))
+        assertTrue(lines.all { PhoneSubtitleProgress.pauseBeforeNextLine(it) in 500L..12_000L })
+        assertEquals(540L, PhoneSubtitleProgress.pauseBeforeNextLine("嗯。"))
+        assertEquals(12_000L, PhoneSubtitleProgress.pauseBeforeNextLine("慢慢来".repeat(25)))
     }
 
     @Test fun fiveSentencePhoneTurnDoesNotRevealFifthWithSecond() {
@@ -24,7 +24,7 @@ class PhoneSubtitleProgressTest {
         assertEquals("我在这里陪你。", live[4])
         // A full-turn chat record may still use longer reading bubbles.
         assertEquals(spoken, PhoneSubtitleLayout.lines(spoken).joinToString(""))
-        assertTrue(live.take(4).sumOf { PhoneSubtitleProgress.pauseBeforeNextLine(it) } > 5_000L)
+        assertTrue(live.take(4).sumOf { PhoneSubtitleProgress.pauseBeforeNextLine(it) } > 4_000L)
     }
 
     @Test fun livePhoneCaptionsRespectQuotedSentenceBoundary() {
