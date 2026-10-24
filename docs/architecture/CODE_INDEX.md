@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`39d133df8b6efe624bfe88e0b0d0990af4b9cdf2`
+- 基准提交：`e0191a62b99075cdcf4380e45159dedfeff7cb5a`
 - 分支：`main`
 - 已索引文件：872
-- 已索引代码/文本行：167676
+- 已索引代码/文本行：167746
 - 已发现符号：2521
 
 | 文件 | 行数 | 符号数 |
@@ -707,7 +707,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 80 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 102 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
@@ -773,7 +773,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt` | 96 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 120 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 168 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 51 | 1 |
