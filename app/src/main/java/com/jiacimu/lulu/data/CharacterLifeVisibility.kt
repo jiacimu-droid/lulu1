@@ -97,7 +97,9 @@ internal object CharacterLifeVisibility {
                 val last = jsonEntries(motive.optJSONArray("outcomes")).lastOrNull()
                 val attempt = last?.takeIf { outcome ->
                     outcome.optString("id").isNotBlank() &&
-                        CharacterActionEvidence.resolve(role, outcome.optString("id")) != null
+                        CharacterActionEvidence.resolve(role, outcome.optString("id"))?.let {
+                            CharacterActionEvidence.supports(it, outcome.optString("action"))
+                        } == true
                 }?.let { outcome ->
                     "\n最近尝试：" + outcome.optString("summary").take(180)
                 }.orEmpty()
