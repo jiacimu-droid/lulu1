@@ -112,6 +112,45 @@ internal object CommitmentExecutor {
         if (CommitmentTaskStore.snapshot().none {
                 it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running && it.executionToken == claimedTask.executionToken
             }) return
+        // A timed chat reminder is a *fact for the character to respond to*,
+        // not permission for the alarm executor to put its own operational
+        // template into the character's private-message timeline. It also
+        // needs an actionable popup, even if the character's model is offline.
+        if (!scheduledCall && !wake && claimedTask.deliveryAction == "send_private_message") {
+            val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull {
+                it.characterId == claimedTask.characterId &&
+                    it.groupChat == null && it.parentConversationId == null
+            }
+            val popupResult = com.jiacimu.lulu.system.LuluScreenAwareness.scheduledReminder(
+                appContext, claimedTask.characterId, claimedTask.goal,
+                "commitment:${claimedTask.id}:${claimedTask.dueAt?.toEpochMilli() ?: now.toEpochMilli()}",
+                conversation?.id.orEmpty(),
+            )
+            val requested = JSONObject(popupResult).optBoolean("success", false)
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                if (old.status != CommitmentTaskStatus.Running ||
+                    old.executionToken != claimedTask.executionToken) old else old.copy(
+                    status = if (requested) CommitmentTaskStatus.WaitingForFeedback
+                        else CommitmentTaskStatus.Blocked,
+                    linkedAlarmId = null, nextCheckAt = null, attemptCount = attempt,
+                    lastActionResult = if (requested)
+                        "到期后已请求显示可交互提醒；没有代替角色发送聊天台词，也未确认主人已执行"
+                    else "定时提醒未显示：${JSONObject(popupResult).optString("error")}；没有伪造角色回复",
+                )
+            }
+            // Use the same character perception/decision path as normal
+            // autonomous dialogue. The model may speak naturally, perform
+            // allowed actions, or remain silent; never pre-commit fake prose.
+            ProactivePerceptionScheduler.scheduleManual(
+                appContext, claimedTask.characterId,
+                "已接受的定时约定刚到期：${claimedTask.goal}。" +
+                    "这是系统提供的时间事实，不是你说过的话。" +
+                    "结合本人真实关系与上下文，自主决定是否说话或行动；" +
+                    "绝不可把系统执行文字照抄给用户。",
+            )
+            return
+        }
+
         val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
         val wording = selected.openingLine.takeIf { wake && useCall && it.isNotBlank() } ?: when {
