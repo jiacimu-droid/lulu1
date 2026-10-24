@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2a94cb5caeefb8c9da6fa03abbb51febda9dcdfd`
+- 基准提交：`5d6d45d6b4fc8e6ba4bf9ee974ddc78f0f5840cb`
 - 分支：`main`
 - 已索引文件：874
-- 已索引代码/文本行：168631
-- 已发现符号：2529
+- 已索引代码/文本行：168663
+- 已发现符号：2530
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -178,7 +178,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1010 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 64 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 414 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 418 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -328,7 +328,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 362 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1115 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1119 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
@@ -406,8 +406,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 84 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1066 | 48 |
-| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 311 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1073 | 48 |
+| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 324 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 904 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 66 | 2 |
@@ -422,7 +422,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2372 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2376 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 903 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
