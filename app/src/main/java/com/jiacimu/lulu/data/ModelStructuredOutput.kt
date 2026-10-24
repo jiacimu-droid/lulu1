@@ -203,23 +203,21 @@ internal object ModelStructuredOutput {
         }
     }
 
-    /** Keep voice performances atomic, while ordinary text keeps the usual readable spacing. */
-    fun voiceAwareReplyBubbles(raw: String): List<String>? {
+    /**
+     * Keep the model's authored JSON bubble boundaries and modality positions together.
+     * Do not treat voice as a special paragraph type. The single outgoing chat
+     * planner will expand these into the same readable bubbles for both media.
+     */
+    fun authoredReplyBubbles(raw: String): List<String>? {
         val json = objectOrNull(raw) ?: return null
         if (json.optString("action", "reply").lowercase() != "reply") return null
         val bubbles = json.optJSONArray("bubbles") ?: return null
-        val result = mutableListOf<String>()
-        for (i in 0 until minOf(bubbles.length(), 8)) {
-            val entry = bubbles.opt(i)
-            val value = when (entry) {
-                is JSONObject -> entry.optString("text")
-                else -> bubbles.optString(i)
-            }.trim().take(2_000)
-            if (value.isBlank()) continue
-            if (entry is JSONObject && entry.optString("delivery").equals("voice", true)) result += value
-            else result += readableReplyBubbles(listOf(value), maxBubbles = Int.MAX_VALUE)
-        }
-        return result.takeIf { it.isNotEmpty() }
+        return (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
+            val entry = bubbles.opt(index)
+            val text = (if (entry is JSONObject) entry.optString("text")
+                else bubbles.optString(index)).trim().take(2_000)
+            text.takeIf(String::isNotBlank)
+        }.takeIf { it.isNotEmpty() }
     }
 
     /**
