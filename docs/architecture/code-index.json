@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:06:33.410516+00:00",
-  "commit": "224a8c188fe971a4dc7e93d868ff8a6d512ae55f",
+  "generatedAt": "2026-10-24T11:07:49.017757+00:00",
+  "commit": "393c835f2f3de657087dbddf95dcd8a0cc38453c",
   "branch": "main",
-  "sourceFingerprint": "3277d8efb63939e882117d3a9b1061fc4d4b08d54cd2b7211bf257f0b89ec8b4",
+  "sourceFingerprint": "65d22ed7f6f7223377db72a71d5ed0dac164cdd994c2a30c96e14438785805cb",
   "summary": {
     "files": 876,
-    "lines": 169939,
+    "lines": 170004,
     "symbols": 2543
   },
   "symbolIndex": {
@@ -29199,8 +29199,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 168,
-      "sha256": "0c20c9c40bd491c5bb2fc6f9d97df5ec4de0644eb076b41dca38811c9d8a60ba",
+      "lines": 233,
+      "sha256": "3c85050f31428592e9d78837a29b1ac34ce5c980b36526286f299b26ce81b7cc",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
