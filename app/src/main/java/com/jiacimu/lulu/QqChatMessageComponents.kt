@@ -256,24 +256,6 @@ internal fun QqMessageRow(
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                if (message.voiceNote && !mine && index == 0) {
-                                    Row(
-                                        modifier = Modifier.clickable { ChatAutoVoicePlayback.replayCached(message.id) }
-                                            .padding(vertical = 3.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    ) {
-                                        Icon(Icons.Outlined.PlayArrow, contentDescription = "播放语音",
-                                            modifier = Modifier.size(27.dp), tint = QqInk)
-                                        Column {
-                                            Text("语音消息", color = QqInk, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                                            Text("点击播放", color = QqMuted, fontSize = 11.sp)
-                                        }
-                                    }
-                                    Spacer(Modifier.height(5.dp))
-                                    HorizontalDivider(color = QqBorder.copy(alpha = 0.45f))
-                                    Spacer(Modifier.height(5.dp))
-                                }
                                 Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = if (message.voiceNote) 13.sp else 15.sp, lineHeight = 22.sp)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
@@ -284,7 +266,28 @@ internal fun QqMessageRow(
                         val interactiveModifier = bubbleModifier.combinedClickable(
                             onClick = {}, onLongClick = onLongClick,
                         )
-                        if (journal) {
+                        if (message.voiceNote && !mine) {
+                            // Keep the voice control compact even when the automatic transcript is long.
+                            // Both surfaces belong to this one message, retaining its reply/long-press/time.
+                            Column(bubbleModifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                QqVoicePlaybackBar(message.id, onLongClick)
+                                if (journal) {
+                                    JournalChatBubble(mine = mine, modifier = Modifier.combinedClickable(
+                                        onClick = {}, onLongClick = onLongClick,
+                                    )) { bubbleContent() }
+                                } else {
+                                    Surface(
+                                        modifier = Modifier.combinedClickable(
+                                            onClick = {}, onLongClick = onLongClick,
+                                        ),
+                                        color = QqOther,
+                                        shape = RoundedCornerShape(15.dp),
+                                        border = BorderStroke(1.dp, QqBorder),
+                                        shadowElevation = 0.dp,
+                                    ) { bubbleContent() }
+                                }
+                            }
+                        } else if (journal) {
                             JournalChatBubble(mine = mine, modifier = interactiveModifier) {
                                 bubbleContent()
                             }
@@ -335,6 +338,46 @@ internal fun QqMessageRow(
             },
             confirmButton = { TextButton(onClick = { forwardOpen = false }) { Text("关闭", color = QqInk) } },
         )
+    }
+}
+
+@Composable
+private fun QqVoicePlaybackBar(messageId: String, onLongClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.width(148.dp).heightIn(min = 44.dp).combinedClickable(
+            onClick = { ChatAutoVoicePlayback.replayCached(messageId) },
+            onLongClick = onLongClick,
+        ),
+        color = QqOther,
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, QqBorder),
+        shadowElevation = 0.dp,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Icon(
+                Icons.Outlined.PlayArrow,
+                contentDescription = "播放语音",
+                modifier = Modifier.size(23.dp),
+                tint = QqInk,
+            )
+            Row(
+                modifier = Modifier.height(23.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                // Slim vertical waveform bars, rather than a two-line placeholder label.
+                listOf(7, 13, 19, 11, 23, 16, 9, 5).forEach { height ->
+                    Box(
+                        Modifier.width(2.dp).height(height.dp)
+                            .background(QqInk.copy(alpha = 0.80f), RoundedCornerShape(2.dp)),
+                    )
+                }
+            }
+        }
     }
 }
 
