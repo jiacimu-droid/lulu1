@@ -1120,6 +1120,12 @@ function actualAvatarPixel(nx, ny) {
  */
 function tickTactileContact(tactileNow) {
   if (tactileContact && (tactileContact.pressed || tactileNow <= touchReflexEndAt)) {
+    // A poised palm is not a completed strike: don't spend the impact before
+    // the user's finger releases and the actual touch gets its timestamp.
+    if (tactileContact.pressed && isImpact(tactileContact.kind)) {
+      touchReflex = null
+      return
+    }
     if (tactileContact.pressed) {
       tactileContact.state = touchResponse.snapshot()
       if (!isImpact(tactileContact.kind) && tactileContact.kind !== 'kiss')
@@ -1211,7 +1217,8 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     : starting || !tactileContact ? now : tactileContact.start
   tactileContact = { region, kind, ordinal: touchSequence, state,
     start: contactStart, pressed: !completed }
-  touchReflex = touchReflexFor(region, kind, touchSequence, state)
+  touchReflex = !completed && isImpact(kind) ? null :
+    touchReflexFor(region, kind, touchSequence, state)
   touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time
