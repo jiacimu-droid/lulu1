@@ -18,8 +18,17 @@ internal object Live2DConversationPerformance {
     private val feelings = linkedMapOf(
         "calm" to Pose(face = mapOf("gazeX" to 0.0, "gazeY" to 0.0,
             "smile" to 0.0, "eyeSmile" to 0.0, "eyeOpen" to 1.0, "browY" to 0.0)),
-        "smile" to Pose(face = mapOf("smile" to .48, "eyeSmile" to .22,
-            "eyeOpen" to .88, "browY" to .08)),
+        "smile" to Pose(face = mapOf("smile" to .52, "eyeSmile" to .25,
+            "eyeOpen" to .9, "browY" to .1),
+            head = mapOf("roll" to 1.4), body = mapOf("pitch" to .6, "roll" to .3)),
+        "happy" to Pose(face = mapOf("smile" to .8, "eyeSmile" to .55,
+            "eyeOpen" to .86, "browY" to .22),
+            head = mapOf("pitch" to 2.5, "roll" to 2.5),
+            body = mapOf("pitch" to 1.6, "roll" to .8)),
+        "playful" to Pose(face = mapOf("smile" to .68, "eyeSmile" to .28,
+            "eyeOpen" to .92, "browY" to .26, "gazeX" to .3),
+            head = mapOf("yaw" to 3.0, "roll" to 4.0),
+            body = mapOf("yaw" to 1.4, "roll" to 1.4)),
         "amused" to Pose(face = mapOf("smile" to .72, "eyeSmile" to .68,
             "eyeOpen" to .68, "browY" to .12, "squint" to .16),
             head = mapOf("pitch" to 1.8, "roll" to 2.0), body = mapOf("roll" to .5)),
@@ -34,10 +43,31 @@ internal object Live2DConversationPerformance {
         "sad" to Pose(face = mapOf("smile" to -.3, "eyeOpen" to .82,
             "browY" to .2, "browForm" to -.25, "browAngle" to -.35, "gazeY" to -.2),
             head = mapOf("pitch" to -4.0), body = mapOf("pitch" to -1.0)),
+        "aggrieved" to Pose(face = mapOf("smile" to -.52, "eyeOpen" to .85,
+            "browY" to .55, "browAngle" to .38, "browForm" to .24,
+            "pout" to .5, "gazeY" to -.27),
+            head = mapOf("pitch" to -4.5, "roll" to 5.5),
+            body = mapOf("pitch" to -2.0, "roll" to 1.4)),
+        "tearful" to Pose(face = mapOf("smile" to -.65, "eyeOpen" to .72,
+            "browY" to .62, "browAngle" to .42, "browForm" to .3,
+            "pout" to .72, "gazeY" to -.36),
+            head = mapOf("pitch" to -6.0, "roll" to 5.0),
+            body = mapOf("pitch" to -3.0, "roll" to 1.2)),
+        "worried" to Pose(face = mapOf("smile" to -.2, "eyeOpen" to .95,
+            "browY" to .42, "browAngle" to .26, "gazeY" to -.12),
+            head = mapOf("pitch" to -2.5, "roll" to 1.0),
+            body = mapOf("pitch" to -1.0)),
         "concerned" to Pose(face = mapOf("smile" to -.15, "eyeOpen" to .96,
             "browY" to .26, "browAngle" to -.22), head = mapOf("pitch" to -1.8)),
         "serious" to Pose(face = mapOf("smile" to -.08, "eyeOpen" to .92,
             "eyeSmile" to 0.0, "browY" to -.12, "browAngle" to -.1)),
+        "affectionate" to Pose(face = mapOf("smile" to .46, "eyeSmile" to .35,
+            "eyeOpen" to .82, "browY" to .16, "gazeX" to 0.0),
+            head = mapOf("roll" to 3.2, "pitch" to -1.0),
+            body = mapOf("pitch" to 1.3, "roll" to .8)),
+        "relieved" to Pose(face = mapOf("smile" to .32, "eyeSmile" to .3,
+            "eyeOpen" to .76, "browY" to .14),
+            head = mapOf("pitch" to -1.5), body = mapOf("pitch" to 1.2)),
         "surprised" to Pose(face = mapOf("eyeOpen" to 1.0, "browY" to .55,
             "browAngle" to .1), head = mapOf("pitch" to 2.8), body = mapOf("pitch" to -1.4)),
         "displeased" to Pose(face = mapOf("smile" to -.3, "eyeOpen" to .78,
@@ -55,9 +85,9 @@ internal object Live2DConversationPerformance {
         "withdraw" to Pose(head = mapOf("pitch" to 2.5), body = mapOf("pitch" to -3.5)),
     )
     private val labels = mapOf(
-        "calm" to "平静", "smile" to "浅笑", "amused" to "笑意明显", "curious" to "好奇",
-        "thinking" to "思考", "shy" to "羞赧", "sad" to "失落", "concerned" to "关切",
-        "serious" to "认真", "surprised" to "惊讶", "displeased" to "不悦",
+        "calm" to "平静", "smile" to "浅笑", "happy" to "开心", "playful" to "俏皮", "amused" to "笑意明显", "curious" to "好奇",
+        "thinking" to "思考", "shy" to "羞赧", "sad" to "失落", "aggrieved" to "委屈", "tearful" to "含泪", "worried" to "担忧", "concerned" to "关切",
+        "serious" to "认真", "affectionate" to "柔情", "relieved" to "释然", "surprised" to "惊讶", "displeased" to "不悦",
         "nod" to "点一次头", "shake" to "轻摇一次头", "tilt" to "轻歪头",
         "glance" to "侧看后回视", "look_down" to "垂眸", "turn" to "身体轻转",
         "lean" to "身体轻倾", "withdraw" to "身体稍收回",
@@ -92,20 +122,20 @@ internal object Live2DConversationPerformance {
         val side = if (intent.optString("side") in setOf("left", "左")) -1.0 else 1.0
         val feelingPose = feelings[feeling] ?: Pose()
         val movementPose = movements[movement] ?: Pose()
-        // A finite onset, peak and release, not a random or repeating idle.
-        val times = listOf(0, 240, 540, 900, 1380)
-        val feelingCurve = listOf(.55, 1.0, .9, .6, .25)
+        // A chosen face accompanies speech beyond the first second, while
+        // movement peaks early and settles. Actual TTS end cancels remaining
+        // beats and releases the temporary face in the renderer.
+        val times = listOf(0, 240, 680, 2000, 4500, 9000)
+        val feelingCurve = listOf(.68, 1.0, .98, .91, .86, .78)
         val movementCurve = when (movement) {
-            // Even a brief spoken acknowledgement starts its chosen nod;
-            // it must not finish TTS before the first non-neutral keyframe.
-            "nod" -> listOf(-.35, -1.0, .28, 0.0, 0.0)
-            "shake" -> listOf(.15, 1.0, -.85, .25, 0.0)
-            else -> listOf(.45, 1.0, .9, .5, 0.0)
+            "nod" -> listOf(-.35, -1.0, .28, 0.0, 0.0, 0.0)
+            "shake" -> listOf(.15, 1.0, -.85, .18, 0.0, 0.0)
+            else -> listOf(.45, 1.0, .65, .18, 0.0, 0.0)
         }
         val beats = JSONArray()
         for (i in times.indices) {
             val beat = JSONObject().put("atMs", times[i])
-                .put("durationMs", if (i < times.lastIndex) times[i + 1] - times[i] + 60 else 450)
+                .put("durationMs", if (i < times.lastIndex) times[i + 1] - times[i] + 120 else 6000)
             fun part(key: String, emotion: Map<String, Double>, action: Map<String, Double>) {
                 val values = JSONObject()
                 for (channel in emotion.keys + action.keys) {
