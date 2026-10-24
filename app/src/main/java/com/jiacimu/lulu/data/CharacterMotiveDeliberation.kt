@@ -11,7 +11,7 @@ internal object CharacterMotiveDeliberation {
         if (active.isEmpty() && paused.isEmpty()) return ""
         return buildString {
             appendLine("【同时存在的个人愿望｜本人自主取舍】")
-            active.take(6).forEach { m ->
+            CharacterMotiveState.workingSet(motives, now).forEach { m ->
                 val due = runCatching { Instant.parse(m.optString("reviewAfter")) }.getOrNull()
                 val stage = when {
                     m.optString("status") == "waiting_feedback" ->

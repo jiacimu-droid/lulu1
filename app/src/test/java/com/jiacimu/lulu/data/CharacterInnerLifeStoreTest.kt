@@ -21,6 +21,28 @@ class CharacterInnerLifeStoreTest {
     }
 
 
+
+    @Test fun largeGoalSetRotatesFocusRatherThanStarvingLaterGoals() {
+        start()
+        val role = "inside-motive-focus-rotation"
+        CharacterInnerLifeStore.clear(role)
+        repeat(15) { i ->
+            CharacterInnerLifeStore.observe(role, "motive-rotation-source-" + i, "本人考虑了新的可能",
+                JSONObject().put("motives", JSONArray().put(JSONObject()
+                    .put("op", "start").put("aim", "思考第" + i + "种可能")
+                    .put("why", "这是不同的独立愿望"))))
+        }
+        val motives = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+        val seen = mutableSetOf<String>()
+        val day = Instant.parse("2026-10-24T00:00:00Z")
+        repeat(30) { offset ->
+            val focus = CharacterMotiveState.workingSet(motives, day.plusSeconds(offset.toLong() * 86400))
+            assertEquals(6, focus.size)
+            focus.forEach { seen.add(it.getString("id")) }
+        }
+        assertEquals(15, seen.size)
+        CharacterInnerLifeStore.clear(role)
+    }
     @Test fun pagedHistorySurvivesHotWindowAndRetractsOldEvidence() {
         start()
         val role = "inner-history-paged-test"
