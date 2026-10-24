@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T16:52:36.208225+00:00",
-  "commit": "ba7d563ba8629e09527aaee5bf1830516b46f709",
+  "generatedAt": "2026-10-24T17:04:35.413839+00:00",
+  "commit": "04a9d611b54884b33ee428ef5a9adc161611befb",
   "branch": "main",
-  "sourceFingerprint": "4ab91653ab034d1e2d9203891b2456a005a9f94985d4b92f7cc470a627359bc7",
+  "sourceFingerprint": "2f9866d192b19d9de3a95fda406eae45abeb3949c676020b1f831d9c1ef4ff04",
   "summary": {
     "files": 879,
-    "lines": 171328,
+    "lines": 171333,
     "symbols": 2565
   },
   "symbolIndex": {
@@ -239,7 +239,7 @@
     "prompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
-        "line": 16
+        "line": 20
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
@@ -14590,8 +14590,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
-      "lines": 23,
-      "sha256": "a8a813ce010262e7657f9c48a7fded51be29578f742d712855b70218bfb4a55a",
+      "lines": 27,
+      "sha256": "5951df823bd2879d45800c57441c3250a105ea4fe6535fdb18e5796724a89bdd",
       "symbols": [
         {
           "name": "claim",
@@ -14603,7 +14603,7 @@
         },
         {
           "name": "prompt",
-          "line": 16
+          "line": 20
         }
       ]
     },
@@ -16218,7 +16218,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 2345,
-      "sha256": "bd37845d80e45bcc0857a60934520eaaa8576443da43aaf399093ea7c4dadcae",
+      "sha256": "3816621d72cd25c653d47b07d908246175f7cddb93de456ea423b4706b85aaa6",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -16864,8 +16864,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt",
-      "lines": 18,
-      "sha256": "db3a26ec0b1a4937cdf0cfd69544df2c9778b6937c83833014c340c467515bd8",
+      "lines": 19,
+      "sha256": "04eef748f78ca5defa80b122a796263d3361be4a26b4f5c1b04bc075650dbbed",
       "symbols": [
         {
           "name": "pauseBeforeNextLine",
@@ -20447,7 +20447,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1180,
-      "sha256": "9e32bf37d0174a69c58694492f433182f4545f920ca97ffb2f9d58ef9b53b3a6",
+      "sha256": "5508c1135a21ee54f95ab3a27f97efea3bed81a2580b759a529cddacd5c83e99",
       "symbols": [
         {
           "name": "asJson",
@@ -23234,7 +23234,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 162,
-      "sha256": "307c6c9df8b1cc828001a141b7a52f266d9739879fdc101176dca8d04e64dd75",
+      "sha256": "74697bef1efd4efc21fd8fbe218f906739be1b6fb392e918547abc9997431fd5",
       "symbols": []
     },
     {

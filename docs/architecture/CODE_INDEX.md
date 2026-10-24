@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ba7d563ba8629e09527aaee5bf1830516b46f709`
+- 基准提交：`04a9d611b54884b33ee428ef5a9adc161611befb`
 - 分支：`main`
 - 已索引文件：879
-- 已索引代码/文本行：171328
+- 已索引代码/文本行：171333
 - 已发现符号：2565
 
 | 文件 | 行数 | 符号数 |
@@ -28,7 +28,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 11 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 23 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 27 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
@@ -166,7 +166,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 70 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 18 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
