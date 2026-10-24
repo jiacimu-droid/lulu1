@@ -18,6 +18,8 @@ data class CommitmentTask(
     val steps: List<String> = emptyList(),
     /** Concrete action promised by the role; a call must not silently become a chat message. */
     val deliveryAction: String = "send_private_message",
+    /** Recurring clock commitments keep the same task ID; one-shot is legacy default. */
+    val repeat: String = "once",
     val currentStep: Int = 0,
     val attemptCount: Int = 0,
     val lastActionResult: String = "",
