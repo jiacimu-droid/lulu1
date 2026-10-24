@@ -130,7 +130,13 @@ internal object LuluVoiceCallSession {
                 delay(160L)
             }
             if (sttConfiguration(context) == activeSttConfiguration) return@launch
-            val live = mutableState.value
+            // A setting may point to a not-yet-downloaded Whisper model or an
+            // unconfigured cloud account. Do not destroy the working old input.
+            CallVoiceConfiguration.sttPreflight(context)?.let { reason ->
+                mutableState.update { it.copy(errorMessage = "语音识别切换未完成：$reason",
+                    statusMessage = "仍沿用当前语音识别") }
+                return@launch
+            }
             providerInput?.stop()
             providerInput = null
             runCatching { recognizer?.cancel(); recognizer?.destroy() }
@@ -958,7 +964,8 @@ internal object LuluVoiceCallSession {
         val settings = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         sttSettingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key in setOf("call_stt_mode", "local_whisper_model",
-                    "groq_asr_model", "eleven_asr_model")) requestSttRefresh()
+                    "groq_asr_model", "eleven_asr_model",
+                    "groq_asr_key", "minimax_api_key", "eleven_api_key")) requestSttRefresh()
         }.also(settings::registerOnSharedPreferenceChangeListener)
         // Observe the actual call phase, not just the call page (it may be minimized).
         scope.launch {
