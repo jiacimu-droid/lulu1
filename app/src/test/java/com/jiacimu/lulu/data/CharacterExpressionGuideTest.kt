@@ -232,6 +232,25 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun toolResultThoughtNeedsARealNewFocusRatherThanASecondReport() {
+        val previous = JSONObject().put("causalTransitions", org.json.JSONArray().put(
+            JSONObject().put("innerThoughtBasis", JSONObject().put("focus", "准备去看看云眠原"))))
+        val basis = JSONObject().put("focus", "工具实际返回云眠原的散步记录")
+            .put("change", "才发现自己比想象中更喜欢安静散步")
+        val newThought = "原来真的走过去了，反而想在那边多待一会儿。"
+        val resultDelta = PrivateStateDeltaEngine.evaluate(previous, null, null, basis,
+            newThought, hasChosenToolAction = true)
+        assertTrue(resultDelta.privateResidue)
+        assertEquals(newThought, CharacterHeartVoicePolicy.keepOrBlank(
+            newThought, basis = basis, delta = resultDelta, hasFreshEvidence = true))
+        val repeated = PrivateStateDeltaEngine.evaluate(JSONObject().put(
+            "causalTransitions", org.json.JSONArray().put(JSONObject().put("innerThoughtBasis", basis))),
+            null, null, basis, newThought, hasChosenToolAction = true)
+        assertFalse(repeated.meaningful)
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            newThought, basis = basis, delta = repeated, hasFreshEvidence = true))
+    }
+
     @Test fun toolFirstTurnCanKeepGenuineNewPrivateThoughtWithoutFabricatedEmotion() {
         val basis = JSONObject().put("focus", "发现云眠原有一条可走的路线")
             .put("change", "从无聊转为想亲自去看看")
