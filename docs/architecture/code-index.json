@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:47:00.314967+00:00",
-  "commit": "32821e4a537e3adef4811956a90e89fbeb17ca50",
+  "generatedAt": "2026-10-24T10:47:16.200302+00:00",
+  "commit": "11ac55e37f449dc3803f0d7cb47ea0f11fccde84",
   "branch": "main",
-  "sourceFingerprint": "cc94f077229e60454ceaeb307f29114a5b13e890fd8cb6f4936ae9e04264e4f5",
+  "sourceFingerprint": "febb043dc2c6a24b0e9ae05eb65c9baef12ad98f6929d77d13f76265507724bb",
   "summary": {
     "files": 876,
-    "lines": 169798,
+    "lines": 169796,
     "symbols": 2542
   },
   "symbolIndex": {
@@ -8780,28 +8780,28 @@
         "line": 196
       }
     ],
-    "voiceAwareReplyBubbles": [
+    "authoredReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 207
+        "line": 211
       }
     ],
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 229
+        "line": 227
       }
     ],
     "replyBubblesWithPartialState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 263
+        "line": 261
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 307
+        "line": 305
       }
     ],
     "MomentAuthorType": [
@@ -22754,8 +22754,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 324,
-      "sha256": "092a8ff04564c7ee249354fe2afba6e8bd39379b96534e66275a23abb3e54346",
+      "lines": 322,
+      "sha256": "aaffc10f1024fc060117130b45175a47cf7528eb5c26e4b3d88d202ebc052c7e",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -22786,20 +22786,20 @@
           "line": 196
         },
         {
-          "name": "voiceAwareReplyBubbles",
-          "line": 207
+          "name": "authoredReplyBubbles",
+          "line": 211
         },
         {
           "name": "completedReplyBubbles",
-          "line": 229
+          "line": 227
         },
         {
           "name": "replyBubblesWithPartialState",
-          "line": 263
+          "line": 261
         },
         {
           "name": "completedReplyText",
-          "line": 307
+          "line": 305
         }
       ]
     },
