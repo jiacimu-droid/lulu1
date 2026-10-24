@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T06:16:53.283405+00:00",
-  "commit": "c5cf8c7bf78af44b8a0b7dc3e8eaccb0f5bddc70",
+  "generatedAt": "2026-10-24T06:17:28.883101+00:00",
+  "commit": "fe5e59fa123b1cc0ec6cb3771ad591af558964af",
   "branch": "main",
-  "sourceFingerprint": "3e4dba9843b447e4b9a78002e181b20dea1d561503139cb23bec25b2d52e32a8",
+  "sourceFingerprint": "3e0c9a09bc30da368e63ed5ad57c9f2facd436a368556a68b2048995521cc08a",
   "summary": {
     "files": 874,
-    "lines": 168219,
+    "lines": 168237,
     "symbols": 2527
   },
   "symbolIndex": {
@@ -2401,37 +2401,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1565
+        "line": 1560
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1567
+        "line": 1562
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1583
+        "line": 1578
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1970
+        "line": 1965
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2124
+        "line": 2119
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2264
+        "line": 2259
       }
     ],
     "returnToList": [
@@ -6429,13 +6429,13 @@
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 486
+        "line": 509
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 542
+        "line": 565
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -6445,25 +6445,25 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 556
+        "line": 579
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 586
+        "line": 609
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 603
+        "line": 626
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 618
+        "line": 641
       }
     ],
     "repeatsConfirmedAction": [
@@ -15999,8 +15999,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2350,
-      "sha256": "f6b132f75073902df3034e68f08f59da4bbfa4afdc669834066eb60894e71ee6",
+      "lines": 2345,
+      "sha256": "bd37845d80e45bcc0857a60934520eaaa8576443da43aaf399093ea7c4dadcae",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -16072,27 +16072,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1565
+          "line": 1560
         },
         {
           "name": "clearWhenHeard",
-          "line": 1567
+          "line": 1562
         },
         {
           "name": "enqueueSpoken",
-          "line": 1583
+          "line": 1578
         },
         {
           "name": "sameSession",
-          "line": 1970
+          "line": 1965
         },
         {
           "name": "retryListening",
-          "line": 2124
+          "line": 2119
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2264
+          "line": 2259
         }
       ]
     },
@@ -20137,8 +20137,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 781,
-      "sha256": "f7113019a356cadc612b0aebcb815737b5d86da8075b3722782eeef3f72e6079",
+      "lines": 804,
+      "sha256": "aa323200332532ee6dfde5fd5d0fd6b69330e887633b532f62fecdce2b1e2f39",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -20190,27 +20190,27 @@
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 486
+          "line": 509
         },
         {
           "name": "markSeen",
-          "line": 542
+          "line": 565
         },
         {
           "name": "resetCharacter",
-          "line": 556
+          "line": 579
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 586
+          "line": 609
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 603
+          "line": 626
         },
         {
           "name": "extendByOwnChoice",
-          "line": 618
+          "line": 641
         }
       ]
     },
