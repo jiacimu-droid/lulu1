@@ -54,6 +54,9 @@ class ActionFailureDiagnosticsTest {
         DigitalLifeProfileStore.initialize(context)
         val role = MigratedDomainStores.characters.create("活动路线测试", "喜欢散步")
         DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "测试创造者")
+        // Real app startup initializes the common AI services before any world action.
+        // World arrival uses that shared initialization even when no AI is called.
+        com.jiacimu.lulu.ai.LuluAiServices.initialize(context)
         val args = JSONObject().put("worldAction", "use_location").put("activityId", "cloud_walk")
         val result = JSONObject(ToolRouter.execute(context, role.characterId,
             "digital_world_action", args, requestId = "unique-location-activity"))
