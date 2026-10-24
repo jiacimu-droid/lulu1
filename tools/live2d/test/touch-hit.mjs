@@ -142,6 +142,10 @@ assert.equal(early.impactMotion, true)
 assert.ok(early.face.browY > 0 && later.face.browY > 0 && later.face.pout > early.face.pout,
   'startled brows soften into an aggrieved pout, not an angry scowl')
 assert.ok(touchReflexFor('cheek-left', 'slap-left').yaw < 0)
+const rightCheekStrike = touchReflexFor('cheek-right', 'slap-right', 0, { force: .55 }, 70)
+assert.ok(rightCheekStrike.yaw > 3 && rightCheekStrike.roll > 0,
+  'matching the struck cheek mirrors the recoil even when the palm gesture suffix changes')
+assert.equal(rightCheekStrike.yaw, -early.yaw)
 assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw <
   touchReflexFor('cheek-left', 'slap', 0, { force: .25 }).yaw)
 const petVariants = [0, 1, 2].map(i =>
