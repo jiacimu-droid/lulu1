@@ -38,7 +38,7 @@ class Live2DVisualActionBusTest {
         settings.parentFile?.mkdirs()
         settings.writeText(
             """{"FileReferences":{"Moc":"avatar.moc3","Textures":["skin.png"],""" +
-                """"Expressions":[{"Name":"smile","File":"smile.exp3.json"}],""" +
+                """"Expressions":[{"Name":"smile","File":"smile.exp3.json"},{"Name":"流泪","File":"tears.exp3.json"}],""" +
                 """"Motions":{"Gesture":[{"File":"wave.motion3.json"}]}}}"""
         )
         val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
@@ -135,13 +135,20 @@ class Live2DVisualActionBusTest {
                 JSONObject().put("performance", JSONObject().put("feeling", "shy")
                     .put("movement", "turn").put("intensity", .5))))
             val automatic = Live2DVisualActionBus.cues.value[role]!!
-            assertEquals(5, automatic.beats.size)
+            assertEquals(6, automatic.beats.size)
             assertTrue(automatic.beats[1].body?.yaw != null)
             assertEquals(null, automatic.beats[1].head?.yaw)
             assertFalse(automatic.beats[1].face?.values?.containsKey("eyeOpen") == true)
-            assertEquals(420, automatic.beats[2].durationMs)
+            assertEquals(1440, automatic.beats[2].durationMs)
             assertEquals(null, automatic.expression)
             assertFalse(automatic.immediate)
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("performance", JSONObject().put("feeling", "tearful"))))
+            val tearful = Live2DVisualActionBus.cues.value[role]!!
+            assertEquals("流泪", tearful.expression)
+            assertTrue(tearful.beats.any { (it.face?.values?.get("pout") ?: 0f) >= 0f })
+            assertFalse(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("expression", "黑脸")))
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("performance", JSONObject().put("movement", "tilt"))
                     .put("_executeNow", true)))
