@@ -9,6 +9,18 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ModelStructuredOutputTest {
+    @Test fun characterSelectedVoiceBubbleIsNotSplitApart() {
+        val short = "今天辛苦啦。"
+        val spoken = "我想认真告诉你，今天能和你一起聊天是很开心的事。你想听的话，点一下这条语音就能听到我的声音。"
+        val parsed = com.jiacimu.lulu.semanticReplyBubbles(
+            short + com.jiacimu.lulu.SemanticBubbleSeparator + spoken, listOf(spoken))
+        assertEquals(listOf(short, spoken), parsed)
+        val ordinary = com.jiacimu.lulu.semanticReplyBubbles(
+            short + com.jiacimu.lulu.SemanticBubbleSeparator + spoken)
+        assertTrue(ordinary.size >= 2)
+        assertEquals(spoken, ordinary.drop(1).joinToString(""))
+    }
+
     @Test fun extractsFirstBalancedObjectWithoutSwallowingTrailingExplanation() {
         val raw = """Here is the answer:
             |```json

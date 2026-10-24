@@ -117,6 +117,7 @@ internal fun QqMessageRow(
             forwardBundle != null || xhsShare != null -> emptyList()
             gameInvite != null || worldInvite != null -> emptyList()
             mine -> listOf(visibleContent)
+            message.voiceNote -> listOf(visibleContent)
             else -> splitCharacterBubbles(visibleContent)
         }
     }

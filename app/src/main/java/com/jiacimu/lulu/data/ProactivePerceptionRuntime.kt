@@ -2129,14 +2129,12 @@ object ProactivePerceptionRuntime {
             // The shared personality protocol can reply with normal chat
             // bubbles even when invoked by the online perception executor.
             // Treat those as actual user-visible content, not Action.SILENT.
-            text = json.optString("text").trim().ifBlank {
-                json.optJSONArray("bubbles")?.let { bubbles ->
-                    (0 until minOf(bubbles.length(), 5)).mapNotNull { i ->
-                        (bubbles.optJSONObject(i)?.optString("text")
-                            ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
-                    }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
-                }.orEmpty()
-            },
+            text = json.optJSONArray("bubbles")?.let { bubbles ->
+                (0 until minOf(bubbles.length(), 8)).mapNotNull { i ->
+                    (bubbles.optJSONObject(i)?.optString("text")
+                        ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
+                }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
+            }.orEmpty().ifBlank { json.optString("text").trim() },
             voiceBubbleTexts = json.optJSONArray("bubbles")?.let { bubbles ->
                 (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
                     bubbles.optJSONObject(index)?.takeIf {

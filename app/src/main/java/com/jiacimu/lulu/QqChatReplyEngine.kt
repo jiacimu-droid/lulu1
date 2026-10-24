@@ -58,7 +58,7 @@ internal fun sanitizePersistedChatText(text: String): String =
             .replace(Regex("[ \\t]+"), " "),
     )
 
-internal fun semanticReplyBubbles(text: String): List<String> {
+internal fun semanticReplyBubbles(text: String, keepWholeBubbles: List<String> = emptyList()): List<String> {
     val normalized = normalizeLegacyBubbleTokens(text)
     // Each actual paragraph is a completed conversational beat. Preserve a
     // lone newline inside an author's sentence, but do not pack two separate
@@ -67,9 +67,17 @@ internal fun semanticReplyBubbles(text: String): List<String> {
     val separated = if (normalized.trimStart().startsWith("[") ||
         normalized.contains("⟪QQ_IMAGE")) normalized else
         normalized.replace(Regex("""\n[ \t]*\n+"""), SemanticBubbleSeparator)
+    val candidates = separated.split(SemanticBubbleSeparator)
+        .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank)
+    val atomic = keepWholeBubbles.map(::sanitizePersistedChatText).toSet()
+    // A chosen voice note is one recording: never split its transcript into pseudo-bubbles.
+    if (atomic.isNotEmpty()) return candidates.flatMap { candidate ->
+        if (candidate in atomic) listOf(candidate)
+        else com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
+            listOf(candidate), maxBubbles = Int.MAX_VALUE)
+    }
     return com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
-        separated.split(SemanticBubbleSeparator)
-            .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank),
+        candidates,
         // The historic 8-bubble overflow rule fused EVERY remaining paragraph
         // into one huge unsplittable bubble. The actual model output already
         // bounds the total content; do not concatenate unrelated speaking acts.
@@ -125,7 +133,7 @@ internal suspend fun appendRoleReplyWithPacing(
     actionableUserMessageIds: Set<String>? = null,
     interactionReceipt: String? = null,
 ): String {
-    val bubbles = semanticReplyBubbles(presentation.content)
+    val bubbles = semanticReplyBubbles(presentation.content, presentation.voiceBubbleTexts)
     if (bubbles.isEmpty()) return ""
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val allowed = actionableUserMessageIds ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)

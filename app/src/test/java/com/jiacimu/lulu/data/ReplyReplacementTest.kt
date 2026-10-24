@@ -10,6 +10,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ReplyReplacementTest {
+    @Test fun characterVoiceNoteKeepsTranscriptAndSurvivesReload() {
+        val context = RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(context)
+        val first = InMemoryLuluChatStore().also { it.initialize(context) }
+        val roleId = "voice-note-" + java.util.UUID.randomUUID().toString()
+        val conversation = first.ensureConversation(roleId, "语音测试")
+        val voice = first.appendCharacterMessage(conversation.id, "这句话可以点开听。", voiceNote = true)
+        val plain = first.appendCharacterMessage(conversation.id, "这是普通文字。")
+        assertTrue(voice.voiceNote)
+        assertFalse(plain.voiceNote)
+        assertEquals("这句话可以点开听。", voice.content)
+        val reloaded = InMemoryLuluChatStore().also { it.initialize(context) }
+        val copy = reloaded.messages(conversation.id).value.first { it.id == voice.id }
+        assertTrue(copy.voiceNote)
+        assertEquals(voice.content, copy.content)
+        assertFalse(reloaded.messages(conversation.id).value.first { it.id == plain.id }.voiceNote)
+    }
+
     @Test fun aModelNewlineNeverCreatesTwoStoredBubbles() {
         val context = RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(context)
