@@ -44,6 +44,7 @@ object ProactivePerceptionRuntime {
         val text: String,
         val voiceBubbleTexts: List<String> = emptyList(),
         val bubbleDeliveryModes: List<String> = emptyList(),
+        val bubbleSpeechTracks: List<String> = emptyList(),
         val reason: String,
         val statusText: String,
         val gesture: String,
@@ -1853,6 +1854,7 @@ object ProactivePerceptionRuntime {
             put("text", decision.text)
             if (decision.voiceBubbleTexts.isNotEmpty()) put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
             if (decision.bubbleDeliveryModes.isNotEmpty()) put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
+            if (decision.bubbleSpeechTracks.isNotEmpty()) put("bubbleSpeechTracks", org.json.JSONArray(decision.bubbleSpeechTracks))
             put("stickerId", decision.stickerId)
             put("nickname", decision.nickname)
             put("groupId", decision.groupId)
@@ -1979,6 +1981,7 @@ object ProactivePerceptionRuntime {
                 val responseArgs = JSONObject().put("text", decision.text)
                     .put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
                     .put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
+                    .put("bubbleSpeechTracks", org.json.JSONArray(decision.bubbleSpeechTracks))
                     .put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
                 val replyResult = runCatching {
                     JSONObject(ToolRouter.execute(appContext, character.characterId,
@@ -2196,6 +2199,7 @@ object ProactivePerceptionRuntime {
                 }
             }.orEmpty(),
             bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
+            bubbleSpeechTracks = ModelStructuredOutput.bubbleSpeechTracks(json),
             reason = json.optString("reason").trim(),
             statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
             gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),
