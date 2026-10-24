@@ -10,6 +10,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterDecisionProtocolTest {
+    @Test fun sharedDecisionsCanDrawIndependentThoughtsFromSeveralPersonalityFacets() {
+        val direct = CharacterDecisionProtocol.runtimePrinciples
+        val common = CharacterDecisionProtocol.causalPrinciples
+        assertTrue(direct.contains("关系、性格的不同侧面"))
+        assertTrue(direct.contains("没有新用户消息"))
+        assertTrue(direct.contains("appraisal.privateIdeas"))
+        assertTrue(common.contains("横向展开"))
+        assertTrue(common.contains("不是固定输出清单"))
+        assertTrue(common.contains("无新消息"))
+    }
+
+    @Test fun autonomousLifeOffersExplorationWithoutPretendingSearchHasHappened() {
+        val p = proactiveDecisionInstruction("independent-topic-test")
+        assertTrue(p.contains("web_search"))
+        assertTrue(p.contains("read_xiaohongshu"))
+        assertTrue(p.contains("image_search"))
+        assertTrue(p.contains("搜索结果标题不是已读"))
+        assertTrue(p.contains("不必等用户问到这个话题"))
+    }
+
     @Test fun quietDecisionIsValidWithoutSpeech() {
         val quiet = JSONObject("""{"action":"silent","reason":"我现在需要自己想想"}""")
         assertEquals("silent", CharacterDecisionProtocol.chatAction(quiet))
