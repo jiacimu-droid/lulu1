@@ -114,9 +114,13 @@ class EmbodiedBodyPhysicsTest {
         val original = EmbodiedBodyPhysics.fresh(start).copy(boredom = 79.0)
         val ordered = EmbodiedBodyPhysics.applyWorldActivity(original, "cafe_order_cake", start, null)
         assertEquals(original, ordered)
-        val trulyPlayed = EmbodiedBodyPhysics.applyWorldActivity(original,
+        val justMoved = EmbodiedBodyPhysics.applyWorldActivity(original,
             "visit_public_place", start, null)
-        assertTrue(trulyPlayed.boredom < original.boredom)
+        assertEquals("Moving without an experienced activity is not entertainment",
+            original.boredom, justMoved.boredom, 0.001)
+        val actuallyExplored = EmbodiedBodyPhysics.applyWorldActivity(original,
+            "courtyard_walk", start, null)
+        assertTrue(actuallyExplored.boredom < original.boredom)
         val legacy = org.json.JSONObject()
             .put("lastAt", start.toString()).put("comfort", 75.0)
         assertEquals(14.0, EmbodiedBodySnapshot.fromJson(legacy)!!.boredom, 0.001)
@@ -140,6 +144,67 @@ class EmbodiedBodyPhysicsTest {
             later, start.plusSeconds(8 * 3600 + 60))
         assertTrue(actualResearch.boredom < later.boredom)
         assertEquals(actualResearch, EmbodiedBodyPhysics.advance(actualResearch, actualResearch.lastAt))
+    }
+
+    @Test fun everydayBodyRhythmChangesNoticeablyInHoursWithoutArtificialModelActions() {
+        val fresh = EmbodiedBodyPhysics.fresh(start)
+        val twoHours = EmbodiedBodyPhysics.advance(fresh, start.plusSeconds(2 * 3600))
+        val fourHours = EmbodiedBodyPhysics.advance(fresh, start.plusSeconds(4 * 3600))
+        val sixHours = EmbodiedBodyPhysics.advance(fresh, start.plusSeconds(6 * 3600))
+
+        // Human-scale pacing in the simulated 0–100 range, not a time threshold
+        // for forced messages, meals, tool calls or diagnoses.
+        assertTrue(twoHours.boredom in 30.0..40.0)
+        assertTrue(fourHours.boredom in 45.0..60.0)
+        assertTrue(sixHours.boredom in 65.0..80.0)
+        assertTrue(sixHours.energy in 35.0..55.0)
+        assertTrue(sixHours.sleepPressure in 55.0..70.0)
+        assertTrue(sixHours.hunger in 50.0..70.0)
+        assertTrue(sixHours.thirst in 60.0..80.0)
+        assertTrue(sixHours.comfort < fresh.comfort)
+        assertEquals(sixHours, EmbodiedBodyPhysics.advance(sixHours, sixHours.lastAt))
+    }
+
+    @Test fun choresAndEatingDoNotEraseBoredomButRealExplorationCan() {
+        val fresh = EmbodiedBodyPhysics.fresh(start).copy(
+            boredom = 73.0, thirst = 65.0, hunger = 70.0)
+        val chores = listOf("check_time", "toggle_lamp", "inspect_item",
+            "make_bed", "water_plant", "fix_appearance", "cafe_order_tea")
+        chores.forEach { id ->
+            val performed = EmbodiedBodyPhysics.applyWorldActivity(fresh, id, start, null)
+            assertEquals("$id is not a new experience", fresh.boredom, performed.boredom, 0.001)
+        }
+        val consumed = EmbodiedBodyPhysics.applyWorldActivity(fresh, "slow_drink", start, null)
+        assertEquals(fresh.boredom, consumed.boredom, 0.001)
+        assertTrue(consumed.thirst < fresh.thirst)
+        val shortWalk = EmbodiedBodyPhysics.applyWorldActivity(fresh, "cloud_walk", start, null)
+        val verifiedResearch = EmbodiedBodyPhysics.afterExploration(fresh, start)
+        assertTrue(shortWalk.boredom < fresh.boredom)
+        assertTrue(verifiedResearch.boredom < shortWalk.boredom)
+        assertEquals(fresh.energy, verifiedResearch.energy, 0.001)
+        assertEquals(fresh.hunger, verifiedResearch.hunger, 0.001)
+    }
+
+    @Test fun overnightSleepRecoversWithoutFabricatingFoodOrClearingCuriosity() {
+        val tired = EmbodiedBodyPhysics.fresh(start).copy(
+            energy = 20.0, sleepPressure = 80.0, hunger = 36.0,
+            thirst = 36.0, boredom = 68.0, recoveryMode = "offline_sleep")
+        val morning = EmbodiedBodyPhysics.advance(tired, start.plusSeconds(8 * 3600))
+        assertTrue(morning.energy >= 90.0)
+        assertTrue(morning.sleepPressure < 10.0)
+        assertTrue(morning.hunger in 36.0..50.0)
+        assertTrue(morning.thirst in 36.0..60.0)
+        assertTrue(morning.boredom >= tired.boredom)
+        assertTrue(morning.boredom < 75.0)
+        assertEquals("offline_sleep", morning.recoveryMode)
+        // Projection frequency must not change the feeling after an uninterrupted sleep.
+        val inTwoSteps = EmbodiedBodyPhysics.advance(
+            EmbodiedBodyPhysics.advance(tired, start.plusSeconds(4 * 3600)),
+            start.plusSeconds(8 * 3600))
+        assertEquals(morning.boredom, inTwoSteps.boredom, 0.000001)
+        assertEquals(morning.hunger, inTwoSteps.hunger, 0.000001)
+        assertEquals(morning.thirst, inTwoSteps.thirst, 0.000001)
+        assertEquals(morning, EmbodiedBodySnapshot.fromJson(morning.toJson()))
     }
 
     @Test fun outdoorTemperatureIsSimulationNotInventedRealWorldWeather() {
