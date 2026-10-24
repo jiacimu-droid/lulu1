@@ -830,7 +830,18 @@ object ProactivePerceptionRuntime {
                     appendLine(recentUserActivityContext)
                 }
                 if (onlineUnread.text.isBlank()) {
-                    appendLine("【对话边界】最近聊天与用户旧照片只是已经发生的共同经历，不是新到达的待回复消息。若主动联系用户，应基于自己此刻的经历、真实兴趣或新的关心自然开口；可以有意义地追问旧事，但绝不能换个说法重新回答已经答过的旧问题。")
+                    appendLine("【本轮事件边界｜没有新用户消息】这不是延迟到达的聊天回复。最近聊天与照片只是已经发生的共同经历；旧的‘20分钟后提醒/叫醒’等带相对时间的请求以原消息发生时间、持久闹钟及实际执行回执为准，不能从当前时间重新计20分钟、重复确认已安排的事，或把已经发出的安慰当作尚未回答。若想主动联系，必须有此刻的新事实、本人的新想法或确实尚待兑现的下一步；没有必要时可以沉默。")
+                    val recentDue = CommitmentTaskStore.snapshot(characterId).asSequence()
+                        .filter { task -> task.dueAt?.let { !it.isAfter(now) } == true &&
+                            !task.updatedAt.isBefore(now.minus(Duration.ofDays(1))) }
+                        .sortedByDescending { it.updatedAt }.take(4).toList()
+                    if (recentDue.isNotEmpty()) {
+                        appendLine("【近期已到时刻的约定｜以下是持久任务状态，不是新用户指令】")
+                        recentDue.forEach { task ->
+                            appendLine("- 任务ID=${task.id}；原定时间=${task.dueAt}；状态=${task.status}；真实回执=${task.lastActionResult.take(180)}")
+                        }
+                        appendLine("已拨通/已播放叫醒语音，不自动证明对方确已起床；等待对方的真实反馈，但不要因此重新承诺或重复建立同一20分钟闹钟。失败只能如实说明失败，不可编造完成。")
+                    }
                     if (minutesSinceLastPrivateUser != null && minutesSinceLastPrivateUser >= 120) {
                         appendLine("【时间已推进】距离用户上次私聊已约${minutesSinceLastPrivateUser}分钟，现在是$localTimeText。过期的早晨叫醒、睡前安慰或当时即时回应不能当作此刻刚接到的请求；除非有仍在执行的真实定时承诺或新的用户证据，否则不要继续对旧话发即时指令，例如下午仍说‘刚醒就伸懒腰’。想联系可以选择完全新的、有当前起因的话题。")
                     }
