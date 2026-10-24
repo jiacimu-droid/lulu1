@@ -76,6 +76,15 @@ assert.match(fullscreenVideo, /PixelCopy\.request\(window, rect, image/)
 assert.match(fullscreenVideo, /directWebGL = false/)
 assert.match(fullscreenVideo, /nativeMirrorEnabled = !directWebGL/)
 assert.match(fullscreenVideo, /rendererPerformance = detail/)
+// Both display paths run the same WebGL model; presentation is a separate
+// verified fact, not a second rendering-FPS counter.
+assert.match(fullscreenVideo, /"模型绘制 · " \+ rendererPerformance/)
+assert.match(fullscreenVideo, /gpuSurfaceVerified -> "显示 · GPU Surface 已验证 · 屏幕 FPS 未测"/)
+assert.match(fullscreenVideo, /directVerified -> "显示 · WebGL 直显已验证 · 屏幕 FPS 未测"/)
+assert.match(fullscreenVideo, /gpuSurfaceRequested -> "显示 · GPU Surface 验证中（JPEG 兜底）"/)
+assert.match(fullscreenVideo, /else -> "显示 · JPEG 原生镜像"/)
+assert.match(fullscreenVideo, /displayChannelLabel \+ displayChannelDetail/)
+assert.doesNotMatch(fullscreenVideo, /Text\(rendererPerformance, fontSize/)
 
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 assert.match(stage, /internal\.on\('beforeModelUpdate'/)

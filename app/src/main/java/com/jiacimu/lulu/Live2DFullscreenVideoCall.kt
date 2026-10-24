@@ -259,6 +259,23 @@ internal fun Live2DFullscreenVideoCall(
     // but show black on the normal Android window. Always explicit opt-in.
     var gpuSurfaceRequested by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var gpuSurfaceVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    // Both presentations use the same Pixi/WebGL model renderer. Only the
+    // native surface pixel probe verifies the GPU presentation path; neither
+    // its reported refresh rate nor renderer FPS measures physical display FPS.
+    val displayChannelLabel = when {
+        gpuSurfaceVerified -> "显示 · GPU Surface 已验证 · 屏幕 FPS 未测"
+        gpuSurfaceRequested -> "显示 · GPU Surface 验证中（JPEG 兜底）"
+        directVerified -> "显示 · WebGL 直显已验证 · 屏幕 FPS 未测"
+        directWebGL -> "显示 · WebGL 直显验证中"
+        else -> "显示 · JPEG 原生镜像"
+    }
+    val displayChannelDetail = when {
+        gpuSurfaceVerified ->
+            videoPerformance.substringAfter(" · 无 JPEG 中转 · ", "")
+                .takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()
+        gpuSurfaceRequested || directWebGL -> ""
+        else -> videoPerformance.takeIf { it.isNotBlank() }?.let { " · $it" }.orEmpty()
+    }
     var autoDirectAttempted by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     LaunchedEffect(modelUrl, nativeFrameReady, renderRetry) {
         if (modelUrl != null && nativeFrameReady && !autoDirectAttempted) {
@@ -677,6 +694,7 @@ internal fun Live2DFullscreenVideoCall(
                             enabled = nativeFrameReady,
                             onClick = {
                                 directWebGL = !directWebGL
+                                videoPerformance = ""
                                 if (directWebGL) {
                                     gpuSurfaceRequested = false
                                     gpuSurfaceVerified = false
@@ -700,6 +718,7 @@ internal fun Live2DFullscreenVideoCall(
                             onClick = {
                                 gpuSurfaceRequested = !gpuSurfaceRequested
                                 gpuSurfaceVerified = false
+                                videoPerformance = ""
                                 videoMenuExpanded = false
                             },
                             leadingIcon = { Icon(Icons.Outlined.Speed, null) },
@@ -731,18 +750,16 @@ internal fun Live2DFullscreenVideoCall(
                             },
                             leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
                         )
-                        if (rendererPerformance.isNotBlank() || videoPerformance.isNotBlank()) {
+                        if (rendererPerformance.isNotBlank() || nativeFrameReady) {
                             HorizontalDivider()
                             if (rendererPerformance.isNotBlank()) {
-                                Text(rendererPerformance, fontSize = 11.sp,
+                                Text("模型绘制 · " + rendererPerformance, fontSize = 11.sp,
                                     color = Color.DarkGray,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
                             }
-                            if (videoPerformance.isNotBlank()) {
-                                Text(videoPerformance, fontSize = 11.sp,
-                                    color = Color.DarkGray,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
-                            }
+                            Text(displayChannelLabel + displayChannelDetail, fontSize = 11.sp,
+                                color = Color.DarkGray,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
                         }
                     }
                 }
