@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:14:27.966611+00:00",
-  "commit": "0e9a6b05d93147b2ae081a864d29d63ef96c1db6",
+  "generatedAt": "2026-10-24T02:14:54.522929+00:00",
+  "commit": "6ab7857451ecfbf739cde2121f210ced154a7c56",
   "branch": "main",
-  "sourceFingerprint": "7d91ee4940d12bd2813455a43c0ae2cbbc170342a3a7190cc8f27f0788a95669",
+  "sourceFingerprint": "ad7819315f66e7fa4caef6d88ad2fd58933e143a9964d82640061a05991cba3f",
   "summary": {
-    "files": 867,
-    "lines": 165936,
-    "symbols": 2508
+    "files": 868,
+    "lines": 166004,
+    "symbols": 2509
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13350,6 +13350,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt",
         "line": 28
+      }
+    ],
+    "DailyCommitmentRecurrenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
+        "line": 14
       }
     ],
     "DeepSeekSearchIntegrationTest": [
@@ -28702,6 +28708,17 @@
         {
           "name": "CoreMemoryDeliveryIntegrationTest",
           "line": 28
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
+      "lines": 68,
+      "sha256": "3a08b9f7a9a1fe8856057422edd0cf938474a1dac8ff6d53bcebf90818150ccf",
+      "symbols": [
+        {
+          "name": "DailyCommitmentRecurrenceTest",
+          "line": 14
         }
       ]
     },
