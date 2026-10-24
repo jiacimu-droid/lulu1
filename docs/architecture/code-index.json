@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T06:19:31.698974+00:00",
-  "commit": "df903b124568a6c12e88aaed579f80ee1417aa0f",
+  "generatedAt": "2026-10-24T06:22:34.863124+00:00",
+  "commit": "90264093a473905f8332c1eda521a4a22c1155fc",
   "branch": "main",
-  "sourceFingerprint": "5f99bfb6c6abceda5594567bd77cb11d937324adb165f11c5f87eb07a9d71a7e",
+  "sourceFingerprint": "72301c740a6eb2e6d95f4e9988c66f86397994a590b00ed21e23dc25257a0eec",
   "summary": {
     "files": 874,
-    "lines": 168283,
-    "symbols": 2527
+    "lines": 168346,
+    "symbols": 2528
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -37,7 +37,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-        "line": 73
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
@@ -81,7 +81,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-        "line": 179
+        "line": 223
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -1703,7 +1703,21 @@
     "hasCharacterPixels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-        "line": 208
+        "line": 252
+      }
+    ],
+    "choose": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+        "line": 270
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
+        "line": 112
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
+        "line": 7
       }
     ],
     "prepare": [
@@ -4416,16 +4430,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
         "line": 41
-      }
-    ],
-    "choose": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-        "line": 112
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
-        "line": 7
       }
     ],
     "capabilityContext": [
@@ -15451,20 +15455,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-      "lines": 223,
-      "sha256": "189fade9dc83afdd2d497690b1899b832c08952bb883c91eee049a7fcf428593",
+      "lines": 278,
+      "sha256": "8c7fca0038e6b6efc8b258c39a1fddab53f7cc25a4e2da48829aaf193392a54b",
       "symbols": [
         {
           "name": "start",
-          "line": 73
+          "line": 76
         },
         {
           "name": "stop",
-          "line": 179
+          "line": 223
         },
         {
           "name": "hasCharacterPixels",
-          "line": 208
+          "line": 252
+        },
+        {
+          "name": "choose",
+          "line": 270
         }
       ]
     },
@@ -27340,8 +27348,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt",
-      "lines": 23,
-      "sha256": "7fb69ca9dd45b687492fa9a6fb5ef912350ed40c95ff17255d53761aa76445fe",
+      "lines": 31,
+      "sha256": "40632f8f05ea39307f4ed8933a1e47af4212b989238fe1bee415cc94855aa804",
       "symbols": [
         {
           "name": "Live2DGpuSurfaceFrameCheckTest",
