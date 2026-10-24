@@ -647,10 +647,11 @@ function ensureApp() {
       status('Live2D 动画渲染中断：' + (error?.message || String(error)), 'error')
     }
   })
-  // Allow smoother Cubism motion on capable Android GPUs. The native frame
-  // bridge remains backpressured by its real decode ACK; do not capture
-  // duplicate frames or tie pose timing to JPEG delivery.
-  app.ticker.maxFPS = nativeStreamEnabled ? 36 : 60
+  // The direct WebGL and VirtualDisplay SurfaceView paths have no JPEG
+  // transport bottleneck. Follow the browser/display's requestAnimationFrame
+  // cadence instead of imposing an artificial 60 FPS cap on 90/120 Hz panels.
+  // Only the JPEG compatibility path keeps its transport-aware FPS limit.
+  app.ticker.maxFPS = nativeStreamEnabled ? 36 : 0
   window.addEventListener('resize', fit)
   new ResizeObserver(() => fit()).observe(root)
   app.view.addEventListener('webglcontextlost', event => {
@@ -1081,9 +1082,9 @@ function setNativeStreaming(enabled) {
   nativeStreamBusy = false
   nativeStreamLastTickerTime = -1
   if (!nativeStreamEnabled) {
-    // WebGL direct output avoids JPEG/IPC entirely: let the visual model
-    // update at a real 60Hz target instead of inheriting JPEG's 30/36/45 cap.
-    if (app?.ticker) app.ticker.maxFPS = 60
+    // No hard 60 FPS ceiling on true GPU presentation: requestAnimationFrame
+    // follows the actual display/browser cadence (60, 90, 120 Hz, etc.).
+    if (app?.ticker) app.ticker.maxFPS = 0
     return
   }
   const bridge = window.LuluNativeFrames

@@ -7,10 +7,12 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
+import android.hardware.display.VirtualDisplayConfig
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.PixelCopy
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
@@ -46,6 +48,7 @@ internal class Live2DGpuSurfacePresentation(
     private var generation = 0
     private var lastWidth = 0
     private var lastHeight = 0
+    private var requestedRefreshRate = 0f
 
     private val surfaceCallback = object : SurfaceHolder.Callback {
         override fun surfaceCreated(holder: SurfaceHolder) {
@@ -106,12 +109,50 @@ internal class Live2DGpuSurfacePresentation(
             val manager = host.context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
-            val virtual = manager.createVirtualDisplay(
-                "Lulu-Live2D-OwnSurface", width, height,
-                host.resources.displayMetrics.densityDpi.coerceAtLeast(1),
-                holder.surface, flags,
-            ) ?: throw IllegalStateException("virtual display unavailable")
+            val physicalDisplay = host.display
+            val activeMode = physicalDisplay?.mode
+            // Only compare display modes at the current physical resolution:
+            // requesting 120 Hz must not force the phone into a lower-resolution
+            // mode. Android may still choose 60 Hz for power/thermal reasons.
+            val availableRates = physicalDisplay?.supportedModes
+                ?.filter { activeMode == null ||
+                    (it.physicalWidth == activeMode.physicalWidth &&
+                     it.physicalHeight == activeMode.physicalHeight) }
+                ?.map { it.refreshRate }.orEmpty()
+            val rate = Live2DHighRefreshPolicy.choose(
+                physicalDisplay?.refreshRate ?: 60f, availableRates,
+            )
+            requestedRefreshRate = rate
+            // API 34+ can request a high refresh rate on the actual virtual
+            // display. Older Android versions retain the proven legacy path.
+            val virtual = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val config = VirtualDisplayConfig.Builder(
+                    "Lulu-Live2D-OwnSurface", width, height,
+                    host.resources.displayMetrics.densityDpi.coerceAtLeast(1),
+                ).setSurface(holder.surface)
+                    .setFlags(flags)
+                    .setRequestedRefreshRate(rate)
+                    .build()
+                manager.createVirtualDisplay(config)
+            } else {
+                manager.createVirtualDisplay(
+                    "Lulu-Live2D-OwnSurface", width, height,
+                    host.resources.displayMetrics.densityDpi.coerceAtLeast(1),
+                    holder.surface, flags,
+                )
+            } ?: throw IllegalStateException("virtual display unavailable")
             display = virtual
+            // This Surface is presented by Android's compositor. A one-time
+            // seamless hint lets the system select a higher physical refresh
+            // mode if appropriate. It does not force a non-seamless switch.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                runCatching {
+                    holder.surface.setFrameRate(
+                        rate, Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS,
+                    )
+                }
+            }
             lastWidth = width
             lastHeight = height
             val window = Presentation(host.context, virtual.display)
@@ -156,7 +197,10 @@ internal class Live2DGpuSurfacePresentation(
                     image.recycle()
                     if (visible) {
                         verified = true
-                        onResult(true, "GPU 原生画面已验证 · 无 JPEG 中转")
+                        val virtualHz = display?.display?.refreshRate ?: 0f
+                        onResult(true, "GPU 原生画面已验证 · 无 JPEG 中转 · 虚拟 %.0fHz / 目标 %.0fHz".format(
+                            virtualHz, requestedRefreshRate,
+                        ))
                     } else if (attempt < 11) {
                         probe(token, attempt + 1)
                     } else {
@@ -218,5 +262,16 @@ internal object Live2DGpuSurfaceFrameCheck {
             }
         }
         return false
+    }
+}
+
+/** Select the fastest mode supported at the existing screen resolution. */
+internal object Live2DHighRefreshPolicy {
+    fun choose(current: Float, sameResolutionModes: List<Float>): Float {
+        val baseline = current.takeIf { it.isFinite() && it > 0f } ?: 60f
+        val fastest = sameResolutionModes
+            .filter { it.isFinite() && it > 0f }
+            .maxOrNull() ?: baseline
+        return maxOf(baseline, fastest)
     }
 }

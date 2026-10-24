@@ -5,6 +5,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Live2DGpuSurfaceFrameCheckTest {
+    @Test fun highRefreshUsesBestSameResolutionMode() {
+        assertTrue(Live2DHighRefreshPolicy.choose(60f, listOf(60f, 90f, 120f)) == 120f)
+        assertTrue(Live2DHighRefreshPolicy.choose(60f, listOf(60f)) == 60f)
+        assertTrue(Live2DHighRefreshPolicy.choose(120f, emptyList()) == 120f)
+        assertTrue(Live2DHighRefreshPolicy.choose(Float.NaN, listOf(90f)) == 90f)
+        assertTrue(Live2DHighRefreshPolicy.choose(60f, listOf(Float.NaN, -1f)) == 60f)
+    }
+
     @Test fun blackAndDarkStageNeverClaimWorkingGpu() {
         val dark = IntArray(96 * 160) { 0xFF151719.toInt() }
         assertFalse(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(dark))

@@ -93,7 +93,9 @@ assert.match(stage, /nativeStreamAckMeanMs > 90 \? 0\.86 : 0\.89/)
 assert.match(stage, /recordRenderTick\(performance\.now\(\) - started/)
 assert.match(stage, /framePerf\.encodeCostMs/)
 assert.match(stage, /const frameBudgetMs = nativeStreamAckMeanMs < 28 \? 22/)
-assert.match(stage, /app\.ticker\.maxFPS = 60/)
+assert.match(stage, /app\.ticker\.maxFPS = nativeStreamEnabled \? 36 : 0/)
+assert.match(stage, /if \(app\?\.ticker\) app\.ticker\.maxFPS = 0/)
+assert.doesNotMatch(stage, /app\.ticker\.maxFPS = 60/)
 assert.doesNotMatch(stage, /scheduleNativeStreamFrame\(Math\.max\(0, 34 -/)
 
 // Final-layer Cubism ownership must be tested by executing writes rather
