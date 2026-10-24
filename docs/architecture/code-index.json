@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:36:36.347178+00:00",
-  "commit": "26e2d69ca2dd4167f984dc6f32fde5094b7c4127",
+  "generatedAt": "2026-10-24T02:36:50.229936+00:00",
+  "commit": "c0a3bcc8854548210ec18bc52b6a64fcd2eeeb2f",
   "branch": "main",
-  "sourceFingerprint": "773fc669a61d47df6b9460ccabb61317bfcacf57be6dc012c469f1e2e517efae",
+  "sourceFingerprint": "4814b67b64ca7d66962012353158a3471f86c3142500129f69a71f54a68b0d7a",
   "summary": {
-    "files": 868,
-    "lines": 166406,
-    "symbols": 2511
+    "files": 869,
+    "lines": 166438,
+    "symbols": 2512
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13788,6 +13788,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
         "line": 12
+      }
+    ],
+    "ScheduledReminderDeliveryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt",
+        "line": 6
       }
     ],
     "ScreenVisionCapabilityContextTest": [
@@ -29467,6 +29473,17 @@
         {
           "name": "RoleDayScheduleStoreTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt",
+      "lines": 32,
+      "sha256": "8bea4e8131c2634e5bdec1541c4b747eb83e4d02c3e0cde46b0c62fb6d0ca405",
+      "symbols": [
+        {
+          "name": "ScheduledReminderDeliveryTest",
+          "line": 6
         }
       ]
     },
