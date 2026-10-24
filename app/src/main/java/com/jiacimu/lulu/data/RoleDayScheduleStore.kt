@@ -139,17 +139,48 @@ object RoleDayScheduleStore {
         }
     }
 
+    /**
+     * A single bridge from existing subjective motives and real opportunities to
+     * executable self-selected time slots. Never generate a fixed day template:
+     * the same personality decision that can act now can also decide later.
+     */
     fun planningOpportunityContext(context: Context, characterId: String, now: Instant = Instant.now()): String {
         val tasks = undatedCommitmentsToPlan(context, characterId)
-        if (tasks.isEmpty()) return ""
+        val own = plans(context, characterId).filter {
+            it.selfInitiated && it.status in setOf("planned", "due")
+        }.take(5)
+        val motives = CharacterMotiveState.active(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+        ).take(4)
         return buildString {
-            appendLine("【已接受但未安排下次行动时间的持续约定】")
-            appendLine("当前本地时间=${now.atZone(java.time.ZoneId.systemDefault())}。以下约定没有闹钟、不会自动兑现；旧约定不能因为日期变化就算作次日新日程。")
-            tasks.take(6).forEach {
-                appendLine("- commitmentTaskId=${it.id}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
+            appendLine("【自己的生活计划｜请与主人交办事项严格分开】")
+            appendLine("主人要求的提醒、监督和约定属于对主人的责任；即使今天安排了几项，也不能代表你自己已经有想过的生活。自主生活从本人的长期心愿、真正在意的兴趣、真实经历、现实情绪、好奇或真实社交中生长，不以主人发布任务为前提。")
+            if (motives.isNotEmpty()) {
+                appendLine("现在仍在意的本人心愿（只提供候选，不是当天必须执行的任务）：")
+                motives.forEach { m ->
+                    appendLine("- motiveId=${m.optString("id")}；想做=${m.optString("aim").take(110)}；因为=${m.optString("why").take(100)}；下一步=${m.optString("nextStep").take(100)}")
+                }
             }
-            appendLine("如果自己确实想今晚监督休息、今日督促学习或在合适时刻主动履约，请参考主人真实作息偏好和本地时间，自己选未来日期时刻、选已注册可执行工具，立刻用 plan_personal_activity 保存，带上 commitmentTaskId、title、intent、dueAt、activityAction、activityArgs。无需主人告诉你几点。")
-            appendLine("这不是强制每天提醒。可以选择暂缓或不干扰；但没有保存定时动作就不能声称已经安排。已过去的时段不许暗中滚动到明天；需要新的执行时间时由你显式选择、真实改期。")
+            if (own.isNotEmpty()) {
+                appendLine("已经由本人自主选择、仍待兑现的个人活动：")
+                own.forEach {
+                    appendLine("- planId=${it.id}；${it.title}；时间=${it.dueAt}；原因=${it.intent.take(100)}")
+                }
+                appendLine("可以继续过自己的生活、提早做别的事，或依据新想法改期/取消。不要每次唤醒都把已有计划复制一遍。")
+            } else {
+                appendLine("目前没有本人自主选择且待兑现的生活活动（用户提醒不计）。想做的事如果只停在念头里，之后不会到点发生；可在此轮本人决策中主动选择安排，或者确实决定独处与休息。")
+            }
+            appendLine("若真想自己安排稍后读书、找现实存在的朋友、探索、学习或游戏，先明确具体动机、想得到的体验，再结合本地时间与真实执行能力，自选未来日期和时刻，使用 plan_personal_activity 保存；已存在有效 motiveId 时可以关联。")
+            appendLine("同一决定也可在 steps 中安排几件确实独立且想做的活动；不用等主人喊，也不必机械填满一天。不想安排时可保持安静，后续仍有可调兜底感知机会。若已经按本人意愿安排了近期活动，其真正日程工人会到点唤醒，不必每两小时额外醒来打卡。")
+            if (tasks.isNotEmpty()) {
+                appendLine("【已接受但尚未选择下一次行动时间的主人约定｜不是本人独处日程】")
+                appendLine("现在本地时间=${now.atZone(java.time.ZoneId.systemDefault())}；这类约定没有实际系统闹钟，不可假称已安排。")
+                tasks.take(6).forEach {
+                    appendLine("- commitmentTaskId=${it.id}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
+                }
+                appendLine("如果自己确实想在适当时刻履约，参考对方的现实安排，自选未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真正的 activityAction。用户已指定时间并有唯一闹钟的任务不得重复建表；尚无日期则不能替用户虚构过去的提醒。")
+            }
+            appendLine("现在可以执行、留到日后、改变心意或者暂时什么都不做；只有程序的实际工具和回执证明完成，不得用想象中的行动填日记或制造假经历。")
         }.trim()
     }
 
