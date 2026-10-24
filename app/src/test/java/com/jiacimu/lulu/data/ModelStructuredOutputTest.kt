@@ -9,6 +9,27 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ModelStructuredOutputTest {
+    @Test fun individualVoiceSpeechTracksArePositionAlignedAndNotPartOfTranscripts() {
+        val json = org.json.JSONObject().put("action", "message").put("bubbles",
+            org.json.JSONArray()
+                .put(org.json.JSONObject().put("text", "我在呢。").put("delivery", "voice")
+                    .put("speechText", "[softly] 我在呢。"))
+                .put(org.json.JSONObject().put("text", "你说。").put("delivery", "text"))
+                .put(org.json.JSONObject().put("text", "慢慢来。").put("delivery", "voice")
+                    .put("speechText", "[hesitant] 慢慢来。")))
+        val tracks = ModelStructuredOutput.bubbleSpeechTracks(json)
+        assertEquals(listOf("[softly] 我在呢。", "", "[hesitant] 慢慢来。"), tracks)
+        val plan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = "我在呢。" + com.jiacimu.lulu.SemanticBubbleSeparator +
+                    "你说。" + com.jiacimu.lulu.SemanticBubbleSeparator + "慢慢来。",
+                bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
+                bubbleSpeechTracks = tracks))
+        assertEquals(listOf(true, false, true), plan.map { it.voiceNote })
+        assertEquals(tracks, plan.map { it.speechText })
+        assertEquals(listOf("我在呢。", "你说。", "慢慢来。"), plan.map { it.text })
+    }
+
     @Test fun allBubblesCanBeVoiceNotesInOneCharacterTurn() {
         val words = listOf("来啦。", "坐我旁边。", "今天辛苦了。", "想听我说话吗？", "我在呢。")
         val json = org.json.JSONObject().put("action", "message").put("bubbles",
