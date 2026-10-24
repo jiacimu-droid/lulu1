@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T01:40:09.868225+00:00",
-  "commit": "60e89caa9cf42f86aef0f4b2eb8d68d68f8d0490",
+  "generatedAt": "2026-10-24T01:40:24.569322+00:00",
+  "commit": "f67857eaffc2b5e3d8dd555e987dd7f88e451205",
   "branch": "main",
-  "sourceFingerprint": "47b699836d00a8136b02e4529bfae57134afb8771c98335eabf9c60ad0313d24",
+  "sourceFingerprint": "0468c55b83e3f6fafb5aa48b534ef250133385f33b3164782e7e1bbef91feb85",
   "summary": {
     "files": 867,
-    "lines": 165671,
+    "lines": 165670,
     "symbols": 2504
   },
   "symbolIndex": {
@@ -27765,8 +27765,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt",
-      "lines": 73,
-      "sha256": "9a8407fb8e76c0c57071bdae63f0ba70e3be6939d30913d6ab6edfafce5b176f",
+      "lines": 72,
+      "sha256": "7e080aff6a0685c634996d726f5e8025ccaef5ef096ff7bbc8011e3014348415",
       "symbols": [
         {
           "name": "VoiceCallModelSelectionTest",
