@@ -50,12 +50,18 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val presentingChunk = AtomicLong(-1L)
     @Volatile private var currentPhrase = ""
     private var pauseReleaseJob: Job? = null
+    // A final PCM segment can still be queued, transcribing, or awaiting
+    // delivery after Android's voice activity flag has gone idle.
+    @Volatile private var finalTranscriptPending = false
+    val hasPendingUtterance: Boolean get() =
+        capturingVoice || queuedChunks.get() > 0 || finalTranscriptPending || currentPhrase.isNotBlank()
+
     /** Realtime streams live PCM; ordinary Scribe v2 automatically uploads
      * finished PCM segments through the existing ordered cloud-ASR queue. */
     val usesServerVad: Boolean get() = realtime != null
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    fun start() {
+    fun start(startMuted: Boolean = false) {
         stop()
         val epoch = generation
         queuedChunks.set(0)
@@ -65,8 +71,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
         when (elevenPath) {
             CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME -> {
-                capturePaused = false
-                startRealtime(epoch, prefs)
+                // Switching while muted must not briefly open a billable socket.
+                capturePaused = startMuted
+                if (!startMuted) startRealtime(epoch, prefs)
                 return
             }
             CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD -> {
@@ -149,18 +156,22 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     delay(500)
                     if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
                     val acousticNote = phraseAcoustics?.finish()
-                    if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim(), acousticNote)
-                    else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
-                    phrase.clear()
-                    currentPhrase = ""
-                    failed = false
+                    try {
+                        if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim(), acousticNote)
+                        else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
+                    } finally {
+                        phrase.clear()
+                        currentPhrase = ""
+                        finalTranscriptPending = false
+                        failed = false
+                    }
                 }
             } finally {
                 producer.cancel()
             }
         }
-        capturePaused = false
-        startMicrophone(epoch, queue, prefs)
+        capturePaused = startMuted
+        if (!startMuted) startMicrophone(epoch, queue, prefs)
     }
 
     private fun startRealtime(
@@ -249,11 +260,15 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     // An ended PCM segment means capture has stopped, even if
                     // cloud recognition still takes time or returns no text.
                     // Releasing the speaking flag must not wait for valid ASR.
-                    if (completed) onCaptureFinished()
+                    if (completed) {
+                        finalTranscriptPending = true
+                        onCaptureFinished()
+                    }
                     onStatus(if (completed) "识别完整语句中…" else "持续收音并分段识别中…")
                     queuedChunks.incrementAndGet()
                     if (!queue.trySend(AudioChunk(bytes, completed)).isSuccess) {
                         queuedChunks.decrementAndGet()
+                        finalTranscriptPending = false
                         onError("录音队列已关闭，本段语音未提交识别")
                     }
                 }
@@ -497,5 +512,6 @@ internal class ProviderCallInput(private val context: Context, private val scope
         queuedChunks.set(0)
         presentingChunk.set(-1)
         currentPhrase = ""
+        finalTranscriptPending = false
     }
 }
