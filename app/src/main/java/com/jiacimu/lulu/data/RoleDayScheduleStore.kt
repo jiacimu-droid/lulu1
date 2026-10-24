@@ -581,6 +581,22 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         if (Instant.now().isBefore(latest.dueAt)) return Result.retry()
         val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
             ?: return Result.success()
+        if (role.startsWith("resident:")) {
+            // A native resident has no ordinary user-facing private chat. Route its
+            // appointment directly to the resident's inexpensive model decision,
+            // rather than waking a non-existent chat conversation.
+            try {
+                ResidentDailyDecision.runDuePlan(applicationContext, plan)
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (failure: Exception) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界居民日程", title = "居民行程到点执行失败",
+                    message = failure.message.orEmpty().take(180))
+            }
+            // A failed/declined action stays due; no paid retry loop or fake receipt.
+            return Result.success()
+        }
         return runCatching {
             ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
             Result.success()
