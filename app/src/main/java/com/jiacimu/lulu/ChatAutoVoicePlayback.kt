@@ -6,6 +6,7 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MeetingSegmentType
 import com.jiacimu.lulu.data.UserMessageFavorites
+import com.jiacimu.lulu.data.UserMessageFavorite
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -48,6 +49,7 @@ object ChatAutoVoicePlayback {
     private var appContext: Context? = null
     private var engine: LuluSpeechEngine? = null
     private var workerStarted = false
+    @Volatile private var lastCachePruneMillis = 0L
     private var autoPlaySuppressionDepth = 0
     @Volatile private var activeRequest: Request? = null
     @Volatile private var visibleConversationId: String? = null
@@ -71,6 +73,7 @@ object ChatAutoVoicePlayback {
                 CharacterVoicePreferenceStore.initialize(applicationContext)
                 engine = LuluSpeechEngine(applicationContext)
                 pruneOldCache(applicationContext)
+                lastCachePruneMillis = System.currentTimeMillis()
             }
             if (!workerStarted) {
                 workerStarted = true
@@ -128,6 +131,12 @@ object ChatAutoVoicePlayback {
                         } finally {
                             synchronized(this@ChatAutoVoicePlayback) {
                                 queuedOrSynthesizing.remove(request.messageId)
+                            }
+                            // Refresh this cache's lifecycle after actual generation, not only at launch.
+                            val current = System.currentTimeMillis()
+                            if (current - lastCachePruneMillis >= CACHE_PRUNE_INTERVAL_MILLIS) {
+                                runCatching { pruneOldCache(applicationContext) }
+                                lastCachePruneMillis = current
                             }
                         }
                     }
@@ -214,7 +223,14 @@ object ChatAutoVoicePlayback {
      */
     fun replayCached(messageId: String): Boolean {
         val audio = cachedFile(messageId)
-        if (audio != null) return if (AutomaticVoiceForeground.visible()) engine?.playCached(audio) == true else false
+        if (audio != null) return if (AutomaticVoiceForeground.visible()) {
+            if (engine?.playCached(audio) == true) {
+                // Recently replayed recordings should stay near the front of the normal cache.
+                if (audio.parentFile?.name in setOf("chat_voice_notes", "chat_voice_cache"))
+                    audio.setLastModified(System.currentTimeMillis())
+                true
+            } else false
+        } else false
         // An explicitly starred performance has its own immutable archive.
         // It should remain replayable even if the conversation cache is gone.
         val favorite = UserMessageFavorites.store.entries.value.firstOrNull { it.messageId == messageId }
@@ -329,6 +345,7 @@ object ChatAutoVoicePlayback {
     }
 
     private fun pruneOldCache(context: Context) {
+        pruneVoiceNotes(context)
         val directory = File(context.filesDir, "chat_voice_cache")
         if (!directory.exists()) return
         UserMessageFavorites.store.entries.value.forEach { entry ->
@@ -341,9 +358,52 @@ object ChatAutoVoicePlayback {
             .forEach(File::delete)
     }
 
+    /**
+     * The small retained voice-note directory is a REBUILDABLE cache, not the archive.
+     * Favorite originals live separately under favorite_voice and are never pruned.
+     * File mtime tracks last successful replay; the cutoffs protect phone storage only.
+     */
+    internal fun pruneVoiceNotes(context: Context, nowMillis: Long = System.currentTimeMillis()) {
+        val directory = File(context.filesDir, "chat_voice_notes")
+        val recordings = directory.listFiles()?.filter {
+            it.isFile && it.extension in setOf("mp3", "wav")
+        }.orEmpty()
+        if (recordings.isEmpty()) return
+        val favoriteEntries = UserMessageFavorites.store.entries.value
+        // A favorite whose independent copy is missing must not lose its last original.
+        favoriteEntries.forEach { entry ->
+            val original = cachedFile(entry.messageId)
+            if (original != null && UserMessageFavorites.store.audioFile(entry) == null)
+                runCatching { UserMessageFavorites.retainAudio(entry.messageId, original) }
+        }
+        val protected = synchronized(this) {
+            queuedOrSynthesizing.toSet() + listOfNotNull(activeRequest?.messageId) +
+                favoriteEntries.map(UserMessageFavorite::messageId)
+        }.mapTo(hashSetOf(), ::sha256)
+        val eligible = recordings.filter { file ->
+            file.nameWithoutExtension !in protected && file.length() > 0L
+        }
+        // Preserve a month of typical replay use; older uncatalogued audio is expendable.
+        eligible.filter { nowMillis - it.lastModified() > VOICE_NOTE_RETENTION_MILLIS &&
+            it.lastModified() <= nowMillis }.forEach(File::delete)
+        var total = directory.listFiles()?.asSequence()?.filter {
+            it.isFile && it.extension in setOf("mp3", "wav")
+        }?.sumOf(File::length) ?: 0L
+        if (total <= VOICE_NOTE_CACHE_LIMIT_BYTES) return
+        eligible.filter(File::exists).sortedBy(File::lastModified).forEach { file ->
+            if (total > VOICE_NOTE_CACHE_LIMIT_BYTES) {
+                val bytes = file.length()
+                if (file.delete()) total -= bytes
+            }
+        }
+    }
+
     private fun sha256(value: String): String = MessageDigest.getInstance("SHA-256")
         .digest(value.toByteArray())
         .joinToString("") { byte -> "%02x".format(byte) }
 
     private const val MAX_CACHE_FILES = 800
+    private const val CACHE_PRUNE_INTERVAL_MILLIS = 24L * 60 * 60 * 1000
+    private const val VOICE_NOTE_RETENTION_MILLIS = 30L * 24 * 60 * 60 * 1000
+    private const val VOICE_NOTE_CACHE_LIMIT_BYTES = 192L * 1024 * 1024
 }
