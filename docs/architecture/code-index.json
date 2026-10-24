@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:14:54.522929+00:00",
-  "commit": "6ab7857451ecfbf739cde2121f210ced154a7c56",
+  "generatedAt": "2026-10-24T02:15:33.932891+00:00",
+  "commit": "53b653dfa9e3cd3935003ff074f8b604adde7475",
   "branch": "main",
-  "sourceFingerprint": "ad7819315f66e7fa4caef6d88ad2fd58933e143a9964d82640061a05991cba3f",
+  "sourceFingerprint": "c51a10797b60bde94877f09464987fa4caf39281acaa66c4589911c728ea4378",
   "summary": {
     "files": 868,
-    "lines": 166004,
+    "lines": 166009,
     "symbols": 2509
   },
   "symbolIndex": {
@@ -19762,8 +19762,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-      "lines": 47,
-      "sha256": "737dc7c7d25697e1720a2d7b488ca6390900c12dc8bbcf2eb6c47ba9f9bcfd4f",
+      "lines": 52,
+      "sha256": "8b1798bb895313c8c9b75a7f896cf94a377ee01384bd557b5bee3fe91263cdc5",
       "symbols": [
         {
           "name": "nextInCallWakeReviewSeconds",
