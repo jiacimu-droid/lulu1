@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T05:47:03.298771+00:00",
-  "commit": "1f1c3e2f347140529aa28f84ccd86b2e2ce89e4f",
+  "generatedAt": "2026-10-24T05:54:54.726957+00:00",
+  "commit": "1a43cde9b871b94bea704838629c868a35bd15c4",
   "branch": "main",
-  "sourceFingerprint": "c213453e1e2089dd8f46c0aeccd7b927d0273adb69a7604a585f165f1504593c",
+  "sourceFingerprint": "66e54f57c43ec5b81cd9f9433ff4523d411fd72013468edede15408e6895159f",
   "summary": {
-    "files": 872,
-    "lines": 167932,
-    "symbols": 2523
+    "files": 874,
+    "lines": 168232,
+    "symbols": 2527
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -34,6 +34,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 66
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
@@ -74,6 +78,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
         "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -1607,7 +1615,7 @@
     "send": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 173
+        "line": 199
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
@@ -1617,13 +1625,13 @@
     "angles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 382
+        "line": 408
       }
     ],
     "faceValues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 387
+        "line": 413
       }
     ],
     "capabilityNote": [
@@ -1690,6 +1698,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
         "line": 194
+      }
+    ],
+    "hasCharacterPixels": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+        "line": 208
       }
     ],
     "prepare": [
@@ -12456,6 +12470,12 @@
         "line": 7
       }
     ],
+    "Live2DGpuSurfaceFrameCheckTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt",
+        "line": 6
+      }
+    ],
     "Live2DMobileTextureAdapterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt",
@@ -15339,20 +15359,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 853,
-      "sha256": "22fd4e27ac98f229d4ec2cd5df0a7360f45e11cb8dc390ce093a20bf2eaee5d6",
+      "lines": 879,
+      "sha256": "4085c55d71ce6e6bffaf0c60ac74eac9cb5f3ccef054270a32d51d57e8a4f559",
       "symbols": [
         {
           "name": "send",
-          "line": 173
+          "line": 199
         },
         {
           "name": "angles",
-          "line": 382
+          "line": 408
         },
         {
           "name": "faceValues",
-          "line": 387
+          "line": 413
         }
       ]
     },
@@ -15420,12 +15440,31 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 923,
-      "sha256": "d32a13b4e37bd9e20ca4206c6667f84e51e8a766d391e6d41a9a7a0042872912",
+      "lines": 951,
+      "sha256": "8b1a70f95e649feead0d5d988690ffdcb243c324d2cf96486cacfd179d48d86e",
       "symbols": [
         {
           "name": "toggleSelfCamera",
           "line": 194
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+      "lines": 223,
+      "sha256": "189fade9dc83afdd2d497690b1899b832c08952bb883c91eee049a7fcf428593",
+      "symbols": [
+        {
+          "name": "start",
+          "line": 73
+        },
+        {
+          "name": "stop",
+          "line": 179
+        },
+        {
+          "name": "hasCharacterPixels",
+          "line": 208
         }
       ]
     },
@@ -27296,6 +27335,17 @@
         {
           "name": "Live2DFrameStatsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt",
+      "lines": 23,
+      "sha256": "7fb69ca9dd45b687492fa9a6fb5ef912350ed40c95ff17255d53761aa76445fe",
+      "symbols": [
+        {
+          "name": "Live2DGpuSurfaceFrameCheckTest",
+          "line": 6
         }
       ]
     },
