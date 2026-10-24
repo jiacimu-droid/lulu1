@@ -27,7 +27,7 @@ class VoiceCallModelSelectionTest {
         assertEquals(store.library.value, ModelConnectionStore.create(context).library.value)
     }
 
-    @Test fun phoneFollowsChangedChatAndIndependentChoiceSurvivesReload() {
+    @Test fun phoneAlwaysUsesCurrentChatArchiveIncludingWhenLegacyPhoneChoiceExists() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("lulu_model_connection", 0)
         val before = prefs.all
@@ -41,13 +41,12 @@ class VoiceCallModelSelectionTest {
             assertEquals(first.id, store.selectedArchiveId(ModelUsage.VoiceCall))
             store.selectArchive(second.id, ModelUsage.Chat)
             assertEquals(second.id, store.selectedArchiveId(ModelUsage.VoiceCall))
-            store.selectArchive(first.id, ModelUsage.VoiceCall)
-            assertFalse(store.library.value.voiceCallFollowsChat)
-            assertEquals(first.id, ModelConnectionStore.create(context).selectedArchiveId(ModelUsage.VoiceCall))
-            store.setVoiceCallFollowsChat(true)
             assertEquals(second.id, ModelConnectionStore.create(context).selectedArchiveId(ModelUsage.VoiceCall))
-            assertEquals(first.id, store.library.value.voiceCallArchiveId)
-            store.setVoiceCallFollowsChat(false)
+            // Legacy callers passing VoiceCall now update the shared chat selection,
+            // never re-enable an independent phone model.
+            store.selectArchive(first.id, ModelUsage.VoiceCall)
+            assertTrue(store.library.value.voiceCallFollowsChat)
+            assertEquals(first.id, store.selectedArchiveId(ModelUsage.Chat))
             assertEquals(first.id, store.selectedArchiveId(ModelUsage.VoiceCall))
         } finally {
             prefs.edit().clear().apply()
@@ -57,14 +56,14 @@ class VoiceCallModelSelectionTest {
         }
     }
 
-    @Test fun oldLibraryDefaultsToFollowingChatWithoutLosingPhoneChoice() {
+    @Test fun legacyIndependentPhoneSettingCannotOverrideChat() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("lulu_model_connection", 0)
         val old = prefs.getString("model_library_v2", null)
         try {
-            prefs.edit().putString("model_library_v2", """{"configurations":[{"id":"c","name":"test","baseUrl":"https://example.test/v1","apiKey":"test"}],"archives":[{"id":"a","configurationId":"c","model":"chat"},{"id":"b","configurationId":"c","model":"phone"}],"activeArchiveId":"b","chatArchiveId":"a","voiceCallArchiveId":"b"}""").commit()
+            prefs.edit().putString("model_library_v2", """{"configurations":[{"id":"c","name":"test","baseUrl":"https://example.test/v1","apiKey":"test"}],"archives":[{"id":"a","configurationId":"c","model":"chat"},{"id":"b","configurationId":"c","model":"phone"}],"activeArchiveId":"b","chatArchiveId":"a","voiceCallArchiveId":"b","voiceCallFollowsChat":false}""").commit()
             val store = ModelConnectionStore.create(context)
-            assertTrue(store.library.value.voiceCallFollowsChat)
+            assertFalse(store.library.value.voiceCallFollowsChat)
             assertEquals("a", store.selectedArchiveId(ModelUsage.VoiceCall))
             assertEquals("b", store.library.value.voiceCallArchiveId)
         } finally { prefs.edit().putString("model_library_v2", old).commit() }
