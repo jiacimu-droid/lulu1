@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:36:42.698912+00:00",
-  "commit": "7791ee5517b509e4ec3f5968f212712caddcd4eb",
+  "generatedAt": "2026-10-24T10:37:05.166748+00:00",
+  "commit": "79718ce2f612b3966bc27a3dabc1ad56ee2c27bc",
   "branch": "main",
-  "sourceFingerprint": "fbf11859a217624cdaffc607e9bb02fe9e2c89bf0b140d3486e9a8e778c13dda",
+  "sourceFingerprint": "d091142209bdf0813b8a4ffc06c083e0becb7ba7c195449621acee26ce4b1089",
   "summary": {
     "files": 874,
-    "lines": 169138,
+    "lines": 169184,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -29363,8 +29363,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 282,
-      "sha256": "bd040f6d6ea1abd2646d58ecf34481ca0731bd2d2b9dd2ce55c403d161a9a297",
+      "lines": 328,
+      "sha256": "be1954d72a14b70858d59c68a1c6996fa581ee630b0555a4fe5bcdd6acde6a5b",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
