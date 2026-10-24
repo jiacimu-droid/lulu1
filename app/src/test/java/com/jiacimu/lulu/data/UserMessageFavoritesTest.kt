@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.ChatAutoVoicePlayback
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
