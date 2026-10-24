@@ -43,6 +43,13 @@ internal object LuluScreenRequestPopup {
             listOf("稍后" to onLater, "返回露露机" to onReturn), 25_000L,
             onFailure = onFailure)
 
+    /** Explicitly scheduled owner reminder. The owner chooses whether to return. */
+    fun showScheduledReminder(context: Context, role: String, title: String, id: String,
+        onReturn: () -> Unit, onLater: () -> Unit, onFailure: () -> Unit = {}): Boolean =
+        show(context, "scheduled-reminder:$id", "$role 来喊你啦",
+            title.take(34), "", listOf("稍后" to onLater, "返回露露机" to onReturn),
+            120_000L, onFailure = onFailure)
+
     fun showProgress(context: Context): Boolean =
         show(context, "screen-progress", "正在查看屏幕", "", "",
             emptyList(), 120_000L)
