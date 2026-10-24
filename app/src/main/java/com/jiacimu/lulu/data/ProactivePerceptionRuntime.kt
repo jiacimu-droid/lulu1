@@ -1445,6 +1445,12 @@ object ProactivePerceptionRuntime {
             appraisal = decision.appraisal,
             basis = decision.innerThoughtBasis,
             thought = decision.innerThought,
+            // A genuinely new, character-authored focus during a tool-first turn
+            // is private state too. It does not require inventing an emotion or
+            // a separate reflection call, and never proves tool success.
+            hasChosenToolAction = decision.action in setOf(
+                Action.TOOL, Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME,
+            ) || (decision.sideActions?.length() ?: 0) > 0,
         )
         val groundedInnerThought = CharacterHeartVoicePolicy.keepOrBlank(
             thought = decision.innerThought,
