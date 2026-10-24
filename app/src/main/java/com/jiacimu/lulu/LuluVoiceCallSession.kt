@@ -1531,6 +1531,22 @@ internal object LuluVoiceCallSession {
                 MigratedDomainStores.chat.messages(latest.conversationId).value,
                 latest.characterName,
             )
+            // Phone and online chat share the SAME durable private timeline.
+            // Freeze the exact older text bubbles visible to this call turn:
+            // only a genuinely delivered phone answer may acknowledge them.
+            // Messages arriving during TTS remain unread for their own turn.
+            val pendingCallTextIds = if (!opening && !autonomousSleep &&
+                !autonomousSilence && spoken.isNotBlank()) {
+                val unread = com.jiacimu.lulu.data.CompanionOnlineStore
+                    .unreadChatSnapshot(latest.characterId).messageIds
+                MigratedDomainStores.chat.messages(latest.conversationId).value
+                    .filter { it.id in unread && it.sender == LuluChatMessage.Sender.User &&
+                        it.status == LuluChatMessage.Status.Sent &&
+                        !it.createdAt.isAfter(userTurnReceivedAt) }
+                    .mapTo(mutableSetOf()) { it.id }
+            } else emptySet()
+            val callTextTurnIds = pendingCallTextIds +
+                turnUserEvidenceIds.filterNot { it.startsWith("voice-") }
             val stream = CallReplyStream()
             // Expressive ElevenLabs voices interpret emotion over surrounding sentences.
             // Keep the live subtitle preview, but synthesize the completed turn once.
@@ -1632,6 +1648,12 @@ internal object LuluVoiceCallSession {
                                 sleepFailures = 0
                                 MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
                                     voiceMessageId, plainSpeech, true)
+                                // Commit read ownership only after audible speech reached
+                                // the transcript; do not consume unspoken/cancelled turns.
+                                if (callTextTurnIds.isNotEmpty()) {
+                                    com.jiacimu.lulu.data.CompanionOnlineStore.acknowledgeDeliveredReply(
+                                        latest.characterId, latest.conversationId, callTextTurnIds)
+                                }
                                 autonomousHangup.markDelivered(latest.callExperienceId, generation, plainSpeech)
                                 lastDeliveredMessageId = voiceMessageId
                                 if (mutableState.value.sleepMode) SleepNarrativeStore.recordPlayed(latest.callExperienceId,
