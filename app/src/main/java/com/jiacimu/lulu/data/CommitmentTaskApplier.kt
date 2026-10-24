@@ -93,7 +93,7 @@ private suspend fun createCommitmentTask(
         completionCondition = draft.completionCondition,
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
-        repeat = draft.repeat,
+        repeat = draft.repeat ?: "once",
         lastActionResult = if (needsClarification && wakeChoiceMissing)
             "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
             else if (needsClarification) "缺少必要条件，需要后续自然确认"
@@ -128,7 +128,7 @@ private suspend fun updateCommitmentTask(
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
-                repeat = draft.repeat,
+                repeat = draft.repeat ?: current.repeat,
                 linkedAlarmId = null,
                 lastAlarmScheduledAt = null,
                 executionToken = null,
