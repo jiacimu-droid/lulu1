@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:37:03.820486+00:00",
-  "commit": "eab9f375c9b18ad0044c03fb9ffa18ad63fbf78c",
+  "generatedAt": "2026-10-24T02:37:30.815972+00:00",
+  "commit": "7110d03d08047b941a51a5c6d7f3eaaa94a8ebbd",
   "branch": "main",
-  "sourceFingerprint": "4814b67b64ca7d66962012353158a3471f86c3142500129f69a71f54a68b0d7a",
+  "sourceFingerprint": "f9fdfa9e1a182a0355ccf9ef163b99ff858319a21e9e5bb5d746becf0d1ea4f3",
   "summary": {
     "files": 869,
-    "lines": 166438,
+    "lines": 166440,
     "symbols": 2512
   },
   "symbolIndex": {
@@ -19781,7 +19781,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
       "lines": 52,
-      "sha256": "8b1798bb895313c8c9b75a7f896cf94a377ee01384bd557b5bee3fe91263cdc5",
+      "sha256": "4669806c5509ba92f8b9f5fb64d2f96798f5aa3689c334cab2181693e44d7cf2",
       "symbols": [
         {
           "name": "nextInCallWakeReviewSeconds",
@@ -29478,8 +29478,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt",
-      "lines": 32,
-      "sha256": "8bea4e8131c2634e5bdec1541c4b747eb83e4d02c3e0cde46b0c62fb6d0ca405",
+      "lines": 34,
+      "sha256": "c2b0a8c6b488d84571d3f907f218a909ab5cc65f42fdab1d4e76b397a2c5edb3",
       "symbols": [
         {
           "name": "ScheduledReminderDeliveryTest",
