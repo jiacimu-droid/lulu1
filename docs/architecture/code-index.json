@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:12:34.732905+00:00",
-  "commit": "a8fb93fb29d7b14c9c7b95536cd424fa205bf250",
+  "generatedAt": "2026-10-24T02:12:52.774442+00:00",
+  "commit": "bf2295345405d1e1b535c939f437f20d12f5fb96",
   "branch": "main",
-  "sourceFingerprint": "a3a2f5fcd70f45558631c4e813ff57318209c990115d23ed1c19c1b97673beb5",
+  "sourceFingerprint": "f44cf6a0371ee48cb7ce26f8aec61ca8283d204c1d1a2d5cfb37a3c92be12c09",
   "summary": {
     "files": 867,
-    "lines": 165814,
+    "lines": 165817,
     "symbols": 2505
   },
   "symbolIndex": {
@@ -11977,7 +11977,7 @@
     "CommitmentAlarmWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-        "line": 135
+        "line": 138
       }
     ],
     "CommitmentAlarmService": [
@@ -26533,8 +26533,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
-      "lines": 162,
-      "sha256": "fc0a00fa1ebbfda2b694a604f86d11c605e88f4880d4478a29c359668ec928f4",
+      "lines": 165,
+      "sha256": "0b43e633b662c516c8c983933788fe11f1492f139773db3c7187df66cc09536c",
       "symbols": [
         {
           "name": "scheduleBackup",
@@ -26550,7 +26550,7 @@
         },
         {
           "name": "CommitmentAlarmWorker",
-          "line": 135
+          "line": 138
         }
       ]
     },
