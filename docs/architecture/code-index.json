@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T06:15:36.577112+00:00",
-  "commit": "5571e5a7575a8335aa18a33b938961a035366b22",
+  "generatedAt": "2026-10-24T06:16:53.283405+00:00",
+  "commit": "c5cf8c7bf78af44b8a0b7dc3e8eaccb0f5bddc70",
   "branch": "main",
-  "sourceFingerprint": "eb17bbfb03ea3857d0e4b5efa55e3eed609e3ff58f832d72a465f9822f481fac",
+  "sourceFingerprint": "3e4dba9843b447e4b9a78002e181b20dea1d561503139cb23bec25b2d52e32a8",
   "summary": {
     "files": 874,
-    "lines": 168197,
+    "lines": 168219,
     "symbols": 2527
   },
   "symbolIndex": {
@@ -2401,37 +2401,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1549
+        "line": 1565
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1551
+        "line": 1567
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1567
+        "line": 1583
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1948
+        "line": 1970
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2102
+        "line": 2124
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2242
+        "line": 2264
       }
     ],
     "returnToList": [
@@ -15999,8 +15999,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2328,
-      "sha256": "bdcdf20e67d59da2a0915d5c142dcb3b1dbde29844a097462d0cc4096b787de5",
+      "lines": 2350,
+      "sha256": "f6b132f75073902df3034e68f08f59da4bbfa4afdc669834066eb60894e71ee6",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -16072,27 +16072,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1549
+          "line": 1565
         },
         {
           "name": "clearWhenHeard",
-          "line": 1551
-        },
-        {
-          "name": "enqueueSpoken",
           "line": 1567
         },
         {
+          "name": "enqueueSpoken",
+          "line": 1583
+        },
+        {
           "name": "sameSession",
-          "line": 1948
+          "line": 1970
         },
         {
           "name": "retryListening",
-          "line": 2102
+          "line": 2124
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2242
+          "line": 2264
         }
       ]
     },
