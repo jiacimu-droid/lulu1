@@ -40,7 +40,7 @@ class ResidentDailyContinuityTest {
         assertNull(ResidentDailyDecision.agendaTime(seven, "36:91", zone))
     }
 
-    @Test fun residentsShareTheRealCalendarAndCannotPlanMessagesToInventedFriends() {
+    @Test fun residentsShareTheRealCalendarAndCannotPlanMessagesToInventedFriends() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
         DigitalWorldExpansionStore.initialize(app)
