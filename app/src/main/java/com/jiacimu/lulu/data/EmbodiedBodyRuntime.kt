@@ -16,17 +16,20 @@ internal data class EmbodiedBodySnapshot(
     val hunger: Double = 18.0,
     val thirst: Double = 16.0,
     val comfort: Double = 78.0,
+    /** Simulated desire for novelty; not an emotional diagnosis or a command. */
+    val boredom: Double = 14.0,
     val recoveryMode: String = "",
     val recoveryUntil: Instant? = null,
 ) {
     fun toJson(): JSONObject = JSONObject()
-        .put("schemaVersion", 1)
+        .put("schemaVersion", 2)
         .put("lastAt", lastAt.toString())
         .put("energy", energy)
         .put("sleepPressure", sleepPressure)
         .put("hunger", hunger)
         .put("thirst", thirst)
         .put("comfort", comfort)
+        .put("boredom", boredom)
         .put("recoveryMode", recoveryMode)
         .put("recoveryUntil", recoveryUntil?.toString() ?: JSONObject.NULL)
 
@@ -43,6 +46,7 @@ internal data class EmbodiedBodySnapshot(
                 hunger = stat("hunger", 18.0),
                 thirst = stat("thirst", 16.0),
                 comfort = stat("comfort", 78.0),
+                boredom = stat("boredom", 14.0),
                 recoveryMode = value.optString("recoveryMode").takeIf { it in setOf("sleep", "nap", "rest", "offline_sleep") }.orEmpty(),
                 recoveryUntil = runCatching { Instant.parse(value.optString("recoveryUntil")) }.getOrNull(),
             )
@@ -92,6 +96,9 @@ internal object EmbodiedBodyPhysics {
             hunger = bounded(before.hunger + hours * 1.7),
             thirst = bounded(before.thirst + hours * 2.6),
             comfort = bounded(before.comfort - awakeHours * 0.65 + recoveryHours * 4.0),
+            // Time awake without a stimulating activity may feel monotonous.
+            // Sleeping/resting eases it, but never manufactures any action.
+            boredom = bounded(before.boredom + awakeHours * 4.5 - recoveryHours * 11.0),
             recoveryMode = if (finished) "" else mode,
             recoveryUntil = if (finished) null else end,
         )
@@ -114,21 +121,33 @@ internal object EmbodiedBodyPhysics {
         if (recovery.isNotBlank() && plannedEndAt != null && plannedEndAt.isAfter(at)) {
             return current.copy(recoveryMode = recovery, recoveryUntil = plannedEndAt)
         }
+        // A real-world action can break monotony; merely ordering food is not
+        // a completed experience. Keep the motive distinct from food/energy.
+        val engaging = activityId !in setOf("cafe_order_coffee", "cafe_order_cake",
+            "cafe_order_sandwich", "cafe_order_cocoa", "cafe_order_tea") &&
+            (activityId !in setOf("sleep", "nap", "rest", "cloud_rest", "reading_rest", "home_quiet_rest"))
+        val experienced = if (engaging) current.copy(boredom = bounded(current.boredom - 10.0)) else current
         DigitalCafeMenu.byConsume(activityId)?.let { item ->
-            return current.copy(
+            return experienced.copy(
                 thirst = bounded(current.thirst - item.thirstRelief),
                 hunger = bounded(current.hunger - item.hungerRelief),
                 comfort = bounded(current.comfort + item.comfortGain),
             )
         }
         return when (activityId) {
-            "slow_drink" -> current.copy(thirst = bounded(current.thirst - 26.0),
+            "slow_drink" -> experienced.copy(thirst = bounded(current.thirst - 26.0),
                 comfort = bounded(current.comfort + 3.0))
-            "have_snack" -> current.copy(hunger = bounded(current.hunger - 25.0),
+            "have_snack" -> experienced.copy(hunger = bounded(current.hunger - 25.0),
                 comfort = bounded(current.comfort + 2.0))
-            else -> current
+            else -> experienced
         }
     }
+
+    /** Only a confirmed, not pending, search/read/game receipt changes novelty. */
+    fun afterExploration(before: EmbodiedBodySnapshot, at: Instant): EmbodiedBodySnapshot =
+        if (at.isBefore(before.lastAt)) before else advance(before, at).let {
+            it.copy(boredom = (it.boredom - 14.0).coerceAtLeast(0.0))
+        }
 
     fun endWorldActivity(before: EmbodiedBodySnapshot, at: Instant): EmbodiedBodySnapshot =
         if (at.isBefore(before.lastAt)) before
@@ -138,12 +157,12 @@ internal object EmbodiedBodyPhysics {
         fun number(n: Double) = n.toInt().coerceIn(0, 100)
         return buildString {
             appendLine("【数字身体模拟｜持续的身体线索，不是情绪、人格或真实传感器数据】")
-            appendLine("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；舒适度=${number(snapshot.comfort)}（0—100，均为数字世界内模拟值）。")
+            appendLine("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；舒适度=${number(snapshot.comfort)}；单调感=${number(snapshot.boredom)}（0—100，均为数字世界内模拟值）。")
             if (snapshot.recoveryMode == "offline_sleep")
                 appendLine("当前离线休眠中；模拟身体正在按真实经过的时间恢复。")
             else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
-            appendLine("饥饿和口渴可成为本人去真实咖啡角点单、用餐、喝水或暂时做别的事的动机；由本人决定，不因固定阈值强迫行动或额外发起模型请求。点单不等于已经食用。")
+            appendLine("饥饿和口渴可以让本人想吃喝或考虑别的活动。单调感只是长时间清醒、缺少新体验时的模拟线索；可引出对既有兴趣的新问题、探索外部知识、独自游戏或联系熟人，也可完全不在意。它不是角色必须搜索/发消息的阈值，更不能越过原权限、费用与真实回执。点单不等于已经食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }
@@ -231,6 +250,16 @@ internal object EmbodiedBodyRuntime {
         val location = DigitalWorldStore.locationOf(characterId)
         return EmbodiedBodyPhysics.prompt(next) + "\n" +
             environmentalSensation(location, digitalTemperature)
+    }
+
+    /** Successful external exploration is a real activity, not a plan or a thought. */
+    @Synchronized fun onExplorationReceipt(characterId: String, at: Instant = Instant.now()) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
+        val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
+            ?: EmbodiedBodyPhysics.fresh(at)
+        val next = EmbodiedBodyPhysics.afterExploration(before, at)
+        if (next != before) CharacterLifeStore.saveBodyState(characterId, next.toJson(),
+            cause = "已核实探索活动")
     }
 
     @Synchronized
