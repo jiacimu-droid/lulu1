@@ -419,6 +419,23 @@ internal object CompanionActionRuntime {
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
+                // This is an actual scheduled owner-facing reminder, not an
+                // arbitrary chat message. Show a user-operated overlay in
+                // addition to the genuine role-authored text. No model content
+                // is replaced with a canned executor script.
+                val scheduledId = args.optString("planId")
+                if (deliveredId.isNotBlank() && scheduledId.isNotBlank()) {
+                    val plan = RoleDayScheduleStore.plans(context, characterId)
+                        .firstOrNull { it.id == scheduledId &&
+                            it.activityAction == "send_private_message" &&
+                            it.status in setOf("planned", "due") &&
+                            !it.dueAt.isAfter(now) }
+                    if (plan != null) {
+                        com.jiacimu.lulu.system.LuluScreenAwareness.scheduledReminder(
+                            context, characterId, plan.title,
+                            "plan:${plan.id}:${plan.dueAt.toEpochMilli()}", conversation.id)
+                    }
+                }
                 CompanionActionResult(true, "已在私聊中发送消息", conversation.id, deliveredId)
             }
             "send_group_message" -> {
