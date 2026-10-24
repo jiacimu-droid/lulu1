@@ -50,6 +50,27 @@ class Live2DConversationPerformanceTest {
             Live2DConversationPerformance.expand(plan("shy", "turn")).toString())
     }
 
+    @Test fun expressiveFaceAndBodyStayTogetherThroughOrdinarySpeech() {
+        for (emotion in listOf("happy", "playful", "affectionate", "aggrieved",
+                "tearful", "worried", "relieved")) {
+            val score = Live2DConversationPerformance.expand(plan(emotion))
+                .getJSONArray("beats")
+            assertEquals(6, score.length())
+            assertTrue("$emotion should have a coordinated face",
+                score.getJSONObject(1).has("face"))
+            assertTrue("$emotion should have posture",
+                score.getJSONObject(1).has("head") || score.getJSONObject(1).has("body"))
+            assertTrue("$emotion should still be facially expressive after 4.5 seconds",
+                score.getJSONObject(4).getJSONObject("face").length() > 0)
+        }
+        val smile = peak(plan("happy"))
+        assertTrue(smile.getJSONObject("face").getDouble("smile") > .3)
+        assertTrue(smile.getJSONObject("face").getDouble("eyeSmile") > 0)
+        assertTrue(peak(plan("aggrieved")).getJSONObject("face").getDouble("pout") > .15)
+        assertTrue(peak(plan("tearful")).getJSONObject("face").getDouble("browY") > .2)
+        assertTrue(peak(plan("serious")).getJSONObject("face").getDouble("smile") < 0)
+    }
+
     @Test fun explicitRigControlsAndLegacyBeatsKeepTheirMeaning() {
         val chosen = plan("amused", "tilt").put("expression", "my-authored-face")
             .put("face", JSONObject().put("smile", -.2))
