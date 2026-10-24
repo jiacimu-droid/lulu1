@@ -732,6 +732,7 @@ private fun CharacterVitalsPanel(characterId: String, now: Instant, revision: Lo
                     Triple("饥饿", body.hunger, "hunger"),
                     Triple("口渴", body.thirst, "thirst"),
                     Triple("舒适", body.comfort, "comfort"),
+                    Triple("单调感", body.boredom, "boredom"),
                 ).forEach { (label, value, key) ->
                     val old = before?.optDouble(key, Double.NaN) ?: Double.NaN
                     val new = after?.optDouble(key, Double.NaN) ?: Double.NaN
