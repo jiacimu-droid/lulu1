@@ -116,7 +116,7 @@ internal object CommitmentExecutor {
         // not permission for the alarm executor to put its own operational
         // template into the character's private-message timeline. It also
         // needs an actionable popup, even if the character's model is offline.
-        if (!scheduledCall && !wake && claimedTask.deliveryAction == "send_private_message") {
+        if (shouldShowScheduledReminderPopup(claimedTask)) {
             val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull {
                 it.characterId == claimedTask.characterId &&
                     it.groupChat == null && it.parentConversationId == null
@@ -163,7 +163,7 @@ internal object CommitmentExecutor {
             useCall && attempt > 1 -> "刚才没接通，我按约定再打来啦。"
             wake && attempt == 1 -> "${claimedTask.goal}。我来叫你啦，醒了跟我说一声。"
             wake -> "${claimedTask.goal}。还没确认你醒来，我再提醒你一次。"
-            else -> "之前答应你的事到时间了：${claimedTask.goal}。完成或取消都可以告诉我。"
+            else -> error("An ordinary scheduled chat reminder must use the popup and character decision route")
         }
         // A promised wake-up during an already connected call is a spoken
         // reminder in THAT call, never another incoming call over its UI.
@@ -284,3 +284,8 @@ internal object CommitmentExecutor {
         }
     }
 }
+
+/** No operating-system deadline template may masquerade as character dialogue. */
+internal fun shouldShowScheduledReminderPopup(task: CommitmentTask): Boolean =
+    task.dueAt != null && task.deliveryAction == "send_private_message" &&
+        !task.isWakeResponsibility()
