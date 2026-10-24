@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:32:18.289307+00:00",
-  "commit": "f7884bbd596b7d9d30fb91cae4f93ca1a09b6544",
+  "generatedAt": "2026-10-24T12:36:23.143107+00:00",
+  "commit": "4ee19aba140fc5181f73ef2368024a14bfbec038",
   "branch": "main",
-  "sourceFingerprint": "570c46fce30772ffccaf0e6ade366b4b8bc7e195e3b39b19870ec67dfde3b452",
+  "sourceFingerprint": "52a97f96017554d7aab12482792b8a35fc36f5552296c84793048cd34a2ccb21",
   "summary": {
     "files": 879,
     "lines": 171141,
@@ -18700,7 +18700,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
       "lines": 534,
-      "sha256": "9ae71162d7fa5b65ea9ed01ec66ba535650a8685fe5c26c54431299ee42485c2",
+      "sha256": "e6fb77467722ffa7f9ef3d4b826894fb9c574996f0f401437706a839fa57ea8f",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -18916,7 +18916,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
       "lines": 110,
-      "sha256": "8e92ff7a2ce34625e018c523ab8c42df5944986882fb10b7ece73d18111b8058",
+      "sha256": "d9d7f0b6f497d6e2966cfca4956a6d279fc1220f41057c61657dc790676ff662",
       "symbols": [
         {
           "name": "context",
@@ -19108,7 +19108,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
       "lines": 118,
-      "sha256": "a9e2fed28ed6cdaec67b2ebfa3983006dc18129d8b2cb7a5b75a6eab2ba220be",
+      "sha256": "1b39c1d2f148cd00f7c36648818554b4f3c596447160354a9311282e4fe8527e",
       "symbols": [
         {
           "name": "isArchiveKey",
