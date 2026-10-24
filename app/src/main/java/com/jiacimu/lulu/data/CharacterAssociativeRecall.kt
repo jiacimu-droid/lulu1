@@ -143,9 +143,13 @@ internal object CharacterAssociativeRecall {
         includePersonaLenses: Boolean = true): String {
         if (characterId.isBlank()) return ""
         val character = MigratedDomainStores.characters.get(characterId)
+        // IdentityStore.get() prepends the multi-paragraph digital-world
+        // ontology; taking its first 125 characters would promote generic
+        // world facts over THIS character's authored identity. The gateway
+        // already supplies that ontology, so use the authored identity here.
         val lenses = if (includePersonaLenses) perspectiveSeeds(
-            CharacterIdentityStore.get(characterId), character.persona,
-            CharacterLifeStore.state(characterId).optJSONObject("profile"),
+            CharacterIdentityStore.identities.value[characterId].orEmpty(),
+            character.persona, CharacterLifeStore.state(characterId).optJSONObject("profile"),
         ) else emptyList()
         val inner = CharacterInnerLifeStore.snapshot(characterId)
         val motives = CharacterMotiveState.active(inner.optJSONArray("motives"))
