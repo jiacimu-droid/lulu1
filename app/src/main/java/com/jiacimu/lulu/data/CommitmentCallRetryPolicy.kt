@@ -42,5 +42,10 @@ internal object CommitmentCallRetryPolicy {
 
 internal fun CommitmentTask.isWakeResponsibility(): Boolean {
     val text = "$goal $completionCondition".lowercase()
-    return listOf("叫醒", "叫我", "喊我", "起床", "醒来", "wake", "睡醒").any(text::contains)
+    // Asking someone to GO to sleep is not a request to WAKE them up.
+    // Misclassifying "每天叫我睡觉" caused bedtime calls to retry as wake alarms.
+    val explicitlyWake = listOf("叫醒", "喊醒", "起床", "醒来", "wake", "睡醒").any(text::contains)
+    if (explicitlyWake) return true
+    val bedtime = listOf("睡觉", "入睡", "睡前", "哄睡", "早点睡", "晚安").any(text::contains)
+    return !bedtime && listOf("叫我", "喊我").any(text::contains)
 }
