@@ -13,6 +13,9 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun ScheduledCommitmentCard(task: CommitmentTask) {
     var detail by remember(task.id) { mutableStateOf(false) }
+    var deleting by remember(task.id) { mutableStateOf(false) }
+    var deleteError by remember(task.id) { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     val label = when (task.status) {
         CommitmentTaskStatus.NeedsClarification -> "待明确"
         CommitmentTaskStatus.Scheduled -> "已安排"
@@ -25,7 +28,8 @@ internal fun ScheduledCommitmentCard(task: CommitmentTask) {
     }
     CharacterRecordCard {
         Text(task.goal, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-        Text((task.dueAt?.let(::recordTime) ?: "持续约定") + " · " + label,
+        Text((task.dueAt?.let(::recordTime) ?: "持续约定") +
+            (if (task.repeat == "daily") " · ↻ 每天重复" else "") + " · " + label,
             fontSize = 12.sp, color = LuluColors.Muted)
         if (task.dueAt != null) {
             val method = when (task.deliveryAction) {
@@ -42,9 +46,29 @@ internal fun ScheduledCommitmentCard(task: CommitmentTask) {
             if (task.status.isActive()) TextButton(onClick = { CommitmentTaskStore.cancel(task.id, "用户从日程取消约定") }) {
                 Text("取消约定", color = MaterialTheme.colorScheme.error)
             }
+            TextButton(onClick = { deleting = true }) {
+                Text("删除", color = MaterialTheme.colorScheme.error)
+            }
         }
+        if (deleteError.isNotBlank()) Text(deleteError, color = MaterialTheme.colorScheme.error)
         if (detail) CharacterEvidenceDetails(task.characterId, task.sourceEventIds)
     }
+    if (deleting) AlertDialog(
+        onDismissRequest = { deleting = false },
+        title = { Text("删除这条约定？") },
+        confirmButton = {
+            TextButton(onClick = {
+                deleting = false
+                scope.launch {
+                    runCatching {
+                        check(CommitmentTaskStore.remove(task.id)) { "约定不存在" }
+                        task.lexiconEntryId?.let { LuluRepositories.lexicon.delete(it) }
+                    }.onFailure { deleteError = it.message ?: "删除失败" }
+                }
+            }) { Text("删除") }
+        },
+        dismissButton = { TextButton(onClick = { deleting = false }) { Text("返回") } },
+    )
 }
 
 /** Keeps unscheduled historical promises accessible without inventing a timer or a second task. */
