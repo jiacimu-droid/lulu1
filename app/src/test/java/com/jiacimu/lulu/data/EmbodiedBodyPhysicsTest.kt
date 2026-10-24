@@ -94,6 +94,34 @@ class EmbodiedBodyPhysicsTest {
         assertEquals(later, EmbodiedBodyPhysics.advance(later, later.lastAt))
     }
 
+    @Test fun monotonyGrowsOnlyWhileAwakeAndRealExplorationEasesIt() {
+        val awake = EmbodiedBodyPhysics.advance(EmbodiedBodyPhysics.fresh(start),
+            start.plusSeconds(4 * 3600))
+        assertTrue(awake.boredom > 14.0)
+        val explored = EmbodiedBodyPhysics.afterExploration(awake, awake.lastAt)
+        assertTrue(explored.boredom < awake.boredom)
+        assertEquals(awake.hunger, explored.hunger, 0.001)
+        assertEquals(awake.thirst, explored.thirst, 0.001)
+        assertTrue(EmbodiedBodyPhysics.prompt(explored).contains("单调感"))
+        val slept = EmbodiedBodyPhysics.advance(explored.copy(
+            recoveryMode = "offline_sleep"), start.plusSeconds(8 * 3600))
+        assertTrue(slept.boredom < explored.boredom)
+        assertEquals(slept, EmbodiedBodySnapshot.fromJson(slept.toJson()))
+        assertEquals(slept, EmbodiedBodyPhysics.advance(slept, slept.lastAt))
+    }
+
+    @Test fun failedOrUnperformedOrdersDoNotProvideNovelty() {
+        val original = EmbodiedBodyPhysics.fresh(start).copy(boredom = 79.0)
+        val ordered = EmbodiedBodyPhysics.applyWorldActivity(original, "cafe_order_cake", start, null)
+        assertEquals(original, ordered)
+        val trulyPlayed = EmbodiedBodyPhysics.applyWorldActivity(original,
+            "visit_public_place", start, null)
+        assertTrue(trulyPlayed.boredom < original.boredom)
+        val legacy = org.json.JSONObject()
+            .put("lastAt", start.toString()).put("comfort", 75.0)
+        assertEquals(14.0, EmbodiedBodySnapshot.fromJson(legacy)!!.boredom, 0.001)
+    }
+
     @Test fun outdoorTemperatureIsSimulationNotInventedRealWorldWeather() {
         val cold = EmbodiedBodyRuntime.environmentalSensation(
             DigitalWorldPublicPlaces.COURTYARD, 5)
