@@ -66,8 +66,6 @@ internal fun Live2DFullscreenVideoCall(
     onMinimize: () -> Unit,
     onChangeModel: () -> Unit,
     onRetryCore: () -> Unit,
-    onSelectCallModel: () -> Unit,
-    onSelectStt: () -> Unit,
     onStartCall: () -> Unit,
 ) {
     val cues by Live2DVisualActionBus.cues.collectAsState()
@@ -554,25 +552,6 @@ internal fun Live2DFullscreenVideoCall(
                             leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
                         )
                         HorizontalDivider()
-                        if (state.connected) {
-                            DropdownMenuItem(
-                                text = { Text("切换对话模型") },
-                                onClick = {
-                                    videoMenuExpanded = false
-                                    onSelectCallModel()
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.Tune, null) },
-                            )
-                            DropdownMenuItem(
-                                text = { Text("切换语音识别") },
-                                onClick = {
-                                    videoMenuExpanded = false
-                                    onSelectStt()
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.Mic, null) },
-                            )
-                            HorizontalDivider()
-                        }
                         DropdownMenuItem(
                             text = { Text(if (selfCameraEnabled) "关闭我的摄像头" else "打开我的摄像头") },
                             onClick = {
