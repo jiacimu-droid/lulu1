@@ -95,6 +95,7 @@ internal object LuluVoiceCallSession {
     private var recognizer: SpeechRecognizer? = null
     private var providerInput: ProviderCallInput? = null
     private var activeSttConfiguration = ""
+    private var sttInputGeneration = 0L
     private var sttRefreshJob: Job? = null
     private var sttSettingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
@@ -124,6 +125,7 @@ internal object LuluVoiceCallSession {
                 if (!live.connected || live.callExperienceId != callId) return@launch
                 if (CallVoiceConfiguration.canSwitchSttNow(
                         userSpeechInProgress, live.userSpeaking,
+                        providerInput?.hasPendingUtterance == true,
                         providerRecognitionPendingUntilMillis, SystemClock.elapsedRealtime())) break
                 delay(160L)
             }
@@ -145,7 +147,6 @@ internal object LuluVoiceCallSession {
             }
             // Never re-dial: startProviderInput only recreates the input path.
             startProviderInput()
-            if (live.microphoneMuted) providerInput?.pauseCapture()
         }
     }
 
@@ -1930,11 +1931,16 @@ internal object LuluVoiceCallSession {
 
     private fun startProviderInput() {
         val context = appContext ?: return
+        // A late callback from the retired STT engine belongs to the same phone
+        // call but must not re-open capture or override the newly selected engine.
+        val inputGeneration = ++sttInputGeneration
         providerInput?.stop()
         activeSttConfiguration = sttConfiguration(context)
         cloudCaptureTurnAllowed = false
         val id = mutableState.value.callExperienceId
-        fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
+        fun sameSession() = inputGeneration == sttInputGeneration &&
+            mutableState.value.callExperienceId == id &&
+            mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         val selectedSttEngine = CallVoiceConfiguration.sttEngine(context)
         val selectedElevenPath = CallVoiceConfiguration.elevenInputPath(
             selectedSttEngine,
@@ -2084,7 +2090,7 @@ internal object LuluVoiceCallSession {
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },
-        ).also { it.start() }
+        ).also { it.start(startMuted = mutableState.value.microphoneMuted) }
     }
 
     fun retryListening() {
