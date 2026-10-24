@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:27:05.074777+00:00",
-  "commit": "824c8ebc8863f8d34584372a6663fb95618f7c29",
+  "generatedAt": "2026-10-24T04:27:36.382458+00:00",
+  "commit": "405ff20699687ef09f466e91bc25a65ff63b75c4",
   "branch": "main",
-  "sourceFingerprint": "7652f5fa5d936acd90bf8b7b087f38c9b224d92df4f2fafbee3acbb7f2f93a4d",
+  "sourceFingerprint": "2b17b3803edbb72b4892add447246b3e733ccf945bcd96778f20f844aa944462",
   "summary": {
     "files": 872,
-    "lines": 167431,
-    "symbols": 2519
+    "lines": 167531,
+    "symbols": 2520
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -825,7 +825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 123
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -1933,7 +1933,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 986
+        "line": 1001
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -5043,7 +5043,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 544
+        "line": 543
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -6333,7 +6333,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 953
+        "line": 968
       }
     ],
     "age": [
@@ -8674,34 +8674,40 @@
         "line": 108
       }
     ],
-    "voiceBubbleTexts": [
+    "bubbleDeliveryModes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
         "line": 171
       }
     ],
+    "voiceBubbleTexts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
+        "line": 183
+      }
+    ],
     "voiceAwareReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 182
+        "line": 194
       }
     ],
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 204
+        "line": 216
       }
     ],
     "replyBubblesWithPartialState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 238
+        "line": 250
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 282
+        "line": 294
       }
     ],
     "MomentAuthorType": [
@@ -8939,37 +8945,37 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 131
+        "line": 132
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 139
+        "line": 140
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 148
+        "line": 149
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 526
+        "line": 527
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 528
+        "line": 529
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2257
+        "line": 2261
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -9531,13 +9537,13 @@
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 520
+        "line": 519
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 551
+        "line": 550
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -16740,8 +16746,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 391,
-      "sha256": "9a3227787a588e86a4b88ad295378de1ac7510ff599cf5e8b5ee971bf90f382c",
+      "lines": 414,
+      "sha256": "c84227feb49f89a78ca6803be2db99281a86a14e5ed885319dd2f0ad755eef6c",
       "symbols": []
     },
     {
@@ -20028,8 +20034,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1074,
-      "sha256": "9aac50dea16bc6f2ea6a7352e363797ede641f6797e63e45a456a0ebf24e654f",
+      "lines": 1089,
+      "sha256": "49e1e80847618f5bdab305f4ead6fd57cf8f60d423a508005a947993ef09f893",
       "symbols": [
         {
           "name": "asJson",
@@ -20041,11 +20047,11 @@
         },
         {
           "name": "world",
-          "line": 953
+          "line": 968
         },
         {
           "name": "from",
-          "line": 986
+          "line": 1001
         }
       ]
     },
@@ -22554,8 +22560,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 299,
-      "sha256": "716ef3763e0836ba43d36c5746d49011e744cff744b256cb231289afae5f0283",
+      "lines": 311,
+      "sha256": "f4c985d836563e01d32d16ece2798a79b164088a4040dc3b10fcd8a836b5aac3",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -22574,24 +22580,28 @@
           "line": 108
         },
         {
-          "name": "voiceBubbleTexts",
+          "name": "bubbleDeliveryModes",
           "line": 171
         },
         {
+          "name": "voiceBubbleTexts",
+          "line": 183
+        },
+        {
           "name": "voiceAwareReplyBubbles",
-          "line": 182
+          "line": 194
         },
         {
           "name": "completedReplyBubbles",
-          "line": 204
+          "line": 216
         },
         {
           "name": "replyBubblesWithPartialState",
-          "line": 238
+          "line": 250
         },
         {
           "name": "completedReplyText",
-          "line": 282
+          "line": 294
         }
       ]
     },
@@ -22796,7 +22806,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 160,
-      "sha256": "3f33f76f7ef7bdd3fddcc99ea97dcbb25610f6cb74c5e03956445c7ad3050c26",
+      "sha256": "2b6efdb0953ca166f475b63990db2d1a2e1ef59f1519d942bc63dc0e9fba736a",
       "symbols": []
     },
     {
@@ -22897,8 +22907,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2324,
-      "sha256": "25e0ee1342c7dd5a113d8e0736c83a1807aacf1645e1a3411d3ef3fed06e4bbf",
+      "lines": 2328,
+      "sha256": "7d7e3d7a91f3b194b6d21c8190cb5eee1c7fdab3f459a64797f6a82c6e0bed15",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22906,31 +22916,31 @@
         },
         {
           "name": "initialize",
-          "line": 123
+          "line": 124
         },
         {
           "name": "markConcernPromisePending",
-          "line": 131
+          "line": 132
         },
         {
           "name": "wakePlanFor",
-          "line": 139
+          "line": 140
         },
         {
           "name": "nextDueAt",
-          "line": 148
+          "line": 149
         },
         {
           "name": "batchSuperseded",
-          "line": 526
+          "line": 527
         },
         {
           "name": "deferSupersededDecision",
-          "line": 528
+          "line": 529
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2257
+          "line": 2261
         }
       ]
     },
@@ -23400,8 +23410,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 628,
-      "sha256": "3ba0489501769478553d02962d4a93ab724fa1a8cb8a9c3d18ffad36635afba9",
+      "lines": 627,
+      "sha256": "605d505553dfbe84f54198bef9537d70cb7567579a64e9d3a48e1eb1445f95ca",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -23477,15 +23487,15 @@
         },
         {
           "name": "dueContext",
-          "line": 520
+          "line": 519
         },
         {
           "name": "clearCharacter",
-          "line": 544
+          "line": 543
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 551
+          "line": 550
         }
       ]
     },
@@ -29239,8 +29249,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 214,
-      "sha256": "377bb7b5887568cbd679a2e1f312b8f63634a4bcc86dbff125d9ad90ad277612",
+      "lines": 261,
+      "sha256": "39d63e386bb952420ea45b93694ead20a13d6ba38d242fa090dd0c00261c84d0",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
