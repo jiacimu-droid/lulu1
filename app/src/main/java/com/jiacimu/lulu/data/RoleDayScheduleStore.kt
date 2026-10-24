@@ -508,10 +508,9 @@ object RoleDayScheduleStore {
             it.characterId == characterId && it.id == planId && it.status in setOf("planned", "due")
         } ?: return null
         if (target.status == "planned") {
+            // The planned worker now owns this event. Do not enqueue a second
+            // ordinary due tick before its autonomous decision is processed.
             persist(context, existing.map { if (it.id == planId) it.copy(status = "due") else it })
-            // The own appointment now owns the next decision; restore passive
-            // backup planning for after this appointment is processed.
-            refreshAutonomousWake(context)
         }
         return target.copy(status = "due")
     }
