@@ -408,7 +408,7 @@ fun CharacterSettingsScreenV2(
                     }
                     val body = EmbodiedBodyRuntime.sensorySnapshot(characterId)
                     if (body != null) {
-                        Text("精力 ${body.energy.toInt()}  ·  饥饿 ${body.hunger.toInt()}  ·  口渴 ${body.thirst.toInt()}",
+                        Text("精力 ${body.energy.toInt()}  ·  饥饿 ${body.hunger.toInt()}  ·  口渴 ${body.thirst.toInt()}  ·  单调感 ${body.boredom.toInt()}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
