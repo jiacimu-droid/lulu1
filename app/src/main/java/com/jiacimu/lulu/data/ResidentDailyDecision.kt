@@ -309,7 +309,7 @@ internal object ResidentDailyDecision {
             taskIntent = "根据本人经历、心情与未尽念头安排今天，不补造他人经历",
         ))
         return listOf(facts,
-            RoleDayScheduleStore.plannedContext(appContext ?: return facts, id, at),
+            appContext?.let { RoleDayScheduleStore.plannedContext(it, id, at) }.orEmpty(),
             CharacterRuntime.personalityRuntimeContext(id, compact = true,
                 query = facts, includeActiveCommitments = false),
             // CharacterAndScenario delivers core memories through its central
@@ -487,6 +487,7 @@ internal object ResidentDailyDecision {
         val app = context.applicationContext
         appContext = app
         ScopedModelSelections.initialize(app)
+        DigitalWorldExpansionStore.initialize(app)
         val manager = WorkManager.getInstance(app)
         // Migrate away from a rolling 24-hour period: local 08:00 is a stable calendar time.
         manager.cancelUniqueWork(WORK_PERIODIC)
