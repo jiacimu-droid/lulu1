@@ -42,6 +42,7 @@ fun ScheduleFeatureScreen(
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var characterMenuExpanded by remember { mutableStateOf(false) }
     var cancelId by remember { mutableStateOf<String?>(null) }
+    var deletePlanId by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf("") }
     LaunchedEffect(characters.keys, selectedCharacterId) {
         if (selectedCharacterId !in characters && characters.isNotEmpty()) {
@@ -184,20 +185,45 @@ fun ScheduleFeatureScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
-                            if (!finished) IconButton(onClick = { cancelId = plan.id }) {
-                                Icon(Icons.Outlined.Close, "取消安排",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            } else Icon(
-                                if (plan.status == "completed") Icons.Outlined.CheckCircleOutline
-                                    else Icons.Outlined.RemoveCircleOutline,
-                                stateLabel, modifier = Modifier.padding(8.dp).size(19.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            Box {
+                                var menu by remember(plan.id) { mutableStateOf(false) }
+                                IconButton(onClick = { menu = true }) {
+                                    Icon(Icons.Outlined.MoreVert, "日程操作",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                                    if (!finished) DropdownMenuItem(
+                                        text = { Text("取消安排") },
+                                        onClick = { menu = false; cancelId = plan.id },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("删除记录") },
+                                        onClick = { menu = false; deletePlanId = plan.id },
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+    deletePlanId?.let { id ->
+        AlertDialog(
+            onDismissRequest = { deletePlanId = null },
+            title = { Text("删除这条日程？") },
+            confirmButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        check(RoleDayScheduleStore.remove(context, selectedCharacterId, id)) {
+                            "日程不存在"
+                        }
+                    }.onFailure { error = it.message ?: "删除失败" }
+                    deletePlanId = null
+                }) { Text("删除") }
+            },
+            dismissButton = { TextButton(onClick = { deletePlanId = null }) { Text("返回") } },
+        )
     }
     cancelId?.let { id ->
         AlertDialog(
