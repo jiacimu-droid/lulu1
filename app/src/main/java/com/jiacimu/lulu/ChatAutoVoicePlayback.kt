@@ -52,6 +52,9 @@ object ChatAutoVoicePlayback {
     @Volatile private var lastCachePruneMillis = 0L
     private var autoPlaySuppressionDepth = 0
     @Volatile private var activeRequest: Request? = null
+    /** File-based playback is not part of the synthesis queue; guard it during eviction. */
+    @Volatile private var activeReplayMessageId: String? = null
+    private var replayGeneration = 0L
     @Volatile private var visibleConversationId: String? = null
     private var settingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
@@ -72,8 +75,9 @@ object ChatAutoVoicePlayback {
             if (engine == null) {
                 CharacterVoicePreferenceStore.initialize(applicationContext)
                 engine = LuluSpeechEngine(applicationContext)
-                pruneOldCache(applicationContext)
+                // Directory scans and file copies are disk I/O, not chat UI work.
                 lastCachePruneMillis = System.currentTimeMillis()
+                scope.launch(Dispatchers.IO) { runCatching { pruneOldCache(applicationContext) } }
             }
             if (!workerStarted) {
                 workerStarted = true
@@ -135,8 +139,10 @@ object ChatAutoVoicePlayback {
                             // Refresh this cache's lifecycle after actual generation, not only at launch.
                             val current = System.currentTimeMillis()
                             if (current - lastCachePruneMillis >= CACHE_PRUNE_INTERVAL_MILLIS) {
-                                runCatching { pruneOldCache(applicationContext) }
                                 lastCachePruneMillis = current
+                                scope.launch(Dispatchers.IO) {
+                                    runCatching { pruneOldCache(applicationContext) }
+                                }
                             }
                         }
                     }
@@ -224,18 +230,13 @@ object ChatAutoVoicePlayback {
     fun replayCached(messageId: String): Boolean {
         val audio = cachedFile(messageId)
         if (audio != null) return if (AutomaticVoiceForeground.visible()) {
-            if (engine?.playCached(audio) == true) {
-                // Recently replayed recordings should stay near the front of the normal cache.
-                if (audio.parentFile?.name in setOf("chat_voice_notes", "chat_voice_cache"))
-                    audio.setLastModified(System.currentTimeMillis())
-                true
-            } else false
+            playProtectedCached(messageId, audio)
         } else false
         // An explicitly starred performance has its own immutable archive.
         // It should remain replayable even if the conversation cache is gone.
         val favorite = UserMessageFavorites.store.entries.value.firstOrNull { it.messageId == messageId }
         val starredAudio = favorite?.let { UserMessageFavorites.store.audioFile(it) }
-        if (starredAudio != null) return engine?.playCached(starredAudio) == true
+        if (starredAudio != null) return playProtectedCached(messageId, starredAudio)
         // An old phone transcript has no original performance to replay.
         // Never silently synthesize a different voice and pretend it was the call.
         if (messageId.startsWith("voice-")) return false
@@ -264,6 +265,24 @@ object ChatAutoVoicePlayback {
                 requireAutoPlay = false,
             ),
         )
+    }
+
+    /** A replay is independent of the queued TTS worker, so pruning must own its lifetime. */
+    private fun playProtectedCached(messageId: String, audio: File): Boolean {
+        val generation = synchronized(this) {
+            replayGeneration += 1
+            activeReplayMessageId = messageId
+            replayGeneration
+        }
+        val started = engine?.playCached(audio) {
+            synchronized(this@ChatAutoVoicePlayback) {
+                if (replayGeneration == generation) activeReplayMessageId = null
+            }
+        } == true
+        if (!started) synchronized(this) {
+            if (replayGeneration == generation) activeReplayMessageId = null
+        }
+        return started
     }
 
     internal fun cachedFile(messageId: String): File? {
@@ -353,7 +372,8 @@ object ChatAutoVoicePlayback {
         }
         val protectedIds = UserMessageFavorites.store.entries.value.mapTo(hashSetOf()) { sha256(it.messageId) }
         val activeIds = synchronized(this) {
-            (queuedOrSynthesizing.toSet() + listOfNotNull(activeRequest?.messageId))
+            (queuedOrSynthesizing.toSet() +
+                listOfNotNull(activeRequest?.messageId, activeReplayMessageId))
                 .mapTo(hashSetOf(), ::sha256)
         }
         val files = directory.listFiles()?.filter {
@@ -390,7 +410,8 @@ object ChatAutoVoicePlayback {
                 runCatching { UserMessageFavorites.retainAudio(entry.messageId, original) }
         }
         val protected = synchronized(this) {
-            queuedOrSynthesizing.toSet() + listOfNotNull(activeRequest?.messageId) +
+            queuedOrSynthesizing.toSet() +
+                listOfNotNull(activeRequest?.messageId, activeReplayMessageId) +
                 favoriteEntries.map(UserMessageFavorite::messageId)
         }.mapTo(hashSetOf(), ::sha256)
         val eligible = recordings.filter { file ->
