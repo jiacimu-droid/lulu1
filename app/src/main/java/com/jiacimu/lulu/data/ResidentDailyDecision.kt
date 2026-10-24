@@ -100,7 +100,7 @@ internal object ResidentDailyDecision {
             if (action == "send_group_message") {
                 val group = params.optString("groupId")
                 if (group.isBlank() || MigratedDomainStores.chat.conversations.value.none {
-                    it.id == group && it.groupChat?.members?.contains(actor) == true
+                    it.id == group && it.groupChat?.members?.any { member -> member.characterId == actor } == true
                 }) continue
             }
             val location = row.optString("locationCode").ifBlank {
@@ -241,7 +241,7 @@ internal object ResidentDailyDecision {
             "$target=${MigratedDomainStores.characters.get(target).displayName}"
         }
         val groups = MigratedDomainStores.chat.conversations.value.filter {
-            it.groupChat?.members?.contains(characterId) == true
+            it.groupChat?.members?.any { member -> member.characterId == characterId } == true
         }.take(6).joinToString("、") { "${it.id}=${it.title}" }
         val relations = CharacterSocialRelationship.perspectivesFor(characterId,
             ResidentSocialMailbox.visibleContacts(characterId))
