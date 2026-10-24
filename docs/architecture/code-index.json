@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:35:49.906390+00:00",
-  "commit": "9245f89f7971f62d313d229acb23ef44ca71cecd",
+  "generatedAt": "2026-10-24T02:36:06.125580+00:00",
+  "commit": "1c25ed3e5059f926f0f2cbf8de613b4aa4ac12fe",
   "branch": "main",
-  "sourceFingerprint": "a62493e63ff9b5e232f4afca597c2c70d48654ac21c0c468372a0cd21e465391",
+  "sourceFingerprint": "7e2d3dee3a273f318256e0a54f3bd5ba96c9382170940dd5a01aa4fdcbb2f1f2",
   "summary": {
     "files": 868,
     "lines": 166404,
@@ -15326,7 +15326,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
       "lines": 82,
-      "sha256": "728d4ba9dbc02f6bf3471af23a8112d7ae027a5e13750712a0cc18c352666e71",
+      "sha256": "b55d128751ded885c18bd8ea27d5d94b80768b615f918db3d4ed77c82c9bf40c",
       "symbols": [
         {
           "name": "Sample",
