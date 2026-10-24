@@ -28,9 +28,14 @@ internal fun ScheduledCommitmentCard(task: CommitmentTask) {
     }
     CharacterRecordCard {
         Text(task.goal, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-        Text((task.dueAt?.let(::recordTime) ?: "持续约定") +
-            (if (task.repeat == "daily") " · ↻ 每天重复" else "") + " · " + label,
-            fontSize = 12.sp, color = LuluColors.Muted)
+        val timeLabel = task.dueAt?.let { due ->
+            if (task.repeat == "daily") {
+                val local = due.atZone(java.time.ZoneId.systemDefault())
+                "↻ 每天 " + "%02d:%02d".format(local.hour, local.minute) +
+                    " · 下次 " + recordTime(due)
+            } else recordTime(due)
+        } ?: "持续约定"
+        Text("$timeLabel · $label", fontSize = 12.sp, color = LuluColors.Muted)
         if (task.dueAt != null) {
             val method = when (task.deliveryAction) {
                 "start_call" -> "角色主动来电（系统闹钟负责准点触发）"
