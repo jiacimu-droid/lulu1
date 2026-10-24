@@ -452,15 +452,18 @@ internal object CompanionActionRuntime {
                     (0 until tracks.length()).map { tracks.optString(it).take(4_000) }
                 }.orEmpty()
                 val presentation = com.jiacimu.lulu.parseCharacterReplyPresentation(text).let { parsed ->
+                    // Never split before mapping authored indexes to delivery modes.
+                    // The common sender forms natural text bubbles first, then
+                    // applies each source bubble's chosen text/voice delivery.
+                    val authoredText = com.jiacimu.lulu.stripCharacterReplyDirective(text)
                     if (bubbleModes.isNotEmpty() &&
-                        text.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank) == bubbleModes.size) {
-                        // Each voice/text choice keeps the model's actual bubble index.
+                        authoredText.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank) == bubbleModes.size) {
                         parsed.copy(
-                            content = com.jiacimu.lulu.stripCharacterReplyDirective(text),
+                            content = authoredText,
                             bubbleDeliveryModes = bubbleModes,
                             bubbleSpeechTracks = speechTracks.takeIf { it.size == bubbleModes.size }.orEmpty(),
                         )
-                    } else parsed.copy(voiceBubbleTexts = voiceTexts)
+                    } else parsed.copy(content = authoredText, voiceBubbleTexts = voiceTexts)
                 }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
