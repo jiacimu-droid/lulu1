@@ -341,6 +341,7 @@ internal fun QqMessageRow(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun QqVoicePlaybackBar(messageId: String, onLongClick: () -> Unit) {
     Surface(
