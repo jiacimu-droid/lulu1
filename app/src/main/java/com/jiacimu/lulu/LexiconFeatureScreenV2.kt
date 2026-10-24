@@ -258,7 +258,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val entries = remember(characterId, mindRevision, curiosityRevision, evidenceRevision) {
         CharacterLifeVisibility.matters(characterId)
     }
-    val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声")
+    val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声", "心路历程")
     LazyColumn(modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 36.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {

@@ -107,6 +107,19 @@ internal object CharacterLifeVisibility {
                     motive.optString("evidenceId"))
             }
 
+
+        jsonEntries(motives).filter {
+            it.optString("status") in setOf("released", "achieved")
+        }.forEach { motive ->
+            val status = if (motive.optString("status") == "achieved") "已经完成" else "选择放下"
+            val closureId = motive.optString("closureEvidenceId").ifBlank { motive.optString("evidenceId") }
+            include(parse(motive.optString("closedAt")), "心路历程",
+                motive.optString("aim").take(180),
+                status + (motive.optString("closedBecause").takeIf(String::isNotBlank)
+                    ?.let { "\n$it" }.orEmpty()),
+                closureId)
+        }
+
         val recentConcerns = CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
             .mapTo(hashSetOf()) { it.optString("id") }
         jsonEntries(mind.optJSONArray("openConcerns")).forEach { concern ->
@@ -119,6 +132,16 @@ internal object CharacterLifeVisibility {
                 (if (concern.optString("id") in recentConcerns) "尚未想通" else "暂时沉淀") +
                     if (detail.isBlank()) "" else "\n$detail",
                 concern.optString("evidenceId"))
+        }
+
+
+        jsonEntries(mind.optJSONArray("closedConcerns")).forEach { concern ->
+            val closureId = concern.optString("closureEvidenceId")
+            include(parse(concern.optString("closedAt")), "心路历程",
+                concern.optString("focus").take(180),
+                (if (concern.optString("closedAs") == "settled") "已经想通" else "已经放下") +
+                    (concern.optString("resolution").takeIf(String::isNotBlank)
+                        ?.let { "\n$it" }.orEmpty()), closureId)
         }
 
         CharacterCuriosityRuntime.visibleQuestions(role).forEach { q ->
@@ -143,6 +166,18 @@ internal object CharacterLifeVisibility {
                 step.optString("evidenceId"))
         }
 
+
+        // Appraisal's private parallel thoughts are not necessarily promoted into
+        // innerLife.thoughts or spoken out loud. The original causal trace owns them.
+        jsonEntries(mind.optJSONArray("causalTransitions")).forEach { transition ->
+            val at = parse(transition.optString("at"))
+            val originId = transition.optString("evidenceId")
+            val ideas = transition.optJSONObject("appraisal")?.optJSONArray("privateIdeas")
+            for (i in 0 until (ideas?.length() ?: 0)) {
+                val idea = ideas?.optString(i).orEmpty().trim()
+                if (idea.isNotBlank()) include(at, "心声", "当时闪过的想法", idea, originId)
+            }
+        }
         val voices = jsonEntries(mind.optJSONArray("innerVoices"))
         voices.forEach { voice ->
             include(parse(voice.optString("occurredAt")), "心声", "心里想的",
