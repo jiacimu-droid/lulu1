@@ -96,9 +96,15 @@ internal object EmbodiedBodyPhysics {
             hunger = bounded(before.hunger + hours * 1.7),
             thirst = bounded(before.thirst + hours * 2.6),
             comfort = bounded(before.comfort - awakeHours * 0.65 + recoveryHours * 4.0),
-            // Time awake without a stimulating activity may feel monotonous.
-            // Sleeping/resting eases it, but never manufactures any action.
-            boredom = bounded(before.boredom + awakeHours * 4.5 - recoveryHours * 11.0),
+            // Physical sleep restores energy but cannot replace interesting
+            // experiences. An offline role used to clear its boredom completely
+            // on every sleep cycle, so its own curiosity rarely became salient.
+            // Novelty appetite grows slowly during rest (diminishing near 100),
+            // more quickly during awake monotony; only real engaging activity
+            // and verified exploration reduce it. Never triggers a model call.
+            boredom = bounded(before.boredom + awakeHours * 4.5 +
+                recoveryHours * (if (offlineSleep) 1.8 else 0.4) *
+                (1.0 - before.boredom / 100.0)),
             recoveryMode = if (finished) "" else mode,
             recoveryUntil = if (finished) null else end,
         )
@@ -162,7 +168,7 @@ internal object EmbodiedBodyPhysics {
                 appendLine("当前离线休眠中；模拟身体正在按真实经过的时间恢复。")
             else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
-            appendLine("饥饿和口渴可以让本人想吃喝或考虑别的活动。单调感只是长时间清醒、缺少新体验时的模拟线索；可引出对既有兴趣的新问题、探索外部知识、独自游戏或联系熟人，也可完全不在意。它不是角色必须搜索/发消息的阈值，更不能越过原权限、费用与真实回执。点单不等于已经食用。")
+            appendLine("饥饿和口渴可影响想吃喝的意愿；睡眠压力高、精力低可以使本人倾向休息。单调感反映一段时间缺少新体验：即使离线睡眠使精力恢复，对知识/变化的期待也可能缓慢积累；真实游戏、阅读、探索回执可缓解单调感。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。各项只是决策线索，绝非必须搜索、强制发消息或改变性格的数值阈值，不越过已有权限和费用限制；点单不代表已食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }
