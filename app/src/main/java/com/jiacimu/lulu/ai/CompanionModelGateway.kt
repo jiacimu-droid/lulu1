@@ -965,23 +965,10 @@ class CompanionModelGateway(
             modelTextValue(choice?.opt("text")),
             modelTextValue(json.opt("output_text")),
             modelTextValue(json.opt("output")),
-            modelTextValue(message?.opt("reasoning_content")),
-            modelTextValue(message?.opt("reasoning")),
-            modelTextValue(message?.opt("analysis")),
-            modelTextValue(message?.opt("thinking")),
         ).firstOrNull(String::isNotBlank).orEmpty().trim()
     }
 
-    private fun modelTextValue(value: Any?): String = when (value) {
-        is String -> value
-        is JSONObject -> sequenceOf("text", "content", "output_text")
-            .map { key -> modelTextValue(value.opt(key)) }
-            .firstOrNull(String::isNotBlank)
-            .orEmpty()
-        is JSONArray -> (0 until value.length())
-            .joinToString("") { index -> modelTextValue(value.opt(index)) }
-        else -> ""
-    }
+    private fun modelTextValue(value: Any?): String = visibleModelText(value)
 
     private fun requestGetJson(url: String, headers: Map<String, String>): JSONObject {
         val connection = URL(url).openConnection() as HttpURLConnection
@@ -1043,7 +1030,6 @@ class CompanionModelGateway(
             }
 
             val content = StringBuilder()
-            val reasoning = StringBuilder()
             val plainResponse = StringBuilder()
             var inputTokens = 0
             var outputTokens = 0
@@ -1086,18 +1072,10 @@ class CompanionModelGateway(
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {
                     content.append(modelTextValue(delta.opt("content")))
-                    reasoning.append(modelTextValue(delta.opt("reasoning_content")))
-                    reasoning.append(modelTextValue(delta.opt("reasoning")))
-                    reasoning.append(modelTextValue(delta.opt("analysis")))
-                    reasoning.append(modelTextValue(delta.opt("thinking")))
                 } else if (content.isEmpty()) {
                     val message = choice?.optJSONObject("message")
                     content.append(modelTextValue(message?.opt("content")))
                     content.append(modelTextValue(choice?.opt("text")))
-                    reasoning.append(modelTextValue(message?.opt("reasoning_content")))
-                    reasoning.append(modelTextValue(message?.opt("reasoning")))
-                    reasoning.append(modelTextValue(message?.opt("analysis")))
-                    reasoning.append(modelTextValue(message?.opt("thinking")))
                 }
                 chunk.optJSONObject("usage")?.let { usage ->
                     inputTokens = usage.optInt("prompt_tokens", inputTokens)
@@ -1138,12 +1116,12 @@ class CompanionModelGateway(
                 if (eventData.isNotEmpty()) consumeEvent(eventData.toString())
             }
 
-            if (content.isEmpty() && reasoning.isEmpty() && plainResponse.isNotBlank()) {
+            if (content.isEmpty() && plainResponse.isNotBlank()) {
                 return modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
                     onStreamText?.invoke(reply.text)
                 }
             }
-            val text = content.toString().trim().ifBlank { reasoning.toString().trim() }
+            val text = content.toString().trim()
             check(text.isNotBlank()) { "模型流式响应没有返回可读取的内容" }
             publishVisibleProgress(force = true)
             ModelReply(

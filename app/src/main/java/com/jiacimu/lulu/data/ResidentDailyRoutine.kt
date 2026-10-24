@@ -12,7 +12,8 @@ import java.time.ZoneId
  * Each slot is idempotent; no off-screen simulation runs chargeable AI calls.
  */
 internal object ResidentDailyRoutine {
-    internal data class Plan(val slot: String, val location: String, val activity: String)
+    internal data class Plan(val slot: String, val location: String, val activity: String,
+        val intendedActivity: String = "")
 
     private fun dutyPlace(person: DigitalWorldResident): String = when (person.templateName) {
         "苏弦" -> DigitalWorldPublicPlaces.GAME_HALL
@@ -36,8 +37,7 @@ internal object ResidentDailyRoutine {
         val eveningPlace = daily?.optString("evening")?.let(ResidentDailyDecision::allowedLeisureLocation)
             ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
             ?: DigitalWorldPublicPlaces.CAFE
-        val eveningActivity = daily?.optString("eveningActivity").orEmpty()
-            .ifBlank { "下班后按自己的心意休息或逛逛" }
+        val eveningActivity = daily?.optString("eveningActivity").orEmpty().trim()
         // Different residents stagger the breaks, allowing simultaneous
         // visitors instead of rerolling a crowd per encounter.
         val offset = Math.floorMod(person.id.hashCode(), 35)
@@ -46,7 +46,8 @@ internal object ResidentDailyRoutine {
             minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), "履行${person.identity}的日常职责")
             minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
             minute < 18 * 60 -> Plan("afternoon", dutyPlace(person), "继续完成${person.identity}的工作")
-            minute < 19 * 60 + offset -> Plan("evening", eveningPlace, eveningActivity)
+            minute < 19 * 60 + offset -> Plan("evening", eveningPlace,
+                "进入下班后的自由活动时段", intendedActivity = eveningActivity)
             else -> Plan("home", person.homeLocationCode, "回家休息")
         }
     }
@@ -111,7 +112,10 @@ internal object ResidentDailyRoutine {
                 eventId = "native-routine-${resident.id}-$key",
                 characterId = characterId,
                 channel = "数字世界·原住民生活", speaker = resident.name,
-                content = "时间=${at}；地点=${canonical.currentLocationCode}；活动=$activity；原住民本人已完成这一日程切换。",
+                content = "时间=${at}；地点=${canonical.currentLocationCode}；当下职责/状态=$activity；原住民本人已完成这一日程切换。" +
+                    if (plan.intendedActivity.isNotBlank())
+                        "接下来想做：${plan.intendedActivity}；这项具体活动尚待实际执行，日程切换不证明已经完成。"
+                    else "",
                 source = "resident-duty", occurredAt = at, triggerExtraction = false,
                 evidenceKind = EventEvidenceKind.Observation,
             )

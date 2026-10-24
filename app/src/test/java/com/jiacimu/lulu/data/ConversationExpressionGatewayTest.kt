@@ -24,7 +24,13 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ConversationExpressionGatewayTest {
-    @Before fun before() { MemoryTestEnvironment.release() }
+    @Before fun before() {
+        MemoryTestEnvironment.release()
+        val context = RuntimeEnvironment.getApplication() as Context
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure)
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
+        CharacterLifeStore.initialize(context)
+    }
     @After fun after() { MemoryTestEnvironment.release() }
 
     @Test fun renderAndRepairKeepTheSameVoiceWithoutReceivingASecondPlannerContract() = runBlocking {

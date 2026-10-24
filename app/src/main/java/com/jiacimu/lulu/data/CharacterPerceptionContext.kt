@@ -74,6 +74,7 @@ internal object CharacterPerceptionContext {
             ((event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE,
                     "xiaohongshu-webview", "xiaohongshu-mcp") ||
+                    ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
                 (event.evidenceKind == EventEvidenceKind.ToolResult &&
                     (personalOutcome(event.source, event.content) != null ||
@@ -82,12 +83,24 @@ internal object CharacterPerceptionContext {
                 Duration.between(event.occurredAt, now) <= Duration.ofHours(24)
         }.takeLast(12)
 
-    fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> =
-        recent(characterId, now).filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id) }
+    fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> {
+        ResidentSocialMailbox.initialize(context)
+        // Unconsidered incoming mail can be older than the ambient 24-hour
+        // window. Offline time must not silently discard a real letter.
+        val letters = ResidentSocialMailbox.pendingIncoming(characterId)
+        val incoming = SharedExperienceTimeline.eventsByIds(characterId,
+            letters.map { ResidentSocialMailbox.evidenceId(it, characterId) })
+            .filter { !it.occurredAt.isAfter(now) }
+        return (recent(characterId, now) + incoming).distinctBy { it.id }
+            .sortedBy { it.occurredAt }
+            .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id) }
+    }
 
     fun stimulus(event: SharedTimelineEvent): PerceptionStimulus = PerceptionStimulus(
         event.id, "[${event.occurredAt}] ${(personalOutcome(event.source, event.content) ?: event.content).take(700)}",
-        if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
+        ResidentSocialMailbox.witnessedMessage(event)?.let { message ->
+            setOf(if (event.characterId == message.toId) message.fromId else message.toId)
+        } ?: if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
             event.source == InteractionSignalBridge.SOURCE) setOf("user")
         else if (event.source == "meeting") DigitalWorldStore.state.value.meetings

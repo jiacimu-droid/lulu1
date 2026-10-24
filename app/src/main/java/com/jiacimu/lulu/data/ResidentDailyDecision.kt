@@ -74,16 +74,20 @@ internal object ResidentDailyDecision {
         return p.edit().putString(key, day).commit()
     }
 
-    private fun recentOwnExperience(characterId: String): String =
+    private fun recentOwnEvents(characterId: String): List<SharedTimelineEvent> =
         SharedExperienceTimeline.recentEvents(characterId, 16)
             .asSequence()
             .filter { it.source in setOf("resident-duty", "meeting", "character-message",
                 "owner-on-behalf", "digital-world", "moment:self", "resident-daily") }
-            .toList().takeLast(9).joinToString("\n") {
+            .toList().takeLast(9)
+
+    private fun recentOwnExperience(characterId: String): String =
+        recentOwnEvents(characterId).joinToString("\n") {
                 "${it.occurredAt} | ${it.channel} | ${it.speaker}：${it.content.take(180)}"
             }
 
-    private fun context(native: DigitalWorldResident, at: Instant): String {
+    private fun context(native: DigitalWorldResident, at: Instant,
+        pending: List<ResidentDirectMessage>): String {
         val characterId = ResidentCharacterBridge.characterId(native.id)
         val body = EmbodiedBodyRuntime.context(characterId).take(750)
         val contacts = ResidentSocialMailbox.visibleContacts(characterId).map { target ->
@@ -102,7 +106,8 @@ internal object ResidentDailyDecision {
             }
         val mail = ResidentSocialMailbox.inbox(characterId, 8).joinToString("\n") {
             val speaker = MigratedDomainStores.characters.get(it.fromId).displayName
-            "$speaker: ${it.content.take(220)}"
+            val recipient = MigratedDomainStores.characters.get(it.toId).displayName
+            "$speaker → $recipient: ${it.content.take(220)}"
         }
         val witnesses = DigitalWorldExpansionStore.residentsAt(native.currentLocationCode)
             .filter { it.id != native.id }.take(8)
@@ -123,6 +128,7 @@ internal object ResidentDailyDecision {
             ${publicMoments.ifBlank { "暂无" }}
             只属于你本人的最近通信：
             ${mail.ifBlank { "无" }}
+            ${CharacterEverydaySocialContext.render(characterId, at, pending)}
             自己确实经历过的事情：
             ${recentOwnExperience(characterId).ifBlank { "暂未积累" }}
             自己对熟人的真实个人印象（对方未必这么想）：
@@ -131,7 +137,29 @@ internal object ResidentDailyDecision {
             $body
             ${DigitalWorldPublicBulletin.publicContext(at).ifBlank { "今天没有新的公共活动公告" }}
             这是有限世界信息，不是整个数字世界的直播。没有列在此处的隐私、谈话、住户和事件不能猜成亲眼所见。
-        """.trimIndent().take(5_000)
+        """.trimIndent()
+    }
+
+    /** Same role-owned state and local recall as other adapters. No extra
+     * embedding, rerank or paid psychological request for a daily plan. */
+    internal suspend fun decisionFacts(native: DigitalWorldResident, at: Instant,
+        pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(
+            ResidentCharacterBridge.characterId(native.id))): String {
+        val id = ResidentCharacterBridge.characterId(native.id)
+        val facts = context(native, at, pending)
+        val memory = CharacterRuntime.actionMemory(id, UnifiedMemoryRequest(
+            currentInput = pending.joinToString("\n") { it.content },
+            sceneContext = "原住民自己的日常生活与熟人来往",
+            recentContext = facts,
+            taskIntent = "根据本人经历、心情与未尽念头安排今天，不补造他人经历",
+        ))
+        return listOf(facts,
+            CharacterRuntime.personalityRuntimeContext(id, compact = true,
+                query = facts, includeActiveCommitments = false),
+            // CharacterAndScenario delivers core memories through its central
+            // channel; do not inject the same core a second time in facts.
+            memory.copy(coreMemories = emptyList()).compactPromptSection())
+            .filter(String::isNotBlank).joinToString("\n\n")
     }
 
     /** Called by the scheduled worker; each citizen chooses using exactly one
@@ -139,16 +167,19 @@ internal object ResidentDailyDecision {
     suspend fun runOnce(context: Context, native: DigitalWorldResident,
         now: Instant = Instant.now()): Boolean {
         val app = context.applicationContext
+        ResidentCharacterBridge.sync(app, now)
         ResidentSocialMailbox.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
         val id = ResidentCharacterBridge.characterId(native.id)
         val selected = runCatching {
             ScopedModelSelections.initialize(app)
             ScopedModelSelections.resolveConnection(SCOPE)
         }.getOrNull() ?: return false
         if (!claim(app, native.id, now)) return false
+        val pending = ResidentSocialMailbox.pendingIncoming(id)
         val reply = LuluAiServices.gateway.generate(
             characterId = id,
-            facts = context(native, now),
+            facts = decisionFacts(native, now, pending),
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
@@ -169,7 +200,7 @@ internal object ResidentDailyDecision {
             source = "数字世界原住民每日规划",
             title = "${native.name}的一天",
             connectionOverride = selected,
-            contextMode = CompanionContextMode.PersonaAndScenario,
+            contextMode = CompanionContextMode.CharacterAndScenario,
             maxTokens = 650,
         ).getOrNull()
         val json = reply?.text?.let(ModelStructuredOutput::objectOrNull) ?: return false
@@ -190,38 +221,60 @@ internal object ResidentDailyDecision {
             eventId = eventId, characterId = id, channel = "原住民·每日自我安排",
             speaker = native.name, source = "resident-daily", occurredAt = now,
             evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
-            content = "今天想法：${plan.optString("thought")}；心情：${plan.optString("mood")}；午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。这是计划，尚未执行。",
+            content = "本人选定的当天安排：午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。这是计划，尚未执行。",
         )
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
         val known = ResidentSocialMailbox.visibleContacts(id).toSet()
-        json.optJSONObject("innerLife")?.let { raw ->
-            val scoped = JSONObject(raw.toString())
+        val incomingEvents = SharedExperienceTimeline.eventsByIds(id,
+            pending.map { ResidentSocialMailbox.evidenceId(it, id) })
+        val scopedInnerLife = json.optJSONObject("innerLife")?.let { JSONObject(it.toString()) }
+        var mentalEvidenceId = eventId
+        scopedInnerLife?.let { scoped ->
             val target = scoped.optJSONObject("social")?.optString("targetId").orEmpty()
-            if (target !in known) scoped.remove("social")
-            runCatching {
-                CharacterInnerLifeStore.observe(
-                    id, eventId, "今天自己的真实处境与已收到的私人消息",
-                    scoped, known, now,
-                )
-            }
+            val encounter = (incomingEvents + recentOwnEvents(id))
+                .filter { it.evidenceKind == EventEvidenceKind.Observation && !it.occurredAt.isAfter(now) }
+                .map(CharacterPerceptionContext::stimulus)
+                .lastOrNull { target in it.socialIds }
+            // Merely knowing a name is not a new encounter. Use an actual
+            // supplied letter/meeting as provenance, so withdrawal works.
+            if (target !in known || encounter == null) scoped.remove("social")
+            if (scoped.has("social") && encounter != null) mentalEvidenceId = encounter.evidenceId
+            CharacterInnerLifeStore.observe(
+                id, mentalEvidenceId,
+                encounter?.description ?: "今天自己的真实处境与安排",
+                scoped, encounter?.socialIds.orEmpty(), now,
+            )
         }
+        CharacterInnerLifeStore.recordInnerVoice(id, mentalEvidenceId, plan.optString("thought"), now)
+        CharacterInnerLifeStore.recordCausalTransition(id, mentalEvidenceId,
+            appraisal = null, innerLife = scopedInnerLife, innerThoughtBasis = null,
+            selectedAction = "plan_day", innerThought = plan.optString("thought"),
+            reason = "本人作出的当天安排；尚未执行的活动不能算亲历", now = now)
         val post = json.optString("post").trim().take(MAX_MESSAGE)
-        if (post.isNotBlank()) runCatching {
+        if (post.isNotBlank()) {
             MomentsStore.initialize(app)
-            MomentsStore.publishCharacter(id, post)
+            ToolRouter.execute(app, id, "publish_moment", JSONObject().put("text", post),
+                requestId = "$eventId-post")
         }
         val messageTo = json.optString("messageTo").trim()
         val message = json.optString("message").trim().take(MAX_MESSAGE)
-        if (message.isNotBlank() && messageTo.isNotBlank() &&
-            messageTo in ResidentSocialMailbox.visibleContacts(id)) {
-            runCatching { ResidentSocialMailbox.send(id, messageTo, message) }
+        if (message.isNotBlank() && messageTo.isNotBlank()) {
+            ToolRouter.execute(app, id, "send_character_message",
+                JSONObject().put("targetCharacterId", messageTo).put("text", message),
+                requestId = "$eventId-message")
         }
+        pending.lastOrNull()?.let { check(ResidentSocialMailbox.acknowledgeIncoming(id, it.id)) {
+            "居民来信处理进度没有保存"
+        } }
         return true
     }
 
     suspend fun tick(context: Context, now: Instant = Instant.now()): Int {
         val app = context.applicationContext
+        // WorkManager can start a cold process without MigrationActivity.
+        // Restore the same repositories and model archive before any claims.
+        initializeBackgroundRuntime(app)
         appContext = app
         ResidentDailyRoutine.refresh(app, now)
         ResidentSocialMailbox.initialize(app)
@@ -230,7 +283,15 @@ internal object ResidentDailyDecision {
         ScopedModelSelections.initialize(app)
         var succeeded = 0
         for (native in DigitalWorldExpansionStore.residents().take(MAX_RESIDENTS_PER_DAY)) {
-            if (runOnce(app, native, now)) succeeded++
+            try {
+                if (runOnce(app, native, now)) succeeded++
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界居民日程", title = "一位居民的每日安排未完成",
+                    message = error.message.orEmpty().take(180))
+            }
         }
         // A completed planning decision may change today's free time if it
         // wasn't already reached, without rewriting a finished duty receipt.

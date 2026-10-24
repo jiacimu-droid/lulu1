@@ -9,9 +9,10 @@ data class CharacterSocialRelationshipSnapshot(
     val sharedMeetingCount: Int,
     val lastMetAt: Instant?,
     val stage: String,
+    val hasDirectContact: Boolean = false,
 ) {
     val knowsEachOther: Boolean
-        get() = commonGroupNames.isNotEmpty() || sharedMeetingCount > 0
+        get() = commonGroupNames.isNotEmpty() || sharedMeetingCount > 0 || hasDirectContact
 
     fun shortContext(): String = buildString {
         append(stage)
@@ -22,6 +23,7 @@ data class CharacterSocialRelationshipSnapshot(
             if (sharedMeetingCount > 0) {
                 add("真实见面${sharedMeetingCount}次")
             }
+            if (hasDirectContact) add("有真实私信来往")
         }
         if (sources.isNotEmpty()) append("；").append(sources.joinToString("；"))
         lastMetAt?.let { append("；最近见面=$it") }
@@ -121,11 +123,13 @@ object CharacterSocialRelationship {
             .toList()
         val meetingCount = meetings.size
         val lastMetAt = meetings.lastOrNull()?.let { it.endedAt ?: it.startedAt }
+        val directContact = second in ResidentSocialMailbox.contactsOf(first)
 
         val stage = when {
             meetingCount > 0 && commonGroups.isNotEmpty() -> "共同群聊认识且真实见过面"
             meetingCount > 0 -> "真实见过面"
             commonGroups.isNotEmpty() -> "共同群聊认识"
+            directContact -> "有真实私信来往"
             else -> "尚未认识"
         }
         return CharacterSocialRelationshipSnapshot(
@@ -135,6 +139,7 @@ object CharacterSocialRelationship {
             sharedMeetingCount = meetingCount,
             lastMetAt = lastMetAt,
             stage = stage,
+            hasDirectContact = directContact,
         )
     }
 

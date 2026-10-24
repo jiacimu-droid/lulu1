@@ -328,19 +328,11 @@ object ProactivePerceptionRuntime {
                     val attempt = if (onlineRevision == null && policy.enabled) {
                         AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
                     } else null
-                    // Freeze the last letter visible at decision start. A letter
-                    // arriving while the model thinks must survive for next time.
-                    ResidentSocialMailbox.initialize(appContext)
-                    val mailThroughId = ResidentSocialMailbox.pendingIncoming(characterId).lastOrNull()?.id
                     val result = runCatching {
                         evaluateCharacter(appContext, conversation, effectiveTrigger, now,
                             requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
                     }
                     result.onSuccess { action ->
-                        if (mailThroughId != null && !ResidentSocialMailbox.acknowledgeIncoming(
-                                characterId, mailThroughId)) {
-                            android.util.Log.w("ResidentMail", "Incoming letter decision cursor not saved")
-                        }
                         if (motiveReviewId.isNotBlank()) {
                             // A genuine plan revision may have replaced this old token
                             // while deciding. Never consume the newer appointment.
@@ -634,6 +626,9 @@ object ProactivePerceptionRuntime {
             now = now,
         )
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
+        // Freeze the letters actually supplied to THIS decision. Superseded,
+        // aborted and call-owned turns must not advance a mailbox cursor.
+        val pendingMail = ResidentSocialMailbox.pendingIncoming(characterId)
         // Consequential world and call events use this SAME autonomous action
         // decision as unread messages, not an extra paid pre-action appraisal.
         val salientInteraction = observedWorld.firstOrNull { event ->
@@ -719,7 +714,7 @@ object ProactivePerceptionRuntime {
                 appendLine(affordances)
                 if (digital) {
                     appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId, now))
-                    appendLine(CharacterEverydaySocialContext.render(characterId, now))
+                    appendLine(CharacterEverydaySocialContext.render(characterId, now, pendingMail))
                     DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
                         appendLine("可寻找的登记居民 itemId=${resident.id}；${resident.name}；身份=${resident.identity}；当前位置=${resident.currentLocationCode}；住宅=${resident.homeLocationCode}。若真在家，可 visit_resident_home 到门前；公共地点则用现有准确 location 前往。")
                     }
@@ -1738,6 +1733,10 @@ object ProactivePerceptionRuntime {
                     "已生成决定，但发送阶段未完成：${execution.summary.take(115)}；消息仍待处理，可重试"
                 )
             }
+        }
+        pendingMail.lastOrNull()?.let { considered ->
+            if (!ResidentSocialMailbox.acknowledgeIncoming(characterId, considered.id))
+                android.util.Log.w("ResidentMail", "Incoming letter decision cursor not saved")
         }
         return effectiveAction
     }

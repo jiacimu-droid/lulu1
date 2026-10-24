@@ -13,6 +13,12 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class NativeResidentLifeIntegrationTest {
+    @org.junit.Before fun initializeWorkerHost() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
+            androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
+    }
+
     private fun person(template: String, identity: String = "世界巡逻员") =
         DigitalWorldResident(id = UUID.randomUUID().toString(), name = template,
             identity = identity, homeLocationCode = "resident-home:testing",
@@ -35,6 +41,8 @@ class NativeResidentLifeIntegrationTest {
         assertEquals(DigitalWorldPublicPlaces.CAFE, midday.location)
         assertEquals(worker.homeLocationCode, home.location)
         assertNotEquals(morning.slot, midday.slot)
+        assertTrue(ResidentDailyRoutine.plan(worker,
+            Instant.parse("2026-10-23T18:30:00Z"), ZoneOffset.UTC).intendedActivity.isEmpty())
     }
 
     @Test fun persistedCitizenBecomesFullCharacterAndKeepsEditedPersona() {

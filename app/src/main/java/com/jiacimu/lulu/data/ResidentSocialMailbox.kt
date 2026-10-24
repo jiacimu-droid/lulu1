@@ -42,13 +42,38 @@ internal object ResidentSocialMailbox {
     }
 
     fun contactsOf(characterId: String): Set<String> = synchronized(this) {
-        messages.asSequence().filter { it.fromId == characterId || it.toId == characterId }
+        liveMessages(characterId, messages.filter { it.fromId == characterId || it.toId == characterId }).asSequence()
             .map { if (it.fromId == characterId) it.toId else it.fromId }.toSet()
     }
 
     /** A character knows only their own confirmed messages, not others' DMs. */
     fun inbox(characterId: String, max: Int = 12): List<ResidentDirectMessage> = synchronized(this) {
-        messages.filter { it.fromId == characterId || it.toId == characterId }.takeLast(max.coerceIn(1, 60))
+        liveMessages(characterId, messages.filter { it.fromId == characterId || it.toId == characterId })
+            .takeLast(max.coerceIn(1, 60))
+    }
+
+    fun evidenceId(message: ResidentDirectMessage, viewer: String): String =
+        "native-mail-${message.id}-viewer-$viewer"
+
+    /** The mailbox is not a second recall path around timeline withdrawal.
+     * A deleted or edited original must not reappear as the old private letter. */
+    private fun liveMessages(viewer: String, candidates: List<ResidentDirectMessage>): List<ResidentDirectMessage> {
+        val live = SharedExperienceTimeline.eventsByIds(viewer, candidates.map { evidenceId(it, viewer) })
+            .filter { it.revision == 1L && it.channel == "数字人物私信" &&
+                it.source in setOf("character-message", "owner-on-behalf") }
+            .mapTo(hashSetOf()) { it.id }
+        return candidates.filter { evidenceId(it, viewer) in live }
+    }
+
+    /** Resolve participants from the saved delivery, never a model-supplied name. */
+    @Synchronized internal fun witnessedMessage(event: SharedTimelineEvent): ResidentDirectMessage? {
+        if (event.channel != "数字人物私信" || event.revision != 1L ||
+            event.evidenceKind != EventEvidenceKind.Observation ||
+            event.source !in setOf("character-message", "owner-on-behalf")) return null
+        return messages.firstOrNull { message ->
+            event.characterId in setOf(message.fromId, message.toId) &&
+                evidenceId(message, event.characterId) == event.id
+        }
     }
 
     /**
@@ -64,11 +89,19 @@ internal object ResidentSocialMailbox {
 
     @Synchronized fun pendingIncoming(role: String, max: Int = 8): List<ResidentDirectMessage> {
         val incoming = messages.filter { it.toId == role }
-        return unconsidered(incoming, prefs?.getString(cursorKey(role), "").orEmpty(), max)
+        return liveMessages(role, unconsidered(incoming,
+            prefs?.getString(cursorKey(role), "").orEmpty(), Int.MAX_VALUE)).take(max.coerceAtLeast(1))
     }
 
     @Synchronized fun acknowledgeIncoming(role: String, messageId: String): Boolean {
-        if (role.isBlank() || messages.none { it.id == messageId && it.toId == role }) return false
+        if (role.isBlank()) return false
+        val incoming = messages.filter { it.toId == role }
+        val through = incoming.indexOfLast { it.id == messageId }
+        if (through < 0) return false
+        val previousId = prefs?.getString(cursorKey(role), "").orEmpty()
+        // A slower daily/foreground decision can finish after a newer one.
+        // Acknowledgement must never move backwards and resurrect old mail.
+        if (incoming.indexOfLast { it.id == previousId } >= through) return true
         return prefs?.edit()?.putString(cursorKey(role), messageId)?.commit() == true
     }
 

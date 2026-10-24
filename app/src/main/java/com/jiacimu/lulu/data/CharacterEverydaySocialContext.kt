@@ -5,9 +5,9 @@ import java.time.Instant
 /** Read-only social continuity drawn from real messages and meetings.
  * Never invent a friendship, a reaction to a letter or an activity. */
 internal object CharacterEverydaySocialContext {
-    fun render(characterId: String, now: Instant = Instant.now()): String {
+    fun render(characterId: String, now: Instant = Instant.now(),
+        pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(characterId)): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
-        val pending = ResidentSocialMailbox.pendingIncoming(characterId)
         val contacts = ResidentSocialMailbox.visibleContacts(characterId)
         val acquaintances = contacts.mapNotNull { id ->
             val relationship = CharacterSocialRelationship.snapshot(characterId, id)

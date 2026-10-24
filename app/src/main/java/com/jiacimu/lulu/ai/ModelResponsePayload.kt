@@ -4,12 +4,23 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 
+/** Text-bearing content blocks only. Thinking/reasoning blocks may also have
+ * a `text` property; their transport shape does not make them public speech. */
+internal fun visibleModelText(value: Any?): String = when (value) {
+    is String -> value
+    is JSONArray -> (0 until value.length()).joinToString("") { visibleModelText(value.opt(it)) }
+    is JSONObject -> if (value.optString("type").let { it.isNotBlank() &&
+            it !in setOf("text", "output_text", "message") }) ""
+        else sequenceOf("text", "content", "output_text")
+            .map { visibleModelText(value.opt(it)) }.firstOrNull(String::isNotBlank).orEmpty()
+    else -> ""
+}
+
 /** Some compatible relays send SSE even when a normal JSON response was requested. */
 internal fun modelResponseObject(raw: String): JSONObject {
     val clean = raw.trim().removePrefix("\uFEFF")
     if (Regex("(?m)^data:").containsMatchIn(clean)) {
         val text = StringBuilder()
-        val reasoning = StringBuilder()
         var usage = JSONObject()
         var finalObject: JSONObject? = null
         val pending = StringBuilder()
@@ -21,15 +32,8 @@ internal fun modelResponseObject(raw: String): JSONObject {
             chunk.optJSONObject("usage")?.let { incoming -> incoming.keys().forEach { key -> usage.put(key, incoming.opt(key)) } }
             val choice = chunk.optJSONArray("choices")?.optJSONObject(0)
             val delta = choice?.optJSONObject("delta")
-            fun content(value: Any?): String = when (value) {
-                is String -> value
-                is JSONArray -> (0 until value.length()).joinToString("") { content(value.opt(it)) }
-                is JSONObject -> content(value.opt("text")).ifBlank { content(value.opt("content")) }
-                else -> ""
-            }
             if (delta != null) {
-                text.append(content(delta.opt("content")))
-                reasoning.append(content(delta.opt("reasoning_content")))
+                text.append(visibleModelText(delta.opt("content")))
             } else if (chunk.optString("type") == "content_block_delta") {
                 val block = chunk.optJSONObject("delta")
                 if (block?.optString("type") == "text_delta") text.append(block.optString("text"))
@@ -54,8 +58,10 @@ internal fun modelResponseObject(raw: String): JSONObject {
             }
         }
         check(pending.isEmpty() || consume(pending.toString())) { "接口返回的流式片段不完整，请重试" }
-        if (text.isEmpty() && reasoning.isEmpty()) return finalObject ?: error("模型流式响应没有返回正文")
-        val spoken = text.toString().ifBlank { reasoning.toString() }
+        // Provider reasoning is private transport metadata, never a substitute
+        // for authored speech or a structured action decision.
+        if (text.isEmpty()) return finalObject ?: error("模型流式响应没有返回正文")
+        val spoken = text.toString()
         val message = JSONObject().put("content", spoken)
         return JSONObject().put("choices", JSONArray().put(JSONObject().put("message", message)))
             .put("content", JSONArray().put(JSONObject().put("type", "text").put("text", spoken))).put("usage", usage)
