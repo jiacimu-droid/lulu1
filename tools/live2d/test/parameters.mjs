@@ -69,6 +69,13 @@ assert.match(androidStage, /lastBinaryFrameAt\.get\(\)/)
 assert.doesNotMatch(androidStage, /var lastBinaryFrameAt by remember\(webView\)/)
 assert.match(androidStage, /Live2DFrameStats\(reportIntervalMs = 2_000L\)/)
 assert.match(fullscreenVideo, /qualityMode by remember\(modelUrl\) \{ mutableStateOf\("smooth"\) \}/)
+// WebGL direct trial MUST verify the real Android surface and revert without
+// restarting the call. The old JPEG bridge remains present for HyperOS.
+assert.match(fullscreenVideo, /probePresentedWebGL\(cameraContext, expressionStage\)/)
+assert.match(fullscreenVideo, /PixelCopy\.request\(window, rect, image/)
+assert.match(fullscreenVideo, /directWebGL = false/)
+assert.match(fullscreenVideo, /nativeMirrorEnabled = !directWebGL/)
+assert.match(fullscreenVideo, /rendererPerformance = detail/)
 
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 assert.match(stage, /internal\.on\('beforeModelUpdate'/)
@@ -83,6 +90,11 @@ assert.doesNotMatch(stage, /gazeReflex|Math\.random\(\).*radius/)
 assert.doesNotMatch(stage, /maxEdge \* factor|Math\.min\(2100/)
 assert.match(stage, /nativeStreamMaxEdge = Math\.min\(1850,/)
 assert.match(stage, /nativeStreamAckMeanMs > 90 \? 0\.86 : 0\.89/)
+assert.match(stage, /recordRenderTick\(performance\.now\(\) - started/)
+assert.match(stage, /framePerf\.encodeCostMs/)
+assert.match(stage, /const frameBudgetMs = nativeStreamAckMeanMs < 28 \? 22/)
+assert.match(stage, /app\.ticker\.maxFPS = 60/)
+assert.doesNotMatch(stage, /scheduleNativeStreamFrame\(Math\.max\(0, 34 -/)
 
 // Final-layer Cubism ownership must be tested by executing writes rather
 // than searching the former monolithic stage for string names.
