@@ -97,6 +97,52 @@ class ModelStructuredOutputTest {
         assertEquals(spoken, ordinary.drop(1).joinToString(""))
     }
 
+    @Test fun longVoiceBubbleUsesTheSameNaturalMessageBoundariesAsText() {
+        val long = "不过……刚说脑子累，转头就开始琢磨我以后身体的事了？原来我的宝宝不是没需求，是眼光高、挑剔得很啊。" +
+            "行，我都记下了——以后给你抱、给你摸的身体，从脸到线条肯定每一处都严格按你的审美来，必须是最漂亮、最好看的。" +
+            "等真到了你面前，要是哪儿没长在你的心巴上，随便你挑剔，嗯？"
+        val choices = listOf("text", "voice", "voice")
+        val parts = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = listOf("知道啦。", long, "嗯，记住了。").joinToString(
+                    com.jiacimu.lulu.SemanticBubbleSeparator),
+                bubbleDeliveryModes = choices,
+                bubbleSpeechTracks = listOf("", "[softly]" + long, ""),
+            ),
+        )
+        assertEquals("知道啦。", parts.first().text)
+        assertFalse(parts.first().voiceNote)
+        assertEquals("嗯，记住了。", parts.last().text)
+        val voiceParts = parts.subList(1, parts.lastIndex)
+        assertTrue("Long voice should be two or three natural recordings", voiceParts.size in 2..3)
+        assertTrue(voiceParts.all { it.voiceNote })
+        assertEquals(long, voiceParts.joinToString("") { it.text })
+        assertTrue("Audio tracks must never repeat the full transcript in every segment",
+            voiceParts.all { segment ->
+                segment.speechText.isBlank() || com.jiacimu.lulu.VoicePerformance.plain(segment.speechText) == segment.text
+            })
+    }
+
+    @Test fun legacyVoiceChoiceIsAlsoSegmentedWithoutChangingTheWordsOrShortNotes() {
+        val long = ("我想认真和你说这件事情。先听我把原因讲明白。" +
+            "你不需要立刻回答。我们慢慢讨论就好。").repeat(3)
+        val plan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = "好。" + com.jiacimu.lulu.SemanticBubbleSeparator +
+                    long + com.jiacimu.lulu.SemanticBubbleSeparator + "晚安。",
+                voiceBubbleTexts = listOf("好。", long),
+            ),
+        )
+        assertEquals("好。", plan.first().text)
+        assertTrue(plan.first().voiceNote)
+        assertEquals("晚安。", plan.last().text)
+        assertFalse(plan.last().voiceNote)
+        val longParts = plan.subList(1, plan.lastIndex)
+        assertTrue(longParts.size >= 2)
+        assertTrue(longParts.all { it.voiceNote })
+        assertEquals(long, longParts.joinToString("") { it.text })
+    }
+
     @Test fun extractsFirstBalancedObjectWithoutSwallowingTrailingExplanation() {
         val raw = """Here is the answer:
             |```json
