@@ -59,8 +59,15 @@ fun ScheduleFeatureScreen(
     val promiseNotes by LuluRepositories.lexicon.observeEntries(selectedCharacterId, LexiconSection.Promise)
         .collectAsState(initial = emptyList())
     val tasks = commitments.filter { task ->
-        task.characterId == selectedCharacterId && (task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
-            ?.let { it == selectedDate } ?: (task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate))
+        if (task.characterId != selectedCharacterId) false
+        else if (task.repeat == "daily" && task.dueAt != null && task.status.isActive()) {
+            // One repeating record, visible on each relevant day rather than
+            // creating a separate stored task for every date.
+            !selectedDate.isBefore(task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate()) &&
+                !selectedDate.isBefore(task.dueAt.atZone(ZoneId.systemDefault()).toLocalDate())
+        } else task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
+            ?.let { it == selectedDate }
+            ?: (task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate)
     }
     val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
     val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&
