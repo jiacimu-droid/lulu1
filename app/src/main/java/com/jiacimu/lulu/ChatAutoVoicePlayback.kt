@@ -4,6 +4,7 @@ import android.content.Context
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.MeetingSegmentType
 import com.jiacimu.lulu.data.UserMessageFavorites
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -196,11 +197,13 @@ object ChatAutoVoicePlayback {
     }
 
     /** Prepare character-chosen speech silently; never auto-play a sent voice note. */
-    fun prepareVoiceNote(characterId: String, messageId: String, text: String, conversationId: String): Boolean {
+    fun prepareVoiceNote(characterId: String, messageId: String, text: String, conversationId: String,
+        speechText: String = ""): Boolean {
         val context = appContext ?: return false
         if (!VoiceSynthesisPolicy.enabled(context) || text.isBlank() || messageId.isBlank()) return false
         if (hasCached(messageId)) return true
-        return sendOnce(Request(characterId, messageId, conversationId, text,
+        return sendOnce(Request(characterId, messageId, conversationId,
+            voiceNoteAudioText(context, text, speechText),
             CharacterVoicePreferenceStore.playbackVoiceId(characterId),
             requireAutoPlay = false, prepareOnly = true))
     }
@@ -233,12 +236,14 @@ object ChatAutoVoicePlayback {
         val message = target.second
         val speech = stripCharacterReplyDirective(message.content).trim()
         if (speech.isBlank()) return false
+        val audioText = if (message.voiceNote) voiceNoteAudioText(appContext ?: return false,
+            speech, message.voiceSpeechText) else speech
         return sendOnce(
             Request(
                 characterId = characterId,
                 messageId = message.id,
                 conversationId = "", // Explicit tap works from a favorites page too.
-                text = speech,
+                text = audioText,
                 voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = false,
             ),
@@ -301,6 +306,14 @@ object ChatAutoVoicePlayback {
             if (characterId.isNotBlank()) return characterId to message
         }
         return null
+    }
+
+    /** Speech directions remain strictly off the visible chat/memory track. */
+    internal fun voiceNoteAudioText(context: Context, text: String, speechText: String): String {
+        val clean = VoicePerformance.plain(stripCharacterReplyDirective(text)).trim()
+        val aligned = VoicePerformance.meetingSegment(MeetingSegmentType.DIALOGUE,
+            clean, speechText).speechText
+        return VoicePerformance.forPlayback(context, aligned.ifBlank { clean })
     }
 
     private fun voiceNoteBase(messageId: String): File? {
