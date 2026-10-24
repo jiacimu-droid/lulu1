@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`46ed449678bac48d450cf4ce5ef0ee91ceb7a433`
+- 基准提交：`52c9c824e6c332b06cacb1bfcaf53b49c1e3cb58`
 - 分支：`main`
 - 已索引文件：872
-- 已索引代码/文本行：167552
+- 已索引代码/文本行：167584
 - 已发现符号：2520
 
 | 文件 | 行数 | 符号数 |
@@ -421,7 +421,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2333 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2350 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 903 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
@@ -804,7 +804,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 185 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |

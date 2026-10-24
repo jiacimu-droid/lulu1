@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:31:00.967768+00:00",
-  "commit": "46ed449678bac48d450cf4ce5ef0ee91ceb7a433",
+  "generatedAt": "2026-10-24T04:33:48.298432+00:00",
+  "commit": "52c9c824e6c332b06cacb1bfcaf53b49c1e3cb58",
   "branch": "main",
-  "sourceFingerprint": "c478c9e31ec5d185d1d51217f05699eaa6d38f18d2e4df5dbcd35d80836fcfb0",
+  "sourceFingerprint": "da142d15fdfece1f7ccc2ce67fc558975d36f1e52337f29758596cb51f7f76f7",
   "summary": {
     "files": 872,
-    "lines": 167552,
+    "lines": 167584,
     "symbols": 2520
   },
   "symbolIndex": {
@@ -8963,19 +8963,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 527
+        "line": 544
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 529
+        "line": 546
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2266
+        "line": 2283
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -22907,8 +22907,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2333,
-      "sha256": "4aa3248e41f882ddfdde2df1b8c370f24bea0c4c797ccc98020ade9283110137",
+      "lines": 2350,
+      "sha256": "fef4640808f59717b20cefa88f72c0c44f67777419ffa209e643c4e466262d50",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22932,15 +22932,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 527
+          "line": 544
         },
         {
           "name": "deferSupersededDecision",
-          "line": 529
+          "line": 546
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2266
+          "line": 2283
         }
       ]
     },
@@ -29326,8 +29326,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt",
-      "lines": 185,
-      "sha256": "32f8df799540eb7bfb932e3db31fb5b864e2fc7cf52fb4e8ac5705e38f4ae524",
+      "lines": 200,
+      "sha256": "cf28abe6c3671d2e7e300f3e8c5af1d72e50a6d848daa7259f185a3929b67194",
       "symbols": [
         {
           "name": "PerceptionWakePlanStoreTest",
