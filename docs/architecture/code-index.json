@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T01:39:39.359735+00:00",
-  "commit": "be5b50c316116e5f866f867e2c321f0fa1abd00b",
+  "generatedAt": "2026-10-24T01:39:54.132550+00:00",
+  "commit": "34ce10bd9a9e7593a07fefc890c6128f3d2db3bf",
   "branch": "main",
-  "sourceFingerprint": "4acb631bd1b3d28e331432aae56859a7a1b250d874905330033a030fd6ee6996",
+  "sourceFingerprint": "c12e2d2fed831fa60f425e4ba3a75fe67e8b62b43b4b26366fa0136b67dbfcee",
   "summary": {
     "files": 867,
-    "lines": 165716,
+    "lines": 165703,
     "symbols": 2505
   },
   "symbolIndex": {
@@ -15679,8 +15679,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-      "lines": 496,
-      "sha256": "d8f35b3d79317bdf7f3980a76562c84252253de24506981b5d9145f47e23d8d3",
+      "lines": 483,
+      "sha256": "81299c447defc5a71ef6c07fe4bdeec9aea246965c6392e7ff356ecde76686a3",
       "symbols": [
         {
           "name": "saveGroupCall",
