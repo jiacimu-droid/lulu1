@@ -69,6 +69,9 @@ object CharacterInnerLifeStore {
         if (edit.remove(characterId).commit()) revisionState.value += 1L
     }
 
+    @Synchronized fun hasOlderPrivateHistory(characterId: String, limit: Int): Boolean =
+        CharacterInnerHistoryArchive.hasOlder(prefs, characterId, snapshot(characterId), limit)
+
     @Synchronized fun historySnapshot(characterId: String, lastPerField: Int = 160): JSONObject {
         val root = snapshot(characterId)
         for (field in CharacterInnerHistoryArchive.fields())

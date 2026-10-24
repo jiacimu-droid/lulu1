@@ -91,6 +91,20 @@ internal object CharacterInnerHistoryArchive {
         return JSONArray().apply { result.forEach(::put) }
     }
 
+    fun hasOlder(store: SharedPreferences?, role: String, root: JSONObject, limit: Int): Boolean {
+        val prefs = store ?: return false
+        val meta = root.optJSONObject(META) ?: return false
+        for (field in limits.keys) {
+            var total = rows(root.optJSONArray(field)).size
+            if (total > limit) return true
+            for (page in 0 until meta.optInt(field, 0)) {
+                total += read(prefs, role, field, page).size
+                if (total > limit) return true
+            }
+        }
+        return false
+    }
+
     fun clear(role: String, root: JSONObject, edit: SharedPreferences.Editor,
         fields: Set<String> = limits.keys) {
         val meta = root.optJSONObject(META) ?: return

@@ -258,14 +258,17 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
     var historyLimit by rememberSaveable(characterId) { mutableIntStateOf(80) }
-    val entries by produceState(
-        initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
+    val historyPage by produceState(
+        initialValue = Pair(emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(), false),
         characterId, mindRevision, curiosityRevision, evidenceRevision, historyLimit,
     ) {
         value = withContext(Dispatchers.Default) {
-            CharacterLifeVisibility.matters(characterId, historyLimit = historyLimit)
+            CharacterLifeVisibility.matters(characterId, historyLimit = historyLimit) to
+                CharacterInnerLifeStore.hasOlderPrivateHistory(characterId, historyLimit)
         }
     }
+    val entries = historyPage.first
+    val hasOlder = historyPage.second
     val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声", "心路历程")
     LazyColumn(modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 36.dp),
@@ -304,7 +307,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                 }
             }
         }
-        if (entries.isNotEmpty()) item(key = "older-matters") {
+        if (hasOlder) item(key = "older-matters") {
             TextButton(onClick = { historyLimit += 80 }, modifier = Modifier.fillMaxWidth()) {
                 Text("查看更多心事")
             }
