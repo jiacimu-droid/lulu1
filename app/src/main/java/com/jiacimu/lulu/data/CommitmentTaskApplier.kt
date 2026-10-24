@@ -34,20 +34,28 @@ private suspend fun createCommitmentTask(
     val now = Instant.now()
     // A role reply arrives as multiple bubbles. Extractor can see each growing batch and
     // may re-run, but a promised wake-up must create exactly one alarm-backed task.
-    val previousFromTurn = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
-        task.sourceTurnId == sourceTurnId && task.status.isActive() &&
-            task.goal.sameTaskText(draft.goal)
+    // One accepted time slot is one task ID, even when the two parsers use
+    // different wording ("十点半督促学习" versus "10:30喊她开始学习").
+    // Match date as well as local time for once-only tasks; two different
+    // days are not duplicates. A user asking for daily recurrence may upgrade
+    // the existing one-off record rather than registering another alarm.
+    val existing = CommitmentTaskStore.active(characterId).firstOrNull { task ->
+        (task.sourceTurnId == sourceTurnId && task.goal.sameTaskText(draft.goal)) ||
+            sameTimedReminderTask(task, draft) &&
+                (task.sourceTurnId == sourceTurnId ||
+                    task.repeat == "daily" || draft.repeat == "daily" ||
+                    task.deliveryAction == draft.deliveryAction)
     }
-    if (previousFromTurn != null) return
-    // Repeated model turns must not create another ringing job for the same
-    // daily clock obligation. A genuine change of time goes via reschedule + ID.
-    val existingDaily = if (draft.repeat == "daily" && draft.dueAt != null)
-        CommitmentTaskStore.active(characterId).firstOrNull { task ->
-            task.repeat == "daily" && task.dueAt != null &&
-                task.deliveryAction == draft.deliveryAction &&
-                sameDailyClockAndPurpose(task.goal, task.dueAt, draft.goal, draft.dueAt)
-        } else null
-    if (existingDaily != null) return
+    if (existing != null) {
+        if (draft.repeat == "daily" && existing.repeat != "daily" &&
+            sameTimedReminderTask(existing, draft)) {
+            CommitmentTaskStore.update(existing.id) { current ->
+                current.copy(repeat = "daily",
+                    sourceEventIds = (current.sourceEventIds + sourceEventIds).distinct())
+            }?.let(CommitmentLexiconSync::syncTask)
+        }
+        return
+    }
     val existingLexicon = LuluRepositories.lexicon.snapshot(characterId)
         .asSequence()
         .filter { it.section == LexiconSection.Promise }
@@ -254,4 +262,17 @@ internal fun sameDailyClockAndPurpose(
     return themes.any { terms ->
         terms.any(firstGoal::contains) && terms.any(secondGoal::contains)
     }
+}
+
+/** Same local date+minute for one-offs, same wall-clock for daily promises. */
+internal fun sameTimedReminderTask(existing: CommitmentTask, draft: CommitmentTaskDraft): Boolean {
+    val oldAt = existing.dueAt ?: return false
+    val newAt = draft.dueAt ?: return false
+    val zone = existing.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+        ?: java.time.ZoneId.systemDefault()
+    val old = oldAt.atZone(zone)
+    val fresh = newAt.atZone(zone)
+    if (existing.repeat != "daily" && draft.repeat != "daily" &&
+        old.toLocalDate() != fresh.toLocalDate()) return false
+    return sameDailyClockAndPurpose(existing.goal, oldAt, draft.goal, newAt, zone)
 }
