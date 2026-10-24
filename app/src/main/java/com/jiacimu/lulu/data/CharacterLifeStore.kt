@@ -377,6 +377,14 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v24 only compresses stock text. Every non-default value, including
+        // intentional empty custom fields, remains byte-for-byte unchanged.
+        CharacterProfileSchema.jiangDuV24Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            val stock = CharacterProfileSchema.jiangDuV23Overrides[key]
+                ?: CharacterProfileSchema.jiangDuV22Overrides[key]
+            if (!profile.has(key) || previous == stock) profile.put(key, value)
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -416,6 +424,12 @@ object CharacterLifeStore {
             ownerV23.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV23)
                 .put("updatedAt", Instant.now().toString())
         }
+        val ownerV24 = relations.optJSONObject("user")
+        if (ownerV24?.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
+            ownerV24.optString("details") == CharacterProfileSchema.jiangDuOwnerRelationContextV23) {
+            ownerV24.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV24)
+                .put("updatedAt", Instant.now().toString())
+        }
         root.put("relationshipAgreements", relations)
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
             else character.displayName
@@ -427,8 +441,11 @@ object CharacterLifeStore {
                 CharacterProfileSchema.jiangDuV13Persona,
                 CharacterProfileSchema.jiangDuV14Persona
             )) CharacterProfileSchema.jiangDuV16Persona else character.persona
-        val layeredPersona = if (updatedPersona == CharacterProfileSchema.jiangDuV16Persona)
-            CharacterProfileSchema.jiangDuV22Persona else updatedPersona
+        val layeredPersona = when (updatedPersona) {
+            CharacterProfileSchema.jiangDuV16Persona,
+            CharacterProfileSchema.jiangDuV22Persona -> CharacterProfileSchema.jiangDuV24Persona
+            else -> updatedPersona
+        }
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = layeredPersona))
         root.optJSONObject("socialNames")?.let { names ->
