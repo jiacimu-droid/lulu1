@@ -64,15 +64,11 @@ private suspend fun probePresentedWebGL(context: Context, webView: WebView?): In
         webView == null || !webView.isAttachedToWindow ||
         webView.width < 64 || webView.height < 64) return null
     var current: Context? = context
-    var activity: Activity? = null
-    repeat(12) {
-        if (current is Activity) {
-            activity = current as Activity
-            return@repeat
-        }
+    for (attempt in 0 until 12) {
+        if (current is Activity) break
         current = (current as? ContextWrapper)?.baseContext
     }
-    val window = activity?.window ?: return null
+    val window = (current as? Activity)?.window ?: return null
     val location = IntArray(2)
     webView.getLocationInWindow(location)
     val right = (location[0] + webView.width).coerceAtMost(window.decorView.width)
@@ -662,8 +658,9 @@ internal fun Live2DFullscreenVideoCall(
                             leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
                         )
                         DropdownMenuItem(
-                            text = { Text(if (directWebGL)
-                                "✓ WebGL 直显 · 点击恢复兼容" else "试用 WebGL 直显") },
+                            text = { Text(if (directVerified) "✓ WebGL 直显"
+                                else if (directWebGL) "验证直显中…"
+                                else "试用 WebGL 直显") },
                             enabled = nativeFrameReady,
                             onClick = {
                                 directWebGL = !directWebGL
