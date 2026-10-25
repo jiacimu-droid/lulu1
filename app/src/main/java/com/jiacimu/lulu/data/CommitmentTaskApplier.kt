@@ -105,7 +105,7 @@ private suspend fun createCommitmentTask(
         lastActionResult = if (needsClarification && wakeChoiceMissing)
             "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
             else if (needsClarification) "缺少必要条件，需要后续自然确认"
-            else if (ongoing) "持续约定已记入辞海，结合真实进展继续跟进；没有创建固定闹钟" else "",
+            else if (ongoing) "持续约定已保存，可在日程的未定时约定中查看；按真实进展跟进，未创建固定闹钟" else "",
     )
     task = CommitmentTaskStore.save(task)
     if (task.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(task)
