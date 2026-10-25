@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:25:47.798314+00:00",
-  "commit": "117122b0659f2f2a3e4cdfcfc945fbd54ab0b957",
+  "generatedAt": "2026-10-25T11:27:06.794954+00:00",
+  "commit": "a58082694bc740e2c63c86335378321fa5a1e09b",
   "branch": "main",
-  "sourceFingerprint": "8a8043a84d8e8695bc62a12ffb43644775c0786c4957cf73d6735826b0119224",
+  "sourceFingerprint": "9d490f15624571ccd9729e36ee7a1522aa974edc92e28513348937fcada481fc",
   "summary": {
     "files": 898,
-    "lines": 176626,
-    "symbols": 2647
+    "lines": 176647,
+    "symbols": 2648
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -177,7 +177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 49
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -689,7 +689,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 38
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -4878,6 +4878,10 @@
         "line": 33
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 26
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
         "line": 31
       },
@@ -5037,25 +5041,25 @@
     "CharacterDevelopmentRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 17
+        "line": 37
       }
     ],
     "lastStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 23
+        "line": 43
       }
     ],
     "resumePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 35
+        "line": 55
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 181
+        "line": 202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -15318,7 +15322,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
       "lines": 672,
-      "sha256": "ffe151cdfdbf109dad172f27f7a9deb0f6054b788c1283df23520557457a2e33",
+      "sha256": "aba9e7f2798073fa51af98fa996b7fa762b99f26d02bc17dd92f821912b23f44",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -19269,32 +19273,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 222,
-      "sha256": "377f0feb0ba30e925c2733bec095ada6806e43138cd39737ca970f780af422f3",
+      "lines": 243,
+      "sha256": "64de155c63dec6be9c7a013b5d388df70fc12145672e5be9e0823427c666896a",
       "symbols": [
         {
+          "name": "snapshot",
+          "line": 26
+        },
+        {
           "name": "CharacterDevelopmentRuntime",
-          "line": 17
+          "line": 37
         },
         {
           "name": "lastStatus",
-          "line": 23
+          "line": 43
         },
         {
           "name": "resumePending",
-          "line": 35
+          "line": 55
         },
         {
           "name": "initialize",
-          "line": 38
+          "line": 58
         },
         {
           "name": "request",
-          "line": 49
+          "line": 69
         },
         {
           "name": "ids",
-          "line": 181
+          "line": 202
         }
       ]
     },
