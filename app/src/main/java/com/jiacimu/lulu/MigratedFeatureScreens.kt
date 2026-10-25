@@ -96,7 +96,7 @@ fun LexiconFeatureScreen(onBack: () -> Unit) {
         containerColor = FeaturePaper,
         topBar = {
             TopAppBar(
-                title = { Text("辞海", fontWeight = FontWeight.SemiBold) },
+                title = { Text("生活记录", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
