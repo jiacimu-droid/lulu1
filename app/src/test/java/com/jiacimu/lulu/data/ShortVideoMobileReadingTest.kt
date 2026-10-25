@@ -43,6 +43,41 @@ class ShortVideoMobileReadingTest {
         assertEquals("null", result.nextCursor.toString())
     }
 
+    @Test fun commentsAloneNeverClaimTheVideoWasWatchedEvenWhenSourceSaysEnded() = runBlocking {
+        val source = FakeSource(listOf(ShortVideoMobileReading.Segment(
+            0, 3_000, comments = listOf(ShortVideoMobileReading.Comment("c1", "我也喜欢")),
+            endOfVideo = true)))
+        var called = false
+        val analyzer = object : ShortVideoMobileReading.Interpreter {
+            override suspend fun interpret(clip: ShortVideoMobileReading.Clip,
+                                           segment: ShortVideoMobileReading.Segment): String {
+                called = true
+                return "不应该理解视频"
+            }
+        }
+        val result = ShortVideoMobileReading.readSelected(source, analyzer, clip)
+        assertEquals(ShortVideoMobileReading.State.NO_EVIDENCE, result.state)
+        assertFalse(called)
+        assertTrue(result.receipts.isEmpty())
+    }
+
+    @Test fun overlappingMediaIntervalsCannotFabricateMoreViewingProgress() = runBlocking {
+        val source = FakeSource(listOf(part(0, 3_000, "next"),
+            part(1_000, 4_000, "next-next")))
+        val outcome = ShortVideoMobileReading.readSelected(source, interpreter, clip)
+        assertEquals(ShortVideoMobileReading.State.FAILED, outcome.state)
+        assertEquals(1, outcome.receipts.size)
+        assertEquals("next", outcome.nextCursor)
+        assertTrue(outcome.reason.contains("重叠"))
+    }
+
+    @Test fun sourceCannotClaimCompletedVideoAndPendingVideoCursorTogether() = runBlocking {
+        val source = FakeSource(listOf(part(0, 3_000, "still-more", done = true)))
+        val outcome = ShortVideoMobileReading.readSelected(source, interpreter, clip)
+        assertEquals(ShortVideoMobileReading.State.FAILED, outcome.state)
+        assertTrue(outcome.receipts.isEmpty())
+    }
+
     @Test fun longVideoResumesWithoutAutoplayOrLoadingAllSegments() = runBlocking {
         val source = FakeSource(listOf(
             part(0, 3_000, "chunk-1"), part(3_000, 6_000, "chunk-2"),
