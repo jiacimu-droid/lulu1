@@ -159,7 +159,7 @@ internal object CommitmentDecisionRuntime {
             check(prefs.edit().putStringSet("handled", saved.takeLast(2000).toSet()).commit())
         }
         val receipt = if (drafts.isEmpty()) "本轮模型判断没有约定变化。" else changed.joinToString("\n") {
-            "id=${it.id}; 关联记录id=${it.lexiconEntryId}; goal=${it.goal}; dueAt=${it.dueAt}; status=${it.status}; 实际结果=${it.lastActionResult}"
+            "id=${it.id}; 关联记录id=${it.lexiconEntryId}; goal=${it.goal}; dueAt=${it.dueAt}; status=${it.status}; 实际结果=${it.readableLastResult()}"
         }.ifBlank { "未新增或更改任务，已有记录保持原状。" }
         if (drafts.isNotEmpty()) SharedExperienceTimeline.record(
             eventId = "commitment:$sourceTurnId", characterId = characterId, channel = "约定保存与执行回执",
