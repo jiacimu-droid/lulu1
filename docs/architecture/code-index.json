@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:46:36.977404+00:00",
-  "commit": "c40f2e2089abbe46449d28d35456f63dd8a0165e",
+  "generatedAt": "2026-10-25T11:47:22.785997+00:00",
+  "commit": "f32af3517ca43b7f277637648991529429f85e65",
   "branch": "main",
-  "sourceFingerprint": "9d29c4fb1908747de58267ce36c7425dc3ddf1dd6c8fc0d3db6b58311fc5bbbf",
+  "sourceFingerprint": "98fdcd4c1c4f44de574430d3dde9bd5ddb6260b5a70ebf0bd830f0685d0dace5",
   "summary": {
     "files": 900,
-    "lines": 176956,
+    "lines": 176958,
     "symbols": 2651
   },
   "symbolIndex": {
@@ -2019,7 +2019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1100
+        "line": 1101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6745,19 +6745,19 @@
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1083
+        "line": 1084
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1093
+        "line": 1094
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1130
+        "line": 1131
       }
     ],
     "age": [
@@ -21073,8 +21073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1226,
-      "sha256": "4299290682455119b36c6bb7ade380ddad88d6ebfa03be64fe7ac3e0dcee29a1",
+      "lines": 1228,
+      "sha256": "24f15f9c5025bf31da76263a59de6ad13b26177ada3af794837b48460c869490",
       "symbols": [
         {
           "name": "asJson",
@@ -21094,19 +21094,19 @@
         },
         {
           "name": "completedEvidence",
-          "line": 1083
+          "line": 1084
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1093
+          "line": 1094
         },
         {
           "name": "from",
-          "line": 1100
+          "line": 1101
         },
         {
           "name": "requiresCompletion",
-          "line": 1130
+          "line": 1131
         }
       ]
     },
