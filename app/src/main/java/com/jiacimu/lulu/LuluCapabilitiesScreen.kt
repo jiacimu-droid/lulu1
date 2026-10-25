@@ -284,7 +284,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.PictureInPictureAlt,
                     "悬浮窗",
-                    "让角色请求查看屏幕、邀请返回时浮出小弹窗",
+                    "用于屏幕查看申请、返回邀请及学习监督时的常驻小窗",
                     snapshot.overlay,
                 ) { open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))) }
             }
