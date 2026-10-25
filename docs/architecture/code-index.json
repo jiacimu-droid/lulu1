@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:54:12.136352+00:00",
-  "commit": "9c64e09f6127ad6b1f39f5c6da8dff9395e0fa57",
+  "generatedAt": "2026-10-25T12:01:57.976241+00:00",
+  "commit": "640732a24585b18a5b2a3d669ce7fb2044481095",
   "branch": "main",
-  "sourceFingerprint": "ab87ef7369bb6ff08b0e108fafc4997e6efc7883ce814e5dfe973ce5c8f6201c",
+  "sourceFingerprint": "e6839ae33da63309523b716cbbb220368329994bc2eb04ec6e7680941bf942d5",
   "summary": {
     "files": 901,
-    "lines": 177050,
-    "symbols": 2652
+    "lines": 177061,
+    "symbols": 2653
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2019,7 +2019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1101
+        "line": 1112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6748,16 +6748,22 @@
         "line": 1084
       }
     ],
+    "firstUnacknowledged": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 1095
+      }
+    ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1094
+        "line": 1105
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1131
+        "line": 1142
       }
     ],
     "age": [
@@ -21079,8 +21085,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1228,
-      "sha256": "24f15f9c5025bf31da76263a59de6ad13b26177ada3af794837b48460c869490",
+      "lines": 1239,
+      "sha256": "315924dea5ac037b829155fbfbd6e44aae8b139ee1d9d9e97a858098add06f2f",
       "symbols": [
         {
           "name": "asJson",
@@ -21103,16 +21109,20 @@
           "line": 1084
         },
         {
+          "name": "firstUnacknowledged",
+          "line": 1095
+        },
+        {
           "name": "awaitsPrimaryConversation",
-          "line": 1094
+          "line": 1105
         },
         {
           "name": "from",
-          "line": 1101
+          "line": 1112
         },
         {
           "name": "requiresCompletion",
-          "line": 1131
+          "line": 1142
         }
       ]
     },
