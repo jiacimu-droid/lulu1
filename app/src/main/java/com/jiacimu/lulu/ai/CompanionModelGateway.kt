@@ -701,8 +701,16 @@ class CompanionModelGateway(
                 "跨场景连续性锚点" to continuitySection, "已读材料与可修订的理解" to learningSection,
                 "近期时间线/未完成责任" to timelineSection, "核心记忆" to deliveredCoreSection,
                 "召回记忆摘要" to memorySection, "召回原始证据" to memoryEvidenceSection, "生活记录" to lexiconSection)
+            val privateIntimacySection = if (!citizen &&
+                effectiveMode in setOf(CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario) &&
+                com.jiacimu.lulu.data.CharacterIntimacyConversationPreference.shouldApply(
+                    source, request.sceneContext, dialogueRequest,
+                )
+            ) com.jiacimu.lulu.data.CharacterIntimacyConversationPreference.promptSection(characterId)
+            else ""
             val fixedSections = listOf(
-                "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
+                "任务规则/工具协议" to baseRules,
+                "私人亲密交流偏好" to privateIntimacySection, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
                 "角色视频能力和通话实况" to live2dCapabilitySection,
                 "全局世界书" to globalWorldBookSection, "角色世界书/设计书" to roleWorldBookSection,
