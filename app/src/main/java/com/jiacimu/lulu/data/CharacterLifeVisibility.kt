@@ -203,9 +203,21 @@ internal object CharacterLifeVisibility {
     }.sortedBy { it.dueAt }.map { plan ->
         val time = plan.dueAt.atZone(java.time.ZoneId.systemDefault())
             .format(java.time.format.DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm"))
+        val concern = CharacterOpenConcernRuntime.active(
+            CharacterInnerLifeStore.snapshot(role).optJSONArray("openConcerns"), now,
+        ).firstOrNull { it.optString("id") == plan.concernId }
+        val learningId = if (plan.activityAction == "learn_topic")
+            runCatching { JSONObject(plan.activityArgs).optString("goalId") }.getOrDefault("") else ""
         CharacterLifeVisible(plan.dueAt, "日程", plan.title,
             listOf(if (plan.status == "due" || !plan.dueAt.isAfter(now)) "到期待处理" else "已安排",
                 "时间：$time", plan.intent,
+                plan.concernId.takeIf(String::isNotBlank)?.let {
+                    "关联挂心：" + (concern?.optString("focus")?.takeIf(String::isNotBlank) ?: "原挂心已不在当前列表")
+                }.orEmpty(),
+                learningId.takeIf(String::isNotBlank)?.let {
+                    "关联琢磨：" + (CharacterLearningAgenda.get(role, it)?.optString("topic")
+                        ?.takeIf(String::isNotBlank) ?: "原研究目标已变更")
+                }.orEmpty(),
                 if (plan.repeat == "daily") "每天重复" else "",
                 plan.resultSummary.takeIf(String::isNotBlank)?.let { "上次结果：$it" }.orEmpty())
                 .filter(String::isNotBlank).joinToString("\n"), "own-plan-${plan.id}",
