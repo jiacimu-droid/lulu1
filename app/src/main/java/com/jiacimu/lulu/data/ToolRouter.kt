@@ -184,7 +184,8 @@ object ToolRouter {
                 // this exact persisted tool event and the ordinary character decision loop.
                 // Pending permissions are not returned knowledge; failures are still useful.
                 if (name in SearchReceiptFeedback.resultTools &&
-                    execution.optString("status") in setOf("succeeded", "failed")) {
+                    SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId))
+                        .any(SearchReceiptFeedback::completedEvidence)) {
                     runCatching {
                         ProactivePerceptionScheduler.scheduleToolResultPerception(
                             context, characterId, receiptId)
