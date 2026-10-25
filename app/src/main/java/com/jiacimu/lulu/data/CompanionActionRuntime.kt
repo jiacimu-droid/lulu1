@@ -1063,6 +1063,14 @@ internal object SearchReceiptFeedback {
     /** One tool vocabulary for result-bearing search across all scene adapters. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu")
 
+    fun completedEvidence(event: SharedTimelineEvent): Boolean {
+        if (event.evidenceKind != EventEvidenceKind.ToolResult ||
+            event.source != "tool-router") return false
+        val execution = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
+        return execution.optString("tool") in resultTools &&
+            execution.optString("status") in setOf("succeeded", "failed")
+    }
+
     /** A search/read finishes the original user's turn only after its receipt
      * is returned to the character. Image sends already deliver the image.
      * Pending tools have no content yet; never synthesize a finished read. */
