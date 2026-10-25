@@ -121,8 +121,6 @@ fun LuluMigrationRootAppV2(
     var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
 
     val preferences by LuluAppPreferencesStore.state.collectAsState()
-    val currentCall by LuluVoiceCallSession.state.collectAsState()
-    val callExpanded by LuluCallWindowController.expanded.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
         Density(
@@ -414,16 +412,7 @@ fun LuluMigrationRootAppV2(
 
                     // Drawn above every route, including Theater, Games and Study.
                     LuluAppearanceTheme(appearanceLibrary.active("Phone")) {
-                    LuluCallFloatingWindow(modifier = Modifier.fillMaxSize())
-                    if (callExpanded && currentCall.hasSession &&
-                        currentCall.phase != CallPhase.Ended) {
-                        LuluVoiceCallScreen(
-                            conversationId = currentCall.conversationId,
-                            characterId = currentCall.characterId,
-                            characterName = currentCall.characterName,
-                            onDismiss = LuluCallWindowController::minimize,
-                        )
-                    }
+                        InAppCallRuntimeOverlay()
                     }
 
                     // Frequent timer ticks are scoped to the overlay itself,
@@ -492,6 +481,24 @@ private fun PomodoroRuntimeOverlay(
                     reason = "用户从番茄钟小窗结束",
                 )
             },
+        )
+    }
+}
+
+/** Live voice-session updates are presentation-local. Reading every voice
+ * phase in the root used to recompose unrelated scrollable pages during calls.
+ */
+@Composable
+private fun InAppCallRuntimeOverlay() {
+    val currentCall by LuluVoiceCallSession.state.collectAsState()
+    val callExpanded by LuluCallWindowController.expanded.collectAsState()
+    LuluCallFloatingWindow(modifier = Modifier.fillMaxSize())
+    if (callExpanded && currentCall.hasSession && currentCall.phase != CallPhase.Ended) {
+        LuluVoiceCallScreen(
+            conversationId = currentCall.conversationId,
+            characterId = currentCall.characterId,
+            characterName = currentCall.characterName,
+            onDismiss = LuluCallWindowController::minimize,
         )
     }
 }
