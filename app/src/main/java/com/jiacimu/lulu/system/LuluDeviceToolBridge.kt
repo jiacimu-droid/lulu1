@@ -1134,7 +1134,7 @@ object LuluDeviceToolBridge {
             for (i in 0 until plannedSideActions.length()) {
                 val effect = plannedSideActions.optJSONObject(i) ?: continue
                 val tool = effect.optString("tool").trim()
-                if (com.jiacimu.lulu.data.CapabilityRegistry.find(tool) == null ||
+                if (!com.jiacimu.lulu.data.CapabilityRegistry.canChoose(tool) ||
                     (tool == "ring_in_call_wake" && !sceneContext.contains("电话"))) {
                     notes += "第${i + 1}步未执行：工具不可用"
                     previousStepCompleted = false
@@ -1173,8 +1173,8 @@ object LuluDeviceToolBridge {
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
-                previousStepCompleted = result.optBoolean("success") &&
-                    result.optString("status") !in setOf("pending", "waiting_user", "requested")
+                previousStepCompleted =
+                    com.jiacimu.lulu.data.ToolExecutionStatus.completed(result)
                 val command = result.optString("command")
                     .ifBlank { effectArgs.optString("command") }
                 if (result.optBoolean("success") &&
