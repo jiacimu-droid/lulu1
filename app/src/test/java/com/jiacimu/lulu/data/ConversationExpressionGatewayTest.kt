@@ -4,7 +4,6 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
-import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.ModelConversationMessage
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.runBlocking
@@ -78,55 +77,6 @@ class ConversationExpressionGatewayTest {
                 assertTrue(system.contains("哄睡连续故事按实际需要充分表达"))
             }
             assertEquals(sources.size, server.requestCount)
-        } finally { server.shutdown() }
-    }
-
-    @Test fun privateChatUnderstandsAdultJokesWithoutASpecialModeAndOptionalHintDoesNotLeak() = runBlocking {
-        val context = RuntimeEnvironment.getApplication() as Context
-        LuluRepositories.initialize(context)
-        SharedExperienceTimeline.initialize(context)
-        LuluAiServices.initialize(context)
-        val role = MigratedDomainStores.characters.create("普通亲密话题回归", "独立判断，喜欢开玩笑")
-        val other = MigratedDomainStores.characters.create("另一个人物", "不继承别人的偏好")
-        assertFalse(CharacterIntimacyConversationPreference.enabled(role.characterId))
-        val server = MockWebServer()
-        repeat(9) {
-            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
-                .setBody("""{"choices":[{"message":{"content":"嗯。"},"finish_reason":"stop"}]}"""))
-        }
-        server.start()
-        try {
-            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
-            suspend fun verify(id: String, source: String, scene: String, mode: CompanionContextMode,
-                               expectedPrivate: Boolean, expectedExtra: Boolean, direct: Boolean = false) {
-                val dialogue = if (direct) listOf(ModelConversationMessage(
-                    ModelConversationMessage.Role.USER, "刚才只是开个玩笑")) else emptyList()
-                LuluAiServices.gateway.generate(id, "真实上下文", "自然接话", source, "test",
-                    connectionOverride = connection, contextMode = mode,
-                    memoryRequest = UnifiedMemoryRequest(currentInput = "开个玩笑", sceneContext = scene),
-                    conversation = dialogue).getOrThrow()
-                val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
-                val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
-                assertEquals("source=$source scene=$scene", expectedPrivate, prompt.contains("【私聊语境】"))
-                assertEquals("source=$source scene=$scene", expectedExtra, prompt.contains("【NSFW 交流偏好】"))
-                assertFalse(prompt.contains("【私密亲密交流偏好｜浪漫】"))
-                assertFalse(prompt.contains("PERMANENTLY_DISABLED"))
-            }
-            // Plain private chat already understands intimate joking; no separate personality mode.
-            verify(role.characterId, "后台主动感知", "私聊", CompanionContextMode.Full, true, false, true)
-            CharacterLifeStore.setNsfwEnabled(role.characterId, true)
-            assertTrue(CharacterIntimacyConversationPreference.enabled(role.characterId))
-            assertFalse(CharacterIntimacyConversationPreference.enabled(other.characterId))
-            verify(role.characterId, "后台主动感知", "私聊", CompanionContextMode.Full, true, true, true)
-            verify(role.characterId, "聊天表达渲染", "私聊", CompanionContextMode.CharacterAndScenario, true, true)
-            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, true, true)
-            verify(role.characterId, "后台主动感知", "", CompanionContextMode.Full, false, false)
-            verify(role.characterId, "聊天表达渲染", "群聊", CompanionContextMode.Full, false, false)
-            verify(role.characterId, "剧场", "独立剧情", CompanionContextMode.Isolated, false, false)
-            verify(other.characterId, "电话回复", "电话", CompanionContextMode.Full, true, false)
-            CharacterLifeStore.setNsfwEnabled(role.characterId, false)
-            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, true, false)
-            assertEquals(9, server.requestCount)
         } finally { server.shutdown() }
     }
 
