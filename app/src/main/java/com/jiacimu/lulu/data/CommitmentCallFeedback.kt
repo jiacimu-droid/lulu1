@@ -14,8 +14,12 @@ internal object CommitmentCallFeedback {
         if (!keepReview) task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
         CommitmentTaskStore.update(taskId) { old ->
             old.copy(
-                status = if (!answered && !old.isBedtimeSupervision()) CommitmentTaskStatus.Blocked
-                    else CommitmentTaskStatus.WaitingForFeedback,
+                status = when {
+                    !answered && !old.isBedtimeSupervision() -> CommitmentTaskStatus.Blocked
+                    old.isBedtimeSupervision() || old.isWakeResponsibility() ->
+                        CommitmentTaskStatus.WaitingForFeedback
+                    else -> CommitmentTaskStatus.Completed
+                },
                 linkedAlarmId = if (keepReview) old.linkedAlarmId else null,
                 nextCheckAt = if (keepReview) old.nextCheckAt else null,
                 lastActionResult = if (!answered)
