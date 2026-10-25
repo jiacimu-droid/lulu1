@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:21:25.437396+00:00",
-  "commit": "89d15d70461e6e6b975d187a807a181208246744",
+  "generatedAt": "2026-10-25T05:21:46.299300+00:00",
+  "commit": "4f44a64ccc7be4de2238b8e952321770b08b0fd8",
   "branch": "main",
-  "sourceFingerprint": "f9db33d416928d71b248cb922420211e2dba8fc2180001c07fdfc3e1998e69f4",
+  "sourceFingerprint": "f499e6995086f2e5e69e995cba99ab435b2c8a7357902c7b177d1241c18192a1",
   "summary": {
     "files": 889,
-    "lines": 173788,
+    "lines": 173851,
     "symbols": 2608
   },
   "symbolIndex": {
@@ -3231,7 +3231,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 88
+        "line": 89
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4413,7 +4413,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 114
+        "line": 126
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -5927,13 +5927,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 74
+        "line": 75
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 101
+        "line": 113
       }
     ],
     "keepOrBlank": [
@@ -15736,8 +15736,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 600,
-      "sha256": "63d64b922a3e6b8e6e28c3d9442d43117ef3228cebd38704168feabd7cb9ab2f",
+      "lines": 651,
+      "sha256": "21ccd59e41c8902be890c8bd2d1e165aca44374faa9a80fd70b7e52bb8f71082",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -19894,8 +19894,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 122,
-      "sha256": "ef4c30689d31e777129b0eb2003b6d0981016dd09d70cbb2be676020b90067d4",
+      "lines": 134,
+      "sha256": "8f608fb8fb84286104c9ca8a860722317c9d40bb4946200e0c1c7b08d917d140",
       "symbols": [
         {
           "name": "integrate",
@@ -19915,19 +19915,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 74
+          "line": 75
         },
         {
           "name": "pending",
-          "line": 88
+          "line": 89
         },
         {
           "name": "stimulus",
-          "line": 101
+          "line": 113
         },
         {
           "name": "render",
-          "line": 114
+          "line": 126
         }
       ]
     },
