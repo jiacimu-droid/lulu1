@@ -135,6 +135,16 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    /** The user's optional, per-character private conversation setting is not learned personality. */
+    @Synchronized fun setIntimacyConversationMode(characterId: String, mode: String) {
+        require(CharacterIntimacyConversationPreference.choices.any { it.first == mode })
+        if (characterId.isBlank()) return
+        if (CharacterIntimacyConversationPreference.selected(characterId) == mode) return
+        val root = state(characterId)
+        root.put("intimacyConversationMode", mode)
+        save(characterId, root)
+    }
+
     /**
      * Role-owned social names: a private remark for the user and a changeable screen nickname.
      * Neither alters the user's profile or the character's canonical identity.
