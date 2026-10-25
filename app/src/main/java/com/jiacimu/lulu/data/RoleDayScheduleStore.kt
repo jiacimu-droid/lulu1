@@ -122,6 +122,27 @@ object RoleDayScheduleStore {
             CapabilityRegistry.find(registered) != null
     }
 
+    /** A repeated model action must not create another alarm for the same slot.
+     * Different topics, times or activities remain independent choices. */
+    internal fun duplicateOwnPlan(existing: RoleDayPlan, proposed: RoleDayPlan): Boolean {
+        if (existing.characterId != proposed.characterId ||
+            existing.status !in setOf("planned", "due") ||
+            existing.activityAction != proposed.activityAction ||
+            existing.repeat != proposed.repeat ||
+            existing.activityArgs != proposed.activityArgs ||
+            existing.motiveId != proposed.motiveId ||
+            existing.commitmentTaskId != proposed.commitmentTaskId ||
+            existing.targetCharacterId != proposed.targetCharacterId ||
+            existing.targetResidentId != proposed.targetResidentId ||
+            existing.locationCode != proposed.locationCode ||
+            kotlin.math.abs(java.time.Duration.between(existing.dueAt, proposed.dueAt).seconds) > 60L
+        ) return false
+        val sameGoal = proposed.motiveId.isNotBlank() ||
+            runCatching { JSONObject(proposed.activityArgs).optString("goalId") }.getOrDefault("").isNotBlank()
+        return sameGoal || (existing.title.trim() == proposed.title.trim() &&
+            existing.intent.trim() == proposed.intent.trim())
+    }
+
     /** Preserve the role's selected wall-clock slot in UTC calendar days.
      * Skipped occurrences never create a backlog of automatic messages. */
     internal fun nextDailyDue(originalDue: Instant, now: Instant): Instant {
@@ -311,14 +332,19 @@ object RoleDayScheduleStore {
         // Do not also queue a WorkManager self-plan for the same commitment.
         // This applies to one-off study prompts as well as daily bedtime calls.
         val proposed = RoleDayPlan(
-            id = "", characterId = characterId, title = title, intent = intent,
+            id = "", characterId = characterId, title = title.trim(), intent = intent.trim(),
             dueAt = dueAt, createdAt = now, activityAction = action, repeat = repeat,
+            motiveId = linkedId, activityArgs = activityArgs.toString(),
+            targetCharacterId = targetRole, targetResidentId = targetNative,
+            locationCode = place, commitmentTaskId = linkedCommitment,
         )
         require(CommitmentTaskStore.snapshot(characterId).none { task ->
             task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running,
                 CommitmentTaskStatus.WaitingForFeedback) &&
                 duplicatesScheduledReminder(proposed, task)
         }) { "同一件定时提醒已有约定，已保留原任务；无需重复安排个人日程" }
+        // Replayed identical choice keeps its original persistent work/alarm.
+        existing.firstOrNull { duplicateOwnPlan(it, proposed) }?.let { return it }
         require(linkedCommitment.isBlank() || existing.none {
             it.characterId == characterId && it.commitmentTaskId == linkedCommitment &&
                 it.status in setOf("planned", "due")
