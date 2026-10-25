@@ -605,8 +605,31 @@ private fun loadPresenceLifeEntries(
             val last = steps?.optJSONObject((steps.length() - 1).coerceAtLeast(0))
             if (last != null && SharedExperienceTimeline.eventsByIds(
                 characterId, listOf(last.optString("evidenceId"))).isNotEmpty()) {
-                ideas += LifeThoughtEntry("正在探索", t.optString("topic"), "已有真实尝试",
-                    last.optString("receipt").take(240), factual = true)
+                val receiptId = last.optString("evidenceId")
+                val transitions = mind.optJSONArray("causalTransitions")
+                val newUnderstanding = (0 until (transitions?.length() ?: 0))
+                    .mapNotNull { transitions?.optJSONObject(it) }
+                    .lastOrNull { transition ->
+                        val source = transition.optString("evidenceId")
+                        source == receiptId ||
+                            (source.startsWith("perception-sources:") &&
+                                source.removePrefix("perception-sources:").split(":").contains(receiptId))
+                    }
+                val opinion = newUnderstanding?.optString("innerThought").orEmpty()
+                    .ifBlank { newUnderstanding?.optJSONObject("appraisal")
+                        ?.optString("meaning").orEmpty() }
+                ideas += LifeThoughtEntry("正在探索", t.optString("topic"),
+                    if (opinion.isNotBlank()) "已经有新想法" else "已取得实际结果",
+                    listOfNotNull(
+                        last.optString("receipt").takeIf(String::isNotBlank)
+                            ?.let { "真实结果：${it.take(640)}" },
+                        opinion.takeIf(String::isNotBlank)
+                            ?.let { "自己的理解：${it.take(300)}" },
+                        t.optString("question").takeIf(String::isNotBlank)
+                            ?.let { "还没弄清：${it.take(180)}" },
+                        t.optString("nextStep").takeIf(String::isNotBlank)
+                            ?.let { "可能的下一步：${it.take(180)}" },
+                    ).joinToString("\n"), factual = true)
             }
         }
     evidence.forEach { record ->
