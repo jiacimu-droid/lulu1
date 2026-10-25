@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:30:02.625230+00:00",
-  "commit": "1a3105d0c250365d779a391814a16fdb33deb4b5",
+  "generatedAt": "2026-10-25T03:30:30.341178+00:00",
+  "commit": "940f5c5c6ef3f9b329d31ac9a7d70e5fbfd2f802",
   "branch": "main",
-  "sourceFingerprint": "cd943ecd099f6497f62d31afd0ffa352752089cb584d3ec6e7af391a96eabcca",
+  "sourceFingerprint": "4332805a15d4bd15ca7cd0865e863dbad9e06456e875ba4776d6d22f599e1b0f",
   "summary": {
     "files": 887,
-    "lines": 173218,
+    "lines": 173226,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -29325,8 +29325,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 354,
-      "sha256": "9c524dbe8acbb4e10a99971d0e15384c39bb85b05a01ccb7ae5f99ba2efd6885",
+      "lines": 362,
+      "sha256": "92542a1f7298850515f0329c1f5648e3f9fec8771d23babc663806693b40f35e",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
