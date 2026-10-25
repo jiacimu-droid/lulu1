@@ -99,6 +99,30 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(1)).isEmpty())
     }
 
+    @Test fun saturatedSharingWithoutHeldStatusStillReachesAutonomousAttention() {
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", origin).put("status", "released")
+            .put("why", "这件先不公开"))
+        val ids = (1..9).map { "open-sharing-$role-$it" }
+        ids.forEach { id ->
+            SharedExperienceTimeline.record(id, role, "数字世界", "执行器",
+                "亲自经历的具体生活小事 $id", now, triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+            assertTrue(CharacterLifeFollowThroughStore.register(
+                role, id, "数字世界", "真实生活小事 $id", now))
+        }
+        assertTrue(CharacterLifeFollowThroughStore.sharingUrge(role, now) >= 99.0)
+        val choices = CharacterUnfinishedActionContext.candidates(context, role, now)
+        assertTrue("high-urge real events must reach the common decision",
+            choices.any { it.kind == "想分享" && it.id in ids &&
+                it.detail.contains("experienceId=") })
+        // The existing sender still owns execution; perception cannot mark anything shared.
+        assertTrue(CharacterLifeFollowThroughStore.auditSnapshot(role)
+            .filter { it.optString("id") in ids }
+            .all { it.optString("shareStatus") == "open" })
+        ids.forEach { SharedExperienceTimeline.deleteEvent(it) }
+    }
+
     @Test fun researchCanBeScheduledInTheExistingDecisionWithoutLosingItsGoal() = runBlocking {
         val goal = CharacterLearningAgenda.start(role, JSONObject().put("topic", "文学表达")
             .put("question", "怎样理解这段材料").put("sourceEvidenceId", origin), now.minusSeconds(60))
