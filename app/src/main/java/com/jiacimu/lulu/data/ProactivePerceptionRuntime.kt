@@ -2263,7 +2263,7 @@ object ProactivePerceptionRuntime {
             stickerId = json.optString("stickerId").trim(),
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
-            sideActions = json.optJSONArray("steps") ?: json.optJSONArray("sideActions"),
+            sideActions = com.jiacimu.lulu.data.CharacterThoughtActionHandoff.actions(json),
             replyChoice = json.optString("replyChoice").trim().lowercase(),
             toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
                 // Direct autonomous actions can attach planId at the top level or

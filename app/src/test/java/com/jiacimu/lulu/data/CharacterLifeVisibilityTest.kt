@@ -33,6 +33,27 @@ class CharacterLifeVisibilityTest {
         MemoryTestEnvironment.release()
     }
 
+    @Test fun schedulesShowFutureAndOverdueSlotsWithoutInventingCompletionOrMixingOwners() {
+        val now = Instant.parse("2026-10-25T02:00:00Z")
+        val future = RoleDayPlan("future", "schedule-owner", "继续探索故事伏笔",
+            "想核对真实原文", now.plusSeconds(3600), now.minusSeconds(60),
+            activityAction = "learn_topic", activityArgs = "{\"goalId\":\"original-goal\"}")
+        val overdue = future.copy(id = "overdue", dueAt = now.minusSeconds(30), status = "due")
+        val plans = listOf(future, overdue, future.copy(characterId = "other-owner"),
+            future.copy(id = "completed", status = "completed"),
+            future.copy(id = "cancelled", status = "cancelled"),
+            future.copy(id = "not-yet-created", createdAt = now.plusSeconds(1)))
+        val shown = CharacterLifeVisibility.scheduledMatters("schedule-owner", plans, now)
+        assertEquals(listOf("own-plan-overdue", "own-plan-future"), shown.map { it.evidenceId })
+        assertTrue(shown.all { it.category == "日程" })
+        assertTrue(shown[0].detail.contains("到期待处理"))
+        assertTrue(shown[1].detail.contains("已安排"))
+        assertFalse(shown.any { it.detail.contains("已完成") })
+        assertTrue(CharacterLifeVisibility.scheduledMatters("unrelated", plans, now).isEmpty())
+        assertTrue(CharacterLifeVisibility.scheduledMatters("schedule-owner",
+            listOf(future.copy(status = "cancelled")), now).isEmpty())
+    }
+
     @Test fun aRealQuestionIsVisibleAsPendingAndWithdrawnWhenSourceDeleted() {
         val role = "visibility-question-source-test"
         val original = "visibility-user-question-source"

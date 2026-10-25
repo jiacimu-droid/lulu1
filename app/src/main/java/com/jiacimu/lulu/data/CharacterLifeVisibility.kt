@@ -78,10 +78,12 @@ internal object CharacterLifeVisibility {
     /**
      * Life Records -> 心事 is a read-only window into the existing character's
      * subjective state. Neither a new diary nor an alternative goal/task store.
-     * Every displayed entry must still have its own role-scoped source.
+     * Mental entries require role-scoped evidence; schedules use the original persisted plan.
      */
     fun matters(role: String, now: Instant = Instant.now(),
-        @Suppress("UNUSED_PARAMETER") historyLimit: Int = 160): List<CharacterLifeVisible> = buildList {
+        @Suppress("UNUSED_PARAMETER") historyLimit: Int = 160,
+        plans: List<RoleDayPlan> = emptyList()): List<CharacterLifeVisible> = buildList {
+        addAll(scheduledMatters(role, plans, now))
         val mind = CharacterInnerLifeStore.snapshot(role)
         fun include(at: Instant?, category: String, title: String, detail: String, id: String) {
             if (at == null || at.isAfter(now) || id.isBlank() ||
@@ -119,7 +121,7 @@ internal object CharacterLifeVisibility {
         jsonEntries(mind.optJSONArray("openConcerns")).forEach { concern ->
             val detail = listOf(concern.optString("whyItMatters"),
                 concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
-                concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "下一步：$it" },
+                concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" },
                 concern.optJSONObject("lastOutcome")?.optString("summary")?.takeIf(String::isNotBlank)?.let { "最近尝试：$it" })
                 .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
@@ -146,7 +148,7 @@ internal object CharacterLifeVisibility {
             }
             val detail = listOf(status, goal.optString("question"),
                 goal.optString("error").takeIf(String::isNotBlank)?.let { "上次失败：$it" },
-                goal.optString("nextStep").takeIf(String::isNotBlank)?.let { "下一步：$it" })
+                goal.optString("nextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" })
                 .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             add(CharacterLifeVisible(time, "正在琢磨", goal.optString("topic"), detail,
                 origin, goal.optString("id")))
@@ -175,6 +177,23 @@ internal object CharacterLifeVisibility {
 
 
     }.distinctBy { listOf(it.category, it.title, it.detail, it.evidenceId).joinToString("|") }
-        .sortedWith(compareBy<CharacterLifeVisible> { when (it.category) { "挂心" -> 0; "持续意愿" -> 1; else -> 2 } }.thenByDescending { it.at }.thenBy { it.title })
+        .sortedWith(compareBy<CharacterLifeVisible> { when (it.category) { "挂心" -> 0; "持续意愿" -> 1; "日程" -> 3; else -> 2 } }
+            .thenComparator { a, b -> if (a.category == "日程") a.at.compareTo(b.at) else b.at.compareTo(a.at) }
+            .thenBy { it.title })
+
+    /** The original schedule is authoritative; future slots are intentionally visible. */
+    internal fun scheduledMatters(role: String, plans: List<RoleDayPlan>,
+        now: Instant): List<CharacterLifeVisible> = plans.filter {
+        it.characterId == role && it.status in setOf("planned", "due") && !it.createdAt.isAfter(now)
+    }.sortedBy { it.dueAt }.map { plan ->
+        val time = plan.dueAt.atZone(java.time.ZoneId.systemDefault())
+            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm"))
+        CharacterLifeVisible(plan.dueAt, "日程", plan.title,
+            listOf(if (plan.status == "due" || !plan.dueAt.isAfter(now)) "到期待处理" else "已安排",
+                "时间：$time", plan.intent,
+                if (plan.repeat == "daily") "每天重复" else "",
+                plan.resultSummary.takeIf(String::isNotBlank)?.let { "上次结果：$it" }.orEmpty())
+                .filter(String::isNotBlank).joinToString("\n"), "own-plan-${plan.id}")
+    }
 
 }

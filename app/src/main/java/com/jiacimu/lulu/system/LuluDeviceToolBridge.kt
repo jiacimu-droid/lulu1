@@ -2042,7 +2042,7 @@ object LuluDeviceToolBridge {
                 hangupAfterSeconds = json.optInt("hangupAfterSeconds", -1),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
-                sideActions = json.optJSONArray("steps") ?: json.optJSONArray("sideActions"),
+                sideActions = com.jiacimu.lulu.data.CharacterThoughtActionHandoff.actions(json),
                 mediaUnderstanding = json.optJSONObject("mediaUnderstanding"),
                 musicAfterSpeech = json.optString("musicAfterSpeech").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),

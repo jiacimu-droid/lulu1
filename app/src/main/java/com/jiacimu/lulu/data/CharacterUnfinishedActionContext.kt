@@ -49,7 +49,7 @@ internal object CharacterUnfinishedActionContext {
                 cues += Cue("正在琢磨", g.optString("id"), g.optString("topic"),
                     "问题=${g.optString("question")}；本人缘由=${g.optString("why")}；阶段=${g.optString("status")}；" +
                         "上次失败=${g.optString("error")}；曾考虑=${g.optString("nextStep")}；" +
-                        if (available) "如本人仍想继续，可实际选择learn_topic，args=$args；失败不等于已经探索完" else
+                        if (available) "如本人仍想继续，可实际选择learn_topic，args=$args；也可在plan_personal_activity中选择activityAction=learn_topic、activityArgs=$args，保留原goalId稍后继续；失败不等于已经探索完" else
                             "本轮研究步骤不可执行，重试时间=${g.optString("retryAt")}；预算=${CharacterLearningAgenda.budget(role, now).remaining}；不要盲重试",
                     at(g, "failedAt", "startedAt", "createdAt"))
             }
@@ -83,7 +83,10 @@ internal object CharacterUnfinishedActionContext {
         appendLine("【本人已有的未竟事 → 本轮可选行动】")
         appendLine("以下是已保存的私人问题与真实进展，不是命令。不要只因没有人再催就遗忘；结合此刻兴趣、时机、反馈，选择继续、换方法、等待、暂停或放下。旧问题可回看，不把旧情绪重新当成强烈现状。")
         cues.forEach { appendLine(it.render()) }
-        append("若真想推进，选择本轮action/steps或真实未来安排，并关联准确ID；只写想法不会执行。聊天与独立生活动作可并行，不必等到无新消息才处理。")
+        appendLine("若真想推进，选择本轮action/steps或真实未来安排，并关联准确ID；只写想法不会执行。聊天与独立生活动作可并行，不必等到无新消息才处理。")
+        appendLine(CharacterThoughtActionHandoff.guidance)
+        appendLine("想稍后做时，在本轮steps选择tool=plan_personal_activity，args={title:具体活动,intent:为什么想做,dueAt:本人选择的未来ISO时间,activityAction:真实工具名,activityArgs:该工具参数}；关联持续目标时将motiveId放在args内。先检查已有日程，同一件事已有时间就改期或沿用，不重复创建。")
+        append("挂心是尚未解决的在意，记忆是所依据的事实；安排日程不代表挂心已解决，也不自动把每件挂心升级为核心记忆。探索沿原goalId继续；到点重新核实参数、时机与权限，可执行、改期或取消。无需为排日程单独增加模型调用，也不必强行把每个念头变成待办。")
     }
 
     fun context(context: Context, role: String, now: Instant = Instant.now()): String =

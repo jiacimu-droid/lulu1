@@ -92,6 +92,50 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(1)).isEmpty())
     }
 
+    @Test fun researchCanBeScheduledInTheExistingDecisionWithoutLosingItsGoal() = runBlocking {
+        val goal = CharacterLearningAgenda.start(role, JSONObject().put("topic", "文学表达")
+            .put("question", "怎样理解这段材料").put("sourceEvidenceId", origin), now.minusSeconds(60))
+        val choices = CharacterUnfinishedActionContext.candidates(context, role, now)
+        val research = choices.first { it.kind == "正在琢磨" && it.id == goal.getString("id") }
+        assertTrue(research.detail.contains("activityAction=learn_topic"))
+        assertTrue(research.detail.contains("activityArgs="))
+        assertTrue(research.detail.contains(goal.getString("id")))
+        val rendered = CharacterUnfinishedActionContext.render(choices)
+        assertTrue(rendered.contains("tool=plan_personal_activity"))
+        assertTrue(rendered.contains("motiveId放在args内"))
+        assertTrue(rendered.contains("先检查已有日程"))
+        assertTrue(rendered.contains("安排日程不代表挂心已解决"))
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity, "安排探索日程", perceiveNow = false)
+        val selectedNextAction = JSONObject().put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("title", "稍后继续研究文学表达")
+                .put("intent", "想留出时间核对原来的材料")
+                .put("dueAt", Instant.now().plusSeconds(3600).toString())
+                .put("activityAction", "learn_topic")
+                .put("activityArgs", JSONObject().put("op", "study").put("goalId", goal.getString("id"))))
+        val authoredDecision = JSONObject().put("action", "message")
+            .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
+                .put("threadId", concernId).put("status", "revise").put("nextAction", selectedNextAction))))
+            .put("steps", JSONArray().put(JSONObject().put("tool", "send_private_message")
+                .put("args", JSONObject().put("text", "我晚点再接着看看。"))))
+        val actions = CharacterThoughtActionHandoff.actions(authoredDecision)
+        try {
+            val result = OrderedCharacterActions.execute(context, role, actions, "schedule-research-$role")
+            assertTrue(result.notes.toString(), result.anyAccepted)
+            val saved = RoleDayScheduleStore.plans(context, role).single()
+            assertEquals(goal.getString("id"), JSONObject(saved.activityArgs).getString("goalId"))
+            assertEquals("planned", saved.status)
+            assertFalse(RoleDayScheduleStore.canBegin(context, role, saved.id, "learn_topic",
+                JSONObject(saved.activityArgs), now))
+            OrderedCharacterActions.execute(context, role, actions, "schedule-research-$role")
+            assertEquals(1, RoleDayScheduleStore.plans(context, role).size)
+            val chat = MigratedDomainStores.chat.conversations.value.single { it.characterId == role }
+            assertEquals(1, MigratedDomainStores.chat.messages(chat.id).value.count {
+                it.sender == LuluChatMessage.Sender.Character && it.content == "我晚点再接着看看。" })
+        } finally {
+            RoleDayScheduleStore.clearCharacter(context, role)
+        }
+    }
+
     private fun steps(postText: String) = JSONArray()
         .put(JSONObject().put("tool", "send_private_message").put("args", JSONObject().put("text", "嗯，我还在听。")))
         .put(JSONObject().put("tool", "publish_moment").put("args", JSONObject().put("text", postText))

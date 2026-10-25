@@ -35,6 +35,7 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.RoleDayScheduleStore
 import com.jiacimu.lulu.data.CharacterLifeVisibility
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.CharacterCuriosityRuntime
@@ -257,6 +258,8 @@ fun LexiconFeatureScreenV2(
 /** Read-only dashboard of unfinished matters; passing voices stay in their history. */
 @Composable
 private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val scheduleRevision by RoleDayScheduleStore.changes.collectAsState()
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val learningRevision by CharacterLearningAgenda.revisions.collectAsState()
@@ -264,13 +267,13 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     var selected by rememberSaveable(characterId) { mutableStateOf("全部") }
     val entries by produceState(
         initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
-        characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision,
+        characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision, scheduleRevision,
     ) {
         value = withContext(Dispatchers.Default) {
-            CharacterLifeVisibility.matters(characterId)
+            CharacterLifeVisibility.matters(characterId, plans = RoleDayScheduleStore.plans(context, characterId))
         }
     }
-    val sections = listOf("挂心", "持续意愿", "正在琢磨")
+    val sections = listOf("挂心", "持续意愿", "正在琢磨", "日程")
     val shown = entries.filter { selected == "全部" || selected == it.category }
     LazyColumn(modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 36.dp),
@@ -279,7 +282,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("还放在心上的事", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                     color = LuluColors.Ink)
-                Text("只看尚未结束的牵挂、目标与探索",
+                Text("牵挂、目标、探索与已安排的日程",
                     fontSize = 12.sp, color = LuluColors.Muted)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -336,6 +339,7 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                                 Text(when (section) {
                                     "挂心" -> "仍在牵挂"
                                     "持续意愿" -> "希望推进"
+                                    "日程" -> "已安排的事"
                                     else -> "尚待探索"
                                 }, fontSize = 11.sp, color = Color(0xFF666B70))
                                 Spacer(Modifier.weight(1f))
