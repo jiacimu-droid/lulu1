@@ -5,10 +5,11 @@ import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.WorldBookJsonImporter
+import com.jiacimu.lulu.data.WorldBookFolder
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -89,6 +91,41 @@ fun CharacterWorldBookScreenV2(
     var editingBook by remember { mutableStateOf<WorldBookEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
 
+    val folders by repository.observeFolders().collectAsState(initial = emptyList())
+    var query by remember { mutableStateOf("") }
+    var expandedFolders by remember { mutableStateOf(setOf<String>()) }
+    var expandedBookId by remember { mutableStateOf<String?>(null) }
+    var selectionMode by remember { mutableStateOf(false) }
+    var selectedIds by remember { mutableStateOf(setOf<String>()) }
+    var showMoveDialog by remember { mutableStateOf(false) }
+    var showFolderEditor by remember { mutableStateOf(false) }
+    var folderBeingEdited by remember { mutableStateOf<WorldBookFolder?>(null) }
+    var folderDraft by remember { mutableStateOf("") }
+    var createForSelection by remember { mutableStateOf(false) }
+    var deleteFolderConfirm by remember { mutableStateOf<WorldBookFolder?>(null) }
+    val folderIds = folders.map { it.id }.toSet()
+    val normalizedQuery = query.trim()
+    val groups = (listOf<String?>(null) + folders.map { it.id }).mapNotNull { folderId ->
+        val title = folders.firstOrNull { it.id == folderId }?.name ?: "未分类"
+        val matching = books.filter { book ->
+            val actualFolder = book.folderId?.takeIf { it in folderIds }
+            actualFolder == folderId && (normalizedQuery.isBlank() ||
+                title.contains(normalizedQuery, ignoreCase = true) ||
+                book.title.contains(normalizedQuery, ignoreCase = true) ||
+                book.content.contains(normalizedQuery, ignoreCase = true))
+        }
+        if (matching.isEmpty() && (normalizedQuery.isBlank() || !title.contains(normalizedQuery, ignoreCase = true))) null
+        else Triple(folderId, title, matching)
+    }
+    val enabledCount = books.count { it.characterOverrides[selectedCharacterId] ?: it.globalEnabled }
+
+    fun openFolderEditor(folder: WorldBookFolder? = null, forSelection: Boolean = false) {
+        folderBeingEdited = folder
+        folderDraft = folder?.name.orEmpty()
+        createForSelection = forSelection
+        showFolderEditor = true
+    }
+
     Scaffold(
         containerColor = LuluColors.Paper,
         snackbarHost = { SnackbarHost(notices) },
@@ -97,17 +134,14 @@ fun CharacterWorldBookScreenV2(
                 title = { Text("世界书", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
-                    TextButton(
+                    IconButton(
                         enabled = !importBusy,
                         onClick = {
                             importRole = selectedCharacterId
                             importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
                         },
-                    ) {
-                        Icon(Icons.Outlined.UploadFile, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("导入 JSON")
-                    }
+                    ) { Icon(Icons.Outlined.UploadFile, "导入 JSON") }
+                    IconButton(onClick = { openFolderEditor() }) { Icon(Icons.Outlined.CreateNewFolder, "新建分类") }
                     IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新建世界书") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
@@ -117,17 +151,22 @@ fun CharacterWorldBookScreenV2(
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item {
-                WorldV2Card {
-                    Text("拼接与覆盖规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("世界书按列表从上到下拼接。全局开启时默认作用于所有角色；角色级的单独开启或关闭优先于全局。", color = LuluColors.Muted)
-                    Text("发送时会完整拼接角色设定与已启用世界书；可用上下文长度以实际模型接口为准。", color = LuluColors.Muted, fontSize = 12.sp)
+            item(key = "summary") {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("全部设定", fontWeight = FontWeight.Bold, fontSize = 23.sp)
+                        Text("\${books.size} 条 · \${folders.size} 个分类 · \${selectedCharacter.displayName}启用 \${enabledCount} 条",
+                            color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                    TextButton(onClick = {
+                        selectionMode = !selectionMode
+                        selectedIds = emptySet()
+                    }) { Text(if (selectionMode) "完成" else "批量整理") }
                 }
             }
-            item {
-                Text("查看角色覆盖", fontWeight = FontWeight.Bold)
+            item(key = "characters") {
                 Row(
                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -137,76 +176,172 @@ fun CharacterWorldBookScreenV2(
                             selected = selectedCharacterId == character.characterId,
                             onClick = { selectedCharacterId = character.characterId },
                             label = { Text(character.displayName) },
-                            leadingIcon = {
-                                Surface(shape = CircleShape, color = LuluColors.Wheat, contentColor = LuluColors.OnWheat, modifier = Modifier.size(22.dp)) {
-                                    Box(contentAlignment = Alignment.Center) { Text(character.displayName.take(1), fontSize = 10.sp) }
-                                }
-                            },
                         )
                     }
                 }
             }
-            if (books.isEmpty()) {
-                item {
-                    WorldV2Card {
-                        Text("还没有世界书", fontWeight = FontWeight.Bold)
-                        Text("点击右上角加号添加时代、历史、社会常态或交际规则。", color = LuluColors.Muted)
+            item(key = "search") {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = { Text("搜索分类、标题或正文") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                    trailingIcon = {
+                        if (query.isNotBlank()) IconButton(onClick = { query = "" }) {
+                            Icon(Icons.Outlined.Close, "清除搜索")
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            if (selectionMode) {
+                item(key = "selection") {
+                    Surface(
+                        color = LuluColors.Card,
+                        shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("已选 \${selectedIds.size} 条", modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                            TextButton(
+                                onClick = {
+                                    val visibleIds = groups.flatMap { it.third }.map { it.id }.toSet()
+                                    selectedIds = if (visibleIds.isNotEmpty() && visibleIds.all { it in selectedIds })
+                                        selectedIds - visibleIds else selectedIds + visibleIds
+                                },
+                            ) { Text("全选结果") }
+                            Button(onClick = { showMoveDialog = true }, enabled = selectedIds.isNotEmpty()) {
+                                Text("移入分类")
+                            }
+                        }
                     }
                 }
-            } else {
-                itemsIndexed(books, key = { _, book -> book.id }) { index, book ->
-                    val explicit = book.characterOverrides[selectedCharacterId]
+            }
+            if (books.isEmpty() && folders.isEmpty()) {
+                item(key = "empty") {
                     WorldV2Card {
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                        Text("从第一本世界书开始", fontWeight = FontWeight.SemiBold)
+                        Text("右上角可新建分类、添加世界书，或导入 JSON。", color = LuluColors.Muted)
+                    }
+                }
+            } else if (groups.isEmpty()) {
+                item(key = "noResults") {
+                    WorldV2Card {
+                        Text("没有找到相关世界书", fontWeight = FontWeight.SemiBold)
+                        Text("换个关键词试试", color = LuluColors.Muted)
+                    }
+                }
+            }
+            groups.forEach { (folderId, folderName, matchedBooks) ->
+                val groupKey = folderId ?: "__uncategorized__"
+                val expanded = normalizedQuery.isNotBlank() || groupKey in expandedFolders
+                item(key = "folder_\$groupKey") {
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = LuluColors.Card,
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable { expandedFolders = if (expanded) expandedFolders - groupKey else expandedFolders + groupKey }
+                                .padding(start = 14.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(if (expanded) Icons.Outlined.FolderOpen else Icons.Outlined.Folder,
+                                null, tint = LuluColors.Ink, modifier = Modifier.size(23.dp))
+                            Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(book.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                Text(book.content, color = LuluColors.Muted, maxLines = 5, overflow = TextOverflow.Ellipsis)
-                                Text(
-                                    when (explicit) {
-                                        true -> "${selectedCharacter.displayName}：单独开启"
-                                        false -> "${selectedCharacter.displayName}：单独关闭"
-                                        null -> "${selectedCharacter.displayName}：跟随全局"
-                                    },
-                                    color = LuluColors.Muted,
-                                    fontSize = 12.sp,
-                                )
+                                Text(folderName, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                                Text("\${matchedBooks.size} 条", fontSize = 12.sp, color = LuluColors.Muted)
                             }
-                            IconButton(onClick = { editingBook = book }) { Icon(Icons.Outlined.Edit, "编辑") }
-                            IconButton(onClick = { scope.launch { repository.delete(book.id) } }) {
-                                Icon(Icons.Outlined.DeleteOutline, "删除", tint = MaterialTheme.colorScheme.error)
+                            if (folderId != null) {
+                                IconButton(onClick = {
+                                    folders.firstOrNull { it.id == folderId }?.let { openFolderEditor(it) }
+                                }) { Icon(Icons.Outlined.MoreHoriz, "管理分类") }
                             }
+                            Icon(if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null,
+                                tint = LuluColors.Muted)
+                            Spacer(Modifier.width(8.dp))
                         }
-                        HorizontalDivider(color = LuluColors.Border)
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text("全局应用", fontWeight = FontWeight.SemiBold)
-                                Text(if (book.globalEnabled) "默认加入所有角色" else "默认不加入，只接受角色级开启", color = LuluColors.Muted, fontSize = 12.sp)
-                            }
-                            Switch(
-                                checked = book.globalEnabled,
-                                onCheckedChange = { enabled -> scope.launch { repository.setGlobalEnabled(book.id, enabled) } },
-                            )
-                        }
-                        Text("${selectedCharacter.displayName}的覆盖", fontWeight = FontWeight.SemiBold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            WorldV2Choice("跟随全局", explicit == null, Modifier.weight(1f)) {
-                                scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, null) }
-                            }
-                            WorldV2Choice("单独开启", explicit == true, Modifier.weight(1f)) {
-                                scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, true) }
-                            }
-                            WorldV2Choice("单独关闭", explicit == false, Modifier.weight(1f)) {
-                                scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, false) }
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("拼接顺序 ${index + 1}", color = LuluColors.Muted, fontSize = 12.sp)
-                            Row {
-                                IconButton(enabled = index > 0, onClick = { scope.launch { repository.move(book.id, -1) } }) {
-                                    Icon(Icons.Outlined.ArrowUpward, "上移")
+                    }
+                }
+                if (expanded) {
+                    items(matchedBooks, key = { "book_\${it.id}" }) { book ->
+                        val actual = book.characterOverrides[selectedCharacterId] ?: book.globalEnabled
+                        val explicit = book.characterOverrides[selectedCharacterId]
+                        val originalIndex = books.indexOfFirst { it.id == book.id }
+                        WorldV2Card {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                if (selectionMode) {
+                                    Checkbox(
+                                        checked = book.id in selectedIds,
+                                        onCheckedChange = { picked ->
+                                            selectedIds = if (picked) selectedIds + book.id else selectedIds - book.id
+                                        },
+                                    )
                                 }
-                                IconButton(enabled = index < books.lastIndex, onClick = { scope.launch { repository.move(book.id, 1) } }) {
-                                    Icon(Icons.Outlined.ArrowDownward, "下移")
+                                Column(
+                                    modifier = Modifier.weight(1f).clickable {
+                                        if (selectionMode) {
+                                            selectedIds = if (book.id in selectedIds) selectedIds - book.id else selectedIds + book.id
+                                        } else expandedBookId = if (expandedBookId == book.id) null else book.id
+                                    },
+                                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                                ) {
+                                    Text(book.title, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                    Text(book.content.replace('\n', ' '), maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis, fontSize = 12.sp, color = LuluColors.Muted)
+                                }
+                                if (!selectionMode) {
+                                    Switch(checked = actual, onCheckedChange = { enabled ->
+                                        scope.launch {
+                                            repository.setCharacterOverride(
+                                                book.id, selectedCharacterId,
+                                                enabled.takeIf { it != book.globalEnabled },
+                                            )
+                                        }
+                                    }, modifier = Modifier.height(40.dp))
+                                    IconButton(onClick = {
+                                        expandedBookId = if (expandedBookId == book.id) null else book.id
+                                    }) { Icon(Icons.Outlined.Tune, "详细设置") }
+                                }
+                            }
+                            if (!selectionMode && expandedBookId == book.id) {
+                                HorizontalDivider(color = LuluColors.Border)
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("全局默认", modifier = Modifier.weight(1f), color = LuluColors.Muted)
+                                    Switch(
+                                        checked = book.globalEnabled,
+                                        onCheckedChange = { scope.launch { repository.setGlobalEnabled(book.id, it) } },
+                                    )
+                                }
+                                Text("\${selectedCharacter.displayName}的设置", fontSize = 12.sp, color = LuluColors.Muted)
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    WorldV2Choice("跟随全局", explicit == null, Modifier.weight(1f)) {
+                                        scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, null) }
+                                    }
+                                    WorldV2Choice("开启", explicit == true, Modifier.weight(1f)) {
+                                        scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, true) }
+                                    }
+                                    WorldV2Choice("关闭", explicit == false, Modifier.weight(1f)) {
+                                        scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, false) }
+                                    }
+                                }
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("原始顺序 \${originalIndex + 1}", fontSize = 12.sp, color = LuluColors.Muted,
+                                        modifier = Modifier.weight(1f))
+                                    IconButton(enabled = originalIndex > 0, onClick = {
+                                        scope.launch { repository.move(book.id, -1) }
+                                    }) { Icon(Icons.Outlined.ArrowUpward, "原始顺序上移") }
+                                    IconButton(enabled = originalIndex < books.lastIndex, onClick = {
+                                        scope.launch { repository.move(book.id, 1) }
+                                    }) { Icon(Icons.Outlined.ArrowDownward, "原始顺序下移") }
+                                    IconButton(onClick = { editingBook = book }) { Icon(Icons.Outlined.Edit, "编辑世界书") }
                                 }
                             }
                         }
@@ -214,6 +349,123 @@ fun CharacterWorldBookScreenV2(
                 }
             }
         }
+    }
+
+    if (showFolderEditor) {
+        AlertDialog(
+            onDismissRequest = { showFolderEditor = false },
+            title = { Text(if (folderBeingEdited == null) "新建分类" else "编辑分类") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = folderDraft,
+                        onValueChange = { folderDraft = it.take(60) },
+                        label = { Text("分类名称") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    if (folderBeingEdited != null) {
+                        Text("删除分类后，里面的世界书会回到“未分类”，内容和开关不变。",
+                            color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(enabled = folderDraft.isNotBlank(), onClick = {
+                    scope.launch {
+                        try {
+                            val id = repository.saveFolder(folderDraft, folderBeingEdited?.id)
+                            if (createForSelection) {
+                                selectedIds.forEach { repository.setEntryFolder(it, id) }
+                                selectedIds = emptySet()
+                                selectionMode = false
+                                showMoveDialog = false
+                            }
+                            expandedFolders = expandedFolders + id
+                            showFolderEditor = false
+                        } catch (failure: Exception) {
+                            notices.showSnackbar(failure.message ?: "分类保存失败")
+                        }
+                    }
+                }) { Text("保存") }
+            },
+            dismissButton = {
+                Row {
+                    folderBeingEdited?.let { folder ->
+                        TextButton(onClick = {
+                            deleteFolderConfirm = folder
+                            showFolderEditor = false
+                        }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+                    }
+                    TextButton(onClick = { showFolderEditor = false }) { Text("取消") }
+                }
+            },
+        )
+    }
+
+    deleteFolderConfirm?.let { folder ->
+        AlertDialog(
+            onDismissRequest = { deleteFolderConfirm = null },
+            title = { Text("删除“\${folder.name}”？") },
+            text = { Text("世界书会移到未分类，不会删除内容或改变开关。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        try {
+                            repository.deleteFolder(folder.id)
+                            deleteFolderConfirm = null
+                        } catch (failure: Exception) {
+                            notices.showSnackbar(failure.message ?: "删除分类失败")
+                        }
+                    }
+                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { deleteFolderConfirm = null }) { Text("取消") } },
+        )
+    }
+
+    if (showMoveDialog) {
+        AlertDialog(
+            onDismissRequest = { showMoveDialog = false },
+            title = { Text("移动 \${selectedIds.size} 条世界书") },
+            text = {
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
+                    (listOf<WorldBookFolder?>(null) + folders).forEach { folder ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable {
+                                scope.launch {
+                                    try {
+                                        selectedIds.forEach { repository.setEntryFolder(it, folder?.id) }
+                                        selectedIds = emptySet()
+                                        selectionMode = false
+                                        showMoveDialog = false
+                                    } catch (failure: Exception) {
+                                        notices.showSnackbar(failure.message ?: "移动失败")
+                                    }
+                                }
+                            }.padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(Icons.Outlined.Folder, null, tint = LuluColors.Muted)
+                            Spacer(Modifier.width(12.dp))
+                            Text(folder?.name ?: "未分类", modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showMoveDialog = false
+                    openFolderEditor(forSelection = true)
+                }) {
+                    Icon(Icons.Outlined.CreateNewFolder, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("新建分类并移动")
+                }
+            },
+            dismissButton = { TextButton(onClick = { showMoveDialog = false }) { Text("取消") } },
+        )
     }
 
     importPreview?.let { preview ->
@@ -267,6 +519,7 @@ fun CharacterWorldBookScreenV2(
     dialogBook?.let { book ->
         WorldBookEditorV2(
             book = book,
+            folders = folders,
             isNew = creating,
             onDismiss = { editingBook = null; creating = false },
             onSave = { saved ->
@@ -286,6 +539,7 @@ fun CharacterWorldBookScreenV2(
 @Composable
 private fun WorldBookEditorV2(
     book: WorldBookEntry,
+    folders: List<WorldBookFolder>,
     isNew: Boolean,
     onDismiss: () -> Unit,
     onSave: (WorldBookEntry) -> Unit,
@@ -294,6 +548,8 @@ private fun WorldBookEditorV2(
     var title by remember(book.id) { mutableStateOf(book.title) }
     var content by remember(book.id) { mutableStateOf(book.content) }
     var globalEnabled by remember(book.id) { mutableStateOf(book.globalEnabled) }
+    var folderId by remember(book.id) { mutableStateOf(book.folderId) }
+    var showFolderChoices by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (isNew) "添加世界书" else "编辑世界书") },
@@ -302,6 +558,23 @@ private fun WorldBookEditorV2(
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("标题") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 OutlinedTextField(value = content, onValueChange = { content = it }, label = { Text("世界设定") }, minLines = 6, maxLines = 12, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                Box {
+                    OutlinedButton(onClick = { showFolderChoices = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Outlined.Folder, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(folders.firstOrNull { it.id == folderId }?.name ?: "未分类")
+                        Spacer(Modifier.weight(1f))
+                        Icon(Icons.Outlined.ExpandMore, null)
+                    }
+                    DropdownMenu(expanded = showFolderChoices, onDismissRequest = { showFolderChoices = false }) {
+                        (listOf<WorldBookFolder?>(null) + folders).forEach { folder ->
+                            DropdownMenuItem(text = { Text(folder?.name ?: "未分类") }, onClick = {
+                                folderId = folder?.id
+                                showFolderChoices = false
+                            })
+                        }
+                    }
+                }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("全局应用")
                     Switch(checked = globalEnabled, onCheckedChange = { globalEnabled = it })
@@ -311,7 +584,7 @@ private fun WorldBookEditorV2(
         confirmButton = {
             TextButton(
                 enabled = title.isNotBlank() && content.isNotBlank(),
-                onClick = { onSave(book.copy(title = title.trim(), content = content.trim(), globalEnabled = globalEnabled)) },
+                onClick = { onSave(book.copy(title = title.trim(), content = content.trim(), globalEnabled = globalEnabled, folderId = folderId)) },
             ) { Text("保存") }
         },
         dismissButton = {
