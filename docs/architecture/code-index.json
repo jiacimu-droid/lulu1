@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:28:41.681529+00:00",
-  "commit": "f46fbecf7ef71de5ca4e922412e8d6d0eb14bd8a",
+  "generatedAt": "2026-10-25T03:29:24.002680+00:00",
+  "commit": "6a23a285d29d0c106f748fd88be62cee007fb4bf",
   "branch": "main",
-  "sourceFingerprint": "7a5840e76adb57049b5ceb3d3129fc8fb4ba48073993e82acde880184bbab4d1",
+  "sourceFingerprint": "28d0cc7aabc465f7d66b2086365a6c783e90b64056f8c8c7df48cbc9c5804489",
   "summary": {
     "files": 887,
-    "lines": 173210,
+    "lines": 173218,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -17278,7 +17278,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt",
       "lines": 215,
-      "sha256": "fdb0d00605626a165beaff93d6f15eb5fa40aaa308009f69675426cf6c1b2538",
+      "sha256": "e277efed34987c4d13cd68d61d2df5e4baf9cb002a4b3349d93a7356ccf37458",
       "symbols": []
     },
     {
@@ -20543,8 +20543,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 64,
-      "sha256": "75226a5a2404d300593b16c402eac8be6a82f1b361972af41dcf91afa3abaf0e",
+      "lines": 72,
+      "sha256": "5455a7a17a5adfe03e1f60d8a405762e1f4caa572317ec087b903ae096b1abf4",
       "symbols": [
         {
           "name": "CommitmentTask",
