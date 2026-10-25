@@ -515,10 +515,16 @@ fun CharacterWorldBookScreenV2(
             isNew = creating,
             onDismiss = { editingBook = null; creating = false },
             onSave = { saved ->
-                scope.launch { repository.save(saved) }
-                editingBook = null
-                creating = false
-                draftBookId = UUID.randomUUID().toString()
+                scope.launch {
+                    try {
+                        repository.save(saved)
+                        editingBook = null
+                        creating = false
+                        draftBookId = UUID.randomUUID().toString()
+                    } catch (failure: Exception) {
+                        notices.showSnackbar(failure.message ?: "世界书保存失败")
+                    }
+                }
             },
             onDelete = {
                 scope.launch { repository.delete(book.id) }
