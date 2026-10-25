@@ -21,7 +21,7 @@ internal object CommitmentCallFeedback {
                 followUpKind = if (keepReview) "verification" else "",
                 lastActionResult = if (!answered)
                     "用户拒接本次来电，不继续自动拨号；目标是否达成仍未知"
-                else "电话已实际接通（${java.time.Instant.now()}）；仅证明接通，未核实目标结果",
+                else "电话已实际连接（${java.time.Instant.now()}）；仅证明接通，未核实目标结果",
             )
         }
     }

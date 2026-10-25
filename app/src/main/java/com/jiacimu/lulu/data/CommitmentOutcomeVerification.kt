@@ -30,10 +30,13 @@ internal object CommitmentOutcomeVerification {
                 "subjective_report" -> e.evidenceKind == EventEvidenceKind.UserStatement ||
                     isObservedOutcome(e)
                 "delivery" -> isExecutedAction(e)
-                else -> isObservedOutcome(e) || isExecutedAction(e)
+                // An executable operation proves only that operation happened.
+                // A successful alarm, message, call, or screenshot request does
+                // not independently establish a separate real-world outcome.
+                else -> isObservedOutcome(e)
             }
         }
-        if (!credible) return Result(false, "只有声明、意愿、推测或没有成功的执行回执，未独立核实目标")
+        if (!credible) return Result(false, "尚无对应类型的可靠证据：行动成功只证明行动已执行，不能替代目标结果；声明与推测也不能单独结案")
         return Result(true, "已核对来源和时序，角色仍须对证据相关性负责", requested)
     }
 

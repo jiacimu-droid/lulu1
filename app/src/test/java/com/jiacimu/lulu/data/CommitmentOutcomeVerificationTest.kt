@@ -42,6 +42,17 @@ class CommitmentOutcomeVerificationTest {
                 EventEvidenceKind.CharacterStatement))).accepted)
     }
 
+    @Test fun successfulToolCannotProveSeparateRealWorldOutcome() {
+        val receipt = event("alarm-success", EventEvidenceKind.ToolResult, "tool-router")
+            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"create_alarm"}""")
+        val checked = CommitmentOutcomeVerification.evaluate(
+            task, listOf("alarm-success"),
+            "已成功设置闹钟，主人肯定已经入睡",
+            listOf(receipt),
+        )
+        assertFalse("Tool execution is not sleep observation", checked.accepted)
+    }
+
     @Test fun roleOwnershipAndChronologyAreRequired() {
         assertFalse(CommitmentOutcomeVerification.evaluate(task, listOf("x"), "其他角色看见了",
             listOf(event("x", EventEvidenceKind.Observation, "device", "roleB"))).accepted)
