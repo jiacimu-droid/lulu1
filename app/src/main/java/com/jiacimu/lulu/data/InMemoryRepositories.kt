@@ -230,6 +230,10 @@ class InMemoryLexiconRepository : LexiconRepository {
 
 data class WorldBookImportResult(val imported: Int, val duplicates: Int)
 
+/** Exact persisted entries and their pre-delete positions for a safe, one-tap undo. */
+data class WorldBookDeletedBatch(val entries: List<WorldBookEntry>, val originalIds: List<String>)
+
+
 /** Search title, body and folder names without affecting original prompt ordering. */
 fun groupWorldBookEntries(
     books: List<WorldBookEntry>,
@@ -340,7 +344,40 @@ class InMemoryWorldBookRepository : WorldBookRepository {
     }
 
     override suspend fun delete(id: String) {
-        mutate { current -> current.filterNot { entry -> entry.id == id } }
+        deleteEntries(setOf(id))
+    }
+
+    /** Delete a selection in one durable write. Returns only entries actually removed. */
+    suspend fun deleteEntries(ids: Set<String>): WorldBookDeletedBatch = synchronized(lock) {
+        val before = entries.value
+        val removed = before.filter { it.id in ids }
+        if (removed.isNotEmpty()) {
+            mutate { current -> current.filterNot { it.id in ids } }
+        }
+        WorldBookDeletedBatch(removed, before.map { it.id })
+    }
+
+    /** Undo without rolling back unrelated edits made after deletion or duplicating restored IDs. */
+    suspend fun restoreDeletedEntries(batch: WorldBookDeletedBatch) {
+        if (batch.entries.isEmpty()) return
+        synchronized(lock) {
+            mutate { current ->
+                val existingIds = current.mapTo(mutableSetOf()) { it.id }
+                val originalIndex = batch.originalIds.withIndex().associate { it.value to it.index }
+                val result = current.toMutableList()
+                batch.entries.sortedBy { originalIndex[it.id] ?: Int.MAX_VALUE }.forEach { item ->
+                    if (!existingIds.add(item.id)) return@forEach
+                    val originalPosition = originalIndex[item.id] ?: Int.MAX_VALUE
+                    val successor = result.indexOfFirst { next ->
+                        (originalIndex[next.id] ?: Int.MAX_VALUE) > originalPosition
+                    }
+                    val restored = if (item.folderId != null &&
+                        folders.value.none { it.id == item.folderId }) item.copy(folderId = null) else item
+                    if (successor >= 0) result.add(successor, restored) else result.add(restored)
+                }
+                result
+            }
+        }
     }
 
     /** Atomically append new entries in original file order. Never replace existing
