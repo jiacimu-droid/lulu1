@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:47:57.696542+00:00",
-  "commit": "b71e86397fc0eaf32dfe75ca5401529ac969c8a0",
+  "generatedAt": "2026-10-25T11:48:27.599667+00:00",
+  "commit": "4d1671e3696c6f53155ac67027e1c4889092df43",
   "branch": "main",
-  "sourceFingerprint": "45a1bf5dde4f6ccc440f9a043ac6f1426a5e97249fdf9a9cadcb94b62e94614f",
+  "sourceFingerprint": "ffdd8f704b57d35d6c7c9230b243acdb9c45448c585fa0b8d7f9fcf8f3716204",
   "summary": {
-    "files": 900,
-    "lines": 176956,
-    "symbols": 2651
+    "files": 901,
+    "lines": 176989,
+    "symbols": 2652
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14590,6 +14590,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
         "line": 5
+      }
+    ],
+    "ToolExecutionStatusTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt",
+        "line": 8
       }
     ],
     "TransientConversationStyleTest": [
@@ -31061,6 +31067,17 @@
         {
           "name": "TokenConsolePresentationTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt",
+      "lines": 33,
+      "sha256": "f9e60a3c2b5ab91b2f0bf91ba61ed09e20e7184d0a0a07edea809a69366f6659",
+      "symbols": [
+        {
+          "name": "ToolExecutionStatusTest",
+          "line": 8
         }
       ]
     },
