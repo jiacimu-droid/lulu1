@@ -194,4 +194,48 @@ class CharacterPerceptionContextTest {
         assertTrue(combined.evidenceId.contains(":chat-1:"))
         assertEquals(setOf("user"), combined.socialIds)
     }
+
+    @Test fun cancelledPerceptionCanRetryUntilItsCausalCommitAcknowledgesExactEvidence() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "perception-deferred-" + java.util.UUID.randomUUID()
+        PerceptionStimulusLedger.initialize(app)
+        val input = PerceptionStimulus("real-event", "新到的实际阅读结果", revision = 3L)
+        val preview = CharacterPerceptionContext.integrate(
+            app, role, observed = emptyList(), direct = listOf(input),
+            claimDirect = true, deferAcknowledgement = true,
+        )
+        assertEquals(listOf(input), preview.freshStimuli)
+        assertFalse(PerceptionStimulusLedger.hasSeen(app, role, input.evidenceId, input.revision))
+        // Simulated model cancellation: no acknowledgement means the very same
+        // raw evidence is still eligible at the next real processing attempt.
+        val recovered = CharacterPerceptionContext.integrate(
+            app, role, observed = emptyList(), direct = listOf(input),
+            claimDirect = true, deferAcknowledgement = true,
+        )
+        assertEquals(listOf(input), recovered.freshStimuli)
+        CharacterPerceptionContext.acknowledge(app, role, recovered,
+            direct = listOf(input), claimDirect = true)
+        assertTrue(PerceptionStimulusLedger.hasSeen(app, role, input.evidenceId, 3L))
+        assertTrue(CharacterPerceptionContext.integrate(app, role, emptyList(),
+            direct = listOf(input), claimDirect = true,
+            deferAcknowledgement = true).freshStimuli.isEmpty())
+        PerceptionStimulusLedger.clear(role)
+    }
+
+    @Test fun foregroundDirectSpeechRemainsUnclaimedWhileRealObservationsAreAcknowledged() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "foreground-deferred-" + java.util.UUID.randomUUID()
+        PerceptionStimulusLedger.initialize(app)
+        val words = PerceptionStimulus("direct-speech", "主人刚说的话", setOf("user"))
+        val reality = SharedTimelineEvent("observed-work", role, "工具结果", "执行器",
+            "真实返回的数据", Instant.parse("2026-10-25T01:00:00Z"), revision = 2L)
+        val preview = CharacterPerceptionContext.integrate(
+            app, role, observed = listOf(reality), direct = listOf(words),
+            claimDirect = false, deferAcknowledgement = true)
+        CharacterPerceptionContext.acknowledge(app, role, preview,
+            direct = listOf(words), claimDirect = false)
+        assertFalse(PerceptionStimulusLedger.hasSeen(app, role, words.evidenceId))
+        assertTrue(PerceptionStimulusLedger.hasSeen(app, role, reality.id, 2L))
+        PerceptionStimulusLedger.clear(role)
+    }
 }
