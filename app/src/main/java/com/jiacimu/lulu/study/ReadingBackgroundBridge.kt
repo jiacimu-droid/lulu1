@@ -27,6 +27,11 @@ internal object ReadingBackgroundBridge {
     private const val PROGRESS_PREFS = "lulu_background_reading_progress_v1"
 
     fun books(context: Context): List<BackgroundReadingBook> {
+        // ToolRouter, scheduled world actions and reading workers can start
+        // without MigrationActivity. This bridge owns the only dependency on
+        // the theater library, so prepare it here instead of relying on UI
+        // startup or initializing every unrelated tool.
+        StarWishStores.initialize(context.applicationContext)
         val uploaded = loadUploaded(context)
         val theaterChapters = StarWishStores.main.state.value.theaterChapters
             .flatMap { (theaterTitle, chapters) ->
