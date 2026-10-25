@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:24:24.280175+00:00",
-  "commit": "99e0862606c20079245cc0f2630050de820457dc",
+  "generatedAt": "2026-10-25T11:24:48.174104+00:00",
+  "commit": "98d10669a2de86fca8a9cb9881f88c075a1f1696",
   "branch": "main",
-  "sourceFingerprint": "c5a8d0b9089d09ed26d4307fdc8807bb5847f543c7a193c76fc922020d615693",
+  "sourceFingerprint": "f8ae2fdde2e894cf870db60417fb71a5a05c0958612ddc9284aa5c1ccc4b4184",
   "summary": {
     "files": 898,
-    "lines": 176581,
+    "lines": 176622,
     "symbols": 2646
   },
   "symbolIndex": {
@@ -31099,8 +31099,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
-      "lines": 101,
-      "sha256": "4d15f0351f4f66d07ebf28e19a13c467b93a5411e5950a5631e1267840937b3f",
+      "lines": 142,
+      "sha256": "08844c5b09049245a01a0ffe46a825a1fc8e214d15eae8080112a478898ad1d0",
       "symbols": [
         {
           "name": "WorldBookFolderRepositoryTest",
