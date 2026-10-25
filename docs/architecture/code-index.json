@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T04:36:43.326397+00:00",
-  "commit": "f4b57b360ee4f3d704dcd26788e6788fe1692440",
+  "generatedAt": "2026-10-25T05:17:24.921801+00:00",
+  "commit": "080419f2c59129d1f7d08a6205a62da62787a27d",
   "branch": "main",
-  "sourceFingerprint": "741ad800d0194759d0f9e07eaa29eabb8a46e8731c143d075164f40ef6e00a85",
+  "sourceFingerprint": "cba52c395e1ddbc03c360d8806fb519ed157906f5251ffb148b437529c03c75a",
   "summary": {
-    "files": 887,
-    "lines": 173353,
-    "symbols": 2590
+    "files": 889,
+    "lines": 173703,
+    "symbols": 2606
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5148,6 +5148,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
         "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 83
       }
     ],
     "episodeEvidence": [
@@ -9990,6 +9994,90 @@
         "line": 558
       }
     ],
+    "Limits": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 18
+      }
+    ],
+    "Clip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 36
+      }
+    ],
+    "valid": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 42
+      }
+    ],
+    "DiscoveryPage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 46
+      }
+    ],
+    "Frame": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 50
+      }
+    ],
+    "Comment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 51
+      }
+    ],
+    "Segment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 52
+      }
+    ],
+    "modalities": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 63
+      }
+    ],
+    "Source": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 71
+      }
+    ],
+    "Interpreter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 78
+      }
+    ],
+    "timelineJson": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 94
+      }
+    ],
+    "Outcome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 105
+      }
+    ],
+    "State": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 112
+      }
+    ],
+    "persistVerifiedReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 212
+      }
+    ],
     "EventEvidenceKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
@@ -14236,6 +14324,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
         "line": 17
+      }
+    ],
+    "ShortVideoMobileReadingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
+        "line": 6
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -24289,6 +24383,73 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+      "lines": 223,
+      "sha256": "9bca813f61a3cd5ecd4eba628a46c400267f6bb2225763f8b9107764de268f16",
+      "symbols": [
+        {
+          "name": "Limits",
+          "line": 18
+        },
+        {
+          "name": "Clip",
+          "line": 36
+        },
+        {
+          "name": "valid",
+          "line": 42
+        },
+        {
+          "name": "DiscoveryPage",
+          "line": 46
+        },
+        {
+          "name": "Frame",
+          "line": 50
+        },
+        {
+          "name": "Comment",
+          "line": 51
+        },
+        {
+          "name": "Segment",
+          "line": 52
+        },
+        {
+          "name": "modalities",
+          "line": 63
+        },
+        {
+          "name": "Source",
+          "line": 71
+        },
+        {
+          "name": "Interpreter",
+          "line": 78
+        },
+        {
+          "name": "Receipt",
+          "line": 83
+        },
+        {
+          "name": "timelineJson",
+          "line": 94
+        },
+        {
+          "name": "Outcome",
+          "line": 105
+        },
+        {
+          "name": "State",
+          "line": 112
+        },
+        {
+          "name": "persistVerifiedReceipt",
+          "line": 212
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
       "lines": 32,
       "sha256": "e11e15290bde8b16979ab41e5c9a543ac16d4c3808b3c4fdbeacc7819f4f419a",
@@ -30379,6 +30540,17 @@
         {
           "name": "SearchReceiptFeedbackTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
+      "lines": 127,
+      "sha256": "9e518b0e578a020873c6a3d81700e4b9bba4dd4299528b2386c43990fa7a0371",
+      "symbols": [
+        {
+          "name": "ShortVideoMobileReadingTest",
+          "line": 6
         }
       ]
     },

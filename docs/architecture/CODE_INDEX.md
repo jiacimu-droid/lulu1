@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f4b57b360ee4f3d704dcd26788e6788fe1692440`
+- 基准提交：`080419f2c59129d1f7d08a6205a62da62787a27d`
 - 分支：`main`
-- 已索引文件：887
-- 已索引代码/文本行：173353
-- 已发现符号：2590
+- 已索引文件：889
+- 已索引代码/文本行：173703
+- 已发现符号：2606
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -450,6 +450,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 690 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 223 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
@@ -846,6 +847,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 117 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 136 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 75 | 1 |
