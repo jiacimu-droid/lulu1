@@ -95,7 +95,7 @@ internal object CharacterLifeVisibility {
                 sourceKind = sourceKind, sourceId = sourceId))
         }
         val motives = mind.optJSONArray("motives")
-        (CharacterMotiveState.active(motives) + CharacterMotiveState.paused(motives))
+        CharacterMotiveState.active(motives)
             .distinctBy { it.optString("id") }.forEach { motive ->
                 val state = when (motive.optString("status")) {
                     "paused" -> "暂缓"
@@ -135,7 +135,9 @@ internal object CharacterLifeVisibility {
         }
 
 
-        val learningGoals = CharacterLearningAgenda.goals(role, now).filter { it.optString("status") != "dropped" }
+        val learningGoals = CharacterLearningAgenda.goals(role, now).filter {
+            it.optString("status") !in setOf("dropped", "paused")
+        }
         learningGoals.forEach { goal ->
             val origin = goal.optString("originId")
             if (source(role, origin) == null) return@forEach
