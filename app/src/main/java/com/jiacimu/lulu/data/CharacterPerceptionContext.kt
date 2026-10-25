@@ -106,7 +106,7 @@ internal object CharacterPerceptionContext {
             .filter { !it.occurredAt.isAfter(now) }
         return (recent(characterId, now) + incoming).distinctBy { it.id }
             .sortedBy { it.occurredAt }
-            .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id) }
+            .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id, it.revision) }
     }
 
     /** The same evidence intake for any initiator: result text is an observation, not a claim
@@ -149,6 +149,7 @@ internal object CharacterPerceptionContext {
             .firstOrNull { it.id == event.sessionId }?.turns.orEmpty().mapNotNull { it.speakerId }
             .filter { it.startsWith("resident:") }.toSet()
         else emptySet(),
+        event.revision,
     )
 
     fun render(events: List<SharedTimelineEvent>): String = if (events.isEmpty()) "" else buildString {
