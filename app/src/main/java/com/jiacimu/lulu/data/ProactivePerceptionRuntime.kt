@@ -2013,7 +2013,7 @@ object ProactivePerceptionRuntime {
                 OrderedCharacterActions.execute(
                     appContext, character.characterId, decision.sideActions,
                     requestId = requestId, intentionId = decision.intentionId,
-                    initialCompleted = ToolExecutionStatus.completed(resultJson),
+                    initialCompleted = ToolExecutionStatus.primaryAllowsDependentSteps(tool, resultJson),
                     userEvidenceIds = responseEvidenceIds, userText = userText,
                     explicitScreenRequest = explicitScreenRequest,
                     autonomousLifeTurn = !hasFreshUserMessage,
@@ -2022,7 +2022,7 @@ object ProactivePerceptionRuntime {
         } else OrderedCharacterActions.execute(
             appContext, character.characterId, decision.sideActions,
             requestId = requestId, intentionId = decision.intentionId,
-            initialCompleted = ToolExecutionStatus.completed(resultJson),
+            initialCompleted = ToolExecutionStatus.primaryAllowsDependentSteps(tool, resultJson),
             userEvidenceIds = responseEvidenceIds, userText = userText,
             explicitScreenRequest = explicitScreenRequest,
             autonomousLifeTurn = !hasFreshUserMessage,
