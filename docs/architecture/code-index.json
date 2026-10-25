@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:25:46.609552+00:00",
-  "commit": "7bd19ff97458ab526b54c72e8fef4852915e9f35",
+  "generatedAt": "2026-10-25T03:26:01.563304+00:00",
+  "commit": "62b7f020ed86e122b8fa4903735af15186fb0175",
   "branch": "main",
-  "sourceFingerprint": "a1deaf706c41523ef29222ccb8aab53cf1164db0c73ebd714f11d44d670d03b1",
+  "sourceFingerprint": "d04682348206b6dc61fca3be7c428c7d1b57ceec8413aeb3586e69b5451a1f92",
   "summary": {
     "files": 887,
     "lines": 173124,
@@ -14971,7 +14971,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 656,
-      "sha256": "e6d547235df476b420aaa95782920b879888f08f6ef61d74e6cc075dcc085811",
+      "sha256": "e68106d68cff1b6050944bbd94d557d20fd7bf50c80bf2ef8948c83c65708625",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -22358,7 +22358,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
       "lines": 107,
-      "sha256": "ef0400843d20f15b531c2c5f30916ca5a8cdc1a706b450784bf8376a8922f5bc",
+      "sha256": "1c27363ade5ea8fce5fb8416d686d8b1de7f538fb2374829d151e46183d137cb",
       "symbols": [
         {
           "name": "LuluAppearancePalette",
