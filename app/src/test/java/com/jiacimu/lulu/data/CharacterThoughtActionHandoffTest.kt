@@ -16,6 +16,31 @@ class CharacterThoughtActionHandoffTest {
     private fun concern(item: JSONObject) = JSONObject().put("action", "silent")
         .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(item)))
 
+    @Test fun chatVoiceBubblesAndIncomingCallStayTwoOrderedRealActions() {
+        val decision = JSONObject()
+            .put("action", "message")
+            .put("bubbles", JSONArray()
+                .put(JSONObject().put("text", "我想在电话里陪陪你").put("delivery", "voice"))
+                .put(JSONObject().put("text", "接一下好不好").put("delivery", "voice")))
+            .put("steps", JSONArray().put(JSONObject()
+                .put("action", "call")
+                .put("text", "喂，我在这里陪着你")
+                .put("requiresPreviousSuccess", true)))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(1, steps.length())
+        val call = steps.getJSONObject(0)
+        assertEquals("start_call", call.getString("tool"))
+        assertEquals("喂，我在这里陪着你", call.getJSONObject("args").getString("text"))
+        assertTrue(call.getBoolean("requiresPreviousSuccess"))
+        assertNotEquals(original, steps.toString())
+        assertEquals(original, decision.toString())
+        // A voiced promise alone is not consent to fabricate a tool action.
+        val speechOnly = JSONObject().put("action", "message")
+            .put("text", "我现在去打电话")
+        assertNull(CharacterThoughtActionHandoff.actions(speechOnly))
+    }
+
     @Test fun aPossibleStepInProseNeverExecutesByItself() {
         assertNull(CharacterThoughtActionHandoff.actions(concern(JSONObject()
             .put("possibleNextStep", "明天下午三点搜搜资料"))))
