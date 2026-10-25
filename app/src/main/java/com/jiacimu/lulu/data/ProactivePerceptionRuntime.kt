@@ -1149,9 +1149,14 @@ object ProactivePerceptionRuntime {
         )
         // The character's own real but unresolved life remains a candidate even
         // if this model response said silent. A second look still may freely say no.
-        val pendingChoices = (immediateChoices.take(1) + unfinishedChoices.map { it.render() } +
-            immediateChoices.drop(1) + rememberedChoices +
-            CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now) +
+        // Share cues used to come AFTER six competing concerns/goals and were
+        // clipped before the independent action review saw them at all. Reserve
+        // one slot for a real held/high-urge experience, without forcing speech
+        // or starting another model cycle.
+        val shareChoices = CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now)
+        val pendingChoices = (immediateChoices.take(1) + shareChoices.take(1) +
+            unfinishedChoices.filterNot { it.kind == "想分享" }.map { it.render() } +
+            immediateChoices.drop(1) + rememberedChoices + shareChoices.drop(1) +
             CharacterCuriosityRuntime.pendingDecisionCues(characterId) +
             listOf(CharacterLearningAgenda.prompt(characterId, now)).filter(String::isNotBlank))
             .distinct().take(6)
