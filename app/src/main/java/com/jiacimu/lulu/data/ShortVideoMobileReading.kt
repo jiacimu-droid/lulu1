@@ -158,11 +158,20 @@ internal object ShortVideoMobileReading {
         interpreter: Interpreter,
         clip: Clip,
         startCursor: String? = null,
+        // A resume cursor alone is not proof of forward progress: the source
+        // could repeat a previous time interval in the next wake. The caller
+        // must recover this boundary from the last verified timeline receipt.
+        resumeAfterMillis: Long? = null,
         limits: Limits = Limits(),
         mayContinue: () -> Boolean = { true },
         onReceipt: suspend (Receipt) -> Unit = {},
     ): Outcome {
         require(clip.valid()) { "未选定有效视频来源" }
+        require((startCursor == null && resumeAfterMillis == null) ||
+            (!startCursor.isNullOrBlank() && resumeAfterMillis != null &&
+                resumeAfterMillis >= 0L && startCursor.length <= 512)) {
+            "续读必须同时提供真实游标与上一段已验证的视频结束位置"
+        }
         var cursor = startCursor
         val receipts = ArrayList<Receipt>(limits.segmentsPerWake)
         for (index in 0 until limits.segmentsPerWake) {
@@ -179,7 +188,8 @@ internal object ShortVideoMobileReading {
             }
             // A buggy source can advance its opaque cursor while replaying
             // exactly the same time interval. Do not interpret or persist it twice.
-            if (receipts.isNotEmpty() && segment.beginMillis < receipts.last().endMillis)
+            val previousEnd = receipts.lastOrNull()?.endMillis ?: resumeAfterMillis
+            if (previousEnd != null && segment.beginMillis < previousEnd)
                 return Outcome(State.FAILED, receipts, cursor, "媒体片段时间重叠，不能重复计算观看进度")
             // Reading *comments* is evidence of comment reading, not evidence
             // that any visual/audio/video transcript was accessed. Even a
