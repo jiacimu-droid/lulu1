@@ -38,6 +38,12 @@ import kotlinx.coroutines.Dispatchers
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 
+/** List cards need only a short preview; never normalize megabytes of prompt text
+ * during lazy-row composition. Editing and injection still use the untouched body.
+ */
+internal fun worldBookListPreview(content: String): String =
+    content.take(240).replace('\n', ' ').replace('\r', ' ')
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterWorldBookScreenV2(
@@ -111,7 +117,12 @@ fun CharacterWorldBookScreenV2(
     val groups = remember(books, folders, normalizedQuery) {
         groupWorldBookEntries(books, folders, normalizedQuery)
     }
-    val enabledCount = books.count { it.characterOverrides[selectedCharacterId] ?: it.globalEnabled }
+    // The original 300+ entry list used to scan the entire archive for every
+    // visible row during a fling. Index only when the backing collection changes.
+    val originalPositions = remember(books) { books.mapIndexed { index, book -> book.id to index }.toMap() }
+    val enabledCount = remember(books, selectedCharacterId) {
+        books.count { it.characterOverrides[selectedCharacterId] ?: it.globalEnabled }
+    }
 
     fun openFolderEditor(folder: WorldBookFolder? = null, forSelection: Boolean = false) {
         folderBeingEdited = folder
@@ -296,7 +307,7 @@ fun CharacterWorldBookScreenV2(
                     items(matchedBooks, key = { "book_${it.id}" }) { book ->
                         val actual = book.characterOverrides[selectedCharacterId] ?: book.globalEnabled
                         val explicit = book.characterOverrides[selectedCharacterId]
-                        val originalIndex = books.indexOfFirst { it.id == book.id }
+                        val originalIndex = originalPositions[book.id] ?: -1
                         WorldV2Card {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 if (selectionMode) {
@@ -316,7 +327,7 @@ fun CharacterWorldBookScreenV2(
                                     verticalArrangement = Arrangement.spacedBy(3.dp),
                                 ) {
                                     Text(book.title, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                    Text(book.content.replace('\n', ' '), maxLines = 1,
+                                    Text(worldBookListPreview(book.content), maxLines = 1,
                                         overflow = TextOverflow.Ellipsis, fontSize = 12.sp, color = LuluColors.Muted)
                                 }
                                 if (!selectionMode) {
