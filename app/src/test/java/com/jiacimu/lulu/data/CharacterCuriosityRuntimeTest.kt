@@ -37,6 +37,25 @@ class CharacterCuriosityRuntimeTest {
         JSONObject().put("topic", "想看的故事").put("question", question)
             .put("why", "刚读过正文").put("nextStep", "从真实进度继续读")
 
+    @Test fun ownerCanResumePreviousDormantQuestionWithItsOriginalIdentity() {
+        begin()
+        val archived = JSONObject().put("threadId", "archived-thread")
+            .put("topic", "想看的故事").put("question", "故事后面如何发展")
+            .put("observedId", "source-1")
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        val prefs = ctx.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString(id, JSONObject().put("dormantQuestions",
+            org.json.JSONArray().put(archived)).toString()).commit())
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+            proposal().put("threadId", "archived-thread"),
+            "source-1", "重新在意自己曾经的疑问", at.plusSeconds(90)))
+        assertEquals("archived-thread",
+            CharacterCuriosityRuntime.visibleQuestions(id).single().optString("threadId"))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("dormantQuestions").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun manualRemovalTargetsOneCuriosityNotAnotherOrItsVerifiedPast() {
         begin()
         val other = proposal("人物动机是什么")
