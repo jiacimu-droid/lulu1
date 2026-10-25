@@ -1163,6 +1163,12 @@ internal object OrderedCharacterActions {
                 continue
             }
             val args = JSONObject((normalized.optJSONObject("args") ?: JSONObject()).toString())
+            if (name == "plan_personal_activity") {
+                for (link in listOf("motiveId", "concernId")) {
+                    val id = normalized.optString(link)
+                    if (id.isNotBlank() && args.optString(link).isBlank()) args.put(link, id)
+                }
+            }
             if (name in setOf("send_private_message", "send_group_message") &&
                 userEvidenceIds.isNotEmpty()) {
                 args.put("_replyEvidenceIds", org.json.JSONArray(userEvidenceIds.toList()))
