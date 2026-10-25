@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:46:44.128605+00:00",
-  "commit": "b8e9f10b38a1bffa319ed118f675d93ed3624668",
+  "generatedAt": "2026-10-25T05:47:59.566998+00:00",
+  "commit": "78a1097d90542be1ccb9bc65eced38f943398402",
   "branch": "main",
-  "sourceFingerprint": "09c1f79a2511bac124bdd38e1128812895e4bf320d0a5bd59919045482295b56",
+  "sourceFingerprint": "4e64fbc48b48c8f110b810da004a6a8c6e7494065beab5470924e2c2c823a34c",
   "summary": {
-    "files": 890,
-    "lines": 174208,
-    "symbols": 2617
+    "files": 891,
+    "lines": 174289,
+    "symbols": 2618
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13590,6 +13590,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
         "line": 15
+      }
+    ],
+    "CharacterLifeSelfReviewTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt",
+        "line": 19
       }
     ],
     "CharacterLifeStoreTest": [
@@ -29362,6 +29368,17 @@
         {
           "name": "CharacterLifeFollowThroughStoreTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt",
+      "lines": 81,
+      "sha256": "608c699c1924326a942c6f7a7d32faa2ebd7507d4e86dd79a66366e130c9ef14",
+      "symbols": [
+        {
+          "name": "CharacterLifeSelfReviewTest",
+          "line": 19
         }
       ]
     },
