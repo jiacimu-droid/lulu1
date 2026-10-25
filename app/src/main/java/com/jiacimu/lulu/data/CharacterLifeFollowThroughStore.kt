@@ -123,6 +123,31 @@ internal object CharacterLifeFollowThroughStore {
                     item.optString("curiosityStatus") !in setOf("explored", "released"))
         }
 
+    /**
+     * Read-only psychological sharing impulse, derived from the existing verified
+     * experience queue rather than stored as a competing personality/body stat.
+     * Independent lived moments can add up; fulfilled or explicitly released
+     * wishes stop contributing. Old events fade, but remain in the timeline.
+     * 0–100 is a decision cue, NEVER an automatic send threshold.
+     */
+    fun sharingUrge(characterId: String, now: Instant = Instant.now()): Double =
+        synchronized(lock) {
+            recent(characterId, now).asSequence()
+                .filter { it.optString("shareStatus") in setOf("open", "held") }
+                .sumOf { item ->
+                    val at = runCatching { Instant.parse(item.optString("occurredAt")) }
+                        .getOrNull() ?: return@sumOf 0.0
+                    val days = Duration.between(at, now).toMillis().coerceAtLeast(0L) /
+                        86_400_000.0
+                    val held = item.optString("shareStatus") == "held"
+                    val strength = item.optDouble("shareStrength", 55.0)
+                        .takeIf(Double::isFinite)?.coerceIn(0.0, 100.0) ?: 55.0
+                    val seed = if (held) 18.0 + strength * 0.16 else 12.0
+                    val significant = if (item.optBoolean("significant")) 12.0 else 0.0
+                    (seed + significant) * kotlin.math.exp(-days / 5.0)
+                }.coerceIn(0.0, 100.0)
+        }
+
     /** Real unresolved options; these only invite one more voluntary choice, never execute it. */
     fun pendingDecisionCues(characterId: String, now: Instant = Instant.now()): List<String> =
         synchronized(lock) {
@@ -173,6 +198,8 @@ internal object CharacterLifeFollowThroughStore {
         if (opportunities.isEmpty()) return@synchronized ""
         buildString {
             appendLine("【真实经历留下的分享欲与好奇心｜你自己的选择，不是用户下达的任务】")
+            val shareImpulse = sharingUrge(characterId, now).toInt()
+            appendLine("当前累计的分享冲动线索≈$shareImpulse/100（来自尚未分享的真实经历；它可以因多次新鲜事累积，也会随时间淡去）。这不是必须发布的阈值，也不等于现在的情绪。")
             opportunities.forEach { item ->
                 appendLine("- experienceId=${item.optString("id")}；已证实发生=${item.optString("channel")}：${item.optString("fact")}")
                 val sharing = when (item.optString("shareStatus")) {
@@ -192,7 +219,7 @@ internal object CharacterLifeFollowThroughStore {
             }
             appendLine("以上是曾经真实发生的经历；事件是否仍持续，必须以当前程序世界状态为准。旧的蟑螂可能已被处理，旧阅读也不能算刚读到新章节。")
             appendLine("选择普通私聊、公开朋友圈(moment)和群聊(group_message)是不同社交意图。公开朋友圈不是只供重大通报的稀有动作；生活趣事、吐槽、惊讶、阅读中真正触动的细节都可能值得发。不要每件事必发，也不要仅因没有用户未读消息就放弃本人的分享欲。")
-            appendLine("如本次实际行动是在回应其中一段真实经历，填写对应 experienceId；如果暂时想分享但未行动，可以填 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held|released\",\"why\":\"私人理由\"}。念头不是发送回执，只有执行成功才记录已分享。")
+            appendLine("如本次实际行动是在回应其中一段真实经历，填写对应 experienceId；如果暂时想分享但未行动，可填 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held|released\",\"why\":\"私人理由\",\"intensity\":0到100可选}。多个未分享的真实经历能积累分享冲动；是否和主人私聊、公开发圈、和实际群友交流或暂时不说，仍由自己决定。念头不是发送回执，只有执行成功才记录已分享。")
         }.trim()
     }
 
@@ -207,6 +234,12 @@ internal object CharacterLifeFollowThroughStore {
         if (item.optString("shareStatus") in setOf("shared", "released")) return@synchronized
         item.put("shareStatus", status)
         item.put("shareWhy", wish.optString("why").trim().take(180))
+        // Optional first-person assessment of how strongly THIS experience
+        // makes them want to share. Never inferred from the user's feelings.
+        if (status == "held" && wish.has("intensity")) {
+            val intensity = wish.optDouble("intensity", Double.NaN)
+            if (intensity.isFinite()) item.put("shareStrength", intensity.coerceIn(0.0, 100.0))
+        }
         save(characterId, all)
     }
 
