@@ -611,18 +611,22 @@ object ProactivePerceptionScheduler {
         val app = context.applicationContext
         val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return
-        if (event.evidenceKind != EventEvidenceKind.ToolResult || event.source != "tool-router" ||
+        if (!SearchReceiptFeedback.completedEvidence(event) ||
             PerceptionStimulusLedger.hasSeen(app, characterId, evidenceId)) return
-        val execution = runCatching { org.json.JSONObject(event.content) }.getOrNull() ?: return
-        if (execution.optString("tool") !in SearchReceiptFeedback.resultTools ||
-            execution.optString("status") !in setOf("succeeded", "failed")) return
         val store = app.getSharedPreferences("lulu_search_result_reperception_v1", Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
         val from = store.getLong("window:$characterId", 0L)
         val inWindow = from > 0L && now >= from && now - from < 5 * 60_000L
         val count = if (inWindow) store.getInt("count:$characterId", 0) else 0
         // Search-after-search may be personally chosen, but never an infinite paid loop.
-        if (count >= 3) return
+        if (count >= 3) {
+            // Do not discard evidence: hand overflow to the existing budgeted review.
+            val eligibleAt = from + 5 * 60_000L
+            scheduleCoalescedLifeReview(app, characterId,
+                (eligibleAt - now).coerceAtLeast(100L), onlineOnly = false,
+                eligibleAtMillis = eligibleAt)
+            return
+        }
         if (!store.edit().putLong("window:$characterId", if (inWindow) from else now)
                 .putInt("count:$characterId", count + 1).commit()) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
