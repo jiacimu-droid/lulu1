@@ -410,24 +410,24 @@ internal fun buildBoundedHistory(
     val inferredId = MigratedDomainStores.characters.settings.value.values.singleOrNull { it.displayName == characterName }?.characterId
     val eligible = inferredId?.let { id -> messages.filter { DigitalLifeProfileStore.allowsTimestamp(id, it.createdAt) } } ?: messages
     val recalled = recalledMessageIds(eligible)
-    val lines = eligible.filterNot { it.id in recalled }
-        .filter { it.sender != LuluChatMessage.Sender.System || it.content.startsWith("[群成员变更]") || it.content.startsWith("[戳一戳]") || it.content.startsWith("[撤回|") }
-        .takeLast(maxMessages).map { message ->
-            val role = when {
-                message.sender == LuluChatMessage.Sender.System -> "聊天系统"
-                message.sender == LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
-                else -> message.authorCharacterId?.let(characterNames::get) ?: characterName
-            }
-            val quote = message.replyToMessageId?.let { id -> eligible.firstOrNull { it.id == id } }
-                ?.let { "（引用：${qqForwardContextText(it.content).take(180)}）" }.orEmpty()
-            val content = if (message.sender == LuluChatMessage.Sender.System) stripRecallReceiptDirective(message.content) else qqForwardContextText(message.content)
-            "$role$quote：$content"
+    val visible = eligible.filterNot { it.id in recalled || it.status == LuluChatMessage.Status.Failed }
+        .filter { it.sender != LuluChatMessage.Sender.System || it.content.startsWith("[群成员变更]") ||
+            it.content.startsWith("[戳一戳]") || it.content.startsWith("[撤回|") }
+    val lines = visible.associate { message ->
+        val role = when {
+            message.sender == LuluChatMessage.Sender.System -> "聊天系统"
+            message.sender == LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
+            else -> message.authorCharacterId?.let(characterNames::get) ?: characterName
         }
-    val selected = ArrayDeque<String>()
-    var chars = 0
-    for (line in lines.asReversed()) {
-        if (selected.isNotEmpty() && chars + line.length > maxChars) break
-        selected.addFirst(line); chars += line.length
+        val quote = com.jiacimu.lulu.data.ConversationHistoryWindow.quoteNote(
+            message, eligible, recalled)
+        val content = if (message.sender == LuluChatMessage.Sender.System)
+            stripRecallReceiptDirective(message.content) else qqForwardContextText(message.content)
+        message.id to "$role$quote：$content"
     }
-    return selected.joinToString("\n")
+    // Keep the same persisted-bubble identity as the on-screen grouping:
+    // a character's single generated multi-bubble answer cannot be cut in two.
+    return com.jiacimu.lulu.data.ConversationHistoryWindow.select(
+        visible, maxMessages, maxChars,
+    ) { lines[it.id]?.length ?: 0 }.joinToString("\n") { lines[it.id].orEmpty() }
 }
