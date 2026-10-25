@@ -34,6 +34,14 @@ data class CommitmentTask(
     val updatedAt: Instant = Instant.now(),
 )
 
+/**
+ * Legacy task receipts are evidence and remain unchanged on disk. Their old
+ * destination label is translated only when projected into current UI/prompt.
+ */
+internal fun CommitmentTask.readableLastResult(): String = lastActionResult
+    .replace("持续约定已记入辞海", "持续约定已保存，可在日程的未定时约定中查看")
+    .replace("对应辞海约定已删除", "对应约定记录已删除")
+
 internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
     CommitmentTaskStatus.NeedsClarification,
     CommitmentTaskStatus.Scheduled,
