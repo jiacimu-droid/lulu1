@@ -530,7 +530,7 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
             LuluAiServices.gateway.generate(
                 characterId = state.selectedCharacterId,
                 facts = "默契问答题目：${question.text}\n可选项：${question.options.joinToString(" / ")}",
-                instruction = "请结合角色真实人设、连续记忆和辞海中对用户的了解，秘密选择最符合用户的一项。只输出一个可选项原文，不要解释。",
+                instruction = "请结合角色真实人设、连续记忆和有依据的生活记录中对用户的了解，秘密选择最符合用户的一项。只输出一个可选项原文，不要解释。",
                 source = "游戏",
                 title = "默契问答秘密作答",
                 maxTokens = 80,
@@ -581,7 +581,7 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
     }
 
     GamePageList {
-        item { GameCard { Text("默契问答", fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("角色会读取人设、记忆和辞海后秘密作答。", color = GameDesign.muted); Text("当前得分：$score") } }
+        item { GameCard { Text("默契问答", fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("角色会读取人设、记忆和生活记录后秘密作答。", color = GameDesign.muted); Text("当前得分：$score") } }
         item { GameRolePanel(character.displayName, roleResponse) }
         if (!completed) {
             item {
