@@ -285,6 +285,9 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val learningRevision by CharacterLearningAgenda.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
     var selected by rememberSaveable(characterId) { mutableStateOf("全部") }
+    var deleteTarget by remember(characterId) { mutableStateOf<com.jiacimu.lulu.data.CharacterLifeVisible?>(null) }
+    var deleteError by remember(characterId) { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
     val entries by produceState(
         initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
         characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision, scheduleRevision,
@@ -366,6 +369,14 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                                 Text(entry.at.atZone(ZoneId.systemDefault())
                                     .format(DateTimeFormatter.ofPattern("MM月dd日")),
                                     fontSize = 11.sp, color = LuluColors.Muted)
+                                if (entry.sourceKind.isNotBlank() && entry.sourceId.isNotBlank()) {
+                                    TextButton(onClick = { deleteError = ""; deleteTarget = entry },
+                                        contentPadding = PaddingValues(start = 9.dp, end = 0.dp)) {
+                                        Icon(Icons.Outlined.DeleteOutline, "删除这条心事",
+                                            modifier = Modifier.size(17.dp),
+                                            tint = Color(0xFFA46464))
+                                    }
+                                }
                             }
                             Text(entry.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                                 lineHeight = 23.sp, color = LuluColors.Ink)
@@ -385,6 +396,46 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                 }
             }
         }
+    }
+    deleteTarget?.let { target ->
+        AlertDialog(
+            onDismissRequest = { deleteTarget = null; deleteError = "" },
+            title = { Text(if (target.category == "日程") "取消这项日程？" else "删除这条心事？") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(target.title, maxLines = 3)
+                    Text(if (target.category == "日程")
+                        "这会取消尚未执行的日程；已经发生的经历不会删除。"
+                        else "这会从角色待处理的心事中移除这条记录，不会抹去真实聊天与搜索经历。",
+                        color = LuluColors.Muted, fontSize = 12.sp)
+                    if (deleteError.isNotBlank())
+                        Text(deleteError, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        val deleted = withContext(Dispatchers.IO) {
+                            runCatching {
+                                when (target.sourceKind) {
+                                    "motive" -> CharacterInnerLifeStore.deletePrivateMotive(characterId, target.sourceId)
+                                    "concern" -> CharacterInnerLifeStore.deletePrivateConcern(characterId, target.sourceId)
+                                    "learning" -> CharacterLearningAgenda.deleteGoal(characterId, target.sourceId)
+                                    "curiosity" -> CharacterCuriosityRuntime.deleteInterest(characterId, target.sourceId)
+                                    "schedule" -> RoleDayScheduleStore.cancel(context, characterId, target.sourceId, "主人从心事取消")
+                                    else -> false
+                                }
+                            }.getOrDefault(false)
+                        }
+                        if (deleted) { deleteTarget = null; deleteError = "" }
+                        else deleteError = "删除未成功，记录可能正在执行或已经更新。"
+                    }
+                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteTarget = null; deleteError = "" }) { Text("取消") }
+            },
+        )
     }
 }
 
