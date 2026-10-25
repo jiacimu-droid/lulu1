@@ -639,7 +639,8 @@ class CompanionModelGateway(
             val renderedMemories = com.jiacimu.lulu.data.PromptMemoryRenderer.renderWithTrace(
                 memories, if (leanExpression) 1_600 else budget.memoryCharacters
             )
-            val memorySection = renderedMemories.text
+            val memorySection = listOf(unifiedMemory.recallUseGuidance, renderedMemories.text)
+                .filter(String::isNotBlank).joinToString("\n")
             val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {
                 "最近共同时间线（按证据类型理解，表达内容不自动等于客观经历）：\n$it"

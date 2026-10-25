@@ -22,6 +22,13 @@
 - 路由：旧 `system` 设置迁移到 `local`；每通电话读取一次所选 Tiny/Base；本地缺失模型时提示安装，不回退收费 ASR。16 kHz PCM 沿用原 `CallAudioInput` 自然停顿分段，后续上下文、角色人格、ElevenLabs TTS 路线不变。
 - 验收边界：需以 GitHub Actions 完整 APK 构建核对 CMake / NDK 链路，并在 Android ARM64 真机验证模型下载、中文转写、延迟、耗电、回声与打断；静态接线不代表以上测试已通过。
 
+## 2026-10-26 数字生命研究清单的机制对照
+
+- 本批为原 Kotlin 架构上的独立实现，未复制第三方代码、提示词、权重或资产，未新增运行依赖。
+- 研究 SocioMind 默认分支 `135e266990df31cfbb207a76affa505cadc773a5`（Apache-2.0）的心理层级、短长期动机及事件后的主观延续；只采用同一人物状态的连续性思想，不采用强制情绪变化、额外量表生成调用和独立 Python 心理 Store。
+- 参考 M2-her 官方多轮角色对话文档的语境与表达一致性；参考 Reconsider 陪伴记忆研究的“何时、怎样提起过去”问题，采用原调用内可选择的回忆使用指导，未复制论文程序或宣称实测达到其效果。
+- 实际改动、逐项不采用的理由和来源见 `docs/architecture/DIGITAL_LIFE_RESEARCH_ADOPTION.md`。原始研究入口：https://github.com/AlanJiang98/DLP-SocioMind 、https://platform.minimax.io/docs/guides/text-chat 、https://arxiv.org/abs/2610.09470 。
+
 # 代码与设计归属账本
 
 这份文件用于记录 `lulu1` 中每个重要模块的来源，避免把第三方代码误写成原创，也避免以后忘记某段实现从哪里来。

@@ -14,6 +14,44 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterInnerLifeStoreTest {
+    @Test fun compactAndFullScenesShareTheSameSourceBoundInterpretation() {
+        start()
+        val role = "inside-test-a"
+        val now = Instant.parse("2026-10-26T00:00:00Z")
+        val appraisal = JSONObject().put("meaning", "她只是想让我听一听")
+            .put("commonGroundUpdate", "不需要重新安排她的一天")
+            .put("uncertainty", "还不清楚她要不要聊那件旧事")
+            .put("expression", JSONObject().put("subtext", "愿意陪她坐一会"))
+        CharacterInnerLifeStore.recordCausalTransition(role, "companion-source", appraisal,
+            null, null, "silent", "", "", now)
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONArray("causalTransitions")
+            .getJSONObject(0).getJSONObject("appraisal")
+        assertEquals("愿意陪她坐一会", saved.getJSONObject("expression").getString("subtext"))
+        val compact = CharacterInnerLifeStore.compactContext(role, now)
+        val full = CharacterInnerLifeStore.context(role, now)
+        listOf(compact, full).forEach { context ->
+            assertTrue(context.contains("当时理解：她只是想让我听一听"))
+            assertTrue(context.contains("不需要重新安排她的一天"))
+            assertTrue(context.contains("还不清楚她要不要聊那件旧事"))
+        }
+        assertFalse(CharacterInnerLifeStore.context("inside-test-b", now).contains("companion-source"))
+        CharacterInnerLifeStore.invalidateEvidence("companion-source")
+        assertFalse(CharacterInnerLifeStore.compactContext(role, now).contains("她只是想让我听一听"))
+        assertFalse(CharacterInnerLifeStore.context(role, now).contains("她只是想让我听一听"))
+    }
+
+    @Test fun uncertaintyOnlyAndExpressionOnlyUpdatesAreNotDropped() {
+        start()
+        val now = Instant.parse("2026-10-26T00:00:00Z")
+        val role = "inside-test-a"
+        listOf(JSONObject().put("uncertainty", "这次是否适合提起旧事还未知"),
+            JSONObject().put("expression", JSONObject().put("subtext", "不必把全部理由说破")))
+            .forEachIndexed { i, appraisal ->
+                CharacterInnerLifeStore.recordCausalTransition(role, "small-change-$i", appraisal,
+                    null, null, "silent", "", "", now.plusSeconds(i.toLong()))
+            }
+        assertEquals(2, CharacterInnerLifeStore.snapshot(role).getJSONArray("causalTransitions").length())
+    }
     private fun start() {
         CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
         CharacterInnerLifeStore.clear("inside-test-a")

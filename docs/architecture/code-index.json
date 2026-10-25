@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T16:38:14.744448+00:00",
-  "commit": "9ae24f8dad894214de84f6f628b9b4d59bf6ab75",
+  "generatedAt": "2026-10-25T16:56:01.719232+00:00",
+  "commit": "65f49fe1b887c9bd77e68b3a6d86eee74b981314",
   "branch": "main",
-  "sourceFingerprint": "aa299a6df4b11f5228269db187857a8d34130c223eaeebb6f1a54717befe0c31",
+  "sourceFingerprint": "a089e8caea52e295acc9b4365a004deb4131a74cd845d67cb9111fd54131a439",
   "summary": {
     "files": 910,
-    "lines": 179068,
+    "lines": 179241,
     "symbols": 2679
   },
   "symbolIndex": {
@@ -407,7 +407,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1669
+        "line": 1676
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -677,7 +677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1215
+        "line": 1216
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -3093,7 +3093,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-        "line": 141
+        "line": 152
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
@@ -3921,7 +3921,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 89
+        "line": 97
       }
     ],
     "restore": [
@@ -4137,19 +4137,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1065
+        "line": 1066
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1077
+        "line": 1078
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1205
+        "line": 1206
       }
     ],
     "LuluMusicSensoryRuntime": [
@@ -4525,7 +4525,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1501
+        "line": 1508
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -5567,13 +5567,13 @@
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1567
+        "line": 1574
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1588
+        "line": 1595
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -10387,13 +10387,13 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 70
+        "line": 78
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 87
+        "line": 95
       }
     ],
     "UserDataUpgradeGuard": [
@@ -13589,7 +13589,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-        "line": 71
+        "line": 103
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -13845,13 +13845,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 428
+        "line": 466
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 527
+        "line": 565
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -18487,8 +18487,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1223,
-      "sha256": "b9d52a505b9487da0eeb4917d73cc5ba91230b4f37b20f429e41763ac054d1e1",
+      "lines": 1224,
+      "sha256": "647be71c02aa634cfb0a8df1c5be4b01147ab6377e8568b9825119c6670038b8",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -18584,19 +18584,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1065
+          "line": 1066
         },
         {
           "name": "consumeEvent",
-          "line": 1077
+          "line": 1078
         },
         {
           "name": "LuluAiServices",
-          "line": 1205
+          "line": 1206
         },
         {
           "name": "initialize",
-          "line": 1215
+          "line": 1216
         }
       ]
     },
@@ -19226,8 +19226,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-      "lines": 277,
-      "sha256": "ac593af62a36519eb0da47757e5a6b7776c20bc174352dc1d3d2718f0b1016ab",
+      "lines": 289,
+      "sha256": "9707f7008195e737c22b9932f952d2c6cff2b686a5a6f26356cd90deaff5526f",
       "symbols": [
         {
           "name": "memoryLane",
@@ -19235,7 +19235,7 @@
         },
         {
           "name": "render",
-          "line": 141
+          "line": 152
         }
       ]
     },
@@ -19443,8 +19443,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
-      "lines": 92,
-      "sha256": "f3168a73e7ec438a2453ae15ef355c5e36908fb33289163056c9efa5cdf23e9a",
+      "lines": 113,
+      "sha256": "2166bc57ceb51bff9f68974bfab4b73d21aac18546acc6fae3be6ee0fb39ff25",
       "symbols": [
         {
           "name": "conciseAppraisal",
@@ -19832,8 +19832,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1795,
-      "sha256": "0f883e0e72692ece16383bdd6371a9767afb504ba3b5ab39140de1eed5d4fa7e",
+      "lines": 1807,
+      "sha256": "9ea0076ba77ae4231ce153265a00818c0b943166b82f6f66ac002e9a47ad227d",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -19857,19 +19857,19 @@
         },
         {
           "name": "normalize",
-          "line": 1501
+          "line": 1508
         },
         {
           "name": "axis",
-          "line": 1567
+          "line": 1574
         },
         {
           "name": "compactContext",
-          "line": 1588
+          "line": 1595
         },
         {
           "name": "context",
-          "line": 1669
+          "line": 1676
         }
       ]
     },
@@ -25086,8 +25086,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 261,
-      "sha256": "0bcac6d70feb0cac88214fdd935bc0c3eb3b6152187539a37a40b58869aa4cbe",
+      "lines": 269,
+      "sha256": "71b8bfae59fad7e9ed01fee576b8f19374675c31518aebc9594d1c152c20eaf3",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -25107,15 +25107,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 70
+          "line": 78
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 87
+          "line": 95
         },
         {
           "name": "empty",
-          "line": 89
+          "line": 97
         }
       ]
     },
@@ -29680,8 +29680,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-      "lines": 107,
-      "sha256": "986bdf609c2b65ff8cf7a2c624eaa94aa1b3003d3a32c79b0bf0bea0c52b9a58",
+      "lines": 139,
+      "sha256": "2faca942db9814e4e2f00190fff9215d5e4bae8e31abd5d0296af3a93dd8efe2",
       "symbols": [
         {
           "name": "CharacterAssociativeRecallTest",
@@ -29689,7 +29689,7 @@
         },
         {
           "name": "event",
-          "line": 71
+          "line": 103
         }
       ]
     },
@@ -29816,8 +29816,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
-      "lines": 118,
-      "sha256": "5c00557a402f75c216c0277761e62696d4622c9f21e87705e3edd3e8fc34704d",
+      "lines": 157,
+      "sha256": "230495e2ac846e34bf6beb4c956d424a3d2cb7c04aaac48f589e8cbfcb9664ac",
       "symbols": [
         {
           "name": "CharacterDeliberationContextTest",
@@ -29926,8 +29926,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 687,
-      "sha256": "e0c3274b417ed4009a48031ffda341390eab002f220c1d9fc6e8b46c881328a7",
+      "lines": 725,
+      "sha256": "0ba9f9af8786bcb9ec14cf9812de62c2e101a093ac785776f6ba9ad45a57b546",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -29935,11 +29935,11 @@
         },
         {
           "name": "social",
-          "line": 428
+          "line": 466
         },
         {
           "name": "feeling",
-          "line": 527
+          "line": 565
         }
       ]
     },
@@ -31082,8 +31082,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
-      "lines": 38,
-      "sha256": "ed844894a06780719b14b543b38e4f2844c9577e961c6ab2137f5fae362e869e",
+      "lines": 48,
+      "sha256": "04530e92ec64b1ff9e05945ff2ebb59a4afd5ab9f2b3241e2526a2c2d1ca053d",
       "symbols": [
         {
           "name": "PromptContextRegressionTest",

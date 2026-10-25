@@ -40,6 +40,7 @@ internal object CharacterAssociativeRecall {
         query: String,
         now: Instant,
         limit: Int = 7,
+        cadenceSeconds: Long = ProactivePerceptionPolicy().onlinePulseSeconds.toLong(),
     ): List<MemoryEntry> {
         if (characterId.isBlank() || limit <= 0) return emptyList()
         val valid = memories.filter {
@@ -57,7 +58,15 @@ internal object CharacterAssociativeRecall {
         val selected = linkedMapOf<String, MemoryEntry>()
         // First protect material variety, then favor actual associations.
         for (lane in listOf(MemoryLane.STABLE, MemoryLane.EPISODE, MemoryLane.PAST_FEELING, MemoryLane.CORE)) {
-            (related + byImportance).firstOrNull { memoryLane(it) == lane }
+            val inLane = valid.filter { memoryLane(it) == lane }
+                .sortedWith(compareBy<MemoryEntry> { it.occurredAt ?: it.createdAt }.thenBy { it.id })
+            // Keep query-related recall authoritative. In the remaining lanes,
+            // revisit older material on the already configured thought cadence;
+            // always choosing the strongest item made other interests invisible.
+            (related.firstOrNull { memoryLane(it) == lane } ?: CharacterAttentionWorkingSet.select(
+                inLane, 2, now, cadenceSeconds,
+                identity = { it.id }, theme = { it.subject + ":" + it.slot },
+            ).lastOrNull())
                 ?.let { selected[it.id] = it }
         }
         for (memory in related + byImportance) {
@@ -91,6 +100,7 @@ internal object CharacterAssociativeRecall {
 
     internal fun variedExperiences(
         characterId: String, events: List<SharedTimelineEvent>, now: Instant,
+        cadenceSeconds: Long = ProactivePerceptionPolicy().onlinePulseSeconds.toLong(),
     ): List<Pair<ExperienceLane, SharedTimelineEvent>> {
         val eligible = events.filter {
             it.characterId == characterId && !it.occurredAt.isAfter(now) &&
@@ -98,10 +108,11 @@ internal object CharacterAssociativeRecall {
                 it.evidenceKind != EventEvidenceKind.Inference
         }
         return ExperienceLane.entries.flatMap { lane ->
-            eligible.asReversed().asSequence()
-                .filter { experienceLane(it) == lane }
-                .distinctBy { it.id }
-                .take(2).map { lane to it }.toList()
+            CharacterAttentionWorkingSet.select(
+                eligible.filter { experienceLane(it) == lane }
+                    .sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }),
+                2, now, cadenceSeconds, identity = { it.id }, theme = { it.source + ":" + it.channel },
+            ).map { lane to it }
         }
     }
 
@@ -168,7 +179,8 @@ internal object CharacterAssociativeRecall {
                 memoryHasLiveSources(it, characterId) &&
                 DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt ?: it.createdAt)
         }
-        val memories = selectMemories(characterId, validMemories, query, now)
+        val cadenceSeconds = ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong()
+        val memories = selectMemories(characterId, validMemories, query, now, cadenceSeconds = cadenceSeconds)
         val learned = CharacterDevelopmentStore.active(characterId)
         val ownerKnowledge = CharacterDevelopmentRecall.select(
             learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) },
@@ -193,7 +205,7 @@ internal object CharacterAssociativeRecall {
         val nightWithRecentSpeech = localHour in 1..5 && recentUser?.let {
             Duration.between(it.occurredAt, now).toMinutes() in 0..15
         } == true
-        val olderEpisodes = variedExperiences(characterId, events, now)
+        val olderEpisodes = variedExperiences(characterId, events, now, cadenceSeconds)
         if (memories.isEmpty() && ownerKnowledge.isEmpty() && selfKnowledge.isEmpty() &&
             knownMethods.isEmpty() && motives.isEmpty() && unfinishedThoughts.isEmpty() &&
             olderEpisodes.isEmpty() && feedbackTrace.isEmpty() &&

@@ -26,6 +26,38 @@ class CharacterAssociativeRecallTest {
     ) = MemoryEntry(id, role, id + " 喜欢披萨", kind, "test", at, at,
         7, false, proactive, tier)
 
+    @Test fun ordinaryThoughtWindowsRevisitOlderMemoriesWithoutLosingRelevantRecall() {
+        val records = (0..17).map { memory("old-$it", at = now.minusSeconds(3600L + it)) }
+        val seen = mutableSetOf<String>()
+        repeat(20) { slot ->
+            val chosen = CharacterAssociativeRecall.selectMemories("role", records, "", now.plusSeconds(slot * 300L),
+                cadenceSeconds = 300)
+            assertEquals(7, chosen.size)
+            chosen.forEach { seen += it.id }
+        }
+        assertEquals(records.size, seen.size)
+        val related = records + memory("target").copy(content = "那次一起观察了土星环")
+        repeat(4) { slot ->
+            val chosen = CharacterAssociativeRecall.selectMemories("role", related, "土星环", now.plusSeconds(slot * 300L),
+                cadenceSeconds = 300)
+            assertTrue(chosen.any { it.id == "target" })
+            assertEquals(7, chosen.size)
+        }
+    }
+
+    @Test fun livedExperienceRotationRetainsTheNewestAndCoversOlderEvents() {
+        val events = (0..8).map { i -> SharedTimelineEvent("event-$i", "role", "独自阅读", "本人",
+            "读过第$i本书", now.minusSeconds(3600L + i), evidenceKind = EventEvidenceKind.ToolResult) }
+        val seen = mutableSetOf<String>()
+        repeat(12) { slot ->
+            val selected = CharacterAssociativeRecall.variedExperiences("role", events, now.plusSeconds(slot * 300L), 300)
+            assertEquals(2, selected.size)
+            assertTrue(selected.any { it.second.id == "event-0" })
+            selected.forEach { seen += it.second.id }
+        }
+        assertEquals(events.size, seen.size)
+    }
+
     @Test fun onePersonaProvidesSeveralIndependentThoughtPerspectives() {
         val facets = org.json.JSONObject()
             .put("interests", "对AI前沿和具身智能充满好奇")

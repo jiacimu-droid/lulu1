@@ -14,6 +14,45 @@ import java.time.Instant
 class CharacterDeliberationContextTest {
     private val now = Instant.parse("2026-10-11T12:00:00Z")
 
+    @Test fun routineReceiptsDoNotEvictEarlierAuthoredIdeas() {
+        val transitions = JSONArray().put(JSONObject().put("at", now.minusSeconds(90).toString())
+            .put("evidenceId", "real-book").put("selectedAction", "silent")
+            .put("appraisal", JSONObject().put("privateIdeas", JSONArray().put("想试试那本书里的玩法"))))
+        repeat(8) { i -> transitions.put(JSONObject().put("at", now.minusSeconds(80L - i).toString())
+            .put("selectedAction", "tool").put("reason", "例行操作回执")) }
+        val before = transitions.toString()
+        val summary = CharacterDeliberationContext.summary(transitions, now)
+        assertTrue(summary.contains("想试试那本书里的玩法"))
+        assertTrue(summary.contains("原始事件=real-book"))
+        assertFalse(summary.contains("例行操作回执"))
+        assertEquals(before, transitions.toString())
+    }
+
+    @Test fun interpretationAndClarificationSurviveWithoutInventingAnInnerVoice() {
+        val appraisals = listOf(
+            JSONObject().put("meaning", "她说想安静一会")
+                .put("uncertainty", "还不知道她是否想继续这个话题"),
+            JSONObject().put("commonGroundUpdate", "她刚澄清只是累了，旧猜测需要修正"),
+        )
+        val transitions = JSONArray()
+        appraisals.forEachIndexed { i, appraisal ->
+            transitions.put(JSONObject().put("at", now.minusSeconds(10L - i).toString())
+                .put("appraisal", CharacterDeliberationContext.conciseAppraisal(appraisal)))
+        }
+        val summary = CharacterDeliberationContext.summary(transitions, now)
+        assertTrue(summary.contains("当时理解：她说想安静一会"))
+        assertTrue(summary.contains("当时未确定"))
+        assertTrue(summary.contains("当时修正的语境：她刚澄清"))
+        assertFalse(summary.contains("没说出口"))
+    }
+
+    @Test fun emptyFutureAndMalformedHistoryDoesNotCreatePsychologicalContext() {
+        val transitions = JSONArray().put(JSONObject().put("at", now.toString()).put("reason", "动作记录"))
+            .put(JSONObject().put("at", now.plusSeconds(1).toString()).put("innerThought", "未来想法"))
+            .put(JSONObject().put("at", "broken").put("innerThought", "时间无效"))
+        assertEquals("", CharacterDeliberationContext.summary(transitions, now))
+    }
+
     @Test fun multipleGuessesStayPrivateAndAreCarriedToNextDecision() {
         val appraisal = JSONObject()
             .put("meaning", "电话仍在接通")

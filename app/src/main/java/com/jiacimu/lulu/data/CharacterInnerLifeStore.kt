@@ -1203,9 +1203,15 @@ object CharacterInnerLifeStore {
         val responseAim = appraisal?.optString("responseAim").orEmpty().trim().take(180)
         val move = appraisal?.optString("interactionMove").orEmpty().trim().lowercase().take(80)
         val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim().take(180)
+        val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty().trim().take(240)
+        val interpreted = CharacterDeliberationContext.conciseAppraisal(appraisal)
+        val expression = appraisal?.optJSONObject("expression")
+        val hasExpression = listOf("stance", "subtext", "device", "restraint")
+            .any { expression?.optString(it)?.isNotBlank() == true }
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
             responseAim.isBlank() && effectiveReason.isBlank() &&
+            interpreted == null && !hasExpression &&
             !CharacterOpenConcernRuntime.hasProposals(appraisal) &&
             appraisal?.optJSONObject("ownActivity") == null &&
             appraisal?.optJSONObject("shareWish") == null &&
@@ -1226,9 +1232,10 @@ object CharacterInnerLifeStore {
 
         actionBasis?.let { entry.put("actionBasis", it.trace()) }
         val appraisalTrace = JSONObject()
-        appraisal?.optJSONObject("expression")?.let { expression ->
+        expression?.takeIf { hasExpression }?.let { expression ->
             appraisalTrace.put("expression", JSONObject()
                 .put("stance", expression.optString("stance").take(160))
+                .put("subtext", expression.optString("subtext").take(180))
                 .put("device", expression.optString("device").take(60))
                 .put("restraint", expression.optString("restraint").take(160)))
         }
@@ -1236,9 +1243,9 @@ object CharacterInnerLifeStore {
         if (responseAim.isNotBlank()) appraisalTrace.put("responseAim", responseAim)
         if (move.isNotBlank()) appraisalTrace.put("interactionMove", move)
         if (uncertainty.isNotBlank()) appraisalTrace.put("uncertainty", uncertainty)
+        if (commonGround.isNotBlank()) appraisalTrace.put("commonGroundUpdate", commonGround)
         // Short, explicit subjective hypotheses: not hidden model reasoning,
         // not a factual assertion about the user.
-        val interpreted = CharacterDeliberationContext.conciseAppraisal(appraisal)
         interpreted?.optString("tension")?.takeIf(String::isNotBlank)?.let {
             appraisalTrace.put("tension", it)
         }
@@ -1726,7 +1733,8 @@ object CharacterInnerLifeStore {
                 for (i in maxOf(0, emotionHistory.length() - 2) until emotionHistory.length()) {
                     val prior = emotionHistory.optJSONObject(i) ?: continue
                     val priorAt = runCatching { Instant.parse(prior.optString("startedAt")) }.getOrNull() ?: continue
-                    if (Duration.between(priorAt, now).toMinutes() > prior.optInt("halfLifeMinutes", 180) * 3L) continue
+                    val elapsed = Duration.between(priorAt, now).toMinutes()
+                    if (elapsed !in 0..(prior.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L)) continue
                     appendLine("· ${prior.optString("feeling")}，源于${prior.optString("cause")}")
                 }
             }
@@ -1787,6 +1795,10 @@ object CharacterInnerLifeStore {
             CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now, compact = false)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterOpenConcernRuntime.closureContext(root.optJSONArray("closedConcerns"), now)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
+            // Full decision contexts must inherit the same authored interpretations
+            // and competing ideas as compact chat, without a second mental store.
+            CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine("愿望可以并存、冲突和暂停。选择前考虑性格、时间、用户边界与执行能力；只从工具回执确认成功，失败后可反省并改法。")
         }.trim()

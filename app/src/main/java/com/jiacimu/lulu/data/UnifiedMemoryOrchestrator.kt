@@ -41,6 +41,14 @@ data class UnifiedMemoryContext(
 ) {
     val coreMemorySection: String get() = CoreMemoryDelivery.render(coreMemories)
 
+    /** Retrieval supplies evidence, not a new conversational obligation. Shared
+     * by compact decisions and the full gateway; no separate memory judge call. */
+    val recallUseGuidance: String get() = if (memories.isEmpty() && sourceEvents.isEmpty() &&
+        understandingContext.isBlank()) "" else
+        "【回忆的使用分寸】先看旧事与当前话题、对象和最新原话是否相关，区分当时感受与现在状态、明确偏好与推测。" +
+        "可自然带出、只影响自己的理解、需要时核实，或这次不提；召回不等于对方想重谈，也不要求每轮展示记得多少。" +
+        "已说开、拒绝或修订的事按较新证据理解；未知保持未知，不用旧印象替代此刻倾听，不把判断标签念给对方。"
+
     private fun evidenceRendered(budget: Int = evidenceCharacterBudget): RenderedMemorySection {
         val header = "召回记忆对应的原始时间线证据：\n事实、措辞和时间以这些原始记录为准；摘要只用于检索。\n"
         val rendered = MemoryEvidenceSelection.render(sourceEvents, (budget - header.length).coerceAtLeast(0))
@@ -78,7 +86,7 @@ data class UnifiedMemoryContext(
         val summaryBudget = (remainingBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
         val summary = PromptMemoryRenderer.renderWithTrace(memories, summaryBudget)
         recordActualPrompt(summary, evidenceBudget, recentBudget)
-        return listOf(coreMemorySection, activeTaskContext,
+        return listOf(coreMemorySection, activeTaskContext, recallUseGuidance,
             recentRendered(recentBudget).text.takeIf(String::isNotBlank)?.let { "这个角色最近亲历的原始时间线：\n$it" }.orEmpty(),
             evidenceRendered(evidenceBudget).text, summary.text, understandingContext.take(knowledgeBudget),
         ).filter(String::isNotBlank).joinToString("\n")

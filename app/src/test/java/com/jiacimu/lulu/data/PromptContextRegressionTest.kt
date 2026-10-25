@@ -10,6 +10,16 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class PromptContextRegressionTest {
+    @Test fun recalledMaterialGuidesDiscretionWithoutForcingAnExtraMemoryDecision() {
+        assertEquals("", UnifiedMemoryContext().recallUseGuidance)
+        val context = UnifiedMemoryContext(understandingContext = "有来源的旧理解")
+        val guidance = context.recallUseGuidance
+        assertTrue(guidance.contains("只影响自己的理解"))
+        assertTrue(guidance.contains("最新原话"))
+        assertTrue(guidance.contains("这次不提"))
+        assertTrue(context.compactPromptSection().contains(guidance))
+    }
+
     @Test fun largeBacklogKeepsNewestEventsWithinHardBudget() {
         val events = (0 until 1000).map { index -> SharedTimelineEvent(
             id = "event-$index", characterId = "role", channel = "私聊", speaker = "用户",
