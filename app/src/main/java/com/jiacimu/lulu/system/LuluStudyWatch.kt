@@ -290,7 +290,11 @@ internal object LuluStudyWatch {
         val session = rawActive(context)
         if (session.optString("id").isBlank() ||
             (id.isNotBlank() && session.optString("id") != id)) return false
-        if (!prefs(context).edit().remove(ACTIVE).remove(LATEST).commit()) return false
+        val role = session.optString("characterId")
+        val write = prefs(context).edit().remove(ACTIVE).remove(LATEST)
+        if (reason.contains("主人主动停止"))
+            write.putLong("$LAST_DENIAL_AT:$role", System.currentTimeMillis())
+        if (!write.commit()) return false
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("lulu-study-watch-${session.optString("id")}")
         context.getSystemService(NotificationManager::class.java).cancel(ACTIVE_NOTICE)
@@ -366,8 +370,9 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
         val session = LuluStudyWatch.claim(applicationContext, id) ?: return Result.success()
         val role = session.optString("characterId")
         try {
-            if (ProactivePerceptionPolicyStore.get(role).enabled &&
-                LuluStudyWatch.canObserve(applicationContext, role, id)) {
+            if (!ProactivePerceptionPolicyStore.get(role).enabled) {
+                LuluStudyWatch.stop(applicationContext, id, "自主行动已关闭，停止监督")
+            } else if (LuluStudyWatch.canObserve(applicationContext, role, id)) {
                 val raw = LuluScreenAwareness.capture(applicationContext, userRequested = false,
                     characterId = role, requestId = "study-watch-$id-${session.optInt("ordinal")}",
                     approved = true, sessionId = id)
