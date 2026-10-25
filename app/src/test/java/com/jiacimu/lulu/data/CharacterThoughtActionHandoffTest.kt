@@ -83,6 +83,64 @@ class CharacterThoughtActionHandoffTest {
         assertEquals(original, decision.toString())
     }
 
+
+    @Test fun threeFriendlyLifeStepsFromOneCompletedMealAreNotBlankUnknownTools() {
+        // Regression for: a real sandwich receipt followed by three "未知工具"
+        // steps even though their explicit action labels describe valid tools.
+        val afterMeal = JSONObject().put("action", "digital_world")
+            .put("worldAction", "use_location").put("activityId", "order_drink")
+            .put("requiresPreviousSuccess", true)
+        val drink = JSONObject().put("action", "use_location")
+            .put("activityId", "slow_drink")
+            .put("requiresPreviousSuccess", true)
+        val share = JSONObject().put("action", "message")
+            .put("text", "刚才吃了三明治，想跟你聊聊。")
+            .put("requiresPreviousSuccess", true)
+        val decision = JSONObject().put("action", "digital_world")
+            .put("worldAction", "use_location").put("activityId", "cafe_consume_sandwich")
+            .put("steps", JSONArray().put(afterMeal).put(drink))
+            .put("sideActions", JSONArray().put(share))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(3, steps.length())
+        assertEquals(listOf("digital_world_action", "digital_world_action", "send_private_message"),
+            (0 until steps.length()).map { steps.getJSONObject(it).getString("tool") })
+        assertEquals("use_location", steps.getJSONObject(0).getJSONObject("args").getString("worldAction"))
+        assertEquals("order_drink", steps.getJSONObject(0).getJSONObject("args").getString("activityId"))
+        assertEquals("slow_drink", steps.getJSONObject(1).getJSONObject("args").getString("activityId"))
+        assertEquals("刚才吃了三明治，想跟你聊聊。",
+            steps.getJSONObject(2).getJSONObject("args").getString("text"))
+        assertTrue((0 until steps.length()).all { steps.getJSONObject(it).getBoolean("requiresPreviousSuccess") })
+        assertEquals(original, decision.toString())
+    }
+
+    @Test fun nestedThoughtActionsAndDifferentSpellingsDeduplicateOneEffect() {
+        val coffee = JSONObject().put("action", "digital_world")
+            .put("worldAction", "use_location").put("activityId", "slow_drink")
+        val duplicate = JSONObject().put("tool", "digital_world_action")
+            .put("args", JSONObject().put("worldAction", "use_location")
+                .put("activityId", "slow_drink"))
+        val decision = JSONObject().put("steps", JSONArray().put(coffee))
+            .put("sideActions", JSONArray().put(duplicate))
+            .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(
+                JSONObject().put("threadId", "drink-real")
+                    .put("nextAction", JSONObject(coffee.toString())))))
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(1, steps.length())
+        assertEquals("digital_world_action", steps.getJSONObject(0).getString("tool"))
+        assertEquals("drink-real", steps.getJSONObject(0).getString("concernId"))
+    }
+
+    @Test fun proseAndNamelessStepsStillCannotTurnIntoFabricatedToolCalls() {
+        val wishes = JSONObject().put("nextAction",
+            JSONObject().put("why", "去领杯水，待会找主人聊天"))
+            .put("steps", JSONArray().put(JSONObject().put("description", "想喝水")))
+        val steps = CharacterThoughtActionHandoff.actions(wishes)!!
+        assertEquals(2, steps.length())
+        assertEquals("", steps.getJSONObject(0).optString("tool"))
+        assertEquals("", steps.getJSONObject(1).optString("tool"))
+    }
+
     @Test fun malformedChosenActionsReachTheExecutorAsFailuresInsteadOfBecomingImaginedSuccess() {
         val steps = CharacterThoughtActionHandoff.actions(JSONObject().put("nextAction", JSONObject()
             .put("tool", "unknown-tool")))!!
