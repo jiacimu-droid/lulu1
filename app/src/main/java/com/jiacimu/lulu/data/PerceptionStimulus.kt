@@ -9,6 +9,7 @@ internal data class PerceptionStimulus(
     val evidenceId: String,
     val description: String,
     val socialIds: Set<String> = emptySet(),
+    val revision: Long = 1L,
 )
 
 internal object PerceptionStimulusResolver {
