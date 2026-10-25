@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:36:06.987358+00:00",
-  "commit": "10d6387fa0dffdef09ebee8229b9b628d079ff5e",
+  "generatedAt": "2026-10-25T07:38:54.076688+00:00",
+  "commit": "166d48fc82e632e2aac5585357c23ef792afe6ff",
   "branch": "main",
-  "sourceFingerprint": "3c5bf1e7d1ae3775a8e58e70cf5ad5573be4a22b47d49cf09288b5d750834ef2",
+  "sourceFingerprint": "0a523e8164ad09b8d48b38b7dc24fb2b9c6c5f34c7df3df2ff19923e01c96837",
   "summary": {
     "files": 893,
-    "lines": 175156,
-    "symbols": 2633
+    "lines": 175165,
+    "symbols": 2634
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 219
+        "line": 228
       }
     ],
     "microphone": [
@@ -181,7 +181,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 93
+        "line": 102
       }
     ],
     "cancel": [
@@ -239,7 +239,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 207
+        "line": 216
       }
     ],
     "isWakeCallReason": [
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 234
+        "line": 243
       }
     ],
     "measure": [
@@ -4653,7 +4653,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 139
+        "line": 148
       }
     ],
     "supports": [
@@ -5095,7 +5095,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 85
+        "line": 89
       }
     ],
     "applyProposal": [
@@ -12828,28 +12828,34 @@
         "line": 113
       }
     ],
+    "canObserve": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
+        "line": 97
+      }
+    ],
     "scheduleNext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 190
+        "line": 199
       }
     ],
     "recordCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 250
+        "line": 259
       }
     ],
     "LuluStudyWatchReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 264
+        "line": 273
       }
     ],
     "LuluStudyWatchWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 275
+        "line": 284
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -27875,7 +27881,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
       "lines": 498,
-      "sha256": "21d49475ebeb2841ee90c22da1859db08e676932b1da95a078aa73cf6b74bc9b",
+      "sha256": "2f2c77aea2278b5e9fdaf0fa29d0d6eef87a8d383e09fa63768781e068d8f337",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -28008,48 +28014,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-      "lines": 324,
-      "sha256": "088e8982e76468f4ea22aa84255d0fc35ee028b21b45cb6f03238476ca562d61",
+      "lines": 333,
+      "sha256": "8f0fd743fa1b6e209e292e1bb840624293b4d206877300331bab231db204b86d",
       "symbols": [
         {
           "name": "active",
-          "line": 85
+          "line": 89
+        },
+        {
+          "name": "canObserve",
+          "line": 97
         },
         {
           "name": "request",
-          "line": 93
+          "line": 102
         },
         {
           "name": "resolve",
-          "line": 139
+          "line": 148
         },
         {
           "name": "scheduleNext",
-          "line": 190
+          "line": 199
         },
         {
           "name": "claim",
-          "line": 207
+          "line": 216
         },
         {
           "name": "stop",
-          "line": 219
+          "line": 228
         },
         {
           "name": "context",
-          "line": 234
+          "line": 243
         },
         {
           "name": "recordCheck",
-          "line": 250
+          "line": 259
         },
         {
           "name": "LuluStudyWatchReceiver",
-          "line": 264
+          "line": 273
         },
         {
           "name": "LuluStudyWatchWorker",
-          "line": 275
+          "line": 284
         }
       ]
     },
