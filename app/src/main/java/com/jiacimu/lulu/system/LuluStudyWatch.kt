@@ -19,7 +19,10 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.CharacterInnerLifeStore
+import com.jiacimu.lulu.data.CharacterMotiveState
+import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -44,6 +47,10 @@ internal object LuluStudyWatch {
     private const val PENDING = "study_watch_pending"
     private const val ACTIVE = "study_watch_active"
     private const val LATEST = "study_watch_latest"
+    private const val LAST_REQUEST_AT = "study_watch_last_request_at"
+    private const val LAST_DENIAL_AT = "study_watch_last_denial_at"
+    private const val REQUEST_GAP_MS = 90L * 60_000L
+    private const val DENIAL_GAP_MS = 12L * 60 * 60_000L
     private const val CHANNEL = "lulu_study_watch"
     private const val REQUEST_CHANNEL = "lulu_study_watch_requests"
     private const val REQUEST_NOTICE = 42061
@@ -98,6 +105,32 @@ internal object LuluStudyWatch {
         id.isNotBlank() && active(context, role)?.optString("id") == id &&
             notificationsAllowed(context) && LuluScreenAwareness.autonomousAllowed(context)
 
+    /** An opportunity for the same character's OWN decision, not an automatic request.
+     * Source evidence is the existing study-partner role, goal and ongoing promises.
+     */
+    fun proactiveOpportunity(context: Context, role: String, now: Long = System.currentTimeMillis()): String {
+        if (role.isBlank() || role.startsWith("resident:") || active(context, role, now) != null)
+            return ""
+        val studyPartner = PostgraduateExamStores.main.state.value.profile.selectedCharacterId == role
+        val studyWords = listOf("学习", "备考", "背书", "复习", "刷题", "考试")
+        val accepted = CommitmentTaskStore.active(role).any { task ->
+            studyWords.any(task.goal::contains)
+        }
+        val hasOwnConcern = CharacterMotiveState.active(
+            CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")).any { motive ->
+            studyWords.any(motive.optString("aim")::contains)
+        }
+        if (!studyPartner && !accepted && !hasOwnConcern) return ""
+        val p = prefs(context)
+        if (now - p.getLong(LAST_REQUEST_AT, 0L) in 0 until REQUEST_GAP_MS ||
+            now - p.getLong(LAST_DENIAL_AT, 0L) in 0 until DENIAL_GAP_MS) return ""
+        return "【可选的本人主动照顾】你确实是她的学习陪伴角色、曾接受学习责任，" +
+            "或自己仍挂念她的学习。现在没有她的新命令也可以自行判断要不要来看看；" +
+            "若真实想在这段时间陪她并能尊重她的时间和隐私，可以主动以" +
+            "steps选择start_study_watch申请一次限时监督。主人只负责许可，不负责催你想起；" +
+            "你也完全可以选择先聊天、稍后安排或暂时不打扰，不要机械打卡。"
+    }
+
     @Synchronized
     fun request(context: Context, role: String, requestedMinutes: Int): String {
         if (role.isBlank() || role.startsWith("resident:"))
@@ -109,6 +142,11 @@ internal object LuluStudyWatch {
         if (!LuluAccessibilityService.observe().connected)
             return response(false, "先开启无障碍服务，角色才能真实查看屏幕")
         val now = System.currentTimeMillis()
+        val p = prefs(context)
+        if (now - p.getLong(LAST_DENIAL_AT, 0L) in 0 until DENIAL_GAP_MS)
+            return response(false, "主人近期已拒绝学习监督，暂时不要重复打扰")
+        if (now - p.getLong(LAST_REQUEST_AT, 0L) in 0 until REQUEST_GAP_MS)
+            return response(false, "近期已经申请过学习监督，暂不重复请求")
         val old = rawActive(context)
         if (old.optString("id").isNotBlank() && old.optLong("endsAt") > now)
             return response(false, "已经有一段学习监督在进行，先结束当前时段")
@@ -121,7 +159,8 @@ internal object LuluStudyWatch {
         val id = UUID.randomUUID().toString()
         val payload = JSONObject().put("id", id).put("characterId", role)
             .put("minutes", minutes).put("at", now)
-        if (!prefs(context).edit().putString(PENDING, payload.toString()).commit())
+        if (!prefs(context).edit().putString(PENDING, payload.toString())
+                .putLong(LAST_REQUEST_AT, now).commit())
             return response(false, "学习监督请求无法保存")
         val manager = context.getSystemService(NotificationManager::class.java)
         val title = "${label(role)}想监督你学习"
@@ -158,6 +197,7 @@ internal object LuluStudyWatch {
             notificationsAllowed(context) && LuluAccessibilityService.observe().connected
         val role = entry.optString("characterId")
         if (!accepted) {
+            if (!granted) prefs(context).edit().putLong(LAST_DENIAL_AT, now).commit()
             SharedExperienceTimeline.record("study-watch-denied-$id", role, "屏幕监督授权", "手机",
                 "主人未同意这段屏幕监督，未观察画面", source = "study-watch-consent",
                 triggerExtraction = false, evidenceKind = EventEvidenceKind.ToolResult)
