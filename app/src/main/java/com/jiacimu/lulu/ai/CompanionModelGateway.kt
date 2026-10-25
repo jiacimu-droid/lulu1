@@ -1153,6 +1153,11 @@ class CompanionModelGateway(
     }
 
     private fun modelHttpException(status: Int, raw: String): ModelHttpException {
+        // Some relays return an entire nginx HTML document for 413. It is not
+        // a model reply or a useful diagnostic to display raw in the app.
+        if (status == 413) return ModelHttpException(status,
+            "模型请求失败（413）：中转服务拒收过大的请求体，可能是图像数据或上下文过多；" +
+                "阅读原始记录未删除。请检查本次请求的实际发送字节数与中转限制。")
         val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
             .getOrNull()
             .orEmpty()
