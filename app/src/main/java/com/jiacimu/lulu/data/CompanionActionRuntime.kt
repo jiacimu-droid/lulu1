@@ -591,6 +591,7 @@ internal object CompanionActionRuntime {
                     activityAction = args.optString("activityAction"),
                     repeat = args.optString("repeat", "once").lowercase(),
                     motiveId = args.optString("motiveId"),
+                    concernId = args.optString("concernId"),
                     targetCharacterId = args.optString("targetCharacterId"),
                     targetResidentId = args.optString("targetResidentId"),
                     locationCode = args.optString("locationCode"),
