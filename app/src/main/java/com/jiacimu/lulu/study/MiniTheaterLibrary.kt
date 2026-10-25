@@ -19,6 +19,8 @@ internal data class MiniTheaterItem(
     val builtIn: Boolean = false, val sceneContext: String = "",
     val text: String = "", val status: String = "new",
     val error: String = "", val generationToken: String = "",
+    /** A rewrite keeps the last completed page until a replacement is committed. */
+    val rewriting: Boolean = false,
 )
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
@@ -53,7 +55,7 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
         val token = UUID.randomUUID().toString()
         save(items.value.map {
             if (it.id == id) it.copy(sceneContext = background, generationToken = token,
-                status = "queued", error = "", text = if (rewrite) "" else it.text)
+                status = "queued", error = "", rewriting = rewrite || it.rewriting)
             else it
         })
         return token
@@ -66,6 +68,7 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
             target.status !in setOf("queued", "running")) return false
         save(items.value.map {
             if (it.id == id) it.copy(status = status, text = text ?: it.text,
+                rewriting = if (status == "complete") false else it.rewriting,
                 error = error.take(300)) else it
         })
         return true
@@ -78,7 +81,8 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
                 .put("prompt", it.prompt).put("builtIn", it.builtIn)
                 .put("sceneContext", it.sceneContext).put("text", it.text)
                 .put("status", it.status).put("error", it.error)
-                .put("generationToken", it.generationToken))
+                .put("generationToken", it.generationToken)
+                .put("rewriting", it.rewriting))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -92,7 +96,8 @@ internal class MiniTheaterLibrary private constructor(context: Context) {
             MiniTheaterItem(o.optString("id"), o.optString("title"), o.optString("prompt"),
                 o.optBoolean("builtIn"), o.optString("sceneContext"),
                 o.optString("text"), o.optString("status", "new"),
-                o.optString("error"), o.optString("generationToken"))
+                o.optString("error"), o.optString("generationToken"),
+                o.optBoolean("rewriting"))
         }
     }.getOrDefault(emptyList())
 
@@ -158,7 +163,9 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
         if (!store.finish(id, token, "running")) return Result.success()
         return try {
             LuluAiServices.initialize(applicationContext)
-            val originalDraft = snapshot.text
+            // On rewrite, retain the last complete page in storage until success,
+            // but never feed it into the new creative prompt or append it.
+            val originalDraft = if (snapshot.rewriting) "" else snapshot.text
             val instructions = """
                 你正在生成独立的单篇小剧场，不是长篇小说或系列章节。
                 以下是用户收藏的原版写作要求，按原文字数、场景、形式来创作：
