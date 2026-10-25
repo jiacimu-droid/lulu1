@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T12:08:36.811314+00:00",
-  "commit": "7033edfcb51a07893d27423664d095a27d33c924",
+  "generatedAt": "2026-10-25T12:08:53.386081+00:00",
+  "commit": "31e9fcb61702cba22448a9efae3fbe8e258aa7a8",
   "branch": "main",
-  "sourceFingerprint": "d33cfe345ed6ab813005a9ae2c9bff704b145dec30b3f61dfc720baa01effbe1",
+  "sourceFingerprint": "fdaa90dbb6c5aea3ee118d75b06d815c3e76ce45a4a1e48fffebb78150732e1f",
   "summary": {
     "files": 901,
-    "lines": 177192,
-    "symbols": 2653
+    "lines": 177211,
+    "symbols": 2654
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4945,7 +4945,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 118
+        "line": 137
       }
     ],
     "findOriginal": [
@@ -13486,6 +13486,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 181
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
+        "line": 118
       }
     ],
     "AutonomousActionWireProtocolTest": [
@@ -31009,16 +31013,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 190,
-      "sha256": "8c3065b887e0d6bb4981c5b7d568a0f781311012b1d920f2d62e44ecae34ed26",
+      "lines": 209,
+      "sha256": "ebdf4ece717bfe9ca9e769af88aa116c8439c4eeb61d194c16f4c543b9f5a8d0",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
           "line": 17
         },
         {
-          "name": "receipt",
+          "name": "event",
           "line": 118
+        },
+        {
+          "name": "receipt",
+          "line": 137
         }
       ]
     },

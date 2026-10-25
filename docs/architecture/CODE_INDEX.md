@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7033edfcb51a07893d27423664d095a27d33c924`
+- 基准提交：`31e9fcb61702cba22448a9efae3fbe8e258aa7a8`
 - 分支：`main`
 - 已索引文件：901
-- 已索引代码/文本行：177192
-- 已发现符号：2653
+- 已索引代码/文本行：177211
+- 已发现符号：2654
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -854,7 +854,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 190 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 209 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 136 | 4 |
