@@ -644,7 +644,19 @@ internal object CompanionActionRuntime {
                     now = now,
                     commitmentTaskId = args.optString("commitmentTaskId").takeIf(String::isNotBlank),
                 )
-                CompanionActionResult(true, "已发起真实来电", conversation.id)
+                // Calls selected in *steps* use this same executor as primary
+                // call actions. Previously only the primary branch of
+                // ProactivePerceptionRuntime posted the incoming-call
+                // notification, so "send message -> start_call" rang internally
+                // without the expected full-screen incoming-call invitation.
+                // Offer owns persistent pending state/ringtone; this notification
+                // is shared by primary, side-action and scheduled call routes.
+                val notified = ProactivePerceptionRuntime.showPromisedCallNotification(
+                    context, characterId, conversation.id, reason)
+                CompanionActionResult(true,
+                    if (notified) "已发起来电并显示来电邀请"
+                    else "已发起来电；系统通知权限或频道受限，请在应用中接听",
+                    conversation.id)
             }
             "digital_world_action" -> {
                 val worldAction = normalizeWorldAction(args.optString("worldAction"))
