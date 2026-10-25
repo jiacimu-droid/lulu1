@@ -1089,6 +1089,17 @@ internal object SearchReceiptFeedback {
         return execution.optString("tool") in resultTools &&
             execution.optString("status") in setOf("succeeded", "failed")
     }
+    /** The timeline is authoritative; a REPLACE/coalesced wake must not lose
+     * another completed receipt merely because the newest one was consumed.
+     * This selects evidence, NOT another decision or an inferred next action. */
+    fun firstUnacknowledged(
+        candidates: List<SharedTimelineEvent>,
+        hasSeen: (SharedTimelineEvent) -> Boolean,
+    ): SharedTimelineEvent? = candidates.asSequence()
+        .filter(::completedEvidence)
+        .sortedBy { it.occurredAt }
+        .firstOrNull { !hasSeen(it) }
+
     /** A live conversation owns its own reply; a tool receipt stays pending until
      * the normal unified perception can evaluate it without racing that turn. */
     fun awaitsPrimaryConversation(
