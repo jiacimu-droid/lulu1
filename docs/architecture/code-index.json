@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T06:38:57.248465+00:00",
-  "commit": "44f488e881b8698a27bbef1a1fc2df45fa89d8b8",
+  "generatedAt": "2026-10-25T06:40:16.741782+00:00",
+  "commit": "5157aabad863c3bc1594d473f55a561f6c560ba6",
   "branch": "main",
-  "sourceFingerprint": "aba452d07689ad90890c86bc25da605c0f2a49270931853e218bf18d0f262eb7",
+  "sourceFingerprint": "095910df481a2470b3b1e1ff8b9de8c4d7e2436dd29fcad4c9b31751abea773f",
   "summary": {
     "files": 891,
-    "lines": 174727,
+    "lines": 174729,
     "symbols": 2620
   },
   "symbolIndex": {
@@ -1991,7 +1991,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1098
+        "line": 1100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6679,25 +6679,25 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1049
+        "line": 1051
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1081
+        "line": 1083
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1091
+        "line": 1093
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1128
+        "line": 1130
       }
     ],
     "age": [
@@ -20879,8 +20879,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1224,
-      "sha256": "7d5029c37715f67ca0a42c6697c7d1c8ffefd3ce0aad259bbbccf35501d4f030",
+      "lines": 1226,
+      "sha256": "4299290682455119b36c6bb7ade380ddad88d6ebfa03be64fe7ac3e0dcee29a1",
       "symbols": [
         {
           "name": "asJson",
@@ -20896,23 +20896,23 @@
         },
         {
           "name": "world",
-          "line": 1049
+          "line": 1051
         },
         {
           "name": "completedEvidence",
-          "line": 1081
+          "line": 1083
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1091
+          "line": 1093
         },
         {
           "name": "from",
-          "line": 1098
+          "line": 1100
         },
         {
           "name": "requiresCompletion",
-          "line": 1128
+          "line": 1130
         }
       ]
     },
