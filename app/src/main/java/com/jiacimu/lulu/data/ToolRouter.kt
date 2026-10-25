@@ -136,6 +136,17 @@ object ToolRouter {
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
                 projectReceipt(context, characterId, receiptId, execution, intentionId)
+                // Central receipt-to-perception handoff. All scenes and all initiators use
+                // this exact persisted tool event and the ordinary character decision loop.
+                // Pending permissions are not returned knowledge; failures are still useful.
+                if (name in SearchReceiptFeedback.resultTools &&
+                    execution.optString("status") in setOf("succeeded", "failed")) {
+                    runCatching {
+                        ProactivePerceptionScheduler.scheduleToolResultPerception(
+                            context, characterId, receiptId)
+                    }.onFailure { android.util.Log.w("ToolRouter",
+                        "Could not enqueue result perception; receipt remains durable", it) }
+                }
                 // A verified completed experience (not a pending request or a
                 // replayed request ID) can ease digital monotony once.
                 if (parsed.optBoolean("success") &&
