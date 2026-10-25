@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:59:05.134574+00:00",
-  "commit": "b43753f3d09d084e3d0a49b88820d6c5316bfcd3",
+  "generatedAt": "2026-10-25T08:00:58.429387+00:00",
+  "commit": "713b2140f958762ba5957efd6c70ca12a6070cf8",
   "branch": "main",
-  "sourceFingerprint": "b81c4d70699c3c82fe7514adae42247f7f1daa047703e5049331f2b03378249a",
+  "sourceFingerprint": "12e3377b8b6936d1a3cebe41455b452bded216c94db498ae7b7217edf80c4f51",
   "summary": {
-    "files": 896,
-    "lines": 175907,
-    "symbols": 2638
+    "files": 897,
+    "lines": 175952,
+    "symbols": 2639
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14661,6 +14661,12 @@
     "XhsSharedLinkResolverTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt",
+        "line": 5
+      }
+    ],
+    "MiniTheaterLibraryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
         "line": 5
       }
     ],
@@ -31175,6 +31181,17 @@
       "symbols": [
         {
           "name": "XhsSharedLinkResolverTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
+      "lines": 45,
+      "sha256": "02982e4cd5bdde76d053d5186898d5e914f97817dca83f0a5ef569ace6c63aaf",
+      "symbols": [
+        {
+          "name": "MiniTheaterLibraryTest",
           "line": 5
         }
       ]

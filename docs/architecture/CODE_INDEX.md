@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b43753f3d09d084e3d0a49b88820d6c5316bfcd3`
+- 基准提交：`713b2140f958762ba5957efd6c70ca12a6070cf8`
 - 分支：`main`
-- 已索引文件：896
-- 已索引代码/文本行：175907
-- 已发现符号：2638
+- 已索引文件：897
+- 已索引代码/文本行：175952
+- 已发现符号：2639
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -879,6 +879,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 171 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt` | 19 | 1 |
