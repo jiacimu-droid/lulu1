@@ -125,6 +125,8 @@ internal object ShortVideoMobileReading {
         if (part.comments.size > limits.maxComments || part.comments.any {
                 it.id.isBlank() || it.text.isBlank()
             }) return "评论超过分页额度或缺少真实ID"
+        if (part.endOfVideo && part.nextCursor != null)
+            return "视频已结束，但来源仍给出续读游标"
         if (!part.endOfVideo &&
             (part.nextCursor.isNullOrBlank() || part.nextCursor == cursor ||
                 part.nextCursor.length > 512)) return "续读游标无效或没有前进"
@@ -175,8 +177,16 @@ internal object ShortVideoMobileReading {
             validPart(segment, cursor, limits)?.let {
                 return Outcome(State.FAILED, receipts, cursor, it)
             }
-            if (segment.modalities().isEmpty()) {
-                return Outcome(State.NO_EVIDENCE, receipts, cursor, "只有视频条目，没有实际音画或评论证据")
+            // A buggy source can advance its opaque cursor while replaying
+            // exactly the same time interval. Do not interpret or persist it twice.
+            if (receipts.isNotEmpty() && segment.beginMillis < receipts.last().endMillis)
+                return Outcome(State.FAILED, receipts, cursor, "媒体片段时间重叠，不能重复计算观看进度")
+            // Reading *comments* is evidence of comment reading, not evidence
+            // that any visual/audio/video transcript was accessed. Even a
+            // source-provided endOfVideo flag must not turn comment-only data
+            // into a claimed fully watched video.
+            if (segment.modalities().none { it != "comments" }) {
+                return Outcome(State.NO_EVIDENCE, receipts, cursor, "只有视频元信息或评论，没有实际视频内容")
             }
             val interpretation = try {
                 interpreter.interpret(clip, segment)
