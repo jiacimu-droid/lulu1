@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`618d51ea40ecc9e1bc82db8bfd6d5220138884bc`
+- 基准提交：`36252178f2b738971cb51cf8ed70c930c2e136b5`
 - 分支：`main`
-- 已索引文件：905
-- 已索引代码/文本行：178459
-- 已发现符号：2674
+- 已索引文件：906
+- 已索引代码/文本行：178475
+- 已发现符号：2675
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -55,6 +55,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 28 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |

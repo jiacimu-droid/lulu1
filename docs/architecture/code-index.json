@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:08:51.592065+00:00",
-  "commit": "618d51ea40ecc9e1bc82db8bfd6d5220138884bc",
+  "generatedAt": "2026-10-25T15:09:17.363506+00:00",
+  "commit": "36252178f2b738971cb51cf8ed70c930c2e136b5",
   "branch": "main",
-  "sourceFingerprint": "a477b7158fe702815bcc3a03f38ddd950dfe37eebe560365d5f16b231f4b25c3",
+  "sourceFingerprint": "862ada8cec2423848d9d8451aaa1110a76149f620d19492ca94c7804d913941c",
   "summary": {
-    "files": 905,
-    "lines": 178459,
-    "symbols": 2674
+    "files": 906,
+    "lines": 178475,
+    "symbols": 2675
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1114,6 +1114,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
         "line": 71
+      }
+    ],
+    "shouldFollow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt",
+        "line": 5
       }
     ],
     "forActivity": [
@@ -15598,6 +15604,17 @@
       "lines": 28,
       "sha256": "8a0aa0218a008e83b5385b2dc38c0d06411d012249e722e5b6a1b0b774695b55",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt",
+      "lines": 16,
+      "sha256": "79cc9c70d5b6eadb2a4dbdd677fdb3a859772bfafae87d2cbc94143feff2f7bb",
+      "symbols": [
+        {
+          "name": "shouldFollow",
+          "line": 5
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt",
