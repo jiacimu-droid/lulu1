@@ -81,8 +81,8 @@ class InMemoryLexiconRepository : LexiconRepository {
     }
 
     override suspend fun save(entry: LexiconEntry) {
-        require(entry.title.isNotBlank()) { "辞海条目标题不能为空" }
-        require(entry.content.isNotBlank()) { "辞海条目内容不能为空" }
+        require(entry.title.isNotBlank()) { "生活记录标题不能为空" }
+        require(entry.content.isNotBlank()) { "生活记录内容不能为空" }
         val normalized = if (entry.section == LexiconSection.Promise) {
             entry.copy(promiseKind = entry.promiseKind ?: PromiseKind.Promise)
         } else {
