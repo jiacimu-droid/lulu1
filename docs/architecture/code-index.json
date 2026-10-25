@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:08:43.915756+00:00",
-  "commit": "1034251ad4df525c8a4eefc03d38ff6555453651",
+  "generatedAt": "2026-10-25T08:09:08.405073+00:00",
+  "commit": "22725e86949184f4ac6cea3f88aaabeda1539e6d",
   "branch": "main",
-  "sourceFingerprint": "ab3bf0ce186a0ebbfd9d42be0d607da17e4aa7f5add02c634016e81edf09ed6f",
+  "sourceFingerprint": "98e8d051605ffef95f0a3fe8236db70b0b9f577c7173d35b1b40bb29bb536e3c",
   "summary": {
-    "files": 897,
-    "lines": 176299,
-    "symbols": 2642
+    "files": 898,
+    "lines": 176376,
+    "symbols": 2643
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14596,6 +14596,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt",
         "line": 14
+      }
+    ],
+    "WorldBookFolderRepositoryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
+        "line": 17
       }
     ],
     "WorldBookJsonImporterTest": [
@@ -31058,6 +31064,17 @@
         {
           "name": "WakeMusicCoordinatorTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
+      "lines": 77,
+      "sha256": "009fd45c8f0d54885d8c45a994a8e6100fd8832d60807d91ae8e2998ca156ead",
+      "symbols": [
+        {
+          "name": "WorldBookFolderRepositoryTest",
+          "line": 17
         }
       ]
     },
