@@ -151,7 +151,8 @@ private suspend fun updateCommitmentTask(
                 timezone = draft.timezone ?: current.timezone,
                 nextCheckAt = draft.dueAt,
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
-                verificationMode = draft.verificationMode ?: current.verificationMode,
+                // Rescheduling does not silently downgrade the original proof standard.
+                verificationMode = current.verificationMode,
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 repeat = draft.repeat ?: current.repeat,

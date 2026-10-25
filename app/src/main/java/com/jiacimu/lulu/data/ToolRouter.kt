@@ -154,6 +154,50 @@ object ToolRouter {
                             .put("summary", if (stopped) "学习监督已停止，不再检查屏幕"
                                 else "该角色没有正在进行的学习监督")
                             .toString()
+                    } else if (name == "verify_commitment") {
+                        CommitmentTaskStore.initialize(context)
+                        val taskId = args.optString("taskId").trim()
+                        val task = CommitmentTaskStore.active(characterId).firstOrNull { it.id == taskId }
+                        if (task == null) {
+                            failure("当前角色没有这条可结案的有效约定，未修改任何任务")
+                        } else {
+                            val ids = args.optJSONArray("completionEvidenceIds")?.let { array ->
+                                (0 until array.length()).mapNotNull { i ->
+                                    array.optString(i).trim().takeIf(String::isNotBlank)
+                                }
+                            }.orEmpty()
+                            val why = args.optString("verificationReason")
+                            val proof = CommitmentOutcomeVerification.evaluate(
+                                task, ids, why,
+                                SharedExperienceTimeline.eventsByIds(characterId, ids),
+                            )
+                            if (!proof.accepted) {
+                                CommitmentTaskStore.update(task.id) { old ->
+                                    if (!old.status.isActive()) old else old.copy(
+                                        lastVerificationReason = proof.reason,
+                                        lastActionResult = "验收尚未通过：${proof.reason}；保留原目标及后续安排",
+                                    )
+                                }
+                                failure("证据不足：${proof.reason}；没有结案")
+                            } else {
+                                task.linkedAlarmId?.let(com.jiacimu.lulu.system.LuluAlarmSystem::cancel)
+                                val verified = CommitmentTaskStore.update(task.id) { old ->
+                                    if (!old.status.isActive()) old else old.copy(
+                                        status = CommitmentTaskStatus.Completed,
+                                        completionEvidenceIds = proof.evidenceIds,
+                                        lastVerificationReason = why.take(240),
+                                        lastActionResult = "依据真实证据核验目标已完成：${why.take(160)}",
+                                        linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
+                                    )
+                                }
+                                JSONObject().put("success", verified?.status == CommitmentTaskStatus.Completed)
+                                    .put("taskId", task.id)
+                                    .put("evidenceIds", org.json.JSONArray(proof.evidenceIds))
+                                    .put("summary", if (verified?.status == CommitmentTaskStatus.Completed)
+                                        "核验通过，目标已结案" else "任务状态已变化，未能结案")
+                                    .toString()
+                            }
+                        }
                     } else if (name == "summon_lulu") {
                         LuluScreenAwareness.summon(context, characterId)
                     } else if (cap.domain == "phone") {

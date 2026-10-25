@@ -741,6 +741,17 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
+                val openCommitments = CommitmentTaskStore.active(characterId)
+                if (openCommitments.isNotEmpty()) {
+                    appendLine("【当前已承担的目标与统一验收入口】")
+                    openCommitments.take(12).forEach { task ->
+                        appendLine("id=${task.id}; goal=${task.goal.take(140)}; condition=${task.completionCondition.take(130)}; mode=${task.verificationMode}; status=${task.status}; last=${task.readableLastResult().take(160)}")
+                    }
+                    appendLine("按真实任务结果自己选择是否调查、继续帮助、等待或放下。只有获得能证明完成条件的真实证据后，才可以使用 tool=verify_commitment,args={taskId:原任务ID,completionEvidenceIds:[真实时间线事件ID],verificationReason:证据与目标完成条件的具体联系} 正式验收。这个工具不做调查，只核验已经取得的证据来源、时序及类型；交谈中说过、工具申请中、一个手机状态线索都不是完成的证明。")
+                    SharedExperienceTimeline.recentEvents(characterId, 28).takeLast(12).forEach { event ->
+                        appendLine("可核验证据 id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; text=${event.content.replace("\n", " ").take(130)}")
+                    }
+                }
                 com.jiacimu.lulu.system.LuluStudyWatch.proactiveOpportunity(appContext, characterId, now.toEpochMilli())
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 com.jiacimu.lulu.system.LuluStudyWatch.context(appContext, characterId, now)
