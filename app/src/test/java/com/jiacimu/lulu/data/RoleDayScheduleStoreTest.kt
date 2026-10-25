@@ -61,7 +61,7 @@ class RoleDayScheduleStoreTest {
         val time = Instant.parse("2026-10-25T09:00:00Z")
         val reminder = CommitmentTask(characterId = "role-a",
             goal = "五点整检查法制史背诵情况",
-            completionCondition = "五点再看看有没有专心学习",
+            completionCondition = "",
             dueAt = time, deliveryAction = "send_private_message",
             status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "study-reminder")
         val screenCheck = plan.copy(dueAt = time,
@@ -87,7 +87,7 @@ class RoleDayScheduleStoreTest {
         val time = Instant.now().plusSeconds(7200)
         val promise = CommitmentTaskStore.save(CommitmentTask(characterId = role,
             goal = "五点整检查法制史背诵情况",
-            completionCondition = "监督她是否专心学习", dueAt = time,
+            completionCondition = "", dueAt = time,
             deliveryAction = "send_private_message",
             status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "study-alarm"))
         try {
