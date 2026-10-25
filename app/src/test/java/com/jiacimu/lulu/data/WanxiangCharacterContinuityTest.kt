@@ -11,6 +11,55 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class WanxiangCharacterContinuityTest {
+
+    @Test fun aResidentRumorIsNeverPresentedAsDirectWitnessOrCertainty() {
+        val at = Instant.parse("2026-10-25T08:00:00Z")
+        fun event(kind: EventEvidenceKind, source: String) =
+            SharedTimelineEvent("knowledge-test", "resident:listener", "居民谈话",
+                "另一位居民", "有人声称朋友不喜欢我", at, source = source, evidenceKind = kind)
+        assertTrue(CharacterSocialRelationship.evidenceBoundary(
+            event(EventEvidenceKind.CharacterStatement, "message")).contains("只证明其表达"))
+        assertTrue(CharacterSocialRelationship.evidenceBoundary(
+            event(EventEvidenceKind.Observation, "xiaohongshu-mcp")).contains("外部文字"))
+        assertTrue(CharacterSocialRelationship.evidenceBoundary(
+            event(EventEvidenceKind.Observation, "meeting")).contains("不证明他人心意"))
+        assertTrue(CharacterSocialRelationship.evidenceBoundary(
+            event(EventEvidenceKind.ToolResult, "tool-router")).contains("执行结果"))
+        assertTrue(CharacterSocialRelationship.evidenceBoundary(
+            "missing-person", "unknown-evidence").contains("不可核验"))
+    }
+
+    @Test fun realWorldResourceSnapshotMatchesCommittedFurnitureAndFailedBuilding() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        MigratedDomainStores.initialize(app)
+        DigitalLifeProfileStore.initialize(app)
+        DigitalWorldStore.initialize(app)
+        val role = MigratedDomainStores.characters.create(
+            "世界资源验收-" + java.util.UUID.randomUUID().toString().take(6))
+        DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "测试来源")
+        val person = role.characterId
+        assertTrue(DigitalWorldStore.performAction(person, "go_home", JSONObject()).success)
+        val original = DigitalWorldStore.itemsAtHome(person).size
+        val before = DigitalWorldStore.resourceContext(person)
+        assertTrue(before.contains("本人家中固定物品=${original}/80"))
+        assertTrue(before.contains("此刻在本人家中"))
+        val made = DigitalWorldStore.performAction(person, "build_home_item", JSONObject()
+            .put("name", "自己做的小凳子").put("appearance", "一张木质小凳")
+            .put("position", "窗边"))
+        assertTrue(made.summary, made.success)
+        val next = DigitalWorldStore.itemsAtHome(person)
+        assertEquals(original + 1, next.size)
+        assertTrue(DigitalWorldStore.resourceContext(person)
+            .contains("尚有${80 - next.size} 个可用物品位置"))
+        assertTrue(DigitalWorldStore.performAction(person, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        val failed = DigitalWorldStore.performAction(person, "build_home_item", JSONObject()
+            .put("name", "并没有做成的东西").put("appearance", "一个幻想中的礼物"))
+        assertFalse(failed.success)
+        assertTrue(DigitalWorldStore.resourceContext(person).contains("此刻不在本人家中"))
+        assertEquals(next.map { it.id }, DigitalWorldStore.itemsAtHome(person).map { it.id })
+    }
+
     @Test fun residentAgendaKeepsExplicitContactAndPlaceInExecutorArgs() {
         val proposal = JSONObject()
             .put("targetCharacterId", "resident:friend")
