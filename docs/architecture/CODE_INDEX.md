@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`09d5816b13387faf1f4330adfd83ae5308857ced`
+- 基准提交：`3d1f404a1fa0ff3c158a65bd90f6687c66503584`
 - 分支：`main`
 - 已索引文件：897
-- 已索引代码/文本行：176031
+- 已索引代码/文本行：176044
 - 已发现符号：2641
 
 | 文件 | 行数 | 符号数 |
@@ -559,8 +559,8 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 216 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 194 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 222 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 409 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 182 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 126 | 2 |
@@ -616,7 +616,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 505 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 412 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 417 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
