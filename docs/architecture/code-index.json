@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:26:28.061592+00:00",
-  "commit": "31e84d0b6b52fda79f1219852383d728dcbdd669",
+  "generatedAt": "2026-10-25T03:26:52.318221+00:00",
+  "commit": "e5db320e112a34ebaf993249207bc6f12c4f937c",
   "branch": "main",
-  "sourceFingerprint": "68674cb38de504c471d97dc077ac42c8f6829bee588d0189724194a7e19ae177",
+  "sourceFingerprint": "b38d9cdac0733d055180b527fb39d47df168ab6ba0ec1355e8bd3f2bfb4e1235",
   "summary": {
     "files": 887,
-    "lines": 173124,
+    "lines": 173144,
     "symbols": 2588
   },
   "symbolIndex": {
@@ -15622,8 +15622,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 580,
-      "sha256": "e9a8bf8a3309e86174452b8dc9b64f82babf8cf5e751f0f1f409dd893c6926dc",
+      "lines": 600,
+      "sha256": "63d64b922a3e6b8e6e28c3d9442d43117ef3228cebd38704168feabd7cb9ab2f",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -19499,7 +19499,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
       "lines": 199,
-      "sha256": "13a742170f81e8e416e627f3ffa9447d6bbb8202f675586dd94fbe304a04fbc0",
+      "sha256": "e53fc65bd84c1f218dc415121f38a5d4c2bcbc6d9768a9e4892373d8bbf45aac",
       "symbols": [
         {
           "name": "current",
@@ -23560,7 +23560,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2417,
-      "sha256": "b50d6037ffa3bb1bd3b456f8619aede8787537eb26b73a32ab7dfe21c30bfbc4",
+      "sha256": "662d13deb9cc6213bfb778408364b28cf902f53bf34848b5abe07c2913b91cbe",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
