@@ -1,57 +1,118 @@
 package com.jiacimu.lulu.data
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 
 /**
- * Persistent, bounded acknowledgement of observed *stimuli*, not messages read
- * or actions completed. Worker rescheduling must not create a new emotion.
+ * Exact, durable observation checkpoints. This is NOT a read receipt, tool result,
+ * or replacement for the original SharedExperienceTimeline events.
+ *
+ * The former 64-entry SharedPreferences cache used 32-bit hashCode tokens. Keep
+ * legacy tokens for a short upgrade grace period while converting encountered
+ * revision-1 events; afterwards only exact (character, event, revision) keys count.
  */
 internal object PerceptionStimulusLedger {
-    private var prefs: android.content.SharedPreferences? = null
+    private const val LEGACY_PREFS = "lulu_perception_stimuli"
+    private const val GRACE_MS = 48L * 60 * 60 * 1000
+    private var legacy: android.content.SharedPreferences? = null
+    private var helper: SeenStimuliDatabase? = null
 
     @Synchronized fun initialize(context: Context) {
-        prefs = context.applicationContext.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
+        if (helper == null) helper = SeenStimuliDatabase(context.applicationContext)
+        if (legacy == null) legacy = context.applicationContext.getSharedPreferences(LEGACY_PREFS, Context.MODE_PRIVATE)
     }
 
-    @Synchronized fun hasSeen(context: Context, characterId: String, evidenceId: String): Boolean {
-        if (prefs == null) initialize(context)
-        val token = evidenceId.hashCode().toString()
-        return prefs?.getString("seen:$characterId", "").orEmpty().lineSequence().any { it == token }
+    @Synchronized fun hasSeen(
+        context: Context, characterId: String, evidenceId: String, revision: Long = 1L,
+    ): Boolean {
+        if (characterId.isBlank() || evidenceId.isBlank()) return false
+        initialize(context)
+        if (contains(characterId, evidenceId, revision)) return true
+        // Legacy hashes are irreversible. Convert only matching revision-1
+        // events encountered shortly after upgrading; never treat a hash as
+        // proof that an edited revision or a fresh exact event was observed.
+        if (revision == 1L && legacyContains(characterId, evidenceId)) {
+            insert(characterId, evidenceId, revision)
+            return true
+        }
+        return false
     }
 
-    fun claim(context: Context, characterId: String, stimulus: PerceptionStimulus): Boolean {
+    @Synchronized fun claim(context: Context, characterId: String, stimulus: PerceptionStimulus): Boolean {
         if (characterId.isBlank() || stimulus.evidenceId.isBlank()) return false
-        val pref = prefs ?: run {
-            initialize(context)
-            checkNotNull(prefs)
-        }
-        val key = "seen:$characterId"
-        val token = stimulus.evidenceId.hashCode().toString()
-        synchronized(this) {
-            val seen = pref.getString(key, "").orEmpty().lineSequence()
-                .filter(String::isNotBlank).toList()
-            if (token in seen) return false
-            check(pref.edit().putString(key, (seen.takeLast(63) + token).joinToString("\n")).commit()) {
-                "未能保存本轮感知来源"
-            }
-        }
-        return true
+        if (hasSeen(context, characterId, stimulus.evidenceId, stimulus.revision)) return false
+        return insert(characterId, stimulus.evidenceId, stimulus.revision)
     }
 
     @Synchronized fun invalidate(eventId: String) {
         if (eventId.isBlank()) return
-        val sourceIds = setOf(eventId, eventId.substringBefore(":group:"))
-        val tokens = sourceIds.map { it.hashCode().toString() }.toSet()
-        val store = prefs ?: return
-        store.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
-            val old = store.getString(key, "").orEmpty()
-            val remaining = old.lineSequence().filter { token -> token !in tokens }
-                .filter(String::isNotBlank).joinToString("\n")
-            if (remaining != old) store.edit().putString(key, remaining).apply()
+        val ids = setOf(eventId, eventId.substringBefore(":group:"))
+        helper?.writableDatabase?.let { db ->
+            ids.forEach { id -> db.delete("observed_stimuli", "evidence_id=?", arrayOf(id)) }
+        }
+        // Clear the old hashed entries too; deleting a source must not let the
+        // migration bridge re-mark its replacement as already observed.
+        val tokens = ids.map { it.hashCode().toString() }.toSet()
+        val p = legacy ?: return
+        p.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
+            val old = p.getString(key, "").orEmpty()
+            val rest = old.lineSequence().filter { it.isNotBlank() && it !in tokens }.joinToString("\n")
+            if (rest != old) p.edit().putString(key, rest).commit()
         }
     }
 
     @Synchronized fun clear(characterId: String) {
-        prefs?.edit()?.remove("seen:$characterId")?.apply()
+        if (characterId.isBlank()) return
+        helper?.writableDatabase?.delete("observed_stimuli", "character_id=?", arrayOf(characterId))
+        legacy?.edit()?.remove("seen:$characterId")?.commit()
+    }
+
+    private fun contains(role: String, evidenceId: String, revision: Long): Boolean {
+        val db = checkNotNull(helper).readableDatabase
+        db.rawQuery(
+            "SELECT 1 FROM observed_stimuli WHERE character_id=? AND evidence_id=? AND revision=? LIMIT 1",
+            arrayOf(role, evidenceId, revision.toString())
+        ).use { return it.moveToFirst() }
+    }
+
+    private fun insert(role: String, evidenceId: String, revision: Long): Boolean {
+        val values = ContentValues().apply {
+            put("character_id", role)
+            put("evidence_id", evidenceId)
+            put("revision", revision)
+        }
+        return checkNotNull(helper).writableDatabase.insertWithOnConflict(
+            "observed_stimuli", null, values, SQLiteDatabase.CONFLICT_IGNORE
+        ) != -1L
+    }
+
+    private fun legacyContains(role: String, evidenceId: String): Boolean {
+        val p = legacy ?: return false
+        var until = p.getLong("migration_expires_at", 0L)
+        if (until == 0L) {
+            until = System.currentTimeMillis() + GRACE_MS
+            check(p.edit().putLong("migration_expires_at", until).commit())
+        }
+        if (System.currentTimeMillis() >= until) return false
+        val token = evidenceId.hashCode().toString()
+        return p.getString("seen:$role", "").orEmpty().lineSequence().any { it == token }
+    }
+
+    private class SeenStimuliDatabase(context: Context) :
+        SQLiteOpenHelper(context, "lulu_observed_stimuli.db", null, 1) {
+        override fun onCreate(db: SQLiteDatabase) {
+            db.execSQL("""
+                CREATE TABLE observed_stimuli (
+                    character_id TEXT NOT NULL,
+                    evidence_id TEXT NOT NULL,
+                    revision INTEGER NOT NULL,
+                    PRIMARY KEY (character_id, evidence_id, revision)
+                )
+            """.trimIndent())
+            db.execSQL("CREATE INDEX observed_stimuli_by_event ON observed_stimuli(evidence_id)")
+        }
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
     }
 }
