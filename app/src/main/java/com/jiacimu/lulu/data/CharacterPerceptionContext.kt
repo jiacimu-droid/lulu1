@@ -21,18 +21,37 @@ internal object CharacterPerceptionContext {
         observed: List<SharedTimelineEvent>,
         direct: List<PerceptionStimulus> = emptyList(),
         claimDirect: Boolean = false,
+        deferAcknowledgement: Boolean = false,
     ): CharacterPerceptionInput {
         val sensed = (direct + observed.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
             .distinctBy { it.evidenceId }
         val fresh = sensed.filter { stimulus ->
             if (!claimDirect && direct.any { it.evidenceId == stimulus.evidenceId }) true
+            else if (deferAcknowledgement)
+                !PerceptionStimulusLedger.hasSeen(context, characterId, stimulus.evidenceId, stimulus.revision)
             else PerceptionStimulusLedger.claim(context, characterId, stimulus)
         }
         return CharacterPerceptionInput(
             freshStimuli = fresh,
             combined = PerceptionStimulusResolver.combine(fresh),
         )
+    }
+
+    /** Commit new-stimulus acknowledgement only after the character's causal
+     * state was durably recorded. A cancelled/failed model must leave the raw
+     * evidence available for the next turn, without creating a parallel queue. */
+    fun acknowledge(
+        context: Context,
+        characterId: String,
+        perception: CharacterPerceptionInput,
+        direct: List<PerceptionStimulus> = emptyList(),
+        claimDirect: Boolean = false,
+    ) {
+        val bypass = if (claimDirect) emptySet() else direct.mapTo(hashSetOf()) { it.evidenceId }
+        perception.freshStimuli.filterNot { it.evidenceId in bypass }.forEach {
+            PerceptionStimulusLedger.claim(context, characterId, it)
+        }
     }
 
     fun recent(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> {
