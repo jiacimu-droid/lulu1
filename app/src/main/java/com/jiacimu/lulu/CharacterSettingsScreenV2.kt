@@ -27,8 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterIdentityStore
-import com.jiacimu.lulu.data.CharacterLifeStore
-import com.jiacimu.lulu.data.CharacterIntimacyConversationPreference
 import com.jiacimu.lulu.data.CharacterLifeForm
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
@@ -81,10 +79,6 @@ fun CharacterSettingsScreenV2(
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
-    val lifeStates by CharacterLifeStore.states.collectAsState()
-    val nsfwEnabled = remember(characterId, lifeStates) {
-        CharacterIntimacyConversationPreference.enabled(characterId)
-    }
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
     val residentScheduleRevision by RoleDayScheduleStore.changes.collectAsState()
@@ -291,19 +285,6 @@ fun CharacterSettingsScreenV2(
             }
             }
             if (section == 2) {
-            item {
-                CharacterV2Card {
-                    Text("亲密交流", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch(
-                        title = "NSFW 交流偏好",
-                        checked = nsfwEnabled,
-                    ) { CharacterLifeStore.setNsfwEnabled(characterId, it) }
-                    Text(
-                        "普通亲密玩笑无需开启；开启后仅为私聊、电话增加简短成人话题指导，不改变人格或模型限制。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
-                    )
-                }
-            }
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
