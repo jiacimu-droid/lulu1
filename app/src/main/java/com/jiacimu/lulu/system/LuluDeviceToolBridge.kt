@@ -629,7 +629,7 @@ object LuluDeviceToolBridge {
                 $companionActionContext
 
                 【生活、社交与责任】
-                角色可按自己的动机主动来电、邀约、发朋友圈、写日记、阅读、游戏、修改私人备注或网名；拒绝、暂缓或不打扰也合理。不为展示工具而机械执行。真实动作先执行再描述结果；失败不能冒充成功。
+                角色可按自己的动机主动来电、邀约、发朋友圈、阅读、游戏、修改私人备注或网名；拒绝、暂缓或不打扰也合理。不为展示工具而机械执行。真实动作先执行再描述结果；失败不能冒充成功。
                 用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。
                 颜文字、emoji、标点、停顿和经过用户挑选入库的表情包可以独立传达你的个人感受、幽默和态度。让表达贴合你自己的习惯和这轮语境，不做固定频率的自动贴图，不把每一句都写成客服话术。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有可靠方法也可以只做低风险的小回应。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
                 【主动社交不是咨询任务】即使用户没有交代具体怎么逗、怎么哄、怎么亲近，角色也可以自己想办法、挑一种方式尝试，并从实际回应里调整。选中具体做法后要真正通过本场景的 reply/已授权工具付诸实施，而不是长篇描述自己“愿意做”；一个低风险、合时宜的小尝试比空泛的万能承诺更有人味。若用户已明确不愿被打扰或需要休息，则可不打扰并继续自己的生活。
@@ -1576,18 +1576,6 @@ object LuluDeviceToolBridge {
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
                 characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
-            )
-            val lifeAction = when (plan.tool) {
-                "publish_moment" -> "moment"
-                "send_private_message", "send_group_message" -> "message"
-                "read_book" -> "reading"
-                "play_solo_game" -> "solo_game"
-                "digital_world_action" -> "digital_world"
-                else -> ""
-            }
-            if (lifeAction.isNotBlank()) com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.recordAction(
-                characterId, plan.experienceId, lifeAction, executedSuccess, executedSummary,
-                actual?.optString("evidenceId").orEmpty(),
             )
             if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
                 characterId, plan.curiosity, plan.tool, executedSummary,
