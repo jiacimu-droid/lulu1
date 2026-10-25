@@ -208,7 +208,7 @@ class CharacterOpenConcernRuntimeTest {
             val visible = CharacterOpenConcernRuntime.context(threads, today.plusSeconds(120), compact)
             assertTrue(visible.contains("threadId=$oldId"))
             assertTrue(visible.contains("担心聊天费用"))
-            assertTrue(visible.contains("搁置"))
+            assertTrue(visible.contains("仍在挂心"))
         }
         val correction = JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
             .put("status", "revise").put("threadId", oldId)

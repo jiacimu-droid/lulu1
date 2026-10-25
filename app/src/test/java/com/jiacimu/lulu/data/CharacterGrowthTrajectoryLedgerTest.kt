@@ -127,7 +127,7 @@ class CharacterGrowthTrajectoryLedgerTest {
         assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection(role, now.plusSeconds(300)))
         // A delivered apology did not automatically mark the concern as settled.
         assertTrue(CharacterOpenConcernRuntime.context(concerns, now.plusSeconds(300))
-            .contains("自己仍未想通的心事"))
+            .contains("仍在持续关注的心事"))
     }
 
     @Test fun twoConcernsFromTheSameRealUserMessageRemainVisibleAndRetractable() {
