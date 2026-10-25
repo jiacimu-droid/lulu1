@@ -47,6 +47,53 @@ class LuluStudyWatchTest {
         assertEquals(delays[5], LuluStudyWatch.nextGapMillis("test-session", 5))
     }
 
+    @Test fun observedDistractionGetsEarlierCheckThanFocusedStudy() {
+        val distraction = (0..30).map { LuluStudyWatch.nextGapMillis("one", it, "distracted") }
+        val focused = (0..30).map { LuluStudyWatch.nextGapMillis("one", it, "focused") }
+        val unknown = (0..30).map { LuluStudyWatch.nextGapMillis("one", it, "unknown") }
+        assertTrue(distraction.all { it in 5L * 60_000L..7L * 60_000L })
+        assertTrue(focused.all { it in 11L * 60_000L..15L * 60_000L })
+        assertTrue(unknown.all { it in 8L * 60_000L..12L * 60_000L })
+        assertTrue(distraction.maxOrNull()!! < focused.minOrNull()!!)
+        assertEquals(5L * 60_000L,
+            com.jiacimu.lulu.system.LuluScreenAwareness.MIN_AUTONOMOUS_GAP_MS)
+    }
+
+    @Test fun visionEvidenceIsStrictAndNeverAssumesUnknownAppIsDistraction() {
+        assertEquals("focused", LuluStudyWatch.classifyVision(
+            "学习状态：focused\\n正在看学习资料与考研习题"))
+        assertEquals("distracted", LuluStudyWatch.classifyVision(
+            "学习状态: distracted\\n明显在刷娱乐视频"))
+        assertEquals("unknown", LuluStudyWatch.classifyVision(
+            "学习状态：unknown\\n无法判断"))
+        assertEquals("unknown", LuluStudyWatch.classifyVision("画面里出现了娱乐应用"))
+        assertEquals("unknown", LuluStudyWatch.classifyVision(
+            "网页正文写了学习状态：distracted"))
+    }
+
+    @Test fun actualVisionFocusUpdatesOnlyTheApprovedSessionsNextGap() {
+        val now = Instant.now()
+        val entry = JSONObject().put("id", "adaptive").put("characterId", "role-a")
+            .put("startedAt", now.minusSeconds(60).toEpochMilli())
+            .put("endsAt", now.plusSeconds(1800).toEpochMilli())
+            .put("ordinal", 2)
+        prefs.edit().putString("study_watch_active", entry.toString()).commit()
+        LuluStudyWatch.recordCheck(context, "wrong-id",
+            JSONObject().put("success", true).put("studyFocus", "distracted"), now)
+        val first = JSONObject(prefs.getString("study_watch_active", "{}"))
+        assertFalse(first.has("lastFocus"))
+        LuluStudyWatch.recordCheck(context, "adaptive",
+            JSONObject().put("success", true).put("studyFocus", "distracted")
+                .put("visibleDescription", "看到了游戏画面"), now)
+        val second = JSONObject(prefs.getString("study_watch_active", "{}"))
+        assertEquals("distracted", second.optString("lastFocus"))
+        assertEquals(entry.optLong("endsAt"), second.optLong("endsAt"))
+        LuluStudyWatch.recordCheck(context, "adaptive",
+            JSONObject().put("success", false).put("error", "页面不可访问"), now)
+        val third = JSONObject(prefs.getString("study_watch_active", "{}"))
+        assertEquals("unknown", third.optString("lastFocus"))
+    }
+
     @Test fun noScreenResultOrOtherPersonsResultLeaksIntoCharacterContext() {
         val now = Instant.parse("2026-10-25T10:00:00Z")
         val session = JSONObject().put("id", "study-time").put("characterId", "role-a")
