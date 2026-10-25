@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T16:27:38.371757+00:00",
-  "commit": "b5b677f94d8fcbe5c8971ad658bb16d25366e3a8",
+  "generatedAt": "2026-10-25T16:37:25.239401+00:00",
+  "commit": "66d804dc445956d9058085f3f2382803428ae237",
   "branch": "main",
-  "sourceFingerprint": "8d04d7582f8267ba16e03aea1930f4c1d17d9ccab168460418638b188eee46a5",
+  "sourceFingerprint": "b98cae8f9af251fe1040ddf35c8eea6dcac3f42cdf7810f08b060f4f52596a53",
   "summary": {
     "files": 910,
-    "lines": 179049,
+    "lines": 179063,
     "symbols": 2679
   },
   "symbolIndex": {
@@ -21017,7 +21017,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
       "lines": 62,
-      "sha256": "d48c9071cd520713b8d30e9da951606ef47c6160eeab1c97644bf41669f8d3af",
+      "sha256": "aa671892bc846aa70d9bdcb034cd1196a6175b73dd3538d91b70402c51397a19",
       "symbols": [
         {
           "name": "onResponse",
@@ -21118,8 +21118,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
-      "lines": 59,
-      "sha256": "4ba85f753fa812892d4dedd6d3d6ee0b6ba5792aea3ad1f4b6c0c4c5abc9ce16",
+      "lines": 62,
+      "sha256": "02607f565dc086c3943794d73d2c57b700c974b9bf5fc4cae8c582b11d29fe6f",
       "symbols": [
         {
           "name": "Result",
@@ -30353,8 +30353,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt",
-      "lines": 74,
-      "sha256": "53ede2b40c5d52780fdbbaac8afc5f2c07ec214a720b1ac21516c2465a957d0c",
+      "lines": 85,
+      "sha256": "8fe724e6e43d315e7e1967adfcce33ba37d8467f7e7a604a74ffcc7abee1f487",
       "symbols": [
         {
           "name": "CommitmentOutcomeVerificationTest",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b5b677f94d8fcbe5c8971ad658bb16d25366e3a8`
+- 基准提交：`66d804dc445956d9058085f3f2382803428ae237`
 - 分支：`main`
 - 已索引文件：910
-- 已索引代码/文本行：179049
+- 已索引代码/文本行：179063
 - 已发现符号：2679
 
 | 文件 | 行数 | 符号数 |
@@ -329,7 +329,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 171 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 358 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 59 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 82 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 303 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 72 | 0 |
@@ -781,7 +781,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 244 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 42 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 74 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 328 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
