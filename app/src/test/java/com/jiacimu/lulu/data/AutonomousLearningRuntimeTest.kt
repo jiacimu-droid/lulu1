@@ -47,6 +47,58 @@ class AutonomousLearningRuntimeTest {
         "这是真实传输层提供的测试材料，讨论铺垫、反转与人物语境。".repeat(12), "测试来源正文")
     private val note = """{"learning":{"topic":"幽默表达","understanding":"用短铺垫建立预期，再在真实语境中反转","uncertainty":"实际是否好笑仍需检验","applicableWhen":"适合讲笑话时"},"nextStep":"试写一个短笑话"}"""
 
+    @Test fun failedQuestionAppearsInLifeRecordsAndManualRetryContinuesTheSameGoal() = runBlocking {
+        val id = goal().getString("id")
+        val failed = AutonomousLearningRuntime.execute(context, role,
+            args(id, "study").put("query", "轻松表达的方法"),
+            materialLoader = { _, _ -> error("connection closed") }, understand = { _, _ -> note })
+        assertFalse(failed.success)
+        val checkAt = Instant.now().plusSeconds(1)
+        val record = CharacterLifeVisibility.matters(role, checkAt).single { it.learningGoalId == id }
+        assertEquals("正在琢磨", record.category)
+        assertTrue(record.detail.contains("connection closed"))
+        assertFalse(record.detail.contains("已学会"))
+        assertFalse(LearningCyclePolicy.available("failed",
+            Instant.parse(CharacterLearningAgenda.get(role, id)!!.getString("retryAt")), checkAt))
+        val retry = CharacterLearningAgenda.prepareUserRetry(role, id, checkAt)
+        assertEquals("study", retry.getString("op"))
+        assertEquals("轻松表达的方法", retry.getString("query"))
+        val succeeded = AutonomousLearningRuntime.execute(context, role, retry,
+            materialLoader = { _, _ -> material() }, understand = { _, _ -> note })
+        assertTrue(succeeded.summary, succeeded.success)
+        assertEquals(1, CharacterLearningAgenda.goals(role).size)
+        assertEquals(id, CharacterLearningAgenda.goals(role).single().getString("id"))
+        assertEquals(2, CharacterLearningAgenda.budget(role).used)
+        assertTrue(CharacterLearningAgenda.get(role, id)!!.optString("error").isBlank())
+    }
+
+    @Test fun retryAfterUnderstandingFailureReusesTheAlreadyRetrievedMaterial() = runBlocking {
+        val id = goal().getString("id")
+        AutonomousLearningRuntime.execute(context, role, args(id, "study"),
+            materialLoader = { _, _ -> material() }, understand = { _, _ -> error("connection closed") })
+        val source = CharacterLearningAgenda.get(role, id)!!.getString("materialId")
+        val retry = CharacterLearningAgenda.prepareUserRetry(role, id)
+        assertEquals("understand", retry.getString("op"))
+        val result = AutonomousLearningRuntime.execute(context, role, retry,
+            materialLoader = { _, _ -> error("不应再次下载已有正文") }, understand = { _, _ -> note })
+        assertTrue(result.summary, result.success)
+        assertEquals(source, CharacterLearningAgenda.get(role, id)!!.getString("materialId"))
+        CharacterLearningAgenda.update(role, id) { it.put("status", "paused") }
+        assertTrue(runCatching { CharacterLearningAgenda.prepareUserRetry(role, id) }.isFailure)
+        assertTrue(runCatching { CharacterLearningAgenda.prepareUserRetry("another-role", id) }.isFailure)
+    }
+
+    @Test fun savingMoreThanTwentyFourPausedQuestionsDoesNotDeleteOlderRecords() {
+        repeat(27) { i ->
+            val item = CharacterLearningAgenda.start(role, JSONObject().put("topic", "独立课题$i")
+                .put("question", "关于这个主题还想确认哪些问题")
+                .put("sourceEvidenceId", "learning-origin"), now)
+            CharacterLearningAgenda.update(role, item.getString("id")) { it.put("status", "paused") }
+        }
+        assertEquals(27, CharacterLearningAgenda.goals(role).size)
+        assertEquals("独立课题0", CharacterLearningAgenda.goals(role).first().getString("topic"))
+    }
+
     @Test fun chosenStudyActuallyRetrievesMaterialAndFeedsItToUnderstanding() = runBlocking {
         val id = goal().getString("id")
         var fetches = 0; var calls = 0

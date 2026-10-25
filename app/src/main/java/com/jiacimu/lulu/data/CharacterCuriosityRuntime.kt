@@ -54,7 +54,7 @@ internal object CharacterCuriosityRuntime {
     }
 
     /** Old records without an ID retain a stable identity based on their original source. */
-    private fun identity(record: JSONObject): String =
+    internal fun identity(record: JSONObject): String =
         record.optString("threadId").ifBlank {
             "legacy-" + listOf(record.optString("topic"), record.optString("question"),
                 record.optString("observedId")).joinToString(":").hashCode().toUInt().toString(16)
@@ -114,7 +114,7 @@ internal object CharacterCuriosityRuntime {
         }
     }
 
-    private fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
+    internal fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
         val steps = thread.optJSONArray("steps") ?: return null
         for (i in steps.length() - 1 downTo 0) {
             val step = steps.optJSONObject(i) ?: continue

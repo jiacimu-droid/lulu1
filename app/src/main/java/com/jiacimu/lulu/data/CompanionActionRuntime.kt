@@ -119,6 +119,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
         appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：可选 targetScore=120至1200之间的开局目标；游戏馆按真实规则运行并保存过程、分数、达标结果和此前留存最高分；不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
+        appendLine("【聊天与生活动作可以并行】如果此刻真有想公开分享的内容，可在回复的同一个JSON里加 steps=[{tool:publish_moment,args:{text:本人想发的正文}}]，不必等聊天结束或没有未读消息；也可同时继续研究、阅读等已列出的能力。是否公开由本人依关系、内容和隐私判断，不把用户私事擅自发圈，不强制发帖。每个steps项可独立附已有motiveId、concernId、experienceId、curiosity，只有这一步的真实回执才推进对应记录；与它无关的聊天送达不能代替。")
         appendLine("- start_call，args={\"text\":\"电话接通后的第一句原话\"}：仅在角色已允许主动来电时发起真正的来电。text 会在真实接通后作为本人第一句语音朗读并写入通话记录；接听前不朗读，拒接不算说过。请遵守同一来电开场契约：${com.jiacimu.lulu.CallOpeningTurn.incomingLineContract}")
         appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
@@ -1156,6 +1157,8 @@ internal object OrderedCharacterActions {
                     learningApplication = step.optJSONObject("learningApplication"),
                     causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty(),
                     reason = step.optString("reason"), curiosity = step.optJSONObject("curiosity"),
+                    motiveId = step.optString("motiveId"), concernId = step.optString("concernId"),
+                    experienceId = step.optString("experienceId"),
                 ))
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())

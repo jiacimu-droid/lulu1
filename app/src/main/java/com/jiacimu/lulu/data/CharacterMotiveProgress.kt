@@ -6,7 +6,7 @@ import java.time.Instant
 
 /** One read-only view of a motive plan; authoritative state remains in innerLife.motives. */
 internal object CharacterMotiveProgress {
-    private val planFields = listOf("nextStep", "waitingFor", "reviewAfter", "successCondition", "stopCondition")
+    private val planFields = listOf("nextStep", "waitingFor", "reviewAfter", "successCondition", "stopCondition", "completionKind")
 
     fun applyPlan(target: JSONObject, proposal: JSONObject, evidenceId: String, now: Instant) {
         var changed = false
@@ -18,6 +18,7 @@ internal object CharacterMotiveProgress {
                     it.isBlank() || runCatching { !Instant.parse(it).isBefore(now) }.getOrDefault(false)
                 }
                 "nextStep", "successCondition", "stopCondition" -> value.take(180)
+                "completionKind" -> value.takeIf { it in setOf("", "effect", "execution") }
                 else -> value.take(120)
             } ?: continue
             if (target.optString(key) != clean) {

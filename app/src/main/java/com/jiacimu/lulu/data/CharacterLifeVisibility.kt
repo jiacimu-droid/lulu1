@@ -10,6 +10,7 @@ internal data class CharacterLifeVisible(
     val title: String,
     val detail: String,
     val evidenceId: String = "",
+    val learningGoalId: String = "",
 )
 
 internal object CharacterLifeVisibility {
@@ -129,6 +130,27 @@ internal object CharacterLifeVisibility {
         }
 
 
+        CharacterLearningAgenda.goals(role, now).filter { it.optString("status") != "dropped" }.forEach { goal ->
+            val origin = goal.optString("originId")
+            if (source(role, origin) == null) return@forEach
+            val time = parse(goal.optString("failedAt")) ?: parse(goal.optString("startedAt")) ?:
+                parse(goal.optString("createdAt")) ?: return@forEach
+            if (time.isAfter(now)) return@forEach
+            val status = when (goal.optString("status")) {
+                "failed" -> "遇到阻碍，尚未完成"
+                "running" -> "正在探索"
+                "paused" -> "已暂缓"
+                "research" -> "已有材料，等待理解"
+                "practice" -> "已有暂定理解，仍可实践"
+                else -> "准备继续了解"
+            }
+            val detail = listOf(status, goal.optString("question"),
+                goal.optString("error").takeIf(String::isNotBlank)?.let { "上次失败：$it" },
+                goal.optString("nextStep").takeIf(String::isNotBlank)?.let { "下一步：$it" })
+                .filterNotNull().filter(String::isNotBlank).joinToString("\n")
+            add(CharacterLifeVisible(time, "正在琢磨", goal.optString("topic"), detail,
+                origin, goal.optString("id")))
+        }
         CharacterCuriosityRuntime.visibleQuestions(role).forEach { q ->
             include(parse(q.optString("at")), "正在琢磨", q.optString("topic").take(90),
                 listOf(q.optString("question"),

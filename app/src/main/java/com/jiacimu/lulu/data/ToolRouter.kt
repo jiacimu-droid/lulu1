@@ -18,8 +18,11 @@ object ToolRouter {
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false,
         intentionId: String = "", autonomousLifeTurn: Boolean = false,
         learningApplication: JSONObject? = null, causeEvidenceId: String = "",
-        reason: String = "", curiosity: JSONObject? = null): String = requests.withLock("$characterId:$requestId") {
+        reason: String = "", curiosity: JSONObject? = null,
+        motiveId: String = "", concernId: String = "", experienceId: String = ""): String = requests.withLock("$characterId:$requestId") {
         CharacterCuriosityRuntime.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        CharacterLifeFollowThroughStore.initialize(context)
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
         mutex.withLock("$characterId:" + when (name) {
@@ -40,6 +43,9 @@ object ToolRouter {
             val old = prefs.getString(key, null)?.let(::JSONObject)
             if (old != null) {
                 if (old.optString("fingerprint") != fingerprint) return@withLock failure("同一执行ID的参数发生变化，请重新确认", "waiting_user")
+                if (old.optString("motiveId") != motiveId || old.optString("concernId") != concernId ||
+                    old.optString("experienceId") != experienceId)
+                    return@withLock failure("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
                 if (old.optString("status") != "running" || !cap.retrySafe) {
                     val saved = old.optString("result")
                     val receiptId = "tool-$characterId-$requestId"
@@ -83,13 +89,13 @@ object ToolRouter {
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
                 .put("learningApplication", learningApplication)
+                .put("motiveId", motiveId).put("concernId", concernId).put("experienceId", experienceId)
                 .put("causeEvidenceId", CharacterActionEvidence.resolve(characterId, causeEvidenceId)
                     ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }?.id.orEmpty())
                 .put("reason", reason)
                 .put("curiosity", curiosity?.let { JSONObject(it.toString()).apply {
                     if (optString("sourceEvidenceId").isBlank()) put("sourceEvidenceId", causeEvidenceId)
                 } })
-            CharacterInnerLifeStore.initialize(context)
             CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
                 args.optJSONObject("expectation"))
             check(prefs.edit().putString(key, execution.toString()).commit())
@@ -200,6 +206,8 @@ object ToolRouter {
         }
         val native = CharacterActionEvidence.resolve(characterId, result.optString("evidenceId"))
             ?.takeIf { CharacterActionEvidence.supports(it, outboundAction) }
+        projectCausalLinks(characterId, execution, native?.id ?: receiptId,
+            if (native != null) outboundAction else receipt.tool, receipt.success, receipt.summary)
         CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
             native?.id ?: receiptId, if (native != null) outboundAction else receipt.tool,
             receipt.success, receipt.summary)
@@ -220,6 +228,7 @@ object ToolRouter {
         val observed = CharacterActionEvidence.resolve(characterId, observationId) ?: return
         val receipt = CharacterExperienceLearning.receipt(observed) ?: return
         if (receipt.requestEvidenceId != original.id) return
+        projectCausalLinks(characterId, execution, observed.id, "capture_screen", receipt.success, receipt.summary)
         CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
             observed.id, "capture_screen", receipt.success, receipt.summary)
         execution.optJSONObject("curiosity")?.let { inquiry ->
@@ -229,6 +238,17 @@ object ToolRouter {
             else CharacterCuriosityRuntime.recordFailure(characterId, inquiry, "capture_screen", receipt.summary)
         }
         CharacterDevelopmentRuntime.request(characterId)
+    }
+
+    /** Frozen per-step metadata follows only that step's real receipt, including replay recovery. */
+    private fun projectCausalLinks(role: String, execution: JSONObject, receiptId: String,
+                                  action: String, success: Boolean, summary: String) {
+        CharacterInnerLifeStore.recordActionResult(role, execution.optString("motiveId"),
+            receiptId, action, success, summary)
+        CharacterInnerLifeStore.recordConcernOutcome(role, execution.optString("concernId"),
+            receiptId, action, success, summary)
+        CharacterLifeFollowThroughStore.recordAction(role, execution.optString("experienceId"),
+            action, success, summary, receiptId)
     }
 
     /** Human-readable diagnostics even when native tools return status/verification only. */

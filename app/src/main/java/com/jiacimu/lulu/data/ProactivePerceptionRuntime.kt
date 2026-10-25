@@ -648,6 +648,7 @@ object ProactivePerceptionRuntime {
         val hasPrivateConcerns = CharacterOpenConcernRuntime.recent(
             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
         ).isNotEmpty()
+        val unfinishedChoices = CharacterUnfinishedActionContext.candidates(appContext, characterId, now)
         val previousPresence = CompanionPresenceStore.current(characterId)
         val proactiveInitiativeContext = CharacterInitiativeRuntime.proactiveContext(
             characterId = characterId,
@@ -877,9 +878,7 @@ object ProactivePerceptionRuntime {
                 if (privateDialogue.isEmpty()) appendLine(CharacterExpressionContinuity.guide())
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
-                appendLine(CharacterOpenConcernRuntime.context(
-                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
-                ))
+                appendLine(CharacterUnfinishedActionContext.render(unfinishedChoices))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
                 // Old memories can spark an independent idea even without unread user input.
                 appendLine(CharacterAssociativeRecall.render(characterId, now,
@@ -1136,7 +1135,8 @@ object ProactivePerceptionRuntime {
         )
         // The character's own real but unresolved life remains a candidate even
         // if this model response said silent. A second look still may freely say no.
-        val pendingChoices = (immediateChoices + rememberedChoices +
+        val pendingChoices = (immediateChoices.take(1) + unfinishedChoices.map { it.render() } +
+            immediateChoices.drop(1) + rememberedChoices +
             CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now) +
             CharacterCuriosityRuntime.pendingDecisionCues(characterId) +
             listOf(CharacterLearningAgenda.prompt(characterId, now)).filter(String::isNotBlank))

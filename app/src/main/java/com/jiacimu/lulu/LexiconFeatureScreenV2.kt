@@ -258,11 +258,12 @@ fun LexiconFeatureScreenV2(
 private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = Modifier) {
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
+    val learningRevision by CharacterLearningAgenda.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
     var selected by rememberSaveable(characterId) { mutableStateOf("全部") }
     val entries by produceState(
         initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
-        characterId, mindRevision, curiosityRevision, evidenceRevision,
+        characterId, mindRevision, curiosityRevision, learningRevision, evidenceRevision,
     ) {
         value = withContext(Dispatchers.Default) {
             CharacterLifeVisibility.matters(characterId)
@@ -352,6 +353,8 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
                                     Text(if (expanded) "收起" else "查看缘由与进展",
                                         fontSize = 11.sp, color = LuluColors.Muted)
                             }
+                            if (entry.learningGoalId.isNotBlank())
+                                CharacterLearningRetryButton(characterId, entry.learningGoalId)
                         }
                     }
                 }

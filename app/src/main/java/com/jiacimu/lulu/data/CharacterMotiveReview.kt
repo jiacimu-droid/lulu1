@@ -31,6 +31,7 @@ internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, va
                 // Keep fingerprints of old, criteria-free plans compatible on upgrade.
                 if (motive.optString("successCondition").isNotBlank() || motive.optString("stopCondition").isNotBlank())
                     fields.addAll(listOf(motive.optString("successCondition"), motive.optString("stopCondition")))
+                if (motive.optString("completionKind") == "execution") fields.add("execution")
                 val content = fields.joinToString("\u0000")
                 val token = MessageDigest.getInstance("SHA-256").digest(content.toByteArray())
                     .joinToString("") { "%02x".format(it) }

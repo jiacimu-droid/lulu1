@@ -94,6 +94,8 @@ private fun SettingsEntryScreen(
     onOpenVision: () -> Unit,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
+    var showUpdateNotes by rememberSaveable { mutableStateOf(false) }
+    if (showUpdateNotes) LuluUpdateNotesDialog { showUpdateNotes = false }
     Scaffold(
         modifier = if (journal) Modifier.journalLinen(LocalLuluAppearance.current) else Modifier,
         containerColor = if (journal) Color.Transparent else SettingsHomePaper,
@@ -120,8 +122,11 @@ private fun SettingsEntryScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                Text("露露机 ${BuildConfig.VERSION_NAME} · ${BuildConfig.BUILD_REVISION}",
-                    color = SettingsHomeMuted, fontSize = 12.sp)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("露露机 ${BuildConfig.VERSION_NAME} · ${BuildConfig.BUILD_REVISION}",
+                        modifier = Modifier.weight(1f), color = SettingsHomeMuted, fontSize = 12.sp)
+                    TextButton(onClick = { showUpdateNotes = true }) { Text("更新内容", fontSize = 12.sp) }
+                }
             }
             item {
                 SettingsEntryRow(

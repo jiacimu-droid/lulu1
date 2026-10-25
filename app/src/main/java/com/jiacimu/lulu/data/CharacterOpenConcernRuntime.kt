@@ -182,6 +182,9 @@ internal object CharacterOpenConcernRuntime {
                 Duration.between(updated, now) <= activeWindow
         }
 
+    /** Unresolved questions can be reconsidered after their old emotion has faded. */
+    fun unresolved(previous: JSONArray?): List<JSONObject> = retained(previous)
+
     /** A newly changed concern can warrant a single optional re-evaluation.
      * An idle/dormant concern cannot keep prompting autonomous check-ins.
      */

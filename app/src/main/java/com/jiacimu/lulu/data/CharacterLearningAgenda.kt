@@ -35,7 +35,7 @@ internal object CharacterLearningAgenda {
     }
     private fun save(role: String, goals: List<JSONObject>) {
         check(checkNotNull(prefs).edit().putString(role, JSONArray().apply {
-            goals.takeLast(24).forEach(::put)
+            goals.forEach(::put)
         }.toString()).commit()) { "学习目标未能保存" }
         changes.value += 1
     }
@@ -75,6 +75,7 @@ internal object CharacterLearningAgenda {
         val goal = all.firstOrNull { it.optString("id") == id && valid(role, it) } ?: return null
         if (goal.optString("status") == "running" && LearningCyclePolicy.stale(instant(goal, "startedAt"), now)) {
             goal.put("status", "failed").put("error", "上次学习中断，尚无完成回执")
+                .put("failedAt", now.toString())
                 .put("retryAt", now.toString())
             save(role, all)
         }
@@ -131,7 +132,8 @@ internal object CharacterLearningAgenda {
         change(goal); save(role, all)
         return JSONObject(goal.toString())
     }
-    @Synchronized fun begin(context: Context, role: String, id: String, now: Instant) {
+    @Synchronized fun begin(context: Context, role: String, id: String, now: Instant,
+                            args: JSONObject? = null) {
         val goal = get(role, id, now) ?: error("找不到有效学习目标")
         require(LearningCyclePolicy.available(goal.optString("status"), instant(goal, "retryAt"), now)) {
             "目标已暂停、放下、正在执行或尚在失败重试间隔中"
@@ -145,14 +147,54 @@ internal object CharacterLearningAgenda {
         checkNotNull(prefs).all.keys.filter { it.startsWith("budget:$role:") && it != "budget:$role:$day" }
             .forEach(cleanup::remove)
         cleanup.commit()
-        update(role, id) { it.put("status", "running").put("startedAt", now.toString()) }
+        update(role, id) {
+            it.put("status", "running").put("startedAt", now.toString())
+            if (args != null) it.put("lastAttemptArgs", JSONObject().apply {
+                for (key in listOf("op", "query", "url"))
+                    if (args.has(key)) put(key, args.optString(key))
+            })
+        }
     }
     fun failed(role: String, id: String, error: String, now: Instant) {
         update(role, id) {
             val failures = it.optInt("failures") + 1
             it.put("failures", failures).put("status", "failed").put("error", error.take(220))
+                .put("failedAt", now.toString())
                 .put("retryAt", LearningCyclePolicy.retryAt(now, failures - 1).toString())
         }
+    }
+
+    /** Shared stage resolution for automatic consideration and an explicit user's retry. */
+    fun nextOperation(role: String, goal: JSONObject, now: Instant = Instant.now()): String {
+        val material = goal.optString("materialId")
+        return when {
+            material.isBlank() -> "study"
+            !CharacterLearningLedger.hasInsight(role, material) -> "understand"
+            instant(goal, "reviewAt")?.let { !it.isAfter(now) } == true -> "review"
+            else -> "practice"
+        }
+    }
+
+    /** Called only by a real UI click. Model-selected tools retain the ordinary backoff. */
+    @Synchronized fun prepareUserRetry(role: String, id: String, now: Instant = Instant.now()): JSONObject {
+        val goal = get(role, id, now) ?: error("这件事已不存在，或原始依据已撤回")
+        require(goal.optString("status") !in setOf("running", "paused", "dropped")) {
+            "这件事正在执行、已暂缓或已放下"
+        }
+        require(budget(role, now).remaining > 0) { "今日研究额度已用完" }
+        val saved = goal.optJSONObject("lastAttemptArgs")
+        val oldOp = saved?.optString("op").orEmpty()
+        val material = goal.optString("materialId")
+        val canReuse = oldOp in setOf("search", "study") ||
+            (material.isNotBlank() && (oldOp == "understand" ||
+                oldOp in setOf("practice", "review") && CharacterLearningLedger.hasInsight(role, material)))
+        val args = if (canReuse) JSONObject(saved.toString()) else JSONObject()
+        val op = if (oldOp == "study" && material.isNotBlank() &&
+            !CharacterLearningLedger.hasInsight(role, material)) "understand"
+            else if (canReuse) oldOp else nextOperation(role, goal, now)
+        args.put("op", op).put("goalId", id)
+        update(role, id) { it.remove("retryAt") }
+        return args
     }
     fun prompt(role: String, now: Instant = Instant.now(), query: String = ""): String {
         val terms = memorySearchTerms(query.take(3_000))
@@ -172,15 +214,8 @@ internal object CharacterLearningAgenda {
             if (budget.remaining == 0) appendLine("今日不再执行新的研究操作；仍可直接用已经会的办法与主人自然相处，也可暂缓目标。")
             goals.forEach { g ->
                 val available = LearningCyclePolicy.available(g.optString("status"), instant(g, "retryAt"), now)
-                val due = instant(g, "reviewAt")?.let { !it.isAfter(now) } == true
                 val material = g.optString("materialId")
-                val understood = material.isNotBlank() && CharacterLearningLedger.hasInsight(role, material)
-                val next = when {
-                    material.isBlank() -> "study"
-                    !understood -> "understand"
-                    due -> "review"
-                    else -> "practice"
-                }
+                val next = nextOperation(role, g, now)
                 appendLine("- goalId=${g.optString("id")}；${g.optString("topic")}：${g.optString("question")}；" +
                     "本人缘由=${g.optString("why").take(120)}；阶段=${g.optString("status")}；材料证据=$material；" +
                     "同一课题真实材料数=${g.optJSONArray("sourceIds")?.length() ?: 0}；" +

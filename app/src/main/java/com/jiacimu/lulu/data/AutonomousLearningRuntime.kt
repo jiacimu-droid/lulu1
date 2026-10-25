@@ -71,7 +71,7 @@ internal object AutonomousLearningRuntime {
             return CompanionActionResult(true, "已${when(op) { "pause" -> "暂缓"; "resume" -> "恢复"; else -> "放下" }}学习意向，保留真实经历")
         }
         if (op == "search") {
-            CharacterLearningAgenda.begin(context, role, id, now)
+            CharacterLearningAgenda.begin(context, role, id, now, JSONObject(args.toString()).put("op", op))
             return try {
                 val hits = withContext(Dispatchers.IO) {
                     searchWeb(context, args.optString("query").ifBlank { goal.optString("topic") })
@@ -105,7 +105,7 @@ internal object AutonomousLearningRuntime {
             }
         }
         require(op in setOf("study", "understand", "practice", "review")) { "未知学习步骤" }
-        CharacterLearningAgenda.begin(context, role, id, now)
+        CharacterLearningAgenda.begin(context, role, id, now, JSONObject(args.toString()).put("op", op))
         return try {
             val material = if (op == "study") {
                 val fetched = withContext(Dispatchers.IO) {

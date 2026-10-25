@@ -685,11 +685,17 @@ object CharacterInnerLifeStore {
                         if (op == "achieve") {
                             val proofId = change.optString("outcomeEvidenceId").trim()
                             val created = runCatching { Instant.parse(item.optString("createdAt")) }.getOrNull()
+                            val outcomes = item.optJSONArray("outcomes") ?: JSONArray()
+                            val attempt = (0 until outcomes.length()).mapNotNull(outcomes::optJSONObject)
+                                .firstOrNull { it.optString("id") == proofId && it.optBoolean("success") }
                             val proof = SharedExperienceTimeline.eventsByIds(characterId, listOf(proofId))
                                 .firstOrNull { it.id == proofId && !it.occurredAt.isAfter(now) &&
                                     (created == null || !it.occurredAt.isBefore(created)) &&
                                     it.source !in setOf("online-awareness", "background-awareness") &&
-                                    it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
+                                    (it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) ||
+                                        (item.optString("completionKind") == "execution" &&
+                                            item.optString("successCondition").isNotBlank() && attempt != null &&
+                                            CharacterActionEvidence.supports(it, attempt.optString("action")))) }
                             if (proof == null || !CharacterMotiveState.isActive(item)) continue
                             item.put("status", "achieved").put("closedAt", now.toString())
                                 .put("closedBecause", reason).put("closureEvidenceId", proofId)
