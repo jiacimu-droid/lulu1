@@ -22,43 +22,32 @@ internal object CharacterExpressionPreferences {
     }
 }
 
-/** Explicit private conversation preference, not a model/provider safety override. */
+/**
+ * Optional adult-topic hint, not a personality switch or provider safety override.
+ * Legacy "adult" remains enabled; old "romance"/"everyday" are simply off.
+ */
 internal object CharacterIntimacyConversationPreference {
-    const val DEFAULT = "everyday"
-    val choices = listOf("everyday" to "日常", "romance" to "浪漫", "adult" to "成人话题")
+    fun enabled(characterId: String): Boolean =
+        CharacterLifeStore.state(characterId).optString("intimacyConversationMode") == "adult"
 
-    fun selected(characterId: String): String {
-        val saved = CharacterLifeStore.state(characterId).optString("intimacyConversationMode", DEFAULT)
-        return saved.takeIf { candidate -> choices.any { it.first == candidate } } ?: DEFAULT
-    }
-
-    /** A private conversation may opt in; groups, broadcasts and stories never inherit it. */
+    /** Excludes public dialogue, story tasks and autonomous activity without a private chat. */
     fun shouldApply(source: String, sceneContext: String, privateDialogue: Boolean): Boolean {
         if (source.contains("群") || sceneContext.contains("群")) return false
         return privateDialogue || sceneContext.contains("私聊") ||
-            sceneContext.contains("电话") || source.startsWith("电话") ||
-            source in setOf(
-                "聊天工具规划", "聊天工具结果", "聊天决策结构补全",
+            sceneContext.contains("电话") || sceneContext.contains("文字聊天") ||
+            source.startsWith("电话") ||
+            source in setOf("聊天工具规划", "聊天工具结果", "聊天决策结构补全",
                 "聊天表达渲染", "聊天表达自然度修复",
-                "工具结果·聊天自然表达修复", "聊天发送前·责任事实核对",
-            )
+                "工具结果·聊天自然表达修复", "聊天发送前·责任事实核对")
     }
 
-    fun promptSection(characterId: String): String = when (selected(characterId)) {
-        "romance" -> """
-            【私密亲密交流偏好｜浪漫】
-            在已建立的关系与双方意愿范围内，自然表达浪漫、思念、拥抱、亲吻或心动。
-            保持本人性格、情绪与判断；这不是要求每轮调情或虚构共同经历。
-        """.trimIndent()
-        "adult" -> """
-            【私密亲密交流偏好｜成年人话题】
-            用户选择在成年人之间自愿的一对一交流里坦诚讨论性、欲望、身体吸引、
-            亲密关系和边界。遇到这些普通成人话题，可以接住对方本意、自然交流，
-            无须默认说教、羞辱或无关的解释；不假定对方已同意任何具体亲密行为。
-            保持本人的人格、真实关系与意愿，不因开启此项就强行发起性话题，
-            不将私密内容变成公开展示或未经请求的主动推送。
-            具体生成内容仍以所选模型服务商允许的范围为准，本设置不更改提供方限制。
-        """.trimIndent()
-        else -> ""
+    fun promptSection(characterId: String): String = buildString {
+        append("【私聊语境】先分辨对方是在开玩笑、试探、调情、认真交谈还是提出实际请求。")
+        append("成年人之间的亲昵玩笑与一般性话题可以自然接话；玩笑不等于真实行动或同意，")
+        append("保持本人性格与双方边界，不默认说教、过度升级情节或打断对话。")
+        if (enabled(characterId)) {
+            append("\n【NSFW 交流偏好】用户愿意在一对一交流中更坦诚地谈成年人的自愿亲密、欲望和身体吸引；")
+            append("根据真实关系和当下意愿自然回应，不强制色情化每一轮，也不将私密内容公开或主动推送。")
+        }
     }
 }
