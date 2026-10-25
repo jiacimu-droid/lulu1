@@ -107,6 +107,30 @@ internal object LuluStudyWatch {
         id.isNotBlank() && active(context, role)?.optString("id") == id &&
             notificationsAllowed(context, needRequestChannel = false) && LuluScreenAwareness.autonomousAllowed(context)
 
+    /** The actual tool/permission state surfaced to every character decision entry. */
+    fun decisionStatus(context: Context, role: String, now: Long = System.currentTimeMillis()): String {
+        active(context, role, now)?.let { session ->
+            return "已获准监督，剩余" +
+                ((session.optLong("endsAt") - now + 59_999L) / 60_000L).coerceAtLeast(0) +
+                "分钟；只依据真实截图回执谈论观察结果"
+        }
+        val waiting = pending(context)
+        if (waiting.optString("characterId") == role &&
+            now - waiting.optLong("at") in 0..CONSENT_LIFETIME_MS)
+            return "正在等待主人确认授权，尚未看到画面"
+        if (!LuluScreenAwareness.autonomousAllowed(context))
+            return "未开始：尚未开启角色自主屏幕视觉授权"
+        if (!notificationsAllowed(context))
+            return "未开始：需要开启可见、可停止的学习监督通知"
+        if (!LuluAccessibilityService.observe().connected)
+            return "未开始：无障碍屏幕截图服务尚未连接"
+        if (now - prefs(context).getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS)
+            return "未开始：主人近期拒绝过，请勿再次请求"
+        if (now - prefs(context).getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS)
+            return "未开始：近期已请求过，暂不重复"
+        return "可申请一次限时监督授权；主人确认之前不得查看屏幕"
+    }
+
     /** An opportunity for the same character's OWN decision, not an automatic request.
      * Source evidence is the existing study-partner role, goal and ongoing promises.
      */
