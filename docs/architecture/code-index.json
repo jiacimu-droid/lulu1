@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:26:52.318221+00:00",
-  "commit": "e5db320e112a34ebaf993249207bc6f12c4f937c",
+  "generatedAt": "2026-10-25T03:27:07.671743+00:00",
+  "commit": "6c2ca93f5add4635dfb2884b2fec148c4b3de912",
   "branch": "main",
-  "sourceFingerprint": "b38d9cdac0733d055180b527fb39d47df168ab6ba0ec1355e8bd3f2bfb4e1235",
+  "sourceFingerprint": "8cb30c2bb3baa93a2e7b2b1f181d06770fc7312408991f64dd59b01cbc96ad2b",
   "summary": {
     "files": 887,
-    "lines": 173144,
+    "lines": 173145,
     "symbols": 2588
   },
   "symbolIndex": {
@@ -5939,37 +5939,37 @@
     "remembered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "eventText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 67
+        "line": 68
       }
     ],
     "actionLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 77
+        "line": 78
       }
     ],
     "influences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 100
+        "line": 101
       }
     ],
     "DecisionMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 106
+        "line": 107
       }
     ],
     "decisions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-        "line": 111
+        "line": 112
       }
     ],
     "CharacterRecordReset": [
@@ -19848,8 +19848,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt",
-      "lines": 127,
-      "sha256": "3968f2af2856181a4ae212692249980973b72f88ce0d52726aaf705865d0e740",
+      "lines": 128,
+      "sha256": "51bfaf01d53bef83e0a7825f7eb00129d992c963fb0a54c41eeb3f636f5ac4a1",
       "symbols": [
         {
           "name": "fromLegacy",
@@ -19857,27 +19857,27 @@
         },
         {
           "name": "remembered",
-          "line": 45
+          "line": 46
         },
         {
           "name": "eventText",
-          "line": 67
+          "line": 68
         },
         {
           "name": "actionLabel",
-          "line": 77
+          "line": 78
         },
         {
           "name": "influences",
-          "line": 100
+          "line": 101
         },
         {
           "name": "DecisionMoment",
-          "line": 106
+          "line": 107
         },
         {
           "name": "decisions",
-          "line": 111
+          "line": 112
         }
       ]
     },
