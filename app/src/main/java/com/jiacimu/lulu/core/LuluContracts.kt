@@ -110,6 +110,9 @@ interface LexiconRepository {
     suspend fun delete(id: String)
 }
 
+/** Placement within the model system prompt, independent of folders and enablement. */
+enum class WorldBookPromptPosition { TOP, NORMAL, BOTTOM }
+
 data class WorldBookEntry(
     val id: String,
     val title: String,
@@ -120,6 +123,8 @@ data class WorldBookEntry(
     val updatedAt: Instant = createdAt,
     /** Optional organizer metadata; never affects prompt order or enablement. */
     val folderId: String? = null,
+    /** Legacy entries remain in the same middle section by default. */
+    val promptPosition: WorldBookPromptPosition = WorldBookPromptPosition.NORMAL,
 )
 
 interface WorldBookRepository {
