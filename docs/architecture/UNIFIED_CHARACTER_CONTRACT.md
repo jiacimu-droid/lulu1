@@ -96,7 +96,7 @@
   "text": "等一下，我把声音往上调一点。",
   "sideActions": [
     {"tool": "control_volume", "args": {"action": "adjust", "deltaPercent": 10}},
-    {"tool": "write_journal", "args": {"title": "这一刻", "content": "刚才的音乐让我想起..." }}
+    {"tool": "publish_moment", "args": {"text": "刚才的音乐让我想起了一件事..." }}
   ]
 }
 ```
