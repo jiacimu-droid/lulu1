@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:28:00.248044+00:00",
-  "commit": "706618866477bbc3dcbd1f06302939e3f593a801",
+  "generatedAt": "2026-10-25T13:29:29.848513+00:00",
+  "commit": "cf0e9bf076ed064235bbf6ee320b409a505f261d",
   "branch": "main",
-  "sourceFingerprint": "1c69d629b8f894476e5def5c14997277bed6a14e1190195e3ed94f63b35073a5",
+  "sourceFingerprint": "01665aa2e139422f9b0af7d9063fefa8a68648b58fd14e48472d95d497897b54",
   "summary": {
     "files": 902,
-    "lines": 177617,
+    "lines": 177622,
     "symbols": 2662
   },
   "symbolIndex": {
@@ -143,7 +143,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 57
+        "line": 62
       }
     ],
     "preferredMicrophoneType": [
@@ -24516,8 +24516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 127,
-      "sha256": "53e055a4c556b4ee12f0606b6afa1a4adae8a29915b2730524736f86abaf1711",
+      "lines": 132,
+      "sha256": "58d19d4ac6f6a0ec87b49ab7477e80ef706db3e8fd4e0d0d4bb23a684671bbe1",
       "symbols": [
         {
           "name": "plan",
@@ -24525,7 +24525,7 @@
         },
         {
           "name": "refresh",
-          "line": 57
+          "line": 62
         }
       ]
     },
