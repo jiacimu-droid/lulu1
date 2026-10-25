@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:31:12.524720+00:00",
-  "commit": "37b89aef033e3ec2fc5c3f29a8a45cbafd0bfedf",
+  "generatedAt": "2026-10-25T07:31:29.459990+00:00",
+  "commit": "eee7d9d1209e15ed14d642dab4072db39ea3d47c",
   "branch": "main",
-  "sourceFingerprint": "660c24812e125bbee962dba8c0fdaf2856863c3505914f2dff6e067fa4caf60c",
+  "sourceFingerprint": "e1a81d3f52b46c6cf23e893307e280113171b150ed9b2b3f0db0f285c234005c",
   "summary": {
     "files": 892,
-    "lines": 175066,
+    "lines": 175067,
     "symbols": 2631
   },
   "symbolIndex": {
@@ -383,7 +383,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 105
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -18757,8 +18757,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 116,
-      "sha256": "0b202aa1e0e9b6b632ed7a5dde7470008faca1b36566e794702ba3e571f3716d",
+      "lines": 117,
+      "sha256": "1dc5dc90cd8a74f69f2f4221a2b74010c573e3cb6b1586dabfe2ef00c16df7dd",
       "symbols": [
         {
           "name": "Capability",
@@ -18786,7 +18786,7 @@
         },
         {
           "name": "context",
-          "line": 105
+          "line": 106
         }
       ]
     },
