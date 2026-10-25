@@ -135,15 +135,6 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
-    /** A single optional adult-conversation hint; never changes the character's persona. */
-    @Synchronized fun setNsfwEnabled(characterId: String, enabled: Boolean) {
-        if (characterId.isBlank() || CharacterIntimacyConversationPreference.enabled(characterId) == enabled) return
-        val root = state(characterId)
-        // Keep the existing preference key so installs with "adult" remain enabled.
-        root.put("intimacyConversationMode", if (enabled) "adult" else "everyday")
-        save(characterId, root)
-    }
-
     /**
      * Role-owned social names: a private remark for the user and a changeable screen nickname.
      * Neither alters the user's profile or the character's canonical identity.
