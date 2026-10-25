@@ -101,6 +101,16 @@ class SearchReceiptFeedbackTest {
         assertNull(SearchReceiptFeedback.from("read_xiaohongshu", specified, pending))
         assertNull(SearchReceiptFeedback.from("read_xiaohongshu", specified,
             JSONObject().put("success", true).put("status", "running")))
+        assertNull(SearchReceiptFeedback.from("web_search", JSONObject(),
+            JSONObject().put("success", true).put("status", "requested_unverified")
+                .put("summary", "只受理了请求")))
+        assertNull(SearchReceiptFeedback.from("web_search", JSONObject(),
+            JSONObject().put("success", true).put("status", "queued")))
+        assertNull(SearchReceiptFeedback.from("image_search", JSONObject().put("op", "search"),
+            JSONObject().put("success", false).put("status", "waiting_permission")))
+        assertNotNull(SearchReceiptFeedback.from("web_search", JSONObject(),
+            JSONObject().put("success", false).put("status", "failed")
+                .put("error", "网页加载失败")))
     }
 
     @Test fun aConsumedLatestWakeCannotHideOlderUnprocessedSearchResults() {
