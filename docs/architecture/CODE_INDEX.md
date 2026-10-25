@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`22725e86949184f4ac6cea3f88aaabeda1539e6d`
+- 基准提交：`b36f39b38a2f7c9115f0c43e3ae0edb476c4e23f`
 - 分支：`main`
 - 已索引文件：898
-- 已索引代码/文本行：176376
-- 已发现符号：2643
+- 已索引代码/文本行：176390
+- 已发现符号：2644
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -48,7 +48,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 315 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 632 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 615 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 606 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -379,7 +379,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 478 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 501 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 268 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |

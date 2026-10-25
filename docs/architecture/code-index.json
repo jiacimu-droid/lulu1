@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:09:08.405073+00:00",
-  "commit": "22725e86949184f4ac6cea3f88aaabeda1539e6d",
+  "generatedAt": "2026-10-25T08:10:32.353140+00:00",
+  "commit": "b36f39b38a2f7c9115f0c43e3ae0edb476c4e23f",
   "branch": "main",
-  "sourceFingerprint": "98e8d051605ffef95f0a3fe8236db70b0b9f577c7173d35b1b40bb29bb536e3c",
+  "sourceFingerprint": "590e51d0860ce18dedbfb3b11a169c498b1816a2897633d57438c7fa7a1bff8e",
   "summary": {
     "files": 898,
-    "lines": 176376,
-    "symbols": 2643
+    "lines": 176390,
+    "symbols": 2644
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -645,13 +645,13 @@
     "CharacterWorldBookScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 41
+        "line": 42
       }
     ],
     "openFolderEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 121
+        "line": 112
       }
     ],
     "ChatAutoVoicePlayback": [
@@ -783,7 +783,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 243
+        "line": 266
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -4891,7 +4891,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 351
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -7984,22 +7984,28 @@
         "line": 232
       }
     ],
-    "WorldBookFolder": [
+    "groupWorldBookEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 236
       }
     ],
+    "WorldBookFolder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 259
+      }
+    ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 237
+        "line": 260
       }
     ],
     "observeFolders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 253
+        "line": 276
       }
     ],
     "callEndDescription": [
@@ -15293,16 +15299,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 615,
-      "sha256": "d36c0e2bae438799b515c00fa95d3c3adfd0ba1a9de6ac5ebe8f52aee964b70e",
+      "lines": 606,
+      "sha256": "2556d2e7c047d04ac096764e455f86c21818ca9d79e72a7d6ddf406e902cfd5f",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
-          "line": 41
+          "line": 42
         },
         {
           "name": "openFolderEditor",
-          "line": 121
+          "line": 112
         }
       ]
     },
@@ -22320,8 +22326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 478,
-      "sha256": "cd3aa80a134cafe8f1138ecf2ef7abbec4e696a909bee90ae4799df3c4f8b05c",
+      "lines": 501,
+      "sha256": "cce5ea7e091e7334b9fab8de78d714df5b7880df6c22fcdbfc2adf2f09d125eb",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -22352,24 +22358,28 @@
           "line": 232
         },
         {
-          "name": "WorldBookFolder",
+          "name": "groupWorldBookEntries",
           "line": 236
         },
         {
+          "name": "WorldBookFolder",
+          "line": 259
+        },
+        {
           "name": "InMemoryWorldBookRepository",
-          "line": 237
+          "line": 260
         },
         {
           "name": "initialize",
-          "line": 243
+          "line": 266
         },
         {
           "name": "observeFolders",
-          "line": 253
+          "line": 276
         },
         {
           "name": "snapshot",
-          "line": 351
+          "line": 374
         }
       ]
     },
