@@ -70,6 +70,7 @@ internal object CharacterLifeSelfReview {
             }
             appendLine("【想法和执行如何真正联动】")
             appendLine("① 继续：沿用原ID修订，不要另开一个同义心事。放下已有持续意愿用innerLife.motives的release，恢复用resume；放下挂心用appraisal.pendingConcerns的dismissed，真有证据已解决才用settled，恢复用resume，均指定原threadId。学习事项可以在steps选learn_topic，args={op:pause|resume|drop,goalId:准确ID}；好奇可以用curiosity={threadId,topic,question,status:dropped}放下（topic和question须为原来的准确内容）。")
+            appendLine("从前搁置的好奇如果现在重新想知道，可以用curiosity={threadId:原ID,topic:原主题,question:原问题,status:exploring,why:重新在意的原因}重新打开；必须绑定本轮真实观察，不能把过往推测伪造成新事实。仍不感兴趣就不操作。")
             appendLine("② 想做：立刻做就在action/steps选择已授权的实际工具；稍后做就在同一次steps中选择一个或多个plan_personal_activity，分别填写title、intent、未来dueAt(含时区)、activityAction、activityArgs。学习要沿用goalId放在activityArgs里，持续意愿可用已有motiveId，原挂心应传已有concernId；这几种关联都不另建一份目标。不是只写‘明天去做’或nextStep文字就算排好了。")
             appendLine("③ 已有日程：优先认原planId，不重复创建；仍想做就保留，时间不合适用reschedule_personal_activity，确实放下用cancel_personal_activity。若放下的目标已有关联未来安排，考虑是否同轮取消，别留下僵尸闹钟。")
             appendLine("④ 到期仍回到你的同一自主感知，由原执行器逐项核权限与回执；排好日程不等于已行动、查过不等于已读懂、发出消息不等于对方满意。不因清单多就强迫自己做完，不为整理而联系或打扰用户。")
