@@ -1428,6 +1428,7 @@ object ProactivePerceptionRuntime {
             observed = observedWorld,
             direct = listOfNotNull(messageStimulus),
             claimDirect = true,
+            deferAcknowledgement = true,
         )
         val newlyObserved = perceptionInput.freshStimuli
         val stimulus = perceptionInput.combined
@@ -1539,6 +1540,13 @@ object ProactivePerceptionRuntime {
                 groundedInnerThought, now, privateDelta.fingerprint,
             )
         }
+        // The decision's causal transition/inner voice is now persisted.
+        // Only now acknowledge its real inputs; a failed model or interrupted
+        // commit must not erase the new stimulus from the next perception.
+        CharacterPerceptionContext.acknowledge(
+            appContext, characterId, perceptionInput,
+            direct = listOfNotNull(messageStimulus), claimDirect = true,
+        )
         // Exploration counts only after an executor receipt, never from model prose.
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
         // older event could be mistaken for a fresh executor receipt on a quiet turn.
