@@ -16,15 +16,20 @@ internal data class ChatReceiptRun(val messages: List<LuluChatMessage>) {
 
 /** Display projection only: keeps every original receipt, link and timestamp. */
 internal fun groupChatReceiptRuns(messages: List<LuluChatMessage>): List<ChatReceiptRun> {
-    val result = mutableListOf<ChatReceiptRun>()
-    messages.distinctBy { it.id }.forEach { message ->
-        val prior = result.lastOrNull()
+    // Repeated prior.messages + message copies an ever-growing list for every
+    // adjacent receipt. A long tool-activity streak used to become O(n²) before
+    // a LazyColumn could even begin measuring its visible items.
+    val grouped = mutableListOf<MutableList<LuluChatMessage>>()
+    val seen = HashSet<String>()
+    for (message in messages) {
+        if (!seen.add(message.id)) continue
+        val previous = grouped.lastOrNull()
         if (message.sender == LuluChatMessage.Sender.System &&
-            prior?.messages?.firstOrNull()?.sender == LuluChatMessage.Sender.System) {
-            result[result.lastIndex] = prior.copy(messages = prior.messages + message)
-        } else result += ChatReceiptRun(listOf(message))
+            previous?.firstOrNull()?.sender == LuluChatMessage.Sender.System) {
+            previous.add(message)
+        } else grouped.add(mutableListOf(message))
     }
-    return result
+    return grouped.map { ChatReceiptRun(it.toList()) }
 }
 
 @Composable
