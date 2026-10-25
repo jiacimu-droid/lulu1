@@ -38,6 +38,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CharacterLifeVisibility
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.CharacterCuriosityRuntime
+import com.jiacimu.lulu.data.CharacterLearningAgenda
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CharacterRecordDestination
 import com.jiacimu.lulu.data.WorldLifeEpisodeStore
