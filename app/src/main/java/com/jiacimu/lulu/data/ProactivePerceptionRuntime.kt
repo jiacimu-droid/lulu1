@@ -1481,14 +1481,11 @@ object ProactivePerceptionRuntime {
                 SharedExperienceTimeline.eventsByIds(characterId, listOf(messageStimulus.evidenceId)).isNotEmpty() ->
                 messageStimulus.evidenceId
             salientInteraction != null -> salientInteraction.id
-            // A multi-result perception has a synthetic combined stimulus ID.
-            // Anchor the actual private transition to the latest witnessed event
-            // so the insight stays attributable, visible and retractable.
-            newlyObserved.lastOrNull { fresh ->
-                observedWorld.any { it.id == fresh.evidenceId }
-            } != null -> newlyObserved.last { fresh ->
-                observedWorld.any { it.id == fresh.evidenceId }
-            }.evidenceId
+            // The composite prompt ID is not a durable event. Attach the
+            // resulting insight to a real witnessed receipt, including search.
+            CharacterPerceptionContext.latestObservedEvidenceId(
+                newlyObserved, observedWorld).isNotBlank() ->
+                CharacterPerceptionContext.latestObservedEvidenceId(newlyObserved, observedWorld)
             stimulus != null -> stimulus.evidenceId
             previousEvidence.isNotBlank() -> previousEvidence
             else -> awakeObservationId
