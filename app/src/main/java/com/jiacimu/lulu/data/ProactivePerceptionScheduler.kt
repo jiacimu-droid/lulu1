@@ -810,8 +810,11 @@ class ProactivePerceptionWorker(
             val chatBusy = MigratedDomainStores.chat.conversations.value.any {
                 it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
             }
-            if (CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank() ||
-                CompanionPresenceStore.isInCall(characterId) || chatBusy) {
+            if (SearchReceiptFeedback.awaitsPrimaryConversation(
+                unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
+                inCall = CompanionPresenceStore.isInCall(characterId),
+                chatGenerating = chatBusy,
+            )) {
                 // WorkManager retries without repeating the search. If the live
                 // turn stays busy, leave the result for ordinary later perception.
                 return@runCatching if (runAttemptCount < 2) Result.retry() else Result.success()
