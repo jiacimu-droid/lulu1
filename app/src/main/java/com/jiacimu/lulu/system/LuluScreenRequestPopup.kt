@@ -36,6 +36,16 @@ internal object LuluScreenRequestPopup {
             listOf("拒绝" to onDeny, "允许一次" to onAllow),
             120_000L, stillPending, onFailure)
 
+    /** A bounded session requires one explicit owner tap before repeated frames. */
+    fun showStudyWatch(context: Context, role: String, minutes: Int, id: String,
+        stillPending: () -> Boolean, onAllow: () -> Unit, onDeny: () -> Unit,
+        onFailure: () -> Unit = {}): Boolean =
+        show(context, "study-watch:$id", "$role 想监督你学习",
+            "允许在接下来${minutes}分钟内不定时查看屏幕",
+            "仅限当前时段；会显示持续通知，随时可停止。隐私页面不读取。",
+            listOf("拒绝" to onDeny, "允许本时段" to onAllow),
+            120_000L, stillPending, onFailure)
+
     fun showReturn(context: Context, role: String,
         onReturn: () -> Unit, onLater: () -> Unit,
         onFailure: () -> Unit = {}): Boolean =
