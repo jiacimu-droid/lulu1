@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:40:31.679641+00:00",
-  "commit": "8f7f219eec4833b608307e8a1685ec061d65bb36",
+  "generatedAt": "2026-10-25T03:41:35.585847+00:00",
+  "commit": "f873c1b93a7c3a8d97337d3b0a92b74451b2316f",
   "branch": "main",
-  "sourceFingerprint": "9e168d8cc161c240fb8a5f481fae94bd5d2a6636b2040f335aefb118c84e4113",
+  "sourceFingerprint": "f1ffec0ee5534e76f721033de868a0c4d18d82e054ac1d5855b7d1f4dc263c37",
   "summary": {
     "files": 887,
-    "lines": 173318,
+    "lines": 173327,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -649,7 +649,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1193
+        "line": 1202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4025,19 +4025,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1043
+        "line": 1052
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1055
+        "line": 1064
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1183
+        "line": 1192
       }
     ],
     "LuluMusicSensoryRuntime": [
@@ -17971,8 +17971,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1201,
-      "sha256": "6d9ae7a73cdec2088e2f05b9496efe4727e1d738d91c4ebb0dc5890895a4e380",
+      "lines": 1210,
+      "sha256": "fce89698ec301707168c3b13b0f5296d5de002ff7a8560d97ef643aa89b638ae",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -18060,19 +18060,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1043
+          "line": 1052
         },
         {
           "name": "consumeEvent",
-          "line": 1055
+          "line": 1064
         },
         {
           "name": "LuluAiServices",
-          "line": 1183
+          "line": 1192
         },
         {
           "name": "initialize",
-          "line": 1193
+          "line": 1202
         }
       ]
     },
