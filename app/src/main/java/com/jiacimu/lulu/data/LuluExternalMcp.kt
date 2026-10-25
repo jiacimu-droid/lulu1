@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.ai.ModelUsage
 import kotlinx.coroutines.CancellationException
@@ -263,6 +264,10 @@ internal object LuluExternalMcp {
                 source = "自主生活·小红书阅读后", title = "一次图文阅读《$title》",
                 maxTokens = if (data.isEmpty()) 500 else 1100,
                 connectionOverride = if (data.isNotEmpty()) VisionModelService.xhsConnectionOverride(context) else null, usage = ModelUsage.Chat,
+                // Already-read external evidence is provided in facts. This task needs
+                // the SAME role/persona and core, but not broad private-chat/world
+                // retrieval a second time on top of up to six inline images.
+                contextMode = CompanionContextMode.CharacterAndScenario,
                 imageDataUrls = data,
             )
             val personalThought = generated.getOrNull()?.text?.let { ModelStructuredOutput.objectOrNull(it) }
