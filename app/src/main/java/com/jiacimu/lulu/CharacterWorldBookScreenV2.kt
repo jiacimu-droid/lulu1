@@ -100,6 +100,7 @@ fun CharacterWorldBookScreenV2(
     var selectionMode by remember { mutableStateOf(false) }
     var selectedIds by remember { mutableStateOf(setOf<String>()) }
     var showMoveDialog by remember { mutableStateOf(false) }
+    var showDeleteSelectedDialog by remember { mutableStateOf(false) }
     var showFolderEditor by remember { mutableStateOf(false) }
     var folderBeingEdited by remember { mutableStateOf<WorldBookFolder?>(null) }
     var folderDraft by remember { mutableStateOf("") }
@@ -116,6 +117,29 @@ fun CharacterWorldBookScreenV2(
         folderDraft = folder?.name.orEmpty()
         createForSelection = forSelection
         showFolderEditor = true
+    }
+
+    fun removeBooks(ids: Set<String>) {
+        scope.launch {
+            try {
+                val deleted = repository.deleteEntries(ids)
+                if (deleted.entries.isEmpty()) return@launch
+                selectedIds = selectedIds - ids
+                if (expandedBookId in ids) expandedBookId = null
+                if (editingBook?.id in ids) editingBook = null
+                val label = if (deleted.entries.size == 1) "已删除《${deleted.entries.single().title}》"
+                    else "已删除 ${deleted.entries.size} 条世界书"
+                val action = notices.showSnackbar(
+                    message = label, actionLabel = "撤销",
+                    withDismissAction = true, duration = SnackbarDuration.Long,
+                )
+                if (action == SnackbarResult.ActionPerformed) {
+                    repository.restoreDeletedEntries(deleted)
+                }
+            } catch (failure: Exception) {
+                notices.showSnackbar(failure.message ?: "删除失败")
+            }
+        }
     }
 
     Scaffold(
@@ -207,8 +231,13 @@ fun CharacterWorldBookScreenV2(
                                         selectedIds - visibleIds else selectedIds + visibleIds
                                 },
                             ) { Text("全选结果") }
-                            Button(onClick = { showMoveDialog = true }, enabled = selectedIds.isNotEmpty()) {
-                                Text("移入分类")
+                            TextButton(onClick = { showMoveDialog = true }, enabled = selectedIds.isNotEmpty()) {
+                                Text("移动")
+                            }
+                            TextButton(onClick = { showDeleteSelectedDialog = true },
+                                enabled = selectedIds.isNotEmpty()) {
+                                Text("删除", color = if (selectedIds.isNotEmpty())
+                                    MaterialTheme.colorScheme.error else LuluColors.Muted)
                             }
                         }
                     }
@@ -301,6 +330,10 @@ fun CharacterWorldBookScreenV2(
                                     IconButton(onClick = {
                                         expandedBookId = if (expandedBookId == book.id) null else book.id
                                     }) { Icon(Icons.Outlined.Tune, "详细设置") }
+                                    IconButton(onClick = { removeBooks(setOf(book.id)) }) {
+                                        Icon(Icons.Outlined.DeleteOutline, "删除此条世界书",
+                                            tint = MaterialTheme.colorScheme.error)
+                                    }
                                 }
                             }
                             if (!selectionMode && expandedBookId == book.id) {
@@ -417,6 +450,31 @@ fun CharacterWorldBookScreenV2(
         )
     }
 
+    if (showDeleteSelectedDialog) {
+        val selectedBooks = books.filter { it.id in selectedIds }
+        AlertDialog(
+            onDismissRequest = { showDeleteSelectedDialog = false },
+            title = { Text("删除 ${selectedBooks.size} 条世界书？") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("所选条目将删除，操作后可在底部点“撤销”。")
+                    Text(selectedBooks.take(4).joinToString("、") { it.title } +
+                        if (selectedBooks.size > 4) " 等 ${selectedBooks.size} 条" else "",
+                        fontSize = 12.sp, color = LuluColors.Muted)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val ids = selectedBooks.mapTo(mutableSetOf()) { it.id }
+                    showDeleteSelectedDialog = false
+                    selectionMode = false
+                    removeBooks(ids)
+                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { showDeleteSelectedDialog = false }) { Text("取消") } },
+        )
+    }
+
     if (showMoveDialog) {
         AlertDialog(
             onDismissRequest = { showMoveDialog = false },
@@ -527,9 +585,9 @@ fun CharacterWorldBookScreenV2(
                 }
             },
             onDelete = {
-                scope.launch { repository.delete(book.id) }
                 editingBook = null
                 creating = false
+                removeBooks(setOf(book.id))
             },
         )
     }
