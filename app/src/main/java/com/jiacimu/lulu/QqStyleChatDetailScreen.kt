@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -148,13 +149,18 @@ fun QqStyleChatDetailScreen(
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
     val privateOnline = onlineStates[characterId]?.isOnline() == true
     val listState = rememberLazyListState()
+    // Keep the position and the draft when navigating to another page;
+    // the chat screen itself is now removed from composition while hidden.
+    var hasPositionedChat by rememberSaveable(conversationId) { mutableStateOf(false) }
+    var previousVisibleCount by rememberSaveable(conversationId) { mutableIntStateOf(0) }
     val imeBottom = WindowInsets.ime.getBottom(density)
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
 
-    var input by remember { mutableStateOf("") }
+    var input by rememberSaveable(conversationId) { mutableStateOf("") }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
-    var replyingTo by remember { mutableStateOf<LuluChatMessage?>(null) }
+    var replyingToId by rememberSaveable(conversationId) { mutableStateOf<String?>(null) }
+    val replyingTo = replyingToId?.let(messageById::get)
     var multiSelectMode by remember { mutableStateOf(false) }
     var selectedMessageIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var forwardingMessages by remember { mutableStateOf<List<LuluChatMessage>?>(null) }
@@ -193,7 +199,7 @@ fun QqStyleChatDetailScreen(
     }
 
     fun beginReply(message: LuluChatMessage) {
-        replyingTo = message
+        replyingToId = message.id
         selectedMessage = null
         focusManager.clearFocus(force = false)
         keyboardController?.show()
@@ -235,7 +241,7 @@ fun QqStyleChatDetailScreen(
         } else text
         MigratedDomainStores.chat.sendUserMessage(conversationId, content, replyingTo?.id)
         input = ""
-        replyingTo = null
+        replyingToId = null
         return true
     }
 
@@ -464,11 +470,26 @@ fun QqStyleChatDetailScreen(
             ChatReplyTaskManager.clearError(conversationId, id)
         }
     }
-    LaunchedEffect(visibleMessages.size, preferences.autoScrollChat, imeBottom) {
-        if (visibleMessages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
+    LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat, imeBottom) {
+        val count = visibleMessages.size
+        if (count == 0) {
+            previousVisibleCount = 0
+            return@LaunchedEffect
+        }
+        val initial = !hasPositionedChat
+        val appended = count > previousVisibleCount
+        // Reading old messages or returning from another page must not suddenly
+        // jump to the newest row. IME resizing should not fight touch scrolling.
+        val layout = listState.layoutInfo
+        val nearEnd = layout.visibleItemsInfo.lastOrNull()?.index
+            ?.let { it >= layout.totalItemsCount - 3 } ?: initial
+        if (ChatScrollFollowPolicy.shouldFollow(initial, appended,
+                imeBottom > 0, preferences.autoScrollChat, nearEnd)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
             listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
         }
+        hasPositionedChat = true
+        previousVisibleCount = count
     }
 
     Scaffold(
@@ -609,7 +630,7 @@ fun QqStyleChatDetailScreen(
                                         Text(qqForwardContextText(quoted.content), color = QqMuted, fontSize = 11.sp, maxLines = 1)
                                     }
                                 }
-                                IconButton(onClick = { replyingTo = null }) { Icon(Icons.Outlined.Close, "取消引用", Modifier.size(18.dp)) }
+                                IconButton(onClick = { replyingToId = null }) { Icon(Icons.Outlined.Close, "取消引用", Modifier.size(18.dp)) }
                             }
                         }
                         QqChatComposer(
