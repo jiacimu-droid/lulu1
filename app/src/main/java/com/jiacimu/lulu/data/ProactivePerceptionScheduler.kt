@@ -797,6 +797,15 @@ class ProactivePerceptionWorker(
         // when the user has spoken since it was queued; the original timeline
         // event remains available to future low-priority perception.
         val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
+        // The primary chat/call perception may already have consumed the exact
+        // tool receipt while this durable follow-up waited in WorkManager.
+        // Unlike new interaction evidence, an already-seen search needs no duplicate call.
+        if (characterId != null && interactionId.isNotBlank() &&
+            PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId) &&
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(interactionId))
+                .any(SearchReceiptFeedback::completedEvidence)) {
+            return@runCatching Result.success()
+        }
         if (characterId != null && interactionId.isNotBlank() &&
             CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
             // Chat is the primary owner of live user messages, but the
