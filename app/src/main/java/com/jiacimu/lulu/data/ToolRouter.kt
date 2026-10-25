@@ -26,6 +26,13 @@ internal object ToolExecutionStatus {
         // is not completion evidence.
         return status.isBlank() || status in completedStates
     }
+
+    /** A missing primary tool is not a failed predecessor. Ordered steps can
+     * follow the character's chosen speech/silence without a phantom failure;
+     * when a primary tool DID run, only its verified result unlocks dependent steps.
+     */
+    fun primaryAllowsDependentSteps(primaryTool: String, primaryResult: JSONObject): Boolean =
+        primaryTool.isBlank() || completed(primaryResult)
 }
 
 /** The same persisted routing and evidence path is used by foreground, voice and background. */
