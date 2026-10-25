@@ -121,7 +121,7 @@ internal object CompanionActionRuntime {
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("【聊天与生活动作可以并行】如果此刻真有想公开分享的内容，可在回复的同一个JSON里加 steps=[{tool:publish_moment,args:{text:本人想发的正文}}]，不必等聊天结束或没有未读消息；也可同时继续研究、阅读等已列出的能力。是否公开由本人依关系、内容和隐私判断，不把用户私事擅自发圈，不强制发帖。每个steps项可独立附已有motiveId、concernId、experienceId、curiosity，只有这一步的真实回执才推进对应记录；与它无关的聊天送达不能代替。")
         appendLine("- start_call，args={\"text\":\"电话接通后的第一句原话\"}：仅在角色已允许主动来电时发起真正的来电。text 会在真实接通后作为本人第一句语音朗读并写入通话记录；接听前不朗读，拒接不算说过。请遵守同一来电开场契约：${com.jiacimu.lulu.CallOpeningTurn.incomingLineContract}")
-        appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
+        appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到生活记录的「收藏」，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
@@ -392,7 +392,7 @@ internal object CompanionActionRuntime {
                 val saved = CharacterMessageFavorites.favoriteExplicit(
                     characterId, target.second, reason
                 ) ?: error("这句话已经收藏过了，或保存失败")
-                CompanionActionResult(true, "已在辞海收藏这条真实消息",
+                CompanionActionResult(true, "已收藏这条真实消息，可在生活记录的「收藏」查看",
                     evidenceId = saved)
             }
             "set_user_remark", "set_self_nickname" -> {
