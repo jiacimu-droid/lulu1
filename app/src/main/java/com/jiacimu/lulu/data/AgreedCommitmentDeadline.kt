@@ -117,7 +117,7 @@ internal object AgreedCommitmentDeadline {
         ) }
         // Normalize the time heading only; keep the actual responsibility.
         val body = previous.replaceFirst(
-            Regex("""^\s*(?:(?:\d{1,2}月\d{1,2}日\s*\d{1,2}[:：]\d{2})|(?:(?:今天|明天|后天|今早|明早|今晚|明晚)\s*\d{1,2}(?:[:：]\d{2}|点(?:半)?)))\s*"""),
+            Regex("""^\s*(?:(?:\d{1,2}月\d{1,2}日\s*\d{1,2}[:：]\d{2})|(?:(?:今天|明天|后天|今早|明早|今晚|明晚)(?:的)?(?:早上|上午|下午|傍晚|晚上)?\s*\d{1,2}(?:[:：]\d{2}|点(?:半)?)))\s*"""),
             ""
         ).trim()
         return "$label $body".trim()
