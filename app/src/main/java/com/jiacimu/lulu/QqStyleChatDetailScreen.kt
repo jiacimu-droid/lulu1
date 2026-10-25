@@ -793,6 +793,7 @@ fun QqStyleChatDetailScreen(
                     } else row()
                 }
             }
+            } // LazyColumn content ends before the overlay composable.
             if (hasPositionedChat && showJumpToLatest && displayRuns.isNotEmpty()) {
                 FilledTonalIconButton(
                     onClick = {
