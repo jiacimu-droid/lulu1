@@ -195,6 +195,26 @@ class CharacterPerceptionContextTest {
         assertEquals(setOf("user"), combined.socialIds)
     }
 
+    @Test fun newestRevisionWinsWhenOneEventComesFromTwoSceneAdapters() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "same-event-two-adapters-" + java.util.UUID.randomUUID()
+        PerceptionStimulusLedger.initialize(app)
+        val event = SharedTimelineEvent("shared-evidence", role, "阅读回执", "执行器",
+            "已修改的真实结果", Instant.parse("2026-10-25T08:00:00Z"), revision = 4L)
+        val staleDirect = PerceptionStimulus(event.id, "修改前的旧内容", revision = 1L)
+        val input = CharacterPerceptionContext.integrate(app, role,
+            observed = listOf(event), direct = listOf(staleDirect),
+            claimDirect = true, deferAcknowledgement = true)
+        assertEquals(1, input.freshStimuli.size)
+        assertEquals(4L, input.freshStimuli.single().revision)
+        assertTrue(input.combined!!.description.contains("已修改的真实结果"))
+        CharacterPerceptionContext.acknowledge(app, role, input,
+            direct = listOf(staleDirect), claimDirect = true)
+        assertTrue(PerceptionStimulusLedger.hasSeen(app, role, event.id, 4L))
+        assertFalse(PerceptionStimulusLedger.hasSeen(app, role, event.id, 1L))
+        PerceptionStimulusLedger.clear(role)
+    }
+
     @Test fun cancelledPerceptionCanRetryUntilItsCausalCommitAcknowledgesExactEvidence() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         val role = "perception-deferred-" + java.util.UUID.randomUUID()
