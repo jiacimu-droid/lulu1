@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:24:00.571210+00:00",
-  "commit": "5cdb9dd82faabb0b650879d1c1c82ae0a9e44ed8",
+  "generatedAt": "2026-10-25T13:24:53.053449+00:00",
+  "commit": "11b2c287c3f5f06178623f182224e7e1b9db6848",
   "branch": "main",
-  "sourceFingerprint": "c4a815e928a31d2749e4380e8edc6fe8e81f5969c99d5ffd86d1208f80405b06",
+  "sourceFingerprint": "f0d2eb8d72cfc5377df90847d013b7d13926092d6f8e00d6f8a67477285e4b5e",
   "summary": {
     "files": 901,
-    "lines": 177474,
-    "symbols": 2657
+    "lines": 177481,
+    "symbols": 2658
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10274,22 +10274,28 @@
         "line": 20
       }
     ],
+    "primaryAllowsDependentSteps": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 34
+      }
+    ],
     "ToolRouter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 32
+        "line": 39
       }
     ],
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 53
+        "line": 60
       }
     ],
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 230
+        "line": 237
       }
     ],
     "allowsExpansion": [
@@ -24030,7 +24036,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2448,
-      "sha256": "6dba898b542a23d22a9a04072532ad03ca306e2c06e1aae46b452d235eec6510",
+      "sha256": "84a94e160b6296c1c0c82f27ec3ec7aec7685f88c5239b41be8751eb471c1209",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24870,24 +24876,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 330,
-      "sha256": "e71bced5582e1aeee7080bb3cc324619b9bfb6ac7fc43f6330b59e7441f9543d",
+      "lines": 337,
+      "sha256": "6e248c6a67ea2e2567ca2f711bbe3e0f58cd6ea68d6bb96407a02a13dd834a12",
       "symbols": [
         {
           "name": "completed",
           "line": 20
         },
         {
+          "name": "primaryAllowsDependentSteps",
+          "line": 34
+        },
+        {
           "name": "ToolRouter",
-          "line": 32
+          "line": 39
         },
         {
           "name": "rejected",
-          "line": 53
+          "line": 60
         },
         {
           "name": "project",
-          "line": 230
+          "line": 237
         }
       ]
     },
