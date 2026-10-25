@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:27:06.794954+00:00",
-  "commit": "a58082694bc740e2c63c86335378321fa5a1e09b",
+  "generatedAt": "2026-10-25T11:27:21.757660+00:00",
+  "commit": "a32895b84985feb37181998a0a84b50054d4fab0",
   "branch": "main",
-  "sourceFingerprint": "9d490f15624571ccd9729e36ee7a1522aa974edc92e28513348937fcada481fc",
+  "sourceFingerprint": "75a60d606c6049a68fbe8acbef89532cadb6ece12fdb85f94a08ce717eee92fc",
   "summary": {
-    "files": 898,
-    "lines": 176647,
-    "symbols": 2648
+    "files": 899,
+    "lines": 176688,
+    "symbols": 2649
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14074,6 +14074,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "DevelopmentReflectionGenerationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt",
+        "line": 13
       }
     ],
     "DialogueMoveEngineTest": [
@@ -30180,6 +30186,17 @@
         {
           "name": "DevelopmentPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt",
+      "lines": 41,
+      "sha256": "a9a23c850617ed8b619c87fbf4a028e20de3d6accc21a737211e8e8e48e6a4b2",
+      "symbols": [
+        {
+          "name": "DevelopmentReflectionGenerationTest",
+          "line": 13
         }
       ]
     },
