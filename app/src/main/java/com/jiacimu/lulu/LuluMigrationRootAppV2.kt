@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -72,8 +73,8 @@ fun LuluMigrationRootAppV2(
     val navigationFocusManager = LocalFocusManager.current
     val navigationKeyboard = LocalSoftwareKeyboardController.current
 
-    // The previous chat stays composed underneath settings. Release its
-    // text focus when moving routes so the old IME cannot open on arrival.
+    // Route changes close the old IME. Inactive chat is no longer composed
+    // below every page; its saveable UI state is restored on return.
     LaunchedEffect(route) {
         navigationFocusManager.clearFocus(force = true)
         navigationKeyboard?.hide()
@@ -84,6 +85,9 @@ fun LuluMigrationRootAppV2(
     var chatSessionStarted by rememberSaveable(initialConversationId) {
         mutableStateOf(!initialConversationId.isNullOrBlank())
     }
+    // Preserve each conversation's lazy-list position without keeping the
+    // entire chat UI and its many Flow collectors alive behind other routes.
+    val chatUiStateHolder = rememberSaveableStateHolder()
     var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
         mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
     }
@@ -265,13 +269,10 @@ fun LuluMigrationRootAppV2(
             LuluAppearanceTheme(appearanceLibrary.active(if (route == MigrationRoute.ChatDetail) "Chat" else route.name)) {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
-                    if (chatSessionStarted) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .then(if (route == MigrationRoute.ChatDetail) Modifier.imePadding() else Modifier),
-                        ) {
-                            key(selectedConversationId) {
+                    if (chatSessionStarted && route == MigrationRoute.ChatDetail) {
+                        Box(modifier = Modifier.fillMaxSize().imePadding()) {
+                            chatUiStateHolder.SaveableStateProvider(selectedConversationId) {
+                                key(selectedConversationId) {
                                 QqStyleChatDetailScreen(
                                     conversationId = selectedConversationId,
                                     routeVisible = route == MigrationRoute.ChatDetail,
@@ -305,6 +306,7 @@ fun LuluMigrationRootAppV2(
                                         pushRoute(MigrationRoute.Games)
                                     },
                                 )
+                                }
                             }
                         }
                     }
