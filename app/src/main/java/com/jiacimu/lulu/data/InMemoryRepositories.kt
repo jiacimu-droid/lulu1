@@ -67,7 +67,6 @@ class InMemoryLexiconRepository : LexiconRepository {
         synchronized(lock) {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            folders.value = decodeFolders(prefs?.getString(KEY_FOLDERS, null))
             entries.value = decode(prefs?.getString(KEY_ENTRIES, null))
         }
     }
@@ -213,7 +212,6 @@ class InMemoryLexiconRepository : LexiconRepository {
                             },
                             createdAt = createdAt,
                             updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
-                            folderId = item.optString("folderId").takeIf { it.isNotBlank() && it != "null" },
                             status = runCatching { LexiconStatus.valueOf(item.optString("status")) }.getOrDefault(LexiconStatus.Active),
                             sourceEventIds = item.optJSONArray("sourceEventIds")?.let { array -> (0 until array.length()).map { array.optString(it) }.filter(String::isNotBlank) }.orEmpty(),
                             lastFollowUpAt = runCatching { Instant.parse(item.optString("lastFollowUpAt")) }.getOrNull(),
@@ -268,6 +266,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         synchronized(lock) {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            folders.value = decodeFolders(prefs?.getString(KEY_FOLDERS, null))
             entries.value = decode(prefs?.getString(KEY_ENTRIES, null))
         }
     }
@@ -462,6 +461,8 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                             characterOverrides = overrideMap,
                             createdAt = createdAt,
                             updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
+                            folderId = item.optString("folderId")
+                                .takeUnless { it.isBlank() || it == "null" },
                         ),
                     )
                 }
