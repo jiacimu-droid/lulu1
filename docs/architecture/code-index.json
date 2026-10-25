@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:30:46.428685+00:00",
-  "commit": "66642435bcae2123bc57bb12391ef82c44218681",
+  "generatedAt": "2026-10-25T07:31:12.524720+00:00",
+  "commit": "37b89aef033e3ec2fc5c3f29a8a45cbafd0bfedf",
   "branch": "main",
-  "sourceFingerprint": "fc27a3d60a95c34450e2913a641cb7565f84e8d31e9d9f40a2456f3623f5415c",
+  "sourceFingerprint": "660c24812e125bbee962dba8c0fdaf2856863c3505914f2dff6e067fa4caf60c",
   "summary": {
     "files": 892,
-    "lines": 175051,
-    "symbols": 2630
+    "lines": 175066,
+    "symbols": 2631
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12768,52 +12768,58 @@
         "line": 31
       }
     ],
+    "showStudyWatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 40
+      }
+    ],
     "showReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 38
+        "line": 48
       }
     ],
     "showScheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 47
+        "line": 57
       }
     ],
     "showProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 52
+        "line": 62
       }
     ],
     "dismissCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 56
+        "line": 66
       }
     ],
     "dismissProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 58
+        "line": 68
       }
     ],
     "dismissReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 59
+        "line": 69
       }
     ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 60
+        "line": 70
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 103
+        "line": 113
       }
     ],
     "scheduleNext": [
@@ -14746,8 +14752,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 169,
-      "sha256": "21760028f6e6fad72296a108e526ca7e898499f88be44a4d9eb56f118ef24115",
+      "lines": 174,
+      "sha256": "a7b9671338966f497014232c5b3d6af243abf2b7e5f1ccf218214225e40a5c6e",
       "symbols": []
     },
     {
@@ -27935,8 +27941,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-      "lines": 186,
-      "sha256": "3c64d76305d10a509fda828df3d3af27d969786cc5d45355e5d3f1ec2dfcdce3",
+      "lines": 196,
+      "sha256": "7936d5f89925c74c3e000c4feeb0be6dae59e7d0fc0541daf33d4240dbee1991",
       "symbols": [
         {
           "name": "available",
@@ -27947,36 +27953,40 @@
           "line": 31
         },
         {
+          "name": "showStudyWatch",
+          "line": 40
+        },
+        {
           "name": "showReturn",
-          "line": 38
+          "line": 48
         },
         {
           "name": "showScheduledReminder",
-          "line": 47
+          "line": 57
         },
         {
           "name": "showProgress",
-          "line": 52
+          "line": 62
         },
         {
           "name": "dismissCapture",
-          "line": 56
+          "line": 66
         },
         {
           "name": "dismissProgress",
-          "line": 58
+          "line": 68
         },
         {
           "name": "dismissReturn",
-          "line": 59
+          "line": 69
         },
         {
           "name": "dismiss",
-          "line": 60
+          "line": 70
         },
         {
           "name": "line",
-          "line": 103
+          "line": 113
         }
       ]
     },

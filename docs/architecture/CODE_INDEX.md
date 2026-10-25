@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`66642435bcae2123bc57bb12391ef82c44218681`
+- 基准提交：`37b89aef033e3ec2fc5c3f29a8a45cbafd0bfedf`
 - 分支：`main`
 - 已索引文件：892
-- 已索引代码/文本行：175051
-- 已发现符号：2630
+- 已索引代码/文本行：175066
+- 已发现符号：2631
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 221 | 0 |
-| `app/src/main/AndroidManifest.xml` | 169 | 0 |
+| `app/src/main/AndroidManifest.xml` | 174 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
@@ -612,7 +612,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 492 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 186 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 322 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
