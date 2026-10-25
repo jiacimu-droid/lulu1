@@ -81,51 +81,55 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun intimacyPreferenceFollowsPrivateChatAndCallWithoutLeakingToOtherContexts() = runBlocking {
+    @Test fun privateChatUnderstandsAdultJokesWithoutASpecialModeAndOptionalHintDoesNotLeak() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
         LuluAiServices.initialize(context)
-        val role = MigratedDomainStores.characters.create("亲密偏好测试角色", "独立判断")
-        val other = MigratedDomainStores.characters.create("其他角色", "独立判断")
-        assertEquals("everyday", CharacterIntimacyConversationPreference.selected(role.characterId))
-        CharacterLifeStore.setIntimacyConversationMode(role.characterId, "adult")
-        assertEquals("adult", CharacterIntimacyConversationPreference.selected(role.characterId))
-        assertEquals("everyday", CharacterIntimacyConversationPreference.selected(other.characterId))
+        val role = MigratedDomainStores.characters.create("普通亲密话题回归", "独立判断，喜欢开玩笑")
+        val other = MigratedDomainStores.characters.create("另一个人物", "不继承别人的偏好")
+        assertFalse(CharacterIntimacyConversationPreference.enabled(role.characterId))
         val server = MockWebServer()
-        repeat(8) {
+        repeat(9) {
             server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
-                .setBody("""{"choices":[{"message":{"content":"收到。"},"finish_reason":"stop"}]}"""))
+                .setBody("""{"choices":[{"message":{"content":"嗯。"},"finish_reason":"stop"}]}"""))
         }
         server.start()
         try {
             val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
             suspend fun verify(id: String, source: String, scene: String, mode: CompanionContextMode,
-                               expected: Boolean, direct: Boolean = false) {
+                               expectedPrivate: Boolean, expectedExtra: Boolean, direct: Boolean = false) {
                 val dialogue = if (direct) listOf(ModelConversationMessage(
-                    ModelConversationMessage.Role.USER, "想谈一谈我们的亲密关系")) else emptyList()
-                LuluAiServices.gateway.generate(id, "场景事实", "自然回应", source, "test",
-                    contextMode = mode, connectionOverride = connection,
-                    memoryRequest = UnifiedMemoryRequest(currentInput = "亲密关系", sceneContext = scene),
+                    ModelConversationMessage.Role.USER, "刚才只是开个玩笑")) else emptyList()
+                LuluAiServices.gateway.generate(id, "真实上下文", "自然接话", source, "test",
+                    connectionOverride = connection, contextMode = mode,
+                    memoryRequest = UnifiedMemoryRequest(currentInput = "开个玩笑", sceneContext = scene),
                     conversation = dialogue).getOrThrow()
                 val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
-                val system = body.getJSONArray("messages").getJSONObject(0).getString("content")
-                assertEquals("source=$source scene=$scene", expected,
-                    system.contains("【私密亲密交流偏好｜成年人话题】"))
-                assertFalse(system.contains("PERMANENTLY_DISABLED"))
+                val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
+                assertEquals("source=$source scene=$scene", expectedPrivate, prompt.contains("【私聊语境】"))
+                assertEquals("source=$source scene=$scene", expectedExtra, prompt.contains("【NSFW 交流偏好】"))
+                assertFalse(prompt.contains("【私密亲密交流偏好｜浪漫】"))
+                assertFalse(prompt.contains("PERMANENTLY_DISABLED"))
             }
-            verify(role.characterId, "后台主动感知", "私聊", CompanionContextMode.Full, true, true)
-            verify(role.characterId, "聊天表达渲染", "私聊", CompanionContextMode.CharacterAndScenario, true)
-            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, true)
-            verify(role.characterId, "后台主动感知", "", CompanionContextMode.Full, false)
-            verify(role.characterId, "聊天表达渲染", "群聊", CompanionContextMode.Full, false)
-            verify(role.characterId, "剧场", "独立剧情", CompanionContextMode.Isolated, false)
-            verify(other.characterId, "电话回复", "电话", CompanionContextMode.Full, false)
-            CharacterLifeStore.setIntimacyConversationMode(role.characterId, "everyday")
-            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, false)
-            assertEquals(8, server.requestCount)
+            // Plain private chat already understands intimate joking; no separate personality mode.
+            verify(role.characterId, "后台主动感知", "私聊", CompanionContextMode.Full, true, false, true)
+            CharacterLifeStore.setNsfwEnabled(role.characterId, true)
+            assertTrue(CharacterIntimacyConversationPreference.enabled(role.characterId))
+            assertFalse(CharacterIntimacyConversationPreference.enabled(other.characterId))
+            verify(role.characterId, "后台主动感知", "私聊", CompanionContextMode.Full, true, true, true)
+            verify(role.characterId, "聊天表达渲染", "私聊", CompanionContextMode.CharacterAndScenario, true, true)
+            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, true, true)
+            verify(role.characterId, "后台主动感知", "", CompanionContextMode.Full, false, false)
+            verify(role.characterId, "聊天表达渲染", "群聊", CompanionContextMode.Full, false, false)
+            verify(role.characterId, "剧场", "独立剧情", CompanionContextMode.Isolated, false, false)
+            verify(other.characterId, "电话回复", "电话", CompanionContextMode.Full, true, false)
+            CharacterLifeStore.setNsfwEnabled(role.characterId, false)
+            verify(role.characterId, "电话回复", "电话", CompanionContextMode.Full, true, false)
+            assertEquals(9, server.requestCount)
         } finally { server.shutdown() }
     }
+
     @Test(timeout = 60_000) fun privateChatDeliversTheRewrittenTurnInsteadOfTheSixBubbleComfortDraft() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
