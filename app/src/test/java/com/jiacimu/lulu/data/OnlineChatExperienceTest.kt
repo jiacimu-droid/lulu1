@@ -83,7 +83,9 @@ class OnlineChatExperienceTest {
         assertTrue(CompanionOnlineStore.isOnline(characterId))
     }
 
-    @Test fun verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision() = runBlocking {
+    @Test
+    @Config(sdk = [28]) // No Android 13 notification runtime permission in this UI dispatch test.
+    fun verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
         val character = MigratedDomainStores.characters.create("消息之后真实来电测试")
@@ -112,6 +114,15 @@ class OnlineChatExperienceTest {
             assertEquals(role, pending!!.characterId)
             assertEquals(conversation.id, pending.conversationId)
             assertEquals("喂，宝宝，我真的打来了。", pending.reason)
+            // The old regression created only a pending call/ringtone for
+            // nested steps; no full-screen incoming-call notification appeared.
+            val manager = context.getSystemService(android.app.NotificationManager::class.java)
+            val invites = org.robolectric.Shadows.shadowOf(manager).allNotifications.filter {
+                it.category == android.app.Notification.CATEGORY_CALL &&
+                    it.extras.getString(android.app.Notification.EXTRA_TITLE)
+                        ?.contains(character.displayName) == true
+            }
+            assertEquals("A nested start_call must create the incoming-call invitation", 1, invites.size)
             assertEquals(sent.content, MigratedDomainStores.chat.messages(conversation.id)
                 .value.first { it.id == sent.id }.content)
             // Replaying the same chosen action must not dial a second time.
