@@ -4,6 +4,9 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
+import com.jiacimu.lulu.ai.CompanionContextMode
+import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import com.jiacimu.lulu.ai.ModelConversationMessage
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.runBlocking
@@ -77,6 +80,71 @@ class ConversationExpressionGatewayTest {
                 assertTrue(system.contains("哄睡连续故事按实际需要充分表达"))
             }
             assertEquals(sources.size, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun worldBookTopNormalAndBottomAreActuallyPlacedInOneSharedSystemRequest() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = MigratedDomainStores.characters.create("世界书位置检验", "严格保持自我身份")
+        val other = MigratedDomainStores.characters.create("无关联人物", "不同设定")
+        suspend fun store(id: String, position: WorldBookPromptPosition,
+                          enabled: Boolean = true, overrides: Map<String, Boolean> = emptyMap()) {
+            LuluRepositories.worldBook.save(WorldBookEntry(
+                "worldbook-position-$id", "位置-$id", "内容-$id", enabled, overrides,
+                promptPosition = position,
+            ))
+        }
+        store("TOP1", WorldBookPromptPosition.TOP)
+        store("TOP2", WorldBookPromptPosition.TOP)
+        store("MID", WorldBookPromptPosition.NORMAL, false, mapOf(role.characterId to true))
+        store("TAIL", WorldBookPromptPosition.BOTTOM)
+        store("OTHER", WorldBookPromptPosition.BOTTOM, false, mapOf(other.characterId to true))
+        val server = MockWebServer()
+        repeat(2) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"知道了。"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val history = listOf(ModelConversationMessage(
+                ModelConversationMessage.Role.USER, "主人这一轮的原话"))
+            LuluAiServices.gateway.generate(
+                role.characterId, "本轮背景确认", "继续和主人自然交流", "后台主动感知", "test",
+                contextMode = CompanionContextMode.Full,
+                memoryRequest = UnifiedMemoryRequest(
+                    currentInput = "主人这一轮的原话", sceneContext = "私聊"),
+                connectionOverride = connection, conversation = history,
+            ).getOrThrow()
+            val wire = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val messages = wire.getJSONArray("messages")
+            val system = messages.getJSONObject(0).getString("content")
+            assertTrue(system.startsWith("全局世界书：\\n- 位置-TOP1：内容-TOP1"))
+            assertTrue(system.indexOf("内容-TOP1") < system.indexOf("内容-TOP2"))
+            assertTrue(system.indexOf("内容-TOP2") < system.indexOf("你正在以"))
+            assertTrue(system.indexOf("角色世界书：\\n- 位置-MID") > system.indexOf("角色身份"))
+            assertTrue(system.indexOf("内容-MID") < system.indexOf("本轮背景确认"))
+            assertTrue(system.endsWith("- 位置-TAIL：内容-TAIL"))
+            assertFalse(system.contains("内容-OTHER"))
+            listOf("TOP1", "TOP2", "MID", "TAIL").forEach { id ->
+                assertEquals(1, Regex("内容-$id").findAll(system).count())
+            }
+            assertEquals("user", messages.getJSONObject(messages.length() - 1).getString("role"))
+            assertEquals("主人这一轮的原话",
+                messages.getJSONObject(messages.length() - 1).getString("content"))
+
+            // An isolated theater/tool task must never inherit character world books.
+            LuluAiServices.gateway.generate(
+                role.characterId, "剧情素材", "生成", "独立剧场", "test",
+                contextMode = CompanionContextMode.Isolated, connectionOverride = connection,
+            ).getOrThrow()
+            val isolated = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                .getJSONArray("messages").getJSONObject(0).getString("content")
+            assertFalse(isolated.contains("内容-TOP1"))
+            assertFalse(isolated.contains("内容-TAIL"))
         } finally { server.shutdown() }
     }
 
