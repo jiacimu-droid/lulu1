@@ -598,6 +598,12 @@ object ProactivePerceptionRuntime {
             onlineUnread,
         )
         val privateInput = privateDialogue.lastOrNull()?.content.orEmpty()
+        // One optional, character-authored review on an ordinary independent
+        // perception. Incoming user messages keep their own reply priority.
+        val selfReviewDue = onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
+            CharacterLifeSelfReview.isDue(
+                prefs.getString("last_self_review_day_$characterId", "").orEmpty(), now,
+            )
         val lastUserPrivateAt = messages.filter {
             it.sender == LuluChatMessage.Sender.User && it.createdAt <= now
         }.maxByOrNull { it.createdAt }?.createdAt
@@ -770,6 +776,10 @@ object ProactivePerceptionRuntime {
                 // turns instead of charging it on every incoming chat bubble.
                 if (privateDialogue.isEmpty()) {
                     RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
+                }
+                if (selfReviewDue && pendingUserContext.isBlank()) {
+                    CharacterLifeSelfReview.context(appContext, characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
                 }
                 val futurePlans = RoleDayScheduleStore.plannedContext(appContext, characterId, now)
@@ -1507,6 +1517,13 @@ object ProactivePerceptionRuntime {
         CharacterExplorationContinuity.remember(appContext, characterId, decision.curiosity, decision.curiosities,
             (onlineUnread.messageIds + newlyObserved.map { it.evidenceId } +
                 recentLifeEvents.map { it.id } + listOf(awakeObservationId)).distinct(), Instant.now())
+        // A successful SAME-role decision, not a scheduler tick, consumes this
+        // day's review opportunity. Crashes before this point retry naturally.
+        if (selfReviewDue && pendingUserContext.isBlank()) {
+            check(prefs.edit().putString(
+                "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),
+            ).commit()) { "本人心事回顾进度未保存" }
+        }
         // Being online alone is not evidence of a new thought. Persist a new private voice only when
         // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
         // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
