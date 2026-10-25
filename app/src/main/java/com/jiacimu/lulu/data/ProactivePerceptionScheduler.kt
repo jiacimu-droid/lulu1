@@ -797,25 +797,29 @@ class ProactivePerceptionWorker(
         // when the user has spoken since it was queued; the original timeline
         // event remains available to future low-priority perception.
         val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
-        // The primary chat/call perception may already have consumed the exact
-        // tool receipt while this durable follow-up waited in WorkManager.
-        // Unlike new interaction evidence, an already-seen search needs no duplicate call.
-        if (characterId != null && interactionId.isNotBlank() &&
-            PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId) &&
+        val searchReceiptPending = characterId != null && interactionId.isNotBlank() &&
             SharedExperienceTimeline.eventsByIds(characterId, listOf(interactionId))
-                .any(SearchReceiptFeedback::completedEvidence)) {
-            return@runCatching Result.success()
-        }
-        if (characterId != null && interactionId.isNotBlank() &&
-            CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
-            // Chat owns the next perception. A search result is already in its
-            // shared pending evidence and must NOT enter the unrelated call-end
-            // appraisal retry lane. It remains unclaimed if chat is interrupted.
-            val isSearchReceipt = SharedExperienceTimeline.eventsByIds(
-                characterId, listOf(interactionId))
                 .any(SearchReceiptFeedback::completedEvidence)
-            if (!isSearchReceipt &&
-                !CharacterCausalAppraisalStage.hasCompletedDecision(characterId, interactionId)) {
+        // Search results are durable stimuli, regardless of who requested them.
+        // Do not run a second autonomous decision over a live chat or phone turn.
+        // A result arriving during a long search-reply must not be lost when
+        // unread messages still belong to the primary chat owner.
+        if (searchReceiptPending && characterId != null) {
+            if (PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId))
+                return@runCatching Result.success()
+            val chatBusy = MigratedDomainStores.chat.conversations.value.any {
+                it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
+            }
+            if (CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank() ||
+                CompanionPresenceStore.isInCall(characterId) || chatBusy) {
+                // WorkManager retries without repeating the search. If the live
+                // turn stays busy, leave the result for ordinary later perception.
+                return@runCatching if (runAttemptCount < 2) Result.retry() else Result.success()
+            }
+        } else if (characterId != null && interactionId.isNotBlank() &&
+            CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+            // Preserve the existing separate call/world interaction recovery.
+            if (!CharacterCausalAppraisalStage.hasCompletedDecision(characterId, interactionId)) {
                 ProactivePerceptionScheduler.scheduleInteractionRetry(
                     applicationContext, characterId, interactionId,
                 )
