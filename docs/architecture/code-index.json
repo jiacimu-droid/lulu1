@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:24:48.174104+00:00",
-  "commit": "98d10669a2de86fca8a9cb9881f88c075a1f1696",
+  "generatedAt": "2026-10-25T11:25:34.689736+00:00",
+  "commit": "274c12be4ba8b12596fc61080db319d237ba93ad",
   "branch": "main",
-  "sourceFingerprint": "f8ae2fdde2e894cf870db60417fb71a5a05c0958612ddc9284aa5c1ccc4b4184",
+  "sourceFingerprint": "d3a8f6f32b0fc55179940105b02f353242e0a029fbe4286565a750b4bb0a7bb3",
   "summary": {
     "files": 898,
-    "lines": 176622,
-    "symbols": 2646
+    "lines": 176626,
+    "symbols": 2647
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -383,7 +383,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 106
+        "line": 109
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -4573,7 +4573,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 36
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -4592,22 +4592,28 @@
         "line": 525
       }
     ],
+    "canChoose": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
+        "line": 38
+      }
+    ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 44
+        "line": 46
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 55
+        "line": 57
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 86
+        "line": 89
       }
     ],
     "isWakeExplanation": [
@@ -10253,7 +10259,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 196
+        "line": 197
       }
     ],
     "allowsExpansion": [
@@ -18763,7 +18769,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
       "lines": 138,
-      "sha256": "0a74750bb0797cea0938cd7b1b075a43760cbd176cf7b5f906c76455463c1484",
+      "sha256": "904f10ea4c155658b01f00d32852cac7db4d2a4dd54bf5bd249d68eda574a5fe",
       "symbols": [
         {
           "name": "needsIndependentLifeReview",
@@ -18855,8 +18861,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 117,
-      "sha256": "1dc5dc90cd8a74f69f2f4221a2b74010c573e3cb6b1586dabfe2ef00c16df7dd",
+      "lines": 120,
+      "sha256": "f5b3344296963b8c987865b5fef861229b3f70250b41f5f60c925a13fadb1ee0",
       "symbols": [
         {
           "name": "Capability",
@@ -18868,23 +18874,27 @@
         },
         {
           "name": "find",
-          "line": 36
+          "line": 37
+        },
+        {
+          "name": "canChoose",
+          "line": 38
         },
         {
           "name": "scheduledActionName",
-          "line": 44
+          "line": 46
         },
         {
           "name": "allows",
-          "line": 55
+          "line": 57
         },
         {
           "name": "screenVisionContext",
-          "line": 86
+          "line": 89
         },
         {
           "name": "context",
-          "line": 106
+          "line": 109
         }
       ]
     },
@@ -24460,7 +24470,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
       "lines": 697,
-      "sha256": "22afbf16c438072eedd6db0956504d70298a01642d961abdc56e05e25ab210c9",
+      "sha256": "e68a8b6cae77e1c634173c7ac18f6c9da754e43de37e124ec7cdc540f5ea8b5f",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -24793,8 +24803,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 296,
-      "sha256": "1f6a4e779a6e01d5d5775a7466b73fb2ac7b50396acb0700aea9def5bbc2e462",
+      "lines": 297,
+      "sha256": "01c7bd6239309234dcc197189f526733131aec3f066fa43701e4b695c42a6934",
       "symbols": [
         {
           "name": "ToolRouter",
@@ -24806,7 +24816,7 @@
         },
         {
           "name": "project",
-          "line": 196
+          "line": 197
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`98d10669a2de86fca8a9cb9881f88c075a1f1696`
+- 基准提交：`274c12be4ba8b12596fc61080db319d237ba93ad`
 - 分支：`main`
 - 已索引文件：898
-- 已索引代码/文本行：176622
-- 已发现符号：2646
+- 已索引代码/文本行：176626
+- 已发现符号：2647
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -247,7 +247,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 631 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 117 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 120 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 59 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -457,7 +457,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 101 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 296 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 297 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
