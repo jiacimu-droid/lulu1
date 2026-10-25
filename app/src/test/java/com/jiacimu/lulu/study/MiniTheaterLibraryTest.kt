@@ -14,7 +14,7 @@ class MiniTheaterLibraryTest {
         val parsed = MiniTheaterLibrary.parse(raw)
         assertEquals(2, parsed.size)
         assertEquals(listOf("超书信小剧场", "超论坛小剧场"), parsed.map { it.title })
-        assertEquals("<small_theater>\\n甲{{user}}、乙{{char}}\\n不要修改原文</small_theater>",
+        assertEquals("<small_theater>\n甲{{user}}、乙{{char}}\n不要修改原文</small_theater>",
             parsed.first().prompt)
         assertTrue(parsed.all { it.status == "new" && it.text.isEmpty() })
         assertEquals(parsed.map { it.id }, MiniTheaterLibrary.parse(raw).map { it.id })
