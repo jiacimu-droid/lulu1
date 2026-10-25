@@ -82,8 +82,8 @@ fun CharacterSettingsScreenV2(
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
-    val intimacyMode = remember(characterId, lifeStates) {
-        CharacterIntimacyConversationPreference.selected(characterId)
+    val nsfwEnabled = remember(characterId, lifeStates) {
+        CharacterIntimacyConversationPreference.enabled(characterId)
     }
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
@@ -294,26 +294,12 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("亲密交流", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CharacterIntimacyConversationPreference.choices.forEach { (mode, label) ->
-                            OutlinedButton(
-                                onClick = { CharacterLifeStore.setIntimacyConversationMode(characterId, mode) },
-                                modifier = Modifier.weight(1f),
-                                contentPadding = PaddingValues(horizontal = 4.dp),
-                                colors = if (intimacyMode == mode)
-                                    ButtonDefaults.outlinedButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    ) else ButtonDefaults.outlinedButtonColors(),
-                            ) { Text(if (intimacyMode == mode) "✓ $label" else label, fontSize = 12.sp) }
-                        }
-                    }
+                    CharacterV2Switch(
+                        title = "NSFW 交流偏好",
+                        checked = nsfwEnabled,
+                    ) { CharacterLifeStore.setNsfwEnabled(characterId, it) }
                     Text(
-                        when (intimacyMode) {
-                            "adult" -> "成年人自愿的一对一话题；实际内容范围取决于模型服务商，不会解除服务端限制。"
-                            "romance" -> "允许更自然地表达浪漫亲昵，角色仍按本人性格与关系做选择。"
-                            else -> "保持原有交流方式。"
-                        },
+                        "普通亲密玩笑无需开启；开启后仅为私聊、电话增加简短成人话题指导，不改变人格或模型限制。",
                         color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
                     )
                 }
