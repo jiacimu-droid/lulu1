@@ -232,6 +232,29 @@ class InMemoryLexiconRepository : LexiconRepository {
 
 data class WorldBookImportResult(val imported: Int, val duplicates: Int)
 
+/** Search title, body and folder names without affecting original prompt ordering. */
+fun groupWorldBookEntries(
+    books: List<WorldBookEntry>,
+    folders: List<WorldBookFolder>,
+    query: String,
+): List<Triple<String?, String, List<WorldBookEntry>>> {
+    val term = query.trim()
+    val validFolderIds = folders.mapTo(mutableSetOf()) { it.id }
+    return (listOf<String?>(null) + folders.map { it.id }).mapNotNull { folderId ->
+        val name = folders.firstOrNull { it.id == folderId }?.name ?: "未分类"
+        val selected = books.filter { book ->
+            val actualFolder = book.folderId?.takeIf { it in validFolderIds }
+            actualFolder == folderId && (term.isBlank() ||
+                name.contains(term, ignoreCase = true) ||
+                book.title.contains(term, ignoreCase = true) ||
+                book.content.contains(term, ignoreCase = true))
+        }
+        if (selected.isEmpty() && (folderId == null && term.isBlank() ||
+                term.isNotBlank() && !name.contains(term, ignoreCase = true))) null
+        else Triple(folderId, name, selected)
+    }
+}
+
 /** Folder metadata is organizational only; entries remain in their original prompt order. */
 data class WorldBookFolder(val id: String, val name: String)
 
