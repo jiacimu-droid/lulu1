@@ -3,7 +3,12 @@ package com.jiacimu.lulu.data
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ShortVideoMobileReadingTest {
     private val clip = ShortVideoMobileReading.Clip(
         "douyin", "test-001", "https://www.douyin.com/video/test-001", "测试视频")
