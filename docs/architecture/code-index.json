@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:10:57.845529+00:00",
-  "commit": "9874e6eee63a8616682368e9b800a10de3142bbd",
+  "generatedAt": "2026-10-25T15:11:15.342754+00:00",
+  "commit": "c0cd8349ed7dd311332eee79891a63133c86ec68",
   "branch": "main",
-  "sourceFingerprint": "d45f0cd1a00301c7ada2307e23a9aa6ce35fc56ece24a4311cd4e109341a65cb",
+  "sourceFingerprint": "1088c05607768436c8697859b0b8372c0558dd8149c66094a93e2a5b304e80a3",
   "summary": {
     "files": 907,
-    "lines": 178517,
+    "lines": 178526,
     "symbols": 2676
   },
   "symbolIndex": {
@@ -28637,8 +28637,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt",
-      "lines": 26,
-      "sha256": "1161bf515a0b93938f1dd632c8141ada99e74b79ec747ba0aca07c48e5174d03",
+      "lines": 35,
+      "sha256": "b4e527d7b05f77109289d9ed4f74523dbcd2b1843557300786a337f2e48d1038",
       "symbols": [
         {
           "name": "ChatReceiptRunsTest",
