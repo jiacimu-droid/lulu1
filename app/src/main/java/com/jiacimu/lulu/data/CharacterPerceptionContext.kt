@@ -87,10 +87,14 @@ internal object CharacterPerceptionContext {
     fun personalOutcome(source: String, content: String): String? {
         if (source != "tool-router") return null
         val execution = runCatching { JSONObject(content) }.getOrNull() ?: return null
+        val status = execution.optString("status")
         if ((execution.optString("tool") !in CharacterActivityExpectation.tools &&
                 execution.optString("tool") !in SearchReceiptFeedback.resultTools) ||
-            execution.optString("status") !in setOf("succeeded", "failed")) return null
+            status !in setOf("succeeded", "observed", "verified", "failed")) return null
         val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return null
+        // A status string alone does not establish what happened: an executor
+        // must agree that the claimed terminal state really succeeded/failed.
+        if (result.optBoolean("success") != (status != "failed")) return null
         if (execution.optString("tool") == "digital_world_action") {
             val args = runCatching { JSONObject(execution.optString("fingerprint").substringAfter(':')) }.getOrNull()
                 ?: return null
