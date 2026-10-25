@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T04:14:02.314300+00:00",
-  "commit": "639b0638a1465c8d9d146109a318e10bc434f614",
+  "generatedAt": "2026-10-25T04:14:18.492586+00:00",
+  "commit": "869c80ae37a7a66105139387e3b0255ba941565c",
   "branch": "main",
-  "sourceFingerprint": "27bd93df94b43e75d58b9f32a43734f01e2243b0ed7b303ea77acb896037cfad",
+  "sourceFingerprint": "4931d42ff9c8a8c71b0cabbf13c2b37f768ab589c7c97984af64a62f7db784a6",
   "summary": {
     "files": 887,
-    "lines": 173327,
+    "lines": 173332,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -5681,7 +5681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 38
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -6235,7 +6235,7 @@
     "same": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 51
+        "line": 55
       }
     ],
     "candidates": [
@@ -20155,8 +20155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 92,
-      "sha256": "b98d1eec9bef25119587696a2ad6905f3f4213a347d0cfc118a10264973177d6",
+      "lines": 97,
+      "sha256": "153ff8364540932528bbd86d6f8b69b1ce6ef0ddb2d5f69d29d0e72dd9c88d87",
       "symbols": [
         {
           "name": "actions",
@@ -20164,11 +20164,11 @@
         },
         {
           "name": "add",
-          "line": 38
+          "line": 42
         },
         {
           "name": "same",
-          "line": 51
+          "line": 55
         }
       ]
     },
