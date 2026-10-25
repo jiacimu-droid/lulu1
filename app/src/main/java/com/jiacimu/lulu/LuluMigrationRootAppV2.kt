@@ -121,8 +121,6 @@ fun LuluMigrationRootAppV2(
     var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
 
     val preferences by LuluAppPreferencesStore.state.collectAsState()
-    val studyState by PostgraduateExamStores.main.state.collectAsState()
-    val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
     val currentCall by LuluVoiceCallSession.state.collectAsState()
     val callExpanded by LuluCallWindowController.expanded.collectAsState()
     val density = LocalDensity.current
@@ -220,27 +218,6 @@ fun LuluMigrationRootAppV2(
         readingInitialTitle = initialReadingTitle
     }
 
-    LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
-        val studyStore = PostgraduateExamStores.main
-        while (studyStore.state.value.pomodoro.running) {
-            delay(500)
-            val beforeSync = studyStore.state.value.pomodoro
-            if (studyStore.syncPomodoroClock()) {
-                PomodoroCompanionSessions.handleNaturalCompletion(
-                    studyStore = studyStore,
-                    actualMinutes = beforeSync.selectedMinutes,
-                )
-                break
-            }
-        }
-    }
-
-    LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
-        while (PomodoroCompanionSessions.store.state.value.countUpRunning) {
-            delay(1_000)
-            PomodoroCompanionSessions.syncCountUpClock()
-        }
-    }
 
     // The Android share sheet delivers a link, not proof that a role has read
     // the article. A recipient is chosen explicitly and the payload enters the
@@ -449,32 +426,72 @@ fun LuluMigrationRootAppV2(
                     }
                     }
 
-                    val pomodoroActive = pomodoroCompanion.activeSessionId.isNotBlank() && !pomodoroCompanion.completionHandled
-                    if (pomodoroActive && !pomodoroFocusVisible) {
-                        LuluAppearanceTheme(appearanceLibrary.active("Pomodoro")) {
-                        PomodoroMiniWindow(
-                            studyState = studyState,
-                            companion = pomodoroCompanion,
+                    // Frequent timer ticks are scoped to the overlay itself,
+                    // not to the root navigator or every visible scrolling screen.
+                    LuluAppearanceTheme(appearanceLibrary.active("Pomodoro")) {
+                        PomodoroRuntimeOverlay(
+                            focusVisible = pomodoroFocusVisible,
                             onOpen = ::openActivePomodoro,
-                            onPauseResume = {
-                                if (pomodoroCompanion.timerMode == PomodoroTimerMode.CountUp) {
-                                    PomodoroCompanionSessions.toggleCountUp()
-                                } else {
-                                    PostgraduateExamStores.main.togglePomodoro()
-                                }
-                            },
-                            onEnd = {
-                                PomodoroCompanionSessions.finishActiveSession(
-                                    studyStore = PostgraduateExamStores.main,
-                                    reason = "用户从番茄钟小窗结束",
-                                )
-                            },
                         )
-                        }
                     }
                 }
             }
             }
         }
+    }
+}
+
+/**
+ * An active timer updates at 500–1000ms intervals. Collecting those rapidly
+ * changing stores in LuluMigrationRootAppV2 invalidated the entire navigation
+ * tree during a fling, including chat/worldbook LazyColumns.
+ * Keep the same scheduler and mini-window; isolate only their composition.
+ */
+@Composable
+private fun PomodoroRuntimeOverlay(
+    focusVisible: Boolean,
+    onOpen: () -> Unit,
+) {
+    val studyState by PostgraduateExamStores.main.state.collectAsState()
+    val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
+    LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
+        val studyStore = PostgraduateExamStores.main
+        while (studyStore.state.value.pomodoro.running) {
+            delay(500)
+            val beforeSync = studyStore.state.value.pomodoro
+            if (studyStore.syncPomodoroClock()) {
+                PomodoroCompanionSessions.handleNaturalCompletion(
+                    studyStore = studyStore,
+                    actualMinutes = beforeSync.selectedMinutes,
+                )
+                break
+            }
+        }
+    }
+    LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
+        while (PomodoroCompanionSessions.store.state.value.countUpRunning) {
+            delay(1_000)
+            PomodoroCompanionSessions.syncCountUpClock()
+        }
+    }
+    val active = pomodoroCompanion.activeSessionId.isNotBlank() &&
+        !pomodoroCompanion.completionHandled
+    if (active && !focusVisible) {
+        PomodoroMiniWindow(
+            studyState = studyState,
+            companion = pomodoroCompanion,
+            onOpen = onOpen,
+            onPauseResume = {
+                if (pomodoroCompanion.timerMode == PomodoroTimerMode.CountUp)
+                    PomodoroCompanionSessions.toggleCountUp()
+                else PostgraduateExamStores.main.togglePomodoro()
+            },
+            onEnd = {
+                PomodoroCompanionSessions.finishActiveSession(
+                    studyStore = PostgraduateExamStores.main,
+                    reason = "用户从番茄钟小窗结束",
+                )
+            },
+        )
     }
 }
