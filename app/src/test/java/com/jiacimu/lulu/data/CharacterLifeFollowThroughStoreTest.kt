@@ -100,6 +100,45 @@ class CharacterLifeFollowThroughStoreTest {
         assertFalse(CharacterLifeFollowThroughStore.context(role, now).contains(id))
     }
 
+    @Test fun sharingUrgeAccumulatesAcrossVerifiedMomentsAndFallsAfterRelease() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "sharing-urge-accumulation"
+        val ids = listOf("share-urge-1", "share-urge-2", "share-urge-3")
+        ids.forEach { CharacterLifeFollowThroughStore.invalidateEvidence(it) }
+        assertEquals(0.0, CharacterLifeFollowThroughStore.sharingUrge(role, now), 0.001)
+        ids.forEachIndexed { index, id ->
+            assertTrue(CharacterLifeFollowThroughStore.register(
+                role, id, "真实生活", "真实经历第${index + 1}件", now))
+        }
+        val accumulated = CharacterLifeFollowThroughStore.sharingUrge(role, now)
+        assertTrue("Independent experiences should build a sharing impulse", accumulated >= 35.0)
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", ids[0]).put("status", "held")
+            .put("why", "这件事很想讲给别人听").put("intensity", 90))
+        val wished = CharacterLifeFollowThroughStore.sharingUrge(role, now)
+        assertTrue(wished > accumulated)
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("当前累计的分享冲动"))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", ids[1]).put("status", "released")
+            .put("why", "决定保留给自己"))
+        assertTrue(CharacterLifeFollowThroughStore.sharingUrge(role, now) < wished)
+        ids.forEach { CharacterLifeFollowThroughStore.invalidateEvidence(it) }
+        assertEquals(0.0, CharacterLifeFollowThroughStore.sharingUrge(role, now), 0.001)
+    }
+
+    @Test fun sharingImpulseFadesWithoutTimeBasedAutoPosts() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "sharing-urge-fades"
+        val id = "share-urge-old-story"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        CharacterLifeFollowThroughStore.register(role, id, "真实生活", "有趣的真实经历", now)
+        val fresh = CharacterLifeFollowThroughStore.sharingUrge(role, now)
+        val daysLater = CharacterLifeFollowThroughStore.sharingUrge(role, now.plusSeconds(5L * 86400))
+        assertTrue(fresh > daysLater)
+        assertTrue(daysLater > 0.0)
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
     @Test fun actualReadingCanAdvanceCuriosityWithoutObligatoryPublicPosting() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "reader-life-thread"
