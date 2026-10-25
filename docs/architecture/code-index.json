@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:58:19.614493+00:00",
-  "commit": "03b211568982f1c347ee1cada733d6fe2ddedf96",
+  "generatedAt": "2026-10-25T07:58:38.370958+00:00",
+  "commit": "64a013cec234c633dd576f36ea44be40af9e5f21",
   "branch": "main",
-  "sourceFingerprint": "1d0c6a8709e95f639c9c8701240b740c451ba66ba3faa34a870b2175dca77814",
+  "sourceFingerprint": "b16a917b7083a9929cc4b3df977e00c5f7aef2597805edce6a56c67b50ea5f0f",
   "summary": {
     "files": 896,
-    "lines": 175847,
+    "lines": 175860,
     "symbols": 2638
   },
   "symbolIndex": {
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 288
+        "line": 289
       }
     ],
     "microphone": [
@@ -239,7 +239,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 276
+        "line": 277
       }
     ],
     "isWakeCallReason": [
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 304
+        "line": 305
       }
     ],
     "measure": [
@@ -12217,25 +12217,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 512
+        "line": 524
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 858
+        "line": 870
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 865
+        "line": 877
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 872
+        "line": 884
       }
     ],
     "saveProgress": [
@@ -12855,25 +12855,25 @@
     "scheduleNext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 258
+        "line": 259
       }
     ],
     "recordCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 322
+        "line": 323
       }
     ],
     "LuluStudyWatchReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 347
+        "line": 348
       }
     ],
     "LuluStudyWatchWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 358
+        "line": 359
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -27290,24 +27290,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1513,
-      "sha256": "2134a86071cc9ea139c864fa907e2f7e290686e312a8e20ecb4f0ac5ea9ac6e2",
+      "lines": 1525,
+      "sha256": "757fe3cd52e2a43f85a61f40d7afbf7f2b9246d35e4580e4989f0117971a3c2b",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 512
+          "line": 524
         },
         {
           "name": "appendOneChapter",
-          "line": 858
+          "line": 870
         },
         {
           "name": "appendThreeChapters",
-          "line": 865
+          "line": 877
         },
         {
           "name": "attemptBack",
-          "line": 872
+          "line": 884
         }
       ]
     },
@@ -28063,8 +28063,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-      "lines": 411,
-      "sha256": "1c86e49264e46ee4c8874ab1a43265d1f2e0392de0082347eea369cb15e094da",
+      "lines": 412,
+      "sha256": "fe59cdff41c4d06e6cb86bc8075cd8be55aa8022ebf15fecd7c7f86a3738801b",
       "symbols": [
         {
           "name": "active",
@@ -28088,31 +28088,31 @@
         },
         {
           "name": "scheduleNext",
-          "line": 258
+          "line": 259
         },
         {
           "name": "claim",
-          "line": 276
+          "line": 277
         },
         {
           "name": "stop",
-          "line": 288
+          "line": 289
         },
         {
           "name": "context",
-          "line": 304
+          "line": 305
         },
         {
           "name": "recordCheck",
-          "line": 322
+          "line": 323
         },
         {
           "name": "LuluStudyWatchReceiver",
-          "line": 347
+          "line": 348
         },
         {
           "name": "LuluStudyWatchWorker",
-          "line": 358
+          "line": 359
         }
       ]
     },
