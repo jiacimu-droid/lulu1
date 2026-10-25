@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`913fd1b4fbda1d15a997668eee0300f15aa040ba`
+- 基准提交：`86576f9368eef5919d93caf509f34aaf0d7466fb`
 - 分支：`main`
-- 已索引文件：903
-- 已索引代码/文本行：177876
-- 已发现符号：2667
+- 已索引文件：904
+- 已索引代码/文本行：177990
+- 已发现符号：2668
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -643,6 +643,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 27 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |

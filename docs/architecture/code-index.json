@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:56:03.383909+00:00",
-  "commit": "913fd1b4fbda1d15a997668eee0300f15aa040ba",
+  "generatedAt": "2026-10-25T13:57:16.871338+00:00",
+  "commit": "86576f9368eef5919d93caf509f34aaf0d7466fb",
   "branch": "main",
-  "sourceFingerprint": "9a28cf141ff1ab10d87dd8786b59615e641d5cdd521d100c7230e1150c7d8077",
+  "sourceFingerprint": "2a2b81b91b517822f2b0e6d3e31f3a84486ac0eebd6487b0a9bc5518aa22b52c",
   "summary": {
-    "files": 903,
-    "lines": 177876,
-    "symbols": 2667
+    "files": 904,
+    "lines": 177990,
+    "symbols": 2668
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13062,6 +13062,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt",
         "line": 6
+      }
+    ],
+    "ConversationHistoryWindowTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt",
+        "line": 18
       }
     ],
     "DigitalResidentFurniturePoseTest": [
@@ -28561,6 +28567,17 @@
         {
           "name": "ChatReplyTurnActionsTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt",
+      "lines": 114,
+      "sha256": "ccfc91bb9386601c206e4c0dc95f99cd7700fc446fb5a551dff7930d288d095f",
+      "symbols": [
+        {
+          "name": "ConversationHistoryWindowTest",
+          "line": 18
         }
       ]
     },
