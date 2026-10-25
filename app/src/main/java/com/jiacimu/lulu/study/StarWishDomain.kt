@@ -461,7 +461,7 @@ internal class StarWishStore private constructor(context: Context) {
 }
 
 internal object StarWishStores {
-    private var storeInternal: StarWishStore? = null
+    @Volatile private var storeInternal: StarWishStore? = null
     val main: StarWishStore get() = checkNotNull(storeInternal) { "StarWishStores 尚未初始化" }
     @Synchronized fun initialize(context: Context) {
         if (storeInternal == null) storeInternal = StarWishStore.create(context.applicationContext)
