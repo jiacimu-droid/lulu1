@@ -40,11 +40,17 @@ internal object ConversationHistoryWindow {
         visibleLength: (LuluChatMessage) -> Int,
     ): List<LuluChatMessage> {
         if (maxMessages <= 0 || maxCharacters <= 0 || messages.isEmpty()) return emptyList()
-        val turns = turns(messages)
         val chosen = ArrayDeque<List<LuluChatMessage>>()
         var chars = 0
         var count = 0
-        for (turn in turns.asReversed()) {
+        var end = messages.lastIndex
+        // Walk backwards from the newest message. Rendering/allocating every
+        // historic turn before applying a small context budget would scale
+        // poorly for a companion with years of persisted conversation.
+        while (end >= 0) {
+            var start = end
+            while (start > 0 && sameTurn(messages[start - 1], messages[start])) start--
+            val turn = messages.subList(start, end + 1)
             val size = turn.sumOf { visibleLength(it).coerceAtLeast(0) }
             // The most recent whole turn is always kept, even if unusually
             // long. Older turns fit only when BOTH budgets have room.
@@ -53,6 +59,7 @@ internal object ConversationHistoryWindow {
             chosen.addFirst(turn)
             count += turn.size
             chars += size
+            end = start - 1
         }
         return chosen.flatMap { it }
     }
