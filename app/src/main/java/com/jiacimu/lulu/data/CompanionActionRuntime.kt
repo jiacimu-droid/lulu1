@@ -1085,9 +1085,12 @@ internal object SearchReceiptFeedback {
     fun completedEvidence(event: SharedTimelineEvent): Boolean {
         if (event.evidenceKind != EventEvidenceKind.ToolResult ||
             event.source != "tool-router") return false
-        val execution = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
-        return execution.optString("tool") in resultTools &&
-            execution.optString("status") in setOf("succeeded", "failed")
+        // Reuse the verified executor receipt parser. A claimed "succeeded"
+        // status with a failed result, or an accepted-but-unverified request,
+        // cannot awaken the companion as if search content was obtained.
+        val receipt = CharacterExperienceLearning.receipt(event) ?: return false
+        return receipt.tool in resultTools &&
+            receipt.status in setOf("succeeded", "observed", "verified", "failed", "denied")
     }
     /** The timeline is authoritative; a REPLACE/coalesced wake must not lose
      * another completed receipt merely because the newest one was consumed.
