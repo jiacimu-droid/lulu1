@@ -31,4 +31,22 @@ class CharacterAttentionWorkingSetTest {
         assertEquals(all.take(2), select(all.take(2)))
         assertEquals(3, select(all).map { it.id }.distinct().size)
     }
+
+    @Test fun importantDueConcernRemainsVisibleAcrossRotationWithoutForcingAnAction() {
+        val items = (1..8).map { Cue("old-$it", "old-topic-$it") } +
+            Cue("due-review", "promise") + Cue("latest-trivia", "smalltalk")
+        val selected = (0..20).map { minute ->
+            CharacterAttentionWorkingSet.select(items, 3, at.plusSeconds(minute * 300L),
+                300, { it.id }, { it.topic },
+                priority = { if (it.id == "due-review") 120 else 0 })
+        }
+        assertTrue(selected.all { row -> row.any { it.id == "due-review" } })
+        assertTrue(selected.all { row -> row.any { it.id == "latest-trivia" } })
+        assertTrue(selected.all { it.distinctBy(Cue::id).size == 3 })
+        // The free slot continues to visit old unrelated topics.
+        assertTrue(selected.flatMap { it }.map { it.id }.contains("old-1"))
+        val single = CharacterAttentionWorkingSet.select(items, 1, at, 300,
+            { it.id }, { it.topic }, priority = { if (it.id == "due-review") 100 else 0 })
+        assertEquals("due-review", single.single().id)
+    }
 }
