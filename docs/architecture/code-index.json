@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:39:02.825056+00:00",
-  "commit": "5f9099dab8b1cbc7cdd9aea15d3f9d8da4de0d40",
+  "generatedAt": "2026-10-25T15:39:52.833455+00:00",
+  "commit": "a9953ce135813c18ad71f3244ac8552ef9914351",
   "branch": "main",
-  "sourceFingerprint": "ce76f70d73f686fed9d3b6578d813b435557c6b893d5a557c5eee9816ab0cd6d",
+  "sourceFingerprint": "4c87b61e676a11b4f04312360fdbc0208f4039147aebdba3f3a5c7d80cdeb81c",
   "summary": {
     "files": 908,
-    "lines": 178640,
+    "lines": 178686,
     "symbols": 2677
   },
   "symbolIndex": {
@@ -29933,8 +29933,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 193,
-      "sha256": "cbe45f300fdd332976671dbf47c47fc63059ec7db4995d1f1bcb296023808a55",
+      "lines": 239,
+      "sha256": "9ad733d30cb37ab7f4eac8056feb4a2eae2591ae3e4b03e89a59f822f5d346a1",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
