@@ -19,33 +19,24 @@ import java.util.UUID
 /** Active questions are current intentions; their eventual understanding is already in memory. */
 @Composable
 internal fun CharacterLearningPlans(characterId: String) {
-    val revision by CharacterLearningAgenda.revisions.collectAsState()
-    val goals = remember(characterId, revision) {
-        CharacterLearningAgenda.goals(characterId).filter { it.optString("status") != "dropped" }
+    val learningRevision by CharacterLearningAgenda.revisions.collectAsState()
+    val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
+    val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
+    val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
+    // 此刻 and 心事 now project the same unfinished intentions; neither owns
+    // a competing research inbox. History/paused entries remain in their stores.
+    val entries = remember(characterId, learningRevision, curiosityRevision, mindRevision, evidenceRevision) {
+        CharacterLifeVisibility.matters(characterId).filter { it.category == "正在琢磨" }
     }
-    if (goals.isEmpty()) return
+    if (entries.isEmpty()) return
     Column(Modifier.fillMaxWidth().padding(top = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("正在琢磨", fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
-        goals.forEach { goal ->
-            val status = goal.optString("status")
-            val label = when (status) {
-                "planned" -> "准备了解"; "running" -> "正在探索"; "failed" -> "遇到阻碍"
-                "paused" -> "暂缓"; "research" -> "待核实"; else -> "想继续尝试"
-            }
+        Text("正在琢磨 · ${entries.size} 件", fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
+        entries.forEach { entry ->
             CharacterRecordCard {
-                Text(goal.optString("topic"), fontSize = 14.sp)
-                Text(label, fontSize = 11.sp, color = LuluColors.Muted)
-                goal.optString("error").takeIf(String::isNotBlank)?.let { Text(it, fontSize = 12.sp) }
-                Row {
-                    CharacterLearningRetryButton(characterId, goal.optString("id"))
-                    if (status != "paused") TextButton(enabled = status != "running", onClick = {
-                        CharacterLearningAgenda.update(characterId, goal.optString("id")) {
-                            it.put("status", "paused")
-                        }
-                    }) { Text("暂缓") }
-                    TextButton(enabled = status != "running", onClick = {
-                        CharacterLearningAgenda.update(characterId, goal.optString("id")) { it.put("status", "dropped") }
-                    }) { Text("放下") }
+                Text(entry.title, fontSize = 14.sp)
+                Text(entry.detail, fontSize = 12.sp, color = LuluColors.Muted, maxLines = 3)
+                if (entry.learningGoalId.isNotBlank()) {
+                    CharacterLearningRetryButton(characterId, entry.learningGoalId)
                 }
             }
         }
