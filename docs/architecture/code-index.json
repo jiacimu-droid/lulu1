@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:26:01.563304+00:00",
-  "commit": "62b7f020ed86e122b8fa4903735af15186fb0175",
+  "generatedAt": "2026-10-25T03:26:15.740822+00:00",
+  "commit": "07ca7ef2818111dceabeafdbec99a74b82b4ea4e",
   "branch": "main",
-  "sourceFingerprint": "d04682348206b6dc61fca3be7c428c7d1b57ceec8413aeb3586e69b5451a1f92",
+  "sourceFingerprint": "68674cb38de504c471d97dc077ac42c8f6829bee588d0189724194a7e19ae177",
   "summary": {
     "files": 887,
     "lines": 173124,
@@ -21970,7 +21970,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
       "lines": 402,
-      "sha256": "d6eacf7b6f4d0ec8063e2c703137459450be04c96a1dada7cd693d4a1aec8c46",
+      "sha256": "e22ccacefa60aceef3065e7642cf5933810109a8e355298902ffe9787a1d790e",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -25700,7 +25700,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
       "lines": 680,
-      "sha256": "da7ede734cbba82ead7c52aec5c714e47cfda56467114074f5487028a9fb828d",
+      "sha256": "c96ecdaace0f49c7f4483848d5406460c7c0a79a5acbfe0a680f5f4bf54dea72",
       "symbols": [
         {
           "name": "nextRound",
