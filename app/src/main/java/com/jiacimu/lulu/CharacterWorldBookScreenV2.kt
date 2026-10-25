@@ -91,6 +91,7 @@ fun CharacterWorldBookScreenV2(
     val selectedCharacter = characters[selectedCharacterId] ?: MigratedDomainStores.characters.get(selectedCharacterId)
     var editingBook by remember { mutableStateOf<WorldBookEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
+    var draftBookId by remember { mutableStateOf(UUID.randomUUID().toString()) }
 
     val folders by repository.observeFolders().collectAsState(initial = emptyList())
     var query by remember { mutableStateOf("") }
@@ -501,7 +502,7 @@ fun CharacterWorldBookScreenV2(
     }
 
     val dialogBook = editingBook ?: WorldBookEntry(
-        id = UUID.randomUUID().toString(),
+        id = draftBookId,
         title = "",
         content = "",
         globalEnabled = true,
@@ -517,6 +518,7 @@ fun CharacterWorldBookScreenV2(
                 scope.launch { repository.save(saved) }
                 editingBook = null
                 creating = false
+                draftBookId = UUID.randomUUID().toString()
             },
             onDelete = {
                 scope.launch { repository.delete(book.id) }
