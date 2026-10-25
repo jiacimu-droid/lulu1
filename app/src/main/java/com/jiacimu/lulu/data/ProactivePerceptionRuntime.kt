@@ -741,6 +741,8 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
+                com.jiacimu.lulu.system.LuluStudyWatch.proactiveOpportunity(appContext, characterId, now.toEpochMilli())
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 com.jiacimu.lulu.system.LuluStudyWatch.context(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
