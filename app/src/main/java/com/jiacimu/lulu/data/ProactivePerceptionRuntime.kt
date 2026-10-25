@@ -2076,15 +2076,9 @@ object ProactivePerceptionRuntime {
             .ifBlank { "工具执行未返回具体状态" }
         if ((!result.success || decision.action == Action.SILENT) && !deliveredExtra && !sideActionSucceeded)
             return ActionExecution(false, combinedSummary)
-        if (result.success) when (decision.action) {
-            Action.CALL -> result.conversationId?.let {
-                showCallNotification(appContext, it, character.displayName)
-            }
-            Action.TOOL -> if (tool == "start_call") result.conversationId?.let {
-                showCallNotification(appContext, it, character.displayName)
-            }
-            else -> Unit
-        }
+        // start_call itself owns the persisted offer AND notification now.
+        // Do not post a second invitation here for primary actions while
+        // sideActions and scheduled calls take a different route.
         return ActionExecution(true, combinedSummary,
             extraConversationId ?: result.conversationId, result.evidenceId,
             deliveredReply = deliveredExtra || (decision.action == Action.MESSAGE &&
