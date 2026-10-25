@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:20:14.956509+00:00",
-  "commit": "0372e1db0402edb52845525750bbec09e33b8970",
+  "generatedAt": "2026-10-25T05:20:59.661656+00:00",
+  "commit": "bceeacdc8a6cf11f68083a6b4d7c8797a25fc663",
   "branch": "main",
-  "sourceFingerprint": "0fa16d91ee866b080b6179615ee68a1f9b806fd27e591e21222a2b87198d0b92",
+  "sourceFingerprint": "2f48fee1e336d21bddb570511e615fec8670809d646df3490f8155205b3744a9",
   "summary": {
     "files": 889,
-    "lines": 173770,
-    "symbols": 2606
+    "lines": 173785,
+    "symbols": 2608
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5621,7 +5621,7 @@
     "current": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 34
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -5635,7 +5635,7 @@
     "matters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 83
+        "line": 85
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
@@ -5645,7 +5645,19 @@
     "include": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 88
+        "line": 90
+      }
+    ],
+    "duplicatesLearning": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 160
+      }
+    ],
+    "compact": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 161
       }
     ],
     "CharacterMessageFavorites": [
@@ -19600,20 +19612,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 199,
-      "sha256": "e53fc65bd84c1f218dc415121f38a5d4c2bcbc6d9768a9e4892373d8bbf45aac",
+      "lines": 214,
+      "sha256": "765d81a68a5a922894b6c0899771da6f592624215b41197e4e7b4f1e153fe7c8",
       "symbols": [
         {
           "name": "current",
-          "line": 34
+          "line": 36
         },
         {
           "name": "matters",
-          "line": 83
+          "line": 85
         },
         {
           "name": "include",
-          "line": 88
+          "line": 90
+        },
+        {
+          "name": "duplicatesLearning",
+          "line": 160
+        },
+        {
+          "name": "compact",
+          "line": 161
         }
       ]
     },
