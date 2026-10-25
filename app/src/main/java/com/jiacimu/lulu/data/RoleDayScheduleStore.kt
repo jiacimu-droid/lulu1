@@ -564,7 +564,7 @@ object RoleDayScheduleStore {
     fun dueContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
         plans(context, characterId).filter { it.status == "due" ||
             (it.status == "planned" && !it.dueAt.isAfter(now)) }
-            .take(3).joinToString("\n") {
+            .joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
                     "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；关联挂心：${it.concernId.ifBlank { "无" }}；" +
                     "关联约定：${it.commitmentTaskId.ifBlank { "无" }}；" +
