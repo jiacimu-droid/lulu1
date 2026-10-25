@@ -233,11 +233,11 @@ internal object CommitmentExecutor {
             args = args,
             now = now,
         )
-        val deliveryNotificationShown = if (useCall && result.success && result.conversationId != null) {
-            ProactivePerceptionRuntime.showPromisedCallNotification(
-                appContext, claimedTask.characterId, result.conversationId, wording,
-            )
-        } else notificationShown
+        // The same start_call executor posts the invitation for primary,
+        // nested and scheduled calls. Read the real result instead of issuing
+        // a second notification only for alarm-backed calls.
+        val deliveryNotificationShown = if (useCall)
+            result.callNotificationShown == true else notificationShown
         val musicResult = plannedMusic
 
         val afterSeconds = if (result.success && (deliveryNotificationShown || useCall))
