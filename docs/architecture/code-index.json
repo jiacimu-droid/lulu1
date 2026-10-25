@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:44:07.442188+00:00",
-  "commit": "5f8a8c47d75bab7e4220b53ed9990d1811a5b1d0",
+  "generatedAt": "2026-10-25T05:44:37.847804+00:00",
+  "commit": "d719de94c382cb9b2573d3770ffee46c34f8243f",
   "branch": "main",
-  "sourceFingerprint": "f4c9d89b36cdf5394b674223694bec6501e84958d4fcb15fac9ed4f550afb2b3",
+  "sourceFingerprint": "fc380e614f21a18541f4c758879e77ce4de8f64a5fe7ab620fa0a70c4daad16b",
   "summary": {
     "files": 890,
-    "lines": 174167,
+    "lines": 174184,
     "symbols": 2617
   },
   "symbolIndex": {
@@ -30599,8 +30599,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 227,
-      "sha256": "2f7814bb02d3a990e14965d94bba18c2cd8ea2d2a92855b15208c1466e433339",
+      "lines": 244,
+      "sha256": "5ab96b3cdf0607f374bc41a0bfc61b26403a5f0c2bcc664b02c50ce99b8c7fb4",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
