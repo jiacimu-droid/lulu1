@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c59384e417eb37ac81f3da83e45998e7ad0e62cb`
+- 基准提交：`d2700ce02dfdb325630078d7f6cc5a1326772133`
 - 分支：`main`
 - 已索引文件：901
-- 已索引代码/文本行：177242
-- 已发现符号：2655
+- 已索引代码/文本行：177380
+- 已发现符号：2658
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -47,7 +47,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt` | 90 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 315 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 632 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 665 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 672 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 33 | 0 |
@@ -226,7 +226,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1210 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1218 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 79 | 1 |
@@ -273,7 +273,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 115 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 82 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 99 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 65 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
@@ -285,7 +285,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 670 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 283 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 846 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 856 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 85 | 3 |
@@ -777,7 +777,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 328 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 246 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 292 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 318 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
