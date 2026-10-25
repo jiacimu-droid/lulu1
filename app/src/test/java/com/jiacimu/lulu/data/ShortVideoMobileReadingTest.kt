@@ -1,6 +1,10 @@
 package com.jiacimu.lulu.data
 
 import kotlinx.coroutines.runBlocking
+import android.content.Context
+import com.jiacimu.lulu.LuluRepositories
+import org.robolectric.RuntimeEnvironment
+import java.time.Instant
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -154,6 +158,68 @@ class ShortVideoMobileReadingTest {
         assertEquals(ShortVideoMobileReading.State.PAUSED, result.state)
         assertEquals(0, source.calls)
         assertTrue(result.receipts.isEmpty())
+    }
+
+    private fun receipt(observation: String = "真的获取字幕并分析过"): ShortVideoMobileReading.Receipt =
+        ShortVideoMobileReading.Receipt(clip, 0, 3_000,
+            setOf("speech"), observation, emptyList(), true, null)
+
+    @Test fun sourceReceiptIdCanBeReplayedButCannotOverwriteOldEvidence() {
+        MemoryTestEnvironment.release()
+        val context = RuntimeEnvironment.getApplication() as Context
+        try {
+            LuluRepositories.initialize(context)
+            SharedExperienceTimeline.initialize(context)
+            val role = "video-evidence-integrity"
+            val time = Instant.parse("2026-10-25T04:00:00Z")
+            val id = "video-segment-fixed-1"
+            val original = receipt()
+            ShortVideoMobileReading.persistVerifiedReceipt(role, id, original, time)
+            val first = SharedExperienceTimeline.eventsByIds(role, listOf(id)).single()
+            assertEquals(1L, first.revision)
+            assertEquals("short-video-observation", first.source)
+            // The original timestamp belongs to the observation, not the retry.
+            ShortVideoMobileReading.persistVerifiedReceipt(role, id, original, time.plusSeconds(80))
+            assertEquals(first, SharedExperienceTimeline.eventsByIds(role, listOf(id)).single())
+
+            val collision = runCatching {
+                ShortVideoMobileReading.persistVerifiedReceipt(role, id,
+                    receipt("完全不同的视频观察"), time.plusSeconds(90))
+            }.exceptionOrNull()
+            assertTrue(collision is IllegalStateException)
+            assertEquals(first, SharedExperienceTimeline.eventsByIds(role, listOf(id)).single())
+
+            SharedExperienceTimeline.record("video-collision-with-user", role,
+                "私聊", "用户", "这条用户原话不能被视频回执覆盖", time,
+                source = "message", triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.UserStatement)
+            val userEvent = SharedExperienceTimeline.eventsByIds(role,
+                listOf("video-collision-with-user")).single()
+            assertTrue(runCatching {
+                ShortVideoMobileReading.persistVerifiedReceipt(role, "video-collision-with-user",
+                    original, time.plusSeconds(15))
+            }.exceptionOrNull() is IllegalStateException)
+            assertEquals(userEvent, SharedExperienceTimeline.eventsByIds(role,
+                listOf("video-collision-with-user")).single())
+
+            SharedExperienceTimeline.deleteEvent(id)
+            assertTrue(runCatching {
+                ShortVideoMobileReading.persistVerifiedReceipt(role, id, original,
+                    time.plusSeconds(120))
+            }.exceptionOrNull() is IllegalStateException)
+            assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(id)).isEmpty())
+        } finally {
+            MemoryTestEnvironment.release()
+        }
+    }
+
+    @Test fun uninitializedTimelineCannotSilentlyAcceptAVideoReceipt() {
+        MemoryTestEnvironment.release()
+        assertTrue(runCatching {
+            ShortVideoMobileReading.persistVerifiedReceipt(
+                "video-not-initialized", "video-no-db",
+                receipt(), Instant.parse("2026-10-25T04:00:00Z"))
+        }.exceptionOrNull() is IllegalStateException)
     }
 
     @Test fun discoveryPageBoundedAndDoesNotClaimVideosWereOpened() = runBlocking {
