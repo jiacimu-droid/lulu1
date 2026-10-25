@@ -108,4 +108,17 @@ class RelayRequestPressurePolicyTest {
             listOf(enormous, final), 900))
         assertTrue(RelayRequestPressurePolicy.compactHistory(listOf(enormous), 900).isEmpty())
     }
+    @Test fun pressureRecoveryRetainsBothPlacedWorldBookSectionsAndTheirOrder() {
+        val top = "顶部" + "这是关键背景".repeat(1_000)
+        val bottom = "底部" + "这是关键结尾".repeat(1_000)
+        val selected = RelayRequestPressurePolicy.compactSections(listOf(
+            "全局世界书/TOP" to top,
+            "本轮背景依据" to "旧材料".repeat(20_000),
+            "角色世界书/BOTTOM" to bottom,
+        ))
+        assertTrue(selected.startsWith(top))
+        assertTrue(selected.endsWith(bottom))
+        assertTrue(selected.contains("【本轮 Relay 请求压力保护"))
+    }
+
 }
