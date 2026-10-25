@@ -83,11 +83,9 @@ internal fun QqMessageRow(
     onAcceptGame: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    if (message.sender != LuluChatMessage.Sender.System) {
-        val recalledIds = recalledMessageIds(MigratedDomainStores.chat.messages(message.conversationId).value)
-        if (message.id in recalledIds) return
-    }
-
+    // The chat screen has already projected recalled messages out of its
+    // visible list. Never scan the entire message history for every visible
+    // bubble on each lazy-list measure/recomposition (quadratic while scrolling).
     if (message.sender == LuluChatMessage.Sender.System) {
         QqSystemReceiptRow(message)
         return
@@ -841,34 +839,44 @@ internal fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifier: Modifier = Modifier) {
+    // Every ordinary chat bubble uses a 44dp avatar. It must not subscribe to
+    // the character/presence history flows for a dialog which it cannot open.
+    if (size != 42) {
+        LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = modifier)
+        return
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val presenceStates by CompanionPresenceStore.states.collectAsState()
-    val presenceHistories by CompanionPresenceStore.histories.collectAsState()
-    val latestPresenceCharacter = remember(size, label, imageUri, characters) {
-        if (size != 42) null else characters.values.firstOrNull { !imageUri.isNullOrBlank() && it.avatarUri == imageUri }
+    val latestPresenceCharacter = remember(label, imageUri, characters) {
+        characters.values.firstOrNull { !imageUri.isNullOrBlank() && it.avatarUri == imageUri }
             ?: characters.values.firstOrNull { it.displayName.take(1).ifBlank { "露" } == label }
     }
     var latestPresenceOpen by remember(latestPresenceCharacter?.characterId) { mutableStateOf(false) }
-    val avatarModifier = if (latestPresenceCharacter == null) {
-        modifier
-    } else {
-        modifier.combinedClickable(
-            onClick = {
-                CompanionPresenceStore.clearMessageAnchor()
-                latestPresenceOpen = true
-            },
-            onLongClick = {},
-        )
-    }
+    val avatarModifier = if (latestPresenceCharacter == null) modifier else modifier.combinedClickable(
+        onClick = {
+            CompanionPresenceStore.clearMessageAnchor()
+            latestPresenceOpen = true
+        },
+        onLongClick = {},
+    )
     LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = avatarModifier)
     if (latestPresenceOpen && latestPresenceCharacter != null) {
-        CompanionPresenceDialog(
-            characterName = latestPresenceCharacter.displayName,
-            state = presenceStates[latestPresenceCharacter.characterId],
-            history = presenceHistories[latestPresenceCharacter.characterId].orEmpty(),
-            onDismiss = { latestPresenceOpen = false },
-        )
+        QqAvatarPresenceDialog(latestPresenceCharacter.characterId, latestPresenceCharacter.displayName) {
+            latestPresenceOpen = false
+        }
     }
+}
+
+/** Read the expensive history flows only while a presence dialog is visible. */
+@Composable
+private fun QqAvatarPresenceDialog(characterId: String, characterName: String, onDismiss: () -> Unit) {
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val presenceHistories by CompanionPresenceStore.histories.collectAsState()
+    CompanionPresenceDialog(
+        characterName = characterName,
+        state = presenceStates[characterId],
+        history = presenceHistories[characterId].orEmpty(),
+        onDismiss = onDismiss,
+    )
 }
 
 @Composable
