@@ -64,6 +64,23 @@ class CharacterPerceptionContextTest {
         assertTrue(CharacterPerceptionContext.stimulus(failed).description.contains("搜索来源与摘要"))
         assertNull(CharacterPerceptionContext.personalOutcome("message", search.content))
     }
+    @Test fun verifiedXhsReadingUsesActualLoadedBodyAndCommentsNotTitleAlone() {
+        val now = Instant.parse("2026-10-25T04:10:00Z")
+        val note = org.json.JSONObject().put("title", "新月飨宴实际笔记")
+            .put("url", "https://www.xiaohongshu.com/explore/real-note")
+            .put("bodyActuallyLoaded", true)
+            .put("text", "真实正文".repeat(200))
+            .put("commentCountActuallyLoaded", 1)
+            .put("commentsActuallyLoaded", org.json.JSONArray().put("真正加载的玩家评论"))
+            .put("imageReadingStatus", "未核实图片像素")
+        val observed = SharedTimelineEvent("xhs-observed", "role", "小红书阅读", "执行器",
+            note.toString(), now, source = "xiaohongshu-mcp",
+            evidenceKind = EventEvidenceKind.Observation)
+        assertTrue(CharacterPerceptionContext.stimulus(observed).description.contains("真正加载的玩家评论"))
+        assertTrue(CharacterPerceptionContext.render(listOf(observed)).contains("真实正文"))
+        val titleOnly = observed.copy(content = note.put("bodyActuallyLoaded", false).toString())
+        assertFalse(CharacterPerceptionContext.stimulus(titleOnly).description.contains("实际正文="))
+    }
     @Test fun observedCallEndIsAnEventNotAnInferenceAboutUserEmotion() {
         val now = Instant.parse("2026-10-11T00:00:00Z")
         val call = SharedTimelineEvent(
