@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T06:25:48.903239+00:00",
-  "commit": "551b6e2d68dc8be0b76c8e863ca27a32228933c1",
+  "generatedAt": "2026-10-25T06:26:07.780637+00:00",
+  "commit": "edfbcd8ec36eccc696acce5822302fda6bb1f8fe",
   "branch": "main",
-  "sourceFingerprint": "55c4d92c56f3120ff169bcc86d03754e39ee33e853d5f9717bba8246e0c2f79b",
+  "sourceFingerprint": "30941513e0f5aaf622db6ead9ab188014139e617733226db3cbdcb489c22fb83",
   "summary": {
     "files": 891,
-    "lines": 174510,
+    "lines": 174539,
     "symbols": 2619
   },
   "symbolIndex": {
@@ -30681,8 +30681,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
-      "lines": 233,
-      "sha256": "cb376b8763f54fc25483cd3f5ec93f0006b5366c63c7fcbcf86e78e2d168a802",
+      "lines": 262,
+      "sha256": "64c381a9671529e68874aa9a0c9ddebb81dab4d168e66dc33f392bf76fee94a0",
       "symbols": [
         {
           "name": "ShortVideoMobileReadingTest",
