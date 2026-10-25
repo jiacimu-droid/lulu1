@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:50:26.267251+00:00",
-  "commit": "f87455c158c7a336252dd845ee4327f8237e6975",
+  "generatedAt": "2026-10-25T11:51:01.590089+00:00",
+  "commit": "574eb91e7b6ffed951653a43c182829b79e5e3ee",
   "branch": "main",
-  "sourceFingerprint": "5638c55d6b223985e117cc04c4666a816106dba78fc76dd3a94852cd4ee29b18",
+  "sourceFingerprint": "65c19a6472434c191d311f2c39c06b23e8e801f7bb868b2ee33de8a7a7d3c2b8",
   "summary": {
     "files": 901,
-    "lines": 176997,
+    "lines": 177017,
     "symbols": 2652
   },
   "symbolIndex": {
@@ -29908,8 +29908,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 242,
-      "sha256": "0206f0f1d19d23d60055afc0ee38db7b4a8812e24a0a79ee3388d6a53921da78",
+      "lines": 262,
+      "sha256": "575111e2a4954a37b182356b43a4221ed7a6be2b8ce537a3f5708ce018428408",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
