@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:30:30.341178+00:00",
-  "commit": "940f5c5c6ef3f9b329d31ac9a7d70e5fbfd2f802",
+  "generatedAt": "2026-10-25T03:38:48.478759+00:00",
+  "commit": "5d0252b736c03014f314043953de1e756f93d573",
   "branch": "main",
-  "sourceFingerprint": "4332805a15d4bd15ca7cd0865e863dbad9e06456e875ba4776d6d22f599e1b0f",
+  "sourceFingerprint": "a60c04c81dd67278e850503c2f6f8ba45e18f393fe34d9980557e06380d5bbf4",
   "summary": {
     "files": 887,
-    "lines": 173226,
+    "lines": 173268,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -18218,8 +18218,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 352,
-      "sha256": "e366fd47430d033db21970adfd8e565d2af76214205d78a62443b1f02bac0bee",
+      "lines": 363,
+      "sha256": "4b63fed19aab5f58ad98235c1158dd6a447eebcef864db9c2c931cd28f7ac610",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -24746,8 +24746,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
-      "lines": 98,
-      "sha256": "fcc50d544c84c3d5548c0988314894fe59b891f614c0bf7528019a49b5336981",
+      "lines": 129,
+      "sha256": "7b2d759e430ac1f1dc58c68db714d63c68287b70bfc559983f62cf5b45122e66",
       "symbols": [
         {
           "name": "normalize",

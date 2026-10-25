@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`940f5c5c6ef3f9b329d31ac9a7d70e5fbfd2f802`
+- 基准提交：`5d0252b736c03014f314043953de1e756f93d573`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：173226
+- 已索引代码/文本行：173268
 - 已发现符号：2590
 
 | 文件 | 行数 | 符号数 |
@@ -234,7 +234,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 113 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 65 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 352 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 363 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
@@ -474,7 +474,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 228 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 33 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 914 | 21 |
