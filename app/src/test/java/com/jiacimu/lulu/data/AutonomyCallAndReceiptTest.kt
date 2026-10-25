@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.data
 
+import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,6 +18,39 @@ class AutonomyCallAndReceiptTest {
         assertFalse(detectSelfPromisedCall("要不要我打电话给你？"))
         assertFalse(detectSelfPromisedCall("我不会打电话给你。"))
         assertFalse(detectSelfPromisedCall("我等会儿想起来了再说。"))
+    }
+
+    @Test fun messageAndImmediateCallCanBeOneExplicitDecisionWithoutToolInferenceFromText() {
+        // The same model turn sends its own message, then the real executor
+        // receives a second, independently authorized start_call step.
+        val decision = JSONObject().put("action", "message")
+            .put("text", "先给你说一声，我接着打过来")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "start_call")
+                .put("args", JSONObject().put("text", "接通以后再哄你"))
+                .put("requiresPreviousSuccess", true)))
+        val original = decision.toString()
+        val actions = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(1, actions.length())
+        assertEquals("start_call", actions.getJSONObject(0).getString("tool"))
+        assertEquals("接通以后再哄你",
+            actions.getJSONObject(0).getJSONObject("args").getString("text"))
+        assertTrue(actions.getJSONObject(0).getBoolean("requiresPreviousSuccess"))
+        assertNotNull(CapabilityRegistry.find("start_call"))
+        assertEquals(original, decision.toString())
+
+        // A model saying it will call is NOT equivalent to selecting the
+        // effect. No substring/regex should initiate unsolicited phone calls.
+        val proseOnly = JSONObject().put("action", "message")
+            .put("text", "我马上给你打电话")
+        assertNull(CharacterThoughtActionHandoff.actions(proseOnly))
+    }
+
+    @Test fun directPrivateChatTeachesCorrectCallStepAndSeparatesTheTwoUtterances() {
+        val instruction = proactiveDecisionInstruction("call-step-test", directPrivateChat = true)
+        assertTrue(instruction.contains("tool") && instruction.contains("start_call"))
+        assertTrue(instruction.contains("requiresPreviousSuccess"))
+        assertTrue(instruction.contains("接通后"))
+        assertTrue(instruction.contains("不能代替真正的 start_call"))
     }
 
     @Test fun callActionSurvivesTaskPersistence() {
