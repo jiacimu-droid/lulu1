@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:51:01.590089+00:00",
-  "commit": "574eb91e7b6ffed951653a43c182829b79e5e3ee",
+  "generatedAt": "2026-10-25T11:53:29.807141+00:00",
+  "commit": "7ad19602f4eba8ca04a65130d45eb6886cbe95cb",
   "branch": "main",
-  "sourceFingerprint": "65c19a6472434c191d311f2c39c06b23e8e801f7bb868b2ee33de8a7a7d3c2b8",
+  "sourceFingerprint": "f238ecb8bc5dac131ef6b7ff7856b50de922b97e000635f787f851ec1e73e5ec",
   "summary": {
     "files": 901,
-    "lines": 177017,
+    "lines": 177021,
     "symbols": 2652
   },
   "symbolIndex": {
@@ -4445,7 +4445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 177
+        "line": 181
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -6013,7 +6013,7 @@
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 163
+        "line": 167
       }
     ],
     "keepOrBlank": [
@@ -20177,8 +20177,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 186,
-      "sha256": "7c6e1e19b47ddf4daade518c2c238397ee818076abb8401dcf151e1ce4be92be",
+      "lines": 190,
+      "sha256": "b6dacab28918c48b12c64a7066b9af73d34ddaeb8f8b2a88026a4dae8a818663",
       "symbols": [
         {
           "name": "integrate",
@@ -20214,11 +20214,11 @@
         },
         {
           "name": "stimulus",
-          "line": 163
+          "line": 167
         },
         {
           "name": "render",
-          "line": 177
+          "line": 181
         }
       ]
     },
