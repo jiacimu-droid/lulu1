@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:55:33.021689+00:00",
-  "commit": "2d814ed036da0d4c8ee939b720226ef6f3d0e749",
+  "generatedAt": "2026-10-25T13:55:47.853961+00:00",
+  "commit": "432967c56ad5c3f60ed9b687d1abf042fea3d402",
   "branch": "main",
-  "sourceFingerprint": "3539f293369c009032042a426720c4812c46fdc2ae5ad6a899ce0a9d7bc53119",
+  "sourceFingerprint": "28c0dfd13027bac5f83731faeebb259cf6cafb8135e14447fcf0044a0f4da8bf",
   "summary": {
     "files": 903,
-    "lines": 177811,
-    "symbols": 2665
+    "lines": 177827,
+    "symbols": 2666
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9378,6 +9378,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
         "line": 22
+      }
+    ],
+    "rendered": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
+        "line": 42
       }
     ],
     "ProactiveIncomingCall": [
@@ -23973,8 +23979,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
-      "lines": 59,
-      "sha256": "6caf2a6a7fc7a0b52c66f8842ac892c12f57268f41698534474507f717fb2bd7",
+      "lines": 75,
+      "sha256": "058b81f4607d9a118e91f3ce892bf370eee5178bdb1fa1279b846e06018e1200",
       "symbols": [
         {
           "name": "unreadConversation",
@@ -23983,6 +23989,10 @@
         {
           "name": "conversation",
           "line": 22
+        },
+        {
+          "name": "rendered",
+          "line": 42
         }
       ]
     },
