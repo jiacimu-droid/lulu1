@@ -612,7 +612,7 @@ object ProactivePerceptionScheduler {
         val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return
         if (!SearchReceiptFeedback.completedEvidence(event) ||
-            PerceptionStimulusLedger.hasSeen(app, characterId, evidenceId)) return
+            PerceptionStimulusLedger.hasSeen(app, characterId, evidenceId, event.revision)) return
         val store = app.getSharedPreferences("lulu_search_result_reperception_v1", Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
         val from = store.getLong("window:$characterId", 0L)
