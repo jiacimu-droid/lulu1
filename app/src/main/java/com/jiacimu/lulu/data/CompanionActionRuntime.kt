@@ -569,25 +569,6 @@ internal object CompanionActionRuntime {
                 // their original timeline evidence are retained without mutation.
                 error("角色日记已停用；可以选择朋友圈、私聊或真正的数字世界活动来表达")
             }
-            "start_study_watch" -> {
-                val requested = args.optInt("minutes", 45)
-                require(requested in 15..180) { "监督时段须为15至180分钟" }
-                val actual = com.jiacimu.lulu.system.LuluStudyWatch.request(
-                    context, characterId, requested)
-                return@runCatching CompanionActionResult(
-                    JSONObject(actual).optBoolean("success"),
-                    JSONObject(actual).optString("summary").ifBlank {
-                        JSONObject(actual).optString("error")
-                    },
-                )
-            }
-            "stop_study_watch" -> {
-                require(com.jiacimu.lulu.system.LuluStudyWatch.stop(
-                    context, reason = "本人或主人决定停止这次学习监督")) {
-                    "当前没有正在进行的学习监督"
-                }
-                CompanionActionResult(true, "本次学习监督已停止，不再查看屏幕")
-            }
             "plan_personal_activity" -> {
                 val due = java.time.Instant.parse(args.getString("dueAt").trim())
                 val actionName = args.optString("activityAction").trim().lowercase()
