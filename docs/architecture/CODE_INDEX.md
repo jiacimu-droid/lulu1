@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c308d8324e3e9cb9ee3e11c9e798e13e6f377fdd`
+- 基准提交：`a8322d0a3b5c8f301a939b21236840863587b568`
 - 分支：`main`
 - 已索引文件：912
-- 已索引代码/文本行：179642
+- 已索引代码/文本行：179655
 - 已发现符号：2681
 
 | 文件 | 行数 | 符号数 |
@@ -238,7 +238,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 65 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 375 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 156 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt` | 120 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt` | 127 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 185 | 2 |
@@ -713,7 +713,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 99 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 67 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 191 | 1 |
