@@ -868,7 +868,7 @@ internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifi
 
 /** Read the expensive history flows only while a presence dialog is visible. */
 @Composable
-private fun QqAvatarPresenceDialog(characterId: String, characterName: String, onDismiss: () -> Unit) {
+internal fun QqAvatarPresenceDialog(characterId: String, characterName: String, onDismiss: () -> Unit) {
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     CompanionPresenceDialog(
