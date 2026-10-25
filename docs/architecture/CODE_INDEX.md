@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9cd1660dea31f2a4a33851bba603a3897e995cd2`
+- 基准提交：`ce6f89648edfa162215e413d635a7b129d342071`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：172418
+- 已索引代码/文本行：172456
 - 已发现符号：2583
 
 | 文件 | 行数 | 符号数 |
@@ -310,7 +310,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 341 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 67 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 95 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
@@ -758,7 +758,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt` | 35 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 196 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
