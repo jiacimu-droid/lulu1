@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:02:18.619368+00:00",
-  "commit": "b91dc0dded2518d78b6c0ba0273278d9dc952d61",
+  "generatedAt": "2026-10-25T14:02:40.398993+00:00",
+  "commit": "65755df7e89fab30be8381821cc7eb0ef8f02a78",
   "branch": "main",
-  "sourceFingerprint": "08455ec15773a01c0e3e7032328ed05494025466ebb97798d3e9a27702663e44",
+  "sourceFingerprint": "2527ba4201c2a5d30961b451803d64719be0152589eadae3676ce5f487b9f2c8",
   "summary": {
     "files": 905,
-    "lines": 178131,
+    "lines": 178147,
     "symbols": 2670
   },
   "symbolIndex": {
@@ -28596,8 +28596,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt",
-      "lines": 114,
-      "sha256": "ccfc91bb9386601c206e4c0dc95f99cd7700fc446fb5a551dff7930d288d095f",
+      "lines": 130,
+      "sha256": "2dc0c10fe7c14af3d4a1ea7ef618637408d8c8993549914583a80ed631c3c384",
       "symbols": [
         {
           "name": "ConversationHistoryWindowTest",
