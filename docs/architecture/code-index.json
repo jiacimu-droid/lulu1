@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:37:57.891110+00:00",
-  "commit": "eede06685b9d2e5aba038eeb4678a972931e421e",
+  "generatedAt": "2026-10-25T15:38:44.936840+00:00",
+  "commit": "f681bb8e0663b46e417876fed232d5300e632fbf",
   "branch": "main",
-  "sourceFingerprint": "f83091f53244c0925f42e39085760e8fe6fa7c89bbe3d04bc20bf2f6613ae455",
+  "sourceFingerprint": "b5c02eb87b936ed6fd1705857562249278f3aada323936ba39b237a046630f3f",
   "summary": {
     "files": 908,
-    "lines": 178626,
+    "lines": 178635,
     "symbols": 2677
   },
   "symbolIndex": {
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 95
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -3109,7 +3109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 85
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -20737,8 +20737,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-      "lines": 99,
-      "sha256": "439fc69bb2e312218d36539212baab3f01a4c95bc1df3f36dd2dddd4353b3e02",
+      "lines": 108,
+      "sha256": "fba539b5b768e56e9faf3b8ca5f7e4b66f13d515225ae47c712a03f049442f5d",
       "symbols": [
         {
           "name": "Cue",
@@ -20758,11 +20758,11 @@
         },
         {
           "name": "render",
-          "line": 85
+          "line": 94
         },
         {
           "name": "context",
-          "line": 95
+          "line": 104
         }
       ]
     },
