@@ -41,6 +41,8 @@
 
 实际模型的中文陪伴质量、各类性格的自然联想、Redmi锁屏后台连续运行和多日体验仍需真机验证。APK构建与单测只能证明相应代码路径可编译、已测行为符合契约，不代表所有候选项目或模型已经接入。
 
+打包期间额外修复：后续合入的预约校验在无相对时间佐证时，会把角色独自说出的“明天”当成双方已约定日期。现要求此路径的日期来自用户原话，同时保留用户明确日期、角色只复述钟点的合法情况。原失败用例与新增正向用例合计10项纯Kotlin/JUnit测试已在本地通过；全量Android结果另以发布流水线为准。
+
 ## 研究来源
 
 - SocioMind 当前默认分支快照：`135e266990df31cfbb207a76affa505cadc773a5`，Apache-2.0；阅读 `brain_sys/psychostate.py`、`psycho_state/motivation.py`、`psycho_state/emotion.py`。其部分流程强求情绪变化并多次请求模型，不符合本项目原则，未采用。https://github.com/AlanJiang98/DLP-SocioMind

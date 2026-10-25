@@ -107,9 +107,9 @@ internal object AgreedCommitmentDeadline {
             return possible.minByOrNull { Duration.between(it, expected).abs() }
                 ?.takeIf { Duration.between(it, expected).abs() <= Duration.ofMinutes(15) }
         }
-        // An explicitly agreed local date is independently verifiable. A
-        // date-less clock without relative confirmation is not.
-        return if (explicitDay != null) possible.singleOrNull() else null
+        // Without relative corroboration, the calendar date must come from
+        // the user. The role saying "tomorrow" alone is not user agreement.
+        return if (userDate != null) possible.singleOrNull() else null
     }
 
     internal fun repairedGoal(previous: String, agreed: Instant, zone: ZoneId): String {
