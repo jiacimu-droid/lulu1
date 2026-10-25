@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:28:42.057997+00:00",
-  "commit": "232e3af32ebb916a9161204b5396fd51df886836",
+  "generatedAt": "2026-10-25T11:29:04.876737+00:00",
+  "commit": "b1b1c974b7fc39d5416d83d6e8d9d36d8fe0962d",
   "branch": "main",
-  "sourceFingerprint": "8de317f07070673b6425d91a10c50097da39f80e998e8ea95e66c8eb2dfe3363",
+  "sourceFingerprint": "afb68d0942845da6862acf332f551a84543da2ccbb1a814b8e4e766c964fc7ec",
   "summary": {
     "files": 899,
-    "lines": 176749,
+    "lines": 176751,
     "symbols": 2648
   },
   "symbolIndex": {
@@ -2985,7 +2985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-        "line": 24
+        "line": 25
       }
     ],
     "uniqueMood": [
@@ -3195,7 +3195,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-        "line": 34
+        "line": 35
       }
     ],
     "todoId": [
@@ -4445,7 +4445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 153
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -9281,7 +9281,7 @@
     "shouldUpdateVisibleState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "PerceptionWakePlan": [
@@ -19096,7 +19096,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
       "lines": 217,
-      "sha256": "22233bb3b94a57e5d1ded472c55b91578c85c7fdf51ced2130af24849a95ee98",
+      "sha256": "d3dc78c1dd2d1d775f20a5913d2d2a120c6c8a21885c793ed7b3317692e04e1f",
       "symbols": [
         {
           "name": "hasExhaustedAttempts",
@@ -20153,8 +20153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 162,
-      "sha256": "1aaf1355f7697817797d68ab50a9851a71e4d919ea76b92cfa2a9219d1d31343",
+      "lines": 163,
+      "sha256": "8b7f7819ae378dc0aeaee897b53b4fb1404cfa244590929d13f09cdc65abc599",
       "symbols": [
         {
           "name": "integrate",
@@ -20190,7 +20190,7 @@
         },
         {
           "name": "render",
-          "line": 153
+          "line": 154
         }
       ]
     },
@@ -23779,20 +23779,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-      "lines": 67,
-      "sha256": "8a72060a06678105175bb0193927a4459539301c9a9bcb2f31f042c14dab7d51",
+      "lines": 68,
+      "sha256": "a20e0eac4719882cc6e506804da475a25934f95876442b836b90e2270746db8c",
       "symbols": [
         {
           "name": "shouldUpdateVisibleState",
-          "line": 16
+          "line": 17
         },
         {
           "name": "combine",
-          "line": 24
+          "line": 25
         },
         {
           "name": "select",
-          "line": 34
+          "line": 35
         }
       ]
     },
@@ -24003,7 +24003,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
       "lines": 969,
-      "sha256": "b12ec3fadd38fdbdb3285bc5c2499f1e8d23fa45dc02564c57be7f051cd73020",
+      "sha256": "30f2c41ec4292bbb74b2e30c83e87641db2b49e3de88eeeb1f6cfee666408750",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
