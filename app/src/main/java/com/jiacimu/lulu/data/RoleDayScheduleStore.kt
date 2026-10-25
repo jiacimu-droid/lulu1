@@ -122,7 +122,7 @@ object RoleDayScheduleStore {
     internal fun canSchedule(action: String): Boolean {
         val registered = CapabilityRegistry.scheduledActionName(action)
         return registered.isNotBlank() && registered !in scheduleControlTools &&
-            CapabilityRegistry.find(registered) != null
+            CapabilityRegistry.canChoose(registered)
     }
 
     /** A repeated model action must not create another alarm for the same slot.
