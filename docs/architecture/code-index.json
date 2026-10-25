@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T12:10:54.057837+00:00",
-  "commit": "a9ec9848233389f7f015cc66efa7e97e6197cf96",
+  "generatedAt": "2026-10-25T12:11:23.285262+00:00",
+  "commit": "2799dc78daf9ba22e5456fe33601a2b305aec381",
   "branch": "main",
-  "sourceFingerprint": "15e5ef0141b90bd19edd1fba25edb9d7b0e2fefb7ed156490b91d5459a295545",
+  "sourceFingerprint": "e757e1fcc2c0a8a5951c1980ba8cfb0ecf0dbf2add4663db31d1d5d7565ba2e7",
   "summary": {
     "files": 901,
-    "lines": 177215,
-    "symbols": 2654
+    "lines": 177236,
+    "symbols": 2655
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4944,6 +4944,10 @@
         "line": 15
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 35
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
         "line": 137
       }
@@ -7967,7 +7971,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 35
+        "line": 56
       }
     ],
     "ImportantEventBridge": [
@@ -13485,7 +13489,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 181
+        "line": 202
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -29916,8 +29920,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 291,
-      "sha256": "fbe5fe0f01cac20ef6b60016abb17ddaaef81aad973073468c561980ead2b6c7",
+      "lines": 312,
+      "sha256": "5b6e2465442a87f2e6fefb27366de303bc4cec1bf4820003294e09216e2d2939",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -29928,12 +29932,16 @@
           "line": 15
         },
         {
-          "name": "search",
+          "name": "receipt",
           "line": 35
         },
         {
+          "name": "search",
+          "line": 56
+        },
+        {
           "name": "event",
-          "line": 181
+          "line": 202
         }
       ]
     },
