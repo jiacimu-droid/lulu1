@@ -61,6 +61,14 @@ class CharacterRecordArchitectureTest {
         assertEquals(CharacterRecordDestination.LifeRecords, CharacterRecordDestination.fromLegacy(null))
     }
 
+    @Test fun legacyPromiseReceiptRendersWithCurrentScheduleDestinationWithoutRewritingEvidence() {
+        val task = CommitmentTask(characterId = role, goal = "监督学习",
+            lastActionResult = "持续约定已记入辞海，结合真实进展继续跟进；没有创建固定闹钟")
+        assertTrue(task.lastActionResult.contains("辞海"))
+        assertFalse(task.readableLastResult().contains("辞海"))
+        assertTrue(task.readableLastResult().contains("日程"))
+    }
+
     @Test fun memoryViewAndActualRecallUseSameRevisedUnderstandingAndRetractSources() = runBlocking {
         reading("architecture-first", 1)
         reading("architecture-revised", 2)
