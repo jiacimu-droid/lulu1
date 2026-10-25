@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:52:27.730107+00:00",
-  "commit": "237b4649c929c5d06ac78d02fe76b8bc1dde7e24",
+  "generatedAt": "2026-10-25T13:53:04.313582+00:00",
+  "commit": "53f6f02da5a4e05dacaf9a947f602c544a75ccd5",
   "branch": "main",
-  "sourceFingerprint": "343ec84cf3585c7e60012013f6dc9b1e318fbe31e0fef9668a011e1047e38e2a",
+  "sourceFingerprint": "39aa7b9d40e48cdeb7ef4c74b8310374f254ab61963ac9d031994e2a5c761ae8",
   "summary": {
     "files": 902,
-    "lines": 177674,
+    "lines": 177682,
     "symbols": 2662
   },
   "symbolIndex": {
@@ -19119,8 +19119,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSet.kt",
-      "lines": 30,
-      "sha256": "858d2bf24705ff579d0b5cf4aa74eec8c49eb7594fdf35fb4bea8ba576c50bea",
+      "lines": 38,
+      "sha256": "f13a1cefc5b261787bb12417ea673d7d401abd7c0d90afae886533c7dabc5b38",
       "symbols": []
     },
     {
