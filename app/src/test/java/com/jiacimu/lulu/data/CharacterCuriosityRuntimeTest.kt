@@ -37,6 +37,36 @@ class CharacterCuriosityRuntimeTest {
         JSONObject().put("topic", "想看的故事").put("question", question)
             .put("why", "刚读过正文").put("nextStep", "从真实进度继续读")
 
+    @Test fun staleUntriedCuriosityIsArchivedWithoutLosingSourceEvidence() {
+        begin()
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "起初确实有兴趣", at)
+        val original = CharacterCuriosityRuntime.visibleQuestions(id).single()
+        assertEquals(1, CharacterCuriosityRuntime.maintainWhenDue(id, at.plusSeconds(8L * 86400)))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("dormantQuestions").length())
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf("source-1")).firstOrNull())
+        assertEquals(0, CharacterCuriosityRuntime.maintainWhenDue(id, at.plusSeconds(8L * 86400)))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun manualRemovalTargetsOneCuriosityNotAnotherOrItsVerifiedPast() {
+        begin()
+        val other = proposal("人物动机是什么")
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "第一个问题", at)
+        CharacterCuriosityRuntime.recordInquiry(id, other, "source-observation", "第二个问题", at)
+        val target = CharacterCuriosityRuntime.visibleQuestions(id).first {
+            it.optString("question") == proposal().optString("question")
+        }
+        assertTrue(CharacterCuriosityRuntime.deleteInterest(id, CharacterCuriosityRuntime.identity(target)))
+        assertEquals(1, CharacterCuriosityRuntime.visibleQuestions(id).size)
+        assertEquals("人物动机是什么",
+            CharacterCuriosityRuntime.visibleQuestions(id).single().optString("question"))
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf("source-1")).firstOrNull())
+        assertFalse(CharacterCuriosityRuntime.deleteInterest(id, CharacterCuriosityRuntime.identity(target)))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun onlyActiveExplorationsAppearInCrossSurfaceContext() {
         begin()
         CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "看过书的简介", at)
