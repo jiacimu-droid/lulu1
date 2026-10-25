@@ -239,7 +239,7 @@ class EmbodiedBodyPhysicsTest {
         listOf(90L to 20L, 120L to 15L).forEach { (cycle, awakeMinutes) ->
             var body = EmbodiedBodyPhysics.fresh(morning)
             val energies = mutableListOf<Double>()
-            repeat(8) { index ->
+            repeat((12 * 60 / cycle).toInt()) { index ->
                 val from = morning.plusSeconds(index * cycle * 60)
                 body = advance(body, from).copy(recoveryMode = "")
                 energies += body.energy
