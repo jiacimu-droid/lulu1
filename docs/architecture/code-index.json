@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:24:40.871338+00:00",
-  "commit": "f138f226a0a194216d7eb4253bec0ac6a3977a6a",
+  "generatedAt": "2026-10-25T08:31:05.036778+00:00",
+  "commit": "9ef84603856650ac9388f34eead3adf2d1f55972",
   "branch": "main",
-  "sourceFingerprint": "30b1bcca62046fff426a022273cba00012612494cf54fd9b8fdd10023ff6f2b9",
+  "sourceFingerprint": "8e7f1b54da74c7e18ef440f68856cdd24df1f929ed26fe4b2a11024e6208a483",
   "summary": {
     "files": 898,
-    "lines": 176423,
+    "lines": 176428,
     "symbols": 2644
   },
   "symbolIndex": {
@@ -14697,7 +14697,7 @@
     "MiniTheaterLibraryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "ReadingGrowthTheaterTest": [
@@ -31244,12 +31244,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
-      "lines": 45,
-      "sha256": "0f02658a6a6713e1d6e0e5f75cce7cc19263836f6adc5dd5e88613afefd7acc8",
+      "lines": 50,
+      "sha256": "148d070bcd900802c47009450d2f0f0eb0a97739abd12aaad1f0683d2e04bedc",
       "symbols": [
         {
           "name": "MiniTheaterLibraryTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
