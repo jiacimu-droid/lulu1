@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:16:26.656495+00:00",
-  "commit": "b0c8a9e77da6db06ab1b919b584d51f28d9a2016",
+  "generatedAt": "2026-10-25T15:16:54.973825+00:00",
+  "commit": "5c8a8881e20af534ce7b02216fb8a3695b2825a6",
   "branch": "main",
-  "sourceFingerprint": "33423a6d9e8ede7c756b536ffe6a2a6d2947ec1cc3d90275e1ba39452eb91417",
+  "sourceFingerprint": "bd6a596275907727737b1809d69a069e51f1678f8afa482edbcbdb07c336fa31",
   "summary": {
-    "files": 907,
-    "lines": 178557,
-    "symbols": 2676
+    "files": 908,
+    "lines": 178578,
+    "symbols": 2677
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13484,6 +13484,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/WatchTogetherSubtitleTest.kt",
         "line": 7
+      }
+    ],
+    "WorldBookListPreviewTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt",
+        "line": 5
       }
     ],
     "WorldExplorationContractsTest": [
@@ -29303,6 +29309,17 @@
         {
           "name": "WatchTogetherSubtitleTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt",
+      "lines": 21,
+      "sha256": "07347580f285ea0c05a08a2cba08d7694e79f6696ba604ae42641cd11d437090",
+      "symbols": [
+        {
+          "name": "WorldBookListPreviewTest",
+          "line": 5
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b0c8a9e77da6db06ab1b919b584d51f28d9a2016`
+- 基准提交：`5c8a8881e20af534ce7b02216fb8a3695b2825a6`
 - 分支：`main`
-- 已索引文件：907
-- 已索引代码/文本行：178557
-- 已发现符号：2676
+- 已索引文件：908
+- 已索引代码/文本行：178578
+- 已发现符号：2677
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -700,6 +700,7 @@
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WatchPlaybackEvidenceTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WatchTogetherSubtitleTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
