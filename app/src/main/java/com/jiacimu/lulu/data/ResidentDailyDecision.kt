@@ -278,7 +278,7 @@ internal object ResidentDailyDecision {
                     else -> false // A daily plan, a hypothetical thought, or someone else's story isn't an outcome.
                 }
             }
-            .takeLast(12).toList()
+            .toList().takeLast(12)
 
     private fun recentOwnEvents(characterId: String): List<SharedTimelineEvent> =
         ownLifeEvidence(characterId, SharedExperienceTimeline.recentEvents(characterId, 120))
@@ -288,8 +288,9 @@ internal object ResidentDailyDecision {
             val receipt = runCatching { JSONObject(event.content) }.getOrNull()
                 ?: return ""
             val result = runCatching { JSONObject(receipt.optString("result")) }.getOrNull()
-            val detail = result?.optString("summary")?.ifBlank { result.optString("error") }
-                .orEmpty().trim().take(180)
+            val detail = result?.let { value ->
+                value.optString("summary").ifBlank { value.optString("error") }
+            }.orEmpty().trim().take(180)
             return "${event.occurredAt} | 实际工具回执 | ${receipt.optString("tool")} " +
                 "${receipt.optString("status")}：${detail.ifBlank { "未提供结果说明" }}"
         }
