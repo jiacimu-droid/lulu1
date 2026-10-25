@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T17:20:11.544356+00:00",
-  "commit": "1d811a0ec8bbd581970951253d462e4152f334fa",
+  "generatedAt": "2026-10-25T17:22:47.984538+00:00",
+  "commit": "c308d8324e3e9cb9ee3e11c9e798e13e6f377fdd",
   "branch": "main",
-  "sourceFingerprint": "f888204c8047d9b24ab681baa165441ef07e4cf2bfcc7cec9b76a2e39b0e194f",
+  "sourceFingerprint": "caecb1ce9e0f4c68734183bb474d8728d6fbefa3b9f03364ff8a5de20c76aca2",
   "summary": {
     "files": 912,
-    "lines": 179644,
+    "lines": 179642,
     "symbols": 2681
   },
   "symbolIndex": {
@@ -18916,8 +18916,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
-      "lines": 126,
-      "sha256": "cc3e642de902a95ee904bb27a85641dd8d409d3c645f9a4ccb33eaff27253d08",
+      "lines": 120,
+      "sha256": "c2377dd1ac68088706c0d349af4aeb8bc22e76667e35aac299c8f3c23f30ec6e",
       "symbols": [
         {
           "name": "fromAgreement",
@@ -21100,8 +21100,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 232,
-      "sha256": "a91a25b287d40e3da7e5cd381eb898df6dd8ea92d1a1b81c30a01383b62ee8d8",
+      "lines": 231,
+      "sha256": "e16dffec1b224bc6832c85dbf92beab2dfa2a8f00de3234f12d7d7a95246e4f1",
       "symbols": [
         {
           "name": "handled",
@@ -29493,8 +29493,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt",
-      "lines": 57,
-      "sha256": "0cb32e2c8783f9c43781288281c6ac3f10bf5ee12a832c5c924d15a2bc57ab79",
+      "lines": 62,
+      "sha256": "fb5ac3a77e1cdb7a805ef74650199dfdbf0cc7762154349cb4f5927d33da6069",
       "symbols": [
         {
           "name": "AgreedCommitmentDeadlineTest",
