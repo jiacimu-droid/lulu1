@@ -9,7 +9,21 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
-class CharacterDecisionProtocolTest {
+class CharacterDecisionProtocolTest { 
+    @Test fun subjectiveInterpretationCanBeRevisedWithoutCreatingNewCognitionStore() {
+        val runtime = CharacterDecisionProtocol.runtimePrinciples
+        val causal = CharacterDecisionProtocol.causalPrinciples
+        assertTrue(runtime.contains("【主观理解的连续性】"))
+        assertTrue(runtime.contains("不等于他人的真实动机"))
+        assertTrue(runtime.contains("新的证据或对方澄清"))
+        assertTrue(runtime.contains("appraisal（meaning/uncertainty"))
+        assertTrue(runtime.contains("不创建新状态字段"))
+        assertTrue(causal.contains("当前感知与本人解释不是同一个事实"))
+        assertTrue(causal.contains("影响下一次选择"))
+        assertTrue(causal.contains("而非要求每轮都误会"))
+        assertFalse(runtime.contains("必须输出<thinking>"))
+    }
+
     @Test fun sharedDecisionsCanDrawIndependentThoughtsFromSeveralPersonalityFacets() {
         val direct = CharacterDecisionProtocol.runtimePrinciples
         val common = CharacterDecisionProtocol.causalPrinciples
