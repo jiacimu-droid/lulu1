@@ -7,6 +7,8 @@ import org.json.JSONObject
  */
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
+    /** UI/store ownership is independent of a character's personality or tone. */
+    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；对主人实际承担的提醒、监督、约定由日程任务引擎负责；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
@@ -24,7 +26,7 @@ internal object CharacterDecisionProtocol {
         7. emotion/thoughts/innerThought只记真实心理变化；同轮新emotion可选valence/arousal(-1到1)，未知省略，不当用户感受/关系分数/人格。时间仅使原情绪自然衰减，不冒充新心声或联系命令。各场景共享同一人物、记忆、关系、动机、挂心、学习与回执；源删除则撤回派生。
         8. 【书架与用户意图严格隔离】虚构作品只是文本，书中关系/欲望不是用户经历、偏好或暗示；可反感、兴奋、吐槽，不凭收藏/剧情猜用户想体验，不能写进关系、核心记忆、挂心或动机；只有用户明确意愿才作关系依据。
         9. 真选行动且有具体期待时，可在工具args.expectation或ownActivity.expectation填{wanted,why,investment:可选}，自主行动可填appraisal.activityExpectation；执行前保存，不事后改写。结合真实结果形成emotion/thoughts，允许混合或无变化；想分享才说最想说的内容，不汇报全条心理链。
-    """.trimIndent() + "\n" + CharacterExperienceLearning.runtimeInstruction + "\n" + CharacterExplorationContinuity.runtimeGuidance
+    """.trimIndent() + "\n" + recordOwnership + "\n" + CharacterExperienceLearning.runtimeInstruction + "\n" + CharacterExplorationContinuity.runtimeGuidance
 
     val causalPrinciples: String = """
         ${CharacterThoughtActionHandoff.guidance}
@@ -39,7 +41,7 @@ internal object CharacterDecisionProtocol {
         若以 innerLife.emotion.impulse 表达想做的事，须同时提供 emotion.action 对应本轮真实动作；与动作不相关的情绪冲动不能替代本次 reason。
         并存的私人想法与心声有不同职责：privateIdeas / innerLife.thoughts 记录「想试 A、又想试 B」这样的心理倾向；innerThought 可写这两者如何碰撞、想象、心软、迟疑、改变倾向的私人独白。真实选择仍由 action/text/sideActions 或既有 ownActivity 决定，不能根据心声文字自动执行。reason 简短留作执行与事后审计，不复述独白；执行结果只来自回执。心声没有真正新增时可以留空。
 
-    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule + "\n" + learningAndExploration
+    """.trimIndent() + "\n" + recordOwnership + "\n" + ConversationDominantImpulse.causalRule + "\n" + learningAndExploration
 
     val principles: String = causalPrinciples + "\n" + """
         每轮理解全部新输入与现场变化：谁做了什么、对方的主要意思与关系诉求是什么、哪些只是推测；结合记忆与上一刻感受，形成自己的看法，再选择行动及表达方向。不要仅抓一个词接梗，也不逐条机械作答。
