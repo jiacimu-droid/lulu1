@@ -23,12 +23,15 @@ internal data class CompanionActionResult(
     val summary: String,
     val conversationId: String? = null,
     val evidenceId: String = "",
+    /** Null for non-call operations; a call can be pending while notification is blocked. */
+    val callNotificationShown: Boolean? = null,
 ) {
     fun asJson(): String = JSONObject()
         .put("success", success)
         .put("summary", summary)
         .put("conversationId", conversationId.orEmpty())
         .put("evidenceId", evidenceId)
+        .apply { callNotificationShown?.let { put("callNotificationShown", it) } }
         .toString()
 }
 
@@ -656,7 +659,7 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true,
                     if (notified) "已发起来电并显示来电邀请"
                     else "已发起来电；系统通知权限或频道受限，请在应用中接听",
-                    conversation.id)
+                    conversation.id, callNotificationShown = notified)
             }
             "digital_world_action" -> {
                 val worldAction = normalizeWorldAction(args.optString("worldAction"))
