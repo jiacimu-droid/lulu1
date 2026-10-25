@@ -61,6 +61,46 @@ class WanxiangCharacterContinuityTest {
         assertTrue(ResidentDailyDecision.lifeEvidenceLine(actual[1]).contains("对方已不在联系人内"))
     }
 
+
+    @Test fun deletingOnePastMomentAlsoRetractsThePriorRelationshipImpression() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
+        val person = "wanxiang-bond-" + java.util.UUID.randomUUID().toString()
+        val first = "wanxiang-first-" + java.util.UUID.randomUUID().toString()
+        val second = "wanxiang-second-" + java.util.UUID.randomUUID().toString()
+        fun record(id: String, text: String) = SharedExperienceTimeline.record(
+            id, person, "私聊", "用户", text,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement,
+            triggerExtraction = false,
+        )
+        fun impression(value: String, reason: String): JSONObject =
+            JSONObject().put("social", JSONObject().put("targetId", "user")
+                .put("interpretation", value).put("reason", reason))
+        try {
+            record(first, "我以后再跟你说")
+            CharacterInnerLifeStore.observe(person, first, "真实收到暂缓答复",
+                impression("我以为她不想谈", "她说以后再说"),
+                allowedSocialIds = setOf("user"))
+            record(second, "我不是不想谈，只是当时赶时间")
+            CharacterInnerLifeStore.observe(person, second, "真实收到新的解释",
+                impression("原来只是赶时间", "她明确澄清了原因"),
+                allowedSocialIds = setOf("user"))
+            val before = CharacterSocialRelationship.perspectivesFor(person, listOf("user"))
+            assertTrue(before.contains("之前曾认为=我以为她不想谈"))
+            assertTrue(before.contains("具体依据=她明确澄清了原因"))
+            SharedExperienceTimeline.deleteEvent(first)
+            val after = CharacterSocialRelationship.perspectivesFor(person, listOf("user"))
+            assertTrue(after.contains("原来只是赶时间"))
+            assertFalse(after.contains("我以为她不想谈"))
+            assertEquals("", CharacterSocialRelationship.perspective(person, "user")?.priorImpression)
+        } finally {
+            SharedExperienceTimeline.deleteEvent(first)
+            SharedExperienceTimeline.deleteEvent(second)
+            CharacterInnerLifeStore.clear(person)
+        }
+    }
+
     @Test fun sharedPrivateAndVoiceGuidanceAllowsSpontaneousSpeechWithoutInventedMisunderstanding() {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
