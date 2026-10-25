@@ -1131,18 +1131,23 @@ internal object OrderedCharacterActions {
                 previousCompleted = false
                 continue
             }
-            val name = step.optString("tool").trim()
+            // Defensive boundary for saved plans and non-model callers too:
+            // every nested step shares the primary action vocabulary adapter.
+            val normalized = AutonomousActionWireProtocol.normalizeStep(step)
+            val name = normalized.optString("tool").trim()
             if (CapabilityRegistry.find(name) == null) {
-                notes += "第${index + 1}步未执行：未知工具${name.take(40)}"
+                notes += if (name.isBlank())
+                    "第${index + 1}步未执行：未填写可执行的工具或动作名称"
+                else "第${index + 1}步未执行：未知工具${name.take(40)}"
                 previousCompleted = false
                 continue
             }
-            if (step.optBoolean("requiresPreviousSuccess", false) && !previousCompleted) {
+            if (normalized.optBoolean("requiresPreviousSuccess", false) && !previousCompleted) {
                 notes += "第${index + 1}步${name}未执行：前一步尚未成功"
                 previousCompleted = false
                 continue
             }
-            val args = JSONObject((step.optJSONObject("args") ?: JSONObject()).toString())
+            val args = JSONObject((normalized.optJSONObject("args") ?: JSONObject()).toString())
             if (name in setOf("send_private_message", "send_group_message") &&
                 userEvidenceIds.isNotEmpty()) {
                 args.put("_replyEvidenceIds", org.json.JSONArray(userEvidenceIds.toList()))
@@ -1154,11 +1159,11 @@ internal object OrderedCharacterActions {
                     userRequested = if (name == "capture_screen") explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
-                    learningApplication = step.optJSONObject("learningApplication"),
+                    learningApplication = normalized.optJSONObject("learningApplication"),
                     causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty(),
-                    reason = step.optString("reason"), curiosity = step.optJSONObject("curiosity"),
-                    motiveId = step.optString("motiveId"), concernId = step.optString("concernId"),
-                    experienceId = step.optString("experienceId"),
+                    reason = normalized.optString("reason"), curiosity = normalized.optJSONObject("curiosity"),
+                    motiveId = normalized.optString("motiveId"), concernId = normalized.optString("concernId"),
+                    experienceId = normalized.optString("experienceId"),
                 ))
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
