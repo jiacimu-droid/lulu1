@@ -216,8 +216,12 @@ object LuluScreenAwareness {
 
     /** One frame, and one clearly visible notification, even for explicit chat requests. */
     suspend fun capture(context: Context, userRequested: Boolean,
-        characterId: String = "", requestId: String = "", approved: Boolean = false): String {
+        characterId: String = "", requestId: String = "", approved: Boolean = false,
+        sessionId: String = ""): String {
         if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
+        fun studySessionValid(): Boolean = sessionId.isBlank() ||
+            LuluStudyWatch.active(context, characterId)?.optString("id") == sessionId
+        if (!studySessionValid()) return rejected(context, "学习监督已停止或到期，禁止继续截图")
         if (!userRequested && !autonomousAllowed(context))
             return rejected(context, "角色自主屏幕观察尚未获授权")
         if (Build.VERSION.SDK_INT < 30) return rejected(context, "Android 11 以下不支持", "failed")
@@ -250,12 +254,14 @@ object LuluScreenAwareness {
                 if (!userRequested && !preferences(context).edit()
                         .putLong(LAST_AUTO, System.currentTimeMillis()).commit())
                     return rejected(context, "无法保存观察间隔，已停止")
+                if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
                 LuluScreenRequestPopup.showProgress(context)
                 val description = VisionModelService.describeScreenFrame(context, bitmap).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
-                if (!onDemandAllowed(context)) return rejected(context, "授权已撤销，丢弃本次识图结果")
+                if (!onDemandAllowed(context) || !studySessionValid())
+                    return rejected(context, "屏幕授权或学习监督已结束，丢弃本次识图结果")
                 report(context, "识图完成")
                 return JSONObject().put("success", true).put("status", "observed")
                     .put("packageName", fresh.packageName)
