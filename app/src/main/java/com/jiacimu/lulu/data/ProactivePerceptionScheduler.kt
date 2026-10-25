@@ -778,8 +778,11 @@ class ProactivePerceptionWorker(
             }
         }
         val retryEvidenceId = inputData.getString("retryEvidenceId").orEmpty()
+        val retryRevision = if (characterId != null && retryEvidenceId.isNotBlank())
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(retryEvidenceId))
+                .firstOrNull()?.revision ?: 1L else 1L
         if (characterId != null && retryEvidenceId.isNotBlank() &&
-            PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId)) {
+            PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId, retryRevision)) {
             return@runCatching Result.success()
         }
         if (preserveOffline && onlineExpiryAtMillis == 0L &&
@@ -797,9 +800,10 @@ class ProactivePerceptionWorker(
         // when the user has spoken since it was queued; the original timeline
         // event remains available to future low-priority perception.
         val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
-        val searchReceiptPending = characterId != null && interactionId.isNotBlank() &&
+        val searchReceipt = if (characterId != null && interactionId.isNotBlank())
             SharedExperienceTimeline.eventsByIds(characterId, listOf(interactionId))
-                .any(SearchReceiptFeedback::completedEvidence)
+                .firstOrNull(SearchReceiptFeedback::completedEvidence) else null
+        val searchReceiptPending = searchReceipt != null
         // Cancelled or withdrawn evidence must never wake a character as though
         // a still-valid search result existed. Normal time-based wake is separate.
         if (trigger.startsWith("本人真实搜索/阅读刚得到执行回执") && !searchReceiptPending)
@@ -809,7 +813,8 @@ class ProactivePerceptionWorker(
         // A result arriving during a long search-reply must not be lost when
         // unread messages still belong to the primary chat owner.
         if (searchReceiptPending && characterId != null) {
-            if (PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId))
+            if (PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId,
+                checkNotNull(searchReceipt).revision))
                 return@runCatching Result.success()
             val chatBusy = MigratedDomainStores.chat.conversations.value.any {
                 it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
