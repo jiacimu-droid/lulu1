@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T12:07:21.801521+00:00",
-  "commit": "f77c31d02700691f4a731a75686aa8dd98f9b711",
+  "generatedAt": "2026-10-25T12:07:38.577183+00:00",
+  "commit": "a72a93a1e7cc9a6187a8515fc68fc4f8199e0f7d",
   "branch": "main",
-  "sourceFingerprint": "bd5e9babda39a1bf6361ca5968087b0b29776f194ffe1e71f7c7b806b6f3f0ca",
+  "sourceFingerprint": "fd8ca04836ccf10df46fbdccc904f1897d51f31a2f5181843ab27ba9e6bb9d0b",
   "summary": {
     "files": 901,
-    "lines": 177179,
+    "lines": 177189,
     "symbols": 2653
   },
   "symbolIndex": {
@@ -4945,7 +4945,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 108
+        "line": 118
       }
     ],
     "findOriginal": [
@@ -31009,8 +31009,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 180,
-      "sha256": "1193cbb3d80dd7ac9a522b34efc2556a36d7670c158aa5f23d69e6450ef97df3",
+      "lines": 190,
+      "sha256": "8c3065b887e0d6bb4981c5b7d568a0f781311012b1d920f2d62e44ecae34ed26",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
@@ -31018,7 +31018,7 @@
         },
         {
           "name": "receipt",
-          "line": 108
+          "line": 118
         }
       ]
     },
