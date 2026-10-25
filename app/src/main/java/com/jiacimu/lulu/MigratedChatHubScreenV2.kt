@@ -194,6 +194,19 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val sorted = remember(conversations) {
         conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
     }
+    // One background projection per conversation/read-receipt revision.
+    // Do not subscribe to and scan entire message histories inside lazy rows
+    // each time the list scrolls and reuses a composition.
+    val unreadCounts by produceState<Map<String, Int>>(
+        initialValue = emptyMap(), conversations, unreadRevision
+    ) {
+        value = withContext(Dispatchers.Default) {
+            conversations.associate { conversation ->
+                conversation.id to ChatUnreadStore.unreadCount(
+                    conversation.id, MigratedDomainStores.chat.messages(conversation.id).value)
+            }
+        }
+    }
     var menuConversationId by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
@@ -220,15 +233,13 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                     onlineStates[member.characterId]?.isOnline() == true
                 }
                 val privateOnline = onlineStates[conversation.characterId]?.isOnline() == true
-                val messages by MigratedDomainStores.chat.messages(conversation.id).collectAsState()
-                val unreadCount = remember(messages, unreadRevision) {
-                    ChatUnreadStore.unreadCount(conversation.id, messages)
-                }
+                val unreadCount = unreadCounts[conversation.id] ?: 0
                 Box {
                     Card(
                         modifier = Modifier.fillMaxWidth().combinedClickable(
                             onClick = {
-                                ChatUnreadStore.markRead(conversation.id, messages)
+                                ChatUnreadStore.markRead(conversation.id,
+                                    MigratedDomainStores.chat.messages(conversation.id).value)
                                 MigratedDomainStores.chat.markConversationRead(conversation.id)
                                 onOpenConversation(conversation.id)
                             },
