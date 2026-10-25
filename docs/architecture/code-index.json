@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:30:23.952045+00:00",
-  "commit": "3b1684a7de69c84c7b80af5ed3aedad103b2a034",
+  "generatedAt": "2026-10-25T05:37:17.631876+00:00",
+  "commit": "b70a62e6268144d74fdea4071fb97c9dfcd09e62",
   "branch": "main",
-  "sourceFingerprint": "daaefe98f2f3b921bb7ac8fff310802b40484bc2b1821f0d76bf7e5edc455922",
+  "sourceFingerprint": "295a7b6e372c4f2d09816dbdf795f5152970407b71b4ca5121d0d4fe4eb78ada",
   "summary": {
     "files": 889,
-    "lines": 174041,
+    "lines": 174046,
     "symbols": 2612
   },
   "symbolIndex": {
@@ -14361,7 +14361,7 @@
     "ShortVideoMobileReadingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -30601,12 +30601,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt",
-      "lines": 127,
-      "sha256": "9e518b0e578a020873c6a3d81700e4b9bba4dd4299528b2386c43990fa7a0371",
+      "lines": 132,
+      "sha256": "67d1c4e5ce79934b2d534267d3e747c686399b08ba3f4cc3ff772dc8ea551820",
       "symbols": [
         {
           "name": "ShortVideoMobileReadingTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
