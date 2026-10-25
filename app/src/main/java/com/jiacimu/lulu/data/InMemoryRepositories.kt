@@ -10,6 +10,7 @@ import com.jiacimu.lulu.core.MemoryPolicy
 import com.jiacimu.lulu.core.MemoryRepository
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import com.jiacimu.lulu.core.WorldBookRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -409,6 +410,17 @@ class InMemoryWorldBookRepository : WorldBookRepository {
     /** Prompt and UI both use this exact persisted order. */
     fun snapshot(): List<WorldBookEntry> = entries.value
 
+    /** Position changes are durable and never shuffle the original entry order. */
+    suspend fun setPromptPosition(id: String, position: WorldBookPromptPosition) {
+        mutate { current ->
+            current.map { entry ->
+                if (entry.id == id && entry.promptPosition != position)
+                    entry.copy(promptPosition = position, updatedAt = Instant.now())
+                else entry
+            }
+        }
+    }
+
     suspend fun setGlobalEnabled(id: String, enabled: Boolean) {
         mutate { current ->
             current.map { entry ->
@@ -466,6 +478,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                     .put("title", entry.title)
                     .put("content", entry.content)
                     .put("globalEnabled", entry.globalEnabled)
+                    .put("promptPosition", entry.promptPosition.name)
                     .put("characterOverrides", JSONObject(entry.characterOverrides))
                     .put("folderId", entry.folderId)
                     .put("createdAt", entry.createdAt.toString())
@@ -500,6 +513,11 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                             updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
                             folderId = item.optString("folderId")
                                 .takeUnless { it.isBlank() || it == "null" },
+                            promptPosition = runCatching {
+                                WorldBookPromptPosition.valueOf(
+                                    item.optString("promptPosition", "NORMAL").uppercase()
+                                )
+                            }.getOrDefault(WorldBookPromptPosition.NORMAL),
                         ),
                     )
                 }
