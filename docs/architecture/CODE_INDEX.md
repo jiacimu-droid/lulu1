@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`329c8202ffc48e3d339f3348b43d4745368b8c5d`
+- 基准提交：`ce6081f189fce8d2d692d54965ff2e6e035a4642`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：172648
+- 已索引代码/文本行：172732
 - 已发现符号：2585
 
 | 文件 | 行数 | 符号数 |
@@ -262,7 +262,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 551 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 182 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 188 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 92 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 222 | 6 |
@@ -293,7 +293,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 132 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 65 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 306 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 321 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 122 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
@@ -749,7 +749,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 83 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 49 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 241 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 304 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 132 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 140 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt` | 21 | 1 |

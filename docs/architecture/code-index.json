@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T02:48:42.601664+00:00",
-  "commit": "329c8202ffc48e3d339f3348b43d4745368b8c5d",
+  "generatedAt": "2026-10-25T02:58:23.675918+00:00",
+  "commit": "ce6081f189fce8d2d692d54965ff2e6e035a4642",
   "branch": "main",
-  "sourceFingerprint": "6572ebb9876be5e049c4afcb1945f2f5c58ed052297199e070f947513386f6fc",
+  "sourceFingerprint": "a5e16a6e8f6186ae49666557b44fa0a48cb7c33418f05d85ba7f3e88ef51b83d",
   "summary": {
     "files": 887,
-    "lines": 172648,
+    "lines": 172732,
     "symbols": 2585
   },
   "symbolIndex": {
@@ -4939,31 +4939,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 94
+        "line": 100
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 156
+        "line": 162
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 158
+        "line": 164
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 173
+        "line": 179
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 178
+        "line": 184
       }
     ],
     "conciseAppraisal": [
@@ -18852,28 +18852,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 182,
-      "sha256": "f660006925bea686571794118979087085a80402719ac5e42f43be346c7d5083",
+      "lines": 188,
+      "sha256": "7442d1614c5c0ff1f5921ce88c869802212f42ba255bdc7b73bc2d93acc31b5a",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 94
+          "line": 100
         },
         {
           "name": "usesSeparateExpression",
-          "line": 156
+          "line": 162
         },
         {
           "name": "chatAction",
-          "line": 158
+          "line": 164
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 173
+          "line": 179
         },
         {
           "name": "speechIntent",
-          "line": 178
+          "line": 184
         }
       ]
     },
@@ -19681,8 +19681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 306,
-      "sha256": "6e27cfa330fa146bc792550480d409ead2fb995d155e07ab1dcd185da1ef02e2",
+      "lines": 321,
+      "sha256": "67bc372468111e3659c38cee521d2b69885eefaca703522d057c7b366d5c45f1",
       "symbols": [
         {
           "name": "proposals",
@@ -27398,7 +27398,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2148,
-      "sha256": "b14916b0b46fea642be2e6acb0b54b22f198380799fc3e478b06a1e9ae758b09",
+      "sha256": "ee3ac4427bf9ae217085de09eedf288fa90ea7b92f064b3c684b01fc81502395",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -29229,8 +29229,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
-      "lines": 241,
-      "sha256": "5750adc2ca3e3d79e661f64d5d635d3270b19fda5770d600379288d3bde330c3",
+      "lines": 304,
+      "sha256": "72ff251bc97a26de08e0e5864522bd887f8ceee8ac6db634d9a5a972c1de5f6d",
       "symbols": [
         {
           "name": "CharacterOpenConcernRuntimeTest",
