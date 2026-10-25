@@ -683,7 +683,7 @@ internal fun duplicatesScheduledReminder(plan: RoleDayPlan, task: CommitmentTask
     if (plan.repeat != "daily" && task.repeat != "daily" &&
         a.toLocalDate() != b.toLocalDate()) return false
     val groups = listOf(
-        listOf("学习", "复习", "背书", "做题", "作业", "刷题"),
+        listOf("学习", "复习", "背书", "背诵", "做题", "作业", "刷题"),
         listOf("睡觉", "睡前", "入睡", "哄睡", "晚安", "早睡", "休息"),
         listOf("起床", "叫醒", "喊醒", "晨起"),
         listOf("回来", "返回露露机", "叫回来"),
