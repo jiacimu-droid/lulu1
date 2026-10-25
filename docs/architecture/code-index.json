@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:10:12.677272+00:00",
-  "commit": "e1036b6417af2858bafd986fb04c3f6463842e9a",
+  "generatedAt": "2026-10-25T15:10:57.845529+00:00",
+  "commit": "9874e6eee63a8616682368e9b800a10de3142bbd",
   "branch": "main",
-  "sourceFingerprint": "b980d2803d78c2dd03d402acb39fb406c57752cd2a3734dd75c319a786ae10ec",
+  "sourceFingerprint": "d45f0cd1a00301c7ada2307e23a9aa6ce35fc56ece24a4311cd4e109341a65cb",
   "summary": {
-    "files": 906,
-    "lines": 178480,
-    "symbols": 2675
+    "files": 907,
+    "lines": 178517,
+    "symbols": 2676
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13100,6 +13100,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt",
         "line": 6
+      }
+    ],
+    "ChatScrollFollowPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ChatScrollFollowPolicyTest.kt",
+        "line": 5
       }
     ],
     "ConversationHistoryWindowTest": [
@@ -28648,6 +28654,17 @@
         {
           "name": "ChatReplyTurnActionsTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ChatScrollFollowPolicyTest.kt",
+      "lines": 37,
+      "sha256": "63433d961985e5abbfe1ddcf2e248b709f4a0bcd58fdd27324050d5e078cfc1d",
+      "symbols": [
+        {
+          "name": "ChatScrollFollowPolicyTest",
+          "line": 5
         }
       ]
     },
