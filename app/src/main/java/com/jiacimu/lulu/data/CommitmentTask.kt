@@ -69,3 +69,19 @@ internal fun nextDailyCommitmentDue(
     if (!candidate.toInstant().isAfter(now.plusSeconds(5))) candidate = candidate.plusDays(1)
     return candidate.toInstant()
 }
+
+// Outcome supervision is a durable responsibility, not the same as delivering
+// an alarm or a soothing call. Legacy stored tasks have no typed goal category,
+// so this narrow compatibility projection uses the explicit supervision goal.
+// No inference from an ordinary "good night" or bedtime story alone.
+internal fun CommitmentTask.isBedtimeSupervision(): Boolean {
+    val objective = "$goal $completionCondition".lowercase()
+    return listOf("睡", "入眠", "就寝", "作息").any(objective::contains) &&
+        listOf("监督", "督促", "检查", "确认", "盯着", "看着").any(objective::contains)
+}
+
+/** Only the callback after an actual first attempt may review the outcome. */
+internal fun CommitmentTask.isBedtimeSupervisionReview(): Boolean =
+    isBedtimeSupervision() && attemptCount > 0 && dueAt != null &&
+        lastAlarmScheduledAt != null && lastAlarmScheduledAt != dueAt
+

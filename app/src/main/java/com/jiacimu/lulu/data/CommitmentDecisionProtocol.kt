@@ -15,6 +15,7 @@ internal object CommitmentDecisionProtocol {
         【单一定时任务来源】用户要求“10:30喊我学习”“每晚23:30监督我睡觉”“明早9点叫醒我”等明确的定时提醒或监督：同一意图只通过 commitmentChanges 建立或修改一条真实执行任务（一次性 once、每日 daily），日程页面直接展示这一个任务。不要再用 plan_personal_activity、create_alarm 或第二条不同表述的责任重复登记。个人日程工具仅用于本人自发选择的读书、社交、世界活动，以及从没有固定时间的持续约定发展出的具体行动；同一个已定时约定的后续更新必须复用原任务ID，不是另外建个人日程。
         持续关心、学习督促等尚无具体行动时，可用 long_term_supervision 或 responsibility 且 dueAt 为空保留长期责任；但这不是今晚已安排好监督。若角色自己真心决定在今天、今晚或稍后主动履行某次监督，应自己参考当地时间、双方真实习惯选具体时间，用同一轮 plan_personal_activity 真正存入个人日程，已有持续约定可带 commitmentTaskId。用户不必给时刻。不要把临时念头、玩笑或单纯关心变成强制日程。
         start_call代表真实来电，alarm_only代表本机带声音/震动的闹钟，send_private_message只是普通私聊而不是可靠的叫醒手段。仅想打电话不等于承诺。本人答应稍后来电时自行给出合理时刻，不能由程序按词固定若干分钟。已过去的当天计划不能在次日伪装为新任务；必须由本人显式选择改期并留下原本未履行的事实。
+        【结果核实不是送达】“监督睡觉/督促入睡”是要对方真正准备休息并尽可能核实，不是“说过晚安/哄睡/打通电话”就完成。把目标结果写入 completionCondition；用户挂断电话、退出露露机、无回应或息屏都不足以证明已睡。到期提醒只是第一步，之后留给原任务的监督复查与本人后续选择；未经真实确认不能返回 complete，也不能凭看到其他应用或电量下降断言已经睡着。截图须已有明示授权并经真实工具回执，不得为了履约绕过权限。
         【每日定时约定】用户明确要求“每天23:30打电话监督睡觉”等固定重复任务时，commitmentChanges 只创建或修改一条 repeat=daily、含真实日期时区的 dueAt 与 start_call，使用同一个任务 ID 循环下一天的闹钟，不要同时另外创建 plan_personal_activity；仅当天或一次性的任务设 repeat=once。已建立相同每日责任时修改同一 ID，不再新建一条。普通不定时的白天学习监督仍可持续跟进，但它没有每天固定闹钟。\n        【定时叫醒约定】如果你已经明确答应到点叫醒对方，同一轮必须用commitmentChanges创建或调整真实任务；不可只在台词或心声里说“我会叫你”却提交[]。你作为角色自主决定用真实主动来电start_call还是本机闹钟alarm_only，先参考用户明确提出的方式、你们的关系偏好、你的性格和手机实际权限。偏好不是命令；但若用户明确要求电话，不要私自改成普通通知。不要选send_private_message来履行叫醒睡着的人。没有权限或无法安排时，留失败回执或询问，不假装已设置成功。
         【通话定时与日程分离】当前电话“半小时后挂断”“02:35结束这通电话”属于本次通话控制，必须由电话的 hangupAfterSeconds 计时字段处理，绝不是下一次 start_call 来电，也不应作为普通 commitmentChanges 约定重复登记。每天00:00督促休息等持续约定是另一件事，各自独立选择执行时点与执行方式，不能把两个意图拼成一项 goal 并套用每日零点。已经过去的本地日期不自动改成明天；跨午夜仅在实际时间计算越过午夜时发生。\n        约定通过commitmentChanges落地，同一件事不要再选create_alarm重复建闹钟。记录/执行是否成功以接下来的程序回执为准，当前说话只能表达接受、意愿或必要确认，不能提前宣称已经保存或已经改好。
     """.trimIndent()
@@ -23,7 +24,7 @@ internal object CommitmentDecisionProtocol {
         appendLine("【约定的客观依据】当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
         if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
         tasks.forEach { task ->
-            appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}")
+            appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}; nextReview=${task.nextCheckAt}; lastReceipt=${task.readableLastResult().take(170)}")
         }
     }
 

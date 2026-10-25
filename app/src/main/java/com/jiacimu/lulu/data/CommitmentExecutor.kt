@@ -25,6 +25,50 @@ internal object CommitmentExecutor {
             it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running && it.executionToken == claimedTask.executionToken
         }) return
 
+        // One existing task owns both the timed reminder and its follow-up.
+        // A review callback is observation-only: never dial again, and never
+        // infer sleep merely because a soothing call ended or the screen went dark.
+        if (claimedTask.isBedtimeSupervisionReview()) {
+            val observed = runCatching {
+                UserDevicePerception.context(appContext, claimedTask.characterId, now)
+            }.getOrElse { error ->
+                "设备状态暂不可读：${error.javaClass.simpleName}；没有睡眠证据"
+            }
+            val summary = "睡前监督结果复查。提醒或通话已尝试，但主人是否已入睡仍未核实。" +
+                "以下是设备真实感知（单个应用、电量或息屏不能证明睡眠）：\n" + observed.take(2_500)
+            SharedExperienceTimeline.record(
+                eventId = "commitment:bedtime-review:${claimedTask.id}:${claimedTask.lastAlarmScheduledAt?.toEpochMilli()}",
+                characterId = claimedTask.characterId,
+                channel = "定时监督实际复查",
+                speaker = "设备观察",
+                content = summary,
+                occurredAt = now,
+                source = "commitment-follow-up",
+                evidenceKind = EventEvidenceKind.ToolResult,
+                triggerExtraction = false,
+            )
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                if (old.executionToken != claimedTask.executionToken ||
+                    old.status != CommitmentTaskStatus.Running) old else old.copy(
+                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    linkedAlarmId = null,
+                    nextCheckAt = null,
+                    lastActionResult = "已进行睡前监督复查；没有确切入睡证据，仍待确认。角色可据真实观察继续关心或安静等待。",
+                )
+            }
+            CompanionOnlineStore.initialize(appContext)
+            CompanionOnlineStore.wakeCharacter(
+                claimedTask.characterId, CompanionOnlineReason.ScheduledCommitment,
+                "你先前承担的睡前监督需要复查：${claimedTask.goal}。" +
+                    "这是一条新的实际观察事件，而不是用户刚发来的消息。\n" + summary +
+                    "\n你可根据本人个性、已有授权和新的事实决定是否采取下一步；" +
+                    "仅在需要且获授权时使用屏幕识别。看视频/应用活动是清醒线索，熄屏、未回复、挂电话和电量变化不能证明已入睡。" +
+                    "不要再创建相同的定时任务，不要照抄设备回执向主人说话。",
+                perceiveNow = true, now = now,
+            )
+            return
+        }
+
         val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
         val sameCall = activeCall.connected && activeCall.characterId == claimedTask.characterId
         val wake = claimedTask.isWakeResponsibility()
@@ -68,14 +112,24 @@ internal object CommitmentExecutor {
                             claimedTask.characterId, characterName, claimedTask.goal)
                     }.isSuccess
             }
+            val review = if (delivered && claimedTask.isBedtimeSupervision())
+                LuluAlarmSystem.create(
+                    claimedTask.characterId, characterName, now.plusSeconds(10 * 60L),
+                    "${claimedTask.goal}（监督结果复查）", silentCallback = true,
+                    commitmentTaskId = claimedTask.id,
+                ).getOrNull() else null
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 old.copy(
                     status = if (delivered) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
-                    linkedAlarmId = null, nextCheckAt = null,
+                    linkedAlarmId = review?.id, nextCheckAt = review?.triggerAt,
+                    attemptCount = 1,
                     lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
                         else if (sameCall) "在原电话内${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "用普通声线" else "响铃后"}叫醒，没有重新拨号；未确认醒来"
+                        else if (claimedTask.isBedtimeSupervision())
+                            "睡前监督闹钟已触发，仍未核实入睡；" +
+                                if (review != null) "已安排后续设备复查" else "设备复查未能安排"
                         else "本机闹钟已发出通知；未证明用户已经醒来" +
                             selected.reason.takeIf { it.isNotBlank() }?.let { "；角色决定：$it" }.orEmpty(),
                 )
@@ -127,14 +181,23 @@ internal object CommitmentExecutor {
                 conversation?.id.orEmpty(),
             )
             val requested = JSONObject(popupResult).optBoolean("success", false)
+            val review = if (requested && claimedTask.isBedtimeSupervision())
+                LuluAlarmSystem.create(
+                    claimedTask.characterId, characterName, now.plusSeconds(10 * 60L),
+                    "${claimedTask.goal}（监督结果复查）", silentCallback = true,
+                    commitmentTaskId = claimedTask.id,
+                ).getOrNull() else null
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 if (old.status != CommitmentTaskStatus.Running ||
                     old.executionToken != claimedTask.executionToken) old else old.copy(
                     status = if (requested) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
-                    linkedAlarmId = null, nextCheckAt = null, attemptCount = attempt,
+                    linkedAlarmId = review?.id, nextCheckAt = review?.triggerAt, attemptCount = attempt,
                     lastActionResult = if (requested)
-                        "到期后已请求显示可交互提醒；没有代替角色发送聊天台词，也未确认主人已执行"
+                        "到期后已请求显示可交互提醒；没有代替角色发送聊天台词，也未确认主人已执行" +
+                            if (claimedTask.isBedtimeSupervision())
+                                if (review != null) "；已安排监督结果复查" else "；复查安排失败，仍未确认入睡"
+                            else ""
                     else "定时提醒未显示：${JSONObject(popupResult).optString("error")}；没有伪造角色回复",
                 )
             }
@@ -240,8 +303,10 @@ internal object CommitmentExecutor {
             result.callNotificationShown == true else notificationShown
         val musicResult = plannedMusic
 
-        val afterSeconds = if (result.success && (deliveryNotificationShown || useCall))
-            CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled) else null
+        val afterSeconds = if (result.success && (deliveryNotificationShown || useCall)) {
+            if (claimedTask.isBedtimeSupervision()) 10L * 60L
+            else CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled)
+        } else null
         val retryAt = afterSeconds?.let(now::plusSeconds)
         val followUp = retryAt?.let { at ->
             LuluAlarmSystem.create(
@@ -266,7 +331,9 @@ internal object CommitmentExecutor {
                         else "执行失败：${result.summary.take(150)}")
                     if (musicResult.isNotBlank()) append("；音乐：$musicResult")
                     if (!deliveryNotificationShown) append("；提醒通知没有得到确认")
-                    if (followUp != null) append("；未收到反馈时，已安排有限后续尝试或结果检查")
+                    if (followUp != null) append(if (claimedTask.isBedtimeSupervision())
+                        "；已安排一次设备状态复查，不会自动重复拨号或据此认定已睡"
+                        else "；未收到反馈时，已安排有限后续尝试或结果检查")
                     else if (retryAt != null) append("；后续调度失败，已停止继续呼叫")
                     else append("；未安排更多自动呼叫")
                 },
