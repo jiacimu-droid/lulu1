@@ -28,6 +28,13 @@ class CharacterUnfinishedActionContextTest {
     @Before fun start() {
         MemoryTestEnvironment.release()
         context = RuntimeEnvironment.getApplication()
+        // This suite creates real persistent schedules. Robolectric's manifest
+        // excludes AndroidX Startup, so the WorkManager host must be initialized
+        // before any role plan is registered for a wake-up.
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context,
+                androidx.work.Configuration.Builder().build())
+        }
         CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
             .set(CharacterInnerLifeStore, null)
         LuluRepositories.initialize(context)
