@@ -659,8 +659,17 @@ internal fun isAuthoritativeScheduledReminder(task: CommitmentTask): Boolean = w
  */
 internal fun duplicatesScheduledReminder(plan: RoleDayPlan, task: CommitmentTask): Boolean {
     if (plan.characterId != task.characterId ||
-        plan.activityAction !in setOf("send_private_message", "summon_lulu", "start_call") ||
         task.deliveryAction !in setOf("send_private_message", "alarm_only", "start_call")) return false
+    // An owner-facing check is one appointment even when the role independently
+    // chose screen observation (or left the future action open). The native
+    // commitment wakes the SAME character decision, which can then choose
+    // allowed observation and dialogue in that turn. A distinct life activity,
+    // recipient or place must keep its own independent schedule.
+    if (plan.activityAction !in setOf(
+            "", "send_private_message", "summon_lulu", "start_call", "capture_screen",
+        ) || plan.motiveId.isNotBlank() ||
+        plan.targetCharacterId.isNotBlank() || plan.targetResidentId.isNotBlank() ||
+        plan.locationCode.isNotBlank()) return false
     val deadline = task.dueAt ?: return false
     val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
         ?: java.time.ZoneId.systemDefault()
