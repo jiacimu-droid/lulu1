@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:17:31.223393+00:00",
-  "commit": "b97a2c26a8dee2444bf42d1d8f137e01d3a50937",
+  "generatedAt": "2026-10-25T03:25:02.991828+00:00",
+  "commit": "a810f54e6066d484b83fcb3282c9d90a63af7259",
   "branch": "main",
-  "sourceFingerprint": "e551eb0f838c9850ea070e0b0968d8a70f6f8d63844c78b4e3e88143777a5d47",
+  "sourceFingerprint": "6b62a8a3d73f3563bb1bca193f62cb4546ac5ed7ad1df5c64afd7d7c93ca3bdd",
   "summary": {
     "files": 887,
     "lines": 173124,
@@ -20495,7 +20495,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
       "lines": 172,
-      "sha256": "a96e5c7cf5c690bdfb64574d1d9de48b82ab988fa0dc77cfd881200d400e8aba",
+      "sha256": "f9d66fa29efff687003883a7822c9a04d5966573353d4edd1d6432041b5cf83a",
       "symbols": [
         {
           "name": "handled",
@@ -20521,7 +20521,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
       "lines": 137,
-      "sha256": "d0dda96e896435c7e271dbdef6c583a08551ff7e10bc64bcbbf470d532312343",
+      "sha256": "6719165650e59948b773bacffef9b8a32b32870c238ace02acdbc205a9fb867a",
       "symbols": [
         {
           "name": "CommitmentLexiconSync",
@@ -20547,7 +20547,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
       "lines": 279,
-      "sha256": "cc35e3c39780f794eeeed61efb082dab683ebe81ce2f289251be5b96ad92ade4",
+      "sha256": "d2aa8200424be200410213691bfced2958bc7e3934e6d4c60928cd8715116ab4",
       "symbols": []
     },
     {
@@ -22217,7 +22217,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
       "lines": 1099,
-      "sha256": "6440810de695e3fccfa10d3980f3fe3d0e183bb7a571cd5f82d260d4bc95326b",
+      "sha256": "d3fa123348227e916ed68a3de05451a04b2c55735af6d606335a8b0b94683382",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -24368,7 +24368,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
       "lines": 261,
-      "sha256": "40fb8855210a1dc5ceb901471513eb25e92ed312a99faf9ea3fea9d42205c672",
+      "sha256": "bf08e07cf5b5cff2a4a8e1eba7cea8add16d4fceba6d802aa63db7cd990e71bb",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
