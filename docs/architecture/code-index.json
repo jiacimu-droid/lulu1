@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:42:41.417359+00:00",
-  "commit": "ce7311352d2b5aaa09528831deac41e0e3adabbf",
+  "generatedAt": "2026-10-25T05:43:00.952068+00:00",
+  "commit": "150036a4571f5325b522f588e6306cac7eebfab2",
   "branch": "main",
-  "sourceFingerprint": "3fe464510cdebd9eac56d60f0bc109bbce2826afa7ca785fa4ff771cb774875b",
+  "sourceFingerprint": "af7132afe4db1d78f213ba7e9b5c79f5b25ca8694a2f3918276c2ed952199abf",
   "summary": {
     "files": 890,
-    "lines": 174120,
+    "lines": 174137,
     "symbols": 2617
   },
   "symbolIndex": {
@@ -9507,13 +9507,13 @@
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 897
+        "line": 900
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 905
+        "line": 908
       }
     ],
     "PromptContextBudget": [
@@ -23801,8 +23801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 962,
-      "sha256": "889cbd556ab6bb4846ca7c54bbdc94d9dd69806f95a0a581f67602ae0d01f521",
+      "lines": 965,
+      "sha256": "58f8c1ae12e9ec5170a4c64e78b77bd0e84fefb3fa47b7ff57491c4247bc4036",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -23910,11 +23910,11 @@
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 897
+          "line": 900
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 905
+          "line": 908
         }
       ]
     },
@@ -30643,8 +30643,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 117,
-      "sha256": "471ae57fb2cbcc48ad789aa9d6bf3403a90040107329613c857ff4f8daf0381b",
+      "lines": 131,
+      "sha256": "1b60ae5213ab76f903d0d50d8e7760c3597eae299255db1c952ca649ab0b6ff1",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
