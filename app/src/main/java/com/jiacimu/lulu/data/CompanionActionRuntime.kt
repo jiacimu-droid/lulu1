@@ -1060,11 +1060,14 @@ internal data class OrderedCharacterActionReport(
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
 )
 internal object SearchReceiptFeedback {
+    /** One tool vocabulary for result-bearing search across all scene adapters. */
+    val resultTools = setOf("web_search", "image_search", "read_xiaohongshu")
+
     /** A search/read finishes the original user's turn only after its receipt
      * is returned to the character. Image sends already deliver the image.
      * Pending tools have no content yet; never synthesize a finished read. */
     fun from(tool: String, args: JSONObject, result: JSONObject): VerifiedSearchReceipt? {
-        if (tool !in setOf("web_search", "image_search", "read_xiaohongshu")) return null
+        if (tool !in resultTools) return null
         val op = if (tool == "read_xiaohongshu") when {
             args.optString("url").isNotBlank() -> "shared_link"
             args.optString("keyword").isNotBlank() -> "search_read"
