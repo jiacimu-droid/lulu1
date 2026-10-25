@@ -446,7 +446,7 @@ object LuluDeviceToolBridge {
             这是电话的低延迟通道，普通交谈一般给可以直接念出的 text；若确实想不说话而操作已授权的设备，允许 silent 配合 sideActions，不能返回仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
             【电话里可以当场收藏，无需先挂断或先回复另一次电话】
-            你若真正决定把提供的某条准确用户消息留在辞海，可以在正常的电话回复里同时写
+            你若真正决定把提供的某条准确用户消息保存在生活记录的「收藏」，可以在正常的电话回复里同时写
             {"action":"reply","text":"不预言执行结果的自然口语","phoneFavorite":{"messageId":"真实用户消息ID","reason":"自己为何想收藏这句原话"}}。
             注意 phoneFavorite 是本人这次真实选择的副动作，不只是内心想到；系统会在播报收藏结果前校验消息和原始证据、执行已有收藏工具，成功才说成功，失败会给出真实原因。
             如果根本不需要说话，也可直接选择 action=tool、tool=favorite_user_message 的旧方式。
