@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:45:14.297673+00:00",
-  "commit": "1adb334efc043b6d11cf3a203b969fc33cf19b30",
+  "generatedAt": "2026-10-25T11:46:36.977404+00:00",
+  "commit": "c40f2e2089abbe46449d28d35456f63dd8a0165e",
   "branch": "main",
-  "sourceFingerprint": "c817b918ad2c24fdd6a5c9707c846620fe9305b2c7127af3653c2408beca9fe3",
+  "sourceFingerprint": "9d29c4fb1908747de58267ce36c7425dc3ddf1dd6c8fc0d3db6b58311fc5bbbf",
   "summary": {
     "files": 900,
-    "lines": 176937,
-    "symbols": 2650
+    "lines": 176956,
+    "symbols": 2651
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10250,22 +10250,28 @@
         "line": 81
       }
     ],
+    "completed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 20
+      }
+    ],
     "ToolRouter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 13
+        "line": 32
       }
     ],
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 34
+        "line": 53
       }
     ],
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 197
+        "line": 216
       }
     ],
     "allowsExpansion": [
@@ -24824,20 +24830,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 297,
-      "sha256": "01c7bd6239309234dcc197189f526733131aec3f066fa43701e4b695c42a6934",
+      "lines": 316,
+      "sha256": "df357b09ce1d2552693178866c2770d15f7fa63b0023959d6f2c0146df4de290",
       "symbols": [
         {
+          "name": "completed",
+          "line": 20
+        },
+        {
           "name": "ToolRouter",
-          "line": 13
+          "line": 32
         },
         {
           "name": "rejected",
-          "line": 34
+          "line": 53
         },
         {
           "name": "project",
-          "line": 197
+          "line": 216
         }
       ]
     },
