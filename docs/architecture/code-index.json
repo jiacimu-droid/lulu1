@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:23:38.218247+00:00",
-  "commit": "6a5c8b9fcae7c14fccf844a10d16b84b3ef7c99e",
+  "generatedAt": "2026-10-25T13:24:00.571210+00:00",
+  "commit": "5cdb9dd82faabb0b650879d1c1c82ae0a9e44ed8",
   "branch": "main",
-  "sourceFingerprint": "94551616bf7fef5dbc5f2e766cb6fc7ae9b247a2602812fe3d90f8de7876040a",
+  "sourceFingerprint": "c4a815e928a31d2749e4380e8edc6fe8e81f5969c99d5ffd86d1208f80405b06",
   "summary": {
     "files": 901,
-    "lines": 177463,
+    "lines": 177474,
     "symbols": 2657
   },
   "symbolIndex": {
@@ -4887,7 +4887,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 94
+        "line": 96
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6283,25 +6283,25 @@
     "perspective": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 150
+        "line": 152
       }
     ],
     "perspectivesFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 173
+        "line": 175
       }
     ],
     "knowsEachOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 189
+        "line": 200
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 192
+        "line": 203
       }
     ],
     "isGenericOrientation": [
@@ -20468,8 +20468,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 221,
-      "sha256": "f42813eeb38a4853325361e7bffeed55122bb5e11e4178de51fe1ea3e79d4f1e",
+      "lines": 232,
+      "sha256": "10ddb3afd89bf29c97fb7dae5ceeadda1450df244ca448741f5059238ebbafab",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -20505,23 +20505,23 @@
         },
         {
           "name": "snapshot",
-          "line": 94
+          "line": 96
         },
         {
           "name": "perspective",
-          "line": 150
+          "line": 152
         },
         {
           "name": "perspectivesFor",
-          "line": 173
+          "line": 175
         },
         {
           "name": "knowsEachOther",
-          "line": 189
+          "line": 200
         },
         {
           "name": "contextForGroup",
-          "line": 192
+          "line": 203
         }
       ]
     },
