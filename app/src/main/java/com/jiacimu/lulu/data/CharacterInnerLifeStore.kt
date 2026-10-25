@@ -1633,6 +1633,11 @@ object CharacterInnerLifeStore {
             relevantBondIds(bonds).take(4).forEach { id ->
                 val bond = bonds.optJSONObject(id) ?: return@forEach
                 appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
+                bond.optString("priorThought").trim().takeIf {
+                    it.isNotBlank() && it != bond.optString("interpretation").trim()
+                }?.let { previous ->
+                    appendLine("以前曾这样理解，现已调整：${previous.take(110)}（旧印象不是当前事实）")
+                }
                 relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
                     appendLine("关系近期趋势：$it（趋势不是好感分，也不能由单次互动定型）")
                 }
