@@ -202,8 +202,14 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
             val isComplete = generated.contains(marker)
             val full = (if (originalDraft.isBlank()) "" else originalDraft + "\n") +
                 generated.substringBefore(marker).trim()
-            store.finish(id, token, if (isComplete) "complete" else "draft", text = full,
-                error = if (isComplete) "" else "正文未完成，可以接着补写这一篇")
+            if (snapshot.rewriting && !isComplete) {
+                // A partial replacement must never erase a finished edition.
+                store.finish(id, token, "failed",
+                    error = "新版本尚未完整写完，旧版正文已保留；可以重试")
+            } else {
+                store.finish(id, token, if (isComplete) "complete" else "draft", text = full,
+                    error = if (isComplete) "" else "正文未完成，可以接着补写这一篇")
+            }
             Result.success()
         } catch (cancelled: CancellationException) {
             throw cancelled
