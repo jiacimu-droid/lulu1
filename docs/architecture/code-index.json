@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:01:34.869027+00:00",
-  "commit": "63edc8a1c2e064a4ec376aee11de1a5a93122610",
+  "generatedAt": "2026-10-25T08:03:24.185207+00:00",
+  "commit": "297c5596499c31347629707fcb6ac0b299fe7f71",
   "branch": "main",
-  "sourceFingerprint": "376e4c92ec9d52bd1437b3b80e42b8b756365ce9fd56623e5100aa8abab3843a",
+  "sourceFingerprint": "28d276717dbd28d67b46b146b827e941dc49a8a775a1ea37f7a43920688924e8",
   "summary": {
     "files": 897,
-    "lines": 175952,
-    "symbols": 2639
+    "lines": 176031,
+    "symbols": 2641
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -777,7 +777,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 237
+        "line": 243
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -951,7 +951,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 133
+        "line": 138
       }
     ],
     "prepareVoiceNote": [
@@ -4341,49 +4341,49 @@
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 122
+        "line": 124
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 124
+        "line": 126
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 128
+        "line": 130
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 135
+        "line": 137
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 141
+        "line": 143
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 143
+        "line": 145
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 144
+        "line": 146
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 145
+        "line": 147
       }
     ],
     "Reading": [
@@ -4881,11 +4881,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 134
+        "line": 135
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 295
+        "line": 345
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -5383,7 +5383,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 101
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -6161,7 +6161,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 112
+        "line": 117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -7969,19 +7969,31 @@
     "invalidateSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 145
+        "line": 146
       }
     ],
     "WorldBookImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 230
+        "line": 232
+      }
+    ],
+    "WorldBookFolder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 236
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 232
+        "line": 237
+      }
+    ],
+    "observeFolders": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 253
       }
     ],
     "callEndDescription": [
@@ -18521,8 +18533,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 149,
-      "sha256": "6c5f9d6f22d258a55b53cda1a9bbb4453b3eb299926d86bc23383eceda63d352",
+      "lines": 151,
+      "sha256": "c72f960140652d58ddf174638b3854f23231588400b6f47f51679cd273357538",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -18614,35 +18626,35 @@
         },
         {
           "name": "WorldBookRepository",
-          "line": 122
-        },
-        {
-          "name": "observeWorldBooks",
           "line": 124
         },
         {
+          "name": "observeWorldBooks",
+          "line": 126
+        },
+        {
           "name": "TokenUsage",
-          "line": 128
+          "line": 130
         },
         {
           "name": "DurationSummary",
-          "line": 135
+          "line": 137
         },
         {
           "name": "PerformanceRepository",
-          "line": 141
-        },
-        {
-          "name": "observeErrors",
           "line": 143
         },
         {
+          "name": "observeErrors",
+          "line": 145
+        },
+        {
           "name": "observeTokenUsage",
-          "line": 144
+          "line": 146
         },
         {
           "name": "observeDurations",
-          "line": 145
+          "line": 147
         }
       ]
     },
@@ -22292,8 +22304,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 402,
-      "sha256": "e22ccacefa60aceef3065e7642cf5933810109a8e355298902ffe9787a1d790e",
+      "lines": 472,
+      "sha256": "ff690b0fcb911043276ccc38f5c770b29ec11c2461dede21598ea09fab269db6",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -22313,27 +22325,35 @@
         },
         {
           "name": "snapshot",
-          "line": 134
+          "line": 135
         },
         {
           "name": "invalidateSource",
-          "line": 145
+          "line": 146
         },
         {
           "name": "WorldBookImportResult",
-          "line": 230
-        },
-        {
-          "name": "InMemoryWorldBookRepository",
           "line": 232
         },
         {
-          "name": "initialize",
+          "name": "WorldBookFolder",
+          "line": 236
+        },
+        {
+          "name": "InMemoryWorldBookRepository",
           "line": 237
         },
         {
+          "name": "initialize",
+          "line": 243
+        },
+        {
+          "name": "observeFolders",
+          "line": 253
+        },
+        {
           "name": "snapshot",
-          "line": 295
+          "line": 345
         }
       ]
     },
@@ -26706,20 +26726,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 209,
-      "sha256": "7afff43215ed28c2e739d17f0c59bfc299c30ab5d3eecf1fa0905c2309a532fc",
+      "lines": 216,
+      "sha256": "96bfa94b1be9e387e31f8c2ba6e161deb64bf65be60b3179e2de2a78c956d4d8",
       "symbols": [
         {
           "name": "get",
-          "line": 101
+          "line": 106
         },
         {
           "name": "parse",
-          "line": 112
+          "line": 117
         },
         {
           "name": "enqueue",
-          "line": 133
+          "line": 138
         }
       ]
     },

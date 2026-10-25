@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`63edc8a1c2e064a4ec376aee11de1a5a93122610`
+- 基准提交：`297c5596499c31347629707fcb6ac0b299fe7f71`
 - 分支：`main`
 - 已索引文件：897
-- 已索引代码/文本行：175952
-- 已发现符号：2639
+- 已索引代码/文本行：176031
+- 已发现符号：2641
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -236,7 +236,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 113 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 65 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 375 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 151 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 185 | 2 |
@@ -379,7 +379,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 402 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 472 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 268 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
@@ -559,7 +559,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 209 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 216 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 194 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 409 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 182 | 0 |
