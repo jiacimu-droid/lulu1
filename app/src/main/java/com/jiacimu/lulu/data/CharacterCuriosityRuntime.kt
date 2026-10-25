@@ -20,7 +20,12 @@ internal object CharacterCuriosityRuntime {
     val revisions: kotlinx.coroutines.flow.StateFlow<Long> = changes
 
     @Synchronized fun initialize(context: Context) {
-        if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        // Preferences belong to the current application context. Robolectric
+        // creates a fresh app sandbox for each test, whereas this singleton
+        // survives across tests; keeping the first preferences instance makes
+        // later reads miss the current app's dormant questions and invent IDs.
+        // Rebinding is harmless in production (same app/shared preferences).
+        prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
 
     @Synchronized fun clear(characterId: String) {
