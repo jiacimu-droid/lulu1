@@ -3,8 +3,13 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-/** Tool dependencies may continue only from a verified terminal outcome. */
+/** Real Android-compatible org.json is required: mockable android.jar throws from JSONObject.put. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ToolExecutionStatusTest {
     @Test fun pendingAuthorizationAndUnknownStatesCannotUnlockDependentActions() {
         val incomplete = listOf("pending", "waiting_user", "waiting_permission", "requested",
