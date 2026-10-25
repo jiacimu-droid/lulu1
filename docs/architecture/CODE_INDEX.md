@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`269d2984344a7c9af0b283aa311396c69ab2bd5d`
+- 基准提交：`618d51ea40ecc9e1bc82db8bfd6d5220138884bc`
 - 分支：`main`
 - 已索引文件：905
-- 已索引代码/文本行：178438
+- 已索引代码/文本行：178459
 - 已发现符号：2674
 
 | 文件 | 行数 | 符号数 |
@@ -186,7 +186,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 929 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 950 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |

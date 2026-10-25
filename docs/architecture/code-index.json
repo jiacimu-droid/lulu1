@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:07:16.174104+00:00",
-  "commit": "269d2984344a7c9af0b283aa311396c69ab2bd5d",
+  "generatedAt": "2026-10-25T15:08:51.592065+00:00",
+  "commit": "618d51ea40ecc9e1bc82db8bfd6d5220138884bc",
   "branch": "main",
-  "sourceFingerprint": "8969466fdb2e9f917df875299eb0c3cb75737c4fab331af014371e835992e3c2",
+  "sourceFingerprint": "a477b7158fe702815bcc3a03f38ddd950dfe37eebe560365d5f16b231f4b25c3",
   "summary": {
     "files": 905,
-    "lines": 178438,
+    "lines": 178459,
     "symbols": 2674
   },
   "symbolIndex": {
@@ -3129,67 +3129,67 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 176
+        "line": 182
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 188
+        "line": 194
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 194
+        "line": 200
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 201
+        "line": 207
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 205
+        "line": 211
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 228
+        "line": 234
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 241
+        "line": 247
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 249
+        "line": 255
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 276
+        "line": 282
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 355
+        "line": 361
       }
     ],
     "ScheduleFeatureScreen": [
@@ -17672,52 +17672,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 929,
-      "sha256": "6391642c933db0cea34ddf6921a0194dad34e35b7850e597120b9d0e48d9f328",
+      "lines": 950,
+      "sha256": "350086d99922b2bb24abeff87629bc91772d7b479d1fe7b364a0963e940a472a",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 54
+          "line": 55
         },
         {
           "name": "messageLabel",
-          "line": 176
+          "line": 182
         },
         {
           "name": "repliedPreview",
-          "line": 188
-        },
-        {
-          "name": "beginReply",
           "line": 194
         },
         {
+          "name": "beginReply",
+          "line": 200
+        },
+        {
           "name": "toggleSelected",
-          "line": 201
+          "line": 207
         },
         {
           "name": "buildForwardPayload",
-          "line": 205
+          "line": 211
         },
         {
           "name": "appendDraft",
-          "line": 228
+          "line": 234
         },
         {
           "name": "stopReceiving",
-          "line": 241
+          "line": 247
         },
         {
           "name": "wakeOnline",
-          "line": 249
+          "line": 255
         },
         {
           "name": "sendAndReceive",
-          "line": 276
+          "line": 282
         },
         {
           "name": "regenerateLatestReply",
-          "line": 355
+          "line": 361
         }
       ]
     },
