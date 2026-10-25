@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f57f170b7d584a2d833b40301b10b77ff0f8ecf7`
+- 基准提交：`5aa9d75d1f2ee90310e9f0ff32610840d8d03d4f`
 - 分支：`main`
-- 已索引文件：909
-- 已索引代码/文本行：178850
-- 已发现符号：2678
+- 已索引文件：910
+- 已索引代码/文本行：178977
+- 已发现符号：2679
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -323,18 +323,19 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt` | 14 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 71 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 62 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 42 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 172 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 359 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 50 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 171 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 358 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 88 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 279 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 67 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 37 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 110 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 59 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 82 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 302 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 72 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 22 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 41 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 117 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 368 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
@@ -721,7 +722,6 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 105 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 112 | 1 |
@@ -781,6 +781,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 244 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 42 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 328 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T16:10:02.378885+00:00",
-  "commit": "f57f170b7d584a2d833b40301b10b77ff0f8ecf7",
+  "generatedAt": "2026-10-25T16:23:18.905865+00:00",
+  "commit": "5aa9d75d1f2ee90310e9f0ff32610840d8d03d4f",
   "branch": "main",
-  "sourceFingerprint": "5c827ff28998f5292145dff74cfbced69be2f9b41aa998f69354e1d63006ad24",
+  "sourceFingerprint": "fc147473ff17e5e650e3856d7ccb7e3a7fc56eb0fd269f05b79dc31ee25fd281",
   "summary": {
-    "files": 909,
-    "lines": 178850,
-    "symbols": 2678
+    "files": 910,
+    "lines": 178977,
+    "symbols": 2679
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -439,7 +439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 22
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -6641,25 +6641,25 @@
     "onVoiceStarted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 39
+        "line": 30
       }
     ],
     "onVoiceDelivered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 45
+        "line": 36
       }
     ],
     "onVoiceFailed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 52
+        "line": 43
       }
     ],
     "onMissed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 60
+        "line": 51
       }
     ],
     "nextInCallWakeReviewSeconds": [
@@ -6683,7 +6683,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 30
+        "line": 38
       }
     ],
     "handled": [
@@ -6701,13 +6701,19 @@
     "playChosenMusic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 78
+        "line": 76
       }
     ],
     "CommitmentLexiconSync": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
         "line": 19
+      }
+    ],
+    "Result": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
+        "line": 11
       }
     ],
     "CommitmentTask": [
@@ -13650,12 +13656,6 @@
         "line": 19
       }
     ],
-    "BedtimeSupervisionReviewTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt",
-        "line": 12
-      }
-    ],
     "CallMediaSemanticBoundaryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
@@ -14128,6 +14128,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
         "line": 13
+      }
+    ],
+    "CommitmentOutcomeVerificationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt",
+        "line": 12
       }
     ],
     "CommitmentSemanticPersistenceTest": [
@@ -21010,8 +21016,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-      "lines": 71,
-      "sha256": "8325c1554fc9259320fcc7eb916c9d027d2cef4295b3ed8464f07c1ed8bd1277",
+      "lines": 62,
+      "sha256": "d48c9071cd520713b8d30e9da951606ef47c6160eeab1c97644bf41669f8d3af",
       "symbols": [
         {
           "name": "onResponse",
@@ -21019,19 +21025,19 @@
         },
         {
           "name": "onVoiceStarted",
-          "line": 39
+          "line": 30
         },
         {
           "name": "onVoiceDelivered",
-          "line": 45
+          "line": 36
         },
         {
           "name": "onVoiceFailed",
-          "line": 52
+          "line": 43
         },
         {
           "name": "onMissed",
-          "line": 60
+          "line": 51
         }
       ]
     },
@@ -21056,23 +21062,23 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 42,
-      "sha256": "dbfb39acd7a34f6fa64ba9486eb1615c2570ef0701d4ea8f101948ce1b716f47",
+      "lines": 50,
+      "sha256": "267c65a6bce0b6a686412c025dc4bb2aaab5f8f1fd4b6036827a822b5f801f51",
       "symbols": [
         {
           "name": "context",
-          "line": 22
+          "line": 23
         },
         {
           "name": "drafts",
-          "line": 30
+          "line": 38
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 172,
-      "sha256": "95b2f8884a8562a891851778d6f2ad99d6306701e10a220f76b280dabc6e9c18",
+      "lines": 171,
+      "sha256": "3d7cb3a4a745e5fc0519654af48c03892b22a4d8d4582a7dacc5143231598e51",
       "symbols": [
         {
           "name": "handled",
@@ -21086,12 +21092,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 359,
-      "sha256": "fddd43eede04178c39f96b915ad8ab11773e5582ff88c35ef99aa147b8618f5d",
+      "lines": 358,
+      "sha256": "04dae4b7f1d1d5628e768f9384236b5b463b2bc7780b85b6dfa8fd191253748c",
       "symbols": [
         {
           "name": "playChosenMusic",
-          "line": 78
+          "line": 76
         }
       ]
     },
@@ -21111,9 +21117,20 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
+      "lines": 59,
+      "sha256": "4ba85f753fa812892d4dedd6d3d6ee0b6ba5792aea3ad1f4b6c0c4c5abc9ce16",
+      "symbols": [
+        {
+          "name": "Result",
+          "line": 11
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 88,
-      "sha256": "4d286ccf2061a1e8183bb9f641e47d47da756f37f3462608699b822d2d7b55dd",
+      "lines": 82,
+      "sha256": "b396a8bedc9a71a6d133d9cd595466e83dc47e2e271879df9ac7b4735415f935",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -21123,20 +21140,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 279,
-      "sha256": "d2aa8200424be200410213691bfced2958bc7e3934e6d4c60928cd8715116ab4",
+      "lines": 302,
+      "sha256": "fbc02178e097fca26b1f69f4e8e48e5e0172185f713f037b2b3fcf5650c23b6d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 67,
-      "sha256": "7bd0577affeed54678b0af87858a6f4fc6f9fbcb02067b2dbff0e3fbd9082f49",
+      "lines": 72,
+      "sha256": "7490ebdcbce77c7fc36ec3a1956b4a7805a63e1d917652c33f5f9a939b1b5d2f",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt",
-      "lines": 19,
-      "sha256": "b46f52a1c0359e87aa8d4fe2dc371e0ad9a6c43e0316f34993ca4aa3ded8bce4",
+      "lines": 22,
+      "sha256": "c80c3098b7bf21252d8107d524c9e7c5ae61e871797213df819cd1826cec1a61",
       "symbols": [
         {
           "name": "CommitmentTaskDraft",
@@ -21146,14 +21163,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 37,
-      "sha256": "66eb7bc18840a8727804a8fc96bb6b59a2d52d9d07121eebbdbe609974d44ede",
+      "lines": 41,
+      "sha256": "3cd7ad202317d1f251ef75bb5f465b61e3b26f1370dd4a39c25d448b691131e8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 110,
-      "sha256": "22ea8da1be262f8da3012a2165535b1b6a656064811ed9fd68c2cffb4ee058cd",
+      "lines": 117,
+      "sha256": "7d90ad9e1e1b63baca4ddc9b248cd400a0b17a92a87e4408c5977d9dcd6ba305",
       "symbols": []
     },
     {
@@ -21170,7 +21187,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
       "lines": 368,
-      "sha256": "38f60738defecfc93787d310cb3855f2e0b1bc2826fe9011015963764c200812",
+      "sha256": "7c7550e4da7aa31a1ff83372f402f6ededdc225be959fb10931fa986b51e0060",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -29574,17 +29591,6 @@
       ]
     },
     {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt",
-      "lines": 39,
-      "sha256": "904c4ce12e167206a4e3a5a4eac095ef6cc284143838a8aecbf35a2aaefcc745",
-      "symbols": [
-        {
-          "name": "BedtimeSupervisionReviewTest",
-          "line": 12
-        }
-      ]
-    },
-    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
       "lines": 45,
       "sha256": "5ae585c403b298efb25b6a42ff3a2020cbc038e4896126cf2f3b9bc00c839e7d",
@@ -30342,6 +30348,17 @@
         {
           "name": "CommitmentDecisionProtocolTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt",
+      "lines": 74,
+      "sha256": "53ede2b40c5d52780fdbbaac8afc5f2c07ec214a720b1ac21516c2465a957d0c",
+      "symbols": [
+        {
+          "name": "CommitmentOutcomeVerificationTest",
+          "line": 12
         }
       ]
     },
