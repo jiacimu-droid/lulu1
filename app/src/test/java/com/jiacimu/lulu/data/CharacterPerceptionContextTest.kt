@@ -50,6 +50,10 @@ class CharacterPerceptionContextTest {
         val pending = search("web_search", "pending")
         val fake = search.copy(id = "story", source = "message",
             evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertTrue(SearchReceiptFeedback.completedEvidence(search))
+        assertTrue(SearchReceiptFeedback.completedEvidence(failed))
+        assertFalse(SearchReceiptFeedback.completedEvidence(pending))
+        assertFalse(SearchReceiptFeedback.completedEvidence(fake))
         assertEquals(listOf(search.id, image.id, xhs.id, failed.id),
             CharacterPerceptionContext.selectRecent(
                 listOf(search, image, xhs, failed, pending, fake), now).map { it.id })
