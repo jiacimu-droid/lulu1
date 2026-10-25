@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:54:59.344920+00:00",
-  "commit": "057da960ec7fbb0701eb215d7dc42ea588c1b63c",
+  "generatedAt": "2026-10-25T13:55:33.021689+00:00",
+  "commit": "2d814ed036da0d4c8ee939b720226ef6f3d0e749",
   "branch": "main",
-  "sourceFingerprint": "d37a9de271e2a98dcc01bbdba96a32ee2776f79f7945f951fe64a4e69e7f8871",
+  "sourceFingerprint": "3539f293369c009032042a426720c4812c46fdc2ae5ad6a899ce0a9d7bc53119",
   "summary": {
     "files": 903,
-    "lines": 177788,
-    "symbols": 2664
+    "lines": 177811,
+    "symbols": 2665
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3183,7 +3183,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-        "line": 25
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
@@ -6998,10 +6998,16 @@
         "line": 18
       }
     ],
+    "turns": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
+        "line": 25
+      }
+    ],
     "quoteNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-        "line": 60
+        "line": 65
       }
     ],
     "repairInstruction": [
@@ -21384,16 +21390,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-      "lines": 81,
-      "sha256": "a20c70d633e2a613276376db400e0483964b69322030dfce2a2896f8b94c761e",
+      "lines": 86,
+      "sha256": "023d4b0207efb39190319bb40bfd3575007d4fa1ab14a96ea10e39eabb948018",
       "symbols": [
         {
-          "name": "select",
+          "name": "turns",
           "line": 25
         },
         {
+          "name": "select",
+          "line": 35
+        },
+        {
           "name": "quoteNote",
-          "line": 60
+          "line": 65
         }
       ]
     },
@@ -29516,8 +29526,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSetTest.kt",
-      "lines": 35,
-      "sha256": "a216c74a5b4515a61e6ae17ed2888ec6794ce0b1c849b0fd824b475e3672c3db",
+      "lines": 53,
+      "sha256": "8b27b9f4e16786879d089cf0fb54c247d85c52eefe2cabdb640c899d5f798ada",
       "symbols": [
         {
           "name": "CharacterAttentionWorkingSetTest",

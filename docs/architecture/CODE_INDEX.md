@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`057da960ec7fbb0701eb215d7dc42ea588c1b63c`
+- 基准提交：`2d814ed036da0d4c8ee939b720226ef6f3d0e749`
 - 分支：`main`
 - 已索引文件：903
-- 已索引代码/文本行：177788
-- 已发现符号：2664
+- 已索引代码/文本行：177811
+- 已发现符号：2665
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -342,7 +342,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 38 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 81 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 86 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 274 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 440 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
@@ -725,7 +725,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 107 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSetTest.kt` | 35 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSetTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
