@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:02:24.350864+00:00",
-  "commit": "b03d54a74bddfbab89016e953902bd6ece2ef0b1",
+  "generatedAt": "2026-10-25T03:04:08.655840+00:00",
+  "commit": "5e4bc608b1cadf957243a15099aa06d8aa0e75dd",
   "branch": "main",
-  "sourceFingerprint": "727be9df70775d38a912e75514a548493409bd039fa14a3d27135767af57485b",
+  "sourceFingerprint": "943acb4c4e39856811478a0e68fc24059410d774a9c2e8bd8c7df3e7ec94b7fe",
   "summary": {
     "files": 887,
-    "lines": 172928,
+    "lines": 172935,
     "symbols": 2587
   },
   "symbolIndex": {
@@ -23834,7 +23834,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
       "lines": 103,
-      "sha256": "23b2fda59d5d665bd7c576f8f812ace8fe754df574a9954861f20f1dde26cbaf",
+      "sha256": "8567e14239d481795857566ec68c26fd49641bc1377a938fe366622e5b6c0c90",
       "symbols": [
         {
           "name": "userExplicitlySettled",
@@ -30211,8 +30211,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt",
-      "lines": 117,
-      "sha256": "bd6b751153daa665a7d9be12ab9b921cc6c0f92381e0b064b0e4e30fd421f0bc",
+      "lines": 124,
+      "sha256": "2ae8a1ff4fb2441d0899802bb5d5ab529a6243484e889398928abfb915faf890",
       "symbols": [
         {
           "name": "RelationshipRepairContinuityTest",
