@@ -125,8 +125,8 @@ fun CharacterWorldBookScreenV2(
                 val deleted = repository.deleteEntries(ids)
                 if (deleted.entries.isEmpty()) return@launch
                 selectedIds = selectedIds - ids
-                if (expandedBookId in ids) expandedBookId = null
-                if (editingBook?.id in ids) editingBook = null
+                if (expandedBookId?.let { it in ids } == true) expandedBookId = null
+                if (editingBook?.id?.let { it in ids } == true) editingBook = null
                 val label = if (deleted.entries.size == 1) "已删除《${deleted.entries.single().title}》"
                     else "已删除 ${deleted.entries.size} 条世界书"
                 val action = notices.showSnackbar(
