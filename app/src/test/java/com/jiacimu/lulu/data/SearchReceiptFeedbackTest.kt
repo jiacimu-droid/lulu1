@@ -113,6 +113,25 @@ class SearchReceiptFeedbackTest {
                 .put("error", "网页加载失败")))
     }
 
+    @Test fun onlyVerifiedSearchOutcomeEventsCanScheduleResultPerception() {
+        val now = java.time.Instant.parse("2026-10-25T10:00:00Z")
+        fun event(status: String, success: Boolean): SharedTimelineEvent {
+            val execution = JSONObject().put("tool", "web_search").put("status", status)
+                .put("result", JSONObject().put("success", success)
+                    .put("summary", "实际执行器回执").toString())
+            return SharedTimelineEvent("search-${status}-${success}", "role",
+                "实际工具执行", "执行器", execution.toString(), now,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        assertTrue(SearchReceiptFeedback.completedEvidence(event("succeeded", true)))
+        assertTrue(SearchReceiptFeedback.completedEvidence(event("failed", false)))
+        assertTrue(SearchReceiptFeedback.completedEvidence(event("observed", true)))
+        assertFalse(SearchReceiptFeedback.completedEvidence(event("succeeded", false)))
+        assertFalse(SearchReceiptFeedback.completedEvidence(event("running", true)))
+        assertFalse(SearchReceiptFeedback.completedEvidence(event("requested_unverified", false)))
+        assertFalse(SearchReceiptFeedback.completedEvidence(event("pending", true)))
+    }
+
     @Test fun aConsumedLatestWakeCannotHideOlderUnprocessedSearchResults() {
         val now = java.time.Instant.parse("2026-10-25T10:00:00Z")
         fun receipt(id: String, secondsAgo: Long, tool: String = "web_search",
