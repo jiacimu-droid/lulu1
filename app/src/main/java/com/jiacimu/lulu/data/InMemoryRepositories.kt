@@ -67,6 +67,7 @@ class InMemoryLexiconRepository : LexiconRepository {
         synchronized(lock) {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            folders.value = decodeFolders(prefs?.getString(KEY_FOLDERS, null))
             entries.value = decode(prefs?.getString(KEY_ENTRIES, null))
         }
     }
@@ -212,6 +213,7 @@ class InMemoryLexiconRepository : LexiconRepository {
                             },
                             createdAt = createdAt,
                             updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
+                            folderId = item.optString("folderId").takeIf { it.isNotBlank() && it != "null" },
                             status = runCatching { LexiconStatus.valueOf(item.optString("status")) }.getOrDefault(LexiconStatus.Active),
                             sourceEventIds = item.optJSONArray("sourceEventIds")?.let { array -> (0 until array.length()).map { array.optString(it) }.filter(String::isNotBlank) }.orEmpty(),
                             lastFollowUpAt = runCatching { Instant.parse(item.optString("lastFollowUpAt")) }.getOrNull(),
@@ -230,8 +232,12 @@ class InMemoryLexiconRepository : LexiconRepository {
 
 data class WorldBookImportResult(val imported: Int, val duplicates: Int)
 
+/** Folder metadata is organizational only; entries remain in their original prompt order. */
+data class WorldBookFolder(val id: String, val name: String)
+
 class InMemoryWorldBookRepository : WorldBookRepository {
     private val entries = MutableStateFlow<List<WorldBookEntry>>(emptyList())
+    private val folders = MutableStateFlow<List<WorldBookFolder>>(emptyList())
     private var prefs: android.content.SharedPreferences? = null
     private val lock = Any()
 
@@ -244,10 +250,54 @@ class InMemoryWorldBookRepository : WorldBookRepository {
     }
 
     override fun observeWorldBooks(): Flow<List<WorldBookEntry>> = entries
+    fun observeFolders(): Flow<List<WorldBookFolder>> = folders
+
+    suspend fun saveFolder(name: String, id: String? = null): String {
+        val clean = name.trim()
+        require(clean.isNotBlank() && clean.length <= 60) { "分类名称须为 1～60 个字" }
+        synchronized(lock) {
+            require(folders.value.none { it.name.equals(clean, ignoreCase = true) && it.id != id }) { "分类已存在" }
+            val nextId = id ?: UUID.randomUUID().toString()
+            val current = folders.value
+            require(id == null || current.any { it.id == id }) { "分类不存在" }
+            val next = if (id == null) current + WorldBookFolder(nextId, clean)
+                       else current.map { if (it.id == id) it.copy(name = clean) else it }
+            prefs?.let { check(it.edit().putString(KEY_FOLDERS, encodeFolders(next).toString()).commit()) { "分类保存失败" } }
+            folders.value = next
+            return nextId
+        }
+    }
+
+    /** Removing a folder never removes its entries, switches or relative order. */
+    suspend fun deleteFolder(id: String) {
+        synchronized(lock) {
+            if (folders.value.none { it.id == id }) return
+            val nextFolders = folders.value.filterNot { it.id == id }
+            val nextEntries = entries.value.map { if (it.folderId == id) it.copy(folderId = null) else it }
+            prefs?.let {
+                check(it.edit().putString(KEY_FOLDERS, encodeFolders(nextFolders).toString())
+                    .putString(KEY_ENTRIES, encode(nextEntries).toString()).commit()) { "分类删除失败" }
+            }
+            entries.value = nextEntries
+            folders.value = nextFolders
+        }
+    }
+
+    suspend fun setEntryFolder(id: String, folderId: String?) {
+        synchronized(lock) {
+            require(folderId == null || folders.value.any { it.id == folderId }) { "分类不存在" }
+            mutate { current -> current.map {
+                if (it.id == id) it.copy(folderId = folderId, updatedAt = Instant.now()) else it
+            } }
+        }
+    }
 
     override suspend fun save(entry: WorldBookEntry) {
         require(entry.title.isNotBlank()) { "世界书标题不能为空" }
         require(entry.content.isNotBlank()) { "世界书内容不能为空" }
+        synchronized(lock) {
+            require(entry.folderId == null || folders.value.any { it.id == entry.folderId }) { "分类不存在" }
+        }
         mutate { current ->
             val index = current.indexOfFirst { item -> item.id == entry.id }
             if (index < 0) {
@@ -352,6 +402,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                     .put("content", entry.content)
                     .put("globalEnabled", entry.globalEnabled)
                     .put("characterOverrides", JSONObject(entry.characterOverrides))
+                    .put("folderId", entry.folderId)
                     .put("createdAt", entry.createdAt.toString())
                     .put("updatedAt", entry.updatedAt.toString()),
             )
@@ -389,9 +440,28 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         }.getOrDefault(emptyList())
     }
 
+    private fun encodeFolders(values: List<WorldBookFolder>): JSONArray = JSONArray().apply {
+        values.forEach { put(JSONObject().put("id", it.id).put("name", it.name)) }
+    }
+
+    private fun decodeFolders(raw: String?): List<WorldBookFolder> =
+        if (raw.isNullOrBlank()) emptyList()
+        else runCatching {
+            val array = JSONArray(raw)
+            buildList {
+                for (index in 0 until array.length()) {
+                    val item = array.optJSONObject(index) ?: continue
+                    val id = item.optString("id")
+                    val name = item.optString("name").trim()
+                    if (id.isNotBlank() && name.isNotBlank()) add(WorldBookFolder(id, name))
+                }
+            }
+        }.getOrDefault(emptyList())
+
     private companion object {
         const val PREFS_NAME = "lulu_world_book"
         const val KEY_ENTRIES = "entries_v1"
+        const val KEY_FOLDERS = "folders_v1"
     }
 }
 
