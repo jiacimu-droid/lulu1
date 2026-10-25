@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:41:25.131370+00:00",
-  "commit": "56412fe805453dea45df5aafdc1fcf65b200469f",
+  "generatedAt": "2026-10-25T11:44:11.935735+00:00",
+  "commit": "5ce10f021fffe917011c7f9c2e21ff72ef2f8f03",
   "branch": "main",
-  "sourceFingerprint": "e4e2872ff8042aa87249b2d0b3bbcd3ce1ab5333d5540e0ab79b249bb9e9bc3e",
+  "sourceFingerprint": "4f06c4f29977f417cf938caad69472fd8e7801cb9f61b73f974a0b1c937457a9",
   "summary": {
     "files": 900,
-    "lines": 176859,
-    "symbols": 2649
+    "lines": 176878,
+    "symbols": 2650
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3263,7 +3263,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 98
+        "line": 117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -3765,7 +3765,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 37
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -4445,7 +4445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 154
+        "line": 173
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -5980,34 +5980,40 @@
         "line": 18
       }
     ],
+    "acknowledge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 44
+      }
+    ],
     "outcomeEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 47
+        "line": 66
       }
     ],
     "latestObservedEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 56
+        "line": 75
       }
     ],
     "personalOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 64
+        "line": 83
       }
     ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 84
+        "line": 103
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 140
+        "line": 159
       }
     ],
     "keepOrBlank": [
@@ -20159,44 +20165,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 163,
-      "sha256": "8b7f7819ae378dc0aeaee897b53b4fb1404cfa244590929d13f09cdc65abc599",
+      "lines": 182,
+      "sha256": "19d7247fc500f8487656e00d42a7255c29ca618f46b43f6cc87faecfc73ea39a",
       "symbols": [
         {
           "name": "integrate",
           "line": 18
         },
         {
+          "name": "acknowledge",
+          "line": 44
+        },
+        {
           "name": "recent",
-          "line": 37
-        },
-        {
-          "name": "outcomeEvidenceId",
-          "line": 47
-        },
-        {
-          "name": "latestObservedEvidenceId",
           "line": 56
         },
         {
+          "name": "outcomeEvidenceId",
+          "line": 66
+        },
+        {
+          "name": "latestObservedEvidenceId",
+          "line": 75
+        },
+        {
           "name": "personalOutcome",
-          "line": 64
+          "line": 83
         },
         {
           "name": "selectRecent",
-          "line": 84
+          "line": 103
         },
         {
           "name": "pending",
-          "line": 98
+          "line": 117
         },
         {
           "name": "stimulus",
-          "line": 140
+          "line": 159
         },
         {
           "name": "render",
-          "line": 154
+          "line": 173
         }
       ]
     },

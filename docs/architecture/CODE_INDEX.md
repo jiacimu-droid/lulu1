@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`56412fe805453dea45df5aafdc1fcf65b200469f`
+- 基准提交：`5ce10f021fffe917011c7f9c2e21ff72ef2f8f03`
 - 分支：`main`
 - 已索引文件：900
-- 已索引代码/文本行：176859
-- 已发现符号：2649
+- 已索引代码/文本行：176878
+- 已发现符号：2650
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -296,7 +296,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 132 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 65 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 350 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 163 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 182 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 254 | 1 |
