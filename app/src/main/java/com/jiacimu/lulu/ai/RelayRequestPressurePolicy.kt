@@ -42,6 +42,9 @@ internal object RelayRequestPressurePolicy {
         "任务规则/工具协议", "角色身份", "角色人设",
         "核心记忆", "未完成责任", "全局世界书",
         "角色世界书/设计书", "数字世界权威状态",
+        "全局世界书/TOP", "角色世界书/TOP",
+        "全局世界书/NORMAL", "角色世界书/NORMAL",
+        "全局世界书/BOTTOM", "角色世界书/BOTTOM",
     )
 
     private fun limit(label: String): Int = when (label) {
