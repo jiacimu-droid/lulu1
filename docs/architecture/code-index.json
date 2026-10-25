@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:32:45.514446+00:00",
-  "commit": "75d61511ea313dcf4bea253db474737de4f32828",
+  "generatedAt": "2026-10-25T13:42:06.448618+00:00",
+  "commit": "856490409e700004bc5148dd56bf78f031ec5adf",
   "branch": "main",
-  "sourceFingerprint": "e65baad26043a7158805de75b0299525a358c8007adfc4cae8eca7812cd34d48",
+  "sourceFingerprint": "64a5812cfd30471d1ef0aeda7156566bf4dbc47a201633daba41f2a4fdd75ef0",
   "summary": {
     "files": 902,
-    "lines": 177661,
+    "lines": 177665,
     "symbols": 2662
   },
   "symbolIndex": {
@@ -31251,8 +31251,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-      "lines": 147,
-      "sha256": "f7b66a294dd5b47d2526a9a00fa13fd397d9a54af5a276d71d6d3db78693f43f",
+      "lines": 151,
+      "sha256": "bf2b66cd809c014794dc28cd621a9cc3bb3a18f948c7b5bc52bbaa89ea5c61da",
       "symbols": [
         {
           "name": "WanxiangCharacterContinuityTest",
