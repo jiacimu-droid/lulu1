@@ -64,12 +64,13 @@ internal object EmbodiedBodyPhysics {
     // Game-like 0–100 sensations, not medical measures. One hour is meaningful:
     // a few hours without novelty, food or water can change a person's attention.
     // Pure elapsed-time projection means refresh frequency never changes the rate.
-    private const val AWAKE_ENERGY_DRAIN_PER_HOUR = 5.2
-    private const val AWAKE_SLEEP_PRESSURE_PER_HOUR = 6.5
+    // Short waking windows must preserve the ongoing lived-day rhythm across standby.
+    private const val AWAKE_ENERGY_DRAIN_PER_HOUR = 8.0
+    private const val AWAKE_SLEEP_PRESSURE_PER_HOUR = 8.5
     private const val AWAKE_HUNGER_PER_HOUR = 7.0
-    private const val AWAKE_THIRST_PER_HOUR = 8.5
+    private const val AWAKE_THIRST_PER_HOUR = 9.0
     private const val AWAKE_COMFORT_DRAIN_PER_HOUR = 2.0
-    private const val AWAKE_MONOTONY_PER_HOUR = 9.5
+    private const val AWAKE_MONOTONY_PER_HOUR = 12.0
 
     fun fresh(at: Instant): EmbodiedBodySnapshot = EmbodiedBodySnapshot(lastAt = at)
 
@@ -115,14 +116,14 @@ internal object EmbodiedBodyPhysics {
                 else -> 40.0
             }
             val energy = when {
-                standby -> approach(state.energy, energyTarget, if (night) 0.65 else 0.35)
+                standby -> approach(state.energy, energyTarget, if (night) 0.65 else 0.24)
                 mode == "sleep" -> state.energy + 12.5 * hours
                 mode == "nap" -> state.energy + 17.0 * hours
                 resting -> state.energy + 5.0 * hours
                 else -> state.energy - AWAKE_ENERGY_DRAIN_PER_HOUR * hours
             }
             val pressure = when {
-                standby -> approach(state.sleepPressure, pressureTarget, if (night) 0.65 else 0.35)
+                standby -> approach(state.sleepPressure, pressureTarget, if (night) 0.65 else 0.24)
                 mode == "sleep" -> state.sleepPressure - 15.0 * hours
                 mode == "nap" -> state.sleepPressure - 19.0 * hours
                 resting -> state.sleepPressure - 5.0 * hours
@@ -131,23 +132,23 @@ internal object EmbodiedBodyPhysics {
             // Daytime offline time still belongs to the person's day. Around 6 points/h
             // and a real sandwich's 34-point relief support breakfast/lunch/dinner spacing.
             val hungerRate = when {
-                standby -> if (night) 1.1 else 6.0
+                standby -> if (night) 1.1 else 5.6
                 mode == "sleep" -> 1.1
                 mode == "nap" -> 2.0
                 resting -> 4.0
                 else -> AWAKE_HUNGER_PER_HOUR
             }
             val thirstRate = when {
-                standby -> if (night) 2.0 else 8.0
+                standby -> if (night) 2.0 else 7.8
                 mode == "sleep" -> 2.0
                 mode == "nap" -> 2.8
                 resting -> 5.0
                 else -> AWAKE_THIRST_PER_HOUR
             }
             val boredom = when {
-                standby -> approach(state.boredom, 100.0, if (night) 0.0055 else 0.075)
+                standby -> approach(state.boredom, 100.0, if (night) 0.006 else 0.12)
                 sleeping -> approach(state.boredom, 100.0, 0.0035)
-                resting -> approach(state.boredom, 100.0, 0.035)
+                resting -> approach(state.boredom, 100.0, 0.04)
                 else -> state.boredom + AWAKE_MONOTONY_PER_HOUR * hours
             }
             val comfort = when {
@@ -234,7 +235,14 @@ internal object EmbodiedBodyPhysics {
             else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
             appendLine("饥饿和口渴可影响想吃喝的意愿；白天即使多数时间离线，也会按经过的生活时间积累，早餐、午餐、晚餐和间隔饮水可自然成为本人选择；正餐可间隔约4—6小时，不必等到很饿才准备；可提前准备或通过原日程安排，不能仅因休眠就跳过一整天的吃喝。真正睡眠及夜间休眠积累较慢。睡眠压力高、精力低可以使本人倾向休息。单调感表示一段生活时间缺少有变化的体验，白天离线也会明显积累，夜间较慢：普通整理、查看时间和吃喝不会自动消除；真正的散步、观察新风景有少量缓解，实际游戏、阅读、探索回执能明显缓解。白天休眠不会反复补满精力或清空睡眠压力；夜间与实际睡眠活动恢复更充分，好奇和未解决心事不会被清空。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。这些只是决策线索，绝非必须搜索、强制发消息或改变性格的阈值，不越过已有权限和费用限制；点单不代表已食用。")
-            appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
+            val noveltySignal = when {
+                snapshot.boredom >= 75.0 -> "单调感已经很明显；可以认真考虑现在是否有想读、想看、想研究或想体验的具体事，也可能选择独处。"
+                snapshot.boredom >= 55.0 -> "单调感正在累积；符合本人兴趣的活动可能比重复日常更有吸引力。"
+                snapshot.boredom >= 35.0 -> "开始想要一点新变化；可能想到小探索、见朋友或新体验。"
+                else -> "暂时不太单调；探索依然可以来自独立兴趣，无须先等到无聊。"
+            }
+            appendLine("当前探索动机线索：$noveltySignal 数值不是自动行动阈值；真正执行只能来自本人的选择与现有执行器。")
+            appendLine("这些感受可影响注意、节奏、行动选择和数字身体表现；情绪仍由同一角色自己经历和理解形成，短暂休眠不会重置情绪、心事，也不代表每次醒来都精神饱满或必然疲倦。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }
 }
