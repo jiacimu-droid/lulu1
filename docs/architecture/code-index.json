@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T06:35:37.233116+00:00",
-  "commit": "6d021517da5436b5310d124aca80e0f9149e0492",
+  "generatedAt": "2026-10-25T06:35:54.482677+00:00",
+  "commit": "e3576910447afbc755e2c53efe20f7f73e8a56c2",
   "branch": "main",
-  "sourceFingerprint": "4477f32ed99f806ba5bef7197211bc5919c917d6110fc8a34db670782af73546",
+  "sourceFingerprint": "39b3574f4a7df97538254e190a275235bee0a867f1111bb4e6d6d1db7bfe94b7",
   "summary": {
     "files": 891,
-    "lines": 174668,
+    "lines": 174703,
     "symbols": 2619
   },
   "symbolIndex": {
@@ -7399,11 +7399,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 46
+        "line": 81
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 60
+        "line": 95
       }
     ],
     "recordWitness": [
@@ -13379,7 +13379,7 @@
     "AutonomyCallAndReceiptTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "BackgroundMessageDeliveryTest": [
@@ -28978,20 +28978,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-      "lines": 70,
-      "sha256": "c35306845d1c3e7ded029336eb7a5c495bd9c6755490801759c8daaaa981d843",
+      "lines": 105,
+      "sha256": "4526ed145a5e758ddba233a454fc95dcb76208dcc1660c708384157ba64ec5b2",
       "symbols": [
         {
           "name": "AutonomyCallAndReceiptTest",
-          "line": 12
+          "line": 14
         },
         {
           "name": "tick",
-          "line": 46
+          "line": 81
         },
         {
           "name": "tick",
-          "line": 60
+          "line": 95
         }
       ]
     },
