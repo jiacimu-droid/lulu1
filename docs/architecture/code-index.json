@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:46:58.176910+00:00",
-  "commit": "f5455b5a9f8f5335d27bef49e1e69e4e7a138b21",
+  "generatedAt": "2026-10-25T07:53:53.712968+00:00",
+  "commit": "b1218910696aaf2d7ca3476fc4dee137ebf21e61",
   "branch": "main",
-  "sourceFingerprint": "f90adeacaddc0ed5f06fcc42ba9217b1d7d6457fd643a2820c3225c9acd4fc6c",
+  "sourceFingerprint": "a31951d0bd784c8b61475859ec092ada991e36220f6378531a0e0c5bdc27afb2",
   "summary": {
-    "files": 893,
-    "lines": 175176,
-    "symbols": 2634
+    "files": 895,
+    "lines": 175577,
+    "symbols": 2637
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -948,6 +948,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
         "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 133
       }
     ],
     "prepareVoiceNote": [
@@ -4183,19 +4187,19 @@
     "canDescribeCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 154
+        "line": 166
       }
     ],
     "xhsConnectionOverride": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 177
+        "line": 189
       }
     ],
     "PreparedXhsImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 185
+        "line": 197
       }
     ],
     "CharacterSummary": [
@@ -5378,6 +5382,10 @@
         "line": 64
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 101
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
         "line": 57
       },
@@ -6150,6 +6158,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -14805,6 +14817,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/theater/wanxiang_mini_scenes.json",
+      "lines": 180,
+      "sha256": "a7c171eb97d3703ab60a22744d80d2814a1232aa998156699eac7c76643dff5a",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/xhs-browser-route.js",
       "lines": 92,
       "sha256": "d9ac3c8ade47959e8de0e5ba9a8a366a0fe54755f87b97a6671ef23200585f13",
@@ -18460,8 +18478,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 363,
-      "sha256": "4b63fed19aab5f58ad98235c1158dd6a447eebcef864db9c2c931cd28f7ac610",
+      "lines": 375,
+      "sha256": "9e6be05fab610fa1ccdc6d728c798558502353b93b416142da0c0d05fd071851",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -18477,15 +18495,15 @@
         },
         {
           "name": "canDescribeCamera",
-          "line": 154
+          "line": 166
         },
         {
           "name": "xhsConnectionOverride",
-          "line": 177
+          "line": 189
         },
         {
           "name": "PreparedXhsImages",
-          "line": 185
+          "line": 197
         }
       ]
     },
@@ -26671,6 +26689,25 @@
         {
           "name": "LuluReadingScreen",
           "line": 26
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+      "lines": 209,
+      "sha256": "7afff43215ed28c2e739d17f0c59bfc299c30ab5d3eecf1fa0905c2309a532fc",
+      "symbols": [
+        {
+          "name": "get",
+          "line": 101
+        },
+        {
+          "name": "parse",
+          "line": 112
+        },
+        {
+          "name": "enqueue",
+          "line": 133
         }
       ]
     },
