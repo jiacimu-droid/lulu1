@@ -63,6 +63,26 @@ class CharacterThoughtActionHandoffTest {
             .put("nextAction", action()).put("steps", JSONArray().put(action("write_journal"))))!!.length())
     }
 
+    @Test fun stepsAndSideActionsBothExecuteOnceAndKeepTheirIndependentReceipts() {
+        val search = action()
+        val journal = JSONObject().put("tool", "write_journal")
+            .put("args", JSONObject().put("title", "我今天的发现"))
+            .put("requiresPreviousSuccess", true)
+        val decision = JSONObject().put("action", "message").put("text", "我也想把这件事记下来")
+            .put("steps", JSONArray().put(search))
+            .put("sideActions", JSONArray().put(journal)
+                .put(JSONObject(search.toString()).put("concernId", "original-concern")))
+        val original = decision.toString()
+
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(2, steps.length())
+        assertEquals("web_search", steps.getJSONObject(0).getString("tool"))
+        assertEquals("original-concern", steps.getJSONObject(0).getString("concernId"))
+        assertEquals("write_journal", steps.getJSONObject(1).getString("tool"))
+        assertTrue(steps.getJSONObject(1).getBoolean("requiresPreviousSuccess"))
+        assertEquals(original, decision.toString())
+    }
+
     @Test fun malformedChosenActionsReachTheExecutorAsFailuresInsteadOfBecomingImaginedSuccess() {
         val steps = CharacterThoughtActionHandoff.actions(JSONObject().put("nextAction", JSONObject()
             .put("tool", "unknown-tool")))!!
