@@ -289,21 +289,25 @@ internal object LuluStudyWatch {
         val delay = minOf(checkGapMillis(session), remain)
         val request = OneTimeWorkRequestBuilder<LuluStudyWatchWorker>()
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setInputData(Data.Builder().putString("sessionId", id).build())
+            .setInputData(Data.Builder().putString("sessionId", id)
+                .putInt("expectedOrdinal", session.optInt("ordinal") + 1).build())
             .build()
         WorkManager.getInstance(context.applicationContext)
-            .enqueueUniqueWork("lulu-study-watch-$id", ExistingWorkPolicy.REPLACE, request)
+            // Appending from the currently executing worker must not cancel itself.
+            .enqueueUniqueWork("lulu-study-watch-$id", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
     /** Claim exactly one check, even if WorkManager redelivers an older worker. */
     @Synchronized
-    fun claim(context: Context, id: String, now: Long = System.currentTimeMillis()): JSONObject? {
+    fun claim(context: Context, id: String, now: Long = System.currentTimeMillis(),
+        expectedOrdinal: Int = -1): JSONObject? {
         val session = rawActive(context)
         if (id.isBlank() || session.optString("id") != id ||
             now >= session.optLong("endsAt")) {
             if (session.optString("id") == id) stop(context, id)
             return null
         }
+        if (expectedOrdinal > 0 && session.optInt("ordinal") + 1 != expectedOrdinal) return null
         val next = JSONObject(session.toString()).put("ordinal", session.optInt("ordinal") + 1)
         return if (prefs(context).edit().putString(ACTIVE, next.toString()).commit()) next else null
     }
@@ -354,7 +358,10 @@ internal object LuluStudyWatch {
         val at = result.optLong("at")
         val minutes = ((System.currentTimeMillis() - at).coerceAtLeast(0L) / 60_000L)
         val whenSeen = if (minutes < 1) "刚刚" else "${minutes}分钟前"
-        if (!result.optBoolean("success")) return "查看未成功 · $whenSeen"
+        if (!result.optBoolean("success")) {
+            val reason = result.optString("summary").take(22).ifBlank { "本次未取得画面" }
+            return "查看未成功 · $reason · $whenSeen"
+        }
         val state = when (result.optString("focus")) {
             "focused" -> "似乎正在学习"
             "distracted" -> "可能分心了"
@@ -407,7 +414,8 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
         val id = inputData.getString("sessionId").orEmpty()
         if (id.isBlank()) return Result.success()
         initializeBackgroundRuntime(applicationContext)
-        val session = LuluStudyWatch.claim(applicationContext, id) ?: return Result.success()
+        val session = LuluStudyWatch.claim(applicationContext, id,
+            expectedOrdinal = inputData.getInt("expectedOrdinal", -1)) ?: return Result.success()
         val role = session.optString("characterId")
         LuluStudyWatchOverlay.show(applicationContext, session)
         try {
@@ -426,7 +434,8 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
                 val trace = JSONObject().put("success", observed.optBoolean("success"))
                     .put("capturedAt", observed.optString("capturedAt"))
                     .put("packageName", observed.optString("packageName"))
-                    .put("summary", observed.optString("summary").take(240))
+                    .put("summary", (if (observed.optBoolean("success"))
+                        observed.optString("summary") else observed.optString("error")).take(240))
                 SharedExperienceTimeline.record(evidenceId, role,
                     if (observed.optBoolean("success")) "屏幕观察" else "屏幕观察失败",
                     "手机", trace.toString(), source = "study-watch", triggerExtraction = false,
