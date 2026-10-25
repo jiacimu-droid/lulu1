@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:24:52.747153+00:00",
-  "commit": "b32da542d7fda22aeab52dc522030f03bab2777d",
+  "generatedAt": "2026-10-25T05:25:37.725931+00:00",
+  "commit": "bb18b1ac429930eafb7ee58d36ba58dcc3e7c2d2",
   "branch": "main",
-  "sourceFingerprint": "97e3d2edc3ae68e3d0a8c33e92806a060f50ea94f919e19e275764ca04b628b7",
+  "sourceFingerprint": "dd0aa34bf9d9168a3b1600363890a01ea15343359fa65cfa5d71f99d96ee0669",
   "summary": {
     "files": 889,
-    "lines": 173981,
-    "symbols": 2611
+    "lines": 173989,
+    "symbols": 2612
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1987,7 +1987,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1069
+        "line": 1077
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6662,10 +6662,16 @@
         "line": 1033
       }
     ],
+    "completedEvidence": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 1065
+      }
+    ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1100
+        "line": 1108
       }
     ],
     "age": [
@@ -20806,8 +20812,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1191,
-      "sha256": "46b7aa633bac0991180ae47a86e60604c0a160a3dc35ea7e2fe7c443e1b306cf",
+      "lines": 1199,
+      "sha256": "62619155a884c7f374adb3c4de46f054ffc790d63724fac2a824de8e2a397996",
       "symbols": [
         {
           "name": "asJson",
@@ -20826,12 +20832,16 @@
           "line": 1033
         },
         {
+          "name": "completedEvidence",
+          "line": 1065
+        },
+        {
           "name": "from",
-          "line": 1069
+          "line": 1077
         },
         {
           "name": "requiresCompletion",
-          "line": 1100
+          "line": 1108
         }
       ]
     },
