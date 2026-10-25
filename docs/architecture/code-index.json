@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:01:33.963867+00:00",
-  "commit": "893d6d4183ebec00e8939a379f0f2564a8ebfae9",
+  "generatedAt": "2026-10-25T13:10:50.613598+00:00",
+  "commit": "cfad06bdad396a91cdc74526e01c2e7f96c06f6c",
   "branch": "main",
-  "sourceFingerprint": "376f2c80faf20c742231c1b6742b01aecb9b8975021ea42187cf690a24f81bd6",
+  "sourceFingerprint": "a5bb1ec8fb311de5e54c312010214af18f0c8c7bbe7d3dca04c533ca8e703ed1",
   "summary": {
     "files": 901,
-    "lines": 177385,
+    "lines": 177390,
     "symbols": 2658
   },
   "symbolIndex": {
@@ -5217,7 +5217,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 112
+        "line": 117
       }
     ],
     "Receipt": [
@@ -12069,31 +12069,31 @@
     "availableBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 54
+        "line": 59
       }
     ],
     "theaterBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 71
+        "line": 76
       }
     ],
     "progressLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 73
+        "line": 78
       }
     ],
     "nextSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 84
+        "line": 89
       }
     ],
     "commitSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 105
+        "line": 110
       }
     ],
     "ReadingMoment": [
@@ -27181,8 +27181,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 172,
-      "sha256": "1edf52f39bf2aeacb33ae39f074c9a3d3aecbf80e7f6b7c1a478a53648d880e2",
+      "lines": 177,
+      "sha256": "a74c333b3d47d58f113cb8da3ff1a0421318369504793a3952dc8814ada2c33a",
       "symbols": [
         {
           "name": "books",
@@ -27190,27 +27190,27 @@
         },
         {
           "name": "availableBooks",
-          "line": 54
+          "line": 59
         },
         {
           "name": "theaterBooks",
-          "line": 71
+          "line": 76
         },
         {
           "name": "progressLabel",
-          "line": 73
+          "line": 78
         },
         {
           "name": "nextSlice",
-          "line": 84
+          "line": 89
         },
         {
           "name": "commitSlice",
-          "line": 105
+          "line": 110
         },
         {
           "name": "clearCharacter",
-          "line": 112
+          "line": 117
         }
       ]
     },
