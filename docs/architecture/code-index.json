@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T06:04:45.593357+00:00",
-  "commit": "6f00a67adbc5a43ebf8f4e6ce6616933a229bef6",
+  "generatedAt": "2026-10-25T06:23:58.270922+00:00",
+  "commit": "d1b402d8797202e174d6d064f8d89bc581905583",
   "branch": "main",
-  "sourceFingerprint": "efeb46441d3382fca83faf1e8dd3c715a53bcb7b0dd61f5d91bfc140656d2788",
+  "sourceFingerprint": "b5012f12ee7f79f7606939bfe06d69af1c4ca3fb80417d9efecd68f2bed2557c",
   "summary": {
     "files": 891,
-    "lines": 174408,
-    "symbols": 2618
+    "lines": 174434,
+    "symbols": 2619
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10133,7 +10133,13 @@
     "persistVerifiedReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
-        "line": 222
+        "line": 232
+      }
+    ],
+    "matching": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 240
       }
     ],
     "EventEvidenceKind": [
@@ -24495,8 +24501,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
-      "lines": 233,
-      "sha256": "1aba6c3d1b291ff9f18ba079536773272be87da3e72f4609dbdd32602a0f810b",
+      "lines": 259,
+      "sha256": "3fbaeb977c43563381a682fce78d302e9096913f7c85588c3b1921eae7c090b2",
       "symbols": [
         {
           "name": "Limits",
@@ -24556,7 +24562,11 @@
         },
         {
           "name": "persistVerifiedReceipt",
-          "line": 222
+          "line": 232
+        },
+        {
+          "name": "matching",
+          "line": 240
         }
       ]
     },
