@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:27:07.671743+00:00",
-  "commit": "6c2ca93f5add4635dfb2884b2fec148c4b3de912",
+  "generatedAt": "2026-10-25T03:27:23.155522+00:00",
+  "commit": "5125cd19506e612e448afb2533eea9b4560eadb9",
   "branch": "main",
-  "sourceFingerprint": "8cb30c2bb3baa93a2e7b2b1f181d06770fc7312408991f64dd59b01cbc96ad2b",
+  "sourceFingerprint": "8e38aae231012f049742ca396cd4c7343fd6ed936793afdbd1be9813e7cbf80c",
   "summary": {
     "files": 887,
-    "lines": 173145,
-    "symbols": 2588
+    "lines": 173201,
+    "symbols": 2590
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5622,12 +5622,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 107
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
+        "line": 81
       }
     ],
     "matters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
         "line": 83
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
+        "line": 82
       }
     ],
     "include": [
@@ -13555,7 +13563,7 @@
     "followThrough": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-        "line": 148
+        "line": 204
       }
     ],
     "CharacterMomentSnapshotIdeasTest": [
@@ -29176,16 +29184,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-      "lines": 170,
-      "sha256": "4d0ef8c5b6a95224c16c30420945746d90ed38dbe323d5b7efa35cbae5d44b80",
+      "lines": 226,
+      "sha256": "88bbb05b4b32027f20f96be8b941c2568c452fc6cc0b8f8456a8be2ffbf98b7f",
       "symbols": [
         {
           "name": "CharacterLifeVisibilityTest",
           "line": 18
         },
         {
+          "name": "current",
+          "line": 81
+        },
+        {
+          "name": "matters",
+          "line": 82
+        },
+        {
           "name": "followThrough",
-          "line": 148
+          "line": 204
         }
       ]
     },
