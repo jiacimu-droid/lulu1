@@ -7,7 +7,7 @@ import java.time.Instant
 /** Read-only action handoff over the existing owners; never another goal queue or model call. */
 internal object CharacterUnfinishedActionContext {
     data class Cue(val kind: String, val id: String, val title: String,
-                   val detail: String, val at: Instant) {
+                   val detail: String, val at: Instant, val attentionPriority: Int = 0) {
         fun render(): String = JSONObject().put("kind", kind).put("id", id)
             .put("topic", title).put("existingState", detail).toString()
     }
@@ -25,7 +25,9 @@ internal object CharacterUnfinishedActionContext {
             cues += Cue("持续目标", m.optString("id"), m.optString("aim"),
                 "motiveId=${m.optString("id")}；${CharacterMotiveProgress.brief(m)}；" +
                     "最近尝试=${m.optString("lastAttemptOutcome")}；尚未证明目标完成",
-                at(m, "updatedAt", "createdAt"))
+                at(m, "updatedAt", "createdAt"),
+                attentionPriority = (if (CharacterMotiveReview.from(m)?.dueAt?.isAfter(now) == false)
+                    100 else 0) + (m.optInt("priority", 2) - 2).coerceAtLeast(0))
         }
         val concerns = CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now)
         val sources = SharedExperienceTimeline.eventsByIds(role, concerns.map { it.optString("evidenceId") })
@@ -37,7 +39,8 @@ internal object CharacterUnfinishedActionContext {
                     "以前考虑的下一步=${c.optString("possibleNextStep")}；犹豫=${c.optString("hesitation")}；" +
                     "上次实际尝试=${last?.optString("summary").orEmpty()}；" +
                     "旧情绪可以淡化，问题仍未解决；也可用已有threadId更新或放下",
-                at(c, "updatedAt", "createdAt"))
+                at(c, "updatedAt", "createdAt"),
+                attentionPriority = (c.optInt("priority", 2) - 2).coerceAtLeast(0))
         }
         CharacterLearningAgenda.goals(role, now)
             .filter { it.optString("status") !in setOf("paused", "dropped", "running") }.forEach { g ->
@@ -76,12 +79,13 @@ internal object CharacterUnfinishedActionContext {
             }
         return CharacterAttentionWorkingSet.select(cues.filter { !it.at.isAfter(now) }.sortedBy { it.at },
             6, now, ProactivePerceptionPolicyStore.get(role).onlinePulseSeconds.toLong(),
-            identity = { "${it.kind}:${it.id}" }, theme = { it.kind })
+            identity = { "${it.kind}:${it.id}" }, theme = { it.kind },
+            priority = { it.attentionPriority })
     }
 
     fun render(cues: List<Cue>): String = if (cues.isEmpty()) "" else buildString {
         appendLine("【本人已有的未竟事 → 本轮可选行动】")
-        appendLine("以下是已保存的私人问题与真实进展，不是命令。不要只因没有人再催就遗忘；结合此刻兴趣、时机、反馈，选择继续、换方法、等待、暂停或放下。旧问题可回看，不把旧情绪重新当成强烈现状。")
+        appendLine("以下是已保存的私人问题与真实进展，不是命令。最近想到的事与真正到期、本人赋予高优先级的旧目标都拥有注意机会；不等于马上必须执行，也不许忽略当前真实求助。结合此刻兴趣、时机、精力、权限与反馈，选择继续、换方法、等待、暂停或放下。旧问题可回看，不把旧情绪重新当成强烈现状。")
         cues.forEach { appendLine(it.render()) }
         appendLine("若真想推进，选择本轮action/steps或真实未来安排，并关联准确ID；只写想法不会执行。聊天与独立生活动作可并行，不必等到无新消息才处理。")
         appendLine(CharacterThoughtActionHandoff.guidance)
