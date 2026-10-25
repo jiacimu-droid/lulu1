@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:49:57.946564+00:00",
-  "commit": "c79525e74e2e39837f2c8925877d3722494deee5",
+  "generatedAt": "2026-10-25T11:50:26.267251+00:00",
+  "commit": "f87455c158c7a336252dd845ee4327f8237e6975",
   "branch": "main",
-  "sourceFingerprint": "36efe0a0a34e1573dc652bf624983f6711a90c52fcccfd5c0cc250ae4f0d6f95",
+  "sourceFingerprint": "5638c55d6b223985e117cc04c4666a816106dba78fc76dd3a94852cd4ee29b18",
   "summary": {
     "files": 901,
-    "lines": 176993,
+    "lines": 176997,
     "symbols": 2652
   },
   "symbolIndex": {
@@ -3263,7 +3263,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 117
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -3765,7 +3765,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 56
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -4445,7 +4445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 173
+        "line": 177
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -5983,37 +5983,37 @@
     "acknowledge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 44
+        "line": 48
       }
     ],
     "outcomeEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 66
+        "line": 70
       }
     ],
     "latestObservedEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 75
+        "line": 79
       }
     ],
     "personalOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 83
+        "line": 87
       }
     ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 103
+        "line": 107
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 159
+        "line": 163
       }
     ],
     "keepOrBlank": [
@@ -20177,8 +20177,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 182,
-      "sha256": "19d7247fc500f8487656e00d42a7255c29ca618f46b43f6cc87faecfc73ea39a",
+      "lines": 186,
+      "sha256": "7c6e1e19b47ddf4daade518c2c238397ee818076abb8401dcf151e1ce4be92be",
       "symbols": [
         {
           "name": "integrate",
@@ -20186,39 +20186,39 @@
         },
         {
           "name": "acknowledge",
-          "line": 44
+          "line": 48
         },
         {
           "name": "recent",
-          "line": 56
+          "line": 60
         },
         {
           "name": "outcomeEvidenceId",
-          "line": 66
+          "line": 70
         },
         {
           "name": "latestObservedEvidenceId",
-          "line": 75
+          "line": 79
         },
         {
           "name": "personalOutcome",
-          "line": 83
+          "line": 87
         },
         {
           "name": "selectRecent",
-          "line": 103
+          "line": 107
         },
         {
           "name": "pending",
-          "line": 117
+          "line": 121
         },
         {
           "name": "stimulus",
-          "line": 159
+          "line": 163
         },
         {
           "name": "render",
-          "line": 173
+          "line": 177
         }
       ]
     },
