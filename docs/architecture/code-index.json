@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:07:20.195183+00:00",
-  "commit": "aa831d796bdcb4471f8e123fa5e1629929b1db6a",
+  "generatedAt": "2026-10-25T08:08:28.812273+00:00",
+  "commit": "1e77fb904f3a1434b82a757a0e6663d480c98954",
   "branch": "main",
-  "sourceFingerprint": "f9e798b4d8bed5e8fb0aa77b37d7bc68c4da540b6aee3acb161471aaaf430d56",
+  "sourceFingerprint": "ab3bf0ce186a0ebbfd9d42be0d607da17e4aa7f5add02c634016e81edf09ed6f",
   "summary": {
     "files": 897,
-    "lines": 176293,
+    "lines": 176299,
     "symbols": 2642
   },
   "symbolIndex": {
@@ -4891,7 +4891,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 345
+        "line": 351
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -15288,7 +15288,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
       "lines": 615,
-      "sha256": "311069c038f4b180cdd16b279f8e42ab607410a8f231adaf91fb859f9d8d0b10",
+      "sha256": "d36c0e2bae438799b515c00fa95d3c3adfd0ba1a9de6ac5ebe8f52aee964b70e",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -22314,8 +22314,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 472,
-      "sha256": "ff690b0fcb911043276ccc38f5c770b29ec11c2461dede21598ea09fab269db6",
+      "lines": 478,
+      "sha256": "cd3aa80a134cafe8f1138ecf2ef7abbec4e696a909bee90ae4799df3c4f8b05c",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -22363,7 +22363,7 @@
         },
         {
           "name": "snapshot",
-          "line": 345
+          "line": 351
         }
       ]
     },
