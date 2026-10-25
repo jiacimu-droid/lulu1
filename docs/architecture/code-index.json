@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:22:46.224690+00:00",
-  "commit": "96ccab02dca14753367d2e4d3d5a3eb4531c56e4",
+  "generatedAt": "2026-10-25T05:23:00.284361+00:00",
+  "commit": "d64fac1a60a25caebf2d6fe238d4739db46093f4",
   "branch": "main",
-  "sourceFingerprint": "eb4a624f6086cdd38929bd70a95d43f257af10e7f7ac3265e14e0d81dbc7e7e9",
+  "sourceFingerprint": "96d2bd99cdb5037eba3f0ec8ec68e175569fbba9843ee075e548baa47b3fef68",
   "summary": {
     "files": 889,
-    "lines": 173902,
+    "lines": 173893,
     "symbols": 2609
   },
   "symbolIndex": {
@@ -15038,8 +15038,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLearningPlans.kt",
-      "lines": 110,
-      "sha256": "c5f8e28072c31f58b0e8d92793522062e12036557e31536fc45f235c9c108107",
+      "lines": 101,
+      "sha256": "7d79170fddcd6c683d4ba0f3b701e5dabe62e15a803b84eae5a79f845df68d83",
       "symbols": []
     },
     {
