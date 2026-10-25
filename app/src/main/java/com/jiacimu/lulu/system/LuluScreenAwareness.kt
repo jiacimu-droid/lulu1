@@ -236,7 +236,9 @@ object LuluScreenAwareness {
         if (!notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
             return rejected(context, "屏幕查看提醒方式都不可用，拒绝无提示截图")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
-        viewingNotice(context, "正在查看屏幕", "识别中")
+        // The approved study session already has an ongoing, stoppable indicator.
+        // Do not pop up another notice over the very screen we are capturing.
+        if (sessionId.isBlank()) viewingNotice(context, "正在查看屏幕", "识别中")
         try {
             if (!userRequested && cooldownRemaining(context) > 0L)
                 return rejected(context, "距上次自主截图不足五分钟", "cooldown")
@@ -256,7 +258,7 @@ object LuluScreenAwareness {
                     return rejected(context, "无法保存观察间隔，已停止")
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
-                LuluScreenRequestPopup.showProgress(context)
+                if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
                 val description = VisionModelService.describeScreenFrame(context, bitmap).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
@@ -272,9 +274,11 @@ object LuluScreenAwareness {
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
-            LuluScreenRequestPopup.dismissProgress()
-            viewingNotice(context, "屏幕查看已结束",
-                diagnostics(context).substringAfter(" · ").take(100), true)
+            if (sessionId.isBlank()) {
+                LuluScreenRequestPopup.dismissProgress()
+                viewingNotice(context, "屏幕查看已结束",
+                    diagnostics(context).substringAfter(" · ").take(100), true)
+            }
         }
     }
 
