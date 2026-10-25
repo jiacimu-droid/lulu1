@@ -9,7 +9,10 @@ internal object ChatScrollFollowPolicy {
         autoScroll: Boolean,
         nearEnd: Boolean,
     ): Boolean {
+        // Before first layout a LazyColumn starts at index 0. Requiring
+        // nearEnd would prevent the initial jump in long conversations.
+        if (initial) return true
         if (!nearEnd) return false
-        return (autoScroll && (initial || appended)) || keyboardVisible
+        return (autoScroll && appended) || keyboardVisible
     }
 }

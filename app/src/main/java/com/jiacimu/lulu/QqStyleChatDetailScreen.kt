@@ -147,6 +147,13 @@ fun QqStyleChatDetailScreen(
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
     val privateOnline = onlineStates[characterId]?.isOnline() == true
     val listState = rememberLazyListState()
+    val showJumpToLatest by remember(listState) {
+        derivedStateOf {
+            val layout = listState.layoutInfo
+            layout.totalItemsCount > 0 &&
+                (layout.visibleItemsInfo.lastOrNull()?.index ?: -1) < layout.totalItemsCount - 3
+        }
+    }
     // Keep the position and the draft when navigating to another page;
     // the chat screen itself is now removed from composition while hidden.
     var hasPositionedChat by rememberSaveable(conversationId) { mutableStateOf(false) }
@@ -476,8 +483,9 @@ fun QqStyleChatDetailScreen(
         }
         val initial = !hasPositionedChat
         val appended = count > previousVisibleCount
-        // Reading old messages or returning from another page must not suddenly
-        // jump to the newest row. IME resizing should not fight touch scrolling.
+        // First opening begins at LazyColumn index 0, not the newest item:
+        // initial positioning must bypass nearEnd. Later auto-follow should
+        // respect deliberate history browsing and keyboard resizing.
         val layout = listState.layoutInfo
         val nearEnd = layout.visibleItemsInfo.lastOrNull()?.index
             ?.let { it >= layout.totalItemsCount - 3 } ?: initial
@@ -687,14 +695,15 @@ fun QqStyleChatDetailScreen(
             }
         },
     ) { padding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize().padding(padding)
-                .then(if (LocalLuluAppearance.current.isJournal())
-                    Modifier.journalLinen(LocalLuluAppearance.current) else Modifier),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize()
+                    .then(if (LocalLuluAppearance.current.isJournal())
+                        Modifier.journalLinen(LocalLuluAppearance.current) else Modifier),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
             if (groupChat != null && groupChat.announcement.isNotBlank()) {
                 item(key = "group-announcement") {
                     Surface(Modifier.fillMaxWidth(), color = QqIconSurface, shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, QqBorder)) {
@@ -784,7 +793,23 @@ fun QqStyleChatDetailScreen(
                     } else row()
                 }
             }
-
+            if (hasPositionedChat && showJumpToLatest && displayRuns.isNotEmpty()) {
+                FilledTonalIconButton(
+                    onClick = {
+                        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
+                        scope.launch {
+                            // Snap directly even with years of chat history;
+                            // animating thousands of lazy rows is expensive.
+                            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 16.dp)
+                        .size(46.dp),
+                ) {
+                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "跳到最新消息")
+                }
+            }
         }
     }
 
