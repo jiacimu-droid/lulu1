@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T17:07:59.440141+00:00",
-  "commit": "9a215fa7ba940db23959f9a66b4596888834f7bc",
+  "generatedAt": "2026-10-25T17:17:31.922974+00:00",
+  "commit": "1ad9c66783c1e2984bc15d370a8f4ea33376dd9e",
   "branch": "main",
-  "sourceFingerprint": "48feb40b9fd756275b33407390c6610d80718360eecb626bba949a1e0b7c5aba",
+  "sourceFingerprint": "0365a28a64b5e30f201781d55621d28ccd16dc5fab4507cb3490ea30fbb52ae2",
   "summary": {
-    "files": 910,
-    "lines": 179324,
-    "symbols": 2679
+    "files": 912,
+    "lines": 179596,
+    "symbols": 2681
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4480,6 +4480,12 @@
         "line": 152
       }
     ],
+    "fromAgreement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
+        "line": 63
+      }
+    ],
     "Reading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -6695,7 +6701,7 @@
     "hasValidAlarm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-        "line": 67
+        "line": 68
       }
     ],
     "playChosenMusic": [
@@ -13570,6 +13576,12 @@
         "line": 18
       }
     ],
+    "AgreedCommitmentDeadlineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt",
+        "line": 7
+      }
+    ],
     "AppointmentClockTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt",
@@ -18903,6 +18915,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
+      "lines": 126,
+      "sha256": "438129ea65001db9d77750178cf49197a37444b428133c8ca4b2374c7bb19693",
+      "symbols": [
+        {
+          "name": "fromAgreement",
+          "line": 63
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
       "lines": 29,
       "sha256": "a17a3458715cb4e767f562a4dcdcd6b0f354ae59a2984d6b1b82aa4d2c37452d",
@@ -21063,7 +21086,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 50,
-      "sha256": "267c65a6bce0b6a686412c025dc4bb2aaab5f8f1fd4b6036827a822b5f801f51",
+      "sha256": "2b7ac4901565aae5bac68a180b02a27cc99f985d1f004069152baa8c29f03d8e",
       "symbols": [
         {
           "name": "context",
@@ -21077,8 +21100,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 171,
-      "sha256": "3d7cb3a4a745e5fc0519654af48c03892b22a4d8d4582a7dacc5143231598e51",
+      "lines": 232,
+      "sha256": "a91a25b287d40e3da7e5cd381eb898df6dd8ea92d1a1b81c30a01383b62ee8d8",
       "symbols": [
         {
           "name": "handled",
@@ -21086,7 +21109,7 @@
         },
         {
           "name": "hasValidAlarm",
-          "line": 67
+          "line": 68
         }
       ]
     },
@@ -21241,8 +21264,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 481,
-      "sha256": "224e3363cab8a2b2e460ccd0481ad70ead9a3a44733ca1b1bc3a5dbb4f313598",
+      "lines": 509,
+      "sha256": "cdaf65532e1fae189609a50e04ae241d717c93e7e085fca404bd7c7d99c154cf",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -29465,6 +29488,17 @@
         {
           "name": "ActionFailureDiagnosticsTest",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt",
+      "lines": 57,
+      "sha256": "0cb32e2c8783f9c43781288281c6ac3f10bf5ee12a832c5c924d15a2bc57ab79",
+      "symbols": [
+        {
+          "name": "AgreedCommitmentDeadlineTest",
+          "line": 7
         }
       ]
     },
