@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:01:05.509798+00:00",
-  "commit": "9fb53ec19f8d080263316fa50ba4aa2a22eb9b75",
+  "generatedAt": "2026-10-25T14:01:39.386099+00:00",
+  "commit": "39780066af5c013b96e6e2f7e9a7d121f20c5b12",
   "branch": "main",
-  "sourceFingerprint": "c0082d120b4bf614625a920b11d70796fe408630a56db7f53f7a09bc220bd869",
+  "sourceFingerprint": "247003e80a2c2863c75e8428973a8c0b1bedd1ca7d53f34f8a801fe91736160d",
   "summary": {
     "files": 905,
-    "lines": 178187,
+    "lines": 178101,
     "symbols": 2670
   },
   "symbolIndex": {
@@ -419,7 +419,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 808
+        "line": 799
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -623,19 +623,19 @@
     "CharacterSettingsScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 58
+        "line": 56
       }
     ],
     "persistDefinition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 140
+        "line": 134
       }
     ],
     "setPerceptionEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 151
+        "line": 145
       }
     ],
     "CharacterWorldBookScreenV2": [
@@ -677,7 +677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1210
+        "line": 1202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4119,19 +4119,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1060
+        "line": 1052
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1072
+        "line": 1064
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1200
+        "line": 1192
       }
     ],
     "LuluMusicSensoryRuntime": [
@@ -5553,7 +5553,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 770
+        "line": 761
       }
     ],
     "cue": [
@@ -5709,13 +5709,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 232
+        "line": 223
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 742
+        "line": 733
       }
     ],
     "current": [
@@ -14103,19 +14103,19 @@
     "ConversationExpressionGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 27
+        "line": 26
       }
     ],
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 148
+        "line": 98
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 151
+        "line": 101
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -15416,20 +15416,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 651,
-      "sha256": "909abe787f78ec01e3a0f099b33336fda408958a40451aa915cb492ea28b2f59",
+      "lines": 632,
+      "sha256": "54b5ba91dd2997c2d3fd6ecdf1de71112a88a9ada87b62f714fe0849c825aa62",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
-          "line": 58
+          "line": 56
         },
         {
           "name": "persistDefinition",
-          "line": 140
+          "line": 134
         },
         {
           "name": "setPerceptionEnabled",
-          "line": 151
+          "line": 145
         }
       ]
     },
@@ -18422,8 +18422,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1218,
-      "sha256": "0b5697a96ea334289f7c951e415937255c2db94660547e6cbd1131c42702f582",
+      "lines": 1210,
+      "sha256": "fce89698ec301707168c3b13b0f5296d5de002ff7a8560d97ef643aa89b638ae",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -18511,19 +18511,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1060
+          "line": 1052
         },
         {
           "name": "consumeEvent",
-          "line": 1072
+          "line": 1064
         },
         {
           "name": "LuluAiServices",
-          "line": 1200
+          "line": 1192
         },
         {
           "name": "initialize",
-          "line": 1210
+          "line": 1202
         }
       ]
     },
@@ -19945,8 +19945,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 855,
-      "sha256": "a5551e7646b34ce61072a4ea94d3fbe0ea41a1872dea9dfe84eea5b16d513d94",
+      "lines": 846,
+      "sha256": "59a5f474ec20c5689fbb23a0ef03586d4c19050a6952440228e7003e37fdba7d",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -19970,19 +19970,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 232
+          "line": 223
         },
         {
           "name": "profileContext",
-          "line": 742
+          "line": 733
         },
         {
           "name": "compactContext",
-          "line": 770
+          "line": 761
         },
         {
           "name": "context",
-          "line": 808
+          "line": 799
         }
       ]
     },
@@ -30272,20 +30272,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 296,
-      "sha256": "454fca11ec290f4e167b4a1d2bea4a8d84a57bd7db6c95dd5520661d860c751f",
+      "lines": 246,
+      "sha256": "9faba6215adba224c31d81f5b4c4a29873828927e8ab0a385ddf8d7c7a3fa426",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
-          "line": 27
+          "line": 26
         },
         {
           "name": "response",
-          "line": 148
+          "line": 98
         },
         {
           "name": "bubbles",
-          "line": 151
+          "line": 101
         }
       ]
     },
