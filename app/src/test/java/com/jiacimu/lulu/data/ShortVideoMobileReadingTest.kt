@@ -94,11 +94,40 @@ class ShortVideoMobileReadingTest {
         assertEquals("chunk-2", first.nextCursor)
         assertFalse(first.receipts.any { it.completeVideo })
         val second = ShortVideoMobileReading.readSelected(source, interpreter, clip,
-            startCursor = first.nextCursor, onReceipt = { receipts.add(it) })
+            startCursor = first.nextCursor,
+            resumeAfterMillis = first.receipts.last().endMillis,
+            onReceipt = { receipts.add(it) })
         assertEquals(3, source.calls)
         assertEquals(ShortVideoMobileReading.State.FINISHED, second.state)
         assertEquals(3, receipts.size)
         assertTrue(receipts.last().completeVideo)
+    }
+
+    @Test fun resumedSourceCannotReplayAnEarlierVideoInterval() = runBlocking {
+        val source = FakeSource(listOf(
+            part(0, 2_000, "first"),
+            part(2_000, 4_000, "second"),
+            part(0, 2_000, "third")))
+        val first = ShortVideoMobileReading.readSelected(source, interpreter, clip)
+        assertEquals(ShortVideoMobileReading.State.PARTIAL, first.state)
+        assertEquals(2, first.receipts.size)
+        val replay = ShortVideoMobileReading.readSelected(source, interpreter, clip,
+            startCursor = first.nextCursor,
+            resumeAfterMillis = first.receipts.last().endMillis)
+        assertEquals(ShortVideoMobileReading.State.FAILED, replay.state)
+        assertEquals(first.nextCursor, replay.nextCursor)
+        assertTrue(replay.reason.contains("重叠"))
+        assertTrue(replay.receipts.isEmpty())
+        assertEquals(3, source.calls)
+    }
+
+    @Test fun resumeCursorWithoutVerifiedTimeBoundaryIsRejected() = runBlocking {
+        val source = FakeSource(listOf(part(2_000, 4_000, "next")))
+        assertTrue(runCatching {
+            ShortVideoMobileReading.readSelected(source, interpreter, clip,
+                startCursor = "unverified")
+        }.exceptionOrNull() is IllegalArgumentException)
+        assertEquals(0, source.calls)
     }
 
     @Test fun excessiveMediaIsRejectedBeforeInterpretationAndNoFakeReceipt() = runBlocking {
