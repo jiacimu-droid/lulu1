@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:55:47.853961+00:00",
-  "commit": "432967c56ad5c3f60ed9b687d1abf042fea3d402",
+  "generatedAt": "2026-10-25T13:56:03.383909+00:00",
+  "commit": "913fd1b4fbda1d15a997668eee0300f15aa040ba",
   "branch": "main",
-  "sourceFingerprint": "28c0dfd13027bac5f83731faeebb259cf6cafb8135e14447fcf0044a0f4da8bf",
+  "sourceFingerprint": "9a28cf141ff1ab10d87dd8786b59615e641d5cdd521d100c7230e1150c7d8077",
   "summary": {
     "files": 903,
-    "lines": 177827,
-    "symbols": 2666
+    "lines": 177876,
+    "symbols": 2667
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1819,7 +1819,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-        "line": 72
+        "line": 121
       }
     ],
     "attemptReload": [
@@ -13539,7 +13539,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-        "line": 39
+        "line": 17
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 88
       }
     ],
     "AutonomousActionWireProtocolTest": [
@@ -14719,7 +14723,7 @@
     "impression": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-        "line": 77
+        "line": 126
       }
     ],
     "WorldBookFolderRepositoryTest": [
@@ -31296,8 +31300,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-      "lines": 151,
-      "sha256": "bf2b66cd809c014794dc28cd621a9cc3bb3a18f948c7b5bc52bbaa89ea5c61da",
+      "lines": 200,
+      "sha256": "e045f0f50ef7eafe1196cfd63d8f91edd56c5b5a414a2bd14f7533a7c4134d3c",
       "symbols": [
         {
           "name": "WanxiangCharacterContinuityTest",
@@ -31305,15 +31309,19 @@
         },
         {
           "name": "event",
-          "line": 39
+          "line": 17
+        },
+        {
+          "name": "event",
+          "line": 88
         },
         {
           "name": "record",
-          "line": 72
+          "line": 121
         },
         {
           "name": "impression",
-          "line": 77
+          "line": 126
         }
       ]
     },
