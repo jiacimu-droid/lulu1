@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:25:56.231925+00:00",
-  "commit": "009ad6f8c69dc9b780ddf5da04bfaa3b0bb22e01",
+  "generatedAt": "2026-10-25T13:27:25.724407+00:00",
+  "commit": "6579248a922abd1e5f9e3dadaa93fa0f2b71d11b",
   "branch": "main",
-  "sourceFingerprint": "721c84e46e82cd0720945ef144121aa7eb2e3c71f3ba2a529268504e4382d185",
+  "sourceFingerprint": "b44465525c7b785f80a57ed077b4295ec5a0a8208eb872c096c5c09d0e7a2852",
   "summary": {
     "files": 902,
-    "lines": 177571,
+    "lines": 177577,
     "symbols": 2660
   },
   "symbolIndex": {
@@ -407,7 +407,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1658
+        "line": 1664
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4489,7 +4489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1495
+        "line": 1501
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -5529,25 +5529,25 @@
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 830
+        "line": 836
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 993
+        "line": 999
       }
     ],
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1561
+        "line": 1567
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1582
+        "line": 1588
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -19712,8 +19712,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1784,
-      "sha256": "78128f12d3bbc45454c63b27f18ddef96509ba7c32c9c989057d0c0c3b24d249",
+      "lines": 1790,
+      "sha256": "a32cf0e8cfd91fccea50bee74945e7061e7880e3eeef516819fe8bd891cae82d",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -19729,27 +19729,27 @@
         },
         {
           "name": "interactionContext",
-          "line": 830
+          "line": 836
         },
         {
           "name": "groundingContext",
-          "line": 993
+          "line": 999
         },
         {
           "name": "normalize",
-          "line": 1495
+          "line": 1501
         },
         {
           "name": "axis",
-          "line": 1561
+          "line": 1567
         },
         {
           "name": "compactContext",
-          "line": 1582
+          "line": 1588
         },
         {
           "name": "context",
-          "line": 1658
+          "line": 1664
         }
       ]
     },
