@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9d7e4f4ddb4bf864b13426236cf95c8571d477f8`
+- 基准提交：`232e3af32ebb916a9161204b5396fd51df886836`
 - 分支：`main`
 - 已索引文件：899
-- 已索引代码/文本行：176688
-- 已发现符号：2649
+- 已索引代码/文本行：176749
+- 已发现符号：2648
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -422,7 +422,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 58 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 59 | 2 |

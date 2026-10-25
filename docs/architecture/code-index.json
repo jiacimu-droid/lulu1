@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:27:37.045115+00:00",
-  "commit": "9d7e4f4ddb4bf864b13426236cf95c8571d477f8",
+  "generatedAt": "2026-10-25T11:28:42.057997+00:00",
+  "commit": "232e3af32ebb916a9161204b5396fd51df886836",
   "branch": "main",
-  "sourceFingerprint": "75a60d606c6049a68fbe8acbef89532cadb6ece12fdb85f94a08ce717eee92fc",
+  "sourceFingerprint": "8de317f07070673b6425d91a10c50097da39f80e998e8ea95e66c8eb2dfe3363",
   "summary": {
     "files": 899,
-    "lines": 176688,
-    "symbols": 2649
+    "lines": 176749,
+    "symbols": 2648
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -232,10 +232,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
         "line": 6
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-        "line": 21
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -23802,14 +23798,9 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-      "lines": 58,
-      "sha256": "41ae613b84cfc8dcbe1e684d4e38e225f5fbb66ad98cd8ce149a5b2138ee716f",
-      "symbols": [
-        {
-          "name": "claim",
-          "line": 21
-        }
-      ]
+      "lines": 119,
+      "sha256": "98045455e0678a481d0d99acc11519139045a9fd31883bcfdd7bf19fcddfe63b",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt",
