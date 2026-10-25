@@ -413,7 +413,8 @@ internal fun buildBoundedHistory(
     val visible = eligible.filterNot { it.id in recalled || it.status == LuluChatMessage.Status.Failed }
         .filter { it.sender != LuluChatMessage.Sender.System || it.content.startsWith("[群成员变更]") ||
             it.content.startsWith("[戳一戳]") || it.content.startsWith("[撤回|") }
-    val lines = visible.associate { message ->
+    val lines = mutableMapOf<String, String>()
+    fun render(message: LuluChatMessage): String = lines.getOrPut(message.id) {
         val role = when {
             message.sender == LuluChatMessage.Sender.System -> "聊天系统"
             message.sender == LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
@@ -423,11 +424,12 @@ internal fun buildBoundedHistory(
             message, eligible, recalled)
         val content = if (message.sender == LuluChatMessage.Sender.System)
             stripRecallReceiptDirective(message.content) else qqForwardContextText(message.content)
-        message.id to "$role$quote：$content"
+        "$role$quote：$content"
     }
-    // Keep the same persisted-bubble identity as the on-screen grouping:
-    // a character's single generated multi-bubble answer cannot be cut in two.
+    // Only decode/render messages examined by the recent-turn selector.
+    // Years of archived chat remain in their original store; they must not
+    // trigger expensive re-decoding of every historical forward or image card.
     return com.jiacimu.lulu.data.ConversationHistoryWindow.select(
         visible, maxMessages, maxChars,
-    ) { lines[it.id]?.length ?: 0 }.joinToString("\n") { lines[it.id].orEmpty() }
+    ) { render(it).length }.joinToString("\n") { render(it) }
 }
