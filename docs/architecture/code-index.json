@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:57:16.871338+00:00",
-  "commit": "86576f9368eef5919d93caf509f34aaf0d7466fb",
+  "generatedAt": "2026-10-25T13:59:21.888042+00:00",
+  "commit": "5d7d99401ef07edcf8c5f8137c401d6fc9875eec",
   "branch": "main",
-  "sourceFingerprint": "2a2b81b91b517822f2b0e6d3e31f3a84486ac0eebd6487b0a9bc5518aa22b52c",
+  "sourceFingerprint": "cc7f4fc954e05e953c2559ef0611cb4a02c34474ab78cec0626b58501a20d123",
   "summary": {
-    "files": 904,
-    "lines": 177990,
-    "symbols": 2668
+    "files": 905,
+    "lines": 178168,
+    "symbols": 2671
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2094,6 +2094,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
         "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 60
       }
     ],
     "minimize": [
@@ -12596,6 +12600,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 86
       }
     ],
     "han": [
@@ -12936,6 +12944,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
         "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 45
       }
     ],
     "line": [
@@ -28347,6 +28359,25 @@
         {
           "name": "LuluStudyWatchWorker",
           "line": 363
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+      "lines": 178,
+      "sha256": "34784cdcf79fe3277b819987b0ff7af89a473d4de2331120820dc52359c8fb41",
+      "symbols": [
+        {
+          "name": "dismiss",
+          "line": 45
+        },
+        {
+          "name": "show",
+          "line": 60
+        },
+        {
+          "name": "text",
+          "line": 86
         }
       ]
     },
