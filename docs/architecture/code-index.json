@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:09:22.487401+00:00",
-  "commit": "195bf059a82249dadd654411fdc4af0173956c45",
+  "generatedAt": "2026-10-25T14:20:31.221559+00:00",
+  "commit": "1323a904994f9afad91c8668a91d58b1ba98d606",
   "branch": "main",
-  "sourceFingerprint": "7fb08a7ca6f2ec98d8358ce0d9f6599e7f81d0b98d9a23b7c82919efae1b8a54",
+  "sourceFingerprint": "e9dec05d14d716f0a6dcff134789ad459ff778ca7ae9fae5e86add6d60a58ba1",
   "summary": {
     "files": 905,
-    "lines": 178214,
-    "symbols": 2671
+    "lines": 178272,
+    "symbols": 2672
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -641,19 +641,19 @@
     "CharacterWorldBookScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "openFolderEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 114
+        "line": 115
       }
     ],
     "removeBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 121
+        "line": 122
       }
     ],
     "ChatAutoVoicePlayback": [
@@ -781,11 +781,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 65
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 268
+        "line": 269
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -4402,58 +4402,64 @@
         "line": 108
       }
     ],
+    "WorldBookPromptPosition": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 114
+      }
+    ],
     "WorldBookEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 112
+        "line": 115
       }
     ],
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 124
+        "line": 129
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 126
+        "line": 131
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 130
+        "line": 135
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 137
+        "line": 142
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 143
+        "line": 148
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 145
+        "line": 150
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 146
+        "line": 151
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 147
+        "line": 152
       }
     ],
     "Reading": [
@@ -4907,15 +4913,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 40
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 134
+        "line": 135
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 410
+        "line": 411
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -6197,7 +6203,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 24
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
@@ -8019,55 +8025,55 @@
     "InMemoryMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "InMemoryLexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 61
+        "line": 62
       }
     ],
     "invalidateSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 145
+        "line": 146
       }
     ],
     "WorldBookImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 230
+        "line": 231
       }
     ],
     "WorldBookDeletedBatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 234
+        "line": 235
       }
     ],
     "groupWorldBookEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "WorldBookFolder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 261
+        "line": 262
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 262
+        "line": 263
       }
     ],
     "observeFolders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 279
+        "line": 280
       }
     ],
     "callEndDescription": [
@@ -9669,7 +9675,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "isReadingNotice": [
@@ -15441,20 +15447,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 672,
-      "sha256": "aba9e7f2798073fa51af98fa996b7fa762b99f26d02bc17dd92f821912b23f44",
+      "lines": 698,
+      "sha256": "dc49279c5a39a713fa57521bb2f030f4c4b00b940953930277fc1ceae42d6f51",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
-          "line": 42
+          "line": 43
         },
         {
           "name": "openFolderEditor",
-          "line": 114
+          "line": 115
         },
         {
           "name": "removeBooks",
-          "line": 121
+          "line": 122
         }
       ]
     },
@@ -18706,8 +18712,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 151,
-      "sha256": "c72f960140652d58ddf174638b3854f23231588400b6f47f51679cd273357538",
+      "lines": 156,
+      "sha256": "78f1452b5d125e983fc6f1f781dea3553f620eedbe06776a5e3a6e5e27886f12",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -18794,40 +18800,44 @@
           "line": 108
         },
         {
+          "name": "WorldBookPromptPosition",
+          "line": 114
+        },
+        {
           "name": "WorldBookEntry",
-          "line": 112
+          "line": 115
         },
         {
           "name": "WorldBookRepository",
-          "line": 124
+          "line": 129
         },
         {
           "name": "observeWorldBooks",
-          "line": 126
+          "line": 131
         },
         {
           "name": "TokenUsage",
-          "line": 130
+          "line": 135
         },
         {
           "name": "DurationSummary",
-          "line": 137
+          "line": 142
         },
         {
           "name": "PerformanceRepository",
-          "line": 143
+          "line": 148
         },
         {
           "name": "observeErrors",
-          "line": 145
+          "line": 150
         },
         {
           "name": "observeTokenUsage",
-          "line": 146
+          "line": 151
         },
         {
           "name": "observeDurations",
-          "line": 147
+          "line": 152
         }
       ]
     },
@@ -22512,64 +22522,64 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 539,
-      "sha256": "7197cfc4ce987552e5dbe3167c9fe35dfc78fd75721a0a21700c207f18d4f60e",
+      "lines": 557,
+      "sha256": "1a9e0d5c6a3e16cbdc7980d8a0eb4eebff4eecf88ea9a9398b5e85c0e2b441b0",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
-          "line": 22
+          "line": 23
         },
         {
           "name": "snapshot",
-          "line": 40
+          "line": 41
         },
         {
           "name": "InMemoryLexiconRepository",
-          "line": 61
+          "line": 62
         },
         {
           "name": "initialize",
-          "line": 65
+          "line": 66
         },
         {
           "name": "snapshot",
-          "line": 134
+          "line": 135
         },
         {
           "name": "invalidateSource",
-          "line": 145
+          "line": 146
         },
         {
           "name": "WorldBookImportResult",
-          "line": 230
+          "line": 231
         },
         {
           "name": "WorldBookDeletedBatch",
-          "line": 234
+          "line": 235
         },
         {
           "name": "groupWorldBookEntries",
-          "line": 238
+          "line": 239
         },
         {
           "name": "WorldBookFolder",
-          "line": 261
-        },
-        {
-          "name": "InMemoryWorldBookRepository",
           "line": 262
         },
         {
+          "name": "InMemoryWorldBookRepository",
+          "line": 263
+        },
+        {
           "name": "initialize",
-          "line": 268
+          "line": 269
         },
         {
           "name": "observeFolders",
-          "line": 279
+          "line": 280
         },
         {
           "name": "snapshot",
-          "line": 410
+          "line": 411
         }
       ]
     },
@@ -25258,16 +25268,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-      "lines": 129,
-      "sha256": "b4588c0b94ab6199613dd9d3340aa2e3223cc7d03fc874bcc4fa84eed56beaa8",
+      "lines": 138,
+      "sha256": "ff91ff2c591c273d8c86654c65f69714b66861badb9199e7167e9eaba9276516",
       "symbols": [
         {
           "name": "Preview",
-          "line": 18
+          "line": 19
         },
         {
           "name": "parse",
-          "line": 24
+          "line": 25
         }
       ]
     },
