@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.WorldBookJsonImporter
 import com.jiacimu.lulu.data.WorldBookFolder
@@ -357,6 +358,18 @@ fun CharacterWorldBookScreenV2(
                                         scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, false) }
                                     }
                                 }
+                                Text("模型提示词位置", fontSize = 12.sp, color = LuluColors.Muted)
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    listOf(
+                                        WorldBookPromptPosition.TOP to "置顶",
+                                        WorldBookPromptPosition.NORMAL to "常规",
+                                        WorldBookPromptPosition.BOTTOM to "置底",
+                                    ).forEach { (position, label) ->
+                                        WorldV2Choice(label, book.promptPosition == position, Modifier.weight(1f)) {
+                                            scope.launch { repository.setPromptPosition(book.id, position) }
+                                        }
+                                    }
+                                }
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Text("原始顺序 ${originalIndex + 1}", fontSize = 12.sp, color = LuluColors.Muted,
                                         modifier = Modifier.weight(1f))
@@ -605,6 +618,7 @@ private fun WorldBookEditorV2(
     var title by remember(book.id) { mutableStateOf(book.title) }
     var content by remember(book.id) { mutableStateOf(book.content) }
     var globalEnabled by remember(book.id) { mutableStateOf(book.globalEnabled) }
+    var promptPosition by remember(book.id) { mutableStateOf(book.promptPosition) }
     var folderId by remember(book.id) { mutableStateOf(book.folderId) }
     var showFolderChoices by remember { mutableStateOf(false) }
     AlertDialog(
@@ -636,12 +650,24 @@ private fun WorldBookEditorV2(
                     Text("全局应用")
                     Switch(checked = globalEnabled, onCheckedChange = { globalEnabled = it })
                 }
+                Text("模型提示词位置", fontSize = 12.sp, color = LuluColors.Muted)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf(
+                        WorldBookPromptPosition.TOP to "置顶",
+                        WorldBookPromptPosition.NORMAL to "常规",
+                        WorldBookPromptPosition.BOTTOM to "置底",
+                    ).forEach { (position, label) ->
+                        WorldV2Choice(label, promptPosition == position, Modifier.weight(1f)) {
+                            promptPosition = position
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
                 enabled = title.isNotBlank() && content.isNotBlank(),
-                onClick = { onSave(book.copy(title = title.trim(), content = content.trim(), globalEnabled = globalEnabled, folderId = folderId)) },
+                onClick = { onSave(book.copy(title = title.trim(), content = content.trim(), globalEnabled = globalEnabled, folderId = folderId, promptPosition = promptPosition)) },
             ) { Text("保存") }
         },
         dismissButton = {
