@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:11:15.342754+00:00",
-  "commit": "c0cd8349ed7dd311332eee79891a63133c86ec68",
+  "generatedAt": "2026-10-25T15:15:11.689139+00:00",
+  "commit": "e4873fbc9c8df2dc8ffa4112e05a809f5e1a2a2d",
   "branch": "main",
-  "sourceFingerprint": "1088c05607768436c8697859b0b8372c0558dd8149c66094a93e2a5b304e80a3",
+  "sourceFingerprint": "57e30b84c433c9762103c3bb5cadd1ba6da02a306a87a0f51403aec4d2bb4aed",
   "summary": {
     "files": 907,
-    "lines": 178526,
+    "lines": 178537,
     "symbols": 2676
   },
   "symbolIndex": {
@@ -641,19 +641,19 @@
     "CharacterWorldBookScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 43
+        "line": 49
       }
     ],
     "openFolderEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 115
+        "line": 126
       }
     ],
     "removeBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 122
+        "line": 133
       }
     ],
     "ChatAutoVoicePlayback": [
@@ -15471,20 +15471,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 698,
-      "sha256": "dc49279c5a39a713fa57521bb2f030f4c4b00b940953930277fc1ceae42d6f51",
+      "lines": 709,
+      "sha256": "2eedc250826b13846e49c36d94581483be45ec3d1b0493ea867dd6e6bb86cb78",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
-          "line": 43
+          "line": 49
         },
         {
           "name": "openFolderEditor",
-          "line": 115
+          "line": 126
         },
         {
           "name": "removeBooks",
-          "line": 122
+          "line": 133
         }
       ]
     },
