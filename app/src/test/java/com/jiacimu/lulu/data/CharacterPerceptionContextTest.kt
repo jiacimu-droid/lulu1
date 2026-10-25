@@ -195,6 +195,35 @@ class CharacterPerceptionContextTest {
         assertEquals(setOf("user"), combined.socialIds)
     }
 
+    @Test fun burstOfResultsDoesNotHideOlderUnacknowledgedEvents() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val role = "receipt-burst-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        repeat(20) { index ->
+            SharedExperienceTimeline.record(
+                eventId = "$role-$index", characterId = role,
+                channel = "真实数字世界", speaker = "世界",
+                content = "真实观察 $index",
+                occurredAt = now.minusSeconds((20 - index).toLong()),
+                triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        }
+        val first = CharacterPerceptionContext.pending(app, role, now)
+        assertEquals(12, first.size)
+        assertEquals("$role-0", first.first().id)
+        first.forEach { event ->
+            assertTrue(PerceptionStimulusLedger.claim(app, role,
+                CharacterPerceptionContext.stimulus(event)))
+        }
+        val remainder = CharacterPerceptionContext.pending(app, role, now)
+        assertEquals(8, remainder.size)
+        assertEquals("$role-12", remainder.first().id)
+        assertEquals("$role-19", remainder.last().id)
+        PerceptionStimulusLedger.clear(role)
+    }
+
     @Test fun newestRevisionWinsWhenOneEventComesFromTwoSceneAdapters() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         val role = "same-event-two-adapters-" + java.util.UUID.randomUUID()
