@@ -1039,6 +1039,7 @@ object LuluDeviceToolBridge {
                 observed = observedWorld,
                 direct = userSources,
                 claimDirect = false,
+                deferAcknowledgement = true,
             )
             val observedSources = perceptionInput.freshStimuli.filterNot {
                 fresh -> userSources.any { it.evidenceId == fresh.evidenceId }
@@ -1110,6 +1111,12 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
                 characterId, causalEvidenceId,
                 plan.innerThought, now, privateDelta.fingerprint,
+            )
+            // Reuse the same causal commit boundary as autonomous/online
+            // perception; ordinary direct speech remains owned by chat reads.
+            com.jiacimu.lulu.data.CharacterPerceptionContext.acknowledge(
+                appContext, characterId, perceptionInput,
+                direct = userSources, claimDirect = false,
             )
         }
         // Persist this role's appraisal/motives BEFORE executing the chosen phone steps.
