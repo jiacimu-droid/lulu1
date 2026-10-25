@@ -137,3 +137,28 @@ flowchart TD
 - 保留两个测试类及所有逻辑断言，没有通过删除失败测试、禁用 CI 或伪造通过结果修复。
 
 此处是根据已获取 CI 日志和 GitHub 源码实施的修复提交；新的 `main` 运行是否真正通过 `testDebugUnitTest`、`assembleDebug` 及发布仍必须查看对应新运行结果，不能把静态复核冒充成功。
+
+
+## 十、2026-10-25：与 AstrBot Agent Runner 源码再次核对
+
+对照 AstrBotDevs/AstrBot 的 `astrbot/core/agent/runners/base.py`、`tool_loop_agent_runner.py`、`core/event_bus.py`，借鉴的是设计原则，**不复制 AGPL 代码**。
+
+### 已吸收的能力
+
+- 主人私聊、电话、后台生活动作共享正式 `ToolRouter`，能持久保存执行回执并重新作为感知输入；独立 `requiresPreviousSuccess` 与真实成功状态判定已存在，不再照搬通用 Python Agent Runner。
+- 感知时间线、动作原因与每一步执行结果在原有持久 Store / 时间线中已有部分证据；后台自主活动已具备一定的重复提醒与反馈，不应另建第二套事件总线。
+- 本轮检查出一处实际不一致：`ProactivePerceptionRuntime` 无主工具时合成 `status=skipped`，但又把它当作失败前置步骤传给 `OrderedCharacterActions.execute(initialCompleted=...)`，使第一个 `requiresPreviousSuccess=true` 的真实动作被拒绝；通话侧动作的初始前置条件则已经是 `true`。已新增 `ToolExecutionStatus.primaryAllowsDependentSteps`，并在在线／自主执行的两个分支复用，明确区分「未选择主工具」和「主工具已选择但尚未完成」。新增 `ToolExecutionStatusTest.firstOrderedStepIsNotBlockedByPhantomPrimaryTool` 回归。
+
+### 值得借鉴、但不能直接搬入的能力
+
+1. **工具执行中接收新消息**：AstrBot 的 Runner 对漫长工具操作期间的新用户输入维护 follow-up 提示。露露机已有未读归属、在线消息批次和搜索完成原轮的保护，但不能只靠 `NonCancellable` 就声称已经妥善处理新消息优先级；后续应在原会话证据归属上验证「长搜索中用户改口／取消／补充」，区分已执行副作用与仍可调整的后续动作，不引入影子消息队列。
+2. **重复调用诊断**：AstrBot 对同工具同参数的连续执行做分级提醒而非粗暴禁止。露露机 `AutonomousActionTrace` 对自主生活重复动作已有提示，但跨场景和同一次决策的搜索重复仍须核查；可从原 `ToolRouter` 回执生成只读分析，不按照工具名一刀切阻止合理重复。
+3. **大工具输出的可追溯原文**：AstrBot 保存溢出的完整工具文本，再用小窗口读取；露露机真实网页和读帖内容在模型上下文前会截短。值得保留完整的带来源原文、只选当前有用的短片段，并把可按需打开的原始证据链接回现有时间线／阅读资料系统；不能把上下文截断等同于删除历史，也不能直接把第三方原文当工具命令。
+4. **运行状态／生命周期调试**：AstrBot 的 `reset/step/done`、工具前后 Hooks 和明确错误/取消状态有利于排查为何未继续。露露机可以对已有因果决策和 `ToolRouter` 的真实 `requestId` 做只读状态投影，展示“想法→选择→动作→真实回执→是否再次感知”，但不新增独立角色状态机，不暴露模型私有推理文本或敏感工具凭据。
+
+### 不建议照搬
+
+- AstrBot 的插件市场、通用平台事件总线和第三方 Runner 接口服务于多渠道 Bot 框架；露露机已有自己的 Android 场景适配、长期记忆和数字人格系统，没有证据表明整体换成这些层会改善陪伴体验。
+- 不固定每一次搜索完成后都强制发起下一轮收费模型调用；续查、沉默、分享和自主探索仍由同一个角色在权限、回执、预算与关系情境下决定。
+
+**验收界限：** 本轮已提交程序依赖判定与单测源码，仍要等待新 CI / APK / 真机来验证多步骤实际执行，不能用源码审查冒充运行成功。
