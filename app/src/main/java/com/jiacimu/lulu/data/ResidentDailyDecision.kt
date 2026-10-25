@@ -261,17 +261,44 @@ internal object ResidentDailyDecision {
         return p.edit().putString(key, day).commit()
     }
 
+    /** A small real action still belongs to tomorrow's life. Only this resident's
+     * own witnessed events or settled executor receipts can recur as evidence;
+     * a plan / draft never becomes a completed experience.
+     */
+    internal fun ownLifeEvidence(characterId: String, history: List<SharedTimelineEvent>): List<SharedTimelineEvent> =
+        history.asSequence()
+            .filter { it.characterId == characterId }
+            .filter { event ->
+                when (event.source) {
+                    "tool-router" -> event.evidenceKind == EventEvidenceKind.ToolResult &&
+                        runCatching { JSONObject(event.content).optString("status") in
+                            setOf("succeeded", "failed") }.getOrDefault(false)
+                    "resident-duty", "meeting", "character-message", "owner-on-behalf",
+                    "digital-world", "moment:self" -> true
+                    else -> false // A daily plan, a hypothetical thought, or someone else's story isn't an outcome.
+                }
+            }
+            .takeLast(12).toList()
+
     private fun recentOwnEvents(characterId: String): List<SharedTimelineEvent> =
-        SharedExperienceTimeline.recentEvents(characterId, 16)
-            .asSequence()
-            .filter { it.source in setOf("resident-duty", "meeting", "character-message",
-                "owner-on-behalf", "digital-world", "moment:self", "resident-daily") }
-            .toList().takeLast(9)
+        ownLifeEvidence(characterId, SharedExperienceTimeline.recentEvents(characterId, 120))
+
+    internal fun lifeEvidenceLine(event: SharedTimelineEvent): String {
+        if (event.source == "tool-router") {
+            val receipt = runCatching { JSONObject(event.content) }.getOrNull()
+                ?: return ""
+            val result = runCatching { JSONObject(receipt.optString("result")) }.getOrNull()
+            val detail = result?.optString("summary")?.ifBlank { result.optString("error") }
+                .orEmpty().trim().take(180)
+            return "${event.occurredAt} | 实际工具回执 | ${receipt.optString("tool")} " +
+                "${receipt.optString("status")}：${detail.ifBlank { "未提供结果说明" }}"
+        }
+        return "${event.occurredAt} | ${event.channel} | ${event.speaker}：${event.content.take(180)}"
+    }
 
     private fun recentOwnExperience(characterId: String): String =
-        recentOwnEvents(characterId).joinToString("\n") {
-                "${it.occurredAt} | ${it.channel} | ${it.speaker}：${it.content.take(180)}"
-            }
+        recentOwnEvents(characterId).map(::lifeEvidenceLine)
+            .filter(String::isNotBlank).joinToString("\n")
 
     private fun context(native: DigitalWorldResident, at: Instant,
         pending: List<ResidentDirectMessage>): String {
@@ -320,7 +347,7 @@ internal object ResidentDailyDecision {
             只属于你本人的最近通信：
             ${mail.ifBlank { "无" }}
             ${CharacterEverydaySocialContext.render(characterId, at, pending)}
-            自己确实经历过的事情：
+            自己确实经历过的事情与工具结果（失败也是真实经历；计划未执行不算）：
             ${recentOwnExperience(characterId).ifBlank { "暂未积累" }}
             自己对熟人的真实个人印象（对方未必这么想）：
             ${relations.ifBlank { "暂无" }}
@@ -375,6 +402,7 @@ internal object ResidentDailyDecision {
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
+                注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
                 更重要的是：你活在有人际交往的真实小世界里。想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊或结识新朋友，都可以成为具体行程；不是每天只有喝水和独处。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
                 agenda 中每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs。
