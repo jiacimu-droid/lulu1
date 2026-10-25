@@ -800,6 +800,10 @@ class ProactivePerceptionWorker(
         val searchReceiptPending = characterId != null && interactionId.isNotBlank() &&
             SharedExperienceTimeline.eventsByIds(characterId, listOf(interactionId))
                 .any(SearchReceiptFeedback::completedEvidence)
+        // Cancelled or withdrawn evidence must never wake a character as though
+        // a still-valid search result existed. Normal time-based wake is separate.
+        if (trigger.startsWith("本人真实搜索/阅读刚得到执行回执") && !searchReceiptPending)
+            return@runCatching Result.success()
         // Search results are durable stimuli, regardless of who requested them.
         // Do not run a second autonomous decision over a live chat or phone turn.
         // A result arriving during a long search-reply must not be lost when
