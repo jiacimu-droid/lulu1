@@ -605,7 +605,10 @@ object ProactivePerceptionScheduler {
      * The durable ToolRouter event is the input; this job is only a wake-up.
      * Bursts coalesce, while recursive searches have a bounded immediate budget.
      * Deferred receipts remain available to normal perception, never marked as seen here. */
-    @Synchronized fun scheduleToolResultPerception(context: Context, characterId: String, evidenceId: String) {
+    @Synchronized fun scheduleToolResultPerception(
+        context: Context, characterId: String, evidenceId: String,
+        appendAfterCurrent: Boolean = false,
+    ) {
         if (characterId.isBlank() || evidenceId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
         val app = context.applicationContext
@@ -640,7 +643,12 @@ object ProactivePerceptionScheduler {
                 .putBoolean("force", true).build())
             .build()
         WorkManager.getInstance(app).enqueueUniqueWork(
-            "lulu-tool-result-perception-$characterId", ExistingWorkPolicy.REPLACE, request)
+            "lulu-tool-result-perception-$characterId",
+            // A worker draining its own remaining receipts must not cancel
+            // itself while its current causal commit is still finishing.
+            if (appendAfterCurrent) ExistingWorkPolicy.APPEND_OR_REPLACE
+            else ExistingWorkPolicy.REPLACE,
+            request)
     }
     /**
      * One bounded follow-through after a VERIFIED voluntary activity. Uses the
@@ -924,7 +932,7 @@ class ProactivePerceptionWorker(
                     candidate.id, candidate.revision)
             }
             if (next != null) ProactivePerceptionScheduler.scheduleToolResultPerception(
-                applicationContext, characterId, next.id)
+                applicationContext, characterId, next.id, appendAfterCurrent = true)
         }
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
