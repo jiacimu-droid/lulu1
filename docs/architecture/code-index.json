@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:03:56.999696+00:00",
-  "commit": "497dda84db419eec83b0d375e7547e08077f6eda",
+  "generatedAt": "2026-10-25T14:04:56.445427+00:00",
+  "commit": "18c1d264183fc7ba529a7597f4d1033b05b6ebc5",
   "branch": "main",
-  "sourceFingerprint": "80aae3058a7180d52b67542156a89f93e0b387514ff5e88d43688dd8caf071fa",
+  "sourceFingerprint": "e0f6274afd4df7fdcff946cc70b7a6c5bed4654c55d6461fe24eeb584234a8b1",
   "summary": {
     "files": 905,
-    "lines": 178158,
+    "lines": 178171,
     "symbols": 2670
   },
   "symbolIndex": {
@@ -31717,8 +31717,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
-      "lines": 137,
-      "sha256": "5219a2946bc55e6a1160a3df8f43d70dc4e79749c35359259c7b342842542802",
+      "lines": 150,
+      "sha256": "a2266ffd1477fed38b4b9c526d4e06b461647fc581e7c0c2ac08b6e8cc89b1e0",
       "symbols": [
         {
           "name": "LuluStudyWatchTest",
