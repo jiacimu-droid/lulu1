@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:27:54.809659+00:00",
-  "commit": "8ffef40200c74fb5d4efc76550fe960617127416",
+  "generatedAt": "2026-10-25T03:28:26.997968+00:00",
+  "commit": "23d9b556c9f08bde3cd1a6277947aa8d38e2cf31",
   "branch": "main",
-  "sourceFingerprint": "4581a06de47197d93009e1704c71313a6c972e3c8b8569aa3c9481f6b2fe2cbb",
+  "sourceFingerprint": "7a5840e76adb57049b5ceb3d3129fc8fb4ba48073993e82acde880184bbab4d1",
   "summary": {
     "files": 887,
-    "lines": 173203,
+    "lines": 173210,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -16666,7 +16666,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
       "lines": 261,
-      "sha256": "07ee3ec54d5513126207127f7990470fa3fd3471844ff46484fde3d5d1cd3b34",
+      "sha256": "f506fcc4fa859b713e2160453a21d2773e0f67dbbb51154037ac994a571b1a6b",
       "symbols": [
         {
           "name": "LuluRepositories",
@@ -28928,8 +28928,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 223,
-      "sha256": "74ee040294ab51b7f7f094019ab26d5119e859d0ee1d9281f28e0ac801d5bdf9",
+      "lines": 227,
+      "sha256": "4b32b1540ab39b261eacd2d994133041fdbb3af327fdaedae6a0d9e0f0d3f26a",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
@@ -29325,8 +29325,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 352,
-      "sha256": "5e8aa9a0116edbf1619b2645bfe39c9083221be31fed680a6898054d1d169399",
+      "lines": 354,
+      "sha256": "9c524dbe8acbb4e10a99971d0e15384c39bb85b05a01ccb7ae5f99ba2efd6885",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
@@ -29468,8 +29468,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 327,
-      "sha256": "e84cdefbf598b324ab03e414eea8b82f3ecbf70755bcb76bdd6744142fc9e9ac",
+      "lines": 328,
+      "sha256": "c862688923c2ae47284acf2c85121d2ca03a43feef9132063fa1a0c1ee3bae70",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
