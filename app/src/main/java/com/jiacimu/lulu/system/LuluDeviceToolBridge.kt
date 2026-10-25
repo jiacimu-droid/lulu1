@@ -1302,6 +1302,13 @@ object LuluDeviceToolBridge {
                     "", "",
                     includeAppraisalDetails = false,
                 )
+                // Only the planner chooses tools. Tell the language renderer
+                // the selected effects so it cannot improvise a new call.
+                val chosenEffects = (0 until (plannedSideActions?.length() ?: 0))
+                    .mapNotNull { index ->
+                        plannedSideActions?.optJSONObject(index)?.optString("tool")
+                            ?.takeIf(String::isNotBlank)
+                    }.distinct().joinToString(", ").ifBlank { "无" }
                 val generated = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
@@ -1312,6 +1319,7 @@ object LuluDeviceToolBridge {
                             appendLine(turnContext.take(4_000))
                         }
                         if (expressionConversation.isEmpty()) appendLine("用户刚才说：$userText")
+                        appendLine("【本轮明确选择的副动作，不是已执行回执】$chosenEffects")
                         if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
                 if (mediaReceipt.isNotBlank()) appendLine("【本轮音乐操作真实回执】$mediaReceipt")
                 if (sideDeviceReceipt.isNotBlank()) appendLine("【本轮统一决策设备执行回执｜按实际状态说话，不能编造成功】$sideDeviceReceipt")
@@ -1329,6 +1337,7 @@ object LuluDeviceToolBridge {
                     instruction = """
                         这是你本人正在参与的私聊，接着对方刚说的这一句说话。
                         已确定的核心立场、必要答案和真实行动结果保持不变。你可以按自己的性格、情绪和关系，决定这次愿意说到哪里；背景里想到的理由不必全部讲出来。
+                        表达层只润色已决定的发言，不额外选工具或增添马上执行的外部行动承诺；若本轮没选择 start_call，就不要临时宣布会立刻拨打电话。已选择不等于已成功，结果由真实执行回执确认。
                         辨清她是在陈述现实、吐槽、试探、开玩笑，还是确实求安慰与建议。譬如一句“不读书就没钱”未必是恐慌求助；可以认同、不同意、心疼、逗她一句或给出自己的具体想法，但不要擅自替她升级成全面心理危机。
                         若交接里有自己选的情绪潜台词，用自己的口语、节奏或一点留白承载它，不朗读情绪标签、不替这句台词写心理解说。可以用一句亲昵、调侃或克制的反应接住倾诉，也可以认真展开；不必每次给建议、升华关系或顺手自责。\n                        普通聊天只兑现本轮一个最在意的回应，必要时补一个细节；不要照着“深呼吸→代她分析压力→讲人生道理→保证陪伴”的心理咨询流程拼出六段同义安慰。可以有独立判断与轻微分歧，不必总比她懂得更多，也不必解释自己为什么温柔。
                         情绪表达落在真实措辞、语气、停顿或具体反应里，不用连续堆“石头、重担、绷紧的弦、长路、天塌”等修辞换词表达同一恐惧。只要一句已经说到心坎，就留给她下一轮接话。
