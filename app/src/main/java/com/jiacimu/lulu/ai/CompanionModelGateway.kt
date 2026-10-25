@@ -764,6 +764,15 @@ class CompanionModelGateway(
                     onRequestBodyBytes = { sentRequestBodyBytes = it },
                 )
             } catch (error: ModelHttpException) {
+                if (error.status == 413) {
+                    // The upstream refused the HTTP body before generation. The
+                    // actual JSON byte count is available even on failure;
+                    // it must not be confused with an estimated token count.
+                    val measured = sentRequestBodyBytes.takeIf { it > 0L }
+                        ?.let { "；本次实际发送约${it / 1024}KB" }.orEmpty()
+                    throw ModelHttpException(413, error.message.orEmpty() +
+                        measured + "；含${imageDataUrls.size}张输入图片")
+                }
                 if (sentReduced || !reductionAvailable ||
                     !RelayRequestPressurePolicy.canRecover(source) ||
                     !RelayRequestPressurePolicy.isMemoryGuard(error.status, error.message.orEmpty()))
