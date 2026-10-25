@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:04:08.655840+00:00",
-  "commit": "5e4bc608b1cadf957243a15099aa06d8aa0e75dd",
+  "generatedAt": "2026-10-25T03:14:36.171674+00:00",
+  "commit": "8e77c4a4cd911fc7aedba53137cc28bfd1e939d3",
   "branch": "main",
-  "sourceFingerprint": "943acb4c4e39856811478a0e68fc24059410d774a9c2e8bd8c7df3e7ec94b7fe",
+  "sourceFingerprint": "d1fe56fb8aa85b3d9aaff23570e5997879057fdc24798fb9ae3ba2d841ec6716",
   "summary": {
     "files": 887,
-    "lines": 172935,
-    "symbols": 2587
+    "lines": 173011,
+    "symbols": 2588
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4444,10 +4444,16 @@
         "line": 9
       }
     ],
+    "normalizeStep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
+        "line": 55
+      }
+    ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 37
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -5667,7 +5673,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 32
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -6221,7 +6227,7 @@
     "same": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 45
+        "line": 51
       }
     ],
     "candidates": [
@@ -18400,12 +18406,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 116,
-      "sha256": "a8be995f7bd9fa34a1dde4d42e011e3f2ea87cc10eafb7a271ccba36c3ddbdd5",
+      "lines": 185,
+      "sha256": "f3354771b97845bb1b8de624cb61a66076a7ce063577fa8b93eb221532aaf4d1",
       "symbols": [
         {
+          "name": "normalizeStep",
+          "line": 55
+        },
+        {
           "name": "normalize",
-          "line": 37
+          "line": 106
         }
       ]
     },
@@ -20137,8 +20147,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 85,
-      "sha256": "0e9d9ae9829e083befefc63c2128a77c0154e57a2e55eeb29f15700c50f1ca86",
+      "lines": 92,
+      "sha256": "b98d1eec9bef25119587696a2ad6905f3f4213a347d0cfc118a10264973177d6",
       "symbols": [
         {
           "name": "actions",
@@ -20146,11 +20156,11 @@
         },
         {
           "name": "add",
-          "line": 32
+          "line": 38
         },
         {
           "name": "same",
-          "line": 45
+          "line": 51
         }
       ]
     },

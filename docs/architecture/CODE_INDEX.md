@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5e4bc608b1cadf957243a15099aa06d8aa0e75dd`
+- 基准提交：`8e77c4a4cd911fc7aedba53137cc28bfd1e939d3`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：172935
-- 已发现符号：2587
+- 已索引代码/文本行：173011
+- 已发现符号：2588
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -238,7 +238,7 @@
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 116 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 78 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
@@ -310,7 +310,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 341 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 85 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 95 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
