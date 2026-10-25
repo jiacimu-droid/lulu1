@@ -56,6 +56,22 @@ class ConversationHistoryWindowTest {
             ConversationHistoryWindow.turns(all).map { it.single().id })
     }
 
+    @Test fun longHistoryDoesNotRenderOrDecodeEveryArchivedTurn() {
+        val archive = (0 until 5_000).map { index ->
+            role("old-$index", "旧消息-$index", null)
+        }
+        val messages = archive + listOf(role("recent-a", "我刚想到", "latest"),
+            role("recent-b", "还能再聊几句", "latest"))
+        var inspected = 0
+        val recent = ConversationHistoryWindow.select(messages, 2, 100) {
+            inspected++
+            it.content.length
+        }
+        assertEquals(listOf("recent-a", "recent-b"), recent.map { it.id })
+        assertTrue("Long-lived history must not render thousands of old bubbles",
+            inspected <= 3)
+    }
+
     @Test fun quotedImageUsesOnlyExistingDescriptionAndRejectsMissingOrFutureReferences() {
         val image = encodeQqChatImage(imageUri = "content://mock/image",
             caption = "发给你的猫", imageDescription = "一只趴在书上的橘猫")
