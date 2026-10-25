@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:24:09.116579+00:00",
-  "commit": "4b67476ee1cfda301abe07e72069b9afdac114ea",
+  "generatedAt": "2026-10-25T05:24:24.700563+00:00",
+  "commit": "75eaabaf756690c8425c6d2e82dc3bebd0c1d806",
   "branch": "main",
-  "sourceFingerprint": "d08f29efeca080c135d871257aab297c3de54b527e90d227c661570f7bc046db",
+  "sourceFingerprint": "3fde2b8d52f653b466df4105feb58900cfdf45527e78a6babe12708c2e9b88a9",
   "summary": {
     "files": 889,
-    "lines": 173946,
-    "symbols": 2609
+    "lines": 173951,
+    "symbols": 2610
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4681,7 +4681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 541
+        "line": 546
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -4913,19 +4913,29 @@
     "activeThreads": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 107
+        "line": 108
       }
     ],
     "continuityEvidenceIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 129
+        "line": 131
+      }
+    ],
+    "matches": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
+        "line": 354
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 260
       }
     ],
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 445
+        "line": 450
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4935,7 +4945,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 507
+        "line": 512
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5892,12 +5902,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 258
-      }
-    ],
-    "matches": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 260
       }
     ],
     "closureContext": [
@@ -18961,8 +18965,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 617,
-      "sha256": "e4c0bfb5826dd81249788d6753292e5935e6b8c30f798e7998d2aa42da6e6856",
+      "lines": 622,
+      "sha256": "1d3e0ae7ee13905ee0bdecabf5c8d2df8cecdc800a122fec2098f5f41a3f7312",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -18970,23 +18974,27 @@
         },
         {
           "name": "activeThreads",
-          "line": 107
+          "line": 108
         },
         {
           "name": "continuityEvidenceIds",
-          "line": 129
+          "line": 131
+        },
+        {
+          "name": "matches",
+          "line": 354
         },
         {
           "name": "pendingDecisionCues",
-          "line": 445
+          "line": 450
         },
         {
           "name": "briefContext",
-          "line": 507
+          "line": 512
         },
         {
           "name": "promptSection",
-          "line": 541
+          "line": 546
         }
       ]
     },
