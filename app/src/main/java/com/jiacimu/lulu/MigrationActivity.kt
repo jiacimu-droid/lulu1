@@ -138,6 +138,9 @@ class MigrationActivity : ComponentActivity() {
         resumePeripheral("角色前台感知检查") {
             ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
         }
+        resumePeripheral("已授权学习监督悬浮窗恢复") {
+            com.jiacimu.lulu.system.LuluStudyWatch.restoreOverlay(applicationContext)
+        }
         resumePeripheral("精确闹钟恢复") {
             com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
             CommitmentTaskStore.reconcileAfterRestart()
