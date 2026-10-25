@@ -116,9 +116,9 @@ internal object CharacterLifeVisibility {
             }
 
 
-        val recentConcerns = CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
-            .mapTo(hashSetOf()) { it.optString("id") }
-        jsonEntries(mind.optJSONArray("openConcerns")).forEach { concern ->
+        // Only actively carried concerns belong in 心事. Paused/legacy-dormant
+        // rows remain in the same historical store, not this current list.
+        CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now).forEach { concern ->
             val detail = listOf(concern.optString("whyItMatters"),
                 concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
                 concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" },
@@ -126,8 +126,7 @@ internal object CharacterLifeVisibility {
                 .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
                 "挂心", concern.optString("focus").take(180),
-                (if (concern.optString("id") in recentConcerns) "尚未想通" else "暂时沉淀") +
-                    if (detail.isBlank()) "" else "\n$detail",
+                "仍在挂心" + if (detail.isBlank()) "" else "\n$detail",
                 concern.optString("evidenceId"))
         }
 

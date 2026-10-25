@@ -255,16 +255,46 @@ class CharacterOpenConcernRuntimeTest {
         assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(JSONArray(), now))
     }
 
-    @Test fun oldPrivateWorriesGoDormantWithoutErasingTheUnfinishedJourney() {
+    @Test fun anExplicitlyOngoingConcernStaysActivePast48HoursButDoesNotRetriggerAftercare() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "silence", now)
         val late = now.plusSeconds(49L * 3600)
         val context = CharacterOpenConcernRuntime.context(opened, late)
-        assertTrue(context.contains("搁置"))
-        assertFalse(context.contains("自己仍未想通的心事"))
+        assertTrue(context.contains("仍在持续关注的心事"))
+        assertEquals(1, CharacterOpenConcernRuntime.active(opened, late).size)
         assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(opened, late))
         val retained = CharacterOpenConcernRuntime.update(opened, null, "ambient", late)
         assertEquals(1, retained.length())
         assertEquals(opened.getJSONObject(0).getString("id"), retained.getJSONObject(0).getString("id"))
+    }
+
+    @Test fun pausingHidesAnOpenConcernUntilTheSameThreadResumes() {
+        val opened = CharacterOpenConcernRuntime.update(null, first, "initial", now)
+        val id = opened.getJSONObject(0).getString("id")
+        val paused = CharacterOpenConcernRuntime.update(opened,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "pause").put("threadId", id)),
+            "later-event", now.plusSeconds(60))
+        assertEquals(0, CharacterOpenConcernRuntime.active(paused, now.plusSeconds(60)).size)
+        assertEquals(1, CharacterOpenConcernRuntime.unresolved(paused).size)
+        assertFalse(CharacterOpenConcernRuntime.context(paused, now.plusSeconds(60))
+            .contains("仍在持续关注的心事"))
+        val resumed = CharacterOpenConcernRuntime.update(paused,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "resume").put("threadId", id)),
+            "new-event", now.plusSeconds(200))
+        assertEquals(1, CharacterOpenConcernRuntime.active(resumed, now.plusSeconds(201)).size)
+        assertEquals(id, resumed.getJSONObject(0).getString("id"))
+        assertEquals(3, resumed.getJSONObject(0).getJSONArray("journey").length())
+    }
+
+    @Test fun legacyOldConcernsNeedExplicitReviewBeforeShowingAsCurrent() {
+        val old = CharacterOpenConcernRuntime.update(null, first, "legacy-source", now)
+            .getJSONObject(0).apply { remove("lifecycleState") }
+        val legacy = JSONArray().put(old)
+        assertEquals(0, CharacterOpenConcernRuntime.active(legacy, now.plusSeconds(49L * 3600)).size)
+        assertEquals(1, CharacterOpenConcernRuntime.unresolved(legacy).size)
+        val reviewed = CharacterOpenConcernRuntime.update(legacy,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "resume")
+                .put("threadId", old.getString("id"))), "fresh-source", now.plusSeconds(49L * 3600))
+        assertEquals(1, CharacterOpenConcernRuntime.active(reviewed, now.plusSeconds(50L * 3600)).size)
     }
 
     @Test fun innerJourneyOnlyAdvancesWhenEvidenceActuallyChangesTheView() {

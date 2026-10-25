@@ -27,7 +27,7 @@ internal object CharacterUnfinishedActionContext {
                     "最近尝试=${m.optString("lastAttemptOutcome")}；尚未证明目标完成",
                 at(m, "updatedAt", "createdAt"))
         }
-        val concerns = CharacterOpenConcernRuntime.unresolved(mind.optJSONArray("openConcerns"))
+        val concerns = CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now)
         val sources = SharedExperienceTimeline.eventsByIds(role, concerns.map { it.optString("evidenceId") })
             .mapTo(hashSetOf()) { it.id }
         concerns.filter { it.optString("evidenceId") in sources }.forEach { c ->

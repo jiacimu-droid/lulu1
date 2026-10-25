@@ -16,7 +16,7 @@ import java.time.Instant
  */
 internal object CharacterOpenConcernRuntime {
     private val activeWindow = Duration.ofHours(48)
-    private val acceptedStatuses = setOf("open", "revise", "settled", "dismissed")
+    private val acceptedStatuses = setOf("open", "revise", "pause", "resume", "settled", "dismissed")
     private const val MAX_OPEN = 12
     private const val MAX_CHANGES_PER_EVENT = 4
 
@@ -45,8 +45,8 @@ internal object CharacterOpenConcernRuntime {
         now: Instant = Instant.now(),
         activeMotiveIds: Set<String> = emptySet(),
     ): JSONArray {
-        // An unresolved question may fall quiet without having been solved. Keep the
-        // thread, but stop treating old worries as live impulses after 48 hours.
+        // Keep historical concern identity even when the role explicitly pauses it.
+        // Never silently clear a newly authored active concern just because time passes.
         var current = previous
         for (proposal in proposals(appraisal)) {
             current = updateOne(current, proposal, evidenceId, now, activeMotiveIds)
@@ -85,6 +85,16 @@ internal object CharacterOpenConcernRuntime {
         // revision could create duplicate "worries" from an imagined history.
         if (match < 0 && status != "open") return result()
         val prior = existing.getOrNull(match)
+        // Paused concerns are retained for evidence/auditing, but do not appear
+        // as present concerns or autonomous action candidates. Legacy records
+        // with no lifecycle field keep the old 48h freshness rule until the
+        // character next explicitly revisits them; new records are persistent.
+        val lifecycleState = when (status) {
+            "pause" -> "paused"
+            "resume" -> "active"
+            "revise" -> if (prior?.optString("lifecycleState") == "paused") "paused" else "active"
+            else -> "active"
+        }
         val focus = proposal.optString("focus").trim().take(180)
             .ifBlank { prior?.optString("focus").orEmpty() }
         val why = proposal.optString("whyItMatters").trim().take(180)
@@ -107,7 +117,8 @@ internal object CharacterOpenConcernRuntime {
             val unchanged = focus == prior.optString("focus") && why == prior.optString("whyItMatters") &&
                 hesitation == prior.optString("hesitation") && nextStep == prior.optString("possibleNextStep") &&
                 priority == prior.optInt("priority", 2) && topicKey == prior.optString("topicKey") &&
-                motiveId == prior.optString("motiveId")
+                motiveId == prior.optString("motiveId") &&
+                lifecycleState == prior.optString("lifecycleState")
             val sameEvidence = prior.optString("evidenceId") == evidenceId ||
                 (0 until (prior.optJSONArray("journey")?.length() ?: 0)).any { i ->
                     prior.optJSONArray("journey")?.optJSONObject(i)?.optString("evidenceId") == evidenceId
@@ -119,13 +130,18 @@ internal object CharacterOpenConcernRuntime {
         val id = prior?.optString("id") ?: "concern-${(evidenceId + ":" + (topic.ifBlank { focusKey })).hashCode().toUInt().toString(16)}"
         val journey = prior?.optJSONArray("journey") ?: JSONArray()
         val step = JSONObject().put("evidenceId", evidenceId)
-            .put("at", now.toString()).put("phase", if (prior == null) "产生" else "转变")
+            .put("at", now.toString()).put("phase", when (status) {
+                "pause" -> "暂缓"
+                "resume" -> "再次挂心"
+                else -> if (prior == null) "产生" else "转变"
+            })
             .put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)
         val revised = JSONObject()
             .put("id", id).put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)
             .put("priority", priority).put("topicKey", topicKey)
+            .put("lifecycleState", lifecycleState)
             .put("motiveId", motiveId).put("evidenceId", evidenceId)
             .put("createdAt", prior?.optString("createdAt").orEmpty().ifBlank { now.toString() })
             .put("updatedAt", now.toString())
@@ -175,14 +191,31 @@ internal object CharacterOpenConcernRuntime {
             .filter { it.optString("id").isNotBlank() && it.optString("focus").isNotBlank() }
             .takeLast(MAX_OPEN)
 
+    private fun isActive(entry: JSONObject, now: Instant): Boolean = when (entry.optString("lifecycleState")) {
+        "active" -> true
+        "paused" -> false
+        else -> { // Backward compatibility: old, long-unreviewed rows are not current concerns.
+            val updated = runCatching { Instant.parse(entry.optString("updatedAt")) }.getOrNull()
+            updated != null && !updated.isAfter(now) &&
+                Duration.between(updated, now) <= activeWindow
+        }
+    }
+
+    /** Current continuing concerns are an authored state, NOT a 48h TTL.
+     * Historic records without that state preserve their old freshness behavior
+     * until the person next re-evaluates them using real evidence.
+     */
+    fun active(previous: JSONArray?, now: Instant = Instant.now()): List<JSONObject> =
+        retained(previous).filter { isActive(it, now) }
+
     fun recent(previous: JSONArray?, now: Instant = Instant.now()): List<JSONObject> =
-        retained(previous).filter { item ->
+        active(previous, now).filter { item ->
             val updated = runCatching { Instant.parse(item.optString("updatedAt")) }.getOrNull()
             updated != null && !updated.isAfter(now) &&
                 Duration.between(updated, now) <= activeWindow
         }
 
-    /** Unresolved questions can be reconsidered after their old emotion has faded. */
+    /** Includes paused records ONLY for recollection/revision, never active task selection. */
     fun unresolved(previous: JSONArray?): List<JSONObject> = retained(previous)
 
     /** A newly changed concern can warrant a single optional re-evaluation.
@@ -255,29 +288,25 @@ internal object CharacterOpenConcernRuntime {
 
     fun context(previous: JSONArray?, now: Instant = Instant.now(),
                 compact: Boolean = true): String {
-        val active = recent(previous, now)
+        val active = active(previous, now)
         val dormant = retained(previous).filterNot { item ->
             active.any { it.optString("id") == item.optString("id") }
         }
         if (active.isEmpty() && dormant.isEmpty()) return ""
         return buildString {
-            // Keep every outstanding thread addressable. The detailed working set
-            // intentionally focuses on only a few recent concerns, but a later
-            // user correction may refer to an older, dormant assumption. Hiding
-            // its threadId makes an evidence-based revise/settle impossible.
-            // At most MAX_OPEN short references are shown; this is recall, not
-            // a decision to revive any dormant concern.
-            appendLine("【全部未结挂心的检索目录｜不是当前情绪或行动命令】")
+            // Full index allows revisiting an old concern without falsely
+            // displaying paused/legacy historical notes as current worries.
+            appendLine("【心事索引｜含暂停备查项；不代表每条都还在挂心】")
             retained(previous).forEach { entry ->
                 val live = active.any { it.optString("id") == entry.optString("id") }
                 appendLine("- threadId=${entry.optString("id")}；" +
-                    "${if (live) "近期" else "搁置"}；在意=${entry.optString("focus").take(115)}；" +
+                    "${if (live) "仍在挂心" else "暂停关注/旧记录待复议"}；在意=${entry.optString("focus").take(115)}；" +
                     "原先依据=${entry.optString("whyItMatters").take(85)}")
             }
-            appendLine("新消息若改变旧心事的前提，请辨认对应 threadId，自行选择 revise、settled 或 dismissed；" +
-                "部分依据变化时保留仍成立的顾虑，不自动抹除整个心事，也不把旧推测当作用户现状。")
+            appendLine("若真实新证据改变旧想法，沿原threadId自行修订、恢复关注或结案；" +
+                "暂停项目不是当前心事，不作自主行动候选；不得因用户随口一句话硬判所有顾虑已经解决。")
             if (active.isNotEmpty()) {
-                appendLine("【自己仍未想通的心事｜私人猜测，不是用户事实，也不是外部待办】")
+                appendLine("【仍在持续关注的心事｜私人判断，不是用户事实，也不是外部待办】")
                 active.sortedWith(compareByDescending<JSONObject> { it.optInt("priority", 2) }
                     .thenByDescending { it.optString("updatedAt") })
                     .take(4).forEach { entry ->
@@ -306,11 +335,11 @@ internal object CharacterOpenConcernRuntime {
                 appendLine("这些心事可能已经变化：可以改变看法、采取行动或放下；不必为了结束心事去打扰用户。")
             }
             if (dormant.isNotEmpty()) {
-                appendLine("【暂时搁置的旧心事】共${dormant.size}件，超过48小时无新心理变化。" +
-                    "它们不是此刻的情绪、不是人物性格，更不是催促行动的理由。")
+                appendLine("【暂停关注的旧心路】共${dormant.size}件；仅供在新证据出现时回看。" +
+                    "它们不属于当前心事、不自动成为行动目标。")
                 dormant.takeLast(if (compact) 1 else 2).forEach { entry ->
-                    appendLine("· 旧线索 threadId=${entry.optString("id")}：${entry.optString("focus").take(130)}。" +
-                        "仅在新事实真正相关时才恢复关注；不等于旧情绪现在仍强烈，也不等于已解决。")
+                    appendLine("· 备查 threadId=${entry.optString("id")}：${entry.optString("focus").take(130)}。" +
+                        "旧判断尚未获新确认；需要真实相关证据才恢复或结束。")
                 }
             }
         }.trim()
