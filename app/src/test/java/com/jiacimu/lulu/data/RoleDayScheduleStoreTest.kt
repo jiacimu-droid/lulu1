@@ -57,6 +57,55 @@ class RoleDayScheduleStoreTest {
         assertFalse(duplicatesScheduledReminder(study.copy(characterId = "other-role"), promise))
     }
 
+    @Test fun screenCheckAndOpenEndedFollowUpShareTheExistingStudyCommitment() {
+        val time = Instant.parse("2026-10-25T09:00:00Z")
+        val reminder = CommitmentTask(characterId = "role-a",
+            goal = "五点整检查法制史背诵情况",
+            completionCondition = "五点再看看有没有专心学习",
+            dueAt = time, deliveryAction = "send_private_message",
+            status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "study-reminder")
+        val screenCheck = plan.copy(dueAt = time,
+            title = "抽查佳辞下一轮法制史学习进度",
+            intent = "五点整检查她有没有专心看书，法制史背了多少",
+            activityAction = "capture_screen", status = "planned")
+        assertTrue(duplicatesScheduledReminder(screenCheck, reminder))
+        assertTrue(duplicatesScheduledReminder(screenCheck.copy(activityAction = ""), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(activityAction = "read_book"), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(motiveId = "own-reading"), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(targetCharacterId = "friend"), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(locationCode = "library"), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(characterId = "other"), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(dueAt = time.plusSeconds(86400)), reminder))
+        assertFalse(duplicatesScheduledReminder(screenCheck.copy(title = "提醒吃晚饭",
+            intent = "五点时提醒她先做饭"), reminder))
+    }
+
+    @Test fun aTimedStudyPromiseBlocksASecondScreenCheckWorker() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "screen-check-single-authority-test"
+        val time = Instant.now().plusSeconds(7200)
+        val promise = CommitmentTaskStore.save(CommitmentTask(characterId = role,
+            goal = "五点整检查法制史背诵情况",
+            completionCondition = "监督她是否专心学习", dueAt = time,
+            deliveryAction = "send_private_message",
+            status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "study-alarm"))
+        try {
+            val attempt = runCatching {
+                RoleDayScheduleStore.arrange(context, role,
+                    "抽查佳辞下一轮法制史学习进度",
+                    "督促她专心看书，检查法制史背了多少", time,
+                    activityAction = "capture_screen")
+            }
+            assertTrue(attempt.isFailure)
+            assertTrue(attempt.exceptionOrNull()?.message.orEmpty().contains("无需重复"))
+            assertTrue(RoleDayScheduleStore.plans(context, role).isEmpty())
+            assertEquals(promise.id, CommitmentTaskStore.snapshot(role).first { it.id == promise.id }.id)
+        } finally {
+            CommitmentTaskStore.remove(promise.id)
+        }
+    }
+
     @Test fun dailyBedtimeReminderDoesNotCreateACopyForEveryDay() {
         val time = Instant.parse("2026-10-24T15:30:00Z")
         val bedtime = plan.copy(dueAt = time, title = "每天晚上十一点半提醒睡觉",
