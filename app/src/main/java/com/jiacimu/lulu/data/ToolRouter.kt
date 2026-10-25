@@ -103,6 +103,17 @@ object ToolRouter {
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId)
+                    } else if (name == "start_study_watch") {
+                        com.jiacimu.lulu.system.LuluStudyWatch.request(
+                            context, characterId, args.optInt("minutes", 45))
+                    } else if (name == "stop_study_watch") {
+                        val watch = com.jiacimu.lulu.system.LuluStudyWatch
+                        val stopped = watch.active(context, characterId) != null &&
+                            watch.stop(context, reason = "该角色结束了学习监督")
+                        JSONObject().put("success", stopped)
+                            .put("summary", if (stopped) "学习监督已停止，不再检查屏幕"
+                                else "该角色没有正在进行的学习监督")
+                            .toString()
                     } else if (name == "summon_lulu") {
                         LuluScreenAwareness.summon(context, characterId)
                     } else if (cap.domain == "phone") {
