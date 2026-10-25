@@ -33,26 +33,42 @@ internal object PrivateChatExpressionContext {
         }
         if (firstCurrent < 0 || currentInput.isBlank()) return emptyList()
         val recalled = recalledMessageIds(messages)
-        val previous = messages.take(firstCurrent).filter { message ->
+        val eligible = messages.take(firstCurrent).filter { message ->
             message.id !in recalled && message.status != LuluChatMessage.Status.Failed &&
                 (message.sender == LuluChatMessage.Sender.User ||
                     (message.sender == LuluChatMessage.Sender.Character &&
                         (message.authorCharacterId == null || message.authorCharacterId == characterId)))
-        }.takeLast(maxMessages)
-        val history = ArrayDeque<ModelConversationMessage>()
-        var characters = 0
-        for (message in previous.asReversed()) {
-            val content = qqForwardContextText(message.content).trim()
-            if (content.isBlank()) continue
-            // Keep whole turns. Neither old replies nor the current input are clipped.
-            if (characters + content.length > maxCharacters) break
-            history.addFirst(ModelConversationMessage(
-                if (message.sender == LuluChatMessage.Sender.User) ModelConversationMessage.Role.USER
-                else ModelConversationMessage.Role.ASSISTANT,
-                content,
-            ))
-            characters += content.length
         }
-        return history.toList() + ModelConversationMessage(ModelConversationMessage.Role.USER, currentInput)
+        fun rendered(message: LuluChatMessage): String {
+            val quote = ConversationHistoryWindow.quoteNote(message, messages, recalled)
+            val text = qqForwardContextText(message.content).trim()
+            return if (quote.isBlank()) text else "$quote\n$text"
+        }
+        val chosen = ConversationHistoryWindow.select(
+            eligible, maxMessages, maxCharacters,
+        ) { rendered(it).length }
+        // These are real role turns, not one assistant API message per visual
+        // bubble. The provider's transport compaction must not cut a reply
+        // into a misleading final sentence.
+        val history = ConversationHistoryWindow.turns(chosen).map { turn ->
+            ModelConversationMessage(
+                if (turn.first().sender == LuluChatMessage.Sender.User)
+                    ModelConversationMessage.Role.USER else ModelConversationMessage.Role.ASSISTANT,
+                turn.joinToString("\n") { rendered(it) },
+            )
+        }
+        // The active input remains authoritative and unabridged. A user may be
+        // replying to an older voice transcript or image; restore the real
+        // quoted reference from this same conversation before the words, without
+        // pretending a missing image description has been visually understood.
+        val quoted = messages.filter {
+            it.sender == LuluChatMessage.Sender.User && it.id in currentUserMessageIds
+        }.mapNotNull { message ->
+            ConversationHistoryWindow.quoteNote(message, messages, recalled)
+                .takeIf(String::isNotBlank)
+        }
+        val userContent = if (quoted.isEmpty()) currentInput
+            else quoted.joinToString("\n") + "\n" + currentInput
+        return history + ModelConversationMessage(ModelConversationMessage.Role.USER, userContent)
     }
 }
