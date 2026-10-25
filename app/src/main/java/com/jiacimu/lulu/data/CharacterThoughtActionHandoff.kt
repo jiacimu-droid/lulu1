@@ -51,6 +51,9 @@ internal object CharacterThoughtActionHandoff {
                 step.optString("motiveId").takeIf(String::isNotBlank)?.let {
                     if (args.optString("motiveId").isBlank()) args.put("motiveId", it)
                 }
+                step.optString("concernId").takeIf(String::isNotBlank)?.let {
+                    if (args.optString("concernId").isBlank()) args.put("concernId", it)
+                }
             }
             fun same(other: JSONObject): Boolean = step.optString("tool").isNotBlank() &&
                 other.optString("tool") == step.optString("tool") &&
