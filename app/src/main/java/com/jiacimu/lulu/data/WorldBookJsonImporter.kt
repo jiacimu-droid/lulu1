@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -81,6 +82,14 @@ internal object WorldBookJsonImporter {
                     characterOverrides = overrides,
                     createdAt = created,
                     updatedAt = created,
+                    // Foreign SillyTavern insertion rules are not equivalent to Lulu's
+                    // system-prompt positions. Do not silently reinterpret them.
+                    promptPosition = if (native) runCatching {
+                        WorldBookPromptPosition.valueOf(
+                            item.optString("promptPosition", "NORMAL").uppercase()
+                        )
+                    }.getOrDefault(WorldBookPromptPosition.NORMAL)
+                    else WorldBookPromptPosition.NORMAL,
                 ))
             }
         }
