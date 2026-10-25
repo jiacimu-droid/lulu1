@@ -173,6 +173,36 @@ object CharacterSocialRelationship {
         )
     }
 
+    /** Classify an already recorded event, rather than letting the model
+     * upgrade hearsay, public writing or its own intent into direct knowledge.
+     * The original timeline owns provenance and withdrawal; no belief DB.
+     */
+    internal fun evidenceBoundary(event: SharedTimelineEvent): String = when {
+        event.source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") ||
+            event.source.startsWith("reading:") ->
+            "外部文字/作品：只证明看到这些内容，不证明现实中的人做过"
+        event.evidenceKind == EventEvidenceKind.ToolResult ->
+            "工具回执：只证明实际执行结果，不证明别人如何想"
+        event.evidenceKind == EventEvidenceKind.UserStatement ->
+            "对方原话：只证明本人听到其表达，不证明话中提到的第三人动机"
+        event.evidenceKind == EventEvidenceKind.CharacterStatement ->
+            "一方陈述/计划：只证明其表达，不证明描述已经发生"
+        event.evidenceKind == EventEvidenceKind.Observation &&
+            ResidentSocialMailbox.witnessedMessage(event) != null ->
+            "收到的私信：只证明发信人如此表示，转述不能当亲眼见证"
+        event.evidenceKind == EventEvidenceKind.Observation ->
+            "本人在场所见：只证明所见行为，不证明他人心意"
+        else -> "历史来源不明确：保持不确定，不可当成已证实事实"
+    }
+
+    /** No guessed provenance when a source was removed or is unavailable. */
+    internal fun evidenceBoundary(characterId: String, evidenceId: String): String {
+        if (evidenceId.isBlank()) return "缺少可核验来源：只是旧主观看法"
+        val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return "来源已不可核验：旧看法不可当作事实"
+        return evidenceBoundary(source)
+    }
+
     fun perspectivesFor(characterId: String, otherIds: Collection<String>): String =
         otherIds.asSequence().filter { it != characterId }.distinct().take(12)
             .mapNotNull { target ->
@@ -188,6 +218,7 @@ object CharacterSocialRelationship {
                     buildString {
                         append("- 我对$name：${view.impression}")
                         if (view.reason.isNotBlank()) append("；具体依据=${view.reason}")
+                        append("；证据边界=${evidenceBoundary(characterId, view.evidenceId)}")
                         if (view.priorImpression.isNotBlank() &&
                             view.priorImpression != view.impression) {
                             append("；之前曾认为=${view.priorImpression}（这是旧看法，并非当前事实）")
@@ -214,10 +245,10 @@ object CharacterSocialRelationship {
                     val secondName = runCatching { MigratedDomainStores.characters.get(second).displayName }.getOrDefault(second)
                     add("- $firstName ↔ $secondName：${relation.shortContext()}")
                     perspective(first, second)?.let { view ->
-                        add("  $firstName 对 $secondName 的看法：${view.impression}；根据=${view.reason}")
+                        add("  $firstName 对 $secondName 的看法：${view.impression}；根据=${view.reason}；来源=${evidenceBoundary(first, view.evidenceId)}")
                     }
                     perspective(second, first)?.let { view ->
-                        add("  $secondName 对 $firstName 的看法：${view.impression}；根据=${view.reason}")
+                        add("  $secondName 对 $firstName 的看法：${view.impression}；根据=${view.reason}；来源=${evidenceBoundary(second, view.evidenceId)}")
                     }
                 }
             }
