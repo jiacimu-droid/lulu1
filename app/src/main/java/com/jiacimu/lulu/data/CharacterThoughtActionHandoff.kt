@@ -24,7 +24,11 @@ internal object CharacterThoughtActionHandoff {
             val step = secondary?.optJSONObject(index)?.let(AutonomousActionWireProtocol::normalizeStep) ?: continue
             val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
                 .firstOrNull { existing ->
-                    existing.optString("tool") == step.optString("tool") &&
+                    // Empty tool names are not real action identities. Two
+                    // malformed selected steps must each retain an independent
+                    // failure receipt rather than disappearing as duplicates.
+                    step.optString("tool").isNotBlank() &&
+                        existing.optString("tool") == step.optString("tool") &&
                         canonical(existing.optJSONObject("args") ?: JSONObject()) ==
                             canonical(step.optJSONObject("args") ?: JSONObject()) &&
                         existing.optBoolean("requiresPreviousSuccess") ==
@@ -48,7 +52,8 @@ internal object CharacterThoughtActionHandoff {
                     if (args.optString("motiveId").isBlank()) args.put("motiveId", it)
                 }
             }
-            fun same(other: JSONObject): Boolean = other.optString("tool") == step.optString("tool") &&
+            fun same(other: JSONObject): Boolean = step.optString("tool").isNotBlank() &&
+                other.optString("tool") == step.optString("tool") &&
                 canonical(other.optJSONObject("args") ?: JSONObject()) ==
                     canonical(step.optJSONObject("args") ?: JSONObject())
             // A direct tool or explicit steps already owns this effect. Do not execute it twice.
