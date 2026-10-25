@@ -101,6 +101,36 @@ class WanxiangCharacterContinuityTest {
         }
     }
 
+
+    @Test fun coldStartRoutineReadsItsPersistedResidentLeisureChoice() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        val local = java.time.LocalDate.of(2026, 10, 25)
+        val at = local.atTime(18, 30).atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val person = DigitalWorldResident(
+            name = "临时值班居民", identity = "店员",
+            homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+            currentLocationCode = DigitalWorldPublicPlaces.CAFE,
+            createdAt = at,
+        )
+        val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            android.content.Context.MODE_PRIVATE)
+        val key = "plan:${person.id}"
+        try {
+            assertTrue(prefs.edit().putString(key, JSONObject()
+                .put("date", ResidentDailyDecision.date(at))
+                .put("evening", "games")
+                .put("eveningActivity", "想去游戏厅听听新歌")
+                .toString()).commit())
+            val planned = ResidentDailyRoutine.plan(person, at, context = app)
+            assertEquals("evening", planned.slot)
+            assertEquals(DigitalWorldPublicPlaces.GAME_HALL, planned.location)
+            assertEquals("想去游戏厅听听新歌", planned.intendedActivity)
+            assertFalse(planned.activity.contains("听听新歌")) // choice is not execution
+        } finally {
+            prefs.edit().remove(key).commit()
+        }
+    }
+
     @Test fun sharedPrivateAndVoiceGuidanceAllowsSpontaneousSpeechWithoutInventedMisunderstanding() {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
