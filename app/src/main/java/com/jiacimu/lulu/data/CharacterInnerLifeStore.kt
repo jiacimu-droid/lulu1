@@ -1632,7 +1632,7 @@ object CharacterInnerLifeStore {
             if (paused.isNotEmpty()) appendLine("暂缓：${paused.takeLast(2).joinToString("、") { it.optString("aim").take(90) }}")
             relevantBondIds(bonds).take(4).forEach { id ->
                 val bond = bonds.optJSONObject(id) ?: return@forEach
-                appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
+                appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}；来源边界=${CharacterSocialRelationship.evidenceBoundary(characterId, bond.optString("evidenceId"))}")
                 bond.optString("priorThought").trim().takeIf {
                     it.isNotBlank() && it != bond.optString("interpretation").trim()
                 }?.let { previous ->
@@ -1732,7 +1732,7 @@ object CharacterInnerLifeStore {
             }
             relevantBondIds(bonds).take(8).forEach { id ->
                 val bond = bonds?.optJSONObject(id) ?: return@forEach
-                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前私人看法：${bond.optString("interpretation")}；因为${bond.optString("reason")}；此前想法：${bond.optString("priorThought")}；累计${bond.optInt("observations")}次实际互动推断。")
+                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前私人看法：${bond.optString("interpretation")}；因为${bond.optString("reason")}；来源边界：${CharacterSocialRelationship.evidenceBoundary(characterId, bond.optString("evidenceId"))}；此前想法：${bond.optString("priorThought")}；累计${bond.optInt("observations")}次有记录的主观更新（不代表双方真实见面次数）。")
                 relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
                     appendLine("  关系近期趋势：$it。这里只描述多个真实互动累积的方向，不是绝对好感度。")
                 }
