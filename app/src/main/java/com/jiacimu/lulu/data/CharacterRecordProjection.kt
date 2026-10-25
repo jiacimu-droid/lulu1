@@ -8,7 +8,7 @@ import java.time.Instant
 
 /** Navigation and read models only. Originals keep their IDs, stores and deletion semantics. */
 internal enum class CharacterRecordDestination {
-    Memory, Timeline, Schedule, Diary, Favorites, Stories, Moments, LifeRecords;
+    Memory, Timeline, Schedule, Diary, LifeNotes, Favorites, Stories, Moments, LifeRecords;
 
     companion object {
         fun fromLegacy(section: String?, diaryTitle: String? = null,
@@ -20,7 +20,8 @@ internal enum class CharacterRecordDestination {
                 "favorite", "favorites", "收藏" -> Favorites
                 "小剧场", "story", "scene", "life-story" -> Stories
                 "promise", "约定" -> Schedule
-                "life", "concern", "生活近况", "学习", "学习记录" -> Memory
+                "life", "生活近况" -> LifeNotes
+                "concern", "学习", "学习记录" -> Memory
                 "足迹", "历程", "audit", "life-audit", "经历" -> Timeline
                 "moments", "朋友圈" -> Moments
                 else -> LifeRecords
