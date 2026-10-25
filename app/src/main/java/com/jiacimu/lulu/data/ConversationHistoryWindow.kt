@@ -23,6 +23,16 @@ internal object ConversationHistoryWindow {
         }
     }
 
+    fun turns(messages: List<LuluChatMessage>): List<List<LuluChatMessage>> {
+        val turns = mutableListOf<MutableList<LuluChatMessage>>()
+        messages.forEach { message ->
+            val last = turns.lastOrNull()
+            if (last != null && sameTurn(last.last(), message)) last.add(message)
+            else turns.add(mutableListOf(message))
+        }
+        return turns
+    }
+
     fun select(
         messages: List<LuluChatMessage>,
         maxMessages: Int,
@@ -30,12 +40,7 @@ internal object ConversationHistoryWindow {
         visibleLength: (LuluChatMessage) -> Int,
     ): List<LuluChatMessage> {
         if (maxMessages <= 0 || maxCharacters <= 0 || messages.isEmpty()) return emptyList()
-        val turns = mutableListOf<MutableList<LuluChatMessage>>()
-        messages.forEach { message ->
-            val last = turns.lastOrNull()
-            if (last != null && sameTurn(last.last(), message)) last.add(message)
-            else turns.add(mutableListOf(message))
-        }
+        val turns = turns(messages)
         val chosen = ArrayDeque<List<LuluChatMessage>>()
         var chars = 0
         var count = 0
