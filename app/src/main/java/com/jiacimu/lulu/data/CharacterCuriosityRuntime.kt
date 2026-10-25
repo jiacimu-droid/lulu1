@@ -342,6 +342,72 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
+    /** Owner-controlled removal of one pending curiosity. Verified past actions stay in the timeline. */
+    @Synchronized fun deleteInterest(characterId: String, threadId: String): Boolean {
+        if (prefs == null || threadId.isBlank()) return false
+        val root = snapshot(characterId)
+        val questions = entries(root.optJSONArray("questions"))
+        val threads = entries(root.optJSONArray("threads"))
+        val found = questions.any { identity(it) == threadId } ||
+            threads.any { identity(it) == threadId }
+        if (!found) return false
+        root.put("questions", JSONArray().apply {
+            questions.filterNot { identity(it) == threadId }.forEach(::put)
+        })
+        root.put("threads", JSONArray().apply {
+            threads.forEach { thread ->
+                if (identity(thread) == threadId)
+                    thread.put("status", "dropped").put("releaseReason", "主人已从心事删除")
+                        .put("releasedAt", Instant.now().toString())
+                put(thread)
+            }
+        })
+        root.put("failures", JSONArray().apply {
+            entries(root.optJSONArray("failures")).filterNot {
+                it.optString("threadId") == threadId
+            }.forEach(::put)
+        })
+        save(characterId, root)
+        return true
+    }
+
+    /** One local housekeeping pass per day; no model call and no invented completion.
+     * Old unacted-on curiosity leaves the active inbox, but remains recoverable history.
+     * Actual researched threads and deliberate learning goals are not timed out. */
+    @Synchronized fun maintainWhenDue(characterId: String, now: Instant = Instant.now()): Int {
+        if (prefs == null || characterId.isBlank()) return 0
+        val root = snapshot(characterId)
+        val today = now.atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
+        if (root.optString("lastMaintenanceDay") == today) return 0
+        val questions = entries(root.optJSONArray("questions"))
+        val threads = entries(root.optJSONArray("threads"))
+        val learningTopics = CharacterLearningAgenda.goals(characterId, now)
+            .filter { it.optString("status") !in setOf("dropped", "paused") }
+            .map { normalized(it.optString("topic")) }.toSet()
+        val archived = entries(root.optJSONArray("dormantQuestions")).toMutableList()
+        val retained = mutableListOf<JSONObject>()
+        questions.forEach { q ->
+            val last = runCatching { Instant.parse(q.optString("at")) }.getOrNull()
+            val old = last != null && last.isBefore(now.minus(Duration.ofDays(7)))
+            val redundant = normalized(q.optString("topic")) in learningTopics &&
+                threads.none { identity(it) == identity(q) &&
+                    it.optString("status") == "exploring" }
+            if (old || redundant) {
+                archived += JSONObject(q.toString()).put("retiredAt", now.toString())
+                    .put("retiredBecause", if (redundant) "同一主题已有持续研究目标" else "七天没有继续实践，暂时退出当前心事")
+            } else retained += q
+        }
+        root.put("lastMaintenanceDay", today)
+        if (retained.size != questions.size) {
+            root.put("questions", JSONArray().apply { retained.forEach(::put) })
+            root.put("dormantQuestions", JSONArray().apply {
+                archived.distinctBy(::identity).forEach(::put)
+            })
+        }
+        save(characterId, root)
+        return questions.size - retained.size
+    }
+
     /** Failure is useful feedback for action selection, never evidence of exploration. */
     @Synchronized fun recordFailure(
         characterId: String, proposal: JSONObject?, action: String,
