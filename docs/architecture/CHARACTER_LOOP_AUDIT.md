@@ -126,3 +126,14 @@ flowchart TD
 - 增加回归测试：较新的回执已处理而较早回执仍待处理、多个搜索连续分批、未确认状态不得触发结果回复或人物重感知。
 
 边界：仍采用近160条事件／24小时的候选工作集，旧原始事件长期保留但不保证多日历史自动逐条重新感知。WorkManager实际调度、联网读帖、持续独立研究与应用被系统杀死后的跨进程续步，仍需 CI APK 与真机实测；此次不承诺模型会在每次查完后一定再搜索或主动发消息，那仍是角色本人判断。
+
+
+## 九、2026-10-25：自动构建 Issue #493 / #492 回归修复
+
+核对正式 GitHub Actions [#40192035762](https://github.com/jiacimu-droid/lulu1/actions/runs/40192035762) 的真实构建日志：`1392 tests completed, 4 failed`；`testDebugUnitTest` 失败使 APK 构建终止，**不是 Android/Kotlin 主源码编译失败，也不是工具搜索联网失败**。
+
+- `ToolExecutionStatusTest` 两项失败：普通 Android 本地 JUnit 加载了 mockable `android.jar` 中的 `org.json.JSONObject.put`，抛出 `not mocked`。测试需要与同模块其他 JSON 测试一致，启用 `RobolectricTestRunner` 与 Android SDK 测试配置；不放松完成状态判定。
+- `CharacterExplorationContinuityTest:178`、`CharacterMotivationOwnershipTest:58`：均因 `CharacterDecisionProtocol.runtimePrinciples.length < 3000` 不满足。多阶段累计迭代的心理指导新增重复表达，使运行时小合同超预算。已精简重复的 `1a 主观理解连续性` 段落，保留误会/矛盾感受/有证据更正/只使用既有字段等语义；按静态 Kotlin 字符串组合计算，运行时合同约 2921 字符，**维持原 3000 字符断言而不简单提高限制**。
+- 保留两个测试类及所有逻辑断言，没有通过删除失败测试、禁用 CI 或伪造通过结果修复。
+
+此处是根据已获取 CI 日志和 GitHub 源码实施的修复提交；新的 `main` 运行是否真正通过 `testDebugUnitTest`、`assembleDebug` 及发布仍必须查看对应新运行结果，不能把静态复核冒充成功。
