@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T02:16:26.458066+00:00",
-  "commit": "96146c8ac3513ab717b81925bc93a8792281f327",
+  "generatedAt": "2026-10-25T02:19:38.433103+00:00",
+  "commit": "023f0cd1fed4d4cb36353704b736f16d00b91b8d",
   "branch": "main",
-  "sourceFingerprint": "22c79f23defd7eab04111ab996f48e5cbe18a4d45d38916273e0585b0bce60ba",
+  "sourceFingerprint": "5cc9de64d450cc8448d86d0c4fe7bda3599475e30bdd9b91903be6efcb194213",
   "summary": {
     "files": 887,
-    "lines": 172456,
+    "lines": 172463,
     "symbols": 2583
   },
   "symbolIndex": {
@@ -28950,7 +28950,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
       "lines": 400,
-      "sha256": "b68dfecb5e311635999c88e8cadf34539bfd79a5892230af86fbee454d06a2ed",
+      "sha256": "cff1610c4b4cbcfd201acd5a91b99d658bf96cb13ce2f61955dafb6fbcb1b724",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -29327,8 +29327,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 196,
-      "sha256": "2627211539ee52a8e5bc4f5c47b8fa59bea57810d2378369825271ab2055ebf3",
+      "lines": 203,
+      "sha256": "b2bfc7173df3857547fe5c40f580609826849577016dd8cde47c74c802b9f0c3",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",
