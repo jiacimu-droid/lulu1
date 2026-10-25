@@ -259,7 +259,8 @@ object LuluScreenAwareness {
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
-                val description = VisionModelService.describeScreenFrame(context, bitmap).getOrElse {
+                val description = VisionModelService.describeScreenFrame(
+                    context, bitmap, studyWatch = sessionId.isNotBlank()).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
                 if (!onDemandAllowed(context) || !studySessionValid())
@@ -270,6 +271,8 @@ object LuluScreenAwareness {
                     .put("capturedAt", Instant.now().toString())
                     .put("summary", "真实看到的屏幕内容：" + description.take(280))
                     .put("visibleDescription", description.take(1300))
+                    .put("studyFocus", if (sessionId.isNotBlank())
+                        LuluStudyWatch.classifyVision(description) else "unknown")
                     .put("verification", "真实截图＋视觉模型描述，不代表持续监看").toString()
             } finally { bitmap.recycle() }
         } finally {
