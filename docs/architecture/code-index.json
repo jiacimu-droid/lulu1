@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:00:58.429387+00:00",
-  "commit": "713b2140f958762ba5957efd6c70ca12a6070cf8",
+  "generatedAt": "2026-10-25T08:01:34.869027+00:00",
+  "commit": "63edc8a1c2e064a4ec376aee11de1a5a93122610",
   "branch": "main",
-  "sourceFingerprint": "12e3377b8b6936d1a3cebe41455b452bded216c94db498ae7b7217edf80c4f51",
+  "sourceFingerprint": "376e4c92ec9d52bd1437b3b80e42b8b756365ce9fd56623e5100aa8abab3843a",
   "summary": {
     "files": 897,
     "lines": 175952,
@@ -31188,7 +31188,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
       "lines": 45,
-      "sha256": "02982e4cd5bdde76d053d5186898d5e914f97817dca83f0a5ef569ace6c63aaf",
+      "sha256": "0f02658a6a6713e1d6e0e5f75cce7cc19263836f6adc5dd5e88613afefd7acc8",
       "symbols": [
         {
           "name": "MiniTheaterLibraryTest",
