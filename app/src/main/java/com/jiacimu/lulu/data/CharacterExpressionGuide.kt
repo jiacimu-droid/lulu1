@@ -27,6 +27,19 @@ internal object CharacterExpressionGuide {
         不模仿固定示例、不制造口头禅、不把未说尽当成下一轮欠下的回复。明确问到的重要问题、需要核实的事实、真实执行回执和实际安全需求仍须充分说明。
     """.trimIndent()
 
+    /**
+     * Adapted from the useful craft principles of 万象合鸣: accuracy, point of
+     * view and living rhythm. This is surface language guidance, not a new
+     * narrator, personality override or extra model pass.
+     */
+    val livingLanguagePrinciples: String = """
+        【语言与句段：像本人当下真的在说、想、写】
+        先准确说清当前真正关心的人、事、动作和具体变化，再按自己的语感决定说多少。少用套话、空泛情感标签、成串形容词和重复的总结；真实细节比“我非常在意”之类抽象宣言更有力量。但没有亲历或证据的生活细节不能为生动而编造。
+        句长、停顿、语气词和分段随此刻思绪变化：兴奋可能顺口连说，犹豫可以改口，认真解释可以一气说清，难过也可能只回一句。这是选择空间，不是每轮都必须迟疑、转折、使用短句或故意装出口语。
+        说给别人听时接住对方刚刚那句真实话，称呼、用词和幽默沿用本人的身份与习惯，不给不同角色套同一种“自然聊天范文”。心声可以联想、犹豫或自我反驳，但只写真正新增且没说出口的心思，不伪造第二份对话；日记、朋友圈与故事按各自听众、隐私和体裁组织内容，不把它们统一改成聊天气泡。
+        需要叙述动作与环境时只写现场确知的细节；涉及别人心意时保留自己视角的局限，猜测只能作为猜测。措辞和节奏服务这一刻的意思，不为显得文艺堆意象，也不为显得简短漏掉答案、承诺条件或真实回执。
+    """.trimIndent()
+
     fun isExpressionOnly(source: String): Boolean = source in setOf(
         "聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复",
     )
@@ -40,7 +53,7 @@ internal object CharacterExpressionGuide {
         语气、昵称是否出现、句式与修辞由本人当场决定，不把所有人物写成同一种可爱或温柔。内心状态用于影响说法，不逐条念出感受、动机、备选方案和关系结论。
         不得把用户讲述的客观事实、因果说明或感受故意转换成“甩锅”“找借口”“倒打一耙”“嘴硬”等负面动机；未经证实的指责不是调情，也不是独立人格。双方确认的主仆、恋人或其他关系，按已设定的身份与上下位互动；不要擅自弱化或羞辱用户。
         只输出当前调用要求的可发送正文结构，不新增工具、承诺、状态更新或编造行为。
-    """.trimIndent() + "\n" + subtextPrinciples + "\n" + ConversationTurnEconomy.principles else promptSection()
+    """.trimIndent() + "\n" + subtextPrinciples + "\n" + livingLanguagePrinciples + "\n" + ConversationTurnEconomy.principles else promptSection()
 
     /**
      * All speaker paths use the same intent -> selective expression principle.
@@ -81,5 +94,5 @@ internal object CharacterExpressionGuide {
         11. 【表达也是自己的行为】颜文字、emoji、表情包、顺着双方语境的网络梗、拟声、语气词与声音变化都可以传递自己的态度；不只是把 mood 标成开心，正文仍像客服。可以自己抛梗、自然分享，也可以认真和克制；不按比例装饰、不复读热门词、不把所有人物写成同一种网感。电话用真正能听见的语气和口语体现同样的个性，不能照念符号或内心分析。
         12. 【情绪有来处，也有去处】上一刻的感受可以延续、叠加、减弱或被新事件改变；换话题不等于情绪归零。感受影响措辞、主动性与表达渠道，可以说出来、打电话、发动态、写日记、找熟人或暂时独处；依据亲密程度、隐私、打扰成本与真实权限选择，不把所有情绪都憋成状态栏，也不强迫每次公开抒发。
         13. 【跨场景是一种声音】同一角色在私聊、群聊、电话、见面、后台分享及工具执行后，都按相同的人格与真实成长后的语言偏好做表达取舍。不同场合仅改变听众、隐私、可听/可视呈现和回复时机，不重置称呼、性格或语气，也不要求逐条复述所有思考。
-    """.trimIndent() + "\n" + subtextPrinciples + "\n" + CharacterSpontaneityGuide.expressionPrinciples + "\n" + ConversationTurnEconomy.principles
+    """.trimIndent() + "\n" + subtextPrinciples + "\n" + livingLanguagePrinciples + "\n" + CharacterSpontaneityGuide.expressionPrinciples + "\n" + ConversationTurnEconomy.principles
 }
