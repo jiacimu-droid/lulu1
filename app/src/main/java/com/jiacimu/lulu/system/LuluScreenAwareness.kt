@@ -220,7 +220,7 @@ object LuluScreenAwareness {
         sessionId: String = ""): String {
         if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
         fun studySessionValid(): Boolean = sessionId.isBlank() ||
-            LuluStudyWatch.active(context, characterId)?.optString("id") == sessionId
+            LuluStudyWatch.canObserve(context, characterId, sessionId)
         if (!studySessionValid()) return rejected(context, "学习监督已停止或到期，禁止继续截图")
         if (!userRequested && !autonomousAllowed(context))
             return rejected(context, "角色自主屏幕观察尚未获授权")
