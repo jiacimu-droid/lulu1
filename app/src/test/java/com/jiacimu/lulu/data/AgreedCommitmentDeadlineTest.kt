@@ -46,6 +46,12 @@ class AgreedCommitmentDeadlineTest {
         assertEquals(Instant.parse("2026-10-26T00:00:00Z"), agreed)
     }
 
+    @Test fun agreedEveningClockUsesTwentyFourHourTime() {
+        assertEquals(Instant.parse("2026-10-26T12:00:00Z"),
+            resolve("不对，是今天晚上8点",
+                "明白了，是今天晚上8点，十九个小时之后"))
+    }
+
     @Test fun fixedClockWinsOverRoundedRelativeHours() {
         assertEquals(Instant.parse("2026-10-26T00:00:00Z"),
             resolve("哦不对是8点", "还有7个小时之后，今天8点",

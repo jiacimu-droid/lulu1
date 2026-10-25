@@ -46,7 +46,14 @@ internal object AgreedCommitmentDeadline {
         var clock: LocalTime? = null
         while (offset < source.length) {
             val found = AppointmentClock.read(source.substring(offset)) ?: break
-            clock = LocalTime.of(found.hour, found.minute)
+            val absoluteStart = offset + found.range.first
+            val vicinity = source.substring((absoluteStart - 9).coerceAtLeast(0), absoluteStart)
+            var hour = found.hour
+            if (listOf("下午", "晚上", "傍晚").any(vicinity::contains) && hour in 1..11)
+                hour += 12
+            if (vicinity.contains("中午") && hour in 1..5) hour += 12
+            if (vicinity.contains("凌晨") && hour == 12) hour = 0
+            clock = LocalTime.of(hour, found.minute)
             offset += found.range.last + 1
         }
         return clock
