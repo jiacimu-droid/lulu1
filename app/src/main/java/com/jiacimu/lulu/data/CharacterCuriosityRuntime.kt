@@ -157,6 +157,8 @@ internal object CharacterCuriosityRuntime {
         val root = snapshot(characterId)
         val old = entries(root.optJSONArray("questions"))
         val existingThreads = entries(root.optJSONArray("threads"))
+        val past = entries(root.optJSONArray("dormantQuestions"))
+        val resumed = matching(past, proposal)
         val all = old + existingThreads
         val parentId = proposal?.optString("parentThreadId").orEmpty().trim()
         val parentTopic = proposal?.optString("parentTopic").orEmpty().trim()
@@ -180,7 +182,8 @@ internal object CharacterCuriosityRuntime {
             }.singleOrNull()
         } else null
         val assignedId = existing?.let(::identity) ?: continuingThread?.let(::identity)
-            ?: continuedFromResult?.let(::identity) ?: UUID.randomUUID().toString()
+            ?: continuedFromResult?.let(::identity) ?: resumed?.let(::identity)
+            ?: UUID.randomUUID().toString()
         if (parent != null) {
             var ancestor: JSONObject? = parent
             val visited = mutableSetOf(assignedId)
@@ -219,6 +222,9 @@ internal object CharacterCuriosityRuntime {
         root.put("questions", JSONArray().apply {
             old.filterNot { existing != null && identity(it) == identity(existing) }.forEach(::put)
             put(item)
+        })
+        if (resumed != null) root.put("dormantQuestions", JSONArray().apply {
+            past.filterNot { identity(it) == identity(resumed) }.forEach(::put)
         })
         save(characterId, root)
         return true
@@ -458,6 +464,15 @@ internal object CharacterCuriosityRuntime {
             for (i in 0 until questions.length()) {
                 val q = questions.optJSONObject(i) ?: continue
                 if (q.optString("observedId") == eventId || q.optString("parentEvidenceId") == eventId) changed = true else keptQuestions.put(q)
+            }
+            val dormant = entries(root.optJSONArray("dormantQuestions"))
+            val keptDormant = dormant.filterNot {
+                it.optString("observedId") == eventId ||
+                    it.optString("parentEvidenceId") == eventId
+            }
+            if (keptDormant.size != dormant.size) {
+                root.put("dormantQuestions", JSONArray().apply { keptDormant.forEach(::put) })
+                changed = true
             }
             if (changed) {
                 root.put("threads", keptThreads).put("questions", keptQuestions)
