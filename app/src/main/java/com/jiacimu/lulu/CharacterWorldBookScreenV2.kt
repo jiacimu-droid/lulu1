@@ -114,7 +114,7 @@ fun CharacterWorldBookScreenV2(
                 book.title.contains(normalizedQuery, ignoreCase = true) ||
                 book.content.contains(normalizedQuery, ignoreCase = true))
         }
-        if (matching.isEmpty() && (normalizedQuery.isBlank() || !title.contains(normalizedQuery, ignoreCase = true))) null
+        if (matching.isEmpty() && (folderId == null && normalizedQuery.isBlank() || normalizedQuery.isNotBlank() && !title.contains(normalizedQuery, ignoreCase = true))) null
         else Triple(folderId, title, matching)
     }
     val enabledCount = books.count { it.characterOverrides[selectedCharacterId] ?: it.globalEnabled }
@@ -157,7 +157,7 @@ fun CharacterWorldBookScreenV2(
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("全部设定", fontWeight = FontWeight.Bold, fontSize = 23.sp)
-                        Text("\${books.size} 条 · \${folders.size} 个分类 · \${selectedCharacter.displayName}启用 \${enabledCount} 条",
+                        Text("${books.size} 条 · ${folders.size} 个分类 · ${selectedCharacter.displayName}启用 ${enabledCount} 条",
                             color = LuluColors.Muted, fontSize = 12.sp)
                     }
                     TextButton(onClick = {
@@ -207,7 +207,7 @@ fun CharacterWorldBookScreenV2(
                             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("已选 \${selectedIds.size} 条", modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                            Text("已选 ${selectedIds.size} 条", modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
                             TextButton(
                                 onClick = {
                                     val visibleIds = groups.flatMap { it.third }.map { it.id }.toSet()
@@ -240,7 +240,7 @@ fun CharacterWorldBookScreenV2(
             groups.forEach { (folderId, folderName, matchedBooks) ->
                 val groupKey = folderId ?: "__uncategorized__"
                 val expanded = normalizedQuery.isNotBlank() || groupKey in expandedFolders
-                item(key = "folder_\$groupKey") {
+                item(key = "folder_$groupKey") {
                     Surface(
                         shape = RoundedCornerShape(18.dp),
                         color = LuluColors.Card,
@@ -257,7 +257,7 @@ fun CharacterWorldBookScreenV2(
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(folderName, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                                Text("\${matchedBooks.size} 条", fontSize = 12.sp, color = LuluColors.Muted)
+                                Text("${matchedBooks.size} 条", fontSize = 12.sp, color = LuluColors.Muted)
                             }
                             if (folderId != null) {
                                 IconButton(onClick = {
@@ -271,7 +271,7 @@ fun CharacterWorldBookScreenV2(
                     }
                 }
                 if (expanded) {
-                    items(matchedBooks, key = { "book_\${it.id}" }) { book ->
+                    items(matchedBooks, key = { "book_${it.id}" }) { book ->
                         val actual = book.characterOverrides[selectedCharacterId] ?: book.globalEnabled
                         val explicit = book.characterOverrides[selectedCharacterId]
                         val originalIndex = books.indexOfFirst { it.id == book.id }
@@ -320,7 +320,7 @@ fun CharacterWorldBookScreenV2(
                                         onCheckedChange = { scope.launch { repository.setGlobalEnabled(book.id, it) } },
                                     )
                                 }
-                                Text("\${selectedCharacter.displayName}的设置", fontSize = 12.sp, color = LuluColors.Muted)
+                                Text("${selectedCharacter.displayName}的设置", fontSize = 12.sp, color = LuluColors.Muted)
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     WorldV2Choice("跟随全局", explicit == null, Modifier.weight(1f)) {
                                         scope.launch { repository.setCharacterOverride(book.id, selectedCharacterId, null) }
@@ -333,7 +333,7 @@ fun CharacterWorldBookScreenV2(
                                     }
                                 }
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text("原始顺序 \${originalIndex + 1}", fontSize = 12.sp, color = LuluColors.Muted,
+                                    Text("原始顺序 ${originalIndex + 1}", fontSize = 12.sp, color = LuluColors.Muted,
                                         modifier = Modifier.weight(1f))
                                     IconButton(enabled = originalIndex > 0, onClick = {
                                         scope.launch { repository.move(book.id, -1) }
@@ -407,7 +407,7 @@ fun CharacterWorldBookScreenV2(
     deleteFolderConfirm?.let { folder ->
         AlertDialog(
             onDismissRequest = { deleteFolderConfirm = null },
-            title = { Text("删除“\${folder.name}”？") },
+            title = { Text("删除“${folder.name}”？") },
             text = { Text("世界书会移到未分类，不会删除内容或改变开关。") },
             confirmButton = {
                 TextButton(onClick = {
@@ -428,7 +428,7 @@ fun CharacterWorldBookScreenV2(
     if (showMoveDialog) {
         AlertDialog(
             onDismissRequest = { showMoveDialog = false },
-            title = { Text("移动 \${selectedIds.size} 条世界书") },
+            title = { Text("移动 ${selectedIds.size} 条世界书") },
             text = {
                 Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
                     (listOf<WorldBookFolder?>(null) + folders).forEach { folder ->
