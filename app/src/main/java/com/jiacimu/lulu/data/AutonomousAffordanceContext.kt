@@ -40,8 +40,14 @@ internal object AutonomousAffordanceContext {
             appendLine("- 当前已经位于：" + location + "。数字世界行动必须使用真实地点/活动 ID。")
             appendLine("- 选择 reading + 有效 readingBookId 后，执行器会沿真实世界状态进入家中阅读角书架，无需先拆成几次模型调用；只有读完提交后才出阅读回执。")
             if (locationActivities.isNotEmpty()) {
+                // This is the authoritative per-location list, not a sample.
+                // Previously take(5) hid order_drink at cafés when the barista
+                // menu occupied those slots, encouraging invented activityIds.
+                // Keep every id and its meaning together, without duplicating
+                // the much larger full world-state prose.
                 appendLine("- 此地确实可执行（action=digital_world；worldAction=use_location）：")
-                locationActivities.take(5).forEach { (id, label) ->
+                appendLine("  只能从下列 activityId 原样选择，不能按动作描述拼出新 ID：")
+                locationActivities.distinctBy { it.first }.forEach { (id, label) ->
                     appendLine("  · activityId=" + id + "；" + label)
                 }
             }
