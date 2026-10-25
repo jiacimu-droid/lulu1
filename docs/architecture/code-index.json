@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:59:21.888042+00:00",
-  "commit": "5d7d99401ef07edcf8c5f8137c401d6fc9875eec",
+  "generatedAt": "2026-10-25T13:59:48.717922+00:00",
+  "commit": "ff7a23f303b2e4ecf7c29ca91d5d4a3227703761",
   "branch": "main",
-  "sourceFingerprint": "cc7f4fc954e05e953c2559ef0611cb4a02c34474ab78cec0626b58501a20d123",
+  "sourceFingerprint": "dbbbfb9c89a3b79022a6f7e98a4b7825e89690c5b4c4e759b65380fe61c5c8bd",
   "summary": {
     "files": 905,
-    "lines": 178168,
-    "symbols": 2671
+    "lines": 178170,
+    "symbols": 2672
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3076,6 +3076,60 @@
         "line": 52
       }
     ],
+    "render": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
+        "line": 417
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
+        "line": 141
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
+        "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 185
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
+        "line": 85
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
+        "line": 9
+      }
+    ],
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
@@ -4436,56 +4490,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 11
-      }
-    ],
-    "render": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 58
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-        "line": 141
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 8
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 185
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 85
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-        "line": 30
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
-        "line": 82
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
-        "line": 9
       }
     ],
     "normalizeStep": [
@@ -17611,9 +17615,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 434,
-      "sha256": "02f1ab1abbf500deb1a7721fb08c4c9de190b47a5bee02995b93c9c33ec6240e",
-      "symbols": []
+      "lines": 436,
+      "sha256": "773408c91b0689728cccecf6ea168a7f6e9b4937894405e992418b02985ec5ef",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 417
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt",
