@@ -15,6 +15,24 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [31])
 class ReadingGrowthTheaterTest {
+    @Test fun coldReadingLibraryEntryInitializesTheaterWithoutAnActivity() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        // The OS may start the reading or world-action worker before any
+        // MigrationActivity initialization. Model it explicitly, preserving
+        // existing JVM-wide test state for unrelated tests.
+        val field = StarWishStores::class.java.getDeclaredField("storeInternal")
+            .apply { isAccessible = true }
+        val previous = field.get(StarWishStores)
+        try {
+            field.set(StarWishStores, null)
+            assertTrue(ReadingBackgroundBridge.books(context).isNotEmpty())
+            assertNotNull(StarWishStores.main.state.value)
+            assertTrue(ReadingBackgroundBridge.books(context).isNotEmpty())
+        } finally {
+            field.set(StarWishStores, previous)
+        }
+    }
+
     @Test fun languageHabitsRequireTwoSelfExpressionsAndIndependentLifeSources() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.characters.initialize(context)
