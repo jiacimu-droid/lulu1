@@ -117,7 +117,7 @@ class CharacterLifeFollowThroughStoreTest {
             .put("why", "这件事很想讲给别人听").put("intensity", 90))
         val wished = CharacterLifeFollowThroughStore.sharingUrge(role, now)
         assertTrue(wished > accumulated)
-        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("当前累计的分享冲动"))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("当前累计分享冲动≈"))
         CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
             .put("experienceId", ids[1]).put("status", "released")
             .put("why", "决定保留给自己"))
