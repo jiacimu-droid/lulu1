@@ -19,6 +19,23 @@ class RoleDayScheduleStoreTest {
         activityAction = "read_book",
     )
 
+    @Test fun oneAutonomousDecisionCanKeepSeveralDifferentPlansWithoutDuplicates() {
+        val a = plan.copy(status = "planned", id = "first",
+            activityAction = "learn_topic",
+            activityArgs = """{"goalId":"study-one","op":"study"}""",
+            dueAt = due.plusSeconds(7200))
+        val repeated = a.copy(id = "another-attempt", title = "改了写法但仍同一项目")
+        val differentGoal = a.copy(id = "second",
+            activityArgs = """{"goalId":"study-two","op":"study"}""")
+        val tomorrow = a.copy(id = "tomorrow", dueAt = a.dueAt.plusSeconds(86400))
+        val otherOwner = a.copy(id = "someone-else", characterId = "role-b")
+        assertTrue(RoleDayScheduleStore.duplicateOwnPlan(a, repeated))
+        assertFalse(RoleDayScheduleStore.duplicateOwnPlan(a, differentGoal))
+        assertFalse(RoleDayScheduleStore.duplicateOwnPlan(a, tomorrow))
+        assertFalse(RoleDayScheduleStore.duplicateOwnPlan(a, otherOwner))
+        assertFalse(RoleDayScheduleStore.duplicateOwnPlan(a.copy(status = "completed"), a))
+    }
+
     @Test fun oneOffStudyReminderIsOwnedByExactlyOnePromiseAlarm() {
         val time = Instant.parse("2026-10-24T02:30:00Z")
         val study = plan.copy(id = "user-study-plan", dueAt = time,
