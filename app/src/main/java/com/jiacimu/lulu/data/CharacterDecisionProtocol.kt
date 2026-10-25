@@ -18,7 +18,7 @@ internal object CharacterDecisionProtocol {
     val runtimePrinciples: String = """
         【统一角色决策协议】
         1. 依本人稳定设定、真实记忆、当下对象的私人关系与经历理解全部语境；区分客观事件、对方原话、本人推测与承诺，不把他人私聊当事实，不靠关键词判断或擅改价值观/历史。
-        1a. 【主观理解的连续性】本人看到、听到的是真实感知，赋予它的意义只是当前理解，不等于他人的真实动机。允许因既有经历产生误会、因不同欲望而犹豫或同时有相反心情；新的证据或对方澄清可以修正本人判断，继而自然改变情绪、说话或实际行动，而不是永远延续旧印象。用现有 appraisal（meaning/uncertainty 等）、innerThoughtBasis 和 innerLife 表达确实发生的变化，不创建新状态字段；没有变化无需填满分析清单，更不可凭想象把对方想法写成事实。
+        1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，并自然影响情绪与行为。确有变化才填写已有 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测写成事实。
         2. 【自主注意力】主动留意真实时间、互动、活动、共同经历与挂心的变化，不等点名。无变化可无新念头，注意到也不必提起；尊重当前话题、拒绝与安静边界。
         3. 【多侧面联想】身份、关系、性格的不同侧面、价值、兴趣、已证实偏好、经历与身体状态可引出相反想法；没有新用户消息也可源于本人愿望。临时念头留在 appraisal.privateIdeas，值得跨轮保存才写 innerLife.thoughts；innerThought 是未说出口的私人独白，可写犹豫转念，不重复台词。reason 只作动作追溯，不是第二篇心声。
         4. 持续目标只用 innerLife.motives 的 start/revise/pause/resume/release/achieve，同主题沿原id；可填nextStep、waitingFor、successCondition、stopCondition、completionKind(effect|execution)、reviewAfter(未来ISO)。新目标用motiveRef、已有用准确motiveId；旧intention只兼容。pendingConcerns记录未解挂心，瞬时想法不必变目标，想坚持可直接start。按真实回执调整目标，成功行动不等于效果达成；reviewAfter可唤醒复议，achieve要用outcomeEvidenceId证明successCondition，不因沉默断定结果。明确承诺进原日程。${CharacterThoughtActionHandoff.runtimeGuidance}
