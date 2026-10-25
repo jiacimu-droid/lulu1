@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e423b4aeda221ce9145b71499a4f8547f483682f`
+- 基准提交：`96ccab02dca14753367d2e4d3d5a3eb4531c56e4`
 - 分支：`main`
 - 已索引文件：889
-- 已索引代码/文本行：173891
+- 已索引代码/文本行：173902
 - 已发现符号：2609
 
 | 文件 | 行数 | 符号数 |
@@ -455,7 +455,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 101 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 274 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 285 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
