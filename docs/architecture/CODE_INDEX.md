@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cfad06bdad396a91cdc74526e01c2e7f96c06f6c`
+- 基准提交：`7dc2258233b8bd3967d5a50448828c261fb6b3cc`
 - 分支：`main`
 - 已索引文件：901
 - 已索引代码/文本行：177390
-- 已发现符号：2658
+- 已发现符号：2657
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -572,7 +572,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 249 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 72 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 352 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 575 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 575 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 71 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 185 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:10:50.613598+00:00",
-  "commit": "cfad06bdad396a91cdc74526e01c2e7f96c06f6c",
+  "generatedAt": "2026-10-25T13:11:04.660229+00:00",
+  "commit": "7dc2258233b8bd3967d5a50448828c261fb6b3cc",
   "branch": "main",
-  "sourceFingerprint": "a5bb1ec8fb311de5e54c312010214af18f0c8c7bbe7d3dca04c533ca8e703ed1",
+  "sourceFingerprint": "ab0cddfe4ec0cf8ba95767d1884460eb50c17ab0ebf7237dfedbef4f75a4d6a2",
   "summary": {
     "files": 901,
     "lines": 177390,
-    "symbols": 2658
+    "symbols": 2657
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -918,10 +918,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 1163
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 466
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -27322,7 +27318,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
       "lines": 575,
-      "sha256": "e13e208d7157c715efe0f66de7e938b0cdec230cb84692bbcbb6c3acbb97549f",
+      "sha256": "c17d0ea042704c1d62c9fdb5dd17e5ba34c8c84a0af39df32b2398d72fd139a8",
       "symbols": [
         {
           "name": "promptText",
@@ -27383,10 +27379,6 @@
         {
           "name": "create",
           "line": 459
-        },
-        {
-          "name": "initialize",
-          "line": 466
         }
       ]
     },
