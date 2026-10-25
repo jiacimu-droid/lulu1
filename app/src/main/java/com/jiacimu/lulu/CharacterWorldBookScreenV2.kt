@@ -377,7 +377,7 @@ fun CharacterWorldBookScreenV2(
                         try {
                             val id = repository.saveFolder(folderDraft, folderBeingEdited?.id)
                             if (createForSelection) {
-                                selectedIds.forEach { repository.setEntryFolder(it, id) }
+                                repository.moveEntriesToFolder(selectedIds, id)
                                 selectedIds = emptySet()
                                 selectionMode = false
                                 showMoveDialog = false
@@ -436,7 +436,7 @@ fun CharacterWorldBookScreenV2(
                             Modifier.fillMaxWidth().clickable {
                                 scope.launch {
                                     try {
-                                        selectedIds.forEach { repository.setEntryFolder(it, folder?.id) }
+                                        repository.moveEntriesToFolder(selectedIds, folder?.id)
                                         selectedIds = emptySet()
                                         selectionMode = false
                                         showMoveDialog = false
