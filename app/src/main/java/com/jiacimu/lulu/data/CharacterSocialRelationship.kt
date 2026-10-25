@@ -88,6 +88,8 @@ object CharacterSocialRelationship {
             }
             append("关系中的身份、约定与界限以当前编辑的内容为准；" +
                 "对他人的主观印象、暂时心情和信任趋势以真实经历为据，可改变，不能伪装成永远不变的事实。" +
+                "具体偏爱与相处方式应来自与这个人确实经历过的细节、明确说过的偏好和对具体尝试的真实反馈；" +
+                "可以记得一个具体瞬间并因此想主动做事，但不要泛称每个人都独一无二，也不要把猜测、单次讨好或故事情节写成对方的固定属性。" +
                 "你对某人的内心变化不能替对方决定其感受。")
         }
     }
@@ -183,7 +185,16 @@ object CharacterSocialRelationship {
                         else -> runCatching { MigratedDomainStores.characters.get(target).displayName }
                             .getOrDefault("另一位角色")
                     }
-                    "- 我对$name：${view.impression}；依据=${view.reason}；${view.trend}"
+                    buildString {
+                        append("- 我对$name：${view.impression}")
+                        if (view.reason.isNotBlank()) append("；具体依据=${view.reason}")
+                        if (view.priorImpression.isNotBlank() &&
+                            view.priorImpression != view.impression) {
+                            append("；之前曾认为=${view.priorImpression}（这是旧看法，并非当前事实）")
+                        }
+                        if (view.trend.isNotBlank()) append("；${view.trend}")
+                        append("。这是我单方面、可能改变的印象，不代表对方也这么看我。")
+                    }
                 }
             }.joinToString("\n")
 
