@@ -11,7 +11,7 @@ internal object AutonomousDecisionRecovery {
     private val noIncomingMessage = Regex(
         "没有(新消息|用户新消息|人找|人来找|用户消息|人说话|人联系)|没人(找|说话|联系)|等(她|他|用户|消息)|没(有)?事(情)?(可|要|能)做"
     )
-    private val ownLifeActions = setOf("solo_game", "reading", "digital_world", "journal")
+    private val ownLifeActions = setOf("solo_game", "reading", "digital_world")
     /** A second *choice*, never a forced action: only recover when silence is
      * repeatedly justified by the absence of other people, not personal solitude. */
     fun needsIndependentLifeReview(
