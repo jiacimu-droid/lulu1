@@ -9,8 +9,26 @@ internal object CharacterThoughtActionHandoff {
     const val guidance = "possibleNextStep/nextStep只是候选文字，不会执行。重新考虑旧下一步时，区分尚在考虑、等待具体条件、现在落实或未来排期；已决定的下一步不能又只写成候选文字。若已决定落实，在同轮nextAction填写{tool:真实工具,args:{}}（也可写在挂心、thoughts、motives或curiosity项内）；现在做选实际工具，稍后做选plan_personal_activity并填title、intent、dueAt、activityAction、activityArgs。程序将其交给原steps执行器，不能只写下一步便当作已安排；尚在考虑或等待则不填，不自动把所有念头变待办。"
 
     fun actions(decision: JSONObject): JSONArray? {
-        val result = JSONArray((decision.optJSONArray("steps")
-            ?: decision.optJSONArray("sideActions") ?: JSONArray()).toString())
+        // Both names are accepted by the decision schema. When the model emits
+        // both, neither is an alternative to the other: dropping sideActions
+        // silently loses genuinely selected actions and their future schedules.
+        val result = JSONArray((decision.optJSONArray("steps") ?: JSONArray()).toString())
+        val secondary = decision.optJSONArray("sideActions")
+        for (index in 0 until (secondary?.length() ?: 0)) {
+            val step = secondary?.optJSONObject(index) ?: continue
+            val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
+                .firstOrNull { existing ->
+                    existing.optString("tool") == step.optString("tool") &&
+                        canonical(existing.optJSONObject("args") ?: JSONObject()) ==
+                            canonical(step.optJSONObject("args") ?: JSONObject()) &&
+                        existing.optBoolean("requiresPreviousSuccess") ==
+                            step.optBoolean("requiresPreviousSuccess")
+                }
+            if (duplicate == null) result.put(JSONObject(step.toString()))
+            else listOf("motiveId", "concernId", "experienceId", "reason", "curiosity").forEach { key ->
+                if (!duplicate.has(key) && step.has(key)) duplicate.put(key, step.get(key))
+            }
+        }
         fun add(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false) {
             val chosen = owner?.optJSONObject("nextAction") ?: return
             val step = JSONObject(chosen.toString())
