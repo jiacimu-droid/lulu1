@@ -40,6 +40,8 @@ data class RoleDayPlan(
     val commitmentTaskId: String = "",
     /** Assigned by the real autonomous entry point, never by model-authored args. */
     val selfInitiated: Boolean = false,
+    /** Original unresolved concern; this is not another goal ledger. */
+    val concernId: String = "",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -71,7 +73,8 @@ object RoleDayScheduleStore {
                     o.optString("repeat", "once"), o.optString("motiveId"),
                     o.optString("targetCharacterId"), o.optString("targetResidentId"),
                     o.optString("locationCode"), o.optString("activityArgs"),
-                    o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false))
+                    o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false),
+                    o.optString("concernId"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -95,7 +98,7 @@ object RoleDayScheduleStore {
                 .put("locationCode", p.locationCode)
                 .put("activityArgs", p.activityArgs)
                 .put("commitmentTaskId", p.commitmentTaskId)
-                .put("selfInitiated", p.selfInitiated))
+                .put("selfInitiated", p.selfInitiated).put("concernId", p.concernId))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -131,13 +134,14 @@ object RoleDayScheduleStore {
             existing.repeat != proposed.repeat ||
             existing.activityArgs != proposed.activityArgs ||
             existing.motiveId != proposed.motiveId ||
+            existing.concernId != proposed.concernId ||
             existing.commitmentTaskId != proposed.commitmentTaskId ||
             existing.targetCharacterId != proposed.targetCharacterId ||
             existing.targetResidentId != proposed.targetResidentId ||
             existing.locationCode != proposed.locationCode ||
             kotlin.math.abs(java.time.Duration.between(existing.dueAt, proposed.dueAt).seconds) > 60L
         ) return false
-        val sameGoal = proposed.motiveId.isNotBlank() ||
+        val sameGoal = proposed.motiveId.isNotBlank() || proposed.concernId.isNotBlank() ||
             runCatching { JSONObject(proposed.activityArgs).optString("goalId") }.getOrDefault("").isNotBlank()
         return sameGoal || (existing.title.trim() == proposed.title.trim() &&
             existing.intent.trim() == proposed.intent.trim())
@@ -216,7 +220,7 @@ object RoleDayScheduleStore {
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
                 "状态=${plan.status}，动作=${plan.activityAction}，" +
                 "对象=${plan.targetCharacterId.ifBlank { plan.targetResidentId }}，地点=${plan.locationCode}，" +
-                "关联意愿=${plan.motiveId.ifBlank { "无" }}，" +
+                "关联意愿=${plan.motiveId.ifBlank { "无" }}，关联挂心=${plan.concernId.ifBlank { "无" }}，" +
                 "关联约定=${plan.commitmentTaskId.ifBlank { "无" }}，" +
                 "预选参数=${plan.activityArgs.take(360)}。"
         }
@@ -273,7 +277,8 @@ object RoleDayScheduleStore {
         repeat: String = "once", motiveId: String = "",
         targetCharacterId: String = "", targetResidentId: String = "",
         locationCode: String = "", activityArgs: JSONObject = JSONObject(),
-        commitmentTaskId: String = "", selfInitiated: Boolean = false): RoleDayPlan {
+        commitmentTaskId: String = "", selfInitiated: Boolean = false,
+        concernId: String = ""): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
@@ -295,6 +300,14 @@ object RoleDayScheduleStore {
             }) { "只能关联本人已接受、没有定时器的持续约定" }
         }
         val linkedId = motiveId.trim()
+        val linkedConcern = concernId.trim()
+        if (linkedConcern.isNotBlank()) {
+            require(CharacterOpenConcernRuntime.active(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+            ).any { it.optString("id") == linkedConcern }) {
+                "关联心事必须是本人真实仍在关注的原挂心ID"
+            }
+        }
         val targetRole = targetCharacterId.trim()
         val targetNative = targetResidentId.trim()
         val place = locationCode.trim()
@@ -337,6 +350,7 @@ object RoleDayScheduleStore {
             motiveId = linkedId, activityArgs = activityArgs.toString(),
             targetCharacterId = targetRole, targetResidentId = targetNative,
             locationCode = place, commitmentTaskId = linkedCommitment,
+            concernId = linkedConcern,
         )
         require(CommitmentTaskStore.snapshot(characterId).none { task ->
             task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running,
@@ -355,7 +369,7 @@ object RoleDayScheduleStore {
             repeat = repeat, motiveId = linkedId, targetCharacterId = targetRole,
             targetResidentId = targetNative, locationCode = place,
             activityArgs = activityArgs.toString(),
-            commitmentTaskId = linkedCommitment,
+            commitmentTaskId = linkedCommitment, concernId = linkedConcern,
             selfInitiated = selfInitiated && linkedCommitment.isBlank())
         persist(context, existing + plan)
         try {
@@ -552,7 +566,7 @@ object RoleDayScheduleStore {
             (it.status == "planned" && !it.dueAt.isAfter(now)) }
             .take(3).joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
-                    "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；" +
+                    "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；关联挂心：${it.concernId.ifBlank { "无" }}；" +
                     "关联约定：${it.commitmentTaskId.ifBlank { "无" }}；" +
                     "相关人物：${it.targetCharacterId.ifBlank { it.targetResidentId.ifBlank { "无" } }}；" +
                     "相关地点：${it.locationCode.ifBlank { "未指定" }}；" +
