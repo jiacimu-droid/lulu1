@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T02:19:51.424734+00:00",
-  "commit": "6a21f3f4d9db38df695805f494aba1ccc5f2464b",
-  "branch": "main",
-  "sourceFingerprint": "5cc9de64d450cc8448d86d0c4fe7bda3599475e30bdd9b91903be6efcb194213",
+  "generatedAt": "2026-10-25T02:20:53.300464+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "bc2e69a1842b1d0be99eaebd54a9cd2620591ade9fbcd04d3f95cd7fbc76a7c7",
   "summary": {
     "files": 887,
-    "lines": 172463,
-    "symbols": 2583
+    "lines": 172550,
+    "symbols": 2584
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5059,19 +5059,19 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 214
+        "line": 218
       }
     ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 223
+        "line": 227
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 253
+        "line": 259
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -5085,13 +5085,13 @@
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 258
+        "line": 264
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 263
+        "line": 269
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -9994,6 +9994,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
         "line": 34
+      }
+    ],
+    "project": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 174
       }
     ],
     "allowsExpansion": [
@@ -18894,7 +18900,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
       "lines": 222,
-      "sha256": "b9957ad3eed7e0bd43ab2e62ee7234cd4a0e83b54c3ed3cc178eaa7ff8c964b5",
+      "sha256": "377f0feb0ba30e925c2733bec095ada6806e43138cd39737ca970f780af422f3",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
@@ -18924,8 +18930,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 281,
-      "sha256": "7828eca48cd590d3b786394a293f9e6b96588694efd3ec4c5b0c8768274dc58b",
+      "lines": 287,
+      "sha256": "53ac1d5c5f3777e110ccf05d4758dbdec7e8f8e676ee8888e99be617ac0b5f7a",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -18957,23 +18963,23 @@
         },
         {
           "name": "retire",
-          "line": 214
+          "line": 218
         },
         {
           "name": "retireSlotWithCounterEvidence",
-          "line": 223
+          "line": 227
         },
         {
           "name": "invalidateEvidence",
-          "line": 253
+          "line": 259
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 258
+          "line": 264
         },
         {
           "name": "clearCharacter",
-          "line": 263
+          "line": 269
         }
       ]
     },
@@ -24285,8 +24291,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 273,
-      "sha256": "d4e207e1fc87f0cf83e58ab89fee6418d9ca6a6ac5e1d20e2e1ada0d8ba7551d",
+      "lines": 274,
+      "sha256": "3284f97afb1ede255dffa25355a975412d848df8d0599d7a42e28e98e3fa29d1",
       "symbols": [
         {
           "name": "ToolRouter",
@@ -24295,6 +24301,10 @@
         {
           "name": "rejected",
           "line": 34
+        },
+        {
+          "name": "project",
+          "line": 174
         }
       ]
     },
@@ -27377,8 +27387,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2142,
-      "sha256": "702083277c398c5783794365878c7107e1d4c11158477e5722144d2b489150ea",
+      "lines": 2148,
+      "sha256": "b14916b0b46fea642be2e6acb0b54b22f198380799fc3e478b06a1e9ae758b09",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -29261,8 +29271,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 332,
-      "sha256": "cab484484fb7740bd508ee6317197fa0ed98dd64a97ed6ce3f670225338bfcbd",
+      "lines": 352,
+      "sha256": "5e8aa9a0116edbf1619b2645bfe39c9083221be31fed680a6898054d1d169399",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
@@ -29327,8 +29337,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 203,
-      "sha256": "b2bfc7173df3857547fe5c40f580609826849577016dd8cde47c74c802b9f0c3",
+      "lines": 257,
+      "sha256": "47a553e3de29cca695bf6510483b40733e105660a9caecf92e6f71ec76b57203",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",

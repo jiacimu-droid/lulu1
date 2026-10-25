@@ -197,12 +197,12 @@ object CharacterDevelopmentRuntime {
                 val disposition = item.optString("disposition", "upsert").lowercase()
                 val changed = if (disposition == "retire") {
                     CharacterDevelopmentStore.retireSlotWithCounterEvidence(
-                        characterId, slot, ids("counterIds"), persona,
+                        characterId, slot, ids("counterIds"), persona, events.associate { it.id to it.revision },
                     )
                 } else {
                     CharacterDevelopmentStore.applyProposal(characterId, slot,
                         DevelopmentKind.valueOf(item.getString("kind")), item.getString("content"),
-                        ids("evidenceIds"), ids("counterIds"), persona)
+                        ids("evidenceIds"), ids("counterIds"), persona, events.associate { it.id to it.revision })
                 }
                 if (changed) accepted++
             }

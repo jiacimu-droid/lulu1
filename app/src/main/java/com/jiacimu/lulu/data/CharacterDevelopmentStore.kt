@@ -96,12 +96,16 @@ object CharacterDevelopmentStore {
     }
 
     fun applyProposal(characterId: String, slot: String, kind: DevelopmentKind, content: String,
-        evidenceIds: List<String>, counterIds: List<String>, personaSnapshot: String): Boolean {
+        evidenceIds: List<String>, counterIds: List<String>, personaSnapshot: String,
+        expectedRevisions: Map<String, Long>? = null): Boolean {
         if (prefs == null || slot.isBlank() || slot.length > 80 || content.isBlank() || content.length > 500) return false
         if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot) return false
         val events = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds)
         if (events.size != evidenceIds.distinct().size || counters.size != counterIds.distinct().size) return false
+        if (expectedRevisions != null && (events + counters).any {
+                expectedRevisions[it.id] != it.revision
+            }) return false
         val factual = independentDevelopmentExposures(events)
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
@@ -225,6 +229,7 @@ object CharacterDevelopmentStore {
         slot: String,
         counterIds: List<String>,
         personaSnapshot: String,
+        expectedRevisions: Map<String, Long>? = null,
     ): Boolean {
         if (prefs == null || slot.isBlank() || counterIds.isEmpty()) return false
         if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot) return false
@@ -234,6 +239,7 @@ object CharacterDevelopmentStore {
         } ?: return false
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds.distinct())
         if (counters.size != counterIds.distinct().size) return false
+        if (expectedRevisions != null && counters.any { expectedRevisions[it.id] != it.revision }) return false
         val factualCounters = independentDevelopmentExposures(counters)
         if (factualCounters.size < DevelopmentPolicy.counterExamplesToRetire(current.maturity)) return false
         val mergedCounters = current.counterEvidence + factualCounters.associate { it.id to it.revision }

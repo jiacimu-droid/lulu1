@@ -817,77 +817,6 @@ object LuluDeviceToolBridge {
             receipt
         } else ""
         val plannedSideActions = plan.sideActions
-        val sideDeviceReceipt = if (!rewriting && plannedSideActions != null &&
-            sceneContext.contains("电话") &&
-            (plan.action == "reply" || plan.action == CharacterDecisionProtocol.SILENT)) {
-            val notes = mutableListOf<String>()
-            var verifiedWakeAudio = false
-            var raisedVolumeThisTurn = false
-            val inputKey = userEvidenceIds.lastOrNull()
-                ?: silenceObservationId.takeIf(String::isNotBlank)
-                ?: "current-" + now.toEpochMilli()
-            var previousStepCompleted = true
-            for (i in 0 until plannedSideActions.length()) {
-                val effect = plannedSideActions.optJSONObject(i) ?: continue
-                val tool = effect.optString("tool").trim()
-                if (com.jiacimu.lulu.data.CapabilityRegistry.find(tool) == null ||
-                    (tool == "ring_in_call_wake" && !sceneContext.contains("电话"))) {
-                    notes += "第${i + 1}步未执行：工具不可用"
-                    previousStepCompleted = false
-                    continue
-                }
-                if (effect.optBoolean("requiresPreviousSuccess", false) && !previousStepCompleted) {
-                    notes += "第${i + 1}步未执行：上一步尚未完成"
-                    continue
-                }
-                val effectArgs = effect.optJSONObject("args") ?: JSONObject()
-                if (tool == "control_volume" &&
-                    effectArgs.optString("action") == "adjust" &&
-                    effectArgs.optInt("deltaPercent") > 0) {
-                    if (raisedVolumeThisTurn) {
-                        notes += "同一轮重复增大音量已跳过；需等待新的感知与真实反馈"
-                        continue
-                    }
-                    raisedVolumeThisTurn = true
-                }
-                val result = runCatching {
-                    JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
-                        appContext, characterId, tool,
-                        effectArgs,
-                        requestId = "reply-side-" + inputKey + "-" + i,
-                        userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
-                            .isExplicitUserToolRequest(userText, tool),
-                        intentionId = plan.intentionId,
-                        learningApplication = effect.optJSONObject("learningApplication"),
-                        causeEvidenceId = groundingEvidenceId, reason = plan.reason,
-                        curiosity = effect.optJSONObject("curiosity")))
-                }.getOrElse { error ->
-                    JSONObject().put("success", false)
-                        .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
-                }
-                previousStepCompleted = result.optBoolean("success") &&
-                    result.optString("status") !in setOf("pending", "waiting_user", "requested")
-                val command = result.optString("command")
-                    .ifBlank { effectArgs.optString("command") }
-                if (result.optBoolean("success") &&
-                    (tool == "ring_in_call_wake" ||
-                        (tool == "control_music" && command == "play"))) {
-                    verifiedWakeAudio = true
-                }
-                val actionLabel = if (tool == "control_music") "/$command" else ""
-                notes += tool + actionLabel + "：" +
-                    (if (result.optBoolean("success")) "已执行" else "未完成") + "：" +
-                    result.optString("summary").ifBlank {
-                    result.optString("error").ifBlank {
-                        result.optString("verification").ifBlank {
-                            result.optString("status").ifBlank { "状态未核实" }
-                        }
-                    }
-                }.take(170)
-            }
-            val details = notes.joinToString("；").take(420)
-            if (verifiedWakeAudio) "wake_audio_confirmed=1；$details" else details
-        } else ""
         val commitmentChanges = plan.commitmentChanges
         val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
             runCatching {
@@ -1181,6 +1110,83 @@ object LuluDeviceToolBridge {
                 plan.innerThought, now, privateDelta.fingerprint,
             )
         }
+        // Persist this role's appraisal/motives BEFORE executing the chosen phone steps.
+        // A new concern must exist before its own real receipt can be projected onto it.
+        val sideDeviceReceipt = if (!rewriting && plannedSideActions != null &&
+            sceneContext.contains("电话") &&
+            (plan.action == "reply" || plan.action == CharacterDecisionProtocol.SILENT)) {
+            val notes = mutableListOf<String>()
+            var verifiedWakeAudio = false
+            var raisedVolumeThisTurn = false
+            val inputKey = userEvidenceIds.lastOrNull()
+                ?: silenceObservationId.takeIf(String::isNotBlank)
+                ?: "current-" + now.toEpochMilli()
+            var previousStepCompleted = true
+            for (i in 0 until plannedSideActions.length()) {
+                val effect = plannedSideActions.optJSONObject(i) ?: continue
+                val tool = effect.optString("tool").trim()
+                if (com.jiacimu.lulu.data.CapabilityRegistry.find(tool) == null ||
+                    (tool == "ring_in_call_wake" && !sceneContext.contains("电话"))) {
+                    notes += "第${i + 1}步未执行：工具不可用"
+                    previousStepCompleted = false
+                    continue
+                }
+                if (effect.optBoolean("requiresPreviousSuccess", false) && !previousStepCompleted) {
+                    notes += "第${i + 1}步未执行：上一步尚未完成"
+                    continue
+                }
+                val effectArgs = effect.optJSONObject("args") ?: JSONObject()
+                if (tool == "control_volume" &&
+                    effectArgs.optString("action") == "adjust" &&
+                    effectArgs.optInt("deltaPercent") > 0) {
+                    if (raisedVolumeThisTurn) {
+                        notes += "同一轮重复增大音量已跳过；需等待新的感知与真实反馈"
+                        continue
+                    }
+                    raisedVolumeThisTurn = true
+                }
+                val result = runCatching {
+                    JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
+                        appContext, characterId, tool,
+                        effectArgs,
+                        requestId = "reply-side-" + inputKey + "-" + i,
+                        userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
+                            .isExplicitUserToolRequest(userText, tool),
+                        intentionId = plan.intentionId,
+                        learningApplication = effect.optJSONObject("learningApplication"),
+                        causeEvidenceId = groundingEvidenceId,
+                        reason = effect.optString("reason").ifBlank { plan.reason },
+                        motiveId = effect.optString("motiveId"),
+                        concernId = effect.optString("concernId"),
+                        experienceId = effect.optString("experienceId"),
+                        curiosity = effect.optJSONObject("curiosity")))
+                }.getOrElse { error ->
+                    JSONObject().put("success", false)
+                        .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
+                }
+                previousStepCompleted = result.optBoolean("success") &&
+                    result.optString("status") !in setOf("pending", "waiting_user", "requested")
+                val command = result.optString("command")
+                    .ifBlank { effectArgs.optString("command") }
+                if (result.optBoolean("success") &&
+                    (tool == "ring_in_call_wake" ||
+                        (tool == "control_music" && command == "play"))) {
+                    verifiedWakeAudio = true
+                }
+                val actionLabel = if (tool == "control_music") "/$command" else ""
+                notes += tool + actionLabel + "：" +
+                    (if (result.optBoolean("success")) "已执行" else "未完成") + "：" +
+                    result.optString("summary").ifBlank {
+                    result.optString("error").ifBlank {
+                        result.optString("verification").ifBlank {
+                            result.optString("status").ifBlank { "状态未核实" }
+                        }
+                    }
+                }.take(170)
+            }
+            val details = notes.joinToString("；").take(420)
+            if (verifiedWakeAudio) "wake_audio_confirmed=1；$details" else details
+        } else ""
         if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat || sceneContext.contains("电话")) && !rewriting) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,

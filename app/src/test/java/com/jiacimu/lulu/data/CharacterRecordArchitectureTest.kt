@@ -80,6 +80,26 @@ class CharacterRecordArchitectureTest {
             localOnly = true).understandingContext)
     }
 
+    @Test fun reflectionCannotAttachAnOldConclusionToRevisedOrUnseenEvidence() {
+        val id = "growth-revision-snapshot"
+        SharedExperienceTimeline.record(id, role, "私聊", "用户", "我喜欢慢慢讲清楚",
+            now, triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val expected = SharedExperienceTimeline.eventsByIds(role, listOf(id)).associate { it.id to it.revision }
+        val persona = CharacterRuntime.personaConstraintSnapshot(role)
+        SharedExperienceTimeline.record(id, role, "私聊", "用户", "我喜欢简短一点",
+            now, triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:reply-length", DevelopmentKind.UserPreference,
+            "喜欢慢慢讲清楚", listOf(id), emptyList(), persona, expected))
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:reply-length", DevelopmentKind.UserPreference,
+            "喜欢简短一点", listOf(id), emptyList(), persona, emptyMap()))
+        val fresh = SharedExperienceTimeline.eventsByIds(role, listOf(id)).associate { it.id to it.revision }
+        assertTrue(CharacterDevelopmentStore.applyProposal(role, "user:reply-length", DevelopmentKind.UserPreference,
+            "喜欢简短一点", listOf(id), emptyList(), persona, fresh))
+        assertEquals("喜欢简短一点", CharacterDevelopmentStore.active(role).single().content)
+        SharedExperienceTimeline.deleteEvent(id)
+        assertTrue(CharacterDevelopmentStore.active(role).isEmpty())
+    }
+
     @Test fun aNativeReadingAndItsToolReceiptCannotManufactureTwoGrowthExperiences() {
         reading("one-reading")
         SharedExperienceTimeline.record("receipt-for-one", role, "工具执行", "执行器",

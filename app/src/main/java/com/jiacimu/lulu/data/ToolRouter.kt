@@ -55,20 +55,11 @@ object ToolRouter {
                         if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isEmpty()) {
                             SharedExperienceTimeline.record(receiptId, characterId,
                                 "实际工具执行", "执行器", old.toString(),
-                                triggerExtraction = false, source = "tool-router", taskId = requestId,
+                                triggerExtraction = true, source = "tool-router", taskId = requestId,
                                 evidenceKind = EventEvidenceKind.ToolResult)
                         }
                         if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()) {
-                            runCatching { projectLearning(characterId, receiptId, old) }
-                                .onFailure { android.util.Log.w("CharacterLearning", "Learning projection failed", it) }
-                            runCatching { JSONObject(saved) }.getOrNull()?.let { result ->
-                                CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, receiptId,
-                                    name, result.optBoolean("success"),
-                                    result.optString("summary").ifBlank { result.optString("error") })
-                                CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
-                                    result.optString("evidenceId").ifBlank { receiptId }, result.optBoolean("success"),
-                                    result.optString("summary").ifBlank { result.optString("error") })
-                            }
+                            projectReceipt(context, characterId, receiptId, old, intentionId)
                         }
                     }
                     return@withLock saved.ifBlank {
@@ -88,7 +79,7 @@ object ToolRouter {
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
-                .put("learningApplication", learningApplication)
+                .put("intentionId", intentionId).put("learningApplication", learningApplication)
                 .put("motiveId", motiveId).put("concernId", concernId).put("experienceId", experienceId)
                 .put("causeEvidenceId", CharacterActionEvidence.resolve(characterId, causeEvidenceId)
                     ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }?.id.orEmpty())
@@ -144,24 +135,7 @@ object ToolRouter {
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
-                runCatching { projectLearning(characterId, receiptId, execution) }
-                    .onFailure { android.util.Log.w("CharacterLearning", "Learning projection failed", it) }
-                // Failures are useful learning evidence too. This queues the existing,
-                // coalesced reflection, never a second per-tool model request.
-                if (CharacterActionEvidence.resolve(characterId, receiptId)?.let(CharacterExperienceLearning::receipt) != null)
-                    CharacterDevelopmentRuntime.request(characterId)
-                // Only the actual executor receipt can settle a plan. Pending consent,
-                // screenshot requests and cloud jobs must NOT count as completion.
-                if (parsed.optBoolean("success") &&
-                    execution.optString("status") !in setOf("pending", "waiting_user", "requested", "running") &&
-                    scheduledPlanId.isNotBlank()) {
-                    runCatching {
-                        RoleDayScheduleStore.completeFromReceipt(
-                            context, characterId, scheduledPlanId, name,
-                            parsed.optString("evidenceId"), parsed.optString("summary"),
-                            Instant.now(), args)
-                    }.onFailure { android.util.Log.w("RoleDaySchedule", "Plan receipt projection failed", it) }
-                }
+                projectReceipt(context, characterId, receiptId, execution, intentionId)
                 // A verified completed experience (not a pending request or a
                 // replayed request ID) can ease digital monotony once.
                 if (parsed.optBoolean("success") &&
@@ -170,9 +144,6 @@ object ToolRouter {
                         "read_book", "play_solo_game")) {
                     runCatching { EmbodiedBodyRuntime.onExplorationReceipt(characterId) }
                 }
-                CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
-                    parsed.optString("evidenceId").ifBlank { receiptId },
-                    parsed.optBoolean("success"), parsed.optString("summary").ifBlank { parsed.optString("error") })
                 val outcome = parsed
                 // A delivered chat bubble does not automatically buy another five-minute
                 // online lease. Only the character's next expiry decision can do that.
@@ -186,12 +157,40 @@ object ToolRouter {
                 if (outcome.optBoolean("success") && !chatDelivery &&
                     CompanionOnlineStore.isOnline(characterId))
                     CompanionOnlineStore.recordActivity(characterId)
-                CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, goalReceiptId, name,
-                    outcome.optBoolean("success"),
-                    outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
                 confirmedResult
             }
         }
+    }
+
+    /** Both first execution and crash recovery project the SAME frozen receipt.
+     * Permissions pending are not outcomes. Recovery never repeats the real tool effect. */
+    private fun projectReceipt(context: Context, characterId: String, receiptId: String,
+        execution: JSONObject, legacyIntentionId: String) {
+        val event = CharacterActionEvidence.resolve(characterId, receiptId) ?: return
+        val receipt = CharacterExperienceLearning.receipt(event) ?: return
+        val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return
+        val finishedAt = runCatching { Instant.parse(execution.optString("finishedAt")) }
+            .getOrDefault(event.occurredAt)
+        fun project(label: String, block: () -> Unit) {
+            runCatching(block).onFailure { android.util.Log.w("CharacterReceipt", "$label projection failed", it) }
+        }
+        project("Learning and causal links") { projectLearning(characterId, receiptId, execution) }
+        project("Activity expectation") {
+            CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
+                result.optString("evidenceId").ifBlank { receiptId }, receipt.success, receipt.summary)
+        }
+        project("Legacy goal") {
+            CharacterLifeStore.recordLinkedOutcome(characterId,
+                execution.optString("intentionId").ifBlank { legacyIntentionId }, receiptId,
+                receipt.tool, receipt.success, receipt.summary)
+        }
+        val planId = execution.optString("planId")
+        if (receipt.success && planId.isNotBlank()) project("Personal schedule") {
+            val args = JSONObject(execution.optString("fingerprint").substringAfter(':'))
+            RoleDayScheduleStore.completeFromReceipt(context, characterId, planId, receipt.tool,
+                result.optString("evidenceId").ifBlank { receiptId }, receipt.summary, finishedAt, args)
+        }
+        project("Development follow-through") { CharacterDevelopmentRuntime.request(characterId) }
     }
 
     private fun projectLearning(characterId: String, receiptId: String, execution: JSONObject) {
@@ -228,6 +227,8 @@ object ToolRouter {
         val observed = CharacterActionEvidence.resolve(characterId, observationId) ?: return
         val receipt = CharacterExperienceLearning.receipt(observed) ?: return
         if (receipt.requestEvidenceId != original.id) return
+        CharacterInnerLifeStore.resolveActivityExpectation(characterId, original.id, observed.id,
+            receipt.success, receipt.summary)
         projectCausalLinks(characterId, execution, observed.id, "capture_screen", receipt.success, receipt.summary)
         CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
             observed.id, "capture_screen", receipt.success, receipt.summary)

@@ -128,7 +128,9 @@ class CharacterUnfinishedActionContextTest {
         try {
             val result = OrderedCharacterActions.execute(context, role, actions, "schedule-research-$role")
             assertTrue(result.notes.toString(), result.anyAccepted)
-            val saved = RoleDayScheduleStore.plans(context, role).single()
+            val savedPlans = RoleDayScheduleStore.plans(context, role)
+            assertEquals(result.notes.joinToString("\n"), 1, savedPlans.size)
+            val saved = savedPlans.single()
             assertEquals(goal.getString("id"), JSONObject(saved.activityArgs).getString("goalId"))
             assertEquals("planned", saved.status)
             assertFalse(RoleDayScheduleStore.canBegin(context, role, saved.id, "learn_topic",
@@ -141,6 +143,58 @@ class CharacterUnfinishedActionContextTest {
         } finally {
             RoleDayScheduleStore.clearCharacter(context, role)
         }
+    }
+
+    @Test fun replayRepairsADailySchedulesProjectionWithoutRepeatingThePostOrAdvancingTwice() = runBlocking {
+        val instant = Instant.now()
+        val plan = RoleDayScheduleStore.arrange(context, role, "分享阅读发现", "想发表自己对真实材料的看法",
+            instant.minusSeconds(180), now = instant.minusSeconds(3600),
+            activityAction = "publish_moment", repeat = "daily")
+        val args = JSONObject().put("text", "这段真实阅读让我想再核对一次自己的看法。")
+            .put("planId", plan.id)
+        val request = "daily-receipt-recovery-$role"
+        try {
+            val first = JSONObject(ToolRouter.execute(context, role, "publish_moment", args, requestId = request))
+            assertTrue(first.toString(), first.getBoolean("success"))
+            val completed = RoleDayScheduleStore.plans(context, role).single()
+            val postCount = MomentsStore.posts.value.count { it.authorCharacterId == role }
+            // Simulate death after the real effect/receipt was saved but before plan projection.
+            val prefs = context.getSharedPreferences("lulu_role_day_plans_v1", Context.MODE_PRIVATE)
+            val plans = JSONArray(prefs.getString("plans", "[]"))
+            for (i in 0 until plans.length()) if (plans.getJSONObject(i).optString("id") == plan.id)
+                plans.getJSONObject(i).put("status", "due").put("dueAt", plan.dueAt.toString())
+                    .put("resultEvidenceId", "").put("resultSummary", "")
+            prefs.edit().putString("plans", plans.toString()).commit()
+            repeat(2) { ToolRouter.execute(context, role, "publish_moment", args, requestId = request) }
+            val repaired = RoleDayScheduleStore.plans(context, role).single()
+            assertEquals(completed.dueAt, repaired.dueAt)
+            assertEquals(completed.resultEvidenceId, repaired.resultEvidenceId)
+            assertEquals("planned", repaired.status)
+            assertEquals(postCount, MomentsStore.posts.value.count { it.authorCharacterId == role })
+        } finally {
+            RoleDayScheduleStore.clearCharacter(context, role)
+        }
+    }
+
+    @Test fun aPendingReceiptDoesNotResolveTheExpectationAsACompletedExperience() = runBlocking {
+        val request = "pending-expectation-$role"
+        val receiptId = "tool-$role-$request"
+        CharacterInnerLifeStore.beginActivityExpectation(role, receiptId, "read_book",
+            JSONObject().put("wanted", "想知道故事的真实后续").put("why", "在意还未解开的疑问"))
+        val result = JSONObject().put("success", true).put("status", "pending")
+            .put("evidenceId", receiptId).put("summary", "请求已接收，尚未返回内容")
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "read_book").put("fingerprint", "read_book:{}")
+            .put("status", "pending").put("result", result.toString())
+            .put("finishedAt", Instant.now().toString())
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        val replay = JSONObject(ToolRouter.execute(context, role, "read_book", JSONObject(), requestId = request))
+        assertEquals("pending", replay.getString("status"))
+        val expectation = CharacterInnerLifeStore.snapshot(role).getJSONArray("activityExpectations")
+            .getJSONObject(0)
+        assertEquals("awaiting_result", expectation.getString("status"))
+        assertFalse(expectation.has("evidenceId"))
     }
 
     private fun steps(postText: String) = JSONArray()
