@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:39:28.995184+00:00",
-  "commit": "18a5fddab5e5c799f36bcb5e6244322e0ce2d3dc",
+  "generatedAt": "2026-10-25T03:40:02.900032+00:00",
+  "commit": "04c1d5c3ff3ff5823798ab561910115a64ccb219",
   "branch": "main",
-  "sourceFingerprint": "5f3f7a6a6d91a6422416039b55c4d78d80e83c1dae9bd4efe5de2338df079a5b",
+  "sourceFingerprint": "7690ecd7ae3a3e0bd60e5bb237420960814fab7f3147d29dacb274b97efeb9e7",
   "summary": {
     "files": 887,
-    "lines": 173279,
+    "lines": 173313,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -14383,7 +14383,7 @@
     "XhsImagePolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "XhsMcpLoginStatusTest": [
@@ -28652,8 +28652,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 72,
-      "sha256": "cab1d4130ab165eb661cfc67e3047ae5d5bef7b846e582ba0657b1890f664045",
+      "lines": 91,
+      "sha256": "4b98b68c9e162acd841f6164a628217a9491337e754bbde29b29868eb46fa65a",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -30624,12 +30624,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt",
-      "lines": 18,
-      "sha256": "7002267c8e3502b5d29b5b1b26e03ddf283bee7518c7d0fd13dd883b4d9cdbf2",
+      "lines": 33,
+      "sha256": "d78306c240ce7e2a86395557ce79829ca3877b550e40634718e53a1c9e6fcdb3",
       "symbols": [
         {
           "name": "XhsImagePolicyTest",
-          "line": 5
+          "line": 6
         }
       ]
     },
