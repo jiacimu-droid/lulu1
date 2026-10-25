@@ -600,6 +600,44 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /** Every completed result-bearing search re-enters the ONE ordinary character
+     * perception/decision loop, irrespective of whether it began in chat, call or solo life.
+     * The durable ToolRouter event is the input; this job is only a wake-up.
+     * Bursts coalesce, while recursive searches have a bounded immediate budget.
+     * Deferred receipts remain available to normal perception, never marked as seen here. */
+    fun scheduleToolResultPerception(context: Context, characterId: String, evidenceId: String) {
+        if (characterId.isBlank() || evidenceId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return
+        if (event.evidenceKind != EventEvidenceKind.ToolResult || event.source != "tool-router" ||
+            PerceptionStimulusLedger.hasSeen(app, characterId, evidenceId)) return
+        val execution = runCatching { org.json.JSONObject(event.content) }.getOrNull() ?: return
+        if (execution.optString("tool") !in SearchReceiptFeedback.resultTools ||
+            execution.optString("status") !in setOf("succeeded", "failed")) return
+        val store = app.getSharedPreferences("lulu_search_result_reperception_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        val from = store.getLong("window:$characterId", 0L)
+        val inWindow = from > 0L && now >= from && now - from < 5 * 60_000L
+        val count = if (inWindow) store.getInt("count:$characterId", 0) else 0
+        // Search-after-search may be personally chosen, but never an infinite paid loop.
+        if (count >= 3) return
+        if (!store.edit().putLong("window:$characterId", if (inWindow) from else now)
+                .putInt("count:$characterId", count + 1).commit()) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(8_000L, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "本人真实搜索/阅读刚得到执行回执：重新感知资料和已有疑问，决定理解、继续查证、分享、暂缓或放下；不重复汇报旧搜索，也不把摘要当正文。")
+                .putString("characterId", characterId)
+                .putString("interactionEvidenceId", evidenceId)
+                .putBoolean("force", true).build())
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-tool-result-perception-$characterId", ExistingWorkPolicy.REPLACE, request)
+    }
     /**
      * One bounded follow-through after a VERIFIED voluntary activity. Uses the
      * very same perception/decision pipeline as chat/world/background life,
