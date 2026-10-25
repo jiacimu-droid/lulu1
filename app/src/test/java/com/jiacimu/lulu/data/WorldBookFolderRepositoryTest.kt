@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -136,6 +137,43 @@ class WorldBookFolderRepositoryTest {
         assertEquals(listOf("d", "b", "a", "c"), all.flatMap { it.third }.map { it.id })
         // Grouped viewing is presentation-only; prompt ordering stays a,b,c,d.
         assertEquals(listOf("a", "b", "c", "d"), books.map { it.id })
+    }
+
+    @Test fun worldBookPromptPositionPersistsWithoutMovingOrReenablingEntries() = runBlocking {
+        val repository = InMemoryWorldBookRepository().also { it.initialize(context) }
+        repository.save(entry("top"))
+        repository.save(entry("middle"))
+        repository.save(entry("bottom"))
+        assertTrue(repository.snapshot().all { it.promptPosition == WorldBookPromptPosition.NORMAL })
+        repository.setPromptPosition("top", WorldBookPromptPosition.TOP)
+        repository.setPromptPosition("bottom", WorldBookPromptPosition.BOTTOM)
+        assertEquals(listOf("top", "middle", "bottom"), repository.snapshot().map { it.id })
+        assertEquals(listOf(WorldBookPromptPosition.TOP, WorldBookPromptPosition.NORMAL,
+            WorldBookPromptPosition.BOTTOM), repository.snapshot().map { it.promptPosition })
+        assertEquals(mapOf("role-a" to false, "role-b" to true),
+            repository.snapshot().first().characterOverrides)
+        assertTrue(repository.snapshot().all { it.globalEnabled })
+        val restored = InMemoryWorldBookRepository().also { it.initialize(context) }
+        assertEquals(repository.snapshot(), restored.snapshot())
+
+        restored.setPromptPosition("top", WorldBookPromptPosition.NORMAL)
+        assertEquals(WorldBookPromptPosition.NORMAL, restored.snapshot().first().promptPosition)
+        assertEquals(listOf("top", "middle", "bottom"), restored.snapshot().map { it.id })
+        val raw = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+            .getString("entries_v1", "")!!
+        assertTrue(raw.contains("\"promptPosition\":\"BOTTOM\""))
+    }
+
+    @Test fun oldWorldBookRecordsWithoutPositionKeepTheirOriginalPlacement() {
+        val oldJson = """[{"id":"legacy","title":"旧条目","content":"不应移动","globalEnabled":true,
+            "characterOverrides":{"role-a":false},"createdAt":"2026-01-01T00:00:00Z"}]"""
+        context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+            .edit().putString("entries_v1", oldJson).commit()
+        val repository = InMemoryWorldBookRepository().also { it.initialize(context) }
+        val saved = repository.snapshot().single()
+        assertEquals(WorldBookPromptPosition.NORMAL, saved.promptPosition)
+        assertEquals("不应移动", saved.content)
+        assertEquals(false, saved.characterOverrides["role-a"])
     }
 
 }
