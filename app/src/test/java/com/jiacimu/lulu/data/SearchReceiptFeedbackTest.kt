@@ -103,6 +103,55 @@ class SearchReceiptFeedbackTest {
             JSONObject().put("success", true).put("status", "running")))
     }
 
+    @Test fun aConsumedLatestWakeCannotHideOlderUnprocessedSearchResults() {
+        val now = java.time.Instant.parse("2026-10-25T10:00:00Z")
+        fun receipt(id: String, secondsAgo: Long, tool: String = "web_search",
+                    status: String = "succeeded"): SharedTimelineEvent {
+            val result = JSONObject().put("success", status == "succeeded")
+                .put("summary", "真实搜索结果").toString()
+            val execution = JSONObject().put("tool", tool).put("status", status)
+                .put("result", result)
+            return SharedTimelineEvent(id, "same-role", "实际工具执行", "执行器",
+                execution.toString(), now.minusSeconds(secondsAgo),
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        val older = receipt("search-earlier", 20L)
+        val newest = receipt("search-newest", 2L)
+        val other = receipt("tool-not-search", 10L, tool = "control_volume")
+        val running = receipt("search-running", 5L, status = "running")
+        val queued = listOf(newest, other, running, older)
+        assertEquals(older.id, SearchReceiptFeedback.firstUnacknowledged(queued) {
+            it.id == newest.id
+        }?.id)
+        assertEquals(newest.id, SearchReceiptFeedback.firstUnacknowledged(queued) {
+            it.id == older.id
+        }?.id)
+        assertNull(SearchReceiptFeedback.firstUnacknowledged(queued) {
+            it.id in setOf(older.id, newest.id)
+        })
+    }
+
+    @Test fun searchReceiptBacklogCanDrainWithoutDuplicatingOneOriginalEffect() {
+        val now = java.time.Instant.parse("2026-10-25T10:00:00Z")
+        val events = (0 until 5).map { i ->
+            SharedTimelineEvent("tool-$i", "role", "实际工具执行", "执行器",
+                JSONObject().put("tool", "web_search").put("status", "succeeded")
+                    .put("result", JSONObject().put("success", true).put("summary", "真实来源$i").toString())
+                    .toString(), now.plusSeconds(i.toLong()),
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        val acknowledged = mutableSetOf<String>()
+        repeat(5) { index ->
+            val next = SearchReceiptFeedback.firstUnacknowledged(events) {
+                it.id in acknowledged
+            } ?: error("search evidence lost")
+            assertEquals(events[index].id, next.id)
+            acknowledged += next.id
+        }
+        assertNull(SearchReceiptFeedback.firstUnacknowledged(events) { it.id in acknowledged })
+        assertEquals(5, acknowledged.size)
+    }
+
     @Test fun searchResultsWaitForTheirExistingChatOrCallOwnerWithoutClaimingKnowledge() {
         assertTrue(SearchReceiptFeedback.awaitsPrimaryConversation(
             unread = true, inCall = false, chatGenerating = false))
