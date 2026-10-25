@@ -156,4 +156,35 @@ class AutonomousActionWireProtocolTest {
         assertEquals("tool", caseVariant.getString("action"))
         assertEquals("web_search", caseVariant.getString("tool"))
     }
+    @Test fun nestedStepDecoderRecognizesExistingWorldAndAppCapabilities() {
+        val world = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "digital_world")
+                .put("worldAction", "use_location")
+                .put("activityId", "order_drink"))
+        assertEquals("digital_world_action", world.getString("tool"))
+        assertEquals("use_location", world.getJSONObject("args").getString("worldAction"))
+        assertEquals("order_drink", world.getJSONObject("args").getString("activityId"))
+
+        val directVerb = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "use_location")
+                .put("activityId", "slow_drink"))
+        assertEquals("digital_world_action", directVerb.getString("tool"))
+        assertEquals("use_location", directVerb.getJSONObject("args").getString("worldAction"))
+
+        val nested = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "tool")
+                .put("args", JSONObject().put("tool", "write_journal")
+                    .put("title", "我的一天").put("content", "今天有些新收获")))
+        assertEquals("write_journal", nested.getString("tool"))
+        assertEquals("我的一天", nested.getJSONObject("args").getString("title"))
+
+        val unknown = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "invented_magic")
+                .put("text", "不能执行"))
+        assertNull(CapabilityRegistry.find(unknown.getString("tool")))
+        val nameless = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("why", "只是想告诉她我吃完了"))
+        assertEquals("", nameless.optString("tool"))
+    }
+
 }
