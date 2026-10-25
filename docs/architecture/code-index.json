@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:29:39.645678+00:00",
-  "commit": "b4f0ea331b51b416b764d0df610ecc8e6971464e",
+  "generatedAt": "2026-10-25T03:30:02.625230+00:00",
+  "commit": "1a3105d0c250365d779a391814a16fdb33deb4b5",
   "branch": "main",
-  "sourceFingerprint": "28d0cc7aabc465f7d66b2086365a6c783e90b64056f8c8c7df48cbc9c5804489",
+  "sourceFingerprint": "cd943ecd099f6497f62d31afd0ffa352752089cb584d3ec6e7af391a96eabcca",
   "summary": {
     "files": 887,
     "lines": 173218,
@@ -20503,7 +20503,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
       "lines": 172,
-      "sha256": "f9d66fa29efff687003883a7822c9a04d5966573353d4edd1d6432041b5cf83a",
+      "sha256": "95b2f8884a8562a891851778d6f2ad99d6306701e10a220f76b280dabc6e9c18",
       "symbols": [
         {
           "name": "handled",
@@ -20529,7 +20529,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
       "lines": 137,
-      "sha256": "6719165650e59948b773bacffef9b8a32b32870c238ace02acdbc205a9fb867a",
+      "sha256": "7246699ad941afbf6f40f912c4262a5b565a6f468a430d1e81098d2e63e0ff79",
       "symbols": [
         {
           "name": "CommitmentLexiconSync",
@@ -24376,7 +24376,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
       "lines": 261,
-      "sha256": "bf08e07cf5b5cff2a4a8e1eba7cea8add16d4fceba6d802aa63db7cd990e71bb",
+      "sha256": "0bcac6d70feb0cac88214fdd935bc0c3eb3b6152187539a37a40b58869aa4cbe",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
