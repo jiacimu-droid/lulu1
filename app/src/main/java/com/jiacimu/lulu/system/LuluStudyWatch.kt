@@ -287,7 +287,9 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
                 LuluStudyWatch.active(applicationContext, role) != null) {
                 val raw = LuluScreenAwareness.capture(applicationContext, userRequested = false,
                     characterId = role, requestId = "study-watch-$id-${session.optInt("ordinal")}",
-                    approved = true)
+                    approved = true, sessionId = id)
+                if (LuluStudyWatch.active(applicationContext, role)?.optString("id") != id)
+                    return Result.success()
                 val observed = runCatching { JSONObject(raw) }.getOrDefault(
                     JSONObject().put("success", false).put("error", "截屏结果无法解析"))
                 LuluStudyWatch.recordCheck(applicationContext, id, observed)
