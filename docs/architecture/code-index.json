@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T02:59:04.978287+00:00",
-  "commit": "5971504d0bad1921d420a1e3b3b223107d3585eb",
+  "generatedAt": "2026-10-25T02:59:36.802575+00:00",
+  "commit": "5f21cdc3e7228c92951261fb619fcc945a694e60",
   "branch": "main",
-  "sourceFingerprint": "2e5e6fef3055d06509aa164725ba4663ef92acf5793e3ac8db9f7191d468d575",
+  "sourceFingerprint": "3831693f530819cd12fe2ec3f5f9371369108df185d22c69c221c115ae91d27d",
   "summary": {
     "files": 887,
-    "lines": 172774,
-    "symbols": 2585
+    "lines": 172807,
+    "symbols": 2586
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -403,7 +403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 167
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -4923,7 +4923,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 127
+        "line": 152
       }
     ],
     "briefContext": [
@@ -4933,7 +4933,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 154
+        "line": 179
       }
     ],
     "expressionContext": [
@@ -5538,28 +5538,34 @@
         "line": 83
       }
     ],
+    "sharingUrge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 133
+      }
+    ],
     "auditSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 145
+        "line": 170
       }
     ],
     "hasOpenOpportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 150
+        "line": 175
       }
     ],
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 200
+        "line": 227
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 218
+        "line": 251
       }
     ],
     "CharacterLifeStore": [
@@ -19380,8 +19386,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 250,
-      "sha256": "5472f0f7c5f11c1aab8732cb9fdc07f89b0c56262305693c5731a864b3836fc8",
+      "lines": 283,
+      "sha256": "3c7ca55d35c06c00f45a35ab7da0cdeab2a2146b40b65dd9bdf091508811b592",
       "symbols": [
         {
           "name": "initialize",
@@ -19400,32 +19406,36 @@
           "line": 92
         },
         {
+          "name": "sharingUrge",
+          "line": 133
+        },
+        {
           "name": "pendingDecisionCues",
-          "line": 127
+          "line": 152
         },
         {
           "name": "auditSnapshot",
-          "line": 145
+          "line": 170
         },
         {
           "name": "hasOpenOpportunity",
-          "line": 150
+          "line": 175
         },
         {
           "name": "briefContext",
-          "line": 154
+          "line": 179
         },
         {
           "name": "context",
-          "line": 167
+          "line": 192
         },
         {
           "name": "recordShareWish",
-          "line": 200
+          "line": 227
         },
         {
           "name": "recordAction",
-          "line": 218
+          "line": 251
         }
       ]
     },

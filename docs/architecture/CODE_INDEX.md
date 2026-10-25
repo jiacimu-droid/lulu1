@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5971504d0bad1921d420a1e3b3b223107d3585eb`
+- 基准提交：`5f21cdc3e7228c92951261fb619fcc945a694e60`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：172774
-- 已发现符号：2585
+- 已索引代码/文本行：172807
+- 已发现符号：2586
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -282,7 +282,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 670 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 250 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 283 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 846 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 200 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
