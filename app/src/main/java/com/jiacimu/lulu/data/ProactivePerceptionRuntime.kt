@@ -1421,7 +1421,11 @@ object ProactivePerceptionRuntime {
             worldEventId = "",
             pendingText = pendingUserContext,
             pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
-        )
+        )?.let { input ->
+            val actualRevision = SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(input.evidenceId)).firstOrNull()?.revision
+            if (actualRevision != null) input.copy(revision = actualRevision) else input
+        }
         val perceptionInput = CharacterPerceptionContext.integrate(
             context = appContext,
             characterId = characterId,
