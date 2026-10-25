@@ -128,7 +128,8 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
                     Button(onClick = {
                         runCatching { MiniTheaterJobs.enqueue(context, current.id, background) }
                             .onFailure { notice = "无法生成：${it.message}" }
-                    }) { Text(if (current.text.isBlank()) "写这一篇" else "继续写这一篇") }
+                    }) { Text(if (current.rewriting) "重试创作新版本"
+                        else if (current.text.isBlank()) "写这一篇" else "继续写这一篇") }
                 }
                 if (current.status in setOf("queued", "running")) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -139,7 +140,8 @@ internal fun MiniTheaterScreen(onBack: () -> Unit) {
                 if (notice.isNotBlank()) Text(notice, color = MaterialTheme.colorScheme.primary)
                 if (current.text.isNotBlank()) {
                     HorizontalDivider()
-                    Text("小剧场正文", fontWeight = FontWeight.SemiBold)
+                    Text(if (current.rewriting) "上一版正文（已保留）" else "小剧场正文",
+                        fontWeight = FontWeight.SemiBold)
                     SelectionContainer { Text(current.text) }
                     if (current.status == "complete") TextButton(onClick = {
                         confirmRewrite = true
