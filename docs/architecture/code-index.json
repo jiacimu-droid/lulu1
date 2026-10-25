@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T04:14:18.492586+00:00",
-  "commit": "869c80ae37a7a66105139387e3b0255ba941565c",
+  "generatedAt": "2026-10-25T04:14:48.444407+00:00",
+  "commit": "b1c9c3914aa68164d8b6b3daa961ed235e78f1c7",
   "branch": "main",
-  "sourceFingerprint": "4931d42ff9c8a8c71b0cabbf13c2b37f768ab589c7c97984af64a62f7db784a6",
+  "sourceFingerprint": "1030cb9954da272130e4965474dbbe1c66602972934e47ba0f6c358b08c51f9d",
   "summary": {
     "files": 887,
-    "lines": 173332,
+    "lines": 173347,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -29380,8 +29380,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 150,
-      "sha256": "5bd895aa1ea2d10d2ce7c87b04d6115f093a014516220726cb31320d2497de97",
+      "lines": 165,
+      "sha256": "f5fc7b0be6852e44376b21fb77e7efd1a6710722ef488bd562b1f3465fc817ef",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
