@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T11:35:07.835409+00:00",
-  "commit": "08f70b5863f1ee91067969fa538501a3cb286ee1",
+  "generatedAt": "2026-10-25T11:35:28.593456+00:00",
+  "commit": "05fece85ffb279c15d98eaf1ed047da85665418e",
   "branch": "main",
-  "sourceFingerprint": "1005c127447fe8f5f5aae64bdc5c0d89c2a589fbb285a5ead89b307074706a6e",
+  "sourceFingerprint": "bc8b755afafccdef5a44510fd10568a1ea27131b6823b659a741416f1d09ae40",
   "summary": {
-    "files": 899,
-    "lines": 176783,
-    "symbols": 2648
+    "files": 900,
+    "lines": 176808,
+    "symbols": 2649
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13524,6 +13524,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
         "line": 12
+      }
+    ],
+    "CapabilityRegistryRetirementTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt",
+        "line": 13
       }
     ],
     "CharacterAccountabilityContextTest": [
@@ -29302,6 +29308,17 @@
         {
           "name": "CallMediaSemanticBoundaryTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt",
+      "lines": 25,
+      "sha256": "a884d718bdd8963f2ec4da9daea06ebc9bd1a027b091ba78f2546fee4dc2746a",
+      "symbols": [
+        {
+          "name": "CapabilityRegistryRetirementTest",
+          "line": 13
         }
       ]
     },
