@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:01:55.272559+00:00",
-  "commit": "9f16def2a60e264f480c60ab556b5778100f894d",
+  "generatedAt": "2026-10-25T14:02:18.619368+00:00",
+  "commit": "b91dc0dded2518d78b6c0ba0273278d9dc952d61",
   "branch": "main",
-  "sourceFingerprint": "c7b75026a35cbdec951f13d1d7fe628c301fc3410a0781342eb132af68a6818a",
+  "sourceFingerprint": "08455ec15773a01c0e3e7032328ed05494025466ebb97798d3e9a27702663e44",
   "summary": {
     "files": 905,
-    "lines": 178124,
+    "lines": 178131,
     "symbols": 2670
   },
   "symbolIndex": {
@@ -7001,7 +7001,7 @@
     "quoteNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-        "line": 65
+        "line": 72
       }
     ],
     "repairInstruction": [
@@ -21407,8 +21407,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-      "lines": 86,
-      "sha256": "023d4b0207efb39190319bb40bfd3575007d4fa1ab14a96ea10e39eabb948018",
+      "lines": 93,
+      "sha256": "1d6cc60b3a581c01ccc62514084a1e4d40d26eccb254d7995495c96bd7b03522",
       "symbols": [
         {
           "name": "turns",
@@ -21420,7 +21420,7 @@
         },
         {
           "name": "quoteNote",
-          "line": 65
+          "line": 72
         }
       ]
     },
