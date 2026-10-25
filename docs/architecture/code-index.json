@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T08:12:27.500194+00:00",
-  "commit": "29f60f929591f22fed3698824641eae7cda9421c",
+  "generatedAt": "2026-10-25T08:24:40.871338+00:00",
+  "commit": "f138f226a0a194216d7eb4253bec0ac6a3977a6a",
   "branch": "main",
-  "sourceFingerprint": "3edab6d2367418c3337f2dabe95f38d83dba6f50f6f45b07ee0bae30b9b140b7",
+  "sourceFingerprint": "30b1bcca62046fff426a022273cba00012612494cf54fd9b8fdd10023ff6f2b9",
   "summary": {
     "files": 898,
-    "lines": 176422,
+    "lines": 176423,
     "symbols": 2644
   },
   "symbolIndex": {
@@ -783,7 +783,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 266
+        "line": 264
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -4887,11 +4887,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 135
+        "line": 134
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 374
+        "line": 373
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -7975,37 +7975,37 @@
     "invalidateSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 146
+        "line": 145
       }
     ],
     "WorldBookImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 232
+        "line": 230
       }
     ],
     "groupWorldBookEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 236
+        "line": 234
       }
     ],
     "WorldBookFolder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 259
+        "line": 257
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 260
+        "line": 258
       }
     ],
     "observeFolders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 276
+        "line": 275
       }
     ],
     "callEndDescription": [
@@ -22326,8 +22326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 501,
-      "sha256": "cce5ea7e091e7334b9fab8de78d714df5b7880df6c22fcdbfc2adf2f09d125eb",
+      "lines": 502,
+      "sha256": "a72e2c0ddd5a51034d36d39e98ee2630baacf7b24074ab412c74a0ae75292bdf",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -22347,39 +22347,39 @@
         },
         {
           "name": "snapshot",
-          "line": 135
+          "line": 134
         },
         {
           "name": "invalidateSource",
-          "line": 146
+          "line": 145
         },
         {
           "name": "WorldBookImportResult",
-          "line": 232
+          "line": 230
         },
         {
           "name": "groupWorldBookEntries",
-          "line": 236
+          "line": 234
         },
         {
           "name": "WorldBookFolder",
-          "line": 259
+          "line": 257
         },
         {
           "name": "InMemoryWorldBookRepository",
-          "line": 260
+          "line": 258
         },
         {
           "name": "initialize",
-          "line": 266
+          "line": 264
         },
         {
           "name": "observeFolders",
-          "line": 276
+          "line": 275
         },
         {
           "name": "snapshot",
-          "line": 374
+          "line": 373
         }
       ]
     },
