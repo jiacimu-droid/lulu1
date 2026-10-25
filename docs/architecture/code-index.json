@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T06:32:09.433304+00:00",
-  "commit": "4e41d71726dc3e41f2694e88707ac8fe6aecad5b",
+  "generatedAt": "2026-10-25T06:32:46.537424+00:00",
+  "commit": "865ca22b32e6bb17cfc7d718ba7ac5fba1a92074",
   "branch": "main",
-  "sourceFingerprint": "c1cdfadbabe70a1296c992f2943f66a98b6c6d3d80e38f9e23f8392667652082",
+  "sourceFingerprint": "b887b064ff19357516291fae61798b7dd51e2f99e4f0fda81cbf12a818412ca5",
   "summary": {
     "files": 891,
     "lines": 174545,
@@ -23673,7 +23673,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 163,
-      "sha256": "1a468dffba11bdaeb04438b16dd50df9c7474e68bb2a9338ad945d7f010068da",
+      "sha256": "ad43dc43ed94d6b7a61f2e30018cbe1e44769bc9e62c89d1ad0c08c68524a650",
       "symbols": []
     },
     {
