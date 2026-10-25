@@ -85,7 +85,7 @@ internal object CharacterUnfinishedActionContext {
         cues.forEach { appendLine(it.render()) }
         appendLine("若真想推进，选择本轮action/steps或真实未来安排，并关联准确ID；只写想法不会执行。聊天与独立生活动作可并行，不必等到无新消息才处理。")
         appendLine(CharacterThoughtActionHandoff.guidance)
-        appendLine("想稍后做时，在本轮steps选择tool=plan_personal_activity，args={title:具体活动,intent:为什么想做,dueAt:本人选择的未来ISO时间,activityAction:真实工具名,activityArgs:该工具参数}；关联持续目标时将motiveId放在args内。先检查已有日程，同一件事已有时间就改期或沿用，不重复创建。")
+        appendLine("想稍后做时，在本轮steps选择tool=plan_personal_activity，args={title:具体活动,intent:为什么想做,dueAt:本人选择的未来ISO时间,activityAction:真实工具名,activityArgs:该工具参数}；关联持续目标时将motiveId放在args内，来自挂心则传原concernId，探索沿原goalId写入activityArgs。一次决定可以为多件独立心事选不同日期，不限制固定数量。先检查已有日程，同一件事已有时间就改期或沿用，不重复创建。")
         append("挂心是尚未解决的在意，记忆是所依据的事实；安排日程不代表挂心已解决，也不自动把每件挂心升级为核心记忆。探索沿原goalId继续；到点重新核实参数、时机与权限，可执行、改期或取消。无需为排日程单独增加模型调用，也不必强行把每个念头变成待办。")
     }
 
