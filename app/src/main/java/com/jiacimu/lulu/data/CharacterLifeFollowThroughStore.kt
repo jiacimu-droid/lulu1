@@ -148,21 +148,39 @@ internal object CharacterLifeFollowThroughStore {
                 }.coerceIn(0.0, 100.0)
         }
 
-    /** Real unresolved options; these only invite one more voluntary choice, never execute it. */
+    /**
+     * Choose an actual source of the accumulated urge. Previously the gauge
+     * counted ALL open experiences but only held/significant ones could reach
+     * the decision handoff, so 100/100 could produce zero actionable cues.
+     * Explicitly held wishes lead, while high unresolved urge may surface
+     * ordinary verified life as a *choice*, never as an automatic post.
+     */
+    internal fun sharingCandidates(characterId: String, now: Instant = Instant.now()): List<JSONObject> =
+        synchronized(lock) {
+            val impulse = sharingUrge(characterId, now)
+            recent(characterId, now).asReversed()
+                .filter { it.optString("shareStatus") == "held" ||
+                    (impulse >= 70.0 && it.optString("shareStatus") == "open") ||
+                    (it.optBoolean("significant") && it.optString("shareStatus") == "open") }
+                .sortedWith(compareByDescending<JSONObject> { it.optString("shareStatus") == "held" }
+                    .thenByDescending { it.optString("shareStrength").toDoubleOrNull() ?: 0.0 }
+                    .thenByDescending { it.optString("occurredAt") })
+                .take(2)
+                .map { JSONObject(it.toString()) }
+        }
+
+    /** Re-evaluate concrete lived experiences; never auto-send at a numeric threshold. */
     fun pendingDecisionCues(characterId: String, now: Instant = Instant.now()): List<String> =
         synchronized(lock) {
-            recent(characterId, now).asReversed().filter { item ->
-                (item.optString("shareStatus") == "held" ||
-                    item.optBoolean("significant") &&
-                    item.optString("shareStatus") == "open") ||
-                    (item.optBoolean("significant") && item.optString("curiosityStatus") == "open")
-            }.take(2).map { item ->
+            sharingCandidates(characterId, now).map { item ->
                 val id = item.optString("id")
-                val share = item.optString("shareStatus")
-                val wanted = item.optString("shareWhy")
-                "真实生活经历 $id：" + item.optString("fact").take(115) + "；" +
-                    (if (share == "held") "自己之前想分享：" + wanted.take(90) else "仍有分享/探究的选择余地") +
-                    "；现在可重新决定是否分享或探索，也可克制；尚未执行"
+                val held = item.optString("shareStatus") == "held"
+                "真实生活经历 experienceId=$id：" + item.optString("fact").take(115) + "；" +
+                    (if (held) "自己明确想分享却尚未发送：" +
+                        item.optString("shareWhy").take(90)
+                    else "目前分享冲动累积较强；这一件是可选的真实素材，不代表已经想好要讲") +
+                    "；若现在真想说，直接选 message/moment/group_message 并带准确 experienceId；" +
+                    "不想分享可选择安静或为该经历写 shareWish=released；尚无送达回执"
             }
         }
 
@@ -178,7 +196,10 @@ internal object CharacterLifeFollowThroughStore {
     }
 
     fun briefContext(characterId: String, now: Instant = Instant.now()): String = synchronized(lock) {
-        val pending = recent(characterId, now).filter { it.optString("shareStatus") !in setOf("shared", "released") }.takeLast(2)
+        val held = sharingCandidates(characterId, now)
+        val latest = recent(characterId, now).asReversed()
+            .filter { it.optString("shareStatus") in setOf("open", "held") }
+        val pending = (held + latest).distinctBy { it.optString("id") }.take(2)
         if (pending.isEmpty()) return@synchronized ""
         buildString {
             appendLine("【自己真实经历过、还未分享的生活｜有兴趣才自然带入当前话题】")
@@ -192,14 +213,15 @@ internal object CharacterLifeFollowThroughStore {
 
     fun context(characterId: String, now: Instant = Instant.now()): String = synchronized(lock) {
         val all = recent(characterId, now)
-        val significant = all.filter { it.optBoolean("significant") }.takeLast(2)
-        val opportunities = (all.takeLast(4) + significant)
-            .distinctBy { it.optString("id") }.takeLast(5).asReversed()
+        val held = sharingCandidates(characterId, now)
+        val significant = all.asReversed().filter { it.optBoolean("significant") }.take(2)
+        val opportunities = (held + significant + all.asReversed())
+            .distinctBy { it.optString("id") }.take(5)
         if (opportunities.isEmpty()) return@synchronized ""
         buildString {
             appendLine("【真实经历留下的分享欲与好奇心｜你自己的选择，不是用户下达的任务】")
             val shareImpulse = sharingUrge(characterId, now).toInt()
-            appendLine("当前累计的分享冲动线索≈$shareImpulse/100（来自尚未分享的真实经历；它可以因多次新鲜事累积，也会随时间淡去）。这不是必须发布的阈值，也不等于现在的情绪。")
+            appendLine("当前累计分享冲动≈$shareImpulse/100，来自多条尚未分享的真实经历；不是必须发送的阈值。若曾明确想分享却一直未说，先重新认真考虑那件事；若只是多次小事累积到很高，挑其中一件真想讲的经历，而不是把进度条本身当分享内容。没有真实兴趣也可以继续克制。")
             opportunities.forEach { item ->
                 appendLine("- experienceId=${item.optString("id")}；已证实发生=${item.optString("channel")}：${item.optString("fact")}")
                 val sharing = when (item.optString("shareStatus")) {
@@ -232,6 +254,7 @@ internal object CharacterLifeFollowThroughStore {
         val all = records(characterId)
         val item = all.firstOrNull { it.optString("id") == id } ?: return@synchronized
         if (item.optString("shareStatus") in setOf("shared", "released")) return@synchronized
+        val newlyHeld = status == "held" && item.optString("shareStatus") != "held"
         item.put("shareStatus", status)
         item.put("shareWhy", wish.optString("why").trim().take(180))
         // Optional first-person assessment of how strongly THIS experience
@@ -241,6 +264,11 @@ internal object CharacterLifeFollowThroughStore {
             if (intensity.isFinite()) item.put("shareStrength", intensity.coerceIn(0.0, 100.0))
         }
         save(characterId, all)
+        // Only a NEW firsthand intention earns a follow-through wake. Repeated
+        // "still want to share" appraisals do not create a paid polling loop.
+        if (newlyHeld) applicationContext?.let { ctx ->
+            runCatching { ProactivePerceptionScheduler.scheduleLifeFollowThrough(ctx, characterId) }
+        }
     }
 
     /**
