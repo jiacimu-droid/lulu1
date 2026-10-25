@@ -107,6 +107,7 @@ internal fun StarWishTheaterContentV2(
     val availableWorldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     var customTheaters by remember { mutableStateOf(customLibrary.all()) }
     var hiddenTitles by remember { mutableStateOf(customLibrary.hiddenTitles()) }
+    var miniMode by rememberSaveable { mutableStateOf(false) }
     var mode by rememberSaveable { mutableStateOf(TheaterV2Mode.BOOKSHELF) }
     var openedTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var deleteTheaterTitle by remember { mutableStateOf<String?>(null) }
@@ -130,6 +131,10 @@ internal fun StarWishTheaterContentV2(
         }
     }
 
+    if (miniMode) {
+        MiniTheaterScreen(onBack = { miniMode = false })
+        return
+    }
     BackHandler {
         mode = when (mode) {
             TheaterV2Mode.PLANNER, TheaterV2Mode.BIBLE, TheaterV2Mode.WORLD_BOOK, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
@@ -152,6 +157,7 @@ internal fun StarWishTheaterContentV2(
                 mode = TheaterV2Mode.READER
             },
             onGenerate = { openedTitle = null; draftWorldBookIds = emptyList(); mode = TheaterV2Mode.GENERATOR },
+            onMini = { miniMode = true },
             onDelete = { title -> deleteTheaterTitle = title },
         )
         TheaterV2Mode.READER -> if (openedSeed != null) {
@@ -329,6 +335,7 @@ private fun TheaterBookshelfV2(
     onBack: () -> Unit,
     onOpen: (String) -> Unit,
     onGenerate: () -> Unit,
+    onMini: () -> Unit,
     onDelete: (String) -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
@@ -362,6 +369,11 @@ private fun TheaterBookshelfV2(
                         Spacer(Modifier.width(5.dp))
                         Text("新故事")
                     }
+                }
+            }
+            item {
+                OutlinedButton(onClick = onMini, modifier = Modifier.fillMaxWidth()) {
+                    Text("单篇小剧场 · 内置玩法与多选导入")
                 }
             }
             items(theaters, key = { it.title }) { seed ->
