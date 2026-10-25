@@ -1964,6 +1964,8 @@ object ProactivePerceptionRuntime {
                 learningApplication = decision.learningApplication,
                 causeEvidenceId = responseEvidenceIds.lastOrNull().orEmpty(),
                 reason = decision.reason, curiosity = decision.curiosity,
+                motiveId = decision.motiveId, concernId = decision.concernId,
+                experienceId = decision.experienceId,
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
