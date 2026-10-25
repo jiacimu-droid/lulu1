@@ -193,7 +193,7 @@ internal class MiniTheaterWorker(context: Context, params: WorkerParameters) :
             check(generated.isNotBlank()) { "没有生成正文" }
             val marker = "【小剧场已完】"
             val isComplete = generated.contains(marker)
-            val full = (if (originalDraft.isBlank()) "" else "$" + "{originalDraft}\n") +
+            val full = (if (originalDraft.isBlank()) "" else originalDraft + "\n") +
                 generated.substringBefore(marker).trim()
             store.finish(id, token, if (isComplete) "complete" else "draft", text = full,
                 error = if (isComplete) "" else "正文未完成，可以接着补写这一篇")
