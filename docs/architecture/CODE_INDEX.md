@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1ad9c66783c1e2984bc15d370a8f4ea33376dd9e`
+- 基准提交：`1d811a0ec8bbd581970951253d462e4152f334fa`
 - 分支：`main`
 - 已索引文件：912
-- 已索引代码/文本行：179596
+- 已索引代码/文本行：179644
 - 已发现符号：2681
 
 | 文件 | 行数 | 符号数 |
@@ -784,7 +784,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 90 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 328 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 376 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 314 | 3 |

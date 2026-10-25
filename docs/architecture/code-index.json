@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T17:17:31.922974+00:00",
-  "commit": "1ad9c66783c1e2984bc15d370a8f4ea33376dd9e",
+  "generatedAt": "2026-10-25T17:20:11.544356+00:00",
+  "commit": "1d811a0ec8bbd581970951253d462e4152f334fa",
   "branch": "main",
-  "sourceFingerprint": "0365a28a64b5e30f201781d55621d28ccd16dc5fab4507cb3490ea30fbb52ae2",
+  "sourceFingerprint": "f888204c8047d9b24ab681baa165441ef07e4cf2bfcc7cec9b76a2e39b0e194f",
   "summary": {
     "files": 912,
-    "lines": 179596,
+    "lines": 179644,
     "symbols": 2681
   },
   "symbolIndex": {
@@ -18917,7 +18917,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
       "lines": 126,
-      "sha256": "438129ea65001db9d77750178cf49197a37444b428133c8ca4b2374c7bb19693",
+      "sha256": "cc3e642de902a95ee904bb27a85641dd8d409d3c645f9a4ccb33eaff27253d08",
       "symbols": [
         {
           "name": "fromAgreement",
@@ -30398,8 +30398,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 328,
-      "sha256": "c862688923c2ae47284acf2c85121d2ca03a43feef9132063fa1a0c1ee3bae70",
+      "lines": 376,
+      "sha256": "d2e864c68b65e7d1bb669f4584d96d4370720627523fcca8ba2582d90ee4e4ca",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
