@@ -14,6 +14,15 @@ class ChatReceiptRunsTest {
         assertEquals(records, runs.flatMap { it.messages })
         assertEquals(runs.size, runs.map { it.key }.toSet().size)
     }
+    @Test fun thousandsOfConsecutiveReceiptsRemainOneStableGroupWithoutLosingOrder() {
+        val receipts = (1..2000).map { message("log-$it", LuluChatMessage.Sender.System) }
+        val all = groupChatReceiptRuns(receipts + receipts.last())
+        assertEquals(1, all.size)
+        assertEquals("log-1", all.single().key)
+        assertEquals(receipts, all.single().messages)
+        assertEquals(receipts.last().id, all.single().messages.last().id)
+    }
+
     @Test fun newReceiptKeepsFoldKeyStableAndDuplicateDeliveryDoesNotDuplicateKeys() {
         val first = message("s1", LuluChatMessage.Sender.System)
         val second = message("s2", LuluChatMessage.Sender.System)
