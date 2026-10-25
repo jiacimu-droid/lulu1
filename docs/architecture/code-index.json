@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:31:00.575238+00:00",
-  "commit": "38dd3029419551bdf4ff8078dabebdd78653942b",
+  "generatedAt": "2026-10-25T13:32:28.003362+00:00",
+  "commit": "5aa5e0d3dbafebf67a80121dffd04f8a0cfd8a42",
   "branch": "main",
-  "sourceFingerprint": "fb797d7c33f38250984732fea3b98af04eabff0e1d3cc7788da3ad9213eb3a2b",
+  "sourceFingerprint": "e65baad26043a7158805de75b0299525a358c8007adfc4cae8eca7812cd34d48",
   "summary": {
     "files": 902,
-    "lines": 177653,
+    "lines": 177661,
     "symbols": 2662
   },
   "symbolIndex": {
@@ -407,7 +407,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1664
+        "line": 1669
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -19722,8 +19722,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1790,
-      "sha256": "a32cf0e8cfd91fccea50bee74945e7061e7880e3eeef516819fe8bd891cae82d",
+      "lines": 1795,
+      "sha256": "4cdb047f4e9aa2c0af4b8c7f6f693e3f6f381e38bfb139dcb867dd167cf211e0",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -19759,7 +19759,7 @@
         },
         {
           "name": "context",
-          "line": 1664
+          "line": 1669
         }
       ]
     },
@@ -31251,8 +31251,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-      "lines": 144,
-      "sha256": "b3967e245fc724e7838aa35ae88df72190bb821ac0e4c5127f81cc4bee47d3c1",
+      "lines": 147,
+      "sha256": "f7b66a294dd5b47d2526a9a00fa13fd397d9a54af5a276d71d6d3db78693f43f",
       "symbols": [
         {
           "name": "WanxiangCharacterContinuityTest",

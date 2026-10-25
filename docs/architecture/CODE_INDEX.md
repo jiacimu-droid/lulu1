@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`38dd3029419551bdf4ff8078dabebdd78653942b`
+- 基准提交：`5aa5e0d3dbafebf67a80121dffd04f8a0cfd8a42`
 - 分支：`main`
 - 已索引文件：902
-- 已索引代码/文本行：177653
+- 已索引代码/文本行：177661
 - 已发现符号：2662
 
 | 文件 | 行数 | 符号数 |
@@ -279,7 +279,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 217 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 118 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1790 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1795 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 670 | 6 |
@@ -868,7 +868,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 144 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 147 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
