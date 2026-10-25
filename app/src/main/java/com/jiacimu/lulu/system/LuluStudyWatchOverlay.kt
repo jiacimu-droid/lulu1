@@ -153,6 +153,8 @@ internal object LuluStudyWatchOverlay {
                     if (shownId != id) return@Runnable
                     val current = LuluStudyWatch.active(app, role)
                     if (current?.optString("id") != id) {
+                        // The notification and durable authorization must expire too.
+                        LuluStudyWatch.stop(app, id, "学习监督时段已结束")
                         clear()
                         return@Runnable
                     }
