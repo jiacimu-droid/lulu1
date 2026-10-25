@@ -96,10 +96,8 @@ fun QqStyleChatDetailScreen(
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
-    val presenceStates by CompanionPresenceStore.states.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
-    val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
     val replyTaskState = replyTaskStates[conversationId] ?: ChatReplyTaskManager.TaskState()
@@ -880,11 +878,9 @@ fun QqStyleChatDetailScreen(
 
     presenceCharacterId?.let { selectedCharacterId ->
         val selectedCharacter = characters[selectedCharacterId] ?: MigratedDomainStores.characters.get(selectedCharacterId)
-        CompanionPresenceDialog(
-            selectedCharacter.displayName,
-            presenceStates[selectedCharacterId],
-            presenceHistories[selectedCharacterId].orEmpty(),
-        ) { presenceCharacterId = null }
+        QqAvatarPresenceDialog(selectedCharacterId, selectedCharacter.displayName) {
+            presenceCharacterId = null
+        }
     }
 
     if (mentionExpanded && groupChat != null) {
