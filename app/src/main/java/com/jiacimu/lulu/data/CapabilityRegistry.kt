@@ -3,7 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import org.json.JSONObject
 
-data class Capability(val name: String, val domain: String, val permission: String, val successEvidence: String, val retrySafe: Boolean)
+data class Capability(val name: String, val domain: String, val permission: String, val successEvidence: String, val retrySafe: Boolean, val retired: Boolean = false)
 
 object CapabilityRegistry {
     val device = listOf(
@@ -28,12 +28,14 @@ object CapabilityRegistry {
     )
     val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
         "publish_moment", "send_character_message", "write_journal", "start_study_watch", "stop_study_watch", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search", "image_search")
-        .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
+        .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false, retired = it == "write_journal") }
     val external = listOf(
         Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
         Capability("read_health_mcp", "external", "health_read", "authenticated read-only health_read response", true),
     )
+    /** Historical recognition is not permission to offer or run a retired ability. */
     fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }
+    fun canChoose(name: String): Boolean = find(name)?.retired == false
 
     /**
      * A decision's immediate-action labels are not necessarily ToolRouter names.
@@ -54,6 +56,7 @@ object CapabilityRegistry {
     }
 
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
+        if (capability.retired) return false
         if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment",
                 "send_private_message", "send_group_message", "send_character_message",
