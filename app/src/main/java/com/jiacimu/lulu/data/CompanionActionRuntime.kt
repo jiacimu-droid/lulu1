@@ -1076,6 +1076,7 @@ internal data class VerifiedSearchReceipt(
 internal data class OrderedCharacterActionReport(
     val notes: List<String>, val anyAccepted: Boolean,
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
+    val anyCompleted: Boolean = false,
 )
 internal object SearchReceiptFeedback {
     /** One tool vocabulary for result-bearing search across all scene adapters. */
@@ -1156,6 +1157,7 @@ internal object OrderedCharacterActions {
         val searchReceipts = mutableListOf<VerifiedSearchReceipt>()
         var previousCompleted = initialCompleted
         var anyAccepted = false
+        var anyCompleted = false
         for (index in 0 until steps.length()) {
             val step = steps.optJSONObject(index)
             if (step == null) {
@@ -1209,8 +1211,8 @@ internal object OrderedCharacterActions {
             SearchReceiptFeedback.from(name, args, result)?.let(searchReceipts::add)
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
-            previousCompleted = accepted &&
-                status !in setOf("pending", "waiting_user", "requested")
+            previousCompleted = ToolExecutionStatus.completed(result)
+            anyCompleted = anyCompleted || previousCompleted
             anyAccepted = anyAccepted || accepted
             notes += "第${index + 1}步${name}：" + result.optString("summary").ifBlank {
                 result.optString("error").ifBlank {
@@ -1220,6 +1222,6 @@ internal object OrderedCharacterActions {
                 }
             }.take(160)
         }
-        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts)
+        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts, anyCompleted)
     }
 }
