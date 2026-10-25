@@ -36,6 +36,7 @@ object ToolRouter {
                 return failure(message, status)
             }
             val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")
+            if (cap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
             if (!CapabilityRegistry.allows(context, characterId, cap, userRequested)) return@withLock rejected("此角色尚未获准主动使用 ${cap.permission}", "waiting_user")
             val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
             val key = "$characterId:$requestId"
