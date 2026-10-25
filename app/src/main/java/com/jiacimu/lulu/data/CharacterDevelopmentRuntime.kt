@@ -13,6 +13,26 @@ import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import java.time.Instant
 
+/** Versioned mailbox: in-flight reflection cannot clear a newer experience request. */
+internal object DevelopmentReflectionGeneration {
+    @Synchronized fun request(p: android.content.SharedPreferences, characterId: String): Long {
+        val key = "generation:$characterId"
+        val next = p.getLong(key, 0L) + 1L
+        check(p.edit().putLong(key, next).putBoolean("pending:$characterId", true).commit()) {
+            "无法持久化新成长经历"
+        }
+        return next
+    }
+
+    fun snapshot(p: android.content.SharedPreferences, characterId: String): Long =
+        p.getLong("generation:$characterId", 0L)
+
+    @Synchronized fun acknowledge(p: android.content.SharedPreferences, characterId: String, observed: Long): Boolean {
+        if (snapshot(p, characterId) != observed) return false
+        return p.edit().putBoolean("pending:$characterId", false).commit()
+    }
+}
+
 /** Incremental reflection is detached from real-time response and limited to one batch per hour. */
 object CharacterDevelopmentRuntime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -49,7 +69,7 @@ object CharacterDevelopmentRuntime {
 
     fun request(characterId: String) {
         if (characterId.isBlank() || prefs == null) return
-        prefs?.edit()?.putBoolean("pending:$characterId", true)?.apply()
+        DevelopmentReflectionGeneration.request(checkNotNull(prefs), characterId)
         synchronized(waitingLock) {
             if (waitingJobs[characterId]?.isActive == true) return
             val job = scope.launch {
@@ -88,6 +108,7 @@ object CharacterDevelopmentRuntime {
 
     private suspend fun reflect(characterId: String) {
         val p = prefs ?: return
+        val observedGeneration = DevelopmentReflectionGeneration.snapshot(p, characterId)
         val now = Instant.now().toEpochMilli()
         val persona = CharacterRuntime.personaConstraintSnapshot(characterId)
         val sameDefinition = p.getString("persona:$characterId", "") == persona
@@ -132,13 +153,13 @@ object CharacterDevelopmentRuntime {
                     .containsMatchIn(event.content)
         }
         if (independentDevelopmentExposures(events).size < 2 && !directOwnerSignal && toolEpisodes.isEmpty()) {
-            p.edit().putBoolean("pending:$characterId", false).apply()
+            DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
             note(characterId, "真实经历还不足")
             return
         }
         val fingerprint = persona + "\n" + events.joinToString("|") { "${it.id}:${it.revision}" }
         if (fingerprint == p.getString("batch:$characterId", "")) {
-            p.edit().putBoolean("pending:$characterId", false).apply()
+            DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
             note(characterId, "暂无新经历")
             return
         }
@@ -206,8 +227,8 @@ object CharacterDevelopmentRuntime {
                 }
                 if (changed) accepted++
             }
-            p.edit().putString("batch:$characterId", fingerprint)
-                .putBoolean("pending:$characterId", false).commit()
+            check(p.edit().putString("batch:$characterId", fingerprint).commit())
+            DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
             note(characterId, when {
                 accepted > 0 -> "形成 $accepted 项变化"
                 considered > 0 -> "候选未通过经历校验"
