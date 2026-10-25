@@ -43,7 +43,6 @@ object ChatMemoryAutomation {
                     scope.launch {
                         roles.forEach { characterId ->
                             runCatching { MemorySemanticConsolidation.maintainWhenDue(characterId) }
-                            runCatching { CharacterCuriosityRuntime.maintainWhenDue(characterId, now) }
                         }
                     }
                 }
