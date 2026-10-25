@@ -55,4 +55,37 @@ class PerceptionStimulusLedgerTest {
             PerceptionStimulus("message-a", "聊天A")))
         PerceptionStimulusLedger.clear(role)
     }
+
+    @Test fun hundredsOfEventsDoNotForgetEarlierExactCheckpoints() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "perception-many-events"
+        PerceptionStimulusLedger.initialize(context)
+        PerceptionStimulusLedger.clear(role)
+        repeat(300) { index ->
+            assertTrue(PerceptionStimulusLedger.claim(context, role,
+                PerceptionStimulus("event-$index", "真实事件 $index")))
+        }
+        assertFalse(PerceptionStimulusLedger.claim(context, role, PerceptionStimulus("event-0", "最早的事件")))
+        PerceptionStimulusLedger.clear(role)
+    }
+
+    @Test fun javaHashCollisionsAndSourceRevisionsRemainDistinct() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "perception-exact-id-and-revision"
+        PerceptionStimulusLedger.initialize(context)
+        PerceptionStimulusLedger.clear(role)
+        // These two strings have the same Java String.hashCode().
+        assertEquals("Aa".hashCode(), "BB".hashCode())
+        assertTrue(PerceptionStimulusLedger.claim(context, role, PerceptionStimulus("Aa", "first")))
+        assertTrue(PerceptionStimulusLedger.claim(context, role, PerceptionStimulus("BB", "second")))
+        assertFalse(PerceptionStimulusLedger.claim(context, role, PerceptionStimulus("Aa", "replayed")))
+        assertTrue(PerceptionStimulusLedger.claim(context, role,
+            PerceptionStimulus("Aa", "edited", revision = 2L)))
+        assertTrue(PerceptionStimulusLedger.hasSeen(context, role, "Aa", 2L))
+        PerceptionStimulusLedger.invalidate("Aa")
+        assertFalse(PerceptionStimulusLedger.hasSeen(context, role, "Aa", 1L))
+        assertFalse(PerceptionStimulusLedger.hasSeen(context, role, "Aa", 2L))
+        assertTrue(PerceptionStimulusLedger.hasSeen(context, role, "BB"))
+        PerceptionStimulusLedger.clear(role)
+    }
 }
