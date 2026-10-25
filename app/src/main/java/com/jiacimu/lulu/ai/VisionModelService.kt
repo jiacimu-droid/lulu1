@@ -190,14 +190,25 @@ object VisionModelService {
         val failedCount: Int get() = candidateCount - dataUrls.size
     }
 
+    /**
+     * One POST may contain all selected XHS pictures as inline base64. The
+     * transport budget protects the whole request, not a single image. Total
+     * JPEG bytes <= 360 KB for up to six images, approx. 480 KB after base64.
+     * These are request-only derivatives; the original article and image URLs
+     * remain unchanged in the reader/experience record.
+     */
+    internal fun xhsImageByteBudget(imageCount: Int): Int =
+        if (imageCount <= 0) 0 else (360_000 / imageCount.coerceAtMost(6)).coerceAtMost(240_000)
+
     suspend fun prepareXhsImagesDetailed(urls: List<String>): PreparedXhsImages = coroutineScope {
         val chosen = urls.distinct().take(6)
+        val maxBytesPerImage = xhsImageByteBudget(chosen.size)
         val permits = Semaphore(2)
         val results = chosen.mapIndexed { index, url -> async(Dispatchers.IO) {
             permits.withPermit {
                 try {
                     currentCoroutineContext().ensureActive()
-                    Pair(index + 1, XhsImageLoader.dataUrl(url))
+                    Pair(index + 1, XhsImageLoader.dataUrl(url, maxBytesPerImage))
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Exception) {
