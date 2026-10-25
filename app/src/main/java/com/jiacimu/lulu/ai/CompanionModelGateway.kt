@@ -645,7 +645,7 @@ class CompanionModelGateway(
                 }.trim()
             }.orEmpty()
             val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
-                appendLine("辞海命中项（原始词条不改动；完成事项不当作现有责任）：")
+                appendLine("生活记录命中项（旧记录保持原文；完成事项不当作当前责任；旧版关心笔记不代表角色仍在挂心）：")
                 var remaining = budget.lexiconCharacters
                 lexicon.forEach { entry ->
                     val header = "- ${entry.section.name}/${entry.title} [${entry.status}]："
@@ -700,7 +700,7 @@ class CompanionModelGateway(
                 "当前状态" to presenceSection, "成长与持续动机" to developmentSection,
                 "跨场景连续性锚点" to continuitySection, "已读材料与可修订的理解" to learningSection,
                 "近期时间线/未完成责任" to timelineSection, "核心记忆" to deliveredCoreSection,
-                "召回记忆摘要" to memorySection, "召回原始证据" to memoryEvidenceSection, "辞海" to lexiconSection)
+                "召回记忆摘要" to memorySection, "召回原始证据" to memoryEvidenceSection, "生活记录" to lexiconSection)
             val fixedSections = listOf(
                 "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
