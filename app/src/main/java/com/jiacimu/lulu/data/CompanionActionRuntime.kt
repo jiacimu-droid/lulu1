@@ -1117,9 +1117,14 @@ internal object SearchReceiptFeedback {
             else -> "home_read"
         } else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
-        val status = result.optString("status")
-        if (status in setOf("pending", "requested", "running", "waiting_user")) return null
-        val success = result.optBoolean("success") && status != "waiting_user"
+        val status = result.optString("status").trim().lowercase()
+        val reportedSuccess = result.optBoolean("success")
+        // A queued/awaiting-permission request has no readable outcome.
+        // Match the shared ToolRouter terminal-state contract rather than
+        // inventing a "search succeeded" interpretation from success=true.
+        if (reportedSuccess && !ToolExecutionStatus.completed(result)) return null
+        if (!reportedSuccess && status.isNotBlank() && status !in setOf("failed", "denied")) return null
+        val success = reportedSuccess
         val detail = result.optString("summary").ifBlank {
             result.optString("error").ifBlank { "检索或阅读没有返回可用内容" }
         }
