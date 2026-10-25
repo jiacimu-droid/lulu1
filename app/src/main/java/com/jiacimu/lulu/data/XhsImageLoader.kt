@@ -84,14 +84,45 @@ internal object XhsImageLoader {
             ?: error("图片解码失败")
     }
 
-    suspend fun dataUrl(url: String): String {
-        val bitmap = bitmap(url)
-        return try {
-            val bytes = ByteArrayOutputStream().use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-                out.toByteArray()
+    /**
+     * CDN images may decode to 2048px JPEGs. Re-encoding six of them at
+     * quality 90 can exceed a relay's HTTP request-body ceiling (nginx 413)
+     * before the model receives anything. Fit the actual encoded bytes here,
+     * not the number of pixels or characters in the later prompt.
+     *
+     * Failed images remain failures, never "viewed" pictures.
+     */
+    suspend fun dataUrl(url: String, maxJpegBytes: Int = 220_000): String {
+        require(maxJpegBytes in 30_000..500_000) { "图像传输预算无效" }
+        val original = bitmap(url)
+        try {
+            for (edge in listOf(1280, 1024, 896, 768, 640, 512, 384)) {
+                currentCoroutineContext().ensureActive()
+                val longer = maxOf(original.width, original.height)
+                val scaled = if (longer <= edge) original else {
+                    val factor = edge.toFloat() / longer
+                    Bitmap.createScaledBitmap(original,
+                        (original.width * factor).toInt().coerceAtLeast(1),
+                        (original.height * factor).toInt().coerceAtLeast(1), true)
+                }
+                try {
+                    for (quality in listOf(80, 68, 56, 44)) {
+                        currentCoroutineContext().ensureActive()
+                        val bytes = ByteArrayOutputStream().use { out ->
+                            check(scaled.compress(Bitmap.CompressFormat.JPEG, quality, out)) {
+                                "小红书图片压缩失败"
+                            }
+                            out.toByteArray()
+                        }
+                        if (bytes.isNotEmpty() && bytes.size <= maxJpegBytes) {
+                            return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        }
+                    }
+                } finally {
+                    if (scaled !== original) scaled.recycle()
+                }
             }
-            "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
-        } finally { bitmap.recycle() }
+            error("图片在安全传输预算内仍无法压缩，未发送此张图片")
+        } finally { original.recycle() }
     }
 }
