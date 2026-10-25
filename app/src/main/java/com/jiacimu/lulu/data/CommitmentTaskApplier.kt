@@ -99,6 +99,7 @@ private suspend fun createCommitmentTask(
         timezone = draft.timezone,
         nextCheckAt = draft.dueAt,
         completionCondition = draft.completionCondition,
+        verificationMode = draft.verificationMode ?: "outcome",
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
         repeat = draft.repeat ?: "once",
@@ -121,23 +122,43 @@ private suspend fun updateCommitmentTask(
     complete: Boolean = false,
 ) {
     val target = findTargetTask(characterId, draft) ?: return
-    target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+    // Failed verification must not cancel the real pending reminder/review.
+    if (!complete) target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
     val next = CommitmentTaskStore.update(target.id) { current ->
         when {
-            cancel -> current.copy(status = CommitmentTaskStatus.Cancelled, nextCheckAt = null, linkedAlarmId = null, lastActionResult = "用户取消了约定")
-            complete -> current.copy(status = CommitmentTaskStatus.Completed, nextCheckAt = null, linkedAlarmId = null, lastActionResult = "用户确认目标已完成")
+            cancel -> current.copy(status = CommitmentTaskStatus.Cancelled, nextCheckAt = null, linkedAlarmId = null, followUpKind = "", lastActionResult = "用户取消了约定")
+            complete -> {
+                val proof = CommitmentOutcomeVerification.evaluate(
+                    current, draft.completionEvidenceIds, draft.verificationReason,
+                    SharedExperienceTimeline.eventsByIds(current.characterId, draft.completionEvidenceIds),
+                )
+                if (proof.accepted) current.copy(
+                    status = CommitmentTaskStatus.Completed, nextCheckAt = null,
+                    linkedAlarmId = null, followUpKind = "",
+                    completionEvidenceIds = proof.evidenceIds,
+                    lastVerificationReason = draft.verificationReason.take(240),
+                    lastActionResult = "目标根据实际证据完成核验：${proof.evidenceIds.joinToString()}；${draft.verificationReason.take(140)}",
+                ) else current.copy(
+                    lastVerificationReason = proof.reason,
+                    lastActionResult = "尝试结案未通过证据核验：${proof.reason}；目标仍未完成",
+                )
+            }
             reschedule -> current.copy(
                 goal = draft.goal.ifBlank { current.goal },
                 dueAt = draft.dueAt,
                 timezone = draft.timezone ?: current.timezone,
                 nextCheckAt = draft.dueAt,
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
+                verificationMode = draft.verificationMode ?: current.verificationMode,
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 repeat = draft.repeat ?: current.repeat,
                 linkedAlarmId = null,
+                followUpKind = "",
+                completionEvidenceIds = emptyList(),
+                lastVerificationReason = "",
                 lastAlarmScheduledAt = null,
                 executionToken = null,
                 lastAlarmReceivedAt = null,
@@ -154,6 +175,8 @@ private suspend fun updateCommitmentTask(
             else -> current
         }.let { it.copy(sourceEventIds = (it.sourceEventIds + sourceEventIds).distinct()) }
     }
+    if (complete && next?.status == CommitmentTaskStatus.Completed)
+        target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     if (next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
     CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }?.let { CommitmentLexiconSync.syncTask(it) }
 }

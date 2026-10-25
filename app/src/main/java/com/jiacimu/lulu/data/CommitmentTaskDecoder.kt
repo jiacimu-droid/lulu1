@@ -29,6 +29,10 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         timezone = item.nullString("timezone"),
                         nextCheckAt = item.nullInstant("nextCheckAt"),
                         completionCondition = item.optString("completionCondition"),
+                        verificationMode = item.optString("verificationMode", "outcome")
+                            .takeIf { it in setOf("outcome", "delivery", "subjective_report") } ?: "outcome",
+                        completionEvidenceIds = item.optJSONArray("completionEvidenceIds").strings(),
+                        lastVerificationReason = item.optString("lastVerificationReason"),
                         steps = item.optJSONArray("steps").strings(),
                         deliveryAction = item.optString("deliveryAction", "send_private_message")
                             .takeIf { it in setOf("start_call", "alarm_only") } ?: "send_private_message",
@@ -42,6 +46,7 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         lastAlarmScheduledAt = item.nullInstant("lastAlarmScheduledAt"),
                         lastAlarmReceivedAt = item.nullInstant("lastAlarmReceivedAt"),
                         lastAlarmDeliverySource = item.optString("lastAlarmDeliverySource"),
+                        followUpKind = item.optString("followUpKind"),
                         createdAt = item.optString("createdAt").instantOrNow(),
                         updatedAt = item.optString("updatedAt").instantOrNow(),
                     ),

@@ -69,6 +69,9 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
             // wake-up, not permission to invent a private-message alarm.
             val wakeMethodMissing = action == "create" && isWake &&
                 proposedRoute !in setOf("start_call", "alarm_only")
+            val proof = item.optJSONArray("completionEvidenceIds")?.let { values ->
+                buildList { for (i in 0 until values.length()) values.optString(i).trim().takeIf(String::isNotBlank)?.let(::add) }
+            }.orEmpty()
             val steps = item.optJSONArray("steps")?.let { values ->
                 buildList { for (i in 0 until values.length()) values.optString(i).trim().takeIf(String::isNotBlank)?.let(::add) }
             }.orEmpty()
@@ -79,6 +82,10 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     dueAt = dueAt,
                     timezone = item.optString("timezone").trim().takeIf(String::isNotBlank),
                     completionCondition = item.optString("completionCondition").trim(),
+                    verificationMode = item.optString("verificationMode")
+                        .takeIf { it in setOf("outcome", "delivery", "subjective_report") },
+                    completionEvidenceIds = proof,
+                    verificationReason = item.optString("verificationReason").trim(),
                     steps = steps,
                     deliveryAction = proposedRoute.takeIf {
                         it in setOf("start_call", "alarm_only", "send_private_message")

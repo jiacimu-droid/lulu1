@@ -277,10 +277,9 @@ object CommitmentTaskStore {
         val previousDue = task.dueAt ?: return
         // Keep the same task's one pending outcome-review callback before
         // moving a daily bedside promise to tomorrow. No second task/store.
-        if (task.isBedtimeSupervision() &&
+        if (task.followUpKind == "verification" &&
             task.status == CommitmentTaskStatus.WaitingForFeedback &&
-            task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true &&
-            task.attemptCount > 0) return
+            task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true) return
         val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
             ?: java.time.ZoneId.systemDefault()
         val next = nextDailyCommitmentDue(previousDue, now, zone)
@@ -305,6 +304,7 @@ object CommitmentTaskStore {
                     nextCheckAt = next,
                     linkedAlarmId = alarm.id,
                     executionToken = null,
+                    followUpKind = "",
                     attemptCount = 0,
                     lastActionResult = current.lastActionResult.take(220) +
                         "；每日循环已登记下次时刻：${next.atZone(zone)}",

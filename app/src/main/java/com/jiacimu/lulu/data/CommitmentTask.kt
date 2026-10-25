@@ -15,6 +15,10 @@ data class CommitmentTask(
     val timezone: String? = null,
     val nextCheckAt: Instant? = null,
     val completionCondition: String = "",
+    /** Result evidence is never interchangeable with a reminder/call attempt. */
+    val verificationMode: String = "outcome",
+    val completionEvidenceIds: List<String> = emptyList(),
+    val lastVerificationReason: String = "",
     val steps: List<String> = emptyList(),
     /** Concrete action promised by the role; a call must not silently become a chat message. */
     val deliveryAction: String = "send_private_message",
@@ -30,6 +34,8 @@ data class CommitmentTask(
     val lastAlarmScheduledAt: Instant? = null,
     val lastAlarmReceivedAt: Instant? = null,
     val lastAlarmDeliverySource: String = "",
+    /** "verification" is observation-only; "retry" remains a separate existing callback. */
+    val followUpKind: String = "",
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
 )
@@ -41,6 +47,9 @@ data class CommitmentTask(
 internal fun CommitmentTask.readableLastResult(): String = lastActionResult
     .replace("持续约定已记入辞海", "持续约定已保存，可在日程的未定时约定中查看")
     .replace("对应辞海约定已删除", "对应约定记录已删除")
+
+internal fun CommitmentTask.isOutcomeReview(): Boolean =
+    followUpKind == "verification" && attemptCount > 0
 
 internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
     CommitmentTaskStatus.NeedsClarification,
@@ -69,19 +78,4 @@ internal fun nextDailyCommitmentDue(
     if (!candidate.toInstant().isAfter(now.plusSeconds(5))) candidate = candidate.plusDays(1)
     return candidate.toInstant()
 }
-
-// Outcome supervision is a durable responsibility, not the same as delivering
-// an alarm or a soothing call. Legacy stored tasks have no typed goal category,
-// so this narrow compatibility projection uses the explicit supervision goal.
-// No inference from an ordinary "good night" or bedtime story alone.
-internal fun CommitmentTask.isBedtimeSupervision(): Boolean {
-    val objective = "$goal $completionCondition".lowercase()
-    return listOf("睡", "入眠", "就寝", "作息").any(objective::contains) &&
-        listOf("监督", "督促", "检查", "确认", "盯着", "看着").any(objective::contains)
-}
-
-/** Only the callback after an actual first attempt may review the outcome. */
-internal fun CommitmentTask.isBedtimeSupervisionReview(): Boolean =
-    isBedtimeSupervision() && attemptCount > 0 && dueAt != null &&
-        lastAlarmScheduledAt != null && lastAlarmScheduledAt != dueAt
 

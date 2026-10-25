@@ -135,15 +135,14 @@ internal object CommitmentDecisionRuntime {
         val active = CommitmentTaskStore.active(characterId)
         val drafts = CommitmentDecisionProtocol.drafts(changes, active)
         val completed = drafts.filter { it.action == "complete" }.mapNotNull { it.targetTaskId }.toSet()
-        if (completed.isNotEmpty()) {
-            // Only the model's completed-task decision can restore wake music
-            // volume, and only when an actual user event accompanies the change.
-            if (evidenceIds.isNotEmpty() && active.any { it.id in completed && it.isWakeResponsibility() })
-                WakeMusicCoordinator.onModelConfirmedWake(context, characterId)
-        }
-        val before = CommitmentTaskStore.snapshot(characterId).associate { it.id to it.revision }
+        val before = CommitmentTaskStore.snapshot(characterId).associateBy(CommitmentTask::id)
         applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, drafts)
-        val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id] != it.revision }
+        // A rejected completion suggestion cannot change music/alarms.
+        if (evidenceIds.isNotEmpty() && CommitmentTaskStore.snapshot(characterId).any {
+                it.id in completed && it.status == CommitmentTaskStatus.Completed &&
+                    before[it.id]?.status != CommitmentTaskStatus.Completed && it.isWakeResponsibility()
+            }) WakeMusicCoordinator.onModelConfirmedWake(context, characterId)
+        val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id]?.revision != it.revision }
         if (changed.any {
                 it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback
             } && RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {

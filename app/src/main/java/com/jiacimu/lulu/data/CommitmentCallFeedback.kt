@@ -7,30 +7,21 @@ internal object CommitmentCallFeedback {
     fun onResponse(taskId: String, answered: Boolean) {
         val task = CommitmentTaskStore.snapshot().firstOrNull { it.id == taskId } ?: return
         if (task.status != CommitmentTaskStatus.WaitingForFeedback) return
-        // A connected or rejected call is only call evidence. Neither proves
-        // completion of an external commitment (especially sleep supervision).
-        val keepReview = task.isBedtimeSupervision() &&
+        // A response is one delivery fact. Completion is evaluated against the
+        // original result condition by the same evidence gate as every other goal.
+        val keepReview = task.followUpKind == "verification" &&
             task.linkedAlarmId != null && task.nextCheckAt != null
         if (!keepReview) task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
         CommitmentTaskStore.update(taskId) { old ->
             old.copy(
-                status = when {
-                    !answered && !old.isBedtimeSupervision() -> CommitmentTaskStatus.Blocked
-                    old.isBedtimeSupervision() || old.isWakeResponsibility() ->
-                        CommitmentTaskStatus.WaitingForFeedback
-                    else -> CommitmentTaskStatus.Completed
-                },
+                status = if (!answered && !keepReview) CommitmentTaskStatus.Blocked
+                    else CommitmentTaskStatus.WaitingForFeedback,
                 linkedAlarmId = if (keepReview) old.linkedAlarmId else null,
                 nextCheckAt = if (keepReview) old.nextCheckAt else null,
+                followUpKind = if (keepReview) "verification" else "",
                 lastActionResult = if (!answered)
-                        if (old.isBedtimeSupervision()) "用户拒接本次监督来电；不再拨号，监督目标仍未核实"
-                        else "用户主动拒绝本次来电，已停止自动重拨"
-                    else if (old.isBedtimeSupervision())
-                        "睡前监督电话已接通（${java.time.Instant.now()}）；尚不代表主人已睡，等待实际设备复查"
-                    else if (old.isWakeResponsibility())
-                        old.lastActionResult.takeIf { "叫醒语音" in it && ("开始播放" in it || "完整送达" in it) }
-                            ?: "电话已实际连接（${java.time.Instant.now()}），未确认已醒；等待真实音频结果"
-                    else "电话已实际连接（${java.time.Instant.now()}），尚不代表已发声或约定目标已完成",
+                    "用户拒接本次来电，不继续自动拨号；目标是否达成仍未知"
+                else "电话已实际接通（${java.time.Instant.now()}）；仅证明接通，未核实目标结果",
             )
         }
     }
