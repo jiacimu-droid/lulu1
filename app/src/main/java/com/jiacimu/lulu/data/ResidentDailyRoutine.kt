@@ -22,7 +22,8 @@ internal object ResidentDailyRoutine {
         else -> person.neighborhoodCode
     }
 
-    fun plan(person: DigitalWorldResident, at: Instant, zone: ZoneId = ZoneId.systemDefault()): Plan {
+    fun plan(person: DigitalWorldResident, at: Instant,
+        zone: ZoneId = ZoneId.systemDefault(), context: Context? = null): Plan {
         val local = at.atZone(zone)
         val minute = local.hour * 60 + local.minute
         if (person.isCafeBarista) return if (minute in 9 * 60 until 21 * 60)
@@ -30,7 +31,11 @@ internal object ResidentDailyRoutine {
         else Plan("home", person.homeLocationCode, "下班休息")
         // The same local-day decision can adjust leisure without overriding
         // the worker's fixed job. Missing plan preserves the old stable shift.
-        val daily = ResidentDailyDecision.planForApp(person.id, at)
+        // Cold-start world ticks have an application Context but may not have
+        // initialized the daily planner singleton. Read the same persisted plan
+        // directly rather than silently reverting every resident to default leisure.
+        val daily = context?.let { ResidentDailyDecision.planFor(it, person.id, at) }
+            ?: ResidentDailyDecision.planForApp(person.id, at)
         val lunchPlace = daily?.optString("lunch")?.let(ResidentDailyDecision::allowedLeisureLocation)
             ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
             ?: DigitalWorldPublicPlaces.CAFE
@@ -62,7 +67,7 @@ internal object ResidentDailyRoutine {
         // Employees are resolved first so a visiting worker can really order.
         var transitions = 0
         for (resident in residents.sortedByDescending { it.isCafeBarista }) {
-            val plan = plan(resident, at)
+            val plan = plan(resident, at, context = app)
             val key = at.atZone(ZoneId.systemDefault()).toLocalDate().toString() + ":" + plan.slot
             if (resident.dutyKey == key) continue
             val canonical = DigitalWorldExpansionStore.commitResidentDuty(
@@ -83,7 +88,7 @@ internal object ResidentDailyRoutine {
             CharacterLifeStore.saveBodyState(characterId, body.toJson(),
                 cause = "原住民真实日程：" + activity)
             if (plan.slot in setOf("lunch", "evening") &&
-                residents.any { it.isCafeBarista && plan(it, at).location == DigitalWorldPublicPlaces.CAFE }) {
+                residents.any { it.isCafeBarista && plan(it, at, context = app).location == DigitalWorldPublicPlaces.CAFE }) {
                 val choice = when {
                     body.hunger >= 23.0 -> DigitalCafeMenu.byConsume("cafe_consume_sandwich")
                     body.thirst >= 23.0 -> DigitalCafeMenu.byConsume("cafe_consume_tea")
