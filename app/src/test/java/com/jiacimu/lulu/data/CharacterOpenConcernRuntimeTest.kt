@@ -185,6 +185,69 @@ class CharacterOpenConcernRuntimeTest {
         assertEquals(0, CharacterOpenConcernRuntime.update(null, first, "", now).length())
     }
 
+    @Test fun oldConcernRemainsAddressableWhenNewConcernsCrowdTheWorkingSet() {
+        val oldAt = Instant.parse("2026-10-14T02:00:00Z")
+        val today = Instant.parse("2026-10-25T02:00:00Z")
+        val old = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "open").put("topicKey", "contact_cost")
+            .put("focus", "担心聊天费用会打扰她")
+            .put("whyItMatters", "以为她一直在精打细算"))
+        var threads = CharacterOpenConcernRuntime.update(null, old, "oct-14-source", oldAt)
+        val oldId = threads.getJSONObject(0).getString("id")
+        // Recent concerns consume the detailed active working set; even the
+        // oldest dormant thread must still be discoverable without a new API.
+        repeat(8) { index ->
+            val proposal = JSONObject().put("pendingConcern", JSONObject()
+                .put("status", "open").put("topicKey", "recent_$index")
+                .put("focus", "新的独立问题$index")
+                .put("whyItMatters", "不同的真实经历$index"))
+            threads = CharacterOpenConcernRuntime.update(
+                threads, proposal, "oct-25-source-$index", today.plusSeconds(index.toLong()))
+        }
+        for (compact in listOf(true, false)) {
+            val visible = CharacterOpenConcernRuntime.context(threads, today.plusSeconds(120), compact)
+            assertTrue(visible.contains("threadId=$oldId"))
+            assertTrue(visible.contains("担心聊天费用"))
+            assertTrue(visible.contains("搁置"))
+        }
+        val correction = JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
+            .put("status", "revise").put("threadId", oldId)
+            .put("focus", "不再因通话额度而犹豫，仍尊重她专心时的节奏")
+            .put("whyItMatters", "她亲口解释自己现在不担心费用")
+            .put("hesitation", "她学习时可能仍然需要安静")
+            .put("possibleNextStep", "想联系时结合她实际的空闲和边界判断")))
+        val updated = CharacterOpenConcernRuntime.update(
+            threads, correction, "new-user-clarification", today.plusSeconds(180))
+        assertEquals(9, updated.length())
+        val changed = (0 until updated.length()).map { updated.getJSONObject(it) }
+            .single { it.getString("id") == oldId }
+        assertTrue(changed.getString("focus").contains("不再因通话额度"))
+        assertEquals("new-user-clarification", changed.getString("evidenceId"))
+        assertEquals(2, changed.getJSONArray("journey").length())
+    }
+
+    @Test fun aNewClarificationCanCloseOneDormantConcernWithoutClearingOthers() {
+        val earlier = Instant.parse("2026-10-14T02:00:00Z")
+        val firstTwo = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "open").put("topicKey", "fees")
+                .put("focus", "担忧通话成本").put("whyItMatters", "此前费用紧张"))
+            .put(JSONObject().put("status", "open").put("topicKey", "timing")
+                .put("focus", "希望不打断学习").put("whyItMatters", "此前学习很投入")))
+        val opened = CharacterOpenConcernRuntime.update(null, firstTwo, "oct-14-source", earlier)
+        val costId = opened.getJSONObject(0).getString("id")
+        val timingId = opened.getJSONObject(1).getString("id")
+        val closure = JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
+            .put("status", "settled").put("threadId", costId)
+            .put("resolution", "她明确说不再担心花费")))
+        val now = earlier.plusSeconds(11L * 86400)
+        val result = CharacterOpenConcernRuntime.update(opened, closure, "later-user-source", now)
+        assertEquals(1, result.length())
+        assertEquals(timingId, result.getJSONObject(0).getString("id"))
+        val past = CharacterOpenConcernRuntime.closures(opened, closure, "later-user-source", now)
+        assertEquals(1, past.size)
+        assertEquals("later-user-source", past[0].getString("closureEvidenceId"))
+    }
+
     @Test fun aRecentConcernCanCauseOneOptionalLaterReflectionButOldOnesCannot() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "genuine-call-event", now)
         assertTrue(CharacterOpenConcernRuntime.meritsOneFollowThrough(opened, now.plusSeconds(1_500)))

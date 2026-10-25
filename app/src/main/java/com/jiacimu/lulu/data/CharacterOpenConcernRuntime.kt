@@ -261,6 +261,21 @@ internal object CharacterOpenConcernRuntime {
         }
         if (active.isEmpty() && dormant.isEmpty()) return ""
         return buildString {
+            // Keep every outstanding thread addressable. The detailed working set
+            // intentionally focuses on only a few recent concerns, but a later
+            // user correction may refer to an older, dormant assumption. Hiding
+            // its threadId makes an evidence-based revise/settle impossible.
+            // At most MAX_OPEN short references are shown; this is recall, not
+            // a decision to revive any dormant concern.
+            appendLine("【全部未结挂心的检索目录｜不是当前情绪或行动命令】")
+            retained(previous).forEach { entry ->
+                val live = active.any { it.optString("id") == entry.optString("id") }
+                appendLine("- threadId=${entry.optString("id")}；" +
+                    "${if (live) "近期" else "搁置"}；在意=${entry.optString("focus").take(115)}；" +
+                    "原先依据=${entry.optString("whyItMatters").take(85)}")
+            }
+            appendLine("新消息若改变旧心事的前提，请辨认对应 threadId，自行选择 revise、settled 或 dismissed；" +
+                "部分依据变化时保留仍成立的顾虑，不自动抹除整个心事，也不把旧推测当作用户现状。")
             if (active.isNotEmpty()) {
                 appendLine("【自己仍未想通的心事｜私人猜测，不是用户事实，也不是外部待办】")
                 active.sortedWith(compareByDescending<JSONObject> { it.optInt("priority", 2) }

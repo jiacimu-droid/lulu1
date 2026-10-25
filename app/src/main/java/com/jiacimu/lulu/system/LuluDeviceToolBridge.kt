@@ -95,7 +95,7 @@ object LuluDeviceToolBridge {
         // turn has no new emotion or publishable inner-voice text. Dropping it here
         // made a successful re-answer look emotionally resolved after five minutes.
         if (delta.meaningful || groundedThought.isNotBlank() ||
-            reply.appraisal?.optJSONObject("pendingConcern") != null) {
+            com.jiacimu.lulu.data.CharacterOpenConcernRuntime.hasProposals(reply.appraisal)) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
                 characterId = characterId, evidenceId = evidenceId, appraisal = reply.appraisal,
                 innerLife = reply.innerLife, innerThoughtBasis = reply.innerThoughtBasis,
