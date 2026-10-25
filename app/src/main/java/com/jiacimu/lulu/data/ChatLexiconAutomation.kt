@@ -196,8 +196,8 @@ object ChatLexiconAutomation {
                 10. 对作息、睡觉、起床和学习进度等有明确时间的生活事实，结合原始发言时间记录可核实的日期/时刻；相对词「昨晚」相对该发言发生日理解，不等于角色此刻的「昨晚」。不确定具体日期就保留原说法，不伪造。
                 11. 让后来能比较前后变化：例如之前真实说过凌晨两点睡，今天确实更早睡，可以自然地提一句；不能把一次作息当长期习惯，也不主动创造用户未说的新进展。
             """.trimIndent(),
-            source = "辞海",
-            title = "辞海自动整理",
+            source = "生活记录",
+            title = "生活近况整理",
             maxTokens = 1_000,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.Isolated,
