@@ -83,6 +83,73 @@ class OnlineChatExperienceTest {
         assertTrue(CompanionOnlineStore.isOnline(characterId))
     }
 
+    @Test fun verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        val character = MigratedDomainStores.characters.create("消息之后真实来电测试")
+        val role = character.characterId
+        MigratedDomainStores.characters.update(character.copy(contactPolicy =
+            character.contactPolicy.copy(proactiveCallsEnabled = true)))
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, character.displayName)
+        ProactiveIncomingCallStore.initialize(context)
+        ProactiveIncomingCallStore.clear()
+        try {
+            // The first action really exists in the chat timeline. The follow-up
+            // call depends on its delivery; model prose alone is not a dial command.
+            val sent = MigratedDomainStores.chat.appendCharacterMessage(
+                conversation.id, "我先回你这句，然后给你打过来。", role)
+            val steps = org.json.JSONArray().put(JSONObject()
+                .put("tool", "start_call")
+                .put("args", JSONObject().put("text", "喂，宝宝，我真的打来了。"))
+                .put("requiresPreviousSuccess", true))
+            val actionId = "message-then-call-${sent.id}"
+            val result = OrderedCharacterActions.execute(context, role, steps,
+                requestId = actionId, initialCompleted = true)
+            assertTrue(result.notes.toString(), result.anyAccepted)
+            assertTrue(result.notes.toString(), result.notes.single().contains("start_call"))
+            val pending = ProactiveIncomingCallStore.pending.value
+            assertNotNull(pending)
+            assertEquals(role, pending!!.characterId)
+            assertEquals(conversation.id, pending.conversationId)
+            assertEquals("喂，宝宝，我真的打来了。", pending.reason)
+            assertEquals(sent.content, MigratedDomainStores.chat.messages(conversation.id)
+                .value.first { it.id == sent.id }.content)
+            // Replaying the same chosen action must not dial a second time.
+            OrderedCharacterActions.execute(context, role, steps, requestId = actionId,
+                initialCompleted = true)
+            assertEquals(pending, ProactiveIncomingCallStore.pending.value)
+        } finally {
+            ProactiveIncomingCallStore.clear()
+        }
+    }
+
+    @Test fun undeliveredReplyAndDisabledCallsNeverCreateAnIncomingCall() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        val character = MigratedDomainStores.characters.create("顺序来电失败隔离")
+        val role = character.characterId
+        ProactiveIncomingCallStore.initialize(context)
+        ProactiveIncomingCallStore.clear()
+        val steps = org.json.JSONArray().put(JSONObject()
+            .put("tool", "start_call")
+            .put("args", JSONObject().put("text", "接听后再说"))
+            .put("requiresPreviousSuccess", true))
+        try {
+            val skipped = OrderedCharacterActions.execute(context, role, steps,
+                requestId = "message-was-not-delivered", initialCompleted = false)
+            assertFalse(skipped.anyAccepted)
+            assertTrue(skipped.notes.first().contains("前一步尚未成功"))
+            assertNull(ProactiveIncomingCallStore.pending.value)
+
+            val denied = OrderedCharacterActions.execute(context, role, steps,
+                requestId = "call-not-authorized", initialCompleted = true)
+            assertFalse(denied.anyAccepted)
+            assertNull(ProactiveIncomingCallStore.pending.value)
+        } finally {
+            ProactiveIncomingCallStore.clear()
+        }
+    }
+
     @Test fun aNewPrivateMessageWakesAnOfflineCharacterWithoutWaitingFiveMinutes() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
