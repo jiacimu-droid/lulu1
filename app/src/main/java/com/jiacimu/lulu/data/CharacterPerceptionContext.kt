@@ -25,7 +25,11 @@ internal object CharacterPerceptionContext {
     ): CharacterPerceptionInput {
         val sensed = (direct + observed.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
-            .distinctBy { it.evidenceId }
+            // Edited evidence may be present in both the direct input and the
+            // authoritative timeline; only the latest revision is the new fact.
+            .groupBy { it.evidenceId }.values.mapNotNull { versions ->
+                versions.maxByOrNull { it.revision }
+            }
         val fresh = sensed.filter { stimulus ->
             if (!claimDirect && direct.any { it.evidenceId == stimulus.evidenceId }) true
             else if (deferAcknowledgement)
