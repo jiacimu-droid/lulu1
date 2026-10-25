@@ -51,6 +51,8 @@ class CharacterRecordArchitectureTest {
 
     @Test fun oldLinksHaveOneOwnerAndTargetedExpressionsKeepTheirAnchors() {
         assertEquals(CharacterRecordDestination.Memory, CharacterRecordDestination.fromLegacy("Concern"))
+        assertEquals(CharacterRecordDestination.LifeNotes, CharacterRecordDestination.fromLegacy("Life"))
+        assertEquals(CharacterRecordDestination.LifeNotes, CharacterRecordDestination.fromLegacy("生活近况"))
         assertEquals(CharacterRecordDestination.Timeline, CharacterRecordDestination.fromLegacy("历程"))
         assertEquals(CharacterRecordDestination.Schedule, CharacterRecordDestination.fromLegacy("Promise"))
         assertEquals(CharacterRecordDestination.Diary, CharacterRecordDestination.fromLegacy(null, "日记标题"))
