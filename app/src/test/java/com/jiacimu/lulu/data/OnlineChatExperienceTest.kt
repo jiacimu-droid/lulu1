@@ -47,6 +47,25 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, characterId)
     }
 
+    @Test fun directlyNamedSideActionUsesTheSameToolReceiptAndMissingStepIsHonest() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val id = MigratedDomainStores.characters.create("副动作工具别名执行回归").characterId
+        CompanionOnlineStore.wakeCharacter(id, CompanionOnlineReason.NewActivity,
+            "本轮自主行动", perceiveNow = false)
+        val steps = org.json.JSONArray()
+            .put(JSONObject().put("action", "go_offline")
+                .put("requiresPreviousSuccess", true))
+            .put(JSONObject().put("why", "想领一杯水但没有选定任何工具"))
+        val result = OrderedCharacterActions.execute(context, id, steps,
+            requestId = "side-friendly-and-nameless", initialCompleted = true)
+        assertTrue(result.notes.toString(), result.anyAccepted)
+        assertTrue(result.notes.first().contains("go_offline"))
+        assertTrue(result.notes[1].contains("未填写可执行的工具或动作名称"))
+        assertFalse(CompanionOnlineStore.isOnline(id))
+    }
+
     @Test fun failedPreviousStepDoesNotExecuteDependentSleep() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
