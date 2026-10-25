@@ -283,12 +283,18 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         }
     }
 
-    suspend fun setEntryFolder(id: String, folderId: String?) {
+    suspend fun setEntryFolder(id: String, folderId: String?) = moveEntriesToFolder(setOf(id), folderId)
+
+    /** A bulk move is one persisted transaction, not hundreds of per-entry commits. */
+    suspend fun moveEntriesToFolder(ids: Set<String>, folderId: String?) {
+        if (ids.isEmpty()) return
         synchronized(lock) {
             require(folderId == null || folders.value.any { it.id == folderId }) { "分类不存在" }
-            mutate { current -> current.map {
-                if (it.id == id) it.copy(folderId = folderId, updatedAt = Instant.now()) else it
-            } }
+            mutate { current ->
+                current.map { if (it.id in ids && it.folderId != folderId)
+                    it.copy(folderId = folderId, updatedAt = Instant.now()) else it
+                }
+            }
         }
     }
 
