@@ -94,7 +94,7 @@ object CommitmentLexiconSync {
             if (task.currentStep > 0 && task.steps.isNotEmpty()) {
                 append('\n').append("步骤：${task.currentStep.coerceAtMost(task.steps.size)}/${task.steps.size}")
             }
-            if (task.lastActionResult.isNotBlank()) append('\n').append("最近结果：${task.lastActionResult}")
+            if (task.lastActionResult.isNotBlank()) append('\n').append("最近结果：${task.readableLastResult()}")
         }
         val status = when {
             task.status.isActive() -> LexiconStatus.Active
