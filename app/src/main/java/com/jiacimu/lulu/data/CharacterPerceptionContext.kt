@@ -55,7 +55,8 @@ internal object CharacterPerceptionContext {
     fun personalOutcome(source: String, content: String): String? {
         if (source != "tool-router") return null
         val execution = runCatching { JSONObject(content) }.getOrNull() ?: return null
-        if (execution.optString("tool") !in CharacterActivityExpectation.tools ||
+        if ((execution.optString("tool") !in CharacterActivityExpectation.tools &&
+                execution.optString("tool") !in SearchReceiptFeedback.resultTools) ||
             execution.optString("status") !in setOf("succeeded", "failed")) return null
         val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return null
         if (execution.optString("tool") == "digital_world_action") {
@@ -99,8 +100,19 @@ internal object CharacterPerceptionContext {
             .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id) }
     }
 
+    /** The same evidence intake for any initiator: result text is an observation, not a claim
+     * of comprehension. Preserve enough actual hits/URLs for the next decision to assess them. */
+    private fun visibleEvidence(event: SharedTimelineEvent): String {
+        val searchReceipt = event.evidenceKind == EventEvidenceKind.ToolResult &&
+            event.source == "tool-router" && runCatching {
+                JSONObject(event.content).optString("tool") in SearchReceiptFeedback.resultTools
+            }.getOrDefault(false)
+        return (personalOutcome(event.source, event.content) ?: event.content)
+            .take(if (searchReceipt) 3_600 else 700)
+    }
+
     fun stimulus(event: SharedTimelineEvent): PerceptionStimulus = PerceptionStimulus(
-        event.id, "[${event.occurredAt}] ${(personalOutcome(event.source, event.content) ?: event.content).take(700)}",
+        event.id, "[${event.occurredAt}] ${visibleEvidence(event)}",
         ResidentSocialMailbox.witnessedMessage(event)?.let { message ->
             setOf(if (event.characterId == message.toId) message.fromId else message.toId)
         } ?: if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
@@ -114,7 +126,7 @@ internal object CharacterPerceptionContext {
 
     fun render(events: List<SharedTimelineEvent>): String = if (events.isEmpty()) "" else buildString {
         appendLine("【真实感知到的互动与世界事件｜按先后一起理解，不只盯着聊天】")
-        events.forEach { appendLine("- evidenceId=${it.id}；[${it.occurredAt}] ${(personalOutcome(it.source, it.content) ?: it.content).take(700)}") }
+        events.forEach { appendLine("- evidenceId=${it.id}；[${it.occurredAt}] ${visibleEvidence(it)}") }
         appendLine("本人的阅读、游戏、居民交流和处理事件也能影响自己的心情；结合做事前的期待及已有心愿理解结果，不把每次活动当作用户交办的任务。一次经历可有混合感受，分享是个人选择。")
         appendLine("先区分客观事实与主观解释。对沉默、挂断、设备收音不确定等行为可以有多种情绪和判断，不能直接断言用户的内心意图。可以继续想、改变感受、联系、等待或不做什么；均由人格和关系决定。过去的互动与到访不等于此刻仍在进行。")
     }.trim()
