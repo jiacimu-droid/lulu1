@@ -605,7 +605,7 @@ object ProactivePerceptionScheduler {
      * The durable ToolRouter event is the input; this job is only a wake-up.
      * Bursts coalesce, while recursive searches have a bounded immediate budget.
      * Deferred receipts remain available to normal perception, never marked as seen here. */
-    fun scheduleToolResultPerception(context: Context, characterId: String, evidenceId: String) {
+    @Synchronized fun scheduleToolResultPerception(context: Context, characterId: String, evidenceId: String) {
         if (characterId.isBlank() || evidenceId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
         val app = context.applicationContext
@@ -800,21 +800,35 @@ class ProactivePerceptionWorker(
         // when the user has spoken since it was queued; the original timeline
         // event remains available to future low-priority perception.
         val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
-        val searchReceipt = if (characterId != null && interactionId.isNotBlank())
+        val isSearchWake = trigger.startsWith("本人真实搜索/阅读刚得到执行回执")
+        val searchReceipt = if (isSearchWake && characterId != null) {
+            // Multiple receipts may replace one scheduled wake, and its last
+            // event might already have been handled by the primary chat. Pick
+            // the oldest *remaining* relevant receipt from the canonical
+            // timeline instead of silently dropping earlier pending results.
+            SearchReceiptFeedback.firstUnacknowledged(
+                CharacterPerceptionContext.selectRecent(
+                    SharedExperienceTimeline.recentEvents(characterId, 160),
+                    Instant.now(), limit = 160,
+                ),
+            ) { candidate ->
+                PerceptionStimulusLedger.hasSeen(applicationContext, characterId,
+                    candidate.id, candidate.revision)
+            }
+        } else if (characterId != null && interactionId.isNotBlank()) {
             SharedExperienceTimeline.eventsByIds(characterId, listOf(interactionId))
-                .firstOrNull(SearchReceiptFeedback::completedEvidence) else null
+                .firstOrNull(SearchReceiptFeedback::completedEvidence)
+        } else null
         val searchReceiptPending = searchReceipt != null
         // Cancelled or withdrawn evidence must never wake a character as though
         // a still-valid search result existed. Normal time-based wake is separate.
-        if (trigger.startsWith("本人真实搜索/阅读刚得到执行回执") && !searchReceiptPending)
+        if (isSearchWake && !searchReceiptPending)
             return@runCatching Result.success()
         // Search results are durable stimuli, regardless of who requested them.
         // Do not run a second autonomous decision over a live chat or phone turn.
-        // A result arriving during a long search-reply must not be lost when
-        // unread messages still belong to the primary chat owner.
         if (searchReceiptPending && characterId != null) {
-            if (PerceptionStimulusLedger.hasSeen(applicationContext, characterId, interactionId,
-                checkNotNull(searchReceipt).revision))
+            if (!isSearchWake && PerceptionStimulusLedger.hasSeen(applicationContext,
+                    characterId, searchReceipt.id, searchReceipt.revision))
                 return@runCatching Result.success()
             val chatBusy = MigratedDomainStores.chat.conversations.value.any {
                 it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
@@ -824,8 +838,9 @@ class ProactivePerceptionWorker(
                 inCall = CompanionPresenceStore.isInCall(characterId),
                 chatGenerating = chatBusy,
             )) {
-                // WorkManager retries without repeating the search. If the live
-                // turn stays busy, leave the result for ordinary later perception.
+                // The user's active conversation owns its response. Do not
+                // turn a search wake into an expensive duplicate chat reply.
+                // Unacknowledged evidence remains on the timeline.
                 return@runCatching if (runAttemptCount < 2) Result.retry() else Result.success()
             }
         } else if (characterId != null && interactionId.isNotBlank() &&
@@ -894,6 +909,23 @@ class ProactivePerceptionWorker(
             requiredInteractionEvidenceId = inputData.getString("interactionEvidenceId"),
             onlineExpiryAtMillis = onlineExpiryAtMillis,
         )
+        // One coalesced wake may represent several completed searches. The
+        // model considered only the bounded pending input batch; if results
+        // remain, reuse the existing budgeted scheduler instead of losing them
+        // behind the last replaced wake ticket.
+        if (isSearchWake && characterId != null) {
+            val next = SearchReceiptFeedback.firstUnacknowledged(
+                CharacterPerceptionContext.selectRecent(
+                    SharedExperienceTimeline.recentEvents(characterId, 160),
+                    Instant.now(), limit = 160,
+                ),
+            ) { candidate ->
+                PerceptionStimulusLedger.hasSeen(applicationContext, characterId,
+                    candidate.id, candidate.revision)
+            }
+            if (next != null) ProactivePerceptionScheduler.scheduleToolResultPerception(
+                applicationContext, characterId, next.id)
+        }
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
     }.getOrElse {
