@@ -30,6 +30,36 @@ class CharacterPerceptionContextTest {
         assertEquals("game-fact", CharacterPerceptionContext.outcomeEvidenceId(game.source, game.content))
         assertNull(CharacterPerceptionContext.personalOutcome("message", game.content))
     }
+    @Test fun allRealSearchResultsReenterSharedPerceptionWithUsefulEvidence() {
+        val now = Instant.parse("2026-10-25T04:10:00Z")
+        fun search(tool: String, status: String): SharedTimelineEvent {
+            val id = "tool-role-$tool-$status"
+            val info = "搜索来源与摘要：" + "资料内容".repeat(180) + "；原始URL=https://example.org/actual-result"
+            val result = org.json.JSONObject().put("success", status == "succeeded")
+                .put("summary", info).put("evidenceId", id)
+            val execution = org.json.JSONObject().put("tool", tool).put("status", status)
+                .put("result", result.toString())
+            return SharedTimelineEvent(id, "role", "实际工具执行", "执行器",
+                execution.toString(), now, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        val search = search("web_search", "succeeded")
+        val image = search("image_search", "succeeded")
+        val xhs = search("read_xiaohongshu", "succeeded")
+        val failed = search("web_search", "failed")
+        val pending = search("web_search", "pending")
+        val fake = search.copy(id = "story", source = "message",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertEquals(listOf(search.id, image.id, xhs.id, failed.id),
+            CharacterPerceptionContext.selectRecent(
+                listOf(search, image, xhs, failed, pending, fake), now).map { it.id })
+        val observed = CharacterPerceptionContext.stimulus(search).description
+        assertTrue(observed.contains("https://example.org/actual-result"))
+        assertTrue(observed.length > 700)
+        assertTrue(CharacterPerceptionContext.render(listOf(search)).contains("原始URL="))
+        assertTrue(CharacterPerceptionContext.stimulus(failed).description.contains("搜索来源与摘要"))
+        assertNull(CharacterPerceptionContext.personalOutcome("message", search.content))
+    }
     @Test fun observedCallEndIsAnEventNotAnInferenceAboutUserEmotion() {
         val now = Instant.parse("2026-10-11T00:00:00Z")
         val call = SharedTimelineEvent(
