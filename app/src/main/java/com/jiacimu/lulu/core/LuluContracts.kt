@@ -118,6 +118,8 @@ data class WorldBookEntry(
     val characterOverrides: Map<String, Boolean>,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = createdAt,
+    /** Optional organizer metadata; never affects prompt order or enablement. */
+    val folderId: String? = null,
 )
 
 interface WorldBookRepository {
