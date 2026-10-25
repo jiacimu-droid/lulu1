@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d9ab3bf31ca9928efbd6cb251500f24be07c1553`
+- 基准提交：`195bf059a82249dadd654411fdc4af0173956c45`
 - 分支：`main`
 - 已索引文件：905
-- 已索引代码/文本行：178215
+- 已索引代码/文本行：178214
 - 已发现符号：2671
 
 | 文件 | 行数 | 符号数 |
@@ -618,7 +618,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 507 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 492 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 180 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |

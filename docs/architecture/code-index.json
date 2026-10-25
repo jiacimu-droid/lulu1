@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:07:52.127879+00:00",
-  "commit": "d9ab3bf31ca9928efbd6cb251500f24be07c1553",
+  "generatedAt": "2026-10-25T14:09:22.487401+00:00",
+  "commit": "195bf059a82249dadd654411fdc4af0173956c45",
   "branch": "main",
-  "sourceFingerprint": "2f518299f41236d7b2203d546e226ed3474fd313ea9ec8a23efd58ed233829c2",
+  "sourceFingerprint": "7fb08a7ca6f2ec98d8358ce0d9f6599e7f81d0b98d9a23b7c82919efae1b8a54",
   "summary": {
     "files": 905,
-    "lines": 178215,
+    "lines": 178214,
     "symbols": 2671
   },
   "symbolIndex": {
@@ -28367,8 +28367,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-      "lines": 180,
-      "sha256": "59d45c5cc37f05b183b26d67c0021f1f310d0ca915f3f94437eb793d18dad607",
+      "lines": 179,
+      "sha256": "1f3e546720a4680eee1788a6138927c8554d5e01e1606e135a8c5710e9b7e934",
       "symbols": [
         {
           "name": "dismiss",
