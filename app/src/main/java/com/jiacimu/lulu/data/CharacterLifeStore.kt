@@ -135,13 +135,12 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
-    /** The user's optional, per-character private conversation setting is not learned personality. */
-    @Synchronized fun setIntimacyConversationMode(characterId: String, mode: String) {
-        require(CharacterIntimacyConversationPreference.choices.any { it.first == mode })
-        if (characterId.isBlank()) return
-        if (CharacterIntimacyConversationPreference.selected(characterId) == mode) return
+    /** A single optional adult-conversation hint; never changes the character's persona. */
+    @Synchronized fun setNsfwEnabled(characterId: String, enabled: Boolean) {
+        if (characterId.isBlank() || CharacterIntimacyConversationPreference.enabled(characterId) == enabled) return
         val root = state(characterId)
-        root.put("intimacyConversationMode", mode)
+        // Keep the existing preference key so installs with "adult" remain enabled.
+        root.put("intimacyConversationMode", if (enabled) "adult" else "everyday")
         save(characterId, root)
     }
 
