@@ -233,7 +233,9 @@ object LuluScreenAwareness {
         if (!userRequested && cooldownRemaining(context) > 0L)
             return rejected(context, "距上次自主截图不足五分钟", "cooldown")
         if (!userRequested && !approved) return requestCapture(context, characterId, requestId)
-        if (!notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
+        // A study session already has a separately enabled, ongoing STOP notification.
+        // Do not gate approved monitoring on the unrelated one-off screenshot request channel.
+        if (sessionId.isBlank() && !notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
             return rejected(context, "屏幕查看提醒方式都不可用，拒绝无提示截图")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
         // The approved study session already has an ongoing, stoppable indicator.
