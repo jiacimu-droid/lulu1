@@ -42,7 +42,7 @@ internal object LuluScreenRequestPopup {
         onFailure: () -> Unit = {}): Boolean =
         show(context, "study-watch:$id", "$role 想监督你学习",
             "允许在接下来${minutes}分钟内不定时查看屏幕",
-            "仅限当前时段；会显示持续通知，随时可停止。隐私页面不读取。",
+            "仅限本时段；截图会交给已配置的识图模型，可能产生API费用；不保存原图。持续通知可随时停止，隐私页面不读取。",
             listOf("拒绝" to onDeny, "允许本时段" to onAllow),
             120_000L, stillPending, onFailure)
 
