@@ -141,6 +141,21 @@ class CharacterThoughtActionHandoffTest {
         assertEquals("", steps.getJSONObject(1).optString("tool"))
     }
 
+    @Test fun separateInvalidSideActionsMustNotCollapseIntoOneBlankTool() {
+        val decision = JSONObject()
+            .put("steps", JSONArray().put(JSONObject().put("description", "先找温水")))
+            .put("sideActions", JSONArray()
+                .put(JSONObject().put("description", "去找别人聊天"))
+                .put(JSONObject().put("description", "想发朋友圈")))
+        val original = decision.toString()
+        val actions = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(3, actions.length())
+        assertTrue((0 until actions.length()).all {
+            actions.getJSONObject(it).optString("tool").isBlank()
+        })
+        assertEquals(original, decision.toString())
+    }
+
     @Test fun malformedChosenActionsReachTheExecutorAsFailuresInsteadOfBecomingImaginedSuccess() {
         val steps = CharacterThoughtActionHandoff.actions(JSONObject().put("nextAction", JSONObject()
             .put("tool", "unknown-tool")))!!
