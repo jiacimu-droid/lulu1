@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:17:24.921801+00:00",
-  "commit": "080419f2c59129d1f7d08a6205a62da62787a27d",
+  "generatedAt": "2026-10-25T05:19:58.627470+00:00",
+  "commit": "d700b169b703dd19d74d3335e37213d37b3f23b8",
   "branch": "main",
-  "sourceFingerprint": "cba52c395e1ddbc03c360d8806fb519ed157906f5251ffb148b437529c03c75a",
+  "sourceFingerprint": "0fa16d91ee866b080b6179615ee68a1f9b806fd27e591e21222a2b87198d0b92",
   "summary": {
     "files": 889,
-    "lines": 173703,
+    "lines": 173770,
     "symbols": 2606
   },
   "symbolIndex": {
@@ -4681,7 +4681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 475
+        "line": 541
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -4925,7 +4925,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 379
+        "line": 445
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4935,7 +4935,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 441
+        "line": 507
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -18943,8 +18943,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 551,
-      "sha256": "59dc4826f278fd7eb1a35a289d74cf8d485744a3beb304b9a15de7de1195a339",
+      "lines": 617,
+      "sha256": "e4c0bfb5826dd81249788d6753292e5935e6b8c30f798e7998d2aa42da6e6856",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -18960,15 +18960,15 @@
         },
         {
           "name": "pendingDecisionCues",
-          "line": 379
+          "line": 445
         },
         {
           "name": "briefContext",
-          "line": 441
+          "line": 507
         },
         {
           "name": "promptSection",
-          "line": 475
+          "line": 541
         }
       ]
     },
@@ -20412,8 +20412,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 98,
-      "sha256": "2ae935a6f9b56f7515f2c1c4479cd3794a2ccda102cd7e46e03b900f1cbd0f9e",
+      "lines": 99,
+      "sha256": "7635fde29ddb6aa525c2e9bfd876552e34db059ccc5a718a22d60e64d84392a2",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
