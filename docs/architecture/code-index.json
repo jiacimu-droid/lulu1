@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:33:58.499077+00:00",
-  "commit": "14d02a4cbd4004a9fd496ef062e635a46cdd4758",
+  "generatedAt": "2026-10-25T07:34:42.154842+00:00",
+  "commit": "696edcfd8422a12a56c22c9010d871d6e2d98e31",
   "branch": "main",
-  "sourceFingerprint": "b2e13432b57936021bcd559dd7af9239403474791adecf9453bd46a8b4c95152",
+  "sourceFingerprint": "b1aea51e9302468ddb3c53ccc9c31e2730a1bd82049c8b0df5a8c257d5de7884",
   "summary": {
-    "files": 892,
-    "lines": 175081,
-    "symbols": 2631
+    "files": 893,
+    "lines": 175148,
+    "symbols": 2632
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14728,6 +14728,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
         "line": 14
+      }
+    ],
+    "LuluStudyWatchTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
+        "line": 17
       }
     ],
     "TimelineMigrationTest": [
@@ -31270,6 +31276,17 @@
         {
           "name": "LuluScreenAwarenessTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
+      "lines": 67,
+      "sha256": "cb6cb8fd1019bee45b4a5fb7b03102c03b9893245d6ad1718a3b3e1e4e6b528d",
+      "symbols": [
+        {
+          "name": "LuluStudyWatchTest",
+          "line": 17
         }
       ]
     },
