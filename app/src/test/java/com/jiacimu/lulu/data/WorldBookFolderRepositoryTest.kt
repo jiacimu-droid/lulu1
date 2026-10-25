@@ -73,4 +73,28 @@ class WorldBookFolderRepositoryTest {
             assertTrue(repo.snapshot().all { it.folderId == null })
         }
     }
+    @Test fun searchMatchesFolderTitleAndBodyButKeepsOriginalOrder() {
+        val folders = listOf(WorldBookFolder("f1", "古代历史"), WorldBookFolder("f2", "人物背景"))
+        val books = listOf(
+            entry("a").copy(title = "骑士", content = "忠诚", folderId = "f2"),
+            entry("b").copy(title = "国王", content = "城堡", folderId = "f1"),
+            entry("c").copy(title = "平民", content = "古代生活", folderId = "f2"),
+            entry("d").copy(title = "工匠", content = "制造武器"),
+        )
+        assertEquals(listOf("b"), groupWorldBookEntries(books, folders, "历史")
+            .flatMap { it.third }.map { it.id })
+        assertEquals(listOf("a"), groupWorldBookEntries(books, folders, "骑士")
+            .flatMap { it.third }.map { it.id })
+        assertEquals(listOf("c"), groupWorldBookEntries(books, folders, "生活")
+            .flatMap { it.third }.map { it.id })
+        assertEquals(listOf("d"), groupWorldBookEntries(books, folders, "武器")
+            .flatMap { it.third }.map { it.id })
+        assertEquals(listOf("a", "c"), groupWorldBookEntries(books, folders, "人物背景")
+            .flatMap { it.third }.map { it.id })
+        val all = groupWorldBookEntries(books, folders, "")
+        assertEquals(listOf("d", "b", "a", "c"), all.flatMap { it.third }.map { it.id })
+        // Grouped viewing is presentation-only; prompt ordering stays a,b,c,d.
+        assertEquals(listOf("a", "b", "c", "d"), books.map { it.id })
+    }
+
 }
