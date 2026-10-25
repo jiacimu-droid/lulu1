@@ -1,3 +1,10 @@
+## 2026-10-25：AstrBot Agent 架构经验对照
+
+- 参考：https://github.com/AstrBotDevs/AstrBot （AGPL-3.0）。
+- 阅读了事件总线、管道调度、ToolLoopAgentRunner、Cron 唤醒和插件管理的公开源码，用于理解事件驱动、工具结果回流、能力状态与执行诊断的职责分工。
+- 露露机本轮修改仅复用已有 Kotlin `ToolRouter`、`ProactivePerceptionScheduler`、`CapabilityRegistry`、`CharacterDevelopmentRuntime` 和感知检查点机制，独立实现已退役能力拦截、归因、generation 竞态防护与 SQLite 精确去重；**未复制 AstrBot Python 源码或移植其插件资产**。
+- AstrBot 的通用 Agent 人设、会话调度与露露机持续人格/内心/成长不等价，未用第三方通用人格替代露露机人物因果契约。若未来复制/改编任何 AGPL 代码，需在引入前另行审查许可证义务。
+
 ## 2026-10-22：ears 思路借鉴 · 本机客观声学线索
 
 - 参考：https://github.com/eveacla11/ears ，MIT；**独立 Kotlin 实现**，未复制 Python 算法、模型或项目文件。
