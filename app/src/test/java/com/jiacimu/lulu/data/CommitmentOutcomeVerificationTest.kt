@@ -44,12 +44,17 @@ class CommitmentOutcomeVerificationTest {
 
     @Test fun successfulToolCannotProveSeparateRealWorldOutcome() {
         val receipt = event("alarm-success", EventEvidenceKind.ToolResult, "tool-router")
-            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"create_alarm"}""")
+            .copy(content = """{"status":"succeeded","result":"{\"success\":true}","tool":"create_alarm"}""")
         val checked = CommitmentOutcomeVerification.evaluate(
             task, listOf("alarm-success"),
             "已成功设置闹钟，主人肯定已经入睡",
             listOf(receipt),
         )
+        assertTrue("Receipt fixture must prove the tool actually succeeded",
+            CommitmentOutcomeVerification.evaluate(
+                task.copy(verificationMode = "delivery"),
+                listOf("alarm-success"), "闹钟已经真实保存成功", listOf(receipt)
+            ).accepted)
         assertFalse("Tool execution is not sleep observation", checked.accepted)
     }
 
