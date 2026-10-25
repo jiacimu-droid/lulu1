@@ -29,6 +29,7 @@ import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.WorldBookJsonImporter
 import com.jiacimu.lulu.data.WorldBookFolder
+import com.jiacimu.lulu.data.groupWorldBookEntries
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -103,19 +104,9 @@ fun CharacterWorldBookScreenV2(
     var folderDraft by remember { mutableStateOf("") }
     var createForSelection by remember { mutableStateOf(false) }
     var deleteFolderConfirm by remember { mutableStateOf<WorldBookFolder?>(null) }
-    val folderIds = folders.map { it.id }.toSet()
     val normalizedQuery = query.trim()
-    val groups = (listOf<String?>(null) + folders.map { it.id }).mapNotNull { folderId ->
-        val title = folders.firstOrNull { it.id == folderId }?.name ?: "未分类"
-        val matching = books.filter { book ->
-            val actualFolder = book.folderId?.takeIf { it in folderIds }
-            actualFolder == folderId && (normalizedQuery.isBlank() ||
-                title.contains(normalizedQuery, ignoreCase = true) ||
-                book.title.contains(normalizedQuery, ignoreCase = true) ||
-                book.content.contains(normalizedQuery, ignoreCase = true))
-        }
-        if (matching.isEmpty() && (folderId == null && normalizedQuery.isBlank() || normalizedQuery.isNotBlank() && !title.contains(normalizedQuery, ignoreCase = true))) null
-        else Triple(folderId, title, matching)
+    val groups = remember(books, folders, normalizedQuery) {
+        groupWorldBookEntries(books, folders, normalizedQuery)
     }
     val enabledCount = books.count { it.characterOverrides[selectedCharacterId] ?: it.globalEnabled }
 
