@@ -51,6 +51,15 @@ internal object CharacterPerceptionContext {
             .getOrNull()?.takeIf(String::isNotBlank)
     }
 
+    /** Pick a real witnessed source for an inner-state transition. The composite
+     * perception-sources ID is only a prompt envelope and is not a timeline event. */
+    fun latestObservedEvidenceId(
+        fresh: List<PerceptionStimulus>, observed: List<SharedTimelineEvent>,
+    ): String {
+        val eligible = observed.mapTo(hashSetOf()) { it.id }
+        return fresh.lastOrNull { it.evidenceId in eligible }?.evidenceId.orEmpty()
+    }
+
     /** Receipts are executor-authored; model dialogue and third-party biographies cannot pass. */
     fun personalOutcome(source: String, content: String): String? {
         if (source != "tool-router") return null
