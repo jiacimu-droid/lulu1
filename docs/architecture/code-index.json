@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:27:25.724407+00:00",
-  "commit": "6579248a922abd1e5f9e3dadaa93fa0f2b71d11b",
+  "generatedAt": "2026-10-25T13:28:00.248044+00:00",
+  "commit": "706618866477bbc3dcbd1f06302939e3f593a801",
   "branch": "main",
-  "sourceFingerprint": "b44465525c7b785f80a57ed077b4295ec5a0a8208eb872c096c5c09d0e7a2852",
+  "sourceFingerprint": "1c69d629b8f894476e5def5c14997277bed6a14e1190195e3ed94f63b35073a5",
   "summary": {
     "files": 902,
-    "lines": 177577,
-    "symbols": 2660
+    "lines": 177617,
+    "symbols": 2662
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1816,6 +1816,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
         "line": 80
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 72
       }
     ],
     "attemptReload": [
@@ -14688,6 +14692,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
         "line": 13
+      }
+    ],
+    "impression": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 77
       }
     ],
     "WorldBookFolderRepositoryTest": [
@@ -31241,8 +31251,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-      "lines": 74,
-      "sha256": "6e1fd8a9b0442592f407b568b66550d8f91291bce37ca34d8a280125f401a5d9",
+      "lines": 114,
+      "sha256": "196bd7bff39c397f977e3231e5b8277baf60e0bfda80c7dd906f137605dc45e9",
       "symbols": [
         {
           "name": "WanxiangCharacterContinuityTest",
@@ -31251,6 +31261,14 @@
         {
           "name": "event",
           "line": 39
+        },
+        {
+          "name": "record",
+          "line": 72
+        },
+        {
+          "name": "impression",
+          "line": 77
         }
       ]
     },
