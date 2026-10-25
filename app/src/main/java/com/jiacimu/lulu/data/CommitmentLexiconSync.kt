@@ -15,7 +15,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** Keeps 辞海 as the human-facing view while CommitmentTaskStore remains the execution source of truth. */
+/** Synchronizes legacy promise entries while CommitmentTaskStore remains the executable authority; the visible destination is 日程. */
 object CommitmentLexiconSync {
     private const val MARKER = "\n\n【任务进度】"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -41,7 +41,7 @@ object CommitmentLexiconSync {
 
     internal suspend fun syncTask(task: CommitmentTask) {
         // Repair legacy/tool-created commitments that were persisted in the
-        // execution store without any visible 辞海 entry. Write the durable
+        // execution store without any linked legacy record. Write the durable
         // entry first, then link the task, so a process restart can reconcile.
         if (task.lexiconEntryId == null) {
             val id = "scheduled-task-${task.id}"
@@ -68,7 +68,7 @@ object CommitmentLexiconSync {
         val lexiconId = task.lexiconEntryId
         val current = LuluRepositories.lexicon.snapshot(task.characterId).firstOrNull { it.id == lexiconId }
         if (current == null) {
-            if (task.status.isActive()) CommitmentTaskStore.cancel(task.id, "对应辞海约定已删除")
+            if (task.status.isActive()) CommitmentTaskStore.cancel(task.id, "对应约定记录已删除")
             return
         }
         if (current.section != LexiconSection.Promise) return
@@ -108,7 +108,7 @@ object CommitmentLexiconSync {
     private fun reconcileDeletedLexiconEntries() {
         CommitmentTaskStore.snapshot().filter { it.status.isActive() && it.lexiconEntryId != null }.forEach { task ->
             val exists = LuluRepositories.lexicon.snapshot(task.characterId).any { it.id == task.lexiconEntryId }
-            if (!exists) CommitmentTaskStore.cancel(task.id, "对应辞海约定已删除")
+            if (!exists) CommitmentTaskStore.cancel(task.id, "对应约定记录已删除")
         }
     }
 
