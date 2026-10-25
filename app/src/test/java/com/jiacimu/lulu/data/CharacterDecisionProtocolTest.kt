@@ -19,6 +19,10 @@ class CharacterDecisionProtocolTest {
         assertTrue(common.contains("横向展开"))
         assertTrue(common.contains("不是固定输出清单"))
         assertTrue(common.contains("无新消息"))
+        assertTrue(direct.contains("当前入口为「生活记录」"))
+        assertTrue(common.contains("未解挂心和持续意愿属于心事"))
+        assertTrue(direct.contains("日程任务引擎"))
+        assertFalse(direct.contains("属于辞海约定"))
     }
 
     @Test fun autonomousLifeOffersExplorationWithoutPretendingSearchHasHappened() {
