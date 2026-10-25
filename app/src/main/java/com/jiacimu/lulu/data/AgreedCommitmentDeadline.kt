@@ -105,12 +105,6 @@ internal object AgreedCommitmentDeadline {
         return if (explicitDay != null) possible.singleOrNull() else null
     }
 
-    internal fun matchesLocalClock(task: CommitmentTask, agreed: Instant, zone: ZoneId): Boolean {
-        val due = task.dueAt?.atZone(zone) ?: return false
-        val proposed = agreed.atZone(zone)
-        return due.hour == proposed.hour && due.minute == proposed.minute
-    }
-
     internal fun repairedGoal(previous: String, agreed: Instant, zone: ZoneId): String {
         val label = agreed.atZone(zone).let { "%d月%d日 %02d:%02d".format(
             it.monthValue, it.dayOfMonth, it.hour, it.minute

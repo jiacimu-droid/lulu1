@@ -155,8 +155,7 @@ internal object CommitmentDecisionRuntime {
                 task.status in setOf(CommitmentTaskStatus.Scheduled,
                     CommitmentTaskStatus.Blocked, CommitmentTaskStatus.NeedsClarification) &&
                 task.sourceEventIds.any { it.substringBefore(":group:") in evidence } &&
-                task.createdAt.isAfter(userAt.minusSeconds(3600)) &&
-                AgreedCommitmentDeadline.matchesLocalClock(task, agreed, zone)
+                task.createdAt.isAfter(userAt.minusSeconds(3600))
         }
         val target = related.singleOrNull() ?: return@withLock null
         if (target.dueAt == agreed) return@withLock target

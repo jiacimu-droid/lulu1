@@ -41,6 +41,11 @@ class AgreedCommitmentDeadlineTest {
         assertNull(resolve("不对，是8点", "嗯，知道了"))
     }
 
+    @Test fun finalClockChangeOverridesAnEarlierClockInsteadOfTheFirstMatch() {
+        val agreed = resolve("明天9点，不对是8点", "我明白，今天8点，七个小时之后")
+        assertEquals(Instant.parse("2026-10-26T00:00:00Z"), agreed)
+    }
+
     @Test fun fixedClockWinsOverRoundedRelativeHours() {
         assertEquals(Instant.parse("2026-10-26T00:00:00Z"),
             resolve("哦不对是8点", "还有7个小时之后，今天8点",
