@@ -103,6 +103,20 @@ class SearchReceiptFeedbackTest {
             JSONObject().put("success", true).put("status", "running")))
     }
 
+    @Test fun searchResultsWaitForTheirExistingChatOrCallOwnerWithoutClaimingKnowledge() {
+        assertTrue(SearchReceiptFeedback.awaitsPrimaryConversation(
+            unread = true, inCall = false, chatGenerating = false))
+        assertTrue(SearchReceiptFeedback.awaitsPrimaryConversation(
+            unread = false, inCall = true, chatGenerating = false))
+        assertTrue(SearchReceiptFeedback.awaitsPrimaryConversation(
+            unread = false, inCall = false, chatGenerating = true))
+        assertFalse(SearchReceiptFeedback.awaitsPrimaryConversation(
+            unread = false, inCall = false, chatGenerating = false))
+        val needConsent = JSONObject().put("success", false)
+            .put("status", "waiting_user").put("summary", "等待主人授权")
+        assertNull(SearchReceiptFeedback.from("read_xiaohongshu", JSONObject(), needConsent))
+        assertNull(SearchReceiptFeedback.from("web_search", JSONObject(), needConsent))
+    }
     @Test fun imageCandidateDiscoveryNeedsFollowupButSendingImageAlreadyDeliveredIt() {
         val args = JSONObject().put("op", "search")
         val result = JSONObject().put("success", true)
