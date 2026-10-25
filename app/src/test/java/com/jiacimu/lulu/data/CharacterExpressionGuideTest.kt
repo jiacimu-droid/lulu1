@@ -12,6 +12,23 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterExpressionGuideTest {
+    @Test fun wanxiangLanguagePrinciplesImproveSurfaceRhythmWithoutForcingSpeechStyle() {
+        val ordinary = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val retry = CharacterExpressionGuide.forGeneration("聊天表达自然度修复")
+        val full = CharacterExpressionGuide.forGeneration("普通聊天")
+        listOf(ordinary, retry, full).forEach { prompt ->
+            assertTrue(prompt.contains("【语言与句段：像本人当下真的在说、想、写】"))
+            assertTrue(prompt.contains("心声可以联想、犹豫或自我反驳"))
+            assertTrue(prompt.contains("日记、朋友圈与故事"))
+            assertTrue(prompt.contains("不能为生动而编造"))
+            assertTrue(prompt.contains("不是每轮都必须迟疑"))
+            assertFalse(prompt.contains("首个输出字符必须是"))
+            assertFalse(prompt.contains("</think><thinking>"))
+        }
+        assertEquals(1, ordinary.split("【语言与句段：").size - 1)
+        assertEquals(1, full.split("【语言与句段：").size - 1)
+    }
+
     @Test fun innerVoiceIsOnlyWhatTheCharacterHasNotSaidOutLoud() {
         val prompt = spontaneousInnerVoiceGuide
         assertTrue(prompt.contains("心声是没有说出口、留在心里的想法"))
