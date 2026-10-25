@@ -191,7 +191,7 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             if (task.steps.isNotEmpty()) append("；step=${task.currentStep}/${task.steps.size}")
             if (task.attemptCount > 0) append("；attempts=${task.attemptCount}")
             if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition.take(220)}")
-            if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.lastActionResult.take(260)}")
+            if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.readableLastResult().take(260)}")
             when (task.status) {
                 CommitmentTaskStatus.NeedsClarification -> append("；下一步=自然向用户问清缺失时间/条件，禁止猜测")
                 CommitmentTaskStatus.WaitingForFeedback -> append("；下一步=等待明确反馈，不得自行宣称已完成")
