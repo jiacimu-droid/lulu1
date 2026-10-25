@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:54:22.377463+00:00",
-  "commit": "631c60f116d3cc896e265604fb4574694d72eb29",
+  "generatedAt": "2026-10-25T13:54:37.426934+00:00",
+  "commit": "d73124263b75334e6d6965126cb1fcb13e7f1bf4",
   "branch": "main",
-  "sourceFingerprint": "2de402d664eabcc366a4ef5991a41197499f096d6d6638baa2cbafc24d51b298",
+  "sourceFingerprint": "06a9571fd408058e70ab987623087d9b902d94ab43221c90c2a42cdf7967506e",
   "summary": {
-    "files": 902,
-    "lines": 177707,
-    "symbols": 2662
+    "files": 903,
+    "lines": 177788,
+    "symbols": 2664
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3180,6 +3180,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
         "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
@@ -6992,6 +6996,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
         "line": 18
+      }
+    ],
+    "quoteNote": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
+        "line": 60
       }
     ],
     "repairInstruction": [
@@ -21369,6 +21379,21 @@
         {
           "name": "planningGuidance",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
+      "lines": 81,
+      "sha256": "a20c70d633e2a613276376db400e0483964b69322030dfce2a2896f8b94c761e",
+      "symbols": [
+        {
+          "name": "select",
+          "line": 25
+        },
+        {
+          "name": "quoteNote",
+          "line": 60
         }
       ]
     },
