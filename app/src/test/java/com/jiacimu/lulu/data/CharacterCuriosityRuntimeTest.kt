@@ -37,6 +37,28 @@ class CharacterCuriosityRuntimeTest {
         JSONObject().put("topic", "想看的故事").put("question", question)
             .put("why", "刚读过正文").put("nextStep", "从真实进度继续读")
 
+    @Test fun initializationRebindsPreferencesAfterAnApplicationSandboxChanges() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val real = context.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        val other = context.getSharedPreferences("lulu_curiosity_wrong_application", Context.MODE_PRIVATE)
+        real.edit().putString(id, JSONObject().put("origin", "current").toString()).commit()
+        other.edit().putString(id, JSONObject().put("origin", "old").toString()).commit()
+        val simulatedOldApp = object : android.content.ContextWrapper(context) {
+            override fun getApplicationContext(): Context = this
+            override fun getSharedPreferences(name: String?, mode: Int): android.content.SharedPreferences = other
+        }
+        try {
+            CharacterCuriosityRuntime.initialize(simulatedOldApp)
+            assertEquals("old", CharacterCuriosityRuntime.snapshot(id).getString("origin"))
+            CharacterCuriosityRuntime.initialize(context)
+            assertEquals("current", CharacterCuriosityRuntime.snapshot(id).getString("origin"))
+        } finally {
+            CharacterCuriosityRuntime.initialize(context)
+            CharacterCuriosityRuntime.clear(id)
+            other.edit().remove(id).commit()
+        }
+    }
+
     @Test fun ownerCanResumePreviousDormantQuestionWithItsOriginalIdentity() {
         begin()
         val archived = JSONObject().put("threadId", "archived-thread")
