@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:48:23.631460+00:00",
-  "commit": "bb1eea7ad74aa85381ac49a3087b2ba064236366",
+  "generatedAt": "2026-10-25T05:49:17.367868+00:00",
+  "commit": "dd2d6851261eb2613176d19fcc07d2255bca4bc4",
   "branch": "main",
-  "sourceFingerprint": "448e6621e6cbb06f7ca41bbe9cdc5c064ee19f166fb6f0c410b69945d4beafbb",
+  "sourceFingerprint": "6d1897c6903d0aab9fa150e044cb722c31dd826281a083ca274c5b429320d911",
   "summary": {
     "files": 891,
     "lines": 174301,
@@ -19626,7 +19626,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
       "lines": 79,
-      "sha256": "5ecb81a37c9c55d67ebd9a8318a81974999d2cf783017b2b535bc8305961cd02",
+      "sha256": "27506b7a4ce1361fec6de4e82ebf31c508ff683fd3b6a09f19e85d1938780fa6",
       "symbols": [
         {
           "name": "localDay",
@@ -20368,7 +20368,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
       "lines": 95,
-      "sha256": "fc29ef526bcec837ec4ea018494809a39191f17646a7610ed73ad018c02a460c",
+      "sha256": "6702ac5d17c1703ca653938cc7a4d00a37d50b5c8346c22718fb9e8653506c26",
       "symbols": [
         {
           "name": "Cue",
@@ -20868,7 +20868,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1209,
-      "sha256": "7924c3eb08e74e115b4cf2723fe3153f86b2d81ff7977c6b50256877d94c8d3c",
+      "sha256": "ba6aea7689f488de6da99c35629b80bab66b7e2f2cfe005817021f44ad8fa8a2",
       "symbols": [
         {
           "name": "asJson",
