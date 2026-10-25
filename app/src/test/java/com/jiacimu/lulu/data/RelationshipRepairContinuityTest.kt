@@ -48,6 +48,13 @@ class RelationshipRepairContinuityTest {
         assertEquals("想继续读自己的书", remaining.getJSONObject(0).getString("focus"))
         assertEquals(2, RelationshipRepairContinuity.reconcileConcernProposals(
             proposal, "我还没原谅你")!!.getJSONArray("pendingConcerns").length())
+        // An old paused repair concern cannot be reactivated on the exact turn
+        // where the user affirmatively says the dispute is already settled.
+        val resumed = JSONObject().put("pendingConcerns", JSONArray().put(JSONObject()
+            .put("status", "resume").put("threadId", "old-repair")
+            .put("focus", "重新请求她原谅")))
+        assertEquals(0, RelationshipRepairContinuity.reconcileConcernProposals(
+            resumed, "我们已经说开了")!!.getJSONArray("pendingConcerns").length())
     }
 
     @Test fun historicalUserWordsMustNotOverwriteNewerGoalChanges() {

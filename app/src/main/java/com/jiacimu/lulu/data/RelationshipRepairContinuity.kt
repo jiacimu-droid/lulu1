@@ -74,7 +74,7 @@ internal object RelationshipRepairContinuity {
     fun reconcileConcernProposals(appraisal: JSONObject?, confirmedUserWords: String): JSONObject? {
         if (appraisal == null || !userExplicitlySettled(confirmedUserWords)) return appraisal
         fun staleRepair(p: JSONObject): Boolean =
-            p.optString("status", "open").lowercase() in setOf("open", "revise") &&
+            p.optString("status", "open").lowercase() in setOf("open", "revise", "resume") &&
                 isRepairConcern(p.optString("focus"))
         val clean = JSONObject(appraisal.toString())
         appraisal.optJSONArray("pendingConcerns")?.let { proposals ->
