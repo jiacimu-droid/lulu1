@@ -162,6 +162,7 @@ internal object CompanionActionRuntime {
                 appendLine("- location=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
             }
             if (includeWorldContext) appendLine(DigitalWorldStore.contextFor(characterId))
+            else appendLine(DigitalWorldStore.resourceContext(characterId))
             appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId))
             appendLine("居民的持续小事走 digital_world_action，args={\"worldAction\":\"interact_resident\",\"itemId\":\"在场居民ID\",\"activityId\":\"share_text|co_write|exchange_views|continue_episode\",\"text\":\"本人真实写下的短文/上句/观点，最多500字\",\"incidentId\":\"继续时的原事件ID\"}。先提出，约稍后再当面谈；实际台词和结果分阶段保存，允许对方婉拒、提修改或持不同意见。也可只普通闲聊。去已登记居民家门前用 worldAction=visit_resident_home + itemId=居民ID；对方须真在家，不等于获邀进入室内。")
             DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
