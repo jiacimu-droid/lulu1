@@ -1559,32 +1559,41 @@ object LuluDeviceToolBridge {
             requestId = requestId,
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId,
             learningApplication = plan.learningApplication,
-            causeEvidenceId = groundingEvidenceId, reason = plan.reason, curiosity = plan.curiosity)
+            causeEvidenceId = groundingEvidenceId, reason = plan.reason, curiosity = plan.curiosity,
+            motiveId = plan.motiveId, concernId = plan.concernId,
+            experienceId = plan.experienceId)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
         val actionReceipt = "tool-$characterId-$requestId"
         val executedSuccess = actual?.optBoolean("success") == true
         val executedSummary = actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) }
-        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
-            characterId, plan.motiveId, actionReceipt, plan.tool, executedSuccess, executedSummary,
-        )
-        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
-            characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
-        )
-        val lifeAction = when (plan.tool) {
-            "publish_moment" -> "moment"
-            "send_private_message", "send_group_message" -> "message"
-            "read_book" -> "reading"
-            "play_solo_game" -> "solo_game"
-            "digital_world_action" -> "digital_world"
-            else -> ""
+        // Ordinary actions are now projected once by ToolRouter from the
+        // persisted executor receipt, including crash-replay recovery. A
+        // pre-computed XHS read may predate this request; keep its existing
+        // compatibility projection without running navigation a second time.
+        if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
+                characterId, plan.motiveId, actionReceipt, plan.tool, executedSuccess, executedSummary,
+            )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
+                characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
+            )
+            val lifeAction = when (plan.tool) {
+                "publish_moment" -> "moment"
+                "send_private_message", "send_group_message" -> "message"
+                "read_book" -> "reading"
+                "play_solo_game" -> "solo_game"
+                "digital_world_action" -> "digital_world"
+                else -> ""
+            }
+            if (lifeAction.isNotBlank()) com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.recordAction(
+                characterId, plan.experienceId, lifeAction, executedSuccess, executedSummary,
+                actual?.optString("evidenceId").orEmpty(),
+            )
+            if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
+                characterId, plan.curiosity, plan.tool, executedSummary,
+            )
         }
-        if (lifeAction.isNotBlank()) com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.recordAction(
-            characterId, plan.experienceId, lifeAction, executedSuccess, executedSummary,
-            actual?.optString("evidenceId").orEmpty(),
-        )
-        if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
-            characterId, plan.curiosity, plan.tool, executedSummary,
-        )
+
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
