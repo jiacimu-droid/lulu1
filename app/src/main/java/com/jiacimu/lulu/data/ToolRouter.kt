@@ -9,6 +9,25 @@ import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
+/** Shared dependency gate for an actual tool outcome, not an accepted request.
+ * All scenes must use this before allowing requiresPreviousSuccess steps.
+ */
+internal object ToolExecutionStatus {
+    private val completedStates = setOf(
+        "succeeded", "observed", "notification_posted", "popup_requested",
+        "verified", "already_at_target", "unchanged", "capped", "at_safe_limit",
+    )
+
+    fun completed(result: JSONObject): Boolean {
+        if (!result.optBoolean("success")) return false
+        val status = result.optString("status").trim().lowercase()
+        // Most local action executors return only success=true, and ToolRouter
+        // durably normalizes that to succeeded. Any *explicit* unknown state
+        // is not completion evidence.
+        return status.isBlank() || status in completedStates
+    }
+}
+
 /** The same persisted routing and evidence path is used by foreground, voice and background. */
 object ToolRouter {
     private val mutex = KeyedWorkMutex()
