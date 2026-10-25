@@ -27,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterIdentityStore
+import com.jiacimu.lulu.data.CharacterLifeStore
+import com.jiacimu.lulu.data.CharacterIntimacyConversationPreference
 import com.jiacimu.lulu.data.CharacterLifeForm
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
@@ -79,6 +81,10 @@ fun CharacterSettingsScreenV2(
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
+    val lifeStates by CharacterLifeStore.states.collectAsState()
+    val intimacyMode = remember(characterId, lifeStates) {
+        CharacterIntimacyConversationPreference.selected(characterId)
+    }
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
     val residentScheduleRevision by RoleDayScheduleStore.changes.collectAsState()
@@ -285,6 +291,33 @@ fun CharacterSettingsScreenV2(
             }
             }
             if (section == 2) {
+            item {
+                CharacterV2Card {
+                    Text("亲密交流", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CharacterIntimacyConversationPreference.choices.forEach { (mode, label) ->
+                            OutlinedButton(
+                                onClick = { CharacterLifeStore.setIntimacyConversationMode(characterId, mode) },
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(horizontal = 4.dp),
+                                colors = if (intimacyMode == mode)
+                                    ButtonDefaults.outlinedButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    ) else ButtonDefaults.outlinedButtonColors(),
+                            ) { Text(if (intimacyMode == mode) "✓ $label" else label, fontSize = 12.sp) }
+                        }
+                    }
+                    Text(
+                        when (intimacyMode) {
+                            "adult" -> "成年人自愿的一对一话题；实际内容范围取决于模型服务商，不会解除服务端限制。"
+                            "romance" -> "允许更自然地表达浪漫亲昵，角色仍按本人性格与关系做选择。"
+                            else -> "保持原有交流方式。"
+                        },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
+                    )
+                }
+            }
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
