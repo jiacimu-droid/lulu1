@@ -27,7 +27,7 @@ object CapabilityRegistry {
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
-        "publish_moment", "send_character_message", "write_journal", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search", "image_search")
+        "publish_moment", "send_character_message", "write_journal", "start_study_watch", "stop_study_watch", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search", "image_search")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
     val external = listOf(
         Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
@@ -98,6 +98,7 @@ object CapabilityRegistry {
             } else {
                 appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务及识图模型。你可以直接提出授权请求，但不得说工具根本不存在或已经看到了屏幕。")
             }
+            appendLine("【学习监督】真正答应持续盯学习且主人需要间歇检查时，可选 steps=[{tool:start_study_watch,args:{minutes:45}}] 申请一次限时监督授权。主人同意后手机显示可停止的持续通知，由系统在时段内不规则检查真实屏幕，并将结果交给你本人同一感知模型决定要不要说话。不必每次另安排45分钟闹钟；未同意前不能窥屏。用户叫停时选 stop_study_watch。")
             appendLine("summon_lulu 工具已注册=$summonRegistered；发送可点击的回到露露机通知获授权=${summonRegistered && screen.summonAllowed(context)}。已获授权时可用 action=tool,tool=summon_lulu,args={}，不是强制切回 App。")
             appendLine("以上是当前本机能力记录。不要声称自己查过『动作清单』、拿到了截图或真正打开某 App，除非本轮有相应执行回执。")
         }.trim()
