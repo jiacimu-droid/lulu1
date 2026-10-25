@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:40:10.550142+00:00",
-  "commit": "8c5071f3bfef9410ae48ed7911f62a33cdd64256",
+  "generatedAt": "2026-10-25T05:40:55.877628+00:00",
+  "commit": "c92fe6cd5c6f83c9ddbed1ca6a2b1a554f6df74f",
   "branch": "main",
-  "sourceFingerprint": "c20e37b9d57e1714b1d358d974e8fbf003ec67b434c58a9c5128bf5c5bd36083",
+  "sourceFingerprint": "c4f10930914281619b101d6c91b37dc82b2ba553a69ad8614be86b7d19608900",
   "summary": {
-    "files": 889,
-    "lines": 174069,
-    "symbols": 2613
+    "files": 890,
+    "lines": 174148,
+    "symbols": 2616
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -404,6 +404,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
         "line": 192
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
+        "line": 19
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -5592,6 +5596,22 @@
         "line": 251
       }
     ],
+    "localDay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
+        "line": 14
+      }
+    ],
+    "isDue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
+        "line": 42
+      }
+    ],
     "CharacterLifeStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -5746,12 +5766,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
         "line": 10
-      }
-    ],
-    "isDue": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
-        "line": 42
       }
     ],
     "brief": [
@@ -19594,6 +19608,25 @@
         {
           "name": "recordAction",
           "line": 251
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
+      "lines": 79,
+      "sha256": "5ecb81a37c9c55d67ebd9a8318a81974999d2cf783017b2b535bc8305961cd02",
+      "symbols": [
+        {
+          "name": "localDay",
+          "line": 14
+        },
+        {
+          "name": "isDue",
+          "line": 16
+        },
+        {
+          "name": "context",
+          "line": 19
         }
       ]
     },
