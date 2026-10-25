@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T04:14:48.444407+00:00",
-  "commit": "b1c9c3914aa68164d8b6b3daa961ed235e78f1c7",
+  "generatedAt": "2026-10-25T04:36:43.326397+00:00",
+  "commit": "f4b57b360ee4f3d704dcd26788e6788fe1692440",
   "branch": "main",
-  "sourceFingerprint": "1030cb9954da272130e4965474dbbe1c66602972934e47ba0f6c358b08c51f9d",
+  "sourceFingerprint": "741ad800d0194759d0f9e07eaa29eabb8a46e8731c143d075164f40ef6e00a85",
   "summary": {
     "files": 887,
-    "lines": 173347,
+    "lines": 173353,
     "symbols": 2590
   },
   "symbolIndex": {
@@ -1745,7 +1745,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 97
+        "line": 103
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
@@ -4891,7 +4891,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 27
+        "line": 33
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -5147,25 +5147,25 @@
     "Receipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 21
+        "line": 27
       }
     ],
     "episodeEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 65
+        "line": 71
       }
     ],
     "evidenceText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 79
+        "line": 85
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 83
+        "line": 89
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -5179,7 +5179,7 @@
     "dependenciesValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 139
+        "line": 145
       }
     ],
     "proposals": [
@@ -19030,36 +19030,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-      "lines": 147,
-      "sha256": "8c6d4515b3e0dbafe3a59bec25b68b62bbb1c0df166a7bfd6beea89c662f62f0",
+      "lines": 153,
+      "sha256": "ebc9c64146da7ce703a2db4391bec9db820e5a5f73e3a7fb5e8febf3e29f5035",
       "symbols": [
         {
           "name": "Receipt",
-          "line": 21
-        },
-        {
-          "name": "receipt",
           "line": 27
         },
         {
+          "name": "receipt",
+          "line": 33
+        },
+        {
           "name": "episodeEvidence",
-          "line": 65
+          "line": 71
         },
         {
           "name": "evidenceText",
-          "line": 79
+          "line": 85
         },
         {
           "name": "recentContext",
-          "line": 83
+          "line": 89
         },
         {
           "name": "prepare",
-          "line": 97
+          "line": 103
         },
         {
           "name": "dependenciesValid",
-          "line": 139
+          "line": 145
         }
       ]
     },
