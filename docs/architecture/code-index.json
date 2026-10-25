@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T03:25:02.991828+00:00",
-  "commit": "a810f54e6066d484b83fcb3282c9d90a63af7259",
+  "generatedAt": "2026-10-25T03:25:21.328594+00:00",
+  "commit": "6a1a9c0bdd8ae4405e5d112c9ac132ca2c4add4d",
   "branch": "main",
-  "sourceFingerprint": "6b62a8a3d73f3563bb1bca193f62cb4546ac5ed7ad1df5c64afd7d7c93ca3bdd",
+  "sourceFingerprint": "5b5523a8a88be495b299c7b54af390ac6897f3f89fdbf3d11eaa367489691377",
   "summary": {
     "files": 887,
     "lines": 173124,
@@ -17964,7 +17964,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1196,
-      "sha256": "433e548f1380ee92493ac914ce107eb59581c73858e0654b8942501ed7266a53",
+      "sha256": "34e08fa82fdca529e8ad7e947eafc9bce4364f0354993d01fac532bc4cf503b4",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -18422,7 +18422,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 78,
-      "sha256": "6420630f75a20f457c8dffe47f2fcbc141f64724a4354bb7007a1e4333651768",
+      "sha256": "f0bc3da371a8791e6bcdf41a78329944bb253a683cfa63dc5cae01ee39d6035c",
       "symbols": [
         {
           "name": "render",
@@ -20667,7 +20667,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1188,
-      "sha256": "adca203d06a7feacbb54866995da892cfdb76e444cf28a823f9a2ab3df895255",
+      "sha256": "260f3a059e881a5fcd070e96d89332105977a6087ee7e1edf0c0898a5c71e027",
       "symbols": [
         {
           "name": "asJson",
@@ -27426,7 +27426,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2148,
-      "sha256": "ee3ac4427bf9ae217085de09eedf288fa90ea7b92f064b3c684b01fc81502395",
+      "sha256": "3f6fdc3d9766c2ef9e851bd3014a6854525cb41b8167023893aaac18bcc9e79d",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
