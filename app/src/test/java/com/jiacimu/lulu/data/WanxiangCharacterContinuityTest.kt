@@ -89,10 +89,13 @@ class WanxiangCharacterContinuityTest {
             val before = CharacterSocialRelationship.perspectivesFor(person, listOf("user"))
             assertTrue(before.contains("之前曾认为=我以为她不想谈"))
             assertTrue(before.contains("具体依据=她明确澄清了原因"))
+            assertTrue(CharacterInnerLifeStore.compactContext(person)
+                .contains("以前曾这样理解，现已调整：我以为她不想谈"))
             SharedExperienceTimeline.deleteEvent(first)
             val after = CharacterSocialRelationship.perspectivesFor(person, listOf("user"))
             assertTrue(after.contains("原来只是赶时间"))
             assertFalse(after.contains("我以为她不想谈"))
+            assertFalse(CharacterInnerLifeStore.compactContext(person).contains("我以为她不想谈"))
             assertEquals("", CharacterSocialRelationship.perspective(person, "user")?.priorImpression)
         } finally {
             SharedExperienceTimeline.deleteEvent(first)
