@@ -45,6 +45,7 @@ internal object LuluStudyWatch {
     private const val ACTIVE = "study_watch_active"
     private const val LATEST = "study_watch_latest"
     private const val CHANNEL = "lulu_study_watch"
+    private const val REQUEST_CHANNEL = "lulu_study_watch_requests"
     private const val REQUEST_NOTICE = 42061
     private const val ACTIVE_NOTICE = 42062
     private const val CONSENT_LIFETIME_MS = 120_000L
@@ -68,7 +69,10 @@ internal object LuluStudyWatch {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(NotificationChannel(
             CHANNEL, "学习监督进行中", NotificationManager.IMPORTANCE_LOW))
-        return manager.getNotificationChannel(CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
+        manager.createNotificationChannel(NotificationChannel(
+            REQUEST_CHANNEL, "学习监督授权请求", NotificationManager.IMPORTANCE_HIGH))
+        return manager.getNotificationChannel(CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE &&
+            manager.getNotificationChannel(REQUEST_CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
     }
 
     private fun notificationAction(context: Context, action: String, id: String): PendingIntent =
@@ -88,6 +92,11 @@ internal object LuluStudyWatch {
         val end = entry.optLong("endsAt")
         return entry.takeIf { now >= entry.optLong("startedAt") && now < end }
     }
+
+    /** Time-bounded, owner-approved, visibly indicated consent for every screen frame. */
+    fun canObserve(context: Context, role: String, id: String): Boolean =
+        id.isNotBlank() && active(context, role)?.optString("id") == id &&
+            notificationsAllowed(context) && LuluScreenAwareness.autonomousAllowed(context)
 
     @Synchronized
     fun request(context: Context, role: String, requestedMinutes: Int): String {
@@ -116,7 +125,7 @@ internal object LuluStudyWatch {
             return response(false, "学习监督请求无法保存")
         val manager = context.getSystemService(NotificationManager::class.java)
         val title = "${label(role)}想监督你学习"
-        manager.notify(REQUEST_NOTICE, Notification.Builder(context, CHANNEL)
+        manager.notify(REQUEST_NOTICE, Notification.Builder(context, REQUEST_CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setContentTitle(title)
             .setContentText("允许查看屏幕 ${minutes} 分钟 · 随时可停止")
@@ -283,12 +292,11 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
         val role = session.optString("characterId")
         try {
             if (ProactivePerceptionPolicyStore.get(role).enabled &&
-                LuluScreenAwareness.autonomousAllowed(applicationContext) &&
-                LuluStudyWatch.active(applicationContext, role) != null) {
+                LuluStudyWatch.canObserve(applicationContext, role, id)) {
                 val raw = LuluScreenAwareness.capture(applicationContext, userRequested = false,
                     characterId = role, requestId = "study-watch-$id-${session.optInt("ordinal")}",
                     approved = true, sessionId = id)
-                if (LuluStudyWatch.active(applicationContext, role)?.optString("id") != id)
+                if (!LuluStudyWatch.canObserve(applicationContext, role, id))
                     return Result.success()
                 val observed = runCatching { JSONObject(raw) }.getOrDefault(
                     JSONObject().put("success", false).put("error", "截屏结果无法解析"))
@@ -300,13 +308,14 @@ class LuluStudyWatchWorker(context: Context, params: WorkerParameters) :
                     evidenceKind = if (observed.optBoolean("success"))
                         EventEvidenceKind.Observation else EventEvidenceKind.ToolResult)
                 // No vision result => no invented judgment and no extra paid role call.
-                if (observed.optBoolean("success") && LuluStudyWatch.active(applicationContext, role) != null) {
+                if (observed.optBoolean("success") &&
+                    LuluStudyWatch.canObserve(applicationContext, role, id)) {
                     ProactivePerceptionRuntime.runDueCycle(applicationContext,
                         trigger = "已授权的学习监督实际看到一帧屏幕，请根据证据自己决定是否需要交流",
                         targetCharacterId = role, force = true)
                 }
-            } else if (!LuluScreenAwareness.autonomousAllowed(applicationContext)) {
-                LuluStudyWatch.stop(applicationContext, id, "屏幕视觉授权已关闭，自动结束监督")
+            } else if (!LuluStudyWatch.canObserve(applicationContext, role, id)) {
+                LuluStudyWatch.stop(applicationContext, id, "屏幕监督授权或持续通知已关闭，自动结束监督")
             }
         } catch (cancel: kotlinx.coroutines.CancellationException) {
             throw cancel
