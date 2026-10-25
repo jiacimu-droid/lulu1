@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`04ce4ccff54fde510951ae08c2d717019d8a0325`
+- 基准提交：`091bd7eb6e6c9195199abc0b3cf15028102148bc`
 - 分支：`main`
 - 已索引文件：887
-- 已索引代码/文本行：172824
+- 已索引代码/文本行：172863
 - 已发现符号：2586
 
 | 文件 | 行数 | 符号数 |
@@ -740,7 +740,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 687 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 177 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 154 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 193 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 974 | 19 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 170 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 28 | 1 |
