@@ -1070,6 +1070,11 @@ internal object SearchReceiptFeedback {
         return execution.optString("tool") in resultTools &&
             execution.optString("status") in setOf("succeeded", "failed")
     }
+    /** A live conversation owns its own reply; a tool receipt stays pending until
+     * the normal unified perception can evaluate it without racing that turn. */
+    fun awaitsPrimaryConversation(
+        unread: Boolean, inCall: Boolean, chatGenerating: Boolean,
+    ): Boolean = unread || inCall || chatGenerating
 
     /** A search/read finishes the original user's turn only after its receipt
      * is returned to the character. Image sends already deliver the image.
@@ -1083,7 +1088,7 @@ internal object SearchReceiptFeedback {
         } else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
         val status = result.optString("status")
-        if (status in setOf("pending", "requested", "running")) return null
+        if (status in setOf("pending", "requested", "running", "waiting_user")) return null
         val success = result.optBoolean("success") && status != "waiting_user"
         val detail = result.optString("summary").ifBlank {
             result.optString("error").ifBlank { "检索或阅读没有返回可用内容" }
@@ -1104,13 +1109,11 @@ internal object SearchReceiptFeedback {
  * fabricate a successful search or authorize a new tool.
  */
 internal object SearchResultContinuation {
-    private val receiptTools = setOf("web_search", "image_search", "read_xiaohongshu")
-
     fun requiresCompletion(hasUnreadUserRequest: Boolean, mainTool: String,
         sideActions: org.json.JSONArray?): Boolean =
-        hasUnreadUserRequest && (mainTool in receiptTools ||
+        hasUnreadUserRequest && (mainTool in SearchReceiptFeedback.resultTools ||
             (0 until (sideActions?.length() ?: 0)).any { i ->
-                sideActions?.optJSONObject(i)?.optString("tool") in receiptTools
+                sideActions?.optJSONObject(i)?.optString("tool") in SearchReceiptFeedback.resultTools
             })
 
     suspend fun <T> finishAcceptedTurn(protect: Boolean, block: suspend () -> T): T =
