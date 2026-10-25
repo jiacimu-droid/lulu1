@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:12:09.755296+00:00",
-  "commit": "61de1f7c613b3e7c6d2c36760093a50bafa8089e",
+  "generatedAt": "2026-10-25T13:12:32.713957+00:00",
+  "commit": "a32988c2937d7606156a70ffb3c7d133c4a43295",
   "branch": "main",
-  "sourceFingerprint": "658ae3e99919fb819fb118d3c78868e0a1db6b581ff93ba40840fcf88acac2eb",
+  "sourceFingerprint": "711df306d1ec53015c01f8be5f79d56d3bd0f639f1c81592dd987477ce91b9dc",
   "summary": {
     "files": 901,
     "lines": 177408,
@@ -27318,7 +27318,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
       "lines": 575,
-      "sha256": "c17d0ea042704c1d62c9fdb5dd17e5ba34c8c84a0af39df32b2398d72fd139a8",
+      "sha256": "0dcb9d1370d298e61536af517f714ff720cf9b0af34dfc084a4430ec007696a6",
       "symbols": [
         {
           "name": "promptText",
