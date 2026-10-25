@@ -70,12 +70,21 @@ internal object CharacterUnfinishedActionContext {
                     "真选搜索/阅读时可附curiosity=$inquiry，按真实回执继续原问题",
                 at(q, "updatedAt", "at"))
         }
+        // Use the SAME sources as the sharing-urge gauge, not only 'held'.
+        // An open experience that contributes to a saturated urge must have a
+        // chance to enter the next real decision. This is a cue, not auto-send.
+        val shareIds = CharacterLifeFollowThroughStore.sharingCandidates(role, now)
+            .mapTo(hashSetOf()) { it.optString("id") }
         CharacterLifeFollowThroughStore.auditSnapshot(role)
-            .filter { it.optString("shareStatus") == "held" }.forEach { share ->
+            .filter { it.optString("id") in shareIds }.forEach { share ->
+                val held = share.optString("shareStatus") == "held"
                 cues += Cue("想分享", share.optString("id"), share.optString("fact"),
-                    "experienceId=${share.optString("id")}；当时想分享的原因=${share.optString("shareWhy")}；" +
-                        "自己选择公开朋友圈publish_moment、私聊或不分享；各渠道不同，不把私聊送达当成发圈",
-                    at(share, "occurredAt"))
+                    "experienceId=${share.optString("id")}；" +
+                        (if (held) "本人明确想分享：${share.optString("shareWhy")}；尚未有发送回执；"
+                        else "这件真实经历形成了累计分享欲，但尚未明确决定分享；") +
+                        "若现在本人真想分享，可选择私聊message、公开朋友圈moment或有真实groupId的群聊，并附experienceId；不想说可以暂缓或放下",
+                    at(share, "occurredAt"),
+                    attentionPriority = if (held) 45 else 4)
             }
         return CharacterAttentionWorkingSet.select(cues.filter { !it.at.isAfter(now) }.sortedBy { it.at },
             6, now, ProactivePerceptionPolicyStore.get(role).onlinePulseSeconds.toLong(),
