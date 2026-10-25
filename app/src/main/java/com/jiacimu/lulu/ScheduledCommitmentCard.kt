@@ -114,7 +114,7 @@ import java.time.format.DateTimeFormatter
         }
         if (task.lastActionResult.isNotBlank()) {
             Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF7F7F7)) {
-                Text(task.lastActionResult, Modifier.fillMaxWidth().padding(11.dp),
+                Text(task.readableLastResult(), Modifier.fillMaxWidth().padding(11.dp),
                     fontSize = 12.sp, lineHeight = 18.sp, color = Color(0xFF69696F),
                     maxLines = if (expanded) Int.MAX_VALUE else 2)
             }
