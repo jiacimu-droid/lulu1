@@ -1030,7 +1030,7 @@ object LuluDeviceToolBridge {
                 externalCallResult?.let { "本人此前查询刚收到的真实执行回执：${it.content.take(2_600)}" }
                     ?: "电话持续接通；本轮没有新增用户发言",
                 if (externalCallResult == null) setOf("user") else emptySet())) else verifiedSources.map {
-                com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
+                com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"), it.revision)
             }.ifEmpty { if (userText.isBlank()) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }
             val perceptionInput = com.jiacimu.lulu.data.CharacterPerceptionContext.integrate(
