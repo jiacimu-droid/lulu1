@@ -614,8 +614,19 @@ object ProactivePerceptionScheduler {
         val app = context.applicationContext
         val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return
-        if (!SearchReceiptFeedback.completedEvidence(event) ||
-            PerceptionStimulusLedger.hasSeen(app, characterId, evidenceId, event.revision)) return
+        if (!SearchReceiptFeedback.completedEvidence(event)) return
+        // The latest finished receipt may already be understood while an
+        // earlier, coalesced search is still awaiting a causal decision.
+        // Use the original timeline to find the oldest unfinished result.
+        val earliestPending = SearchReceiptFeedback.firstUnacknowledged(
+            CharacterPerceptionContext.selectRecent(
+                SharedExperienceTimeline.recentEvents(characterId, 160),
+                Instant.now(), limit = 160,
+            ),
+        ) { candidate ->
+            PerceptionStimulusLedger.hasSeen(app, characterId,
+                candidate.id, candidate.revision)
+        } ?: return
         val store = app.getSharedPreferences("lulu_search_result_reperception_v1", Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
         val from = store.getLong("window:$characterId", 0L)
@@ -639,7 +650,7 @@ object ProactivePerceptionScheduler {
             .setInputData(Data.Builder()
                 .putString("trigger", "本人真实搜索/阅读刚得到执行回执：重新感知资料和已有疑问，决定理解、继续查证、分享、暂缓或放下；不重复汇报旧搜索，也不把摘要当正文。")
                 .putString("characterId", characterId)
-                .putString("interactionEvidenceId", evidenceId)
+                .putString("interactionEvidenceId", earliestPending.id)
                 .putBoolean("force", true).build())
             .build()
         WorkManager.getInstance(app).enqueueUniqueWork(
