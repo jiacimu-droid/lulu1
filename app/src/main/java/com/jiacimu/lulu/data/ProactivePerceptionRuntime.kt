@@ -2128,7 +2128,6 @@ object ProactivePerceptionRuntime {
                     失败也直说真实原因；不要复述上一句‘马上去查’，不要假装查到其他资料。
                     不执行新的工具，也不继续决定别人的事；这次只完成已选择行动的结果反馈。
                     直接输出 JSON {"text":"你自己想发出的自然中文回复"}，可自然使用段落。
-                    ${CharacterExplorationContinuity.resultGuidance}
                 """.trimIndent(),
                 source = "真实联网工具结果回流",
                 title = "${character.displayName}汇报已执行的搜索",
@@ -2137,9 +2136,9 @@ object ProactivePerceptionRuntime {
             ).getOrThrow().text
         }.getOrNull()
         val interpretation = modelText?.let(ModelStructuredOutput::objectOrNull)
-        runCatching { CharacterExplorationContinuity.returned(context, character.characterId,
-            interpretation, receipts.map { it.evidenceId }) }
-            .onFailure { android.util.Log.w("CharacterExploration", "Result continuity was not saved", it) }
+        // This adapter only finishes a user-awaited reply. Its text must NOT
+        // become a second private cognition channel; ToolRouter has already
+        // enqueued the same receipts for ordinary character re-perception.
         val spoken = interpretation?.optString("text")?.trim().orEmpty()
         if (spoken.isBlank()) {
             // An actual tool result must be visible even when model synthesis
