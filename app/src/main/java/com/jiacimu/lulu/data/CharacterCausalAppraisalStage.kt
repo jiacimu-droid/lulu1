@@ -128,7 +128,7 @@ internal object CharacterCausalAppraisalStage {
         produce: suspend (SharedTimelineEvent) -> String,
     ): Outcome? {
         val event = latestPending(pending) ?: return null
-        if (PerceptionStimulusLedger.hasSeen(context, characterId, event.id)) return null
+        if (PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)) return null
         val parsed = ModelStructuredOutput.objectOrNull(produce(event)) ?: return null
         val appraisal = parsed.optJSONObject("appraisal")
         val innerLife = parsed.optJSONObject("innerLife")?.let { original ->
