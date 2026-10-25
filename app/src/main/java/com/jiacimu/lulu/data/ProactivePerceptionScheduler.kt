@@ -808,11 +808,14 @@ class ProactivePerceptionWorker(
         }
         if (characterId != null && interactionId.isNotBlank() &&
             CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
-            // Chat is the primary owner of live user messages, but the
-            // call-end event must not disappear merely because chat is busy.
-            // Retry once using the same evidence ID; the causal receipt makes
-            // it idempotent if ordinary chat has already perceived the event.
-            if (!CharacterCausalAppraisalStage.hasCompletedDecision(characterId, interactionId)) {
+            // Chat owns the next perception. A search result is already in its
+            // shared pending evidence and must NOT enter the unrelated call-end
+            // appraisal retry lane. It remains unclaimed if chat is interrupted.
+            val isSearchReceipt = SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(interactionId))
+                .any(SearchReceiptFeedback::completedEvidence)
+            if (!isSearchReceipt &&
+                !CharacterCausalAppraisalStage.hasCompletedDecision(characterId, interactionId)) {
                 ProactivePerceptionScheduler.scheduleInteractionRetry(
                     applicationContext, characterId, interactionId,
                 )
