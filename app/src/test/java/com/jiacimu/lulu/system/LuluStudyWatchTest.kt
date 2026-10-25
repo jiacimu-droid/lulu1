@@ -47,6 +47,29 @@ class LuluStudyWatchTest {
         assertEquals(delays[5], LuluStudyWatch.nextGapMillis("test-session", 5))
     }
 
+    @Test fun firstApprovedCheckDoesNotWaitForTheLongFollowUpInterval() {
+        val session = JSONObject().put("id", "session-a").put("ordinal", 0)
+        assertEquals(25_000L, LuluStudyWatch.checkGapMillis(session))
+        session.put("ordinal", 1).put("lastFocus", "focused")
+        assertTrue(LuluStudyWatch.checkGapMillis(session) >= 11 * 60_000L)
+        session.put("lastFocus", "distracted")
+        assertTrue(LuluStudyWatch.checkGapMillis(session) <= 7 * 60_000L)
+    }
+
+    @Test fun overlayReportsEvidenceInsteadOfAssumingStudyHappened() {
+        assertEquals("等待首次查看", LuluStudyWatch.overlayStatus(context, "watch-a"))
+        val now = System.currentTimeMillis()
+        prefs.edit().putString("study_watch_latest", JSONObject()
+            .put("sessionId", "watch-a").put("at", now)
+            .put("success", false).put("focus", "distracted").toString()).commit()
+        assertTrue(LuluStudyWatch.overlayStatus(context, "watch-a").startsWith("查看未成功"))
+        prefs.edit().putString("study_watch_latest", JSONObject()
+            .put("sessionId", "watch-a").put("at", now)
+            .put("success", true).put("focus", "focused").toString()).commit()
+        assertTrue(LuluStudyWatch.overlayStatus(context, "watch-a").startsWith("似乎正在学习"))
+        assertEquals("等待首次查看", LuluStudyWatch.overlayStatus(context, "watch-b"))
+    }
+
     @Test fun observedDistractionGetsEarlierCheckThanFocusedStudy() {
         val distraction = (0..30).map { LuluStudyWatch.nextGapMillis("one", it, "distracted") }
         val focused = (0..30).map { LuluStudyWatch.nextGapMillis("one", it, "focused") }
