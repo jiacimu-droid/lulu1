@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:11:04.660229+00:00",
-  "commit": "7dc2258233b8bd3967d5a50448828c261fb6b3cc",
+  "generatedAt": "2026-10-25T13:12:09.755296+00:00",
+  "commit": "61de1f7c613b3e7c6d2c36760093a50bafa8089e",
   "branch": "main",
-  "sourceFingerprint": "ab0cddfe4ec0cf8ba95767d1884460eb50c17ab0ebf7237dfedbef4f75a4d6a2",
+  "sourceFingerprint": "658ae3e99919fb819fb118d3c78868e0a1db6b581ff93ba40840fcf88acac2eb",
   "summary": {
     "files": 901,
-    "lines": 177390,
+    "lines": 177408,
     "symbols": 2657
   },
   "symbolIndex": {
@@ -14605,7 +14605,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-        "line": 98
+        "line": 116
       }
     ],
     "TokenConsolePresentationTest": [
@@ -14779,7 +14779,7 @@
     "learn": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-        "line": 47
+        "line": 65
       }
     ],
     "ReadingReactionPolicyTest": [
@@ -31397,8 +31397,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-      "lines": 171,
-      "sha256": "8fcf9f17e36bc1a5c2f98239fc5b18a59aa35b4b4d33cb2d0988b178bc577240",
+      "lines": 189,
+      "sha256": "7acea78cd33d9afefe330ffb2585b8af405fef674f3534fd3d8cec07f1ea6244",
       "symbols": [
         {
           "name": "ReadingGrowthTheaterTest",
@@ -31406,11 +31406,11 @@
         },
         {
           "name": "learn",
-          "line": 47
+          "line": 65
         },
         {
           "name": "propose",
-          "line": 98
+          "line": 116
         }
       ]
     },
