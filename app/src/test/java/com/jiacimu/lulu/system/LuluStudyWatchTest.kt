@@ -56,6 +56,19 @@ class LuluStudyWatchTest {
         assertTrue(LuluStudyWatch.checkGapMillis(session) <= 7 * 60_000L)
     }
 
+    @Test fun staleScheduledCheckCannotRunTwiceOrConsumeAnotherFrame() {
+        val now = System.currentTimeMillis()
+        val session = JSONObject().put("id", "seq").put("characterId", "role-a")
+            .put("startedAt", now - 30_000L).put("endsAt", now + 1_800_000L)
+            .put("ordinal", 0)
+        prefs.edit().putString("study_watch_active", session.toString()).commit()
+        assertNull(LuluStudyWatch.claim(context, "seq", now, expectedOrdinal = 2))
+        assertEquals(1, LuluStudyWatch.claim(context, "seq", now,
+            expectedOrdinal = 1)?.optInt("ordinal"))
+        assertNull(LuluStudyWatch.claim(context, "seq", now, expectedOrdinal = 1))
+        assertEquals(1, JSONObject(prefs.getString("study_watch_active", "{}")).optInt("ordinal"))
+    }
+
     @Test fun overlayReportsEvidenceInsteadOfAssumingStudyHappened() {
         assertEquals("等待首次查看", LuluStudyWatch.overlayStatus(context, "watch-a"))
         val now = System.currentTimeMillis()
