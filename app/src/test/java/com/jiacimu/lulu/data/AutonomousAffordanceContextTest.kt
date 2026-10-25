@@ -60,6 +60,25 @@ class AutonomousAffordanceContextTest {
         assertFalse(text.contains("已自动完成"))
     }
 
+    @Test fun cafeWarmWaterRemainsSelectableEvenAfterLargeBaristaMenu() {
+        val options = (1..13).map { "cafe_order_$it" to "咖啡菜单第${it}项" } +
+            listOf("order_drink" to "领取一杯温水", "cafe_sit" to "坐一下")
+        val prompt = AutonomousAffordanceContext.render(
+            digital = true, location = DigitalWorldPublicPlaces.CAFE,
+            books = emptyList(), groups = emptyList(),
+            locationActivities = options,
+        )
+        assertTrue(prompt.contains("activityId=order_drink；领取一杯温水"))
+        assertTrue(prompt.contains("activityId=cafe_order_13"))
+        assertTrue(prompt.contains("不能按动作描述拼出新 ID"))
+        assertFalse(prompt.contains("cafe_take_warm_water"))
+        // Execution must still reject invented names instead of fabricating a receipt.
+        assertNull(DigitalWorldActivityCatalog.locationActivitySummary(
+            "某角色", DigitalWorldPublicPlaces.CAFE, "cafe_take_warm_water", "浮光咖啡角"))
+        assertNotNull(DigitalWorldActivityCatalog.locationActivitySummary(
+            "某角色", DigitalWorldPublicPlaces.CAFE, "order_drink", "浮光咖啡角"))
+    }
+
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
         val text = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
