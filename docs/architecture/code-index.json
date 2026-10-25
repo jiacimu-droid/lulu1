@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:42:06.448618+00:00",
-  "commit": "856490409e700004bc5148dd56bf78f031ec5adf",
+  "generatedAt": "2026-10-25T13:50:14.722199+00:00",
+  "commit": "727cea2306403c6f5263b2dd12c12cb87701bbe6",
   "branch": "main",
-  "sourceFingerprint": "64a5812cfd30471d1ef0aeda7156566bf4dbc47a201633daba41f2a4fdd75ef0",
+  "sourceFingerprint": "ccfcf78ca0dd11d4ef92785f47c547b1e2c6d0a3a67bc41dbdb9cc2ca01e71a7",
   "summary": {
     "files": 902,
-    "lines": 177665,
+    "lines": 177643,
     "symbols": 2662
   },
   "symbolIndex": {
@@ -419,7 +419,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 809
+        "line": 808
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -2034,10 +2034,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
         "line": 6
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-        "line": 29
       }
     ],
     "installedFile": [
@@ -2118,6 +2114,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
         "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -4739,7 +4739,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-        "line": 46
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
@@ -5343,7 +5343,7 @@
     "shouldApply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-        "line": 36
+        "line": 34
       }
     ],
     "relationships": [
@@ -5555,7 +5555,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 771
+        "line": 770
       }
     ],
     "cue": [
@@ -5711,13 +5711,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 233
+        "line": 232
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 743
+        "line": 742
       }
     ],
     "current": [
@@ -14069,13 +14069,13 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 144
+        "line": 148
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 147
+        "line": 151
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -15376,8 +15376,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 665,
-      "sha256": "9b8ad37ad1ae537f20feb7d5af14431a5dbf2014a57d1f83e0442004bf6d55b2",
+      "lines": 651,
+      "sha256": "909abe787f78ec01e3a0f099b33336fda408958a40451aa915cb492ea28b2f59",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -19568,8 +19568,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-      "lines": 65,
-      "sha256": "ab82af7d948a985aa55a66caa4358915c46bea2ae9f88e28fa000c23c84f6f07",
+      "lines": 54,
+      "sha256": "0379de061932b9e217bd38c664d704120f534f2172e7cba76af968cbc9165dcf",
       "symbols": [
         {
           "name": "selected",
@@ -19580,16 +19580,16 @@
           "line": 10
         },
         {
-          "name": "selected",
-          "line": 29
+          "name": "enabled",
+          "line": 30
         },
         {
           "name": "shouldApply",
-          "line": 36
+          "line": 34
         },
         {
           "name": "promptSection",
-          "line": 46
+          "line": 43
         }
       ]
     },
@@ -19912,8 +19912,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 856,
-      "sha256": "7caacafceff3333299dc76a0fd39d4b5d35d8b04cc776ef50798eacfb78f6d04",
+      "lines": 855,
+      "sha256": "a5551e7646b34ce61072a4ea94d3fbe0ea41a1872dea9dfe84eea5b16d513d94",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -19937,19 +19937,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 233
+          "line": 232
         },
         {
           "name": "profileContext",
-          "line": 743
+          "line": 742
         },
         {
           "name": "compactContext",
-          "line": 771
+          "line": 770
         },
         {
           "name": "context",
-          "line": 809
+          "line": 808
         }
       ]
     },
@@ -30182,8 +30182,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 292,
-      "sha256": "97695317913f6647b063b34ff6c836e3b58218de9d300404d00a5a1950bd0ae4",
+      "lines": 296,
+      "sha256": "454fca11ec290f4e167b4a1d2bea4a8d84a57bd7db6c95dd5520661d860c751f",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -30191,11 +30191,11 @@
         },
         {
           "name": "response",
-          "line": 144
+          "line": 148
         },
         {
           "name": "bubbles",
-          "line": 147
+          "line": 151
         }
       ]
     },
