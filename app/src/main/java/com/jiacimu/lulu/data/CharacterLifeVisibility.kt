@@ -36,7 +36,7 @@ internal object CharacterLifeVisibility {
         // Persisted goals remain available to the planner and their original
         // stores; do not duplicate a stale "想继续做" on every avatar open.
         val mind = CharacterInnerLifeStore.snapshot(role)
-        CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
+        CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now)
             .lastOrNull { source(role, it.optString("evidenceId")) != null }
             ?.let { concern ->
                 val t = parse(concern.optString("updatedAt")) ?:
