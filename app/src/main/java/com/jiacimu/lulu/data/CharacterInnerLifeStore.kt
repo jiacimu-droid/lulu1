@@ -487,9 +487,15 @@ object CharacterInnerLifeStore {
                         bonds.remove(target); changed = true
                     } else if (retained.length() > 0 && retained.length() != history.length()) {
                         val last = retained.optJSONObject(retained.length() - 1)
+                        val previous = retained.optJSONObject(retained.length() - 2)
+                        // The old priorThought field must not keep quoting a
+                        // retracted encounter after source deletion. Rebuild
+                        // both current and prior subjective impressions from
+                        // the same surviving evidence, without inventing history.
                         opinion.put("encounters", retained)
                             .put("interpretation", last?.optString("thought"))
                             .put("reason", last?.optString("because"))
+                            .put("priorThought", previous?.optString("thought").orEmpty())
                             .put("evidenceId", last?.optString("source"))
                             .put("trends", relationTrends(retained))
                         changed = true
