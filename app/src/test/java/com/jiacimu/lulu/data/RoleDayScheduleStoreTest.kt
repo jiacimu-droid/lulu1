@@ -211,7 +211,7 @@ class RoleDayScheduleStoreTest {
         assertTrue(RoleDayScheduleStore.canSchedule("summon_lulu"))
         assertTrue(RoleDayScheduleStore.canSchedule("send_private_message"))
         assertFalse(RoleDayScheduleStore.canSchedule("plan_personal_activity"))
-        assertTrue(RoleDayScheduleStore.canSchedule("write_journal"))
+        assertFalse(RoleDayScheduleStore.canSchedule("write_journal"))
         assertFalse(RoleDayScheduleStore.canSchedule("invented_tool"))
         val scheduled = plan.copy(activityAction = "capture_screen", activityArgs = "{}")
         assertTrue(RoleDayScheduleStore.canComplete(scheduled, "role-a",
@@ -234,7 +234,7 @@ class RoleDayScheduleStoreTest {
         assertTrue(RoleDayScheduleStore.canSchedule("reading"))
         assertTrue(RoleDayScheduleStore.canSchedule("solo_game"))
         assertTrue(RoleDayScheduleStore.canSchedule("digital_world"))
-        assertTrue(RoleDayScheduleStore.canSchedule("write_journal"))
+        assertFalse(RoleDayScheduleStore.canSchedule("write_journal"))
         assertFalse(RoleDayScheduleStore.canSchedule("unknown_world_action"))
         assertFalse(RoleDayScheduleStore.canSchedule("go_offline"))
         assertFalse(RoleDayScheduleStore.canSchedule("plan_personal_activity"))
