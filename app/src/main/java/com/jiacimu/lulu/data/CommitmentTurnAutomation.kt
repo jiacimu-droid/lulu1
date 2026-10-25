@@ -270,7 +270,21 @@ object CommitmentTurnAutomation {
                     userText = userBatch.joinToString("\n") { it.content },
                     roleText = replies.joinToString("\n") { it.content },
                 )
-                showWakeReceipt(conversation, user, characterId, task)
+                val recentUsers = messages.take(userIndex + 1)
+                    .filter { it.sender == LuluChatMessage.Sender.User &&
+                        it.status == LuluChatMessage.Status.Sent &&
+                        !it.createdAt.isBefore(user.createdAt.minusSeconds(30 * 60L)) }
+                    .takeLast(12)
+                CommitmentDecisionRuntime.reconcileSpokenDeadline(
+                    characterId = characterId,
+                    userText = recentUsers.joinToString("\n", transform = LuluChatMessage::content),
+                    roleText = replies.joinToString("\n", transform = LuluChatMessage::content),
+                    userAt = user.createdAt,
+                    recentUserEvidenceIds = recentUsers.map(LuluChatMessage::id),
+                )
+                showWakeReceipt(conversation, user, characterId, task?.let {
+                    CommitmentTaskStore.snapshot(characterId).firstOrNull { saved -> saved.id == it.id } ?: it
+                })
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
@@ -363,7 +377,21 @@ object CommitmentTurnAutomation {
                 evidenceIds = evidenceIds, userText = combinedUserText,
                 roleText = characterText,
             )
-            showWakeReceipt(conversation, userMessage, characterId, ensuredWake)
+            val recentUsers = messages.take(userIndex + 1)
+                .filter { it.sender == LuluChatMessage.Sender.User &&
+                    it.status == LuluChatMessage.Status.Sent &&
+                    !it.createdAt.isBefore(userMessage.createdAt.minusSeconds(30 * 60L)) }
+                .takeLast(12)
+            CommitmentDecisionRuntime.reconcileSpokenDeadline(
+                characterId = characterId,
+                userText = recentUsers.joinToString("\n", transform = LuluChatMessage::content),
+                roleText = characterText,
+                userAt = userMessage.createdAt,
+                recentUserEvidenceIds = recentUsers.map(LuluChatMessage::id),
+            )
+            showWakeReceipt(conversation, userMessage, characterId, ensuredWake?.let {
+                CommitmentTaskStore.snapshot(characterId).firstOrNull { saved -> saved.id == it.id } ?: it
+            })
             // Generic, open-ended promises still rely on the main model's
             // semantic decision; only unhandled legacy turns need extra AI.
             if (CommitmentDecisionRuntime.handled(

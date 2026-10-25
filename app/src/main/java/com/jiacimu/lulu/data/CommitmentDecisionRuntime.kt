@@ -43,7 +43,8 @@ internal object CommitmentDecisionRuntime {
         val proposed = RelativeWakeCommitmentParser.parse(normalizedUser, roleText, userAt, zone)
             ?: WakeCommitmentParser.parse(normalizedUser, roleText, userAt, zone)
             ?: return@withLock null
-        val due = proposed.dueAt ?: return@withLock null
+        val due = AgreedCommitmentDeadline.fromAgreement(normalizedUser, roleText, userAt, zone)
+            ?: proposed.dueAt ?: return@withLock null
         val requestedPhone = proposed.deliveryAction == "start_call"
 
         CommitmentTaskStore.initialize(context)
@@ -76,8 +77,7 @@ internal object CommitmentDecisionRuntime {
             kotlin.math.abs(java.time.Duration.between(it, due).seconds) <= 30L
         } == true
         if (matchingSource != null && hasValidAlarm(matchingSource) &&
-            (matchingSource.status != CommitmentTaskStatus.Scheduled ||
-                sourceDeadlineAccurate))
+            sourceDeadlineAccurate)
             return@withLock matchingSource
         if (sameDeadline != null && hasValidAlarm(sameDeadline))
             return@withLock sameDeadline
@@ -100,10 +100,13 @@ internal object CommitmentDecisionRuntime {
                 .singleOrNull()
             else -> null
         }
+        val correctedGoal = if (due != proposed.dueAt)
+            AgreedCommitmentDeadline.repairedGoal(proposed.goal, due, zone)
+            else proposed.goal
         val change = if (prior != null) proposed.copy(
             action = "reschedule", targetTaskId = prior.id,
-            deliveryAction = chosen,
-        ) else proposed.copy(deliveryAction = chosen)
+            dueAt = due, goal = correctedGoal, deliveryAction = chosen,
+        ) else proposed.copy(dueAt = due, goal = correctedGoal, deliveryAction = chosen)
         applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, listOf(change))
         val created = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
             if (prior != null) task.id == prior.id
@@ -126,6 +129,64 @@ internal object CommitmentDecisionRuntime {
             triggerExtraction = false,
         )
         created
+    }
+
+    /**
+     * Post-delivery consistency check, using the same authoritative task and
+     * alarm. Does not create a second task or request another model turn.
+     *
+     * A source-linked, unique pending appointment must disagree by its date
+     * (not simply wording) before the original alarm is replaced.
+     */
+    suspend fun reconcileSpokenDeadline(
+        characterId: String,
+        userText: String,
+        roleText: String,
+        userAt: Instant,
+        recentUserEvidenceIds: List<String>,
+        zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+    ): CommitmentTask? = mutex.withLock {
+        val agreed = AgreedCommitmentDeadline.fromAgreement(userText, roleText, userAt, zone)
+            ?: return@withLock null
+        if (!agreed.isAfter(Instant.now().plusSeconds(5))) return@withLock null
+        val evidence = recentUserEvidenceIds.toSet()
+        val related = CommitmentTaskStore.active(characterId).filter { task ->
+            task.repeat != "daily" && task.dueAt != null &&
+                task.status in setOf(CommitmentTaskStatus.Scheduled,
+                    CommitmentTaskStatus.Blocked, CommitmentTaskStatus.NeedsClarification) &&
+                task.sourceEventIds.any { it.substringBefore(":group:") in evidence } &&
+                task.createdAt.isAfter(userAt.minusSeconds(3600)) &&
+                AgreedCommitmentDeadline.matchesLocalClock(task, agreed, zone)
+        }
+        val target = related.singleOrNull() ?: return@withLock null
+        if (target.dueAt == agreed) return@withLock target
+        applyCommitmentTaskDrafts(
+            characterId, target.sourceTurnId ?: target.id, recentUserEvidenceIds,
+            listOf(CommitmentTaskDraft(
+                action = "reschedule",
+                targetTaskId = target.id,
+                goal = AgreedCommitmentDeadline.repairedGoal(target.goal, agreed, zone),
+                dueAt = agreed,
+                timezone = zone.id,
+                completionCondition = target.completionCondition,
+                steps = target.steps,
+                deliveryAction = target.deliveryAction,
+                repeat = target.repeat,
+                promiseKind = "reminder",
+            )),
+        )
+        val result = CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }
+        if (result?.dueAt == agreed) {
+            SharedExperienceTimeline.record(
+                eventId = "commitment:deadline-verified:${target.id}:${agreed.toEpochMilli()}",
+                characterId = characterId, channel = "约定时间一致性复核",
+                speaker = "日程执行器",
+                content = "角色实际确认的时间与旧日程不符，已将同一约定从 ${target.dueAt} 调整为 ${agreed}；实际登记：${result.lastActionResult}",
+                source = "commitment-decision", evidenceKind = EventEvidenceKind.ToolResult,
+                triggerExtraction = false,
+            )
+        }
+        result
     }
 
     suspend fun apply(context: Context, characterId: String, sourceTurnId: String,
