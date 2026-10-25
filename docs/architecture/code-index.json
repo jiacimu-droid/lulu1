@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T12:11:43.850383+00:00",
-  "commit": "eafce2b9940d62af4e47d349c54d085be221c465",
+  "generatedAt": "2026-10-25T12:35:41.350106+00:00",
+  "commit": "4d1c5a4ecde8eb63e14e78663111ce9a030dbde1",
   "branch": "main",
-  "sourceFingerprint": "b66ecf71f4ddbc851da182c93e22aaddbf9406250c3dcaa3396a4200147889c8",
+  "sourceFingerprint": "0051860ca833479df8cdd67798190594e773779b33f849c1b478a5c9e9172aac",
   "summary": {
     "files": 901,
-    "lines": 177237,
+    "lines": 177242,
     "symbols": 2655
   },
   "symbolIndex": {
@@ -14607,7 +14607,7 @@
     "ToolExecutionStatusTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt",
-        "line": 8
+        "line": 13
       }
     ],
     "TransientConversationStyleTest": [
@@ -31096,12 +31096,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt",
-      "lines": 33,
-      "sha256": "f9e60a3c2b5ab91b2f0bf91ba61ed09e20e7184d0a0a07edea809a69366f6659",
+      "lines": 38,
+      "sha256": "87a3db67f8964023caa7e5c51c059dc63c4e7ddb3582e7b35e85ad1de0c92030",
       "symbols": [
         {
           "name": "ToolExecutionStatusTest",
-          "line": 8
+          "line": 13
         }
       ]
     },
