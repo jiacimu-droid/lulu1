@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`65755df7e89fab30be8381821cc7eb0ef8f02a78`
+- 基准提交：`b6b92551f2f3ff25b5847f5cfb5a7f25bf6eb227`
 - 分支：`main`
 - 已索引文件：905
-- 已索引代码/文本行：178147
+- 已索引代码/文本行：178158
 - 已发现符号：2670
 
 | 文件 | 行数 | 符号数 |
@@ -617,8 +617,8 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 507 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 459 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 178 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 468 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 180 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
