@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:25:19.743181+00:00",
-  "commit": "c9005a1cb75acebe71a4a302179d1634af550037",
+  "generatedAt": "2026-10-25T13:25:56.231925+00:00",
+  "commit": "009ad6f8c69dc9b780ddf5da04bfaa3b0bb22e01",
   "branch": "main",
-  "sourceFingerprint": "401e287d58d91702207a01a2ebc2d53eb150f613e8b44112351a2e95899d592d",
+  "sourceFingerprint": "721c84e46e82cd0720945ef144121aa7eb2e3c71f3ba2a529268504e4382d185",
   "summary": {
-    "files": 901,
-    "lines": 177497,
-    "symbols": 2658
+    "files": 902,
+    "lines": 177571,
+    "symbols": 2660
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13510,6 +13510,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
         "line": 118
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 39
       }
     ],
     "AutonomousActionWireProtocolTest": [
@@ -14678,6 +14682,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt",
         "line": 14
+      }
+    ],
+    "WanxiangCharacterContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 13
       }
     ],
     "WorldBookFolderRepositoryTest": [
@@ -31226,6 +31236,21 @@
         {
           "name": "WakeMusicCoordinatorTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+      "lines": 74,
+      "sha256": "6e1fd8a9b0442592f407b568b66550d8f91291bce37ca34d8a280125f401a5d9",
+      "symbols": [
+        {
+          "name": "WanxiangCharacterContinuityTest",
+          "line": 13
+        },
+        {
+          "name": "event",
+          "line": 39
         }
       ]
     },

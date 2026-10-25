@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c9005a1cb75acebe71a4a302179d1634af550037`
+- 基准提交：`009ad6f8c69dc9b780ddf5da04bfaa3b0bb22e01`
 - 分支：`main`
-- 已索引文件：901
-- 已索引代码/文本行：177497
-- 已发现符号：2658
+- 已索引文件：902
+- 已索引代码/文本行：177571
+- 已发现符号：2660
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -868,6 +868,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 74 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
