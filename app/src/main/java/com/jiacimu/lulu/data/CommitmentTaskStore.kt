@@ -345,6 +345,20 @@ object CommitmentTaskStore {
         persist(next)
     }
 
+    /** A deleted/revised witness cannot keep an outcome falsely marked verified. */
+    @Synchronized
+    internal fun invalidateCompletionEvidence(eventId: String) {
+        mutableTasks.value.filter { it.status == CommitmentTaskStatus.Completed &&
+            eventId in it.completionEvidenceIds }.forEach { task ->
+            update(task.id) { old -> old.copy(
+                status = CommitmentTaskStatus.WaitingForFeedback,
+                completionEvidenceIds = emptyList(),
+                lastVerificationReason = "原核验证据已被撤回或修改，需要重新判断",
+                lastActionResult = "原核验证据已失效，重新进入待核实；不自动重拨或重启旧闹钟",
+            ) }
+        }
+    }
+
     @Synchronized
     fun removeBySourceEvent(eventId: String) {
         val affected = mutableTasks.value.filter { eventId in it.sourceEventIds }

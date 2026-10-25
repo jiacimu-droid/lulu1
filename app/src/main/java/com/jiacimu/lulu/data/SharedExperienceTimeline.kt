@@ -225,6 +225,7 @@ object SharedExperienceTimeline {
             com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
             CharacterInnerLifeStore.invalidateEvidence(eventId)
+            CommitmentTaskStore.invalidateCompletionEvidence(eventId)
             // Recreate an opportunity only from the freshly edited factual event.
             if (triggerExtraction && verifiedLifeEvent &&
                 evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
@@ -338,6 +339,7 @@ object SharedExperienceTimeline {
         com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
         CharacterInnerLifeStore.invalidateEvidence(eventId)
+        CommitmentTaskStore.invalidateCompletionEvidence(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
         LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
