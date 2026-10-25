@@ -25,6 +25,36 @@ class CharacterDecisionProtocolTest {
         assertFalse(direct.contains("属于辞海约定"))
     }
 
+    @Test fun privateChatContractCanChooseVoiceReplyThenARealIncomingCall() {
+        val instruction = proactiveDecisionInstruction("multi-action-private-chat",
+            directPrivateChat = true)
+        assertTrue(instruction.contains("steps="))
+        assertTrue(instruction.contains("start_call"))
+        assertTrue(instruction.contains("requiresPreviousSuccess"))
+        assertTrue(instruction.contains("接通后"))
+        assertTrue(instruction.contains("主动来电"))
+        // A reply with speech bubbles and a call still produces ONE ordered
+        // decision; the voice renderer cannot consume its selected side step.
+        val raw = JSONObject()
+            .put("action", "message")
+            .put("bubbles", org.json.JSONArray().put(JSONObject()
+                .put("text", "我现在想打给你").put("delivery", "voice")))
+            .put("steps", org.json.JSONArray().put(JSONObject()
+                .put("tool", "start_call")
+                .put("args", JSONObject().put("text", "现在接通啦"))
+                .put("requiresPreviousSuccess", true)))
+        val method = ProactivePerceptionRuntime::class.java.declaredMethods.first {
+            it.name == "parseDecision" && it.parameterCount == 2
+        }.apply { isAccessible = true }
+        val parsed = method.invoke(ProactivePerceptionRuntime, raw.toString(), false)!!
+        val steps = parsed.javaClass.getDeclaredField("sideActions")
+            .apply { isAccessible = true }.get(parsed) as org.json.JSONArray
+        assertEquals(1, steps.length())
+        assertEquals("start_call", steps.getJSONObject(0).getString("tool"))
+        assertEquals("现在接通啦", steps.getJSONObject(0).getJSONObject("args").getString("text"))
+        assertTrue(steps.getJSONObject(0).getBoolean("requiresPreviousSuccess"))
+    }
+
     @Test fun autonomousLifeOffersExplorationWithoutPretendingSearchHasHappened() {
         val p = proactiveDecisionInstruction("independent-topic-test")
         assertTrue(p.contains("web_search"))
