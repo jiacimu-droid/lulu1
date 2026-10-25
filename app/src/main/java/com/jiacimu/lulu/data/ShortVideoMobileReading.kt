@@ -218,15 +218,41 @@ internal object ShortVideoMobileReading {
         return Outcome(State.PARTIAL, receipts, cursor)
     }
 
-    /** Existing timeline owns the history; no extra video-history database. */
+    /**
+     * Only an actual committed observation may advance a future viewing cursor.
+     * SharedExperienceTimeline.record() currently returns Unit and may silently
+     * decline writes (uninitialized store, tombstone, wrong owner or stale
+     * revision); its normal edit route can REPLACE an existing ID. Therefore a
+     * video receipt must never blindly call it and assume durable success.
+     *
+     * ToolRouter will supply a stable per-segment evidenceId. A replay is
+     * idempotent even with a different attempt timestamp; a different receipt
+     * with the same ID must not overwrite any previous user/character evidence.
+     */
     fun persistVerifiedReceipt(characterId: String, evidenceId: String, receipt: Receipt,
                                at: Instant = Instant.now()) {
         require(characterId.isNotBlank() && evidenceId.isNotBlank())
+        require(receipt.clip.valid() && receipt.beginMillis >= 0 &&
+            receipt.endMillis > receipt.beginMillis &&
+            receipt.observation.isNotBlank() &&
+            receipt.modalities.any { it != "comments" }) { "视频回执缺少可核实的观看内容" }
+        val payload = receipt.timelineJson().toString()
+        fun matching(event: SharedTimelineEvent?): Boolean = event != null &&
+            event.characterId == characterId && event.source == "short-video-observation" &&
+            event.evidenceKind == EventEvidenceKind.Observation &&
+            event.content == payload
+        val existing = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).singleOrNull()
+        if (existing != null) {
+            check(matching(existing)) { "视频证据ID已被另一条不同内容的经历占用" }
+            return // No edit, no extra revision, no invalidated dependent learning.
+        }
         SharedExperienceTimeline.record(
-            evidenceId, characterId, "数字生活", "角色",
-            receipt.timelineJson().toString(), at,
+            evidenceId, characterId, "数字生活", "角色", payload, at,
             triggerExtraction = false, source = "short-video-observation",
             evidenceKind = EventEvidenceKind.Observation,
+            expectedRevision = 0L, // Compare-and-insert; never rewrite an old fact.
         )
+        check(matching(SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .singleOrNull())) { "视频真实观看回执未成功写入，不能标记已看或推进游标" }
     }
 }
