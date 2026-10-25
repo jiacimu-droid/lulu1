@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T07:57:43.280011+00:00",
-  "commit": "c18b488cf900e7a27bbdff76acb8685eda331ef7",
+  "generatedAt": "2026-10-25T07:58:19.614493+00:00",
+  "commit": "03b211568982f1c347ee1cada733d6fe2ddedf96",
   "branch": "main",
-  "sourceFingerprint": "b6f508813b31a6b9252b5c668fe80aa61ad98741cf1bc182bc9f222c4244aaf2",
+  "sourceFingerprint": "1d0c6a8709e95f639c9c8701240b740c451ba66ba3faa34a870b2175dca77814",
   "summary": {
-    "files": 895,
-    "lines": 175653,
+    "files": 896,
+    "lines": 175847,
     "symbols": 2638
   },
   "symbolIndex": {
@@ -26716,6 +26716,12 @@
           "line": 133
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt",
+      "lines": 194,
+      "sha256": "3514d586b6c806453d61aaf8857ae3389ed9378b24a7e0942cb6bc5e10a257d2",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
