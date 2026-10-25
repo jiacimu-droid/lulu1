@@ -764,6 +764,23 @@ private fun CharacterVitalsPanel(characterId: String, now: Instant, revision: Lo
                         fontSize = 11.sp, color = Color(0xFF858085))
             }
             HorizontalDivider(color = Color(0xFFEAE6E5), thickness = 1.dp)
+            // A read-only psychological impulse, never a biological sensation or
+            // a second persisted state. Only verified unshared experiences count.
+            val sharingUrge = CharacterLifeFollowThroughStore.sharingUrge(characterId, now)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("分享欲", Modifier.width(65.dp), fontSize = 12.sp,
+                    color = Color(0xFF625E62))
+                LinearProgressIndicator(progress = { (sharingUrge / 100.0).toFloat().coerceIn(0f, 1f) },
+                    modifier = Modifier.weight(1f).height(5.dp),
+                    color = Color(0xFF9B91A6), trackColor = Color(0xFFEAE8E7))
+                Text(sharingUrge.toInt().toString(), Modifier.width(32.dp),
+                    fontSize = 12.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                Spacer(Modifier.width(39.dp))
+            }
+            Text("分享冲动来自尚未分享的真实经历；想和谁说、现在说不说，由角色自己决定。",
+                fontSize = 10.sp, color = Color(0xFFA19AA1))
+            HorizontalDivider(color = Color(0xFFEAE6E5), thickness = 1.dp)
             Text("角色主观情绪 · 不是对你的情绪判定", fontSize = 11.sp, color = Color(0xFF9C969B))
             if (influence == null) {
                 Text("暂无有效情绪记录；愉悦方向和唤醒度不能虚构。",
