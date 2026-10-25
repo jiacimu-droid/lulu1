@@ -30,6 +30,27 @@ class CharacterPerceptionContextTest {
         assertEquals("game-fact", CharacterPerceptionContext.outcomeEvidenceId(game.source, game.content))
         assertNull(CharacterPerceptionContext.personalOutcome("message", game.content))
     }
+    @Test fun verifiedObservedSearchResultsEnterPerceptionButContradictoryStatesDoNot() {
+        val now = Instant.parse("2026-10-25T10:00:00Z")
+        fun receipt(id: String, status: String, success: Boolean): SharedTimelineEvent {
+            val info = org.json.JSONObject().put("tool", "web_search")
+                .put("status", status)
+                .put("result", org.json.JSONObject().put("success", success)
+                    .put("summary", "实际找到资料来源").toString())
+            return SharedTimelineEvent(id, "role", "实际工具执行", "执行器",
+                info.toString(), now, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        val observed = receipt("observed-result", "observed", true)
+        val contradictory = receipt("false-claim", "succeeded", false)
+        val pending = receipt("pending-result", "pending", true)
+        assertEquals(listOf(observed.id),
+            CharacterPerceptionContext.selectRecent(
+                listOf(observed, contradictory, pending), now).map { it.id })
+        assertTrue(CharacterPerceptionContext.stimulus(observed).description.contains("实际找到资料来源"))
+        assertNull(CharacterPerceptionContext.personalOutcome("tool-router", contradictory.content))
+    }
+
     @Test fun allRealSearchResultsReenterSharedPerceptionWithUsefulEvidence() {
         val now = Instant.parse("2026-10-25T04:10:00Z")
         fun search(tool: String, status: String): SharedTimelineEvent {
