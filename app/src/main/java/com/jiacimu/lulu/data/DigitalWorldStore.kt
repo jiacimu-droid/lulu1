@@ -166,6 +166,25 @@ object DigitalWorldStore {
     fun itemsAtHome(characterId: String): List<DigitalWorldItem> =
         mutable.value.items.filter { it.ownerCharacterId == characterId }.sortedBy(DigitalWorldItem::createdAt)
 
+    /** Read the same authoritative constraints enforced by performAction.
+     * No invented currency, ingredients or gifting API. Counts are advisory;
+     * the executor rechecks under its lock when an action is actually chosen.
+     */
+    internal fun resourceContext(characterId: String): String {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
+        val owned = itemsAtHome(characterId)
+        val atHome = locationOf(characterId) == homeLocation(characterId)
+        val remaining = (MAX_HOME_ITEMS - owned.size).coerceAtLeast(0)
+        return buildString {
+            append("【真实世界资源与可行性】本人家中固定物品=${owned.size}/$MAX_HOME_ITEMS；")
+            append("尚有$remaining 个可用物品位置；")
+            append(if (atHome) "此刻在本人家中" else "此刻不在本人家中")
+            append("。建设、移动、移除自家物品必须本人确实在家；建设还需有空位；移动/移除必须提供确实归本人所有的 itemId。")
+            append("没有注册的货币、材料、赠礼/转让能力不能靠台词凭空使用；已有食物库存以数字世界活动状态的真实结算为准。")
+            append("计划制作、表达赠送意愿与实际物品变更是不同的事；执行失败应保留失败回执，不能声称已制作或已送达。")
+        }
+    }
+
     fun itemsAtLocation(characterId: String): List<DigitalWorldItem> {
         val location = locationOf(characterId)
         if (location.startsWith("resident-home:"))
@@ -217,6 +236,7 @@ object DigitalWorldStore {
             appendLine(DigitalWorldActivityStateStore.contextFor(characterId))
             appendLine(DigitalWorldLiveScene.context(characterId))
             appendLine("家园：${home?.name.orEmpty().ifBlank { "尚未形成" }}")
+            appendLine(resourceContext(characterId))
             appendLine("初始随身拥有：自己的数字身体和一部数字手机；手机不等于用户现实设备，也不代表能读取未授权消息。")
             appendLine("家中固定物品：")
             if (items.isEmpty()) appendLine("- 空无一物") else items.forEach { item ->
