@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T16:59:47.882199+00:00",
-  "commit": "c9c120a1e099e926e097a6cc59c97ba6644d40cd",
+  "generatedAt": "2026-10-25T17:05:30.717443+00:00",
+  "commit": "03a5303b1f7417b72d648e1e10c0b6f3a4b62923",
   "branch": "main",
-  "sourceFingerprint": "a089e8caea52e295acc9b4365a004deb4131a74cd845d67cb9111fd54131a439",
+  "sourceFingerprint": "ee559940cdc9d6af43d4cc23a00632b2e39ec77e22c2ead6b1cf150efddaf25f",
   "summary": {
     "files": 910,
-    "lines": 179241,
+    "lines": 179282,
     "symbols": 2679
   },
   "symbolIndex": {
@@ -8953,7 +8953,7 @@
     "evidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 16
+        "line": 22
       }
     ],
     "LuluChatMessage": [
@@ -23624,8 +23624,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 84,
-      "sha256": "69d32b7592136aa6759308927430261546bfdaec4d80ff0616add9dd4ccad90c",
+      "lines": 90,
+      "sha256": "19ae1777fd571496415851aa87ef9ec618c69738b8acf6ad30ce2641631065bd",
       "symbols": [
         {
           "name": "assemble",
@@ -23633,7 +23633,7 @@
         },
         {
           "name": "evidence",
-          "line": 16
+          "line": 22
         }
       ]
     },
@@ -29681,7 +29681,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
       "lines": 139,
-      "sha256": "2faca942db9814e4e2f00190fff9215d5e4bae8e31abd5d0296af3a93dd8efe2",
+      "sha256": "f234ea59f91f688af23dfeafdd07785f54ee119c07c73d327d1ec871e9ec1e91",
       "symbols": [
         {
           "name": "CharacterAssociativeRecallTest",
@@ -29739,8 +29739,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
-      "lines": 69,
-      "sha256": "cc15d005700d15cd46841ba3405ef880e42cb8ceec1d9287ba22afe8a1c86525",
+      "lines": 98,
+      "sha256": "9379e8ac1b6d98248508d3ff15f4ff85529a484eb646b4b009f65211cf0ea0e7",
       "symbols": [
         {
           "name": "CharacterContinuityGatewayTest",
@@ -31082,8 +31082,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
-      "lines": 48,
-      "sha256": "04530e92ec64b1ff9e05945ff2ebb59a4afd5ab9f2b3241e2526a2c2d1ca053d",
+      "lines": 54,
+      "sha256": "4a371ebc489d774b4df62b18344087653bb575a7f70949a5c27198a768d76197",
       "symbols": [
         {
           "name": "PromptContextRegressionTest",

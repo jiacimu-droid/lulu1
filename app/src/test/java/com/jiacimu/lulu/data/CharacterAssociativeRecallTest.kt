@@ -47,7 +47,7 @@ class CharacterAssociativeRecallTest {
 
     @Test fun livedExperienceRotationRetainsTheNewestAndCoversOlderEvents() {
         val events = (0..8).map { i -> SharedTimelineEvent("event-$i", "role", "独自阅读", "本人",
-            "读过第$i本书", now.minusSeconds(3600L + i), evidenceKind = EventEvidenceKind.ToolResult) }
+            "读过第${i}本书", now.minusSeconds(3600L + i), evidenceKind = EventEvidenceKind.ToolResult) }
         val seen = mutableSetOf<String>()
         repeat(12) { slot ->
             val selected = CharacterAssociativeRecall.variedExperiences("role", events, now.plusSeconds(slot * 300L), 300)

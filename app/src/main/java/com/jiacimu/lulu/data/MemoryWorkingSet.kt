@@ -13,6 +13,12 @@ internal object MemoryWorkingSet {
                  auxiliary: List<Pair<String, String>>, budget: PromptContextBudget,
                  coreSection: String): MemoryWorkingSelection {
         val candidates = buildList {
+            // Full-mode gateways render this working set rather than the
+            // standalone memorySection. Deliver the SAME recall guidance here,
+            // within the existing budget and injection audit.
+            context.recallUseGuidance.takeIf(String::isNotBlank)?.let { guidance ->
+                add(MemoryPromptCandidate("recall-use-guidance", "回忆与当前对话：", guidance, 900))
+            }
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
                 val content = event.evidenceContent.trim()
                 // A 1,200-character preview used to hide useful details even

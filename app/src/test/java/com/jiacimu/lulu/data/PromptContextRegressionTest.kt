@@ -18,6 +18,12 @@ class PromptContextRegressionTest {
         assertTrue(guidance.contains("最新原话"))
         assertTrue(guidance.contains("这次不提"))
         assertTrue(context.compactPromptSection().contains(guidance))
+        val budget = PromptContextPolicy.forRequest("私聊", UnifiedMemoryRequest(currentInput = "你好"))
+        val working = MemoryWorkingSet.assemble(context, emptyList(), emptyList(), budget, "")
+        assertTrue(working.sections.values.any { it.contains(guidance) })
+        assertTrue(working.usedCharacters + working.protectedCharacters <= budget.workingSetCharacters)
+        assertFalse(MemoryWorkingSet.assemble(UnifiedMemoryContext(), emptyList(), emptyList(), budget, "")
+            .selected.contains("recall-use-guidance"))
     }
 
     @Test fun largeBacklogKeepsNewestEventsWithinHardBudget() {

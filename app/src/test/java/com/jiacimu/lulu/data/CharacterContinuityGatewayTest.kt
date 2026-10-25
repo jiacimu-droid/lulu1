@@ -26,6 +26,35 @@ class CharacterContinuityGatewayTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun fullGatewayDeliversRecallDiscretionThroughTheActualWorkingSet() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = "recall-discretion-gateway"
+        val at = Instant.now().minusSeconds(3_600)
+        LuluRepositories.memory.save(com.jiacimu.lulu.core.MemoryEntry(
+            "earlier-book", role, "那本书的旧印象是桥西的橘猫", com.jiacimu.lulu.core.MemoryKind.Fact,
+            "手动", at, at, 7, false, true,
+        ))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"知道了"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            LuluAiServices.gateway.generate(role, "想聊聊那本书和桥西的橘猫", "自然回应", "私聊", "test",
+                connectionOverride = ModelConnection(server.url("/").toString(), "test-only", "test"),
+                contextMode = CompanionContextMode.Full).getOrThrow()
+            val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(prompt.contains("那本书的旧印象是桥西的橘猫"))
+            assertTrue(prompt.contains("【回忆的使用分寸】"))
+            assertTrue(prompt.contains("只影响自己的理解"))
+            assertTrue(prompt.contains("这次不提"))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun fullCharacterScenesShareHistoricalAnchorButReducedAndIsolatedModesDoNot() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
