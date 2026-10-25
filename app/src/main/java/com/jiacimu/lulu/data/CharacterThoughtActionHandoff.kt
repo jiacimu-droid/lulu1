@@ -12,10 +12,16 @@ internal object CharacterThoughtActionHandoff {
         // Both names are accepted by the decision schema. When the model emits
         // both, neither is an alternative to the other: dropping sideActions
         // silently loses genuinely selected actions and their future schedules.
-        val result = JSONArray((decision.optJSONArray("steps") ?: JSONArray()).toString())
+        val result = JSONArray()
+        val primary = decision.optJSONArray("steps")
+        for (index in 0 until (primary?.length() ?: 0)) {
+            val raw = primary?.optJSONObject(index)
+            result.put(if (raw == null) primary?.opt(index) else
+                AutonomousActionWireProtocol.normalizeStep(raw))
+        }
         val secondary = decision.optJSONArray("sideActions")
         for (index in 0 until (secondary?.length() ?: 0)) {
-            val step = secondary?.optJSONObject(index) ?: continue
+            val step = secondary?.optJSONObject(index)?.let(AutonomousActionWireProtocol::normalizeStep) ?: continue
             val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
                 .firstOrNull { existing ->
                     existing.optString("tool") == step.optString("tool") &&
@@ -31,7 +37,7 @@ internal object CharacterThoughtActionHandoff {
         }
         fun add(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false) {
             val chosen = owner?.optJSONObject("nextAction") ?: return
-            val step = JSONObject(chosen.toString())
+            val step = AutonomousActionWireProtocol.normalizeStep(chosen)
             if (concern && step.optString("concernId").isBlank())
                 owner.optString("threadId").takeIf(String::isNotBlank)?.let { step.put("concernId", it) }
             if (motive && step.optString("motiveId").isBlank())
@@ -46,7 +52,8 @@ internal object CharacterThoughtActionHandoff {
                 canonical(other.optJSONObject("args") ?: JSONObject()) ==
                     canonical(step.optJSONObject("args") ?: JSONObject())
             // A direct tool or explicit steps already owns this effect. Do not execute it twice.
-            if (decision.optString("action") == "tool" && same(decision)) return
+            if (decision.optString("action") == "tool" &&
+                same(AutonomousActionWireProtocol.normalizeStep(decision))) return
             val existing = (0 until result.length()).mapNotNull(result::optJSONObject).firstOrNull(::same)
             if (existing != null) {
                 listOf("motiveId", "concernId", "experienceId", "reason", "curiosity").forEach { key ->
