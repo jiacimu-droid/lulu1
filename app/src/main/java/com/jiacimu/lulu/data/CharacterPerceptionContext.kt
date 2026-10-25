@@ -58,14 +58,14 @@ internal object CharacterPerceptionContext {
         }
     }
 
-    fun recent(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> {
+    fun recent(characterId: String, now: Instant = Instant.now(), limit: Int = 12): List<SharedTimelineEvent> {
         val events = SharedExperienceTimeline.recentEvents(characterId, 160)
         val referenced = events.mapNotNull { outcomeEvidenceId(it.source, it.content) }.distinct()
         val live = SharedExperienceTimeline.eventsByIds(characterId, referenced).mapTo(hashSetOf()) { it.id }
         return selectRecent(events.filter { event ->
             val sourceId = outcomeEvidenceId(event.source, event.content)
             sourceId == null || sourceId == event.id || sourceId in live
-        }, now)
+        }, now, limit)
     }
 
     fun outcomeEvidenceId(source: String, content: String): String? {
@@ -105,7 +105,7 @@ internal object CharacterPerceptionContext {
         return "本人实际尝试 ${execution.optString("tool")}；执行成功=${result.optBoolean("success")}；$summary"
     }
 
-    fun selectRecent(events: List<SharedTimelineEvent>, now: Instant): List<SharedTimelineEvent> =
+    fun selectRecent(events: List<SharedTimelineEvent>, now: Instant, limit: Int = 12): List<SharedTimelineEvent> =
         events.filter { event ->
             ((event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE,
@@ -117,7 +117,7 @@ internal object CharacterPerceptionContext {
                         event.source in setOf("meeting", "solo-game")))) &&
                 !event.occurredAt.isAfter(now) &&
                 Duration.between(event.occurredAt, now) <= Duration.ofHours(24)
-        }.takeLast(12)
+        }.takeLast(limit.coerceAtLeast(1))
 
     fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> {
         ResidentSocialMailbox.initialize(context)
@@ -127,9 +127,13 @@ internal object CharacterPerceptionContext {
         val incoming = SharedExperienceTimeline.eventsByIds(characterId,
             letters.map { ResidentSocialMailbox.evidenceId(it, characterId) })
             .filter { !it.occurredAt.isAfter(now) }
-        return (recent(characterId, now) + incoming).distinctBy { it.id }
+        // Never truncate the candidate window BEFORE testing acknowledgements:
+        // a burst of search receipts could otherwise permanently displace older
+        // unprocessed observations from the bounded model-facing batch.
+        return (recent(characterId, now, limit = 160) + incoming).distinctBy { it.id }
             .sortedBy { it.occurredAt }
             .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id, it.revision) }
+            .take(12)
     }
 
     /** The same evidence intake for any initiator: result text is an observation, not a claim
