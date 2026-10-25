@@ -89,6 +89,9 @@ fun QqStyleChatDetailScreen(
         messages.filterNot { it.id in recalledIds }
     }
     val displayRuns = remember(visibleMessages) { groupChatReceiptRuns(visibleMessages) }
+    // Quote previews are evaluated for each visible lazy row. Index messages once
+    // per actual history change instead of repeatedly scanning the full archive.
+    val messageById = remember(messages) { messages.associateBy { it.id } }
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
@@ -185,7 +188,7 @@ fun QqStyleChatDetailScreen(
 
     fun repliedPreview(message: LuluChatMessage): String? {
         val replyId = message.replyToMessageId ?: characterReplyQuoteId(message.content)
-        return replyId?.let { id -> messages.firstOrNull { it.id == id } }
+        return replyId?.let(messageById::get)
             ?.let { original -> "${messageLabel(original)}：${qqForwardContextText(original.content).take(180)}" }
     }
 
