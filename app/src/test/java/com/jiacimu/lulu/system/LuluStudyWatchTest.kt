@@ -29,6 +29,25 @@ class LuluStudyWatchTest {
         assertNull(LuluStudyWatch.active(context, "role-1"))
     }
 
+    @Test fun characterSeesActualConsentStateNotItsOwnVerbalPromise() {
+        assertTrue(LuluStudyWatch.decisionStatus(context, "role-1").startsWith("未开始"))
+        val now = System.currentTimeMillis()
+        prefs.edit().putString("study_watch_pending", JSONObject()
+            .put("id", "asked").put("characterId", "role-1")
+            .put("at", now).toString()).commit()
+        assertTrue(LuluStudyWatch.decisionStatus(context, "role-1", now)
+            .contains("等待主人确认"))
+        assertFalse(LuluStudyWatch.decisionStatus(context, "role-2", now)
+            .contains("等待主人确认"))
+        prefs.edit().putString("study_watch_active", JSONObject()
+            .put("id", "consented").put("characterId", "role-1")
+            .put("startedAt", now - 1_000).put("endsAt", now + 600_000).toString()).commit()
+        assertTrue(LuluStudyWatch.decisionStatus(context, "role-1", now)
+            .startsWith("已获准监督"))
+        assertFalse(LuluStudyWatch.decisionStatus(context, "role-2", now)
+            .startsWith("已获准监督"))
+    }
+
     @Test fun approvedSessionMustMatchRoleAndExpiresWithoutExtension() {
         val now = 1_800_000_000_000L
         val s = JSONObject().put("id", "approved-once").put("characterId", "role-a")
