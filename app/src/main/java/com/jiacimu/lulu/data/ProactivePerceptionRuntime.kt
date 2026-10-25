@@ -2009,8 +2009,7 @@ object ProactivePerceptionRuntime {
                 OrderedCharacterActions.execute(
                     appContext, character.characterId, decision.sideActions,
                     requestId = requestId, intentionId = decision.intentionId,
-                    initialCompleted = result.success &&
-                        resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
+                    initialCompleted = ToolExecutionStatus.completed(resultJson),
                     userEvidenceIds = responseEvidenceIds, userText = userText,
                     explicitScreenRequest = explicitScreenRequest,
                     autonomousLifeTurn = !hasFreshUserMessage,
@@ -2019,13 +2018,12 @@ object ProactivePerceptionRuntime {
         } else OrderedCharacterActions.execute(
             appContext, character.characterId, decision.sideActions,
             requestId = requestId, intentionId = decision.intentionId,
-            initialCompleted = result.success &&
-                resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
+            initialCompleted = ToolExecutionStatus.completed(resultJson),
             userEvidenceIds = responseEvidenceIds, userText = userText,
             explicitScreenRequest = explicitScreenRequest,
             autonomousLifeTurn = !hasFreshUserMessage,
         )
-        val sideActionSucceeded = stepReport.anyAccepted
+        val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
         // A pre-search "I'll look it up" bubble is NOT the final reply.
         // Feed exact executor results back to the SAME character only after
