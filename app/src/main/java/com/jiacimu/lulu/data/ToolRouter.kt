@@ -78,8 +78,21 @@ object ToolRouter {
                                 triggerExtraction = true, source = "tool-router", taskId = requestId,
                                 evidenceKind = EventEvidenceKind.ToolResult)
                         }
-                        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()) {
+                        val restored = SharedExperienceTimeline.eventsByIds(characterId,
+                            listOf(receiptId)).firstOrNull()
+                        if (restored != null) {
                             projectReceipt(context, characterId, receiptId, old, intentionId)
+                            // A crash can occur after the tool receipt was
+                            // persisted but before its wake was queued. Replaying
+                            // that SAME request restores only the missing wake;
+                            // it never executes the external side effect twice.
+                            if (SearchReceiptFeedback.completedEvidence(restored)) {
+                                runCatching {
+                                    ProactivePerceptionScheduler.scheduleToolResultPerception(
+                                        context, characterId, receiptId)
+                                }.onFailure { android.util.Log.w("ToolRouter",
+                                    "Restored receipt wake could not be scheduled", it) }
+                            }
                         }
                     }
                     return@withLock saved.ifBlank {
