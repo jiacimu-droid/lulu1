@@ -65,7 +65,7 @@ object LuluAppearanceCatalog {
     // Individual app bindings. No implicit global override or one-size-fits-all skin.
     val scopes = listOf(
         "Home" to "桌面", "Chat" to "聊天", "Phone" to "通话", "Pomodoro" to "学习小窗",
-        "CharacterSettings" to "角色设置", "Memory" to "记忆", "Lexicon" to "辞海",
+        "CharacterSettings" to "角色设置", "Memory" to "记忆", "Lexicon" to "生活记录",
         "WorldBook" to "世界书", "Performance" to "性能监测", "Health" to "健康",
         "Reading" to "阅读", "Scroll" to "画卷", "Theater" to "剧场",
         "Study" to "考研", "Schedule" to "日程", "Meeting" to "见面",
