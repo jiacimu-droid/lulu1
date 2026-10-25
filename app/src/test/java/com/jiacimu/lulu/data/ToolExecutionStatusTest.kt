@@ -20,6 +20,22 @@ class ToolExecutionStatusTest {
         }
     }
 
+    @Test fun firstOrderedStepIsNotBlockedByPhantomPrimaryTool() {
+        val absentPrimary = JSONObject().put("success", true).put("status", "skipped")
+        // Online/silent choices with only steps should behave like phone's
+        // initial previousStepCompleted=true. No synthetic skipped action can
+        // block a real first step.
+        assertFalse(ToolExecutionStatus.completed(absentPrimary))
+        assertTrue(ToolExecutionStatus.primaryAllowsDependentSteps("", absentPrimary))
+        assertTrue(ToolExecutionStatus.primaryAllowsDependentSteps("   ", absentPrimary))
+        val pending = JSONObject().put("success", true).put("status", "pending")
+        val verified = JSONObject().put("success", true).put("status", "succeeded")
+        assertFalse(ToolExecutionStatus.primaryAllowsDependentSteps("web_search", pending))
+        assertFalse(ToolExecutionStatus.primaryAllowsDependentSteps("web_search",
+            JSONObject().put("success", false).put("status", "failed")))
+        assertTrue(ToolExecutionStatus.primaryAllowsDependentSteps("web_search", verified))
+    }
+
     @Test fun actuallyCompletedOperationsAllowTheNextAction() {
         val completed = listOf("succeeded", "observed", "notification_posted",
             "popup_requested", "verified", "already_at_target", "unchanged",
