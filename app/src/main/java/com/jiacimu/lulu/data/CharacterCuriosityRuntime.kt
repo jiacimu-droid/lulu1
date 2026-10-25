@@ -104,13 +104,15 @@ internal object CharacterCuriosityRuntime {
     }
 
     fun visibleQuestions(role: String): List<JSONObject> = pendingQuestions(role, snapshot(role))
+        .distinctBy { normalized(it.optString("topic")) + ":" + normalized(it.optString("question")) }
 
     fun activeThreads(role: String, root: JSONObject = snapshot(role)): List<JSONObject> {
         val pending = pendingQuestions(role, root)
         val threads = root.optJSONArray("threads") ?: return emptyList()
-        return entries(threads).filter { thread ->
+        return entries(threads).distinctBy { normalized(it.optString("topic")) + ":" +
+            normalized(it.optString("question")) }.filter { thread ->
             thread.optString("status") == "exploring" &&
-                pending.none { sameIdentity(it, thread) } && lastRealStep(role, thread) != null
+                pending.none { sameIdentity(it, thread) || sameQuestion(it, thread) } && lastRealStep(role, thread) != null
         }
     }
 
@@ -348,15 +350,16 @@ internal object CharacterCuriosityRuntime {
         val root = snapshot(characterId)
         val questions = entries(root.optJSONArray("questions"))
         val threads = entries(root.optJSONArray("threads"))
-        val found = questions.any { identity(it) == threadId } ||
-            threads.any { identity(it) == threadId }
+        val selected = (questions + threads).firstOrNull { identity(it) == threadId } ?: return false
+        fun matches(item: JSONObject) = identity(item) == threadId || sameQuestion(item, selected)
+        val found = questions.any(::matches) || threads.any(::matches)
         if (!found) return false
         root.put("questions", JSONArray().apply {
-            questions.filterNot { identity(it) == threadId }.forEach(::put)
+            questions.filterNot(::matches).forEach(::put)
         })
         root.put("threads", JSONArray().apply {
             threads.forEach { thread ->
-                if (identity(thread) == threadId)
+                if (matches(thread))
                     thread.put("status", "dropped").put("releaseReason", "主人已从心事删除")
                         .put("releasedAt", Instant.now().toString())
                 put(thread)
@@ -381,15 +384,17 @@ internal object CharacterCuriosityRuntime {
         if (root.optString("lastMaintenanceDay") == today) return 0
         val questions = entries(root.optJSONArray("questions"))
         val threads = entries(root.optJSONArray("threads"))
-        val learningTopics = CharacterLearningAgenda.goals(characterId, now)
+        val learningQuestions = CharacterLearningAgenda.goals(characterId, now)
             .filter { it.optString("status") !in setOf("dropped", "paused") }
-            .map { normalized(it.optString("topic")) }.toSet()
+            .map { normalized(it.optString("topic")) + ":" +
+                normalized(it.optString("question")) }.toSet()
         val archived = entries(root.optJSONArray("dormantQuestions")).toMutableList()
         val retained = mutableListOf<JSONObject>()
         questions.forEach { q ->
             val last = runCatching { Instant.parse(q.optString("at")) }.getOrNull()
             val old = last != null && last.isBefore(now.minus(Duration.ofDays(7)))
-            val redundant = normalized(q.optString("topic")) in learningTopics &&
+            val redundant = (normalized(q.optString("topic")) + ":" +
+                normalized(q.optString("question"))) in learningQuestions &&
                 threads.none { identity(it) == identity(q) &&
                     it.optString("status") == "exploring" }
             if (old || redundant) {
