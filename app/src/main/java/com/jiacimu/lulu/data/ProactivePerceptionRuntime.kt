@@ -429,7 +429,7 @@ object ProactivePerceptionRuntime {
             val minutesSinceUser = latestUserAt?.let {
                 Duration.between(it, now).toMinutes().coerceAtLeast(0L)
             }
-            val hasConcern = CharacterOpenConcernRuntime.recent(
+            val hasConcern = CharacterOpenConcernRuntime.active(
                 CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
             ).isNotEmpty()
             adaptivePerceptionMultiplier(
@@ -645,7 +645,7 @@ object ProactivePerceptionRuntime {
         val recentLifeContext = recentLifeEvents.joinToString("\n") { event ->
             "- [evidenceId=${event.id}；${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
         }
-        val hasPrivateConcerns = CharacterOpenConcernRuntime.recent(
+        val hasPrivateConcerns = CharacterOpenConcernRuntime.active(
             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
         ).isNotEmpty()
         val unfinishedChoices = CharacterUnfinishedActionContext.candidates(appContext, characterId, now)
