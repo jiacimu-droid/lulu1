@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:00:33.942514+00:00",
-  "commit": "79be57d08329bdb5733e29cc6268a79b3d43c347",
+  "generatedAt": "2026-10-25T14:00:49.889771+00:00",
+  "commit": "3def4da50671fe14f0a7a552a59d7c7b0df806ad",
   "branch": "main",
-  "sourceFingerprint": "1ac39bbff117c0a168943d3728e72bd2221376b67549e599277327820816980c",
+  "sourceFingerprint": "c0082d120b4bf614625a920b11d70796fe408630a56db7f53f7a09bc220bd869",
   "summary": {
     "files": 905,
-    "lines": 178184,
+    "lines": 178187,
     "symbols": 2670
   },
   "symbolIndex": {
@@ -17130,8 +17130,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 291,
-      "sha256": "dc28fd1c6825be3fea8eff5bee7838b3df8ed762899ad8b13e4b1f8855edace4",
+      "lines": 294,
+      "sha256": "739fce088a7755293023ca24ec92d78dc7c5ba11239bb8e7cc2bb8bdb41a7d5f",
       "symbols": [
         {
           "name": "MigrationActivity",
