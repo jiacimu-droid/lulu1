@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:42:06.951361+00:00",
-  "commit": "9eeed639ef787052ea5f6ede3c00b9eeb5e4dc5b",
+  "generatedAt": "2026-10-25T05:42:41.417359+00:00",
+  "commit": "ce7311352d2b5aaa09528831deac41e0e3adabbf",
   "branch": "main",
-  "sourceFingerprint": "f59a28ce7861e2916c8af86bedb3b12ced7201571ca0ff60377e1921b9a5d18c",
+  "sourceFingerprint": "3fe464510cdebd9eac56d60f0bc109bbce2826afa7ca785fa4ff771cb774875b",
   "summary": {
     "files": 890,
-    "lines": 174169,
-    "symbols": 2616
+    "lines": 174120,
+    "symbols": 2617
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1991,7 +1991,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1077
+        "line": 1082
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4685,7 +4685,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 546
+        "line": 507
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -4939,7 +4939,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 450
+        "line": 411
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4949,7 +4949,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 512
+        "line": 473
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -6688,10 +6688,16 @@
         "line": 1065
       }
     ],
+    "awaitsPrimaryConversation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 1075
+      }
+    ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1108
+        "line": 1112
       }
     ],
     "age": [
@@ -18995,8 +19001,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 622,
-      "sha256": "1d3e0ae7ee13905ee0bdecabf5c8d2df8cecdc800a122fec2098f5f41a3f7312",
+      "lines": 583,
+      "sha256": "236bda19c5cc8ab1487da5f9c6e65295bffd6fc8c0fb07c7cf84f89f73362390",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -19016,15 +19022,15 @@
         },
         {
           "name": "pendingDecisionCues",
-          "line": 450
+          "line": 411
         },
         {
           "name": "briefContext",
-          "line": 512
+          "line": 473
         },
         {
           "name": "promptSection",
-          "line": 546
+          "line": 507
         }
       ]
     },
@@ -20855,8 +20861,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1199,
-      "sha256": "62619155a884c7f374adb3c4de46f054ffc790d63724fac2a824de8e2a397996",
+      "lines": 1202,
+      "sha256": "b351a476f9413e74dbb55006cd55aa91fa61380c18890f7310c1e94f49248ee7",
       "symbols": [
         {
           "name": "asJson",
@@ -20879,12 +20885,16 @@
           "line": 1065
         },
         {
+          "name": "awaitsPrimaryConversation",
+          "line": 1075
+        },
+        {
           "name": "from",
-          "line": 1077
+          "line": 1082
         },
         {
           "name": "requiresCompletion",
-          "line": 1108
+          "line": 1112
         }
       ]
     },
@@ -29173,8 +29183,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 208,
-      "sha256": "eaa1cd81b8f2e8b9a5ddd975359699442661d3745be76a4a7450d4e8064771ab",
+      "lines": 195,
+      "sha256": "ca7202376f2788bfa2c5a5698c1445f95df58b4a5038e0ed9389ba8997247852",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
