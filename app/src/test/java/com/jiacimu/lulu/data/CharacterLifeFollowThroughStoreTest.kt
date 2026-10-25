@@ -126,6 +126,52 @@ class CharacterLifeFollowThroughStoreTest {
         assertEquals(0.0, CharacterLifeFollowThroughStore.sharingUrge(role, now), 0.001)
     }
 
+    @Test fun aHundredSharingUrgeOffersRealActionChoicesInsteadOfOnlyFillingGauge() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "sharing-urge-full-with-open-events"
+        val ids = (1..10).map { "urge-high-open-story-$it" }
+        ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+        ids.forEachIndexed { index, id ->
+            assertTrue(CharacterLifeFollowThroughStore.register(
+                role, id, "真实生活", "尚未分享的第${index + 1}件小事", now))
+        }
+        assertEquals(100.0, CharacterLifeFollowThroughStore.sharingUrge(role, now), 0.001)
+        val choices = CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+        assertFalse("a full gauge must not leave real choices empty", choices.isEmpty())
+        assertTrue(choices.first().contains("experienceId="))
+        assertTrue(choices.first().contains("message/moment/group_message"))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("尚未分享"))
+        // Context/urge is never itself evidence of an actual outgoing message.
+        assertTrue(CharacterLifeFollowThroughStore.sharingCandidates(role, now)
+            .all { it.optString("shareStatus") == "open" })
+        ids.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+    }
+
+    @Test fun anOlderHeldWishRemainsVisibleWhenNewOpenLifeArrives() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "sharing-old-held-priority"
+        val oldId = "older-explicit-wish"
+        val newer = (1..9).map { "newer-open-$it" }
+        (listOf(oldId) + newer).forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+        CharacterLifeFollowThroughStore.register(
+            role, oldId, "真实生活", "我想分享的旧事情", now.minusSeconds(90))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", oldId).put("status", "held")
+            .put("why", "这件事我是真的想说给主人听"))
+        newer.forEachIndexed { index, id ->
+            CharacterLifeFollowThroughStore.register(
+                role, id, "真实生活", "较新的小事 $index", now.minusSeconds(9 - index.toLong()))
+        }
+        assertTrue(CharacterLifeFollowThroughStore.sharingUrge(role, now) >= 99)
+        val strongest = CharacterLifeFollowThroughStore.pendingDecisionCues(role, now).first()
+        assertTrue(strongest.contains(oldId))
+        assertTrue(strongest.contains("是真的想说"))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains(oldId))
+        assertTrue(CharacterLifeFollowThroughStore.briefContext(role, now).contains(oldId))
+        newer.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+        CharacterLifeFollowThroughStore.invalidateEvidence(oldId)
+    }
+
     @Test fun sharingImpulseFadesWithoutTimeBasedAutoPosts() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "sharing-urge-fades"
