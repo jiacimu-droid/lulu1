@@ -73,6 +73,47 @@ class WorldBookFolderRepositoryTest {
             assertTrue(repo.snapshot().all { it.folderId == null })
         }
     }
+
+    @Test fun deleteMultipleUndoPreservesOrderContentOverridesAndFoldersAcrossRestart() = runBlocking {
+        val repo = InMemoryWorldBookRepository()
+        repo.initialize(context)
+        val folderId = repo.saveFolder("需要整理")
+        (1..8).forEach { repo.save(entry("e$it").copy(folderId = folderId)) }
+        val original = repo.snapshot()
+        val removed = repo.deleteEntries(setOf("e2", "e5", "e8"))
+        assertEquals(listOf("e2", "e5", "e8"), removed.entries.map { it.id })
+        assertEquals(listOf("e1", "e3", "e4", "e6", "e7"), repo.snapshot().map { it.id })
+        val reloadedAfterDelete = InMemoryWorldBookRepository().also { it.initialize(context) }
+        assertEquals(repo.snapshot(), reloadedAfterDelete.snapshot())
+
+        // New edits after removal must survive undo: only the removed IDs come back.
+        repo.save(entry("new"))
+        repo.setGlobalEnabled("e3", false)
+        repo.restoreDeletedEntries(removed)
+        assertEquals(listOf("e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "new"),
+            repo.snapshot().map { it.id })
+        assertEquals(original.filter { it.id in setOf("e2", "e5", "e8") },
+            repo.snapshot().filter { it.id in setOf("e2", "e5", "e8") })
+        assertFalse(repo.snapshot().first { it.id == "e3" }.globalEnabled)
+        repo.restoreDeletedEntries(removed) // Double-clicking undo must not duplicate records.
+        assertEquals(9, repo.snapshot().size)
+        val reloadedAfterUndo = InMemoryWorldBookRepository().also { it.initialize(context) }
+        assertEquals(repo.snapshot(), reloadedAfterUndo.snapshot())
+    }
+
+    @Test fun undoAfterFolderWasRemovedRestoresRecordsWithoutInvalidFolderLink() = runBlocking {
+        val repo = InMemoryWorldBookRepository()
+        repo.initialize(context)
+        val folderId = repo.saveFolder("可删除文件夹")
+        repo.save(entry("x").copy(folderId = folderId))
+        val deleted = repo.deleteEntries(setOf("x"))
+        repo.deleteFolder(folderId)
+        repo.restoreDeletedEntries(deleted)
+        assertEquals("x", repo.snapshot().single().id)
+        assertNull(repo.snapshot().single().folderId)
+        assertEquals(false, repo.snapshot().single().characterOverrides["role-a"])
+    }
+
     @Test fun searchMatchesFolderTitleAndBodyButKeepsOriginalOrder() {
         val folders = listOf(WorldBookFolder("f1", "古代历史"), WorldBookFolder("f2", "人物背景"))
         val books = listOf(
