@@ -85,6 +85,7 @@ fun LexiconFeatureScreenV2(
         when (CharacterRecordDestination.fromLegacy(initialSectionName, initialDiaryTitle, initialFavoriteEntryId)) {
             CharacterRecordDestination.Diary -> -1 // old diary deep-links open the safe life-record home
             CharacterRecordDestination.Favorites -> 1
+            CharacterRecordDestination.LifeNotes -> 5
             CharacterRecordDestination.Stories -> 2
             CharacterRecordDestination.Moments -> 3
             else -> -1
@@ -93,7 +94,11 @@ fun LexiconFeatureScreenV2(
     var sectionIndex by rememberSaveable(initialSectionName, initialDiaryTitle, initialFavoriteEntryId) { mutableIntStateOf(requested) }
     val isHome = sectionIndex < 0
     val isLifeStory = sectionIndex == LIFE_STORY_INDEX
-    val section = if (sectionIndex == 1) LexiconSection.Favorite else LexiconSection.Diary
+    val section = when (sectionIndex) {
+        1 -> LexiconSection.Favorite
+        5 -> LexiconSection.Life
+        else -> LexiconSection.Diary
+    }
     val context = LocalContext.current
     LaunchedEffect(Unit) { WorldLifeEpisodeStore.initialize(context) }
     LaunchedEffect(characters.keys, personal) {
@@ -105,6 +110,8 @@ fun LexiconFeatureScreenV2(
         lifeStories[selectedCharacterId].orEmpty().sortedByDescending { it.occurredAt }
     }
     val collectedEntries by LuluRepositories.lexicon.observeEntries(characterId, section).collectAsState(initial = emptyList())
+    val collectedDiary by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Diary).collectAsState(initial = emptyList())
+    val collectedLife by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Life).collectAsState(initial = emptyList())
     val collectedFavorites by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Favorite).collectAsState(initial = emptyList())
     val entries = collectedEntries.filter { it.characterId == characterId && it.section == section }
     val favorites = collectedFavorites.filter { it.characterId == characterId }
@@ -115,7 +122,7 @@ fun LexiconFeatureScreenV2(
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
     var characterMenu by remember { mutableStateOf(false) }
-    val title = when (sectionIndex) { 0 -> "日记"; 1 -> "收藏"; 2 -> "小剧场"; 3 -> "朋友圈"; 4 -> "心事"; else -> pageTitle }
+    val title = when (sectionIndex) { 0 -> "日记"; 1 -> "收藏"; 2 -> "小剧场"; 3 -> "朋友圈"; 4 -> "心事"; 5 -> "生活近况"; else -> pageTitle }
     val back = { if (isHome) onBack() else { sectionIndex = -1; Unit } }
     androidx.activity.compose.BackHandler(enabled = !isHome) { sectionIndex = -1 }
     LaunchedEffect(characterId, section, entries, initialDiaryTitle, initialFavoriteEntryId) {
@@ -150,13 +157,14 @@ fun LexiconFeatureScreenV2(
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             if (isHome) {
                 LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(listOf("心事" to 4, "小剧场" to 2, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
+                    items(listOf("心事" to 4, "生活近况" to 5, "日记" to 0,
+                        "收藏" to 1, "小剧场" to 2, "朋友圈" to 3), key = { it.second }) { (label, index) ->
                         Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
                             border = BorderStroke(1.dp, LuluColors.Border),
                             modifier = Modifier.fillMaxWidth().clickable { sectionIndex = index }) {
                             Row(Modifier.padding(horizontal = 21.dp, vertical = 25.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text(label, fontSize = 20.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                                val number = when (index) { 2 -> storyEntries.size; 0 -> entries.size; 1 -> favorites.size; else -> null }
+                                val number = when (index) { 2 -> storyEntries.size; 0 -> collectedDiary.size; 5 -> collectedLife.size; 1 -> favorites.size; else -> null }
                                 if (number != null) Text(number.toString(), fontSize = 12.sp, color = LuluColors.Muted)
                                 Spacer(Modifier.width(12.dp))
                                 Icon(Icons.Outlined.ChevronRight, "打开$label", tint = LuluColors.Muted)
@@ -225,7 +233,19 @@ fun LexiconFeatureScreenV2(
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     if (entries.isEmpty()) item { Text("还没有$title", color = LuluColors.Muted) }
                     items(entries.take(visibleCount), key = LexiconEntry::id) { entry ->
-                        if (section == LexiconSection.Diary) DiaryEntryCard(entry,
+                        if (section == LexiconSection.Life) LexiconV2Card {
+                            Text(entry.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = LuluColors.Ink)
+                            Text(entry.content, fontSize = 14.sp, lineHeight = 22.sp, color = Color(0xFF5D5D62))
+                            Text(entry.updatedAt.atZone(ZoneId.systemDefault()).format(DiaryTimeFormatter),
+                                fontSize = 11.sp, color = LuluColors.Muted)
+                            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                                TextButton(onClick = { editing = entry }) { Text("编辑") }
+                                TextButton(onClick = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } }) {
+                                    Text("删除", color = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                        else if (section == LexiconSection.Diary) DiaryEntryCard(entry,
                             characters[characterId]?.displayName ?: "角色",
                             highlighted = entry.title == initialDiaryTitle,
                             onEdit = { editing = entry }, onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } })
