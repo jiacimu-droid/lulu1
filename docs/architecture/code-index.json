@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:49:25.115869+00:00",
-  "commit": "1298041788796aa189031bbfae0a5b4b51408911",
+  "generatedAt": "2026-10-25T16:08:46.642507+00:00",
+  "commit": "4bad8400275c53ddd79c8605f3fbff51150ec5a2",
   "branch": "main",
-  "sourceFingerprint": "ca8a33874cdf46c271edd8b3017c416c5118c9524a81cc7a4f2259f64780988e",
+  "sourceFingerprint": "db3be8afa754eb826e8e4838e4d131020b6ebd19beccf0ea39ad6e471e400183",
   "summary": {
-    "files": 908,
-    "lines": 178710,
-    "symbols": 2677
+    "files": 909,
+    "lines": 178841,
+    "symbols": 2678
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -439,7 +439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 21
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -995,7 +995,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 323
+        "line": 329
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -5213,7 +5213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 350
+        "line": 356
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -6641,25 +6641,25 @@
     "onVoiceStarted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 28
+        "line": 35
       }
     ],
     "onVoiceDelivered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 34
+        "line": 41
       }
     ],
     "onVoiceFailed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 41
+        "line": 48
       }
     ],
     "onMissed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 49
+        "line": 56
       }
     ],
     "nextInCallWakeReviewSeconds": [
@@ -6683,7 +6683,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "handled": [
@@ -6701,7 +6701,7 @@
     "playChosenMusic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 34
+        "line": 78
       }
     ],
     "CommitmentLexiconSync": [
@@ -6749,7 +6749,7 @@
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 343
+        "line": 349
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -13648,6 +13648,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
         "line": 19
+      }
+    ],
+    "BedtimeSupervisionReviewTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt",
+        "line": 6
       }
     ],
     "CallMediaSemanticBoundaryTest": [
@@ -21004,8 +21010,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-      "lines": 60,
-      "sha256": "99857dc22601a3df8cb61a1502890bd48dabb76e7c46282539604a52e9329410",
+      "lines": 67,
+      "sha256": "0a3b57a5718e550ae076ab628720638bcc176d9ba82e57f9d11ff3d6a7398359",
       "symbols": [
         {
           "name": "onResponse",
@@ -21013,19 +21019,19 @@
         },
         {
           "name": "onVoiceStarted",
-          "line": 28
+          "line": 35
         },
         {
           "name": "onVoiceDelivered",
-          "line": 34
-        },
-        {
-          "name": "onVoiceFailed",
           "line": 41
         },
         {
+          "name": "onVoiceFailed",
+          "line": 48
+        },
+        {
           "name": "onMissed",
-          "line": 49
+          "line": 56
         }
       ]
     },
@@ -21050,16 +21056,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 41,
-      "sha256": "b8ac6468df94138739a60373e3a921d4c0dbe5b892c20e6464feab16f10390b7",
+      "lines": 42,
+      "sha256": "dbfb39acd7a34f6fa64ba9486eb1615c2570ef0701d4ea8f101948ce1b716f47",
       "symbols": [
         {
           "name": "context",
-          "line": 21
+          "line": 22
         },
         {
           "name": "drafts",
-          "line": 29
+          "line": 30
         }
       ]
     },
@@ -21080,12 +21086,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 292,
-      "sha256": "332811412dbe4a649ccd87ae09772f3503d0e254419a7e3620f8f201775e22cc",
+      "lines": 359,
+      "sha256": "fddd43eede04178c39f96b915ad8ab11773e5582ff88c35ef99aa147b8618f5d",
       "symbols": [
         {
           "name": "playChosenMusic",
-          "line": 34
+          "line": 78
         }
       ]
     },
@@ -21106,8 +21112,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 72,
-      "sha256": "5455a7a17a5adfe03e1f60d8a405762e1f4caa572317ec087b903ae096b1abf4",
+      "lines": 88,
+      "sha256": "4d286ccf2061a1e8183bb9f641e47d47da756f37f3462608699b822d2d7b55dd",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -21163,8 +21169,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 362,
-      "sha256": "116dc3dd47bdf67ec12e818fd14348804006f9972e3fda9597fa105d5fafa4d1",
+      "lines": 368,
+      "sha256": "38f60738defecfc93787d310cb3855f2e0b1bc2826fe9011015963764c200812",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -21204,15 +21210,15 @@
         },
         {
           "name": "remove",
-          "line": 323
+          "line": 329
         },
         {
           "name": "removeBySourceEvent",
-          "line": 343
+          "line": 349
         },
         {
           "name": "clearCharacter",
-          "line": 350
+          "line": 356
         }
       ]
     },
@@ -29564,6 +29570,17 @@
         {
           "name": "BackgroundPerceptionRecoveryTest",
           "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt",
+      "lines": 34,
+      "sha256": "e63fcacd666197e399395da55f639ce0df9bd718ac9c3021abdfe2f2817f75cd",
+      "symbols": [
+        {
+          "name": "BedtimeSupervisionReviewTest",
+          "line": 6
         }
       ]
     },
