@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import org.json.JSONObject
 
 /**
@@ -72,70 +73,97 @@ internal object EmbodiedBodyPhysics {
 
     fun fresh(at: Instant): EmbodiedBodySnapshot = EmbodiedBodySnapshot(lastAt = at)
 
-    fun advance(before: EmbodiedBodySnapshot, now: Instant): EmbodiedBodySnapshot {
+    /** Split at real local-hour and activity boundaries, never at UI refresh intervals.
+     * Offline digital standby is distinct from an explicitly chosen sleep activity. */
+    fun advance(before: EmbodiedBodySnapshot, now: Instant,
+        zone: ZoneId = ZoneId.systemDefault()): EmbodiedBodySnapshot {
         if (!now.isAfter(before.lastAt)) return before
-        val duration = Duration.between(before.lastAt, now)
-        val hours = duration.seconds.toDouble() / 3600.0 + duration.nano.toDouble() / 3_600_000_000_000.0
-        val end = before.recoveryUntil
-        val offlineSleep = before.recoveryMode == "offline_sleep"
-        val recoveryHours = if (offlineSleep) hours else if (before.recoveryMode.isNotBlank() && end != null && end.isAfter(before.lastAt)) {
-            val boundedEnd = if (end.isBefore(now)) end else now
-            if (boundedEnd.isAfter(before.lastAt))
-                Duration.between(before.lastAt, boundedEnd).toMillis().toDouble() / 3_600_000.0 else 0.0
-        } else 0.0
-        val awakeHours = (hours - recoveryHours).coerceAtLeast(0.0)
-        val mode = before.recoveryMode
-        val energyGain = when (mode) {
-            "sleep", "offline_sleep" -> 12.5
-            "nap" -> 17.0
-            "rest" -> 5.0
-            else -> 0.0
+        var state = before
+        while (state.lastAt.isBefore(now)) {
+            val at = state.lastAt
+            val local = at.atZone(zone)
+            val nextHour = local.withMinute(0).withSecond(0).withNano(0).plusHours(1).toInstant()
+            val recoveryEnd = state.recoveryUntil?.takeIf {
+                state.recoveryMode.isNotBlank() && state.recoveryMode != "offline_sleep" && it.isAfter(at)
+            }
+            val end = listOfNotNull(now, nextHour, recoveryEnd).minOrNull()!!
+            val elapsed = Duration.between(at, end)
+            val hours = elapsed.seconds / 3600.0 + elapsed.nano / 3_600_000_000_000.0
+            val mode = state.recoveryMode.takeIf { it == "offline_sleep" ||
+                state.recoveryUntil?.isAfter(at) == true }.orEmpty()
+            val standby = mode == "offline_sleep"
+            val sleeping = mode in setOf("sleep", "nap")
+            val resting = mode == "rest"
+            val night = local.hour < 7 || local.hour >= 23
+            fun bounded(n: Double) = n.coerceIn(0.0, 100.0)
+            fun approach(value: Double, target: Double, rate: Double) =
+                target + (value - target) * kotlin.math.exp(-rate * hours)
+            // A sparse online lease is a resource policy, not 22 hours of restorative sleep.
+            // Daytime standby approaches a circadian level instead of refilling to 100.
+            val energyTarget = when (local.hour) {
+                in 0..6, 23 -> 94.0
+                in 7..10 -> 82.0
+                in 11..16 -> 70.0
+                in 17..21 -> 58.0
+                else -> 66.0
+            }
+            val pressureTarget = when (local.hour) {
+                in 0..6, 23 -> 8.0
+                in 7..10 -> 20.0
+                in 11..16 -> 34.0
+                in 17..21 -> 50.0
+                else -> 40.0
+            }
+            val energy = when {
+                standby -> approach(state.energy, energyTarget, if (night) 0.65 else 0.35)
+                mode == "sleep" -> state.energy + 12.5 * hours
+                mode == "nap" -> state.energy + 17.0 * hours
+                resting -> state.energy + 5.0 * hours
+                else -> state.energy - AWAKE_ENERGY_DRAIN_PER_HOUR * hours
+            }
+            val pressure = when {
+                standby -> approach(state.sleepPressure, pressureTarget, if (night) 0.65 else 0.35)
+                mode == "sleep" -> state.sleepPressure - 15.0 * hours
+                mode == "nap" -> state.sleepPressure - 19.0 * hours
+                resting -> state.sleepPressure - 5.0 * hours
+                else -> state.sleepPressure + AWAKE_SLEEP_PRESSURE_PER_HOUR * hours
+            }
+            // Daytime offline time still belongs to the person's day. Around 6 points/h
+            // and a real sandwich's 34-point relief support breakfast/lunch/dinner spacing.
+            val hungerRate = when {
+                standby -> if (night) 1.1 else 6.0
+                mode == "sleep" -> 1.1
+                mode == "nap" -> 2.0
+                resting -> 4.0
+                else -> AWAKE_HUNGER_PER_HOUR
+            }
+            val thirstRate = when {
+                standby -> if (night) 2.0 else 8.0
+                mode == "sleep" -> 2.0
+                mode == "nap" -> 2.8
+                resting -> 5.0
+                else -> AWAKE_THIRST_PER_HOUR
+            }
+            val boredom = when {
+                standby -> approach(state.boredom, 100.0, if (night) 0.0055 else 0.075)
+                sleeping -> approach(state.boredom, 100.0, 0.0035)
+                resting -> approach(state.boredom, 100.0, 0.035)
+                else -> state.boredom + AWAKE_MONOTONY_PER_HOUR * hours
+            }
+            val comfort = when {
+                standby -> approach(state.comfort, if (night) 84.0 else 72.0, 0.25)
+                sleeping || resting -> state.comfort + 3.0 * hours
+                else -> state.comfort - AWAKE_COMFORT_DRAIN_PER_HOUR * hours
+            }
+            val finished = state.recoveryMode != "offline_sleep" &&
+                (state.recoveryUntil == null || !state.recoveryUntil!!.isAfter(end))
+            state = state.copy(lastAt = end, energy = bounded(energy), sleepPressure = bounded(pressure),
+                hunger = bounded(state.hunger + hours * hungerRate),
+                thirst = bounded(state.thirst + hours * thirstRate), comfort = bounded(comfort),
+                boredom = bounded(boredom), recoveryMode = if (finished) "" else state.recoveryMode,
+                recoveryUntil = if (finished) null else state.recoveryUntil)
         }
-        val sleepRelief = when (mode) {
-            "sleep", "offline_sleep" -> 15.0
-            "nap" -> 19.0
-            "rest" -> 5.0
-            else -> 0.0
-        }
-        // A person generally does not get as hungry or thirsty while asleep as
-        // while actively awake, but neither need is magically reset by rest.
-        val sleepHungerRate = when (mode) {
-            "sleep", "offline_sleep" -> 1.1
-            "nap" -> 2.0
-            "rest" -> 4.0
-            else -> 0.0
-        }
-        val sleepThirstRate = when (mode) {
-            "sleep", "offline_sleep" -> 2.0
-            "nap" -> 2.8
-            "rest" -> 5.0
-            else -> 0.0
-        }
-        fun bounded(n: Double) = n.coerceIn(0.0, 100.0)
-        // Rest is not entertainment. Retain existing curiosity and allow only
-        // very slow saturation toward 100 during real sleep/offline sleep.
-        // The exponential form is stable whether the app checks once after
-        // eight hours or eight times during the same interval.
-        val restingNovelty = before.boredom + (100.0 - before.boredom) *
-            (1.0 - kotlin.math.exp(-recoveryHours *
-                (if (offlineSleep) 0.55 else 0.35) / 100.0))
-        val finished = !offlineSleep && (end == null || !end.isAfter(now))
-        return before.copy(
-            lastAt = now,
-            energy = bounded(before.energy - awakeHours * AWAKE_ENERGY_DRAIN_PER_HOUR +
-                recoveryHours * energyGain),
-            sleepPressure = bounded(before.sleepPressure + awakeHours * AWAKE_SLEEP_PRESSURE_PER_HOUR -
-                recoveryHours * sleepRelief),
-            hunger = bounded(before.hunger + awakeHours * AWAKE_HUNGER_PER_HOUR +
-                recoveryHours * sleepHungerRate),
-            thirst = bounded(before.thirst + awakeHours * AWAKE_THIRST_PER_HOUR +
-                recoveryHours * sleepThirstRate),
-            comfort = bounded(before.comfort - awakeHours * AWAKE_COMFORT_DRAIN_PER_HOUR +
-                recoveryHours * 3.0),
-            boredom = bounded(restingNovelty + awakeHours * AWAKE_MONOTONY_PER_HOUR),
-            recoveryMode = if (finished) "" else mode,
-            recoveryUntil = if (finished) null else end,
-        )
+        return state
     }
 
     fun applyWorldActivity(
@@ -202,10 +230,10 @@ internal object EmbodiedBodyPhysics {
             appendLine("【数字身体模拟｜持续的身体线索，不是情绪、人格或真实传感器数据】")
             appendLine("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；舒适度=${number(snapshot.comfort)}；单调感=${number(snapshot.boredom)}（0—100，均为数字世界内模拟值）。")
             if (snapshot.recoveryMode == "offline_sleep")
-                appendLine("当前离线休眠中；模拟身体正在按真实经过的时间恢复。")
+                appendLine("当前离线休眠中；白天是浅休眠，仍有日间精力节律与吃喝需求；夜间恢复更充分，不等于全天一直熟睡。")
             else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
-            appendLine("饥饿和口渴可影响想吃喝的意愿；清醒几小时不进食、饮水或休息时感觉会逐渐明显，睡眠中则变慢。睡眠压力高、精力低可以使本人倾向休息。单调感表示清醒时一段时间缺少有变化的体验：普通整理、查看时间和吃喝不会自动消除；真正的散步、观察新风景有少量缓解，实际游戏、阅读、探索回执能明显缓解。离线休眠恢复体力但不清空好奇心。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。这些只是决策线索，绝非必须搜索、强制发消息或改变性格的阈值，不越过已有权限和费用限制；点单不代表已食用。")
+            appendLine("饥饿和口渴可影响想吃喝的意愿；白天即使多数时间离线，也会按经过的生活时间积累，早餐、午餐、晚餐和间隔饮水可自然成为本人选择；正餐可间隔约4—6小时，不必等到很饿才准备；可提前准备或通过原日程安排，不能仅因休眠就跳过一整天的吃喝。真正睡眠及夜间休眠积累较慢。睡眠压力高、精力低可以使本人倾向休息。单调感表示一段生活时间缺少有变化的体验，白天离线也会明显积累，夜间较慢：普通整理、查看时间和吃喝不会自动消除；真正的散步、观察新风景有少量缓解，实际游戏、阅读、探索回执能明显缓解。白天休眠不会反复补满精力或清空睡眠压力；夜间与实际睡眠活动恢复更充分，好奇和未解决心事不会被清空。角色可以因兴趣、独处、好奇或无聊想到查知识、看外界、观察风景、找熟人，也可克制或什么都不做。这些只是决策线索，绝非必须搜索、强制发消息或改变性格的阈值，不越过已有权限和费用限制；点单不代表已食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }

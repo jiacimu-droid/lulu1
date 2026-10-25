@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5dd261ae9d6f24c4dc5c631e3a05df29fce7bd92`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：887
-- 已索引代码/文本行：172550
-- 已发现符号：2584
+- 已索引代码/文本行：172648
+- 已发现符号：2585
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -371,7 +371,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 223 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1166 | 36 |
-| `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 328 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 356 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
@@ -788,7 +788,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt` | 96 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 233 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 303 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 51 | 1 |
