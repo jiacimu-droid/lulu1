@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8b3133a09009cc1d618ee51fa3e51819475d8969`
+- 基准提交：`2b0404a42dd898b6358e06a5ab6c5d5b8d6996b1`
 - 分支：`main`
 - 已索引文件：890
-- 已索引代码/文本行：174199
+- 已索引代码/文本行：174208
 - 已发现符号：2617
 
 | 文件 | 行数 | 符号数 |
@@ -311,7 +311,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 341 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 97 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 95 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
@@ -336,7 +336,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 362 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1203 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1209 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |

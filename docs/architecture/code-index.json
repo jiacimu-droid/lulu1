@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:45:56.767983+00:00",
-  "commit": "8b3133a09009cc1d618ee51fa3e51819475d8969",
+  "generatedAt": "2026-10-25T05:46:29.806766+00:00",
+  "commit": "2b0404a42dd898b6358e06a5ab6c5d5b8d6996b1",
   "branch": "main",
-  "sourceFingerprint": "f5ee43a49672c3a34cc7339df6973c53b666314779594f3793d2b4d8dac4db79",
+  "sourceFingerprint": "09c1f79a2511bac124bdd38e1128812895e4bf320d0a5bd59919045482295b56",
   "summary": {
     "files": 890,
-    "lines": 174199,
+    "lines": 174208,
     "symbols": 2617
   },
   "symbolIndex": {
@@ -6275,7 +6275,7 @@
     "same": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 55
+        "line": 58
       }
     ],
     "candidates": [
@@ -20342,8 +20342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 97,
-      "sha256": "153ff8364540932528bbd86d6f8b69b1ce6ef0ddb2d5f69d29d0e72dd9c88d87",
+      "lines": 100,
+      "sha256": "eb7abad16bf1ba577d0dd0faf1e9bc96347b3b1d909e42573f2293e8058b0d4e",
       "symbols": [
         {
           "name": "actions",
@@ -20355,7 +20355,7 @@
         },
         {
           "name": "same",
-          "line": 55
+          "line": 58
         }
       ]
     },
@@ -20861,8 +20861,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1203,
-      "sha256": "1bceb416ec3c9d9837f746f51e931fb7f17ce270373ff9e593ee0966368046ce",
+      "lines": 1209,
+      "sha256": "7924c3eb08e74e115b4cf2723fe3153f86b2d81ff7977c6b50256877d94c8d3c",
       "symbols": [
         {
           "name": "asJson",
