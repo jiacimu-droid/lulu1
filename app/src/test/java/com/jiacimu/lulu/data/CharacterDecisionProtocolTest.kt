@@ -14,10 +14,15 @@ class CharacterDecisionProtocolTest {
         val runtime = CharacterDecisionProtocol.runtimePrinciples
         val causal = CharacterDecisionProtocol.causalPrinciples
         assertTrue(runtime.contains("【主观理解的连续性】"))
-        assertTrue(runtime.contains("不等于他人的真实动机"))
-        assertTrue(runtime.contains("新的证据或对方澄清"))
+        // Preserve the actual semantics, not obsolete wording from an older,
+        // longer instruction: compact runtime rules still separate inference,
+        // later corrections, and existing state fields.
+        assertTrue(runtime.contains("真实感知不等于对方真实动机"))
+        assertTrue(runtime.contains("允许误解、犹豫及矛盾感受"))
+        assertTrue(runtime.contains("新证据或澄清可修正判断"))
         assertTrue(runtime.contains("appraisal（meaning/uncertainty"))
-        assertTrue(runtime.contains("不创建新状态字段"))
+        assertTrue(runtime.contains("不造新状态"))
+        assertTrue(runtime.length < 3000)
         assertTrue(causal.contains("当前感知与本人解释不是同一个事实"))
         assertTrue(causal.contains("影响下一次选择"))
         assertTrue(causal.contains("而非要求每轮都误会"))
