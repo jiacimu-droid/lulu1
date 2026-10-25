@@ -54,6 +54,62 @@ class CharacterLifeVisibilityTest {
             listOf(future.copy(status = "cancelled")), now).isEmpty())
     }
 
+    @Test fun activeLongTermConcernPersistsInPresenceAndDisappearsWhenPaused() {
+        val role = "test-current-concern-long-term"
+        val firstSource = "test-long-term-concern-first"
+        val pauseSource = "test-long-term-concern-pause"
+        val resumeSource = "test-long-term-concern-resume"
+        val settledSource = "test-long-term-concern-settled"
+        val old = Instant.now().minusSeconds(7L * 86400)
+        val now = Instant.now()
+        CharacterInnerLifeStore.clear(role)
+        listOf(firstSource, pauseSource, resumeSource, settledSource)
+            .forEachIndexed { i, id ->
+                SharedExperienceTimeline.record(id, role, "私聊", "用户",
+                    "与挂心相关的真实第${i + 1}次交流", old.plusSeconds(i * 60L),
+                    triggerExtraction = false, source = "message",
+                    evidenceKind = EventEvidenceKind.UserStatement)
+            }
+        val open = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "open").put("topicKey", "contact_cost")
+            .put("focus", "担心联系成本让她有负担")
+            .put("whyItMatters", "此前了解到她会精打细算"))
+        CharacterInnerLifeStore.recordCausalTransition(role, firstSource, open, null, null,
+            "reply", "", "当时自己仍在意", old)
+        val id = CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns")
+            .getJSONObject(0).getString("id")
+        fun current() = CharacterLifeVisibility.current(role, now).filter { it.title == "还在挂心" }
+        fun matters() = CharacterLifeVisibility.matters(role, now).filter { it.category == "挂心" }
+        assertEquals(1, current().size)
+        assertEquals(1, matters().size)
+        assertTrue(current()[0].detail.contains("联系成本"))
+        val pause = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "pause").put("threadId", id))
+        CharacterInnerLifeStore.recordCausalTransition(role, pauseSource, pause, null, null,
+            "reply", "", "暂时不继续关注", now.minusSeconds(90))
+        assertTrue(current().isEmpty())
+        assertTrue(matters().isEmpty())
+        val resume = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "resume").put("threadId", id)
+            .put("focus", "想在合适的时机联系对方"))
+        CharacterInnerLifeStore.recordCausalTransition(role, resumeSource, resume, null, null,
+            "reply", "", "自己再次关心", now.minusSeconds(60))
+        assertEquals(1, current().size)
+        assertEquals(1, matters().size)
+        val settled = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "settled").put("threadId", id)
+            .put("resolution", "新的事实使顾虑得到解答"))
+        CharacterInnerLifeStore.recordCausalTransition(role, settledSource, settled, null, null,
+            "reply", "", "本人已想通", now.minusSeconds(30))
+        assertTrue(current().isEmpty())
+        assertTrue(matters().isEmpty())
+        assertEquals(1, CharacterInnerLifeStore.snapshot(role)
+            .getJSONArray("closedConcerns").length())
+        listOf(firstSource, pauseSource, resumeSource, settledSource)
+            .forEach(SharedExperienceTimeline::deleteEvent)
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun aRealQuestionIsVisibleAsPendingAndWithdrawnWhenSourceDeleted() {
         val role = "visibility-question-source-test"
         val original = "visibility-user-question-source"
