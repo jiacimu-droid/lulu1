@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.core.WorldBookEntry
+import com.jiacimu.lulu.core.WorldBookPromptPosition
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
@@ -99,4 +100,21 @@ class WorldBookJsonImporterTest {
         assertNotEquals(existing.id, imported.single().id)
         assertEquals(true, imported.single().characterOverrides["role-a"])
     }
+    @Test fun nativeJsonHonorsPlacementButForeignImportNeverGuessesItsMeaning() {
+        val native = WorldBookJsonImporter.parse(
+            """[{"title":"顶部","content":"A","globalEnabled":true,"promptPosition":"TOP"},
+                 {"title":"底部","content":"B","globalEnabled":true,"promptPosition":"BOTTOM"},
+                 {"title":"旧项","content":"C","globalEnabled":true},
+                 {"title":"未知","content":"D","globalEnabled":true,"promptPosition":"invalid"}]""",
+            "person",
+        )
+        assertEquals(listOf(WorldBookPromptPosition.TOP, WorldBookPromptPosition.BOTTOM,
+            WorldBookPromptPosition.NORMAL, WorldBookPromptPosition.NORMAL),
+            native.entries.map { it.promptPosition })
+        val tavern = WorldBookJsonImporter.parse(
+            """{"entries":[{"name":"异构条目","content":"E","constant":true,
+                 "position":"bottom","promptPosition":"BOTTOM"}]}""", "person")
+        assertEquals(WorldBookPromptPosition.NORMAL, tavern.entries.single().promptPosition)
+    }
+
 }
