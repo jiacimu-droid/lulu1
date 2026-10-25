@@ -711,7 +711,14 @@ fun QqStyleChatDetailScreen(
                     }
                 }
             }
-            itemsIndexed(displayRuns, key = { _, item -> item.key }) { index, run ->
+            itemsIndexed(displayRuns,
+                key = { _, item -> item.key },
+                contentType = { _, run ->
+                    if (run.messages.size > 1) "receipt-group"
+                    else if (run.messages.first().sender == LuluChatMessage.Sender.System) "system-receipt"
+                    else "chat-message"
+                },
+            ) { index, run ->
                 if (run.messages.size > 1) {
                     QqSystemReceiptGroup(run)
                     return@itemsIndexed
@@ -722,7 +729,9 @@ fun QqStyleChatDetailScreen(
                 val groupStart = previous == null || !sameQqMessageGroup(previous, message)
                 val groupEnd = next == null || !sameQqMessageGroup(message, next)
                 val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) } ?: character
-                val imageMessage = decodeQqChatImage(message.content)
+                val imageMessage = remember(message.id, message.content) {
+                    decodeQqChatImage(message.content)
+                }
 
                 if (imageMessage != null) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
