@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T14:21:49.704548+00:00",
-  "commit": "8d1a214301ec3035ec953bbaf9fc85875a36442d",
+  "generatedAt": "2026-10-25T14:23:07.565314+00:00",
+  "commit": "a0442459a74b4016a53c121a7dd71f5d82dca244",
   "branch": "main",
-  "sourceFingerprint": "0dc6eebe73a8b26411c981e6855067db1c1b0715bf63c9a52cd2fdcd8d5dce2e",
+  "sourceFingerprint": "f02f84e582728cfe5a429942044757e0088af9b7c52b805a7b6927afa441f399",
   "summary": {
     "files": 905,
-    "lines": 178288,
+    "lines": 178425,
     "symbols": 2674
   },
   "symbolIndex": {
@@ -14127,19 +14127,19 @@
     "ConversationExpressionGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 26
+        "line": 29
       }
     ],
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 98
+        "line": 166
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 101
+        "line": 169
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -14767,13 +14767,13 @@
     "WorldBookFolderRepositoryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "WorldBookJsonImporterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "WorldInteractionRegressionTest": [
@@ -29363,8 +29363,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 112,
-      "sha256": "c53527a9bc366b67dcb6c9274b09b8dfe627cea2bb656583e5b7d2115ecf86b2",
+      "lines": 125,
+      "sha256": "b3439bcbbd121e671917ab45be4d8351ab99177dc6e3b994eb8064b14f3c3752",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
@@ -30312,20 +30312,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 246,
-      "sha256": "9faba6215adba224c31d81f5b4c4a29873828927e8ab0a385ddf8d7c7a3fa426",
+      "lines": 314,
+      "sha256": "cf18735ab4ccde836f4c5ad50722002dbb818394d74c87746c492bd84b15add0",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
-          "line": 26
+          "line": 29
         },
         {
           "name": "response",
-          "line": 98
+          "line": 166
         },
         {
           "name": "bubbles",
-          "line": 101
+          "line": 169
         }
       ]
     },
@@ -31408,23 +31408,23 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
-      "lines": 142,
-      "sha256": "08844c5b09049245a01a0ffe46a825a1fc8e214d15eae8080112a478898ad1d0",
+      "lines": 180,
+      "sha256": "40f655b0ffa4ca7a5825a1061f5af8e44c554146c133e31ca4607d143e4f0094",
       "symbols": [
         {
           "name": "WorldBookFolderRepositoryTest",
-          "line": 17
+          "line": 18
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
-      "lines": 103,
-      "sha256": "f954cd4f0e3b05cd6ba7a1c47ee0352082832b9d8ea4f223f424bf163478d92c",
+      "lines": 121,
+      "sha256": "ebfa5b3c9e688990a0e289458ee696e1bc6baf32b7df59eb304dd9ea147f56b1",
       "symbols": [
         {
           "name": "WorldBookJsonImporterTest",
-          "line": 15
+          "line": 16
         }
       ]
     },
