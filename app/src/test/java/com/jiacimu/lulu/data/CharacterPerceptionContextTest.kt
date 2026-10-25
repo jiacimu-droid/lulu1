@@ -54,6 +54,13 @@ class CharacterPerceptionContextTest {
         assertTrue(SearchReceiptFeedback.completedEvidence(failed))
         assertFalse(SearchReceiptFeedback.completedEvidence(pending))
         assertFalse(SearchReceiptFeedback.completedEvidence(fake))
+        val fresh = listOf(PerceptionStimulus("unrelated-synthetic", "clock"),
+            CharacterPerceptionContext.stimulus(search),
+            CharacterPerceptionContext.stimulus(image))
+        assertEquals(image.id, CharacterPerceptionContext.latestObservedEvidenceId(
+            fresh, listOf(search, image)))
+        assertEquals("", CharacterPerceptionContext.latestObservedEvidenceId(
+            fresh.take(1), listOf(search, image)))
         assertEquals(listOf(search.id, image.id, xhs.id, failed.id),
             CharacterPerceptionContext.selectRecent(
                 listOf(search, image, xhs, failed, pending, fake), now).map { it.id })
