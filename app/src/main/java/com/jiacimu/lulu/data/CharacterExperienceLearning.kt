@@ -7,8 +7,14 @@ import java.time.Instant
 /** Projections and validation over the existing timeline/learning ledger; no second store. */
 internal object CharacterExperienceLearning {
     private val experienceSchema = """{"topic":"稳定主题","situationEvidenceId":"当时需求/观察的真实ID","actionEvidenceId":"当次tool-router回执或已完成的屏幕观察ID","understanding":"这次发现及下次怎样改","applicableWhen":"适用情境","avoidWhen":"不适用/停止条件","uncertainty":"仍未知之处","feedbackEvidenceId":"可选的后来用户原话ID","feedbackQuote":"该原话中的逐字引用","revisesEvidenceId":"确有修订时旧经验ID"}"""
+    // The full experienceSchema belongs to reflectionInstruction/instruction.
+    // Expanding it into every paid runtime prompt adds ~300 characters just
+    // for example field descriptions and can breach the 3000-char shared
+    // character-decision budget even when the caller source appears short.
     val runtimeInstruction = """
-        【资源与相处经验】自己判断信息缺口、实际能力和旧方法是否适用，需要核实时主动选择已配置搜索；不等点名工具，不按关键词派发。真实日常/失败也可产生 experienceLearning=$experienceSchema。仅用提供的原始ID；工具成功、沉默或谢谢不代表满意，单次请求不升级为习惯/权限。复用所学可在主行动或各steps项写 learningApplication={sourceEvidenceId,action:本项实际工具名或message/phone_reply,howApplied}，独立回执归因；用户本轮明确评价旧应用才写 learningFeedback={sourceEvidenceId,actionEvidenceId,evaluation:helped|unhelpful|mixed,quote:本轮逐字原话,why}，反例写 learningChallenge={sourceEvidenceId,issue}。最新拒绝与反例优先；都可省略，不为好评反复追问，不增加反思调用。
+        【资源与相处经验】依真实信息缺口和过往结果选工具，不按关键词派发；日常与失败也可学习。
+        可选 experienceLearning={topic,situationEvidenceId,actionEvidenceId,understanding,applicableWhen,avoidWhen,uncertainty,feedbackEvidenceId,feedbackQuote,revisesEvidenceId}；仅引用真实来源ID，缺证据的字段省略。工具成功或沉默不等于满意，单次经验不变成固定习惯。
+        真正复用时可填 learningApplication={sourceEvidenceId,action,howApplied} 于对应steps；本轮有用户逐字反馈才填 learningFeedback={sourceEvidenceId,actionEvidenceId,evaluation,quote,why}；反例用 learningChallenge={sourceEvidenceId,issue}。分别按回执归因，最新拒绝优先；字段可省略，不额外发起反思调用。
     """.trimIndent()
     val reflectionInstruction = """
         数组中的工具经验项使用 kind=ToolExperience，其余字段为 $experienceSchema。回看当时目标、已有信息、真正用了什么、结果与反馈，形成适用和停止条件及下次调整。可从失败学习局限；只有后来用户原话才是用户反馈，不将邻近发言自动当评价。已有同主题经验确被新尝试修订时填 revisesEvidenceId，保留原始来源；单次请求不升级为固定习惯。工具成功不证明对用户有效，用户沉默不证明失败。没有新认识就不重复保存，不需要slot或disposition。
