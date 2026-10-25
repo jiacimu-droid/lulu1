@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -107,7 +106,6 @@ fun CharacterSettingsScreenV2(
     }
     val autoPlayVoice = voicePreferences[characterId] == true
     val characterVoiceId = characterVoiceIds[characterId].orEmpty()
-    val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
     var avatarUri by remember(characterId) { mutableStateOf(original.avatarUri) }
@@ -468,23 +466,6 @@ fun CharacterSettingsScreenV2(
                     if (recordNotice.isNotBlank()) Text(recordNotice, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
-            item { Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp) }
-            if (worldBooks.isEmpty()) {
-                item { CharacterV2Card { Text("还没有世界书", fontWeight = FontWeight.Bold) } }
-            } else {
-                items(worldBooks, key = { it.id }) { book ->
-                    CharacterV2Card {
-                        Text(book.title, fontWeight = FontWeight.Bold)
-                        Text(if (book.globalEnabled) "全局默认：开启" else "全局默认：关闭", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
-                        val selected = book.characterOverrides[characterId]
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            CharacterV2WorldChoice("跟随全局", selected == null, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, null) } }
-                            CharacterV2WorldChoice("单独开启", selected == true, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, true) } }
-                            CharacterV2WorldChoice("单独关闭", selected == false, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, false) } }
-                        }
-                    }
-                }
-            }
             }
         }
     }
@@ -635,11 +616,6 @@ private fun CharacterV2Switch(
         Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).padding(end = 10.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
-}
-
-@Composable
-private fun CharacterV2WorldChoice(text: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    FilterChip(selected = selected, onClick = onClick, label = { Text(text, maxLines = 1, fontSize = 11.sp) }, modifier = modifier)
 }
 
 @Composable
