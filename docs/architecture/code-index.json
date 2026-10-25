@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T05:38:55.884261+00:00",
-  "commit": "f6f00910b2d3c77815603fb861df91683a2fc466",
+  "generatedAt": "2026-10-25T05:39:22.151365+00:00",
+  "commit": "84b6894b12d908d67aa07c630040ded10dcdf045",
   "branch": "main",
-  "sourceFingerprint": "c8b838114bae75ad557ff7044e02db48df86938a986879a5a72fb18952cb43fb",
+  "sourceFingerprint": "792105a0a1477b4c0be21194496e9dfc35531e5aeb4c96a0aae1e4df70058e82",
   "summary": {
     "files": 889,
-    "lines": 174057,
-    "symbols": 2612
+    "lines": 174066,
+    "symbols": 2613
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3231,7 +3231,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 89
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4413,7 +4413,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 144
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -5922,22 +5922,28 @@
         "line": 47
       }
     ],
+    "latestObservedEvidenceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 56
+      }
+    ],
     "personalOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 55
+        "line": 64
       }
     ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 75
+        "line": 84
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 131
+        "line": 140
       }
     ],
     "keepOrBlank": [
@@ -19918,8 +19924,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 153,
-      "sha256": "0bc2fd167e8c0f374e9e837244d3de9f5fa15e0d4702e07c477c9665500be512",
+      "lines": 162,
+      "sha256": "1aaf1355f7697817797d68ab50a9851a71e4d919ea76b92cfa2a9219d1d31343",
       "symbols": [
         {
           "name": "integrate",
@@ -19934,24 +19940,28 @@
           "line": 47
         },
         {
+          "name": "latestObservedEvidenceId",
+          "line": 56
+        },
+        {
           "name": "personalOutcome",
-          "line": 55
+          "line": 64
         },
         {
           "name": "selectRecent",
-          "line": 75
+          "line": 84
         },
         {
           "name": "pending",
-          "line": 89
+          "line": 98
         },
         {
           "name": "stimulus",
-          "line": 131
+          "line": 140
         },
         {
           "name": "render",
-          "line": 144
+          "line": 153
         }
       ]
     },
