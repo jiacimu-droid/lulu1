@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4bad8400275c53ddd79c8605f3fbff51150ec5a2`
+- 基准提交：`f57f170b7d584a2d833b40301b10b77ff0f8ecf7`
 - 分支：`main`
 - 已索引文件：909
-- 已索引代码/文本行：178841
+- 已索引代码/文本行：178850
 - 已发现符号：2678
 
 | 文件 | 行数 | 符号数 |
@@ -323,7 +323,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt` | 14 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 67 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 71 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 42 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 172 | 2 |
@@ -721,7 +721,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 105 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt` | 34 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BedtimeSupervisionReviewTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 112 | 1 |
