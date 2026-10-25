@@ -79,6 +79,29 @@ internal object ResidentDailyDecision {
         "digital_world_action", "play_solo_game",
     )
 
+    /** Preserve model-selected targets and destinations in the SAME args checked at execution.
+     * A top-level agenda target otherwise exists only in plan metadata, leaving the
+     * scheduled ToolRouter call with no recipient or a mismatched location.
+     * This never grants permission: canBegin and ToolRouter revalidate at due time.
+     */
+    internal fun agendaArgs(action: String, row: JSONObject): JSONObject {
+        val args = row.optJSONObject("activityArgs")?.let { JSONObject(it.toString()) } ?: JSONObject()
+        args.remove("planId")
+        if (action == "send_character_message") {
+            val target = row.optString("targetCharacterId").trim()
+                .ifBlank { args.optString("targetCharacterId").trim() }
+            if (target.isNotBlank()) args.put("targetCharacterId", target)
+        }
+        if (action == "digital_world_action" &&
+            args.optString("worldAction") == "visit_public_place") {
+            val place = row.optString("locationCode").trim()
+                .ifBlank { args.optString("locationCode").trim()
+                    .ifBlank { args.optString("location").trim() } }
+            if (place.isNotBlank()) args.put("locationCode", place)
+        }
+        return args
+    }
+
     /** Model plans are proposed intentions, not actions. Registry and social facts own validity. */
     // The failure receipt uses a suspendable performance repository. Keep it
     // in the caller's Worker coroutine instead of launching detached logging.
@@ -96,11 +119,9 @@ internal object ResidentDailyDecision {
             val title = row.optString("title").trim().take(95)
             val intent = row.optString("intent").trim().take(270)
             if (title.length < 2 || intent.length < 3) continue
-            val params = row.optJSONObject("activityArgs")?.let { JSONObject(it.toString()) } ?: JSONObject()
-            // Never accept execution metadata, unverified destinations or arbitrary contacts from AI.
-            params.remove("planId")
-            val target = row.optString("targetCharacterId")
-                .ifBlank { params.optString("targetCharacterId") }.trim()
+            // Keep target/location in the persisted tool arguments, not only in plan metadata.
+            val params = agendaArgs(action, row)
+            val target = params.optString("targetCharacterId").trim()
             if (action == "send_character_message" &&
                 (target !in known || target == actor)) continue
             if (action == "send_group_message") {
@@ -109,8 +130,8 @@ internal object ResidentDailyDecision {
                     it.id == group && it.groupChat?.members?.any { member -> member.characterId == actor } == true
                 }) continue
             }
-            val location = row.optString("locationCode").ifBlank {
-                params.optString("locationCode").ifBlank { params.optString("location") }
+            val location = params.optString("locationCode").ifBlank {
+                row.optString("locationCode").ifBlank { params.optString("location") }
             }.takeIf { requested -> DigitalWorldPublicPlaces.all.any { it.code == requested } }.orEmpty()
             val worldAction = params.optString("worldAction")
             if (action == "digital_world_action" && (worldAction !in setOf(
@@ -118,6 +139,11 @@ internal object ResidentDailyDecision {
                 "use_location", "go_home"))) continue
             if (action == "digital_world_action" && worldAction == "visit_public_place" &&
                 location.isBlank()) continue
+            // An agenda is not permission to generate a future message with no content.
+            // The due decision can revise it, but an empty draft must not enter a
+            // seemingly executable schedule that will predictably fail at ToolRouter.
+            if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
+                params.optString("text").isBlank()) continue
             if (action == "digital_world_action" && worldAction == "interact_resident" &&
                 DigitalWorldExpansionStore.residents().none { it.id == params.optString("itemId") }) continue
             val targetResident = if (action == "digital_world_action" &&
@@ -352,6 +378,7 @@ internal object ResidentDailyDecision {
                 更重要的是：你活在有人际交往的真实小世界里。想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊或结识新朋友，都可以成为具体行程；不是每天只有喝水和独处。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
                 agenda 中每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs。
+                真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
                 可用：send_character_message（只限上文已认识的真实ID，targetCharacterId 与 args.targetCharacterId 一致）；digital_world_action（visit_public_place，args.worldAction 与 locationCode 用真实公共地点码；或已同场时 interact_resident，args.itemId 为真实居民ID）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
                 仅输出 JSON，不能替别人发言：
