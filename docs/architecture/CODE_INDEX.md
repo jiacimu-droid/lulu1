@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff7a23f303b2e4ecf7c29ca91d5d4a3227703761`
+- 基准提交：`79be57d08329bdb5733e29cc6268a79b3d43c347`
 - 分支：`main`
 - 已索引文件：905
-- 已索引代码/文本行：178170
-- 已发现符号：2672
+- 已索引代码/文本行：178184
+- 已发现符号：2670
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -273,7 +273,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 115 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 82 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 99 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 54 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
@@ -615,9 +615,9 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 505 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 507 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 417 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 459 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 178 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
