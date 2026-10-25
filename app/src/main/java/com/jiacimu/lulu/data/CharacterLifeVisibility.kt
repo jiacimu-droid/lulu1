@@ -11,6 +11,8 @@ internal data class CharacterLifeVisible(
     val detail: String,
     val evidenceId: String = "",
     val learningGoalId: String = "",
+    val sourceKind: String = "",
+    val sourceId: String = "",
 )
 
 internal object CharacterLifeVisibility {
@@ -85,10 +87,12 @@ internal object CharacterLifeVisibility {
         plans: List<RoleDayPlan> = emptyList()): List<CharacterLifeVisible> = buildList {
         addAll(scheduledMatters(role, plans, now))
         val mind = CharacterInnerLifeStore.snapshot(role)
-        fun include(at: Instant?, category: String, title: String, detail: String, id: String) {
+        fun include(at: Instant?, category: String, title: String, detail: String, id: String,
+                    sourceKind: String = "", sourceId: String = "") {
             if (at == null || at.isAfter(now) || id.isBlank() ||
                 detail.isBlank() || source(role, id) == null) return
-            add(CharacterLifeVisible(at, category, title, detail.trim(), id))
+            add(CharacterLifeVisible(at, category, title, detail.trim(), id,
+                sourceKind = sourceKind, sourceId = sourceId))
         }
         val motives = mind.optJSONArray("motives")
         (CharacterMotiveState.active(motives) + CharacterMotiveState.paused(motives))
@@ -112,7 +116,7 @@ internal object CharacterLifeVisibility {
                     state + "\n" + motive.optString("why").take(180) +
                         CharacterMotiveProgress.brief(motive).takeIf(String::isNotBlank)
                             ?.let { "\n$it" }.orEmpty() + attempt,
-                    motive.optString("evidenceId"))
+                    motive.optString("evidenceId"), "motive", motive.optString("id"))
             }
 
 
@@ -127,11 +131,12 @@ internal object CharacterLifeVisibility {
             include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
                 "挂心", concern.optString("focus").take(180),
                 "仍在挂心" + if (detail.isBlank()) "" else "\n$detail",
-                concern.optString("evidenceId"))
+                concern.optString("evidenceId"), "concern", concern.optString("id"))
         }
 
 
-        CharacterLearningAgenda.goals(role, now).filter { it.optString("status") != "dropped" }.forEach { goal ->
+        val learningGoals = CharacterLearningAgenda.goals(role, now).filter { it.optString("status") != "dropped" }
+        learningGoals.forEach { goal ->
             val origin = goal.optString("originId")
             if (source(role, origin) == null) return@forEach
             val time = parse(goal.optString("failedAt")) ?: parse(goal.optString("startedAt")) ?:
@@ -150,17 +155,26 @@ internal object CharacterLifeVisibility {
                 goal.optString("nextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" })
                 .filterNotNull().filter(String::isNotBlank).joinToString("\n")
             add(CharacterLifeVisible(time, "正在琢磨", goal.optString("topic"), detail,
-                origin, goal.optString("id")))
+                origin, goal.optString("id"), "learning", goal.optString("id")))
+        }
+        fun duplicatesLearning(topic: String, question: String): Boolean {
+            fun compact(text: String) = text.lowercase().filter(Char::isLetterOrDigit)
+            return learningGoals.any { g ->
+                compact(g.optString("topic")) == compact(topic) &&
+                    compact(g.optString("question")) == compact(question)
+            }
         }
         CharacterCuriosityRuntime.visibleQuestions(role).forEach { q ->
+            if (duplicatesLearning(q.optString("topic"), q.optString("question"))) return@forEach
             include(parse(q.optString("at")), "正在琢磨", q.optString("topic").take(90),
                 listOf(q.optString("question"),
                     q.optString("hypothesis").takeIf(String::isNotBlank)?.let { "待验证：$it" },
                     q.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
                     .filterNotNull().filter(String::isNotBlank).joinToString("\n"),
-                q.optString("observedId"))
+                q.optString("observedId"), "curiosity", CharacterCuriosityRuntime.identity(q))
         }
         CharacterCuriosityRuntime.activeThreads(role).forEach { thread ->
+            if (duplicatesLearning(thread.optString("topic"), thread.optString("question"))) return@forEach
             val step = jsonEntries(thread.optJSONArray("steps")).lastOrNull { entry ->
                 val evidence = CharacterActionEvidence.resolve(role, entry.optString("evidenceId"))
                 evidence != null && evidence.revision == entry.optLong("revision", evidence.revision) &&
@@ -171,7 +185,7 @@ internal object CharacterLifeVisibility {
                     step.optString("receipt").takeIf(String::isNotBlank)?.let { "上次实际结果：$it" },
                     thread.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
                     .filterNotNull().filter(String::isNotBlank).joinToString("\n"),
-                step.optString("evidenceId"))
+                step.optString("evidenceId"), "curiosity", CharacterCuriosityRuntime.identity(thread))
         }
 
 
@@ -192,7 +206,8 @@ internal object CharacterLifeVisibility {
                 "时间：$time", plan.intent,
                 if (plan.repeat == "daily") "每天重复" else "",
                 plan.resultSummary.takeIf(String::isNotBlank)?.let { "上次结果：$it" }.orEmpty())
-                .filter(String::isNotBlank).joinToString("\n"), "own-plan-${plan.id}")
+                .filter(String::isNotBlank).joinToString("\n"), "own-plan-${plan.id}",
+            sourceKind = "schedule", sourceId = plan.id)
     }
 
 }
