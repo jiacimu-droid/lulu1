@@ -158,11 +158,11 @@ class EmbodiedBodyPhysicsTest {
 
         // Human-scale pacing in the simulated 0–100 range, not a time threshold
         // for forced messages, meals, tool calls or diagnoses.
-        assertTrue(twoHours.boredom in 30.0..40.0)
-        assertTrue(fourHours.boredom in 45.0..60.0)
-        assertTrue(sixHours.boredom in 65.0..80.0)
-        assertTrue(sixHours.energy in 35.0..55.0)
-        assertTrue(sixHours.sleepPressure in 55.0..70.0)
+        assertTrue(twoHours.boredom in 35.0..42.0)
+        assertTrue(fourHours.boredom in 57.0..66.0)
+        assertTrue(sixHours.boredom in 80.0..90.0)
+        assertTrue(sixHours.energy in 25.0..40.0)
+        assertTrue(sixHours.sleepPressure in 65.0..80.0)
         assertTrue(sixHours.hunger in 50.0..70.0)
         assertTrue(sixHours.thirst in 60.0..80.0)
         assertTrue(sixHours.comfort < fresh.comfort)
@@ -230,6 +230,40 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(wakes[1].hunger > 35.0 && wakes[1].thirst > 40.0)
         val reloaded = EmbodiedBodySnapshot.fromJson(body.toJson())!!
         assertEquals(body, advance(reloaded, body.lastAt))
+    }
+
+    @Test fun variedShortWakeWindowsStillAccumulateCuriosityWithoutFullEnergyResets() {
+        // 90-minute/20-minute and 120-minute/15-minute leases must both
+        // produce a real day of needs without pretending standby is deep sleep.
+        val morning = Instant.parse("2026-10-22T08:00:00Z")
+        listOf(90L to 20L, 120L to 15L).forEach { (cycle, awakeMinutes) ->
+            var body = EmbodiedBodyPhysics.fresh(morning)
+            val energies = mutableListOf<Double>()
+            repeat(8) { index ->
+                val from = morning.plusSeconds(index * cycle * 60)
+                body = advance(body, from).copy(recoveryMode = "")
+                energies += body.energy
+                body = advance(body, from.plusSeconds(awakeMinutes * 60))
+                    .copy(recoveryMode = "offline_sleep")
+            }
+            val day = advance(body, morning.plusSeconds(12 * 3600))
+            assertTrue("Curiosity should become actionable even with sparse wakes", day.boredom >= 72.0)
+            assertTrue("A short lease cannot reset to perfect energy", energies.drop(2).any { it < 75.0 })
+            assertTrue(day.energy in 45.0..90.0)
+            assertTrue(day.sleepPressure in 20.0..65.0)
+            assertTrue(day.hunger >= 70.0)
+            assertTrue(day.thirst >= 80.0)
+        }
+    }
+
+    @Test fun independentBodyPromptMentionsExplorationAtLivedDayThresholds() {
+        val neutral = EmbodiedBodyPhysics.fresh(start)
+        assertTrue(EmbodiedBodyPhysics.prompt(neutral).contains("无须先等到无聊"))
+        val rising = neutral.copy(boredom = 57.0)
+        assertTrue(EmbodiedBodyPhysics.prompt(rising).contains("单调感正在累积"))
+        val strong = neutral.copy(boredom = 78.0)
+        assertTrue(EmbodiedBodyPhysics.prompt(strong).contains("单调感已经很明显"))
+        assertTrue(EmbodiedBodyPhysics.prompt(strong).contains("不是自动行动阈值"))
     }
 
     @Test fun threeRealMealsFitTheDayEvenIfMostOfItIsOffline() {
