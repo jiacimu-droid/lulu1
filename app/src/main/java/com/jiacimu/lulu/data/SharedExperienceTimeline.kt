@@ -67,7 +67,9 @@ object SharedExperienceTimeline {
         message: LuluChatMessage,
         triggerExtraction: Boolean = true,
     ) {
-        if (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[共同活动]")) return
+        if (message.sender == LuluChatMessage.Sender.System &&
+            (message.content.startsWith("[共同活动]") ||
+                message.content.startsWith("[群聊通知]"))) return
         val group = conversation.groupChat
         if (group == null) {
             recordChatMessage(
