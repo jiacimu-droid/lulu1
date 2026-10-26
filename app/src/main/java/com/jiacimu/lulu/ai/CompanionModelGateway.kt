@@ -71,15 +71,20 @@ data class ModelLibraryState(
     val voiceCallFollowsChat: Boolean = true,
 )
 
-fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? = when (usage) {
+fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? {
+    // Native decision-only archives cannot generate chat, phone or game text.
+    // This is protocol compatibility, never content-based model selection.
+    val compatible = archives.filterNot { it.model.startsWith("jev-") }
+    return when (usage) {
     ModelUsage.Chat -> chatArchiveId
     // Phone calls share the currently selected chat model; historical standalone
     // phone choices remain readable for old backups but never override chat.
     ModelUsage.VoiceCall -> chatArchiveId
     ModelUsage.Game -> gameArchiveId
-}?.takeIf { candidate -> archives.any { it.id == candidate } }
-    ?: activeArchiveId?.takeIf { candidate -> archives.any { it.id == candidate } }
-    ?: archives.firstOrNull()?.id
+    }?.takeIf { candidate -> compatible.any { it.id == candidate } }
+        ?: activeArchiveId?.takeIf { candidate -> compatible.any { it.id == candidate } }
+        ?: compatible.firstOrNull()?.id
+}
 
 data class ModelConnection(
     val baseUrl: String,
@@ -176,14 +181,14 @@ class ModelConnectionStore private constructor(context: Context) {
             it.configurationId == configurationId && it.model == cleanModel
         }
         if (existing != null) {
-            selectArchive(existing.id)
+            if (!cleanModel.startsWith("jev-")) selectArchive(existing.id)
             return existing
         }
         val archive = ModelArchive(configurationId = configurationId, model = cleanModel)
         persist(
             current.copy(
                 archives = current.archives + archive,
-                activeArchiveId = archive.id,
+                activeArchiveId = if (cleanModel.startsWith("jev-")) current.activeArchiveId else archive.id,
             ),
         )
         return archive

@@ -26,6 +26,7 @@ class JevDirectionsTest {
         MemoryTestEnvironment.release()
         ScopedModelSelections::class.java.getDeclaredField("prefs").apply { isAccessible = true }
             .set(ScopedModelSelections, null)
+        context.getSharedPreferences("lulu_model_connection", 0).edit().clear().commit()
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
         LuluAiServices.initialize(context)
@@ -63,6 +64,21 @@ class JevDirectionsTest {
         assertFalse(JevDirections.configured())
         assertEquals("", JevDirections.context())
         assertFalse(CapabilityRegistry.allows(context, "role", CapabilityRegistry.find(JevDirections.TOOL)!!, true))
+    }
+
+    @Test fun savingOrReselectingNativeJevCannotTakeOverLegacyChatFallback() {
+        val store = LuluAiServices.connectionStore
+        val chatConfig = store.saveConfiguration(null, "chat", "https://chat.test/v1", "test")
+        val chat = store.addArchive(chatConfig.id, "chat-model")
+        val nativeConfig = store.saveConfiguration(null, "native", "https://api.typesafe.ai/v1", "test")
+        val native = store.addArchive(nativeConfig.id, "jev-1.14.0")
+        assertEquals(chat.id, store.library.value.activeArchiveId)
+        store.addArchive(nativeConfig.id, "jev-1.14.0")
+        assertEquals(chat.id, store.library.value.activeArchiveId)
+        store.selectArchive(native.id) // Legacy/global archive default may still be stored.
+        for (usage in ModelUsage.entries) assertEquals(chat.id, store.selectedArchiveId(usage))
+        store.removeArchive(chat.id)
+        for (usage in ModelUsage.entries) assertNull(store.selectedArchiveId(usage))
     }
 
     @Test fun allQuestionsAndBothLowAndHighProbabilitiesRemainAvailableWithoutSelectingActions() {
