@@ -749,6 +749,7 @@ object MomentsStore {
         val characterIds = MigratedDomainStores.characters.settings.value.keys
         characterIds.forEach { characterId ->
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
+            SharedExperienceTimeline.deleteEvent("moment-own-activity-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-image-understanding-$postId-$characterId")
             (post.likedCharacterIds + USER_COMMENTER_ID).forEach { likerId ->
