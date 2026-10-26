@@ -84,7 +84,9 @@ internal object CharacterPhoneInbox {
                 "$name：${comment.content.take(120)}"
             }
             SharedExperienceTimeline.record(
-                eventId = "moment-${post.id}-$characterId",
+                eventId = if (post.authorCharacterId == characterId)
+                    "moment-own-activity-${post.id}-$characterId"
+                else "moment-${post.id}-$characterId",
                 characterId = characterId,
                 channel = "手机·已查看朋友圈",
                 source = "moment:phone-read",
