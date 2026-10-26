@@ -46,6 +46,7 @@ internal object UserDevicePerception {
         val isScreenInteractive = (context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager)?.isInteractive
         appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
         appendLine("用户手机电量：${runCatching { batteryContext(context) }.getOrDefault("暂时不可用")}")
+        appendLine("【设备观察边界】前台应用与应用时长仅是来源和时间有限的使用记录，不能直接推断用户此刻在忙、正在学习或需要独处。她没有回复，也不等于她已经读过消息或不需要关心；学习情况以真实学习状态及获准的屏幕观察为准，缺少证据就保持未知。")
         appendLine("用户设备最近前台应用：${if (LuluScreenAwareness.appTracking(context)) foregroundAppContext(context, now) else "已关闭应用感知"}")
         appendLine("用户最近两小时的应用活动：" + runCatching {
             LuluScreenAwareness.recentAppActivity(context, now.toEpochMilli())
