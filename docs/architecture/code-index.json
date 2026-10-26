@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:28:07.220096+00:00",
-  "commit": "c5f87804c7117f71c9089a3d93baafb5875d50d7",
+  "generatedAt": "2026-10-26T04:29:06.977684+00:00",
+  "commit": "37f67938ae06227e70300fe9af164c14e091464e",
   "branch": "main",
-  "sourceFingerprint": "e91bf92b14e9bd2310e0dc44eb160c784916e7b0da983e598df44c4445f249f6",
+  "sourceFingerprint": "f068ff3f8156ecd29e94b1c2c651abfffcdca9564ea996558bc5db66c1e02a08",
   "summary": {
     "files": 924,
-    "lines": 182577,
+    "lines": 182608,
     "symbols": 2703
   },
   "symbolIndex": {
@@ -29248,8 +29248,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt",
-      "lines": 43,
-      "sha256": "3cae6b2fe6bd3a457b86d3f7ae17b3cbd56da50c82c5dae0d3f4f74e44a3a9cd",
+      "lines": 74,
+      "sha256": "84ae1280ee9ae7b2f5d203092dfeeba372d4dded4a41cfa2b0a941107cf48419",
       "symbols": [
         {
           "name": "PhoneOnBehalfSourceTest",
