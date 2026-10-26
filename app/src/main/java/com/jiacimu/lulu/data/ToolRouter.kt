@@ -78,6 +78,14 @@ object ToolRouter {
                         source = "tool-router", taskId = requestId,
                         evidenceKind = EventEvidenceKind.ToolResult,
                         triggerExtraction = false)
+                    // Reuse the SAME motive/concern/experience projection as
+                    // successful ToolRouter receipts. This was a refused
+                    // attempt, never a performed action or goal completion.
+                    if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isNotEmpty())
+                        projectCausalLinks(characterId, JSONObject()
+                            .put("motiveId", motiveId).put("concernId", concernId)
+                            .put("experienceId", experienceId),
+                            evidenceId, name, false, message)
                 }
                 return result
             }
