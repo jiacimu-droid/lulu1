@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:26:30.567716+00:00",
-  "commit": "30828d9820ec582495c591aafa3dfff1056f0142",
+  "generatedAt": "2026-10-26T04:26:49.646265+00:00",
+  "commit": "e53617d1c7177e05ee1991287846de25f8308766",
   "branch": "main",
-  "sourceFingerprint": "bc6c9a0ccd00af8d5264e317bd69a9705692cb03fe007fbd7654ddb243fecdbc",
+  "sourceFingerprint": "a16e49080957285e63cadac04f2a66df5e9a53a58f5f51f826d625eb81ca183c",
   "summary": {
     "files": 923,
-    "lines": 182539,
+    "lines": 182544,
     "symbols": 2702
   },
   "symbolIndex": {
@@ -1815,7 +1815,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 134
+        "line": 139
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -5357,7 +5357,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 462
+        "line": 467
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -5397,7 +5397,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 478
+        "line": 483
       }
     ],
     "informativeAction": [
@@ -8329,7 +8329,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 578
+        "line": 583
       }
     ],
     "LegacyLuluImportResult": [
@@ -10231,7 +10231,7 @@
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 258
+        "line": 263
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -10241,61 +10241,61 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 261
+        "line": 266
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 312
+        "line": 317
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 368
+        "line": 373
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 375
+        "line": 380
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 393
+        "line": 398
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 404
+        "line": 409
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 418
+        "line": 423
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 427
+        "line": 432
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 459
+        "line": 464
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 560
+        "line": 565
       }
     ],
     "Limits": [
@@ -25055,8 +25055,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 692,
-      "sha256": "452542a85ab340993ad30d223a5c3e33535d87c1318914936ec825280001f6ca",
+      "lines": 697,
+      "sha256": "b8ec4cda722539822864e8b753d5f62d72af32a9e5a882551bf586790c4db728",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -25084,63 +25084,63 @@
         },
         {
           "name": "record",
-          "line": 134
+          "line": 139
         },
         {
           "name": "all",
-          "line": 258
+          "line": 263
         },
         {
           "name": "eventsByIds",
-          "line": 261
+          "line": 266
         },
         {
           "name": "deleteEvent",
-          "line": 312
+          "line": 317
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 368
+          "line": 373
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 375
+          "line": 380
         },
         {
           "name": "deleteConversationMessage",
-          "line": 393
+          "line": 398
         },
         {
           "name": "deleteConversationData",
-          "line": 404
+          "line": 409
         },
         {
           "name": "recentEvents",
-          "line": 418
+          "line": 423
         },
         {
           "name": "recentXhsReadings",
-          "line": 427
+          "line": 432
         },
         {
           "name": "sessionEvents",
-          "line": 459
+          "line": 464
         },
         {
           "name": "recentContext",
-          "line": 462
+          "line": 467
         },
         {
           "name": "remember",
-          "line": 478
+          "line": 483
         },
         {
           "name": "exportBackup",
-          "line": 560
+          "line": 565
         },
         {
           "name": "importBackup",
-          "line": 578
+          "line": 583
         }
       ]
     },
