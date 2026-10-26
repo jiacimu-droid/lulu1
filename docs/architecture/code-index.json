@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T10:54:58.947393+00:00",
-  "commit": "0ab35dfb197cc8931353a0a3c1614c2dad3eea74",
+  "generatedAt": "2026-10-26T14:26:37.266540+00:00",
+  "commit": "dd16c62687b4c05a24b4652c3d14e6bf4e329171",
   "branch": "main",
-  "sourceFingerprint": "02202f92b48cf83a28023aaeb421131064c71d5d6de169c60c3aa515aa638906",
+  "sourceFingerprint": "2eb640abe574f780e5266841a5f1f0bfcc578eba2beeb78ba31fbbecd0f5b423",
   "summary": {
-    "files": 949,
-    "lines": 188014,
-    "symbols": 2724
+    "files": 950,
+    "lines": 188170,
+    "symbols": 2736
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7198,6 +7198,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
         "line": 225
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 89
       }
     ],
     "recentOwnReplies": [
@@ -9576,6 +9580,72 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
         "line": 24
+      }
+    ],
+    "ProactiveGateReason": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 20
+      }
+    ],
+    "ProactiveGatePolicy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 31
+      }
+    ],
+    "ProactiveAttempt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 44
+      }
+    ],
+    "ProactiveThoughtMeta": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 51
+      }
+    ],
+    "ProactiveGateInput": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 62
+      }
+    ],
+    "ProactiveGateDecision": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 80
+      }
+    ],
+    "ProactiveMessageGate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 87
+      }
+    ],
+    "isQuiet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 113
+      }
+    ],
+    "topicKeyFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 123
+      }
+    ],
+    "recordAttempt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 130
+      }
+    ],
+    "expireIfDue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+        "line": 140
       }
     ],
     "PerceptionIntervalUnit": [
@@ -24627,6 +24697,61 @@
         {
           "name": "signalPerceptionChange",
           "line": 24
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
+      "lines": 156,
+      "sha256": "3869d74720796999ff48badf4fc7b480be275fecc926cc2b283069d92be08be6",
+      "symbols": [
+        {
+          "name": "ProactiveGateReason",
+          "line": 20
+        },
+        {
+          "name": "ProactiveGatePolicy",
+          "line": 31
+        },
+        {
+          "name": "ProactiveAttempt",
+          "line": 44
+        },
+        {
+          "name": "ProactiveThoughtMeta",
+          "line": 51
+        },
+        {
+          "name": "ProactiveGateInput",
+          "line": 62
+        },
+        {
+          "name": "ProactiveGateDecision",
+          "line": 80
+        },
+        {
+          "name": "ProactiveMessageGate",
+          "line": 87
+        },
+        {
+          "name": "evaluate",
+          "line": 89
+        },
+        {
+          "name": "isQuiet",
+          "line": 113
+        },
+        {
+          "name": "topicKeyFor",
+          "line": 123
+        },
+        {
+          "name": "recordAttempt",
+          "line": 130
+        },
+        {
+          "name": "expireIfDue",
+          "line": 140
         }
       ]
     },
