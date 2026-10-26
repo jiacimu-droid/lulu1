@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:26:49.646265+00:00",
-  "commit": "e53617d1c7177e05ee1991287846de25f8308766",
+  "generatedAt": "2026-10-26T04:27:20.198741+00:00",
+  "commit": "81983c3b96c29341889a8fd9c06b826611445525",
   "branch": "main",
-  "sourceFingerprint": "a16e49080957285e63cadac04f2a66df5e9a53a58f5f51f826d625eb81ca183c",
+  "sourceFingerprint": "3a9d8f39aba7db7e08e3140fd169a07c769e209750ad24254b32703cf56a9f29",
   "summary": {
     "files": 923,
-    "lines": 182544,
+    "lines": 182534,
     "symbols": 2702
   },
   "symbolIndex": {
@@ -17545,8 +17545,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 791,
-      "sha256": "304d1d9f7419bb904e6e159f9cc0c6de8e8102cf4683700667d8d18eb6a2e52e",
+      "lines": 781,
+      "sha256": "09c28779c59d8e38a2f94103d6cf716a7726a6e30c8b832f8c36b06616004074",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
