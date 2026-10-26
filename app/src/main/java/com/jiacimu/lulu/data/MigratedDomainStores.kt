@@ -26,6 +26,8 @@ data class LuluChatMessage(
     val voiceNote: Boolean = false,
     /** TTS-only tag-bearing performance: original message text remains the transcript. */
     val voiceSpeechText: String = "",
+    /** Account sender is the role, but the words were sent by the owner inspecting its phone. */
+    val onBehalfByOwner: Boolean = false,
 ) {
     enum class Sender { User, Character, System }
     enum class Status { Sending, Sent, Failed }
@@ -92,6 +94,7 @@ interface LuluChatStore {
         replyBatchId: String? = null,
         voiceNote: Boolean = false,
         voiceSpeechText: String = "",
+        onBehalfByOwner: Boolean = false,
     ): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String? = null): LuluChatMessage
@@ -401,6 +404,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         replyBatchId: String?,
         voiceNote: Boolean,
         voiceSpeechText: String,
+        onBehalfByOwner: Boolean,
     ): LuluChatMessage {
         val quoteRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
         val favoriteRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
@@ -413,7 +417,8 @@ class InMemoryLuluChatStore : LuluChatStore {
         // An LLM may insert a formatting newline mid-word. Neither that nor
         // a paragraph newline is a new message; smooth only mid-Han fragments.
         val readableBody = ModelStructuredOutput.smoothInlineBreaks(rawClean)
-        val clean = if (directedAtUser) RelationshipExpressionGuard.apply(actualAuthor, readableBody) else readableBody
+        val clean = if (directedAtUser && !onBehalfByOwner)
+            RelationshipExpressionGuard.apply(actualAuthor, readableBody) else readableBody
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
         val originalMessages = messageStates[conversationId]?.value.orEmpty()
         val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
@@ -440,6 +445,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             replyBatchId = effectiveBatchId,
             voiceNote = voiceNote,
             voiceSpeechText = if (voiceNote) voiceSpeechText else "",
+            onBehalfByOwner = onBehalfByOwner,
         ).also { message ->
             val visible = CharacterMessageNotifications.visibleConversation(conversationId)
             append(conversationId, message, incrementUnread = !visible, durable = !visible)
@@ -458,7 +464,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         // from draft text, private thoughts, or the model's planned speech.
         // Real accepted timed wake requests can register their native alarm
         // immediately, even if the user soon backgrounds the chat.
-        appContext?.let { context ->
+        if (!onBehalfByOwner) appContext?.let { context ->
             CommitmentTurnAutomation.onDeliveredCharacterMessage(
                 context, conversationId, effectiveAuthorId
             )
@@ -826,6 +832,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("replyBatchId", value.replyBatchId ?: JSONObject.NULL)
         .put("voiceNote", value.voiceNote)
         .put("voiceSpeechText", value.voiceSpeechText)
+        .put("onBehalfByOwner", value.onBehalfByOwner)
 
     private fun decodeMessage(item: JSONObject): LuluChatMessage = LuluChatMessage(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -840,6 +847,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         replyBatchId = item.nullableString("replyBatchId"),
         voiceNote = item.optBoolean("voiceNote", false),
         voiceSpeechText = item.optString("voiceSpeechText"),
+        onBehalfByOwner = item.optBoolean("onBehalfByOwner", false),
     )
 
     private fun conversationOrdering(): Comparator<LuluConversation> =
