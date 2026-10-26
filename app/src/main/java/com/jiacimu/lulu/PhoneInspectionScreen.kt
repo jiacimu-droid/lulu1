@@ -123,6 +123,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }?.imageUri else null
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
     var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
+    var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
+    var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -171,6 +173,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
 
     fun goBack() {
         when {
+            showRoleCalendar -> showRoleCalendar = false
+            showRoleBrowser -> showRoleBrowser = false
             showRoleFavorites -> showRoleFavorites = false
             selectedThreadKey != null -> selectedThreadKey = null
             else -> onBack()
@@ -187,11 +191,20 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         mailReady = true
     }
 
+    if (showRoleCalendar) {
+        ScheduleFeatureScreen(
+            onBack = { showRoleCalendar = false },
+            initialCharacterId = actualRole,
+            personal = true,
+        )
+        return
+    }
+
     Scaffold(
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            if (selectedThread != null && !showRoleFavorites) {
+            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser) {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -215,10 +228,14 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 )
             } else {
                 MigratedChatTopBar(
-                    title = if (showRoleFavorites) "我的收藏" else "聊天",
+                    title = when {
+                        showRoleFavorites -> "我的收藏"
+                        showRoleBrowser -> "浏览器"
+                        else -> "聊天"
+                    },
                     onBack = ::goBack,
                     actions = {
-                        if (!showRoleFavorites) Box {
+                        if (!showRoleFavorites && !showRoleBrowser) Box {
                             TextButton(onClick = { rolesExpanded = true },
                                 enabled = roleOptions.isNotEmpty()) {
                                 Text(names[actualRole] ?: "选择手机", maxLines = 1)
@@ -244,7 +261,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             }
         },
         bottomBar = {
-            if (selectedThread == null && !showRoleFavorites) {
+            if (selectedThread == null && !showRoleFavorites && !showRoleBrowser) {
                 ChatHubV2Navigation(
                     selectedTab = phoneTab,
                     labels = listOf("消息", "好友", "朋友圈", "我的"),
@@ -255,7 +272,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            if (showRoleFavorites) {
+            if (showRoleBrowser) {
+                RolePhoneBrowserHistory(actualRole)
+            } else if (showRoleFavorites) {
                 RolePhoneFavorites(actualRole)
             } else if (actualRole.isBlank()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -411,6 +430,8 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     roleName = identity?.displayName ?: "角色",
                     roleAvatarUri = identity?.avatarUri,
                     onFavorites = { showRoleFavorites = true },
+                    onCalendar = { showRoleCalendar = true },
+                    onBrowser = { showRoleBrowser = true },
                 )
             }
         }
@@ -429,7 +450,8 @@ internal fun rolePhoneCoverPalette(preset: String): List<Color> = when (preset) 
 
 @Composable
 private fun RolePhoneMyPage(
-    roleId: String, roleName: String, roleAvatarUri: String?, onFavorites: () -> Unit,
+    roleId: String, roleName: String, roleAvatarUri: String?,
+    onFavorites: () -> Unit, onCalendar: () -> Unit, onBrowser: () -> Unit,
 ) {
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val life = remember(roleId, lifeStates) { CharacterLifeStore.state(roleId) }
@@ -454,6 +476,19 @@ private fun RolePhoneMyPage(
                 }
             }
         }
+        item("calendar") {
+            RolePhoneMyLink(Icons.Outlined.EventNote, "日历", onCalendar)
+        }
+        item("browser") {
+            RolePhoneMyLink(Icons.Outlined.TravelExplore, "浏览器", onBrowser)
+        }
+        item("remark") {
+            ChatHubV2Card {
+                Text("给主人设置的备注", fontWeight = FontWeight.SemiBold)
+                Text(life.optJSONObject("socialNames")?.optString("userRemark")
+                    .orEmpty().ifBlank { "还没有设置" })
+            }
+        }
         item("profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -473,6 +508,21 @@ private fun RolePhoneMyPage(
                     Text(bio)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RolePhoneMyLink(icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String, onClick: () -> Unit) {
+    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null)
+            Spacer(Modifier.width(12.dp))
+            Text(label, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Icon(Icons.Outlined.ChevronRight, null)
         }
     }
 }
