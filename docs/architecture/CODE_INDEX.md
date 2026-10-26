@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6f5f7e85d42bc8043a40a97b7277e27f0805116b`
+- 基准提交：`ca51342dbd081dad342331712c5367f71f6f71f6`
 - 分支：`main`
-- 已索引文件：926
-- 已索引代码/文本行：183648
-- 已发现符号：2710
+- 已索引文件：927
+- 已索引代码/文本行：183811
+- 已发现符号：2716
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -475,6 +475,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 106 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt` | 119 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
@@ -800,7 +801,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 353 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 318 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 362 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |

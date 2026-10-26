@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:21:30.868935+00:00",
-  "commit": "6f5f7e85d42bc8043a40a97b7277e27f0805116b",
+  "generatedAt": "2026-10-26T08:22:06.528346+00:00",
+  "commit": "ca51342dbd081dad342331712c5367f71f6f71f6",
   "branch": "main",
-  "sourceFingerprint": "8d5db538b1bbb038fe69d8c280b3d741928656f48b36867aa8f4efe2f69143fd",
+  "sourceFingerprint": "8a4939d8539ee4ced99fd2700e455c280d7c6e4869d4454de38517e9a54a1da6",
   "summary": {
-    "files": 926,
-    "lines": 183648,
-    "symbols": 2710
+    "files": 927,
+    "lines": 183811,
+    "symbols": 2716
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3888,6 +3888,10 @@
         "line": 44
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 88
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 58
       }
@@ -5582,6 +5586,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
         "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 43
       }
     ],
     "isExplicitUserToolRequest": [
@@ -10582,6 +10590,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 98
+      }
+    ],
+    "Pattern": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 14
+      }
+    ],
+    "isStart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 27
+      }
+    ],
+    "nearTimeContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 93
+      }
+    ],
+    "reflectionContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+        "line": 107
       }
     ],
     "Choice": [
@@ -25527,6 +25559,37 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
+      "lines": 119,
+      "sha256": "4a308f286985bb67bd524b6886ad5eff10251f3602678e0c52a1ead8500f2112",
+      "symbols": [
+        {
+          "name": "Pattern",
+          "line": 14
+        },
+        {
+          "name": "isStart",
+          "line": 27
+        },
+        {
+          "name": "detect",
+          "line": 43
+        },
+        {
+          "name": "recent",
+          "line": 88
+        },
+        {
+          "name": "nearTimeContext",
+          "line": 93
+        },
+        {
+          "name": "reflectionContext",
+          "line": 107
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
       "lines": 92,
       "sha256": "14bab596b85eea4cb2296530430724e0f1f4034f17148ea6277aeccd146c3390",
@@ -30802,8 +30865,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 318,
-      "sha256": "ac85ceb6f86ebd3f4e10ea74946634d94f41ff05626083814b12183a533ec568",
+      "lines": 362,
+      "sha256": "77f615e30f0386b8b87a382bb740df189dcbd22f10c91b611da5889393a08ab4",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
