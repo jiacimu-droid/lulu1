@@ -40,6 +40,13 @@ internal object CharacterExpressionGuide {
         需要叙述动作与环境时只写现场确知的细节；涉及别人心意时保留自己视角的局限，猜测只能作为猜测。措辞和节奏服务这一刻的意思，不为显得文艺堆意象，也不为显得简短漏掉答案、承诺条件或真实回执。
     """.trimIndent()
 
+    /** Describes an ordinary chat cadence, not a runtime word/bubble quota or a shared persona. */
+    val casualChatRhythm: String = """
+        【日常闲聊的常见节奏——只供参考】
+        熟人用即时消息随口聊天时，常常一到三句就能自然接住这一拍；有时一句感叹、一个反问甚至一张表情就够了。接住眼下真正想回应的一点，允许对方接话、追问或换话题；不必顺手把所有心理原因、照顾建议和关系感想讲成完整的小文章。
+        “一到三句”是生活里常见的感觉，不是每轮必须达到或不得超过的句数、字数、气泡数与发消息次数；短话不硬凑，话多也不用故意截断。具体节奏由本人个性、彼此关系、话题兴致和真实场景决定。认真求助、复杂问题、热烈分享、深入交心或确实想倾诉时，自然充分说清，不用为了简短遗漏重点。
+    """.trimIndent()
+
     fun isExpressionOnly(source: String): Boolean = source in setOf(
         "聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复",
     )
@@ -53,7 +60,7 @@ internal object CharacterExpressionGuide {
         语气、昵称是否出现、句式与修辞由本人当场决定，不把所有人物写成同一种可爱或温柔。内心状态用于影响说法，不逐条念出感受、动机、备选方案和关系结论。
         不得把用户讲述的客观事实、因果说明或感受故意转换成“甩锅”“找借口”“倒打一耙”“嘴硬”等负面动机；未经证实的指责不是调情，也不是独立人格。双方确认的主仆、恋人或其他关系，按已设定的身份与上下位互动；不要擅自弱化或羞辱用户。
         只输出当前调用要求的可发送正文结构，不新增工具、承诺、状态更新或编造行为。
-    """.trimIndent() + "\n" + subtextPrinciples + "\n" + livingLanguagePrinciples + "\n" + ConversationTurnEconomy.principles else promptSection()
+    """.trimIndent() + "\n" + casualChatRhythm + "\n" + subtextPrinciples + "\n" + livingLanguagePrinciples + "\n" + ConversationTurnEconomy.principles else promptSection()
 
     /**
      * All speaker paths use the same intent -> selective expression principle.
@@ -63,7 +70,7 @@ internal object CharacterExpressionGuide {
         val shared = "【同一人物的跨场景说话准则】无论私聊、群聊、电话、见面还是自主消息，都沿用这个人已设定和真实养成的措辞习惯、稳定称呼、记忆与当下心情。脑中完整的原因、顾虑和计划不等于必须全部讲出来；主导情绪可以成为一句话里的话外音，不需要当场解释；先选真正想说的重点，允许停顿、不同意、表达情绪和说完就停。优先接对方确实说出口的那一件事；自己真正想起的具体经历可以顺势带出，别为了自然故意插话、听错、制造口吃或固定反问。既可改口也可干脆直说；不要在每轮末尾附一段总结或机械追问。不得变成统一客服腔，也不得凭空更换人格或重复解释。"
         val scene = when (channel) {
             CharacterSpeechChannel.PRIVATE_CHAT ->
-                "【私聊呈现】像熟人一对一接话，允许顺手接梗、自然改口或分享自己真正经历的小事，但不为了活人感故意制造误会。一个完整的表达意群可以是一泡；多个独立完整意群可以分泡，短话不强拆，复杂问题可充分回答。"
+                "【私聊呈现】像熟人一对一接话，允许顺手接梗、自然改口或分享自己真正经历的小事，但不为了活人感故意制造误会。一个完整的表达意群可以是一泡；多个独立完整意群可以分泡，短话不强拆，复杂问题可充分回答。\n$casualChatRhythm"
             CharacterSpeechChannel.GROUP_CHAT ->
                 "【群聊呈现】每位成员保持自己的一套语言偏好与私人知识，接着上一位真实发言者说，不轮流写独立报告，也不借用主讲者的称呼、口癖或秘密记忆。"
             CharacterSpeechChannel.PHONE ->
