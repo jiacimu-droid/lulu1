@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.system
 
 import android.content.Context
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -66,5 +67,43 @@ class LuluScreenAwarenessTest {
             .putBoolean(LuluScreenAwareness.AUTONOMOUS, false).commit()
         assertTrue(LuluScreenAwareness.onDemandAllowed(context))
         assertFalse(LuluScreenAwareness.autonomousAllowed(context))
+    }
+
+    private fun completedFrame(userRequested: Boolean = false, sessionId: String = ""): JSONObject =
+        JSONObject(LuluScreenAwareness.describedCapture(context, userRequested, "test-role",
+            sessionId, "com.example.reader", Instant.parse("2026-10-26T10:00:00Z"),
+            "屏幕上有一篇文章", Instant.parse("2026-10-26T10:00:20Z")))
+
+    @Test fun captureTimeIsNotReplacedByAnalysisCompletionTime() {
+        LuluScreenAwareness.preferences(context).edit()
+            .putBoolean(LuluScreenAwareness.CONSENT, true).commit()
+        val result = completedFrame()
+        assertTrue(result.optBoolean("success"))
+        assertEquals("2026-10-26T10:00:00Z", result.getString("capturedAt"))
+        assertEquals("2026-10-26T10:00:20Z", result.getString("analyzedAt"))
+        assertEquals("屏幕上有一篇文章", result.getString("visibleDescription"))
+    }
+
+    @Test fun revokedAutonomyDiscardsInFlightAutomaticButAllowsExplicitResult() {
+        LuluScreenAwareness.preferences(context).edit()
+            .putBoolean(LuluScreenAwareness.CONSENT, true)
+            .putBoolean(LuluScreenAwareness.AUTONOMOUS, false).commit()
+        val automatic = completedFrame()
+        assertFalse(automatic.optBoolean("success"))
+        assertFalse(automatic.has("visibleDescription"))
+        assertTrue(completedFrame(userRequested = true).optBoolean("success"))
+    }
+
+    @Test fun revokedOwnerConsentDiscardsBothKindsOfInFlightResult() {
+        assertFalse(completedFrame().optBoolean("success"))
+        assertFalse(completedFrame(userRequested = true).optBoolean("success"))
+    }
+
+    @Test fun endedStudySessionCannotPublishLateObservation() {
+        LuluScreenAwareness.preferences(context).edit()
+            .putBoolean(LuluScreenAwareness.CONSENT, true).commit()
+        val result = completedFrame(sessionId = "ended-session")
+        assertFalse(result.optBoolean("success"))
+        assertFalse(result.has("visibleDescription"))
     }
 }

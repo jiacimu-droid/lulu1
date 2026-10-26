@@ -2,9 +2,9 @@
 
 - 基准提交：`068b60e4f1fce7f3b31dce4fd9b7cb6b31c8dcca`
 - 分支：`main`
-- 已索引文件：909
-- 已索引代码/文本行：179206
-- 已发现符号：2673
+- 已索引文件：910
+- 已索引代码/文本行：179338
+- 已发现符号：2675
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -100,11 +100,11 @@
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 308 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 879 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 936 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 937 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt` | 278 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 420 | 2 |
@@ -616,7 +616,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 507 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 518 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 492 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
@@ -651,6 +651,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
@@ -906,7 +907,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 71 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 169 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |

@@ -507,10 +507,10 @@ internal fun Live2DFullscreenVideoCall(
                         },
                         captureRequest = cameraCaptureRequest.toLong(),
                         onFrameCaptured = { bitmap ->
-                            if (!cameraShared || !state.connected ||
-                                !Live2DCallVisionState.isEnabled(
-                                    characterId, state.callExperienceId) ||
-                                cameraAnalyzing) {
+                            val capture = if (cameraShared && state.connected && !cameraAnalyzing)
+                                Live2DCallVisionState.beginFrame(characterId, state.callExperienceId)
+                                else null
+                            if (capture == null) {
                                 bitmap.recycle()
                             } else {
                                 cameraAnalyzing = true
@@ -521,11 +521,12 @@ internal fun Live2DFullscreenVideoCall(
                                             cameraContext, bitmap)
                                         if (result.isSuccess) {
                                             val accepted = Live2DCallVisionState.accept(
-                                                characterId, state.callExperienceId,
-                                                result.getOrThrow())
+                                                capture, result.getOrThrow())
                                             if (accepted) cameraShareStatus =
                                                 "已看见 · 下一轮回复可用"
-                                        } else if (cameraShared) {
+                                            else if (Live2DCallVisionState.isCurrent(capture))
+                                                cameraShareStatus = "画面已过期，等待下一帧"
+                                        } else if (Live2DCallVisionState.isCurrent(capture)) {
                                             cameraShareStatus = "看图失败：" +
                                                 result.exceptionOrNull()?.message.orEmpty().take(85)
                                         }

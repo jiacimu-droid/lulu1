@@ -249,6 +249,7 @@ object LuluScreenAwareness {
                     return rejected(context, "Android 截图失败：" +
                         error.message.orEmpty().take(90), "failed")
                 }
+            val capturedAt = Instant.now()
             try {
                 val fresh = LuluAccessibilityService.observe()
                 if (!onDemandAllowed(context) || (!userRequested && !autonomousAllowed(context)) ||
@@ -265,17 +266,8 @@ object LuluScreenAwareness {
                     context, bitmap, studyWatch = sessionId.isNotBlank()).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
-                if (!onDemandAllowed(context) || !studySessionValid())
-                    return rejected(context, "屏幕授权或学习监督已结束，丢弃本次识图结果")
-                report(context, "识图完成")
-                return JSONObject().put("success", true).put("status", "observed")
-                    .put("packageName", fresh.packageName)
-                    .put("capturedAt", Instant.now().toString())
-                    .put("summary", "真实看到的屏幕内容：" + description.take(280))
-                    .put("visibleDescription", description.take(1300))
-                    .put("studyFocus", if (sessionId.isNotBlank())
-                        LuluStudyWatch.classifyVision(description) else "unknown")
-                    .put("verification", "真实截图＋视觉模型描述，不代表持续监看").toString()
+                return describedCapture(context, userRequested, characterId, sessionId,
+                    fresh.packageName, capturedAt, description)
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
@@ -285,6 +277,25 @@ object LuluScreenAwareness {
                     diagnostics(context).substringAfter(" · ").take(100), true)
             }
         }
+    }
+
+    /** Commit the description of the already captured frame, not a new observation
+     * at model completion time. Permission may have changed during that request. */
+    internal fun describedCapture(context: Context, userRequested: Boolean,
+        characterId: String, sessionId: String, packageName: String,
+        capturedAt: Instant, description: String, analyzedAt: Instant = Instant.now()): String {
+        if (!onDemandAllowed(context) || (!userRequested && !autonomousAllowed(context)) ||
+            (sessionId.isNotBlank() && !LuluStudyWatch.canObserve(context, characterId, sessionId)))
+            return rejected(context, "屏幕授权或学习监督已结束，丢弃本次识图结果")
+        report(context, "识图完成")
+        return JSONObject().put("success", true).put("status", "observed")
+            .put("packageName", packageName).put("capturedAt", capturedAt.toString())
+            .put("analyzedAt", analyzedAt.toString())
+            .put("summary", "真实看到的屏幕内容：" + description.take(280))
+            .put("visibleDescription", description.take(1300))
+            .put("studyFocus", if (sessionId.isNotBlank())
+                LuluStudyWatch.classifyVision(description) else "unknown")
+            .put("verification", "真实截图＋视觉模型描述，不代表持续监看").toString()
     }
 
     /** A notification the phone owner may tap, never a background Activity hijack. */

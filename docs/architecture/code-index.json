@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:42:16.919691+00:00",
+  "generatedAt": "2026-10-26T01:42:29.630928+00:00",
   "commit": "068b60e4f1fce7f3b31dce4fd9b7cb6b31c8dcca",
   "branch": "main",
-  "sourceFingerprint": "a93246dd6eadffd551f72f3116a77a0ede7355a60a2e36270859882b7068db83",
+  "sourceFingerprint": "24529b87ff7be181b8648a2e39ec33bc7ae9ba072659fc12422de8d6f2c8f5c0",
   "summary": {
-    "files": 909,
-    "lines": 179206,
-    "symbols": 2673
+    "files": 910,
+    "lines": 179338,
+    "symbols": 2675
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1680,6 +1680,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
         "line": 413
+      }
+    ],
+    "Capture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt",
+        "line": 12
       }
     ],
     "capabilityNote": [
@@ -12843,37 +12849,37 @@
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 291
+        "line": 302
       }
     ],
     "scheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 354
+        "line": 365
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 404
+        "line": 415
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 414
+        "line": 425
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 444
+        "line": 455
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 456
+        "line": 467
       }
     ],
     "showCapture": [
@@ -13106,6 +13112,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
         "line": 17
+      }
+    ],
+    "Live2DCallVisionStateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt",
+        "line": 6
       }
     ],
     "Live2DConversationPerformanceTest": [
@@ -14947,7 +14959,7 @@
     "LuluScreenAwarenessTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "LuluStudyWatchTest": [
@@ -16201,9 +16213,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt",
-      "lines": 61,
-      "sha256": "2b84ab07e068a8cec7083bd53799609aa5de210eb2327a9d7ebfce164d813409",
-      "symbols": []
+      "lines": 80,
+      "sha256": "133302258ce87de4455c0a505ecced3cd13d14cedbbc62310870d77fd4dea132",
+      "symbols": [
+        {
+          "name": "Capture",
+          "line": 12
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
@@ -16263,8 +16280,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 936,
-      "sha256": "253e9dabd3d9036c79da6f45c5682859a1d3cce4374f1e3e520a79b154ce6c86",
+      "lines": 937,
+      "sha256": "acc6a98864e4a1cde629c4c3954c4199908ba10e3a520dfec72f23c8e55d34b3",
       "symbols": [
         {
           "name": "toggleSelfCamera",
@@ -28185,8 +28202,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 507,
-      "sha256": "43957381c0c1bf3074a8d485bf29925bb6b10c935076a6087895eb5d677577ce",
+      "lines": 518,
+      "sha256": "f5f41740917b6cb2db15e5a0788c67d22bed35b0250b1d7513a81127bb2e25a3",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -28242,27 +28259,27 @@
         },
         {
           "name": "summon",
-          "line": 291
+          "line": 302
         },
         {
           "name": "scheduledReminder",
-          "line": 354
+          "line": 365
         },
         {
           "name": "recentAppActivity",
-          "line": 404
+          "line": 415
         },
         {
           "name": "addUntil",
-          "line": 414
+          "line": 425
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 444
+          "line": 455
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 456
+          "line": 467
         }
       ]
     },
@@ -28682,6 +28699,17 @@
         {
           "name": "Live2DAssetsTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt",
+      "lines": 62,
+      "sha256": "5847292636533ef0aac9ad114d9a0f06e31ef56ee21206c937409a78bf8c2365",
+      "symbols": [
+        {
+          "name": "Live2DCallVisionStateTest",
+          "line": 6
         }
       ]
     },
@@ -31764,12 +31792,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
-      "lines": 71,
-      "sha256": "9005e7141490c75315fe55d1d0f2fa811ffe171d254f4979a8745e42a3640120",
+      "lines": 110,
+      "sha256": "e1b54b7135c8704e432948e7855ea73f3370810e93b16f2310f0eb98817f0c45",
       "symbols": [
         {
           "name": "LuluScreenAwarenessTest",
-          "line": 14
+          "line": 15
         }
       ]
     },
