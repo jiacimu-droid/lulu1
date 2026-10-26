@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:10:22.019772+00:00",
-  "commit": "822f8f19ca361d0f6783079747191c3ab966eda2",
+  "generatedAt": "2026-10-26T04:11:50.358047+00:00",
+  "commit": "e69f223719163a310c2b15c69a5ceb13a9ac38c7",
   "branch": "main",
-  "sourceFingerprint": "0ac0956c3a7cf3f0a47c45dd61b91fffd13c63f00ac803f049a65916745d1137",
+  "sourceFingerprint": "15b06f546e4a2fe31d81fd7ed0f69142cf3cebba9bd130010499bfea9ae7bde4",
   "summary": {
-    "files": 921,
-    "lines": 182104,
+    "files": 922,
+    "lines": 182233,
     "symbols": 2701
   },
   "symbolIndex": {
@@ -17920,6 +17920,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt",
       "lines": 178,
       "sha256": "88633e9b78b1da443b1f114c02d5db388b54748ea10e46b70db8a8a1766ce3a5",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt",
+      "lines": 129,
+      "sha256": "ff3eaff35700dbd672b2bf845508f4fd69cb1f5c273bdcbcc197f6ef380b051a",
       "symbols": []
     },
     {
