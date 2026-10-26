@@ -133,7 +133,10 @@ object CharacterDevelopmentRuntime {
         // games, world encounters and independently visited information sources.
         // These are real records, not invented offline history or quotas.
         val toolEpisodes = CharacterExperienceLearning.episodeEvidence(timeline)
-        val events = (toolEpisodes + timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(10) +
+        val routinePatterns = UserRoutinePatterns.detect(timeline, Instant.ofEpochMilli(now))
+        // Supply independent dates even if many recent chat or tool events intervene.
+        val routineExamples = routinePatterns.take(5).flatMap { it.examples }
+        val events = (toolEpisodes + routineExamples + timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(10) +
             timeline.filter { it.channel.startsWith("独自游戏") }.takeLast(8) +
             timeline.filter { it.channel.startsWith("数字世界") }.takeLast(10) +
             timeline.filter { it.channel.startsWith("现实世界窗口") }.takeLast(8) +
@@ -167,6 +170,7 @@ object CharacterDevelopmentRuntime {
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
                 CharacterLearningLedger.context(characterId, events.takeLast(12).joinToString(" ") { CharacterExperienceLearning.evidenceText(it) }, compact = false) + "\n" +
+                UserRoutinePatterns.reflectionContext(routinePatterns) + "\n" +
                 events.joinToString("\n") {
                     "eventId=${it.id} revision=${it.revision} atLocal=${it.occurredAt.atZone(java.time.ZoneId.systemDefault())} source=${it.source} channel=${it.channel} " +
                         "kind=${it.evidenceKind} ${CharacterExperienceLearning.evidenceText(it).take(700)}"
@@ -175,7 +179,7 @@ object CharacterDevelopmentRuntime {
                 ${CharacterExperienceLearning.reflectionInstruction}
                 从角色真实经历中反思可改变的兴趣、偏好、习惯、判断，以及多次经历逐渐形成的叙事意义；绝不改写用户明确限定的人设字段。
                 返回 JSON 数组，最多3项；没有可信变化就返回[]。普通成长项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
-                【认识主人，不等她给答案】UserPreference 记录主人明确表达的喜恶与相处边界：真实的一句“我不喜欢你总反问”“我更喜欢你主动试”就足够成为可修订的偏好。evidenceIds 必须包含对应 UserStatement 原话；不能把角色猜测、网页或小说当成她的偏好。UserHabit 记录用户自述的常态（如“我通常午睡后学习”），或至少3个不同自然日独立出现的真实 UserStatement 模式；一天的零散对话不能冒充长期规律。描述保留情境与不确定性，不能把“昨晚四点还醒着”记成“每天四点睡”。两者都用稳定 user: 主题 slot 更新，新的反例高于旧印象。记住偏好后应自然尝试合适的相处方式，不靠反复追问主人获取答案；但不能据此擅自替她设闹钟、操作设备、获取私密数据。
+                【认识主人，不等她给答案】UserPreference 记录主人明确表达的喜恶与相处边界：真实的一句“我不喜欢你总反问”“我更喜欢你主动试”就足够成为可修订的偏好。evidenceIds 必须包含对应 UserStatement 原话；不能把角色猜测、网页或小说当成她的偏好。UserHabit 记录用户自述的常态（如“我通常午睡后学习”）；也允许同一种已实际完成操作的 Observation（source=user-activity:<活动>:start）在至少3个不同自然日重复出现作为候选。结合输入里实际发生的时间、情境，自主决定是否形成可修订的认识，并使用对应真实 eventId；不能把通话、搜索、日记、角色猜测或者不同活动凑成同一个习惯。观察发生不等于用户每天都会这样、正在睡着、主动要求你来电。一天的零散对话不能冒充长期规律。描述保留情境与不确定性，不能把“昨晚四点还醒着”记成“每天四点睡”。两者都用稳定 user: 主题 slot 更新，新的反例高于旧印象。记住偏好后应自然尝试合适的相处方式，不靠反复追问主人获取答案；但不能据此擅自替她设闹钟、操作设备、获取私密数据。
                 【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
                 【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
                 【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
