@@ -132,6 +132,10 @@ object CharacterRuntime {
                     else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
             }
+            // At likely familiar times, make actual repeated activities available
+            // to the same decision in chat, voice and passive perception.
+            // This is a cue, not a schedule, command or another memory store.
+            UserRoutinePatterns.nearTimeContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             if (userHabits.isNotEmpty()) {
                 appendLine("【关于主人的偏好与习惯｜不是你的人格】")
                 appendLine("区分主人明确表达的喜恶、主人自述的习惯和跨日观察到的规律；依据随时可被新话修订。")
