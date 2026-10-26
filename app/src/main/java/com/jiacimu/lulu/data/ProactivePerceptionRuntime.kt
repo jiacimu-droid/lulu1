@@ -1445,10 +1445,14 @@ object ProactivePerceptionRuntime {
             }
         }
         // Online unread private chats send the model's first wording directly,
-        // bypassing the foreground expression-quality pass. Reuse its existing
-        // gate only for a visibly overfilled ordinary message. This is at most
-        // ONE optional, same-character surface rewrite, never a new decision.
-        // Voice and linked tool choices keep their authored speech/track alignment.
+        // bypassing the foreground expression-quality pass. The naturalness
+        // gate is now a local diagnostic only: it must not trigger a second
+        // paid model rewrite, because the proactive decision prompt already
+        // says there is no second model to tidy the wording into natural
+        // dialogue, and a rewrite pass re-introduces a uniform second style.
+        // First-pass natural speech is carried by the shared expression
+        // guide; a flagged draft is logged, not replaced, and the model's
+        // own chosen action and wording stand.
         val onlineSpeech = if (privateDialogue.isNotEmpty() &&
             onlineUnread.text.isNotBlank() && completedDecision.action == Action.MESSAGE) {
             val beforeBubbles = completedDecision.text
@@ -1461,50 +1465,14 @@ object ProactivePerceptionRuntime {
                     completedDecision.bubbleDeliveryModes.any { it.equals("voice", true) },
                 hasLinkedActions = (completedDecision.sideActions?.length() ?: 0) > 0,
             )
-            if (originalQuality == null) completedDecision else {
-                val rewriteText = runCatching {
-                    LuluAiServices.gateway.generate(
-                        characterId = characterId,
-                        facts = buildString {
-                            appendLine("当前真实用户发言：" + privateInput.take(1_000))
-                            appendLine("已经决定送达的本人原话：" + beforeBubbles.joinToString("\n").take(1_400))
-                            appendLine("最近真实聊天，仅供衔接事实和关系，不模仿长篇文风：")
-                            appendLine(recent.takeLast(1_200))
-                        },
-                        instruction = """
-                            你还是同一个人物。这轮想说什么、对谁说，以及是否采取行动，
-                            已由你自己决定完毕；这里只检查马上要发出的文字是否太像完整报告。
-                            保留本人的真实态度、亲疏、意思、重要事实、否定、承诺和已证实的状态。
-                            不替别人安排新动作，不增减本轮已选择的工具，不编造身体接触或新经历。
-                            可以删掉只是在重述同一态度的说明，给对方留接话余地；
-                            不是把五段话压成一句模板式安慰，更不必故意卖萌或套固定人设。
-                            用户要求分析、求助或详细解释的核心内容必须答够。
-                            只输出 JSON {"text":"这次真正要发出去的自然原话"}，
-                            不输出私有心声、动作、舞台旁白、其他字段或 Markdown。
-                        """.trimIndent() + "\n" + originalQuality.repairInstruction(),
-                        source = "聊天表达自然度修复",
-                        title = character.displayName + "调整这次说法",
-                        maxTokens = 850,
-                        connectionOverride = connection,
-                    ).getOrThrow().text
-                }.getOrNull()
-                val revisedBubbles = rewriteText
-                    ?.let(ModelStructuredOutput::objectOrNull)?.optString("text")?.trim()
-                    ?.takeIf(String::isNotBlank)
-                    ?.let { ModelStructuredOutput.readableReplyBubbles(listOf(it), maxBubbles = 8) }
-                    .orEmpty()
-                val revisedQuality = ConversationNaturalnessGate.assess(
-                    privateInput.ifBlank { onlineUnread.text }, revisedBubbles)
-                if (ConversationNaturalnessGate.shouldUseRewrite(
-                        privateInput.ifBlank { onlineUnread.text },
-                        beforeBubbles, revisedBubbles, originalQuality, revisedQuality,
-                    )) {
-                    completedDecision.copy(
-                        text = revisedBubbles.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
-                        bubbleDeliveryModes = emptyList(), bubbleSpeechTracks = emptyList(),
-                    )
-                } else completedDecision
+            if (originalQuality != null) {
+                android.util.Log.d(
+                    "ConversationNaturalness",
+                    "flaggedFirstDraft characterId=$characterId " +
+                        "reasons=${originalQuality.reasons}",
+                )
             }
+            completedDecision
         } else completedDecision
         // A newer private message or call may arrive during the optional repair.
         // Never deliver an obsolete batch just because its first model call was valid.
