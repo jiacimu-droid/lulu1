@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:44:47.251874+00:00",
-  "commit": "0958b39b9c9f6159cc73174e626b49cfb5776830",
+  "generatedAt": "2026-10-26T03:45:06.053713+00:00",
+  "commit": "5a53482521124bff9e55698a3f27a6e21be8f756",
   "branch": "main",
-  "sourceFingerprint": "d714bcd1b25e607732ba3e193504b250b1f5c1ef1e53e3af021ceb63f85db10e",
+  "sourceFingerprint": "fc9741a65b40ecda397f035781ec6ed10c2421306cbb69c4b99e7408c67ceaba",
   "summary": {
     "files": 920,
-    "lines": 181768,
+    "lines": 181773,
     "symbols": 2699
   },
   "symbolIndex": {
@@ -9401,7 +9401,7 @@
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 764
+        "line": 765
       }
     ],
     "Batch": [
@@ -9597,7 +9597,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2459
+        "line": 2463
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24080,8 +24080,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1045,
-      "sha256": "5a8f1c4a88a9e40a3caef1cb144c40d816dce21046acd36393ffbfc512fb75c7",
+      "lines": 1046,
+      "sha256": "01a6e6a0968c0ad7cd0fa72bed45d3f5da5a85b9d3f411da87391a3c9e73d09f",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -24157,7 +24157,7 @@
         },
         {
           "name": "clearCharacterData",
-          "line": 764
+          "line": 765
         }
       ]
     },
@@ -24395,8 +24395,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2525,
-      "sha256": "0942414de1d0dd9257ccce404996bfd288263d5021e7bd36b8444e81e3b56e40",
+      "lines": 2529,
+      "sha256": "ccfac009e5377adab1d625e3125821d2b1b3b3d542f4d4235803cee7bf9f5d77",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24428,7 +24428,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2459
+          "line": 2463
         }
       ]
     },
