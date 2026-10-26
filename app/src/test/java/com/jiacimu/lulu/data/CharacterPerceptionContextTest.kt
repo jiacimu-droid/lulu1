@@ -333,4 +333,63 @@ class CharacterPerceptionContextTest {
         assertTrue(PerceptionStimulusLedger.hasSeen(app, role, reality.id, 2L))
         PerceptionStimulusLedger.clear(role)
     }
+    @Test fun sharedTurnCommitDefersAcknowledgementUntilExtraStateSucceeds() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        PerceptionStimulusLedger.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
+        val role = "shared-turn-" + java.util.UUID.randomUUID()
+        val actual = PerceptionStimulus("observed-" + role, "真实观察", revision = 2L)
+        val preview = CharacterPerceptionContext.integrate(
+            app, role, emptyList(), listOf(actual), claimDirect = true,
+            deferAcknowledgement = true)
+        val now = Instant.parse("2026-10-26T08:00:00Z")
+        fun commit(next: () -> Unit = {}) = CharacterTurnStateCommit.commit(
+            context = app, characterId = role, perception = preview,
+            direct = listOf(actual), claimDirect = true,
+            evidenceId = actual.evidenceId,
+            appraisal = org.json.JSONObject().put("meaning", "确实注意到了这件事"),
+            innerLife = null, innerThoughtBasis = null,
+            selectedAction = "message", innerThought = "", reason = "想说一句话",
+            now = now, afterCausalRecord = next,
+        )
+        try {
+            commit { error("模拟保存中断") }
+            fail("Expected failure")
+        } catch (expected: IllegalStateException) {
+            assertEquals("模拟保存中断", expected.message)
+        }
+        assertFalse(PerceptionStimulusLedger.hasSeen(app, role, actual.evidenceId, 2L))
+        commit()
+        assertTrue(PerceptionStimulusLedger.hasSeen(app, role, actual.evidenceId, 2L))
+        assertEquals(1, CharacterInnerLifeStore.snapshot(role)
+            .optJSONArray("causalTransitions")?.length())
+        PerceptionStimulusLedger.clear(role)
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test fun sharedTurnCommitKeepsCallDirectSpeechSeparateFromObservedFacts() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        PerceptionStimulusLedger.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
+        val role = "call-turn-" + java.util.UUID.randomUUID()
+        val direct = PerceptionStimulus("call-user-" + role, "对方真实说的话")
+        val observed = PerceptionStimulus("call-observed-" + role, "工具刚返回的结果", revision = 3L)
+        val preview = CharacterPerceptionContext.integrate(
+            app, role, emptyList(), listOf(direct, observed),
+            claimDirect = false, deferAcknowledgement = true)
+        CharacterTurnStateCommit.commit(
+            context = app, characterId = role, perception = preview,
+            direct = listOf(direct), claimDirect = false,
+            evidenceId = direct.evidenceId,
+            appraisal = org.json.JSONObject().put("meaning", "收到新的说话内容"),
+            innerLife = null, innerThoughtBasis = null,
+            selectedAction = "reply", innerThought = "", reason = "接话",
+            now = Instant.parse("2026-10-26T08:00:00Z"),
+        )
+        assertFalse(PerceptionStimulusLedger.hasSeen(app, role, direct.evidenceId))
+        assertTrue(PerceptionStimulusLedger.hasSeen(app, role, observed.evidenceId, 3L))
+        PerceptionStimulusLedger.clear(role)
+        CharacterInnerLifeStore.clear(role)
+    }
+
 }
