@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:22:06.317964+00:00",
-  "commit": "aca177621f35a16fc53393d3b3c20cea2adb711b",
+  "generatedAt": "2026-10-26T04:22:42.632564+00:00",
+  "commit": "601ed2fffda40d55142bf329267756ec9aae9386",
   "branch": "main",
-  "sourceFingerprint": "0a840542061dac93500b122bb1bcd6a6390a0da9d07245cf72c7183c9a6c1e36",
+  "sourceFingerprint": "69a51627fde8bcb20357011a59440985c78206d87ce5d79be11770d7651861fc",
   "summary": {
     "files": 923,
-    "lines": 182492,
+    "lines": 182507,
     "symbols": 2702
   },
   "symbolIndex": {
@@ -13415,7 +13415,7 @@
     "RolePhoneBrowserHistoryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -29330,12 +29330,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt",
-      "lines": 56,
-      "sha256": "21364f5c4b1837c3252e27e310e93ccc8dc268ce11377551c27ed3fcfecdf94f",
+      "lines": 71,
+      "sha256": "c5059bda66f650e1b2dbb06b0a8801552b826237f832392d4e8b15feeb6e9b44",
       "symbols": [
         {
           "name": "RolePhoneBrowserHistoryTest",
-          "line": 15
+          "line": 16
         }
       ]
     },
