@@ -238,11 +238,11 @@ internal fun ChatHubV2ConversationRow(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 /** A role's own private QQ group is not an owner's joined conversation. */
 internal fun ownerVisibleQqConversations(conversations: List<LuluConversation>): List<LuluConversation> =
     conversations.filter { it.groupChat?.ownerIncluded != false }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
