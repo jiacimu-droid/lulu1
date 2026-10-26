@@ -9,7 +9,7 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechMouthRuntime } from './speech-mouth.mjs'
-import { isWolfRig, enhanceWolfTouch } from './wolf-rig-profile.mjs'
+import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
@@ -229,6 +229,7 @@ const tactileExpressionLayer = createTouchExpressionLayer({
 const visualLayers = createVisualLayerRuntime({
   has: hasParameter, read: getParameter, write: setParameter,
 })
+const wolfImpactPresentation = createWolfImpactPresentation()
 const speechMouth = createSpeechMouthRuntime({
   has: hasParameter, write: setParameter,
 })
@@ -519,6 +520,10 @@ function applyFinalParameters(core, deltaMs) {
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
   })
+  // Keep authored torso deformation and screen-space recoil together.
+  // The latter is restricted to the verified wolf rig and never overwrites
+  // other models' authored transform/motion.
+  if (wolfRigActive) wolfImpactPresentation.update(model, tactilePose, deltaMs)
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
@@ -744,6 +749,7 @@ async function load(modelURL) {
     // Neither a prior call's eye/pose interpolation nor its queued speech
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
+    wolfImpactPresentation.reset(model)
     speechMouth.reset()
     wolfRigActive = false
     touchReflex = null
@@ -1295,6 +1301,7 @@ function setPaused(value) {
     performanceRuntime.stopSpeech()
     clearSpeechMoment()
     touchReflex = null
+    wolfImpactPresentation.reset(model)
     activeTouchExpression = null
     tactileContact = null
     clearTouchCompanion()
