@@ -86,3 +86,43 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   delete pose.parameters.se_wuli_x_r
   return pose
 }
+
+
+/**
+ * Screen-space torso recoil for the owner's 小狼 rig only.
+ *
+ * The authored torso rotation reaches only roughly ±10° in its VTube rig
+ * mapping. Rotating the model display around its existing mid-body anchor
+ * supplements (never replaces) the real Cubism head/torso/physics motion.
+ * No other imported model gets this profile. Keep it in the renderer so
+ * a 15fps Android mirrored frame sees a meaningful swing without a second
+ * touch or animation loop.
+ */
+export function createWolfImpactPresentation() {
+  let angle = 0
+  function update(model, pose, deltaMs) {
+    if (!model) return
+    const roll = pose?.impactMotion && Number.isFinite(pose.roll) ? pose.roll : 0
+    const torso = pose?.impactMotion && Number.isFinite(pose.body?.roll)
+      ? pose.body.roll : 0
+    const direction = Math.sign(roll || torso)
+    // Lean the *whole visible body* in the real swipe direction. The
+    // authored ParamAngleZ / ParamBodyAngleZ keep their own deformation.
+    const target = direction * Math.min(.32,
+      Math.abs(roll) / 30 * .24 + Math.abs(torso) / 10 * .075)
+    const dt = Math.max(0, Math.min(60, Number.isFinite(deltaMs) ? deltaMs : 0))
+    // A quick impact and a slower, soft return. The touch envelope already
+    // contains one small reverse overshoot; preserve it rather than snapping.
+    const attacking = Math.abs(target) > Math.abs(angle) &&
+      Math.sign(target) === Math.sign(angle || target)
+    const tau = attacking ? 50 : 260
+    angle += (target - angle) * (1 - Math.exp(-dt / tau))
+    if (!target && Math.abs(angle) < .00025) angle = 0
+    model.rotation = angle
+  }
+  function reset(model) {
+    angle = 0
+    if (model) model.rotation = 0
+  }
+  return { update, reset }
+}
