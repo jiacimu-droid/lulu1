@@ -92,6 +92,31 @@ class CharacterPerceptionContextTest {
         assertTrue(CharacterPerceptionContext.stimulus(failed).description.contains("搜索来源与摘要"))
         assertNull(CharacterPerceptionContext.personalOutcome("message", search.content))
     }
+    @Test fun unsuccessfulRegisteredActionsAndPermissionDenialsReturnAsRealFacts() {
+        val now = Instant.parse("2026-10-26T04:00:00Z")
+        fun outcome(tool: String, status: String, success: Boolean): SharedTimelineEvent {
+            val data = org.json.JSONObject().put("tool", tool).put("status", status)
+                .put("result", org.json.JSONObject().put("success", success)
+                    .put("error", "确切失败或尚无主动授权").toString())
+            return SharedTimelineEvent("receipt-$tool-$status", "role", "工具请求", "执行器",
+                data.toString(), now, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+        }
+        val denied = outcome("capture_screen", "waiting_user", false)
+        val failed = outcome("publish_moment", "failed", false)
+        val successfulMessage = outcome("send_private_message", "succeeded", true)
+        val stillPending = outcome("capture_screen", "pending", true)
+        val falseClaim = outcome("capture_screen", "failed", true)
+        val invalid = outcome("unknown_external_operation", "succeeded", true)
+        assertEquals(listOf(denied.id, failed.id),
+            CharacterPerceptionContext.selectRecent(
+                listOf(denied, failed, successfulMessage, stillPending, falseClaim, invalid), now)
+                .map { it.id })
+        assertTrue(CharacterPerceptionContext.stimulus(denied).description.contains("尚无主动授权"))
+        assertTrue(CharacterPerceptionContext.stimulus(failed).description.contains("publish_moment"))
+        assertNull(CharacterPerceptionContext.personalOutcome("model-generated", denied.content))
+    }
+
     @Test fun verifiedXhsReadingUsesActualLoadedBodyAndCommentsNotTitleAlone() {
         val now = Instant.parse("2026-10-25T04:10:00Z")
         val note = org.json.JSONObject().put("title", "新月飨宴实际笔记")
