@@ -22,17 +22,30 @@ internal object CharacterPhoneInbox {
     }
 
     private fun cursorKey(characterId: String) = "moment-seen:$characterId"
+    private fun cursorIdKey(characterId: String) = "moment-seen-id:$characterId"
+
+    /**
+     * A timestamp alone skips unpresented posts when a capped inbox batch ends
+     * in several updates sharing the same Instant. The stable post ID is the
+     * tie breaker. Legacy timestamp-only cursors reread their boundary once
+     * rather than silently losing a friend's activity.
+     */
+    internal fun afterCursor(activityAt: Instant, postId: String,
+                             seenAt: Instant, seenId: String): Boolean =
+        activityAt.isAfter(seenAt) ||
+            (activityAt == seenAt && postId > seenId)
 
     @Synchronized fun unreadMoments(characterId: String, max: Int = 8): List<MomentPost> {
         if (characterId.isBlank()) return emptyList()
         val cursor = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
+        val cursorId = prefs?.getString(cursorIdKey(characterId), "").orEmpty()
         return MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
             .asSequence().filter {
                 (it.authorCharacterId != characterId ||
                     it.lastActivityAt.isAfter(it.createdAt)) &&
                     (it.authorType != MomentAuthorType.User || characterId != MomentFriendAccess.OWNER) &&
-                    it.lastActivityAt.isAfter(cursor)
+                    afterCursor(it.lastActivityAt, it.id, cursor, cursorId)
             }.sortedWith(compareBy<MomentPost> { it.lastActivityAt }.thenBy { it.id })
             .take(max.coerceIn(1, 20)).toList()
     }
@@ -40,12 +53,13 @@ internal object CharacterPhoneInbox {
     @Synchronized fun unreadCount(characterId: String): Int {
         val cursor = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
+        val cursorId = prefs?.getString(cursorIdKey(characterId), "").orEmpty()
         return MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value).count {
             (it.authorCharacterId != characterId ||
                 it.lastActivityAt.isAfter(it.createdAt)) &&
                 (it.authorType != MomentAuthorType.User ||
                     characterId != MomentFriendAccess.OWNER) &&
-                it.lastActivityAt.isAfter(cursor)
+                afterCursor(it.lastActivityAt, it.id, cursor, cursorId)
         }
     }
 
@@ -67,11 +81,14 @@ internal object CharacterPhoneInbox {
             MomentFriendAccess.canView(post, characterId) &&
                 MomentsStore.posts.value.any { it.id == post.id }
         }
-        val observed = presented.maxOfOrNull { it.lastActivityAt } ?: return true
+        val observed = presented.maxWithOrNull(
+            compareBy<MomentPost> { it.lastActivityAt }.thenBy { it.id },
+        ) ?: return true
         val current = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
-        if (!observed.isAfter(current)) return true
-        val delivered = presented.filter { it.lastActivityAt.isAfter(current) }
+        val currentId = prefs?.getString(cursorIdKey(characterId), "").orEmpty()
+        if (!afterCursor(observed.lastActivityAt, observed.id, current, currentId)) return true
+        val delivered = presented.filter { afterCursor(it.lastActivityAt, it.id, current, currentId) }
         // Only AFTER the successful model decision has looked at this inbox
         // do these posts enter the viewer's actual lived observations.
         delivered.forEach { post ->
@@ -97,7 +114,10 @@ internal object CharacterPhoneInbox {
                 triggerExtraction = false,
             )
         }
-        return prefs?.edit()?.putString(cursorKey(characterId), observed.toString())?.commit() == true
+        return prefs?.edit()
+            ?.putString(cursorKey(characterId), observed.lastActivityAt.toString())
+            ?.putString(cursorIdKey(characterId), observed.id)
+            ?.commit() == true
     }
 
     fun modelContext(characterId: String, posts: List<MomentPost>): String = buildString {
