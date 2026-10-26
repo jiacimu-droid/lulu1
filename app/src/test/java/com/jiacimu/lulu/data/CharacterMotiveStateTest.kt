@@ -69,6 +69,44 @@ class CharacterMotiveStateTest {
         assertTrue(contextual.any { it.getString("id").startsWith("cue-") })
     }
 
+
+    @Test fun savedWishesRotateAcrossAwakeWindowsInsteadOfStallingUntilTomorrow() {
+        val start = Instant.parse("2026-10-26T10:00:00Z")
+        val motives = JSONArray()
+        repeat(20) { index -> motives.put(JSONObject()
+            .put("id", "wish-$index").put("aim", "长期想做的第$index件事")
+            .put("status", "active")) }
+        val before = motives.toString()
+        val first = CharacterMotiveState.workingSet(motives, start)
+            .map { it.getString("id") }
+        val next = CharacterMotiveState.workingSet(motives, start.plusSeconds(300L))
+            .map { it.getString("id") }
+        assertEquals(6, first.size)
+        assertEquals("same moment must have stable context", first,
+            CharacterMotiveState.workingSet(motives, start.plusSeconds(1L))
+                .map { it.getString("id") })
+        assertNotEquals("awake turns must not show the same six all day", first, next)
+        val seen = (0..50).flatMap { pulse ->
+            CharacterMotiveState.workingSet(motives, start.plusSeconds(pulse * 300L))
+                .map { it.getString("id") }
+        }.toSet()
+        assertEquals(20, seen.size)
+        assertEquals("attention must never mutate persistent wishes", before, motives.toString())
+    }
+
+    @Test fun lowFrequencyReviewsDoNotGetStuckOnOneModuloOfWishes() {
+        val start = Instant.parse("2026-10-26T10:00:00Z")
+        val motives = JSONArray()
+        repeat(12) { index -> motives.put(JSONObject()
+            .put("id", "wish-$index").put("aim", "独立愿望$index")
+            .put("status", "active")) }
+        val seen = (0..14).flatMap { day ->
+            CharacterMotiveState.workingSet(motives, start.plusSeconds(day * 86400L))
+                .map { it.getString("id") }
+        }.toSet()
+        assertEquals("fixed-hour background wakeups also rotate", 12, seen.size)
+    }
+
     @Test fun suspendedAndReleasedWishesNeverBecomeActiveInAnotherSurface() {
         val motives = JSONArray("""[
             {"id":"active","aim":"继续学习","status":"active","priority":3},
