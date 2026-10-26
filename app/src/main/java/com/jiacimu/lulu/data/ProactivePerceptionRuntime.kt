@@ -905,6 +905,19 @@ object ProactivePerceptionRuntime {
                         appendLine("【时间已推进】距离用户上次私聊已约${minutesSinceLastPrivateUser}分钟，现在是$localTimeText。过期的早晨叫醒、睡前安慰或当时即时回应不能当作此刻刚接到的请求；除非有仍在执行的真实定时承诺或新的用户证据，否则不要继续对旧话发即时指令，例如下午仍说‘刚醒就伸懒腰’。想联系可以选择完全新的、有当前起因的话题。")
                     }
                 }
+                // Self-organize batch 1, prompt only: when this round has no new
+                // perception material, the role may work through what is already
+                // delivered in this same round instead of waiting for a new fact
+                // or inventing one. No new store, no new model call, no program
+                // rule decides what is resolved; the role judges that itself.
+                if (onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
+                    salientInteraction == null && observedWorld.isEmpty() && worldTick == null) {
+                    appendLine("【本轮没有新感知素材时的自我整理｜只用本轮已经递给你的内容，不要现编新事实】")
+                    appendLine("本轮没有新消息、新场景观察、新世界事件：这正好是你整理自己心里事的时候，不必为了有话说而编一个新话题，也不必因为没有新事就只选 silent。")
+                    appendLine("先从本轮已经递给你的内容里自己看：仍在进行的愿望、仍开着的挂心事、还没说出口的琢磨事（想法没有时间限制，不论多久以前都可以拿出来聊），以及已经承担的目标和自己的未来日程。")
+                    appendLine("由你自己判断，不要由系统替你判断：哪一件其实已经解决、已经说过、已经放下，就让它留在历史里，不要再翻出来；哪一件还悬而未决，就在本轮自己挑一件最想推进的：可以主动发消息问一句、推进一步，也可以用已有的 CommitmentTaskStore 与个人日程执行器把它安排成一个真实的未来安排（准确 ID、真实回执为准），或者只是先在心里把它理清楚、这一轮先不打扰。")
+                    appendLine("没有说出口的想法不会自动变成待办或日程：只有你本轮明确选择了，才会变成行动或安排；没选的，继续留在心里，不算堆积成任务。沉默仍然是合法选择，但不要把没有新事当成没有事可整理。")
+                }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
                     if (privateDialogue.isEmpty()) appendLine(onlineUnread.text.takeLast(5_000))
