@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:41:04.785397+00:00",
-  "commit": "366b3be52b6f690dcf6ad81caba74d633851730d",
+  "generatedAt": "2026-10-26T02:43:46.682871+00:00",
+  "commit": "b1cc3441465b8de4191e23996910c0538f05f778",
   "branch": "main",
-  "sourceFingerprint": "16b767169c0ccd1912106c369139a2a277b02772f2604ab1135263d22aea45e0",
+  "sourceFingerprint": "b1b956ad5f9570ec72c34c93e5bd784f50f9247ca212dbfb3a37d9621afa9f61",
   "summary": {
     "files": 912,
-    "lines": 179594,
-    "symbols": 2680
+    "lines": 179613,
+    "symbols": 2681
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2027,7 +2027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1116
+        "line": 1119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6773,31 +6773,31 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1052
+        "line": 1055
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1085
+        "line": 1088
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1099
+        "line": 1102
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1109
+        "line": 1112
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1151
+        "line": 1154
       }
     ],
     "age": [
@@ -9210,16 +9210,22 @@
         "line": 17
       }
     ],
+    "audienceContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+        "line": 83
+      }
+    ],
     "canView": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 79
+        "line": 95
       }
     ],
     "visiblePosts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 87
+        "line": 103
       }
     ],
     "MomentAuthorType": [
@@ -21250,8 +21256,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1248,
-      "sha256": "85637e483f6d4883bc7308ae382a389c70a347c5fdf6597b3a3c081a90de4ebf",
+      "lines": 1251,
+      "sha256": "753578571d5533b0142c4d946a032e91ae78eea3277091cc286f0d4d0217182e",
       "symbols": [
         {
           "name": "asJson",
@@ -21267,27 +21273,27 @@
         },
         {
           "name": "world",
-          "line": 1052
+          "line": 1055
         },
         {
           "name": "completedEvidence",
-          "line": 1085
+          "line": 1088
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1099
+          "line": 1102
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1109
+          "line": 1112
         },
         {
           "name": "from",
-          "line": 1116
+          "line": 1119
         },
         {
           "name": "requiresCompletion",
-          "line": 1151
+          "line": 1154
         }
       ]
     },
@@ -23878,20 +23884,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-      "lines": 90,
-      "sha256": "030aa9dfa1a741a92accfad09f530b3a30fcff4f109bcd2ffaf7962096f87504",
+      "lines": 106,
+      "sha256": "27ad5f7eedccc84b8d0eaf24d664faa619131d4d9a5041ca004c0c7c4389c64c",
       "symbols": [
         {
           "name": "MomentFriendAccess",
           "line": 17
         },
         {
+          "name": "audienceContext",
+          "line": 83
+        },
+        {
           "name": "canView",
-          "line": 79
+          "line": 95
         },
         {
           "name": "visiblePosts",
-          "line": 87
+          "line": 103
         }
       ]
     },

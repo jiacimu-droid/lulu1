@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`366b3be52b6f690dcf6ad81caba74d633851730d`
+- 基准提交：`b1cc3441465b8de4191e23996910c0538f05f778`
 - 分支：`main`
 - 已索引文件：912
-- 已索引代码/文本行：179594
-- 已发现符号：2680
+- 已索引代码/文本行：179613
+- 已发现符号：2681
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -338,7 +338,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 382 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 394 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1248 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1251 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
@@ -419,7 +419,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1073 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 90 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 968 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
