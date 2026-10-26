@@ -25,9 +25,9 @@ internal object GoalFollowUpPolicy {
         if (!autonomous || goal == null || !outwardAction(action)) return null
         if (goal.optBoolean("userRequestedSpace"))
             return "用户明确要求暂停主动联系；尊重边界，等对方主动交流"
-        if ((reviewingGoal || intentionId == goal.optString("createdAt")) &&
-            shouldBlockContact(goal, action))
-            return "已两次主动联系而未获得新的用户回应；保留目标但暂停重复打扰"
+        // A lack of reply is not an owner request for space. A numeric count
+        // of earlier contact attempts is not authority to overrule the role's
+        // next valid decision. Actual explicit space requests still block.
         return null
     }
 
@@ -45,9 +45,6 @@ internal object GoalFollowUpPolicy {
         return now.plusSeconds(FIVE_MINUTES)
     }
 
-    fun shouldBlockContact(goal: JSONObject, action: String): Boolean =
-        outwardAction(action) && goal.optInt("unansweredContactAttempts", 0) >= MAX_UNANSWERED_CONTACTS &&
-            goal.optString("lastUserEvidenceId").isBlank()
 
     fun reviewMatches(goal: JSONObject?, intentionId: String, plannedMillis: Long,
                       now: Instant): Boolean {
