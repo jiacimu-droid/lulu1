@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:24:11.141638+00:00",
-  "commit": "0e50f39fb28d5b2cc1e5efacf5afc0ce2e50d386",
+  "generatedAt": "2026-10-26T08:24:51.780096+00:00",
+  "commit": "f6c2e4189873ab4a8b08fdd191930fa6c88cf6e2",
   "branch": "main",
-  "sourceFingerprint": "eb75275244c39125118450d0e2cef0adfc9dc89ed7fa21c64161b8e349476baf",
+  "sourceFingerprint": "7a2cb3139846942c536a74649122e7837a4df833fbf54d636439991ecf05a894",
   "summary": {
     "files": 927,
-    "lines": 183876,
+    "lines": 183884,
     "symbols": 2718
   },
   "symbolIndex": {
@@ -5189,7 +5189,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 202
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -6289,19 +6289,19 @@
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 158
+        "line": 162
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 163
+        "line": 167
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 167
+        "line": 171
       }
     ],
     "parse": [
@@ -19754,8 +19754,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 243,
-      "sha256": "64de155c63dec6be9c7a013b5d388df70fc12145672e5be9e0823427c666896a",
+      "lines": 247,
+      "sha256": "588fdf325cd6465078b57dd19cf9092900bfffb9811e9ec1c4dd4cc49124b1c5",
       "symbols": [
         {
           "name": "snapshot",
@@ -19783,7 +19783,7 @@
         },
         {
           "name": "ids",
-          "line": 202
+          "line": 206
         }
       ]
     },
@@ -20821,8 +20821,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 171,
-      "sha256": "8ad80c0059dd658305e070e565ff58fc1367b6e586d4fd775032730546a03d6e",
+      "lines": 175,
+      "sha256": "0c988e2f3063dd0f20404c6fb5b7da21a7975757071c71e7701eb94a007c3ebe",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -20858,15 +20858,15 @@
         },
         {
           "name": "learningContext",
-          "line": 158
+          "line": 162
         },
         {
           "name": "leanExpressionContext",
-          "line": 163
+          "line": 167
         },
         {
           "name": "developmentContext",
-          "line": 167
+          "line": 171
         }
       ]
     },
@@ -30886,7 +30886,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
       "lines": 362,
-      "sha256": "77f615e30f0386b8b87a382bb740df189dcbd22f10c91b611da5889393a08ab4",
+      "sha256": "cff7e436f0cc5a93ab201a750d9821d1c09207fbb35e0d730f6ce64675d53523",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
