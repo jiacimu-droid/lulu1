@@ -44,12 +44,36 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val ChatHubLabels = listOf("消息", "角色", "朋友圈", "我的")
-private val ChatHubIcons = listOf(
+internal val ChatHubIcons = listOf(
     Icons.Outlined.ChatBubbleOutline,
     Icons.Outlined.PeopleOutline,
     Icons.Outlined.DynamicFeed,
     Icons.Outlined.PersonOutline,
 )
+
+/** Identical QQ bottom bar used for the owner's and every citizen's account. */
+@Composable
+internal fun ChatHubV2Navigation(
+    selectedTab: Int, labels: List<String>, badgeCounts: Map<Int, Int> = emptyMap(),
+    onSelect: (Int) -> Unit,
+) {
+    NavigationBar(containerColor = LuluColors.Card) {
+        labels.forEachIndexed { index, label ->
+            val count = badgeCounts[index] ?: 0
+            NavigationBarItem(
+                selected = selectedTab == index,
+                onClick = { onSelect(index) },
+                icon = {
+                    if (count > 0) BadgedBox(
+                        badge = { Badge { Text(if (count > 99) "99+" else count.toString()) } },
+                    ) { Icon(ChatHubIcons[index], label) }
+                    else Icon(ChatHubIcons[index], label)
+                },
+                label = { Text(label) },
+            )
+        }
+    }
+}
 
 @Composable
 fun MigratedChatHubScreenV2(
@@ -108,31 +132,9 @@ fun MigratedChatHubScreenV2(
                 )
         },
         bottomBar = {
-            NavigationBar(containerColor = LuluColors.Card) {
-                ChatHubLabels.forEachIndexed { index, label ->
-                    val badgeCount = when (index) {
-                        0 -> totalUnreadMessages
-                        2 -> unreadMoments
-                        else -> 0
-                    }
-                    NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        icon = {
-                            if (badgeCount > 0) {
-                                BadgedBox(
-                                    badge = {
-                                        Badge { Text(if (badgeCount > 99) "99+" else badgeCount.toString()) }
-                                    },
-                                ) { Icon(ChatHubIcons[index], label) }
-                            } else {
-                                Icon(ChatHubIcons[index], label)
-                            }
-                        },
-                        label = { Text(label) },
-                    )
-                }
-            }
+            ChatHubV2Navigation(selectedTab, ChatHubLabels,
+                badgeCounts = mapOf(0 to totalUnreadMessages, 2 to unreadMoments),
+                onSelect = { selectedTab = it })
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
@@ -627,7 +629,7 @@ private fun ChatHubV2CreateCharacterDialog(
 }
 
 @Composable
-private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
+internal fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
@@ -639,11 +641,11 @@ private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun ChatHubV2Avatar(text: String, size: Int, imageUri: String? = null) =
+internal fun ChatHubV2Avatar(text: String, size: Int, imageUri: String? = null) =
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
 
 @Composable
-private fun ChatHubV2GroupAvatar(name: String, imageUri: String?) {
+internal fun ChatHubV2GroupAvatar(name: String, imageUri: String?) {
     if (!imageUri.isNullOrBlank()) {
         LuluProfileAvatar(imageUri = imageUri, fallback = name.take(1).ifBlank { "群" }, size = 50)
     } else {
