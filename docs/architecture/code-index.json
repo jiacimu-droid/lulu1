@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:43:32.161396+00:00",
-  "commit": "c86c70683012af555c03eb95d14ffb0504bfabc2",
+  "generatedAt": "2026-10-26T01:46:34.448300+00:00",
+  "commit": "f0af50c3e67ed7cea1eb36d5fbb024e4caa2a0cd",
   "branch": "main",
-  "sourceFingerprint": "24529b87ff7be181b8648a2e39ec33bc7ae9ba072659fc12422de8d6f2c8f5c0",
+  "sourceFingerprint": "dc72b47a77cc209630e31b19ebd6fb5463bfb57e1c37b0f272300646053c4744",
   "summary": {
     "files": 910,
-    "lines": 179338,
+    "lines": 179345,
     "symbols": 2675
   },
   "symbolIndex": {
@@ -29755,8 +29755,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 276,
-      "sha256": "e747edcc712896ee61d02c9b1baeaae023fc71a34a2ba5a8a303124ff2cc8ccc",
+      "lines": 283,
+      "sha256": "b48bf964d19eabb55c13d70171d44e86bf88fe59871471a58a0d3e0eab104862",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
