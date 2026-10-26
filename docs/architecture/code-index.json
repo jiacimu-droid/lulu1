@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T09:46:02.456384+00:00",
-  "commit": "91aebbc63f6643a7e8f47080e8f2ef338335f83d",
+  "generatedAt": "2026-10-26T09:46:46.443596+00:00",
+  "commit": "43b1d33f43ca601210fd8494efa013880a3c5286",
   "branch": "main",
-  "sourceFingerprint": "c021940ebf2cd6cdb11f43c6f11e4cc2b779211ca9e7dd3a64b808461226f04e",
+  "sourceFingerprint": "76c7fff4cd93ab2da92e1d23b4f7c405ea672c35344b815d4cae3e57719c5980",
   "summary": {
     "files": 937,
-    "lines": 185528,
+    "lines": 185573,
     "symbols": 2724
   },
   "symbolIndex": {
@@ -1653,13 +1653,13 @@
     "rendererManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 87
+        "line": 130
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 105
+        "line": 149
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1669,7 +1669,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 127
+        "line": 172
       }
     ],
     "send": [
@@ -16459,8 +16459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 295,
-      "sha256": "18d45907cd129cd75f7685f9cc10c7b49223504c6d5e4527c2cce3ee674dd899",
+      "lines": 340,
+      "sha256": "31c5c5329f5cab4331d1993d9581453681bd40ea0f7f5324edec8efd6fd52139",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -16492,15 +16492,15 @@
         },
         {
           "name": "rendererManifest",
-          "line": 87
+          "line": 130
         },
         {
           "name": "controls",
-          "line": 105
+          "line": 149
         },
         {
           "name": "removeModel",
-          "line": 127
+          "line": 172
         }
       ]
     },
