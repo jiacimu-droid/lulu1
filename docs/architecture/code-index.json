@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:37:06.372052+00:00",
-  "commit": "9817b2b6d124df9eeb402dfea4f5ab9c1ad3f551",
+  "generatedAt": "2026-10-26T03:37:28.325938+00:00",
+  "commit": "42e7426f9d46f923c0bc8dbb8890fb0d5b7e5cf8",
   "branch": "main",
-  "sourceFingerprint": "372413dab375c1d9784a1ee85fe57103142920231accd46e2d0abda2167b2099",
+  "sourceFingerprint": "57450b25d6fbe7e05d096ac01f54da641ffff2b048dc248455f423a5a8a3b7da",
   "summary": {
     "files": 920,
-    "lines": 181405,
+    "lines": 181443,
     "symbols": 2698
   },
   "symbolIndex": {
@@ -423,7 +423,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 778
+        "line": 800
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -5651,7 +5651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 740
+        "line": 762
       }
     ],
     "cue": [
@@ -5807,13 +5807,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 203
+        "line": 225
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 712
+        "line": 734
       }
     ],
     "current": [
@@ -19215,7 +19215,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 124,
-      "sha256": "d03f4107e489ffa27d5701ebdd8397cff49679396ab595be03d0c2ace41cf130",
+      "sha256": "e0502c0fd45697fb3e69bebca80a78ec6acd7a75ac8dd5188326a1191336de28",
       "symbols": [
         {
           "name": "Capability",
@@ -20185,8 +20185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 825,
-      "sha256": "2e7d2299920f61d37cab3ff552b75c52bed8ba04f989b849fa660110ab90ae8b",
+      "lines": 847,
+      "sha256": "19d7096db359a03eb1af3848f265da4368f945abe7c9c422db153e7a27ade443",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -20210,19 +20210,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 203
+          "line": 225
         },
         {
           "name": "profileContext",
-          "line": 712
+          "line": 734
         },
         {
           "name": "compactContext",
-          "line": 740
+          "line": 762
         },
         {
           "name": "context",
-          "line": 778
+          "line": 800
         }
       ]
     },
@@ -31478,8 +31478,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 113,
-      "sha256": "2aee52a93073188149bcdf8ca89fcecb8b76a22bc0c093f072241c864114ca49",
+      "lines": 129,
+      "sha256": "9f52a2e7502e362f7ca1e7328a5f80b43853c7be185ef8e9873564f50c46cc1d",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
