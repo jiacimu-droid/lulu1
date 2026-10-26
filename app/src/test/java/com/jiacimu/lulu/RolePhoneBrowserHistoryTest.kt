@@ -4,6 +4,7 @@ import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.SharedTimelineEvent
 import java.time.Instant
 import org.json.JSONObject
+import org.json.JSONArray
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,6 +43,20 @@ class RolePhoneBrowserHistoryTest {
         assertTrue(view.all { it.reason == "本人真实选的理由" })
         assertEquals("failed", view.single { it.kind == "图片" }.status)
         assertEquals("没有成功", view.single { it.kind == "图片" }.summary)
+    }
+
+    @Test fun linkedInnerThoughtOnlyBelongsToItsOwnVerifiedSearchReceipt() {
+        val first = receipt("first", "web_search", JSONObject().put("query", "自然现象"))
+        val other = receipt("other", "image_search", JSONObject().put("query", "风景"))
+        val inner = JSONObject().put("causalTransitions", JSONArray()
+            .put(JSONObject().put("evidenceId", "first")
+                .put("innerThought", "刚才查到的内容让我想到新问题"))
+            .put(JSONObject().put("evidenceId", "unrelated")
+                .put("innerThought", "这句不应该出现在搜索历史")))
+        val history = rolePhoneSearchEntries(listOf(first, other), inner)
+        assertEquals("刚才查到的内容让我想到新问题",
+            history.single { it.id == "first" }.reflection)
+        assertEquals("", history.single { it.id == "other" }.reflection)
     }
 
     @Test fun rejectsForgedOrUnprovenNonRouterEvents() {
