@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:55:23.300197+00:00",
-  "commit": "b64b47987b51952b54ca2b310f438b396f34d8de",
+  "generatedAt": "2026-10-26T05:56:12.807217+00:00",
+  "commit": "942d9f9dd74ecbbca1b5121e74418fc20c041140",
   "branch": "main",
-  "sourceFingerprint": "a69d433551e67310636907d20f949ae67f1a6844796a978a2e9a4658df2f198a",
+  "sourceFingerprint": "567fd5c022e67ef2944e9699b39c083c42884c35139218361b8615bd3493deba",
   "summary": {
     "files": 925,
-    "lines": 182997,
-    "symbols": 2705
+    "lines": 183039,
+    "symbols": 2706
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14153,7 +14153,13 @@
     "CharacterOriginResetTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-        "line": 20
+        "line": 22
+      }
+    ],
+    "boundContext": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
+        "line": 77
       }
     ],
     "CharacterPerceptionContextTest": [
@@ -30471,12 +30477,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-      "lines": 132,
-      "sha256": "fbbc8421dd94254300c1b783cbb9f935986797a49cdf670293ba35ce67dc74d8",
+      "lines": 174,
+      "sha256": "dc0339db70b0d7e2332d2fed1cf47c7298dcfaa0b71b6033f9bd7cdde55a4dd6",
       "symbols": [
         {
           "name": "CharacterOriginResetTest",
-          "line": 20
+          "line": 22
+        },
+        {
+          "name": "boundContext",
+          "line": 77
         }
       ]
     },
