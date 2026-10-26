@@ -239,6 +239,10 @@ internal fun ChatHubV2ConversationRow(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+/** A role's own private QQ group is not an owner's joined conversation. */
+internal fun ownerVisibleQqConversations(conversations: List<LuluConversation>): List<LuluConversation> =
+    conversations.filter { it.groupChat?.ownerIncluded != false }
+
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
@@ -247,7 +251,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val onlineStates by CompanionOnlineStore.states.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val sorted = remember(conversations) {
-        conversations.filter { it.groupChat?.ownerIncluded != false }
+        ownerVisibleQqConversations(conversations)
             .sortedWith(compareByDescending<LuluConversation> { it.pinned }
                 .thenByDescending(LuluConversation::updatedAt))
     }
@@ -258,7 +262,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
         initialValue = emptyMap(), conversations, unreadRevision
     ) {
         value = withContext(Dispatchers.Default) {
-            conversations.filter { it.groupChat?.ownerIncluded != false }.associate { conversation ->
+            ownerVisibleQqConversations(conversations).associate { conversation ->
                 conversation.id to ChatUnreadStore.unreadCount(
                     conversation.id, MigratedDomainStores.chat.messages(conversation.id).value)
             }
