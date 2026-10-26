@@ -128,75 +128,91 @@ class CommitmentSemanticPersistenceTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun acceptedTwentyMinuteWakeCreatesNativeAlarmAfterEmptyModelCommitmentDecision() = runBlocking {
-        val now = Instant.now()
+    @Test fun acceptedTwentyMinuteWakeIsScheduledFromTheModelDraftAfterMainMissedIt() = runBlocking {
+        val due = Instant.now().plusSeconds(20 * 60)
         val evidence = "accepted-wake-user"
-        // Reproduces the bug: the planner replied normally, recorded [] as
-        // handled, and the older recovery scanner skipped this entire promise.
+        // The full role decision produced a spoken promise but no typed change.
         CommitmentDecisionRuntime.apply(context, role, "chat:empty:$role",
             listOf(evidence), JSONArray())
-        assertTrue(CommitmentDecisionRuntime.handled(context, role, listOf(evidence)))
         assertTrue(CommitmentTaskStore.active(role).isEmpty())
 
-        val task = CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:$evidence:$role", listOf(evidence),
-            "我好累啊，宝宝，20分钟之后叫我",
-            "好，快把手机放下，安心眯一会儿。二十分钟我替你稳稳盯着，到点准时叫你。",
-            userAt = now, now = now, zone = zone,
-            selectedDeliveryAction = "alarm_only",
+        val model = CommitmentTaskDraft(
+            action = "create", goal = "20分钟后叫醒用户",
+            dueAt = due, timezone = zone.id,
+            deliveryAction = "alarm_only",
         )
-        assertNotNull(task)
-        assertEquals(now.plusSeconds(20 * 60), task!!.dueAt)
+        val first = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:$evidence:$role", listOf(evidence), listOf(model))
+        assertEquals(1, first.size)
+        val task = CommitmentTaskStore.active(role).single()
+        assertEquals(due, task.dueAt)
         assertEquals("alarm_only", task.deliveryAction)
         assertEquals(CommitmentTaskStatus.Scheduled, task.status)
-        assertNotNull(task.linkedAlarmId)
-        assertEquals(task.id, CommitmentTaskStore.active(role).single().id)
-        assertEquals(task.linkedAlarmId, LuluAlarmSystem.list().single {
+        assertEquals(task.id, LuluAlarmSystem.list().single {
             it.commitmentTaskId == task.id
-        }.id)
-        // Re-running the same messages must not generate duplicate alarms.
-        val repeated = CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:$evidence:$role", listOf(evidence),
-            "我好累啊，宝宝，20分钟之后叫我", "好，我来叫你",
-            userAt = now, now = now.plusSeconds(10), zone = zone,
-        )
-        assertEquals(task.id, repeated?.id)
-        assertEquals(1, CommitmentTaskStore.active(role).size)
+        }.commitmentTaskId)
+        // The same model output must not register another real alarm.
+        val repeated = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:$evidence:$role", listOf(evidence), listOf(model))
+        assertTrue(repeated.isEmpty())
         assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
     }
 
-    @Test fun roleModelIsFreeToChooseCallOrAlarmButNeverChatAsWake() {
-        assertEquals("start_call", CommitmentTurnAutomation.parseModelWakeChoice(
-            """{"accepted":true,"deliveryAction":"start_call"}"""))
-        assertEquals("alarm_only", CommitmentTurnAutomation.parseModelWakeChoice(
-            """{"accepted":true,"deliveryAction":"alarm_only"}"""))
-        assertNull(CommitmentTurnAutomation.parseModelWakeChoice(
-            """{"accepted":true,"deliveryAction":"send_private_message"}"""))
-        assertNull(CommitmentTurnAutomation.parseModelWakeChoice(
-            """{"accepted":false,"deliveryAction":"start_call"}"""))
-        assertNull(CommitmentTurnAutomation.parseModelWakeChoice("不是 JSON"))
+    @Test fun modelDecidesDeliveryRouteAndTheExecutorRejectsQuietWake() = runBlocking {
+        val due = Instant.now().plusSeconds(20 * 60)
+        val quiet = parseCommitmentTaskDrafts(
+            """[{"action":"create","goal":"叫醒用户","dueAt":"${due}","deliveryAction":"send_private_message"}]"""
+        ).single()
+        assertTrue(quiet.needsClarification)
+        CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:quiet:$role", listOf("quiet"), listOf(quiet))
+        val pending = CommitmentTaskStore.active(role).single()
+        assertEquals(CommitmentTaskStatus.NeedsClarification, pending.status)
+        assertNull(pending.linkedAlarmId)
         assertTrue(CommitmentDecisionProtocol.instruction.contains("自主决定"))
         assertTrue(CommitmentDecisionProtocol.instruction.contains("alarm_only"))
     }
 
-    @Test fun missingOrQuietWakeRouteNeverSilentlyBecomesTextMessage() = runBlocking {
-        val now = Instant.now()
-        val base = arrayOf("20分钟后叫我", "好，20分钟后叫你。")
-        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:no-way:$role", listOf("no-way"),
-            base[0], base[1], userAt = now, now = now, zone = zone,
-        ))
-        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:quiet:$role", listOf("quiet-way"),
-            base[0], base[1], userAt = now, now = now, zone = zone,
-            selectedDeliveryAction = "send_private_message",
-        ))
-        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:phone-explicit:$role", listOf("explicit-phone"),
-            "20分钟后打电话叫醒我", "好，我给你打电话",
-            userAt = now, now = now, zone = zone, selectedDeliveryAction = "alarm_only",
-        ))
+    @Test fun modelRecoveryDoesNotInventCommitmentsOrRescheduleUnknownTargets() = runBlocking {
+        val empty = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:no-promise:$role", listOf("no-promise"), emptyList())
+        assertTrue(empty.isEmpty())
         assertTrue(CommitmentTaskStore.snapshot(role).isEmpty())
+        val wrong = CommitmentTaskDraft(action = "reschedule",
+            targetTaskId = "not-a-real-task", goal = "改为今晚叫醒",
+            dueAt = Instant.now().plusSeconds(8000), deliveryAction = "alarm_only")
+        assertTrue(runCatching {
+            CommitmentDecisionRuntime.applyModelRecovery(context, role,
+                "chat:bad:$role", listOf("bad"), listOf(wrong))
+        }.isFailure)
+        assertTrue(CommitmentTaskStore.snapshot(role).isEmpty())
+    }
+
+    @Test fun modelRecoveryUpdatesItsExactTargetAndCancelsTheWrongAlarm() = runBlocking {
+        val later = Instant.now().plusSeconds(27 * 3600L)
+        val agreed = Instant.now().plusSeconds(3 * 3600L)
+        val original = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "明天8点叫醒", dueAt = later,
+            status = CommitmentTaskStatus.Scheduled,
+            timezone = zone.id, deliveryAction = "alarm_only",
+            sourceEventIds = listOf("older-user"),
+        ))
+        val old = LuluAlarmSystem.create(role, "测试角色", later, original.goal,
+            commitmentTaskId = original.id).getOrThrow()
+        CommitmentTaskStore.update(original.id) { it.copy(linkedAlarmId = old.id) }
+        val newDraft = CommitmentTaskDraft(action = "reschedule",
+            targetTaskId = original.id, dueAt = agreed,
+            goal = "今天8点叫醒", timezone = zone.id,
+            deliveryAction = "alarm_only")
+        // No Kotlin code reads or interprets these Chinese time words.
+        val changed = CommitmentDecisionRuntime.applyModelRecovery(context, role,
+            "chat:model-correction:$role", listOf("new-user"), listOf(newDraft))
+        assertEquals(1, changed.size)
+        assertEquals(original.id, changed.single().id)
+        assertEquals(agreed, changed.single().dueAt)
+        assertFalse(LuluAlarmSystem.list().any { it.id == old.id })
+        assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == original.id })
+        assertEquals(1, CommitmentTaskStore.snapshot(role).count { it.id == original.id })
     }
 
     @Test fun absentWakeChannelFromMainModelStaysPendingUntilRoleChooses() = runBlocking {
@@ -211,20 +227,6 @@ class CommitmentSemanticPersistenceTest {
         assertNull(pending.linkedAlarmId)
         assertFalse(LuluAlarmSystem.list().any { it.commitmentTaskId == pending.id })
         assertTrue(receipt.contains("NeedsClarification"))
-    }
-
-    @Test fun refusedOrExpiredWakeCannotScheduleAnAlarm() = runBlocking {
-        val now = Instant.now()
-        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:refused:$role", listOf("refused-wake"),
-            "20分钟后叫我", "我没办法保证，不能帮你叫醒。", now, now, zone,
-        ))
-        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
-            context, role, "chat:expired:$role", listOf("expired-wake"),
-            "20分钟后叫我", "好，20分钟后准时叫你。",
-            now.minusSeconds(3600), now, zone,
-        ))
-        assertTrue(CommitmentTaskStore.active(role).isEmpty())
     }
 
     @Test fun modelChosenOngoingResponsibilityIsVisibleWithoutInventingAnAlarm() = runBlocking {
