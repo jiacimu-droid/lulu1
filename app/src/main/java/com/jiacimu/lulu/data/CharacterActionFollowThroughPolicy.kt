@@ -69,6 +69,23 @@ internal object CharacterActionFollowThroughPolicy {
         ))
     }
 
+    /**
+     * Optional same-character action review must see the SAME persisted
+     * attention worklist as the paid primary decision. It may additionally
+     * see the just-authored impulse and the legacy intention, but it must not
+     * rank a second, incompatible queue of old motives/share/curiosity.
+     * Merely showing a cue cannot choose or execute an action.
+     */
+    fun unifiedReviewChoices(
+        immediate: List<String>, visibleUnfinished: List<String>,
+        legacyIntention: String? = null, limit: Int = 8,
+    ): List<String> {
+        if (limit <= 0) return emptyList()
+        return (immediate.take(1) + visibleUnfinished +
+            listOfNotNull(legacyIntention) + immediate.drop(1))
+            .map(String::trim).filter(String::isNotBlank).distinct().take(limit)
+    }
+
     fun shouldReview(silent: Boolean, choices: List<String>, key: String, previousKey: String,
                      nowMs: Long, previousAtMs: Long): Boolean =
         silent && choices.isNotEmpty() &&
