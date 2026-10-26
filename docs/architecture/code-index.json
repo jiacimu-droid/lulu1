@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:06:30.530903+00:00",
-  "commit": "66395f32df35d5db4352e53930444f570f1fa34d",
+  "generatedAt": "2026-10-26T03:07:39.365238+00:00",
+  "commit": "2d7e427b7e27268b7fcbdda846f9f983aa277d0b",
   "branch": "main",
-  "sourceFingerprint": "9ed92179e39706cdea5264855163cdf74708cd62ff642e241f6e35ca3cdbc39d",
+  "sourceFingerprint": "6696b3dcc88d61d1aa953ef14f5beda7f37ac03f9718aa2dafd6b5c04c9635f8",
   "summary": {
     "files": 915,
-    "lines": 180213,
+    "lines": 180238,
     "symbols": 2688
   },
   "symbolIndex": {
@@ -4761,7 +4761,7 @@
     "shouldReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-        "line": 65
+        "line": 71
       }
     ],
     "extractExplicitAddress": [
@@ -19243,8 +19243,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-      "lines": 71,
-      "sha256": "33811ecfc1fdb3141410260b2628f66654dad0f790ff74cade19d9371dc237ee",
+      "lines": 77,
+      "sha256": "1d7076b75a7746b941188978513111946512a2aeae6c9242597c0c6e0e553123",
       "symbols": [
         {
           "name": "pendingChoices",
@@ -19252,7 +19252,7 @@
         },
         {
           "name": "shouldReview",
-          "line": 65
+          "line": 71
         }
       ]
     },
@@ -29751,8 +29751,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt",
-      "lines": 92,
-      "sha256": "a5d44c313a8ff463e234dfcb0236a131906154c46064cf293fbe9a1e1a976c25",
+      "lines": 111,
+      "sha256": "e5c0ce71246770cd25dee02961447b60b09280caad5cdcb6d398a12e4c661b95",
       "symbols": [
         {
           "name": "CharacterActionFollowThroughPolicyTest",
