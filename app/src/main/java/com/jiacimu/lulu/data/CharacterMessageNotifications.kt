@@ -41,7 +41,9 @@ internal object CharacterMessageNotifications {
     @Synchronized fun onSaved(context: Context, conversation: LuluConversation, message: LuluChatMessage) {
         if (message.sender != LuluChatMessage.Sender.Character || message.status != LuluChatMessage.Status.Sent ||
             conversation.parentConversationId != null || conversation.id.endsWith("-study-focus") ||
-            conversation.groupChat?.muted == true || visibleConversation(conversation.id)) return
+            conversation.groupChat?.muted == true ||
+            conversation.groupChat?.ownerIncluded == false ||
+            visibleConversation(conversation.id)) return
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
