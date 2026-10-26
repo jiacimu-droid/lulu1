@@ -172,7 +172,7 @@ internal fun MomentPostCard(
                 ) {
                     Icon(
                         if (post.authorType == MomentAuthorType.User) Icons.Outlined.MarkChatRead else Icons.Outlined.ChatBubbleOutline,
-                        if (post.authorType == MomentAuthorType.User) "呼唤全部角色来看" else "评论",
+                        if (post.authorType == MomentAuthorType.User) "叫好友们来看" else "评论",
                         modifier = Modifier.size(18.dp),
                     )
                 }

@@ -117,7 +117,7 @@ fun MomentsScreen(characterId: String? = null) {
                             Spacer(Modifier.height(10.dp))
                             Text("朋友圈还是空的", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             Text(
-                                "朋友圈是分享日常，不需要定期更新。角色看见后会按自己的性格决定点赞、评论或只是看看。",
+                                "只有好友能看见彼此的生活动态。想让更多角色参与，可以先在「管理好友」里加好友；他们是否点赞评论，由各自决定。",
                                 color = LuluColors.Muted,
                                 fontSize = 12.sp,
                                 lineHeight = 18.sp,
