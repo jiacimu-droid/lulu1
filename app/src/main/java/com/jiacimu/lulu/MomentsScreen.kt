@@ -31,14 +31,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentsStore
+import com.jiacimu.lulu.data.MomentFriendAccess
 import com.jiacimu.lulu.design.LuluColors
 
 @Composable
 fun MomentsScreen(characterId: String? = null) {
     val context = LocalContext.current
     val allPosts by MomentsStore.posts.collectAsState()
-    val posts = remember(allPosts, characterId) {
-        if (characterId == null) allPosts else allPosts.filter { it.authorCharacterId == characterId }
+    val friendshipRevision by MomentFriendAccess.revisions.collectAsState()
+    val posts = remember(allPosts, characterId, friendshipRevision) {
+        val allowed = MomentFriendAccess.visiblePosts(MomentFriendAccess.OWNER, allPosts)
+        if (characterId == null) allowed else allowed.filter { it.authorCharacterId == characterId }
     }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE) }
@@ -46,6 +49,7 @@ fun MomentsScreen(characterId: String? = null) {
     val userAvatar = remember { prefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
     val userAvatarUri = remember { prefs.getString("avatar_uri", null) }
     var composing by remember { mutableStateOf(false) }
+    var managingFriends by remember { mutableStateOf(false) }
     var signatureEditing by remember { mutableStateOf(false) }
     var coverUri by remember { mutableStateOf(prefs.getString("moments_cover_uri", null)) }
     var signature by remember {
@@ -91,6 +95,16 @@ fun MomentsScreen(characterId: String? = null) {
                     },
                     onSignatureClick = { signatureEditing = true },
                 )
+            }
+            if (characterId == null) item(key = "friends") {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("好友动态", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f))
+                    TextButton(onClick = { managingFriends = true }) {
+                        Text("管理好友")
+                    }
+                }
             }
             if (posts.isEmpty()) {
                 item(key = "empty") {
@@ -138,6 +152,42 @@ fun MomentsScreen(characterId: String? = null) {
             contentColor = LuluColors.OnWheat,
             icon = { Icon(Icons.Outlined.Edit, null) },
             text = { Text("发动态") },
+        )
+    }
+
+    if (managingFriends) {
+        AlertDialog(
+            onDismissRequest = { managingFriends = false },
+            title = { Text("朋友圈好友") },
+            text = {
+                Column(
+                    Modifier.fillMaxWidth().heightIn(max = 480.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text("只有好友能看见彼此的动态和点赞评论。添加的好友可以看到全部互动，而不是仅限共同好友。",
+                        color = LuluColors.Muted, fontSize = 12.sp)
+                    characters.values.sortedBy { it.displayName }.forEach { friend ->
+                        val linked = friendshipRevision.let {
+                            MomentFriendAccess.areFriends(MomentFriendAccess.OWNER, friend.characterId)
+                        }
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(friend.displayName, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                if (friend.characterId.startsWith("resident:"))
+                                    Text("数字世界居民", fontSize = 11.sp, color = LuluColors.Muted)
+                            }
+                            TextButton(onClick = {
+                                MomentFriendAccess.setFriends(MomentFriendAccess.OWNER,
+                                    friend.characterId, !linked)
+                            }) { Text(if (linked) "解除好友" else "加好友") }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { managingFriends = false }) { Text("完成") } },
         )
     }
 

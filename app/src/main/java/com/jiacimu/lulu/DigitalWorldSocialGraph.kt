@@ -36,6 +36,7 @@ internal fun DigitalWorldSocialGraphDialog(
     val revision by CharacterInnerLifeStore.revisions.collectAsState()
     val relationData by CharacterLifeStore.states.collectAsState()
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val friendsRevision by MomentFriendAccess.revisions.collectAsState()
     val participants = settings.values.toList().sortedBy { it.displayName }
     var focusId by remember(initialCharacterId, participants) {
         mutableStateOf(initialCharacterId?.takeIf { it in settings } ?: participants.firstOrNull()?.characterId.orEmpty())
@@ -248,6 +249,24 @@ internal fun DigitalWorldSocialGraphDialog(
                                     session.turns.any { it.speakerId == selectedNode.id }
                             }
                             Text("真实交流 ${count} 次", fontSize = 11.sp)
+                        }
+                        if (selectedNode.kind != "用户" &&
+                            selectedNode.id in settings) {
+                            val areFriends = friendsRevision.let {
+                                MomentFriendAccess.areFriends(focusId, selectedNode.id)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("朋友圈好友", fontSize = 12.sp,
+                                    modifier = Modifier.weight(1f))
+                                TextButton(onClick = {
+                                    MomentFriendAccess.setFriends(
+                                        focusId, selectedNode.id, !areFriends)
+                                }) {
+                                    Text(if (areFriends) "解除好友" else "加为好友")
+                                }
+                            }
+                            Text("好友关系单独确认；认识、见面和同群不会自动变成好友。",
+                                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Text("${focalName} → ${selectedNode.label}", fontWeight = FontWeight.Medium,
                             color = Color(0xFF357A67), fontSize = 12.sp)
