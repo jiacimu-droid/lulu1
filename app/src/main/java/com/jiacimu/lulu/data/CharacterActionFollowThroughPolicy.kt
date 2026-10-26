@@ -87,7 +87,7 @@ internal object CharacterActionFollowThroughPolicy {
     }
 
     fun shouldReview(silent: Boolean, choices: List<String>, key: String, previousKey: String,
-                     nowMs: Long, previousAtMs: Long): Boolean =
-        silent && choices.isNotEmpty() &&
+                     nowMs: Long, previousAtMs: Long, alreadyChoseSteps: Boolean = false): Boolean =
+        silent && !alreadyChoseSteps && choices.isNotEmpty() &&
             (key != previousKey || nowMs - previousAtMs >= 5 * 60_000L)
 }
