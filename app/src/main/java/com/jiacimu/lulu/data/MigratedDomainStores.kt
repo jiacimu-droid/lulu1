@@ -449,7 +449,8 @@ class InMemoryLuluChatStore : LuluChatStore {
         ).also { message ->
             val visible = CharacterMessageNotifications.visibleConversation(conversationId)
             append(conversationId, message, incrementUnread = !visible, durable = !visible)
-            CompanionPresenceStore.bindDeliveredMessage(effectiveAuthorId, message.id, message.createdAt)
+            if (!onBehalfByOwner) CompanionPresenceStore.bindDeliveredMessage(
+                effectiveAuthorId, message.id, message.createdAt)
             appContext?.let { context ->
                 conversationState.value.firstOrNull { it.id == conversationId }?.let { savedConversation ->
                     runCatching { CharacterMessageNotifications.onSaved(context, savedConversation, message) }
@@ -457,7 +458,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 }
             }
         }
-        favoriteTarget?.let { target ->
+        if (!onBehalfByOwner) favoriteTarget?.let { target ->
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
         }
         // The reply has now been durably appended. Do not infer a promise
