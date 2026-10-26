@@ -45,11 +45,13 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
     // A stationary slap follows the contacted cheek, as the base reflex does.
     const direction = right || left ? travel :
       (family === 'cheek' && side !== 0 ? side : -side || -1)
-    pose.roll = direction * Math.min(30, 12 + 20 * force) * envelope
-    pose.yaw = direction * (4 + 9 * force) * envelope
-    pose.body.roll = direction * (5 + 10 * force) * envelope *
-      (.18 + .82 * Math.min(1, Math.max(0, elapsedMs) / 240))
-    pose.body.yaw = direction * (1 + 3 * force) * envelope
+    if (family === 'cheek' || family === 'mouth') {
+      pose.roll = direction * Math.min(30, 12 + 20 * force) * envelope
+      pose.yaw = direction * (4 + 9 * force) * envelope
+      pose.body.roll = direction * (5 + 10 * force) * envelope *
+        (.18 + .82 * Math.min(1, Math.max(0, elapsedMs) / 240))
+      pose.body.yaw = direction * (1 + 3 * force) * envelope
+    }
     if (family === 'cheek') {
       pose.face.cheekPuff = elapsedMs < 230 ? .05 : .2 + force * .12
       pose.face.mouthX = direction * (5 + 3 * force) * envelope

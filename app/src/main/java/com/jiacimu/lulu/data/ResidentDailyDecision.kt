@@ -205,6 +205,7 @@ internal object ResidentDailyDecision {
     /** Each due item receives ONE fresh, cheap role decision. A recorded action is not an effect. */
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean {
         val app = context.applicationContext
+        appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
         if (plan.status !in setOf("due", "planned") || at.isBefore(plan.dueAt)) return false
         initializeBackgroundRuntime(app)
@@ -450,6 +451,7 @@ internal object ResidentDailyDecision {
     suspend fun runOnce(context: Context, native: DigitalWorldResident,
         now: Instant = Instant.now()): Boolean {
         val app = context.applicationContext
+        appContext = app
         ResidentCharacterBridge.sync(app, now)
         ResidentSocialMailbox.initialize(app)
         CharacterPhoneInbox.initialize(app)

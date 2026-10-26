@@ -53,3 +53,10 @@ for (const gesture of ['stroke-left', 'stroke-right', 'kiss']) {
   enhanceWolfTouch(touchReflexFor('mouth', gesture), 'mouth', gesture)
 }
 console.log('Live2D impact: force levels, direction, coordinated recoil/recovery, gaze and bounds passed at 15–120fps')
+
+for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
+  const base = touchReflexFor(region, 'slap-right', 0, { force: .9 }, 200)
+  const wolf = enhanceWolfTouch(base, region, 'slap-right', { force: .9 }, 200)
+  assert.equal(wolf.roll, base.roll, 'body contact must not inherit a face strike')
+  assert.deepEqual(wolf.body, base.body)
+}
