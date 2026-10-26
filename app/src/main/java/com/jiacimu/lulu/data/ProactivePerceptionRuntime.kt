@@ -1977,10 +1977,11 @@ object ProactivePerceptionRuntime {
         // not a second permission gate. Do not invent a missing motive;
         // preserve it as missing in the decision audit. Real-world permission,
         // valid tool names, actual targets and executor receipts remain required.
-        if (decision.action == Action.TOOL &&
-            CapabilityRegistry.find(decision.tool) == null) {
-            return ActionExecution(false, "模型未提供有效的工具名称，尚未执行")
-        }
+        // Do not abort the whole turn when the primary tool is unknown.
+        // ToolRouter owns the failed request and its durable rejection receipt;
+        // independent side steps (requiresPreviousSuccess=false) can still
+        // proceed through the SAME permission/receipt pipeline. Dependent
+        // steps correctly stop because the primary never completed.
         val tool = when (decision.action) {
             Action.MESSAGE, Action.KAOMOJI -> "send_private_message"
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI -> "send_group_message"
