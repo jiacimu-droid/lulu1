@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:47:19.454978+00:00",
-  "commit": "c53cc2bcdf477241652faaf67d7774815045d731",
+  "generatedAt": "2026-10-26T03:47:45.867369+00:00",
+  "commit": "f054342d075b8911e49812c8f6ade0f8899d8d5f",
   "branch": "main",
-  "sourceFingerprint": "6573979189231eaa61c40c9b29c9902dc57467875eccb9c7b1bb279b5e9ee9ad",
+  "sourceFingerprint": "e7e1e720f8cf18254d413355e1665809dcb8e159e2237da31659f7510ed4631b",
   "summary": {
     "files": 920,
-    "lines": 181869,
+    "lines": 181897,
     "symbols": 2700
   },
   "symbolIndex": {
@@ -13679,7 +13679,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-        "line": 55
+        "line": 77
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
@@ -17533,8 +17533,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 625,
-      "sha256": "7b02a507ceae56626c5e45068ad43ea3ca47dec902599c46bfbc72d301852121",
+      "lines": 631,
+      "sha256": "76120614f4568868070f83d41d93c0788fd199e07d7fcd5b50dae0a3415c614f",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
@@ -29720,8 +29720,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 84,
-      "sha256": "a57113444050c5ece1e73dd4f77e568983420a595dbb0fb1b0015e60fbd27c87",
+      "lines": 106,
+      "sha256": "312c1d61615e6d47ba3880ec85c6bfdc0c601f7e5959485077dc7150536b7003",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
@@ -29729,7 +29729,7 @@
         },
         {
           "name": "event",
-          "line": 55
+          "line": 77
         }
       ]
     },
