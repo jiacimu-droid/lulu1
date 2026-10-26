@@ -371,6 +371,10 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     if (MomentFriendAccess.areFriends(actualRole, MomentFriendAccess.OWNER)) {
                         item("owner-friend") {
+                            Box(Modifier.clickable {
+                                allChats.firstOrNull { it.groupChat == null && it.characterId == actualRole }
+                                    ?.let { selectedThreadKey = "chat:${it.id}" }
+                            }) {
                             ChatHubV2Card {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     ChatHubV2Avatar(userAvatar, 50, userAvatarUri)
@@ -380,6 +384,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                         Text("好友", fontSize = 12.sp, color = QqMuted)
                                     }
                                 }
+                            }
                             }
                         }
                     }
