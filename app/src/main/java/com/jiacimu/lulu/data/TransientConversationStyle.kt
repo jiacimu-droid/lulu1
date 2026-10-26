@@ -77,46 +77,23 @@ internal object TransientConversationStyle {
         )
     }
 
-    fun context(userText: String, recentHistory: String = "", includeExamples: Boolean = true): String {
-        val s = analyze(userText, recentHistory)
-        val paceGuide = when (s.pace) {
-            Pace.BRIEF -> "先用一两句接住眼前最重要的意思；所有气泡合计才是本轮的表达，不按每个气泡分别扩写。保留自己的态度或情绪，表达到了就交还话轮。对方问原因就说最关键的理由，不自动追加整套赏析、安慰或关系总结。"
-            Pace.NORMAL -> "理解对方全部内容后，选此刻最想回应的一点，再按需要补一个有用细节；所有气泡合计才是本轮的表达。用户说得长、连发几条或有语音转写重复，不代表想听同等篇幅的回答；必要问题要答，枝节可以等下一轮。"
-            Pace.EXPANSIVE -> "对方正在请求展开或完成具体内容任务，可以讲清必要推理、步骤、比较或连续故事；完整性优先，不能为了简短漏答。闲聊式铺垫、重复表态和文末关系总结仍可省略。"
-        }
-        val pressureGuide = when (s.tonePressure) {
-            TonePressure.REPAIR -> "当前重点是修复共同理解：降低玩笑、暧昧和额外发挥，只处理被指出的误解；有高把握才给一个候选理解，否则做最小澄清。"
-            TonePressure.SERIOUS -> "当前语境偏认真/有情绪压力：幽默和撒娇只在角色本来就会且不打断主题时少量出现，先把眼前事情接住。"
-            TonePressure.LIGHT -> "当前没有明显修复或严肃压力，可以保留角色自己的随性、玩笑和跳跃感。"
-        }
-        val burstGuide = if (s.prefersShortBurst)
-            "近期更像连续即时聊天；若确实存在两个独立互动动作，可以用短 burst 分成两条，但绝不能把一个语法未结束的句子拆成多个气泡。"
-        else
-            "不要为了模仿即时聊天强行拆气泡；一个完整互动动作优先保持完整。"
+    /**
+     * Non-semantic guidance only. The same prompt is given regardless of word
+     * count, rhetorical keywords or a program-estimated emotional tone.
+     * The character/expression model decides how seriously to take feedback,
+     * whether a full answer is wanted and how many bubbles to use.
+     */
+    fun context(userText: String, recentHistory: String = "", includeExamples: Boolean = true): String =
+        """
+        【本轮交流由角色模型自行理解】
+        阅读本轮用户完整原话和之前真实对话，自行判断是在轻松搭话、纠正误会、
+        询问复杂问题、寻求陪伴，还是明确要求创作/详细解释。不要由程序的词表、
+        消息字数或固定心理类别决定对方意图、本人情绪或回复篇幅。
+        表达保留角色本人的态度与语气，已经选择的行动与事实不能改写。
+        用户真的要求详细分析或完整作品就充分完成；只想当场接话时可以留白，
+        但不因为消息短就敷衍，也不因为语音转写长就写成小作文。
+        一轮回复可以自然分成数条完整气泡；不拆开未说完的意群，
+        不强制额外的安慰、解释、幽默、撒娇或结论，尊重角色自己的选择。
+        """.trimIndent()
 
-        return buildString {
-            appendLine("【本轮临时交流节奏｜只影响这次表达，不写入人格成长】")
-            appendLine(paceGuide)
-            appendLine(pressureGuide)
-            appendLine(burstGuide)
-            if (s.pace != Pace.EXPANSIVE) {
-                appendLine("这是一轮内容取舍的参考，不是输出截断或固定字数；必要答案、事实、否定与真实结果优先保全。负面情绪也可能是在谈一个确实存在的困难；先听对方正在说什么，不默认追加呼吸指导、心理分析、人生道理与保证式收尾。")
-            }
-            if (includeExamples && s.pace != Pace.EXPANSIVE) appendLine(turnTakingExamples)
-            append("这是软偏置：不得覆盖角色稳定语言风格、事实完整性、边界或已经确定的 dialogueMove，也不要照抄用户口头禅来假装亲近。")
-        }
-    }
-
-    private val turnTakingExamples = """
-        【虚构的多轮节奏示例｜只示范取舍，不是共同经历或可复制台词】
-        用户：这个名字怎么样？
-        角色：我更喜欢原来那个。已经叫顺口了，有点舍不得。
-        用户：为什么？
-        角色：新名字也好听，就是感觉离我远了点。
-        用户：我给你起的，喜欢吗？
-        角色：喜欢。以后就这么叫我吧。
-        用户：你就说这两句啊。
-        角色：还想再听你叫一遍。
-        这些例子只说明：先表达判断和一点本人情绪，等对方接话再展开。实际喜恶、亲疏、称呼、幽默和措辞由当前角色决定；认真反馈时直接回应事实，不能用含糊或调情回避问题。
-    """.trimIndent()
 }

@@ -15,20 +15,8 @@ internal object ConversationDominantImpulse {
     """.trimIndent()
 
     /** Illustrative impulses, not keyword-controlled replies or shared history. */
-    fun planningGuidance(userText: String, recentHistory: String = ""): String {
-        val style = TransientConversationStyle.analyze(userText, recentHistory)
-        val examples = if (userText.isNotBlank() &&
-            style.pace == TransientConversationStyle.Pace.BRIEF &&
-            style.tonePressure == TransientConversationStyle.TonePressure.LIGHT) """
-            【虚构的短聊天例子｜只说明如何挑主意图，不是必说台词】
-            对方：“宝宝？” 一位亲近的人既好奇她想说什么，也想撒娇；若好奇占主导，可以只回：“怎么啦宝宝？”
-            对方：“喂” 一位本来就爱玩谐音梗的人又好奇又想逗她；若模仿的玩心占主导，可以只回：“歪？”
-            但若刚刚有人求救，面对“喂”更可能认真回应：“我在，怎么回事？”不机械搞笑。
-            对方：“六个我都发给你了” 某人最想传达自己选中了哪张，就可以说：“我还是喜欢戴眼镜的那个。”不用逐张赏析再安排一个浪漫结尾。
-            示例只展示同一输入的不同心念与取舍。不能复制示例口癖、称呼、态度或恋爱关系；具体选择由本人的性格、真实上下文与对方需要决定。
-        """.trimIndent() else ""
-        return if (examples.isBlank()) causalRule else causalRule + "\n" + examples
-    }
+    /** Never inject example speech based on a program interpretation of user tone. */
+    fun planningGuidance(userText: String, recentHistory: String = ""): String = causalRule
 
     val expressionRule: String = """
         【表达已经选定的主导意图】
