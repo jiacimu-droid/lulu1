@@ -208,34 +208,43 @@ internal object ResidentDailyDecision {
         // Failures remain visible as due; a stopped worker cannot silently buy another call.
         if (prefs(app).getBoolean(key, false)) return false
         if (!prefs(app).edit().putBoolean(key, true).commit()) return false
+        CharacterPhoneInbox.initialize(app)
+        val pending = ResidentSocialMailbox.pendingIncoming(plan.characterId)
+        val unread = CharacterPhoneInbox.unreadMoments(plan.characterId)
         val proposedArgs = runCatching { JSONObject(plan.activityArgs) }.getOrDefault(JSONObject())
         val now = Instant.now()
         val response = LuluAiServices.gateway.generate(
             characterId = plan.characterId,
-            facts = decisionFacts(native, now) + "\n" +
+            facts = decisionFacts(native, now, pending, unread) + "\n" +
                 "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
                 "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}。" +
                 "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。",
             instruction = """
-                你是${native.name}。你本人预先安排的一项真实生活活动已经到点。
-                只根据此刻真实世界状态和本人意愿，自由选择执行、改期或取消。不是为了打卡。
+                你是${native.name}。此刻你从休眠中醒来，先感知自己的地点、身体、到期活动和手机里的未读动态、聊天消息、好友申请，再选择行为。
+                你本人预先安排的一项真实生活活动已经到点，它是当前优先要复议的原计划；看手机不等于完成、撤销或放弃它。
+                根据本人意愿可以执行、改期、取消或等待，也可以在同一次决定额外选多个真实生活行动，形成独立回执。
                 如果执行，只能选原定合法工具=${plan.activityAction}；从预选参数和当前事实给出真正可执行的 args。
                 私信必须是真实认识的人，面对面互动必须实际同场；对方没有回答不算聊过，去过地点不等于已经见面。
                 行动后由工具留下独立真实回执，禁止自行宣告结果或替另一人说话。
-                只输出 JSON，例如：
-                {"choice":"execute|reschedule|cancel|wait","args":{},"dueAt":"改期时新的带偏移ISO8601时间","reason":"简短真实理由"}
-                "wait" 只是保留尚未完成的日程，并不宣称执行成功。
+                一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
+                原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|play_solo_game|digital_world_action","args":{}}]。
+                如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
+                不能在附加步骤传 planId 或冒充执行原计划；对方未同意好友前不许称已添加成功。
+                只输出JSON：{"choice":"execute|reschedule|cancel|wait","args":{},"dueAt":"改期时新的ISO8601时间","reason":"本人理由","steps":[]}。
+                "wait"只是让原日程保持未完成；原计划是否完成由其真实工具回执单独核验。
             """.trimIndent(),
             source = "原住民个人日程到点", title = "${native.name} · ${plan.title.take(48)}",
             connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
-            maxTokens = 700,
+            maxTokens = 1_300,
         ).onFailure { error ->
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}的到点决策失败",
                 message = error.message.orEmpty().take(180))
         }.getOrNull() ?: return false
         val choice = response.text.let(ModelStructuredOutput::objectOrNull) ?: return false
-        return when (choice.optString("choice")) {
+        val wanted = choice.optString("choice")
+        if (wanted !in setOf("execute", "reschedule", "cancel", "wait")) return false
+        val originalHandled = when (wanted) {
             "execute" -> {
                 // When the model explicitly chooses to execute but leaves args
                 // unchanged, reuse its own saved proposal; live ToolRouter still
@@ -263,8 +272,18 @@ internal object ResidentDailyDecision {
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
                 choice.optString("reason"), Instant.now())
+            "wait" -> true // still due, never count as performed
             else -> false
         }
+        executeWakeSteps(app, plan.characterId, choice,
+            "native-wake-${plan.id}-${plan.dueAt.epochSecond}")
+        check(CharacterPhoneInbox.acknowledge(plan.characterId, unread.map { it.id })) {
+            "手机动态已参与感知但未读状态未保存"
+        }
+        pending.lastOrNull()?.let {
+            check(ResidentSocialMailbox.acknowledgeIncoming(plan.characterId, it.id))
+        }
+        return originalHandled
     }
 
     /** Optional leisure choices are bounded by real public locations. */
