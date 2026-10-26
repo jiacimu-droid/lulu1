@@ -37,15 +37,18 @@ internal object CharacterLifeFollowThroughStore {
     }
 
     private fun save(characterId: String, records: List<JSONObject>) {
-        // Preserve a handful of significant unresolved lived experiences even
-        // if many harmless ambient moments arrive later.
-        val protectedIds = records.filter { it.optBoolean("significant") &&
-            (it.optString("shareStatus") !in setOf("shared", "released") ||
-                it.optString("curiosityStatus") !in setOf("explored", "released"))
-        }.takeLast(6).map { it.optString("id") }.toSet()
-        val retained = records.filter { it.optString("id") !in protectedIds }
-            .takeLast(MAX_EVENTS - protectedIds.size) +
-            records.filter { it.optString("id") in protectedIds }
+        // A model-authored decision to hold a wish survives the 24-item
+        // ambient working window. Only non-committed background opportunities
+        // may rotate out of this compact store; source truth stays in timeline.
+        val protected = records.filter {
+            it.optString("shareStatus") == "held" ||
+                (it.optBoolean("significant") &&
+                    (it.optString("shareStatus") !in setOf("shared", "released") ||
+                        it.optString("curiosityStatus") !in setOf("explored", "released")))
+        }
+        val ids = protected.map { it.optString("id") }.toSet()
+        val retained = records.filterNot { it.optString("id") in ids }
+            .takeLast(MAX_EVENTS) + protected
         prefs?.edit()?.putString("character:$characterId", JSONArray().apply {
             retained.sortedBy { it.optString("occurredAt") }.forEach(::put)
         }.toString())?.apply()
@@ -118,7 +121,8 @@ internal object CharacterLifeFollowThroughStore {
             val created = runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()
             created != null && !created.isAfter(now) &&
                 (Duration.between(created, now).toDays() <= 7 ||
-                    item.optBoolean("significant")) &&
+                    item.optBoolean("significant") ||
+                    item.optString("shareStatus") == "held") &&
                 (item.optString("shareStatus") !in setOf("shared", "released") ||
                     item.optString("curiosityStatus") !in setOf("explored", "released"))
         }
@@ -225,10 +229,10 @@ internal object CharacterLifeFollowThroughStore {
             opportunities.forEach { item ->
                 appendLine("- experienceId=${item.optString("id")}；已证实发生=${item.optString("channel")}：${item.optString("fact")}")
                 val sharing = when (item.optString("shareStatus")) {
-                    "held" -> "之前想分享但还没发出去，可重新决定告诉用户、发公开朋友圈或放下"
+                    "held" -> "之前想分享但还没发出去，可重新决定告诉用户、发好友可见朋友圈或放下"
                     "shared" -> "已分享，勿重复"
                     "released" -> "已经决定不分享，除非之后有确切的新想法，否则不要重新催促"
-                    else -> "可以自己决定是否想分享给用户/公开朋友圈/群友，亦可不分享"
+                    else -> "可以自己决定是否想分享给用户/好友可见朋友圈/群友，亦可不分享"
                 }
                 appendLine("  分享：$sharing；好奇探索：${when (item.optString("curiosityStatus")) {
                     "explored" -> "已有真实行动回执"
@@ -240,8 +244,8 @@ internal object CharacterLifeFollowThroughStore {
                 }
             }
             appendLine("以上是曾经真实发生的经历；事件是否仍持续，必须以当前程序世界状态为准。旧的蟑螂可能已被处理，旧阅读也不能算刚读到新章节。")
-            appendLine("选择普通私聊、公开朋友圈(moment)和群聊(group_message)是不同社交意图。公开朋友圈不是只供重大通报的稀有动作；生活趣事、吐槽、惊讶、阅读中真正触动的细节都可能值得发。不要每件事必发，也不要仅因没有用户未读消息就放弃本人的分享欲。")
-            appendLine("如本次实际行动是在回应其中一段真实经历，填写对应 experienceId；如果暂时想分享但未行动，可填 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held|released\",\"why\":\"私人理由\",\"intensity\":0到100可选}。多个未分享的真实经历能积累分享冲动；是否和主人私聊、公开发圈、和实际群友交流或暂时不说，仍由自己决定。念头不是发送回执，只有执行成功才记录已分享。")
+            appendLine("选择普通私聊、好友可见朋友圈(moment)和群聊(group_message)是不同社交意图。好友可见朋友圈不是只供重大通报的稀有动作；生活趣事、吐槽、惊讶、阅读中真正触动的细节都可能值得发。不要每件事必发，也不要仅因没有用户未读消息就放弃本人的分享欲。")
+            appendLine("如本次实际行动是在回应其中一段真实经历，填写对应 experienceId；如果暂时想分享但未行动，可填 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held|released\",\"why\":\"私人理由\",\"intensity\":0到100可选}。多个未分享的真实经历能积累分享冲动；是否和主人私聊、向好友发圈、和实际群友交流或暂时不说，仍由自己决定。念头不是发送回执，只有执行成功才记录已分享。")
         }.trim()
     }
 
