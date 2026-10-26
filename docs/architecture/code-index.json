@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T07:00:45.482634+00:00",
-  "commit": "3f1f9c546be02af5bec6fc8babcee81558c5c7b2",
+  "generatedAt": "2026-10-26T07:01:12.292574+00:00",
+  "commit": "9514924af0ee297a9ef1d876fb67801a481c9b12",
   "branch": "main",
-  "sourceFingerprint": "79f74fd13f701141c34be823bab040c1edac4b0431220669237aafde9c524760",
+  "sourceFingerprint": "e2b4acb0dcd72e3bd594c92d61bd97618b350eb9fc2f731e95c65e3f3a166a4e",
   "summary": {
     "files": 926,
-    "lines": 183476,
+    "lines": 183470,
     "symbols": 2707
   },
   "symbolIndex": {
@@ -31003,8 +31003,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt",
-      "lines": 73,
-      "sha256": "2d56abe41783bd16710a4f93532acce07e1e4eafbdb4478e9d120398e10c3773",
+      "lines": 67,
+      "sha256": "1a6aef6611f5e535aeeae7a30045f2158b0c6d775870db131db45f08fb0f381d",
       "symbols": [
         {
           "name": "GoalFollowUpPolicyTest",
