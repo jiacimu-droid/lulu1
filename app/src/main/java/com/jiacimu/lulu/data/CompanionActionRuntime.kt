@@ -1257,6 +1257,10 @@ internal object OrderedCharacterActions {
         userText: String = "",
         explicitScreenRequest: Boolean = false,
         autonomousLifeTurn: Boolean = false,
+        // An accepted long-running turn may become stale while a newer user
+        // bubble arrives. Stop only its NOT-YET-STARTED steps; the next regular
+        // role decision sees the new message and the already durable receipts.
+        shouldDeferRemaining: (() -> Boolean)? = null,
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1265,6 +1269,14 @@ internal object OrderedCharacterActions {
         var anyAccepted = false
         var anyCompleted = false
         for (index in 0 until steps.length()) {
+            if (shouldDeferRemaining?.invoke() == true) {
+                for (pending in index until steps.length()) {
+                    val name = steps.optJSONObject(pending)?.let(
+                        AutonomousActionWireProtocol::normalizeStep)?.optString("tool").orEmpty()
+                    notes += "第${pending + 1}步${name.take(60)}暂缓：出现更新的用户消息，需由同一角色重新判断；此步没有执行回执"
+                }
+                break
+            }
             val step = steps.optJSONObject(index)
             if (step == null) {
                 notes += "第${index + 1}步未执行：动作格式无效"
