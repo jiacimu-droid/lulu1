@@ -101,6 +101,27 @@ class CharacterExpressionGuideTest {
         assertFalse(prompt.contains("每条不超过"))
     }
 
+    @Test fun everydayChatRhythmIsAReferenceNotAReplyQuota() {
+        val online = proactiveDecisionInstruction("rhythm-test-role", directPrivateChat = true)
+        val foreground = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val repair = CharacterExpressionGuide.forGeneration("聊天表达自然度修复")
+        listOf(online, foreground, renderer, repair).forEach { prompt ->
+            assertTrue(prompt.contains("日常闲聊的常见节奏"))
+            assertTrue(prompt.contains("一到三句"))
+            assertTrue(prompt.contains("不是每轮必须达到或不得超过"))
+            assertTrue(prompt.contains("具体节奏由本人个性"))
+            assertTrue(prompt.contains("复杂问题"))
+            assertEquals(1, prompt.split("【日常闲聊的常见节奏").size - 1)
+        }
+        val autonomous = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)
+        val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
+        assertFalse(autonomous.contains("【日常闲聊的常见节奏"))
+        assertFalse(phone.contains("【日常闲聊的常见节奏"))
+        assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每轮不得超过三句"))
+        assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每条不超过"))
+    }
+
     @Test fun oneSpeakerIdentityRuleSurvivesEveryDeliveryChannel() {
         val channels = CharacterSpeechChannel.values().toList()
         assertEquals(6, channels.size)
