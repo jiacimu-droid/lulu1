@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:01:10.383385+00:00",
-  "commit": "2300a399c9aa5462a6d3a16e243c4e979ea0e0f3",
+  "generatedAt": "2026-10-26T04:10:22.019772+00:00",
+  "commit": "822f8f19ca361d0f6783079747191c3ab966eda2",
   "branch": "main",
-  "sourceFingerprint": "267e5b461d3101b841bb7234338a142753da8df9d54aab9a63651983deec3ffa",
+  "sourceFingerprint": "0ac0956c3a7cf3f0a47c45dd61b91fffd13c63f00ac803f049a65916745d1137",
   "summary": {
     "files": 921,
     "lines": 182104,
@@ -30172,7 +30172,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
       "lines": 778,
-      "sha256": "ebebbce46c647678eee512d43d62cd9e7399817ec53fc338337d1106f57ed0e2",
+      "sha256": "f00b6040b7c64fe4e4b792f430370aa6d64894f04f861e62f78d1b6c78783b70",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -30385,7 +30385,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
       "lines": 144,
-      "sha256": "33b4b61aafa6fbbbf4fb6d4204b4dc72c1d24716b2b5224de2c3f7b6eed3a734",
+      "sha256": "76c5cbc5c1bfe1c5c5a8c34fc44cb0c4b8e7d444a6da51fa4e6597001cd06f83",
       "symbols": [
         {
           "name": "CharacterMotiveStateTest",
