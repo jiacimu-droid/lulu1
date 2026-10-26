@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:42:52.876921+00:00",
-  "commit": "707085286263ad658b653397bbbf34803732620e",
+  "generatedAt": "2026-10-26T05:43:55.182136+00:00",
+  "commit": "f73ffeb14ab72773330cf23feb0aeb84cbdc76a8",
   "branch": "main",
-  "sourceFingerprint": "ee61c181fef55db09a71548683d449d4f61678eb5307c213a4fe3402f9c33735",
+  "sourceFingerprint": "b58809703aa39cd6b6ca1bac153d00d4494059ad9ed3c2e2e48c1a8e3dae3615",
   "summary": {
     "files": 925,
-    "lines": 182989,
+    "lines": 182991,
     "symbols": 2705
   },
   "symbolIndex": {
@@ -195,7 +195,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 78
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -20320,8 +20320,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-      "lines": 85,
-      "sha256": "78c879e16479a1646af0112651b117aff415238cfcbdcabb75603991f4309c28",
+      "lines": 87,
+      "sha256": "e8322ae99a00f85d2582f6ce150bd7bf7074c4ca5a7736a1caa6b5e950429593",
       "symbols": [
         {
           "name": "visibleConversation",
@@ -20333,7 +20333,7 @@
         },
         {
           "name": "cancel",
-          "line": 78
+          "line": 80
         }
       ]
     },
