@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.SharedPreferences
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.*
 import kotlinx.coroutines.runBlocking
@@ -62,6 +64,46 @@ class CharacterOriginResetTest {
             field.isAccessible = true
             (field.get(SharedExperienceTimeline) as? android.database.sqlite.SQLiteOpenHelper)?.close()
             field.set(SharedExperienceTimeline, null)
+        }
+    }
+
+    @Test fun switchingApplicationContextsRebindsProfileReadsAndWritesTogether() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        val profileId = "rebind-profile-test"
+        val prefsA = app.getSharedPreferences("test_digital_life_profiles_a", Context.MODE_PRIVATE)
+        val prefsB = app.getSharedPreferences("test_digital_life_profiles_b", Context.MODE_PRIVATE)
+        prefsA.edit().clear().commit()
+        prefsB.edit().clear().commit()
+        fun boundContext(store: SharedPreferences): Context = object : ContextWrapper(app) {
+            override fun getApplicationContext(): Context = this
+            override fun getSharedPreferences(name: String?, mode: Int): SharedPreferences = store
+        }
+        val contextA = boundContext(prefsA)
+        val contextB = boundContext(prefsB)
+        val firstBirth = Instant.parse("2026-08-07T02:00:00Z")
+        val secondBirth = Instant.parse("2026-10-07T13:00:00Z")
+        try {
+            SharedExperienceTimeline.initialize(app)
+            DigitalLifeProfileStore.initialize(contextA)
+            DigitalLifeProfileStore.registerNewLife(profileId, "角色", "用户", firstBirth)
+            assertTrue(prefsA.getString("profiles_v2", "[]")!!.contains(profileId))
+
+            DigitalLifeProfileStore.initialize(contextB)
+            assertFalse(DigitalLifeProfileStore.isResolved(profileId))
+            DigitalLifeProfileStore.registerNewLife(profileId, "角色", "用户", secondBirth)
+            assertEquals(secondBirth, DigitalLifeProfileStore.birthAt(profileId))
+            assertTrue(prefsB.getString("profiles_v2", "[]")!!.contains(secondBirth.toString()))
+            assertFalse(prefsA.getString("profiles_v2", "[]")!!.contains(secondBirth.toString()))
+
+            DigitalLifeProfileStore.initialize(contextA)
+            assertEquals(firstBirth, DigitalLifeProfileStore.birthAt(profileId))
+            DigitalLifeProfileStore.initialize(contextB)
+            assertEquals(secondBirth, DigitalLifeProfileStore.birthAt(profileId))
+        } finally {
+            DigitalLifeProfileStore.initialize(app)
+            SharedExperienceTimeline.deleteCharacterEvents(profileId)
+            prefsA.edit().clear().commit()
+            prefsB.edit().clear().commit()
         }
     }
 
