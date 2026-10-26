@@ -371,6 +371,22 @@ object MomentsStore {
                 appendLine("作者：$authorName")
                 appendLine("作者类型：${if (post.authorType == MomentAuthorType.User) "用户" else "角色"}")
                 appendLine(momentContext(post))
+                val latest = mutablePosts.value.firstOrNull { it.id == post.id } ?: post
+                if (latest.comments.isNotEmpty() || latest.likedCharacterIds.isNotEmpty()) {
+                    appendLine("【已发生的好友可见互动｜不是你自己的决定】")
+                    val likerNames = latest.likedCharacterIds.map { liker ->
+                        if (liker == USER_COMMENTER_ID) UserProfileContext.displayLabel()
+                        else MigratedDomainStores.characters.get(liker).displayName
+                    }
+                    if (likerNames.isNotEmpty()) appendLine("目前点赞的人：" + likerNames.take(12).joinToString("、"))
+                    latest.comments.takeLast(8).forEach { comment ->
+                        val speaker = if (comment.characterId == USER_COMMENTER_ID)
+                            UserProfileContext.displayLabel()
+                        else MigratedDomainStores.characters.get(comment.characterId).displayName
+                        appendLine("- " + speaker + "：" + comment.content.take(260))
+                    }
+                    appendLine("你可以按本人的感受接其中一句、给原帖点赞评论或不互动；这些都是实有人物的公开留言，不代表你的感受。")
+                }
                 appendLine()
                 appendLine("【当前独立判断的角色】")
                 appendLine("characterId=${character.characterId}")
