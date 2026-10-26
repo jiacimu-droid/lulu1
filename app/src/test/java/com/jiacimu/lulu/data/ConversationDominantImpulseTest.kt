@@ -9,13 +9,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [29])
 class ConversationDominantImpulseTest {
-    @Test fun shortCasualCueExamplesIllustrateChoosingOneIntent() {
+    @Test fun lexicalCasualCueNeverInjectsCharacterLines() {
         val guide = ConversationDominantImpulse.planningGuidance("喂")
-        assertTrue(guide.contains("怎么啦宝宝？"))
-        assertTrue(guide.contains("歪？"))
-        assertTrue(guide.contains("玩心占主导"))
-        assertTrue(guide.contains("求救"))
-        assertTrue(guide.contains("不能复制示例口癖"))
+        assertTrue(guide.contains("主导交流动作"))
+        assertTrue(guide.contains("复杂求助"))
+        assertFalse(guide.contains("怎么啦宝宝？"))
+        assertFalse(guide.contains("歪？"))
+        assertEquals(guide, ConversationDominantImpulse.planningGuidance("求救"))
     }
 
     @Test fun seriousOrSubstantiveUserRequestsAreNotGivenCuteSamples() {
@@ -33,7 +33,7 @@ class ConversationDominantImpulseTest {
 
     @Test fun onlineChatUsesTheSameShortTurnSelectionGuidance() {
         val privateChat = privateConversationInstruction("宝宝？", "上条在讨论头像")
-        assertTrue(privateChat.contains("怎么啦宝宝？"))
+        assertFalse(privateChat.contains("怎么啦宝宝？"))
         assertTrue(privateChat.contains("主导交流动作"))
         assertTrue(privateChat.contains("text 会原样进入聊天气泡"))
     }
