@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T00:33:15.889540+00:00",
-  "commit": "c42e32cd09990a3d04a94024e3b8dfa138646ff2",
+  "generatedAt": "2026-10-26T00:34:39.812968+00:00",
+  "commit": "cd936ce323fec3c5886bbf7ba634af726fd0d05c",
   "branch": "main",
-  "sourceFingerprint": "aca1b5c0b084d2c82fbce25ff95ab02a9f3903394dfffdda6334c36bfe1f645f",
+  "sourceFingerprint": "54a383cf65b6e9eb294f872c999b681ade77db715c0767f96f03dbc4308641bc",
   "summary": {
     "files": 910,
-    "lines": 179323,
-    "symbols": 2679
+    "lines": 179183,
+    "symbols": 2678
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6692,12 +6692,6 @@
         "line": 13
       }
     ],
-    "hasValidAlarm": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-        "line": 67
-      }
-    ],
     "playChosenMusic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
@@ -6771,7 +6765,7 @@
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 225
+        "line": 136
       }
     ],
     "asJson": [
@@ -21077,16 +21071,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 170,
-      "sha256": "21ee789facf0873b6d8078ef2af707818dcb91e1e1042aaef70d3c275a07331a",
+      "lines": 118,
+      "sha256": "669bb9368e49f0961074e87cd19b9cb12342ae821c9b4763cd8489e144e04463",
       "symbols": [
         {
           "name": "handled",
           "line": 13
-        },
-        {
-          "name": "hasValidAlarm",
-          "line": 67
         }
       ]
     },
@@ -21241,8 +21231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 481,
-      "sha256": "224e3363cab8a2b2e460ccd0481ad70ead9a3a44733ca1b1bc3a5dbb4f313598",
+      "lines": 393,
+      "sha256": "535a1152f3f3f9442ec8a19e4dc537c820f94375937fd2eb5266d95987aa2058",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -21254,7 +21244,7 @@
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 225
+          "line": 136
         }
       ]
     },
