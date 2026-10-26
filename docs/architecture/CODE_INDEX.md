@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`db319c52ce7bd8b1eccfee3c771fe3d0dd1eeb11`
+- 基准提交：`a92520fe928c4a5d30c397e71f395f53c78dffd5`
 - 分支：`main`
 - 已索引文件：952
-- 已索引代码/文本行：188703
+- 已索引代码/文本行：188709
 - 已发现符号：2764
 
 | 文件 | 行数 | 符号数 |
@@ -208,7 +208,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 992 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 998 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
