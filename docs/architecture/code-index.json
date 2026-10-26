@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:57:41.810880+00:00",
-  "commit": "2c1f01569120cb53dc343b59da0b51ee6c20b695",
+  "generatedAt": "2026-10-26T02:08:50.772448+00:00",
+  "commit": "e82048d8287d8cea3aed1dd50f0063fd419f1e90",
   "branch": "main",
-  "sourceFingerprint": "3dfd81499e45d9324c48913de887578aab80ad55b38d90d5474afdbf9740b017",
+  "sourceFingerprint": "0322ef2a2ff92ce7e0c0c54bb587b3f24d2f50bdaafbee50d5673ab49184d575",
   "summary": {
     "files": 910,
-    "lines": 179245,
-    "symbols": 2674
+    "lines": 179246,
+    "symbols": 2675
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9309,13 +9309,19 @@
     "signed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-        "line": 22
+        "line": 21
+      }
+    ],
+    "contractIssue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
+        "line": 37
       }
     ],
     "permits": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-        "line": 39
+        "line": 42
       }
     ],
     "shouldUpdateVisibleState": [
@@ -23932,16 +23938,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-      "lines": 59,
-      "sha256": "db4a5c27cb53d06a841dbc09ba3cf905c4c434b94af9d0b4d560d1b004b66f87",
+      "lines": 52,
+      "sha256": "3b034445efd39897ad5363995a6c9599d8cf24827858d3e835ea7f9559543332",
       "symbols": [
         {
           "name": "signed",
-          "line": 22
+          "line": 21
+        },
+        {
+          "name": "contractIssue",
+          "line": 37
         },
         {
           "name": "permits",
-          "line": 39
+          "line": 42
         }
       ]
     },
@@ -30914,8 +30924,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
-      "lines": 82,
-      "sha256": "e7234f471f93fd2ded2c0bf076831fd40f57db216c2cc5812f16af2d87e113a4",
+      "lines": 90,
+      "sha256": "c376989f208c150d0545abe68ed7e8ab5a4a92a74b68f5a5c7580225bb445968",
       "symbols": [
         {
           "name": "OnlineContinuationPolicyTest",
