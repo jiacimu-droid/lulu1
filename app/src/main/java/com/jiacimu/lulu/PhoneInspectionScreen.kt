@@ -23,7 +23,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -118,8 +120,15 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val pinned = remember(actualRole, pinRevision) {
         prefs.getStringSet("pins:$actualRole", emptySet()).orEmpty().toSet()
     }
-    val mail = if (actualRole.isNotBlank()) ResidentSocialMailbox.historyForInspection(actualRole)
-        else emptyList()
+    val mailRevision by ResidentSocialMailbox.revisions.collectAsState()
+    var mailReady by remember { mutableStateOf(false) }
+    val mail by produceState<List<ResidentDirectMessage>>(
+        initialValue = emptyList(), actualRole, mailRevision, mailReady,
+    ) {
+        value = if (mailReady && actualRole.isNotBlank()) withContext(Dispatchers.IO) {
+            ResidentSocialMailbox.historyForInspection(actualRole)
+        } else emptyList()
+    }
     val threads = inspectedThreads(actualRole, allChats, mail, names)
         .sortedWith(compareByDescending<InspectedThread> { it.key in pinned }
             .thenByDescending(InspectedThread::updatedAt))
@@ -138,9 +147,12 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
     BackHandler { goBack() }
 
-    LaunchedEffect(Unit) {
-        ResidentSocialMailbox.initialize(context)
-        MomentFriendAccess.initialize(context)
+    LaunchedEffect(context) {
+        withContext(Dispatchers.IO) {
+            ResidentSocialMailbox.initialize(context)
+            MomentFriendAccess.initialize(context)
+        }
+        mailReady = true
     }
 
     Scaffold(
