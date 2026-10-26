@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:19:18.859724+00:00",
-  "commit": "80ac3c8933ba74d95066e21478422f2c6b0200ef",
+  "generatedAt": "2026-10-26T03:20:57.854490+00:00",
+  "commit": "04879a34613ed24163380d50f7245cab71b12bde",
   "branch": "main",
-  "sourceFingerprint": "aa2298338667c6ee8422a1b74e3d2efb7bfbcf140533466abbc9e1e8d1a72a34",
+  "sourceFingerprint": "e2936d52376e3cc13a864c637285747927f980ed89a7d1af36b61431ce856af8",
   "summary": {
-    "files": 917,
-    "lines": 180514,
-    "symbols": 2693
+    "files": 918,
+    "lines": 180947,
+    "symbols": 2695
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2860,6 +2860,34 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt",
         "line": 31
+      }
+    ],
+    "PhoneInspectionScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
+        "line": 95
+      }
+    ],
+    "goBack": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
+        "line": 131
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
+        "line": 198
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
+        "line": 97
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
+        "line": 108
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 283
       }
     ],
     "silenceMs": [
@@ -11156,24 +11184,6 @@
         "line": 225
       }
     ],
-    "goBack": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 198
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 97
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 108
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 283
-      }
-    ],
     "addPieces": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -17488,6 +17498,21 @@
         {
           "name": "isConfirmedSpeech",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
+      "lines": 433,
+      "sha256": "5ec3a2f7986f9c05a589c2d6e54d2b6a7f82ea218792b0d9074c1b368dd072eb",
+      "symbols": [
+        {
+          "name": "PhoneInspectionScreen",
+          "line": 95
+        },
+        {
+          "name": "goBack",
+          "line": 131
         }
       ]
     },
