@@ -99,9 +99,11 @@ internal object CharacterUnfinishedActionContext {
         // one *older* item a readable comparison slot rather than leaving it
         // buried below the freshest event in a long prompt. No new storage,
         // second model call, tool selection or artificial action obligation.
-        val recent = cues.first()
-        val independent = cues.drop(1).firstOrNull { it.kind != recent.kind }
-            ?: cues.drop(1).firstOrNull() ?: recent
+        // For small sets select() preserves chronological input order,
+        // while for large sets it puts newest first. Pick by the actual
+        // evidence timestamp, not the presentation order.
+        val independent = cues.minWithOrNull(compareBy<Cue> { it.at }.thenBy { it.id })
+            ?: cues.first()
         appendLine("【本轮可独立回看的旧主题】${independent.kind}：${independent.title}；引用ID=${independent.id}")
         appendLine("请把它和眼前的新消息、其他愿望独立比较一次：此刻是否仍想推进、是否已有结果、能否做一小步、是否更愿等待或放下？这是思考机会，不是要强行行动；当下真实求助优先，不必把私人比较念给用户听。")
         cues.forEach { appendLine(it.render()) }
