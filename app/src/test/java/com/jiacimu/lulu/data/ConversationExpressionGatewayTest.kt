@@ -55,7 +55,11 @@ class ConversationExpressionGatewayTest {
             assertEquals("writer-model", rendered.getString("model"))
             val system = rendered.getJSONArray("messages").getJSONObject(0).getString("content")
             assertTrue(system.contains("独立表达测试人"))
-            assertTrue(system.contains("已决定的意思与真实结果"))
+            // Non-dialogue facts are now delivered in the request's user
+            // message, while identity remains in system. Assert actual
+            // delivery instead of enforcing an obsolete prompt position.
+            assertTrue(rendered.getJSONArray("messages").toString()
+                .contains("已决定的意思与真实结果"))
             assertFalse(system.contains("【统一角色决策协议】"))
             generate("聊天表达渲染", CompanionContextMode.Isolated)
             scope.clear(scope.EXPRESSION)
