@@ -185,6 +185,59 @@ fun MigratedChatHubScreenV2(
     }
 }
 
+/** Shared QQ session card: both the owner and digital residents render the same component. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun ChatHubV2ConversationRow(
+    title: String, preview: String, updatedAt: java.time.Instant,
+    avatarText: String, avatarUri: String?, isGroup: Boolean,
+    pinned: Boolean, unreadCount: Int, statusText: String, statusOnline: Boolean,
+    onOpen: () -> Unit, onMore: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().combinedClickable(onClick = onOpen, onLongClick = onMore),
+        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
+        border = BorderStroke(1.dp, LuluColors.Border),
+        shape = RoundedCornerShape(22.dp),
+    ) {
+        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (isGroup) ChatHubV2GroupAvatar(title, avatarUri)
+            else ChatHubV2Avatar(avatarText, 50, avatarUri)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(title, fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (statusText.isNotBlank()) {
+                            Spacer(Modifier.width(7.dp))
+                            Text(statusText,
+                                color = if (statusOnline) Color(0xFF2A9D63) else LuluColors.Muted,
+                                fontSize = 10.sp, maxLines = 1)
+                        }
+                    }
+                    Text(updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
+                        color = LuluColors.Muted, fontSize = 11.sp)
+                }
+                Text(preview.ifBlank { "还没有消息，点开后开始聊天。" }, color = LuluColors.Muted,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (pinned) {
+                Spacer(Modifier.width(7.dp))
+                Icon(Icons.Outlined.PushPin, "已置顶",
+                    tint = LuluColors.Muted, modifier = Modifier.size(16.dp))
+            }
+            if (unreadCount > 0) {
+                Spacer(Modifier.width(7.dp))
+                Badge { Text(if (unreadCount > 99) "99+" else unreadCount.toString()) }
+            }
+            IconButton(onClick = onMore, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Outlined.MoreVert, "会话操作", modifier = Modifier.size(18.dp))
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
@@ -237,73 +290,28 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                 val privateOnline = onlineStates[conversation.characterId]?.isOnline() == true
                 val unreadCount = unreadCounts[conversation.id] ?: 0
                 Box {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().combinedClickable(
-                            onClick = {
-                                ChatUnreadStore.markRead(conversation.id,
-                                    MigratedDomainStores.chat.messages(conversation.id).value)
-                                MigratedDomainStores.chat.markConversationRead(conversation.id)
-                                onOpenConversation(conversation.id)
-                            },
-                            onLongClick = { menuConversationId = conversation.id },
-                        ),
-                        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-                        border = BorderStroke(1.dp, LuluColors.Border),
-                        shape = RoundedCornerShape(22.dp),
-                    ) {
-                        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            if (group == null) {
-                                ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
-                            } else {
-                                ChatHubV2GroupAvatar(group.name, group.avatarUri)
-                            }
-                            Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            group?.name ?: nickname.ifBlank { conversation.title.ifBlank { "未命名角色" } },
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 17.sp,
-                                        )
-                                        Spacer(Modifier.width(7.dp))
-                                        Text(
-                                            if (group == null) {
-                                                if (privateOnline) "在线" else "离线"
-                                            } else {
-                                                "$onlineCount 人在线"
-                                            },
-                                            color = if (group == null && privateOnline || group != null && onlineCount > 0) Color(0xFF2A9D63) else LuluColors.Muted,
-                                            fontSize = 10.sp,
-                                        )
-                                    }
-                                    Text(
-                                        conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
-                                        color = LuluColors.Muted,
-                                        fontSize = 11.sp,
-                                    )
-                                }
-                                Text(
-                                    decodeQqXhsSharedNote(conversation.lastMessage)?.let { "小红书分享 · ${it.title}" }
-                                        ?: conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
-                                    color = LuluColors.Muted,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                            if (conversation.pinned) {
-                                Spacer(Modifier.width(7.dp))
-                                Icon(Icons.Outlined.PushPin, "已置顶", tint = LuluColors.Muted, modifier = Modifier.size(16.dp))
-                            }
-                            if (unreadCount > 0) {
-                                Spacer(Modifier.width(7.dp))
-                                Badge { Text(if (unreadCount > 99) "99+" else unreadCount.toString()) }
-                            }
-                            IconButton(onClick = { menuConversationId = conversation.id }, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Outlined.MoreVert, "会话操作", modifier = Modifier.size(18.dp))
-                            }
-                        }
-                    }
+                    ChatHubV2ConversationRow(
+                        title = group?.name ?: nickname.ifBlank { conversation.title.ifBlank { "未命名角色" } },
+                        preview = decodeQqXhsSharedNote(conversation.lastMessage)
+                            ?.let { "小红书分享 · ${it.title}" } ?: conversation.lastMessage,
+                        updatedAt = conversation.updatedAt,
+                        avatarText = character.displayName.take(1).ifBlank { "角" },
+                        avatarUri = if (group == null) character.avatarUri else group.avatarUri,
+                        isGroup = group != null,
+                        pinned = conversation.pinned,
+                        unreadCount = unreadCount,
+                        statusText = if (group == null) {
+                            if (privateOnline) "在线" else "离线"
+                        } else "$onlineCount 人在线",
+                        statusOnline = if (group == null) privateOnline else onlineCount > 0,
+                        onOpen = {
+                            ChatUnreadStore.markRead(conversation.id,
+                                MigratedDomainStores.chat.messages(conversation.id).value)
+                            MigratedDomainStores.chat.markConversationRead(conversation.id)
+                            onOpenConversation(conversation.id)
+                        },
+                        onMore = { menuConversationId = conversation.id },
+                    )
                     DropdownMenu(expanded = menuConversationId == conversation.id, onDismissRequest = { menuConversationId = null }) {
                         DropdownMenuItem(
                             text = { Text(if (conversation.pinned) "取消置顶" else "置顶") },
