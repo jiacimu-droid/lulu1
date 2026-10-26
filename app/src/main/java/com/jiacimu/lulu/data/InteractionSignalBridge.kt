@@ -43,6 +43,39 @@ internal object InteractionSignalBridge {
         append(" 此为设备观察，不证明用户真的沉默或发生了任何心理变化。")
     }
 
+    /**
+     * Canonical user-facing activity receipt. Structured source identifies the actual
+     * application operation; the role is not told that the user slept or asked for it.
+     * Re-entering the same mode within one call is one session, not extra habit evidence.
+     */
+    fun recordUserActivity(characterId: String, callId: String, activity: String,
+        phase: String, now: Instant = Instant.now()) {
+        if (characterId.isBlank() || callId.isBlank() ||
+            !Regex("[a-z0-9-]{1,48}").matches(activity) ||
+            phase !in setOf("start", "end")) return
+        val id = "interaction-user-activity-$callId-$activity-$phase"
+        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
+        SharedExperienceTimeline.record(
+            eventId = id,
+            characterId = characterId,
+            channel = "电话互动",
+            speaker = "实际通话操作",
+            content = if (phase == "start")
+                "本次已接通的电话真实开启了$activity 活动模式；这不证明主人已经睡着，也不说明由谁提议。"
+            else "本次已接通电话的$activity 活动模式已结束；不推断主人的睡眠状态。",
+            occurredAt = now,
+            triggerExtraction = false,
+            sessionId = callId,
+            source = "${UserRoutinePatterns.SOURCE_PREFIX}$activity:$phase",
+            evidenceKind = EventEvidenceKind.Observation,
+        )
+        if (phase == "start" &&
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) {
+            // Reuse the existing batched, deferred growth pass instead of paying per event.
+            CharacterDevelopmentRuntime.request(characterId)
+        }
+    }
+
     fun recordCallStart(characterId: String, callId: String, incomingReason: String, now: Instant = Instant.now()) {
         val id = "interaction-call-start-$callId"
         if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
