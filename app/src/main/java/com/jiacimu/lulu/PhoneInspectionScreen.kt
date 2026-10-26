@@ -104,9 +104,6 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val posts by MomentsStore.posts.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val friendsRevision by MomentFriendAccess.revisions.collectAsState()
-    val roleMomentUnread = remember(actualRole, posts, friendsRevision, mailReady) {
-        CharacterPhoneInbox.unreadCount(actualRole)
-    }
     val names = remember(people) { people.mapValues { it.value.displayName } }
     val roleOptions = remember(people) {
         people.values.sortedWith(
@@ -138,6 +135,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
     val mailRevision by ResidentSocialMailbox.revisions.collectAsState()
     var mailReady by remember { mutableStateOf(false) }
+    val roleMomentUnread = remember(actualRole, posts, friendsRevision, mailReady) {
+        CharacterPhoneInbox.unreadCount(actualRole)
+    }
     val mail by produceState<List<ResidentDirectMessage>>(
         initialValue = emptyList(), actualRole, mailRevision, mailReady,
     ) {
