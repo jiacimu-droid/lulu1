@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:24:24.601085+00:00",
-  "commit": "705f21888d3bf5f8c4842c2efebe33649866da04",
+  "generatedAt": "2026-10-26T03:24:48.780534+00:00",
+  "commit": "09be3ea4844245130d1d26b5dad2cbd6fe065802",
   "branch": "main",
-  "sourceFingerprint": "b75986c8b6351ef8e3f70b821cae7e4f3505e2ead2f6c9ff5c3bc43531a2819d",
+  "sourceFingerprint": "778e2814c6713efb1c60666656ea84c87da9367350a8400d986480ee03e54e75",
   "summary": {
-    "files": 918,
-    "lines": 181077,
-    "symbols": 2695
+    "files": 919,
+    "lines": 181147,
+    "symbols": 2696
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13338,6 +13338,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt",
         "line": 7
+      }
+    ],
+    "PhoneInspectionProjectionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt",
+        "line": 13
       }
     ],
     "PhoneMicSegmentPolicyTest": [
@@ -29159,6 +29165,17 @@
         {
           "name": "PhoneCallTranscriptFilterTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt",
+      "lines": 70,
+      "sha256": "d28f132338bd6b8de23520d2f1e7cdda39bcdf108e74ceb1d4b2f8d091f5a25f",
+      "symbols": [
+        {
+          "name": "PhoneInspectionProjectionTest",
+          "line": 13
         }
       ]
     },
