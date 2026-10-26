@@ -268,11 +268,6 @@ object LuluDeviceToolBridge {
         }
         val commitmentEvidenceIds = userEvidenceIds.ifEmpty { commitmentEvidence.map { it.id } }
         val commitmentSessionId = commitmentEvidence.lastOrNull()?.sessionId.orEmpty()
-        if (groundingEvidenceId.isNotBlank() && !rewriting) {
-            com.jiacimu.lulu.data.ConversationGroundingEngine.beforeTurn(
-                characterId, interactionKey, groundingEvidenceId, userText,
-            )
-        }
         val groundingContext = com.jiacimu.lulu.data.ConversationGroundingEngine.context(
             characterId, interactionKey,
         )
@@ -395,13 +390,7 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.DialogueMoveEngine.plannerConstraint(userText) else ""
         val phoneConversationConstraint = if (!separateExpression && userText.isNotBlank()) buildString {
             appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
-            if (com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText)) {
-                appendLine("【电话中的理解修复】对方正在指出你刚才没听懂。先局部修正理解，不要把这一拍变成长篇道歉、多个猜测、撒娇或连续追问；没有高把握时只做最小澄清。")
-            }
-            val naturalnessCue = com.jiacimu.lulu.data.CharacterInitiativeRuntime.detect(userText)
-            if (naturalnessCue != null) {
-                appendLine("对方已经显露出可能值得回应的需要，不要用“那我该做什么/你想让我做什么”把自己的判断责任原样退回去；按本人性格先作一个自然的小判断或回应。")
-            }
+            appendLine("请本人依据全部语境判断，对方究竟是在纠正、轻松聊天、表达需要还是讨论别人的经历；如有误解应当自己修复，不由程序关键词断定她的意思。")
         }.trim() else ""
         val decisionFormatRule = if (rewriting) """
             这是已有聊天的重新回复：不是新的用户消息。保留全部原本人格、记忆、判断、主观心声和表达两阶段架构，
@@ -1355,11 +1344,9 @@ object LuluDeviceToolBridge {
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
-                    maxTokens = when (com.jiacimu.lulu.data.TransientConversationStyle.analyze(userText, history).pace) {
-                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.BRIEF -> 600
-                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.NORMAL -> 950
-                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.EXPANSIVE -> 1_400
-                    },
+                    // Model chooses how much is necessary; user keyword/length
+                    // must never silently reduce the expression token budget.
+                    maxTokens = 1_400,
                     connectionOverride = connection,
                     conversation = expressionConversation,
                     memoryRequest = UnifiedMemoryRequest(
