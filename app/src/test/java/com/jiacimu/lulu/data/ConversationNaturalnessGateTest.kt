@@ -4,6 +4,50 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ConversationNaturalnessGateTest {
+    @Test fun onlinePrivateComfortGetsTheSameReviewAsForegroundConversation() {
+        val screenshotLike = listOf(
+            "怪不得刚才连打视频都懒得开口，原来是一直硬撑着没合眼。",
+            "早上起来就累，说明电量根本就没有充满，脑子转不动太正常了。",
+            "这时候硬逼着自己背书也是白费劲，别硬扛了。",
+            "赶紧把手机锁屏扔一边，被子拉好。",
+            "先踏踏实实睡一觉把精力补回来，学习的事等你睡醒了我们再算账。",
+        )
+        val review = ConversationNaturalnessGate.onlinePrivateReview(
+            "我现在要睡了", screenshotLike, hasVoice = false, hasLinkedActions = false)
+        assertNotNull(review)
+        assertTrue(review!!.needsRerender)
+        // Five bubbles are NOT evidence of five distinct conversational moves.
+        assertNotNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我现在要睡了", listOf(screenshotLike.joinToString("")),
+            hasVoice = false, hasLinkedActions = false))
+        val natural = listOf("困了还逞强？", "快睡，醒了再说。")
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我现在要睡了", natural, hasVoice = false, hasLinkedActions = false))
+        assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
+            "我现在要睡了", screenshotLike, natural, review,
+            ConversationNaturalnessGate.assess("我现在要睡了", natural)))
+    }
+
+    @Test fun onlineReviewDoesNotRewriteVoiceOrLinkedActionsOrQuoteTokens() {
+        val verbose = listOf("今天我想好好跟你谈谈这件事，以及所有想法和每一个背后的原因。".repeat(7))
+        assertNotNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我累了", verbose, hasVoice = false, hasLinkedActions = false))
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我累了", verbose, hasVoice = true, hasLinkedActions = false))
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我累了", verbose, hasVoice = false, hasLinkedActions = true))
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我累了", listOf("⟪QUOTE:real-id⟫" + verbose.first()),
+            hasVoice = false, hasLinkedActions = false))
+    }
+
+    @Test fun requestedLongExplanationDoesNotGetShortChatGate() {
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "请详细解释并分析这段代码的原因和修复步骤",
+            listOf("这里需要把实际原因和边界交代清楚。".repeat(20)),
+            hasVoice = false, hasLinkedActions = false))
+    }
+
     @Test fun screenshotComfortIsOneOverfilledTurnRegardlessOfBubbleLayout() {
         val bubbles = ConversationNaturalnessFixtures.screenshotComfort
         listOf(bubbles, listOf(bubbles.joinToString(""))).forEach { layout ->
