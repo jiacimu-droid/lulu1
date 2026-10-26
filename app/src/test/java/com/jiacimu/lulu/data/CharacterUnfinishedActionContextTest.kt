@@ -132,6 +132,8 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(research.detail.contains("activityArgs="))
         assertTrue(research.detail.contains(goal.getString("id")))
         val rendered = CharacterUnfinishedActionContext.render(choices)
+        assertTrue(rendered.contains("【本轮可独立回看的旧主题】"))
+        assertTrue(rendered.contains("这是思考机会，不是要强行行动"))
         assertTrue(rendered.contains("tool=plan_personal_activity"))
         assertTrue(rendered.contains("motiveId放在args内"))
         assertTrue(rendered.contains("先检查已有日程"))
