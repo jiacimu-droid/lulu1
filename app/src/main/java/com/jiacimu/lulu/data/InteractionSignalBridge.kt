@@ -84,6 +84,7 @@ internal object InteractionSignalBridge {
                 incomingReason.takeIf(String::isNotBlank)?.let { "角色的来电缘由：${it.take(200)}。" }.orEmpty(),
             occurredAt = now, triggerExtraction = false, sessionId = callId, source = SOURCE,
             evidenceKind = EventEvidenceKind.Observation)
+        recordUserActivity(characterId, callId, "phone-call", "start", now)
     }
 
     /**
