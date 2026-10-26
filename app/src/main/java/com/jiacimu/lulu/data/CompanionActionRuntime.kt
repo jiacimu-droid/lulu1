@@ -88,6 +88,7 @@ internal object CompanionActionRuntime {
             appendLine(MomentFriendAccess.audienceContext(characterId))
             appendLine("- send_private_message，args={\"text\":\"直接对正在聊天的用户说的话\"}：仅在本人的真实私聊中交流。")
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
+            appendLine("- create_group_chat，args={\"groupName\":\"自己取的群名\",\"memberIds\":[\"确认好友的角色ID\"]}：主动邀请真实好友组成自己的群聊，至少邀请一位。无需主人加入；仅在自己确实想组织共同讨论时选择，不能凭空拉陌生人。")
             appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
             appendLine("- like_moment，args={\"postId\":\"本轮手机可见的真实postId\"}：本人决定给好友真实动态点赞。")
             appendLine("- comment_moment，args={\"postId\":\"真实postId\",\"text\":\"自己的评论\"}：向可见动态写真实评论，不限共同好友。")
@@ -148,6 +149,8 @@ internal object CompanionActionRuntime {
             appendLine("手机未读和请求：" + CharacterPhoneInbox.summary(characterId))
         }
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
+        if (DigitalLifeProfileStore.isEnabled(characterId))
+            appendLine("- create_group_chat，args={\"groupName\":\"自己选的名字\",\"memberIds\":[\"已确认好友的角色ID\"]}：自己当群主建真正的QQ群，至少一位真实好友，与主人的群聊相互独立。想撮合一个话题、约大家一起玩或建立小圈子时才建；不要为了社交指标乱建群。建群和群内首次发言是两项独立动作，建好后只能用实际返回的groupId发群消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             ResidentSocialMailbox.initialize(context)
             val contacts = ResidentSocialMailbox.visibleContacts(characterId)
@@ -276,7 +279,7 @@ internal object CompanionActionRuntime {
             require(normalizedAction in setOf(
                 "digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment",
                 "send_friend_request", "respond_friend_request", "send_private_message",
-                "send_group_message", "send_character_message", "play_solo_game", "go_offline",
+                "send_group_message", "create_group_chat", "send_character_message", "play_solo_game", "go_offline",
             )) { "数字世界原住民不能调用现实设备、联网、健康或用户私人数据工具" }
         }
         // Only the orchestrator may supply the frozen IDs of this perception
@@ -439,6 +442,33 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, if (decision == "accept") "已同意好友申请，双向好友权限与聊天系统消息已记录"
                     else "已拒绝好友申请，未建立好友关系",
                     evidenceId = "friend-request-${request.id}-${if (decision == "accept") "accepted" else "declined"}-$characterId")
+            }
+            "create_group_chat" -> {
+                require(DigitalLifeProfileStore.isEnabled(characterId)) {
+                    "只有拥有数字世界社交身份的角色才能自行创建数字群聊"
+                }
+                MomentFriendAccess.initialize(context)
+                val groupName = args.optString("groupName").trim()
+                require(groupName.length in 2..30) { "群名必须是本人选择的2至30个字" }
+                val invited = args.optJSONArray("memberIds")
+                    ?: error("请提供实际要邀请的好友memberIds")
+                val members = (0 until invited.length()).map { invited.optString(it).trim() }
+                require(members.isNotEmpty() && members.size <= 7 &&
+                    members.all(String::isNotBlank) &&
+                    members.distinct().size == members.size &&
+                    characterId !in members) { "请邀请1至7位不同的真实好友，不能邀请自己" }
+                val known = MigratedDomainStores.characters.settings.value
+                require(members.all { id ->
+                    id in known && DigitalLifeProfileStore.isEnabled(id) &&
+                        MomentFriendAccess.areFriends(characterId, id)
+                }) { "邀请失败：只能邀请自己真正确认的数字好友" }
+                val group = MigratedDomainStores.chat.createGroupConversation(
+                    groupName, listOf(characterId) + members, ownerIncluded = false,
+                )
+                CompanionActionResult(
+                    true, "已创建自己的群聊《${group.groupChat?.name}》，成员=${members.size + 1}人；其他人的反应尚未知晓。groupId=${group.id}",
+                    group.id, "group-joined-${group.id}-$characterId-${group.updatedAt.toEpochMilli()}",
+                )
             }
             "send_character_message" -> {
                 ResidentSocialMailbox.initialize(context)
