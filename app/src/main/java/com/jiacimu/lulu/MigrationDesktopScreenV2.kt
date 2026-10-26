@@ -92,10 +92,11 @@ internal fun MigrationHomeV2(
     val journal = appearance.isJournal()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val shortcutConversation = conversations
+    val ownerChats = ownerVisibleQqConversations(conversations)
+    val shortcutConversation = ownerChats
         .filter(LuluConversation::pinned)
         .maxByOrNull(LuluConversation::updatedAt)
-        ?: conversations.maxByOrNull(LuluConversation::updatedAt)
+        ?: ownerChats.maxByOrNull(LuluConversation::updatedAt)
     val currentCharacter = shortcutConversation?.characterId
         ?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
         ?: characters["lulu"]
