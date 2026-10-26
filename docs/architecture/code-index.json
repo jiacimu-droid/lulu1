@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T07:23:55.137174+00:00",
-  "commit": "032549bee1d4838b795876ac36148f09d7bc6041",
+  "generatedAt": "2026-10-26T08:20:49.783526+00:00",
+  "commit": "14ad251eedabbfda5aa4d37cb5b9f0a9410c55ed",
   "branch": "main",
-  "sourceFingerprint": "ed61a257d12706f202627a3e241d08dd4f908ba0600e8900b773ff0699c9e761",
+  "sourceFingerprint": "79192c7b3f826f7368d877a207c3b3d0189475cf616e08b7cbe842efc36171c0",
   "summary": {
     "files": 926,
-    "lines": 183558,
-    "symbols": 2709
+    "lines": 183576,
+    "symbols": 2710
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7126,22 +7126,28 @@
         "line": 14
       }
     ],
+    "onlinePrivateReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
+        "line": 73
+      }
+    ],
     "shouldUseRewrite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 67
+        "line": 85
       }
     ],
     "preservesSurfaceIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 89
+        "line": 107
       }
     ],
     "assess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 135
+        "line": 153
       }
     ],
     "fromWire": [
@@ -21759,24 +21765,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-      "lines": 274,
-      "sha256": "3add92a2c35fa1061660d6b8dcc2305fc367c807b013e50f1d96067c90eb1b4f",
+      "lines": 292,
+      "sha256": "b2f5c7bd60f6b29386f1ba977e249a2328703687858bf3e6df6c6e5b735415c9",
       "symbols": [
         {
           "name": "repairInstruction",
           "line": 14
         },
         {
+          "name": "onlinePrivateReview",
+          "line": 73
+        },
+        {
           "name": "shouldUseRewrite",
-          "line": 67
+          "line": 85
         },
         {
           "name": "preservesSurfaceIntent",
-          "line": 89
+          "line": 107
         },
         {
           "name": "assess",
-          "line": 135
+          "line": 153
         }
       ]
     },
