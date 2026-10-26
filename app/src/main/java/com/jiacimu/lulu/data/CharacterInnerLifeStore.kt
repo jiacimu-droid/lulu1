@@ -1566,6 +1566,8 @@ object CharacterInnerLifeStore {
             "强度=${influence.impact}；只供角色自主判断"
     }
 
+    private const val USER_GUESS_EVIDENCE_BOUNDARY = "旧心声、私人看法和上轮行动理由都是本人当时的主观解释，不是后来新增的用户事实。尤其不能把以前猜测的‘她正在忙／不想被打扰／已经在学习’反复继承成此刻结论；当前是否忙、学习、愿不愿交流，须重新对照用户最新原话和有时间来源的真实设备/学习/获准观察，未知就保留未知。"
+
     fun compactContext(characterId: String, now: Instant = Instant.now(), query: String = ""): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -1577,6 +1579,7 @@ object CharacterInnerLifeStore {
         val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
+            appendLine(USER_GUESS_EVIDENCE_BOUNDARY)
             appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
             emotionInfluence(emotion, now)?.let { influence ->
                 appendLine("现在感受=${emotion?.optString("feeling")}；并存=${emotion?.optString("otherFeeling")}；由=${emotion?.optString("cause")?.take(160)}；距今${influence.elapsedMinutes}分钟；当前影响=${influence.impact}（随时间自然衰减；旧事被想起不等于重新受刺激）")
@@ -1664,6 +1667,7 @@ object CharacterInnerLifeStore {
         val visibleMotives = CharacterMotiveState.workingSet(motives, now, query = query)
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
+            appendLine(USER_GUESS_EVIDENCE_BOUNDARY)
             appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
             val active = CharacterMotiveState.active(motives)
             val paused = CharacterMotiveState.paused(motives)
