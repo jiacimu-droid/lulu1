@@ -247,7 +247,9 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val onlineStates by CompanionOnlineStore.states.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val sorted = remember(conversations) {
-        conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
+        conversations.filter { it.groupChat?.ownerIncluded != false }
+            .sortedWith(compareByDescending<LuluConversation> { it.pinned }
+                .thenByDescending(LuluConversation::updatedAt))
     }
     // One background projection per conversation/read-receipt revision.
     // Do not subscribe to and scan entire message histories inside lazy rows
@@ -256,7 +258,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
         initialValue = emptyMap(), conversations, unreadRevision
     ) {
         value = withContext(Dispatchers.Default) {
-            conversations.associate { conversation ->
+            conversations.filter { it.groupChat?.ownerIncluded != false }.associate { conversation ->
                 conversation.id to ChatUnreadStore.unreadCount(
                     conversation.id, MigratedDomainStores.chat.messages(conversation.id).value)
             }
