@@ -139,10 +139,9 @@ object MomentsStore {
         )
         savePost(post)
         recordForAllCharacters(post, UserProfileContext.displayLabel())
-        socialScope.launch {
-            processImageUnderstanding(post.id)
-            letOnlineCharactersReact(post.id)
-        }
+        // Posting only changes the shared feed/red dots. A friend considers it
+        // on THEIR next legitimate wake, inside their existing action decision.
+        socialScope.launch { processImageUnderstanding(post.id) }
         return post
     }
 
@@ -169,10 +168,9 @@ object MomentsStore {
             addUnreadCharacterPost(post.id)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
-        socialScope.launch {
-            processImageUnderstanding(post.id)
-            letOtherCharactersReact(post.id)
-        }
+        // Do not spin up a separate paid social reaction for every friend.
+        // Residents will see this new post when their phone is perceived at wake.
+        socialScope.launch { processImageUnderstanding(post.id) }
         return post
     }
 
@@ -198,7 +196,7 @@ object MomentsStore {
             .forEach { post ->
                 socialScope.launch {
                     processImageUnderstanding(post.id)
-                    if (post.authorType == MomentAuthorType.User) letOnlineCharactersReact(post.id)
+                    // A new image description updates content; the next role perception owns reactions.
                     else letOtherCharactersReact(post.id)
                 }
             }
@@ -299,44 +297,6 @@ object MomentsStore {
         }
         candidates.forEach { character ->
             runIndependentReaction(post, character, UserProfileContext.displayLabel())
-        }
-    }
-
-    private suspend fun letOnlineCharactersReact(postId: String) {
-        val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
-        val candidates = MigratedDomainStores.characters.settings.value.values
-            .filter { CompanionOnlineStore.isOnline(it.characterId) &&
-                MomentFriendAccess.canView(post, it.characterId) }
-            .sortedBy(CharacterSettings::displayName)
-        candidates.forEach { character ->
-            runIndependentReaction(post, character, UserProfileContext.displayLabel())
-        }
-    }
-
-    private suspend fun letOtherCharactersReact(postId: String) {
-        val post = mutablePosts.value.firstOrNull {
-            it.id == postId && it.authorType == MomentAuthorType.Character && !it.authorCharacterId.isNullOrBlank()
-        } ?: return
-        val authorId = post.authorCharacterId ?: return
-        val author = MigratedDomainStores.characters.get(authorId)
-        // A new post is itself an actionable social event. Reach actual friends
-        // even if their five-minute attention lease has expired; resident friends
-        // use their cheap daily model connection. Never require public visibility
-        // or automatically manufacture likes.
-        val candidates = MigratedDomainStores.characters.settings.value.values
-            .filter { it.characterId != authorId && MomentFriendAccess.canView(post, it.characterId) }
-            .sortedBy(CharacterSettings::displayName).take(16)
-        candidates.forEach { character ->
-            if (!character.characterId.startsWith("resident:") &&
-                !CompanionOnlineStore.isOnline(character.characterId)) {
-                CompanionOnlineStore.wakeCharacter(
-                    characterId = character.characterId,
-                    reason = CompanionOnlineReason.MomentsWake,
-                    trigger = "有真实好友发布了可见的朋友圈",
-                    perceiveNow = false,
-                )
-            }
-            runIndependentReaction(post, character, author.displayName)
         }
     }
 
@@ -517,6 +477,27 @@ object MomentsStore {
             timelineText = "【公开评论】评论了${authorName}的朋友圈：${comment.content}",
         )
         return true
+    }
+
+    /** Model-selected, real actor-owned actions. Never infer consent from
+     * sharing-urge, red dots or friendship; the caller must execute a tool.
+     */
+    fun likeAsCharacter(postId: String, actorId: String): Boolean {
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return false
+        if (actorId == USER_COMMENTER_ID || actorId == MomentFriendAccess.OWNER ||
+            !MomentFriendAccess.canView(post, actorId)) return false
+        if (actorId in post.likedCharacterIds) return true
+        val actor = MigratedDomainStores.characters.settings.value[actorId] ?: return false
+        addCharacterLike(post, actor, postAuthorName(post))
+        return actorId in (mutablePosts.value.firstOrNull { it.id == postId }?.likedCharacterIds ?: emptySet())
+    }
+
+    fun commentAsCharacter(postId: String, actorId: String, content: String): Boolean {
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return false
+        if (actorId == USER_COMMENTER_ID || actorId == MomentFriendAccess.OWNER ||
+            !MomentFriendAccess.canView(post, actorId)) return false
+        val actor = MigratedDomainStores.characters.settings.value[actorId] ?: return false
+        return addCharacterTopLevelComment(post, actor, postAuthorName(post), content)
     }
 
     fun toggleUserLike(postId: String, characterId: String = USER_COMMENTER_ID) {
