@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:43:20.630013+00:00",
-  "commit": "07cf9c2b001c56245572741c0af5f08eb8a937e6",
+  "generatedAt": "2026-10-26T03:44:07.827992+00:00",
+  "commit": "5c80726fb16da8c30df389b7c81a8345238aa5eb",
   "branch": "main",
-  "sourceFingerprint": "fddb5cf520e5f57a59ed5c25781e0260e611359fc63948d5b89ab57f0069c4d7",
+  "sourceFingerprint": "38ab474d4679ec91c1fbb6df090e8d6c5377efedf63573d64a975583a693bf57",
   "summary": {
     "files": 920,
-    "lines": 181687,
+    "lines": 181735,
     "symbols": 2699
   },
   "symbolIndex": {
@@ -10433,7 +10433,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 284
+        "line": 307
       }
     ],
     "allowsExpansion": [
@@ -25236,8 +25236,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 384,
-      "sha256": "cf2d92c21a0ecf7754d04ea9937e63ae59f8abdce3f176c1c8f12a38a8074e11",
+      "lines": 407,
+      "sha256": "196608a1fc507f2b09ccb4316be4a54f5c4f6b5c80ee934ff62bfc27a4c2473d",
       "symbols": [
         {
           "name": "completed",
@@ -25257,7 +25257,7 @@
         },
         {
           "name": "project",
-          "line": 284
+          "line": 307
         }
       ]
     },
@@ -29688,8 +29688,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt",
-      "lines": 99,
-      "sha256": "d1202b7252331c001f320e779e3283d96234c9799f6a14f02f0c80d5961a491f",
+      "lines": 124,
+      "sha256": "a369aec972c4a3700d8ffd9fc619b4c22bafa27c8d3eef22d97280a4cf4a7733",
       "symbols": [
         {
           "name": "ActionFailureDiagnosticsTest",
