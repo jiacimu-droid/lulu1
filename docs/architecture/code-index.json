@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:32:43.920046+00:00",
-  "commit": "6b0ab9795ae6e736b0c679ea8911e908f3067008",
+  "generatedAt": "2026-10-26T03:33:03.764030+00:00",
+  "commit": "8db606b48370c5bbcfde355064036686db7687c2",
   "branch": "main",
-  "sourceFingerprint": "e863c078fa924cf9d02d3f1a48c02ff6bfc460e64e18d25bb0c697f4f25e1f63",
+  "sourceFingerprint": "a740a9e85ece3246c3c0f1b96cb321d29f767494c117347217be862fbe7f26d2",
   "summary": {
     "files": 920,
-    "lines": 181364,
+    "lines": 181410,
     "symbols": 2698
   },
   "symbolIndex": {
@@ -857,7 +857,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 72
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -5559,7 +5559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 760
+        "line": 762
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9329,79 +9329,79 @@
     "MomentsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 50
+        "line": 52
       }
     ],
     "scrubHiddenTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "markCharacterPostsSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 112
+        "line": 114
       }
     ],
     "publishUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 123
+        "line": 125
       }
     ],
     "publishCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "requestCharactersReact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 178
+        "line": 180
       }
     ],
     "retryImageUnderstanding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 184
+        "line": 186
       }
     ],
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 485
+        "line": 487
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 494
+        "line": 496
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 542
+        "line": 544
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 564
+        "line": 566
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 588
+        "line": 590
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 780
+        "line": 782
       }
     ],
     "Batch": [
@@ -13933,13 +13933,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 466
+        "line": 496
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 565
+        "line": 595
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -24074,8 +24074,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1047,
-      "sha256": "c621e68a30a2edb2396f073cf56b3f58fe7baad1ff096506f97139f396240baa",
+      "lines": 1063,
+      "sha256": "da1a62906abc0275e86eaa5a08f4f7f26a04701c0dab2f4072d12d4ecdc3fc01",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -24095,63 +24095,63 @@
         },
         {
           "name": "MomentsStore",
-          "line": 50
+          "line": 52
         },
         {
           "name": "initialize",
-          "line": 72
+          "line": 74
         },
         {
           "name": "scrubHiddenTimeline",
-          "line": 95
+          "line": 97
         },
         {
           "name": "markCharacterPostsSeen",
-          "line": 112
+          "line": 114
         },
         {
           "name": "publishUser",
-          "line": 123
+          "line": 125
         },
         {
           "name": "publishCharacter",
-          "line": 147
+          "line": 149
         },
         {
           "name": "requestCharactersReact",
-          "line": 178
+          "line": 180
         },
         {
           "name": "retryImageUnderstanding",
-          "line": 184
+          "line": 186
         },
         {
           "name": "likeAsCharacter",
-          "line": 485
+          "line": 487
         },
         {
           "name": "commentAsCharacter",
-          "line": 494
+          "line": 496
         },
         {
           "name": "toggleUserLike",
-          "line": 542
+          "line": 544
         },
         {
           "name": "addUserComment",
-          "line": 564
+          "line": 566
         },
         {
           "name": "addUserReply",
-          "line": 588
+          "line": 590
         },
         {
           "name": "delete",
-          "line": 760
+          "line": 762
         },
         {
           "name": "clearCharacterData",
-          "line": 780
+          "line": 782
         }
       ]
     },
@@ -30149,8 +30149,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 725,
-      "sha256": "0ba9f9af8786bcb9ec14cf9812de62c2e101a093ac785776f6ba9ad45a57b546",
+      "lines": 755,
+      "sha256": "124be16a7ec7bc050c58876547f744cb35bcbbaa1e51d4d1e80c5a407c9d77c4",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -30158,11 +30158,11 @@
         },
         {
           "name": "social",
-          "line": 466
+          "line": 496
         },
         {
           "name": "feeling",
-          "line": 565
+          "line": 595
         }
       ]
     },

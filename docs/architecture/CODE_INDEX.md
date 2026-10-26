@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6b0ab9795ae6e736b0c679ea8911e908f3067008`
+- 基准提交：`8db606b48370c5bbcfde355064036686db7687c2`
 - 分支：`main`
 - 已索引文件：920
-- 已索引代码/文本行：181364
+- 已索引代码/文本行：181410
 - 已发现符号：2698
 
 | 文件 | 行数 | 符号数 |
@@ -425,7 +425,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1073 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1047 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1063 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
@@ -760,7 +760,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 725 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 755 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 196 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 81 | 1 |
