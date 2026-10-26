@@ -13,11 +13,14 @@ internal object CharacterEverydaySocialContext {
             val relationship = CharacterSocialRelationship.snapshot(characterId, id)
             if (!relationship.knowsEachOther) null else id to relationship
         }
+        val groups = MigratedDomainStores.chat.conversations.value
+            .filter { chat -> chat.groupChat?.members?.any { it.characterId == characterId } == true }
+            .take(6)
         val recentMessages = ResidentSocialMailbox.inbox(characterId, 8)
         val residents = DigitalWorldExpansionStore.residents()
         val at = DigitalWorldStore.locationOf(characterId)
-        if (pending.isEmpty() && acquaintances.isEmpty() && recentMessages.isEmpty() &&
-            residents.isEmpty()) return ""
+        if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
+            recentMessages.isEmpty() && residents.isEmpty()) return ""
         return buildString {
             appendLine("【自己的数字世界来往｜真实事件与可选的下一步】")
             if (pending.isNotEmpty()) {
@@ -40,6 +43,24 @@ internal object CharacterEverydaySocialContext {
                 }
             } else {
                 appendLine("目前没有经真实相遇/共同群聊确认的熟人。可以出门认识人，也可以独处；不能把登记的陌生居民直接写成朋友。")
+            }
+            if (contacts.isNotEmpty()) {
+                appendLine("【本人手机里确实可以联系的对象｜模型可自由选择联系或不联系】")
+                contacts.take(12).forEach { id ->
+                    val name = MigratedDomainStores.characters.get(id).displayName
+                    val last = recentMessages.lastOrNull { it.fromId == id || it.toId == id }
+                    appendLine("- targetCharacterId=$id；$name；" +
+                        (if (last == null) "尚无这两人的私信记录"
+                        else "最近通信=${last.createdAt}：${last.content.take(105)}"))
+                }
+                appendLine("如果此刻想向某个熟人分享见闻、问一句近况、继续旧话题、开个玩笑或提出邀约，可从这些实际可联系对象中自己选 targetCharacterId，用 send_character_message 真正发送；不是必须先收到对方来信，也不是必须给主人发。")
+            }
+            if (groups.isNotEmpty()) {
+                appendLine("【自己已经加入的聊天群】")
+                groups.forEach { group ->
+                    appendLine("- groupId=${group.id}；${group.groupChat?.name}；最后一条=${group.lastMessage.take(95)}")
+                }
+                appendLine("想和群友交流可用真实 groupId 选择 send_group_message，不需要先由主人开头，群聊成员身份并不赋予读取其他私聊的权限。")
             }
             if (recentMessages.isNotEmpty()) {
                 appendLine("本人真实通信的最近片段（旧消息不是新消息）：")
