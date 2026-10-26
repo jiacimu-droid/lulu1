@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:35:34.421085+00:00",
-  "commit": "daf39805b69af8ce39ed168305a68461271bfa79",
+  "generatedAt": "2026-10-26T08:36:03.975001+00:00",
+  "commit": "00e46982b97c475324a0cb13bc3c3a4d662a6b94",
   "branch": "main",
-  "sourceFingerprint": "590293ec1393b0b5dbef815a1b613c3dc564eaa73850bfa660e466f279c29012",
+  "sourceFingerprint": "2efbd245215cc3414d5e0afc55fd6ed2793267f71b412ac72aa1bbfe73bfadae",
   "summary": {
-    "files": 928,
-    "lines": 184177,
-    "symbols": 2721
+    "files": 929,
+    "lines": 184222,
+    "symbols": 2722
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14964,6 +14964,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt",
         "line": 6
+      }
+    ],
+    "UserDevicePerceptionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt",
+        "line": 7
       }
     ],
     "UserInteractionPresenceTest": [
@@ -31897,6 +31903,17 @@
         {
           "name": "UnifiedReplyAndActionPolicyTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt",
+      "lines": 45,
+      "sha256": "c3d3830836571b1bd2336d23bf04068bee46743d0b2e9d9b6abcfa1a8e304dbf",
+      "symbols": [
+        {
+          "name": "UserDevicePerceptionTest",
+          "line": 7
         }
       ]
     },
