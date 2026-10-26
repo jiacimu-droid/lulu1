@@ -116,26 +116,33 @@ class CharacterDecisionProtocolTest {
         assertFalse(CharacterDecisionProtocol.usesSeparateExpression("正在电话中"))
     }
 
-    @Test fun userCorrectionForcesLowCostRepairMove() {
+    @Test fun semanticCorrectionBelongsToTheModelsSelectedMove() {
         val playfulProposal = JSONObject()
             .put("type", "tease")
             .put("candidate", "你是想让我直接打电话过去？")
             .put("confidence", 0.41)
-        val move = DialogueMoveEngine.resolve(
-            playfulProposal,
-            "继续逗她并猜她真正想表达什么",
-            "你没有get到我什么意思",
-        )
-        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, move.type)
-        assertEquals(RepairFormat.OPEN, move.repairFormat)
-        assertEquals(1, move.maxBubbles)
-        assertEquals("", move.candidate)
-        assertTrue(DialogueMoveEngine.expressionConstraint(move).contains("不要枚举第二个候选"))
+        val correction = "你没有get到我什么意思"
+        val modelTease = DialogueMoveEngine.resolve(
+            playfulProposal, "继续逗她并猜她真正想表达什么", correction)
+        assertEquals(DialogueMoveType.TEASE, modelTease.type)
+        assertEquals(RepairFormat.NONE, modelTease.repairFormat)
+        assertEquals("", modelTease.groundingDecision)
+
+        val modelRepair = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "other_initiated_repair")
+                .put("commonGroundDecision", "reject")
+                .put("repairFormat", "open")
+                .put("maxBubbles", 3),
+            "原来是我理解偏了", "今天天气很好")
+        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, modelRepair.type)
+        assertEquals("reject", modelRepair.groundingDecision)
+        assertEquals(3, modelRepair.maxBubbles)
     }
 
-    @Test fun onlyStrongSingleCandidateMayBecomeCandidateRepair() {
+    @Test fun modelSelectedCandidateRepairRequiresNoLexicalOrConfidenceGate() {
         val proposal = JSONObject()
             .put("type", "candidate_understanding")
+            .put("repairFormat", "candidate")
             .put("candidate", "你是说我应该直接打过去？")
             .put("confidence", 0.82)
         val move = DialogueMoveEngine.resolve(proposal, "", "不是，你没get到我意思")
