@@ -75,6 +75,28 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    /** Display preferences for the person's existing social account, not a new identity store.
+     * The action executor supplies a verified preset or a real visible image reference.
+     */
+    @Synchronized fun setPhoneMomentsCover(
+        characterId: String, preset: String, postId: String = "",
+    ): Boolean {
+        if (characterId.isBlank() || preset !in setOf(
+                "night", "sky", "forest", "rose", "ocean", "sunset", "photo",
+            )) return false
+        if (preset == "photo" && postId.isBlank()) return false
+        val root = state(characterId)
+        val old = root.optJSONObject("phoneAppearance")
+        if (old?.optString("momentsCover") == preset &&
+            old.optString("momentsPhotoPostId") == postId) return false
+        root.put("phoneAppearance", JSONObject()
+            .put("momentsCover", preset)
+            .put("momentsPhotoPostId", if (preset == "photo") postId else "")
+            .put("updatedAt", Instant.now().toString()))
+        save(characterId, root)
+        return true
+    }
+
     /** User-authored per-person relationship baseline. It is separate from the
      * evidence-backed, changeable subjective bonds in CharacterInnerLifeStore.
      * An empty saved entry is intentional and must not be reseeded on launch.
