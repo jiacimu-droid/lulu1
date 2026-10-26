@@ -1042,12 +1042,18 @@ object ProactivePerceptionRuntime {
             source = if (awakeReflection) "online-awareness" else "background-awareness",
             evidenceKind = EventEvidenceKind.Observation)
         val initialDecision = parseDecision(result.text, actionOnly = false)
-        // A malformed JSON envelope is just as much a failed model decision as
-        // an unknown tool name. Neither is an intentional choice to ignore a
-        // fresh user message. Offer ONE bounded same-role format correction.
-        val invalidTool = initialDecision?.let { decision ->
+        // A malformed JSON envelope cannot be executed, but a named unknown
+        // PRIMARY tool is a genuine attempted action that ToolRouter can reject
+        // with a durable receipt. An independently selected registered step
+        // must survive that rejection: do not discard the whole model choice
+        // in the format-correction gate before OrderedCharacterActions sees it.
+        // With no independent viable step, keep the existing bounded same-role
+        // correction for truly unusable decisions.
+        val unknownPrimaryTool = initialDecision?.let { decision ->
             decision.action == Action.TOOL && CapabilityRegistry.find(decision.tool) == null
         } == true
+        val invalidTool = unknownPrimaryTool &&
+            !CharacterThoughtActionHandoff.hasIndependentRegisteredStep(initialDecision?.sideActions)
         // A labelled message without any authored words is not a choice to
         // remain quiet. Avoid consuming the unread batch as a successful turn.
         val emptySpeech = initialDecision?.let { decision ->
