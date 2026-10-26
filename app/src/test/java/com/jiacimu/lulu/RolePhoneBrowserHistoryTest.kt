@@ -6,7 +6,12 @@ import java.time.Instant
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class RolePhoneBrowserHistoryTest {
     private fun receipt(id: String, tool: String, args: JSONObject,
         success: Boolean = true, role: String = "role-a"): SharedTimelineEvent {
