@@ -199,13 +199,22 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
                         // Ignore coordinates outside the real stage; clamping formerly
                         // converted overscroll/background contact into model contact.
-                        if (x < 0 || y < 0 || x >= size.width || y >= size.height) {
+                        // A fast palm swipe often RELEASES beyond the visible
+                        // viewport. Preserve its registered DOWN hit and travel
+                        // direction; cancelling here used to drop the slap.
+                        // Other modes still reject out-of-bounds contacts.
+                        val palmRelease = completed && !calibrationMode &&
+                            interactionMode == "pat"
+                        if ((x < 0 || y < 0 || x >= size.width || y >= size.height) &&
+                            !palmRelease) {
                             if (!calibrationMode) stage.evaluateJavascript(
                                 "window.LuluLive2D && window.LuluLive2D.touch(0,0,'cancel')", null)
                             return
                         }
-                        val nx = x / size.width
-                        val ny = y / size.height
+                        val nx = (if (palmRelease)
+                            x.coerceIn(0f, (size.width - 1).toFloat()) else x) / size.width
+                        val ny = (if (palmRelease)
+                            y.coerceIn(0f, (size.height - 1).toFloat()) else y) / size.height
                         val elapsed = (android.os.SystemClock.uptimeMillis() - began).coerceAtLeast(0L)
                         val js = if (calibrationMode) {
                             "window.LuluLive2D.calibrateTouch(" +
