@@ -164,6 +164,36 @@ internal object ResidentDailyDecision {
         return saved
     }
 
+    /** Side actions share the resident's wake decision and original model
+     * connection. Real tools keep individual idempotent receipts. Side actions
+     * are never allowed to inherit the due activity's planId.
+     */
+    internal suspend fun executeWakeSteps(context: Context, role: String,
+        decision: JSONObject, turnId: String): Int {
+        val steps = decision.optJSONArray("steps") ?: return 0
+        val allowed = setOf("like_moment", "comment_moment", "send_friend_request",
+            "respond_friend_request", "send_character_message", "publish_moment",
+            "send_group_message", "play_solo_game", "digital_world_action")
+        var successes = 0
+        for (i in 0 until minOf(steps.length(), 8)) {
+            val row = steps.optJSONObject(i) ?: continue
+            val tool = row.optString("tool").trim()
+            if (tool !in allowed) continue
+            val args = row.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()
+            args.remove("planId")
+            args.remove("_replyEvidenceIds")
+            val response = runCatching {
+                JSONObject(ToolRouter.execute(context, role, tool, args,
+                    requestId = "$turnId-extra-$i", autonomousLifeTurn = true))
+            }.getOrNull()
+            if (response?.optBoolean("success") == true) successes++
+            else com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "居民手机与多步行动", title = "附加动作未执行",
+                message = "tool=$tool; receipt=${response?.toString()?.take(220).orEmpty()}")
+        }
+        return successes
+    }
+
     /** Each due item receives ONE fresh, cheap role decision. A recorded action is not an effect. */
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean {
         val app = context.applicationContext
