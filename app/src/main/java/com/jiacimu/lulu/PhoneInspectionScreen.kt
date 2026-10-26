@@ -153,6 +153,15 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 .thenByDescending(InspectedThread::updatedAt))
     }
     val selectedThread = threads.firstOrNull { it.key == selectedThreadKey }
+        ?: selectedThreadKey?.takeIf { it.startsWith("mail:") }
+            ?.removePrefix("mail:")?.takeIf { peer ->
+                peer in people && ResidentSocialMailbox.canContact(actualRole, peer)
+            }?.let { peer ->
+                InspectedThread(
+                    key = "mail:$peer", title = names[peer] ?: "好友",
+                    lastText = "", updatedAt = Instant.EPOCH, peerId = peer,
+                )
+            }
     val visiblePosts = remember(posts, actualRole, friendsRevision) {
         MomentFriendAccess.visiblePosts(actualRole, posts).sortedByDescending { it.createdAt }
     }
@@ -375,14 +384,18 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }
                     }
                     items(availableFriends, key = CharacterSettings::characterId) { friend ->
-                        ChatHubV2Card {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.clickable {
+                            selectedThreadKey = "mail:${friend.characterId}"
+                        }) {
+                            ChatHubV2Card {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                 ChatHubV2Avatar(friend.displayName.take(1), 50, friend.avatarUri)
                                 Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(friend.displayName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                                     Text("好友", fontSize = 12.sp, color = QqMuted)
                                 }
+                            }
                             }
                         }
                     }
