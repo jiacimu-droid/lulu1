@@ -140,35 +140,19 @@ internal object CharacterInitiativeRuntime {
         hasCommitment: Boolean,
         now: java.time.Instant = java.time.Instant.now(),
     ): String {
-        val continuity = CharacterContinuityRuntime.snapshot(characterId, now = now)
-        val recent = recentActions.takeLast(5)
-        val contactActions = setOf("MESSAGE", "GROUP_MESSAGE", "GAME_INVITE", "WORLD_INVITE", "CALL")
-        val recentContacts = recent.count { it in contactActions }
-        val repeatedSame = recent.takeLast(3).takeIf { it.size == 3 }?.distinct()?.size == 1
-        // Persistent wishes, concerns, curiosity and share candidates are
-        // already rendered once by CharacterUnfinishedActionContext in the
-        // same perception decision. Do not build a competing motive worklist.
+        // The character, not an app-wide contact preference, decides whether
+        // a repeated or spontaneous contact suits its persona and relationship.
+        // Counts and old unanswered messages are not inferred refusals.
         return buildString {
-            appendLine("【自主行动机会评估｜程序只给机会，不替角色下命令】")
-            if (hasCommitment) appendLine("- 有未完成承诺：优先确认真实到期状态与可执行能力；履约比表达‘我记得’更重要。")
-            if (hasConcern) appendLine("- 有仍在挂心的事情：可以在合适时机回访，也可以因为时机不对暂时不打扰。")
-            // The shared unfinished-action context supplies real motive IDs,
-            // current waiting state and execution receipts; no duplicate
-            // motivational prose is necessary here.
-            continuity.minutesSinceInteraction?.let { minutes ->
-                when {
-                    minutes >= 7 * 24 * 60 ->
-                        appendLine("- 已明显久未互动：允许一次低压力联系或分享自己的近况，但不追问、不控诉、不连续催促。")
-                    minutes >= 24 * 60 ->
-                        appendLine("- 已跨日：若角色真的有内容可说，可以主动联系；没有内容就继续自己的生活，不做签到式问候。")
-                    else -> appendLine("- 最近仍有互动：主动性不等于继续刷存在感。")
-                }
-            }
-            if (recentContacts >= 3) appendLine("- 最近5次自主动作里联系用户较多（$recentContacts 次）：除非有新证据/承诺/强动机，降低再次联系优先级，考虑自己的生活动作或 silent。")
-            if (repeatedSame) appendLine("- 最近连续三次自主动作相同：若没有新的理由，不机械复刻；可换一种符合当前动机的行动或保持沉默。")
-            appendLine("候选动作先比较：此刻本人到底想不想做 → 是否有真实新理由 → 会不会打扰 → 能否真实执行 → 执行后是否值得记录学习。")
-            appendLine("主动性不仅是给用户发消息；阅读、写日记、独自游戏、数字世界活动、整理自己的状态同样是真实生活。")
-            appendLine("不要为了提高主动率硬做动作；但也不要把 silent 当安全默认。只要有明确动机且低风险可执行，就允许真正行动。")
+            appendLine("【自主行动机会｜角色本人拥有选择权】")
+            if (hasCommitment) appendLine("- 有未完成承诺：以实际到期状态和真实回执判断下一步。")
+            if (hasConcern) appendLine("- 有挂心的事：可联系、观察、另找办法、安排稍后、暂缓或放下，由本人决定。")
+            if (recentActions.isNotEmpty()) appendLine(
+                "- 最近动作：${recentActions.takeLast(5).joinToString("、")}（只是事实记录，不是联系配额或禁止重复的规则）。"
+            )
+            appendLine("可以自行决定说话、联系朋友、发朋友圈、读书、搜索、探索、使用已授权设备能力，或单纯独处；一次选择能执行多个独立步骤。")
+            appendLine("不以用户尚未回复、刚联系过或没有新消息为自动劝退条件。只依据本人意愿、当下事实和实际能力来选择；用户明确拒绝与权限边界依旧有效。")
+            appendLine("没有想做的事情可以自然沉默，但已真正决定落实的愿望应提交具体 action/steps 或未来计划，不能只在心声里宣告。")
         }.trim()
     }
 
