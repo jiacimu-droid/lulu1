@@ -245,7 +245,7 @@ fun MomentsScreen(characterId: String? = null) {
 }
 
 @Composable
-private fun MomentsHeader(
+internal fun MomentsHeader(
     userName: String,
     userAvatar: String,
     userAvatarUri: String?,
@@ -253,13 +253,15 @@ private fun MomentsHeader(
     signature: String,
     onCoverClick: () -> Unit,
     onSignatureClick: () -> Unit,
+    coverPalette: List<Color> = listOf(Color(0xFF1F2329), Color(0xFF59616C), Color(0xFFC9CED2)),
+    editable: Boolean = true,
 ) {
-    Box(Modifier.fillMaxWidth().height(220.dp).clickable(onClick = onCoverClick)) {
+    Box(Modifier.fillMaxWidth().height(220.dp).clickable(enabled = editable, onClick = onCoverClick)) {
         if (coverUri.isNullOrBlank()) {
             Box(
                 Modifier.fillMaxSize().background(
                     Brush.linearGradient(
-                        listOf(Color(0xFF1F2329), Color(0xFF59616C), Color(0xFFC9CED2)),
+                        coverPalette,
                     ),
                 ),
             )
@@ -280,13 +282,13 @@ private fun MomentsHeader(
             signature,
             modifier = Modifier.align(Alignment.BottomStart)
                 .padding(start = 18.dp, bottom = 20.dp)
-                .clickable(onClick = onSignatureClick)
+                .clickable(enabled = editable, onClick = onSignatureClick)
                 .padding(vertical = 4.dp),
             color = Color.White,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
         )
-        Surface(
+        if (editable) Surface(
             modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
             color = Color.Black.copy(alpha = 0.28f),
             shape = RoundedCornerShape(99.dp),
