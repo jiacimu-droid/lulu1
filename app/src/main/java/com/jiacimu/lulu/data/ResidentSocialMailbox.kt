@@ -127,6 +127,10 @@ internal object ResidentSocialMailbox {
         if (from.isBlank() || from == to ||
             MigratedDomainStores.characters.settings.value[to] == null) return false
         if (to in contactsOf(from)) return true
+        // A friendship confirmed through the existing QQ friend-request store
+        // is sufficient permission to initiate a private conversation even
+        // when the pair have not exchanged their first message or met today.
+        if (MomentFriendAccess.areFriends(from, to)) return true
         if (CharacterSocialRelationship.knowsEachOther(from, to)) return true
         val a = DigitalWorldStore.locationOf(from)
         return a.isNotBlank() && a == DigitalWorldStore.locationOf(to) &&
