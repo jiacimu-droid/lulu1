@@ -35,11 +35,17 @@ internal object CharacterMotiveState {
         val all = active(motives)
         if (all.size <= limit) return all
         if (limit <= 0) return emptyList()
+        // A day-only rotation keeps the same six wishes in context through
+        // every five-minute awake window. Rotate the *read-only attention*
+        // window with existing online pulses, with a daily phase shift so an
+        // every-two-hour background cadence cannot lock to the same modulo.
+        // This does not schedule any extra perception or execute a wish.
         val day = now.atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay()
+        val attentionWindow = Math.floorDiv(now.epochSecond, 5L * 60L)
         fun rotate(items: List<JSONObject>): List<JSONObject> {
             val sorted = items.sortedBy { it.optString("id") }
             if (sorted.isEmpty()) return emptyList()
-            val offset = Math.floorMod(day, sorted.size.toLong()).toInt()
+            val offset = Math.floorMod(attentionWindow + day, sorted.size.toLong()).toInt()
             return sorted.drop(offset) + sorted.take(offset)
         }
         val urgent = all.filter { CharacterMotiveReview.from(it)?.dueAt?.isAfter(now) == false }
