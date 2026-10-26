@@ -1240,11 +1240,12 @@ object ProactivePerceptionRuntime {
         // replace such a decision with a second one and accidentally drop them.
         val alreadyChoseSteps = (parsed.sideActions?.length() ?: 0) > 0
         val followThroughReview = CharacterActionFollowThroughPolicy.shouldReview(
-            silent = parsed.action == Action.SILENT && !alreadyChoseSteps &&
+            silent = parsed.action == Action.SILENT &&
                 !ownActivityAlreadyExecutable && !activityInFlight,
             choices = pendingChoices,
             key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
             nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
+            alreadyChoseSteps = alreadyChoseSteps,
         )
         // Routine awareness is a legitimate opportunity to revisit a real
         // unfinished wish; it must NOT be blanket-ineligible just because its
