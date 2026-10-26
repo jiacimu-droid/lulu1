@@ -1,9 +1,8 @@
 package com.jiacimu.lulu.data
 
 /**
- * Online continuation is a role decision; the program only blocks vacuous
- * re-leasing and fast repeats. No keyword dictionary or minimum sentence
- * length should decide whether a character's own reason "counts".
+ * The role owns its online decision. Missing fields are contract errors, not
+ * semantic permission for the executor to change continue into sleep.
  */
 internal object OnlineContinuationPolicy {
     /**
@@ -34,8 +33,12 @@ internal object OnlineContinuationPolicy {
         }.trim()
     }
 
-    private fun canonical(reason: String): String =
-        reason.replace(Regex("""[\s\p{P}\p{S}]+"""), "").trim().lowercase()
+    /** Output-shape validation only; the model owns every subjective reason. */
+    fun contractIssue(choice: String, reason: String): String? = when {
+        choice !in setOf("continue", "sleep") -> "在线决定缺失或 choice 无效"
+        reason.isBlank() -> "onlineDecision.reason 必填但为空"
+        else -> null
+    }
 
     fun permits(
         choice: String,
@@ -44,15 +47,5 @@ internal object OnlineContinuationPolicy {
         hasOpenIntention: Boolean,
         previousReason: String,
         minutesSincePrevious: Long,
-    ): Boolean {
-        if (choice != "continue") return false
-        val current = canonical(reason)
-        if (current.isBlank()) return false
-        // A character can continue to think, rest or linger without an
-        // external tool action. The model decides that; the five-minute OS
-        // lease, de-duplication and power policy still limit resources.
-        val repeated = current == canonical(previousReason)
-        if (repeated && minutesSincePrevious in 0..20 && !hasChosenAction) return false
-        return true
-    }
+    ): Boolean = choice == "continue" && contractIssue(choice, reason) == null
 }

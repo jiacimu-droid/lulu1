@@ -71,11 +71,19 @@ class OnlineContinuationPolicyTest {
             "continue", "保持在线", false, true, "", Long.MAX_VALUE))
     }
 
-    @Test fun repeatingTheSameQuietReasonInEveryFiveMinuteWindowIsRejected() {
+    @Test fun repeatedPersonalReasonIsNotOverriddenByAnExecutorKeywordGate() {
         val reason = "之前那件事还在想，想清楚自己为什么犹豫"
-        assertFalse(OnlineContinuationPolicy.permits(
+        assertTrue(OnlineContinuationPolicy.permits(
             "continue", reason, false, true, reason, 5L))
         assertTrue(OnlineContinuationPolicy.permits(
             "continue", reason, false, true, reason, 24L))
+    }
+
+    @Test fun missingReasonMeansSchemaCorrectionNotRoleChosenSleep() {
+        assertEquals("onlineDecision.reason 必填但为空",
+            OnlineContinuationPolicy.contractIssue("continue", ""))
+        assertNotNull(OnlineContinuationPolicy.contractIssue("", ""))
+        assertNull(OnlineContinuationPolicy.contractIssue("continue", "想陪她"))
+        assertNull(OnlineContinuationPolicy.contractIssue("sleep", "想休息"))
     }
 }
