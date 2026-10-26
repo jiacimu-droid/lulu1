@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:27:20.198741+00:00",
-  "commit": "81983c3b96c29341889a8fd9c06b826611445525",
+  "generatedAt": "2026-10-26T04:28:07.220096+00:00",
+  "commit": "c5f87804c7117f71c9089a3d93baafb5875d50d7",
   "branch": "main",
-  "sourceFingerprint": "3a9d8f39aba7db7e08e3140fd169a07c769e209750ad24254b32703cf56a9f29",
+  "sourceFingerprint": "e91bf92b14e9bd2310e0dc44eb160c784916e7b0da983e598df44c4445f249f6",
   "summary": {
-    "files": 923,
-    "lines": 182534,
-    "symbols": 2702
+    "files": 924,
+    "lines": 182577,
+    "symbols": 2703
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13362,6 +13362,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "PhoneOnBehalfSourceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt",
+        "line": 14
       }
     ],
     "PhoneSubtitleLayoutTest": [
@@ -29237,6 +29243,17 @@
         {
           "name": "PhoneMicSegmentPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt",
+      "lines": 43,
+      "sha256": "3cae6b2fe6bd3a457b86d3f7ae17b3cbd56da50c82c5dae0d3f4f74e44a3a9cd",
+      "symbols": [
+        {
+          "name": "PhoneOnBehalfSourceTest",
+          "line": 14
         }
       ]
     },
