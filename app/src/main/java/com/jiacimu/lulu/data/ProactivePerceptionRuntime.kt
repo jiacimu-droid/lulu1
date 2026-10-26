@@ -1745,23 +1745,10 @@ object ProactivePerceptionRuntime {
             appContext, characterId, decision.action.name.lowercase(),
         )
         if (decision.action != Action.SILENT) {
-            CharacterInnerLifeStore.recordConcernOutcome(
-                characterId, decision.concernId,
-                "proactive:${now.toEpochMilli()}:${decision.action.name}",
-                decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary, now,
-            )
-            // Report the decision's concrete action outcome to only the explicitly selected motive.
-            // No text or reasoning can mark an action complete without an executor result.
-            // Only an actual, role-owned executor event can count as a
-            // successful attempt. Synthetic cycle IDs are not delivery proofs.
-            if (!execution.primarySuccess || actionEvidenceId.isNotBlank()) {
-                CharacterInnerLifeStore.recordActionResult(
-                    characterId, resolvedMotiveId,
-                    if (execution.primarySuccess) actionEvidenceId else
-                        "proactive-failure:${now.toEpochMilli()}:${decision.action.name}",
-                    decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary, now,
-                )
-            }
+            // ToolRouter already projected each primary/side receipt to its
+            // own concern and motive, including rejection. Re-projecting a
+            // synthetic primary failure AFTER successful later steps would
+            // reverse their actual order and overwrite the newer progress.
             if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
                 characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
                 execution.primarySummary, canonicalInnerLife,
@@ -1797,7 +1784,7 @@ object ProactivePerceptionRuntime {
                             .repeatsConfirmedAction(it, execution.summary)
                     }.orEmpty()
                 else null,
-                gesture = if (execution.primarySuccess && physicalAction) execution.summary else null,
+                gesture = if (execution.primarySuccess && physicalAction) execution.primarySummary else null,
                 gestureVerified = execution.primarySuccess && physicalAction,
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
@@ -1902,16 +1889,8 @@ object ProactivePerceptionRuntime {
                 text = decision.text,
             ),
         )
-        // An intention is not a world fact; advance a stored desire ONLY after
-        // the existing real executor has returned success for its chosen action.
-        // The primary has no experience effect when it is SILENT.
-        // Each selected secondary tool is already attributed and projected
-        // by its own ToolRouter requestId/receipt; do not create a second,
-        // misleading "successful silent action" against this experience.
-        if (decision.action != Action.SILENT) CharacterLifeFollowThroughStore.recordAction(
-            characterId, decision.experienceId, decision.action.name,
-            execution.primarySuccess, execution.primarySummary, execution.evidenceId,
-        )
+        // Per-experience sharing progress is projected exactly once by
+        // ToolRouter from that action's own native receipt, as for side steps.
         val effectiveAction = if (execution.primarySuccess) decision.action else Action.SILENT
         // The character's "正在输入" must have a visible outcome if the model
         // chose an action that the real executor could not perform. Previously

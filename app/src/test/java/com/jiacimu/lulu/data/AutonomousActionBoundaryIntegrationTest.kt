@@ -105,7 +105,7 @@ class AutonomousActionBoundaryIntegrationTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun unansweredContactPacingIsPerActionAndReplayPreservesAlreadyDeliveredFact() = runBlocking {
+    @Test fun unansweredCountDoesNotVetoAChosenActionAndReplayPreservesAlreadyDeliveredFact() = runBlocking {
         val actor = role()
         CharacterLifeStore.consider(actor, JSONObject().put("aim", "还想一起讨论")
             .put("motive", "自己有个话题").put("nextStep", "等回应后再谈"), Instant.now())
@@ -122,11 +122,12 @@ class AutonomousActionBoundaryIntegrationTest {
         assertEquals(2, CharacterLifeStore.state(actor).getJSONObject("intention").getInt("unansweredContactAttempts"))
         val report = OrderedCharacterActions.execute(app, actor, JSONArray()
             .put(JSONObject().put("tool", "send_private_message")
-                .put("args", JSONObject().put("text", "第三次不应联系")))
+                .put("args", JSONObject().put("text", "第三条本人选择的主动联系")))
             .put(JSONObject().put("tool", "publish_moment").put("requiresPreviousSuccess", false)
                 .put("args", JSONObject().put("text", "独立的生活分享-${UUID.randomUUID()}"))),
             requestId = "follow-up-${UUID.randomUUID()}", intentionId = goalId, autonomousLifeTurn = true)
-        assertEquals(1, report.completedCount)
+        assertEquals(2, report.completedCount)
+        assertEquals(3, CharacterLifeStore.state(actor).getJSONObject("intention").getInt("unansweredContactAttempts"))
         val before = MigratedDomainStores.chat.conversations.value.filter { it.characterId == actor }
             .sumOf { MigratedDomainStores.chat.messages(it.id).value.size }
         assertEquals(first, ToolRouter.execute(app, actor, "send_private_message", firstArgs,
