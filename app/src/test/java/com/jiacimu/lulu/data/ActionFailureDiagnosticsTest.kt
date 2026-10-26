@@ -50,10 +50,22 @@ class ActionFailureDiagnosticsTest {
         MigratedDomainStores.characters.initialize(context)
         SharedExperienceTimeline.initialize(context)
         val role = MigratedDomainStores.characters.create("授权拒绝回归").characterId
+        CharacterInnerLifeStore.initialize(context)
+        val origin = "denial-origin-$role"
+        SharedExperienceTimeline.record(origin, role, "本人观察", "执行器",
+            "角色想查询设备状态，但尚未得到自主读取的许可",
+            source = "test", triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.observe(role, origin, "想弄清楚真实屏幕文字",
+            JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "确认实际屏幕信息")
+                .put("why", "希望了解已获得授权的现实信息"))))
+        val motiveId = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getString("id")
         val request = "permission-rejected-once-$role"
         val args = JSONObject()
         val first = JSONObject(ToolRouter.execute(context, role, "read_screen", args,
-            requestId = request, userRequested = false))
+            requestId = request, userRequested = false, motiveId = motiveId))
         assertFalse(first.optBoolean("success"))
         assertEquals("waiting_user", first.optString("status"))
         val evidenceId = "tool-rejected-$role-$request"
@@ -61,9 +73,16 @@ class ActionFailureDiagnosticsTest {
         assertEquals(EventEvidenceKind.ToolResult, recorded.evidenceKind)
         assertTrue(CharacterPerceptionContext.personalOutcome(recorded.source,
             recorded.content).orEmpty().contains("read_screen"))
+        val motive = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertEquals("needs_review", motive.getString("lastAttemptOutcome"))
+        assertEquals("active", motive.getString("status"))
+        assertTrue(motive.getJSONArray("outcomes").getJSONObject(0)
+            .getString("summary").contains("尚未获准"))
         val second = JSONObject(ToolRouter.execute(context, role, "read_screen", args,
-            requestId = request, userRequested = false))
+            requestId = request, userRequested = false, motiveId = motiveId))
         assertEquals(first.toString(), second.toString())
+        assertEquals(1, CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getJSONArray("outcomes").length())
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).size)
         assertTrue(SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).isEmpty())
