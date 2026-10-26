@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f92bad661ee9318cb725ef92769c1eca7cce989a`
+- 基准提交：`6a01e1fae8d5c03cf059d7760b9f3439a058c1dc`
 - 分支：`main`
 - 已索引文件：952
-- 已索引代码/文本行：188617
-- 已发现符号：2763
+- 已索引代码/文本行：188688
+- 已发现符号：2764
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -304,7 +304,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 202 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 118 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1802 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1822 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 673 | 6 |
@@ -809,7 +809,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 216 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 71 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 122 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 294 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
