@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.EventEvidenceKind
+import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.SharedTimelineEvent
 import com.jiacimu.lulu.design.LuluColors
@@ -34,9 +35,12 @@ internal data class RolePhoneSearchEntry(
     val status: String,
     val reason: String,
     val summary: String,
+    val reflection: String = "",
 )
 
-internal fun rolePhoneSearchEntries(events: List<SharedTimelineEvent>): List<RolePhoneSearchEntry> =
+internal fun rolePhoneSearchEntries(
+    events: List<SharedTimelineEvent>, innerHistory: JSONObject? = null,
+): List<RolePhoneSearchEntry> =
     events.asSequence().mapNotNull { event ->
         if (event.channel != "实际工具执行" || event.source != "tool-router" ||
             event.evidenceKind != EventEvidenceKind.ToolResult) return@mapNotNull null
@@ -58,23 +62,37 @@ internal fun rolePhoneSearchEntries(events: List<SharedTimelineEvent>): List<Rol
         val summary = result.optString("summary").ifBlank {
             result.optString("error").ifBlank { result.optString("message") }
         }
+        val transitions = innerHistory?.optJSONArray("causalTransitions")
+        val reflection = (0 until (transitions?.length() ?: 0))
+            .mapNotNull { transitions?.optJSONObject(it) }
+            .lastOrNull { it.optString("evidenceId") == event.id }
+            ?.let { transition ->
+                transition.optString("innerThought").ifBlank {
+                    transition.optJSONObject("appraisal")?.optString("meaning").orEmpty()
+                }
+            }.orEmpty()
         RolePhoneSearchEntry(
             id = event.id, kind = name, query = query.take(240),
             at = event.occurredAt,
             status = receipt.optString("status").ifBlank { "unknown" },
             reason = receipt.optString("reason").take(400),
             summary = summary.take(2400),
+            reflection = reflection.take(680),
         )
     }.sortedByDescending(RolePhoneSearchEntry::at).toList()
 
 @Composable
 internal fun RolePhoneBrowserHistory(roleId: String) {
     val revision by SharedExperienceTimeline.revisions.collectAsState()
+    val innerRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val entries by produceState<List<RolePhoneSearchEntry>>(
-        initialValue = emptyList(), roleId, revision,
+        initialValue = emptyList(), roleId, revision, innerRevision,
     ) {
         value = withContext(Dispatchers.IO) {
-            rolePhoneSearchEntries(SharedExperienceTimeline.recentEvents(roleId, 1600))
+            rolePhoneSearchEntries(
+                SharedExperienceTimeline.recentEvents(roleId, 1600),
+                CharacterInnerLifeStore.historySnapshot(roleId),
+            )
         }
     }
     var expanded by remember(roleId) { mutableStateOf<String?>(null) }
@@ -117,6 +135,10 @@ internal fun RolePhoneBrowserHistory(roleId: String) {
                         if (entry.reason.isNotBlank()) {
                             Text("当时的动机", fontWeight = FontWeight.Medium, fontSize = 12.sp)
                             Text(entry.reason, fontSize = 13.sp)
+                        }
+                        if (entry.reflection.isNotBlank()) {
+                            Text("检索后自己的感想", fontWeight = FontWeight.Medium, fontSize = 12.sp)
+                            Text(entry.reflection, fontSize = 13.sp)
                         }
                         Text("实际回执", fontWeight = FontWeight.Medium, fontSize = 12.sp)
                         Text(entry.summary.ifBlank { "没有可显示的结果正文" }, fontSize = 13.sp)
