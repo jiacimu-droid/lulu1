@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:20:57.854490+00:00",
-  "commit": "04879a34613ed24163380d50f7245cab71b12bde",
+  "generatedAt": "2026-10-26T03:21:14.057108+00:00",
+  "commit": "8ce3ba4fc0a76687a7d84aa20381b78b4310dcba",
   "branch": "main",
-  "sourceFingerprint": "e2936d52376e3cc13a864c637285747927f980ed89a7d1af36b61431ce856af8",
+  "sourceFingerprint": "456895b6b7cee8c38409a3fa6cc58e50cc7c69b5748b9aada77c133ff6d0a78f",
   "summary": {
     "files": 918,
-    "lines": 180947,
+    "lines": 180958,
     "symbols": 2695
   },
   "symbolIndex": {
@@ -1671,7 +1671,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 125
+        "line": 136
       }
     ],
     "angles": [
@@ -10041,19 +10041,19 @@
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 54
+        "line": 65
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 110
+        "line": 121
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 119
+        "line": 130
       }
     ],
     "RoleDayPlan": [
@@ -24843,8 +24843,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 172,
-      "sha256": "8d4425d9a79bac57c755968693a06dd7f7a39007ced60dde0d7c4ee6b9ba8d48",
+      "lines": 183,
+      "sha256": "b8f904ebbe4221de5160836004ef248769893845d3ce7f346bf988eaf1d6d285",
       "symbols": [
         {
           "name": "contactsOf",
@@ -24856,19 +24856,19 @@
         },
         {
           "name": "evidenceId",
-          "line": 54
+          "line": 65
         },
         {
           "name": "canContact",
-          "line": 110
+          "line": 121
         },
         {
           "name": "visibleContacts",
-          "line": 119
+          "line": 130
         },
         {
           "name": "send",
-          "line": 125
+          "line": 136
         }
       ]
     },
