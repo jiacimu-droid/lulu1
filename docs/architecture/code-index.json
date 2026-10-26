@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:55:24.084123+00:00",
-  "commit": "64ab04ad006a961e0c4650ab2129a5c5e297e9de",
+  "generatedAt": "2026-10-26T04:00:27.391257+00:00",
+  "commit": "5b159fc610be13d52507c1420b07040d40926a2a",
   "branch": "main",
-  "sourceFingerprint": "d632adafa59237837644e81571fd096e215249ac639ade34b5b97029404a3d0f",
+  "sourceFingerprint": "4efd8f5a1b56b725d45126f132caa5d2cf441389a5312124792bcabb55b1c27a",
   "summary": {
     "files": 921,
     "lines": 182081,
@@ -9377,13 +9377,13 @@
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 470
+        "line": 472
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 479
+        "line": 481
       }
     ],
     "toggleUserLike": [
@@ -24097,7 +24097,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
       "lines": 1046,
-      "sha256": "01a6e6a0968c0ad7cd0fa72bed45d3f5da5a85b9d3f411da87391a3c9e73d09f",
+      "sha256": "77e409a9074b75e82f8e6c6838b6eab40c9bc34005c1e4fd14eaf2790add5c39",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -24149,11 +24149,11 @@
         },
         {
           "name": "likeAsCharacter",
-          "line": 470
+          "line": 472
         },
         {
           "name": "commentAsCharacter",
-          "line": 479
+          "line": 481
         },
         {
           "name": "toggleUserLike",
