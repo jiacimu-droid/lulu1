@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:44:54.206201+00:00",
-  "commit": "d606541ae367aa9b420cb1032f917a35b8187369",
+  "generatedAt": "2026-10-26T05:55:23.300197+00:00",
+  "commit": "b64b47987b51952b54ca2b310f438b396f34d8de",
   "branch": "main",
-  "sourceFingerprint": "d4259431e661aedb095be6938900f55d7c448ac65fcbfc03ae754438468ed089",
+  "sourceFingerprint": "a69d433551e67310636907d20f949ae67f1a6844796a978a2e9a4658df2f198a",
   "summary": {
     "files": 925,
-    "lines": 182992,
+    "lines": 182997,
     "symbols": 2705
   },
   "symbolIndex": {
@@ -757,7 +757,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 44
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -1003,7 +1003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 140
+        "line": 145
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -4875,7 +4875,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 167
+        "line": 172
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -5509,7 +5509,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 51
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
@@ -6487,7 +6487,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 56
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7341,49 +7341,49 @@
     "lifeForm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 54
+        "line": 59
       }
     ],
     "isResolved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 57
+        "line": 62
       }
     ],
     "birthAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 58
+        "line": 63
       }
     ],
     "allowsTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 60
+        "line": 65
       }
     ],
     "registerNewLife": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 68
+        "line": 73
       }
     ],
     "registerRealWorldLife": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 76
+        "line": 81
       }
     ],
     "confirmLegacyLifeForm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 112
+        "line": 117
       }
     ],
     "restartOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 153
+        "line": 158
       }
     ],
     "optionsFor": [
@@ -21980,8 +21980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 244,
-      "sha256": "f69ccab6ef838cd33846a5a643d8bafc0220c8202733e8dedd5bd4ba23452d27",
+      "lines": 249,
+      "sha256": "fe7d02a6f8a7e091cdcb273f52011a9eeb4bc8cb51e2f1447d759294eaea3adc",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -21997,55 +21997,55 @@
         },
         {
           "name": "initialize",
-          "line": 44
+          "line": 42
         },
         {
           "name": "get",
-          "line": 51
-        },
-        {
-          "name": "lifeForm",
-          "line": 54
-        },
-        {
-          "name": "isEnabled",
           "line": 56
         },
         {
+          "name": "lifeForm",
+          "line": 59
+        },
+        {
+          "name": "isEnabled",
+          "line": 61
+        },
+        {
           "name": "isResolved",
-          "line": 57
+          "line": 62
         },
         {
           "name": "birthAt",
-          "line": 58
+          "line": 63
         },
         {
           "name": "allowsTimestamp",
-          "line": 60
+          "line": 65
         },
         {
           "name": "registerNewLife",
-          "line": 68
+          "line": 73
         },
         {
           "name": "registerRealWorldLife",
-          "line": 76
+          "line": 81
         },
         {
           "name": "confirmLegacyLifeForm",
-          "line": 112
+          "line": 117
         },
         {
           "name": "remove",
-          "line": 140
+          "line": 145
         },
         {
           "name": "restartOrigin",
-          "line": 153
+          "line": 158
         },
         {
           "name": "promptSection",
-          "line": 167
+          "line": 172
         }
       ]
     },
