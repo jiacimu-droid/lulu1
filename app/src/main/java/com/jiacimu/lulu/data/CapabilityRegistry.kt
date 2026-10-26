@@ -26,7 +26,7 @@ object CapabilityRegistry {
         Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
-    val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
+    val application = listOf("send_private_message", "send_group_message", "create_group_chat", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
         "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "start_study_watch", "stop_study_watch", "verify_commitment", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search", "image_search")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false, retired = it == "write_journal") }
     val external = listOf(
@@ -60,7 +60,7 @@ object CapabilityRegistry {
         if (capability.retired) return false
         if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request",
-                "send_private_message", "send_group_message", "send_character_message",
+                "send_private_message", "send_group_message", "create_group_chat", "send_character_message",
                 "play_solo_game", "go_offline")
         }
         if (capability.name == com.jiacimu.lulu.ai.JevDirections.TOOL)
