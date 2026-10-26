@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:45:06.053713+00:00",
-  "commit": "5a53482521124bff9e55698a3f27a6e21be8f756",
+  "generatedAt": "2026-10-26T03:45:22.051103+00:00",
+  "commit": "30614ce7ae704d17a256d23765e196e624a626fd",
   "branch": "main",
-  "sourceFingerprint": "fc9741a65b40ecda397f035781ec6ed10c2421306cbb69c4b99e7408c67ceaba",
+  "sourceFingerprint": "3759d7a84759445a74abab97b4c0f4ab1fe873f58651e5bb7e5c3523a2c2a02d",
   "summary": {
     "files": 920,
     "lines": 181773,
@@ -20002,7 +20002,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 1784,
-      "sha256": "1e1462ae9f13818ee388073bcc623745acc998d9f08f3079abe1808940f1a192",
+      "sha256": "0b7f4d628c53944ad6b43f11cc12d6ad79aadf3e6d737d194521110129acc6db",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
