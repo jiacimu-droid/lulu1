@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e922db7f38be56822609f59cf46fd5a2ed54816e`
+- 基准提交：`3764c5392cb5d973f876487c1a34cf60954a98e2`
 - 分支：`main`
 - 已索引文件：925
-- 已索引代码/文本行：183100
+- 已索引代码/文本行：183101
 - 已发现符号：2706
 
 | 文件 | 行数 | 符号数 |
@@ -472,7 +472,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 165 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 128 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 106 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 92 | 3 |
