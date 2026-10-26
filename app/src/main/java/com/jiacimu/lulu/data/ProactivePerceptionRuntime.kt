@@ -1145,6 +1145,54 @@ object ProactivePerceptionRuntime {
             // rather than becoming another successful "silent" history entry.
             throw IllegalStateException("后台主动感知未返回有效决定，等待限次恢复")
         }
+        // A schema error in the online field does NOT transfer its decision
+        // to the executor. Reask the same role once; keep the already chosen
+        // outward actions and private psychology untouched.
+        if (onlineExpiryAtMillis > 0L) {
+            val onlineIssue = OnlineContinuationPolicy.contractIssue(
+                parsed.onlineChoice, parsed.onlineChoiceReason)
+            if (onlineIssue != null) {
+                val correction = LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = buildString {
+                        appendLine("同一轮在线决定的结构错误：" + onlineIssue)
+                        appendLine("原在线选择：" + parsed.onlineChoice.ifBlank { "未填写" })
+                        appendLine("原在线理由：" + parsed.onlineChoiceReason.ifBlank { "未填写" })
+                        appendLine("原行动已经选择：" + parsed.action.name.lowercase())
+                        appendLine("原始情境：" + trigger.take(160))
+                        appendLine("此前真实经历：" + recentLifeContext.takeLast(900))
+                    },
+                    instruction = """
+                        你是同一个角色，这只是补正上一次模型回答里的在线字段，不是新一轮行动。
+                        本轮已经选好的发言、工具和私人感受都原样保留，不要再执行、不重写它们。
+                        继续在线或休眠应由你本人决定。若你已经选过 continue/sleep，
+                        保留真正想要的选择并补充本人理由；若原选择缺失，由你自己重新考虑。
+                        理由可以很短，不需要迎合程序、不必假装想睡。不要编造事实或凑理由。
+                        只输出完整 JSON：{"onlineDecision":{"choice":"continue|sleep","reason":"真实理由"}}。
+                    """.trimIndent(),
+                    source = "同次在线决定·字段补正",
+                    title = character.displayName + "补正在线决定",
+                    maxTokens = 300,
+                    connectionOverride = connection,
+                ).getOrNull()?.text
+                    ?.let { ModelStructuredOutput.objectOrNull(it) }
+                    ?.optJSONObject("onlineDecision")
+                val proposedChoice = correction?.optString("choice")?.trim()?.lowercase().orEmpty()
+                val proposedReason = correction?.optString("reason")?.trim().orEmpty()
+                if (OnlineContinuationPolicy.contractIssue(proposedChoice, proposedReason) == null) {
+                    parsed = parsed.copy(
+                        onlineChoice = proposedChoice,
+                        onlineChoiceReason = proposedReason.take(220),
+                    )
+                } else {
+                    CompanionPresenceStore.recordPerceptionAttempt(
+                        characterId,
+                        "模型在线字段尚未补正：" + onlineIssue + "；不会当成角色自愿休眠",
+                        Instant.now(),
+                    )
+                }
+            }
+        }
         // The main appraisal may repeatedly answer "nobody wrote to me, so nothing to do".
         // One bounded second look during an online window challenges *that reason*,
         // not the character's freedom to choose real solitude.
