@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T07:02:20.808946+00:00",
-  "commit": "fcf768531c18eae1d5ee078d755386cf07b42bb8",
+  "generatedAt": "2026-10-26T07:02:37.020112+00:00",
+  "commit": "bc36b773f0a3b75a8c82055377f3329e6c419569",
   "branch": "main",
-  "sourceFingerprint": "19a00c6e0a79538e798608e0651d52fffea44b6c3c02b50fe48cc8cc9a46ffab",
+  "sourceFingerprint": "74f55205e91c63ce1dcbdd0faff357f9170d1f04479ecd0f830116b71af8ff60",
   "summary": {
     "files": 926,
-    "lines": 183485,
+    "lines": 183500,
     "symbols": 2708
   },
   "symbolIndex": {
@@ -29324,8 +29324,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
-      "lines": 87,
-      "sha256": "be9472094ca83b893408f73ee7669fa008a027cea8b1a66f442010561d38aa0f",
+      "lines": 102,
+      "sha256": "f686b6b53494977c92edc3154f7e0b5fad45ab7665d500f333bca3748acd52c6",
       "symbols": [
         {
           "name": "PresencePresentationTest",
