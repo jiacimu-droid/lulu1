@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:36:03.975001+00:00",
-  "commit": "00e46982b97c475324a0cb13bc3c3a4d662a6b94",
+  "generatedAt": "2026-10-26T08:37:18.199566+00:00",
+  "commit": "477ec94d269a7891887d3ce2a01dc24b63a874d1",
   "branch": "main",
-  "sourceFingerprint": "2efbd245215cc3414d5e0afc55fd6ed2793267f71b412ac72aa1bbfe73bfadae",
+  "sourceFingerprint": "5ee6206ab1a8e4ae63f2f17309c87313a6481f40d552c4b0e744ff938c6000a4",
   "summary": {
     "files": 929,
-    "lines": 184222,
+    "lines": 184231,
     "symbols": 2722
   },
   "symbolIndex": {
@@ -25510,7 +25510,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
       "lines": 242,
-      "sha256": "5a2327b8a62d4eec9d93a08002ca2583e7fdcfdc0fb5acee983496103e3f5616",
+      "sha256": "da57ee3b11387a7d92760cfab607ef81f44907443a61ce4dcc70dfc9ae73e811",
       "symbols": [
         {
           "name": "age",
@@ -31949,8 +31949,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
-      "lines": 148,
-      "sha256": "ba55209954f0180db321437a121e06ef89462cd6facafd6f2b0e8fe237e47e8c",
+      "lines": 157,
+      "sha256": "f6dc18699a73481a295a4250f02b3994202d2176231a717b682ac1a1a1f87ce8",
       "symbols": [
         {
           "name": "UserRoutinePatternsTest",
