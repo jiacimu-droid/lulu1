@@ -118,7 +118,24 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
     layer.update(values, { deltaMs: 16, seconds: 1 + i * .016,
       authoredMotion: false, touchReflex: null })
   }
-  assert.ok(Math.abs(values.ParamAngleZ) < .05 &&
-    Math.abs(values.ParamBodyAngleZ) < .05,
-    'motion + touch ends with a neutral head and torso')
+  // Neutral is not literally 0: the renderer intentionally retains a
+  // <0.25° breathing sway even at rest. Compare against the SAME idle
+  // actuator trajectory instead of falsely requiring exact zero and
+  // blocking APKs whenever the breathing phase is not near its zero crossing.
+  const idleValues = {
+    ParamAngleX: 0, ParamAngleY: 0, ParamAngleZ: 0,
+    ParamBodyAngleX: 0, ParamBodyAngleY: 0, ParamBodyAngleZ: 0,
+  }
+  const idleLayer = createVisualLayerRuntime({
+    has: (_core, id) => Object.hasOwn(idleValues, id),
+    read: (_core, id) => idleValues[id],
+    write: (_core, id, value) => { idleValues[id] = value },
+  })
+  for (let i = 0; i < 270; i++) {
+    idleLayer.update(idleValues, { deltaMs: 16, seconds: 1 + i * .016,
+      authoredMotion: false, touchReflex: null })
+  }
+  assert.ok(Math.abs(values.ParamAngleZ - idleValues.ParamAngleZ) < .05 &&
+    Math.abs(values.ParamBodyAngleZ - idleValues.ParamBodyAngleZ) < .05,
+    'motion + touch must converge to the normal breathing posture, with no residual recoil')
 }
