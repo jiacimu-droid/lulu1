@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:18:31.320557+00:00",
-  "commit": "03e957823085bfc2f060c0317f87e43a7b9ea116",
+  "generatedAt": "2026-10-26T04:19:07.349543+00:00",
+  "commit": "a932335869d3487e3dd90e34f0597045bb3a2995",
   "branch": "main",
-  "sourceFingerprint": "7aa2b92fe9cf9347f938b01c69d1fb65659b2faf9c255f84b93978e00f3c0984",
+  "sourceFingerprint": "919b14bd6b1989b04eff84f6ab2e30f7cd9cc082a7987bfb4c5aef4a608fe5b5",
   "summary": {
-    "files": 922,
-    "lines": 182409,
-    "symbols": 2701
+    "files": 923,
+    "lines": 182460,
+    "symbols": 2702
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13410,6 +13410,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt",
         "line": 11
+      }
+    ],
+    "RolePhoneBrowserHistoryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt",
+        "line": 9
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -29319,6 +29325,17 @@
         {
           "name": "QqXhsShareCodecTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt",
+      "lines": 51,
+      "sha256": "d8a7310bba2b4319ad34bb1a177e58ab25e1bfa0d2b863482fb4502a6c943378",
+      "symbols": [
+        {
+          "name": "RolePhoneBrowserHistoryTest",
+          "line": 9
         }
       ]
     },
