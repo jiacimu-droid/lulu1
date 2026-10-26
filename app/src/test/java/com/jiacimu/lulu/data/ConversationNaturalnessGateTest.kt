@@ -20,12 +20,17 @@ class ConversationNaturalnessGateTest {
         assertNotNull(ConversationNaturalnessGate.onlinePrivateReview(
             "我现在要睡了", listOf(screenshotLike.joinToString("")),
             hasVoice = false, hasLinkedActions = false))
-        val natural = listOf("困了还逞强？", "快睡，醒了再说。")
+        val natural = listOf("困了还逞强。", "快睡，醒了再说。")
         assertNull(ConversationNaturalnessGate.onlinePrivateReview(
             "我现在要睡了", natural, hasVoice = false, hasLinkedActions = false))
         assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
             "我现在要睡了", screenshotLike, natural, review,
             ConversationNaturalnessGate.assess("我现在要睡了", natural)))
+        // Cosmetic editing must not add a new question when the role did not ask one.
+        val changedIntent = listOf("困了还逞强？", "快睡，醒了再说。")
+        assertFalse(ConversationNaturalnessGate.shouldUseRewrite(
+            "我现在要睡了", screenshotLike, changedIntent, review,
+            ConversationNaturalnessGate.assess("我现在要睡了", changedIntent)))
     }
 
     @Test fun onlineReviewDoesNotRewriteVoiceOrLinkedActionsOrQuoteTokens() {
