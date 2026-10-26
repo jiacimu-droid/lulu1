@@ -1203,23 +1203,21 @@ object ProactivePerceptionRuntime {
             parsed.appraisal?.optJSONObject("ownActivity") ?:
                 CharacterSelfActivityRuntime.latestConsideration(appContext, characterId),
         )
-        val rememberedChoices = CharacterActionFollowThroughPolicy.pendingChoices(
-            CharacterInnerLifeStore.snapshot(characterId),
-            CharacterLifeStore.state(characterId).optJSONObject("intention"), null, "",
+        // Reuse the very same evidence-backed attention worklist the first
+        // decision actually saw. Previously this optional review rebuilt its
+        // own priority order from motive/share/curiosity stores and clipped it,
+        // causing a single perception to reason over conflicting shortlists.
+        // Only newly authored impulses and a still-active legacy intention
+        // are additional; no second goal store, action choice or model call.
+        val legacyIntention = CharacterIntentionContinuation.cue(
+            CharacterLifeStore.state(characterId).optJSONObject("intention")
+                ?.takeUnless { it.optString("disposition") in setOf("pause", "release") },
         )
-        // The character's own real but unresolved life remains a candidate even
-        // if this model response said silent. A second look still may freely say no.
-        // Share cues used to come AFTER six competing concerns/goals and were
-        // clipped before the independent action review saw them at all. Reserve
-        // one slot for a real held/high-urge experience, without forcing speech
-        // or starting another model cycle.
-        val shareChoices = CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now)
-        val pendingChoices = (immediateChoices.take(1) + shareChoices.take(1) +
-            unfinishedChoices.filterNot { it.kind == "想分享" }.map { it.render() } +
-            immediateChoices.drop(1) + rememberedChoices + shareChoices.drop(1) +
-            CharacterCuriosityRuntime.pendingDecisionCues(characterId) +
-            listOf(CharacterLearningAgenda.prompt(characterId, now)).filter(String::isNotBlank))
-            .distinct().take(6)
+        val pendingChoices = CharacterActionFollowThroughPolicy.unifiedReviewChoices(
+            immediate = immediateChoices,
+            visibleUnfinished = unfinishedChoices.map { it.render() },
+            legacyIntention = legacyIntention,
+        )
         val ownActivityAlreadyExecutable = CharacterSelfActivityRuntime.parse(
             parsed.appraisal?.optJSONObject("ownActivity"), readingBooks.mapTo(hashSetOf()) { it.id }, digital,
         ) { incidentId, approach -> DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach) } != null
