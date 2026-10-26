@@ -1630,24 +1630,32 @@ object CharacterInnerLifeStore {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("最近自我修正：${last?.optString("nextTime")?.take(140)}")
             }
-            // Batch 3, topic candidates: compact used to deliver only the single
-            // latest thought within 18h, so a private-chat "find a topic yourself"
-            // turn almost never saw the character's pending thoughts. Deliver up
-            // to 4 recent thoughts within 72h (age is shown, so the model can
-            // judge staleness itself); the model still picks at most one, or
-            // none, and never reads this list aloud or turns it into todos.
+            // Batch 3 fix, topic candidates: NO time limit. A thought has no
+            // stored resolved/spoken flag and no motive/concern link in this
+            // store (observe() writes only thought/impulse/hesitation/
+            // evidenceId/at), so "unresolved" cannot be proved from a flag
+            // here. The honest local rule is therefore: deliver the newest
+            // bounded set regardless of age, show age in days once it passes
+            // a day, and let the role judge against the active motives,
+            // still-open concerns and closed-concern closures delivered in
+            // this same context. The only future-date guard is a clock-skew
+            // guard, not a TTL. The model still picks at most one, or none,
+            // and never reads this list aloud or turns it into todos.
             val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
                 .filter { item ->
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { !it.isAfter(now) && Duration.between(it, now) <= Duration.ofHours(72) } == true
+                        ?.let { !it.isAfter(now) } == true
                 }.takeLast(4)
             if (recentThoughts.isNotEmpty()) {
-                appendLine("【还没说出口的琢磨事｜自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；回答用户问题时不用硬找话题】")
+                appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；对照同一轮里已有的在意事项、仍在挂心的心事和已走过的心路判断它是否还悬而未决，已经说过、已经想通、已经放下或已经不重要了的不要翻出来；回答用户问题时不用硬找话题】")
                 recentThoughts.forEach { item ->
-                    val ageHours = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { Duration.between(it, now).toHours().coerceAtLeast(0) }
+                    val ageText = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { at ->
+                            val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
+                            if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
+                        }.orEmpty()
                     appendLine("· ${item.optString("thought").take(170)}；犹豫=${item.optString("hesitation").take(120)}" +
-                        (if (ageHours != null) "；约${ageHours}小时前" else ""))
+                        (if (ageText.isNotBlank()) "；$ageText" else ""))
                 }
             }
             // Read actual executor receipts even when no motiveId was supplied.
@@ -1745,15 +1753,27 @@ object CharacterInnerLifeStore {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")
             }
+            // Batch 3 fix: same no-time-limit rule as compactContext. No
+            // stored resolved flag exists for thoughts, so age is shown (in
+            // days once past a day) and resolution is judged by the role
+            // against the active motives, still-open concerns and closures
+            // delivered in this same context. Future dates are excluded
+            // only as a clock-skew guard, not as a TTL.
             val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
                 .filter { item ->
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { at -> !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(72) } == true
+                        ?.let { at -> !at.isAfter(now) } == true
                 }.takeLast(6)
             if (recentThoughts.isNotEmpty()) {
-                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来】")
+                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；没有时间限制：只要还没解决，不论多久以前都可以聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经说过、想通、放下或不重要的不要翻出来】")
                 recentThoughts.forEach { item ->
-                    appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}")
+                    val ageText = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { at ->
+                            val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
+                            if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
+                        }.orEmpty()
+                    appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}" +
+                        (if (ageText.isNotBlank()) "；$ageText" else ""))
                 }
                 appendLine("这些念头可以冲突，也可以随着新事件消退。若要落实，先检查对方边界和实际工具；下一轮须依据真实结果修正，不得把想象写成执行成功。")
             }
