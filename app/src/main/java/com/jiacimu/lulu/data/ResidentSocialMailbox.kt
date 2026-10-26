@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -21,6 +23,8 @@ internal object ResidentSocialMailbox {
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private var messages: List<ResidentDirectMessage> = emptyList()
+    private val changeCount = MutableStateFlow(0L)
+    val revisions = changeCount.asStateFlow()
     private fun cursorKey(role: String) = "considered-incoming:$role"
 
     @Synchronized fun initialize(context: Context) {
@@ -39,6 +43,7 @@ internal object ResidentSocialMailbox {
                     o.optString("author", "character"))
             }
         }.getOrDefault(emptyList())
+        changeCount.value += 1
     }
 
     fun contactsOf(characterId: String): Set<String> = synchronized(this) {
@@ -177,6 +182,7 @@ internal object ResidentSocialMailbox {
                 }.onFailure { android.util.Log.w("ResidentMail", "Mail wake scheduling failed", it) }
             }
         }
+        changeCount.value += 1
         return item
     }
 }
