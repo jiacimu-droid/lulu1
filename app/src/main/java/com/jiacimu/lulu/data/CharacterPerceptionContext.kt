@@ -123,7 +123,8 @@ internal object CharacterPerceptionContext {
         events.filter { event ->
             ((event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE,
-                    "xiaohongshu-webview", "xiaohongshu-mcp") ||
+                    "xiaohongshu-webview", "xiaohongshu-mcp",
+                    "owner-phone-inspection", "group-membership") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
                 (event.evidenceKind == EventEvidenceKind.ToolResult &&
@@ -193,7 +194,8 @@ internal object CharacterPerceptionContext {
             setOf(if (event.characterId == message.toId) message.fromId else message.toId)
         } ?: if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
-            event.source == InteractionSignalBridge.SOURCE) setOf("user")
+            event.source == InteractionSignalBridge.SOURCE ||
+            event.source == "owner-phone-inspection") setOf("user")
         else if (event.source == "meeting") DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == event.sessionId }?.turns.orEmpty().mapNotNull { it.speakerId }
             .filter { it.startsWith("resident:") }.toSet()
