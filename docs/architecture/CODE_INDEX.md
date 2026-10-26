@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3764c5392cb5d973f876487c1a34cf60954a98e2`
+- 基准提交：`faae85b931fcd4fabc4830087be2097a70a7f816`
 - 分支：`main`
 - 已索引文件：925
-- 已索引代码/文本行：183101
+- 已索引代码/文本行：183102
 - 已发现符号：2706
 
 | 文件 | 行数 | 符号数 |
@@ -471,7 +471,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 269 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 165 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 166 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 106 | 5 |
