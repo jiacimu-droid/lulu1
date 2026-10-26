@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`42edc4d225fe94f0df528c06953e9aaae8071f1e`
+- 基准提交：`c235c997a176d00ccdda45e4ad2cdb854f9131dd`
 - 分支：`main`
 - 已索引文件：928
-- 已索引代码/文本行：184043
+- 已索引代码/文本行：184088
 - 已发现符号：2720
 
 | 文件 | 行数 | 符号数 |
@@ -761,7 +761,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 249 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 307 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 58 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 417 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 438 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
@@ -889,7 +889,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 92 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 304 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 124 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |

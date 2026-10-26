@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:30:34.495046+00:00",
-  "commit": "42edc4d225fe94f0df528c06953e9aaae8071f1e",
+  "generatedAt": "2026-10-26T08:30:52.074819+00:00",
+  "commit": "c235c997a176d00ccdda45e4ad2cdb854f9131dd",
   "branch": "main",
-  "sourceFingerprint": "e94cbc3605a920a3a8f111378b35e599ada07cd2ddebcb51c75c937c5aeef06f",
+  "sourceFingerprint": "acf80ad5b346f0bd8325c5db1b6b8a331ddf6d8a0be469c891c67a670a862e4b",
   "summary": {
     "files": 928,
-    "lines": 184043,
+    "lines": 184088,
     "symbols": 2720
   },
   "symbolIndex": {
@@ -30327,8 +30327,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 417,
-      "sha256": "5a3f8b0f1bb0fc6b3aa81e5024e162012b6335126ee47d60dd4fc8f82d4f415c",
+      "lines": 438,
+      "sha256": "a8bf7038089c181ac4be6de5619dc078364105d82d89a78d54437d892f5fa38d",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -31923,8 +31923,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
-      "lines": 124,
-      "sha256": "7c7cfc7a1efa22682a7ea44034710bc04c1f69a264199055e0618b8adbd8734e",
+      "lines": 148,
+      "sha256": "ba55209954f0180db321437a121e06ef89462cd6facafd6f2b0e8fe237e47e8c",
       "symbols": [
         {
           "name": "UserRoutinePatternsTest",
