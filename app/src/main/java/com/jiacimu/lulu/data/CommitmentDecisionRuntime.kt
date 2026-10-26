@@ -18,113 +18,61 @@ internal object CommitmentDecisionRuntime {
     }
 
     /**
-     * Repair an accepted, explicit wake-up promise which the main model omitted
-     * from commitmentChanges (including a model decision already marked handled).
-     *
-     * Runs ONLY after actual user and role messages are delivered. The character
-     * (original planner or focused model recovery) must SELECT the wake method.
-     * This verifier ONLY checks time, responsibility, existing tasks and delivery
-     * evidence; it must never silently turn "wake me" into a chat message.
+     * The model has the sole authority to interpret the date, time and which
+     * prior promise to amend. This recovery runs only when the normal role
+     * decision already produced a reply but lost or contradicted its structured
+     * scheduling action. No parser can manufacture or override a deadline.
      */
-    suspend fun ensureAcceptedWake(
+    suspend fun applyModelRecovery(
         context: Context,
         characterId: String,
         sourceTurnId: String,
         evidenceIds: List<String>,
-        userText: String,
-        roleText: String,
-        userAt: Instant,
-        now: Instant = Instant.now(),
-        zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
-        selectedDeliveryAction: String? = null,
-    ): CommitmentTask? = mutex.withLock {
-        if (characterId.isBlank() || evidenceIds.isEmpty() || sourceTurnId.isBlank()) return@withLock null
-        val normalizedUser = userText.trim()
-        val proposed = RelativeWakeCommitmentParser.parse(normalizedUser, roleText, userAt, zone)
-            ?: WakeCommitmentParser.parse(normalizedUser, roleText, userAt, zone)
-            ?: return@withLock null
-        val due = proposed.dueAt ?: return@withLock null
-        val requestedPhone = proposed.deliveryAction == "start_call"
-
+        drafts: List<CommitmentTaskDraft>,
+    ): List<CommitmentTask> = mutex.withLock {
+        if (evidenceIds.isEmpty() || characterId.isBlank()) return@withLock emptyList()
         CommitmentTaskStore.initialize(context)
-        val all = CommitmentTaskStore.snapshot(characterId)
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val recoveryKey = "$characterId:$sourceTurnId"
+        if (recoveryKey in prefs.getStringSet("recovery_handled", emptySet()).orEmpty())
+            return@withLock emptyList()
+
+        val before = CommitmentTaskStore.snapshot(characterId)
+        val active = before.filter { it.status.isActive() }
         val sourceIds = evidenceIds.map { it.substringBefore(":group:") }.toSet()
-        // Treat a model-created task with this original message as the same
-        // responsibility. A blocked task should remain visibly blocked; never
-        // hide it by creating a second alarm with the same deadline.
-        val matchingSource = all.firstOrNull { task ->
-            task.isWakeResponsibility() && task.sourceEventIds.any {
-                it.substringBefore(":group:") in sourceIds
+        val proposed = drafts.filter { draft ->
+            // Replaying a role's original reply must not create a second task.
+            // To CHANGE a previous task the model must name its precise ID;
+            // a program side date parser never supplies that missing decision.
+            draft.action != "create" || active.none { existing ->
+                existing.sourceEventIds.any { it.substringBefore(":group:") in sourceIds }
             }
         }
-        val sameDeadline = all.firstOrNull { task ->
-            task.isWakeResponsibility() && task.dueAt != null &&
-                kotlin.math.abs(java.time.Duration.between(task.dueAt, due).seconds) <= 30L &&
-                task.deliveryAction in setOf("start_call", "alarm_only") &&
-                (!requestedPhone || task.deliveryAction == "start_call") &&
-                task.status != CommitmentTaskStatus.Cancelled
+        proposed.forEach { draft ->
+            if (draft.action != "create") require(active.any { it.id == draft.targetTaskId }) {
+                "恢复决策没有选中有效约定ID，未更改其他日程"
+            }
         }
-        fun hasValidAlarm(task: CommitmentTask): Boolean =
-            task.deliveryAction in setOf("start_call", "alarm_only") &&
-                (!requestedPhone || task.deliveryAction == "start_call") &&
-                task.status != CommitmentTaskStatus.NeedsClarification &&
-                !(task.status == CommitmentTaskStatus.Scheduled &&
-                    task.linkedAlarmId.isNullOrBlank())
-        // If the model guessed a different deadline for the SAME user turn,
-        // the explicit accepted relative time wins. Do not keep the wrong alarm.
-        val sourceDeadlineAccurate = matchingSource?.dueAt?.let {
-            kotlin.math.abs(java.time.Duration.between(it, due).seconds) <= 30L
-        } == true
-        if (matchingSource != null && hasValidAlarm(matchingSource) &&
-            sourceDeadlineAccurate)
-            return@withLock matchingSource
-        if (sameDeadline != null && hasValidAlarm(sameDeadline))
-            return@withLock sameDeadline
-
-        // Never register an old alarm retrospectively when opening an old chat.
-        if (!due.isAfter(now.plusSeconds(5))) return@withLock null
-        // Only model-selected audible methods qualify as waking someone up.
-        // A private text bubble is not proof of an audible wake. No program-side
-        // preference, keyword default or quiet automatic downgrade.
-        val chosen = selectedDeliveryAction?.takeIf { it in setOf("start_call", "alarm_only") }
-            ?: return@withLock null
-        if (requestedPhone && chosen != "start_call") return@withLock null
-
-        val wantsReschedule = listOf("再叫我", "改成", "改到", "改为", "推迟", "延后")
-            .any(normalizedUser::contains)
-        val prior = when {
-            matchingSource != null -> matchingSource
-            sameDeadline != null -> sameDeadline
-            wantsReschedule -> all.filter { it.status.isActive() && it.isWakeResponsibility() }
-                .singleOrNull()
-            else -> null
+        applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, proposed)
+        val changed = CommitmentTaskStore.snapshot(characterId).filter { after ->
+            before.none { it.id == after.id && it.revision == after.revision }
         }
-        val change = if (prior != null) proposed.copy(
-            action = "reschedule", targetTaskId = prior.id,
-            deliveryAction = chosen,
-        ) else proposed.copy(deliveryAction = chosen)
-        applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, listOf(change))
-        val created = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
-            if (prior != null) task.id == prior.id
-            else task.isWakeResponsibility() &&
-                task.sourceTurnId == sourceTurnId &&
-                task.sourceEventIds.any { it.substringBefore(":group:") in sourceIds }
-        } ?: throw IllegalStateException("接受了明确叫醒约定，但承诺任务没有保存")
-        val receipt = "目标=${created.goal}；时间=${created.dueAt}；" +
-            "状态=${created.status}；闹钟=${created.linkedAlarmId ?: "未建立"}；" +
-            "执行结果=${created.lastActionResult}"
-        SharedExperienceTimeline.record(
-            eventId = "commitment:wake-confirm:$sourceTurnId",
-            characterId = characterId,
-            channel = "约定保存与执行回执",
+        val recovered = prefs.getStringSet("recovery_handled", emptySet())
+            .orEmpty().toMutableList()
+        recovered += recoveryKey
+        check(prefs.edit().putStringSet("recovery_handled", recovered.takeLast(2000).toSet())
+            .commit()) { "无法保存补救执行回执" }
+        if (changed.isNotEmpty()) SharedExperienceTimeline.record(
+            eventId = "commitment:model-recovery:$sourceTurnId",
+            characterId = characterId, channel = "约定保存与执行回执",
             speaker = "执行器",
-            content = receipt,
-            occurredAt = now,
-            source = "commitment-decision",
-            evidenceKind = EventEvidenceKind.ToolResult,
+            content = changed.joinToString("\n") { task ->
+                "model-selected id=${task.id}; dueAt=${task.dueAt}; goal=${task.goal}; status=${task.status}; actual=${task.readableLastResult()}"
+            },
+            source = "commitment-decision", evidenceKind = EventEvidenceKind.ToolResult,
             triggerExtraction = false,
         )
-        created
+        changed
     }
 
     suspend fun apply(context: Context, characterId: String, sourceTurnId: String,

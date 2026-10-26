@@ -67,40 +67,11 @@ object CommitmentTurnAutomation {
         }
     }
 
-    /** Preserve failures as machine-written receipts, never as character speech. */
-    private fun showWakeScheduleProblem(
-        conversation: LuluConversation,
-        user: LuluChatMessage,
-        characterId: String,
-        reason: String,
-    ) {
-        val content = "叫醒约定尚未安排成功 · ${reason.take(130)}。手机上没有可确认的新叫醒任务。"
-        val id = "wake-choice-failed:${user.id}:$characterId"
-        val message = MigratedDomainStores.chat.appendSystemReceipt(conversation.id, id, content)
-        if (message.content != content) MigratedDomainStores.chat.editMessage(id, content)
-    }
-
-    /** Return the character's explicitly selected executable method, never a guessed default. */
-    internal fun parseModelWakeChoice(response: String): String? = runCatching {
-        val clean = response.trim().removePrefix("```json").removePrefix("```")
-            .removeSuffix("```").trim()
-        val json = JSONObject(clean)
-        if (!json.optBoolean("accepted", false)) null
-        else json.optString("deliveryAction").takeIf {
-            it in setOf("start_call", "alarm_only")
-        }
-    }.getOrNull()
-
     /**
-     * This recovery is invoked ONLY when the character has already spoken and
-     * a clear time for "wake me" has been offered. Model owns *whether the
-     * character accepted* and *how they want to fulfil it*. Native code owns
-     * time validation, permission, persistence and delivery receipts.
-     *
-     * One bounded extra model request occurs only on missing/incomplete wake
-     * commitmentChanges; a successful original model action is reused instead.
+     * Trigger-only hints limit extra model cost. All meaning, target selection
+     * and final dueAt come from one real model decision, never these hints.
      */
-    private suspend fun reconcileRoleChosenWake(
+    private suspend fun reconcileModelCommitment(
         context: Context,
         conversation: LuluConversation,
         user: LuluChatMessage,
@@ -111,107 +82,47 @@ object CommitmentTurnAutomation {
         roleText: String,
         characterId: String,
     ): CommitmentTask? = wakeChoiceMutex.withLock {
-        val zone = ZoneId.systemDefault()
-        val normalized = userText.trim()
-        // Anchor "20 minutes later" to the user's bubble CONTAINING the
-        // relative time, not a later "and bring water" bubble.
-        val requestedAt = userMessages.lastOrNull { message ->
-            listOf("分钟", "小时", "点", "时").any(message.content::contains)
-        }?.createdAt ?: user.createdAt
-        val recognized = RelativeWakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
-            ?: WakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
-            ?: return@withLock null
-        val targetDue = recognized.dueAt ?: return@withLock null
-        if (!targetDue.isAfter(Instant.now().plusSeconds(5)))
+        if (userMessages.isEmpty()) return@withLock null
+        val active = CommitmentTaskStore.active(characterId)
+        val possibleCorrection = active.any { it.dueAt != null } &&
+            listOf("点", "时", "日期", "时间", "不对", "更正", "改", "明天", "今天", "之后", "提醒")
+                .any(userText::contains)
+        if (!looksLikeTaskTurn(userText, roleText) && !possibleCorrection)
             return@withLock null
 
-        val existingWakes = CommitmentTaskStore.snapshot(characterId)
-            .filter { it.isWakeResponsibility() && it.status != CommitmentTaskStatus.Cancelled }
-        val saved = existingWakes.firstOrNull { task ->
-            evidenceIds.any { id -> task.sourceEventIds.any {
-                it.substringBefore(":group:") == id.substringBefore(":group:")
-            } }
-        } ?: existingWakes.filter { task ->
-            task.dueAt?.let { due ->
-                kotlin.math.abs(java.time.Duration.between(
-                    due, targetDue
-                ).seconds) <= 30L
-            } == true
-        }.singleOrNull()
-        val acceptedRoutes = setOf("start_call", "alarm_only")
-        val route = if (saved?.deliveryAction in acceptedRoutes &&
-            (recognized.deliveryAction != "start_call" || saved?.deliveryAction == "start_call")) {
-            saved?.deliveryAction.orEmpty()
-        } else {
-            val callEnabled = MigratedDomainStores.characters.get(characterId)
-                .contactPolicy.proactiveCallsEnabled
-            val facts = buildString {
-                appendLine("角色当前正在履行自己刚刚在私聊里说出口的约定。")
-                appendLine("用户本轮原话：$userText")
-                appendLine("角色已经发出的原话：$roleText")
-                appendLine("用户要求的准确叫醒时间：${recognized.dueAt}")
-                appendLine("角色主动来电权限：${if (callEnabled) "已开启" else "未开启"}")
-                appendLine("此前是否已有相关任务：${saved?.lastActionResult ?: "没有"}")
-                val preferences = CharacterRelationshipPreferences.promptSection(characterId)
-                if (preferences.isNotBlank()) appendLine(preferences)
-            }
-            val decision = try {
-                LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = facts,
-                instruction = """
-                    你是刚才发出上述回复的同一个角色。依据自己的性格、和用户的关系、
-                    用户已经表达的相处偏好、手机可用的能力，判断是否确实接受了定时叫醒。
-                    这次只补齐缺失的执行方式，不改写角色已发言、关系、人设或约定的时间。
-                    已明确答应时不要因"不想增加任务"而否认自己的承诺。
-                    如果用户没有规定方式，自己选择：start_call=角色真实来电
-                    （须开启主动来电），alarm_only=本机有声闹钟。
-                    不可使用 send_private_message 冒充能叫醒熟睡用户的响铃。
-                    如果用户明确要求来电，不可私自改成闹钟。
-                    如果主动来电未开启，可自行选择本机闹钟（仅当用户允许更换方式）。
-                    用户喜欢哪种方式，仅是偏好；不是所有角色都必须做同一种决定。
-                    只返回一个 JSON 对象：
-                    {"accepted":true,"deliveryAction":"start_call|alarm_only"}
-                    未承担约定时返回 {"accepted":false,"deliveryAction":""}。
-                    不要模拟执行，也不要声称闹钟已登记。
-                """.trimIndent(),
-                source = "已答应叫醒约定·行动方式修复",
-                title = "约定履行方式",
-                maxTokens = 180,
-                // Preserve this character's persona while avoiding a second full
-                // chat-model recall for a narrow, already-accepted wake promise.
-                contextMode = CompanionContextMode.CharacterAndScenario,
-                connectionOverride = commitmentBackgroundConnection(),
-            ).getOrThrow().text
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                showWakeScheduleProblem(conversation, user, characterId,
-                    "行动方式模型请求失败（${error.javaClass.simpleName}），请检查模型连接")
-                throw error
-            }
-            val choice = parseModelWakeChoice(decision)
-            if (choice == null) {
-                showWakeScheduleProblem(conversation, user, characterId,
-                    "没有取得有效的叫醒方式，电话与闹钟均未登记")
-                return@withLock null
-            }
-            choice
+        val signature = "commitment-model-recovery:$sourceTurnId"
+        if (isProcessed(signature)) return@withLock active.firstOrNull { task ->
+            task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
         }
-        if (route !in acceptedRoutes) {
-            showWakeScheduleProblem(conversation, user, characterId, "未选出可执行的有声叫醒方式")
-            return@withLock null
-        }
-        val task = CommitmentDecisionRuntime.ensureAcceptedWake(
-            context = context, characterId = characterId, sourceTurnId = sourceTurnId,
-            evidenceIds = evidenceIds, userText = normalized, roleText = roleText,
-            userAt = requestedAt, selectedDeliveryAction = route,
+        if (!permitAttempt(signature)) return@withLock null
+        val earlier = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { msg ->
+                msg.status == LuluChatMessage.Status.Sent &&
+                    (msg.sender == LuluChatMessage.Sender.User ||
+                        (msg.sender == LuluChatMessage.Sender.Character &&
+                            (msg.authorCharacterId ?: conversation.characterId) == characterId))
+            }.takeLast(14)
+            .joinToString("\n") { "${it.createdAt} ${it.sender}：${it.content.take(550)}" }
+
+        // Focused model output is a complete JSON decision, including date
+        // and selected delivery action, not just a choice between call/alarm.
+        val drafts = extractCommitmentTaskDrafts(
+            characterId = characterId,
+            userText = userText,
+            characterText = roleText,
+            activeTasks = active,
+            recentContext = earlier,
+            now = user.createdAt,
+            zone = ZoneId.systemDefault(),
         )
-        if (task == null) showWakeScheduleProblem(
-            conversation, user, characterId,
-            "角色选择的方式与用户明确的要求冲突，未擅自更换方式"
+        val changed = CommitmentDecisionRuntime.applyModelRecovery(
+            context, characterId, sourceTurnId, evidenceIds, drafts,
         )
-        task
+        markProcessed(signature)
+        changed.firstOrNull { it.isWakeResponsibility() } ?:
+            CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
+                task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)
+            }
     }
 
     /**
@@ -262,7 +173,7 @@ object CommitmentTurnAutomation {
                         (it.authorCharacterId ?: conversation.characterId) == characterId
                 }
                 if (userBatch.isEmpty() || replies.isEmpty()) return@launch
-                val task = reconcileRoleChosenWake(
+                val task = reconcileModelCommitment(
                     context = context.applicationContext, conversation = conversation,
                     user = user, userMessages = userBatch, characterId = characterId,
                     sourceTurnId = "${conversation.id}:${user.id}:$characterId",
@@ -356,7 +267,7 @@ object CommitmentTurnAutomation {
             // is an executable promise even if the model's commitmentChanges was
             // an empty array already marked handled. Use the SAME typed task and
             // native alarm machinery; no second planner call or parallel schedule.
-            val ensuredWake = reconcileRoleChosenWake(
+            val ensuredWake = reconcileModelCommitment(
                 context = appContext ?: return@forEach,
                 conversation = conversation, user = userMessage,
                 userMessages = userBatch, characterId = characterId, sourceTurnId = sourceTurnId,
@@ -364,9 +275,10 @@ object CommitmentTurnAutomation {
                 roleText = characterText,
             )
             showWakeReceipt(conversation, userMessage, characterId, ensuredWake)
-            // Generic, open-ended promises still rely on the main model's
-            // semantic decision; only unhandled legacy turns need extra AI.
-            if (CommitmentDecisionRuntime.handled(
+            // The fast and slow lanes share one model-recovery signature.
+            // Never pay twice or re-run a previous interpreted deadline.
+            if (isProcessed("commitment-model-recovery:$sourceTurnId") ||
+                CommitmentDecisionRuntime.handled(
                     appContext ?: return@forEach, characterId, evidenceIds
                 )) return@forEach
             val signature = "commitment-turn-v2:$sourceTurnId"
