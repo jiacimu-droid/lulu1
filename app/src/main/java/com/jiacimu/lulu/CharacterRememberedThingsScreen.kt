@@ -65,6 +65,12 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val ownerMatches = ownerFacts.filter {
         search.isBlank() || (it.kind.label + it.content).contains(search.trim(), ignoreCase = true)
     }
+    val observedRoutines = remember(characterId, timelineRevision) {
+        UserRoutinePatterns.recent(characterId)
+    }
+    val matchingRoutines = observedRoutines.filter { pattern ->
+        search.isBlank() || (pattern.label + pattern.timeLabel).contains(search.trim(), ignoreCase = true)
+    }
     val scope = rememberCoroutineScope()
     val notices = remember { SnackbarHostState() }
     LaunchedEffect(characters.keys, personalCharacterId) {
@@ -130,7 +136,27 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (area == 3) {
-                    if (ownerMatches.isEmpty()) item {
+                    if (matchingRoutines.isNotEmpty()) {
+                        item(key = "routine-heading") {
+                            Text("我发现的小习惯", fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp, color = LuluColors.Ink)
+                        }
+                        items(matchingRoutines.take(12), key = { "routine:${it.activity}:${it.approximateMinute}" }) { pattern ->
+                            var expanded by remember(pattern.sourceIds) { mutableStateOf(false) }
+                            CharacterRecordCard {
+                                Text(pattern.label, fontSize = 16.sp, color = LuluColors.Ink)
+                                Text("近45天在${pattern.days}个不同日期出现 · 通常约${pattern.timeLabel}",
+                                    color = LuluColors.Muted, fontSize = 12.sp)
+                                Text("仅记录真实发生过的活动，不代表每天固定如此，也不能推断主人已入睡。",
+                                    color = LuluColors.Muted, fontSize = 12.sp)
+                                TextButton(onClick = { expanded = !expanded }) {
+                                    Text(if (expanded) "收起依据" else "查看真实记录")
+                                }
+                                if (expanded) CharacterEvidenceDetails(characterId, pattern.sourceIds, showInfluences = false)
+                            }
+                        }
+                    }
+                    if (ownerMatches.isEmpty() && matchingRoutines.isEmpty()) item {
                         Text("还没有发现明确的偏好或相处经验", color = LuluColors.Muted)
                     }
                     items(ownerMatches.take(count), key = { "owner:${it.id}" }) { record ->
