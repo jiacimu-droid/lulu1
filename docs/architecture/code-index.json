@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:29:40.710571+00:00",
-  "commit": "00630ce3af163ad6f7d180f3a4d7c8f97ee229b8",
+  "generatedAt": "2026-10-26T05:30:45.800475+00:00",
+  "commit": "a59115b087a98342ca473b0189bf6df62b88e6f3",
   "branch": "main",
-  "sourceFingerprint": "305b70c028dd03fe74d7ddc3774755d8d0a17c0b1911e904e1e538ba89f57507",
+  "sourceFingerprint": "13b433bd28ccb5c149ac79d542d54be3a45b6e22e5324b7febc0dae1a9b405a7",
   "summary": {
-    "files": 924,
-    "lines": 182836,
-    "symbols": 2703
+    "files": 925,
+    "lines": 182926,
+    "symbols": 2705
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13698,6 +13698,10 @@
         "line": 103
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
+        "line": 76
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 227
       },
@@ -13856,6 +13860,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt",
         "line": 13
+      }
+    ],
+    "CharacterCreatedGroupTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
+        "line": 19
       }
     ],
     "CharacterCuriosityEvidenceTest": [
@@ -30052,6 +30062,21 @@
         {
           "name": "CharacterConversationAgencyTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
+      "lines": 90,
+      "sha256": "983939fc890e07524d61aa28bacb25e719a13c93883d6f46514b0c4a5621a2d6",
+      "symbols": [
+        {
+          "name": "CharacterCreatedGroupTest",
+          "line": 19
+        },
+        {
+          "name": "event",
+          "line": 76
         }
       ]
     },
