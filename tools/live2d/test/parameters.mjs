@@ -19,7 +19,8 @@ const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
   /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
-  ['00', '01', '02', '03', '04', '05', '06'])
+  Array.from({ length: 19 }, (_, index) => String(index).padStart(2, '0')),
+  'wolf motion indices are stable and contiguous across releases')
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
 for (const filename of wolfMotionFiles) {
@@ -64,6 +65,35 @@ for (const filename of wolfMotionFiles) {
   assert.ok(movingAxes >= 2, filename + ': head and torso both move')
   assert.equal(motion.Meta.TotalSegmentCount, totalSegments, filename)
   assert.equal(motion.Meta.TotalPointCount, totalPoints, filename)
+}
+
+// Opposite directions must mirror every controlled angle rather than
+// accidentally moving the body in the same direction. It is easy for a
+// hand-authored head/body curve to be mirrored on only one axis.
+for (const [left, right] of [
+  ['01_tilt_left.motion3.json', '02_tilt_right.motion3.json'],
+  ['05_turn_left.motion3.json', '06_turn_right.motion3.json'],
+  ['10_peek_left.motion3.json', '11_peek_right.motion3.json'],
+  ['14_sway_left.motion3.json', '15_sway_right.motion3.json'],
+]) {
+  const a = JSON.parse(readFileSync(new URL(left, wolfMotionDir), 'utf8'))
+  const b = JSON.parse(readFileSync(new URL(right, wolfMotionDir), 'utf8'))
+  assert.equal(a.Meta.Duration, b.Meta.Duration)
+  assert.deepEqual(a.Curves.map(c => c.Id), b.Curves.map(c => c.Id))
+  for (let i = 0; i < a.Curves.length; i++) {
+    const first = a.Curves[i].Segments, second = b.Curves[i].Segments
+    assert.equal(first.length, second.length)
+    for (let j = 0; j < first.length; j++) {
+      // Segment type and timestamps are identical. Only pose values mirror.
+      const isValue = j === 1 || j >= 2 && (j - 2) % 7 !== 0 &&
+        (j - 2) % 7 % 2 === 0
+      // Axis pitch can intentionally match in a side sway.
+      const signedAxis = a.Curves[i].Id !== 'ParamAngleY'
+      if (isValue && signedAxis) assert.ok(Math.abs(first[j] + second[j]) < .0001,
+        left + ' / ' + right + ': pose values mirror at ' + j)
+      else if (!isValue) assert.equal(first[j], second[j])
+    }
+  }
 }
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
