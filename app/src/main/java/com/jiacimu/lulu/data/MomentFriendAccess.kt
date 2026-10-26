@@ -67,7 +67,13 @@ object MomentFriendAccess {
         }
         val ok = prefs?.edit()?.putStringSet(LINKS, links)
             ?.putStringSet(OWNER_REMOVED, blocked)?.commit() == true
-        if (ok) changed.value += 1
+        if (ok) {
+            changed.value += 1
+            if (!friend) {
+                if (a != OWNER) MomentsStore.scrubHiddenTimeline(a)
+                if (b != OWNER) MomentsStore.scrubHiddenTimeline(b)
+            }
+        }
         return ok
     }
 

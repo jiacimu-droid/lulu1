@@ -78,7 +78,33 @@ object MomentsStore {
         prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePosts.value = decode(prefs?.getString(KEY_POSTS, null))
         refreshUnreadCount()
+        // One-time migration: earlier releases broadcast every Moment into
+        // every character's memory even if there was no friendship. Remove
+        // only those per-viewer projections; original posts remain intact.
+        if (prefs?.getBoolean("acl_timeline_migrated_v1", false) != true) {
+            MigratedDomainStores.characters.settings.value.keys.forEach(::scrubHiddenTimeline)
+            prefs?.edit()?.putBoolean("acl_timeline_migrated_v1", true)?.commit()
+        }
         resumeImageUnderstanding()
+    }
+
+    /** Remove cached projections of posts the actor no longer has a right to
+     * read. This never deletes the owner's actual post or another friend's
+     * copy; adding a friend again exposes the post through the ACL feed.
+     */
+    fun scrubHiddenTimeline(viewer: String) {
+        if (viewer.isBlank()) return
+        mutablePosts.value.filterNot { MomentFriendAccess.canView(it, viewer) }
+            .forEach { post ->
+                SharedExperienceTimeline.deleteEvent("moment-${post.id}-$viewer")
+                SharedExperienceTimeline.deleteEvent("moment-image-understanding-${post.id}-$viewer")
+                SharedExperienceTimeline.deleteEvent("moment-like-${post.id}-$viewer")
+                post.comments.forEach { comment ->
+                    SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-$viewer")
+                    SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$viewer")
+                    SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$viewer")
+                }
+            }
     }
 
     fun markCharacterPostsSeen(characterId: String? = null) {
