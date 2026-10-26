@@ -39,13 +39,14 @@ class CharacterMotivationOwnershipTest {
         assertNull(CharacterMotivationOwnership.canonicalInnerLife(legacyUpdate, null))
     }
 
-    @Test fun shortLivedOrientationDoesNotBecomePermanentGoal() {
+    @Test fun modelAuthoredRelationshipWishSurvivesLegacyImportRegardlessOfWording() {
         val legacySuggestion = JSONObject().put("aim", "了解她是什么样的人")
             .put("motive", "希望建立关系")
         val life = CharacterMotivationOwnership.canonicalInnerLife(legacySuggestion, null)
-        // A vague aspiration without a concrete step is not an executable goal.
-        // The stale-goal filter is the same one used by the existing motive store.
-        assertNull(life)
+        // A life aspiration is a subjective model decision, not a program
+        // keyword category or a mandatory scheduled tool action.
+        assertEquals("了解她是什么样的人",
+            life!!.getJSONArray("motives").getJSONObject(0).getString("aim"))
     }
 
     @Test fun runtimePrinciplesKeepActionEvidenceAndRelationshipSeparation() {
