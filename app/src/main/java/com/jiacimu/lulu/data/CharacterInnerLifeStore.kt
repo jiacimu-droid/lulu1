@@ -1416,7 +1416,7 @@ object CharacterInnerLifeStore {
             // Do not copy private topic text or create another attention store.
             .put("attentionOffered", JSONArray().apply {
                 attentionOffered.map(String::trim).filter(String::isNotBlank)
-                    .distinct().take(6).forEach(::put)
+                    .distinct().take(6).forEach { put(it) }
             })
             .put("alternatives", skipped)
             .put("succeeded", succeeded)
