@@ -42,12 +42,15 @@ internal fun MomentPostCard(
     onReply: (MomentComment, String) -> Unit,
     onRetryImageUnderstanding: () -> Unit,
     onDelete: () -> Unit,
+    viewerId: String = "__user__",
+    allowDelete: Boolean = true,
+    allowComment: Boolean = true,
 ) {
     val context = LocalContext.current
     val authorCharacter = post.authorCharacterId?.let(MigratedDomainStores.characters::get)
     val authorName = if (post.authorType == MomentAuthorType.User) userName
     else authorCharacter?.displayName.orEmpty().ifBlank { "角色" }
-    val likedByUser = "__user__" in post.likedCharacterIds
+    val likedByUser = viewerId in post.likedCharacterIds
     val textOnly = post.content.isNotBlank() && post.imageUri.isNullOrBlank()
     var menuExpanded by remember { mutableStateOf(false) }
     var commenting by remember { mutableStateOf(false) }
@@ -96,7 +99,7 @@ internal fun MomentPostCard(
                                 },
                             )
                         }
-                        DropdownMenuItem(
+                        if (allowDelete) DropdownMenuItem(
                             text = { Text("删除动态", color = MaterialTheme.colorScheme.error) },
                             leadingIcon = { Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error) },
                             onClick = { menuExpanded = false; deleting = true },
@@ -167,8 +170,9 @@ internal fun MomentPostCard(
                 }
                 Spacer(Modifier.width(5.dp))
                 FilledTonalIconButton(
-                    onClick = { if (post.authorType == MomentAuthorType.User) onCallCharacters() else commenting = true },
+                    onClick = { if (allowComment) { if (post.authorType == MomentAuthorType.User) onCallCharacters() else commenting = true } },
                     modifier = Modifier.size(36.dp),
+                    enabled = allowComment,
                 ) {
                     Icon(
                         if (post.authorType == MomentAuthorType.User) Icons.Outlined.MarkChatRead else Icons.Outlined.ChatBubbleOutline,
@@ -179,8 +183,9 @@ internal fun MomentPostCard(
             }
 
             val visibleLikes = post.likedCharacterIds
-                .filterNot { it == "__user__" }
-                .mapNotNull { characterNames[it] } + if (likedByUser) listOf("我") else emptyList()
+                .filterNot { it == viewerId }
+                .mapNotNull { if (it == "__user__") userName else characterNames[it] } +
+                if (likedByUser) listOf("我") else emptyList()
             if (visibleLikes.isNotEmpty() || post.comments.isNotEmpty()) {
                 Surface(
                     color = LuluColors.CardStrong,
