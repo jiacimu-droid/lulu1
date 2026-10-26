@@ -323,7 +323,18 @@ object MomentsStore {
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filter { it.characterId != authorId && MomentFriendAccess.canView(post, it.characterId) }
             .sortedBy(CharacterSettings::displayName).take(16)
-        candidates.forEach { character -> runIndependentReaction(post, character, author.displayName) }
+        candidates.forEach { character ->
+            if (!character.characterId.startsWith("resident:") &&
+                !CompanionOnlineStore.isOnline(character.characterId)) {
+                CompanionOnlineStore.wakeCharacter(
+                    characterId = character.characterId,
+                    reason = CompanionOnlineReason.MomentsWake,
+                    trigger = "有真实好友发布了可见的朋友圈",
+                    perceiveNow = false,
+                )
+            }
+            runIndependentReaction(post, character, author.displayName)
+        }
     }
 
     private suspend fun runIndependentReaction(
@@ -374,7 +385,7 @@ object MomentsStore {
                 }
             },
             instruction = """
-                你就是当前这个角色。你刚上线看见了这条朋友圈，请按本人性格、关系、经历和此刻心情独立决定怎么做。看见不等于必须互动。
+                你就是当前这个角色。有真实好友发布了这条只有好友可见的动态，你获得了一次查看它的机会。请按本人性格、关系、经历和此刻心情独立决定怎么做。已读到正文不等于必须互动，更不等于自动喜欢。别人评论与点赞全部可见，不限共同好友。
 
                 只返回一个 JSON 对象，不要代码块、解释或旁白：
                 {"action":"none|like|comment|like_comment","comment":"评论正文；不评论时留空"}
