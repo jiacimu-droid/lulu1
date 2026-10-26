@@ -37,6 +37,8 @@ internal data class DialogueMovePlan(
     val confidence: Double = 0.0,
     val contentIntent: String = "",
     val maxBubbles: Int = 2,
+    /** Only a model-authored decision may accept/reject shared understanding. */
+    val groundingDecision: String = "",
 ) {
     val isRepair: Boolean
         get() = type == DialogueMoveType.OTHER_INITIATED_REPAIR ||
@@ -52,45 +54,21 @@ internal data class DialogueMovePlan(
  * another question merely because the language model tries to be maximally helpful.
  */
 internal object DialogueMoveEngine {
-    private val repairSignal = Regex(
-        "(不是(这个|那|我说的)?意思|我不是(这个|那)意思|你.{0,6}(没|没有|不)(懂|明白|理解|get到|get)|" +
-            "你.{0,8}(理解错|会错意|想错|猜错|听错)|不是让你|我说的是|我指的是|你理解偏了|你没get到)",
-        setOf(RegexOption.IGNORE_CASE),
-    )
-
-    fun userInitiatesRepair(userText: String): Boolean =
-        repairSignal.containsMatchIn(userText.replace("\n", " ").trim())
-
     /**
-     * A correction can also contain enough positive direction to continue.
-     * Do not force a second clarification when the user has already explained
-     * what kind of interaction they want instead.
+     * The planner sees the full user turn and relationship history. No lexical
+     * classifier may force a repair, override its chosen dialogueMove or
+     * decide that a user accepted a previous guess.
      */
-    fun correctionSuppliesDirection(userText: String): Boolean {
-        val text = userText.replace("\n", " ").trim()
-        return userInitiatesRepair(text) && text.length >= 12 &&
-            Regex("(我希望|我想|我需要|我要的是|要的是|我说的是|我指的是|你应该|你可以|能不能|不要再|别再|你就|直接|主动)")
-                .containsMatchIn(text)
-    }
-
-    fun plannerConstraint(userText: String): String {
-        if (!userInitiatesRepair(userText)) return ""
-        if (correctionSuppliesDirection(userText)) return """
-            【用户纠正了你的理解，并给出了希望改变的方向】
-            先承认原来理解哪里偏了，再按用户已给出的意图自主决定一个合适的具体回应或尝试。
-            这不是必须追加一次开放式确认的任务；可以按人格选择 answer、tease、share、
-            acknowledge 或其他合适的互动动作。不要求等用户再次发出指令。
-            如果做法确实需要额外关键事实，才问最小必要问题；不能靠编造用户意图省略事实。
-        """.trimIndent()
-        return """
-            【程序识别到：用户正在发起理解修复】
-            这不是新话题，也不是邀请表演歉意。上一轮你对用户意思的解释应视为 disputed/rejected。
-            本轮 dialogueMove 必须是 other_initiated_repair 或 candidate_understanding。
-            只有存在单一、上下文强支持且 confidence >= 0.72 的候选理解时才允许 candidate_understanding；
-            否则使用 open repair。不要枚举多个猜测，不要增加惩罚、将功补过、暗号、职位、游戏化剧本，
-            不要在修复完成前扩写关系分析、撒娇或连续追问。
-        """.trimIndent()
-    }
+    fun plannerConstraint(userText: String): String = """
+        【会话理解属于你本人】
+        结合对方本轮完整表达与真实前文，自主判断对方是在纠正、确认、开玩笑、
+        请求解释还是转移话题。发生纠正时，用你自己选择的 dialogueMove 表达理解，
+        不机械枚举猜测或固定道歉；对方已经给出明确方向时可直接依新意思行动。
+        不得把先前自己理解的版本当成对方最终意图；语义状态由本轮模型更新，
+        程序不会从“不是”“对”等字眼替你确认或否定。
+        如果涉及仍待确认的旧共同理解，可选 dialogueMove.commonGroundDecision=
+        accept|reject|unchanged。只有真正确认或驳回了此前候选理解，才选 accept/reject。
+    """.trimIndent()
 
     fun resolve(raw: JSONObject?, speechIntent: String, userText: String): DialogueMovePlan {
         val typeRaw = raw?.optString("type").orEmpty()
@@ -101,23 +79,6 @@ internal object DialogueMoveEngine {
             ?.coerceIn(0.0, 1.0) ?: 0.0
         val intent = raw?.optString("contentIntent").orEmpty().trim()
             .ifBlank { speechIntent.trim() }.take(500)
-
-        if (userInitiatesRepair(userText) && !correctionSuppliesDirection(userText)) {
-            val useCandidate = candidate.isNotBlank() && confidence >= 0.72
-            return DialogueMovePlan(
-                type = if (useCandidate) DialogueMoveType.CANDIDATE_UNDERSTANDING
-                else DialogueMoveType.OTHER_INITIATED_REPAIR,
-                repairFormat = if (useCandidate) RepairFormat.CANDIDATE else RepairFormat.OPEN,
-                target = target,
-                candidate = if (useCandidate) candidate else "",
-                confidence = confidence,
-                contentIntent = intent.ifBlank {
-                    if (useCandidate) "只提出一个最可能的理解让对方确认"
-                    else "承认刚才会错意，并把修复权交还给对方"
-                },
-                maxBubbles = 1,
-            )
-        }
 
         val resolvedType = proposed ?: when (raw?.optString("interactionMove").orEmpty().lowercase()) {
             "acknowledge" -> DialogueMoveType.ACKNOWLEDGE
@@ -131,19 +92,9 @@ internal object DialogueMoveEngine {
             "silent" -> DialogueMoveType.SILENCE
             else -> DialogueMoveType.ANSWER
         }
-        val moveCap = when (resolvedType) {
-            DialogueMoveType.BACKCHANNEL, DialogueMoveType.ACKNOWLEDGE,
-            DialogueMoveType.CLOSE, DialogueMoveType.DEFER, DialogueMoveType.DECLINE,
-            DialogueMoveType.SELF_REPAIR, DialogueMoveType.OTHER_INITIATED_REPAIR,
-            DialogueMoveType.CANDIDATE_UNDERSTANDING -> 1
-            // Tiny social moves should not inflate into mini essays. Only
-            // genuine explanations/shares may use four complete bubbles.
-            DialogueMoveType.TEASE, DialogueMoveType.DISAGREE, DialogueMoveType.REASSURE,
-            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 2
-            DialogueMoveType.ANSWER, DialogueMoveType.SHARE -> 4
-            DialogueMoveType.SILENCE -> 1
-        }
-        val requestedBubbles = raw?.optInt("maxBubbles", moveCap)?.coerceIn(1, 4) ?: moveCap
+        // Bubble guidance is itself a model decision. No type-specific
+        // program ceiling silently shortens a serious explanation.
+        val requestedBubbles = raw?.optInt("maxBubbles", 2)?.coerceIn(1, 4) ?: 2
         return DialogueMovePlan(
             type = resolvedType,
             repairFormat = when (raw?.optString("repairFormat").orEmpty().lowercase()) {
@@ -155,12 +106,14 @@ internal object DialogueMoveEngine {
             candidate = candidate,
             confidence = confidence,
             contentIntent = intent,
-            maxBubbles = minOf(requestedBubbles, moveCap),
+            maxBubbles = requestedBubbles,
+            groundingDecision = raw?.optString("commonGroundDecision").orEmpty()
+                .takeIf { it in setOf("accept", "reject") } ?: "",
         )
     }
 
     fun expressionConstraint(plan: DialogueMovePlan): String = buildString {
-        appendLine("【程序已确定的会话动作】${plan.type.wire}")
+        appendLine("【角色模型已选择的会话动作】${plan.type.wire}")
         if (plan.target.isNotBlank()) appendLine("修复/回应目标：${plan.target}")
         if (plan.contentIntent.isNotBlank()) appendLine("内容意图：${plan.contentIntent}")
         if (plan.repairFormat == RepairFormat.CANDIDATE && plan.candidate.isNotBlank()) {
@@ -230,46 +183,28 @@ internal data class PrivateStateDelta(
  * those fields are present again.
  */
 internal object ConversationGroundingEngine {
-    fun beforeTurn(
-        characterId: String,
-        conversationKey: String,
-        evidenceId: String,
-        userText: String,
-    ) {
-        when {
-            DialogueMoveEngine.userInitiatesRepair(userText) -> {
-                CharacterInnerLifeStore.rejectGroundingCandidates(
-                    characterId = characterId,
-                    conversationKey = conversationKey,
-                    evidenceId = evidenceId,
-                    reason = "用户明确否定了上一轮理解",
-                )
-            }
-            userConfirmsCandidate(userText) -> {
-                CharacterInnerLifeStore.acceptLatestGroundingCandidate(
-                    characterId = characterId,
-                    conversationKey = conversationKey,
-                    evidenceId = evidenceId,
-                )
-            }
-        }
-    }
-
-    internal fun userConfirmsCandidate(userText: String): Boolean {
-        val normalized = userText.lowercase()
-            .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\\"'（）()]+"), "")
-        return normalized in setOf(
-            "对", "对的", "嗯对", "对对对", "是的", "没错",
-            "就是这个意思", "对就是这个意思", "这次对了", "这回对了", "你终于懂了",
-        )
-    }
-
+    /** Previously, a regex would mutate shared understanding BEFORE the role
+     * was allowed to interpret the new user turn. That path is removed.
+     */
     fun afterDecision(
         characterId: String,
         conversationKey: String,
         evidenceId: String,
         plan: DialogueMovePlan,
     ) {
+        when (plan.groundingDecision) {
+            "accept" -> CharacterInnerLifeStore.acceptLatestGroundingCandidate(
+                characterId = characterId,
+                conversationKey = conversationKey,
+                evidenceId = evidenceId,
+            )
+            "reject" -> CharacterInnerLifeStore.rejectGroundingCandidates(
+                characterId = characterId,
+                conversationKey = conversationKey,
+                evidenceId = evidenceId,
+                reason = "角色模型确认用户驳回了先前候选理解",
+            )
+        }
         if (plan.type == DialogueMoveType.CANDIDATE_UNDERSTANDING &&
             plan.candidate.isNotBlank()) {
             CharacterInnerLifeStore.recordGroundingCandidate(

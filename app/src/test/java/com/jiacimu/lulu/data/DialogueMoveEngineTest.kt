@@ -12,10 +12,8 @@ import org.robolectric.annotation.Config
 class DialogueMoveEngineTest {
     @Test fun aClearCorrectionShouldNotForceAnotherQuestion() {
         val feedback = "不是这个意思，我希望你能主动想个办法逗我开心，而不是又问我要做什么"
-        assertTrue(DialogueMoveEngine.userInitiatesRepair(feedback))
-        assertTrue(DialogueMoveEngine.correctionSuppliesDirection(feedback))
         val guidance = DialogueMoveEngine.plannerConstraint(feedback)
-        assertTrue(guidance.contains("不要求等用户再次发出指令"))
+        assertTrue(guidance.contains("自主判断"))
         val action = DialogueMoveEngine.resolve(
             JSONObject().put("type", "tease").put("contentIntent", "自己想办法做一个温柔的逗乐尝试"),
             "尝试让她笑一下",
@@ -24,13 +22,18 @@ class DialogueMoveEngineTest {
         assertEquals(DialogueMoveType.TEASE, action.type)
     }
 
-    @Test fun vagueCorrectionStillRequestsLocalRepair() {
+    @Test fun userWordsCannotOverrideTheModelsExplicitDialogueMove() {
         val correction = "你根本没理解我意思"
-        assertTrue(DialogueMoveEngine.userInitiatesRepair(correction))
-        assertFalse(DialogueMoveEngine.correctionSuppliesDirection(correction))
-        val move = DialogueMoveEngine.resolve(
-            JSONObject().put("type", "tease"), "", correction)
-        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, move.type)
+        assertEquals(DialogueMoveType.TEASE, DialogueMoveEngine.resolve(
+            JSONObject().put("type", "tease"), "", correction).type)
+        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, DialogueMoveEngine.resolve(
+            JSONObject().put("type", "other_initiated_repair"), "", "晚饭吃了吗").type)
+        val accepted = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "acknowledge").put("commonGroundDecision", "accept"),
+            "对，我懂了", "你弄错了")
+        assertEquals("accept", accepted.groundingDecision)
+        assertEquals("", DialogueMoveEngine.resolve(
+            JSONObject().put("type", "answer"), "", "对！").groundingDecision)
     }
 
     @Test fun localMovesCannotExpandIntoThreeBubbleMiniEssays() {
@@ -40,14 +43,14 @@ class DialogueMoveEngineTest {
             "嗯",
         )
         assertEquals(DialogueMoveType.BACKCHANNEL, backchannel.type)
-        assertEquals(1, backchannel.maxBubbles)
+        assertEquals(3, backchannel.maxBubbles)
 
         val reassure = DialogueMoveEngine.resolve(
             JSONObject().put("type", "reassure").put("maxBubbles", 3),
             "让她知道这件事不用一个人扛",
             "我有点慌",
         )
-        assertEquals(2, reassure.maxBubbles)
+        assertEquals(3, reassure.maxBubbles)
 
         val answer = DialogueMoveEngine.resolve(
             JSONObject().put("type", "answer").put("maxBubbles", 3),
@@ -55,6 +58,13 @@ class DialogueMoveEngineTest {
             "你具体怎么想的？",
         )
         assertEquals(3, answer.maxBubbles)
+    }
+
+    @Test fun modelChosenBubbleCountIsNotCutByAProgramTypeTable() {
+        val result = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "other_initiated_repair")
+                .put("maxBubbles", 4), "有复杂背景需要澄清", "不是这个意思")
+        assertEquals(4, result.maxBubbles)
     }
 
     @Test fun moveSpecificExpressionRulesHaveRealStoppingConditions() {
