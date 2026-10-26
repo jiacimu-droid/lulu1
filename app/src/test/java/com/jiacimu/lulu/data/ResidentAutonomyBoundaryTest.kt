@@ -57,6 +57,26 @@ class ResidentAutonomyBoundaryTest {
         assertNull(ResidentDailyDecision.allowedLeisureLocation("secret-phone"))
     }
 
+    @Test fun confirmedFriendsCanStartTheirFirstPrivateMessageWithoutProximity() {
+        val context = RuntimeEnvironment.getApplication()
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        ResidentSocialMailbox.initialize(context)
+        MomentFriendAccess.initialize(context)
+        val from = MigratedDomainStores.characters.create("首次私信甲-" + UUID.randomUUID())
+        val to = MigratedDomainStores.characters.create("首次私信乙-" + UUID.randomUUID())
+        DigitalLifeProfileStore.registerNewLife(from.characterId, from.displayName, "数字生命")
+        DigitalLifeProfileStore.registerNewLife(to.characterId, to.displayName, "数字生命")
+        assertFalse(ResidentSocialMailbox.canContact(from.characterId, to.characterId))
+        assertTrue(MomentFriendAccess.setFriends(from.characterId, to.characterId, true))
+        assertTrue(ResidentSocialMailbox.canContact(from.characterId, to.characterId))
+        assertTrue(ResidentSocialMailbox.visibleContacts(from.characterId).contains(to.characterId))
+        assertEquals("第一次聊天", ResidentSocialMailbox.send(
+            from.characterId, to.characterId, "第一次聊天").content)
+    }
+
     @Test fun privateSocialContactsRequireRealWorldProximityOrHistoricalExchange() {
         val context = RuntimeEnvironment.getApplication()
         MigratedDomainStores.initialize(context)
