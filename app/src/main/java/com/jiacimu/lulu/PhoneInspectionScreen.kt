@@ -492,23 +492,10 @@ internal fun rolePhoneSendOnBehalf(
         "这不是当前角色的私聊"
     } else require(roleId in members) { "这位角色并未加入这个群" }
     val sent = MigratedDomainStores.chat.appendCharacterMessage(
-        conversation.id, words, roleId,
+        conversation.id, words, roleId, onBehalfByOwner = true,
     )
-    val viewers = if (members == null) listOf(roleId) else members.distinct()
-    viewers.forEach { viewer ->
-        SharedExperienceTimeline.record(
-            eventId = "owner-on-behalf-chat-${sent.id}-${viewer}",
-            characterId = viewer,
-            channel = "手机·代发消息",
-            speaker = "主人（使用${MigratedDomainStores.characters.get(roleId).displayName}的账号）",
-            content = "主人代${MigratedDomainStores.characters.get(roleId).displayName}在" +
-                (if (members == null) "给主人自己的私聊" else "群聊《${conversation.groupChat?.name}》") +
-                "发了这条消息；不是角色自己的主动选择：${words.take(650)}",
-            occurredAt = sent.createdAt, sessionId = conversation.id,
-            source = "owner-on-behalf", triggerExtraction = false,
-            evidenceKind = EventEvidenceKind.Observation,
-        )
-    }
+    // The message itself persists the origin and projects one single actual
+    // timeline event for all participants. No duplicate synthetic audit event.
     return sent.id
 }
 
@@ -698,7 +685,10 @@ private fun InspectedOriginalChat(
             }
             InspectedBubble(mine, speaker, message.content, message.createdAt,
                 system = message.sender == LuluChatMessage.Sender.System,
-                detail = if (message.voiceNote) "语音消息 · 自动转写" else "")
+                detail = listOfNotNull(
+                    "主人代发".takeIf { message.onBehalfByOwner },
+                    "语音消息 · 自动转写".takeIf { message.voiceNote },
+                ).joinToString(" · "))
         }
     }
 }
