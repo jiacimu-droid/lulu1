@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:07:39.365238+00:00",
-  "commit": "2d7e427b7e27268b7fcbdda846f9f983aa277d0b",
+  "generatedAt": "2026-10-26T03:08:53.550582+00:00",
+  "commit": "a0d5670b4b6b5a91de9f93820ded15fb8f7f122c",
   "branch": "main",
-  "sourceFingerprint": "6696b3dcc88d61d1aa953ef14f5beda7f37ac03f9718aa2dafd6b5c04c9635f8",
+  "sourceFingerprint": "2a63dc17ef090cbfdf26070b1b53f5fe276a55b456c16def57f7c17bb0583185",
   "summary": {
     "files": 915,
-    "lines": 180238,
+    "lines": 180249,
     "symbols": 2688
   },
   "symbolIndex": {
@@ -439,7 +439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 104
+        "line": 113
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -20816,8 +20816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-      "lines": 108,
-      "sha256": "493de2d5525304d1054ef999d5e25583dba24af67a22221c49b6b1c8f48d64ca",
+      "lines": 117,
+      "sha256": "2bc319f9a558c0c04465d09b9061ab308eabe1bc4007e82f6899dd79e9fbaeb8",
       "symbols": [
         {
           "name": "Cue",
@@ -20841,7 +20841,7 @@
         },
         {
           "name": "context",
-          "line": 104
+          "line": 113
         }
       ]
     },
@@ -30369,8 +30369,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
-      "lines": 281,
-      "sha256": "e4136925f263b050007765d10e1aa3fc535c96f31a8d357fb01e560f39991c44",
+      "lines": 283,
+      "sha256": "99c119feb1e7f9d8b70de498927c57248ed5e8b571d1855054d8670955c3cd26",
       "symbols": [
         {
           "name": "CharacterUnfinishedActionContextTest",
