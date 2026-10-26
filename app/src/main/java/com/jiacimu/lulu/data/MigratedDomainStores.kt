@@ -267,8 +267,12 @@ class InMemoryLuluChatStore : LuluChatStore {
                         sessionId = conversation.id,
                         source = "group-membership",
                         speaker = "系统事件",
-                        content = "用户将你移出了群聊《${normalized.name}》。你保留此前真实经历，但不再是群成员，也不会读取或参与此后的群聊消息。",
+                        content = (if (normalized.ownerIncluded) "用户"
+                            else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}") +
+                            "将你移出了群聊《${normalized.name}》。你保留此前真实经历，但不再是群成员，也不会读取或参与此后的群聊消息。",
                         occurredAt = Instant.now(),
+                        triggerExtraction = false,
+                        evidenceKind = EventEvidenceKind.Observation,
                     )
                 }
             }
@@ -321,6 +325,8 @@ class InMemoryLuluChatStore : LuluChatStore {
                         "你创建了群聊《${group.name}》。群成员：$memberSummary。可以在群里聊天，其他人自行决定是否回应。"
                     else "${MigratedDomainStores.characters.get(group.creatorCharacterId).displayName}邀请你加入了群聊《${group.name}》。群成员：$memberSummary。你可以自己决定是否回应。",
                     occurredAt = conversation.updatedAt,
+                    triggerExtraction = false,
+                    evidenceKind = EventEvidenceKind.Observation,
                 )
             }
     }
