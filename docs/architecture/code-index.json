@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T14:26:37.266540+00:00",
-  "commit": "dd16c62687b4c05a24b4652c3d14e6bf4e329171",
+  "generatedAt": "2026-10-26T15:14:22.266290+00:00",
+  "commit": "da6d783ba170e7c3a55a00eab64b7525d1ea770f",
   "branch": "main",
-  "sourceFingerprint": "2eb640abe574f780e5266841a5f1f0bfcc578eba2beeb78ba31fbbecd0f5b423",
+  "sourceFingerprint": "38dbc5d2c1609636785334dc36d8f54276f938631c7d100c996bf7a9a13338ad",
   "summary": {
-    "files": 950,
-    "lines": 188170,
-    "symbols": 2736
+    "files": 951,
+    "lines": 188487,
+    "symbols": 2761
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14840,6 +14840,156 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
         "line": 6
+      }
+    ],
+    "ProactiveMessageGateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 10
+      }
+    ],
+    "allowWhenAllFactsPass": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 69
+      }
+    ],
+    "rejectWhenConsentDisabled": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 79
+      }
+    ],
+    "rejectInQuietHoursOvernight": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 86
+      }
+    ],
+    "rejectInQuietHoursDaytimeWindow": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 92
+      }
+    ],
+    "allowAtQuietBoundary": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 100
+      }
+    ],
+    "isQuietRespectsQuietHoursEnabledFlag": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 115
+      }
+    ],
+    "rejectDuringCooldown": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 123
+      }
+    ],
+    "allowAfterCooldown": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 131
+      }
+    ],
+    "rejectWhenUnansweredOutstanding": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 139
+      }
+    ],
+    "allowWhenUnansweredCleared": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 145
+      }
+    ],
+    "rejectAtDailyCap": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 151
+      }
+    ],
+    "rejectSameTopicRecent": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 157
+      }
+    ],
+    "rejectSameTopicAtMaxAttemptsEvenIfOld": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 171
+      }
+    ],
+    "allowDifferentTopic": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 187
+      }
+    ],
+    "allowSameTopicAfterCooldown": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 200
+      }
+    ],
+    "skipSameTopicWhenThoughtIsNull": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 213
+      }
+    ],
+    "skipSameTopicWhenThoughtTopicKeyBlank": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 227
+      }
+    ],
+    "expiredThoughtIsDiagnosedNotDeleted": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 240
+      }
+    ],
+    "attemptCountingMatchesActualCode": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 252
+      }
+    ],
+    "evaluateIsPureAndIdempotent": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 267
+      }
+    ],
+    "modelDecisionIsNotMutated": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 277
+      }
+    ],
+    "skippedForFreshUserReply": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 285
+      }
+    ],
+    "topicKeyForPrefersMotiveThenConcern": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 300
+      }
+    ],
+    "gateReasonOrderIsFixed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+        "line": 309
       }
     ],
     "ProactivePerceptionRecoveryPolicyTest": [
@@ -31811,6 +31961,113 @@
         {
           "name": "PrivateChatExpressionContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
+      "lines": 317,
+      "sha256": "ada5a5cf2a3fa4b6c4b07474247b51630264b82f6744f927493f445e375b32ef",
+      "symbols": [
+        {
+          "name": "ProactiveMessageGateTest",
+          "line": 10
+        },
+        {
+          "name": "allowWhenAllFactsPass",
+          "line": 69
+        },
+        {
+          "name": "rejectWhenConsentDisabled",
+          "line": 79
+        },
+        {
+          "name": "rejectInQuietHoursOvernight",
+          "line": 86
+        },
+        {
+          "name": "rejectInQuietHoursDaytimeWindow",
+          "line": 92
+        },
+        {
+          "name": "allowAtQuietBoundary",
+          "line": 100
+        },
+        {
+          "name": "isQuietRespectsQuietHoursEnabledFlag",
+          "line": 115
+        },
+        {
+          "name": "rejectDuringCooldown",
+          "line": 123
+        },
+        {
+          "name": "allowAfterCooldown",
+          "line": 131
+        },
+        {
+          "name": "rejectWhenUnansweredOutstanding",
+          "line": 139
+        },
+        {
+          "name": "allowWhenUnansweredCleared",
+          "line": 145
+        },
+        {
+          "name": "rejectAtDailyCap",
+          "line": 151
+        },
+        {
+          "name": "rejectSameTopicRecent",
+          "line": 157
+        },
+        {
+          "name": "rejectSameTopicAtMaxAttemptsEvenIfOld",
+          "line": 171
+        },
+        {
+          "name": "allowDifferentTopic",
+          "line": 187
+        },
+        {
+          "name": "allowSameTopicAfterCooldown",
+          "line": 200
+        },
+        {
+          "name": "skipSameTopicWhenThoughtIsNull",
+          "line": 213
+        },
+        {
+          "name": "skipSameTopicWhenThoughtTopicKeyBlank",
+          "line": 227
+        },
+        {
+          "name": "expiredThoughtIsDiagnosedNotDeleted",
+          "line": 240
+        },
+        {
+          "name": "attemptCountingMatchesActualCode",
+          "line": 252
+        },
+        {
+          "name": "evaluateIsPureAndIdempotent",
+          "line": 267
+        },
+        {
+          "name": "modelDecisionIsNotMutated",
+          "line": 277
+        },
+        {
+          "name": "skippedForFreshUserReply",
+          "line": 285
+        },
+        {
+          "name": "topicKeyForPrefersMotiveThenConcern",
+          "line": 300
+        },
+        {
+          "name": "gateReasonOrderIsFixed",
+          "line": 309
         }
       ]
     },
