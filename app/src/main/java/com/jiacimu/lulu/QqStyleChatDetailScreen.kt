@@ -159,7 +159,13 @@ fun QqStyleChatDetailScreen(
     // the chat screen itself is now removed from composition while hidden.
     var hasPositionedChat by rememberSaveable(conversationId) { mutableStateOf(false) }
     var previousVisibleCount by rememberSaveable(conversationId) { mutableIntStateOf(0) }
-    val imeBottom = WindowInsets.ime.getBottom(density)
+    // Keyboard-rise lag fix: do not read the raw IME bottom in the top-level
+    // composition. During the keyboard animation that value changes every
+    // frame and would recompose the whole screen each frame. Collapse it to
+    // a visibility boolean, which only changes on show/hide.
+    val keyboardVisible by remember {
+        derivedStateOf { WindowInsets.ime.getBottom(density) > 0 }
+    }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
 
@@ -476,7 +482,7 @@ fun QqStyleChatDetailScreen(
             ChatReplyTaskManager.clearError(conversationId, id)
         }
     }
-    LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat, imeBottom) {
+    LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat, keyboardVisible) {
         val count = visibleMessages.size
         if (count == 0) {
             previousVisibleCount = 0
@@ -491,7 +497,7 @@ fun QqStyleChatDetailScreen(
         val nearEnd = layout.visibleItemsInfo.lastOrNull()?.index
             ?.let { it >= layout.totalItemsCount - 3 } ?: initial
         if (ChatScrollFollowPolicy.shouldFollow(initial, appended,
-                imeBottom > 0, preferences.autoScrollChat, nearEnd)) {
+                keyboardVisible, preferences.autoScrollChat, nearEnd)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
             listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
         }
