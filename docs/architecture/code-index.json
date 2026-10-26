@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:33:49.868664+00:00",
-  "commit": "77827c17f5bfc815f0c34b6aa16c05373a8d8237",
+  "generatedAt": "2026-10-26T01:36:16.152424+00:00",
+  "commit": "4f522959191ae4b643ad4a70eb63b1363d036004",
   "branch": "main",
-  "sourceFingerprint": "b0f012e6d239cd77331e212d8c3a26dca5bd116f4fe489dc841b94c4a81c641b",
+  "sourceFingerprint": "44886a21bc3266fdea816c6dbcbc00c050bed1362a27e7ec945617330bf77bf5",
   "summary": {
     "files": 909,
-    "lines": 179353,
-    "symbols": 2676
+    "lines": 179298,
+    "symbols": 2673
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -447,7 +447,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 284
+        "line": 219
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
@@ -4699,7 +4699,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 94
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
@@ -7046,46 +7046,28 @@
         "line": 25
       }
     ],
-    "userInitiatesRepair": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 60
-      }
-    ],
-    "correctionSuppliesDirection": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 69
-      }
-    ],
     "plannerConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 75
+        "line": 62
       }
     ],
     "expressionConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 161
-      }
-    ],
-    "beforeTurn": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 233
+        "line": 114
       }
     ],
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 266
+        "line": 189
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 290
+        "line": 225
       }
     ],
     "recentOwnReplies": [
@@ -21500,48 +21482,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 440,
-      "sha256": "31a81280b99377215a9b5619d68e7e03c97bee9fcdcac13f92866157d10f0dd8",
+      "lines": 375,
+      "sha256": "825a3dd763dfed2e1c6b1965039389cdf1c30213ba37e9f96b0878ce77271b3e",
       "symbols": [
         {
           "name": "fromWire",
           "line": 25
         },
         {
-          "name": "userInitiatesRepair",
-          "line": 60
-        },
-        {
-          "name": "correctionSuppliesDirection",
-          "line": 69
-        },
-        {
           "name": "plannerConstraint",
-          "line": 75
+          "line": 62
         },
         {
           "name": "resolve",
-          "line": 94
+          "line": 72
         },
         {
           "name": "expressionConstraint",
-          "line": 161
-        },
-        {
-          "name": "beforeTurn",
-          "line": 233
+          "line": 114
         },
         {
           "name": "afterDecision",
-          "line": 266
+          "line": 189
         },
         {
           "name": "context",
-          "line": 284
+          "line": 219
         },
         {
           "name": "evaluate",
-          "line": 290
+          "line": 225
         }
       ]
     },
@@ -30467,8 +30437,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-      "lines": 77,
-      "sha256": "fa3bd859daee1201ad17d5146b199705df8b84cdfdea871a15fa1091a01e8592",
+      "lines": 87,
+      "sha256": "2500bae217d2ae0b90bd4d1780a27891c5aa57e55fcfa0909e3f69f308eb41ed",
       "symbols": [
         {
           "name": "DialogueMoveEngineTest",

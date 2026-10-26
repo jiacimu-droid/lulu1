@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`77827c17f5bfc815f0c34b6aa16c05373a8d8237`
+- 基准提交：`4f522959191ae4b643ad4a70eb63b1363d036004`
 - 分支：`main`
 - 已索引文件：909
-- 已索引代码/文本行：179353
-- 已发现符号：2676
+- 已索引代码/文本行：179298
+- 已发现符号：2673
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -345,7 +345,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 38 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 93 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 274 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 440 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 375 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 421 | 1 |
@@ -793,7 +793,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActionIdTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt` | 20 | 1 |
