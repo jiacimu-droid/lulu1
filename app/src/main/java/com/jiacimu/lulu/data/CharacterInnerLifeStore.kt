@@ -1630,12 +1630,26 @@ object CharacterInnerLifeStore {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("最近自我修正：${last?.optString("nextTime")?.take(140)}")
             }
-            val recentThought = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
-                .lastOrNull { item ->
+            // Batch 3, topic candidates: compact used to deliver only the single
+            // latest thought within 18h, so a private-chat "find a topic yourself"
+            // turn almost never saw the character's pending thoughts. Deliver up
+            // to 4 recent thoughts within 72h (age is shown, so the model can
+            // judge staleness itself); the model still picks at most one, or
+            // none, and never reads this list aloud or turns it into todos.
+            val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
+                .filter { item ->
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { !it.isAfter(now) && Duration.between(it, now) <= Duration.ofHours(18) } == true
+                        ?.let { !it.isAfter(now) && Duration.between(it, now) <= Duration.ofHours(72) } == true
+                }.takeLast(4)
+            if (recentThoughts.isNotEmpty()) {
+                appendLine("【还没说出口的琢磨事｜自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；回答用户问题时不用硬找话题】")
+                recentThoughts.forEach { item ->
+                    val ageHours = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { Duration.between(it, now).toHours().coerceAtLeast(0) }
+                    appendLine("· ${item.optString("thought").take(170)}；犹豫=${item.optString("hesitation").take(120)}" +
+                        (if (ageHours != null) "；约${ageHours}小时前" else ""))
                 }
-            recentThought?.let { appendLine("还没说出的心事：${it.optString("thought").take(170)}；犹豫=${it.optString("hesitation").take(120)}") }
+            }
             // Read actual executor receipts even when no motiveId was supplied.
             CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
                 ?.let(::appendLine)
@@ -1734,10 +1748,10 @@ object CharacterInnerLifeStore {
             val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
                 .filter { item ->
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { at -> !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24) } == true
+                        ?.let { at -> !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(72) } == true
                 }.takeLast(6)
             if (recentThoughts.isNotEmpty()) {
-                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动】")
+                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来】")
                 recentThoughts.forEach { item ->
                     appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}")
                 }
