@@ -49,7 +49,7 @@ internal object InteractionSignalBridge {
      * Re-entering the same mode within one call is one session, not extra habit evidence.
      */
     fun recordUserActivity(characterId: String, callId: String, activity: String,
-        phase: String, now: Instant = Instant.now()) {
+        phase: String, now: Instant = Instant.now(), channel: String = "电话互动") {
         if (characterId.isBlank() || callId.isBlank() ||
             !Regex("[a-z0-9-]{1,48}").matches(activity) ||
             phase !in setOf("start", "end")) return
@@ -58,11 +58,17 @@ internal object InteractionSignalBridge {
         SharedExperienceTimeline.record(
             eventId = id,
             characterId = characterId,
-            channel = "电话互动",
-            speaker = "实际通话操作",
-            content = if (phase == "start")
-                "本次已接通的电话真实开启了$activity 活动模式；这不证明主人已经睡着，也不说明由谁提议。"
-            else "本次已接通电话的$activity 活动模式已结束；不推断主人的睡眠状态。",
+            channel = channel,
+            speaker = "实际活动操作",
+            content = when {
+                activity == "sleep-guidance" && phase == "start" ->
+                    "本次电话真实开启了哄睡模式；不证明主人已经入睡，也不说明由谁提议。"
+                activity == "sleep-guidance" ->
+                    "本次电话的哄睡模式已结束；不推断主人的睡眠状态。"
+                activity == "listen-together" && phase == "start" ->
+                    "用户在一起听界面实际分享了一次可播放音频或正在播放的媒体会话信息；是否听到声波必须由独立感知回执确认。"
+                else -> "本次$channel 真实发生了$activity 活动阶段：$phase；不推断主人的意图或状态。"
+            },
             occurredAt = now,
             triggerExtraction = false,
             sessionId = callId,
