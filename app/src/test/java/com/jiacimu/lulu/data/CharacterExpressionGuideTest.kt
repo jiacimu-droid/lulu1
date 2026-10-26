@@ -116,7 +116,8 @@ class CharacterExpressionGuideTest {
         }
         val autonomous = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
-        assertFalse(autonomous.contains("【日常闲聊的常见节奏"))
+        assertTrue(autonomous.contains("【日常闲聊的常见节奏"))
+        assertTrue(autonomous.contains("自主思考、日记、朋友圈和需要详细说明的事情不受闲聊节奏约束"))
         assertFalse(phone.contains("【日常闲聊的常见节奏"))
         assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每轮不得超过三句"))
         assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每条不超过"))
