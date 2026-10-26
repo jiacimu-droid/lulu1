@@ -87,6 +87,29 @@ class ResidentPhoneWakeIntegrationTest {
         assertFalse(CharacterPhoneInbox.unreadMoments(viewer).any { it.id == post.id })
     }
 
+    @Test fun inspectingAFriendsPhoneRecordsOwnerProxyLikeWithoutTelepathicFanout() {
+        val actor = role()
+        val friend = role()
+        val post = MomentsStore.publishUser("手机代点赞验证-${UUID.randomUUID()}")!!
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(friend,
+            CharacterPhoneInbox.unreadMoments(friend)))
+        assertTrue(MomentsStore.toggleInspectedCharacterLike(post.id, actor))
+        val afterLike = MomentsStore.posts.value.first { it.id == post.id }
+        assertTrue(actor in afterLike.likedCharacterIds)
+        val proxy = SharedExperienceTimeline.eventsByIds(actor,
+            listOf("moment-like-${post.id}-$actor")).single()
+        assertEquals("owner-on-behalf", proxy.source)
+        assertTrue(proxy.content.contains("不是角色自主决定"))
+        assertTrue("The friend observes their feed only when their phone is read",
+            CharacterPhoneInbox.unreadMoments(friend).any { it.id == post.id })
+        assertTrue(SharedExperienceTimeline.eventsByIds(friend,
+            listOf("moment-visible-like-${post.id}-$actor-$friend")).isEmpty())
+        assertTrue(MomentsStore.toggleInspectedCharacterLike(post.id, actor))
+        assertFalse(actor in MomentsStore.posts.value.first { it.id == post.id }.likedCharacterIds)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf("moment-like-${post.id}-$actor")).isEmpty())
+    }
+
     @Test fun requestAndConsentAreSeparateEventsAndLeaveQQThreadNotices() {
         val from = role()
         val to = role()
