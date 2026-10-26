@@ -29,10 +29,11 @@ internal object CharacterPhoneInbox {
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
         return MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
             .asSequence().filter {
-                it.authorCharacterId != characterId &&
+                (it.authorCharacterId != characterId ||
+                    it.lastActivityAt.isAfter(it.createdAt)) &&
                     (it.authorType != MomentAuthorType.User || characterId != MomentFriendAccess.OWNER) &&
-                    it.createdAt.isAfter(cursor)
-            }.sortedWith(compareBy<MomentPost> { it.createdAt }.thenBy { it.id })
+                    it.lastActivityAt.isAfter(cursor)
+            }.sortedWith(compareBy<MomentPost> { it.lastActivityAt }.thenBy { it.id })
             .take(max.coerceIn(1, 20)).toList()
     }
 
@@ -40,7 +41,9 @@ internal object CharacterPhoneInbox {
         val cursor = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
         return MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value).count {
-            it.authorCharacterId != characterId && it.createdAt.isAfter(cursor)
+            (it.authorCharacterId != characterId ||
+                it.lastActivityAt.isAfter(it.createdAt)) &&
+                it.lastActivityAt.isAfter(cursor)
         }
     }
 
@@ -48,16 +51,25 @@ internal object CharacterPhoneInbox {
      * model decision. Failed or interrupted perception leaves a red dot.
      * A late callback can never roll the cursor back.
      */
-    @Synchronized fun acknowledge(characterId: String, postIds: Collection<String>): Boolean {
-        if (postIds.isEmpty()) return true
-        val observed = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
-            .filter { it.id in postIds }.maxOfOrNull { it.createdAt } ?: return false
+    @Synchronized fun acknowledge(characterId: String, postIds: Collection<String>): Boolean =
+        acknowledgeObserved(characterId,
+            MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+                .filter { it.id in postIds })
+
+    /** The actual immutable snapshot shown to the model owns the read receipt.
+     * If somebody comments during an API call, that NEW activity remains unread.
+     */
+    @Synchronized fun acknowledgeObserved(characterId: String, observedPosts: List<MomentPost>): Boolean {
+        if (observedPosts.isEmpty()) return true
+        val presented = observedPosts.filter { post ->
+            MomentFriendAccess.canView(post, characterId) &&
+                MomentsStore.posts.value.any { it.id == post.id }
+        }
+        val observed = presented.maxOfOrNull { it.lastActivityAt } ?: return false
         val current = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
         if (!observed.isAfter(current)) return true
-        val delivered = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
-            .filter { it.id in postIds && it.createdAt.isAfter(current) &&
-                it.authorCharacterId != characterId }
+        val delivered = presented.filter { it.lastActivityAt.isAfter(current) }
         // Only AFTER the successful model decision has looked at this inbox
         // do these posts enter the viewer's actual lived observations.
         delivered.forEach { post ->
@@ -75,7 +87,7 @@ internal object CharacterPhoneInbox {
                 channel = "手机·已查看朋友圈",
                 source = "moment:phone-read",
                 speaker = author,
-                content = "醒来查看好友动态：${post.content.take(400)}" +
+                content = "醒来查看手机，postId=${post.id}；动态：${post.content.take(400)}" +
                     if (commentDigest.isBlank()) "" else "；看到评论：$commentDigest",
                 evidenceKind = EventEvidenceKind.Observation,
                 triggerExtraction = false,
@@ -91,7 +103,7 @@ internal object CharacterPhoneInbox {
             val authorId = post.authorCharacterId
             val author = authorId?.let { MigratedDomainStores.characters.get(it).displayName }
                 ?: UserProfileContext.displayLabel()
-            appendLine("postId=${post.id}；作者=${author}；发表于=${post.createdAt}")
+            appendLine("postId=${post.id}；作者=${author}；发表于=${post.createdAt}；最新活动=${post.lastActivityAt}")
             appendLine("  正文：${post.content.take(300).ifBlank { "[图片动态]" }}")
             if (post.imageDescription.isNotBlank()) appendLine("  实际配图描述：${post.imageDescription.take(200)}")
             appendLine("  已有点赞=${post.likedCharacterIds.joinToString(",").take(200).ifBlank { "无" }}")
