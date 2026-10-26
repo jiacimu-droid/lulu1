@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:34:17.822315+00:00",
-  "commit": "9659140aefa9c59dc284630f6a601d49ee234d8f",
+  "generatedAt": "2026-10-26T08:34:32.116120+00:00",
+  "commit": "c393a3f37be478744c1abe28d971b2fc16b3b1a7",
   "branch": "main",
-  "sourceFingerprint": "84e2b0304671090ab15753a0b0977af91f884a078ab2c308038de327945a3b7c",
+  "sourceFingerprint": "225c7bcdf53194cb291c11538fdd77c8ca91d48b862bd11c3efdbd9af78a5f04",
   "summary": {
     "files": 928,
-    "lines": 184175,
+    "lines": 184176,
     "symbols": 2721
   },
   "symbolIndex": {
@@ -3889,7 +3889,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 89
+        "line": 90
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -10623,13 +10623,13 @@
     "nearTimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 94
+        "line": 95
       }
     ],
     "reflectionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 108
+        "line": 109
       }
     ],
     "Choice": [
@@ -25599,8 +25599,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-      "lines": 120,
-      "sha256": "ce869e276670f0b1a792edcf88e228b2df3f80a0bfbf2dbaeb7b3c0af776a2d0",
+      "lines": 121,
+      "sha256": "31ebdec6252a2ad7dad28ba961b5dba9de9c9c46d34bcebdf4c33f1b391ecf63",
       "symbols": [
         {
           "name": "Pattern",
@@ -25616,15 +25616,15 @@
         },
         {
           "name": "recent",
-          "line": 89
+          "line": 90
         },
         {
           "name": "nearTimeContext",
-          "line": 94
+          "line": 95
         },
         {
           "name": "reflectionContext",
-          "line": 108
+          "line": 109
         }
       ]
     },
