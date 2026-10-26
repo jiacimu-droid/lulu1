@@ -76,8 +76,14 @@ class AutonomousActionBoundaryIntegrationTest {
         val motive = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor).optJSONArray("motives"))
             .single { it.optString("aim") == "想核实这个操作能否执行" }.optString("id")
         val text = "独立发出的生活动态-${UUID.randomUUID()}"
-        val choice = JSONObject().put("action", "tool").put("tool", "nonexistent_primary_tool")
-            .put("args", JSONObject()).put("reason", "想核实可否执行")
+        val stranger = role()
+        ResidentSocialMailbox.initialize(app)
+        assertFalse(ResidentSocialMailbox.canContact(actor, stranger))
+        // The tool is registered and the target really exists. Its executor
+        // must still reject a private message before these people have met.
+        val choice = JSONObject().put("action", "tool").put("tool", "send_character_message")
+            .put("args", JSONObject().put("targetCharacterId", stranger).put("text", "你好"))
+            .put("reason", "想核实可否执行")
             .put("motiveId", motive).put("replyChoice", "silent")
             .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
                 .put("requiresPreviousSuccess", false).put("args", JSONObject().put("text", text))))
