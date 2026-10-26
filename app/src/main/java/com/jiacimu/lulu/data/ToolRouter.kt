@@ -59,8 +59,27 @@ object ToolRouter {
             else -> "actions"
         }) {
             fun rejected(message: String, status: String = "failed"): String {
-                // A rejected command did not run; do not mark any unrelated desire complete.
-                return failure(message, status)
+                // Rejection is an executor fact, not a performed action. In the
+                // old path it returned only a string: the character's next
+                // perception had no durable evidence of denied permissions or
+                // invalid tools, so it could repeat the same proposal forever.
+                // Keep the original requestId for correlation, but a DISTINCT
+                // timeline ID: later authorization must not overwrite this
+                // rejection or turn it into an executed action.
+                val result = failure(message, status)
+                val evidenceId = "tool-rejected-$characterId-$requestId"
+                if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isEmpty()) {
+                    val receipt = JSONObject().put("characterId", characterId)
+                        .put("requestId", requestId).put("tool", name)
+                        .put("status", status).put("stage", "rejected")
+                        .put("result", result).put("reason", reason.take(220))
+                    SharedExperienceTimeline.record(evidenceId, characterId,
+                        "工具请求未执行", "执行器", receipt.toString(),
+                        source = "tool-router", taskId = requestId,
+                        evidenceKind = EventEvidenceKind.ToolResult,
+                        triggerExtraction = false)
+                }
+                return result
             }
             val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")
             if (cap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
@@ -232,7 +251,11 @@ object ToolRouter {
                     )
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
-                    execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
+                    execution.toString(), source = "tool-router", taskId = requestId,
+                    evidenceKind = EventEvidenceKind.ToolResult,
+                    // Failures must inform the next perception, not increase
+                    // the gauge for pleasant/share-worthy lived experiences.
+                    triggerExtraction = parsed.optBoolean("success"))
                 projectReceipt(context, characterId, receiptId, execution, intentionId)
                 // Central receipt-to-perception handoff. All scenes and all initiators use
                 // this exact persisted tool event and the ordinary character decision loop.
