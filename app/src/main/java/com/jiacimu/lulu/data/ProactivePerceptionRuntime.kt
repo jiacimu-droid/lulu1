@@ -590,6 +590,10 @@ object ProactivePerceptionRuntime {
             it.groupChat?.members?.any { member -> member.characterId == characterId } == true
         }
         val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
+        // A separate digital phone, not access to the owner's physical device.
+        // Shared with resident wake: read-only post/request truth, no extra AI.
+        CharacterPhoneInbox.initialize(appContext)
+        val phoneUnread = CharacterPhoneInbox.unreadMoments(characterId)
         // Normal live chat is generated here, in the same paid decision call.
         // Do not leave conversational context only on the legacy chat-page path.
         val privateDialogue = PrivateChatExpressionContext.unreadConversation(
@@ -711,6 +715,10 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
+                appendLine("【你自己的数字手机 · 不是用户的Android设备】")
+                appendLine(CharacterPhoneInbox.modelContext(characterId, phoneUnread))
+                appendLine(CharacterPhoneInbox.requestContext(characterId))
+                appendLine("如果真想跟好友互动，可选 steps 中的 like_moment/comment_moment；想申请或回应好友，选 send_friend_request/respond_friend_request。每一步需要真实postId或requestId，只有你的实际工具回执才证明发出。手机有红点并不强迫你回复，也不影响本人原计划。")
                 if (onlineExpiryAtMillis > 0L) {
                     appendLine("【此刻的真实状态】原定五分钟在线窗口刚结束。")
                     appendLine("你可以依照自己的真实愿望决定再在线五分钟，或现在休眠。")
@@ -1922,6 +1930,9 @@ object ProactivePerceptionRuntime {
         pendingMail.lastOrNull()?.let { considered ->
             if (!ResidentSocialMailbox.acknowledgeIncoming(characterId, considered.id))
                 android.util.Log.w("ResidentMail", "Incoming letter decision cursor not saved")
+        }
+        if (!CharacterPhoneInbox.acknowledgeObserved(characterId, phoneUnread)) {
+            android.util.Log.w("CharacterPhone", "Viewed Moments red-dot cursor not saved")
         }
         return effectiveAction
     }
