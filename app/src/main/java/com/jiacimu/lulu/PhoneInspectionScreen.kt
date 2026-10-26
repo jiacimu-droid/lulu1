@@ -170,7 +170,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     lastText = "", updatedAt = Instant.EPOCH, peerId = peer,
                 )
             }
-    val visiblePosts = remember(posts, actualRole, friendsRevision) {
+    val visiblePosts = remember(posts, actualRole, friendsRevision, mailReady) {
         MomentFriendAccess.visiblePosts(actualRole, posts).sortedByDescending { it.createdAt }
     }
     val snackbar = remember { SnackbarHostState() }
@@ -181,7 +181,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val userName = userProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
     val userAvatar = userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
     val userAvatarUri = userProfilePrefs.getString("avatar_uri", null)
-    val availableFriends = remember(actualRole, friendsRevision, people) {
+    val availableFriends = remember(actualRole, friendsRevision, people, mailReady) {
         people.values.filter { it.characterId != actualRole &&
             MomentFriendAccess.areFriends(actualRole, it.characterId)
         }.sortedBy(CharacterSettings::displayName)
