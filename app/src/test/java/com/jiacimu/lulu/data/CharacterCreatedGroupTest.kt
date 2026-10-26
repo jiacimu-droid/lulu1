@@ -45,12 +45,18 @@ class CharacterCreatedGroupTest {
             it.role == LuluGroupRole.Owner
         }.characterId)
         assertTrue(ownerVisibleQqConversations(listOf(group)).isEmpty())
-        val seen = SharedExperienceTimeline.eventsByIds(b.characterId, listOf(
-            "group-joined-${group.id}-${b.characterId}-${group.updatedAt.toEpochMilli()}"
-        )).single()
+        val seen = SharedExperienceTimeline.recentEvents(b.characterId, 100).single {
+            it.sessionId == group.id && it.source == "group-membership"
+        }
         assertEquals("group-membership", seen.source)
         assertEquals(EventEvidenceKind.Observation, seen.evidenceKind)
         assertTrue(seen.content.contains("邀请你加入"))
+        val notice = MigratedDomainStores.chat.messages(group.id).value
+            .single { it.sender == LuluChatMessage.Sender.System }
+        assertTrue(notice.content.contains("群聊通知"))
+        assertTrue(notice.content.contains("创建了"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(b.characterId,
+            listOf(notice.id + ":group:" + b.characterId)).isEmpty())
     }
 
     @Test fun unrelatedCharactersCannotBePulledIntoPrivateGroup() = runBlocking {
