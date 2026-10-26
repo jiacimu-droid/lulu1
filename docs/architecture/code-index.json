@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:41:21.839418+00:00",
-  "commit": "4f816b3c2c3abf9a3845cea6301f0d0c56e5bbf4",
+  "generatedAt": "2026-10-26T01:42:16.919691+00:00",
+  "commit": "068b60e4f1fce7f3b31dce4fd9b7cb6b31c8dcca",
   "branch": "main",
-  "sourceFingerprint": "fa342efcb27a5c3aca7c0a8194283a3cd2677093ef5bf505023fff0958e37c1e",
+  "sourceFingerprint": "a93246dd6eadffd551f72f3116a77a0ede7355a60a2e36270859882b7068db83",
   "summary": {
     "files": 909,
-    "lines": 179193,
+    "lines": 179206,
     "symbols": 2673
   },
   "symbolIndex": {
@@ -14133,7 +14133,7 @@
     "ConversationGroundingEngineTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "ConversationNaturalnessGateTest": [
@@ -30338,12 +30338,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
-      "lines": 19,
-      "sha256": "a2d9d5efe24028851dd55c1344769253dcf10aebe0226f98a0c4d1d28cadb1b6",
+      "lines": 32,
+      "sha256": "81fdc11ca7e1ed87c8504f789a0c427836451c21e11ab444a5a99ee6d43f91d0",
       "symbols": [
         {
           "name": "ConversationGroundingEngineTest",
-          "line": 5
+          "line": 6
         }
       ]
     },
