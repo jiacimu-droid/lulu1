@@ -126,6 +126,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
+    var menuThreadKey by remember { mutableStateOf<String?>(null) }
     val prefs = remember(context) {
         context.getSharedPreferences("lulu_phone_inspection_ui_v1", Context.MODE_PRIVATE)
     }
@@ -281,41 +282,37 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
                     items(threads, key = InspectedThread::key) { thread ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                                .clickable { selectedThreadKey = thread.key }
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Surface(color = QqOther, shape = CircleShape, modifier = Modifier.size(46.dp)) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(thread.title.take(1).ifBlank { "聊" }, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                            Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(thread.title, fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.weight(1f), maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis)
-                                    Text(inspectedTime(thread.updatedAt), color = QqMuted, fontSize = 11.sp)
-                                }
-                                Text(thread.lastText.ifBlank { "暂无消息" }, color = QqMuted,
-                                    maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 13.sp)
-                            }
-                            IconButton(onClick = {
-                                val next = pinned.toMutableSet().apply {
-                                    if (!add(thread.key)) remove(thread.key)
-                                }
-                                if (prefs.edit().putStringSet("pins:$actualRole", next).commit()) pinRevision++
-                            }) {
-                                Icon(if (thread.key in pinned) Icons.Outlined.PushPin else Icons.Outlined.MoreHoriz,
-                                    if (thread.key in pinned) "取消置顶" else "置顶",
-                                    tint = if (thread.key in pinned) QqMine else QqMuted,
-                                    modifier = Modifier.size(19.dp))
+                        val chat = allChats.firstOrNull { it.id == thread.conversationId }
+                        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp)) {
+                            ChatHubV2ConversationRow(
+                                title = thread.title,
+                                preview = thread.lastText,
+                                updatedAt = thread.updatedAt,
+                                avatarText = thread.title.take(1).ifBlank { "聊" },
+                                avatarUri = if (thread.isGroup) chat?.groupChat?.avatarUri
+                                    else people[thread.peerId]?.avatarUri,
+                                isGroup = thread.isGroup,
+                                pinned = thread.key in pinned,
+                                unreadCount = 0, statusText = "", statusOnline = false,
+                                onOpen = { selectedThreadKey = thread.key },
+                                onMore = { menuThreadKey = thread.key },
+                            )
+                            DropdownMenu(expanded = menuThreadKey == thread.key,
+                                onDismissRequest = { menuThreadKey = null }) {
+                                DropdownMenuItem(
+                                    text = { Text(if (thread.key in pinned) "取消置顶" else "置顶") },
+                                    leadingIcon = { Icon(Icons.Outlined.PushPin, null) },
+                                    onClick = {
+                                        val next = pinned.toMutableSet().apply {
+                                            if (!add(thread.key)) remove(thread.key)
+                                        }
+                                        if (prefs.edit().putStringSet("pins:$actualRole", next).commit())
+                                            pinRevision++
+                                        menuThreadKey = null
+                                    },
+                                )
                             }
                         }
-                        HorizontalDivider(color = QqBorder.copy(alpha = .22f), modifier = Modifier.padding(start = 74.dp))
                     }
                 }
             } else if (phoneTab == 1) {
