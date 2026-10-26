@@ -60,6 +60,22 @@ class ResidentPhoneWakeIntegrationTest {
         assertEquals("moment:phone-read", viewed.single().source)
     }
 
+    @Test fun aNewLikeAfterReadingCreatesAnotherRedDotWithoutTelepathy() {
+        val viewer = role()
+        val liker = role()
+        val post = MomentsStore.publishUser("看到这条了吗-${UUID.randomUUID()}")!!
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(viewer,
+            CharacterPhoneInbox.unreadMoments(viewer)))
+        assertTrue(CharacterPhoneInbox.unreadMoments(viewer).none { it.id == post.id })
+        assertTrue(MomentsStore.likeAsCharacter(post.id, liker))
+        assertTrue("New real interaction must wake the feed red dot on the next normal wake",
+            CharacterPhoneInbox.unreadMoments(viewer).any { it.id == post.id })
+        assertTrue(CharacterPhoneInbox.unreadCount(viewer) > 0)
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(viewer,
+            CharacterPhoneInbox.unreadMoments(viewer)))
+        assertFalse(CharacterPhoneInbox.unreadMoments(viewer).any { it.id == post.id })
+    }
+
     @Test fun requestAndConsentAreSeparateEventsAndLeaveQQThreadNotices() {
         val from = role()
         val to = role()
