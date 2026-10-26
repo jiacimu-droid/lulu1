@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T06:56:25.577695+00:00",
-  "commit": "57ffde39a260e480ec02589bd1d0521b2222cc44",
+  "generatedAt": "2026-10-26T07:00:13.068973+00:00",
+  "commit": "0f78688c76883a6965635c86878534b85af24189",
   "branch": "main",
-  "sourceFingerprint": "e4b4bedc1d5c035da151863c7714113eec3cee5d0a4f46cad8799d9fed98330e",
+  "sourceFingerprint": "86756b6fb2e7d9d7efab7a91cd77793738275f64cdc02dc1bd9f4d36199074af",
   "summary": {
     "files": 926,
-    "lines": 183488,
-    "symbols": 2708
+    "lines": 183492,
+    "symbols": 2707
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8024,28 +8024,22 @@
         "line": 40
       }
     ],
-    "shouldBlockContact": [
+    "reviewMatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
         "line": 47
       }
     ],
-    "reviewMatches": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 51
-      }
-    ],
     "isCoveredByOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 66
+        "line": 63
       }
     ],
     "hasRequestedSpace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 71
+        "line": 68
       }
     ],
     "serperKey": [
@@ -9609,7 +9603,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2493
+        "line": 2500
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -22720,8 +22714,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-      "lines": 75,
-      "sha256": "8b8273fd62fba3180dfd35bf77820e6c03eaf593df86f971425ca16f77523f8d",
+      "lines": 72,
+      "sha256": "b457c7d610327b4c6c7f9ebc1c87d6f2f1d50c3a211d302d2583df0de492223a",
       "symbols": [
         {
           "name": "outwardAction",
@@ -22740,20 +22734,16 @@
           "line": 40
         },
         {
-          "name": "shouldBlockContact",
+          "name": "reviewMatches",
           "line": 47
         },
         {
-          "name": "reviewMatches",
-          "line": 51
-        },
-        {
           "name": "isCoveredByOnlineExpiry",
-          "line": 66
+          "line": 63
         },
         {
           "name": "hasRequestedSpace",
-          "line": 71
+          "line": 68
         }
       ]
     },
@@ -24461,8 +24451,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2559,
-      "sha256": "ac5a2e7388389beaf07d6eff3e90a8b5f1b0734ab731eab08bf8e79e9fbdcd1f",
+      "lines": 2566,
+      "sha256": "218e79a5f8b5795561d7a6bdce0dd23e04e3e0b85c6bef6e274ad49128ad980d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24494,7 +24484,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2493
+          "line": 2500
         }
       ]
     },
