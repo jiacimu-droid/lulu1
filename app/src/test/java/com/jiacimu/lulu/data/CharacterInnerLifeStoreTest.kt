@@ -87,11 +87,14 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(role)
         val now = Instant.parse("2026-10-26T14:00:00Z")
         repeat(19) { index ->
-            CharacterInnerLifeStore.observe(role, "motive-focus-$index",
-                "本人对新的方向形成持续想法",
-                JSONObject().put("motives", JSONArray().put(JSONObject()
-                    .put("op", "start").put("aim", "不同探索方向$index")
-                    .put("why", "本人在乎这条具体线索"))), now = now.minusSeconds(120))
+            val wish = JSONObject().put("op", "start")
+                .put("aim", "不同探索方向${index}")
+                .put("why", "本人在乎这条具体线索")
+            val change = JSONObject().put("motives", JSONArray().put(wish))
+            CharacterInnerLifeStore.observe(
+                role, "motive-focus-$index", "本人对新的方向形成持续想法",
+                change, now = now.minusSeconds(120),
+            )
         }
         val all = CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")
         val selection = CharacterMotiveState.workingSet(all, now)
