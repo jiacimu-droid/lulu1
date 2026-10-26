@@ -114,6 +114,7 @@ object CommitmentTurnAutomation {
             recentContext = earlier,
             now = user.createdAt,
             zone = ZoneId.systemDefault(),
+            reconcileDeliveredReply = true,
         )
         val changed = CommitmentDecisionRuntime.applyModelRecovery(
             context, characterId, sourceTurnId, evidenceIds, drafts,

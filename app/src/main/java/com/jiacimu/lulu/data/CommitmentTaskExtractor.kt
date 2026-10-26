@@ -20,6 +20,7 @@ internal suspend fun extractCommitmentTaskDrafts(
     recentContext: String = "",
     now: Instant = Instant.now(),
     zone: ZoneId = ZoneId.systemDefault(),
+    reconcileDeliveredReply: Boolean = false,
 ): List<CommitmentTaskDraft> {
     val result = LuluAiServices.gateway.generate(
         characterId = characterId,
@@ -37,7 +38,9 @@ internal suspend fun extractCommitmentTaskDrafts(
                 }
             }
         },
-        instruction = CommitmentDecisionProtocol.instruction + "\n只处理本轮已经表达或确认的约定；旧对话只用于理解指代，不重复创建。只返回约定变更JSON数组，没有变化返回[]。不返回thoughts/motives等心理状态。",
+        instruction = CommitmentDecisionProtocol.instruction +
+            (if (reconcileDeliveredReply) "\n" + CommitmentDecisionProtocol.deliveredReplyReconciliation else "") +
+            "\n只处理本轮已经表达或确认的约定；旧对话只用于理解指代，不重复创建。只返回约定变更JSON数组，没有变化返回[]。不返回thoughts/motives等心理状态。",
         source = "承诺任务",
         title = "承诺任务提取",
         maxTokens = 1_500,

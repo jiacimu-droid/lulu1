@@ -21,6 +21,18 @@ internal object CommitmentDecisionProtocol {
         【通话定时与日程分离】当前电话“半小时后挂断”“02:35结束这通电话”属于本次通话控制，必须由电话的 hangupAfterSeconds 计时字段处理，绝不是下一次 start_call 来电，也不应作为普通 commitmentChanges 约定重复登记。每天00:00督促休息等持续约定是另一件事，各自独立选择执行时点与执行方式，不能把两个意图拼成一项 goal 并套用每日零点。已经过去的本地日期不自动改成明天；跨午夜仅在实际时间计算越过午夜时发生。\n        约定通过commitmentChanges落地，同一件事不要再选create_alarm重复建闹钟。记录/执行是否成功以接下来的程序回执为准，当前说话只能表达接受、意愿或必要确认，不能提前宣称已经保存或已经改好。
     """.trimIndent()
 
+    // Model-only consistency pass; the executor never decodes Chinese dates.
+    val deliveredReplyReconciliation = """
+        【已发送回复与真实日程核对】用户已经看到这轮角色回复。独立阅读本轮用户完整原话、相邻上下文、
+        角色实际说出的最终时间，以及现有未完成任务的真实 id/dueAt。
+        由你判断是否接受了约定、是否更正了前面的日期，以及最终指向哪一条原任务。
+        若口头确认与已保存的任务日期不一致，返回 reschedule + 真实 targetTaskId +
+        你理解的完整 dueAt（带时区）与原有执行方式；旧任务由执行器原位更新。
+        如本轮已经正确保存，或没承诺/没要求修改，返回 []。
+        不要为了对齐而重复 create；不能凭词表、程序日历偏移或机械的关键词匹配覆盖本人最终理解。
+        模型是时间含义的唯一解释者。程序只检查格式、未来时间、真实 ID 和执行权限。
+    """.trimIndent()
+
     fun context(tasks: List<CommitmentTask>, now: Instant, zone: ZoneId): String = buildString {
         appendLine("【约定的客观依据】当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
         if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
