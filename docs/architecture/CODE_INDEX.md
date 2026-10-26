@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bf6007fcced85880df817ab95197d2c9ce276945`
+- 基准提交：`4fcd0f94c7b37215715606d0240ed3f9ca810952`
 - 分支：`main`
 - 已索引文件：911
-- 已索引代码/文本行：179418
+- 已索引代码/文本行：179487
 - 已发现符号：2678
 
 | 文件 | 行数 | 符号数 |
@@ -85,7 +85,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 364 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt` | 187 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 202 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 295 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 314 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
@@ -158,7 +158,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 327 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 256 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 306 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
