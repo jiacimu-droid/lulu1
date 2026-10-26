@@ -9,10 +9,10 @@
     "TotalSegmentCount": 15,
     "TotalPointCount": 48,
     "UserDataCount": 0,
-    "TotalUserDataSize": 0
+    "TotalUserDataSize": 0,
+    "FadeInTime": 0.08,
+    "FadeOutTime": 0.25
   },
-  "FadeInTime": 0.08,
-  "FadeOutTime": 0.25,
   "Curves": [
     {
       "Target": "Parameter",
