@@ -1364,69 +1364,12 @@ object LuluDeviceToolBridge {
                     ?: generated.text.trim().takeIf { it.isNotBlank() &&
                         !it.startsWith("{") && !it.startsWith("```") }?.let(::listOf)
                     ?: return Result.failure(IllegalStateException("表达模型没有返回完整的可发送正文"))
-                val naturalness = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
-                    userText, firstBubbles, history,
-                    recentCharacterReplies = recentCharacterReplies,
-                    operationalEvidence = turnContext,
-                )
-                val rerendered = if (naturalness.needsRerender) {
-                    LuluAiServices.gateway.generate(
-                        characterId = characterId,
-                        facts = buildString {
-                            appendLine("真实聊天场景：${sceneContext}")
-                            if (expressionConversation.isEmpty()) appendLine("用户刚才说：${userText}")
-                            if (expressionConversation.isEmpty() && history.isNotBlank()) appendLine("已发生的对话：\n$history")
-                            if (turnContext.isNotBlank()) appendLine("本轮程序提供的交互元信息：${turnContext.take(4_000)}")
-                            if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
-                            appendLine(expressionHandoff)
-                            if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
-                            appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
-                        appendLine(com.jiacimu.lulu.data.ConversationDominantImpulse.expressionRule)
-                            appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
-                                includeExamples = false))
-                            appendLine("已经确定的内容意图：${plan.speechIntent}")
-                            if (plan.socialAttempt.isNotBlank()) {
-                                appendLine("不能丢失角色自选的小尝试：${plan.socialAttempt.take(180)}；必须实际表达，不能空口承诺。")
-                            }
-                            appendLine("第一版表达草稿（只用于改措辞，不把它当新事实）：")
-                            firstBubbles.forEach { appendLine("- $it") }
-                        },
-                        instruction = """
-                            你仍然只是当前角色的语言表达层，不重新决策。
-                            ${naturalness.repairInstruction()}
-                            本轮只需说角色真正想说的重点。删去重复解释、繁琐铺垫、歉意三连和任务答复式收尾；保留真实立场、情绪与不可丢的事实。保留角色自选的情绪话外音，不把一句含蓄的真心话改写成解释它含义的长篇独白；也不要以压短为由漏掉必要答案。
-                            已有的幽默、态度、颜文字或 emoji 如果仍贴合语境就保留，不要把消除客服腔误做成删掉全部情绪。
-                            保持这个角色自己的词汇、节奏、幽默感、关系称呼与分寸；不要把“自然”理解成统一的短句网感，也不要故意加口头禅。
-                            只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。确实更适合传达声音的一句可设 delivery="voice"，该气泡可选填 speechText（与 text 原话相同，仅在真实情绪转折处加少量英文音频标签），不在正文写标签；无须为了润色强行增加语音；不要改变角色本人已经选好的语气意图。
-                            先按普通文字聊天的自然节奏确定每个完整意群的气泡，再为每个气泡选 text 或 voice；语音只是朗读这条气泡的原话，不要把原本会分开的文字气泡合并成长语音。规划阶段的互动动作数量不是可视气泡的数量。一个动作可用数个短气泡说清，不把没说完的词句拆开，也不为了凑数量发空话。
-                        """.trimIndent(),
-                        source = "聊天表达自然度修复",
-                        title = title,
-                        maxTokens = 1_000,
-                        connectionOverride = connection,
-                        conversation = expressionConversation,
-                        memoryRequest = UnifiedMemoryRequest(
-                            currentInput = userText,
-                            sceneContext = sceneContext,
-                            recentContext = history,
-                            taskIntent = "只修正表达层人机感，不改变已决定内容",
-                        ),
-                    ).getOrNull()
-                } else null
-                val rerenderedBubbles = rerendered?.let {
-                    com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(it.text)
-                }
-                val repairedNaturalness = rerenderedBubbles?.let {
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it, history,
-                        recentCharacterReplies = recentCharacterReplies, operationalEvidence = turnContext)
-                }
-                val useRerender = rerendered != null && !rerenderedBubbles.isNullOrEmpty() &&
-                    repairedNaturalness != null &&
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.shouldUseRewrite(
-                        userText, firstBubbles, rerenderedBubbles, naturalness, repairedNaturalness,
-                    )
-                val chosenResult = if (useRerender) rerendered!! else generated
-                val chosenBubbles = if (useRerender) rerenderedBubbles!! else firstBubbles
+                // The expression model already authored this reply. A lexical
+                // naturalness score must not replace its tone, selected detail
+                // or personal style with a second program-triggered rewrite.
+                // Keep deterministic safety/receipt validation below.
+                val chosenResult = generated
+                val chosenBubbles = firstBubbles
                 // dialoguePlan.maxBubbles is a count of *conversation moves*,
                 // not a visual clamp. A single thought may need two complete
                 // sentences in separate chat bubbles. Never discard the rest.
@@ -1443,9 +1386,9 @@ object LuluDeviceToolBridge {
                     text = spoken,
                     voiceBubbleTexts = voiceChoices,
                     voiceBubbleSpeechTracks = speechTracks,
-                    inputTokens = generated.inputTokens + (rerendered?.inputTokens ?: 0) + plannedReply.inputTokens,
-                    outputTokens = generated.outputTokens + (rerendered?.outputTokens ?: 0) + plannedReply.outputTokens,
-                    cachedTokens = generated.cachedTokens + (rerendered?.cachedTokens ?: 0) + plannedReply.cachedTokens,
+                    inputTokens = generated.inputTokens + plannedReply.inputTokens,
+                    outputTokens = generated.outputTokens + plannedReply.outputTokens,
+                    cachedTokens = generated.cachedTokens + plannedReply.cachedTokens,
                 )
             } else plannedReply
             val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text
