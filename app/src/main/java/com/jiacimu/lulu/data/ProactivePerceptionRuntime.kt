@@ -1236,28 +1236,35 @@ object ProactivePerceptionRuntime {
         val activityInFlight = scheduledActivity?.optString("status") in setOf("pending", "running") &&
             now.toEpochMilli() - (scheduledActivity?.optLong("createdAt") ?: 0L) in 0L..(60 * 60_000L)
         val followThroughKey = pendingChoices.joinToString("|").hashCode().toString()
+        // A SILENT speech choice can *also* carry real selected steps. Never
+        // replace such a decision with a second one and accidentally drop them.
+        val alreadyChoseSteps = (parsed.sideActions?.length() ?: 0) > 0
         val followThroughReview = CharacterActionFollowThroughPolicy.shouldReview(
-            silent = parsed.action == Action.SILENT && !ownActivityAlreadyExecutable && !activityInFlight, choices = pendingChoices,
+            silent = parsed.action == Action.SILENT && !alreadyChoseSteps &&
+                !ownActivityAlreadyExecutable && !activityInFlight,
+            choices = pendingChoices,
             key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
             nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
         )
-        // A quiet heartbeat already paid for one complete personality,
-        // appraisal and action choice. Never spend on a SECOND optional
-        // agency-recovery model call merely because it chose solitude.
-        // Real unread messages and new scene/call events retain recovery.
+        // Routine awareness is a legitimate opportunity to revisit a real
+        // unfinished wish; it must NOT be blanket-ineligible just because its
+        // wake trigger has no unread chat. The existing keyed/cooldown policy
+        // bounds this optional same-role review, with no new scheduler.
         val routineHeartbeat = listOf(
             "在线持续感知", "合并后的自主生活回顾", "真实生活后续回想",
             "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
             "居民小事到了",
         ).any { trigger.startsWith(it) }
-        val shouldReview = !routineHeartbeat && (followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
-            now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
-            AutonomousDecisionRecovery.needsIndependentLifeReview(
-                silent = parsed.action == Action.SILENT,
-                reason = parsed.reason,
-                recentActions = recentAutonomousActions,
-                hasPendingUserMessage = onlineUnread.text.isNotBlank(),
-            )))
+        val shouldReview = followThroughReview ||
+            (!routineHeartbeat && !alreadyChoseSteps &&
+                !ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
+                now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
+                AutonomousDecisionRecovery.needsIndependentLifeReview(
+                    silent = parsed.action == Action.SILENT,
+                    reason = parsed.reason,
+                    recentActions = recentAutonomousActions,
+                    hasPendingUserMessage = onlineUnread.text.isNotBlank(),
+                ))
         val independentChoice = if (shouldReview) {
             prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli())
                 .putString("last_impulse_review_key_$characterId", followThroughKey)
