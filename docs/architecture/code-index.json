@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T00:35:46.376235+00:00",
-  "commit": "e30cac5eaf75ed6f154205425e2b111b3a98dc62",
+  "generatedAt": "2026-10-26T00:39:34.077061+00:00",
+  "commit": "9a490ad3f998098cf78fce431e8a68696c14388f",
   "branch": "main",
-  "sourceFingerprint": "1deb197423deb0ae0b6a6563c6f81bc0f0cd9fd371a2f004a653b1afadc863ae",
+  "sourceFingerprint": "f5c70f8590a643925d9fb62d17ae41b36a570ac18aa06a4aa0bee4e91a5a9649",
   "summary": {
     "files": 910,
-    "lines": 179185,
+    "lines": 179201,
     "symbols": 2678
   },
   "symbolIndex": {
@@ -439,7 +439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 23
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -6683,7 +6683,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 38
+        "line": 50
       }
     ],
     "handled": [
@@ -6765,7 +6765,7 @@
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "asJson": [
@@ -21056,16 +21056,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 50,
-      "sha256": "951b0dc690550ef6eb2935fa581bd7272178303d4b5a9d651aab67c293eec0f2",
+      "lines": 62,
+      "sha256": "eb4ce398630e8a4b834c5b5407deaefe7c3c552501f68c7a88eb70bb886fa6fe",
       "symbols": [
         {
           "name": "context",
-          "line": 23
+          "line": 35
         },
         {
           "name": "drafts",
-          "line": 38
+          "line": 50
         }
       ]
     },
@@ -21159,8 +21159,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 117,
-      "sha256": "7d90ad9e1e1b63baca4ddc9b248cd400a0b17a92a87e4408c5977d9dcd6ba305",
+      "lines": 120,
+      "sha256": "06aecba8f081e60ea0795855816107ac5bd951b82f8b17685b1b9100c4292dc4",
       "symbols": []
     },
     {
@@ -21231,8 +21231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 393,
-      "sha256": "535a1152f3f3f9442ec8a19e4dc537c820f94375937fd2eb5266d95987aa2058",
+      "lines": 394,
+      "sha256": "3cd0e2938e8ef477e6615d4b6533a85dce3ae207c2a59e57055c444c93ca90bc",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -21244,7 +21244,7 @@
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 136
+          "line": 137
         }
       ]
     },
