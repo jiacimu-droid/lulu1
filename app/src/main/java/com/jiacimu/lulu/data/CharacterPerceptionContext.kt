@@ -88,13 +88,21 @@ internal object CharacterPerceptionContext {
         if (source != "tool-router") return null
         val execution = runCatching { JSONObject(content) }.getOrNull() ?: return null
         val status = execution.optString("status")
-        if ((execution.optString("tool") !in CharacterActivityExpectation.tools &&
-                execution.optString("tool") !in SearchReceiptFeedback.resultTools) ||
-            status !in setOf("succeeded", "observed", "verified", "failed")) return null
+        val tool = execution.optString("tool")
+        val completedLifeAction = tool in CharacterActivityExpectation.tools ||
+            tool in SearchReceiptFeedback.resultTools
+        // Any registered tool can fail or be denied, not only reading/search.
+        // Surface these *executor-authored* outcomes to the original perception
+        // loop; a pending consent or cloud job is NOT a completed experience.
+        val unsuccessful = status in setOf("failed", "waiting_user", "denied", "requested_unverified")
+        if ((CapabilityRegistry.find(tool) == null && !unsuccessful) ||
+            (!completedLifeAction && !unsuccessful) ||
+            status !in setOf("succeeded", "observed", "verified", "failed",
+                "waiting_user", "denied", "requested_unverified")) return null
         val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return null
         // A status string alone does not establish what happened: an executor
         // must agree that the claimed terminal state really succeeded/failed.
-        if (result.optBoolean("success") != (status != "failed")) return null
+        if (result.optBoolean("success") == unsuccessful) return null
         if (execution.optString("tool") == "digital_world_action") {
             val args = runCatching { JSONObject(execution.optString("fingerprint").substringAfter(':')) }.getOrNull()
                 ?: return null
