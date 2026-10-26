@@ -147,7 +147,8 @@ internal fun MomentPostCard(
                             fontSize = 10.sp,
                             modifier = Modifier.weight(1f),
                         )
-                        TextButton(onClick = onRetryImageUnderstanding, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                        TextButton(onClick = onRetryImageUnderstanding, enabled = allowComment,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
                             Text("重试", fontSize = 10.sp)
                         }
                     }
@@ -212,7 +213,7 @@ internal fun MomentPostCard(
                                 null -> null
                                 else -> characterNames[comment.replyToCharacterId]
                             }
-                            val canReply = comment.characterId != "__user__"
+                            val canReply = allowComment && comment.characterId != "__user__"
                             Row(
                                 modifier = Modifier.fillMaxWidth()
                                     .then(if (canReply) Modifier.clickable { replyTarget = comment } else Modifier)
@@ -240,7 +241,7 @@ internal fun MomentPostCard(
     }
     HorizontalDivider(color = LuluColors.Border, modifier = Modifier.padding(start = 75.dp))
 
-    if (commenting) {
+    if (allowComment && commenting) {
         var text by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { commenting = false },
@@ -266,7 +267,7 @@ internal fun MomentPostCard(
         )
     }
 
-    replyTarget?.let { target ->
+    replyTarget?.takeIf { allowComment }?.let { target ->
         val targetName = characterNames[target.characterId] ?: "角色"
         var text by remember(target.id) { mutableStateOf("") }
         AlertDialog(
