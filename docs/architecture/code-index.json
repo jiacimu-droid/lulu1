@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:32:17.470514+00:00",
-  "commit": "a945f7248c9f1f76015b2fdeae31457353aeaf4b",
+  "generatedAt": "2026-10-26T04:42:21.676030+00:00",
+  "commit": "c2808a1035ee2bbd3778b6ccd28faabc0fcebfc9",
   "branch": "main",
-  "sourceFingerprint": "76c7a6589d4a0d2af36e0bf7fe393ad9e39a268669d885d44dd24b26bb5c7a48",
+  "sourceFingerprint": "b36cecdb0773c701f58d4e812eeb065b15cf1750aaab5683036ffa91db37293a",
   "summary": {
     "files": 924,
-    "lines": 182610,
+    "lines": 182633,
     "symbols": 2703
   },
   "symbolIndex": {
@@ -13367,7 +13367,7 @@
     "PhoneOnBehalfSourceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt",
-        "line": 14
+        "line": 17
       }
     ],
     "PhoneSubtitleLayoutTest": [
@@ -29248,12 +29248,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneOnBehalfSourceTest.kt",
-      "lines": 74,
-      "sha256": "84ae1280ee9ae7b2f5d203092dfeeba372d4dded4a41cfa2b0a941107cf48419",
+      "lines": 97,
+      "sha256": "dce5702e745162f87bf399a1462fb6360d7d26c6224156c0079b7fe424257b64",
       "symbols": [
         {
           "name": "PhoneOnBehalfSourceTest",
-          "line": 14
+          "line": 17
         }
       ]
     },
