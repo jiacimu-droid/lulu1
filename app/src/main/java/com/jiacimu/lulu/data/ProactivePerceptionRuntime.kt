@@ -1845,10 +1845,17 @@ object ProactivePerceptionRuntime {
             // Keep the previous factual presence intact. Failure details belong to perception history.
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "动作未完成：${execution.summary}", now)
         }
+        // No spoken primary action is not the same as "did nothing".
+        // One decision can intentionally stay silent while selecting steps;
+        // the existing ToolRouter receipts alone determine their outcomes.
+        val choseStepsWithoutPrimary = decision.action == Action.SILENT &&
+            (decision.sideActions?.length() ?: 0) > 0
+        val recordedChoice = if (choseStepsWithoutPrimary) "steps"
+            else decision.action.name.lowercase()
         CharacterInnerLifeStore.recordDecision(
             characterId = characterId,
             decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
-            selectedAction = decision.action.name.lowercase(),
+            selectedAction = recordedChoice,
             // A blank model reason must remain visible as a missing reason,
             // rather than disappearing from the audit as if no call happened.
             reason = decision.actionBasis()?.reason.orEmpty().ifBlank {
@@ -1866,7 +1873,9 @@ object ProactivePerceptionRuntime {
             // choosing silence does not prove it considered/rejected each cue.
             // The ordinary decisions history already owns these facts.
             attentionOffered = unfinishedChoices.map { "${it.kind}:${it.id}" },
-            actionSignature = AutonomousActionTrace.signature(
+            actionSignature = if (choseStepsWithoutPrimary)
+                AutonomousActionTrace.selectedStepsSignature(decision.sideActions)
+                else AutonomousActionTrace.signature(
                 action = decision.action.name.lowercase(),
                 worldAction = decision.worldAction,
                 destination = decision.location,
@@ -1881,7 +1890,11 @@ object ProactivePerceptionRuntime {
         )
         // An intention is not a world fact; advance a stored desire ONLY after
         // the existing real executor has returned success for its chosen action.
-        CharacterLifeFollowThroughStore.recordAction(
+        // The primary has no experience effect when it is SILENT.
+        // Each selected secondary tool is already attributed and projected
+        // by its own ToolRouter requestId/receipt; do not create a second,
+        // misleading "successful silent action" against this experience.
+        if (decision.action != Action.SILENT) CharacterLifeFollowThroughStore.recordAction(
             characterId, decision.experienceId, decision.action.name,
             execution.success, execution.summary, execution.evidenceId,
         )
@@ -1900,10 +1913,10 @@ object ProactivePerceptionRuntime {
         }
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
-            if (decision.action != Action.SILENT && !execution.success) {
-                "动作失败 · ${decision.action.name.lowercase()} · ${execution.summary.take(120)}"
+            if ((decision.action != Action.SILENT || choseStepsWithoutPrimary) && !execution.success) {
+                "动作失败 · $recordedChoice · ${execution.summary.take(120)}"
             } else {
-                "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
+                "感知成功 · ${if (choseStepsWithoutPrimary) recordedChoice else effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
             },
             now,
         )
