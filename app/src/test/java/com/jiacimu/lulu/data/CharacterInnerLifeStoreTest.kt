@@ -111,6 +111,29 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(role)
     }
 
+    @Test fun offeredAttentionIsAnAuditOfContextNotAnInferredModelDecision() {
+        start()
+        val role = "inside-attention-evidence"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T03:45:00Z")
+        CharacterInnerLifeStore.recordDecision(role, "decision-1", "silent",
+            "今天想先自己安静一会儿", "", null,
+            "没有执行外部动作", false, now = now,
+            attentionOffered = listOf("持续目标:old-1", "想分享:story-2",
+                "好奇:research-3", "想分享:story-2"))
+        val entries = CharacterInnerLifeStore.snapshot(role).getJSONArray("decisions")
+        val record = entries.getJSONObject(entries.length() - 1)
+        assertEquals("silent", record.getString("selected"))
+        assertEquals("今天想先自己安静一会儿", record.getString("reason"))
+        assertEquals(listOf("持续目标:old-1", "想分享:story-2", "好奇:research-3"),
+            record.getJSONArray("attentionOffered").let { a ->
+                (0 until a.length()).map(a::getString)
+            })
+        assertFalse(record.getBoolean("succeeded"))
+        assertNull(CharacterInnerLifeStore.snapshot("inside-test-b").optJSONArray("decisions"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun pagedHistorySurvivesHotWindowAndRetractsOldEvidence() {
         start()
         val role = "inner-history-paged-test"
