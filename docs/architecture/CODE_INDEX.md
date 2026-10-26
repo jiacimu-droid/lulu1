@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae41d2816eaeb5a7979f64ab9d512203548ffb9e`
+- 基准提交：`5f8c396e1ae2a5d895f9bec5f60bbe8ba9aa4ead`
 - 分支：`main`
 - 已索引文件：920
-- 已索引代码/文本行：181475
+- 已索引代码/文本行：181491
 - 已发现符号：2698
 
 | 文件 | 行数 | 符号数 |
@@ -157,7 +157,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 321 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 327 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 332 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 308 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
@@ -439,7 +439,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2514 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2525 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1025 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
