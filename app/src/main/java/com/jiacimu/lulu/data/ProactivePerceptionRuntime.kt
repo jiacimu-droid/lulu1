@@ -559,6 +559,13 @@ object ProactivePerceptionRuntime {
         fun batchSuperseded(): Boolean = onlineRevision != null &&
             !OnlineChatBatchStore.isCurrent(appContext, characterId, onlineRevision)
         fun deferSupersededDecision(): Action {
+            // Batch 1 diagnosis only: batch-superseded silences previously
+            // lived only in recordPerceptionAttempt, not under the shadow tag.
+            // Log.d only; this does not change the SILENT return.
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "guardSilent characterId=$characterId reason=batchSuperseded trigger=$trigger",
+            )
             CompanionPresenceStore.recordPerceptionAttempt(characterId,
                 "连续消息已合并为更新的未读批次 · 旧回复草稿未发送", Instant.now())
             return Action.SILENT
@@ -1026,6 +1033,10 @@ object ProactivePerceptionRuntime {
                 onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "旧消息已由其他回复处理，本次不重复发言", Instant.now())
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "guardSilent characterId=$characterId reason=unreadAlreadyHandled trigger=$trigger",
+            )
             return Action.SILENT
         }
         // A call takes ownership immediately; a finished awake window cannot execute stale decisions.
@@ -1033,7 +1044,13 @@ object ProactivePerceptionRuntime {
             (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||
             (onlineExpiryAtMillis > 0L &&
                 CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis)
-        ) return Action.SILENT
+        ) {
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "guardSilent characterId=$characterId reason=inCallOrOnlineExpired trigger=$trigger",
+            )
+            return Action.SILENT
+        }
         SharedExperienceTimeline.record(
             eventId = awakeObservationId, characterId = characterId,
             channel = if (awakeReflection) "在线感知" else "后台复查", speaker = "实际观察",
@@ -1328,7 +1345,13 @@ object ProactivePerceptionRuntime {
             (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||
             (onlineExpiryAtMillis > 0L &&
                 CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis)
-        ) return Action.SILENT
+        ) {
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "guardSilent characterId=$characterId reason=inCallOrOnlineExpiredFollowThrough trigger=$trigger",
+            )
+            return Action.SILENT
+        }
         // The review owns ONLY the action. Preserve the original appraisal,
         // heart voice and motive proposal instead of silently discarding them.
         val resolved = independentChoice?.copy(
@@ -1492,7 +1515,13 @@ object ProactivePerceptionRuntime {
                 onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
             return Action.SILENT
         }
-        if (CompanionPresenceStore.isInCall(characterId)) return Action.SILENT
+        if (CompanionPresenceStore.isInCall(characterId)) {
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "guardSilent characterId=$characterId reason=inCallBeforeFinalDecision trigger=$trigger",
+            )
+            return Action.SILENT
+        }
         val decision = onlineSpeech.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
@@ -1561,7 +1590,13 @@ object ProactivePerceptionRuntime {
             )
             // If another event won the lease after the model generated its
             // response, its old action must not get sent into the new chat.
-            if (!keptAwake && newerWindow) return Action.SILENT
+            if (!keptAwake && newerWindow) {
+                android.util.Log.d(
+                    "ProactiveGateShadow",
+                    "guardSilent characterId=$characterId reason=onlineWindowSuperseded trigger=$trigger",
+                )
+                return Action.SILENT
+            }
         }
         // A new bubble may have arrived during optional same-role thinking.
         // Abort BEFORE any heart state, tool, delivery or read-receipt is

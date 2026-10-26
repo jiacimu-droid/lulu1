@@ -325,6 +325,16 @@ object MomentsStore {
             evidenceCharacterBudget = 2_200,
             recentCharacterBudget = 2_600,
         )
+        // Batch 1, social persona: CharacterAndScenario does NOT deliver
+        // personalityRuntimeContext (gateway developmentSection is Full-only),
+        // so an independent Moments reaction otherwise never sees narrative
+        // meaning, user preferences/habits or adaptive learning. Reuse the
+        // exact compact form ResidentDailyDecision.decisionFacts already uses:
+        // local reads only, no extra model call, no new store, no timeline write.
+        val personalityContext = CharacterRuntime.personalityRuntimeContext(
+            character.characterId, compact = true,
+            query = momentContext(post), includeActiveCommitments = false,
+        )
         val presence = CompanionPresenceStore.current(character.characterId)
 
         val nativeConnection = if (character.characterId.startsWith("resident:"))
@@ -360,6 +370,8 @@ object MomentsStore {
                 appendLine("显示名=${character.displayName}")
                 memoryContext.compactPromptSection(characterBudget = 3_600)
                     .takeIf(String::isNotBlank)
+                    ?.let { appendLine(it) }
+                personalityContext.takeIf(String::isNotBlank)
                     ?.let { appendLine(it) }
                 presence?.let {
                     appendLine(
