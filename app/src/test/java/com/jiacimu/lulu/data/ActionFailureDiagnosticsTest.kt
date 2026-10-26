@@ -44,6 +44,31 @@ class ActionFailureDiagnosticsTest {
         assertEquals(1, LuluRepositories.performance.errorRecords.first().count { it.message.contains("failed-world") })
     }
 
+    @Test fun unauthorizedToolProducesOnePerceivableRejectionWithoutRunningTheDeviceAction() = runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(context)
+        MigratedDomainStores.characters.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val role = MigratedDomainStores.characters.create("授权拒绝回归").characterId
+        val request = "permission-rejected-once-$role"
+        val args = JSONObject()
+        val first = JSONObject(ToolRouter.execute(context, role, "read_screen", args,
+            requestId = request, userRequested = false))
+        assertFalse(first.optBoolean("success"))
+        assertEquals("waiting_user", first.optString("status"))
+        val evidenceId = "tool-rejected-$role-$request"
+        val recorded = SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).single()
+        assertEquals(EventEvidenceKind.ToolResult, recorded.evidenceKind)
+        assertTrue(CharacterPerceptionContext.personalOutcome(recorded.source,
+            recorded.content).orEmpty().contains("read_screen"))
+        val second = JSONObject(ToolRouter.execute(context, role, "read_screen", args,
+            requestId = request, userRequested = false))
+        assertEquals(first.toString(), second.toString())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).size)
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+    }
+
     @Test fun chosenActivityCanTravelToItsUniqueRealLocationBeforeExecution() = runBlocking {
         val context = RuntimeEnvironment.getApplication()
         if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure)
