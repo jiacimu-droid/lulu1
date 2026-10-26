@@ -1,18 +1,31 @@
 package com.jiacimu.lulu.data
 
+import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 
 class ConversationGroundingEngineTest {
-    @Test fun explicitConfirmationCanGroundLatestCandidate() {
-        assertTrue(ConversationGroundingEngine.userConfirmsCandidate("对，就是这个意思"))
-        assertTrue(ConversationGroundingEngine.userConfirmsCandidate("嗯对"))
-        assertTrue(ConversationGroundingEngine.userConfirmsCandidate("你终于懂了！"))
+    @Test fun onlyTheModelsExplicitGroundingDecisionMayChangeSharedUnderstanding() {
+        val confirmed = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "acknowledge")
+                .put("commonGroundDecision", "accept"),
+            "我明白了", "我不是这个意思")
+        assertEquals("accept", confirmed.groundingDecision)
+        val rejected = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "other_initiated_repair")
+                .put("commonGroundDecision", "reject"),
+            "原来我理解错了", "对，就是这样")
+        assertEquals("reject", rejected.groundingDecision)
     }
 
-    @Test fun ordinaryTopicWordsDoNotAccidentallyConfirmCandidate() {
-        assertFalse(ConversationGroundingEngine.userConfirmsCandidate("对了，我还有件事"))
-        assertFalse(ConversationGroundingEngine.userConfirmsCandidate("是不是这个意思？"))
-        assertFalse(ConversationGroundingEngine.userConfirmsCandidate("我不是这个意思"))
+    @Test fun lexicalAgreementOrNegationDoesNotBecomeGroundingFact() {
+        for (input in listOf("对，就是这个意思", "嗯对", "你终于懂了！",
+                "对了，我还有件事", "我不是这个意思")) {
+            assertEquals("", DialogueMoveEngine.resolve(
+                JSONObject().put("type", "answer"), "", input).groundingDecision)
+        }
+        assertEquals("", DialogueMoveEngine.resolve(
+            JSONObject().put("type", "answer")
+                .put("commonGroundDecision", "auto"), "", "你错了").groundingDecision)
     }
 }
