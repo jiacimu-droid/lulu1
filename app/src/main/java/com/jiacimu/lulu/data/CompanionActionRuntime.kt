@@ -149,8 +149,7 @@ internal object CompanionActionRuntime {
             appendLine("手机未读和请求：" + CharacterPhoneInbox.summary(characterId))
         }
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        if (DigitalLifeProfileStore.isEnabled(characterId))
-            appendLine("- create_group_chat，args={\"groupName\":\"自己选的名字\",\"memberIds\":[\"已确认好友的角色ID\"]}：自己当群主建真正的QQ群，至少一位真实好友，与主人的群聊相互独立。想撮合一个话题、约大家一起玩或建立小圈子时才建；不要为了社交指标乱建群。建群和群内首次发言是两项独立动作，建好后只能用实际返回的groupId发群消息。")
+        appendLine("- create_group_chat，args={\"groupName\":\"自己选的名字\",\"memberIds\":[\"已确认好友的角色ID\"]}：自己当群主建真正的QQ群，至少一位真实好友，与主人的群聊相互独立。想撮合一个话题、约大家一起玩或建立小圈子时才建；不要为了社交指标乱建群。建群和群内首次发言是两项独立动作，建好后只能用实际返回的groupId发群消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             ResidentSocialMailbox.initialize(context)
             val contacts = ResidentSocialMailbox.visibleContacts(characterId)
@@ -444,8 +443,8 @@ internal object CompanionActionRuntime {
                     evidenceId = "friend-request-${request.id}-${if (decision == "accept") "accepted" else "declined"}-$characterId")
             }
             "create_group_chat" -> {
-                require(DigitalLifeProfileStore.isEnabled(characterId)) {
-                    "只有拥有数字世界社交身份的角色才能自行创建数字群聊"
+                require(characterId in MigratedDomainStores.characters.settings.value) {
+                    "必须是实际存在的角色，才能创建本人的聊天群"
                 }
                 MomentFriendAccess.initialize(context)
                 val groupName = args.optString("groupName").trim()
@@ -459,8 +458,7 @@ internal object CompanionActionRuntime {
                     characterId !in members) { "请邀请1至7位不同的真实好友，不能邀请自己" }
                 val known = MigratedDomainStores.characters.settings.value
                 require(members.all { id ->
-                    id in known && DigitalLifeProfileStore.isEnabled(id) &&
-                        MomentFriendAccess.areFriends(characterId, id)
+                    id in known && MomentFriendAccess.areFriends(characterId, id)
                 }) { "邀请失败：只能邀请自己真正确认的数字好友" }
                 val group = MigratedDomainStores.chat.createGroupConversation(
                     groupName, listOf(characterId) + members, ownerIncluded = false,
