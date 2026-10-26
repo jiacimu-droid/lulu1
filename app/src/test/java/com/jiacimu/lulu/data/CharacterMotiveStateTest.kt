@@ -74,7 +74,7 @@ class CharacterMotiveStateTest {
         val start = Instant.parse("2026-10-26T10:00:00Z")
         val motives = JSONArray()
         repeat(20) { index -> motives.put(JSONObject()
-            .put("id", "wish-$index").put("aim", "长期想做的第$index件事")
+            .put("id", "wish-$index").put("aim", "长期想做的第${index}件事")
             .put("status", "active")) }
         val before = motives.toString()
         val first = CharacterMotiveState.workingSet(motives, start)

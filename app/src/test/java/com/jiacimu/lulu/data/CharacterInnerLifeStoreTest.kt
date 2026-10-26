@@ -91,7 +91,7 @@ class CharacterInnerLifeStoreTest {
                 "本人对新的方向形成持续想法",
                 JSONObject().put("motives", JSONArray().put(JSONObject()
                     .put("op", "start").put("aim", "不同探索方向$index")
-                    .put("why", "本人在乎这条具体线索")), now = now.minusSeconds(120))
+                    .put("why", "本人在乎这条具体线索"))), now = now.minusSeconds(120))
         }
         val all = CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")
         val selection = CharacterMotiveState.workingSet(all, now)
