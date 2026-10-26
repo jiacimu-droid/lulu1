@@ -47,6 +47,16 @@ for (const filename of wolfMotionFiles) {
     for (let i = 0; i < n; i++) {
       const offset = 2 + i * 7
       const [type, c1t, c1v, c2t, c2v, endt, endv] = segments.slice(offset, offset + 7)
+      // Each clip is an ease-in/out Bezier with flat endpoints. Measure
+      // peak joint angular speed, not only maximum angle: a ±20° model is
+      // still unnaturally jerky if it crosses that range in 200ms.
+      const startTime = i === 0 ? segments[0] : segments[offset - 2]
+      const startValue = i === 0 ? segments[1] : segments[offset - 1]
+      const maxRate = filename.startsWith('09_') ? 240 :
+        filename.startsWith('08_') ? 155 : 135
+      const peakRate = 1.5 * Math.abs(endv - startValue) / (endt - startTime)
+      assert.ok(peakRate <= maxRate + .1, filename +
+        ': excessive joint velocity ' + peakRate.toFixed(1) + ' deg/s')
       assert.equal(type, 1, filename + ': cubic motion segment')
       assert.ok(prior < c1t && c1t < c2t && c2t < endt,
         filename + ': strictly increasing motion time')
