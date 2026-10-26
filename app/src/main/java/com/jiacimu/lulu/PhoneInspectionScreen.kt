@@ -409,6 +409,100 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
 }
 
+/** Skin presets are purely presentation; saved selection is role-owned in CharacterLifeStore. */
+internal fun rolePhoneCoverPalette(preset: String): List<Color> = when (preset) {
+    "sky" -> listOf(Color(0xFF436A98), Color(0xFF7EA5C7), Color(0xFFCEE3ED))
+    "forest" -> listOf(Color(0xFF264E40), Color(0xFF628E75), Color(0xFFC9DDCB))
+    "rose" -> listOf(Color(0xFF784F68), Color(0xFFBD8FA7), Color(0xFFF5D5DE))
+    "ocean" -> listOf(Color(0xFF133A56), Color(0xFF38748A), Color(0xFF8EBEC5))
+    "sunset" -> listOf(Color(0xFF674660), Color(0xFFD18E80), Color(0xFFF6D6AC))
+    else -> listOf(Color(0xFF1F2329), Color(0xFF59616C), Color(0xFFC9CED2))
+}
+
+@Composable
+private fun RolePhoneMyPage(
+    roleId: String, roleName: String, roleAvatarUri: String?, onFavorites: () -> Unit,
+) {
+    val lifeStates by CharacterLifeStore.states.collectAsState()
+    val life = remember(roleId, lifeStates) { CharacterLifeStore.state(roleId) }
+    val socialName = life.optJSONObject("socialNames")
+        ?.optString("selfNickname").orEmpty().ifBlank { roleName }
+    val profile = life.optJSONObject("profile")
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        item("favorites") {
+            Surface(onClick = onFavorites, modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.StarOutline, null)
+                    Spacer(Modifier.width(12.dp))
+                    Text("我的收藏", modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                    Icon(Icons.Outlined.ChevronRight, null)
+                }
+            }
+        }
+        item("profile") {
+            ChatHubV2Card {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ChatHubV2Avatar(roleName.take(1).ifBlank { "角" }, 78, roleAvatarUri)
+                    Spacer(Modifier.width(14.dp))
+                    Column {
+                        Text(socialName, style = MaterialTheme.typography.titleLarge)
+                        Text("个人资料", color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                }
+                HorizontalDivider(color = LuluColors.Border)
+                Text("名字", color = LuluColors.Muted, fontSize = 12.sp)
+                Text(roleName)
+                val bio = profile?.optString("summary").orEmpty()
+                if (bio.isNotBlank()) {
+                    Text("个人介绍", fontWeight = FontWeight.SemiBold)
+                    Text(bio)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RolePhoneFavorites(roleId: String) {
+    // These are the original character-owned Favorite lexicon entries,
+    // not the real user's collection, and contain no synthesized copies.
+    val items = remember(roleId) {
+        LuluRepositories.lexicon.snapshot(roleId)
+            .filter { it.section == LexiconSection.Favorite }
+            .sortedByDescending { it.updatedAt }
+    }
+    if (items.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("还没有收藏的消息", color = QqMuted)
+        }
+        return
+    }
+    LazyColumn(Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(items, key = { it.id }) { entry ->
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Column(Modifier.fillMaxWidth().padding(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(entry.title, fontWeight = FontWeight.SemiBold)
+                    Text(entry.content, lineHeight = 23.sp)
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun InspectedOriginalChat(
     roleId: String,
