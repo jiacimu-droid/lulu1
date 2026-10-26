@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:47:06.880444+00:00",
-  "commit": "332479f1d084eb28e87874df975ee9285ea1a439",
+  "generatedAt": "2026-10-26T09:06:25.572674+00:00",
+  "commit": "277ce998ab0ad19e02cec938c8e50b5991bfa955",
   "branch": "main",
-  "sourceFingerprint": "acadda028e925bad0e2fd870677bdd27191835d0bcc0fd9076e3e6d9651d7372",
+  "sourceFingerprint": "f32cd6f8a22fcbdcf2a301606660f751d4a1ba68c66dae1cbe3168ebd746c6d8",
   "summary": {
-    "files": 929,
-    "lines": 184240,
-    "symbols": 2722
+    "files": 930,
+    "lines": 184304,
+    "symbols": 2723
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1550,6 +1550,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 227
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
+        "line": 19
       }
     ],
     "takeFinal": [
@@ -21063,6 +21067,17 @@
         {
           "name": "same",
           "line": 72
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
+      "lines": 64,
+      "sha256": "138b9da6ffda3050635d7ba54c514dc7338ada3c7721387c7e048557fb0458fe",
+      "symbols": [
+        {
+          "name": "commit",
+          "line": 19
         }
       ]
     },
