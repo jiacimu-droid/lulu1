@@ -960,8 +960,8 @@ object ProactivePerceptionRuntime {
                     不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
                     动作完成不等于目标达成：给她发了道歉消息，不等于她已原谅；叫醒铃声响了，不等于她已醒。
                     目标未达成时可以继续五分钟并试试另一种自然行为，也可以暂停等待真实回应；须有实际理由，不要循环同一套话或强行打扰。
-                    若已安排到点闹钟、没有新事件也没有可做的当前步骤，应先休眠交给闹钟唤醒，而不是机械反复评估。
-                    不返回在线决定或没有真实理由，程序默认休眠，不会伪造想法。
+                    若已安排到点闹钟、没有新事件也没有可做的当前步骤，可以由你自己考虑暂时休眠交给闹钟唤醒，不强制要求。
+                    onlineDecision.choice 和 reason 均为必填：continue/sleep 都由你本人选择，理由可以很短，但必须真实。字段缺失时程序只会请你补正，不会视作本人自愿休眠。
                 """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时做多个动作，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"steps\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。想先回复再马上休眠时，action=message 并在 steps 最后填写 go_offline；先核实送达再休眠，不必等五分钟到期。steps 或 sideActions 可以按顺序列出多个本人真正选择的工具动作，每步写 {\"tool\":\"实际已注册的工具名\",\"args\":{},\"requiresPreviousSuccess\":true|false}；所有能力均经同一 ToolRouter 独立核权限、执行、保存真实回执，不只限音乐。依赖前一步成功才做的事写 requiresPreviousSuccess=true；独立行动写 false。权限申请、截图请求 pending 不等于已看见画面，依赖截图内容的后续判断必须等真实回执进入下一次感知，不能预编截图细节。尤其是联网搜索：若你答应帮她搜，必须在本轮真正选择 web_search 或 image_search 的工具动作（可放在 steps），否则仅发‘我去查’并不会发生搜索。搜索结果尚未返回前，不能声称官网说了什么或已经查到；实际搜索完成后，程序会把工具回执交还给你作一次真实结果反馈。你可以决定不搜，但不得把意图、承诺当成已完成的动作。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
@@ -1116,7 +1116,7 @@ object ProactivePerceptionRuntime {
             return Action.SILENT
         }
         if (batchSuperseded()) return deferSupersededDecision()
-        val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool || emptySpeech }) ?: run {
+        var parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool || emptySpeech }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -1406,9 +1406,12 @@ object ProactivePerceptionRuntime {
                     newerWindow -> "旧到期判断已被更新的在线状态取代"
                     decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
                         "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
-                    decision.onlineChoice == "continue" && !wantsMoreTime ->
-                        "五分钟到期 · 续醒理由缺少具体念头或只是重复等待，本次自然休眠"
-                    else -> "五分钟到期，未形成有效续醒决定，进入休眠"
+                    OnlineContinuationPolicy.contractIssue(decision.onlineChoice,
+                        decision.onlineChoiceReason) != null ->
+                        "运行窗口到期：在线决定契约未满足，补正未成功；不是角色主动休眠"
+                    decision.onlineChoice == "continue" ->
+                        "运行窗口到期：角色选择继续在线，但本次执行窗口/状态未允许续租；不是角色主动休眠"
+                    else -> "运行窗口到期：未记录到角色主动休眠决定"
                 },
                 Instant.now(),
             )
