@@ -1,3 +1,5 @@
+import { impactEnvelope } from './touch-reflex.mjs'
+
 /**
  * Dedicated 小狼 rig profile. The signature is taken from the user's
  * supplied CDI3/physics3/VTuber mapping, not a guessed name or model URL.
@@ -36,18 +38,21 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   const travel = right ? 1 : left ? -1 : side || 1
   const family = region.replace(/-(?:left|right)$/, '')
   if (/^slap(?:-(?:left|right))?$/.test(gesture)) {
-    // Sharp neck tilt; the already delayed torso spring follows later.
-    // Do not amplify a decaying pose by a constant: preserve recoil release.
-    const envelope = Math.abs(base.roll) / 30
-    pose.roll = Math.sign(base.roll || travel) *
-      Math.min(30, Math.max(Math.abs(base.roll), (26 + 4 * force) * envelope))
-    pose.yaw *= .5
-    pose.body.roll = travel * (8 + 4 * force) * envelope *
+    // Spend this rig's real ±30 neck range across the three force settings.
+    // Yaw supplies visible side displacement; Z alone only tips the chin.
+    // Keep the signed return so the body and head share the spring recovery.
+    const envelope = impactEnvelope(elapsedMs)
+    // A stationary slap follows the contacted cheek, as the base reflex does.
+    const direction = right || left ? travel :
+      (family === 'cheek' && side !== 0 ? side : -side || -1)
+    pose.roll = direction * Math.min(30, 12 + 20 * force) * envelope
+    pose.yaw = direction * (4 + 9 * force) * envelope
+    pose.body.roll = direction * (5 + 10 * force) * envelope *
       (.18 + .82 * Math.min(1, Math.max(0, elapsedMs) / 240))
-    pose.body.yaw = travel * 1.4 * envelope
+    pose.body.yaw = direction * (1 + 3 * force) * envelope
     if (family === 'cheek') {
       pose.face.cheekPuff = elapsedMs < 230 ? .05 : .2 + force * .12
-      pose.face.mouthX = travel * (5 + 3 * force) * envelope
+      pose.face.mouthX = direction * (5 + 3 * force) * envelope
       pose.face[side < 0 ? 'browLeftY' : 'browRightY'] =
         elapsedMs < 230 ? .52 : .32
     }

@@ -164,6 +164,16 @@ internal object ResidentDailyDecision {
         return saved
     }
 
+    internal val wakeTools = setOf("like_moment", "comment_moment", "send_friend_request",
+        "respond_friend_request", "send_character_message", "publish_moment",
+        "send_group_message", "create_group_chat", "play_solo_game", "digital_world_action")
+
+    /** Project the executable resident catalogue into BOTH regular and due decisions. */
+    internal fun wakeToolContext(catalog: String): String = catalog.lineSequence().filter { line ->
+        val name = line.trimStart().removePrefix("- ").substringBefore("，").substringBefore("：")
+        name in wakeTools
+    }.joinToString("\n")
+
     /** Side actions share the resident's wake decision and original model
      * connection. Real tools keep individual idempotent receipts. Side actions
      * are never allowed to inherit the due activity's planId.
@@ -171,9 +181,7 @@ internal object ResidentDailyDecision {
     internal suspend fun executeWakeSteps(context: Context, role: String,
         decision: JSONObject, turnId: String): Int {
         val steps = decision.optJSONArray("steps") ?: return 0
-        val allowed = setOf("like_moment", "comment_moment", "send_friend_request",
-            "respond_friend_request", "send_character_message", "publish_moment",
-            "send_group_message", "create_group_chat", "play_solo_game", "digital_world_action")
+        val allowed = wakeTools
         var successes = 0
         for (i in 0 until minOf(steps.length(), 8)) {
             val row = steps.optJSONObject(i) ?: continue
@@ -419,7 +427,8 @@ internal object ResidentDailyDecision {
         val id = ResidentCharacterBridge.characterId(native.id)
         val facts = context(native, at, pending) + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
-            CharacterPhoneInbox.requestContext(id)
+            CharacterPhoneInbox.requestContext(id) + "\n" +
+            appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty()
         val memory = CharacterRuntime.actionMemory(id, UnifiedMemoryRequest(
             currentInput = pending.joinToString("\n") { it.content },
             sceneContext = "原住民自己的日常生活与熟人来往",

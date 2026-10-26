@@ -29,6 +29,16 @@ const BODY_FOLLOW = Object.freeze({
  * Region × tool × force × elapsed time; ordinal only varies tiny mannerisms.
  * It never rotates emotions or bypasses the gradual visual response state.
  */
+// A held impact peak, then a smooth return with ONE small spring overshoot.
+// Absolute contact time makes the sequence identical at different render FPS.
+export function impactEnvelope(elapsedMs) {
+  const t = Math.max(0, elapsedMs)
+  if (t <= 420) return 1
+  if (t <= 1500) return .5 + .5 * Math.cos(Math.PI * (t - 420) / 1080)
+  if (t < 2200) return -.1 * Math.sin(Math.PI * (t - 1500) / 700)
+  return 0
+}
+
 export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsedMs = 0) {
   const family = touchFamily(region)
   const side = region.endsWith('-left') ? -1 : region.endsWith('-right') ? 1 : 0
@@ -51,8 +61,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     // to screen right, independently of which cheek was touched.
     // A stationary palm uses the contacted cheek only as a fallback.
     // Hold the neck bend across low-FPS mirrored video frames, then relax.
-    const recoil = elapsedMs < 360 ? 1 :
-      Math.pow(Math.max(0, 1 - (elapsedMs - 360) / 1250), 1.15)
+    const recoil = impactEnvelope(elapsedMs)
     const swipe = direction || (family === 'cheek' && side !== 0 ? side : -side || -1)
     const follow = .2 + .8 * Math.min(1, Math.max(0, elapsedMs) / 260)
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
@@ -63,7 +72,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     // Mostly neck rotation, not a side-to-side face translation.
     // Respect typical rig Z limits instead of demanding unreachable angles.
     response.yaw = swipe * yaw * .24 * scale * recoil
-    response.roll = swipe * Math.min(30, roll * 1.5 * scale) * recoil
+    response.roll = swipe * Math.min(30, roll * (.4 + .95 * force)) * recoil
     response.pitch = pitch * .7 * scale * recoil
     // Shoulders follow the neck rather than preceding the hit.
     response.body = {
@@ -79,7 +88,8 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       : { eyeOpen: .78 + .12 * (1 - force), eyeSmile: 0,
           browY: .36 + force * .26, browAngle: .35,
           browForm: .24, smile: -.52, pout: .48 + force * .32,
-          gazeX: -swipe * .15, gazeY: -.25 }
+          gazeX: -swipe * .5 * Math.max(0, 1 - (elapsedMs - 230) / 1700),
+          gazeY: -.22 }
     if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
     if (family === 'cheek' || family === 'mouth') {
       response.face.cheekPuff = startled ? .05 : Math.min(.38, force * .23)

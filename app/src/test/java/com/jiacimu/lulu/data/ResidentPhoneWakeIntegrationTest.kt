@@ -41,6 +41,27 @@ class ResidentPhoneWakeIntegrationTest {
         return person.characterId
     }
 
+    @Test fun wakeDecisionUsesOnlyExecutableResidentToolContracts() {
+        val lines = CompanionActionRuntime.capabilityContext(app, "resident:catalog-test")
+        val projected = ResidentDailyDecision.wakeToolContext(lines)
+        for (name in ResidentDailyDecision.wakeTools) assertTrue(name, projected.contains("- $name"))
+        assertTrue(projected.contains("postId"))
+        assertTrue(projected.contains("targetCharacterId"))
+        assertFalse(projected.contains("- capture_screen"))
+        assertFalse(projected.contains("- send_private_message"))
+    }
+
+    @Test fun socialContextShowsOwnActualPostsWithoutTreatingDraftsAsPublished() {
+        val actor = role()
+        val post = MomentsStore.publishCharacter(actor, "今天在院子里听风-${UUID.randomUUID()}")!!
+        val facts = CharacterEverydaySocialContext.render(actor)
+        assertTrue(facts.contains("postId=${post.id}"))
+        assertTrue(facts.contains(post.content))
+        assertTrue(facts.contains("publish_moment"))
+        MomentsStore.delete(post.id)
+        assertFalse(CharacterEverydaySocialContext.render(actor).contains("postId=${post.id}"))
+    }
+
     @Test fun aPostCreatesARedDotButNoMentalObservationBeforePhoneRead() {
         val viewer = role()
         assertTrue(MomentFriendAccess.areFriends(MomentFriendAccess.OWNER, viewer))

@@ -40,6 +40,19 @@ class ResidentMailCausalIntegrationTest {
         return ids[0] to ids[1]
     }
 
+    @Test fun busyInboxDoesNotEraseAnOlderFriendsConversationAndWithdrawalStillApplies() {
+        val (oldFriend, viewer) = pair()
+        val (busyFriend, outsider) = pair()
+        val old = ResidentSocialMailbox.send(oldFriend, viewer, "下次接着聊院子里的花",
+            at = Instant.now().minusSeconds(90))
+        repeat(10) { ResidentSocialMailbox.send(busyFriend, viewer, "另一段聊天-$it") }
+        assertFalse(ResidentSocialMailbox.inbox(viewer, 8).any { it.id == old.id })
+        assertEquals(old.id, ResidentSocialMailbox.latestByContact(viewer)[oldFriend]?.id)
+        assertFalse(ResidentSocialMailbox.latestByContact(outsider).values.any { it.id == old.id })
+        SharedExperienceTimeline.deleteEvent(ResidentSocialMailbox.evidenceId(old, viewer))
+        assertFalse(ResidentSocialMailbox.latestByContact(viewer).values.any { it.id == old.id })
+    }
+
     @Test fun realLetterEntersPerceptionAndOwnRelationshipWithoutCreatingAUserInteraction() {
         val (sender, receiver) = pair()
         val now = Instant.now()

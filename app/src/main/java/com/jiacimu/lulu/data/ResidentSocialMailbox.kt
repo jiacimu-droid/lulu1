@@ -57,6 +57,13 @@ internal object ResidentSocialMailbox {
             .takeLast(max.coerceIn(1, 60))
     }
 
+    /** Latest delivered message for EACH peer, independent of global inbox traffic.
+     * Same ACL and withdrawal projection as the phone; no shadow relationship state. */
+    @Synchronized fun latestByContact(characterId: String): Map<String, ResidentDirectMessage> =
+        historyForInspection(characterId).associateBy {
+            if (it.fromId == characterId) it.toId else it.fromId
+        }
+
     /** Full currently retained real message history for the owner's phone viewer.
      * Unlike the compact context inbox, it does not silently stop at 60 items.
      * A withdrawn timeline source is not shown as a delivered message.

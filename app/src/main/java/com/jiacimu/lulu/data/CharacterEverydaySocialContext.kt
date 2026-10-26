@@ -17,10 +17,13 @@ internal object CharacterEverydaySocialContext {
             .filter { chat -> chat.groupChat?.members?.any { it.characterId == characterId } == true }
             .take(6)
         val recentMessages = ResidentSocialMailbox.inbox(characterId, 8)
+        val latestByContact = ResidentSocialMailbox.latestByContact(characterId)
         val residents = DigitalWorldExpansionStore.residents()
         val at = DigitalWorldStore.locationOf(characterId)
+        val ownPosts = MomentsStore.posts.value.filter { it.authorCharacterId == characterId }
+            .sortedByDescending { it.createdAt }.take(3)
         if (pending.isEmpty() && contacts.isEmpty() && groups.isEmpty() &&
-            recentMessages.isEmpty() && residents.isEmpty()) return ""
+            recentMessages.isEmpty() && residents.isEmpty() && ownPosts.isEmpty()) return ""
         return buildString {
             appendLine("【自己的数字世界来往｜真实事件与可选的下一步】")
             if (pending.isNotEmpty()) {
@@ -48,10 +51,10 @@ internal object CharacterEverydaySocialContext {
                 appendLine("【本人手机里确实可以联系的对象｜模型可自由选择联系或不联系】")
                 contacts.take(12).forEach { id ->
                     val name = MigratedDomainStores.characters.get(id).displayName
-                    val last = recentMessages.lastOrNull { it.fromId == id || it.toId == id }
+                    val last = latestByContact[id]
                     appendLine("- targetCharacterId=$id；$name；" +
-                        (if (last == null) "尚无这两人的私信记录"
-                        else "最近通信=${last.createdAt}：${last.content.take(105)}"))
+                        (if (last == null) "当前保留的真实私信里没有这两人的记录"
+                        else "最近通信=${last.createdAt}；发送者=${last.fromId}；mailId=${last.id}：${last.content.take(105)}"))
                 }
                 appendLine("如果此刻想向某个熟人分享见闻、问一句近况、继续旧话题、开个玩笑或提出邀约，可从这些实际可联系对象中自己选 targetCharacterId，用 send_character_message 真正发送；不是必须先收到对方来信，也不是必须给主人发。")
             }
@@ -79,6 +82,12 @@ internal object CharacterEverydaySocialContext {
                     appendLine("- itemId=${it.id}；${it.name}；location=${it.currentLocationCode}")
                 }
             }
+            appendLine("【本人最近真实发出的朋友圈｜不是待发布草稿】")
+            ownPosts.forEach { post ->
+                appendLine("- postId=${post.id}；${post.createdAt}：${post.content.take(180)}")
+            }
+            if (ownPosts.isEmpty()) appendLine("当前存档里还没有本人发布的动态。")
+            appendLine("若确实想分享自己亲历的小事、刚读到的材料或一个想法，可用 publish_moment，args={text:本人此刻想发布的内容}；不必给主人汇报，也不用等别人先发。只想私下留着也可以；不要把计划、未执行工具或别人的经历写成自己的亲历。")
             append("一次真实来往可以让本人产生再见、继续话题、避开或暂时不联系的念头；" +
                 "只有本人想把这件事留到以后，才用 plan_personal_activity 保存时间、对象与真实可执行的活动。现在时间=$now。")
         }.trim()

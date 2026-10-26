@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:56:12.807217+00:00",
-  "commit": "942d9f9dd74ecbbca1b5121e74418fc20c041140",
-  "branch": "main",
-  "sourceFingerprint": "567fd5c022e67ef2944e9699b39c083c42884c35139218361b8615bd3493deba",
+  "generatedAt": "2026-10-26T06:08:45.575842+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "e16b199850b04400ea4fb3564c159a0807a144f9ae0149af03e360519e585205",
   "summary": {
     "files": 925,
-    "lines": 183039,
+    "lines": 183098,
     "symbols": 2706
   },
   "symbolIndex": {
@@ -1671,7 +1671,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 145
+        "line": 152
       }
     ],
     "angles": [
@@ -6003,7 +6003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 614
+        "line": 623
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10029,7 +10029,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 290
+        "line": 298
       }
     ],
     "plan": [
@@ -10053,19 +10053,19 @@
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 70
+        "line": 77
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 126
+        "line": 133
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 139
+        "line": 146
       }
     ],
     "RoleDayPlan": [
@@ -19772,8 +19772,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 87,
-      "sha256": "0dbb64127228e71b5cb298ae5710c8820d032d57665d464aca67300fed4df531",
+      "lines": 96,
+      "sha256": "c2a8492f53b0f45287b3517ad9a5fcbd6a789c39fc82ccd9d33269b15d9ac5f2",
       "symbols": [
         {
           "name": "render",
@@ -24879,8 +24879,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 663,
-      "sha256": "00c51f42686345079f59013c24eb10372655e2ae195373dd3557b187080ccc0f",
+      "lines": 672,
+      "sha256": "3a90ef9c9b4d19477a1d2488f05ab385e20af60dad4200687ab8f05bfe38558a",
       "symbols": [
         {
           "name": "planForApp",
@@ -24896,11 +24896,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 290
+          "line": 298
         },
         {
           "name": "schedule",
-          "line": 614
+          "line": 623
         }
       ]
     },
@@ -24921,8 +24921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 194,
-      "sha256": "71d60c3241e9d5cfd9270dc24a1042425f36ed6abc68d8106613e9b544236ace",
+      "lines": 201,
+      "sha256": "47bfcd6eb45fcbaed1b81407bc3a73fd9dc05286815ff7d34f6e7f80faf796b6",
       "symbols": [
         {
           "name": "contactsOf",
@@ -24934,19 +24934,19 @@
         },
         {
           "name": "evidenceId",
-          "line": 70
+          "line": 77
         },
         {
           "name": "canContact",
-          "line": 126
+          "line": 133
         },
         {
           "name": "visibleContacts",
-          "line": 139
+          "line": 146
         },
         {
           "name": "send",
-          "line": 145
+          "line": 152
         }
       ]
     },
@@ -31579,8 +31579,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
-      "lines": 144,
-      "sha256": "d5558b317098895ccd06613acb0d260b35db77a9ff9d79fea034f84b258d6d69",
+      "lines": 157,
+      "sha256": "441c93d6c8fb0cdd4159a059f7ad797f185c2413bef304b84884831210520b00",
       "symbols": [
         {
           "name": "ResidentMailCausalIntegrationTest",
@@ -31590,8 +31590,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 163,
-      "sha256": "405f83a1659dc92931f1a0e2fd4fa668a365da70db670c4f0efbad560e7d4c4b",
+      "lines": 184,
+      "sha256": "4dd5364f3290bb7c441f59e9beb2fa2da93a120334fb92e9da747ff9dd5ced1d",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",

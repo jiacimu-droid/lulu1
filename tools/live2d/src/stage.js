@@ -1277,7 +1277,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     touchReflexFor(region, kind, touchSequence, state)
   touchReflex = wolfRigActive && baseTouch
     ? enhanceWolfTouch(baseTouch, region, kind, state, 0) : baseTouch
-  touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850
+  touchReflexEndAt = now + (isImpact(kind) ? 2250 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time
   // and path length while held, not with the number of MOVE callbacks.
