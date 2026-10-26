@@ -40,13 +40,18 @@ object DigitalLifeProfileStore {
     private var prefs: android.content.SharedPreferences? = null
     private val lock = Any()
 
-    @Synchronized
     fun initialize(context: Context) {
-        if (prefs != null) return
-        prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val current = prefs?.getString(KEY_STATE, null)
-        mutable.value = if (current != null) decode(current, legacy = false) else decode(prefs?.getString(LEGACY_KEY_STATE, null), legacy = true)
-        if (current == null && mutable.value.isNotEmpty()) persistLocked()
+        val currentPrefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        // Android keeps one preferences instance per app. Test/application context changes must
+        // rebind both the disk owner and the in-memory projection, never retain a stale writer.
+        synchronized(lock) {
+            if (prefs === currentPrefs) return
+            prefs = currentPrefs
+            val saved = currentPrefs.getString(KEY_STATE, null)
+            mutable.value = if (saved != null) decode(saved, legacy = false)
+                else decode(currentPrefs.getString(LEGACY_KEY_STATE, null), legacy = true)
+            if (saved == null && mutable.value.isNotEmpty()) persistLocked()
+        }
     }
 
     fun get(characterId: String): DigitalLifeProfile =
