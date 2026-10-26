@@ -17,6 +17,25 @@ class CharacterActionFollowThroughPolicyTest {
         assertTrue(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "new", "old", 1000, 900))
         assertFalse(CharacterActionFollowThroughPolicy.shouldReview(false, choices, "new", "old", 1000, 900))
     }
+    @Test fun severalFreshThoughtsCannotCrowdOutUntriedPersistentWishes() {
+        val thoughts = org.json.JSONArray()
+        repeat(9) { i -> thoughts.put(JSONObject()
+            .put("impulse", "刚想到的新念头$i")) }
+        val motives = org.json.JSONArray().put(JSONObject()
+            .put("id", "wish-old").put("aim", "一直想去搜索一段历史")
+            .put("status", "active").put("nextStep", "核对史料来源"))
+        val inner = JSONObject().put("thoughts", thoughts).put("motives", motives)
+        val choices = CharacterActionFollowThroughPolicy.pendingChoices(
+            inner, null, null, "刚刚又想到别的事情")
+        assertEquals(5, choices.size)
+        assertTrue(choices.first().contains("刚想到的新念头0"))
+        assertTrue("the old motive must reach the role's review",
+            choices.any { it.contains("一直想去搜索一段历史") })
+        assertFalse("this policy only supplies choices; it never chooses a tool",
+            CharacterActionFollowThroughPolicy.shouldReview(
+                silent = false, choices = choices, key = "a", previousKey = "", nowMs = 10L, previousAtMs = 0L))
+    }
+
     @Test fun pausedReleasedAndAlreadyAttemptedMotivesDoNotBecomeFreshPromises() {
         val inner = JSONObject("""{"motives":[{"aim":"继续阅读小说","status":"paused"},{"aim":"把书中问题查清楚","op":"release"},{"aim":"看看下一章节内容","status":"active","outcomes":[{"summary":"已阅读"}]}]}""")
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
