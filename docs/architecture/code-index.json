@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T10:19:30.853543+00:00",
-  "commit": "26e001ee45cb1f13d4b251b1004c8b12798a6744",
+  "generatedAt": "2026-10-26T10:29:39.889323+00:00",
+  "commit": "a456af5d262386f66aa3007c3af1255693ece60d",
   "branch": "main",
-  "sourceFingerprint": "097ae7851ce64d58b53cf8584fe062376562a7781e75eb401b561f1629a48c32",
+  "sourceFingerprint": "7b7e3b3736975077f3443e386dde6706efa55f6ed466512d768441ea1dd3e712",
   "summary": {
     "files": 949,
     "lines": 188014,
@@ -15279,19 +15279,19 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json",
       "lines": 142,
-      "sha256": "3f3cf332b93a4615d4ca803c3677258c428cbec22926a4c520e51717dc6883ff",
+      "sha256": "9ab8180fad286ffc7f4e64ed6321c3b787a5fce1ad798846ab0566b0e27a0bf1",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/01_tilt_left.motion3.json",
       "lines": 178,
-      "sha256": "53cd8487782d5d6c626dea46b19b5c500ca5f3c752fc6cb90d8cddf027aba284",
+      "sha256": "78ab89089a99fc172a6ea138bd5b288d724b52e7f2b9d552344b349a9b72ba30",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/02_tilt_right.motion3.json",
       "lines": 178,
-      "sha256": "998f70b630509dc944e8e95fd4e79e6737a6d4e4aab0b95a64b543b1c4eff931",
+      "sha256": "8e85d7079ed7d3ac539710ad37e7f1ae179e15183e922c3a1c09aa4c413f79c9",
       "symbols": []
     },
     {
@@ -15303,13 +15303,13 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/04_lean_back.motion3.json",
       "lines": 149,
-      "sha256": "821e65ab2a0415e4f40249b5ce7748bf785d06caa1e91c3c48c4917433128871",
+      "sha256": "85948ffc15bf9fe08f9f894b448a270ef9a6b6ac8f4f5ceec8443a056914f5d1",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/05_turn_left.motion3.json",
       "lines": 192,
-      "sha256": "bb9cb610829c74558dc42285d19374df3addeac58bb314bb34fcc789f4a4ad9f",
+      "sha256": "9f93af4dffb16e02364b9ab6b4652d1b8c13ed6e131fb8a8331f17526ebac546",
       "symbols": []
     },
     {
