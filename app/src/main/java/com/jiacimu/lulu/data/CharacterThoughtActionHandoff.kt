@@ -8,6 +8,20 @@ internal object CharacterThoughtActionHandoff {
     const val runtimeGuidance = "落实填nextAction={tool,args}交原steps；稍后用plan_personal_activity；文字不执行。"
     const val guidance = "possibleNextStep/nextStep只是候选文字，不会执行。重新考虑旧下一步时，区分尚在考虑、等待具体条件、现在落实或未来排期；已决定的下一步不能又只写成候选文字。若已决定落实，在同轮nextAction填写{tool:真实工具,args:{}}（也可写在挂心、thoughts、motives或curiosity项内）；现在做选实际工具，稍后做选plan_personal_activity并填title、intent、dueAt、activityAction、activityArgs。程序将其交给原steps执行器，不能只写下一步便当作已安排；尚在考虑或等待则不填，不自动把所有念头变待办。"
 
+    /**
+     * Validation of a PARTIALLY executable model decision, not a new decision maker.
+     * A bad primary tool must be reported as a ToolRouter rejection, but may
+     * coexist with independently authored registered steps. Dependent or
+     * unknown side steps cannot rescue an otherwise invalid model output.
+     */
+    fun hasIndependentRegisteredStep(steps: JSONArray?): Boolean =
+        (0 until (steps?.length() ?: 0)).any { index ->
+            steps?.optJSONObject(index)?.let(AutonomousActionWireProtocol::normalizeStep)?.let { step ->
+                !step.optBoolean("requiresPreviousSuccess", false) &&
+                    CapabilityRegistry.find(step.optString("tool").trim()) != null
+            } == true
+        }
+
     fun actions(decision: JSONObject): JSONArray? {
         // Both names are accepted by the decision schema. When the model emits
         // both, neither is an alternative to the other: dropping sideActions
