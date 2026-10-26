@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T09:46:46.443596+00:00",
-  "commit": "43b1d33f43ca601210fd8494efa013880a3c5286",
+  "generatedAt": "2026-10-26T09:47:01.260401+00:00",
+  "commit": "9a9fa608b29819eedbf676cd6b3bf191db104172",
   "branch": "main",
-  "sourceFingerprint": "76c7fff4cd93ab2da92e1d23b4f7c405ea672c35344b815d4cae3e57719c5980",
+  "sourceFingerprint": "d51b5c1c53057ed8803527878288e355fd89666d5fb5e93007c5e59f6cfa7d0f",
   "summary": {
     "files": 937,
-    "lines": 185573,
+    "lines": 185582,
     "symbols": 2724
   },
   "symbolIndex": {
@@ -16652,8 +16652,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
-      "lines": 62,
-      "sha256": "9b4a48f9f0ce164de3f40b92bb46c11a4593a9a980cfe4c5d4f30444ee23efd9",
+      "lines": 71,
+      "sha256": "d6adb3832f3cc60776736d17416af98384028b8a63af5c66c654bb4bcc713019",
       "symbols": [
         {
           "name": "normalizedSettings",
