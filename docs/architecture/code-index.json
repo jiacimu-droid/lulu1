@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T00:44:43.877065+00:00",
-  "commit": "ab20c71624b3c042bec638a2850b1d8a29e376f9",
+  "generatedAt": "2026-10-26T00:52:50.705709+00:00",
+  "commit": "15041f284eba895eb990cb2f71849f0e8f0cd4fc",
   "branch": "main",
-  "sourceFingerprint": "490d91bad7166dff21eae535faaed76bd4097d525c8dfdeec606462c08bdb34a",
+  "sourceFingerprint": "0566d8387377ee40ecc2311f1d144ca92b229fc7802d5f14d2e087b087fa3c8b",
   "summary": {
     "files": 911,
-    "lines": 179427,
+    "lines": 179468,
     "symbols": 2679
   },
   "symbolIndex": {
@@ -5645,7 +5645,7 @@
     "matchingActionFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 617
+        "line": 620
       }
     ],
     "register": [
@@ -19917,8 +19917,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 670,
-      "sha256": "c9d178a888ef3ab750cd120a1b3b6abd318992f1c6b81e1c5bc5aca3abb361c1",
+      "lines": 673,
+      "sha256": "c9fa691bd4dcf33045e68f0809782a63f084e9db98bbb2645a085262eefe460b",
       "symbols": [
         {
           "name": "InsightRow",
@@ -19942,7 +19942,7 @@
         },
         {
           "name": "matchingActionFeedback",
-          "line": 617
+          "line": 620
         }
       ]
     },
@@ -29834,8 +29834,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt",
-      "lines": 230,
-      "sha256": "75722d8c22a0e12b262e6494c057b055f5f18b237e66fee80590454eeb9d98ea",
+      "lines": 249,
+      "sha256": "4624bfa6f83d1641fa9838903a701c90b40f9c0e508a08957a47a927d7b08f4a",
       "symbols": [
         {
           "name": "CharacterExperienceLearningTest",
@@ -29941,8 +29941,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-      "lines": 177,
-      "sha256": "9211df5b1d9cf17308295a09c5f567b81f0dca908fbd393c7126d63dc2071f26",
+      "lines": 196,
+      "sha256": "63e825daec6a091d18338bb72fbef7b83b0af43bcdb972215ac490c4c792db9d",
       "symbols": [
         {
           "name": "CharacterLearningLedgerTest",

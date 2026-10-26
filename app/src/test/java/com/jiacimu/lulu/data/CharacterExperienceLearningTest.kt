@@ -65,6 +65,25 @@ class CharacterExperienceLearningTest {
     private fun apply(from: String) = JSONObject().put("sourceEvidenceId", from)
         .put("howApplied", "结合这次实际情境尝试复用醒后音乐经验")
 
+    @Test fun aStopConditionAtTheEndCanRecallAnOlderFailedAttemptWithoutCallingItSuccess() {
+        tool("older-failed", "failed", false)
+        tool("newer-unrelated", seconds = 20)
+        val longCondition = (0 until 140).joinToString("") { (0x5400 + it).toChar().toString() }
+        assertTrue(CharacterLearningLedger.recordExperience(role, experience("older-failed")
+            .put("applicableWhen", longCondition).put("avoidWhen", "耳机断开时应重新确认播放条件")))
+        assertTrue(CharacterLearningLedger.recordExperience(role, experience("newer-unrelated")))
+        for (compact in listOf(true, false)) {
+            val recalled = CharacterLearningLedger.context(role, "耳机断开", compact)
+            assertTrue(recalled.contains("日常经验ID=older-failed；"))
+            assertTrue(recalled.contains("当次执行状态=failed"))
+            assertTrue(recalled.contains("不适用/停止条件：耳机断开"))
+            assertFalse(recalled.contains("日常经验ID=newer-unrelated；"))
+            assertFalse(recalled.contains("多个独立行动获正面反馈"))
+        }
+        SharedExperienceTimeline.deleteEvent("older-failed")
+        assertFalse(CharacterLearningLedger.context(role, "耳机断开").contains("日常经验ID=older-failed；"))
+    }
+
     @Test fun everydayToolExperienceNeedsNoArticleAndSurvivesRestart() {
         tool("music", status = "verified")
         assertTrue(CharacterLearningLedger.recordExperience(role, experience()))

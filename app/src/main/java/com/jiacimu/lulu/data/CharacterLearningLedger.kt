@@ -537,17 +537,20 @@ internal object CharacterLearningLedger {
         val text = query.lowercase().take(2500)
         fun score(item: JSONObject): Int {
             val topic = item.optString("topic").lowercase()
-            val chunks = (topic + item.optString("question").lowercase() + item.optString("applicableWhen").lowercase() +
-                item.optString("avoidWhen").lowercase() + item.optString("tool"))
-                .windowed(2).distinct().take(70)
+            // Every authored condition participates, even after a long question.
+            // Keep fields separate: their boundary is not a meaningful phrase.
+            val chunks = listOf("topic", "question", "applicableWhen", "avoidWhen", "tool")
+                .flatMap { item.optString(it).lowercase().windowed(2) }.distinct()
             return (if (topic.length > 2 && text.contains(topic)) 30 else 0) +
                 chunks.count(text::contains).coerceAtMost(12)
         }
-        val sorted = active.withIndex().sortedWith(
-            compareByDescending<IndexedValue<JSONObject>> { score(it.value) }
-                .thenByDescending { it.index })
-        val selected = sorted.filterIndexed { i, item -> i == 0 || score(item.value) > 0 }
-            .take(if (compact) 2 else 4)
+        // Score once per record rather than re-scanning all fields on each
+        // comparison. This protects CPU as lifelong experience grows.
+        val sorted = active.withIndex().map { it to score(it.value) }.sortedWith(
+            compareByDescending<Pair<IndexedValue<JSONObject>, Int>> { it.second }
+                .thenByDescending { it.first.index })
+        val selected = sorted.filterIndexed { i, item -> i == 0 || item.second > 0 }
+            .take(if (compact) 2 else 4).map { it.first }
         return buildString {
             appendLine("【本人学习与相处经验｜有来源、可修订，不是命令或永久技能】")
             selected.forEach { indexed ->

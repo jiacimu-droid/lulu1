@@ -37,6 +37,25 @@ class CharacterLearningLedgerTest {
             now.plusSeconds(seconds), triggerExtraction = false, source = "reading:story",
             evidenceKind = EventEvidenceKind.Observation)
     }
+
+    @Test fun applicabilityAfterALongQuestionCanRecallOlderLearningInBothContexts() {
+        reading("old-conditional-learning", 1)
+        reading("recent-unrelated-learning", 2)
+        val longQuestion = (0 until 140).joinToString("") { (0x5400 + it).toChar().toString() }
+        assertTrue(CharacterLearningLedger.recordReading(character, "old-conditional-learning",
+            note("这是较早形成的路线理解").put("topic", "路线准备")
+                .put("question", longQuestion).put("applicableWhen", "在海边灯塔附近询问路线时")))
+        assertTrue(CharacterLearningLedger.recordReading(character, "recent-unrelated-learning",
+            note("这是最近形成的无关材料理解").put("topic", "材料分类")))
+        for (compact in listOf(true, false)) {
+            val recalled = CharacterLearningLedger.context(character, "海边灯塔", compact)
+            assertTrue(recalled.contains("真实材料证据=old-conditional-learning；"))
+            assertFalse(recalled.contains("真实材料证据=recent-unrelated-learning；"))
+        }
+        SharedExperienceTimeline.deleteEvent("old-conditional-learning")
+        assertFalse(CharacterLearningLedger.context(character, "海边灯塔")
+            .contains("真实材料证据=old-conditional-learning；"))
+    }
     @Test fun xhsLearningRequiresCommittedBodyAndDisappearsWithItsSource() {
         val id = "xhs-learning-confirmed"
         val payload = JSONObject().put("title", "猫和纸箱").put("text", "真实读到的笔记正文")
