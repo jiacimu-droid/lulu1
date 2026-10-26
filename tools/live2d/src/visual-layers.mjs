@@ -51,6 +51,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
   let secondaryBodyMix = 0
   let headHandoff = 0
   let bodyHandoff = 0
+  let touchDominance = 0
 
   function reset() {
     headSpring.reset()
@@ -61,6 +62,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     secondaryBodyMix = 0
     headHandoff = 0
     bodyHandoff = 0
+    touchDominance = 0
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
@@ -102,6 +104,16 @@ export function createVisualLayerRuntime({ has, read, write }) {
       touchReflex?.impactMotion ? 780 : null)
     const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex,
       touchReflex?.impactMotion ? 230 : null)
+    // A motion and a physical reflex are not two independent additive neck
+    // rotations. Otherwise a 25-degree turn + 30-degree slap gets clamped at
+    // the rig limit and looks like a frozen or jerking head. Real impact
+    // immediately owns the posture; soft touches temporarily take most of
+    // that channel. Yield to the selected motion gradually after release.
+    const touchGoal = touchReflex?.impactMotion ? 1 : touchReflex ? .72 : 0
+    const touchTimeConstant = touchGoal > touchDominance ? 36 : 290
+    const touchBlend = 1 - Math.exp(-Math.max(0, deltaMs) / touchTimeConstant)
+    touchDominance += (touchGoal - touchDominance) * touchBlend
+    if (!touchReflex && touchDominance < .001) touchDominance = 0
     // The original Motion3 still updates underneath a short touch or voice cue.
     // Don't hand it control in one frame when that override expires.
     if (authoredMotion) {
@@ -116,12 +128,12 @@ export function createVisualLayerRuntime({ has, read, write }) {
     const bodyMix = !authoredMotion || body || touchReflex ? 1 : eased(bodyHandoff)
     for (const [id, axis] of MAIN_HEAD) {
       if (!has(core, id) || (authoredMotion && !head && !touchReflex && headHandoff === 0)) continue
-      const desired = headPose[axis] + (reflexPose[axis] || 0)
+      const desired = headPose[axis] * (1 - touchDominance) + (reflexPose[axis] || 0)
       write(core, id, (authoredHead?.[axis] ?? 0) * (1 - headMix) + desired * headMix)
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
       if (!has(core, id) || (authoredMotion && !body && !touchReflex && bodyHandoff === 0)) continue
-      const desired = bodyPose[axis] + bodyReflex[axis]
+      const desired = bodyPose[axis] * (1 - touchDominance) + bodyReflex[axis]
       write(core, id, (authoredBody?.[axis] ?? 0) * (1 - bodyMix) + desired * bodyMix)
     }
 
