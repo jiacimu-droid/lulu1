@@ -6,11 +6,12 @@ import org.json.JSONObject
 internal object CharacterActionFollowThroughPolicy {
     fun pendingChoices(innerLife: JSONObject?, intention: JSONObject?, afterglow: JSONObject?,
                        thought: String, ownActivity: JSONObject? = null): List<String> {
-        val choices = mutableListOf<String>()
+        val freshImpulses = mutableListOf<String>()
+        val persistentWishes = mutableListOf<String>()
         innerLife?.optJSONArray("thoughts")?.let { items ->
             for (i in 0 until items.length()) {
                 val item = items.optJSONObject(i) ?: continue
-                choices += item.optString("impulse")
+                freshImpulses += item.optString("impulse")
             }
         }
         innerLife?.optJSONArray("motives")?.let { items ->
@@ -35,32 +36,37 @@ internal object CharacterActionFollowThroughPolicy {
                     if (!CharacterMotiveProgress.isDue(item)) continue
                     val plan = CharacterMotiveProgress.brief(item)
                     if (aim.isNotBlank() && last == null) {
-                        choices += if (plan.isBlank()) aim else "$aim；$plan；仅供本人再考虑"
+                        persistentWishes += if (plan.isBlank()) aim else "$aim；$plan；仅供本人再考虑"
                     } else if (aim.isNotBlank() && failed && consecutiveFailures < 3) {
                         val outcome = last?.optString("summary").orEmpty().trim().take(110)
-                        choices += "未完成的愿望：$aim；上次尝试失败：$outcome；$plan；请自己选择调整办法、暂缓或放弃，不要当作已经完成"
+                        persistentWishes += "未完成的愿望：$aim；上次尝试失败：$outcome；$plan；请自己选择调整办法、暂缓或放弃，不要当作已经完成"
                     } else if (aim.isNotBlank() && last?.optBoolean("success") == true &&
                         item.optString("nextStep").isNotBlank() &&
                         item.optString("reviewAfter").isNotBlank()) {
-                        choices += "已有一次实际进展的愿望：$aim；$plan；一次成功不代表整件事做完，请自己决定是否继续"
+                        persistentWishes += "已有一次实际进展的愿望：$aim；$plan；一次成功不代表整件事做完，请自己决定是否继续"
                     }
                 }
             }
         }
-        choices += afterglow?.optString("impulse").orEmpty()
+        val otherImpulses = mutableListOf<String>()
+        otherImpulses += afterglow?.optString("impulse").orEmpty()
         if (ownActivity?.optString("stage") in setOf("considering", "decided")) {
             val action = ownActivity?.optString("action").orEmpty()
             val why = ownActivity?.optString("whyNow").orEmpty()
-            if (action.isNotBlank() && why.isNotBlank()) choices += "想做=$action；缘由=$why"
+            if (action.isNotBlank() && why.isNotBlank()) otherImpulses += "想做=$action；缘由=$why"
         }
-        // Only model-authored options enter a later model review. Neither
-        // their vocabulary nor their length can disqualify their meaning.
-        // A review is still just a choice opportunity, never an auto action.
-        choices += thought
-        return choices.map(String::trim).filter(String::isNotBlank).distinct().take(5) +
-            listOfNotNull(CharacterIntentionContinuation.cue(
-                intention?.takeUnless { it.optString("disposition") in setOf("pause", "release") }
-            ))
+        otherImpulses += thought
+        // A burst of fresh thoughts used to consume all five follow-through
+        // slots before any saved wish reached the same-character review.
+        // Keep room for both; this changes only what the model can consider,
+        // never which action it chooses. Existing failure and waiting guards
+        // still decide which wishes may enter this *optional* review.
+        val choices = (freshImpulses.take(1) + persistentWishes.take(2) +
+            otherImpulses + freshImpulses.drop(1) + persistentWishes.drop(2))
+            .map(String::trim).filter(String::isNotBlank).distinct().take(5)
+        return choices + listOfNotNull(CharacterIntentionContinuation.cue(
+            intention?.takeUnless { it.optString("disposition") in setOf("pause", "release") }
+        ))
     }
 
     fun shouldReview(silent: Boolean, choices: List<String>, key: String, previousKey: String,
