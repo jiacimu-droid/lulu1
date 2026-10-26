@@ -1862,6 +1862,10 @@ object ProactivePerceptionRuntime {
             succeeded = execution.success,
             now = now,
             causalEvidenceId = causalEvidenceId,
+            // Snapshot only the cues supplied to this model decision; a model
+            // choosing silence does not prove it considered/rejected each cue.
+            // The ordinary decisions history already owns these facts.
+            attentionOffered = unfinishedChoices.map { "${it.kind}:${it.id}" },
             actionSignature = AutonomousActionTrace.signature(
                 action = decision.action.name.lowercase(),
                 worldAction = decision.worldAction,
