@@ -434,25 +434,8 @@ object MomentsStore {
             content = "给${authorName}的朋友圈点了赞：${momentContext(post).take(420)}",
             occurredAt = Instant.now(),
         )
-        recordVisibleLike(post, character.characterId, character.displayName)
-    }
-
-    /** A like is a real public interaction for all friends, especially the
-     * author. Previously only the liker knew it happened in their timeline.
-     */
-    private fun recordVisibleLike(post: MomentPost, likerId: String, likerName: String) {
-        val author = postAuthorName(post)
-        MigratedDomainStores.characters.settings.value.keys
-            .filter { MomentFriendAccess.canView(post, it) }
-            .forEach { viewer ->
-                SharedExperienceTimeline.record(
-                    eventId = "moment-visible-like-${post.id}-$likerId-$viewer",
-                    characterId = viewer, channel = "朋友圈", speaker = likerName,
-                    content = "${likerName} 给${author}的朋友圈点了赞",
-                    occurredAt = Instant.now(), triggerExtraction = false,
-                    source = "moment:like", evidenceKind = EventEvidenceKind.Observation,
-                )
-            }
+        // The author's phone gets a red dot from the persisted like change.
+        // Do not insert awareness into sleeping friends' private memories.
     }
 
     private fun addCharacterTopLevelComment(
@@ -558,10 +541,8 @@ object MomentsStore {
                 )
             }
         }
-        if (adding) recordVisibleLike(post, characterId, UserProfileContext.displayLabel())
-        else MigratedDomainStores.characters.settings.value.keys.forEach { viewer ->
-            SharedExperienceTimeline.deleteEvent("moment-visible-like-$postId-$characterId-$viewer")
-        }
+        // The like is persisted on the post. Friends perceive the change on
+        // their own phone next time they wake, not during the author's UI tap.
     }
 
     fun addUserComment(postId: String, content: String): MomentComment? {
@@ -633,8 +614,9 @@ object MomentsStore {
         speakerName: String,
         timelineText: String,
     ) {
-        MigratedDomainStores.characters.settings.value.keys
-            .filter { MomentFriendAccess.canView(post, it) }
+        // Record this comment as a real act of its author. Other characters
+        // receive a phone red dot instead of an instantaneous mental memory.
+        listOfNotNull(comment.characterId.takeUnless { it == USER_COMMENTER_ID })
             .forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-public-comment-${comment.id}-$characterId",
