@@ -1797,6 +1797,7 @@ object ProactivePerceptionRuntime {
                     }.orEmpty()
                 else null,
                 gesture = if (execution.primarySuccess && physicalAction) execution.summary else null,
+                gestureVerified = execution.primarySuccess && physicalAction,
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
                 // explicitly clear it instead of presenting that paraphrase as a new mental moment.
