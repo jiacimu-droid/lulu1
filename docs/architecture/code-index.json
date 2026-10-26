@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T09:47:36.376293+00:00",
-  "commit": "c177744cc8eb8070b2dac73dfcd1697222059d20",
+  "generatedAt": "2026-10-26T09:49:37.299087+00:00",
+  "commit": "45d0bf753758a92c0b2dbe5ac447d267db4b0eeb",
   "branch": "main",
-  "sourceFingerprint": "2e10fb492ea44d3766683f83265aafea4afa06c3f3d2673fd38c9f7229ef688e",
+  "sourceFingerprint": "1b9a1c242c82efdcbb9ddfc333b3aa8c28d074320db24b44a80e9a42fbead382",
   "summary": {
     "files": 937,
-    "lines": 185623,
+    "lines": 185651,
     "symbols": 2724
   },
   "symbolIndex": {
@@ -29271,8 +29271,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt",
-      "lines": 67,
-      "sha256": "a05279e313e50cc976afe45e05d749355a942e4b5dd75ff4319fd53be6a21bb4",
+      "lines": 95,
+      "sha256": "f562cd9f72c9a3b306d6d27040cc307b9ddc1962ec48817ba9ef0adc3637792d",
       "symbols": [
         {
           "name": "Live2DModelManifestAdapterTest",
