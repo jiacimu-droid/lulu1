@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T04:00:27.391257+00:00",
-  "commit": "5b159fc610be13d52507c1420b07040d40926a2a",
+  "generatedAt": "2026-10-26T04:01:10.383385+00:00",
+  "commit": "2300a399c9aa5462a6d3a16e243c4e979ea0e0f3",
   "branch": "main",
-  "sourceFingerprint": "4efd8f5a1b56b725d45126f132caa5d2cf441389a5312124792bcabb55b1c27a",
+  "sourceFingerprint": "267e5b461d3101b841bb7234338a142753da8df9d54aab9a63651983deec3ffa",
   "summary": {
     "files": 921,
-    "lines": 182081,
+    "lines": 182104,
     "symbols": 2701
   },
   "symbolIndex": {
@@ -31515,8 +31515,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 140,
-      "sha256": "b8d5ed9a707ee18cda290af7eed41300e895bb9d6a29a6513e9af800d3553509",
+      "lines": 163,
+      "sha256": "405f83a1659dc92931f1a0e2fd4fa668a365da70db670c4f0efbad560e7d4c4b",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
