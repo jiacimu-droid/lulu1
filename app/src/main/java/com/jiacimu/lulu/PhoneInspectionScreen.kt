@@ -261,7 +261,19 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             }
         },
         bottomBar = {
-            if (selectedThread == null && !showRoleFavorites && !showRoleBrowser) {
+            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser) {
+                RolePhoneOnBehalfComposer(
+                    roleName = identity?.displayName ?: "角色",
+                    roleId = actualRole, thread = selectedThread,
+                    onSend = { text ->
+                        runCatching {
+                            rolePhoneSendOnBehalf(actualRole, selectedThread, text, allChats)
+                        }.onFailure { error ->
+                            scope.launch { snackbar.showSnackbar(error.message ?: "发送失败") }
+                        }.isSuccess
+                    },
+                )
+            } else if (selectedThread == null && !showRoleFavorites && !showRoleBrowser) {
                 ChatHubV2Navigation(
                     selectedTab = phoneTab,
                     labels = listOf("消息", "好友", "朋友圈", "我的"),
@@ -433,6 +445,80 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     onCalendar = { showRoleCalendar = true },
                     onBrowser = { showRoleBrowser = true },
                 )
+            }
+        }
+    }
+}
+
+/** A user-triggered real send, attributed in the original evidence timeline to
+ * the owner's intervention. Never route a forged action through the character's
+ * autonomy planner or claim that the person decided to send it. */
+internal fun rolePhoneSendOnBehalf(
+    roleId: String, thread: InspectedThread, raw: String,
+    conversations: List<LuluConversation>,
+): String {
+    require(roleId.isNotBlank()) { "先选择角色的手机" }
+    val words = raw.trim()
+    require(words.isNotBlank() && words.length <= 650) { "消息需要填写，最多650字" }
+    if (thread.conversationId == null) {
+        val recipient = thread.peerId.orEmpty()
+        val sent = ResidentSocialMailbox.send(
+            roleId, recipient, words, author = "owner-on-behalf",
+        )
+        return sent.id
+    }
+    val conversation = conversations.firstOrNull { it.id == thread.conversationId }
+        ?: error("原会话已不存在")
+    val members = conversation.groupChat?.members?.map { it.characterId }
+    if (members == null) require(conversation.characterId == roleId) {
+        "这不是当前角色的私聊"
+    } else require(roleId in members) { "这位角色并未加入这个群" }
+    val sent = MigratedDomainStores.chat.appendCharacterMessage(
+        conversation.id, words, roleId,
+    )
+    val viewers = if (members == null) listOf(roleId) else members.distinct()
+    viewers.forEach { viewer ->
+        SharedExperienceTimeline.record(
+            eventId = "owner-on-behalf-chat-${sent.id}-${viewer}",
+            characterId = viewer,
+            channel = "手机·代发消息",
+            speaker = "主人（使用${MigratedDomainStores.characters.get(roleId).displayName}的账号）",
+            content = "主人代${MigratedDomainStores.characters.get(roleId).displayName}在" +
+                (if (members == null) "给主人自己的私聊" else "群聊《${conversation.groupChat?.name}》") +
+                "发了这条消息；不是角色自己的主动选择：${words.take(650)}",
+            occurredAt = sent.createdAt, sessionId = conversation.id,
+            source = "owner-on-behalf", triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.Observation,
+        )
+    }
+    return sent.id
+}
+
+@Composable
+private fun RolePhoneOnBehalfComposer(
+    roleName: String, roleId: String, thread: InspectedThread,
+    onSend: (String) -> Boolean,
+) {
+    var draft by rememberSaveable(roleId, thread.key) { mutableStateOf("") }
+    Surface(color = LuluColors.Card) {
+        Column(
+            Modifier.fillMaxWidth().navigationBarsPadding().imePadding()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text("主人代${roleName}发送", fontSize = 11.sp, color = LuluColors.Muted)
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = draft,
+                    onValueChange = { draft = it.take(650) },
+                    placeholder = { Text("发送消息…") }, maxLines = 4,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp),
+                )
+                Button(
+                    onClick = { if (onSend(draft)) draft = "" },
+                    enabled = draft.isNotBlank(),
+                ) { Text("发送") }
             }
         }
     }
