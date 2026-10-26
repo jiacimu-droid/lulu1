@@ -56,7 +56,7 @@ class Live2DModelManifestAdapterTest {
         val dir = Files.createTempDirectory("lulu-wolf-motions-").toFile()
         try {
             val settings = File(dir, "小狼.model3.json")
-            val original = """{"FileReferences":{"Moc":"小狼.moc3","Textures":["texture.png"],"Motions":{"Wave":[{"File":"wave.motion3.json"}]}}"""
+            val original = """{"FileReferences":{"Moc":"小狼.moc3","Textures":["texture.png"],"Motions":{"Wave":[{"File":"wave.motion3.json"}]}}}"""
             settings.writeText(original)
             File(dir, "wave.motion3.json").writeText("{}")
             File(dir, "original.motion3.json").writeText("{}")
