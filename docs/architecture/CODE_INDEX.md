@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3af337ed4cdf9eee9fb8fb12ca6e56092830bd6c`
+- 基准提交：`91aebbc63f6643a7e8f47080e8f2ef338335f83d`
 - 分支：`main`
-- 已索引文件：930
-- 已索引代码/文本行：184355
+- 已索引文件：937
+- 已索引代码/文本行：185528
 - 已发现符号：2724
 
 | 文件 | 行数 | 符号数 |
@@ -12,6 +12,13 @@
 | `app/src/main/AndroidManifest.xml` | 174 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/01_tilt_left.motion3.json` | 178 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/02_tilt_right.motion3.json` | 178 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/03_lean_in.motion3.json` | 142 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/04_lean_back.motion3.json` | 149 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/05_turn_left.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/06_turn_right.motion3.json` | 192 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T09:10:00.119927+00:00",
-  "commit": "3af337ed4cdf9eee9fb8fb12ca6e56092830bd6c",
+  "generatedAt": "2026-10-26T09:46:02.456384+00:00",
+  "commit": "91aebbc63f6643a7e8f47080e8f2ef338335f83d",
   "branch": "main",
-  "sourceFingerprint": "b7321a321e50fe02c7a6a0ec77eb8d0831cc3c84ee2501a5b75e1a87849ce1a2",
+  "sourceFingerprint": "c021940ebf2cd6cdb11f43c6f11e4cc2b779211ca9e7dd3a64b808461226f04e",
   "summary": {
-    "files": 930,
-    "lines": 184355,
+    "files": 937,
+    "lines": 185528,
     "symbols": 2724
   },
   "symbolIndex": {
@@ -15274,6 +15274,48 @@
       "path": "app/src/main/assets/live2d/stage.html",
       "lines": 17,
       "sha256": "26bf2a4a3c286ae1724b8a4d12c32617f3e0b55616ea721b08fce1bd1c7408d6",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json",
+      "lines": 142,
+      "sha256": "ec261545d2d9769943b6771ea0ea4da66e27a7310188557c596ef21a7b89b8cd",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/01_tilt_left.motion3.json",
+      "lines": 178,
+      "sha256": "de1535516f811b613862c879b931571664d47eb626591580f4dea47f1da2e1f9",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/02_tilt_right.motion3.json",
+      "lines": 178,
+      "sha256": "edd0a845d425da43b692ec45efe654dfbd5beb90f985fcefdf4f9e34e0662df2",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/03_lean_in.motion3.json",
+      "lines": 142,
+      "sha256": "6d2fee1685162be4f62bd40c85061a1a783ad88f0c284e40d6d098eb3f47fbda",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/04_lean_back.motion3.json",
+      "lines": 149,
+      "sha256": "08bc417023b21fc4ed7b99243150da40fcd084ace69d3d87ddc7e23adb171eb9",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/05_turn_left.motion3.json",
+      "lines": 192,
+      "sha256": "ae73dea320f5fba79146ad4ac25404c8193164f8e923be4fdb057326b614ec8a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/06_turn_right.motion3.json",
+      "lines": 192,
+      "sha256": "91c7459aa4db6a88a22ea197fe35bcaf2a3c3da5f5c465ac11c7b9c45b2f201c",
       "symbols": []
     },
     {
