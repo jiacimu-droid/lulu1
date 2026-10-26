@@ -277,7 +277,7 @@ internal object ResidentDailyDecision {
         }
         executeWakeSteps(app, plan.characterId, choice,
             "native-wake-${plan.id}-${plan.dueAt.epochSecond}")
-        check(CharacterPhoneInbox.acknowledge(plan.characterId, unread.map { it.id })) {
+        check(CharacterPhoneInbox.acknowledgeObserved(plan.characterId, unread)) {
             "手机动态已参与感知但未读状态未保存"
         }
         pending.lastOrNull()?.let {
@@ -563,7 +563,7 @@ internal object ResidentDailyDecision {
                 requestId = "$eventId-message")
         }
         executeWakeSteps(app, id, json, "native-daily-${native.id}-${date(now)}")
-        check(CharacterPhoneInbox.acknowledge(id, unread.map { it.id })) {
+        check(CharacterPhoneInbox.acknowledgeObserved(id, unread)) {
             "已感知的手机未读动态尚未记录"
         }
         pending.lastOrNull()?.let { check(ResidentSocialMailbox.acknowledgeIncoming(id, it.id)) {
