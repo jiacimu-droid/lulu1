@@ -17,6 +17,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.jiacimu.lulu.core.LexiconSection
+import com.jiacimu.lulu.design.LuluColors
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,6 +102,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val people by MigratedDomainStores.characters.settings.collectAsState()
     val allChats by MigratedDomainStores.chat.conversations.collectAsState()
     val posts by MomentsStore.posts.collectAsState()
+    val lifeStates by CharacterLifeStore.states.collectAsState()
     val friendsRevision by MomentFriendAccess.revisions.collectAsState()
     val names = remember(people) { people.mapValues { it.value.displayName } }
     val roleOptions = remember(people) {
@@ -110,7 +113,16 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
     var roleId by rememberSaveable { mutableStateOf(initialRoleId.orEmpty()) }
     val actualRole = roleId.takeIf { it in people } ?: roleOptions.firstOrNull()?.characterId.orEmpty()
+    val identity = people[actualRole]
+    val ownPhoneLife = remember(actualRole, lifeStates) { CharacterLifeStore.state(actualRole) }
+    val appearance = ownPhoneLife.optJSONObject("phoneAppearance")
+    val coverPreset = appearance?.optString("momentsCover", "night").orEmpty().ifBlank { "night" }
+    val coverPhotoPostId = appearance?.optString("momentsPhotoPostId").orEmpty()
+    val coverPhoto = if (coverPreset == "photo") posts.firstOrNull {
+        it.id == coverPhotoPostId && it.authorCharacterId == actualRole
+    }?.imageUri else null
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
+    var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -138,9 +150,22 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val userProfilePrefs = remember(context) {
+        context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+    }
+    val userName = userProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
+    val userAvatar = userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    val userAvatarUri = userProfilePrefs.getString("avatar_uri", null)
+    val availableFriends = remember(actualRole, friendsRevision, people) {
+        people.values.filter { it.characterId != actualRole &&
+            MomentFriendAccess.areFriends(actualRole, it.characterId)
+        }.sortedBy(CharacterSettings::displayName)
+    }
+
 
     fun goBack() {
         when {
+            showRoleFavorites -> showRoleFavorites = false
             selectedThreadKey != null -> selectedThreadKey = null
             else -> onBack()
         }
@@ -162,9 +187,16 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             TopAppBar(
                 title = {
                     Column {
-                        Text(selectedThread?.title ?: "查手机", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(
+                            when {
+                                showRoleFavorites -> "我的收藏"
+                                selectedThread != null -> selectedThread.title
+                                else -> "聊天"
+                            },
+                            fontWeight = FontWeight.SemiBold, fontSize = 18.sp,
+                        )
                         if (selectedThread != null) Text(
-                            "来自${names[actualRole] ?: "角色"}的手机",
+                            names[actualRole] ?: "角色",
                             fontSize = 11.sp, color = QqMuted,
                         )
                     }
@@ -200,20 +232,20 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             )
         },
         bottomBar = {
-            if (selectedThread == null) NavigationBar(containerColor = QqHeader) {
-                NavigationBarItem(
-                    selected = phoneTab == 0, onClick = { phoneTab = 0 },
-                    icon = { Icon(Icons.Outlined.ChatBubbleOutline, null) }, label = { Text("消息") },
-                )
-                NavigationBarItem(
-                    selected = phoneTab == 1, onClick = { phoneTab = 1 },
-                    icon = { Icon(Icons.Outlined.DynamicFeed, null) }, label = { Text("朋友圈") },
+            if (selectedThread == null && !showRoleFavorites) {
+                ChatHubV2Navigation(
+                    selectedTab = phoneTab,
+                    labels = listOf("消息", "好友", "朋友圈", "我的"),
+                    onSelect = { phoneTab = it },
+                    badgeCounts = mapOf(2 to CharacterPhoneInbox.unreadCount(actualRole)),
                 )
             }
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            if (actualRole.isBlank()) {
+            if (showRoleFavorites) {
+                RolePhoneFavorites(actualRole)
+            } else if (actualRole.isBlank()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("还没有可以查看手机的数字人物", color = QqMuted)
                 }
@@ -286,7 +318,52 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         HorizontalDivider(color = QqBorder.copy(alpha = .22f), modifier = Modifier.padding(start = 74.dp))
                     }
                 }
-            } else {
+            } else if (phoneTab == 1) {
+                LazyColumn(contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (MomentFriendAccess.areFriends(actualRole, MomentFriendAccess.OWNER)) {
+                        item("owner-friend") {
+                            ChatHubV2Card {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    ChatHubV2Avatar(userAvatar, 50, userAvatarUri)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text(userName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                                        Text("好友", fontSize = 12.sp, color = QqMuted)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    items(availableFriends, key = CharacterSettings::characterId) { friend ->
+                        ChatHubV2Card {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ChatHubV2Avatar(friend.displayName.take(1), 50, friend.avatarUri)
+                                Spacer(Modifier.width(12.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(friend.displayName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                                    Text("好友", fontSize = 12.sp, color = QqMuted)
+                                }
+                            }
+                        }
+                    }
+                    if (availableFriends.isEmpty() &&
+                        !MomentFriendAccess.areFriends(actualRole, MomentFriendAccess.OWNER)) {
+                        item { Text("还没有确认的好友", color = QqMuted) }
+                    }
+                }
+            } else if (phoneTab == 2) {
+                MomentsHeader(
+                    userName = identity?.displayName ?: "角色",
+                    userAvatar = identity?.displayName?.take(1).orEmpty().ifBlank { "角" },
+                    userAvatarUri = identity?.avatarUri,
+                    coverUri = coverPhoto,
+                    signature = ownPhoneLife.optJSONObject("socialNames")
+                        ?.optString("selfNickname").orEmpty().ifBlank { "生活正在发生" },
+                    coverPalette = rolePhoneCoverPalette(coverPreset),
+                    onCoverClick = {}, onSignatureClick = {},
+                    editable = false,
+                )
                 if (visiblePosts.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("还没有可以看到的好友动态", color = QqMuted)
@@ -342,6 +419,13 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }
                     }
                 }
+            } else {
+                RolePhoneMyPage(
+                    roleId = actualRole,
+                    roleName = identity?.displayName ?: "角色",
+                    roleAvatarUri = identity?.avatarUri,
+                    onFavorites = { showRoleFavorites = true },
+                )
             }
         }
     }
