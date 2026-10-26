@@ -4,6 +4,7 @@ import android.content.Context
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import com.jiacimu.lulu.ai.VisionModelService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -259,7 +260,7 @@ object MomentsStore {
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filter { MomentFriendAccess.canView(post, it.characterId) }
             .sortedBy(CharacterSettings::displayName)
-        candidates.forEach { character ->
+        candidates.filterNot { it.characterId.startsWith("resident:") }.forEach { character ->
             CompanionOnlineStore.wakeCharacter(
                 characterId = character.characterId,
                 reason = CompanionOnlineReason.MomentsWake,
