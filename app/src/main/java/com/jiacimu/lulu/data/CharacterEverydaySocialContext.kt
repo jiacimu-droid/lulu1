@@ -41,7 +41,7 @@ internal object CharacterEverydaySocialContext {
                     appendLine("- ${name}(${id})；${relation.shortContext()}" +
                         if (view.isNotBlank()) "；自己曾想：${view.take(110)}" else "")
                 }
-            } else {
+            } else if (contacts.isEmpty() && groups.isEmpty()) {
                 appendLine("目前没有经真实相遇/共同群聊确认的熟人。可以出门认识人，也可以独处；不能把登记的陌生居民直接写成朋友。")
             }
             if (contacts.isNotEmpty()) {
