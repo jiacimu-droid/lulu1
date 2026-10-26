@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T15:28:39.823642+00:00",
-  "commit": "ba5d74719f94a0939cc0c58841e67492f92ccb3a",
+  "generatedAt": "2026-10-26T15:40:22.627452+00:00",
+  "commit": "9c78dab73f826f8280bd73c6a1af9ddccc545391",
   "branch": "main",
-  "sourceFingerprint": "af61cf6525e18caf2e1004b90b6cd31486a4fd3ba001cf99ddafd70046596d32",
+  "sourceFingerprint": "c14544d6ef4cdd739aeee4233fe85b39cc1855d0ab54c18e2fb2e900b37e8327",
   "summary": {
     "files": 951,
-    "lines": 188600,
+    "lines": 188532,
     "symbols": 2761
   },
   "symbolIndex": {
@@ -681,7 +681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1223
+        "line": 1224
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4185,31 +4185,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 631
+        "line": 632
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 637
+        "line": 638
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1073
+        "line": 1074
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1085
+        "line": 1086
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1213
+        "line": 1214
       }
     ],
     "configured": [
@@ -9717,7 +9717,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2654
+        "line": 2622
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -19103,8 +19103,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1231,
-      "sha256": "ba260071e8cbcadb01acd65486647d4179ee29d0cdbb63111e6866a92a87510f",
+      "lines": 1232,
+      "sha256": "bf94a0ae4e1bc00e27bafcb159af3273ba589cbc5345f4c422cbd24d3c85db61",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -19192,27 +19192,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 631
+          "line": 632
         },
         {
           "name": "positionedBooks",
-          "line": 637
+          "line": 638
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1073
+          "line": 1074
         },
         {
           "name": "consumeEvent",
-          "line": 1085
+          "line": 1086
         },
         {
           "name": "LuluAiServices",
-          "line": 1213
+          "line": 1214
         },
         {
           "name": "initialize",
-          "line": 1223
+          "line": 1224
         }
       ]
     },
@@ -20284,7 +20284,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
       "lines": 82,
-      "sha256": "5547c7f00e21783a3c9a14cf45d80d4cd26aebe8d0eaa1a296551b6d604b20fe",
+      "sha256": "b231b8049da65cc1c3dd8f4df0303903ae1177818cec2767543a2e17b37864c8",
       "symbols": [
         {
           "name": "guide",
@@ -20315,7 +20315,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 106,
-      "sha256": "0bea11b8e1f5b6fc1cf70a491ce5470dc4af487356713b16af729e5e27eb5dda",
+      "sha256": "fe5bf667907eed292207514a33916c4615428475c87274f3029a636cae48d9d7",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -24957,8 +24957,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2720,
-      "sha256": "2d9a1ce667bc7e552d336b4aea38ee8e5cafbc35a3c5e4c9208bd8543e963954",
+      "lines": 2688,
+      "sha256": "57efa88bc7fa3807500e7e1360ff7f91b2bd94ed8911ccb94806db38b14d8f27",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24990,7 +24990,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2654
+          "line": 2622
         }
       ]
     },
@@ -28963,8 +28963,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2090,
-      "sha256": "f70aa30ad932a563677e85080701a0c90230745fba17c7763c96d6db3438bcc6",
+      "lines": 2053,
+      "sha256": "300fa17ef2b71372074f2416faa057b4c228b65a139d4faf889cd8793cfb0cda",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
