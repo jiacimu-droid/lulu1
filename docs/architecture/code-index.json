@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T05:33:07.349753+00:00",
-  "commit": "a8e1e3cff60bcb5bd5da14f44d55738bcf7e6c6f",
+  "generatedAt": "2026-10-26T05:33:39.505168+00:00",
+  "commit": "4f90dbcb9f3e5b86c0e73c573c9028c6e589c15f",
   "branch": "main",
-  "sourceFingerprint": "6138a0791101441b252982405a8e265b0496dd2ec829a1d06baa8c6831579376",
+  "sourceFingerprint": "d996dc2a052e307b9ac18d47a5da6641c008bde744068890c04a5d92b7edf632",
   "summary": {
     "files": 925,
-    "lines": 182929,
+    "lines": 182930,
     "symbols": 2705
   },
   "symbolIndex": {
@@ -3135,7 +3135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 205
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -3365,7 +3365,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 136
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6137,7 +6137,7 @@
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 190
+        "line": 191
       }
     ],
     "keepOrBlank": [
@@ -20560,8 +20560,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 214,
-      "sha256": "668b96b1970b3c6ac60239e24e3c703227833467482b73b0d407c18317e48717",
+      "lines": 215,
+      "sha256": "82725ca30a5040d1395d5f748b49039010291d5fd64e30d60b3f89e94224efdb",
       "symbols": [
         {
           "name": "integrate",
@@ -20593,15 +20593,15 @@
         },
         {
           "name": "pending",
-          "line": 136
+          "line": 137
         },
         {
           "name": "stimulus",
-          "line": 190
+          "line": 191
         },
         {
           "name": "render",
-          "line": 205
+          "line": 206
         }
       ]
     },
