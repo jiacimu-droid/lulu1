@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:37:07.702063+00:00",
-  "commit": "1aa3ebb6316fb6a0c237639e63a3c8ac756ddaa6",
+  "generatedAt": "2026-10-26T02:39:24.350797+00:00",
+  "commit": "f28fadd669cd6dda26c037869f5e4283f3dcd06e",
   "branch": "main",
-  "sourceFingerprint": "ca0dd2cd153459bf2f89aa2bc98a6b88f3e89b4b1bd0ae16e0f639df71b6dff5",
+  "sourceFingerprint": "080c55322424fe864a0b9a5aba22ccfa2a487929388bffb7591cbe6f80b1070a",
   "summary": {
     "files": 912,
-    "lines": 179564,
+    "lines": 179568,
     "symbols": 2680
   },
   "symbolIndex": {
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 213
+        "line": 217
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
@@ -5031,7 +5031,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 173
+        "line": 177
       }
     ],
     "briefContext": [
@@ -5041,7 +5041,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 197
+        "line": 201
       }
     ],
     "expressionContext": [
@@ -5195,7 +5195,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 92
+        "line": 95
       }
     ],
     "invalidateEvidenceForAll": [
@@ -5653,43 +5653,43 @@
     "register": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 58
+        "line": 61
       }
     ],
     "markSignificant": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 83
+        "line": 86
       }
     ],
     "sharingUrge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 133
+        "line": 137
       }
     ],
     "auditSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 188
+        "line": 192
       }
     ],
     "hasOpenOpportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 193
+        "line": 197
       }
     ],
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 249
+        "line": 253
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 279
+        "line": 283
       }
     ],
     "localDay": [
@@ -19957,8 +19957,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 311,
-      "sha256": "c05c0e99c5912b7bb6c56b67bb4385846eb591dee081c942f1490a687ebdf884",
+      "lines": 315,
+      "sha256": "37a004e6ec7b878128a8d31385fe3d09a25abb641cfc4d906150fa374c6455be",
       "symbols": [
         {
           "name": "initialize",
@@ -19966,47 +19966,47 @@
         },
         {
           "name": "register",
-          "line": 58
+          "line": 61
         },
         {
           "name": "markSignificant",
-          "line": 83
+          "line": 86
         },
         {
           "name": "invalidateEvidence",
-          "line": 92
+          "line": 95
         },
         {
           "name": "sharingUrge",
-          "line": 133
+          "line": 137
         },
         {
           "name": "pendingDecisionCues",
-          "line": 173
+          "line": 177
         },
         {
           "name": "auditSnapshot",
-          "line": 188
+          "line": 192
         },
         {
           "name": "hasOpenOpportunity",
-          "line": 193
-        },
-        {
-          "name": "briefContext",
           "line": 197
         },
         {
+          "name": "briefContext",
+          "line": 201
+        },
+        {
           "name": "context",
-          "line": 213
+          "line": 217
         },
         {
           "name": "recordShareWish",
-          "line": 249
+          "line": 253
         },
         {
           "name": "recordAction",
-          "line": 279
+          "line": 283
         }
       ]
     },
