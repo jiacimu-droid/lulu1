@@ -74,6 +74,7 @@ internal object UserRoutinePatterns {
                         activity = activity,
                         label = when (activity) {
                             "sleep-guidance" -> "通话中开启哄睡模式"
+                            "phone-call" -> "与角色接通电话"
                             else -> sourceEvents.first().channel + "中的活动"
                         },
                         days = independentDays.size,
