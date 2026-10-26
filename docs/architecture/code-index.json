@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:34:00.102266+00:00",
-  "commit": "c83a7a4c7a7785b30844f8047509b0c73d2c128a",
+  "generatedAt": "2026-10-26T03:34:57.409711+00:00",
+  "commit": "22974bc600e21f0d299ff3c0535fa71f64c29df4",
   "branch": "main",
-  "sourceFingerprint": "cc45e27d8bd055ea262d9ae406e4cbf4d0667c99d318632ca317b770bfc4c807",
+  "sourceFingerprint": "38402a70f85b5692d8de50995308df86a39c17888ac3e7fc893aba6aa83fd984",
   "summary": {
     "files": 920,
-    "lines": 181422,
+    "lines": 181403,
     "symbols": 2698
   },
   "symbolIndex": {
@@ -5559,7 +5559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 762
+        "line": 744
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9371,37 +9371,37 @@
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 487
+        "line": 470
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 496
+        "line": 479
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 544
+        "line": 527
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 566
+        "line": 547
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 590
+        "line": 571
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 782
+        "line": 764
       }
     ],
     "Batch": [
@@ -24074,8 +24074,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1063,
-      "sha256": "da1a62906abc0275e86eaa5a08f4f7f26a04701c0dab2f4072d12d4ecdc3fc01",
+      "lines": 1045,
+      "sha256": "5a8f1c4a88a9e40a3caef1cb144c40d816dce21046acd36393ffbfc512fb75c7",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -24127,31 +24127,31 @@
         },
         {
           "name": "likeAsCharacter",
-          "line": 487
+          "line": 470
         },
         {
           "name": "commentAsCharacter",
-          "line": 496
+          "line": 479
         },
         {
           "name": "toggleUserLike",
-          "line": 544
+          "line": 527
         },
         {
           "name": "addUserComment",
-          "line": 566
+          "line": 547
         },
         {
           "name": "addUserReply",
-          "line": 590
+          "line": 571
         },
         {
           "name": "delete",
-          "line": 762
+          "line": 744
         },
         {
           "name": "clearCharacterData",
-          "line": 782
+          "line": 764
         }
       ]
     },
@@ -31478,8 +31478,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 114,
-      "sha256": "13ec572813ac6bfe706f4fa3b26199dd9d086b7922d305ea617b7aac727288e5",
+      "lines": 113,
+      "sha256": "2aee52a93073188149bcdf8ca89fcecb8b76a22bc0c093f072241c864114ca49",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
