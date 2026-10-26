@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`30614ce7ae704d17a256d23765e196e624a626fd`
+- 基准提交：`f347d3d65f1ef114a13bbc59020c8a1ca3ad76f6`
 - 分支：`main`
 - 已索引文件：920
-- 已索引代码/文本行：181773
+- 已索引代码/文本行：181805
 - 已发现符号：2699
 
 | 文件 | 行数 | 符号数 |
@@ -157,7 +157,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 321 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 332 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 308 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
@@ -304,7 +304,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 212 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 142 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 162 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 254 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 55 | 1 |
@@ -867,7 +867,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 95 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 204 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 144 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 129 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 293 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |

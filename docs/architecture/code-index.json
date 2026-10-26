@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:45:22.051103+00:00",
-  "commit": "30614ce7ae704d17a256d23765e196e624a626fd",
+  "generatedAt": "2026-10-26T03:45:46.817998+00:00",
+  "commit": "f347d3d65f1ef114a13bbc59020c8a1ca3ad76f6",
   "branch": "main",
-  "sourceFingerprint": "3759d7a84759445a74abab97b4c0f4ab1fe873f58651e5bb7e5c3523a2c2a02d",
+  "sourceFingerprint": "113d7f2e31b2080e484e5f709722566e8e1d9927771d48639b85d856fb9215a5",
   "summary": {
     "files": 920,
-    "lines": 181773,
+    "lines": 181805,
     "symbols": 2699
   },
   "symbolIndex": {
@@ -3853,7 +3853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 133
+        "line": 153
       }
     ],
     "recent": [
@@ -6149,13 +6149,13 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 102
+        "line": 122
       }
     ],
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 122
+        "line": 142
       }
     ],
     "groupedFields": [
@@ -17400,8 +17400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt",
-      "lines": 332,
-      "sha256": "b88906a417f551b07dfe2011fbfeea8cd999ab73835d3c26b72f54333f182672",
+      "lines": 333,
+      "sha256": "d7becadf554471d40d1cad2189cf9f023f07c295f454ad7a8b068c873ac7e640",
       "symbols": []
     },
     {
@@ -20589,20 +20589,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 142,
-      "sha256": "0015d6e63bc1bc79a94c34085c59fc6435767013838a6d07a22423055b85fbff",
+      "lines": 162,
+      "sha256": "8c8dffa49ec772cb0d67e543675a3eed6baba1e0f1ea64808a4ea5f52bf9adb1",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 102
-        },
-        {
-          "name": "requestContext",
           "line": 122
         },
         {
+          "name": "requestContext",
+          "line": 142
+        },
+        {
           "name": "summary",
-          "line": 133
+          "line": 153
         }
       ]
     },
@@ -31488,8 +31488,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 129,
-      "sha256": "9f52a2e7502e362f7ca1e7328a5f80b43853c7be185ef8e9873564f50c46cc1d",
+      "lines": 140,
+      "sha256": "b8d5ed9a707ee18cda290af7eed41300e895bb9d6a29a6513e9af800d3553509",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
