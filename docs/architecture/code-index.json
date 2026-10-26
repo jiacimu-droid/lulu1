@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:46:28.566486+00:00",
-  "commit": "3fa47ccb9ca15d3edf662bd2ad58525a8a7e3b50",
+  "generatedAt": "2026-10-26T08:46:50.820116+00:00",
+  "commit": "9abc95a733c218b4e1e6b74a2421e121a6b513f5",
   "branch": "main",
-  "sourceFingerprint": "edc43cae1ac58ff1c04e1b31d684b61e239cf0a959a89d81f0f1cc9b1c5f55f3",
+  "sourceFingerprint": "acadda028e925bad0e2fd870677bdd27191835d0bcc0fd9076e3e6d9651d7372",
   "summary": {
     "files": 929,
-    "lines": 184235,
+    "lines": 184240,
     "symbols": 2722
   },
   "symbolIndex": {
@@ -30910,8 +30910,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 362,
-      "sha256": "cff7e436f0cc5a93ab201a750d9821d1c09207fbb35e0d730f6ce64675d53523",
+      "lines": 367,
+      "sha256": "28c17204eca1298832fa4a18d2c0f4ace85e469cccd44e558fb106875c58d35f",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
@@ -31950,7 +31950,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
       "lines": 157,
-      "sha256": "f6dc18699a73481a295a4250f02b3994202d2176231a717b682ac1a1a1f87ce8",
+      "sha256": "9d6723095291f6d266e8d42caa6175056d406cc5cceb854d50ca8a4bd9ac462f",
       "symbols": [
         {
           "name": "UserRoutinePatternsTest",
