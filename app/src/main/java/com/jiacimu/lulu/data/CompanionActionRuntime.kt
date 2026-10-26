@@ -88,6 +88,11 @@ internal object CompanionActionRuntime {
             appendLine("- send_private_message，args={\"text\":\"直接对正在聊天的用户说的话\"}：仅在本人的真实私聊中交流。")
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
             appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
+            appendLine("- like_moment，args={\"postId\":\"本轮手机可见的真实postId\"}：本人决定给好友真实动态点赞。")
+            appendLine("- comment_moment，args={\"postId\":\"真实postId\",\"text\":\"自己的评论\"}：向可见动态写真实评论，不限共同好友。")
+            appendLine("- send_friend_request，args={\"targetCharacterId\":\"真实已认识的ID\",\"greeting\":\"自己的申请招呼\"}：申请加好友，对方未同意之前不会成为好友。")
+            appendLine("- respond_friend_request，args={\"requestId\":\"本人收到的真实申请ID\",\"decision\":\"accept|decline\"}：决定是否同意好友申请，系统才生成QQ式好友确认消息。")
+            appendLine("【角色手机】" + CharacterPhoneInbox.summary(characterId))
             ResidentSocialMailbox.initialize(context)
             val contacts = ResidentSocialMailbox.visibleContacts(characterId)
             if (contacts.isNotEmpty()) appendLine("真实可联系：${contacts.joinToString("、") { id -> "$id=${MigratedDomainStores.characters.get(id).displayName}" }}")
@@ -132,6 +137,14 @@ internal object CompanionActionRuntime {
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
+        if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            CharacterPhoneInbox.initialize(context)
+            appendLine("- like_moment，args={\"postId\":\"自己手机可见的真实帖子ID\"}：自主点赞。")
+            appendLine("- comment_moment，args={\"postId\":\"真实帖子ID\",\"text\":\"自己的评论\"}：自主评论。")
+            appendLine("- send_friend_request，args={\"targetCharacterId\":\"真实认识的数字生命ID\",\"greeting\":\"想说的话\"}：发好友申请，未获同意不能算好友。")
+            appendLine("- respond_friend_request，args={\"requestId\":\"本人真实收到的申请ID\",\"decision\":\"accept|decline\"}：同意或拒绝，不替对方决定。")
+            appendLine("手机未读和请求：" + CharacterPhoneInbox.summary(characterId))
+        }
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             ResidentSocialMailbox.initialize(context)
@@ -259,7 +272,8 @@ internal object CompanionActionRuntime {
         }
         if (characterId.startsWith("resident:")) {
             require(normalizedAction in setOf(
-                "digital_world_action", "publish_moment", "send_private_message",
+                "digital_world_action", "publish_moment", "like_moment", "comment_moment",
+                "send_friend_request", "respond_friend_request", "send_private_message",
                 "send_group_message", "send_character_message", "play_solo_game", "go_offline",
             )) { "数字世界原住民不能调用现实设备、联网、健康或用户私人数据工具" }
         }
@@ -362,6 +376,39 @@ internal object CompanionActionRuntime {
                                 }.joinToString("\n"))
                     }
                 }
+            }
+            "like_moment" -> {
+                val postId = args.optString("postId").trim()
+                require(postId.isNotBlank()) { "必须填写自己真实可见的帖子ID" }
+                require(MomentsStore.likeAsCharacter(postId, characterId)) { "这条帖子不存在或不在你的好友可见范围" }
+                CompanionActionResult(true, "已实际给好友的朋友圈点赞", evidenceId = "moment-like-$postId-$characterId")
+            }
+            "comment_moment" -> {
+                val postId = args.optString("postId").trim()
+                val text = args.optString("text").trim()
+                require(postId.isNotBlank() && text.isNotBlank()) { "评论需要真实帖子ID与本人正文" }
+                require(MomentsStore.commentAsCharacter(postId, characterId, text)) {
+                    "评论未发送：帖子不可见、重复或正文无效"
+                }
+                CompanionActionResult(true, "已真实评论好友的朋友圈")
+            }
+            "send_friend_request" -> {
+                CharacterFriendRequests.initialize(context)
+                val request = CharacterFriendRequests.send(
+                    characterId, args.optString("targetCharacterId").trim(),
+                    args.optString("greeting"))
+                CompanionActionResult(true, "好友申请已送达，等待对方自己决定",
+                    evidenceId = "friend-request-${request.id}-requested-$characterId")
+            }
+            "respond_friend_request" -> {
+                CharacterFriendRequests.initialize(context)
+                val decision = args.optString("decision").trim().lowercase()
+                require(decision in setOf("accept", "decline")) { "只能由本人决定同意或拒绝" }
+                val request = CharacterFriendRequests.respond(characterId,
+                    args.optString("requestId").trim(), decision == "accept")
+                CompanionActionResult(true, if (decision == "accept") "已同意好友申请，双向好友权限与聊天系统消息已记录"
+                    else "已拒绝好友申请，未建立好友关系",
+                    evidenceId = "friend-request-${request.id}-${if (decision == "accept") "accepted" else "declined"}-$characterId")
             }
             "send_character_message" -> {
                 ResidentSocialMailbox.initialize(context)
