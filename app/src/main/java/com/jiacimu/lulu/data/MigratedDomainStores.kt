@@ -212,6 +212,11 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversation
         }
         recordGroupMembershipAwareness(conversation)
+        if (!ownerIncluded) {
+            val creator = MigratedDomainStores.characters.get(members.first()).displayName
+            appendSystemMessage(conversation.id,
+                "[群聊通知] $creator 创建了《${conversation.groupChat?.name}》，邀请了 ${members.drop(1).size} 位好友加入。")
+        }
         return conversation
     }
 
