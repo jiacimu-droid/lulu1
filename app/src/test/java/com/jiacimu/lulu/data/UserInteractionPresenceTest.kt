@@ -25,6 +25,28 @@ class UserInteractionPresenceTest {
         }
     }
 
+    @Test fun silenceAndLeavingChatNeverEstablishThatUserIsBusyOrDeclinesCare() {
+        val at = now
+        val lastUser = at.minusSeconds(20 * 60)
+        val lastRole = at.minusSeconds(15 * 60)
+        val inChat = UserInteractionPresenceStore.describe(
+            UserInteractionPresence(appVisible = true), true, lastUser, lastRole, at)
+        val outOfChat = UserInteractionPresenceStore.describe(
+            UserInteractionPresence(appVisible = false), false, lastUser, lastRole, at)
+        val unknown = UserInteractionPresenceStore.describe(
+            UserInteractionPresence(), null, lastUser, lastRole, at)
+        for (evidence in listOf(inChat, outOfChat, unknown)) {
+            assertTrue(evidence.contains("没有回复的具体原因未知"))
+            assertTrue(evidence.contains("不能证明用户正在忙、学习、休息"))
+            assertTrue(evidence.contains("切换到别的应用只证明应用使用线索"))
+            assertTrue(evidence.contains("以前曾说过忙也不是今天此刻仍忙的证据"))
+            assertTrue(evidence.contains("申请 capture_screen 或 start_study_watch"))
+            assertTrue(evidence.contains("未回复本身不自动要求一直不打扰"))
+            assertTrue(evidence.contains("没有授权不得偷看"))
+            assertFalse(evidence.contains("可能在忙、阅读、思考"))
+        }
+    }
+
     @Test fun missingForegroundEvidenceAndNewUserReplyDoNotInventAbsenceOrUnansweredSpeech() {
         val text = UserInteractionPresenceStore.describe(UserInteractionPresence(), null,
             now.minusSeconds(10), now.minusSeconds(20), now)
