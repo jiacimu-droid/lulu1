@@ -119,14 +119,19 @@ object SharedExperienceTimeline {
         // Retain bedtime narration in raw call history, but do not launch
         // expensive long-term extraction for every self-continuing whisper.
         // User responses during bedtime are still evaluated normally.
-        val shouldExtract = triggerExtraction && !(message.sender == LuluChatMessage.Sender.Character &&
-            message.id.startsWith("voice-sleep-"))
-        record(message.id, characterId, channel, speaker, readableContent, message.createdAt, shouldExtract,
-            sessionId = conversationId, source = "message",
-            evidenceKind = when (message.sender) {
-                LuluChatMessage.Sender.User -> EventEvidenceKind.UserStatement
-                LuluChatMessage.Sender.Character -> EventEvidenceKind.CharacterStatement
-                LuluChatMessage.Sender.System -> EventEvidenceKind.Observation
+        val shouldExtract = triggerExtraction && !message.onBehalfByOwner &&
+            !(message.sender == LuluChatMessage.Sender.Character &&
+                message.id.startsWith("voice-sleep-"))
+        val attributedSpeaker = if (message.onBehalfByOwner) "主人（代$speaker）" else speaker
+        record(message.id, characterId, channel, attributedSpeaker, readableContent,
+            message.createdAt, shouldExtract,
+            sessionId = conversationId,
+            source = if (message.onBehalfByOwner) "owner-on-behalf" else "message",
+            evidenceKind = when {
+                message.onBehalfByOwner -> EventEvidenceKind.Observation
+                message.sender == LuluChatMessage.Sender.User -> EventEvidenceKind.UserStatement
+                message.sender == LuluChatMessage.Sender.Character -> EventEvidenceKind.CharacterStatement
+                else -> EventEvidenceKind.Observation
             })
     }
 
