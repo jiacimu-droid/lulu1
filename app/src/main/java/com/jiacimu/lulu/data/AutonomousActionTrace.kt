@@ -84,6 +84,16 @@ internal object AutonomousActionTrace {
             }
             if (silenceStreak >= 2) {
                 appendLine("- 最近${silenceStreak}次自主感知连续选择了安静，尚无真实执行回执。")
+                val previous = recent.last()
+                previous.optString("reason").takeIf(String::isNotBlank)?.let {
+                    appendLine("  上轮本人记录的选择理由：${it.take(180)}")
+                }
+                val offered = previous.optJSONArray("attentionOffered")
+                if (offered != null && offered.length() > 0) {
+                    val ids = (0 until offered.length()).map(offered::optString)
+                        .filter(String::isNotBlank).take(4)
+                    appendLine("  上轮实际提供的旧事ID：${ids.joinToString("；")}；被提供不证明本人已逐条考虑或放弃。")
+                }
                 appendLine("  安静可以是符合本人的选择，但别因为没有新消息就停止自己的生活。")
                 appendLine("  重新看看已有愿望、真实书籍、可去的地点、眼前居民、日记和分享欲。")
                 appendLine("  如果此刻真想做且执行器有条件，就直接选择具体 action；")
