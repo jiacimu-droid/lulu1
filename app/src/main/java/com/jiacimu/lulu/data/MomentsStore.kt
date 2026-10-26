@@ -73,6 +73,7 @@ object MomentsStore {
         if (prefs != null) return
         val application = context.applicationContext
         appContext = application
+        MomentFriendAccess.initialize(application)
         prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePosts.value = decode(prefs?.getString(KEY_POSTS, null))
         refreshUnreadCount()
@@ -81,7 +82,9 @@ object MomentsStore {
 
     fun markCharacterPostsSeen(characterId: String? = null) {
         val remaining = if (characterId == null) emptySet() else {
-            val visibleIds = mutablePosts.value.filter { it.authorCharacterId == characterId }.mapTo(hashSetOf()) { it.id }
+            val visibleIds = mutablePosts.value.filter {
+                it.authorCharacterId == characterId && MomentFriendAccess.canView(it, MomentFriendAccess.OWNER)
+            }.mapTo(hashSetOf()) { it.id }
             prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterNot { it in visibleIds }.toSet()
         }
         prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, remaining)?.apply()
@@ -132,7 +135,8 @@ object MomentsStore {
             imageUnderstandingStatus = initialImageStatus(cleanImage, cleanDescription),
         )
         savePost(post)
-        addUnreadCharacterPost(post.id)
+        if (MomentFriendAccess.canView(post, MomentFriendAccess.OWNER))
+            addUnreadCharacterPost(post.id)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
         socialScope.launch {
@@ -142,7 +146,7 @@ object MomentsStore {
         return post
     }
 
-    /** A user post is an @all-style wake-up; every role perceives it independently and may stay silent. */
+    /** An explicit owner request reaches only genuine friends, never unrelated characters. */
     fun requestCharactersReact(postId: String) {
         socialScope.launch {
             processImageUnderstanding(postId)
@@ -236,7 +240,9 @@ object MomentsStore {
     private fun recordImageUnderstandingForAllCharacters(post: MomentPost) {
         if (post.imageDescription.isBlank()) return
         val authorName = postAuthorName(post)
-        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+        MigratedDomainStores.characters.settings.value.keys
+            .filter { MomentFriendAccess.canView(post, it) }
+            .forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-image-understanding-${post.id}-$characterId",
                 characterId = characterId,
@@ -250,7 +256,9 @@ object MomentsStore {
 
     suspend fun letCharactersReact(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
-        val candidates = MigratedDomainStores.characters.settings.value.values.sortedBy(CharacterSettings::displayName)
+        val candidates = MigratedDomainStores.characters.settings.value.values
+            .filter { MomentFriendAccess.canView(post, it.characterId) }
+            .sortedBy(CharacterSettings::displayName)
         candidates.forEach { character ->
             CompanionOnlineStore.wakeCharacter(
                 characterId = character.characterId,
@@ -268,7 +276,7 @@ object MomentsStore {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filter { CompanionOnlineStore.isOnline(it.characterId) &&
-                !it.characterId.startsWith("resident:") }
+                MomentFriendAccess.canView(post, it.characterId) }
             .sortedBy(CharacterSettings::displayName)
         candidates.forEach { character ->
             runIndependentReaction(post, character, UserProfileContext.displayLabel())
@@ -281,10 +289,13 @@ object MomentsStore {
         } ?: return
         val authorId = post.authorCharacterId ?: return
         val author = MigratedDomainStores.characters.get(authorId)
+        // A new post is itself an actionable social event. Reach actual friends
+        // even if their five-minute attention lease has expired; resident friends
+        // use their cheap daily model connection. Never require public visibility
+        // or automatically manufacture likes.
         val candidates = MigratedDomainStores.characters.settings.value.values
-            .filter { it.characterId != authorId && CompanionOnlineStore.isOnline(it.characterId) &&
-                !it.characterId.startsWith("resident:") }
-            .sortedBy(CharacterSettings::displayName)
+            .filter { it.characterId != authorId && MomentFriendAccess.canView(post, it.characterId) }
+            .sortedBy(CharacterSettings::displayName).take(16)
         candidates.forEach { character -> runIndependentReaction(post, character, author.displayName) }
     }
 
@@ -293,6 +304,9 @@ object MomentsStore {
         character: CharacterSettings,
         authorName: String,
     ) {
+        if (!MomentFriendAccess.canView(post, character.characterId)) return
+        // A reply decision may take seconds. Recheck access after generation:
+        // unfriending while a model call is pending must not leak reactions.
         val socialMemoryRequest = UnifiedMemoryRequest(
             currentInput = momentContext(post),
             sceneContext = "朋友圈原帖，作者：$authorName",
@@ -308,6 +322,10 @@ object MomentsStore {
         )
         val presence = CompanionPresenceStore.current(character.characterId)
 
+        val nativeConnection = if (character.characterId.startsWith("resident:"))
+            runCatching { ScopedModelSelections.resolveConnection(ResidentDailyDecision.SCOPE) }
+                .getOrNull() else null
+        if (character.characterId.startsWith("resident:") && nativeConnection == null) return
         val raw = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
@@ -346,10 +364,13 @@ object MomentsStore {
             maxTokens = 600,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.CharacterAndScenario,
+            connectionOverride = nativeConnection,
             memoryRequest = socialMemoryRequest,
         ).getOrNull()?.text.orEmpty()
 
         val plan = parseReactionPlan(raw) ?: return
+        if (mutablePosts.value.none { it.id == post.id } ||
+            !MomentFriendAccess.canView(post, character.characterId)) return
         if (plan.wantsLike) addCharacterLike(post, character, authorName)
         if (plan.comment.isNotBlank()) addCharacterTopLevelComment(post, character, authorName, plan.comment)
     }
@@ -422,6 +443,9 @@ object MomentsStore {
     }
 
     fun toggleUserLike(postId: String, characterId: String = USER_COMMENTER_ID) {
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
+        if (!MomentFriendAccess.canView(post,
+                if (characterId == USER_COMMENTER_ID) MomentFriendAccess.OWNER else characterId)) return
         mutate { current ->
             current.map { post ->
                 if (post.id != postId) post else post.copy(
@@ -439,12 +463,14 @@ object MomentsStore {
         val clean = content.trim().take(500)
         if (clean.isBlank()) return null
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
+        if (!MomentFriendAccess.canView(post, MomentFriendAccess.OWNER)) return null
         val comment = MomentComment(characterId = USER_COMMENTER_ID, content = clean)
         mutate { current ->
             current.map { item -> if (item.id == postId) item.copy(comments = item.comments + comment) else item }
         }
         val authorName = postAuthorName(post)
         recordPublicCommentForAllCharacters(
+            post = post,
             comment = comment,
             speakerName = UserProfileContext.displayLabel(),
             timelineText = "【公开评论】评论了${authorName}的朋友圈：$clean",
@@ -460,6 +486,7 @@ object MomentsStore {
         val clean = content.trim().take(500)
         if (clean.isBlank()) return null
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
+        if (!MomentFriendAccess.canView(post, MomentFriendAccess.OWNER)) return null
         val target = post.comments.firstOrNull { it.id == replyToCommentId } ?: return null
         val targetCharacterId = target.characterId.takeIf { it != USER_COMMENTER_ID } ?: return null
         val comment = MomentComment(
@@ -496,11 +523,14 @@ object MomentsStore {
     }
 
     private fun recordPublicCommentForAllCharacters(
+        post: MomentPost,
         comment: MomentComment,
         speakerName: String,
         timelineText: String,
     ) {
-        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+        MigratedDomainStores.characters.settings.value.keys
+            .filter { MomentFriendAccess.canView(post, it) }
+            .forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-public-comment-${comment.id}-$characterId",
                 characterId = characterId,
@@ -514,6 +544,7 @@ object MomentsStore {
 
     private suspend fun replyToUserComment(postId: String, commentId: String, responderId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
+        if (!MomentFriendAccess.canView(post, responderId)) return
         val userComment = post.comments.firstOrNull {
             it.id == commentId && it.characterId == USER_COMMENTER_ID
         } ?: return
@@ -591,7 +622,8 @@ object MomentsStore {
                 }
             }.getOrDefault("")
         }
-        if (replyText.isBlank()) return
+        if (replyText.isBlank() || !MomentFriendAccess.canView(post, responderId) ||
+            mutablePosts.value.none { it.id == postId }) return
         val reply = MomentComment(
             characterId = responderId,
             content = replyText,
@@ -615,6 +647,7 @@ object MomentsStore {
             )
         } else {
             recordPublicCommentForAllCharacters(
+                post = post,
                 comment = reply,
                 speakerName = responder.displayName,
                 timelineText = "【公开评论】回复了${UserProfileContext.displayLabel()}在${postAuthorName}朋友圈下的评论：${reply.content}",
@@ -726,7 +759,9 @@ object MomentsStore {
 
     private fun recordForAllCharacters(post: MomentPost, authorName: String) {
         val context = momentContext(post)
-        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+        MigratedDomainStores.characters.settings.value.keys
+            .filter { MomentFriendAccess.canView(post, it) }
+            .forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-${post.id}-$characterId",
                 characterId = characterId,
@@ -782,7 +817,8 @@ object MomentsStore {
 
     private fun refreshUnreadCount() {
         val existingIds = mutablePosts.value.asSequence()
-            .filter { it.authorType == MomentAuthorType.Character }
+            .filter { it.authorType == MomentAuthorType.Character &&
+                MomentFriendAccess.canView(it, MomentFriendAccess.OWNER) }
             .map(MomentPost::id)
             .toSet()
         val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterTo(mutableSetOf()) { it in existingIds }
@@ -790,7 +826,7 @@ object MomentsStore {
         mutableUnreadCharacterPosts.value = current.size
     }
 
-    private fun mutate(transform: (List<MomentPost>) -> List<MomentPost>) {
+    @Synchronized private fun mutate(transform: (List<MomentPost>) -> List<MomentPost>) {
         val next = transform(mutablePosts.value).sortedByDescending(MomentPost::createdAt)
         mutablePosts.value = next
         prefs?.edit()?.putString(KEY_POSTS, encode(next).toString())?.apply()
