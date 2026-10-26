@@ -52,6 +52,34 @@ class Live2DModelManifestAdapterTest {
         } finally { dir.deleteRecursively() }
     }
 
+    @Test fun generatedWolfMotionsKeepStableSeparateGroupAndOriginalManifest() {
+        val dir = Files.createTempDirectory("lulu-wolf-motions-").toFile()
+        try {
+            val settings = File(dir, "小狼.model3.json")
+            val original = """{"FileReferences":{"Moc":"小狼.moc3","Textures":["texture.png"],"Motions":{"Wave":[{"File":"wave.motion3.json"}]}}"""
+            settings.writeText(original)
+            File(dir, "wave.motion3.json").writeText("{}")
+            File(dir, "original.motion3.json").writeText("{}")
+            val generated = File(dir, "__lulu_wolf_motions").apply { mkdirs() }
+            File(generated, "02_tilt_right.motion3.json").writeText("{}")
+            File(generated, "00_nod.motion3.json").writeText("{}")
+            File(generated, "01_tilt_left.motion3.json").writeText("{}")
+            val groups = Live2DModelManifestAdapter.normalizedSettings(settings)
+                .getJSONObject("FileReferences").getJSONObject("Motions")
+            assertEquals(1, groups.getJSONArray("Wave").length())
+            assertEquals(1, groups.getJSONArray("Lulu").length())
+            val wolf = groups.getJSONArray("LuluWolf")
+            assertEquals(3, wolf.length())
+            assertEquals("__lulu_wolf_motions/00_nod.motion3.json",
+                wolf.getJSONObject(0).getString("File"))
+            assertEquals("__lulu_wolf_motions/01_tilt_left.motion3.json",
+                wolf.getJSONObject(1).getString("File"))
+            assertEquals("__lulu_wolf_motions/02_tilt_right.motion3.json",
+                wolf.getJSONObject(2).getString("File"))
+            assertEquals(original, settings.readText())
+        } finally { dir.deleteRecursively() }
+    }
+
     @Test fun referencedActionsAreNotDuplicatedAndNullPhysicsIsRemoved() {
         val dir = Files.createTempDirectory("lulu-live2d-").toFile()
         try {
