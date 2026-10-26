@@ -81,6 +81,36 @@ class CharacterInnerLifeStoreTest {
         assertEquals(15, seen.size)
         CharacterInnerLifeStore.clear(role)
     }
+    @Test fun contrastingWishesComeFromTheSameVisibleMotiveSetAsTheDetailedPrompt() {
+        start()
+        val role = "inner-motive-single-focus-test"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T14:00:00Z")
+        repeat(19) { index ->
+            CharacterInnerLifeStore.observe(role, "motive-focus-$index",
+                "本人对新的方向形成持续想法",
+                JSONObject().put("motives", JSONArray().put(JSONObject()
+                    .put("op", "start").put("aim", "不同探索方向$index")
+                    .put("why", "本人在乎这条具体线索")), now = now.minusSeconds(120))
+        }
+        val all = CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")
+        val selection = CharacterMotiveState.workingSet(all, now)
+        assertEquals(6, selection.size)
+        val text = CharacterInnerLifeStore.context(role, now)
+        val comparison = text.lineSequence()
+            .first { it.startsWith("当下可权衡的心愿：") }
+        val detailed = text.lineSequence()
+            .filter { it.startsWith("· 动机 id=") }.toList()
+        assertEquals(6, detailed.size)
+        selection.take(3).forEach { motive ->
+            val aim = motive.getString("aim")
+            assertTrue(comparison.contains(aim))
+            assertTrue(detailed.any { it.contains("目标$aim") })
+        }
+        assertEquals(19, CharacterMotiveState.active(all).size)
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun pagedHistorySurvivesHotWindowAndRetractsOldEvidence() {
         start()
         val role = "inner-history-paged-test"
