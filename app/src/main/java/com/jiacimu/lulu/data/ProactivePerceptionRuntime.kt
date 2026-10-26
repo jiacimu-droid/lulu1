@@ -882,7 +882,7 @@ object ProactivePerceptionRuntime {
                     appendLine(recentUserActivityContext)
                 }
                 if (onlineUnread.text.isBlank()) {
-                    appendLine("【本轮事件边界｜没有新用户消息】这不是延迟到达的聊天回复。最近聊天与照片只是已经发生的共同经历；旧的‘20分钟后提醒/叫醒’等带相对时间的请求以原消息发生时间、持久闹钟及实际执行回执为准，不能从当前时间重新计20分钟、重复确认已安排的事，或把已经发出的安慰当作尚未回答。若想主动联系，必须有此刻的新事实、本人的新想法或确实尚待兑现的下一步；没有必要时可以沉默。")
+                    appendLine("【本轮事件边界｜没有新用户消息】这不是延迟到达的聊天回复。最近聊天与照片只是已经发生的共同经历；旧的‘20分钟后提醒/叫醒’等带相对时间的请求以原消息发生时间、持久闹钟及实际执行回执为准，不能从当前时间重新计20分钟、重复确认已安排的事，或把已经发出的安慰当作尚未回答。是否主动联系由你本人依据性格、关系、真实经历和当下愿望决定；既不必等新的用户消息，也不必每次重新找到一条新事实作为许可。若现在愿意表达关心、分享、闲聊或开展其他生活，就选真实 action/steps；确实想安静也可自然选择 silent。尊重明确拒绝、设备授权及真实回执。")
                     val recentDue = CommitmentTaskStore.snapshot(characterId).asSequence()
                         .filter { task -> task.dueAt?.let { !it.isAfter(now) } == true &&
                             !task.updatedAt.isBefore(now.minus(Duration.ofDays(1))) }
