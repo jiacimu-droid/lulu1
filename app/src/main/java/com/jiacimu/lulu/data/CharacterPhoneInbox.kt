@@ -55,6 +55,32 @@ internal object CharacterPhoneInbox {
         val current = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
         if (!observed.isAfter(current)) return true
+        val delivered = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+            .filter { it.id in postIds && it.createdAt.isAfter(current) &&
+                it.authorCharacterId != characterId }
+        // Only AFTER the successful model decision has looked at this inbox
+        // do these posts enter the viewer's actual lived observations.
+        delivered.forEach { post ->
+            val author = post.authorCharacterId?.let {
+                MigratedDomainStores.characters.get(it).displayName
+            } ?: UserProfileContext.displayLabel()
+            val commentDigest = post.comments.takeLast(5).joinToString("；") { comment ->
+                val name = if (comment.characterId == "__user__") UserProfileContext.displayLabel()
+                    else MigratedDomainStores.characters.get(comment.characterId).displayName
+                "$name：${comment.content.take(120)}"
+            }
+            SharedExperienceTimeline.record(
+                eventId = "moment-${post.id}-$characterId",
+                characterId = characterId,
+                channel = "手机·已查看朋友圈",
+                source = "moment:phone-read",
+                speaker = author,
+                content = "醒来查看好友动态：${post.content.take(400)}" +
+                    if (commentDigest.isBlank()) "" else "；看到评论：$commentDigest",
+                evidenceKind = EventEvidenceKind.Observation,
+                triggerExtraction = false,
+            )
+        }
         return prefs?.edit()?.putString(cursorKey(characterId), observed.toString())?.commit() == true
     }
 
