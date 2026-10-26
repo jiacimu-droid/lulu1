@@ -84,6 +84,7 @@ internal object CompanionActionRuntime {
             appendLine("【数字世界原住民专用能力】你生活在数字世界，只能感知亲历的所在地点、社交记录与真正发布的世界公告。")
             appendLine("- digital_world_action：在真实存在的数字世界地点移动、休息、玩耍，按原执行回执结算。")
             appendLine("- publish_moment，args={\"text\":\"自己确实想分享的内容\"}：发仅好友可见的朋友圈；不是全部居民可见，只有确认好友可以点赞或评论。别人可以选择不互动。")
+            appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
             appendLine("- send_private_message，args={\"text\":\"直接对正在聊天的用户说的话\"}：仅在本人的真实私聊中交流。")
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
@@ -130,6 +131,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
         appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：可选 targetScore=120至1200之间的开局目标；游戏馆按真实规则运行并保存过程、分数、达标结果和此前留存最高分；不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是仅好友可见的生活分享（QQ空间式）；好友可看全部点赞、评论，不限共同好友。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
+        appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
         appendLine("【聊天与生活动作可以并行】如果此刻真的想把实际经历分享给自己的好友，可在回复的同一个JSON里加 steps=[{tool:publish_moment,args:{text:本人想发的正文}}]，不必等聊天结束或没有未读消息；也可同时继续研究、阅读等已列出的能力。是否公开由本人依关系、内容和隐私判断，不把用户私事擅自发圈，不强制发帖。已有明确分享欲时，可以直接选择发布并带上真实experienceId；不要只在心里重复想发布而不给出实际工具动作。每个steps项可独立附已有motiveId、concernId、experienceId、curiosity，只有这一步的真实回执才推进对应记录；与它无关的聊天送达不能代替。")
         appendLine("- start_call，args={\"text\":\"电话接通后的第一句原话\"}：仅在角色已允许主动来电时发起真正的来电。text 会在真实接通后作为本人第一句语音朗读并写入通话记录；接听前不朗读，拒接不算说过。请遵守同一来电开场契约：${com.jiacimu.lulu.CallOpeningTurn.incomingLineContract}")
@@ -272,7 +274,7 @@ internal object CompanionActionRuntime {
         }
         if (characterId.startsWith("resident:")) {
             require(normalizedAction in setOf(
-                "digital_world_action", "publish_moment", "like_moment", "comment_moment",
+                "digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment",
                 "send_friend_request", "respond_friend_request", "send_private_message",
                 "send_group_message", "send_character_message", "play_solo_game", "go_offline",
             )) { "数字世界原住民不能调用现实设备、联网、健康或用户私人数据工具" }
@@ -376,6 +378,34 @@ internal object CompanionActionRuntime {
                                 }.joinToString("\n"))
                     }
                 }
+            }
+            "set_phone_moments_cover" -> {
+                val ownPost = args.optString("postId").trim()
+                val preset = if (ownPost.isNotBlank()) "photo" else args.optString("preset").trim()
+                require(preset in setOf("night", "sky", "forest", "rose", "ocean", "sunset", "photo")) {
+                    "请选择已有的朋友圈背景风格，或者提供本人真实图片动态的postId"
+                }
+                if (preset == "photo") {
+                    val source = MomentsStore.posts.value.firstOrNull {
+                        it.id == ownPost && it.authorCharacterId == characterId &&
+                            !it.imageUri.isNullOrBlank()
+                    }
+                    require(source != null) { "图片封面只能选择本人真实已发布且仍存在的配图动态" }
+                }
+                require(CharacterLifeStore.setPhoneMomentsCover(characterId, preset, ownPost)) {
+                    "朋友圈封面没有改变，本轮不需要重复操作"
+                }
+                val evidenceId = "phone-cover-$characterId-${UUID.randomUUID()}"
+                SharedExperienceTimeline.record(
+                    eventId = evidenceId, characterId = characterId,
+                    channel = "手机·朋友圈", source = "phone-cover:own",
+                    speaker = character.displayName,
+                    content = if (preset == "photo") "自己把朋友圈封面换成了本人已发布的图片动态：$ownPost"
+                        else "自己将朋友圈封面改成了风格：$preset",
+                    occurredAt = now, triggerExtraction = false,
+                    evidenceKind = EventEvidenceKind.Observation,
+                )
+                CompanionActionResult(true, "已真实更换自己的朋友圈背景", evidenceId = evidenceId)
             }
             "like_moment" -> {
                 val postId = args.optString("postId").trim()
