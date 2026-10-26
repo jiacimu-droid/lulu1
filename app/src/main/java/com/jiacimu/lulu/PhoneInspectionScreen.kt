@@ -3,12 +3,15 @@ package com.jiacimu.lulu
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -278,7 +281,12 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     title = when {
                         showRoleFavorites -> "我的收藏"
                         showRoleBrowser -> "浏览器"
-                        else -> "聊天"
+                        else -> when (phoneTab) {
+                            1 -> "好友"
+                            2 -> "朋友圈"
+                            3 -> "我的"
+                            else -> "消息"
+                        }
                     },
                     onBack = ::goBack,
                     actions = {
@@ -363,13 +371,27 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     )
                 }
             } else if (phoneTab == 0) {
-                if (threads.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("还没有真实的聊天记录", color = QqMuted)
-                    }
-                } else LazyColumn(
-                    contentPadding = PaddingValues(vertical = 8.dp),
+                LazyColumn(
+                    contentPadding = PaddingValues(top = 12.dp, bottom = 22.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
+                    item("phone-summary") {
+                        RolePhoneHomeHeader(
+                            name = identity?.displayName ?: "角色",
+                            avatarUri = identity?.avatarUri,
+                            threads = threads.size,
+                            friends = availableFriends.size,
+                            groups = allChats.count {
+                                it.groupChat?.members?.any { member -> member.characterId == actualRole } == true
+                            },
+                        )
+                    }
+                    if (threads.isEmpty()) item("phone-empty") {
+                        Box(Modifier.fillMaxWidth().padding(vertical = 54.dp),
+                            contentAlignment = Alignment.Center) {
+                            Text("还没有聊天，生活故事从这里开始", color = QqMuted)
+                        }
+                    }
                     items(threads, key = InspectedThread::key) { thread ->
                         val chat = allChats.firstOrNull { it.id == thread.conversationId }
                         Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 5.dp)) {
@@ -406,7 +428,15 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 }
             } else if (phoneTab == 1) {
                 LazyColumn(contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    item("friends-heading") {
+                        Column(Modifier.padding(bottom = 6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("联系人", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                            Text("${availableFriends.size + if (MomentFriendAccess.areFriends(actualRole, MomentFriendAccess.OWNER)) 1 else 0} 位好友",
+                                color = QqMuted, fontSize = 12.sp)
+                        }
+                    }
                     if (MomentFriendAccess.areFriends(actualRole, MomentFriendAccess.OWNER)) {
                         item("owner-friend") {
                             Box(Modifier.clickable {
@@ -506,6 +536,54 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
 }
 
+@Composable
+private fun RolePhoneHomeHeader(
+    name: String, avatarUri: String?, threads: Int, friends: Int, groups: Int,
+) {
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        Box(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                .background(Brush.linearGradient(listOf(
+                    Color(0xFF303A48), Color(0xFF566474), Color(0xFF788595))))
+                .padding(19.dp),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ChatHubV2Avatar(name.take(1).ifBlank { "角" }, 56, avatarUri)
+                    Column(Modifier.weight(1f)) {
+                        Text(name, fontWeight = FontWeight.SemiBold,
+                            fontSize = 19.sp, color = Color.White)
+                        Text("私人的小小世界", fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.75f))
+                    }
+                    Icon(Icons.Outlined.Smartphone, null,
+                        tint = Color.White.copy(alpha = 0.72f))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    RolePhoneMetric("聊天", threads)
+                    RolePhoneMetric("好友", friends)
+                    RolePhoneMetric("群聊", groups)
+                }
+            }
+        }
+        Text("最近消息", fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 4.dp), color = LuluColors.Muted)
+    }
+}
+
+@Composable
+private fun RolePhoneMetric(label: String, count: Int) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(count.toString(), fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold, color = Color.White)
+        Text(label, fontSize = 11.sp, color = Color.White.copy(alpha = 0.72f))
+    }
+}
+
 /** A user-triggered real send, attributed in the original evidence timeline to
  * the owner's intervention. Never route a forged action through the character's
  * autonomy planner or claim that the person decided to send it. */
@@ -549,7 +627,12 @@ private fun RolePhoneOnBehalfComposer(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text("主人代${roleName}发送", fontSize = 11.sp, color = LuluColors.Muted)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.AutoAwesome, null, tint = LuluColors.Muted,
+                    modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("主人代${roleName}发送", fontSize = 11.sp, color = LuluColors.Muted)
+            }
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = draft,
@@ -592,6 +675,24 @@ private fun RolePhoneMyPage(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
+        item("profile-hero") {
+            Box(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                    .background(Brush.linearGradient(listOf(
+                        Color(0xFF303A48), Color(0xFF596474), Color(0xFF747D8D))))
+                    .padding(20.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+                    ChatHubV2Avatar(socialName.take(1).ifBlank { "角" }, 68, roleAvatarUri)
+                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(socialName, fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                            color = Color.White)
+                        Text("我的个人主页", fontSize = 12.sp, color = Color.White.copy(alpha = 0.72f))
+                    }
+                }
+            }
+        }
         item("favorites") {
             Surface(onClick = onFavorites, modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
@@ -620,14 +721,7 @@ private fun RolePhoneMyPage(
         }
         item("profile") {
             ChatHubV2Card {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChatHubV2Avatar(roleName.take(1).ifBlank { "角" }, 78, roleAvatarUri)
-                    Spacer(Modifier.width(14.dp))
-                    Column {
-                        Text(socialName, style = MaterialTheme.typography.titleLarge)
-                        Text("个人资料", color = LuluColors.Muted, fontSize = 12.sp)
-                    }
-                }
+                Text("个人资料", style = MaterialTheme.typography.titleMedium)
                 HorizontalDivider(color = LuluColors.Border)
                 Text("名字", color = LuluColors.Muted, fontSize = 12.sp)
                 Text(roleName)
