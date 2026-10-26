@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:10:26.201028+00:00",
-  "commit": "bb1e7f5c9ae2eb53d221b4dc21714f33234fe580",
+  "generatedAt": "2026-10-26T02:27:37.695395+00:00",
+  "commit": "2763d127ced1d419701d7e6c5ea6ff2f9c8fa875",
   "branch": "main",
-  "sourceFingerprint": "d36e2fd50aff5f4de5a2f39f02e4bc0cffa07b48404a8fffd5ca02b48a67ec94",
+  "sourceFingerprint": "2e47e38f67407db4c99e93e6a8369191a99bf65519feb26776d7951b479f7a07",
   "summary": {
-    "files": 910,
-    "lines": 179297,
-    "symbols": 2675
+    "files": 911,
+    "lines": 179381,
+    "symbols": 2678
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9202,6 +9202,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
         "line": 305
+      }
+    ],
+    "MomentFriendAccess": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+        "line": 17
+      }
+    ],
+    "canView": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+        "line": 73
+      }
+    ],
+    "visiblePosts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+        "line": 81
       }
     ],
     "MomentAuthorType": [
@@ -23843,6 +23861,25 @@
         {
           "name": "completedReplyText",
           "line": 305
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+      "lines": 84,
+      "sha256": "f20d740f9a87f82526b66f42ed7d99c2d393ad2298999c874d89ab83e474760b",
+      "symbols": [
+        {
+          "name": "MomentFriendAccess",
+          "line": 17
+        },
+        {
+          "name": "canView",
+          "line": 73
+        },
+        {
+          "name": "visiblePosts",
+          "line": 81
         }
       ]
     },
