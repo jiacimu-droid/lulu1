@@ -600,8 +600,14 @@ internal fun Live2DFullscreenVideoCall(
                 text = {
                     Column(Modifier.heightIn(max = 420.dp)
                         .verticalScroll(rememberScrollState())) {
-                        val names = listOf("轻轻点头", "向左歪头", "向右歪头",
-                            "身体靠近", "身体后仰", "向左回望", "向右回望")
+                        val names = listOf(
+                            "轻轻点头", "向左歪头", "向右歪头",
+                            "身体靠近", "身体后仰", "向左回望", "向右回望",
+                            "连点两下头", "左右摇头", "受惊后缩",
+                            "探头看左边", "探头看右边", "害羞低头",
+                            "微微抬下巴", "身体向左轻晃", "身体向右轻晃",
+                            "好奇探身", "开心弹跳", "左右换重心",
+                        )
                         availableAnimations.motions.forEach { selected ->
                             val label = if (selected.first == "LuluWolf")
                                 names.getOrNull(selected.second) ?: "动作 ${selected.second + 1}"
