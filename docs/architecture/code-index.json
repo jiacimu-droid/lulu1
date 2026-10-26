@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:00:11.807873+00:00",
-  "commit": "e9de5cc26dcd6625fbab21efb7b6cb08aaae6e34",
+  "generatedAt": "2026-10-26T03:06:30.530903+00:00",
+  "commit": "66395f32df35d5db4352e53930444f570f1fa34d",
   "branch": "main",
-  "sourceFingerprint": "f5e6674e0b43b5b978085bff1357536f398592566d73b0cfaf5aaa9c7fbf2602",
+  "sourceFingerprint": "9ed92179e39706cdea5264855163cdf74708cd62ff642e241f6e35ca3cdbc39d",
   "summary": {
     "files": 915,
-    "lines": 180169,
+    "lines": 180213,
     "symbols": 2688
   },
   "symbolIndex": {
@@ -5997,13 +5997,13 @@
     "rotate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 39
+        "line": 45
       }
     ],
     "focus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 52
+        "line": 58
       }
     ],
     "hasProposals": [
@@ -20331,8 +20331,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-      "lines": 86,
-      "sha256": "d9c747995b3e10305be7a3a48074dcc21b4d72087e4c13e6e441538dabee64c8",
+      "lines": 92,
+      "sha256": "8aa24d8e7e092ad81744ee360a2fb787833697501a0a3524c52ab7938ffcdb9f",
       "symbols": [
         {
           "name": "isActive",
@@ -20352,11 +20352,11 @@
         },
         {
           "name": "rotate",
-          "line": 39
+          "line": 45
         },
         {
           "name": "focus",
-          "line": 52
+          "line": 58
         }
       ]
     },
@@ -30243,8 +30243,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
-      "lines": 106,
-      "sha256": "90c79bdacbbd908363dad18646be33dbed21e081c330cfe35a7597118f8663b6",
+      "lines": 144,
+      "sha256": "33b4b61aafa6fbbbf4fb6d4204b4dc72c1d24716b2b5224de2c3f7b6eed3a734",
       "symbols": [
         {
           "name": "CharacterMotiveStateTest",
