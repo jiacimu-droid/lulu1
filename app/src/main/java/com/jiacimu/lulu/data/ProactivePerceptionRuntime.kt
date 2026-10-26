@@ -2238,7 +2238,7 @@ object ProactivePerceptionRuntime {
             ?: AutonomousDecisionRecovery.completedPrivateMessage(raw)
             ?: return null
         val json = CharacterCausalActionPolicy.actionOnly(
-            AutonomousActionWireProtocol.normalize(AutonomousDecisionRecovery.choose(parsed)),
+            AutonomousActionWireProtocol.normalize(parsed),
             alreadyAppraised = actionOnly,
         )
         Decision(

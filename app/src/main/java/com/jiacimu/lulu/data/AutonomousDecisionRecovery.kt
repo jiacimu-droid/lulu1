@@ -109,29 +109,5 @@ internal object AutonomousDecisionRecovery {
         }
         return ""
     }
-    fun choose(json: JSONObject): JSONObject {
-        if (!json.optString("action").equals("silent", true)) return json
-        if (Regex("想独处|需要独处|想休息|好好休息|困了|真的不想").containsMatchIn(json.optString("reason"))) return json
-        val alt = json.optJSONObject("selfInitiatedAlternative") ?: return json
-        if (!alt.optBoolean("personallyWanted") ||
-            !CharacterSelfActivityRuntime.hasRealReason(alt.optString("whyNow"))) return json
-        val action = alt.optString("action").lowercase()
-        if (action !in ownLifeActions) return json
-        val validParameters = when (action) {
-            "reading" -> alt.optString("readingBookId").isNotBlank()
-            "solo_game" -> alt.optString("gameId") == "memory_match"
-            "digital_world" -> alt.optString("worldAction").isNotBlank()
-            "journal" -> alt.optString("journalContent").isNotBlank()
-            else -> false
-        }
-        if (!validParameters) return json
-        // Preserve the original inner motive even when the model puts action args in its
-        // alternative. Without this, an actual exploration could lose its curiosity thread.
-        val choice = JSONObject(alt.toString()).put("reason", alt.optString("whyNow"))
-        listOf("curiosity", "relationshipInitiative", "innerLife", "intention", "motiveId",
-            "onlineDecision", "appraisal", "afterglow", "innerThought", "innerThoughtBasis").forEach { key ->
-            if (!choice.has(key) && json.has(key)) choice.put(key, json.opt(key))
-        }
-        return choice
-    }
+
 }

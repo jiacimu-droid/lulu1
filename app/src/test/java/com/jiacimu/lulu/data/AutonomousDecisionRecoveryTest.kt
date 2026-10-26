@@ -61,93 +61,19 @@ class AutonomousDecisionRecoveryTest {
             """{"action":"tool","tool":"send_private_message","args":{"text":"不完整工具调用"}"""))
     }
 
-    @Test fun aBriefActualMotiveCanSelectConcreteBookWithoutInventingAnAction() {
-        val alternative = JSONObject().put("action", "reading")
-            .put("readingBookId", "real-book").put("personallyWanted", true)
-            .put("whyNow", "想读")
-        val original = JSONObject().put("action", "silent").put("reason", "没人找我")
+    @Test fun silentWithAConsideredAlternativeIsStillSilence() {
+        val alternative = JSONObject().put("personallyWanted", true)
+            .put("action", "reading").put("readingBookId", "book")
+            .put("whyNow", "我想看看")
+        val decision = JSONObject().put("action", "silent")
+            .put("reason", "没有新的用户消息")
             .put("selfInitiatedAlternative", alternative)
-        assertEquals("reading", AutonomousDecisionRecovery.choose(original).optString("action"))
-        alternative.put("whyNow", "...")
-        assertSame(original, AutonomousDecisionRecovery.choose(original))
-    }
-
-    @Test fun aConcreteChosenAlternativeDoesNotRequireNoMessagesExcuse() {
-        val original = JSONObject().put("action", "silent").put("reason", "我还想看看书里那条线索")
-            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
-                .put("readingBookId", "book-1").put("personallyWanted", true)
-                .put("whyNow", "想弄清上一段没有解开的疑问"))
-        assertEquals("reading", AutonomousDecisionRecovery.choose(original).getString("action"))
-    }
-
-    @Test fun anIndependentActionDoesNotEraseTheSameTurnsChoiceToStayAwake() {
-        val choice = JSONObject().put("choice", "continue")
-            .put("reason", "这件事还没有认真说完，我自己想再留一会儿")
-        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
-            .put("onlineDecision", choice)
-            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
-                .put("readingBookId", "book-3").put("personallyWanted", true)
-                .put("whyNow", "还想趁清醒把刚才的书读完"))
-        val reviewed = AutonomousDecisionRecovery.choose(original)
-        assertEquals("reading", reviewed.getString("action"))
-        assertEquals("continue", reviewed.getJSONObject("onlineDecision").getString("choice"))
-        assertEquals(choice.getString("reason"),
-            reviewed.getJSONObject("onlineDecision").getString("reason"))
-    }
-
-    @Test fun neverOverridesARealWishToBeAlone() {
-        val original = JSONObject().put("action", "silent").put("reason", "现在想好好休息")
-            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
-                .put("readingBookId", "book-1").put("personallyWanted", true)
-                .put("whyNow", "刚才那一段很想继续读"))
-        assertSame(original, AutonomousDecisionRecovery.choose(original))
-    }
-
-    @Test fun canRecoverAnExplicitIndependentChoiceFromNoMessagesHabit() {
-        val alternative = JSONObject().put("action", "reading")
-            .put("readingBookId", "book-1").put("personallyWanted", true)
-            .put("whyNow", "我刚读到关键的一章所以想继续")
-        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
-            .put("selfInitiatedAlternative", alternative)
-        val chosen = AutonomousDecisionRecovery.choose(original)
-        assertEquals("reading", chosen.getString("action"))
-        assertEquals("book-1", chosen.getString("readingBookId"))
-    }
-
-    @Test fun noSocialSpamAndNoVagueAlternatives() {
-        val alternative = JSONObject().put("action", "message").put("text", "在吗")
-            .put("personallyWanted", true).put("whyNow", "想找个人聊天")
-        val original = JSONObject().put("action", "silent").put("reason", "没人联系")
-            .put("selfInitiatedAlternative", alternative)
-        assertSame(original, AutonomousDecisionRecovery.choose(original))
-        alternative.put("action", "digital_world")
-        assertSame(original, AutonomousDecisionRecovery.choose(original))
-    }
-
-    @Test fun preservedCuriosityConnectsRecoveredActionToTheSamePersonalQuestion() {
-        val question = JSONObject().put("topic", "小说").put("question", "故事怎么发展")
-        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
-            .put("curiosity", question)
-            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
-                .put("readingBookId", "book-7").put("personallyWanted", true)
-                .put("whyNow", "想去看看我还没读完的小说"))
-        val chosen = AutonomousDecisionRecovery.choose(original)
-        assertEquals("reading", chosen.getString("action"))
-        assertEquals("小说", chosen.getJSONObject("curiosity").getString("topic"))
-    }
-
-    @Test fun recoveredIndependentActionPreservesPendingRelationalThought() {
-        val thought = JSONObject().put("status", "considering")
-            .put("aim", "以后找机会给她一个小惊喜").put("why", "我想分享自己真正发现的趣事")
-        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
-            .put("relationshipInitiative", thought)
-            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
-                .put("readingBookId", "book-surprise").put("personallyWanted", true)
-                .put("whyNow", "想先自己读读这本还没看完的书"))
-        val chosen = AutonomousDecisionRecovery.choose(original)
-        assertEquals("reading", chosen.getString("action"))
-        assertEquals("以后找机会给她一个小惊喜",
-            chosen.getJSONObject("relationshipInitiative").getString("aim"))
+        // An alternative is NOT a chosen tool action. This decision must be
+        // preserved by the wire decoder, irrespective of its Chinese wording.
+        val normalized = AutonomousActionWireProtocol.normalize(decision)
+        assertEquals("silent", normalized.optString("action"))
+        assertEquals("reading",
+            normalized.optJSONObject("selfInitiatedAlternative")?.optString("action"))
     }
 
     @Test fun aStreakOfThreeSilentDecisionsGetsOneNewChanceToChooseLife() {
@@ -179,8 +105,4 @@ class AutonomousDecisionRecoveryTest {
             recentActions = listOf("MESSAGE", "SILENT"), hasPendingUserMessage = false))
     }
 
-    @Test fun aNormalChosenActionIsNeverReplaced() {
-        val original = JSONObject().put("action", "moment").put("text", "今日小事")
-        assertSame(original, AutonomousDecisionRecovery.choose(original))
-    }
 }
