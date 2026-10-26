@@ -64,8 +64,9 @@ fun QqStyleChatDetailScreen(
     onOpenGame: (String?) -> Unit,
 ) {
     val context = LocalContext.current
-    DisposableEffect(conversationId, routeVisible) {
-        if (routeVisible) {
+    var showPhoneInspection by rememberSaveable(conversationId) { mutableStateOf(false) }
+    DisposableEffect(conversationId, routeVisible, showPhoneInspection) {
+        if (routeVisible && !showPhoneInspection) {
             ChatAutoVoicePlayback.setVisibleConversation(conversationId)
             UserInteractionPresenceStore.setConversation(conversationId)
         } else {
@@ -498,6 +499,11 @@ fun QqStyleChatDetailScreen(
         previousVisibleCount = count
     }
 
+    if (showPhoneInspection) {
+        PhoneInspectionScreen(initialRoleId = characterId, onBack = { showPhoneInspection = false })
+        return
+    }
+
     Scaffold(
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
@@ -583,6 +589,11 @@ fun QqStyleChatDetailScreen(
                                     DropdownMenuItem(text = { Text("生活记录") }, onClick = { moreExpanded = false; onLexicon() })
                                     DropdownMenuItem(text = { Text("日程") }, onClick = { moreExpanded = false; onSchedule() })
                                     DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
+                                    DropdownMenuItem(
+                                        text = { Text("查手机") },
+                                        leadingIcon = { Icon(Icons.Outlined.Smartphone, null) },
+                                        onClick = { moreExpanded = false; showPhoneInspection = true },
+                                    )
                                 }
                             }
                         } else {
