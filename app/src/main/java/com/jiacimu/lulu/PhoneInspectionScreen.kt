@@ -176,6 +176,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     LaunchedEffect(context) {
         withContext(Dispatchers.IO) {
             ResidentSocialMailbox.initialize(context)
+            CharacterPhoneInbox.initialize(context)
             MomentFriendAccess.initialize(context)
         }
         mailReady = true
