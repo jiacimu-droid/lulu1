@@ -94,7 +94,11 @@ internal object UserDevicePerception {
         previousLevel: Int, previousCharging: Boolean, previousAt: Long,
     ): String {
         val elapsed = nowMillis - previousAt
-        if (previousLevel !in 0..100 || elapsed !in 60_000L..(6L * 60 * 60_000L)) return ""
+        // A zero/negative timestamp is the sentinel for "no previous sample", not
+        // a real battery reading at the Unix epoch. Never fabricate an elapsed interval.
+        if (previousAt <= 0L || nowMillis <= previousAt ||
+            previousLevel !in 0..100 || level !in 0..100 ||
+            elapsed !in 60_000L..(6L * 60 * 60_000L)) return ""
         val minutes = elapsed / 60_000L
         val delta = level - previousLevel
         val changed = when {
