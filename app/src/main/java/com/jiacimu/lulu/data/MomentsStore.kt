@@ -436,6 +436,7 @@ object MomentsStore {
             }
         }
         recordPublicCommentForAllCharacters(
+            post = post,
             comment = comment,
             speakerName = character.displayName,
             timelineText = "【公开评论】评论了${authorName}的朋友圈：${comment.content}",
