@@ -33,26 +33,20 @@ class GoalFollowUpPolicyTest {
         assertFalse(GoalFollowUpPolicy.reviewMatches(goal, "goal-123", now.toEpochMilli(), now))
     }
 
-    @Test fun twoUnansweredContactsBlockMoreUnsolicitedMessagesNotPrivateActivity() {
-        val goal = JSONObject().put("unansweredContactAttempts", 2)
-        assertTrue(GoalFollowUpPolicy.shouldBlockContact(goal, "send_private_message"))
-        assertFalse(GoalFollowUpPolicy.shouldBlockContact(goal, "read_book"))
-        goal.put("lastUserEvidenceId", "new-reply")
-        assertFalse(GoalFollowUpPolicy.shouldBlockContact(goal, "send_private_message"))
-    }
-
-    @Test fun contactBoundaryDoesNotTurnIndependentActivityIntoSilence() {
-        val goal = JSONObject().put("createdAt", "goal-1").put("unansweredContactAttempts", 2)
-        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "goal-1"))
-        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "publish_moment", true, "goal-1"))
-        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "web_search", true, "goal-1"))
-        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", false, "goal-1"))
-        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "other-goal"))
-        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true,
-            reviewingGoal = true))
+    @Test fun unansweredContactsNeverOverrideAnotherValidRoleChoice() {
+        val goal = JSONObject().put("createdAt", "goal-1").put("unansweredContactAttempts", 12)
+        for (action in listOf("send_private_message", "start_call", "send_private_sticker",
+                "publish_moment", "web_search", "read_book")) {
+            assertNull("No reply is not an explicit refusal: $action",
+                GoalFollowUpPolicy.contactBlockReason(goal, action, true, "goal-1"))
+        }
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal,
+            "send_private_message", true, reviewingGoal = true))
         goal.put("userRequestedSpace", true)
         assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "other-goal"))
-        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "play_solo_game", true, "goal-1"))
+        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "start_call", true, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "read_book", true, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", false, "goal-1"))
     }
 
     @Test fun expiryDecisionCoalescesSameFiveMinuteGoalCheck() {
