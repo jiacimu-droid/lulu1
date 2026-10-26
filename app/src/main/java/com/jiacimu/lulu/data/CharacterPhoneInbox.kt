@@ -43,6 +43,8 @@ internal object CharacterPhoneInbox {
         return MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value).count {
             (it.authorCharacterId != characterId ||
                 it.lastActivityAt.isAfter(it.createdAt)) &&
+                (it.authorType != MomentAuthorType.User ||
+                    characterId != MomentFriendAccess.OWNER) &&
                 it.lastActivityAt.isAfter(cursor)
         }
     }
@@ -65,7 +67,7 @@ internal object CharacterPhoneInbox {
             MomentFriendAccess.canView(post, characterId) &&
                 MomentsStore.posts.value.any { it.id == post.id }
         }
-        val observed = presented.maxOfOrNull { it.lastActivityAt } ?: return false
+        val observed = presented.maxOfOrNull { it.lastActivityAt } ?: return true
         val current = prefs?.getString(cursorKey(characterId), null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: Instant.EPOCH
         if (!observed.isAfter(current)) return true
