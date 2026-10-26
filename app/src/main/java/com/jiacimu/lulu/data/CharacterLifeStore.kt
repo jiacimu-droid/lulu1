@@ -81,14 +81,14 @@ object CharacterLifeStore {
     @Synchronized fun setPhoneMomentsCover(
         characterId: String, preset: String, postId: String = "",
     ): Boolean {
-        if (characterId.isBlank() || preset !in setOf(
+        if (prefs == null || characterId.isBlank() || preset !in setOf(
                 "night", "sky", "forest", "rose", "ocean", "sunset", "photo",
             )) return false
         if (preset == "photo" && postId.isBlank()) return false
         val root = state(characterId)
         val old = root.optJSONObject("phoneAppearance")
         if (old?.optString("momentsCover") == preset &&
-            old.optString("momentsPhotoPostId") == postId) return false
+            old?.optString("momentsPhotoPostId") == postId) return false
         root.put("phoneAppearance", JSONObject()
             .put("momentsCover", preset)
             .put("momentsPhotoPostId", if (preset == "photo") postId else "")
