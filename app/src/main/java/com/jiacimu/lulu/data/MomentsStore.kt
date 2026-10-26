@@ -268,9 +268,9 @@ object MomentsStore {
     private fun recordImageUnderstandingForAllCharacters(post: MomentPost) {
         if (post.imageDescription.isBlank()) return
         val authorName = postAuthorName(post)
-        MigratedDomainStores.characters.settings.value.keys
-            .filter { MomentFriendAccess.canView(post, it) }
-            .forEach { characterId ->
+        // New image descriptions update the shared post. Friends see them
+        // when their phones are read, not as immediate mental observations.
+        listOfNotNull(post.authorCharacterId).forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-image-understanding-${post.id}-$characterId",
                 characterId = characterId,
@@ -864,10 +864,11 @@ object MomentsStore {
     private fun savePost(post: MomentPost) = mutate { current -> listOf(post) + current }
 
     private fun recordForAllCharacters(post: MomentPost, authorName: String) {
+        // Publication belongs to the author now. Every OTHER character first
+        // perceives it when looking at their own phone on a later wake.
+        // A stored feed is not telepathic knowledge in sleeping minds.
         val context = momentContext(post)
-        MigratedDomainStores.characters.settings.value.keys
-            .filter { MomentFriendAccess.canView(post, it) }
-            .forEach { characterId ->
+        listOfNotNull(post.authorCharacterId).forEach { characterId ->
             SharedExperienceTimeline.record(
                 eventId = "moment-${post.id}-$characterId",
                 characterId = characterId,
