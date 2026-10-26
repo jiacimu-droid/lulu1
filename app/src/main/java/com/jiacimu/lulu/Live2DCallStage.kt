@@ -89,7 +89,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     framingMode: String = "full",
     qualityMode: String = "quality",
     interactionMode: String = "hand",
-    interactionForce: Float = .55f,
+    interactionForce: Float = .25f,
     calibrationMode: Boolean = false,
     calibrationRegion: String = "cheek-left",
     calibrationRadius: Float = .042f,
