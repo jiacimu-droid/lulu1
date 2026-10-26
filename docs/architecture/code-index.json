@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:39:36.954108+00:00",
-  "commit": "2b81785977258f7b3efd3526e566288914f50bfd",
+  "generatedAt": "2026-10-26T01:40:49.259826+00:00",
+  "commit": "464049fd3e6533f81b2ecb2a79263b529de02b77",
   "branch": "main",
-  "sourceFingerprint": "500a9f6714e907bf8b81b975104b76583b36b519a0109fb5ea95b0c049e78f44",
+  "sourceFingerprint": "065bfaf8b0ab82ba48167c9c01666b9cbc311096ca231352dfc98609d0480322",
   "summary": {
     "files": 909,
-    "lines": 179228,
+    "lines": 179193,
     "symbols": 2673
   },
   "symbolIndex": {
@@ -467,7 +467,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-        "line": 79
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
@@ -7001,7 +7001,7 @@
     "planningGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "turns": [
@@ -21429,12 +21429,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-      "lines": 38,
-      "sha256": "94c20048aa32990bb1ef9364ea8b577e10e4f1debd42b4a749e2f16237ef7202",
+      "lines": 26,
+      "sha256": "33f2c4a0fef103217e87002dc2f5571fc86bd1e3f20e640e1f45ef964faf561c",
       "symbols": [
         {
           "name": "planningGuidance",
-          "line": 18
+          "line": 19
         }
       ]
     },
@@ -25000,8 +25000,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-      "lines": 123,
-      "sha256": "e3a6567086f0e3bc190bea8ce25072f14ae4e26a4c3d6cd94cdd35edcf86da8e",
+      "lines": 100,
+      "sha256": "e9c04fb1dbcb799276f2a7f3b1c766838d984b4d41996e987a0668e2f4ca2fa2",
       "symbols": [
         {
           "name": "allowsExpansion",
@@ -25013,7 +25013,7 @@
         },
         {
           "name": "context",
-          "line": 79
+          "line": 86
         }
       ]
     },
@@ -31304,7 +31304,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
       "lines": 86,
-      "sha256": "3231d743921ea369f71d1e52e6d817bf6d2b20354cfe21b97f5736bfd26b095b",
+      "sha256": "1a452ffb3695a4ec1e3c04b314583984c79cbe695a60c5a0332b2c4e1216edf4",
       "symbols": [
         {
           "name": "TransientConversationStyleTest",
