@@ -60,6 +60,8 @@ data class CompanionPresenceState(
     val innerThoughtFingerprint: String = "",
     /** Private appraisal details produced only for this very moment, never inherited. */
     val momentReflection: String = "",
+    /** True only when gesture comes from an actually completed executor action. */
+    val gestureVerified: Boolean = false,
 )
 
 data class CompanionPresenceMessageAnchor(
@@ -304,6 +306,7 @@ object CompanionPresenceStore {
         provenanceId: String = "",
         innerThoughtFingerprint: String? = null,
         momentReflection: String? = null,
+        gestureVerified: Boolean = false,
     ) {
         if (characterId.isBlank()) return
         val previous = mutableStates.value[characterId]
@@ -315,6 +318,9 @@ object CompanionPresenceStore {
             gesture = (if (gesture == null) inheritedGesture(previous, now) else gesture.cleanPresence(500).orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
             },
+            gestureVerified = if (gesture != null) gestureVerified
+                else previous?.gestureVerified == true &&
+                    inheritedGesture(previous, now) == previous.gesture,
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(1_200).orEmpty(),
             mood = mood.cleanPresence(80) ?: previous?.mood.orEmpty(),
             updatedAt = now,
@@ -457,7 +463,9 @@ object CompanionPresenceStore {
             .getOrDefault("角色")
         val detail = buildList {
             state.statusText.takeIf(String::isNotBlank)?.let { add("状态：$it") }
-            state.gesture.takeIf(String::isNotBlank)?.let { add("动作：$it") }
+            state.gesture.takeIf(String::isNotBlank)?.let {
+                add(if (state.gestureVerified) "已执行动作摘要：$it" else "动作描写（无执行回执）：$it")
+            }
             state.mood.takeIf(String::isNotBlank)?.let { add("心情：$it") }
             state.innerThought.takeIf(String::isNotBlank)?.let { add("心声：$it") }
         }.joinToString("；")
@@ -534,6 +542,7 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("characterId", characterId)
     put("statusText", statusText)
     put("gesture", gesture)
+    put("gestureVerified", gestureVerified)
     put("innerThought", innerThought)
     put("mood", mood)
     put("updatedAt", updatedAt.toString())
@@ -553,6 +562,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         characterId = id,
         statusText = optString("statusText"),
         gesture = optString("gesture"),
+        gestureVerified = optBoolean("gestureVerified", false),
         innerThought = optString("innerThought"),
         mood = optString("mood"),
         updatedAt = runCatching { Instant.parse(optString("updatedAt")) }.getOrDefault(Instant.EPOCH),
