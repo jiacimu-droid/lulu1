@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:30:43.734462+00:00",
-  "commit": "0f7c896f45006b7a14c29081d37299dd2de30714",
+  "generatedAt": "2026-10-26T03:31:48.633573+00:00",
+  "commit": "7e5611b5edc03d9b83afaba35c4fe3363810d30b",
   "branch": "main",
-  "sourceFingerprint": "667dde8eb279945926e58c7ddf503873f403fb746237874cd9b93c06eb066077",
+  "sourceFingerprint": "82325d374cc9aa855d191b77513e33a25458380bd4c8eb35a5f2def3e5e6aca2",
   "summary": {
-    "files": 919,
-    "lines": 181246,
-    "symbols": 2697
+    "files": 920,
+    "lines": 181360,
+    "symbols": 2698
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14748,6 +14748,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
         "line": 16
+      }
+    ],
+    "ResidentPhoneWakeIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
+        "line": 20
       }
     ],
     "RoleDayScheduleStoreTest": [
@@ -31467,6 +31473,17 @@
         {
           "name": "ResidentMailCausalIntegrationTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
+      "lines": 114,
+      "sha256": "13ec572813ac6bfe706f4fa3b26199dd9d086b7922d305ea617b7aac727288e5",
+      "symbols": [
+        {
+          "name": "ResidentPhoneWakeIntegrationTest",
+          "line": 20
         }
       ]
     },
