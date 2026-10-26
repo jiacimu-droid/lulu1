@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
@@ -9,7 +9,59 @@ import { resolveTouchRegion } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from '../src/touch-reflex.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from '../src/speech-expression-gate.mjs'
 import './conversation-performance.mjs'
+
 import './impact-recovery.mjs'
+
+// This shipped pack is made of genuine Cubism Motion3 files, not mock pose
+// objects. Validate counts, signed keyframes and a neutral final pose before
+// every release (the same assets are installed beside imported wolf rigs).
+const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/', import.meta.url)
+const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
+  /^[0-9]{2}_[a-z_]+\\.motion3\\.json$/.test(name)).sort()
+assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
+  ['00', '01', '02', '03', '04', '05', '06'])
+const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
+  'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
+for (const filename of wolfMotionFiles) {
+  const motion = JSON.parse(readFileSync(new URL(filename, wolfMotionDir), 'utf8'))
+  assert.equal(motion.Version, 3, filename)
+  assert.equal(motion.Meta.Loop, false, filename)
+  assert.equal(motion.Meta.AreBeziersRestricted, true, filename)
+  assert.equal(motion.Meta.CurveCount, motion.Curves.length, filename)
+  let totalSegments = 0, totalPoints = 0, movingAxes = 0
+  for (const curve of motion.Curves) {
+    assert.equal(curve.Target, 'Parameter', filename)
+    assert.ok(approvedAxes.has(curve.Id), filename + ':' + curve.Id)
+    const segments = curve.Segments
+    assert.equal(segments[0], 0, filename)
+    assert.equal(segments[1], 0, filename)
+    assert.equal((segments.length - 2) % 7, 0, filename)
+    let prior = 0
+    let maximum = 0
+    const max = curve.Id.startsWith('ParamBody') ? 10 : 30
+    const n = (segments.length - 2) / 7
+    for (let i = 0; i < n; i++) {
+      const offset = 2 + i * 7
+      const [type, c1t, c1v, c2t, c2v, endt, endv] = segments.slice(offset, offset + 7)
+      assert.equal(type, 1, filename + ': cubic motion segment')
+      assert.ok(prior < c1t && c1t < c2t && c2t < endt,
+        filename + ': strictly increasing motion time')
+      for (const v of [c1v, c2v, endv]) {
+        assert.ok(Number.isFinite(v) && Math.abs(v) <= max, filename + ': rig bounds')
+        maximum = Math.max(maximum, Math.abs(v))
+      }
+      prior = endt
+    }
+    assert.ok(Math.abs(prior - motion.Meta.Duration) < .0001, filename + ': full duration')
+    assert.equal(segments.at(-1), 0, filename + ': neutral return')
+    if (maximum > 1) movingAxes++
+    totalSegments += n
+    totalPoints += 1 + n * 3
+  }
+  assert.ok(movingAxes >= 2, filename + ': head and torso both move')
+  assert.equal(motion.Meta.TotalSegmentCount, totalSegments, filename)
+  assert.equal(motion.Meta.TotalPointCount, totalPoints, filename)
+}
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.
