@@ -313,7 +313,8 @@ internal object ResidentDailyDecision {
         }.take(6).joinToString("、") { "${it.id}=${it.title}" }
         val relations = CharacterSocialRelationship.perspectivesFor(characterId,
             ResidentSocialMailbox.visibleContacts(characterId))
-        val publicMoments = MomentsStore.posts.value.asSequence()
+        val publicMoments = MomentFriendAccess.visiblePosts(characterId, MomentsStore.posts.value)
+            .asSequence()
             .filter { it.authorType == MomentAuthorType.Character &&
                 it.authorCharacterId != characterId &&
                 it.authorCharacterId?.let(DigitalLifeProfileStore::isEnabled) == true }
@@ -343,7 +344,7 @@ internal object ResidentDailyDecision {
             实际在场的其他数字人物：${otherRoles.ifBlank { "无" }}。
             认识或真实相遇后才可私信的对象：${contacts.ifEmpty { listOf("暂无") }.joinToString("、")}。
             本人确实加入的群聊 groupId：${groups.ifBlank { "暂无" }}。
-            数字世界社交网络公开动态（不代表本人已经与作者见面）：
+            数字世界好友动态（仅已确认好友可见；不代表本人已经与作者见面）：
             ${publicMoments.ifBlank { "暂无" }}
             只属于你本人的最近通信：
             ${mail.ifBlank { "无" }}

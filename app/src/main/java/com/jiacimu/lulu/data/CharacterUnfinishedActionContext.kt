@@ -82,7 +82,7 @@ internal object CharacterUnfinishedActionContext {
                     "experienceId=${share.optString("id")}；" +
                         (if (held) "本人明确想分享：${share.optString("shareWhy")}；尚未有发送回执；"
                         else "这件真实经历形成了累计分享欲，但尚未明确决定分享；") +
-                        "若现在本人真想分享，可选择私聊message、公开朋友圈moment或有真实groupId的群聊，并附experienceId；不想说可以暂缓或放下",
+                        "若现在本人真想分享，可选择私聊message、好友可见朋友圈moment或有真实groupId的群聊，并附experienceId；不想说可以暂缓或放下",
                     at(share, "occurredAt"),
                     attentionPriority = if (held) 45 else 4)
             }
