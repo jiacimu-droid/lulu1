@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T17:31:14.832979+00:00",
-  "commit": "92313fb5be87f3bf647408b0c0bb2ce4ad48b5e3",
+  "generatedAt": "2026-10-26T00:33:15.889540+00:00",
+  "commit": "c42e32cd09990a3d04a94024e3b8dfa138646ff2",
   "branch": "main",
-  "sourceFingerprint": "4e029ced2e07b8155b436d921900dd227e3aa03f317a07cdb3f271b52ff88729",
+  "sourceFingerprint": "aca1b5c0b084d2c82fbce25ff95ab02a9f3903394dfffdda6334c36bfe1f645f",
   "summary": {
-    "files": 912,
-    "lines": 179662,
-    "symbols": 2681
+    "files": 910,
+    "lines": 179323,
+    "symbols": 2679
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4480,12 +4480,6 @@
         "line": 152
       }
     ],
-    "fromAgreement": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
-        "line": 70
-      }
-    ],
     "Reading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -6701,7 +6695,7 @@
     "hasValidAlarm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-        "line": 68
+        "line": 67
       }
     ],
     "playChosenMusic": [
@@ -13576,12 +13570,6 @@
         "line": 18
       }
     ],
-    "AgreedCommitmentDeadlineTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt",
-        "line": 7
-      }
-    ],
     "AppointmentClockTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt",
@@ -18915,17 +18903,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/AgreedCommitmentDeadline.kt",
-      "lines": 127,
-      "sha256": "b6af97c6e1080b9714b9283b5c2c9351dc16797d192fe651dc840fff996210ee",
-      "symbols": [
-        {
-          "name": "fromAgreement",
-          "line": 70
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
       "lines": 29,
       "sha256": "a17a3458715cb4e767f562a4dcdcd6b0f354ae59a2984d6b1b82aa4d2c37452d",
@@ -21086,7 +21063,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 50,
-      "sha256": "2b7ac4901565aae5bac68a180b02a27cc99f985d1f004069152baa8c29f03d8e",
+      "sha256": "951b0dc690550ef6eb2935fa581bd7272178303d4b5a9d651aab67c293eec0f2",
       "symbols": [
         {
           "name": "context",
@@ -21100,8 +21077,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 231,
-      "sha256": "e16dffec1b224bc6832c85dbf92beab2dfa2a8f00de3234f12d7d7a95246e4f1",
+      "lines": 170,
+      "sha256": "21ee789facf0873b6d8078ef2af707818dcb91e1e1042aaef70d3c275a07331a",
       "symbols": [
         {
           "name": "handled",
@@ -21109,7 +21086,7 @@
         },
         {
           "name": "hasValidAlarm",
-          "line": 68
+          "line": 67
         }
       ]
     },
@@ -21264,8 +21241,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 509,
-      "sha256": "cdaf65532e1fae189609a50e04ae241d717c93e7e085fca404bd7c7d99c154cf",
+      "lines": 481,
+      "sha256": "224e3363cab8a2b2e460ccd0481ad70ead9a3a44733ca1b1bc3a5dbb4f313598",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -29492,17 +29469,6 @@
       ]
     },
     {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/AgreedCommitmentDeadlineTest.kt",
-      "lines": 75,
-      "sha256": "e22a61168b3a486cff8dfa18da5319f26f4db689e27cd4bebe6033962dbf2cdc",
-      "symbols": [
-        {
-          "name": "AgreedCommitmentDeadlineTest",
-          "line": 7
-        }
-      ]
-    },
-    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt",
       "lines": 28,
       "sha256": "41811e6472526e4330af5fd8ba5acd2fe105c9f3a25d510d176357c1a0592794",
@@ -30398,8 +30364,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 376,
-      "sha256": "d2e864c68b65e7d1bb669f4584d96d4370720627523fcca8ba2582d90ee4e4ca",
+      "lines": 328,
+      "sha256": "c862688923c2ae47284acf2c85121d2ca03a43feef9132063fa1a0c1ee3bae70",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
