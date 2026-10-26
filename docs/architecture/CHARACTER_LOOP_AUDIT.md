@@ -174,3 +174,16 @@ flowchart TD
 5. **回归**：给现有 `AutonomousActionTraceTest`、`OnlineChatExperienceTest`、`ResidentPhoneWakeIntegrationTest` 增加副动作非沉默、旧批次中断、同时间游标的测试。新增的只读诊断不声明已经影响模型自由选择；代码审查、GitHub Actions、APK和多日真机生活仍须分别验收。
 
 此批严格保留：人格与意愿由同一模型在真实上下文中判断；程序只负责版本、权限、执行事实、幂等、回执与状态可观察性；沉默且没有选动作仍是真正可选择的安静。不以固定分享配额、自动点赞、强制搜索或另建人格状态机作为修复。
+
+## 2026-10-26：因果提交边界收敛（私聊、电话、自主感知）
+
+角色的四种日常状态不是四套人格：用户来信、角色主动联系、只感知不说话，继续由 `CompanionOnlineStore` / `ProactivePerceptionRuntime` 的在线与自主批次处理；电话由 `LuluVoiceCallSession` 经 `LuluDeviceToolBridge` 处理音频/低延迟。历史上的“前台私聊”不是一般输入框消息的第二份处理器；正常私聊已由唯一在线消息批次认领。
+
+本次消除了一处**确实重复的状态提交编排**：
+
+- `ProactivePerceptionRuntime` 与 `LuluDeviceToolBridge` 原本分别把模型选定的 `appraisal / innerLife / innerThoughtBasis / action / reason` 交给 `CharacterInnerLifeStore.recordCausalTransition`，随后写私人心声和确认 `CharacterPerceptionContext` 的已处理事件。现在共同调用 `CharacterTurnStateCommit.commit`，按“因果记录 → 场景已有附加状态记录 → 必要时保存内心心声 → 确认真实新刺激”的顺序执行；任何附加存储中断都会保留未确认输入以便下一次恢复。
+- `claimDirect=true` 的在线消息认领与 `claimDirect=false` 的电话/特殊前台直接说话归属仍由原入口声明；不能将电话中的同一句话再次送入异步文本回复，也不把原有用户语音当作自动生成的新事件。共享入口不生成额外行动、模型调用或强制心声。
+- 主动给某人发出的**普通私聊**现在也会参考 `CharacterExpressionGuide.casualChatRhythm` 的自然对话节奏。它不是消息条数上限；日记、朋友圈、正在自主思考的心事和电话语音不被误套成三句话。
+- 新回归测试覆盖在线感知的已处理确认、电话直接说话与环境观察的不同确认权，以及因果记录完成后、确认事件之前发生中断时的重入和去重。
+
+**没有声称完全合并两条大编排器**：在线任务认领、五分钟续醒、电话音频/字幕与按场景独立执行的工具仍保持原有适配；正式执行结果仍以 `ToolRouter` 为准。心理信息的其他写入（例如电话专属评估、在线复查策略）和工具后表达仍有分支，需要继续按证据归属、回执时序分阶段核查，而不能为了“统一”强行合并所有场景为同一函数。源代码检查、JVM 单测、APK 构建与真机感受各自独立验收。
