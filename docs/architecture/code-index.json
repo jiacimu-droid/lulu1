@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:34:48.144278+00:00",
-  "commit": "7ed875e901d69f0f2e3abda2718380c2e2764914",
+  "generatedAt": "2026-10-26T02:35:25.599789+00:00",
+  "commit": "6e22cbc14938d8683a9401104299c2aed2158c9b",
   "branch": "main",
-  "sourceFingerprint": "d2569ab2c33b790962fc03e4bdaafa8b9cbbda036472be17c65380d1340f91f0",
+  "sourceFingerprint": "237d94b1e2864373edf4f4c9c109346ab3e714538c8446ee1f34d19c784d055b",
   "summary": {
-    "files": 911,
-    "lines": 179489,
-    "symbols": 2678
+    "files": 912,
+    "lines": 179532,
+    "symbols": 2679
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14466,6 +14466,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
         "line": 11
+      }
+    ],
+    "MomentFriendAccessTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt",
+        "line": 5
       }
     ],
     "NativeResidentLifeIntegrationTest": [
@@ -30919,6 +30925,17 @@
         {
           "name": "ModelStructuredOutputTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt",
+      "lines": 43,
+      "sha256": "121b2b01bf438e53483f4edacd4743730d3714a4b1aa331adc22bbc865a977bd",
+      "symbols": [
+        {
+          "name": "MomentFriendAccessTest",
+          "line": 5
         }
       ]
     },
