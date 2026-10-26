@@ -38,6 +38,14 @@ class ResidentPhoneWakeIntegrationTest {
         val person = MigratedDomainStores.characters.create("手机居民-${UUID.randomUUID().toString().take(8)}")
         DigitalLifeProfileStore.registerNewLife(person.characterId, person.displayName,
             "数字生命", Instant.now())
+        // Other tests deliberately publish >1 phone page. Establish this
+        // new viewer's baseline through real paging instead of assuming that
+        // every later post fits in the oldest-first eight-item page.
+        while (true) {
+            val page = CharacterPhoneInbox.unreadMoments(person.characterId)
+            if (page.isEmpty()) break
+            assertTrue(CharacterPhoneInbox.acknowledgeObserved(person.characterId, page))
+        }
         return person.characterId
     }
 
@@ -240,8 +248,10 @@ class ResidentPhoneWakeIntegrationTest {
         assertEquals("想把自己看见的红叶分享出去", JSONObject(receipt.content).optString("reason"))
         val updated = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor)
             .optJSONArray("motives")).single { it.optString("id") == motive }
+        val published = MomentsStore.posts.value.single { it.authorCharacterId == actor && it.content == text }
+        val nativeEvidence = "moment-${published.id}-$actor"
         assertTrue(updated.optJSONArray("outcomes")?.let { array ->
-            (0 until array.length()).any { array.getJSONObject(it).optString("id") == receipt.id }
+            (0 until array.length()).any { array.getJSONObject(it).optString("id") == nativeEvidence }
         } == true)
         assertEquals("unrelated-plan", decision.getJSONArray("steps").getJSONObject(0)
             .getJSONObject("args").getString("planId"))

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T06:44:16.693063+00:00",
-  "commit": "e762f0720c09c47bb38b8f709549655f5ee42b1b",
-  "branch": "main",
-  "sourceFingerprint": "8579b9f8ae1175cfea9a30368cfbb4e68fb59ceddc67a8dfc7bcac39bf22787e",
+  "generatedAt": "2026-10-26T06:55:55.240937+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "e4b4bedc1d5c035da151863c7714113eec3cee5d0a4f46cad8799d9fed98330e",
   "summary": {
     "files": 926,
-    "lines": 183427,
+    "lines": 183488,
     "symbols": 2708
   },
   "symbolIndex": {
@@ -873,7 +873,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 130
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -9579,37 +9579,37 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 138
+        "line": 141
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 146
+        "line": 149
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 155
+        "line": 158
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 556
+        "line": 559
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 558
+        "line": 561
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2487
+        "line": 2493
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24461,8 +24461,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2553,
-      "sha256": "82d8b4afbe80b73de031dd08e6315b2cf4a56c75ea824849bc206783dcec1a45",
+      "lines": 2559,
+      "sha256": "ac5a2e7388389beaf07d6eff3e90a8b5f1b0734ab731eab08bf8e79e9fbdcd1f",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24470,31 +24470,31 @@
         },
         {
           "name": "initialize",
-          "line": 130
+          "line": 133
         },
         {
           "name": "markConcernPromisePending",
-          "line": 138
+          "line": 141
         },
         {
           "name": "wakePlanFor",
-          "line": 146
+          "line": 149
         },
         {
           "name": "nextDueAt",
-          "line": 155
+          "line": 158
         },
         {
           "name": "batchSuperseded",
-          "line": 556
+          "line": 559
         },
         {
           "name": "deferSupersededDecision",
-          "line": 558
+          "line": 561
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2487
+          "line": 2493
         }
       ]
     },
@@ -29798,8 +29798,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 97,
-      "sha256": "8b5acd2f43baa4570060b0cc22431a9275f951300cc5e282946ee054a45f356d",
+      "lines": 142,
+      "sha256": "2d6be7c95bc7ef99a1b2eb0017c0d5e4acb5411b9843c287b4715002793b4b93",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
@@ -31617,8 +31617,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 274,
-      "sha256": "3b89613beb24966f8b4ec9f61307d2394a3f768149ba9311887e646b2b34cafc",
+      "lines": 284,
+      "sha256": "fa0ea3ad9c62d2e69f27ecd4222e8b902e89b033f6d7f6c5c17c5ee786de0b99",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",

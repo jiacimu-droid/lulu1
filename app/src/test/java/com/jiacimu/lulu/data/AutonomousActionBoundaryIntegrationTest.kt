@@ -60,6 +60,51 @@ class AutonomousActionBoundaryIntegrationTest {
             listOf("tool-rejected-$actor-$id:step:2")).isNotEmpty())
     }
 
+    @Test(timeout = 60_000) fun successfulSidePostCannotTurnFailedPrimaryIntoSuccessfulGoalProgress() = runBlocking {
+        val actor = role()
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "主副动作回执隔离")
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "看看这件事情能不能做。")
+        OnlineChatBatchStore.cancel(app, actor)
+        val batch = OnlineChatBatchStore.onUserBubble(app, actor,
+            atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+        val origin = "primary-source-${UUID.randomUUID()}"
+        SharedExperienceTimeline.record(origin, actor, "真实观察", "执行器", "发现一个操作尚未核实",
+            triggerExtraction = false, evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.observe(actor, origin, "自己想核实操作", JSONObject()
+            .put("motives", JSONArray().put(JSONObject().put("op", "start")
+                .put("aim", "想核实这个操作能否执行").put("why", "自己还不知道"))))
+        val motive = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor).optJSONArray("motives"))
+            .single { it.optString("aim") == "想核实这个操作能否执行" }.optString("id")
+        val text = "独立发出的生活动态-${UUID.randomUUID()}"
+        val choice = JSONObject().put("action", "tool").put("tool", "nonexistent_primary_tool")
+            .put("args", JSONObject()).put("reason", "想核实可否执行")
+            .put("motiveId", motive).put("replyChoice", "silent")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", false).put("args", JSONObject().put("text", text))))
+        val server = okhttp3.mockwebserver.MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest) =
+                okhttp3.mockwebserver.MockResponse().setHeader("Content-Type", "application/json")
+                    .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+                        JSONObject().put("content", choice.toString())).put("finish_reason", "stop"))).toString())
+        }
+        server.start()
+        try {
+            val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "primary-result-test", server.url("/").toString(), "test")
+            store.addArchive(config.id, "test")
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = batch.revision, requiresUnread = true)
+            assertTrue(MomentsStore.posts.value.any { it.authorCharacterId == actor && it.content == text })
+            val state = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor).optJSONArray("motives"))
+                .single { it.optString("id") == motive }
+            val outcomes = state.optJSONArray("outcomes") ?: JSONArray()
+            assertTrue(outcomes.length() > 0)
+            assertFalse((0 until outcomes.length()).any { outcomes.getJSONObject(it).optBoolean("success") })
+            assertEquals("needs_review", state.optString("lastAttemptOutcome"))
+        } finally { server.shutdown() }
+    }
+
     @Test fun unansweredContactPacingIsPerActionAndReplayPreservesAlreadyDeliveredFact() = runBlocking {
         val actor = role()
         CharacterLifeStore.consider(actor, JSONObject().put("aim", "还想一起讨论")

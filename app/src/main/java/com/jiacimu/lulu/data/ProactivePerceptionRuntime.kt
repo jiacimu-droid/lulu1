@@ -126,7 +126,10 @@ object ProactivePerceptionRuntime {
 
     private data class ActionExecution(val success: Boolean, val summary: String,
         val conversationId: String? = null, val evidenceId: String = "",
-        val deliveredReply: Boolean = false)
+        val deliveredReply: Boolean = false,
+        // Aggregate activity never proves that this particular primary succeeded.
+        val primarySuccess: Boolean = success, val primarySummary: String = summary,
+        val stepsCompleted: Boolean = false)
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -1698,7 +1701,7 @@ object ProactivePerceptionRuntime {
             )
         }
         currentCoroutineContext().ensureActive()
-        val actionEvidenceId = if (execution.success) {
+        val actionEvidenceId = if (execution.primarySuccess) {
             // ToolRouter provides the exact authored bubble/post/diary ID where
             // possible. Its separate ToolResult is newer but cannot substitute
             // for the message that was actually delivered to the user.
@@ -1712,49 +1715,49 @@ object ProactivePerceptionRuntime {
                 ?.id.orEmpty()
         } else ""
         CharacterLearningLedger.recordApplication(characterId, decision.learningApplication,
-            actionEvidenceId, decision.action.name.lowercase(), execution.success, execution.summary)
+            actionEvidenceId, decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary)
         // Relational delivery and exploration use the SAME executor receipt
         // from the shared raw event timeline, not model-authored success claims.
         CharacterRelationalInitiative.recordDecision(
             characterId, decision.relationshipInitiative, decision.action.name.lowercase(),
-            execution.success, execution.summary, now, actionEvidenceId,
+            execution.primarySuccess, execution.primarySummary, now, actionEvidenceId,
         )
         // A real timeline event ID is mandatory for long-term exploration evidence.
         CharacterCuriosityRuntime.recordOutcome(
             characterId, decision.curiosity?.let { JSONObject(it.toString()).put("status", "exploring") }, decision.action.name.lowercase(),
-            execution.success, execution.summary, actionEvidenceId, now,
+            execution.primarySuccess, execution.primarySummary, actionEvidenceId, now,
         )
-        if (decision.action != Action.SILENT && !execution.success) {
+        if (decision.action != Action.SILENT && !execution.primarySuccess) {
             CharacterCuriosityRuntime.recordFailure(
                 characterId, decision.curiosity, decision.action.name.lowercase(),
-                execution.summary, now,
+                execution.primarySummary, now,
             )
         }
-        if (execution.success) CharacterSelfActivityRuntime.resolveConsideration(
+        if (execution.primarySuccess) CharacterSelfActivityRuntime.resolveConsideration(
             appContext, characterId, decision.action.name.lowercase(),
         )
         if (decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordConcernOutcome(
                 characterId, decision.concernId,
                 "proactive:${now.toEpochMilli()}:${decision.action.name}",
-                decision.action.name.lowercase(), execution.success, execution.summary, now,
+                decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary, now,
             )
             // Report the decision's concrete action outcome to only the explicitly selected motive.
             // No text or reasoning can mark an action complete without an executor result.
             // Only an actual, role-owned executor event can count as a
             // successful attempt. Synthetic cycle IDs are not delivery proofs.
-            if (!execution.success || actionEvidenceId.isNotBlank()) {
+            if (!execution.primarySuccess || actionEvidenceId.isNotBlank()) {
                 CharacterInnerLifeStore.recordActionResult(
                     characterId, resolvedMotiveId,
-                    if (execution.success) actionEvidenceId else
+                    if (execution.primarySuccess) actionEvidenceId else
                         "proactive-failure:${now.toEpochMilli()}:${decision.action.name}",
-                    decision.action.name.lowercase(), execution.success, execution.summary, now,
+                    decision.action.name.lowercase(), execution.primarySuccess, execution.primarySummary, now,
                 )
             }
             if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
                 characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
-                execution.summary, canonicalInnerLife,
-                if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER) && execution.success) setOf("user") else emptySet(), now,
+                execution.primarySummary, canonicalInnerLife,
+                if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER) && execution.primarySuccess) setOf("user") else emptySet(), now,
             )
         }
         val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
@@ -1780,13 +1783,13 @@ object ProactivePerceptionRuntime {
                 // A character chooses a sustained state, the executor
                 // supplies the real action. Never synthesize a vague state
                 // or repeat the same event with slightly different phrasing.
-                statusText = if (execution.success && physicalAction)
+                statusText = if (execution.primarySuccess && physicalAction)
                     decision.statusText.trim().takeUnless {
                         com.jiacimu.lulu.data.PresenceFieldBoundary
                             .repeatsConfirmedAction(it, execution.summary)
                     }.orEmpty()
                 else null,
-                gesture = if (execution.success && physicalAction) execution.summary else null,
+                gesture = if (execution.primarySuccess && physicalAction) execution.summary else null,
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
                 // explicitly clear it instead of presenting that paraphrase as a new mental moment.
@@ -1812,7 +1815,7 @@ object ProactivePerceptionRuntime {
         // Proactive messages are delivered *inside* the action executor, before
         // the post-action private presence is saved. Rebind only bubbles
         // actually delivered by THIS execution to the finalized mind snapshot.
-        if (execution.success && execution.conversationId != null && decision.action in setOf(
+        if (execution.primarySuccess && execution.conversationId != null && decision.action in setOf(
                 Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
                 Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
             )) {
@@ -1851,7 +1854,8 @@ object ProactivePerceptionRuntime {
         // the existing ToolRouter receipts alone determine their outcomes.
         val choseStepsWithoutPrimary = decision.action == Action.SILENT &&
             (decision.sideActions?.length() ?: 0) > 0
-        val recordedChoice = if (choseStepsWithoutPrimary) "steps"
+        val recordedSteps = choseStepsWithoutPrimary || (!execution.primarySuccess && execution.stepsCompleted)
+        val recordedChoice = if (recordedSteps) "steps"
             else decision.action.name.lowercase()
         CharacterInnerLifeStore.recordDecision(
             characterId = characterId,
@@ -1874,7 +1878,7 @@ object ProactivePerceptionRuntime {
             // choosing silence does not prove it considered/rejected each cue.
             // The ordinary decisions history already owns these facts.
             attentionOffered = unfinishedChoices.map { "${it.kind}:${it.id}" },
-            actionSignature = if (choseStepsWithoutPrimary)
+            actionSignature = if (recordedSteps)
                 AutonomousActionTrace.selectedStepsSignature(decision.sideActions)
                 else AutonomousActionTrace.signature(
                 action = decision.action.name.lowercase(),
@@ -1897,9 +1901,9 @@ object ProactivePerceptionRuntime {
         // misleading "successful silent action" against this experience.
         if (decision.action != Action.SILENT) CharacterLifeFollowThroughStore.recordAction(
             characterId, decision.experienceId, decision.action.name,
-            execution.success, execution.summary, execution.evidenceId,
+            execution.primarySuccess, execution.primarySummary, execution.evidenceId,
         )
-        val effectiveAction = if (execution.success) decision.action else Action.SILENT
+        val effectiveAction = if (execution.primarySuccess) decision.action else Action.SILENT
         // The character's "正在输入" must have a visible outcome if the model
         // chose an action that the real executor could not perform. Previously
         // only the distant perception page held this error, so the private chat
@@ -2204,7 +2208,9 @@ object ProactivePerceptionRuntime {
             extraConversationId ?: result.conversationId, result.evidenceId,
             deliveredReply = deliveredExtra || (decision.action == Action.MESSAGE &&
                 result.success && result.conversationId != null &&
-                result.conversationId in replyConversationIds))
+                result.conversationId in replyConversationIds),
+            primarySuccess = result.success && decision.action != Action.SILENT,
+            primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted)
     }
 
     /**
