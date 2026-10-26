@@ -46,6 +46,8 @@ data class MomentPost(
     val imageUnderstandingStatus: MomentImageUnderstandingStatus = MomentImageUnderstandingStatus.None,
     val imageUnderstandingAttempts: Int = 0,
     val imageUnderstandingError: String = "",
+    /** Latest actual post/comment/like change, for each friend's phone red dot. */
+    val lastActivityAt: Instant = createdAt,
 )
 
 object MomentsStore {
@@ -934,7 +936,17 @@ object MomentsStore {
     }
 
     @Synchronized private fun mutate(transform: (List<MomentPost>) -> List<MomentPost>) {
-        val next = transform(mutablePosts.value).sortedByDescending(MomentPost::createdAt)
+        val before = mutablePosts.value.associateBy(MomentPost::id)
+        val next = transform(mutablePosts.value).map { post ->
+            val original = before[post.id]
+            if (original != null && (original.comments != post.comments ||
+                    original.likedCharacterIds != post.likedCharacterIds ||
+                    original.imageDescription != post.imageDescription)) {
+                val observed = Instant.now()
+                post.copy(lastActivityAt = if (observed.isAfter(original.lastActivityAt))
+                    observed else original.lastActivityAt.plusNanos(1))
+            } else post
+        }.sortedByDescending(MomentPost::createdAt)
         mutablePosts.value = next
         prefs?.edit()?.putString(KEY_POSTS, encode(next).toString())?.apply()
     }
@@ -947,6 +959,7 @@ object MomentsStore {
                 put("authorCharacterId", post.authorCharacterId ?: JSONObject.NULL)
                 put("content", post.content)
                 put("createdAt", post.createdAt.toString())
+                put("lastActivityAt", post.lastActivityAt.toString())
                 put("imageUri", post.imageUri ?: JSONObject.NULL)
                 put("imageDescription", post.imageDescription)
                 put("imageUnderstandingStatus", post.imageUnderstandingStatus.name)
@@ -1014,6 +1027,9 @@ object MomentsStore {
                             authorCharacterId = item.optString("authorCharacterId").normalizedMomentNullableString(),
                             content = content,
                             createdAt = item.optString("createdAt").toMomentInstantOrNow(),
+                            lastActivityAt = item.optString("lastActivityAt")
+                                .takeIf(String::isNotBlank)?.toMomentInstantOrNow()
+                                ?: item.optString("createdAt").toMomentInstantOrNow(),
                             likedCharacterIds = likes,
                             comments = comments,
                             imageUri = imageUri,
