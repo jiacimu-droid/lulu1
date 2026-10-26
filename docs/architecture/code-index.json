@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:23:34.109556+00:00",
-  "commit": "20fdef18342918415ae9a5eb978ae293da8233fb",
+  "generatedAt": "2026-10-26T03:24:07.611782+00:00",
+  "commit": "ff9e0a8febe2892a8a105537d6452102c74c7699",
   "branch": "main",
-  "sourceFingerprint": "d0a4f76418a7b6c5b37c130f0e25710b91ec70db23af1a34845bc4c3ac2ce8e7",
+  "sourceFingerprint": "b75986c8b6351ef8e3f70b821cae7e4f3505e2ead2f6c9ff5c3bc43531a2819d",
   "summary": {
     "files": 918,
-    "lines": 181059,
+    "lines": 181077,
     "symbols": 2695
   },
   "symbolIndex": {
@@ -1671,7 +1671,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 136
+        "line": 141
       }
     ],
     "angles": [
@@ -2865,13 +2865,13 @@
     "PhoneInspectionScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 96
+        "line": 98
       }
     ],
     "goBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 132
+        "line": 141
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -10029,31 +10029,31 @@
     "contactsOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 43
+        "line": 48
       }
     ],
     "inbox": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 50
+        "line": 55
       }
     ],
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 65
+        "line": 70
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 121
+        "line": 126
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 130
+        "line": 135
       }
     ],
     "RoleDayPlan": [
@@ -17503,16 +17503,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 434,
-      "sha256": "fdb6427a00db7cdd83e1aaee23abb9a8129cea4f4c246b55d3859b353ab82ed6",
+      "lines": 446,
+      "sha256": "e6182cf35245e9e20608b9fb20f4bec718ece99404c8fb9f19e76d0bd96def97",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
-          "line": 96
+          "line": 98
         },
         {
           "name": "goBack",
-          "line": 132
+          "line": 141
         }
       ]
     },
@@ -24843,32 +24843,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 183,
-      "sha256": "b8f904ebbe4221de5160836004ef248769893845d3ce7f346bf988eaf1d6d285",
+      "lines": 189,
+      "sha256": "53ba3dc18754315a71c09b6894476eeeb32970c4913a8a830c1a9ecd978d2798",
       "symbols": [
         {
           "name": "contactsOf",
-          "line": 43
+          "line": 48
         },
         {
           "name": "inbox",
-          "line": 50
+          "line": 55
         },
         {
           "name": "evidenceId",
-          "line": 65
+          "line": 70
         },
         {
           "name": "canContact",
-          "line": 121
+          "line": 126
         },
         {
           "name": "visibleContacts",
-          "line": 130
+          "line": 135
         },
         {
           "name": "send",
-          "line": 136
+          "line": 141
         }
       ]
     },
