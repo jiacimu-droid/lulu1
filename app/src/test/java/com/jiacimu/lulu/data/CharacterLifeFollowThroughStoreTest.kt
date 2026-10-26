@@ -172,6 +172,32 @@ class CharacterLifeFollowThroughStoreTest {
         CharacterLifeFollowThroughStore.invalidateEvidence(oldId)
     }
 
+    @Test fun anExplicitHeldWishSurvivesAWeekAndManyLaterLifeEvents() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "sharing-held-survives-window"
+        val id = "held-story-outside-week"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        val earlier = now.minusSeconds(11L * 86400)
+        assertTrue(CharacterLifeFollowThroughStore.register(
+            role, id, "真实生活", "十一天前的真实趣事", earlier))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held")
+            .put("why", "我仍想有机会讲这件事"))
+        val laterIds = (1..32).map { "later-ambient-for-held-$it" }
+        laterIds.forEachIndexed { index, eid ->
+            CharacterLifeFollowThroughStore.register(role, eid,
+                "真实生活", "之后的普通小事 $index", earlier.plusSeconds(900L + index))
+        }
+        assertTrue(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, id))
+        assertTrue(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .any { it.contains(id) })
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("十一天前"))
+        assertFalse(CharacterLifeFollowThroughStore.context(role, now)
+            .contains("已经发布朋友圈"))
+        laterIds.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
     @Test fun sharingImpulseFadesWithoutTimeBasedAutoPosts() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "sharing-urge-fades"
