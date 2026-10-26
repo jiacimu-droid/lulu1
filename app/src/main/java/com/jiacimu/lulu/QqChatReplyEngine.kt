@@ -316,11 +316,14 @@ internal suspend fun runGroupReplies(
         val memberList = members.joinToString("、") { it.groupNickname.ifBlank { characterNames[it.characterId] ?: it.characterId } }
         val quotable = latest.filter { it.sender == LuluChatMessage.Sender.User && it.id in pendingUserIds }
         val prompt = buildString {
-            appendLine("[这是QQ式群聊《${group.name}》，成员：${group.userGroupNickname}、$memberList。当前由你（$label）看到共享消息，只代表你自己。]")
+            val participants = if (group.ownerIncluded)
+                "${group.userGroupNickname}、$memberList" else memberList
+            appendLine("[这是QQ式群聊《${group.name}》，成员：$participants。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
             appendLine("[本人对本群其他成员和用户的可追溯看法：\n" +
                 com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
-                    member.characterId, members.map { it.characterId } + "user"
+                    member.characterId, members.map { it.characterId } +
+                        (if (group.ownerIncluded) listOf("user") else emptyList())
                 ).ifBlank { "目前没有充分的关系证据，不预设亲疏" } + "]")
             appendLine("[群聊与私聊不同：这是所有成员共享的上下文，不要把别人的私聊内容带进来，也不要把对用户的一对一亲密话当成群内默认公开信息。]")
             if (quotable.isNotEmpty()) {
