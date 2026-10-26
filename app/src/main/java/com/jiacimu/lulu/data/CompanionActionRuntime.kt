@@ -37,6 +37,22 @@ internal data class CompanionActionResult(
 
 /** One real execution layer shared by foreground chat decisions and background perception. */
 internal object CompanionActionRuntime {
+    private fun ownQqGroupsContext(characterId: String): String {
+        val groups = MigratedDomainStores.chat.conversations.value
+            .filter { it.groupChat?.members?.any { m -> m.characterId == characterId } == true }
+            .sortedByDescending(LuluConversation::updatedAt).take(8)
+        if (groups.isEmpty()) return "本人目前还没有参加的QQ群。建群必须本人真正选定群名与实际好友。"
+        return buildString {
+            appendLine("【本人手机里实际已加入的QQ群】")
+            groups.forEach { convo ->
+                appendLine("- groupId=${convo.id}；群名=${convo.groupChat?.name}；" +
+                    "群主=${convo.groupChat?.creatorCharacterId.ifBlank { "主人" }}；" +
+                    "最近消息=${convo.lastMessage.take(100)}")
+            }
+            append("可自主接话、开新话题或不发言；原有群可用时不重复建立同样的群。")
+        }
+    }
+
     private val readingLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     private val gameTitles = mapOf(
         "deep_sea_journey" to "深海回声",
@@ -88,6 +104,7 @@ internal object CompanionActionRuntime {
             appendLine(MomentFriendAccess.audienceContext(characterId))
             appendLine("- send_private_message，args={\"text\":\"直接对正在聊天的用户说的话\"}：仅在本人的真实私聊中交流。")
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
+            appendLine(ownQqGroupsContext(characterId))
             appendLine("- create_group_chat，args={\"groupName\":\"自己取的群名\",\"memberIds\":[\"确认好友的角色ID\"]}：主动邀请真实好友组成自己的群聊，至少邀请一位。无需主人加入；仅在自己确实想组织共同讨论时选择，不能凭空拉陌生人。")
             appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
             appendLine("- like_moment，args={\"postId\":\"本轮手机可见的真实postId\"}：本人决定给好友真实动态点赞。")
@@ -149,6 +166,7 @@ internal object CompanionActionRuntime {
             appendLine("手机未读和请求：" + CharacterPhoneInbox.summary(characterId))
         }
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
+        appendLine(ownQqGroupsContext(characterId))
         appendLine("- create_group_chat，args={\"groupName\":\"自己选的名字\",\"memberIds\":[\"已确认好友的角色ID\"]}：自己当群主建真正的QQ群，至少一位真实好友，与主人的群聊相互独立。想撮合一个话题、约大家一起玩或建立小圈子时才建；不要为了社交指标乱建群。建群和群内首次发言是两项独立动作，建好后只能用实际返回的groupId发群消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             ResidentSocialMailbox.initialize(context)
