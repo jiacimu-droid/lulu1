@@ -162,3 +162,14 @@ flowchart TD
 - 不固定每一次搜索完成后都强制发起下一轮收费模型调用；续查、沉默、分享和自主探索仍由同一个角色在权限、回执、预算与关系情境下决定。
 
 **验收界限：** 本轮已提交程序依赖判定与单测源码，仍要等待新 CI / APK / 真机来验证多步骤实际执行，不能用源码审查冒充运行成功。
+
+## 十一、2026-10-26：统一动作与手机未读边界的实修
+
+本批没有加入新的 Agent Runner、独立大脑、第二套居民人格或额外轮询。继续沿用唯一的 `CharacterInnerLifeStore`、`SharedExperienceTimeline`、`ToolRouter`、`OnlineChatBatchStore`、`OrderedCharacterActions` 和角色手机既有 `CharacterPhoneInbox`。
+
+1. **已选择副动作不等于没有行动**：自主决策可选择 `action=silent` 同时给出 `steps`。此前工具虽然执行，原人物的行动记录仍写 `selected=silent/signature=silent`，导致自主行动反馈误报连续沉默。现在从原决策结构导出 `selected=steps` 及不暴露参数内容的步骤签名；每个工具的成功与失败仍必须由各自 `ToolRouter` 回执证明。未选主动作时不再以 `SILENT` 名义向经历跟进表冒充成功行动。
+2. **长工具收到新消息的时序**：复用原私聊 `OnlineChatBatchStore` 的 revision。若长任务进行期间出现更新的真实聊天批次，`OrderedCharacterActions` 只暂缓尚未开始的后续步骤，并在原动作结果中留下原因；已执行工具不会重试、伪造取消或撤回实际副作用。原搜索的实际回执继续持久保存并交回统一人物感知；过时的旧搜索结语和旧预先准备的附带消息不再抢先发送到新会话轮次。其他场景调用原执行器不受影响。
+3. **数字手机未读精确边界**：朋友圈小红点沿原帖文和好友可见权威表读取，原时间游标扩展为 `(lastActivityAt, postId)`，在单次最多8条的阅读分页遇到同时间戳不同帖子时不跨过尚未呈现的内容。旧的只有时间戳的游标可逐步恢复，边界帖子可能重读一次，但不删除历史或新建朋友圈数据中心。
+4. **回归**：给现有 `AutonomousActionTraceTest`、`OnlineChatExperienceTest`、`ResidentPhoneWakeIntegrationTest` 增加副动作非沉默、旧批次中断、同时间游标的测试。新增的只读诊断不声明已经影响模型自由选择；代码审查、GitHub Actions、APK和多日真机生活仍须分别验收。
+
+此批严格保留：人格与意愿由同一模型在真实上下文中判断；程序只负责版本、权限、执行事实、幂等、回执与状态可观察性；沉默且没有选动作仍是真正可选择的安静。不以固定分享配额、自动点赞、强制搜索或另建人格状态机作为修复。
