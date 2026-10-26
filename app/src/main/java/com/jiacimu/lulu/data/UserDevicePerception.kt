@@ -45,9 +45,10 @@ internal object UserDevicePerception {
         appendLine(UserInteractionPresenceStore.context(characterId, now))
         val isScreenInteractive = (context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager)?.isInteractive
         appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
-        appendLine("用户手机电量：${runCatching { batteryContext(context) }.getOrDefault("暂时不可用")}")
+        appendLine("用户手机电量：${runCatching { batteryContext(context, now) }.getOrDefault("暂时不可用")}")
         appendLine("【设备观察边界】前台应用与应用时长仅是来源和时间有限的使用记录，不能直接推断用户此刻在忙、正在学习或需要独处。她没有回复，也不等于她已经读过消息或不需要关心；学习情况以真实学习状态及获准的屏幕观察为准，缺少证据就保持未知。")
         appendLine("用户设备最近前台应用：${if (LuluScreenAwareness.appTracking(context)) foregroundAppContext(context, now) else "已关闭应用感知"}")
+        appendLine("用户设备真实使用事件：${runCatching { recentInteractionContext(context, now) }.getOrDefault("暂时无法读取使用事件；不代表用户没有操作手机")}")
         appendLine("用户最近两小时的应用活动：" + runCatching {
             LuluScreenAwareness.recentAppActivity(context, now.toEpochMilli())
         }.getOrDefault("暂时无法读取系统使用记录"))
@@ -65,7 +66,8 @@ internal object UserDevicePerception {
         appendLine("用户学习状态：${studyContext(characterId)}")
     }.trim() }
 
-    private fun batteryContext(context: Context): String {
+    /** Minimal, local device samples; not a user sleep state or a character memory. */
+    private fun batteryContext(context: Context, now: Instant): String {
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
@@ -74,7 +76,81 @@ internal object UserDevicePerception {
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
             status == BatteryManager.BATTERY_STATUS_FULL
-        return "$percent%${if (charging) "，正在充电" else ""}"
+        val sample = context.getSharedPreferences("lulu_device_battery_sample_v1", Context.MODE_PRIVATE)
+        val lastAt = sample.getLong("observedAt", 0L)
+        val lastLevel = sample.getInt("level", -1)
+        val previousCharging = sample.getBoolean("charging", false)
+        val observation = batteryDeltaCue(
+            percent, charging, now.toEpochMilli(), lastLevel, previousCharging, lastAt)
+        if (now.toEpochMilli() > lastAt) sample.edit()
+            .putLong("observedAt", now.toEpochMilli())
+            .putInt("level", percent).putBoolean("charging", charging).apply()
+        return "$percent%${if (charging) "，正在充电" else "，未充电"}$observation"
+    }
+
+    /** A falling battery cannot be promoted into evidence that anyone is awake. */
+    internal fun batteryDeltaCue(
+        level: Int, charging: Boolean, nowMillis: Long,
+        previousLevel: Int, previousCharging: Boolean, previousAt: Long,
+    ): String {
+        val elapsed = nowMillis - previousAt
+        if (previousLevel !in 0..100 || elapsed !in 60_000L..(6L * 60 * 60_000L)) return ""
+        val minutes = elapsed / 60_000L
+        val delta = level - previousLevel
+        val changed = when {
+            delta > 0 -> "增加了$delta 个百分点"
+            delta < 0 -> "减少了${-delta} 个百分点"
+            else -> "没有可分辨的百分比变化"
+        }
+        val chargingChanged = if (charging != previousCharging) "；期间充电状态可能改变" else ""
+        return "；距上次设备采样约$minutes 分钟，电量$changed$chargingChanged（只能说明设备耗电/充电，不能推断主人是否睡着）"
+    }
+
+    /** Android's actual usage-event evidence. No events means UNKNOWN, never asleep. */
+    private fun recentInteractionContext(context: Context, now: Instant): String {
+        if (!LuluScreenAwareness.appTracking(context)) return "主人已关闭应用使用感知，活动未知"
+        val manager = context.getSystemService(UsageStatsManager::class.java)
+            ?: return "系统使用事件不可用，活动未知"
+        val end = now.toEpochMilli()
+        val events = manager.queryEvents(end - 2L * 60 * 60_000L, end)
+        val event = UsageEvents.Event()
+        var interactionAt = 0L
+        var foregroundChangeAt = 0L
+        var foregroundPackage = ""
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            if (event.timeStamp > end || event.timeStamp <= end - 2L * 60 * 60_000L) continue
+            when (event.eventType) {
+                UsageEvents.Event.USER_INTERACTION ->
+                    interactionAt = maxOf(interactionAt, event.timeStamp)
+                UsageEvents.Event.ACTIVITY_RESUMED -> if (event.timeStamp >= foregroundChangeAt) {
+                    foregroundChangeAt = event.timeStamp
+                    foregroundPackage = event.packageName.orEmpty()
+                }
+            }
+        }
+        return activityEvidenceCue(end, interactionAt, foregroundChangeAt,
+            foregroundPackage.isNotBlank())
+    }
+
+    /** Portable rendering also tested without any Android usage service. */
+    internal fun activityEvidenceCue(
+        nowMillis: Long, lastInteractionAt: Long,
+        lastForegroundChangeAt: Long, foregroundAllowed: Boolean,
+    ): String {
+        fun age(at: Long): Long? =
+            (nowMillis - at).takeIf { at > 0L && it in 0L..(2L * 60 * 60_000L) }?.div(60_000L)
+        val interactionAge = age(lastInteractionAt)
+        val switchAge = if (foregroundAllowed) age(lastForegroundChangeAt) else null
+        return buildString {
+            if (interactionAge != null) append("Android 记录约$interactionAge 分钟前有应用交互事件")
+            if (switchAge != null) {
+                if (isNotEmpty()) append("；")
+                append("约$switchAge 分钟前发生应用前台切换")
+            }
+            if (isEmpty()) append("近两小时没有可用的应用交互/切换事件记录（可能无权限、系统未上报或应用持续打开）")
+            append("；这些是设备事件，不等于持续使用、屏幕内容或用户睡眠状态；没有事件不代表主人睡了")
+        }
     }
 
     private fun foregroundAppContext(context: Context, now: Instant): String {
