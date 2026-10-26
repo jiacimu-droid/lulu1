@@ -99,6 +99,9 @@ object MomentsStore {
                 SharedExperienceTimeline.deleteEvent("moment-${post.id}-$viewer")
                 SharedExperienceTimeline.deleteEvent("moment-image-understanding-${post.id}-$viewer")
                 SharedExperienceTimeline.deleteEvent("moment-like-${post.id}-$viewer")
+                (post.likedCharacterIds + USER_COMMENTER_ID).forEach { liker ->
+                    SharedExperienceTimeline.deleteEvent("moment-visible-like-${post.id}-$liker-$viewer")
+                }
                 post.comments.forEach { comment ->
                     SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-$viewer")
                     SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$viewer")
@@ -469,6 +472,25 @@ object MomentsStore {
             content = "给${authorName}的朋友圈点了赞：${momentContext(post).take(420)}",
             occurredAt = Instant.now(),
         )
+        recordVisibleLike(post, character.characterId, character.displayName)
+    }
+
+    /** A like is a real public interaction for all friends, especially the
+     * author. Previously only the liker knew it happened in their timeline.
+     */
+    private fun recordVisibleLike(post: MomentPost, likerId: String, likerName: String) {
+        val author = postAuthorName(post)
+        MigratedDomainStores.characters.settings.value.keys
+            .filter { MomentFriendAccess.canView(post, it) }
+            .forEach { viewer ->
+                SharedExperienceTimeline.record(
+                    eventId = "moment-visible-like-${post.id}-$likerId-$viewer",
+                    characterId = viewer, channel = "朋友圈", speaker = likerName,
+                    content = "$likerName 给$author的朋友圈点了赞",
+                    occurredAt = Instant.now(), triggerExtraction = false,
+                    source = "moment:like", evidenceKind = EventEvidenceKind.Observation,
+                )
+            }
     }
 
     private fun addCharacterTopLevelComment(
@@ -498,9 +520,10 @@ object MomentsStore {
     }
 
     fun toggleUserLike(postId: String, characterId: String = USER_COMMENTER_ID) {
+        if (characterId != USER_COMMENTER_ID) return // the public UI is the owner's control
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
-        if (!MomentFriendAccess.canView(post,
-                if (characterId == USER_COMMENTER_ID) MomentFriendAccess.OWNER else characterId)) return
+        if (!MomentFriendAccess.canView(post, MomentFriendAccess.OWNER)) return
+        val adding = characterId !in post.likedCharacterIds
         mutate { current ->
             current.map { post ->
                 if (post.id != postId) post else post.copy(
@@ -511,6 +534,10 @@ object MomentsStore {
                     },
                 )
             }
+        }
+        if (adding) recordVisibleLike(post, characterId, UserProfileContext.displayLabel())
+        else MigratedDomainStores.characters.settings.value.keys.forEach { viewer ->
+            SharedExperienceTimeline.deleteEvent("moment-visible-like-$postId-$characterId-$viewer")
         }
     }
 
@@ -719,6 +746,9 @@ object MomentsStore {
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-image-understanding-$postId-$characterId")
+            (post.likedCharacterIds + USER_COMMENTER_ID).forEach { likerId ->
+                SharedExperienceTimeline.deleteEvent("moment-visible-like-$postId-$likerId-$characterId")
+            }
         }
         post.comments.forEach { comment ->
             deleteTimelineEventsForComment(post, comment, characterIds)
