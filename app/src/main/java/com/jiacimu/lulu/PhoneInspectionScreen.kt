@@ -185,39 +185,45 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            when {
-                                showRoleFavorites -> "我的收藏"
-                                selectedThread != null -> selectedThread.title
-                                else -> "聊天"
-                            },
-                            fontWeight = FontWeight.SemiBold, fontSize = 18.sp,
-                        )
-                        if (selectedThread != null) Text(
-                            names[actualRole] ?: "角色",
-                            fontSize = 11.sp, color = QqMuted,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = ::goBack) {
-                        Icon(Icons.Outlined.ArrowBack, "返回")
-                    }
-                },
-                actions = {
-                    if (selectedThread == null) {
-                        Box {
-                            TextButton(onClick = { rolesExpanded = true }, enabled = roleOptions.isNotEmpty()) {
+            if (selectedThread != null && !showRoleFavorites) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (!selectedThread.isGroup) {
+                                LuluProfileAvatar(
+                                    imageUri = selectedThread.peerId?.let { people[it]?.avatarUri }
+                                        ?: userAvatarUri,
+                                    fallback = selectedThread.title.take(1), size = 42,
+                                )
+                                Spacer(Modifier.width(9.dp))
+                            }
+                            Text(selectedThread.title, maxLines = 1,
+                                overflow = TextOverflow.Ellipsis, fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold)
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = ::goBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = QqHeader),
+                )
+            } else {
+                MigratedChatTopBar(
+                    title = if (showRoleFavorites) "我的收藏" else "聊天",
+                    onBack = ::goBack,
+                    actions = {
+                        if (!showRoleFavorites) Box {
+                            TextButton(onClick = { rolesExpanded = true },
+                                enabled = roleOptions.isNotEmpty()) {
                                 Text(names[actualRole] ?: "选择手机", maxLines = 1)
                                 Icon(Icons.Outlined.ExpandMore, null)
                             }
-                            DropdownMenu(expanded = rolesExpanded, onDismissRequest = { rolesExpanded = false }) {
+                            DropdownMenu(expanded = rolesExpanded,
+                                onDismissRequest = { rolesExpanded = false }) {
                                 roleOptions.forEach { person ->
                                     DropdownMenuItem(
-                                        text = { Text(person.displayName + if (person.characterId.startsWith("resident:")) " · 居民" else "") },
+                                        text = { Text(person.displayName +
+                                            if (person.characterId.startsWith("resident:")) " · 居民" else "") },
                                         onClick = {
                                             roleId = person.characterId
                                             selectedThreadKey = null
@@ -227,10 +233,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                 }
                             }
                         }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = QqHeader),
-            )
+                    },
+                )
+            }
         },
         bottomBar = {
             if (selectedThread == null && !showRoleFavorites) {
