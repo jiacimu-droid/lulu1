@@ -104,6 +104,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     val posts by MomentsStore.posts.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val friendsRevision by MomentFriendAccess.revisions.collectAsState()
+    val roleMomentUnread = remember(actualRole, posts, friendsRevision, mailReady) {
+        CharacterPhoneInbox.unreadCount(actualRole)
+    }
     val names = remember(people) { people.mapValues { it.value.displayName } }
     val roleOptions = remember(people) {
         people.values.sortedWith(
@@ -142,9 +145,11 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             ResidentSocialMailbox.historyForInspection(actualRole)
         } else emptyList()
     }
-    val threads = inspectedThreads(actualRole, allChats, mail, names)
-        .sortedWith(compareByDescending<InspectedThread> { it.key in pinned }
-            .thenByDescending(InspectedThread::updatedAt))
+    val threads = remember(actualRole, allChats, mail, names, pinned) {
+        inspectedThreads(actualRole, allChats, mail, names)
+            .sortedWith(compareByDescending<InspectedThread> { it.key in pinned }
+                .thenByDescending(InspectedThread::updatedAt))
+    }
     val selectedThread = threads.firstOrNull { it.key == selectedThreadKey }
     val visiblePosts = remember(posts, actualRole, friendsRevision) {
         MomentFriendAccess.visiblePosts(actualRole, posts).sortedByDescending { it.createdAt }
@@ -244,7 +249,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     selectedTab = phoneTab,
                     labels = listOf("消息", "好友", "朋友圈", "我的"),
                     onSelect = { phoneTab = it },
-                    badgeCounts = mapOf(2 to CharacterPhoneInbox.unreadCount(actualRole)),
+                    badgeCounts = mapOf(2 to roleMomentUnread),
                 )
             }
         },
