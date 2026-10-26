@@ -85,6 +85,30 @@ class UserRoutinePatternsTest {
             .all { it.days < 3 })
     }
 
+    @Test fun connectedCallAndSleepModeAreSingleRealEventsPerSession() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val role = "routine-call-role"
+        val callId = "call-single-event"
+        val time = Instant.parse("2026-10-25T12:45:00Z")
+
+        InteractionSignalBridge.recordCallStart(role, callId, "", time)
+        InteractionSignalBridge.recordCallStart(role, callId, "", time)
+        InteractionSignalBridge.recordUserActivity(role, callId, "sleep-guidance", "start", time)
+        InteractionSignalBridge.recordUserActivity(role, callId, "sleep-guidance", "start", time.plusSeconds(60))
+        InteractionSignalBridge.recordUserActivity(role, callId, "sleep-guidance", "end", time.plusSeconds(600))
+
+        val activities = SharedExperienceTimeline.all(role).filter {
+            it.source.startsWith("user-activity:")
+        }
+        assertEquals(3, activities.size)
+        assertEquals(2, activities.count(UserRoutinePatterns::isStart))
+        assertEquals(1, activities.count { it.source == "user-activity:sleep-guidance:start" })
+        assertEquals(1, activities.count { it.source == "user-activity:phone-call:start" })
+        assertFalse(activities.any { it.content.contains("主人已经睡着") })
+    }
+
     @Test fun unrelatedOrSameDayActionsCannotCreateObservedHabit() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
