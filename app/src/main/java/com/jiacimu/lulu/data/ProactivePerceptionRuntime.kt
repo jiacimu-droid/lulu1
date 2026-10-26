@@ -1758,6 +1758,72 @@ object ProactivePerceptionRuntime {
             if (decision.action == Action.TOOL) decision.tool else "",
             decision.sideActions,
         )
+        // P0 shadow only, step 1: evaluate + Log.d, never branch performAction,
+        // never rewrite decision/text, never change scheduling. No new storage,
+        // no new model call, no timeline write, no CharacterInnerLifeStore write.
+        // The requestId construction below is moved here unchanged so the
+        // shadow decisionId matches the execution requestId exactly.
+        val shadowRequestId = when {
+            // A new user message is a NEW decision. Never reuse the older
+            // call-end/world-event request key while the user is waiting.
+            messageStimulus != null ->
+                "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}-$executionVariant"
+            salientInteraction != null ->
+                "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
+            else -> "proactive-${now.toEpochMilli()}"
+        }
+        if (decision.action == Action.MESSAGE || decision.action == Action.KAOMOJI) {
+            val shadowPolicy = ProactivePerceptionPolicyStore.get(characterId)
+            val shadowNow = Instant.now()
+            val shadowDecision = ProactiveMessageGate.evaluate(
+                ProactiveGateInput(
+                    characterId = characterId,
+                    requestId = shadowRequestId,
+                    now = shadowNow,
+                    localTime = shadowNow.atZone(zoneId).toLocalTime(),
+                    policy = ProactiveGatePolicy(
+                        enabled = shadowPolicy.enabled,
+                        quietHoursEnabled = shadowPolicy.quietHoursEnabled,
+                        quietStartMinutesOfDay = shadowPolicy.quietStartMinutesOfDay,
+                        quietEndMinutesOfDay = shadowPolicy.quietEndMinutesOfDay,
+                    ),
+                    modelAction = decision.action.name.lowercase(),
+                    hasFreshUserMessage = messageStimulus != null,
+                    // Step 1 has no authoritative source for the three facts
+                    // below: they are passed as unreverified placeholders and
+                    // must NOT be read as real delivery facts. Do NOT
+                    // substitute chat-history upper bounds here.
+                    lastProactiveSentAt = null,
+                    proactiveSentToday = 0,
+                    unansweredOutstanding = 0,
+                    recentAttempts = emptyList(),
+                    // Step 1 has no gate metadata for this thought yet, so
+                    // same-topic and expiry checks are effectively not
+                    // evaluated; thought must stay null, never fabricate
+                    // createdAt/expiresAt from now.
+                    thought = null,
+                )
+            )
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "decisionId=$shadowRequestId characterId=$characterId " +
+                    "modelAction=${decision.action} hasFreshUserMessage=${messageStimulus != null} " +
+                    "allowedInShadow=${shadowDecision.allowedInShadow} reasons=${shadowDecision.reasons}",
+            )
+        } else if (decision.action == Action.SILENT) {
+            // Silent-decision diagnosis only (“想发又没发”): log separately,
+            // NEVER ProactiveMessageGate.evaluate() — the gate has no
+            // non-message branch and SKIPPED would pollute statistics.
+            // No decision text/reason/innerThought is logged here.
+            android.util.Log.d(
+                "ProactiveGateShadow",
+                "silentDecision characterId=$characterId trigger=$trigger " +
+                    "hasFreshUserMessage=${messageStimulus != null} " +
+                    "hasSideActions=${(decision.sideActions?.length() ?: 0) > 0}",
+            )
+        }
+        // GROUP_MESSAGE / GROUP_KAOMOJI and all other actions are not
+        // evaluated in step 1 (private-message gate scope only).
         val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
             performAction(
                 appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,
