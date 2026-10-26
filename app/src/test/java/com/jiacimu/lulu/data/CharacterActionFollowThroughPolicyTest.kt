@@ -36,6 +36,29 @@ class CharacterActionFollowThroughPolicyTest {
                 silent = false, choices = choices, key = "a", previousKey = "", nowMs = 10L, previousAtMs = 0L))
     }
 
+    @Test fun secondaryReviewReusesPrimaryAttentionInsteadOfReopeningAnOldQueue() {
+        val primary = listOf("persisted:recent", "persisted:due", "persisted:share",
+            "persisted:curiosity", "persisted:concern", "persisted:research")
+        val extras = listOf("new thought", "new thought 2", "new thought 3")
+        val result = CharacterActionFollowThroughPolicy.unifiedReviewChoices(
+            extras, primary, "legacy intention")
+        assertEquals(8, result.size)
+        assertEquals("new thought", result.first())
+        assertEquals(primary, result.subList(1, 7))
+        assertEquals("legacy intention", result.last())
+        assertFalse(result.contains("new thought 2"))
+        assertEquals(result, CharacterActionFollowThroughPolicy.unifiedReviewChoices(
+            extras, primary, "legacy intention"))
+        assertEquals(emptyList<String>(),
+            CharacterActionFollowThroughPolicy.unifiedReviewChoices(extras, primary, limit = 0))
+        assertEquals(listOf("new thought", "persisted:recent"),
+            CharacterActionFollowThroughPolicy.unifiedReviewChoices(
+                extras, listOf("", "persisted:recent", "persisted:recent"), limit = 2))
+        assertFalse(CharacterActionFollowThroughPolicy.shouldReview(
+            silent = false, choices = result, key = "key", previousKey = "",
+            nowMs = 10L, previousAtMs = 0L))
+    }
+
     @Test fun pausedReleasedAndAlreadyAttemptedMotivesDoNotBecomeFreshPromises() {
         val inner = JSONObject("""{"motives":[{"aim":"继续阅读小说","status":"paused"},{"aim":"把书中问题查清楚","op":"release"},{"aim":"看看下一章节内容","status":"active","outcomes":[{"summary":"已阅读"}]}]}""")
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
