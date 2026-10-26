@@ -341,7 +341,7 @@ private fun PresenceMomentLine(label: String, value: String) {
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(label, modifier = Modifier.width(30.dp), fontSize = 11.sp,
+        Text(label, modifier = Modifier.width(52.dp), fontSize = 11.sp,
             color = Color(0xFFA09AA0), lineHeight = 21.sp)
         Text(value, modifier = Modifier.weight(1f), fontSize = 14.sp,
             lineHeight = 22.sp, color = Color(0xFF5B575B))
@@ -378,7 +378,7 @@ private fun PresenceStateContent(
         if (status.isNotBlank() || gesture.isNotBlank()) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 PresenceMomentLine("状态", status)
-                PresenceMomentLine("动作", gesture)
+                PresenceMomentLine(PresencePresentation.gestureLabel(state), gesture)
             }
         }
         if (voice.isNotBlank()) {
