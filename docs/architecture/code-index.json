@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:35:10.374065+00:00",
-  "commit": "402d06cd920371e3a9e4cb2dcfc935f7a064bc08",
+  "generatedAt": "2026-10-26T03:37:06.372052+00:00",
+  "commit": "9817b2b6d124df9eeb402dfea4f5ab9c1ad3f551",
   "branch": "main",
-  "sourceFingerprint": "38402a70f85b5692d8de50995308df86a39c17888ac3e7fc893aba6aa83fd984",
+  "sourceFingerprint": "372413dab375c1d9784a1ee85fe57103142920231accd46e2d0abda2167b2099",
   "summary": {
     "files": 920,
-    "lines": 181403,
+    "lines": 181405,
     "symbols": 2698
   },
   "symbolIndex": {
@@ -3853,7 +3853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 129
+        "line": 131
       }
     ],
     "recent": [
@@ -6149,13 +6149,13 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 98
+        "line": 100
       }
     ],
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "groupedFields": [
@@ -20583,20 +20583,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 138,
-      "sha256": "7af6a339f6a72d983a3463895c502344ea4c2bd5af28a800ce9010107cd39a30",
+      "lines": 140,
+      "sha256": "b27ed16ec16bb40f2b983eef77bd4f9bd298846a6060b668e34e9018a76bce2a",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 98
+          "line": 100
         },
         {
           "name": "requestContext",
-          "line": 118
+          "line": 120
         },
         {
           "name": "summary",
-          "line": 129
+          "line": 131
         }
       ]
     },
