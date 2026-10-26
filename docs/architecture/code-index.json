@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:29:10.001517+00:00",
-  "commit": "81840e21131ed5069e5437c7b62cf5e216eb0b81",
+  "generatedAt": "2026-10-26T03:29:40.157332+00:00",
+  "commit": "0a2a10baf6ae950d60ce2cb8266f22504a3c79ff",
   "branch": "main",
-  "sourceFingerprint": "52b830324de91484f5a775d4b7275306ac6c96228fc4ff27031044278e83e9b2",
+  "sourceFingerprint": "ec04182cc5de57540256d3058976b29aafdcec6dd0261c2a5b6dacc87454c703",
   "summary": {
     "files": 919,
-    "lines": 181182,
-    "symbols": 2696
+    "lines": 181225,
+    "symbols": 2697
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3853,7 +3853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 91
+        "line": 117
       }
     ],
     "recent": [
@@ -4790,10 +4790,16 @@
         "line": 7
       }
     ],
+    "unifiedReviewChoices": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
+        "line": 79
+      }
+    ],
     "shouldReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-        "line": 71
+        "line": 88
       }
     ],
     "extractExplicitAddress": [
@@ -6143,13 +6149,13 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 60
+        "line": 86
       }
     ],
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 80
+        "line": 106
       }
     ],
     "groupedFields": [
@@ -19302,16 +19308,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-      "lines": 77,
-      "sha256": "1d7076b75a7746b941188978513111946512a2aeae6c9242597c0c6e0e553123",
+      "lines": 94,
+      "sha256": "560d8935bfe6a4c7a50207a86152321af74aacfa669d45eb37385b721e598439",
       "symbols": [
         {
           "name": "pendingChoices",
           "line": 7
         },
         {
+          "name": "unifiedReviewChoices",
+          "line": 79
+        },
+        {
           "name": "shouldReview",
-          "line": 71
+          "line": 88
         }
       ]
     },
@@ -20567,20 +20577,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 100,
-      "sha256": "097d6771a3f227d8f26df32e24648e980680689d87104fd9beff67eefacab233",
+      "lines": 126,
+      "sha256": "ecbf55c00668aacd4af270aa06304359c8986fd72fb6ffb8a641518d1891aa9b",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 60
+          "line": 86
         },
         {
           "name": "requestContext",
-          "line": 80
+          "line": 106
         },
         {
           "name": "summary",
-          "line": 91
+          "line": 117
         }
       ]
     },
