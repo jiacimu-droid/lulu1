@@ -74,6 +74,9 @@ class OnlineChatExperienceTest {
         CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
             "角色自己仍在线", perceiveNow = false)
         val first = OnlineChatBatchStore.onUserBubble(context, role)
+        // A waiting burst extends its original revision; simulate the actual
+        // model taking ownership before a later bubble opens a newer revision.
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, first.dueAtMillis))
         val plan = org.json.JSONArray()
             .put(JSONObject().put("tool", "go_offline").put("args", JSONObject()))
             .put(JSONObject().put("tool", "go_offline").put("args", JSONObject()))
