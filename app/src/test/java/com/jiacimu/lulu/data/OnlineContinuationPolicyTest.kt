@@ -38,13 +38,14 @@ class OnlineContinuationPolicyTest {
             arousal = null, valence = null)))
     }
 
-    @Test fun emptyWaitingDoesNotKeepAnExpensiveOnlineLeaseForever() {
+    @Test fun modelChoiceIsNotOverriddenByItsReasonWording() {
+        for (reason in listOf("我想继续在线等她发消息", "还是随便逛逛，保持在线",
+                "想继续在线", "保持在线", "睡不着")) {
+            assertTrue(reason, OnlineContinuationPolicy.permits(
+                "continue", reason, false, false, "", Long.MAX_VALUE))
+        }
         assertFalse(OnlineContinuationPolicy.permits(
-            "continue", "我想继续在线等她发消息", false, false, "", Long.MAX_VALUE))
-        assertFalse(OnlineContinuationPolicy.permits(
-            "continue", "还是随便逛逛，保持在线", false, false, "", Long.MAX_VALUE))
-        assertFalse(OnlineContinuationPolicy.permits(
-            "continue", "想继续在线", false, true, "", Long.MAX_VALUE))
+            "continue", "", false, true, "", Long.MAX_VALUE))
         assertFalse(OnlineContinuationPolicy.permits(
             "sleep", "准备睡觉", false, true, "", Long.MAX_VALUE))
     }
@@ -66,7 +67,7 @@ class OnlineContinuationPolicyTest {
         assertTrue(OnlineContinuationPolicy.permits(
             "continue", "刚读完的书还有点意思，想继续琢磨",
             false, false, "", Long.MAX_VALUE))
-        assertFalse(OnlineContinuationPolicy.permits(
+        assertTrue(OnlineContinuationPolicy.permits(
             "continue", "保持在线", false, true, "", Long.MAX_VALUE))
     }
 

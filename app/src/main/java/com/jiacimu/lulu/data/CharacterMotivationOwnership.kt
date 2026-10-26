@@ -20,8 +20,7 @@ internal object CharacterMotivationOwnership {
             legacyIntention.optString("id").isNotBlank()) return innerLife
         val aim = legacyIntention.optString("aim").trim().take(180)
         val why = legacyIntention.optString("motive").trim().take(160)
-        if (aim.isBlank() || why.isBlank() ||
-            CharacterStaleGoalPolicy.isGenericOrientation(aim)) return innerLife
+        if (aim.isBlank() || why.isBlank()) return innerLife
         val existing = innerLife?.optJSONArray("motives") ?: JSONArray()
         for (i in 0 until existing.length()) {
             val item = existing.optJSONObject(i) ?: continue

@@ -20,8 +20,19 @@ class CharacterActionFollowThroughPolicyTest {
     @Test fun pausedReleasedAndAlreadyAttemptedMotivesDoNotBecomeFreshPromises() {
         val inner = JSONObject("""{"motives":[{"aim":"继续阅读小说","status":"paused"},{"aim":"把书中问题查清楚","op":"release"},{"aim":"看看下一章节内容","status":"active","outcomes":[{"summary":"已阅读"}]}]}""")
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
-        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "继续等她回复").isEmpty())
+        assertEquals(listOf("继续等她回复"),
+            CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "继续等她回复"))
     }
+    @Test fun modelWrittenShortOrSolitaryImpulseIsNotReclassifiedByKeywords() {
+        for (thought in listOf("想独处", "等她", "嗯", "待会再想", "了解她是什么样的人")) {
+            assertEquals(thought, listOf(thought),
+                CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, thought))
+        }
+        val inner = JSONObject("""{"thoughts":[{"impulse":"先休息，再想想"}]}""")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "")
+            .contains("先休息，再想想"))
+    }
+
     @Test fun chatAndPhoneStructuredConsiderationsEnterTheSameReview() {
         val idea = JSONObject().put("stage", "considering").put("action", "reading")
             .put("whyNow", "想看看昨天那章的后续")

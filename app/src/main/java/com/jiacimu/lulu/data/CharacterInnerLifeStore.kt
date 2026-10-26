@@ -22,40 +22,6 @@ object CharacterInnerLifeStore {
         if (prefs == null) {
             prefs = context.applicationContext
                 .getSharedPreferences("lulu_inner_life_v1", Context.MODE_PRIVATE)
-            prefs?.all?.keys?.filterNot(CharacterInnerHistoryArchive::isArchiveKey)?.forEach(::retireDormantGenericMotives)
-        }
-    }
-
-    /** A generic orientation is not a never-ending action item.
-     * Keep specific motives and goals that have actual executor receipts.
-     */
-    @Synchronized private fun retireDormantGenericMotives(characterId: String) {
-        val root = snapshot(characterId)
-        val old = root.optJSONArray("motives") ?: return
-        val kept = JSONArray()
-        var removed = false
-        for (i in 0 until old.length()) {
-            val item = old.optJSONObject(i) ?: continue
-            val outdated = CharacterStaleGoalPolicy.shouldRetire(
-                item.optString("aim"), item.optString("createdAt"),
-                item.optString("updatedAt"),
-                item.optJSONArray("outcomes")?.length() ?: 0,
-            )
-            if (outdated) {
-                removed = true
-                val archived = root.optJSONArray("retiredGenericMotives") ?: JSONArray()
-                if ((0 until archived.length()).none {
-                        archived.optJSONObject(it)?.optString("id") == item.optString("id")
-                    }) {
-                    archived.put(JSONObject(item.toString())
-                        .put("retiredBecause", "长期未推进的泛化初始愿望已自然结束"))
-                }
-                root.put("retiredGenericMotives", archived)
-            } else kept.put(item)
-        }
-        if (removed) {
-            root.put("motives", kept)
-            save(characterId, root)
         }
     }
 
@@ -675,7 +641,6 @@ object CharacterInnerLifeStore {
                         if (aim.isBlank() || why.isBlank() ||
                             (userJustConfirmedSettlement &&
                                 RelationshipRepairContinuity.isRepairGoal(aim)) ||
-                            CharacterStaleGoalPolicy.isGenericOrientation(aim) ||
                             sameCharacterMotive(legacyAim, aim) ||
                             records.any { sameCharacterMotive(it.optString("aim"), aim) }) continue
                         records += JSONObject().put("id", UUID.randomUUID().toString())

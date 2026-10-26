@@ -53,12 +53,14 @@ internal object CharacterActionFollowThroughPolicy {
             val why = ownActivity?.optString("whyNow").orEmpty()
             if (action.isNotBlank() && why.isNotBlank()) choices += "想做=$action；缘由=$why"
         }
-        // Legacy heart voices are a cue for a model review, never a regex→action mapping.
-        if (Regex("想|打算|准备|要去|希望|不如|试试").containsMatchIn(thought)) choices += thought
-        return choices.map(String::trim).filter {
-            it.length >= 4 && !CharacterStaleGoalPolicy.isGenericOrientation(it) &&
-                !Regex("^(继续)?(等她|等他|等用户|等待|不催|保持安静|先休息|想休息|想独处)").containsMatchIn(it)
-        }.distinct().take(5) + listOfNotNull(CharacterIntentionContinuation.cue(intention?.takeUnless { it.optString("disposition") in setOf("pause", "release") }))
+        // Only model-authored options enter a later model review. Neither
+        // their vocabulary nor their length can disqualify their meaning.
+        // A review is still just a choice opportunity, never an auto action.
+        choices += thought
+        return choices.map(String::trim).filter(String::isNotBlank).distinct().take(5) +
+            listOfNotNull(CharacterIntentionContinuation.cue(
+                intention?.takeUnless { it.optString("disposition") in setOf("pause", "release") }
+            ))
     }
 
     fun shouldReview(silent: Boolean, choices: List<String>, key: String, previousKey: String,
