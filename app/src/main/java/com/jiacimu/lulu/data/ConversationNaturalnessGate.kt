@@ -63,6 +63,24 @@ internal object ConversationNaturalnessGate {
             TransientConversationStyle.Pace.EXPANSIVE -> Int.MAX_VALUE
         }
 
+    /**
+     * Online private chat commits its first reply inside the autonomous decision call,
+     * instead of passing through the foreground expression renderer. Share the SAME
+     * surface-quality assessment; never give this gate authority over the role's
+     * actions, voice tracks, quote tokens, or chosen meaning. No request is made
+     * when the ordinary utterance is already conversational.
+     */
+    fun onlinePrivateReview(
+        userText: String,
+        bubbles: List<String>,
+        hasVoice: Boolean,
+        hasLinkedActions: Boolean,
+    ): ConversationNaturalnessAssessment? {
+        if (hasVoice || hasLinkedActions || bubbles.isEmpty() ||
+            bubbles.any { "⟪" in it }) return null
+        return assess(userText, bubbles).takeIf { it.needsRerender }
+    }
+
     /** Select a model-written revision, never trim or replace it with stock text. */
     fun shouldUseRewrite(
         userText: String,
