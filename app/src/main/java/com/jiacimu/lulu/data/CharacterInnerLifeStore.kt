@@ -1384,6 +1384,7 @@ object CharacterInnerLifeStore {
         now: Instant = Instant.now(),
         actionSignature: String = "",
         causalEvidenceId: String = "",
+        attentionOffered: List<String> = emptyList(),
     ) {
         if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
         if (selectedAction == "silent" && reason.isBlank()) return
@@ -1410,6 +1411,13 @@ object CharacterInnerLifeStore {
             .put("reason", reason.trim().take(240))
             .put("motiveId", chosenMotiveId.take(80))
             .put("causalEvidenceId", causalEvidenceId.trim().take(220))
+            // These are IDs actually OFFERED by the common read-only working
+            // set, not claims that the model understood or rejected each one.
+            // Do not copy private topic text or create another attention store.
+            .put("attentionOffered", JSONArray().apply {
+                attentionOffered.map(String::trim).filter(String::isNotBlank)
+                    .distinct().take(6).forEach(::put)
+            })
             .put("alternatives", skipped)
             .put("succeeded", succeeded)
             .put("outcome", outcome.take(230)))
