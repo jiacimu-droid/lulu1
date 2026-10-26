@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:30:36.776190+00:00",
-  "commit": "4fcd0f94c7b37215715606d0240ed3f9ca810952",
+  "generatedAt": "2026-10-26T02:33:35.843360+00:00",
+  "commit": "eaddf017cb6e4a9f15f5237d12643c3d4c16f526",
   "branch": "main",
-  "sourceFingerprint": "87a27b1526273fce882d5eb2d996ab62aa904156ccf15beddeb71dc488c1a426",
+  "sourceFingerprint": "786f2b56d26d3f121b44070b4f2d790f2ae86a904c739fe4a4c33a27be55d9b0",
   "summary": {
     "files": 911,
-    "lines": 179487,
+    "lines": 179488,
     "symbols": 2678
   },
   "symbolIndex": {
@@ -5925,7 +5925,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 551
+        "line": 552
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -20732,7 +20732,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
       "lines": 108,
-      "sha256": "fba539b5b768e56e9faf3b8ca5f7e4b66f13d515225ae47c712a03f049442f5d",
+      "sha256": "493de2d5525304d1054ef999d5e25583dba24af67a22221c49b6b1c8f48d64ca",
       "symbols": [
         {
           "name": "Cue",
@@ -21239,7 +21239,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1248,
-      "sha256": "3c9a43f52c37b5889ba7cc41b81ae8c9eeef5e47ca2617915454badb81254db8",
+      "sha256": "85637e483f6d4883bc7308ae382a389c70a347c5fdf6597b3a3c081a90de4ebf",
       "symbols": [
         {
           "name": "asJson",
@@ -24087,7 +24087,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 164,
-      "sha256": "ced5b980204eb2bf44c95ab07af54a73e6d60cd86dd6b6446017464a33509dab",
+      "sha256": "ee60e2757b87e39c34412dfa438a8ea59a0c164e6d19eccda04ba8222878251b",
       "symbols": []
     },
     {
@@ -24622,8 +24622,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 600,
-      "sha256": "bbd434e21e01b1c91069c374bb4bbb6ec25421ea0edf7c5e1d733d55f505c733",
+      "lines": 601,
+      "sha256": "dd0b8c7ca8f18fb084d44d67cb7227d8a6a8dde6fa7813904298a13c9d58266c",
       "symbols": [
         {
           "name": "planForApp",
@@ -24643,7 +24643,7 @@
         },
         {
           "name": "schedule",
-          "line": 551
+          "line": 552
         }
       ]
     },
