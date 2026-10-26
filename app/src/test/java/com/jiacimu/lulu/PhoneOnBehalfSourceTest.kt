@@ -1,5 +1,8 @@
 package com.jiacimu.lulu
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.SharedPreferences
 import com.jiacimu.lulu.data.*
 import org.junit.Assert.*
 import org.junit.Test
@@ -64,10 +67,30 @@ class PhoneOnBehalfSourceTest {
         assertTrue(original.speaker.contains("主人"))
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role.characterId, listOf(id)).size)
 
-        // A fresh chat projection must retain provenance rather than
-        // reclassifying the prank as the character's own statement.
+        // Robolectric may give separate application sandboxes to individual
+        // tests, while the global MigratedDomainStores singleton can remain
+        // bound to the previous test's SharedPreferences. Explicitly reload
+        // from the SAME real backing store used by the writer, as would happen
+        // when Android restarts the process and reads its persisted preferences.
+        val prefsField = InMemoryLuluChatStore::class.java.getDeclaredField("prefs").apply {
+            isAccessible = true
+        }
+        val savedPrefs = prefsField.get(MigratedDomainStores.chat) as SharedPreferences
+        val savedJson = org.json.JSONObject(
+            requireNotNull(savedPrefs.getString("state_v1", null))
+        ).getJSONObject("messages").getJSONArray(chat.id)
+        assertTrue("Persisted chat must contain the sent message",
+            (0 until savedJson.length()).any { savedJson.getJSONObject(it).optString("id") == id })
+        val backingContext = object : ContextWrapper(ctx) {
+            override fun getApplicationContext(): Context = this
+            override fun getSharedPreferences(name: String, mode: Int): SharedPreferences =
+                if (name == "lulu_chat_store") savedPrefs
+                else ctx.getSharedPreferences(name, mode)
+        }
         val restored = InMemoryLuluChatStore()
-        restored.initialize(ctx)
-        assertTrue(restored.messages(chat.id).value.single { it.id == id }.onBehalfByOwner)
+        restored.initialize(backingContext)
+        val recovered = restored.messages(chat.id).value.singleOrNull { it.id == id }
+        assertNotNull("A new store must decode the same persisted original", recovered)
+        assertTrue(recovered!!.onBehalfByOwner)
     }
 }
