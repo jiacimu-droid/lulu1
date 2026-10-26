@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:13:10.069402+00:00",
-  "commit": "61e9c51986524c516ab295baefe93d1049136d21",
+  "generatedAt": "2026-10-26T03:15:53.355894+00:00",
+  "commit": "3ac9b0bec0efdee055265d4622e530c329f6ea2a",
   "branch": "main",
-  "sourceFingerprint": "0a24b26840f4d3a0488f681a062fa914eb3cc2d9a91dd1b7b70270935038d3b5",
+  "sourceFingerprint": "4fc867e83599ba130b8a225d83d566eb3a9953b84d2c80eb7c1a127e927a0b36",
   "summary": {
-    "files": 915,
-    "lines": 180266,
+    "files": 916,
+    "lines": 180386,
     "symbols": 2688
   },
   "symbolIndex": {
@@ -19784,6 +19784,12 @@
           "line": 10
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt",
+      "lines": 120,
+      "sha256": "0e3a3735b50215e88df2692d70e50532e20d2582aa5f9faf567cff016ac81c41",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
