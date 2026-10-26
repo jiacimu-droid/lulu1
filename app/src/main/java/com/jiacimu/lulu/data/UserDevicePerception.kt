@@ -112,14 +112,14 @@ internal object UserDevicePerception {
         val manager = context.getSystemService(UsageStatsManager::class.java)
             ?: return "系统使用事件不可用，活动未知"
         val end = now.toEpochMilli()
-        val events = manager.queryEvents(end - 2L * 60 * 60_000L, end)
+        val events = manager.queryEvents(end - 30L * 60_000L, end)
         val event = UsageEvents.Event()
         var interactionAt = 0L
         var foregroundChangeAt = 0L
         var foregroundPackage = ""
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
-            if (event.timeStamp > end || event.timeStamp <= end - 2L * 60 * 60_000L) continue
+            if (event.timeStamp > end || event.timeStamp <= end - 30L * 60_000L) continue
             when (event.eventType) {
                 UsageEvents.Event.USER_INTERACTION ->
                     interactionAt = maxOf(interactionAt, event.timeStamp)
@@ -139,7 +139,7 @@ internal object UserDevicePerception {
         lastForegroundChangeAt: Long, foregroundAllowed: Boolean,
     ): String {
         fun age(at: Long): Long? =
-            (nowMillis - at).takeIf { at > 0L && it in 0L..(2L * 60 * 60_000L) }?.div(60_000L)
+            (nowMillis - at).takeIf { at > 0L && it in 0L..(30L * 60_000L) }?.div(60_000L)
         val interactionAge = age(lastInteractionAt)
         val switchAge = if (foregroundAllowed) age(lastForegroundChangeAt) else null
         return buildString {
@@ -148,7 +148,7 @@ internal object UserDevicePerception {
                 if (isNotEmpty()) append("；")
                 append("约$switchAge 分钟前发生应用前台切换")
             }
-            if (isEmpty()) append("近两小时没有可用的应用交互/切换事件记录（可能无权限、系统未上报或应用持续打开）")
+            if (isEmpty()) append("近30分钟没有可用的应用交互/切换事件记录（可能无权限、系统未上报或应用持续打开）")
             append("；这些是设备事件，不等于持续使用、屏幕内容或用户睡眠状态；没有事件不代表主人睡了")
         }
     }
