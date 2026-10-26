@@ -375,7 +375,9 @@ class CharacterInnerLifeStoreTest {
             .contains("我很想主动弥补这次争执"))
         assertTrue(CharacterInnerLifeStore.context(id, moment.plusSeconds(20))
             .contains("可是我自己也有点委屈"))
-        assertFalse(CharacterInnerLifeStore.context(id, moment.plusSeconds(25 * 3600))
+        // Batch 3 fix: thoughts have no time limit. A 25-hour-old thought is still
+        // delivered if it has not been resolved, so it must still be present here.
+        assertTrue(CharacterInnerLifeStore.context(id, moment.plusSeconds(25 * 3600))
             .contains("我很想主动弥补这次争执"))
         assertNull(CharacterInnerLifeStore.snapshot(id).optJSONArray("decisions"))
         CharacterInnerLifeStore.invalidateEvidence("real-argument")
