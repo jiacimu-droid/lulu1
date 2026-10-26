@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:46:03.034583+00:00",
-  "commit": "9871c0ffe11337540b396b671da4cbea8e2b241c",
+  "generatedAt": "2026-10-26T03:46:43.685401+00:00",
+  "commit": "6b1c1472b856d13f31e74c4cc5106d5645fdd702",
   "branch": "main",
-  "sourceFingerprint": "113d7f2e31b2080e484e5f709722566e8e1d9927771d48639b85d856fb9215a5",
+  "sourceFingerprint": "5e44c2a82000066f09f9b905c7124cf9c06866493f1393146fedf868d3214689",
   "summary": {
     "files": 920,
-    "lines": 181805,
-    "symbols": 2699
+    "lines": 181851,
+    "symbols": 2700
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3119,7 +3119,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 58
+        "line": 77
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
@@ -4578,6 +4578,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 11
+      }
+    ],
+    "selectedStepsSignature": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 65
       }
     ],
     "normalizeStep": [
@@ -13673,7 +13679,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-        "line": 38
+        "line": 55
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
@@ -19082,8 +19088,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-      "lines": 104,
-      "sha256": "dd6555c165f7f2909ca84f8813297e2a5d32a018406075f531f79b533d83358e",
+      "lines": 133,
+      "sha256": "4506d238e4597f11d81c14dca4c04623c0c72a885b6f48ca7e97dc84bd688045",
       "symbols": [
         {
           "name": "newestExecutedEvidence",
@@ -19098,8 +19104,12 @@
           "line": 45
         },
         {
+          "name": "selectedStepsSignature",
+          "line": 65
+        },
+        {
           "name": "render",
-          "line": 58
+          "line": 77
         }
       ]
     },
@@ -29710,8 +29720,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 67,
-      "sha256": "373aeb869727fbe864af3392bce689cd85f14fc917cc031e0ef116c6a9e66887",
+      "lines": 84,
+      "sha256": "a57113444050c5ece1e73dd4f77e568983420a595dbb0fb1b0015e60fbd27c87",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
@@ -29719,7 +29729,7 @@
         },
         {
           "name": "event",
-          "line": 38
+          "line": 55
         }
       ]
     },
