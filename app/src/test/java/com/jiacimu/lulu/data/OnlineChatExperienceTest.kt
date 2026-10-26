@@ -66,6 +66,40 @@ class OnlineChatExperienceTest {
         assertFalse(CompanionOnlineStore.isOnline(id))
     }
 
+    @Test fun newerUserBubbleDefersOnlyUnstartedStepsInTheOriginalRunner() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("长任务后新消息回归").characterId
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+            "角色自己仍在线", perceiveNow = false)
+        val first = OnlineChatBatchStore.onUserBubble(context, role)
+        val plan = org.json.JSONArray()
+            .put(JSONObject().put("tool", "go_offline").put("args", JSONObject()))
+            .put(JSONObject().put("tool", "go_offline").put("args", JSONObject()))
+        var checked = false
+        val result = OrderedCharacterActions.execute(
+            context, role, plan, requestId = "defer-stale-steps-$role",
+            shouldDeferRemaining = {
+                if (!checked) {
+                    checked = true
+                    val newer = OnlineChatBatchStore.onUserBubble(context, role)
+                    assertTrue(newer.revision > first.revision)
+                }
+                !OnlineChatBatchStore.isCurrent(context, role, first.revision)
+            },
+        )
+        assertFalse(result.anyAccepted)
+        assertFalse(result.anyCompleted)
+        assertEquals(2, result.notes.size)
+        assertTrue(result.notes.all { it.contains("暂缓") && it.contains("没有执行回执") })
+        assertTrue("Deferred actions must never falsely put this role to sleep",
+            CompanionOnlineStore.isOnline(role))
+        assertNotNull("The actual newer user batch remains pending",
+            OnlineChatBatchStore.pendingDueAt(context, role))
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
     @Test fun failedPreviousStepDoesNotExecuteDependentSleep() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
