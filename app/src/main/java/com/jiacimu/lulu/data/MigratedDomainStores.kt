@@ -52,6 +52,9 @@ data class LuluGroupChat(
     val showMemberNames: Boolean = true,
     val allowCharacterConversation: Boolean = true,
     val maxAutoReplies: Int = 6,
+    /** Legacy owner-created QQ groups include the user. Role-created groups do not. */
+    val ownerIncluded: Boolean = true,
+    val creatorCharacterId: String = "",
 ) {
     fun normalized(): LuluGroupChat = copy(
         name = name.trim().ifBlank { "新群聊" },
@@ -79,7 +82,10 @@ interface LuluChatStore {
     val conversations: StateFlow<List<LuluConversation>>
     fun messages(conversationId: String): StateFlow<List<LuluChatMessage>>
     fun ensureConversation(characterId: String, title: String): LuluConversation
-    fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation
+    fun createGroupConversation(
+        name: String, memberIds: List<String>,
+        ownerIncluded: Boolean = true,
+    ): LuluConversation
     fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean
     fun setConversationPinned(conversationId: String, pinned: Boolean): Boolean
     fun deleteConversation(conversationId: String): Boolean
@@ -177,7 +183,9 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
     }
 
-    override fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation {
+    override fun createGroupConversation(
+        name: String, memberIds: List<String>, ownerIncluded: Boolean,
+    ): LuluConversation {
         val members = memberIds.map(String::trim).filter(String::isNotBlank).distinct()
         require(members.size >= 2) { "群聊至少需要两个角色" }
         val conversation = synchronized(lock) {
@@ -188,7 +196,13 @@ class InMemoryLuluChatStore : LuluChatStore {
                 updatedAt = Instant.now(),
                 groupChat = LuluGroupChat(
                     name = name,
-                    members = members.map { characterId -> LuluGroupMember(characterId = characterId) },
+                    members = members.mapIndexed { index, characterId ->
+                        LuluGroupMember(characterId = characterId,
+                            role = if (!ownerIncluded && index == 0) LuluGroupRole.Owner
+                                else LuluGroupRole.Member)
+                    },
+                    ownerIncluded = ownerIncluded,
+                    creatorCharacterId = if (ownerIncluded) "" else members.first(),
                 ).normalized(),
             )
             messageStates[conversation.id] = MutableStateFlow(emptyList())
@@ -234,14 +248,16 @@ class InMemoryLuluChatStore : LuluChatStore {
                 val eventParts = buildList {
                     if (addedMemberIds.isNotEmpty()) {
                         val names = addedMemberIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName }
-                        add("用户邀请 $names 加入了群聊")
+                        add(if (normalized.ownerIncluded) "用户邀请 $names 加入了群聊"
+                            else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}邀请 $names 加入了群聊")
                     }
                     if (removedMemberIds.isNotEmpty()) {
                         val names = removedMemberIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName }
-                        add("用户将 $names 移出了群聊")
+                        add(if (normalized.ownerIncluded) "用户将 $names 移出了群聊"
+                            else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}将 $names 移出了群聊")
                     }
                 }
-                appendSystemMessage(conversationId, "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + 1} 人。")
+                appendSystemMessage(conversationId, "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + if (normalized.ownerIncluded) 1 else 0} 人。")
                 recordGroupMembershipAwareness(conversation, addedMemberIds)
                 removedMemberIds.forEach { characterId ->
                     SharedExperienceTimeline.record(
@@ -286,7 +302,9 @@ class InMemoryLuluChatStore : LuluChatStore {
             val character = MigratedDomainStores.characters.get(member.characterId)
             member.groupNickname.ifBlank { character.displayName }
         }
-        val memberSummary = (listOf(group.userGroupNickname) + characterNames).joinToString("、")
+        val memberSummary =
+            ((if (group.ownerIncluded) listOf(group.userGroupNickname) else emptyList()) +
+                characterNames).joinToString("、")
         group.members
             .filter { member -> onlyCharacterIds == null || member.characterId in onlyCharacterIds }
             .forEach { member ->
@@ -297,7 +315,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                     sessionId = conversation.id,
                     source = "group-membership",
                     speaker = "系统事件",
-                    content = "用户把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。",
+                    content = if (group.ownerIncluded)
+                        "用户把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。"
+                    else if (member.characterId == group.creatorCharacterId)
+                        "你创建了群聊《${group.name}》。群成员：$memberSummary。可以在群里聊天，其他人自行决定是否回应。"
+                    else "${MigratedDomainStores.characters.get(group.creatorCharacterId).displayName}邀请你加入了群聊《${group.name}》。群成员：$memberSummary。你可以自己决定是否回应。",
                     occurredAt = conversation.updatedAt,
                 )
             }
@@ -783,6 +805,8 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("showMemberNames", value.showMemberNames)
         .put("allowCharacterConversation", value.allowCharacterConversation)
         .put("maxAutoReplies", value.maxAutoReplies)
+        .put("ownerIncluded", value.ownerIncluded)
+        .put("creatorCharacterId", value.creatorCharacterId)
         .put(
             "members",
             JSONArray().apply {
@@ -817,6 +841,8 @@ class InMemoryLuluChatStore : LuluChatStore {
             showMemberNames = item.optBoolean("showMemberNames", true),
             allowCharacterConversation = item.optBoolean("allowCharacterConversation", true),
             maxAutoReplies = item.optInt("maxAutoReplies", 6).coerceIn(1, 8),
+            ownerIncluded = item.optBoolean("ownerIncluded", true),
+            creatorCharacterId = item.optString("creatorCharacterId"),
         ).normalized()
     }.getOrNull()
 
