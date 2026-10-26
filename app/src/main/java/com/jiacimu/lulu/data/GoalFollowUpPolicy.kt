@@ -18,6 +18,19 @@ internal object GoalFollowUpPolicy {
         "send_private_sticker", "send_group_message",
     )
 
+    /** Existing contact pacing/explicit-space boundary applies per action,
+     * never to the whole model decision. Silence alone is not a request for space. */
+    fun contactBlockReason(goal: JSONObject?, action: String, autonomous: Boolean,
+        intentionId: String = "", reviewingGoal: Boolean = false): String? {
+        if (!autonomous || goal == null || !outwardAction(action)) return null
+        if (goal.optBoolean("userRequestedSpace"))
+            return "用户明确要求暂停主动联系；尊重边界，等对方主动交流"
+        if ((reviewingGoal || intentionId == goal.optString("createdAt")) &&
+            shouldBlockContact(goal, action))
+            return "已两次主动联系而未获得新的用户回应；保留目标但暂停重复打扰"
+        return null
+    }
+
     fun initialReview(proposal: JSONObject, at: Instant): Instant? {
         // An intention with an actual next step merits one revisit; a generic
         // feeling with no plan does not start an endless paid five-minute loop.

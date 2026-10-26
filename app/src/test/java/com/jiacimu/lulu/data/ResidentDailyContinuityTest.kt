@@ -26,6 +26,56 @@ class ResidentDailyContinuityTest {
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
     }
 
+    @Test(timeout = 60_000) fun cancelledDuringDecisionKeepsIndependentStepsAndRejectsDependentOnes() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "多步居民${UUID.randomUUID().toString().take(6)}", identity = "院子观察者",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD, createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plannedText = "旧日程草稿-${UUID.randomUUID()}"
+        val independentText = "独立的新想法-${UUID.randomUUID()}"
+        val dependentText = "依赖原计划成功，不应发布-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享刚才的所见", "自己想分享",
+            now.minusSeconds(120), now.minusSeconds(600), activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", plannedText))
+        val output = JSONObject().put("choice", "execute").put("reason", "原来想分享")
+            .put("args", JSONObject().put("text", plannedText))
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment").put("requiresPreviousSuccess", true)
+                    .put("args", JSONObject().put("text", dependentText)))
+                .put(JSONObject().put("tool", "publish_moment").put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", independentText))))
+        val server = MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): MockResponse {
+                RoleDayScheduleStore.cancel(app, actor, plan.id, "思考期间撤销原计划")
+                return MockResponse().setBody(JSONObject().put("choices", JSONArray().put(
+                    JSONObject().put("message", JSONObject().put("content", output.toString())))).toString())
+            }
+        }
+        server.start()
+        try {
+            MigratedDomainStores.characters.settings.value.keys.filterNot { it.startsWith("resident:") }
+                .forEach { CompanionOnlineStore.resetCharacter(it) }
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "wake-test",
+                server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals("cancelled", RoleDayScheduleStore.plans(app, actor).first { it.id == plan.id }.status)
+            val published = MomentsStore.posts.value.filter { it.authorCharacterId == actor }.map { it.content }
+            assertTrue(published.contains(independentText))
+            assertFalse(published.contains(plannedText))
+            assertFalse(published.contains(dependentText))
+            assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(
+                "tool-rejected-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}")).isNotEmpty())
+        } finally { server.shutdown() }
+    }
+
     @Test fun fixedMorningSlotAndAgendaTimesAreCalendarBased() {
         val zone = java.time.ZoneId.of("Asia/Shanghai")
         val day = java.time.LocalDate.of(2026, 10, 24)

@@ -45,7 +45,8 @@ object ToolRouter {
         intentionId: String = "", autonomousLifeTurn: Boolean = false,
         learningApplication: JSONObject? = null, causeEvidenceId: String = "",
         reason: String = "", curiosity: JSONObject? = null,
-        motiveId: String = "", concernId: String = "", experienceId: String = ""): String = requests.withLock("$characterId:$requestId") {
+        motiveId: String = "", concernId: String = "", experienceId: String = "",
+        goalReviewMode: Boolean = false): String = requests.withLock("$characterId:$requestId") {
         CharacterCuriosityRuntime.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterLifeFollowThroughStore.initialize(context)
@@ -135,6 +136,13 @@ object ToolRouter {
                     }
                 }
             }
+            // Restore existing receipts BEFORE applying today's restriction: a
+            // newly closed contact window must not rewrite yesterday's real effect.
+            // Fresh attempts share this gate across primary and ordered side steps.
+            GoalFollowUpPolicy.contactBlockReason(
+                CharacterLifeStore.state(characterId).optJSONObject("intention"),
+                name, autonomousLifeTurn, intentionId, goalReviewMode,
+            )?.let { return@withLock rejected(it, "waiting_user") }
             // A future plan does not grant extra permissions; reject the wrong role, time
             // or tool before producing side effects, including Android phone tools.
             val scheduledPlanId = args.optString("planId")

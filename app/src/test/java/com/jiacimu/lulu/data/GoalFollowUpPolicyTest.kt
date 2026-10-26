@@ -41,6 +41,20 @@ class GoalFollowUpPolicyTest {
         assertFalse(GoalFollowUpPolicy.shouldBlockContact(goal, "send_private_message"))
     }
 
+    @Test fun contactBoundaryDoesNotTurnIndependentActivityIntoSilence() {
+        val goal = JSONObject().put("createdAt", "goal-1").put("unansweredContactAttempts", 2)
+        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "publish_moment", true, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "web_search", true, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", false, "goal-1"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "other-goal"))
+        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true,
+            reviewingGoal = true))
+        goal.put("userRequestedSpace", true)
+        assertNotNull(GoalFollowUpPolicy.contactBlockReason(goal, "send_private_message", true, "other-goal"))
+        assertNull(GoalFollowUpPolicy.contactBlockReason(goal, "play_solo_game", true, "goal-1"))
+    }
+
     @Test fun expiryDecisionCoalescesSameFiveMinuteGoalCheck() {
         assertTrue(GoalFollowUpPolicy.isCoveredByOnlineExpiry(
             now, now.plusSeconds(5), now))

@@ -2000,22 +2000,9 @@ object ProactivePerceptionRuntime {
             Action.TOOL -> decision.tool
             Action.SILENT -> "" // no spoken main action; explicit later steps may still execute
         }
-        // One delivered apology is not reconciliation. However, a still-open
-        // goal is not permission to send unlimited unsolicited follow-ups.
-        // The cap is reset only by a genuine new user event, never by silence.
-        val goal = CharacterLifeStore.state(character.characterId).optJSONObject("intention")
-        // User explicitly requested space: do not initiate another contact
-        // without a fresh user message, even if the model switches goals.
-        if (goal?.optBoolean("userRequestedSpace") == true &&
-            !hasFreshUserMessage && GoalFollowUpPolicy.outwardAction(tool)) {
-            return ActionExecution(false, "用户明确要求暂停主动联系；尊重边界，等对方主动交流")
-        }
-        val pursuingThisGoal = goal != null && (goalReviewMode ||
-            decision.intentionId == goal.optString("createdAt"))
-        if (pursuingThisGoal && goal != null && !hasFreshUserMessage &&
-            GoalFollowUpPolicy.shouldBlockContact(goal, tool)) {
-            return ActionExecution(false, "已两次主动联系而未获得新的用户回应；保留目标但暂停重复打扰")
-        }
+        // Per-action contact restrictions live in ToolRouter, alongside real
+        // permissions and receipts. A blocked primary must not erase independent
+        // steps from this same choice; dependent steps still require completion.
         val args = if (decision.action == Action.TOOL) decision.toolArgs else JSONObject().apply {
             put("text", decision.text)
             if (decision.voiceBubbleTexts.isNotEmpty()) put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
@@ -2067,6 +2054,7 @@ object ProactivePerceptionRuntime {
             suspend fun runTool(): JSONObject = JSONObject(ToolRouter.execute(
                 appContext, character.characterId, tool, args,
                 requestId = requestId, intentionId = decision.intentionId,
+                goalReviewMode = goalReviewMode,
                 userRequested = (tool == "capture_screen" && explicitScreenRequest) ||
                     CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, tool),
                 autonomousLifeTurn = !hasFreshUserMessage,
@@ -2123,6 +2111,7 @@ object ProactivePerceptionRuntime {
                     explicitScreenRequest = explicitScreenRequest,
                     autonomousLifeTurn = !hasFreshUserMessage,
                     shouldDeferRemaining = supersededByNewMessage,
+                    goalReviewMode = goalReviewMode,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2133,6 +2122,7 @@ object ProactivePerceptionRuntime {
             explicitScreenRequest = explicitScreenRequest,
             autonomousLifeTurn = !hasFreshUserMessage,
             shouldDeferRemaining = supersededByNewMessage,
+            goalReviewMode = goalReviewMode,
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)

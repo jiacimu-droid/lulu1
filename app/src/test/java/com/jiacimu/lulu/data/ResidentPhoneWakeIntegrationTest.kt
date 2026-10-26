@@ -157,6 +157,96 @@ class ResidentPhoneWakeIntegrationTest {
             .count { it.id == requested.id }) // one durable evolving application
     }
 
+    @Test fun failedPredecessorSkipsOnlyDependentStepsAndPreservesLegacyReceiptIds() = runBlocking {
+        initializeBackgroundRuntime(app)
+        val actor = role()
+        val post = MomentsStore.publishUser("独立动作-${UUID.randomUUID()}")!!
+        val turn = "dependency-wake-${UUID.randomUUID()}"
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "comment_moment").put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("postId", post.id).put("text", "不应发送")))
+            .put(JSONObject().put("tool", "like_moment").put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("postId", post.id)))
+        val decision = JSONObject().put("steps", steps)
+        val originalDecision = decision.toString()
+        assertEquals(1, ResidentDailyDecision.executeWakeSteps(app, actor, decision, turn,
+            initialCompleted = false))
+        assertEquals(1, ResidentDailyDecision.executeWakeSteps(app, actor, decision, turn,
+            initialCompleted = false))
+        val saved = MomentsStore.posts.value.first { it.id == post.id }
+        assertTrue(actor in saved.likedCharacterIds)
+        assertFalse(saved.comments.any { it.characterId == actor })
+        val receipts = SharedExperienceTimeline.all(actor).filter { it.source == "tool-router" }
+        assertEquals(1, receipts.count { it.id == "tool-$actor-$turn-extra-1" })
+        assertFalse(receipts.any { it.id == "tool-$actor-$turn-extra-0" })
+        assertEquals(originalDecision, decision.toString())
+    }
+
+    @Test fun sceneDenialCannotUnlockDependentSocialActionButIndependentActionContinues() = runBlocking {
+        initializeBackgroundRuntime(app)
+        val actor = role()
+        val post = MomentsStore.publishUser("场景边界-${UUID.randomUUID()}")!!
+        val decision = JSONObject().put("steps", JSONArray()
+            .put(JSONObject().put("tool", "capture_screen").put("args", JSONObject()))
+            .put(JSONObject().put("tool", "comment_moment").put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("postId", post.id).put("text", "不会发送")))
+            .put(JSONObject().put("action", "moment").put("text", "独立分享-${UUID.randomUUID()}")))
+        assertEquals(1, ResidentDailyDecision.executeWakeSteps(app, actor, decision,
+            "boundary-wake-${UUID.randomUUID()}"))
+        assertFalse(MomentsStore.posts.value.first { it.id == post.id }.comments.any {
+            it.characterId == actor })
+        assertTrue(MomentsStore.posts.value.any {
+            it.authorCharacterId == actor && it.content == decision.getJSONArray("steps")
+                .getJSONObject(2).getString("text") })
+    }
+
+    @Test fun wakeDoesNotSilentlyDiscardTheNinthExplicitAction() = runBlocking {
+        initializeBackgroundRuntime(app)
+        val actor = role()
+        val posts = (1..9).map { MomentsStore.publishUser("多步-$it-${UUID.randomUUID()}")!! }
+        val decision = JSONObject().put("steps", JSONArray().apply {
+            posts.forEach { post -> put(JSONObject().put("tool", "like_moment")
+                .put("args", JSONObject().put("postId", post.id))) }
+        })
+        assertEquals(9, ResidentDailyDecision.executeWakeSteps(app, actor, decision,
+            "complete-wake-${UUID.randomUUID()}"))
+        assertTrue(posts.all { post -> actor in MomentsStore.posts.value.first {
+            it.id == post.id }.likedCharacterIds })
+    }
+
+    @Test fun eachWakeStepKeepsItsOwnMotiveLinkAndDetachedPlanCannotComplete() = runBlocking {
+        initializeBackgroundRuntime(app)
+        val actor = role()
+        val now = Instant.now()
+        val origin = "social-source-${UUID.randomUUID()}"
+        SharedExperienceTimeline.record(origin, actor, "真实观察", "执行器", "刚在院子看见一片红叶",
+            now, triggerExtraction = false, evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.observe(actor, origin, "自己的所见", JSONObject()
+            .put("motives", JSONArray().put(JSONObject().put("op", "start")
+                .put("aim", "想分享院子的红叶").put("why", "自己觉得很漂亮"))), now = now)
+        val motive = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor)
+            .optJSONArray("motives")).single { it.optString("aim") == "想分享院子的红叶" }.optString("id")
+        val turn = "linked-wake-${UUID.randomUUID()}"
+        val text = "院子里有片漂亮的红叶-${UUID.randomUUID()}"
+        val decision = JSONObject().put("steps", JSONArray().put(JSONObject()
+            .put("tool", "publish_moment").put("motiveId", motive)
+            .put("reason", "想把自己看见的红叶分享出去")
+            .put("args", JSONObject().put("text", text).put("planId", "unrelated-plan"))))
+        assertEquals(1, ResidentDailyDecision.executeWakeSteps(app, actor, decision, turn))
+        val receipt = SharedExperienceTimeline.eventsByIds(actor,
+            listOf("tool-$actor-$turn-extra-0")).single()
+        assertEquals(motive, JSONObject(receipt.content).optString("motiveId"))
+        assertEquals("", JSONObject(receipt.content).optString("planId"))
+        assertEquals("想把自己看见的红叶分享出去", JSONObject(receipt.content).optString("reason"))
+        val updated = CharacterMotiveState.active(CharacterInnerLifeStore.snapshot(actor)
+            .optJSONArray("motives")).single { it.optString("id") == motive }
+        assertTrue(updated.optJSONArray("outcomes")?.let { array ->
+            (0 until array.length()).any { array.getJSONObject(it).optString("id") == receipt.id }
+        } == true)
+        assertEquals("unrelated-plan", decision.getJSONArray("steps").getJSONObject(0)
+            .getJSONObject("args").getString("planId"))
+    }
+
     @Test fun phoneStepsAreRealIndependentToolReceiptsAndNeverCompleteAnUnrelatedPlan() = runBlocking {
         initializeBackgroundRuntime(app)
         val actor = role()

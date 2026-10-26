@@ -1206,6 +1206,7 @@ internal data class OrderedCharacterActionReport(
     val notes: List<String>, val anyAccepted: Boolean,
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
     val anyCompleted: Boolean = false,
+    val completedCount: Int = 0,
 )
 internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
@@ -1308,6 +1309,11 @@ internal object OrderedCharacterActions {
         // bubble arrives. Stop only its NOT-YET-STARTED steps; the next regular
         // role decision sees the new message and the already durable receipts.
         shouldDeferRemaining: (() -> Boolean)? = null,
+        // Scene adapters retain their existing capability boundary and durable IDs.
+        // They must not maintain a second dependency/receipt executor.
+        sceneAllowedTools: Set<String>? = null,
+        goalReviewMode: Boolean = false,
+        requestIdForStep: (Int) -> String = { "$requestId:step:$it" },
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
@@ -1315,6 +1321,7 @@ internal object OrderedCharacterActions {
         var previousCompleted = initialCompleted
         var anyAccepted = false
         var anyCompleted = false
+        var completedCount = 0
         for (index in 0 until steps.length()) {
             if (shouldDeferRemaining?.invoke() == true) {
                 for (pending in index until steps.length()) {
@@ -1341,6 +1348,11 @@ internal object OrderedCharacterActions {
                 previousCompleted = false
                 continue
             }
+            if (sceneAllowedTools != null && name !in sceneAllowedTools) {
+                notes += "第${index + 1}步${name}未执行：当前场景不提供此工具"
+                previousCompleted = false
+                continue
+            }
             if (normalized.optBoolean("requiresPreviousSuccess", false) && !previousCompleted) {
                 notes += "第${index + 1}步${name}未执行：前一步尚未成功"
                 previousCompleted = false
@@ -1359,8 +1371,8 @@ internal object OrderedCharacterActions {
             }
             val result = runCatching {
                 JSONObject(ToolRouter.execute(context, characterId, name, args,
-                    requestId = "${requestId}:step:${index}",
-                    intentionId = intentionId,
+                    requestId = requestIdForStep(index),
+                    intentionId = intentionId, goalReviewMode = goalReviewMode,
                     userRequested = if (name == "capture_screen") explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
@@ -1378,6 +1390,7 @@ internal object OrderedCharacterActions {
             val status = result.optString("status")
             previousCompleted = ToolExecutionStatus.completed(result)
             anyCompleted = anyCompleted || previousCompleted
+            if (previousCompleted) completedCount++
             anyAccepted = anyAccepted || accepted
             notes += "第${index + 1}步${name}：" + result.optString("summary").ifBlank {
                 result.optString("error").ifBlank {
@@ -1387,6 +1400,6 @@ internal object OrderedCharacterActions {
                 }
             }.take(160)
         }
-        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts, anyCompleted)
+        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts, anyCompleted, completedCount)
     }
 }
