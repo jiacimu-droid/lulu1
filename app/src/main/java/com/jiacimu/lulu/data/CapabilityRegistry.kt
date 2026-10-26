@@ -99,6 +99,7 @@ object CapabilityRegistry {
             appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
             appendLine("read_screen 只能读无障碍文字，capture_screen 才会真实获取一帧屏幕并调用已配置的视觉模型。")
+            appendLine("【可由你自己发起的现场核实】当你真的好奇主人此刻在做什么，或已有挂心需要实际证据时，可以独立选择 get_current_app、已获许可的 read_screen 或申请 capture_screen（工具仍由各自权限和真实回执约束），不必等主人开口指挥。电量下降、没回消息、挂断电话、应用没变化都不能证实她睡着；已看到新鲜的实际操作线索也只能说明当时设备有活动，不能保证一直清醒。是否核实、是否继续在线、是否关心她都由你根据现场和自己的心愿决定；不是每次感知、每次安静或每次休眠前的必做步骤。申请截图不等于已经看到了画面；结果返回后再据实改变理解。")
             if (permittedOnDemand) {
                 appendLine("当你根据对话实际需求或自身好奇心决定看屏幕时，选择 action=tool,tool=capture_screen,args={}；用户刚明确请求可按需读取，自己主动读取须有自主授权且两次至少间隔5分钟。是否真的看到以及画面内容只能根据实际工具回执回答；截屏可能因锁屏、隐私排除或系统保护失败，识图有 API 费用。")
             } else {
