@@ -114,12 +114,15 @@ object CharacterDevelopmentStore {
             // Keep what the user actually said distinct from the companion's own
             // traits. A clear first-person preference/self-report is useful now;
             // a pattern inferred from behaviour still needs independent days.
-            if (factual.isEmpty() || factual.any {
-                    it.evidenceKind != EventEvidenceKind.UserStatement ||
-                        (it.channel != "私聊" && !it.channel.contains("电话") &&
-                            !it.channel.contains("见面"))
+            if (factual.isEmpty() || factual.any { event ->
+                    val saidByUser = event.evidenceKind == EventEvidenceKind.UserStatement &&
+                        (event.channel == "私聊" || event.channel.contains("电话") ||
+                            event.channel.contains("见面"))
+                    !saidByUser && !(kind == DevelopmentKind.UserHabit &&
+                        UserRoutinePatterns.isStart(event))
                 }) return false
             val direct = factual.any { event ->
+                if (event.evidenceKind != EventEvidenceKind.UserStatement) return@any false
                 val text = event.content
                 if (kind == DevelopmentKind.UserPreference)
                     Regex("我.{0,8}(喜欢|不喜欢|更喜欢|偏爱|讨厌|希望|不希望|想要|不想)|别总|别再|不要再|下次.{0,14}(请|别|不要)|就这样")
@@ -127,10 +130,21 @@ object CharacterDevelopmentStore {
                 else Regex("我(一般|通常|经常|习惯|总是|平时|每次|基本)")
                     .containsMatchIn(text)
             }
-            val distinctDays = factual.map {
-                it.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-            }.toSet()
-            if (!direct && (factual.size < 3 || distinctDays.size < 3)) return false
+            val day = { event: SharedTimelineEvent ->
+                event.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            }
+            val distinctDays = factual.map(day).toSet()
+            if (!direct) {
+                if (factual.size < 3 || distinctDays.size < 3) return false
+                // Three unrelated phone actions must not be treated as one habit.
+                // A quoted user routine can still be established from separate days.
+                val userStatementDays = factual.filter {
+                    it.evidenceKind == EventEvidenceKind.UserStatement
+                }.map(day).toSet().size
+                val sameActivityDays = factual.filter(UserRoutinePatterns::isStart)
+                    .groupBy { it.source }.values.maxOfOrNull { group -> group.map(day).toSet().size } ?: 0
+                if (userStatementDays < 3 && sameActivityDays < 3) return false
+            }
             // Later contrary USER evidence must not be silently ignored.
             if (counters.any { counter ->
                     factual.any { it.occurredAt < counter.occurredAt }
