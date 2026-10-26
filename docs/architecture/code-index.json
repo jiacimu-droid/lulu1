@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:52:18.714146+00:00",
-  "commit": "7c59d173d34396dfea4ee1aff41226c72334cf9d",
+  "generatedAt": "2026-10-26T03:53:04.819994+00:00",
+  "commit": "cdc809151b23cfe9d2e62f57d501874f819360ec",
   "branch": "main",
-  "sourceFingerprint": "15550c33fb86e568855499295e533f81b9a19d5c0d671a4d03a5e27a400fc162",
+  "sourceFingerprint": "fc56105234625233cf5363fe093898491b854dcae3a9d88d441c6189a0aa8556",
   "summary": {
     "files": 921,
-    "lines": 182055,
+    "lines": 182058,
     "symbols": 2701
   },
   "symbolIndex": {
@@ -14609,7 +14609,7 @@
     "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 122
+        "line": 125
       }
     ],
     "OnlineContinuationPolicyTest": [
@@ -31221,8 +31221,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 880,
-      "sha256": "f0be27249927a37dd1c52fa0f61dcf723c465fc565e9c205ad6bff8d3be89bbf",
+      "lines": 883,
+      "sha256": "3d1bd3707a5c93099fb49392510d9983cab6b062834031812f4d07e004703f5e",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -31230,7 +31230,7 @@
         },
         {
           "name": "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision",
-          "line": 122
+          "line": 125
         }
       ]
     },
