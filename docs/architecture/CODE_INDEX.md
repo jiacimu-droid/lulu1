@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d2198c18f3b05f6bae7945b7bc52cb3f055f9876`
+- 基准提交：`a8e1e3cff60bcb5bd5da14f44d55738bcf7e6c6f`
 - 分支：`main`
 - 已索引文件：925
-- 已索引代码/文本行：182926
+- 已索引代码/文本行：182929
 - 已发现符号：2705
 
 | 文件 | 行数 | 符号数 |
@@ -183,7 +183,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1018 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 64 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 436 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 439 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
