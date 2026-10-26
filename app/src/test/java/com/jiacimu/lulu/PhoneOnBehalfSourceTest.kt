@@ -12,6 +12,37 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class PhoneOnBehalfSourceTest {
+    @Test fun onlyGroupMembersCanBeImpersonatedAndEveryMemberSeesTrueOrigin() {
+        val ctx = RuntimeEnvironment.getApplication()
+        MigratedDomainStores.initialize(ctx)
+        DigitalLifeProfileStore.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        val first = MigratedDomainStores.characters.create("群聊代发甲-" + UUID.randomUUID())
+        val second = MigratedDomainStores.characters.create("群聊代发乙-" + UUID.randomUUID())
+        val outsider = MigratedDomainStores.characters.create("群聊局外人-" + UUID.randomUUID())
+        listOf(first, second, outsider).forEach {
+            DigitalLifeProfileStore.registerNewLife(it.characterId, it.displayName, "测试")
+        }
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "真人群聊", listOf(first.characterId, second.characterId))
+        val thread = InspectedThread(key = "chat:${group.id}", title = group.title,
+            lastText = "", updatedAt = java.time.Instant.now(),
+            conversationId = group.id, isGroup = true)
+        assertTrue(runCatching {
+            rolePhoneSendOnBehalf(outsider.characterId, thread, "我不应发进来", listOf(group))
+        }.isFailure)
+        val id = rolePhoneSendOnBehalf(first.characterId, thread, "主人在群里开个玩笑",
+            listOf(group))
+        for (viewer in listOf(first.characterId, second.characterId)) {
+            val event = SharedExperienceTimeline.eventsByIds(viewer,
+                listOf("$id:group:$viewer")).single()
+            assertEquals("owner-on-behalf", event.source)
+            assertEquals(EventEvidenceKind.Observation, event.evidenceKind)
+        }
+        assertTrue(MigratedDomainStores.chat.messages(group.id).value
+            .first { it.id == id }.onBehalfByOwner)
+    }
+
     @Test fun impersonatedOwnerChatIsPersistedAsOwnerActionNotRoleSpeech() {
         val ctx = RuntimeEnvironment.getApplication()
         MigratedDomainStores.initialize(ctx)
