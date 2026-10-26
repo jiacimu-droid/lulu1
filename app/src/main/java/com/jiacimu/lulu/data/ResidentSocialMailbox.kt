@@ -174,11 +174,12 @@ internal object ResidentSocialMailbox {
                 evidenceKind = EventEvidenceKind.Observation,
             )
         }
-        // Native citizens have their own low-frequency daily decision. For a
-        // protagonist, a genuine new letter is a meaningful wake opportunity,
-        // not a timer that starts another empty paid reflection.
-        if (author == "character" && !to.startsWith("resident:") &&
-            DigitalLifeProfileStore.isEnabled(to)) {
+        // An actual delivered letter, including one explicitly sent by the
+        // owner while inspecting a phone, is a real incoming stimulus.
+        // The recipient must be able to react through its OWN next perception,
+        // but this does not imply the sender voluntarily chose those words.
+        // Native citizens retain their existing low-frequency wake schedule.
+        if (!to.startsWith("resident:") && DigitalLifeProfileStore.isEnabled(to)) {
             appContext?.let { context ->
                 runCatching {
                     ProactivePerceptionScheduler.scheduleResidentMail(
