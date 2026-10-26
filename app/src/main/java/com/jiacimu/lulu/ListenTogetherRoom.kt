@@ -23,6 +23,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.ai.LuluMusicSensoryRuntime
 import com.jiacimu.lulu.data.EventEvidenceKind
+import com.jiacimu.lulu.data.InteractionSignalBridge
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.system.LuluMediaPlayback
@@ -88,6 +89,8 @@ internal fun ListenTogetherRoom(
     val roomId = remember(conversationId) {
         prefs.getString(key + "room", null).orEmpty().ifBlank { UUID.randomUUID().toString() }
     }
+    // One actual visit may contain several play/pause actions, not several daily habits.
+    val listeningVisitId = remember(conversationId) { UUID.randomUUID().toString() }
     var mode by remember { mutableStateOf("system") }
     var track by remember { mutableStateOf<SharedListeningTrack?>(null) }
     var sessionError by remember { mutableStateOf("") }
@@ -111,6 +114,8 @@ internal fun ListenTogetherRoom(
             triggerExtraction = false, sessionId = roomId, source = "listen-together",
             evidenceKind = EventEvidenceKind.Observation,
         )
+        InteractionSignalBridge.recordUserActivity(characterId, listeningVisitId,
+            "listen-together", "start", channel = "一起听")
     }
 
     fun refreshExternal() {
