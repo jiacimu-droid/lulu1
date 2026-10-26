@@ -419,7 +419,15 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                     else people[thread.peerId]?.avatarUri,
                                 isGroup = thread.isGroup,
                                 pinned = thread.key in pinned,
-                                unreadCount = 0, statusText = "", statusOnline = false,
+                                unreadCount = 0,
+                                statusText = when {
+                                    chat?.groupChat?.ownerIncluded == false &&
+                                        chat.groupChat?.creatorCharacterId == actualRole -> "我建的群"
+                                    chat?.groupChat?.ownerIncluded == false -> "好友邀请"
+                                    thread.isGroup -> "群聊"
+                                    else -> ""
+                                },
+                                statusOnline = false,
                                 onOpen = { selectedThreadKey = thread.key },
                                 onMore = { menuThreadKey = thread.key },
                             )
