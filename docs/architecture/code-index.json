@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:48:32.464615+00:00",
-  "commit": "388cb561c41aaf05c1ed9524f5a218fb35b1d8bc",
+  "generatedAt": "2026-10-26T03:48:56.949967+00:00",
+  "commit": "d05e0c87fab7aef5f51dad539697eae81c2096a4",
   "branch": "main",
-  "sourceFingerprint": "0f6d180548c68fadb33db951386099dbf5bb28205f80496c75c77ce2fd7efeea",
+  "sourceFingerprint": "421905d7d3d525468be9856e535b5485d6d4da8edb2f59c94072ced110000c1b",
   "summary": {
-    "files": 920,
-    "lines": 181924,
-    "symbols": 2700
+    "files": 921,
+    "lines": 181995,
+    "symbols": 2701
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14146,6 +14146,12 @@
         "line": 97
       }
     ],
+    "CharacterPhoneCoverTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt",
+        "line": 15
+      }
+    ],
     "CharacterPhoneFavoriteIntentTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt",
@@ -21439,8 +21445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1334,
-      "sha256": "4aa78c3b28e1e08feff2bd7fcf99acafe48d98251455f8482504338a5bd2e0e9",
+      "lines": 1346,
+      "sha256": "0a9045c118de27e03efbcd54a75908ac286585d731935ced94e971b68722b53f",
       "symbols": [
         {
           "name": "asJson",
@@ -30437,6 +30443,17 @@
         {
           "name": "event",
           "line": 227
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt",
+      "lines": 59,
+      "sha256": "b2ed85184d1cd9ef49491a3c535a4d4a6a4e0304df44a7287207b02736e9bc7f",
+      "symbols": [
+        {
+          "name": "CharacterPhoneCoverTest",
+          "line": 15
         }
       ]
     },
