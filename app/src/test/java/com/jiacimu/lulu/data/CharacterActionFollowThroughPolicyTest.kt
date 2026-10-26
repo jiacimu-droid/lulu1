@@ -17,6 +17,19 @@ class CharacterActionFollowThroughPolicyTest {
         assertTrue(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "new", "old", 1000, 900))
         assertFalse(CharacterActionFollowThroughPolicy.shouldReview(false, choices, "new", "old", 1000, 900))
     }
+    @Test fun originalChosenStepsAreNeverReplacedByASecondModelDecision() {
+        val pending = listOf("想去查一点资料", "想主动关心对方")
+        assertTrue(CharacterActionFollowThroughPolicy.shouldReview(
+            silent = true, choices = pending, key = "wish", previousKey = "",
+            nowMs = 360_000L, previousAtMs = 0L, alreadyChoseSteps = false))
+        assertFalse(CharacterActionFollowThroughPolicy.shouldReview(
+            silent = true, choices = pending, key = "wish", previousKey = "",
+            nowMs = 360_000L, previousAtMs = 0L, alreadyChoseSteps = true))
+        assertFalse(CharacterActionFollowThroughPolicy.shouldReview(
+            silent = false, choices = pending, key = "wish", previousKey = "",
+            nowMs = 360_000L, previousAtMs = 0L))
+    }
+
     @Test fun severalFreshThoughtsCannotCrowdOutUntriedPersistentWishes() {
         val thoughts = org.json.JSONArray()
         repeat(9) { i -> thoughts.put(JSONObject()
