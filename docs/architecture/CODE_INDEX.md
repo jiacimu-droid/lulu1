@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7fc9cc5687916d59c6cefa10901e3d21b3a9661f`
+- 基准提交：`9a8b891c42d5dc60403c2abd845783d68e870abc`
 - 分支：`main`
-- 已索引文件：937
-- 已索引代码/文本行：185651
+- 已索引文件：949
+- 已索引代码/文本行：188008
 - 已发现符号：2724
 
 | 文件 | 行数 | 符号数 |
@@ -19,6 +19,18 @@
 | `app/src/main/assets/live2d/wolf-motions/04_lean_back.motion3.json` | 149 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/05_turn_left.motion3.json` | 192 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/06_turn_right.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/07_double_nod.motion3.json` | 163 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/08_head_shake.motion3.json` | 163 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/09_startle_recoil.motion3.json` | 220 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/10_peek_left.motion3.json` | 199 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/11_peek_right.motion3.json` | 199 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/12_shy_duck.motion3.json` | 199 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/13_chin_lift.motion3.json` | 149 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/14_sway_left.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/15_sway_right.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/16_curiosity_bob.motion3.json` | 199 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/17_happy_bounce.motion3.json` | 234 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json` | 248 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
