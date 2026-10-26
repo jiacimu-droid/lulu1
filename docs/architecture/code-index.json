@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:26:44.254242+00:00",
-  "commit": "f5290b849b94fa1e0cbddf8371ce6f194cdf66fe",
+  "generatedAt": "2026-10-26T08:28:41.773391+00:00",
+  "commit": "08400eb5a46c121cd947ddb88cd32e14b1a0770d",
   "branch": "main",
-  "sourceFingerprint": "c6c49f1b24b39a35393c6b6864e3f5131b42ec71ab5a5bdcf495046705f66ce7",
+  "sourceFingerprint": "67e24b20a6762a459fa54f8654e4b9bd25d08a87e5febff2620c83d96ee55148",
   "summary": {
     "files": 928,
-    "lines": 184034,
+    "lines": 184036,
     "symbols": 2720
   },
   "symbolIndex": {
@@ -3889,7 +3889,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 88
+        "line": 89
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -8199,67 +8199,67 @@
     "recordVideoSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 94
+        "line": 95
       }
     ],
     "recordVideoRendered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 111
+        "line": 112
       }
     ],
     "recordCallMediaSwitch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 129
+        "line": 130
       }
     ],
     "avatarContactDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 150
+        "line": 151
       }
     ],
     "recordAvatarTouches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 181
+        "line": 182
       }
     ],
     "recordAvatarTouch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 219
+        "line": 220
       }
     ],
     "hasRenderedVideo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 227
+        "line": 228
       }
     ],
     "hasSelectedVideo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 231
+        "line": 232
       }
     ],
     "callMediaSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 236
+        "line": 237
       }
     ],
     "recordCallQuiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 247
+        "line": 248
       }
     ],
     "recordCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 272
+        "line": 273
       }
     ],
     "retryAt": [
@@ -10619,13 +10619,13 @@
     "nearTimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 93
+        "line": 94
       }
     ],
     "reflectionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 107
+        "line": 108
       }
     ],
     "Choice": [
@@ -22954,8 +22954,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-      "lines": 301,
-      "sha256": "2e0cbc4fd9a3483fa94012fd6cb7241f1c5b61c1f70ab27470b8bb835bfe0819",
+      "lines": 302,
+      "sha256": "26976ceb10a3ea408ff636912dc45b32b18597d54f25d2242250ed62d6d09306",
       "symbols": [
         {
           "name": "callEndDescription",
@@ -22975,47 +22975,47 @@
         },
         {
           "name": "recordVideoSelected",
-          "line": 94
+          "line": 95
         },
         {
           "name": "recordVideoRendered",
-          "line": 111
+          "line": 112
         },
         {
           "name": "recordCallMediaSwitch",
-          "line": 129
+          "line": 130
         },
         {
           "name": "avatarContactDescription",
-          "line": 150
+          "line": 151
         },
         {
           "name": "recordAvatarTouches",
-          "line": 181
+          "line": 182
         },
         {
           "name": "recordAvatarTouch",
-          "line": 219
+          "line": 220
         },
         {
           "name": "hasRenderedVideo",
-          "line": 227
+          "line": 228
         },
         {
           "name": "hasSelectedVideo",
-          "line": 231
+          "line": 232
         },
         {
           "name": "callMediaSummary",
-          "line": 236
+          "line": 237
         },
         {
           "name": "recordCallQuiet",
-          "line": 247
+          "line": 248
         },
         {
           "name": "recordCallEnd",
-          "line": 272
+          "line": 273
         }
       ]
     },
@@ -25590,8 +25590,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-      "lines": 119,
-      "sha256": "4a308f286985bb67bd524b6886ad5eff10251f3602678e0c52a1ead8500f2112",
+      "lines": 120,
+      "sha256": "ce869e276670f0b1a792edcf88e228b2df3f80a0bfbf2dbaeb7b3c0af776a2d0",
       "symbols": [
         {
           "name": "Pattern",
@@ -25607,15 +25607,15 @@
         },
         {
           "name": "recent",
-          "line": 88
+          "line": 89
         },
         {
           "name": "nearTimeContext",
-          "line": 93
+          "line": 94
         },
         {
           "name": "reflectionContext",
-          "line": 107
+          "line": 108
         }
       ]
     },

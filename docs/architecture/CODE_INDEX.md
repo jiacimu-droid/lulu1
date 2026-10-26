@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f5290b849b94fa1e0cbddf8371ce6f194cdf66fe`
+- 基准提交：`08400eb5a46c121cd947ddb88cd32e14b1a0770d`
 - 分支：`main`
 - 已索引文件：928
-- 已索引代码/文本行：184034
+- 已索引代码/文本行：184036
 - 已发现符号：2720
 
 | 文件 | 行数 | 符号数 |
@@ -388,7 +388,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 557 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 301 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 302 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt` | 21 | 4 |
@@ -475,7 +475,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 106 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt` | 119 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt` | 120 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
