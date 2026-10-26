@@ -82,9 +82,12 @@ class CharacterLifeStoreTest {
         pending = CharacterLifeStore.state(role).getJSONObject("intention")
         assertEquals(2, pending.getInt("unansweredContactAttempts"))
         assertFalse(pending.has("nextReviewAt"))
-        assertTrue(GoalFollowUpPolicy.shouldBlockContact(pending, "send_private_message"))
-        // New actual user evidence resets the unanswered-contact guard,
-        // without silently equating "I replied" with forgiveness.
+        assertNull(GoalFollowUpPolicy.contactBlockReason(
+            pending, "send_private_message", autonomous = true, intentionId = goalId))
+        // The automatic five-minute paid review is bounded after two unanswered
+        // contacts, but a later independent role decision remains executable.
+        // New actual user evidence resets the unanswered count, not the user's
+        // relationship outcome or consent.
         CharacterLifeStore.observeUserGoalEvidence(role, "genuine-reply", "我还想再想想", now.plusSeconds(400))
         pending = CharacterLifeStore.state(role).getJSONObject("intention")
         assertEquals(0, pending.getInt("unansweredContactAttempts"))
