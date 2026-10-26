@@ -1685,6 +1685,7 @@ object ProactivePerceptionRuntime {
                 responseEvidenceIds = onlineUnread.messageIds,
                 replyConversationIds = onlineUnread.conversationIds,
                 userText = onlineUnread.text,
+                acceptedOnlineRevision = onlineRevision,
                 requestId = when {
                     // A new user message is a NEW decision. Never reuse the older
                     // call-end/world-event request key while the user is waiting.
@@ -1967,6 +1968,7 @@ object ProactivePerceptionRuntime {
         responseEvidenceIds: Set<String> = emptySet(),
         replyConversationIds: Set<String> = emptySet(),
         userText: String = "",
+        acceptedOnlineRevision: Long? = null,
     ): ActionExecution {
         if (decision.action == Action.SILENT && (decision.sideActions?.length() ?: 0) == 0)
             return ActionExecution(false, "角色选择保持安静")
@@ -2095,6 +2097,14 @@ object ProactivePerceptionRuntime {
         // One model choice can include multiple distinct, ordered actions.
         // Every step uses the existing permission boundary and its own durable receipt.
         // Do not silently narrow these to music/volume or invent a second planner.
+        // The model chose these steps using a frozen earlier chat snapshot.
+        // If a new bubble supersedes it during network IO, do not start
+        // subsequent actions as though it had read the new request. The
+        // regular unread-batch owner will decide again with both facts.
+        val supersededByNewMessage = {
+            acceptedOnlineRevision != null &&
+                !OnlineChatBatchStore.isCurrent(appContext, character.characterId, acceptedOnlineRevision)
+        }
         val searchIncluded = tool in resultBearingTools ||
             (0 until (decision.sideActions?.length() ?: 0)).any { index ->
                 decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in resultBearingTools
@@ -2111,6 +2121,7 @@ object ProactivePerceptionRuntime {
                     userEvidenceIds = responseEvidenceIds, userText = userText,
                     explicitScreenRequest = explicitScreenRequest,
                     autonomousLifeTurn = !hasFreshUserMessage,
+                    shouldDeferRemaining = supersededByNewMessage,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2120,6 +2131,7 @@ object ProactivePerceptionRuntime {
             userEvidenceIds = responseEvidenceIds, userText = userText,
             explicitScreenRequest = explicitScreenRequest,
             autonomousLifeTurn = !hasFreshUserMessage,
+            shouldDeferRemaining = supersededByNewMessage,
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
@@ -2138,7 +2150,8 @@ object ProactivePerceptionRuntime {
         var extraConversationId: String? = null
         if (decision.action == Action.TOOL && decision.text.isNotBlank() &&
             tool !in setOf("send_private_message", "send_group_message") &&
-            hasFreshUserMessage && replyConversationIds.isNotEmpty()) {
+            hasFreshUserMessage && replyConversationIds.isNotEmpty() &&
+            !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
                 it.id in replyConversationIds && it.groupChat == null &&
                     it.characterId == character.characterId
@@ -2165,7 +2178,14 @@ object ProactivePerceptionRuntime {
         // search with a new role-authored, evidence-grounded message only after
         // actual search receipts exist, not from the model's pre-search guess.
         if (hasFreshUserMessage && verifiedSearch.isNotEmpty() &&
-            replyConversationIds.isNotEmpty()) {
+            replyConversationIds.isNotEmpty() && supersededByNewMessage()) {
+            // ToolRouter has persisted the actual results and scheduled its
+            // normal perception. An older accepted search cannot publish a
+            // stale final answer into a newer user's conversational turn.
+            effectNotes += "搜索回执已保存；有更新的用户消息，结果交由统一感知继续处理"
+        }
+        if (hasFreshUserMessage && verifiedSearch.isNotEmpty() &&
+            replyConversationIds.isNotEmpty() && !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
                 it.id in replyConversationIds && it.groupChat == null &&
                     it.characterId == character.characterId
