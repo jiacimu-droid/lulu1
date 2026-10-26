@@ -17,7 +17,7 @@ import './impact-recovery.mjs'
 // every release (the same assets are installed beside imported wolf rigs).
 const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/', import.meta.url)
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
-  /^[0-9]{2}_[a-z_]+\\.motion3\\.json$/.test(name)).sort()
+  /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
   ['00', '01', '02', '03', '04', '05', '06'])
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
@@ -26,6 +26,9 @@ for (const filename of wolfMotionFiles) {
   const motion = JSON.parse(readFileSync(new URL(filename, wolfMotionDir), 'utf8'))
   assert.equal(motion.Version, 3, filename)
   assert.equal(motion.Meta.Loop, false, filename)
+  assert.ok(motion.Meta.FadeInTime >= 0 && motion.Meta.FadeInTime <= .5, filename)
+  assert.ok(motion.Meta.FadeOutTime >= 0 && motion.Meta.FadeOutTime <= .5, filename)
+  assert.ok(!('FadeInTime' in motion) && !('FadeOutTime' in motion), filename)
   assert.equal(motion.Meta.AreBeziersRestricted, true, filename)
   assert.equal(motion.Meta.CurveCount, motion.Curves.length, filename)
   let totalSegments = 0, totalPoints = 0, movingAxes = 0
