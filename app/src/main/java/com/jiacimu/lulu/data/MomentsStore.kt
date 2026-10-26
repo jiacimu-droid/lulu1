@@ -197,9 +197,11 @@ object MomentsStore {
             }
             .forEach { post ->
                 socialScope.launch {
+                    // Image understanding only updates the persisted post.
+                    // Friends notice its changed activity on their next phone
+                    // perception; an image retry must not summon a separate
+                    // autonomous social-reaction model.
                     processImageUnderstanding(post.id)
-                    // A new image description updates content; the next role perception owns reactions.
-                    else letOtherCharactersReact(post.id)
                 }
             }
     }
@@ -514,8 +516,6 @@ object MomentsStore {
                 evidenceKind = EventEvidenceKind.Observation,
                 occurredAt = Instant.now(), triggerExtraction = false,
             )
-            recordVisibleLike(post, characterId,
-                "${UserProfileContext.displayLabel()}（代${character.displayName}）")
         } else {
             SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
             MigratedDomainStores.characters.settings.value.keys.forEach { viewer ->
