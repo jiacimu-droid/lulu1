@@ -83,6 +83,12 @@ class CharacterCreatedGroupTest {
             now.plusSeconds(20),
         )
         assertEquals(2, observed.size)
+        // A character waking after a long rest must still perceive the owner
+        // browsing its phone or a genuine group invitation.
+        assertEquals(2, CharacterPerceptionContext.selectRecent(
+            listOf(event("owner-phone-inspection"), event("group-membership")),
+            now.plusSeconds(259_200),
+        ).size)
         assertTrue("user" in CharacterPerceptionContext.stimulus(
             event("owner-phone-inspection")).socialIds)
     }
