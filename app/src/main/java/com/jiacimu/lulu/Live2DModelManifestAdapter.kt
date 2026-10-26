@@ -48,13 +48,22 @@ internal object Live2DModelManifestAdapter {
                     ?.let { existing.add(File(base, it).canonicalPath) }
             }
         }
+        // Stable group/index identity is part of the character's motion
+        // selection contract. Keep the generated wolf clips apart from any
+        // authored/imported animation and enumerate both deterministically.
         val discovered = motions.optJSONArray("Lulu") ?: JSONArray()
+        val wolf = motions.optJSONArray("LuluWolf") ?: JSONArray()
         base.walkTopDown().filter { it.isFile && it.name.endsWith(".motion3.json", true) }
+            .sortedBy { it.relativeTo(base).invariantSeparatorsPath }
             .forEach { file ->
-                if (existing.add(file.canonicalPath))
-                    discovered.put(JSONObject().put("File", file.relativeTo(base).invariantSeparatorsPath))
+                if (existing.add(file.canonicalPath)) {
+                    val entry = JSONObject().put("File", file.relativeTo(base).invariantSeparatorsPath)
+                    if (file.parentFile?.name == "__lulu_wolf_motions") wolf.put(entry)
+                    else discovered.put(entry)
+                }
             }
         if (discovered.length() > 0) motions.put("Lulu", discovered)
+        if (wolf.length() > 0) motions.put("LuluWolf", wolf)
         if (motions.length() > 0) refs.put("Motions", motions)
         return json
     }
