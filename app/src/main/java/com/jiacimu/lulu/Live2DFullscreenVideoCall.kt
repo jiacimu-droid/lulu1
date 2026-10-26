@@ -146,12 +146,13 @@ internal fun Live2DFullscreenVideoCall(
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
     var videoMenuExpanded by remember(modelUrl) { mutableStateOf(false) }
     var expressionPickerExpanded by remember(modelUrl) { mutableStateOf(false) }
+    var motionPickerExpanded by remember(modelUrl) { mutableStateOf(false) }
     // Compatibility-only resolution budget; it is never a user-facing
     // renderer selector. Direct WebGL and GPU Surface keep full model quality.
     val qualityMode = "smooth"
     var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
     var interactionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
-    var interactionForce by remember(modelUrl) { mutableFloatStateOf(.55f) }
+    var interactionForce by remember(modelUrl) { mutableFloatStateOf(.25f) }
     var forceMenuOpen by remember(modelUrl) { mutableStateOf(false) }
     var touchCalibrationMode by remember(modelUrl) { mutableStateOf(false) }
     var touchRegionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
@@ -592,6 +593,37 @@ internal fun Live2DFullscreenVideoCall(
                     .padding(horizontal = 13.dp, vertical = 7.dp),
                 color = Color.White, fontSize = 13.sp)
         }
+        if (motionPickerExpanded) {
+            AlertDialog(
+                onDismissRequest = { motionPickerExpanded = false },
+                title = { Text("模型动作 · ${availableAnimations.motions.size}") },
+                text = {
+                    Column(Modifier.heightIn(max = 420.dp)
+                        .verticalScroll(rememberScrollState())) {
+                        val names = listOf("轻轻点头", "向左歪头", "向右歪头",
+                            "身体靠近", "身体后仰", "向左回望", "向右回望")
+                        availableAnimations.motions.forEach { selected ->
+                            val label = if (selected.first == "LuluWolf")
+                                names.getOrNull(selected.second) ?: "动作 ${selected.second + 1}"
+                            else "${selected.first} · ${selected.second + 1}"
+                            TextButton(modifier = Modifier.fillMaxWidth(), onClick = {
+                                motionPickerExpanded = false
+                                val stage = expressionStage
+                                if (nativeFrameReady && stage != null) {
+                                    stage.evaluateJavascript(
+                                        "window.LuluLive2D && window.LuluLive2D.motion(" +
+                                            JSONObject.quote(selected.first) + "," +
+                                            selected.second + ",true)", null)
+                                } else onPreviewMotion(selected)
+                            }) { Text(label, modifier = Modifier.fillMaxWidth()) }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { motionPickerExpanded = false }) { Text("关闭") }
+                },
+            )
+        }
         if (expressionPickerExpanded) {
             AlertDialog(
                 onDismissRequest = { expressionPickerExpanded = false },
@@ -709,6 +741,16 @@ internal fun Live2DFullscreenVideoCall(
                                     expressionPickerExpanded = true
                                 },
                                 leadingIcon = { Icon(Icons.Outlined.Face, null) },
+                            )
+                        }
+                        if (availableAnimations.motions.isNotEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("模型动作 · ${availableAnimations.motions.size}") },
+                                onClick = {
+                                    videoMenuExpanded = false
+                                    motionPickerExpanded = true
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
                             )
                         }
                         DropdownMenuItem(
@@ -829,13 +871,12 @@ internal fun Live2DFullscreenVideoCall(
                     Box {
                         TextButton(modifier = Modifier.width(48.dp),
                             onClick = { forceMenuOpen = true }) {
-                            Text(if (interactionForce < .4f) "轻" else
-                                if (interactionForce > .75f) "重" else "中",
+                            Text(if (interactionForce < .6f) "轻" else "重",
                                 color = Color.White, fontSize = 12.sp)
                         }
                         DropdownMenu(expanded = forceMenuOpen,
                             onDismissRequest = { forceMenuOpen = false }) {
-                            listOf(.25f to "轻", .55f to "中", .9f to "重").forEach { (force, label) ->
+                            listOf(.25f to "轻", .9f to "重").forEach { (force, label) ->
                                 DropdownMenuItem(text = { Text(label) }, onClick = {
                                     interactionForce = force
                                     forceMenuOpen = false
