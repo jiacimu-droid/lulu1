@@ -60,6 +60,17 @@ class ResidentPhoneWakeIntegrationTest {
         assertEquals("moment:phone-read", viewed.single().source)
     }
 
+    @Test fun equalTimestampPostBoundaryKeepsUnreadTieAndLegacyCursorReadable() {
+        val at = Instant.parse("2026-10-26T08:00:00Z")
+        assertTrue(CharacterPhoneInbox.afterCursor(at, "post-b", at, "post-a"))
+        assertFalse(CharacterPhoneInbox.afterCursor(at, "post-a", at, "post-a"))
+        assertFalse(CharacterPhoneInbox.afterCursor(at, "post-0", at, "post-a"))
+        assertTrue("Migrated timestamp-only cursors must not swallow equal-time posts",
+            CharacterPhoneInbox.afterCursor(at, "post-a", at, ""))
+        assertTrue(CharacterPhoneInbox.afterCursor(at.plusNanos(1), "post-0", at, "post-z"))
+        assertFalse(CharacterPhoneInbox.afterCursor(at.minusNanos(1), "post-z", at, "post-a"))
+    }
+
     @Test fun aNewLikeAfterReadingCreatesAnotherRedDotWithoutTelepathy() {
         val viewer = role()
         val liker = role()
