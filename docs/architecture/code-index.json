@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T15:40:22.627452+00:00",
-  "commit": "9c78dab73f826f8280bd73c6a1af9ddccc545391",
+  "generatedAt": "2026-10-26T15:57:06.300272+00:00",
+  "commit": "f92bad661ee9318cb725ef92769c1eca7cce989a",
   "branch": "main",
-  "sourceFingerprint": "c14544d6ef4cdd739aeee4233fe85b39cc1855d0ab54c18e2fb2e900b37e8327",
+  "sourceFingerprint": "8a5b7a8723d05a38452af2be4e031640ca13e11ec2fb855a5bb686425b490d93",
   "summary": {
-    "files": 951,
-    "lines": 188532,
-    "symbols": 2761
+    "files": 952,
+    "lines": 188617,
+    "symbols": 2763
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1652
+        "line": 1666
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -14370,6 +14370,18 @@
         "line": 13
       }
     ],
+    "CharacterTopicCandidatesTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 26
+      }
+    ],
+    "compactDeliversMultipleRecentThoughtsWithin72hAndDropsOlder": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 44
+      }
+    ],
     "CharacterUnfinishedActionContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
@@ -20485,8 +20497,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1788,
-      "sha256": "94f2b573ee6886d344f573d3a51fe3b735882b2f5a4b785ac99d239d636c770f",
+      "lines": 1802,
+      "sha256": "a80f437bacfc1f17c11beabfc1a4caa6c43cd3f403e0b2943f7df994aaf572aa",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20522,7 +20534,7 @@
         },
         {
           "name": "context",
-          "line": 1652
+          "line": 1666
         }
       ]
     },
@@ -31162,6 +31174,21 @@
         {
           "name": "CharacterThoughtActionHandoffTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+      "lines": 71,
+      "sha256": "c4824fe14dfac24d84000547ed33bbd4e9170b782b2580fa07c65699cdd05e79",
+      "symbols": [
+        {
+          "name": "CharacterTopicCandidatesTest",
+          "line": 26
+        },
+        {
+          "name": "compactDeliversMultipleRecentThoughtsWithin72hAndDropsOlder",
+          "line": 44
         }
       ]
     },
