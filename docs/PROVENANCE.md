@@ -31,6 +31,13 @@
 
 # 代码与设计归属账本
 
+## 2026-10-26：独立表达路由与Jev原生多方向参考
+
+- 标签：ORIGINAL。`OptionalModelRolesSettings.kt`、`JevDirections.kt`、原网关/作用域选择、原ToolRouter与回执回流及测试，均依据主人“按职责选择模型、分别考虑多个方向”的要求独立实现，无新增第三方运行依赖。
+- Jev只读取 https://docs.typesafe.ai 的官方models、system-one、noul、quickstart、errors与list-models接口事实；未复制SDK、厂商提示词或安装外部skill。没有采用厂商示例中的程序概率阈值/路由/情绪认定，最终判断仍由原角色模型承担。
+- 新增世界、声音、记忆和评估候选仅列官方入口与工程取舍，未复制任何代码、权重、音色、训练集、论文图像或资产；后续实际迁入前须分别核验代码/模型/资产许可及设备表现。
+- 清单、成本与边界见 `docs/architecture/DIGITAL_LIFE_EXPANDED_ROADMAP.md` 和 `JEV_DIRECTIONS_GUIDE.md`。本地HTTP夹具/Android测试不能冒充真实Jev质量、手机自然度或云GPU测量。
+
 ## 2026-10-26：数字生命清单第二批局部吸收
 
 - 原 Kotlin 模块上的独立实现，未复制外部代码、论文提示词、模型或资产，未新增依赖与付费模型轮次。

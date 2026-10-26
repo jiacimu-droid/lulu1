@@ -741,6 +741,7 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
+                appendLine(com.jiacimu.lulu.ai.JevDirections.context())
                 val openCommitments = CommitmentTaskStore.active(characterId)
                 if (openCommitments.isNotEmpty()) {
                     appendLine("【当前已承担的目标与统一验收入口】")

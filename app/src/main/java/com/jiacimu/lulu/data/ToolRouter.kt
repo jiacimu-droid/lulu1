@@ -55,6 +55,7 @@ object ToolRouter {
             "read_xiaohongshu" -> "xhs"
             "web_search" -> "web"
             "image_search" -> "images"
+            com.jiacimu.lulu.ai.JevDirections.TOOL -> "thought-reference"
             else -> "actions"
         }) {
             fun rejected(message: String, status: String = "failed"): String {
@@ -141,6 +142,8 @@ object ToolRouter {
                             JSONObject().put("request", args.optString("request")).put("sources", args.optJSONArray("sources") ?: org.json.JSONArray()).put("notes", args.optString("notes")), requestId)
                         JSONObject().put("success", true).put("status", "pending").put("requestId", job.getString("requestId"))
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
+                    } else if (name == com.jiacimu.lulu.ai.JevDirections.TOOL) {
+                        com.jiacimu.lulu.ai.JevDirections.evaluate(context, characterId, args)
                     } else if (name == "capture_screen") {
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId)
                     } else if (name == "start_study_watch") {

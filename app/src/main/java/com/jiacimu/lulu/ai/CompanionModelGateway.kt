@@ -484,7 +484,9 @@ class CompanionModelGateway(
             } else {
                 usage?.let(connectionStore::selectedArchiveId)
             }
-            val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
+            val connection = ScopedModelSelections.expressionConnection(source, contextMode, connectionStore)
+                ?: connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
+            require(!connection.model.startsWith("jev-")) { "Jev是思路参考模型，不能生成台词；请为聊天/表达选择文字模型" }
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
             val recallQuery = "$facts\n$instruction"

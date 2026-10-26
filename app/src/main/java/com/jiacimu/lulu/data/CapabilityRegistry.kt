@@ -30,6 +30,7 @@ object CapabilityRegistry {
         "publish_moment", "send_character_message", "write_journal", "start_study_watch", "stop_study_watch", "verify_commitment", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search", "image_search")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false, retired = it == "write_journal") }
     val external = listOf(
+        Capability(com.jiacimu.lulu.ai.JevDirections.TOOL, "analysis", "jev", "native TypeSafe response, named probabilities and actual usage; no action chosen", false),
         Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
         Capability("read_health_mcp", "external", "health_read", "authenticated read-only health_read response", true),
     )
@@ -62,6 +63,8 @@ object CapabilityRegistry {
                 "send_private_message", "send_group_message", "send_character_message",
                 "play_solo_game", "go_offline")
         }
+        if (capability.name == com.jiacimu.lulu.ai.JevDirections.TOOL)
+            return com.jiacimu.lulu.ai.JevDirections.configured()
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
         if (capability.name == "capture_screen") return if (userRequested)
             com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)

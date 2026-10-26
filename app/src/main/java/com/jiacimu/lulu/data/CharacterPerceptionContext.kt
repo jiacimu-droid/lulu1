@@ -106,6 +106,8 @@ internal object CharacterPerceptionContext {
         }
         val summary = result.optString("summary").ifBlank { result.optString("error") }.trim()
         if (summary.isBlank()) return null
+        if (execution.optString("tool") == com.jiacimu.lulu.ai.JevDirections.TOOL && result.optBoolean("success"))
+            return "本人真实调用Jev取得模型参考（不是外界新事实）：${result}"
         return "本人实际尝试 ${execution.optString("tool")}；执行成功=${result.optBoolean("success")}；$summary"
     }
 
@@ -165,7 +167,15 @@ internal object CharacterPerceptionContext {
             event.source == "tool-router" && runCatching {
                 JSONObject(event.content).optString("tool") in SearchReceiptFeedback.resultTools
             }.getOrDefault(false)
-        return (personalOutcome(event.source, event.content) ?: event.content)
+        val personal = personalOutcome(event.source, event.content)
+        val directionReference = event.source == "tool-router" && runCatching {
+            JSONObject(event.content).optString("tool") == com.jiacimu.lulu.ai.JevDirections.TOOL
+        }.getOrDefault(false)
+        // A batch's final direction must not disappear behind the original
+        // request fingerprint or a fixed prefix cut. Preserve all returned
+        // questions/answers; the ordinary turn budget still owns prompt assembly.
+        if (directionReference && personal != null) return personal
+        return (personal ?: event.content)
             .take(if (searchReceipt) 3_600 else 700)
     }
 

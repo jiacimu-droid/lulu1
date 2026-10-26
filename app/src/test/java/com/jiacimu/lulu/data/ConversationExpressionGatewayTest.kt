@@ -27,6 +27,44 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ConversationExpressionGatewayTest {
+    @Test fun dedicatedWriterChangesOnlyExistingExpressionRequestsAndCanBeCleared() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = MigratedDomainStores.characters.create("独立表达测试人", "有自己的主见")
+        val planner = MockWebServer()
+        val writer = MockWebServer()
+        fun response() = MockResponse().setBody("""{"choices":[{"message":{"content":"这是本人选定的话。"},"finish_reason":"stop"}]}""")
+        repeat(3) { planner.enqueue(response()) }
+        writer.enqueue(response())
+        planner.start(); writer.start()
+        val scope = com.jiacimu.lulu.ai.ScopedModelSelections
+        try {
+            val store = LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "独立文字", writer.url("/v1").toString(), "writer-key")
+            val archive = store.addArchive(config.id, "writer-model")
+            scope.select(scope.EXPRESSION, archive.id)
+            val main = ModelConnection(planner.url("/v1").toString(), "planner-key", "planner-model")
+            suspend fun generate(source: String, mode: CompanionContextMode = CompanionContextMode.Full) =
+                LuluAiServices.gateway.generate(role.characterId, "已决定的意思与真实结果", "只表达既定意思", source,
+                    "test", connectionOverride = main, contextMode = mode).getOrThrow()
+            generate("普通角色决定")
+            generate("聊天表达渲染")
+            val rendered = JSONObject(writer.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            assertEquals("writer-model", rendered.getString("model"))
+            val system = rendered.getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(system.contains("独立表达测试人"))
+            assertTrue(system.contains("已决定的意思与真实结果"))
+            assertFalse(system.contains("【统一角色决策协议】"))
+            generate("聊天表达渲染", CompanionContextMode.Isolated)
+            scope.clear(scope.EXPRESSION)
+            generate("聊天表达渲染")
+            repeat(3) { assertEquals("planner-model", JSONObject(planner.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()).getString("model")) }
+            assertEquals(3, planner.requestCount)
+            assertEquals(1, writer.requestCount)
+        } finally { scope.clear(scope.EXPRESSION); planner.shutdown(); writer.shutdown() }
+    }
     @Before fun before() {
         MemoryTestEnvironment.release()
         val context = RuntimeEnvironment.getApplication() as Context
