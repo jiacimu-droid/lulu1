@@ -708,6 +708,10 @@ internal object LuluVoiceCallSession {
                 statusMessage = if (enabled) "正在自然哄睡 · 已切换哄睡声线"
                 else "已退出哄睡 · 恢复普通通话声线")
         }
+        // The operation is a fact, not a claim that the user fell asleep.
+        InteractionSignalBridge.recordUserActivity(
+            current.characterId, current.callExperienceId, "sleep-guidance",
+            if (enabled) "start" else "end")
         if (enabled) {
             armSleepDeadline()
             scheduleSleepContinuation()
@@ -881,6 +885,10 @@ internal object LuluVoiceCallSession {
         recognizer = null
         recognitionActive = false
         speechQueue?.stop()
+        if (current.everConnected && current.sleepMode) {
+            InteractionSignalBridge.recordUserActivity(
+                current.characterId, current.callExperienceId, "sleep-guidance", "end")
+        }
         saveCallExperience(current, endedByCharacter)
         // The user ending a connected call is a new *observed event*, not a
         // command to make the character worried or to send a canned message.
