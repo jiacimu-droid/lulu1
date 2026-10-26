@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0a659eda3b47b3fb7a85e6c0f02582b3bc9465e3`
+- 基准提交：`939fbfbf4b31cf1348bb5f0c2b2a85c9d33f8752`
 - 分支：`main`
 - 已索引文件：925
-- 已索引代码/文本行：183103
+- 已索引代码/文本行：183135
 - 已发现符号：2706
 
 | 文件 | 行数 | 符号数 |
@@ -856,7 +856,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 56 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
@@ -885,7 +885,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 70 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 92 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 304 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
