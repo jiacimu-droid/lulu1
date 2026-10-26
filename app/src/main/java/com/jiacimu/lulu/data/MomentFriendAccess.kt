@@ -77,6 +77,22 @@ object MomentFriendAccess {
         return ok
     }
 
+    /** Facts for the role to weigh when deciding if it wants to share.
+     * Audience affects choices, never commands an automatic publication.
+     */
+    fun audienceContext(characterId: String): String {
+        val friends = MigratedDomainStores.characters.settings.value.values
+            .filter { it.characterId != characterId && areFriends(characterId, it.characterId) }
+            .map { it.displayName }.take(12)
+        val owner = if (areFriends(characterId, OWNER)) listOf("主人") else emptyList()
+        return buildString {
+            append("【真实朋友圈好友可见范围】")
+            append((owner + friends).joinToString("、").ifBlank { "目前没有已确认的好友" })
+            append("。只有以上确认好友能阅读、点赞和评论；能看到对作者所有的点赞评论。")
+            append("知道谁会看到是选择分享的参考，不强制你发布，也不保证有人互动。")
+        }
+    }
+
     fun canView(post: MomentPost, viewer: String): Boolean {
         val author = if (post.authorType == MomentAuthorType.User)
             OWNER else post.authorCharacterId.orEmpty()
