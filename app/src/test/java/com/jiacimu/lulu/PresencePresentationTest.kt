@@ -5,6 +5,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PresencePresentationTest {
+    @Test fun unverifiedNarrationAndConfirmedWorldActionRemainDistinct() {
+        val writtenOnly = CompanionPresenceState(
+            characterId = "role-a", gesture = "想象自己喝完一杯水",
+        )
+        assertEquals("动作描写", PresencePresentation.gestureLabel(writtenOnly))
+        assertEquals("想象自己喝完一杯水",
+            PresencePresentation.stateFields(writtenOnly).toMap()["动作"])
+        val completed = writtenOnly.copy(
+            gesture = "已在数字世界喝完温水", gestureVerified = true,
+        )
+        assertEquals("已做动作", PresencePresentation.gestureLabel(completed))
+        assertEquals("已在数字世界喝完温水",
+            PresencePresentation.stateFields(completed).toMap()["动作"])
+    }
+
     @Test fun stateDoesNotRepeatAnAlreadyVisibleAction() {
         val state = CompanionPresenceState(
             characterId = "jiangdu", mood = "挂念",
