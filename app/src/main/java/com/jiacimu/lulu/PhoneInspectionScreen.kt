@@ -353,69 +353,47 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     }
                 }
             } else if (phoneTab == 2) {
-                MomentsHeader(
-                    userName = identity?.displayName ?: "角色",
-                    userAvatar = identity?.displayName?.take(1).orEmpty().ifBlank { "角" },
-                    userAvatarUri = identity?.avatarUri,
-                    coverUri = coverPhoto,
-                    signature = ownPhoneLife.optJSONObject("socialNames")
-                        ?.optString("selfNickname").orEmpty().ifBlank { "生活正在发生" },
-                    coverPalette = rolePhoneCoverPalette(coverPreset),
-                    onCoverClick = {}, onSignatureClick = {},
-                    editable = false,
-                )
-                if (visiblePosts.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("还没有可以看到的好友动态", color = QqMuted)
+                LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
+                    item("moments-header") {
+                        MomentsHeader(
+                            userName = identity?.displayName ?: "角色",
+                            userAvatar = identity?.displayName?.take(1).orEmpty().ifBlank { "角" },
+                            userAvatarUri = identity?.avatarUri,
+                            coverUri = coverPhoto,
+                            signature = ownPhoneLife.optJSONObject("socialNames")
+                                ?.optString("selfNickname").orEmpty().ifBlank { "生活正在发生" },
+                            coverPalette = rolePhoneCoverPalette(coverPreset),
+                            onCoverClick = {}, onSignatureClick = {},
+                            editable = false,
+                        )
                     }
-                } else LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
-                    items(visiblePosts, key = MomentPost::id) { post ->
-                        val author = if (post.authorType == MomentAuthorType.User)
-                            UserProfileContext.displayLabel() else names[post.authorCharacterId].orEmpty()
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 5.dp),
-                            colors = CardDefaults.cardColors(containerColor = QqHeader),
-                            shape = RoundedCornerShape(18.dp),
-                            border = BorderStroke(1.dp, QqBorder.copy(alpha = .3f)),
-                        ) {
-                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(author.ifBlank { "朋友" }, fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f))
-                                    Text(inspectedTime(post.createdAt), fontSize = 11.sp, color = QqMuted)
-                                }
-                                if (post.content.isNotBlank()) Text(post.content, fontSize = 15.sp)
-                                post.imageUri?.takeIf(String::isNotBlank)?.let { uri ->
-                                    MomentImageAttachment(uri, Modifier.fillMaxWidth().height(190.dp))
-                                }
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    val liked = actualRole in post.likedCharacterIds
-                                    Text(
-                                        post.likedCharacterIds.map { id ->
-                                            if (id == "__user__") UserProfileContext.displayLabel() else names[id] ?: id
-                                        }.joinToString("、").ifBlank { "暂无点赞" },
-                                        color = QqMuted, fontSize = 12.sp,
-                                        modifier = Modifier.weight(1f), maxLines = 2,
-                                    )
-                                    TextButton(onClick = {
-                                        if (!MomentsStore.toggleInspectedCharacterLike(post.id, actualRole)) {
-                                            scope.launch { snackbar.showSnackbar("操作未成功：可能已不是好友") }
-                                        }
-                                    }) {
-                                        Icon(if (liked) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                                            null, modifier = Modifier.size(18.dp))
-                                        Spacer(Modifier.width(4.dp))
-                                        Text(if (liked) "取消赞" else "点赞")
-                                    }
-                                }
-                                post.comments.forEach { comment ->
-                                    Text(
-                                        "${if (comment.characterId == "__user__") UserProfileContext.displayLabel()
-                                            else names[comment.characterId] ?: "朋友"}：${comment.content}",
-                                        fontSize = 12.sp, color = QqMuted,
-                                    )
-                                }
+                    if (visiblePosts.isEmpty()) {
+                        item("moments-empty") {
+                            Box(Modifier.fillMaxWidth().padding(vertical = 40.dp),
+                                contentAlignment = Alignment.Center) {
+                                Text("还没有可以看到的好友动态", color = QqMuted)
                             }
+                        }
+                    } else {
+                        items(visiblePosts, key = MomentPost::id) { post ->
+                            MomentPostCard(
+                                post = post,
+                                userName = userName, userAvatar = userAvatar,
+                                userAvatarUri = userAvatarUri,
+                                characterNames = names,
+                                viewerId = actualRole,
+                                allowDelete = false, allowComment = false,
+                                onLike = {
+                                    if (!MomentsStore.toggleInspectedCharacterLike(post.id, actualRole)) {
+                                        scope.launch {
+                                            snackbar.showSnackbar("操作未成功：可能已不是好友")
+                                        }
+                                    }
+                                },
+                                onComment = {}, onCallCharacters = {},
+                                onReply = { _, _ -> }, onRetryImageUnderstanding = {},
+                                onDelete = {},
+                            )
                         }
                     }
                 }
