@@ -103,6 +103,28 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role)
     }
 
+    @Test fun rejectedPrimaryKeepsIndependentSecondaryToolExecutable() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("主工具错误与独立步骤回归").characterId
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+            "自主执行多动作", perceiveNow = false)
+        val invalidName = "unregistered-action-for-multi-step-test"
+        val rejection = JSONObject(ToolRouter.execute(context, role, invalidName, JSONObject(),
+            requestId = "bad-primary-$role"))
+        assertFalse(rejection.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.all(role).any { it.content.contains(invalidName) &&
+            it.channel == "工具请求未执行" })
+        val step = org.json.JSONArray().put(JSONObject().put("tool", "go_offline")
+            .put("args", JSONObject()).put("requiresPreviousSuccess", false))
+        val report = OrderedCharacterActions.execute(context, role, step,
+            requestId = "still-independent-$role",
+            initialCompleted = ToolExecutionStatus.primaryAllowsDependentSteps(invalidName, rejection))
+        assertTrue(report.notes.toString(), report.anyCompleted)
+        assertFalse(CompanionOnlineStore.isOnline(role))
+    }
+
     @Test fun failedPreviousStepDoesNotExecuteDependentSleep() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
