@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:46:34.448300+00:00",
-  "commit": "f0af50c3e67ed7cea1eb36d5fbb024e4caa2a0cd",
+  "generatedAt": "2026-10-26T01:49:20.078921+00:00",
+  "commit": "63fba6560c9ba05fce470ab99926c2b084d3e2bd",
   "branch": "main",
-  "sourceFingerprint": "dc72b47a77cc209630e31b19ebd6fb5463bfb57e1c37b0f272300646053c4744",
+  "sourceFingerprint": "d82b5fb5056680e3c3714e40455ba41f5bb2a6ff8a5faead234ddc645254f7bf",
   "summary": {
     "files": 910,
-    "lines": 179345,
-    "symbols": 2675
+    "lines": 179243,
+    "symbols": 2674
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1764,10 +1764,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
         "line": 270
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-        "line": 112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
@@ -18949,8 +18945,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-      "lines": 138,
-      "sha256": "904f10ea4c155658b01f00d32852cac7db4d2a4dd54bf5bd249d68eda574a5fe",
+      "lines": 114,
+      "sha256": "50e1ae153a87bb72d0443eba318384f3851b078ca22756207f860c76961dd870",
       "symbols": [
         {
           "name": "needsIndependentLifeReview",
@@ -18959,10 +18955,6 @@
         {
           "name": "completedPrivateMessage",
           "line": 41
-        },
-        {
-          "name": "choose",
-          "line": 112
         }
       ]
     },
@@ -24048,7 +24040,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 164,
-      "sha256": "fc541b5790d596c1dda80a4a2508808e3b97de9d30e38ba2e22658e04ebee3ee",
+      "sha256": "ced5b980204eb2bf44c95ab07af54a73e6d60cd86dd6b6446017464a33509dab",
       "symbols": []
     },
     {
@@ -24150,7 +24142,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2464,
-      "sha256": "3d30e0b130e73cc954c47b849aa943c349badac8f5b1158a98de17066d31d842",
+      "sha256": "9147f1de451bc3b545819ef64c8a80903bd2bf678a6da7387efe689322fe0b02",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -29479,8 +29471,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-      "lines": 187,
-      "sha256": "3a57cabfa07955a7cda71e72790a1ff766d1745e5d56d4251baee7b8a82dc032",
+      "lines": 109,
+      "sha256": "54cd94bc4a3c7731223d7f2432fed20d52def17a949ef5ffa2313626c75eb0e7",
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
