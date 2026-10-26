@@ -372,8 +372,11 @@ private fun InspectedOriginalChat(
             val speaker = when (message.sender) {
                 LuluChatMessage.Sender.User -> userName
                 LuluChatMessage.Sender.System -> "系统"
-                LuluChatMessage.Sender.Character ->
-                    names[message.authorCharacterId ?: conversation.characterId] ?: "成员"
+                LuluChatMessage.Sender.Character -> {
+                    val senderId = message.authorCharacterId
+                        ?: conversation.characterId.takeIf { conversation.groupChat == null }
+                    senderId?.let(names::get) ?: "群成员"
+                }
             }
             InspectedBubble(mine, speaker, message.content, message.createdAt,
                 system = message.sender == LuluChatMessage.Sender.System,
@@ -434,12 +437,30 @@ private fun InspectedBubble(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.widthIn(max = 305.dp),
         ) {
-            Text(
-                text = content,
-                modifier = Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
-                color = if (mine) QqMineInk else QqInk,
-                fontSize = 15.sp, lineHeight = 22.sp,
-            )
+            val image = remember(content) { decodeQqChatImage(content) }
+            if (image != null) {
+                Column(Modifier.padding(7.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    MomentImageAttachment(image.imageUri, Modifier.widthIn(max = 275.dp).height(190.dp))
+                    val imageText = buildString {
+                        if (image.caption.isNotBlank()) append(image.caption)
+                        val extraText = stripQqChatImageDirective(content)
+                        if (extraText.isNotBlank() && extraText != image.caption) {
+                            if (isNotBlank()) append("\n")
+                            append(extraText)
+                        }
+                    }
+                    if (imageText.isNotBlank()) Text(imageText,
+                        color = if (mine) QqMineInk else QqInk,
+                        fontSize = 14.sp, modifier = Modifier.padding(horizontal = 6.dp))
+                }
+            } else {
+                Text(
+                    text = content,
+                    modifier = Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
+                    color = if (mine) QqMineInk else QqInk,
+                    fontSize = 15.sp, lineHeight = 22.sp,
+                )
+            }
         }
     }
 }
