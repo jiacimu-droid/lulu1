@@ -7,7 +7,7 @@ class ConversationNaturalnessGateTest {
     @Test fun onlinePrivateComfortGetsTheSameReviewAsForegroundConversation() {
         val screenshotLike = listOf(
             "怪不得刚才连打视频都懒得开口，原来是一直硬撑着没合眼。",
-            "早上起来就累，说明电量根本就没有充满，脑子转不动太正常了。",
+            "早上起来就累，看来昨晚那点觉根本没睡够，脑子转不动太正常了。",
             "这时候硬逼着自己背书也是白费劲，别硬扛了。",
             "赶紧把手机锁屏扔一边，被子拉好。",
             "先踏踏实实睡一觉把精力补回来，学习的事等你睡醒了我们再算账。",
