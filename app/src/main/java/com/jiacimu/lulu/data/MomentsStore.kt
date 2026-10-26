@@ -486,7 +486,7 @@ object MomentsStore {
                 SharedExperienceTimeline.record(
                     eventId = "moment-visible-like-${post.id}-$likerId-$viewer",
                     characterId = viewer, channel = "朋友圈", speaker = likerName,
-                    content = "$likerName 给$author的朋友圈点了赞",
+                    content = "${likerName} 给${author}的朋友圈点了赞",
                     occurredAt = Instant.now(), triggerExtraction = false,
                     source = "moment:like", evidenceKind = EventEvidenceKind.Observation,
                 )
