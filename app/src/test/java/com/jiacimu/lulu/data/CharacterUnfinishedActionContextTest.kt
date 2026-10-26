@@ -99,6 +99,17 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(CharacterUnfinishedActionContext.candidates(context, role, now.plusSeconds(1)).isEmpty())
     }
 
+    @Test fun oldFocusUsesEvidenceTimeEvenWhenShortListStartsWithOldest() {
+        val older = CharacterUnfinishedActionContext.Cue(
+            "好奇", "old-question", "一直想核对的资料", "", Instant.parse("2026-10-01T00:00:00Z"))
+        val newer = CharacterUnfinishedActionContext.Cue(
+            "想分享", "new-story", "刚刚发生的趣事", "", Instant.parse("2026-10-26T00:00:00Z"))
+        val rendered = CharacterUnfinishedActionContext.render(listOf(older, newer))
+        assertTrue(rendered.contains("【本轮可独立回看的旧主题】好奇：一直想核对的资料；引用ID=old-question"))
+        assertFalse(rendered.contains("【本轮可独立回看的旧主题】想分享"))
+        assertEquals("", CharacterUnfinishedActionContext.render(emptyList()))
+    }
+
     @Test fun saturatedSharingWithoutHeldStatusStillReachesAutonomousAttention() {
         CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
             .put("experienceId", origin).put("status", "released")
