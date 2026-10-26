@@ -131,7 +131,8 @@ internal object CharacterPerceptionContext {
                     (personalOutcome(event.source, event.content) != null ||
                         event.source in setOf("meeting", "solo-game")))) &&
                 !event.occurredAt.isAfter(now) &&
-                Duration.between(event.occurredAt, now) <= Duration.ofHours(24)
+                (Duration.between(event.occurredAt, now) <= Duration.ofHours(24) ||
+                    event.source in setOf("owner-phone-inspection", "group-membership"))
         }.takeLast(limit.coerceAtLeast(1))
 
     fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> {
