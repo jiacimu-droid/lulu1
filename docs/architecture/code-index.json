@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:41:47.055889+00:00",
-  "commit": "a3d11d675911b9af52ffbe2bdb1bcaff1182fb23",
+  "generatedAt": "2026-10-26T03:42:43.099028+00:00",
+  "commit": "654f501e6a6f5e996b531e8dc7ae5e966e952791",
   "branch": "main",
-  "sourceFingerprint": "08dc3a88db77686e659d72f2d895db8ed0a12964a058bd1a83ce72db94ccbbbf",
+  "sourceFingerprint": "b88323f62da274669fe521ef6af8da7e7e453ff315d01630cb201fe8fa0342d3",
   "summary": {
     "files": 920,
-    "lines": 181649,
-    "symbols": 2698
+    "lines": 181690,
+    "symbols": 2699
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3135,7 +3135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 195
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -3365,7 +3365,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 127
+        "line": 135
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6125,13 +6125,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 113
+        "line": 121
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 181
+        "line": 189
       }
     ],
     "keepOrBlank": [
@@ -13681,7 +13681,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 202
+        "line": 227
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -14132,6 +14132,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 12
+      }
+    ],
+    "outcome": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 97
       }
     ],
     "CharacterPhoneFavoriteIntentTest": [
@@ -17268,8 +17274,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 664,
-      "sha256": "98a65415443002205c2dbac8f2212a954ece6035cb50afaf623d24357f0154fe",
+      "lines": 672,
+      "sha256": "babed9751ebaf6ec218248e5775bb8330196badb4f1822071b035e41e6d7015f",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
@@ -20510,8 +20516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 204,
-      "sha256": "63edf247ce1f4dc2f047fc3b49fd1e6d2244259bba38566b9ba4210133541adf",
+      "lines": 212,
+      "sha256": "e8157f8188670e0424dae05393e721eca06f400a26a312bb5d7aaecc706af7bc",
       "symbols": [
         {
           "name": "integrate",
@@ -20539,19 +20545,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 113
+          "line": 121
         },
         {
           "name": "pending",
-          "line": 127
+          "line": 135
         },
         {
           "name": "stimulus",
-          "line": 181
+          "line": 189
         },
         {
           "name": "render",
-          "line": 195
+          "line": 203
         }
       ]
     },
@@ -30395,8 +30401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 312,
-      "sha256": "5b6e2465442a87f2e6fefb27366de303bc4cec1bf4820003294e09216e2d2939",
+      "lines": 337,
+      "sha256": "0ec51154a9c404b6449a2872783303ec35fd589c2bcb28beac88339a0c1d324d",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -30415,8 +30421,12 @@
           "line": 56
         },
         {
+          "name": "outcome",
+          "line": 97
+        },
+        {
           "name": "event",
-          "line": 202
+          "line": 227
         }
       ]
     },
