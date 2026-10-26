@@ -1674,8 +1674,15 @@ object ProactivePerceptionRuntime {
         }
         CharacterLearningLedger.observeInteraction(characterId, decision.experienceLearning,
             decision.learningFeedback, decision.learningChallenge, onlineUnread.messageIds)
-        CharacterInnerLifeStore.recordCausalTransition(
+        // Shared post-decision commit with foreground chat/voice: write the
+        // character's chosen causal state before claiming newly observed facts.
+        // An interrupted ancillary write leaves the original stimulus unread.
+        CharacterTurnStateCommit.commit(
+            context = appContext,
             characterId = characterId,
+            perception = perceptionInput,
+            direct = listOfNotNull(messageStimulus),
+            claimDirect = true,
             evidenceId = causalEvidenceId,
             appraisal = decision.appraisal,
             innerLife = canonicalInnerLife,
@@ -1685,34 +1692,21 @@ object ProactivePerceptionRuntime {
             reason = decision.actionBasis()?.reason ?: decision.reason,
             now = now,
             alternatives = decision.alternatives,
-        )
-        CharacterExplorationContinuity.remember(appContext, characterId, decision.curiosity, decision.curiosities,
-            (onlineUnread.messageIds + newlyObserved.map { it.evidenceId } +
-                recentLifeEvents.map { it.id } + listOf(awakeObservationId)).distinct(), Instant.now())
-        // A successful SAME-role decision, not a scheduler tick, consumes this
-        // day's review opportunity. Crashes before this point retry naturally.
-        if (selfReviewDue && pendingUserContext.isBlank()) {
-            check(prefs.edit().putString(
-                "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),
-            ).commit()) { "本人心事回顾进度未保存" }
-        }
-        // Being online alone is not evidence of a new thought. Persist a new private voice only when
-        // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
-        // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
-        // paraphrases of the same waiting state.
-        if (freshStimulus || previousEvidence.isNotBlank() ||
-            decision.action != Action.SILENT || canonicalInnerLife != null) {
-            CharacterInnerLifeStore.recordInnerVoice(
-                characterId, causalEvidenceId,
-                groundedInnerThought, now, privateDelta.fingerprint,
-            )
-        }
-        // The decision's causal transition/inner voice is now persisted.
-        // Only now acknowledge its real inputs; a failed model or interrupted
-        // commit must not erase the new stimulus from the next perception.
-        CharacterPerceptionContext.acknowledge(
-            appContext, characterId, perceptionInput,
-            direct = listOfNotNull(messageStimulus), claimDirect = true,
+            recordInnerVoice = freshStimulus || previousEvidence.isNotBlank() ||
+                decision.action != Action.SILENT || canonicalInnerLife != null,
+            voiceFingerprint = privateDelta.fingerprint,
+            afterCausalRecord = {
+                CharacterExplorationContinuity.remember(appContext, characterId,
+                    decision.curiosity, decision.curiosities,
+                    (onlineUnread.messageIds + newlyObserved.map { it.evidenceId } +
+                        recentLifeEvents.map { it.id } + listOf(awakeObservationId)).distinct(), Instant.now())
+                // Review is consumed by a real decision, never a scheduler tick.
+                if (selfReviewDue && pendingUserContext.isBlank()) {
+                    check(prefs.edit().putString(
+                        "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),
+                    ).commit()) { "本人心事回顾进度未保存" }
+                }
+            },
         )
         // Exploration counts only after an executor receipt, never from model prose.
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
