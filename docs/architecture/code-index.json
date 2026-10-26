@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T02:33:35.843360+00:00",
-  "commit": "eaddf017cb6e4a9f15f5237d12643c3d4c16f526",
+  "generatedAt": "2026-10-26T02:34:48.144278+00:00",
+  "commit": "7ed875e901d69f0f2e3abda2718380c2e2764914",
   "branch": "main",
-  "sourceFingerprint": "786f2b56d26d3f121b44070b4f2d790f2ae86a904c739fe4a4c33a27be55d9b0",
+  "sourceFingerprint": "d2569ab2c33b790962fc03e4bdaafa8b9cbbda036472be17c65380d1340f91f0",
   "summary": {
     "files": 911,
-    "lines": 179488,
+    "lines": 179489,
     "symbols": 2678
   },
   "symbolIndex": {
@@ -5487,7 +5487,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 658
+        "line": 659
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9285,25 +9285,25 @@
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 445
+        "line": 446
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 462
+        "line": 463
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 486
+        "line": 487
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 675
+        "line": 676
       }
     ],
     "Batch": [
@@ -23885,8 +23885,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 941,
-      "sha256": "f49aca047347681dcc83cf74b0ab1ae9114cbb6458338b6342e6d82c53df08e7",
+      "lines": 942,
+      "sha256": "6806cab08e01240db2bca9b9352e736f53ffd3c0106bb22afe1f224b6e4747a5",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -23934,23 +23934,23 @@
         },
         {
           "name": "toggleUserLike",
-          "line": 445
+          "line": 446
         },
         {
           "name": "addUserComment",
-          "line": 462
+          "line": 463
         },
         {
           "name": "addUserReply",
-          "line": 486
+          "line": 487
         },
         {
           "name": "delete",
-          "line": 658
+          "line": 659
         },
         {
           "name": "clearCharacterData",
-          "line": 675
+          "line": 676
         }
       ]
     },
