@@ -33,6 +33,23 @@ class AutonomousActionTraceTest {
         assertTrue(rendered.contains("可以继续"))
     }
 
+    @Test fun consecutiveSilenceRecallsTheOwnReasonAndOfferedIdsWithoutForcingActions() {
+        val time = Instant.parse("2026-10-26T04:15:00Z")
+        val older = JSONObject().put("at", time.minusSeconds(300).toString())
+            .put("selected", "silent").put("reason", "刚想安静看一会儿")
+        val last = JSONObject().put("at", time.toString()).put("selected", "silent")
+            .put("reason", "我想先查清资料再去联系她")
+            .put("attentionOffered", JSONArray().put("好奇:real-question")
+                .put("持续目标:goal-123"))
+        val rendered = AutonomousActionTrace.render(JSONArray().put(older).put(last),
+            time.plusSeconds(30))
+        assertTrue(rendered.contains("我想先查清资料再去联系她"))
+        assertTrue(rendered.contains("好奇:real-question"))
+        assertTrue(rendered.contains("被提供不证明本人已逐条考虑或放弃"))
+        assertTrue(rendered.contains("可以是符合本人的选择"))
+        assertFalse(rendered.contains("必须立刻执行"))
+    }
+
     @Test fun sharedReceiptsRecognizePrivateCharacterVoiceButNeverUserStatements() {
         val at = Instant.parse("2026-10-11T09:00:00Z")
         fun event(id: String, speaker: String, kind: EventEvidenceKind, session: String = "") =
