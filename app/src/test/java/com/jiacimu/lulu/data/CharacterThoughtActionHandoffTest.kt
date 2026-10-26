@@ -16,6 +16,32 @@ class CharacterThoughtActionHandoffTest {
     private fun concern(item: JSONObject) = JSONObject().put("action", "silent")
         .put("appraisal", JSONObject().put("pendingConcerns", JSONArray().put(item)))
 
+    @Test fun unknownPrimaryPreservesOnlyIndependentlyRegisteredSideSteps() {
+        val chosen = JSONObject().put("action", "tool")
+            .put("tool", "nonexistent_primary_tool")
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", "自己的真实生活")))
+                .put(JSONObject().put("tool", "read_book")
+                    .put("requiresPreviousSuccess", true)))
+        val steps = CharacterThoughtActionHandoff.actions(chosen)
+        assertTrue(CharacterThoughtActionHandoff.hasIndependentRegisteredStep(steps))
+        assertEquals(2, steps!!.length())
+        assertEquals("publish_moment", steps.getJSONObject(0).getString("tool"))
+        assertEquals("nonexistent_primary_tool", chosen.getString("tool"))
+
+        val onlyDependent = JSONArray().put(JSONObject()
+            .put("tool", "publish_moment").put("requiresPreviousSuccess", true))
+        assertFalse(CharacterThoughtActionHandoff.hasIndependentRegisteredStep(onlyDependent))
+        assertFalse(CharacterThoughtActionHandoff.hasIndependentRegisteredStep(
+            JSONArray().put(JSONObject().put("tool", "missing_side_tool")
+                .put("requiresPreviousSuccess", false))))
+        assertFalse(CharacterThoughtActionHandoff.hasIndependentRegisteredStep(
+            JSONArray().put(JSONObject().put("description", "想发朋友圈"))))
+        assertFalse(CharacterThoughtActionHandoff.hasIndependentRegisteredStep(null))
+    }
+
     @Test fun chatVoiceBubblesAndIncomingCallStayTwoOrderedRealActions() {
         val decision = JSONObject()
             .put("action", "message")
