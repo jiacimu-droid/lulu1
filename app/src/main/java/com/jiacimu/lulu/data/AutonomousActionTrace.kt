@@ -56,6 +56,25 @@ internal object AutonomousActionTrace {
         }.take(180)
     }
 
+    /**
+     * A silent spoken turn may still select several real tools. Describe the
+     * model's selected steps using the existing decision trace, not a new task
+     * store. Hashed args distinguish different searches without displaying
+     * private queries or pretending that a selected tool actually succeeded.
+     */
+    fun selectedStepsSignature(steps: JSONArray?): String {
+        val selections = (0 until (steps?.length() ?: 0)).map { index ->
+            val step = steps?.optJSONObject(index)
+            val normalized = step?.let(AutonomousActionWireProtocol::normalizeStep)
+            val name = normalized?.optString("tool")?.trim()?.lowercase()
+                ?.take(44).orEmpty().ifBlank { "invalid" }
+            val argHash = normalized?.optJSONObject("args")?.toString().orEmpty()
+                .hashCode().toUInt().toString(16)
+            "$name:$argHash"
+        }
+        return ("steps/" + selections.joinToString("+").ifBlank { "none" }).take(180)
+    }
+
     fun render(decisions: JSONArray?, now: Instant = Instant.now()): String {
         val records = decisions ?: return ""
         val recent = (0 until records.length()).mapNotNull(records::optJSONObject).filter { entry ->
