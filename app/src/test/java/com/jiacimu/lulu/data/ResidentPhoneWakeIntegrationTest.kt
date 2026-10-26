@@ -82,9 +82,8 @@ class ResidentPhoneWakeIntegrationTest {
             listOf("friend-request-${requested.id}-accepted-$to")).single()
         assertEquals("手机·好友消息", event.channel)
         assertTrue(event.content.contains("你们已成为好友"))
-        assertEquals(2, CharacterFriendRequests.historyFor(from)
-            .count { it.id == requested.id || it.id == accepted.id }.coerceAtMost(2)
-            .let { if (it == 1) 2 else it }) // request and resolution are one evolving record
+        assertEquals(1, CharacterFriendRequests.historyFor(from)
+            .count { it.id == requested.id }) // one durable evolving application
     }
 
     @Test fun phoneStepsAreRealIndependentToolReceiptsAndNeverCompleteAnUnrelatedPlan() = runBlocking {
