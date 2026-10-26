@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:25:35.757236+00:00",
-  "commit": "c1cc911d5967191efd14566a5f98e8565707c346",
+  "generatedAt": "2026-10-26T08:26:44.254242+00:00",
+  "commit": "f5290b849b94fa1e0cbddf8371ce6f194cdf66fe",
   "branch": "main",
-  "sourceFingerprint": "35c2712321979cf64b25eb30d0e49a8fc8be83f5f25423276b6f2baba0b91221",
+  "sourceFingerprint": "c6c49f1b24b39a35393c6b6864e3f5131b42ec71ab5a5bdcf495046705f66ce7",
   "summary": {
-    "files": 927,
-    "lines": 183910,
-    "symbols": 2718
+    "files": 928,
+    "lines": 184034,
+    "symbols": 2720
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13778,6 +13778,10 @@
         "line": 118
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+        "line": 24
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
         "line": 17
       },
@@ -14974,6 +14978,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
         "line": 22
+      }
+    ],
+    "UserRoutinePatternsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+        "line": 18
       }
     ],
     "WakeActionPlannerTest": [
@@ -31908,6 +31918,21 @@
         {
           "name": "cached",
           "line": 22
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+      "lines": 124,
+      "sha256": "7c7cfc7a1efa22682a7ea44034710bc04c1f69a264199055e0618b8adbd8734e",
+      "symbols": [
+        {
+          "name": "UserRoutinePatternsTest",
+          "line": 18
+        },
+        {
+          "name": "event",
+          "line": 24
         }
       ]
     },
