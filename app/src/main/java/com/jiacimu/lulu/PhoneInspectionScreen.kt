@@ -584,37 +584,43 @@ private fun InspectedBubble(
         }
         return
     }
-    Column(Modifier.fillMaxWidth(), horizontalAlignment =
-        if (mine) Alignment.End else Alignment.Start) {
-        Text("$speaker · ${inspectedTime(at)}" +
-            if (detail.isBlank()) "" else " · $detail",
-            color = QqMuted, fontSize = 11.sp,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
-        Surface(
-            color = if (mine) QqMine else QqOther,
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.widthIn(max = 305.dp),
-        ) {
-            val image = remember(content) { decodeQqChatImage(content) }
-            if (image != null) {
-                Column(Modifier.padding(7.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    MomentImageAttachment(image.imageUri, Modifier.widthIn(max = 275.dp).height(190.dp))
-                    val imageText = buildString {
-                        if (image.caption.isNotBlank()) append(image.caption)
-                        val extraText = stripQqChatImageDirective(content)
-                        if (extraText.isNotBlank() && extraText != image.caption) {
-                            if (isNotBlank()) append("\n")
-                            append(extraText)
+    // Same QQ detail-column geometry as the live chat; inspection never
+    // dispatches tap, swipe, regenerate, poke, or other real-person actions.
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+            if (!mine) QqAvatar(speaker.take(1).ifBlank { "角" }, 42)
+        }
+        Spacer(Modifier.width(9.dp))
+        Column(Modifier.weight(1f),
+            horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
+            Text("$speaker · ${inspectedTime(at)}" +
+                if (detail.isBlank()) "" else " · $detail",
+                color = QqMuted, fontSize = 11.sp,
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 3.dp))
+            Surface(
+                color = if (mine) QqMine else QqOther,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.widthIn(max = 305.dp),
+            ) {
+                val image = remember(content) { decodeQqChatImage(content) }
+                if (image != null) {
+                    Column(Modifier.padding(7.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        MomentImageAttachment(image.imageUri, Modifier.widthIn(max = 275.dp).height(190.dp))
+                        val imageText = buildString {
+                            if (image.caption.isNotBlank()) append(image.caption)
+                            val extraText = stripQqChatImageDirective(content)
+                            if (extraText.isNotBlank() && extraText != image.caption) {
+                                if (isNotBlank()) append("\n")
+                                append(extraText)
+                            }
                         }
+                        if (imageText.isNotBlank()) Text(imageText,
+                            color = if (mine) QqMineInk else QqInk,
+                            fontSize = 14.sp, modifier = Modifier.padding(horizontal = 6.dp))
                     }
-                    if (imageText.isNotBlank()) Text(imageText,
-                        color = if (mine) QqMineInk else QqInk,
-                        fontSize = 14.sp, modifier = Modifier.padding(horizontal = 6.dp))
-                }
-            } else {
-                Text(
-                    text = content,
-                    modifier = Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
+                } else Text(
+                    text = stripCharacterReplyDirective(content),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     color = if (mine) QqMineInk else QqInk,
                     fontSize = 15.sp, lineHeight = 22.sp,
                 )
