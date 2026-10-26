@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.util.UUID
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -122,6 +123,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         it.id == coverPhotoPostId && it.authorCharacterId == actualRole
     }?.imageUri else null
     var phoneTab by rememberSaveable { mutableIntStateOf(0) }
+    // Session identity is not a second phone history store; real events live
+    // only in the existing SharedExperienceTimeline.
+    val inspectionSession = remember(actualRole) { UUID.randomUUID().toString() }
     var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
     var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
     var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
@@ -198,6 +202,40 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             MomentFriendAccess.initialize(context)
         }
         mailReady = true
+    }
+
+    // A real owner-initiated visit becomes a witnessed observation for this
+    // character's ordinary perception, not an immediate extra LLM call.
+    // Keyed by meaningful navigation rather than recomposition or scrolling.
+    LaunchedEffect(
+        inspectionSession, actualRole, phoneTab, selectedThreadKey,
+        showRoleCalendar, showRoleBrowser, showRoleFavorites, mailReady,
+    ) {
+        if (!mailReady || actualRole.isBlank()) return@LaunchedEffect
+        val section = when {
+            showRoleCalendar -> "日历与自己安排的行程"
+            showRoleBrowser -> "浏览器和搜索记录"
+            showRoleFavorites -> "收藏"
+            selectedThread != null -> "与${selectedThread.title}的聊天"
+            phoneTab == 1 -> "好友列表"
+            phoneTab == 2 -> "朋友圈"
+            phoneTab == 3 -> "个人资料与手机应用"
+            else -> "消息列表"
+        }
+        withContext(Dispatchers.IO) {
+            SharedExperienceTimeline.record(
+                eventId = "owner-phone-visit-${UUID.randomUUID()}",
+                characterId = actualRole,
+                channel = "手机·查看痕迹",
+                speaker = "主人",
+                source = "owner-phone-inspection",
+                sessionId = inspectionSession,
+                content = "主人实际打开你的手机，查看了$section。手机确实被查看，但不知道主人为何查看；这不是你自己选择的操作。",
+                occurredAt = Instant.now(),
+                triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.Observation,
+            )
+        }
     }
 
     if (showRoleCalendar) {
