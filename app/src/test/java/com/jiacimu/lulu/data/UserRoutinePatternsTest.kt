@@ -115,7 +115,7 @@ class UserRoutinePatternsTest {
         }
         assertEquals("一起听", shared.channel)
         assertTrue(UserRoutinePatterns.isStart(shared))
-        assertTrue(shared.content.contains("不") && shared.content.contains("声波"))
+        assertTrue(shared.content.contains("是否听到声波") && shared.content.contains("独立感知回执"))
     }
 
     @Test fun unrelatedOrSameDayActionsCannotCreateObservedHabit() {
