@@ -62,11 +62,13 @@ class CharacterContinuityGatewayTest {
             // Ordinary chat uses compact inner life; world discussion uses full.
             for (facts in listOf("海边灯塔重新亮起了", "数字世界里的海边灯塔重新亮起了")) {
                 LuluAiServices.gateway.generate(role, facts, "自然回应", "私聊", "test",
-                    connectionOverride = conn, contextMode = CompanionContextMode.Full).getOrThrow()
+                    connectionOverride = conn, contextMode = CompanionContextMode.Full,
+                    memoryRequest = UnifiedMemoryRequest(currentInput = facts)).getOrThrow()
                 val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
                 val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
                 assertTrue(prompt.contains("正在等待：海边灯塔重新亮起"))
                 assertTrue(prompt.contains(hidden.getString("id")))
+                assertEquals(facts.contains("数字世界"), prompt.contains("【角色持续内在生活"))
             }
             assertEquals(2, server.requestCount)
             assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
