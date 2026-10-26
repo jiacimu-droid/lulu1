@@ -500,6 +500,46 @@ object MomentsStore {
         return addCharacterTopLevelComment(post, actor, postAuthorName(post), content)
     }
 
+    /**
+     * The owner is explicitly operating another account from the phone viewer.
+     * This is an account action, NOT the character autonomously choosing to like.
+     * The original post remains the only authoritative like collection.
+     */
+    @Synchronized fun toggleInspectedCharacterLike(postId: String, characterId: String): Boolean {
+        if (characterId.isBlank() || characterId == USER_COMMENTER_ID ||
+            characterId == MomentFriendAccess.OWNER) return false
+        val character = MigratedDomainStores.characters.settings.value[characterId] ?: return false
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return false
+        if (!MomentFriendAccess.canView(post, characterId)) return false
+        val adding = characterId !in post.likedCharacterIds
+        mutate { current ->
+            current.map { item ->
+                if (item.id != postId) item else item.copy(likedCharacterIds =
+                    if (adding) item.likedCharacterIds + characterId
+                    else item.likedCharacterIds - characterId)
+            }
+        }
+        if (adding) {
+            SharedExperienceTimeline.record(
+                eventId = "moment-like-$postId-$characterId",
+                characterId = characterId, channel = "朋友圈",
+                speaker = UserProfileContext.displayLabel(),
+                content = "主人使用${character.displayName}的手机，代其给${postAuthorName(post)}的朋友圈点赞（不是角色自主决定）：${momentContext(post).take(420)}",
+                source = "owner-on-behalf",
+                evidenceKind = EventEvidenceKind.Observation,
+                occurredAt = Instant.now(), triggerExtraction = false,
+            )
+            recordVisibleLike(post, characterId,
+                "${UserProfileContext.displayLabel()}（代${character.displayName}）")
+        } else {
+            SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
+            MigratedDomainStores.characters.settings.value.keys.forEach { viewer ->
+                SharedExperienceTimeline.deleteEvent("moment-visible-like-$postId-$characterId-$viewer")
+            }
+        }
+        return true
+    }
+
     fun toggleUserLike(postId: String, characterId: String = USER_COMMENTER_ID) {
         if (characterId != USER_COMMENTER_ID) return // the public UI is the owner's control
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
