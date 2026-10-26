@@ -10,6 +10,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun autonomousChoiceKeepsUnansweredOwnerActivityUncertainAndOffersRealConsentTools() {
+        val independent = proactiveDecisionInstruction("uncertainty-test-role")
+        val privateChat = proactiveDecisionInstruction("uncertainty-test-role", directPrivateChat = true)
+        assertTrue(independent.contains("未回复不自动取消尚未落实的关心与目标"))
+        assertTrue(independent.contains("经过授权用现有屏幕/监督工具获得真实观察"))
+        assertTrue(privateChat.contains("单纯未回复、切到别的应用或旧的忙碌记录"))
+        assertTrue(privateChat.contains("不能把猜测当作必须停止关心的事实"))
+        assertTrue(privateChat.contains("start_study_watch"))
+    }
+
     @Test fun validSilentChoiceIsParsedAndKeepsItsReason() {
         val parsed = parse("""{"action":"silent","reason":"今晚真的想一个人消化刚才的经历","mood":"平静"}""")
         assertNotNull(parsed)
