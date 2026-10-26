@@ -46,7 +46,8 @@ internal object CompanionActionRuntime {
             appendLine("【本人手机里实际已加入的QQ群】")
             groups.forEach { convo ->
                 appendLine("- groupId=${convo.id}；群名=${convo.groupChat?.name}；" +
-                    "群主=${convo.groupChat?.creatorCharacterId.ifBlank { "主人" }}；" +
+                    "群主=${convo.groupChat?.creatorCharacterId.orEmpty().takeIf(String::isNotBlank)
+                        ?.let { MigratedDomainStores.characters.get(it).displayName } ?: "主人"}；" +
                     "最近消息=${convo.lastMessage.take(100)}")
             }
             append("可自主接话、开新话题或不发言；原有群可用时不重复建立同样的群。")
