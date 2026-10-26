@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T08:23:39.323511+00:00",
-  "commit": "925cd18dca1494a91a8e6ff39fc2d4c809af556c",
+  "generatedAt": "2026-10-26T08:24:11.141638+00:00",
+  "commit": "0e50f39fb28d5b2cc1e5efacf5afc0ce2e50d386",
   "branch": "main",
-  "sourceFingerprint": "1b5079a5de847ca9696f48c9694047adccdd271af336d4e66207fd226b0a65da",
+  "sourceFingerprint": "eb75275244c39125118450d0e2cef0adfc9dc89ed7fa21c64161b8e349476baf",
   "summary": {
     "files": 927,
-    "lines": 183862,
+    "lines": 183876,
     "symbols": 2718
   },
   "symbolIndex": {
@@ -5263,19 +5263,19 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 218
+        "line": 232
       }
     ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 227
+        "line": 241
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 259
+        "line": 273
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -5289,13 +5289,13 @@
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 264
+        "line": 278
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 269
+        "line": 283
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -19789,8 +19789,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 287,
-      "sha256": "53ac1d5c5f3777e110ccf05d4758dbdec7e8f8e676ee8888e99be617ac0b5f7a",
+      "lines": 301,
+      "sha256": "80dc0540e5254b34da1cd7966bf4433d9b22f3799ec832733e527e0c49257805",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -19822,23 +19822,23 @@
         },
         {
           "name": "retire",
-          "line": 218
+          "line": 232
         },
         {
           "name": "retireSlotWithCounterEvidence",
-          "line": 227
+          "line": 241
         },
         {
           "name": "invalidateEvidence",
-          "line": 259
+          "line": 273
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 264
+          "line": 278
         },
         {
           "name": "clearCharacter",
-          "line": 269
+          "line": 283
         }
       ]
     },
