@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`63fba6560c9ba05fce470ab99926c2b084d3e2bd`
+- 基准提交：`ccf2ab2856fb342ad4ac746c2df89c64875e7ce9`
 - 分支：`main`
 - 已索引文件：910
-- 已索引代码/文本行：179243
+- 已索引代码/文本行：179245
 - 已发现符号：2674
 
 | 文件 | 行数 | 符号数 |
@@ -784,8 +784,8 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 330 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 314 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 32 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 311 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 318 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 33 | 1 |

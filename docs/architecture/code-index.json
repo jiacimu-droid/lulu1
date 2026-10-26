@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T01:49:20.078921+00:00",
-  "commit": "63fba6560c9ba05fce470ab99926c2b084d3e2bd",
+  "generatedAt": "2026-10-26T01:56:57.709147+00:00",
+  "commit": "ccf2ab2856fb342ad4ac746c2df89c64875e7ce9",
   "branch": "main",
-  "sourceFingerprint": "d82b5fb5056680e3c3714e40455ba41f5bb2a6ff8a5faead234ddc645254f7bf",
+  "sourceFingerprint": "3dfd81499e45d9324c48913de887578aab80ad55b38d90d5474afdbf9740b017",
   "summary": {
     "files": 910,
-    "lines": 179243,
+    "lines": 179245,
     "symbols": 2674
   },
   "symbolIndex": {
@@ -14129,19 +14129,19 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 166
+        "line": 165
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 169
+        "line": 168
       }
     ],
     "ConversationGroundingEngineTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "ConversationNaturalnessGateTest": [
@@ -30339,8 +30339,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 314,
-      "sha256": "2d65043019427ba36e155353fa4ff3b04261e9a202c2bf9900c5d5b52ffe0a55",
+      "lines": 311,
+      "sha256": "3703bc937a5c017b5ffa0912ca9f6a183aff6bc753afedca0e07c18eeb35a181",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -30348,22 +30348,22 @@
         },
         {
           "name": "response",
-          "line": 166
+          "line": 165
         },
         {
           "name": "bubbles",
-          "line": 169
+          "line": 168
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
-      "lines": 32,
-      "sha256": "81fdc11ca7e1ed87c8504f789a0c427836451c21e11ab444a5a99ee6d43f91d0",
+      "lines": 37,
+      "sha256": "a2832a19df41e500ebb3eaf4f3a254975566f37bff031149c00e67f54eac902d",
       "symbols": [
         {
           "name": "ConversationGroundingEngineTest",
-          "line": 6
+          "line": 12
         }
       ]
     },

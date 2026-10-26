@@ -148,7 +148,7 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
-    @Test(timeout = 60_000) fun privateChatDeliversTheRewrittenTurnInsteadOfTheSixBubbleComfortDraft() = runBlocking {
+    @Test(timeout = 60_000) fun privateChatPreservesModelAuthoredTurnWithoutProgramTriggeredRewrite() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
@@ -157,7 +157,6 @@ class ConversationExpressionGatewayTest {
         com.jiacimu.lulu.study.PostgraduateExamStores.initialize(context)
         com.jiacimu.lulu.study.StarWishStores.initialize(context)
         val role = MigratedDomainStores.characters.create("整轮表达回归角色", "说话直接，有自己的主见")
-        val rewritten = "你怕的也是以后的日子，对吧？"
         val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
         MigratedDomainStores.chat.sendUserMessage(chat.id, "还得接着读。")
         MigratedDomainStores.chat.appendCharacterMessage(chat.id, "你在担心什么？", role.characterId)
@@ -170,7 +169,6 @@ class ConversationExpressionGatewayTest {
             JSONArray().apply { texts.forEach { put(JSONObject().put("text", it)) } }).toString()
         server.enqueue(response("""{"action":"reply","speechIntent":"确认她在担心以后的生计，不把她的担忧说成无理恐慌","dialogueMove":{"type":"reassure","contentIntent":"认真回应现实的担忧"}}"""))
         server.enqueue(response(bubbles(ConversationNaturalnessFixtures.screenshotComfort)))
-        server.enqueue(response(bubbles(listOf(rewritten))))
         server.start()
         try {
             val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
@@ -179,18 +177,17 @@ class ConversationExpressionGatewayTest {
             val reply = LuluDeviceToolBridge.respond(role.characterId, "历史应通过真实消息发送", "不读书就没钱，", "test",
                 userEvidenceIds = listOf(current.id))
                 .getOrThrow()
-            assertEquals(rewritten, reply.text)
-            assertEquals(3, server.requestCount) // Planner, expression and the existing single repair.
-            val requests = (1..3).map { JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()) }
+            // This fixture used to trigger a lexical quality rewrite. Its style is
+            // deliberately conspicuous: verify model ownership, not human quality.
+            assertEquals(ConversationNaturalnessFixtures.screenshotComfort
+                .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator), reply.text)
+            assertEquals(2, server.requestCount) // Planner and model-authored expression only.
+            val requests = (1..2).map { JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()) }
             val planner = requests[0].getJSONArray("messages").toString()
             val expression = requests[1].getJSONArray("messages").toString()
-            val repair = requests[2].getJSONArray("messages").toString()
-            assertTrue(planner.contains("所有气泡合计"))
             assertTrue(planner.contains("她在说现实困难时，担忧本身可以成立"))
-            assertTrue(expression.contains("所有气泡合计"))
-            assertTrue(repair.contains("安慰流程"))
-            assertTrue(repair.contains("不负责一次把所有情绪劝好"))
-            (1..2).forEach { index ->
+            assertTrue(expression.contains("所有气泡合起来才是本轮回复"))
+            (1..1).forEach { index ->
                 val messages = requests[index].getJSONArray("messages")
                 assertEquals(4, messages.length())
                 assertEquals("user", messages.getJSONObject(1).getString("role"))
