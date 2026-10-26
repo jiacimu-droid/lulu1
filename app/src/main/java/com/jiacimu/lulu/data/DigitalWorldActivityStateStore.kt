@@ -122,12 +122,10 @@ internal object DigitalWorldActivityStateStore {
     fun apply(characterId: String, item: DigitalWorldItem?, activityId: String, summary: String, now: Instant): String {
         val p = checkNotNull(prefs) { "活动状态尚未初始化" }
         settleTimedActivity(characterId, now)
-        // Starting a different activity closes the previous one at the real transition time.
-        val previous = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull()
-        if (previous?.optString("status") == "active" && previous.optString("activityId") != activityId) {
-            finishActivity(characterId, now, "角色转去做另一件事，上一项活动在此刻结束")
-        }
-
+        // Validate/prepare the new action before replacing the ongoing activity.
+        // A rejected food, media or location request did not interrupt real rest.
+        // The existing body projection settles the previous activity at the
+        // transition time only AFTER this replacement successfully commits.
         val editor = p.edit()
         val name = MigratedDomainStores.characters.get(characterId).displayName
         val result = if (activityId.startsWith("reality_")) {

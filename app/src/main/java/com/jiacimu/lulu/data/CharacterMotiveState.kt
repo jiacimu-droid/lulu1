@@ -30,7 +30,8 @@ internal object CharacterMotiveState {
      * Context is a rotating working set, not a six-goal storage quota. All
      * active motives remain saved and can receive independent timed reviews.
      */
-    fun workingSet(motives: JSONArray?, now: Instant = Instant.now(), limit: Int = 6): List<JSONObject> {
+    fun workingSet(motives: JSONArray?, now: Instant = Instant.now(), limit: Int = 6,
+                   query: String = ""): List<JSONObject> {
         val all = active(motives)
         if (all.size <= limit) return all
         if (limit <= 0) return emptyList()
@@ -50,13 +51,33 @@ internal object CharacterMotiveState {
         val earliestDue = urgent.minByOrNull { CharacterMotiveReview.from(it)!!.dueAt }
         fun focus(items: List<JSONObject>): List<JSONObject> =
             (listOfNotNull(earliestDue, important) + items).distinctBy { it.optString("id") }.take(limit)
-        if (ordinary.isEmpty()) return focus(rotate(urgent))
-        if (urgent.isEmpty()) return focus(rotate(ordinary))
-        val dueCount = minOf(urgent.size, maxOf(1, limit / 2))
-        val selected = rotate(urgent).take(dueCount) + rotate(ordinary).take(limit - dueCount)
-        return focus(if (selected.size == limit) selected else
-            selected + (rotate(urgent) + rotate(ordinary)).filterNot { it in selected }
-                .take(limit - selected.size))
+        val baseline = when {
+            ordinary.isEmpty() -> focus(rotate(urgent))
+            urgent.isEmpty() -> focus(rotate(ordinary))
+            else -> {
+                val dueCount = minOf(urgent.size, maxOf(1, limit / 2))
+                val selected = rotate(urgent).take(dueCount) + rotate(ordinary).take(limit - dueCount)
+                focus(if (selected.size == limit) selected else
+                    selected + (rotate(urgent) + rotate(ordinary)).filterNot { it in selected }
+                        .take(limit - selected.size))
+            }
+        }
+        // Retrieve through the role's ALREADY authored waiting condition/next
+        // step as well as the aim. This is a cue for attention, never evidence
+        // that the condition is satisfied or permission to perform the action.
+        val terms = memorySearchTerms(memoryTemporalQuery(RelevantMemoryRecall.focusQuery(query)))
+        val related = if (terms.isEmpty()) emptyList() else all.mapNotNull { motive ->
+            val cue = listOf("waitingFor", "nextStep", "aim", "why")
+                .joinToString(" ") { motive.optString(it) }
+            val overlap = terms.intersect(memorySearchTerms(cue)).size
+            if (overlap == 0) null else motive to overlap
+        }.sortedWith(compareByDescending<Pair<JSONObject, Int>> { it.second }
+            .thenBy { it.first.optString("id") }).map { it.first }
+        if (related.isEmpty()) return baseline
+        // The ordinary perception owner acknowledges due plans from this same
+        // baseline. Context cues must not displace a plan it will acknowledge.
+        return (baseline.filter { it in urgent } + listOfNotNull(important) + related + baseline)
+            .distinctBy { it.optString("id") }.take(limit)
     }
 
     private fun entries(motives: JSONArray?): List<JSONObject> =

@@ -31,6 +31,13 @@
 
 # 代码与设计归属账本
 
+## 2026-10-26：数字生命清单第二批局部吸收
+
+- 原 Kotlin 模块上的独立实现，未复制外部代码、论文提示词、模型或资产，未新增依赖与付费模型轮次。
+- AI Town（MIT）`main` 快照 `8e05997f2409275669c8344b84a51692e83f3f33`，阅读 `ARCHITECTURE.md` 的世界输入校验、权威状态与结果记录职责；修正原 `DigitalWorldActivityStateStore` 失败动作过早结束现有活动的问题。来源：https://github.com/a16z-infra/ai-town/blob/8e05997f2409275669c8344b84a51692e83f3f33/ARCHITECTURE.md 。
+- ProMemAgent 原论文第4节的情境线索检索与后续判断分工，仅用于改进原 `CharacterMotiveState` 工作集及共享人物上下文。原有 `waitingFor/nextStep` 仍是本人所写计划，命中只表示检索相关，不证明条件满足或授权行动；不移植其持续感知、嵌入生成或训练流程。来源：https://arxiv.org/html/2610.27400v1 。
+- 实际边界、取舍与回归见 `docs/architecture/DIGITAL_LIFE_RESEARCH_ADOPTION.md` 第二批记录。
+
 这份文件用于记录 `lulu1` 中每个重要模块的来源，避免把第三方代码误写成原创，也避免以后忘记某段实现从哪里来。
 
 ## 判断标签

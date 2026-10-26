@@ -103,8 +103,8 @@ object CharacterRuntime {
             EmbodiedBodyRuntime.context(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
                 CharacterLifeStore.context(characterId, includeProfile = false))
-            appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId) else
-                CharacterInnerLifeStore.context(characterId))
+            appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId, query = query) else
+                CharacterInnerLifeStore.context(characterId, query = query))
             interactionKey?.takeIf(String::isNotBlank)?.let { key ->
                 CharacterInnerLifeStore.interactionContext(characterId, key)
                     .takeIf(String::isNotBlank)?.let(::appendLine)

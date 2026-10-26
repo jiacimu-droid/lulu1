@@ -26,6 +26,53 @@ class CharacterContinuityGatewayTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun currentCueReachesBothFullAndCompactInnerLifeInActualGatewayRequests() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        CharacterInnerLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
+        CharacterInnerLifeStore.initialize(context)
+        ProactivePerceptionPolicyStore.initialize(context)
+        val role = "motive-cue-gateway"
+        ProactivePerceptionPolicyStore.update(role) { it.copy(enabled = false) }
+        val now = Instant.now()
+        repeat(20) { index ->
+            CharacterInnerLifeStore.observe(role, "cue-origin-$index", "一个真实的私人打算",
+                JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                    .put("op", "start").put("aim", "收集第${index}种石头")
+                    .put("why", "独立兴趣${index}"))), now = now)
+        }
+        val motives = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+        assertEquals(20, motives.length())
+        val selected = CharacterMotiveState.workingSet(motives, now).map { it.getString("id") }
+        val hidden = CharacterMotiveState.active(motives).first { it.getString("id") !in selected }
+        CharacterInnerLifeStore.observe(role, "cue-plan-revision", "为已有打算补上等待条件",
+            JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                .put("op", "revise").put("id", hidden.getString("id"))
+                .put("reason", "等待合适的机会").put("waitingFor", "海边灯塔重新亮起"))), now = now)
+        val before = CharacterInnerLifeStore.snapshot(role).toString()
+        val server = MockWebServer()
+        repeat(2) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"知道了"},"finish_reason":"stop"}]}""")) }
+        server.start()
+        try {
+            val conn = ModelConnection(server.url("/").toString(), "test-only", "test")
+            // Ordinary chat uses compact inner life; world discussion uses full.
+            for (facts in listOf("海边灯塔重新亮起了", "数字世界里的海边灯塔重新亮起了")) {
+                LuluAiServices.gateway.generate(role, facts, "自然回应", "私聊", "test",
+                    connectionOverride = conn, contextMode = CompanionContextMode.Full).getOrThrow()
+                val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
+                assertTrue(prompt.contains("正在等待：海边灯塔重新亮起"))
+                assertTrue(prompt.contains(hidden.getString("id")))
+            }
+            assertEquals(2, server.requestCount)
+            assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
+        } finally { server.shutdown() }
+    }
+
     @Test fun fullGatewayDeliversRecallDiscretionThroughTheActualWorkingSet() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

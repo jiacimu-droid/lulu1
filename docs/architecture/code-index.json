@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T00:39:34.077061+00:00",
-  "commit": "9a490ad3f998098cf78fce431e8a68696c14388f",
+  "generatedAt": "2026-10-26T00:41:48.769870+00:00",
+  "commit": "7f0380623f11b84ee98e44909af9ad602cd39165",
   "branch": "main",
-  "sourceFingerprint": "f5c70f8590a643925d9fb62d17ae41b36a570ac18aa06a4aa0bee4e91a5a9649",
+  "sourceFingerprint": "6ef5ba62b83b23a03fb363c3fa2b58e2592bdb50f899cd58124646f2b5325ab3",
   "summary": {
-    "files": 910,
-    "lines": 179201,
-    "symbols": 2678
+    "files": 911,
+    "lines": 179425,
+    "symbols": 2679
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5221,7 +5221,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 309
+        "line": 307
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -5961,13 +5961,13 @@
     "rotate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "focus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "hasProposals": [
@@ -7379,25 +7379,25 @@
     "beginReading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 231
+        "line": 229
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 243
+        "line": 241
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 254
+        "line": 252
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 268
+        "line": 266
       }
     ],
     "recipients": [
@@ -14232,6 +14232,12 @@
         "line": 5
       }
     ],
+    "DigitalWorldActivityTransitionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
+        "line": 18
+      }
+    ],
     "DigitalWorldArrivalAudienceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt",
@@ -19827,7 +19833,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 1807,
-      "sha256": "9ea0076ba77ae4231ce153265a00818c0b943166b82f6f66ac002e9a47ad227d",
+      "sha256": "0c35f3e88ecfb04c6e80f71beea781d42bf73611e36ba6397dfd5f7efcfaefe6",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20243,8 +20249,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-      "lines": 65,
-      "sha256": "40e2c26256a318b4df7d3d638fbb6212499495dbec934de9419e8588d266b38d",
+      "lines": 86,
+      "sha256": "d9c747995b3e10305be7a3a48074dcc21b4d72087e4c13e6e441538dabee64c8",
       "symbols": [
         {
           "name": "isActive",
@@ -20264,11 +20270,11 @@
         },
         {
           "name": "rotate",
-          "line": 38
+          "line": 39
         },
         {
           "name": "focus",
-          "line": 51
+          "line": 52
         }
       ]
     },
@@ -20506,7 +20512,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
       "lines": 171,
-      "sha256": "0e88a4b5b294330a472707a03d7c0477d4710fbcbe4a58c8d26fc10c4a7d2795",
+      "sha256": "8ad80c0059dd658305e070e565ff58fc1367b6e586d4fd775032730546a03d6e",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -21873,8 +21879,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 318,
-      "sha256": "7567a2e4f3aa21b7d4832d91fe3329d6d0d93dfbf97c1cc6a440c0c856e37fbe",
+      "lines": 316,
+      "sha256": "dd66d902d2b86f2bf77d32b7289c357d4ec28a6d8288c2d27359560ec4b9a1da",
       "symbols": [
         {
           "name": "initialize",
@@ -21894,23 +21900,23 @@
         },
         {
           "name": "beginReading",
-          "line": 231
+          "line": 229
         },
         {
           "name": "ongoingActivity",
-          "line": 243
+          "line": 241
         },
         {
           "name": "pauseActivity",
-          "line": 254
+          "line": 252
         },
         {
           "name": "endActivity",
-          "line": 268
+          "line": 266
         },
         {
           "name": "clearCharacter",
-          "line": 309
+          "line": 307
         }
       ]
     },
@@ -29729,8 +29735,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
-      "lines": 98,
-      "sha256": "9379e8ac1b6d98248508d3ff15f4ff85529a484eb646b4b009f65211cf0ea0e7",
+      "lines": 145,
+      "sha256": "0799bc6f3a24e3ed944d65c51b6e000ee3908d143fae6ef03d5fa48297005d8f",
       "symbols": [
         {
           "name": "CharacterContinuityGatewayTest",
@@ -30129,8 +30135,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
-      "lines": 49,
-      "sha256": "daa24ab902dc336882ce01654b535e1f818ba4dc84824a173bd513a4bdb1e2b8",
+      "lines": 106,
+      "sha256": "90c79bdacbbd908363dad18646be33dbed21e081c330cfe35a7597118f8663b6",
       "symbols": [
         {
           "name": "CharacterMotiveStateTest",
@@ -30522,6 +30528,17 @@
         {
           "name": "DigitalWorldActionIdTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt",
+      "lines": 101,
+      "sha256": "5a0206fd74c75f33c0b97e264c5e06576a45735fdf8f9ae454dd9af57d64a768",
+      "symbols": [
+        {
+          "name": "DigitalWorldActivityTransitionTest",
+          "line": 18
         }
       ]
     },

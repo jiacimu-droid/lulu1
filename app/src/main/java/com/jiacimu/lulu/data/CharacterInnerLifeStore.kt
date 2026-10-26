@@ -1593,7 +1593,7 @@ object CharacterInnerLifeStore {
             "强度=${influence.impact}；只供角色自主判断"
     }
 
-    fun compactContext(characterId: String, now: Instant = Instant.now()): String {
+    fun compactContext(characterId: String, now: Instant = Instant.now(), query: String = ""): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val active = CharacterMotiveState.active(motives)
@@ -1623,7 +1623,7 @@ object CharacterInnerLifeStore {
             }
             if (active.isNotEmpty()) {
                 appendLine("【仍在意的事｜可以权衡而非必须行动】")
-                CharacterMotiveState.workingSet(motives, now).forEach { m ->
+                CharacterMotiveState.workingSet(motives, now, query = query).forEach { m ->
                     append("- id=${m.optString("id")}；目标=${m.optString("aim").take(170)}；缘由=${m.optString("why").take(120)}")
                     CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)?.let { append("；$it") }
                     val outcomes = m.optJSONArray("outcomes")
@@ -1674,7 +1674,7 @@ object CharacterInnerLifeStore {
         }.trim()
     }
 
-    fun context(characterId: String, now: Instant = Instant.now()): String {
+    fun context(characterId: String, now: Instant = Instant.now(), query: String = ""): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val emotion = root.optJSONObject("emotion")
@@ -1692,7 +1692,7 @@ object CharacterInnerLifeStore {
             val paused = CharacterMotiveState.paused(motives)
             if (active.size > 1) {
                 appendLine("现在并行牵挂${active.size}件事。不要每回合只按固定优先级执行；考虑此刻状态、执行条件、上次行动后果及角色本人的冲突。")
-                val contrasting = CharacterMotiveState.workingSet(motives, now, 3)
+                val contrasting = CharacterMotiveState.workingSet(motives, now, 3, query)
                 appendLine("当下可权衡的心愿：${contrasting.joinToString("／") { it.optString("aim") }}。")
             }
             if (paused.isNotEmpty()) appendLine("另外有${paused.size}件事被暂时搁置，若没有新的理由不要硬恢复。")
@@ -1702,7 +1702,7 @@ object CharacterInnerLifeStore {
             if (active.isEmpty()) appendLine("当前没有需要推进的长期小目标，不能为了填满生活编造。")
             // Finished and released goals remain archived, but may not consume
             // the character's limited present-tense deliberation context.
-            for (m in (CharacterMotiveState.workingSet(motives, now) + paused)
+            for (m in (CharacterMotiveState.workingSet(motives, now, query = query) + paused)
                 .distinctBy { it.optString("id") }.take(6)) {
                 appendLine("· 动机 id=${m.optString("id")}；${m.optString("status")}；优先级${m.optInt("priority")}；目标${m.optString("aim")}；缘由${m.optString("why")}")
                 CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)
