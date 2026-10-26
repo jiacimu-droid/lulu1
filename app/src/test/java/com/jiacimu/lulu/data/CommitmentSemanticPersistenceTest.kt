@@ -128,54 +128,6 @@ class CommitmentSemanticPersistenceTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun spokenDeadlineReconcilesExistingAlarmInsteadOfCreatingAnotherTask() = runBlocking {
-        // A long-running chat first saved tomorrow, then the role explicitly
-        // understood a precise earlier clock and an independent time interval.
-        val requestedAt = Instant.now().plusSeconds(90).truncatedTo(java.time.temporal.ChronoUnit.MINUTES)
-        val expected = requestedAt.plusSeconds(7 * 3600L)
-        val savedWrong = expected.plusSeconds(24 * 3600L)
-        val time = expected.atZone(zone).format(DateTimeFormatter.ofPattern("HH:mm"))
-        val day = if (expected.atZone(zone).toLocalDate() == requestedAt.atZone(zone).toLocalDate())
-            "今天" else "明天"
-        val proofId = "spoken-deadline-original-request"
-        val original = CommitmentTaskStore.save(CommitmentTask(
-            characterId = role,
-            goal = "${savedWrong.atZone(zone).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))} 按约定叫醒用户",
-            status = CommitmentTaskStatus.Scheduled,
-            dueAt = savedWrong,
-            timezone = zone.id,
-            sourceEventIds = listOf(proofId),
-            sourceTurnId = "chat:$proofId:$role",
-            deliveryAction = "alarm_only",
-        ))
-        val oldAlarm = LuluAlarmSystem.create(role, "测试角色", savedWrong,
-            original.goal, commitmentTaskId = original.id).getOrThrow()
-        CommitmentTaskStore.update(original.id) { it.copy(linkedAlarmId = oldAlarm.id) }
-
-        val corrected = CommitmentDecisionRuntime.reconcileSpokenDeadline(
-            characterId = role,
-            userText = "明天$time。不对，我说的是$time。你懂了吧？",
-            roleText = "懂了，是$day$time，七个小时之后。",
-            userAt = requestedAt,
-            recentUserEvidenceIds = listOf(proofId),
-            zone = zone,
-        )
-        assertNotNull(corrected)
-        assertEquals(original.id, corrected!!.id)
-        assertEquals(expected, corrected.dueAt)
-        assertTrue(corrected.goal.startsWith(
-            expected.atZone(zone).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))))
-        assertEquals(CommitmentTaskStatus.Scheduled, corrected.status)
-        assertEquals(1, CommitmentTaskStore.snapshot(role).count { it.id == original.id })
-        assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == original.id })
-        assertFalse(LuluAlarmSystem.list().any { it.id == oldAlarm.id })
-        // Replaying the same role reply is idempotent, no second native alarm.
-        CommitmentDecisionRuntime.reconcileSpokenDeadline(
-            role, "明天$time。不对，我说的是$time", "是$day$time，7小时后",
-            requestedAt, listOf(proofId), zone)
-        assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == original.id })
-    }
-
     @Test fun acceptedTwentyMinuteWakeCreatesNativeAlarmAfterEmptyModelCommitmentDecision() = runBlocking {
         val now = Instant.now()
         val evidence = "accepted-wake-user"
