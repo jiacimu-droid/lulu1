@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:29:53.449859+00:00",
-  "commit": "dd5c72599be7ca4b4bc0da09141224e12aa94524",
+  "generatedAt": "2026-10-26T03:30:14.264626+00:00",
+  "commit": "046d964d2cbacb56f4061a73ed2921b63d49d4b8",
   "branch": "main",
-  "sourceFingerprint": "ec04182cc5de57540256d3058976b29aafdcec6dd0261c2a5b6dacc87454c703",
+  "sourceFingerprint": "2e6e2519c4a7421e86b393923baefe8688dd6683956d288fab1858792b0853c4",
   "summary": {
     "files": 919,
-    "lines": 181225,
+    "lines": 181248,
     "symbols": 2697
   },
   "symbolIndex": {
@@ -29864,8 +29864,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt",
-      "lines": 111,
-      "sha256": "e5c0ce71246770cd25dee02961447b60b09280caad5cdcb6d398a12e4c661b95",
+      "lines": 134,
+      "sha256": "79313b1d0bac8edacb53b5259d6a4f25adf564139f339bd0e7f61fcde7bf7eee",
       "symbols": [
         {
           "name": "CharacterActionFollowThroughPolicyTest",
