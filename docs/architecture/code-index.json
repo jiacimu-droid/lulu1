@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:33:18.289793+00:00",
-  "commit": "7a7c4e53743d94814ac2cf7d3295db7dd91b01a5",
+  "generatedAt": "2026-10-26T03:33:45.103839+00:00",
+  "commit": "593bc6b3a437c1a458ec221a613ef93ebbc78c3f",
   "branch": "main",
-  "sourceFingerprint": "a740a9e85ece3246c3c0f1b96cb321d29f767494c117347217be862fbe7f26d2",
+  "sourceFingerprint": "cc45e27d8bd055ea262d9ae406e4cbf4d0667c99d318632ca317b770bfc4c807",
   "summary": {
     "files": 920,
-    "lines": 181410,
+    "lines": 181422,
     "symbols": 2698
   },
   "symbolIndex": {
@@ -3853,7 +3853,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 117
+        "line": 129
       }
     ],
     "recent": [
@@ -6149,13 +6149,13 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 86
+        "line": 98
       }
     ],
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 106
+        "line": 118
       }
     ],
     "groupedFields": [
@@ -20583,20 +20583,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 126,
-      "sha256": "ecbf55c00668aacd4af270aa06304359c8986fd72fb6ffb8a641518d1891aa9b",
+      "lines": 138,
+      "sha256": "7af6a339f6a72d983a3463895c502344ea4c2bd5af28a800ce9010107cd39a30",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 86
+          "line": 98
         },
         {
           "name": "requestContext",
-          "line": 106
+          "line": 118
         },
         {
           "name": "summary",
-          "line": 117
+          "line": 129
         }
       ]
     },
@@ -24824,7 +24824,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 662,
-      "sha256": "e63a9959b790eb129daffe320c1fbc71b1e49177dfeccf1e1a2129f2cf223ab2",
+      "sha256": "0d4485640325ed45f19ce4a9b545a0c415361e08c1e3262e34fab5221a4949e2",
       "symbols": [
         {
           "name": "planForApp",
