@@ -1085,8 +1085,14 @@ object LuluDeviceToolBridge {
             plan = plan.copy(motiveId = com.jiacimu.lulu.data.CharacterMotiveProgress.resolveMotiveId(
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
                 plan.motiveId, plan.motiveRef, causalEvidenceId))
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
+            // One role, one durable causal-commit order across phone, foreground
+            // and autonomous/online turns. Scene-specific audio/UI stays here.
+            com.jiacimu.lulu.data.CharacterTurnStateCommit.commit(
+                context = appContext,
                 characterId = characterId,
+                perception = perceptionInput,
+                direct = userSources,
+                claimDirect = false,
                 evidenceId = causalEvidenceId,
                 appraisal = plan.appraisal,
                 innerLife = canonicalInnerLife,
@@ -1096,16 +1102,7 @@ object LuluDeviceToolBridge {
                 reason = plan.reason,
                 now = now,
                 alternatives = plan.alternatives,
-            )
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-                characterId, causalEvidenceId,
-                plan.innerThought, now, privateDelta.fingerprint,
-            )
-            // Reuse the same causal commit boundary as autonomous/online
-            // perception; ordinary direct speech remains owned by chat reads.
-            com.jiacimu.lulu.data.CharacterPerceptionContext.acknowledge(
-                appContext, characterId, perceptionInput,
-                direct = userSources, claimDirect = false,
+                voiceFingerprint = privateDelta.fingerprint,
             )
         }
         // Persist this role's appraisal/motives BEFORE executing the chosen phone steps.
