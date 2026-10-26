@@ -129,6 +129,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     // Session identity is not a second phone history store; real events live
     // only in the existing SharedExperienceTimeline.
     val inspectionSession = remember(actualRole) { UUID.randomUUID().toString() }
+    var viewedSections by remember(inspectionSession) { mutableStateOf(emptySet<String>()) }
     var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
     var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
     var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
@@ -225,6 +226,10 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             phoneTab == 3 -> "个人资料与手机应用"
             else -> "消息列表"
         }
+        // At most six meaningful surfaces per inspection, and each just once:
+        // the role should notice a real visit without a swipe flood drowning
+        // out friends, commitments and other attention-worthy events.
+        if (section in viewedSections || viewedSections.size >= 6) return@LaunchedEffect
         withContext(Dispatchers.IO) {
             SharedExperienceTimeline.record(
                 eventId = "owner-phone-visit-${UUID.randomUUID()}",
@@ -237,6 +242,16 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                 occurredAt = Instant.now(),
                 triggerExtraction = false,
                 evidenceKind = EventEvidenceKind.Observation,
+            )
+        }
+        val firstVisit = viewedSections.isEmpty()
+        viewedSections = viewedSections + section
+        if (firstVisit && !actualRole.startsWith("resident:") &&
+            CompanionOnlineStore.isOnline(actualRole)) {
+            ProactivePerceptionScheduler.scheduleOnline(
+                context, actualRole,
+                trigger = "主人实际查看了本人手机；自行判断对此的态度，不要求必须立刻联系主人",
+                delayMillis = 2_500L,
             )
         }
     }
