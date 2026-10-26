@@ -413,9 +413,13 @@ internal object ResidentDailyDecision {
      * embedding, rerank or paid psychological request for a daily plan. */
     internal suspend fun decisionFacts(native: DigitalWorldResident, at: Instant,
         pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(
+            ResidentCharacterBridge.characterId(native.id)),
+        unread: List<MomentPost> = CharacterPhoneInbox.unreadMoments(
             ResidentCharacterBridge.characterId(native.id))): String {
         val id = ResidentCharacterBridge.characterId(native.id)
-        val facts = context(native, at, pending)
+        val facts = context(native, at, pending) + "\n" +
+            CharacterPhoneInbox.modelContext(id, unread) + "\n" +
+            CharacterPhoneInbox.requestContext(id)
         val memory = CharacterRuntime.actionMemory(id, UnifiedMemoryRequest(
             currentInput = pending.joinToString("\n") { it.content },
             sceneContext = "原住民自己的日常生活与熟人来往",
@@ -439,6 +443,7 @@ internal object ResidentDailyDecision {
         val app = context.applicationContext
         ResidentCharacterBridge.sync(app, now)
         ResidentSocialMailbox.initialize(app)
+        CharacterPhoneInbox.initialize(app)
         CharacterInnerLifeStore.initialize(app)
         val id = ResidentCharacterBridge.characterId(native.id)
         val selected = runCatching {
@@ -447,12 +452,14 @@ internal object ResidentDailyDecision {
         }.getOrNull() ?: return false
         if (!claim(app, native.id, now)) return false
         val pending = ResidentSocialMailbox.pendingIncoming(id)
+        val unread = CharacterPhoneInbox.unreadMoments(id)
         val reply = LuluAiServices.gateway.generate(
             characterId = id,
-            facts = decisionFacts(native, now, pending),
+            facts = decisionFacts(native, now, pending, unread),
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
+                这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
                 注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
                 更重要的是：你活在有人际交往的真实小世界里。想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊或结识新朋友，都可以成为具体行程；不是每天只有喝水和独处。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
@@ -470,6 +477,7 @@ internal object ResidentDailyDecision {
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
                  "messageTo":"上文列出的确实认识的角色ID，否则为空",
                  "message":"给这位角色真正想说的私信，否则为空",
+                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|play_solo_game|digital_world_action","args":{}}],
                  "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。
@@ -479,7 +487,7 @@ internal object ResidentDailyDecision {
             title = "${native.name}的一天",
             connectionOverride = selected,
             contextMode = CompanionContextMode.CharacterAndScenario,
-            maxTokens = 1_500,
+            maxTokens = 1_900,
         ).onFailure { error ->
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}今天规划失败",
@@ -553,6 +561,10 @@ internal object ResidentDailyDecision {
             ToolRouter.execute(app, id, "send_character_message",
                 JSONObject().put("targetCharacterId", messageTo).put("text", message),
                 requestId = "$eventId-message")
+        }
+        executeWakeSteps(app, id, json, "native-daily-${native.id}-${date(now)}")
+        check(CharacterPhoneInbox.acknowledge(id, unread.map { it.id })) {
+            "已感知的手机未读动态尚未记录"
         }
         pending.lastOrNull()?.let { check(ResidentSocialMailbox.acknowledgeIncoming(id, it.id)) {
             "居民来信处理进度没有保存"
