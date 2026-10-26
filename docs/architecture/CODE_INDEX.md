@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`85e401b6f6b802b5cb97c7cd7a9bdbb06a26275a`
+- 基准提交：`ae41d2816eaeb5a7979f64ab9d512203548ffb9e`
 - 分支：`main`
 - 已索引文件：920
-- 已索引代码/文本行：181473
+- 已索引代码/文本行：181475
 - 已发现符号：2698
 
 | 文件 | 行数 | 符号数 |
@@ -158,7 +158,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 327 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 306 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 308 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 77 | 0 |
