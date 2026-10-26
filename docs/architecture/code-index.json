@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T15:21:09.648544+00:00",
-  "commit": "707b787730772df514652ff0ae63f5634123ae66",
+  "generatedAt": "2026-10-26T15:28:39.823642+00:00",
+  "commit": "ba5d74719f94a0939cc0c58841e67492f92ccb3a",
   "branch": "main",
-  "sourceFingerprint": "7d07cb7287b11e52a0f60604f211c2fe778a28231bac2faee9a548b7c6397bce",
+  "sourceFingerprint": "af61cf6525e18caf2e1004b90b6cd31486a4fd3ba001cf99ddafd70046596d32",
   "summary": {
     "files": 951,
-    "lines": 188553,
+    "lines": 188600,
     "symbols": 2761
   },
   "symbolIndex": {
@@ -5583,7 +5583,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 744
+        "line": 756
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9425,37 +9425,37 @@
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 472
+        "line": 484
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 481
+        "line": 493
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 527
+        "line": 539
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 547
+        "line": 559
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 571
+        "line": 583
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 765
+        "line": 777
       }
     ],
     "Batch": [
@@ -9717,7 +9717,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2619
+        "line": 2654
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24587,8 +24587,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1046,
-      "sha256": "77e409a9074b75e82f8e6c6838b6eab40c9bc34005c1e4fd14eaf2790add5c39",
+      "lines": 1058,
+      "sha256": "c78e2f12e8329257c9af5b4d8757b5c33e546e4dc939e944560fbdf4def55903",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -24640,31 +24640,31 @@
         },
         {
           "name": "likeAsCharacter",
-          "line": 472
+          "line": 484
         },
         {
           "name": "commentAsCharacter",
-          "line": 481
+          "line": 493
         },
         {
           "name": "toggleUserLike",
-          "line": 527
+          "line": 539
         },
         {
           "name": "addUserComment",
-          "line": 547
+          "line": 559
         },
         {
           "name": "addUserReply",
-          "line": 571
+          "line": 583
         },
         {
           "name": "delete",
-          "line": 744
+          "line": 756
         },
         {
           "name": "clearCharacterData",
-          "line": 765
+          "line": 777
         }
       ]
     },
@@ -24957,8 +24957,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2685,
-      "sha256": "cf65fbb7def3a170420cad7eff162414c47fa4da99436432c70d89d3d618577f",
+      "lines": 2720,
+      "sha256": "2d9a1ce667bc7e552d336b4aea38ee8e5cafbc35a3c5e4c9208bd8543e963954",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24990,7 +24990,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2619
+          "line": 2654
         }
       ]
     },
