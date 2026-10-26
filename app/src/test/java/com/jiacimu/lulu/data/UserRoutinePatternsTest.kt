@@ -107,6 +107,15 @@ class UserRoutinePatternsTest {
         assertEquals(1, activities.count { it.source == "user-activity:sleep-guidance:start" })
         assertEquals(1, activities.count { it.source == "user-activity:phone-call:start" })
         assertFalse(activities.any { it.content.contains("主人已经睡着") })
+
+        InteractionSignalBridge.recordUserActivity(role, "listening-visit-one",
+            "listen-together", "start", time.plusSeconds(720), channel = "一起听")
+        val shared = SharedExperienceTimeline.all(role).single {
+            it.source == "user-activity:listen-together:start"
+        }
+        assertEquals("一起听", shared.channel)
+        assertTrue(UserRoutinePatterns.isStart(shared))
+        assertTrue(shared.content.contains("不") && shared.content.contains("声波"))
     }
 
     @Test fun unrelatedOrSameDayActionsCannotCreateObservedHabit() {
