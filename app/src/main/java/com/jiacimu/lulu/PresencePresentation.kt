@@ -55,6 +55,10 @@ internal object PresencePresentation {
         ).filter { it.second.isNotBlank() }
     }
 
+    /** A narrated gesture is not an executor receipt; old records lack provenance. */
+    fun gestureLabel(state: CompanionPresenceState): String =
+        if (state.gestureVerified) "已做动作" else "动作描写"
+
     fun status(state: CompanionPresenceState): String =
         stateFields(state).filter { it.first != "动作" }.joinToString(" · ") { it.second }
 }
