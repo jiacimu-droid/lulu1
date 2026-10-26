@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T10:29:57.550916+00:00",
-  "commit": "33600030c06cb8217da3f102a88c24239671e828",
+  "generatedAt": "2026-10-26T10:31:06.029041+00:00",
+  "commit": "dc0f1a6afe059c5973102f4f18a26afc4d834ea8",
   "branch": "main",
-  "sourceFingerprint": "7b7e3b3736975077f3443e386dde6706efa55f6ed466512d768441ea1dd3e712",
+  "sourceFingerprint": "bd450c458a5fdaf37f1c7cb237959daee9faa8cbcd87d09cb3fa8cca36dcead5",
   "summary": {
     "files": 949,
     "lines": 188014,
@@ -15315,37 +15315,37 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/06_turn_right.motion3.json",
       "lines": 192,
-      "sha256": "5bfecf6083a834c9fbc95ef233552bf7f48c9c1f6ebbeaae72b3e1a513815109",
+      "sha256": "79733e4e5dfd4ba67a9fd4d4e61f5d106fd8568c4b59a98636d4cca6365fb4f0",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/07_double_nod.motion3.json",
       "lines": 163,
-      "sha256": "06e078a76d4516b38a4e41d49aca49a2f1dd62815113117b051369cb16d8adad",
+      "sha256": "490396bc5ff78d22e8582fb7c795977562fe7d286cffcce4e3fddbfafbcf17b5",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/08_head_shake.motion3.json",
       "lines": 163,
-      "sha256": "2d17700b62a3df7c085e539fca665e33957336df0f58c9fc6d9946768c2dff41",
+      "sha256": "8f4ef740d32e4b621647747f35d9cee02b202cc23491a5b4a61b549166e20e0d",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/09_startle_recoil.motion3.json",
       "lines": 220,
-      "sha256": "ba372ded534b558e24fe7a2bd28c604016e9c06c3920384ad3344abc04677f94",
+      "sha256": "732501261a10e694da000b51faac4f34c5e81ec26120393a6c5b8de8e6cb549f",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/10_peek_left.motion3.json",
       "lines": 199,
-      "sha256": "5f44479bf6b66285730c31d40c21fc74cc6fa3950cc02c401f6b74fb8f239e0a",
+      "sha256": "d46d7a65c238a5dfe994f4b74979cd0e1bb2fbec3b51c9c87b5de28e96d00754",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/11_peek_right.motion3.json",
       "lines": 199,
-      "sha256": "6dbdef8b692ce602abb7e817026734d77476fbfd9fad434b2c583fb37983b4c6",
+      "sha256": "ed67788b70b8a159c3d20f14e54e2d13970c6359278c34ace6f91793bce09295",
       "symbols": []
     },
     {
@@ -15357,7 +15357,7 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/13_chin_lift.motion3.json",
       "lines": 149,
-      "sha256": "e8509a95d0dd00626bb93766a967d9d02ba1293cf7052d4970f06943b3e66d0e",
+      "sha256": "494de40947345f31a5dcc45e78e263ae548155afb1787c7c5e94bb4955fdf91f",
       "symbols": []
     },
     {
@@ -15381,7 +15381,7 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/17_happy_bounce.motion3.json",
       "lines": 234,
-      "sha256": "742a7e07d62fb0c36661a4d493ff6c744b81fc0debedc119f412161e6c4179f1",
+      "sha256": "206525fb8e5884822b670053cbb4634ae1b591509f633bed1003ca592b8baf2a",
       "symbols": []
     },
     {
