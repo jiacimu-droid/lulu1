@@ -22,6 +22,28 @@ class AutonomousActionTraceTest {
             worldAction = "visit_public_place", destination = "shared:courtyard"))
     }
 
+    @Test fun quietSpeechWithChosenToolsIsLoggedAsActionNotSilence() {
+        val at = Instant.parse("2026-10-26T03:00:00Z")
+        val a = JSONArray().put(JSONObject().put("tool", "web_search")
+            .put("args", JSONObject().put("query", "感兴趣的甲")))
+        val b = JSONArray().put(JSONObject().put("tool", "web_search")
+            .put("args", JSONObject().put("query", "感兴趣的乙")))
+        val signature = AutonomousActionTrace.selectedStepsSignature(a)
+        assertTrue(signature.startsWith("steps/web_search:"))
+        assertFalse(signature.contains("感兴趣的甲"))
+        assertNotEquals(signature, AutonomousActionTrace.selectedStepsSignature(b))
+        val history = JSONArray()
+            .put(JSONObject().put("at", at.toString()).put("selected", "silent")
+                .put("signature", "silent").put("succeeded", false))
+            .put(JSONObject().put("at", at.plusSeconds(5).toString())
+                .put("selected", "steps").put("signature", signature)
+                .put("succeeded", true).put("outcome", "第1步web_search：完成"))
+        val rendered = AutonomousActionTrace.render(history, at.plusSeconds(10))
+        assertTrue(rendered.contains("做过 steps/web_search:"))
+        assertFalse("Successful selected tools must break the apparent silence streak",
+            rendered.contains("连续选择了安静"))
+    }
+
     @Test fun feedbackShowsRepetitionButDoesNotForbidLegitimateExploration() {
         val at = Instant.parse("2026-10-11T02:00:00Z")
         val decision = JSONObject().put("at", at.toString())
