@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:48:02.183433+00:00",
-  "commit": "b35d16d2b87e64159fba27e82fe671703634685b",
+  "generatedAt": "2026-10-26T03:48:32.464615+00:00",
+  "commit": "388cb561c41aaf05c1ed9524f5a218fb35b1d8bc",
   "branch": "main",
-  "sourceFingerprint": "45c1d811cd661053cdd0a1b864801fd26f245d3f24af11099a843c6be0edd85d",
+  "sourceFingerprint": "0f6d180548c68fadb33db951386099dbf5bb28205f80496c75c77ce2fd7efeea",
   "summary": {
     "files": 920,
-    "lines": 181905,
+    "lines": 181924,
     "symbols": 2700
   },
   "symbolIndex": {
@@ -29698,8 +29698,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt",
-      "lines": 124,
-      "sha256": "a369aec972c4a3700d8ffd9fc619b4c22bafa27c8d3eef22d97280a4cf4a7733",
+      "lines": 143,
+      "sha256": "54781ecaaf932f69eff0d266920feaf434dd4134f8f2f17cd0d00beddd0e4697",
       "symbols": [
         {
           "name": "ActionFailureDiagnosticsTest",
