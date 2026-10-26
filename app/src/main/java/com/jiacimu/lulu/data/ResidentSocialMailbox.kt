@@ -52,6 +52,17 @@ internal object ResidentSocialMailbox {
             .takeLast(max.coerceIn(1, 60))
     }
 
+    /** Full currently retained real message history for the owner's phone viewer.
+     * Unlike the compact context inbox, it does not silently stop at 60 items.
+     * A withdrawn timeline source is not shown as a delivered message.
+     */
+    @Synchronized fun historyForInspection(characterId: String): List<ResidentDirectMessage> {
+        if (characterId.isBlank()) return emptyList()
+        return liveMessages(characterId, messages.filter {
+            it.fromId == characterId || it.toId == characterId
+        }).sortedBy(ResidentDirectMessage::createdAt)
+    }
+
     fun evidenceId(message: ResidentDirectMessage, viewer: String): String =
         "native-mail-${message.id}-viewer-$viewer"
 
