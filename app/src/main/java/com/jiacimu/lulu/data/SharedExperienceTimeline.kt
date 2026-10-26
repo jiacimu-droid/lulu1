@@ -426,6 +426,11 @@ object SharedExperienceTimeline {
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Indexed, bounded projection of actual user-facing activity, not a second habit store. */
+    fun recentUserActivities(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> =
+        query(characterId, 240, sourceLike = "user-activity:%:start",
+            after = now.minus(java.time.Duration.ofDays(45))).sortedBy(SharedTimelineEvent::occurredAt)
+
     /**
      * Read-only cross-character Xiaohongshu receipts directly from canonical evidence.
      * Deletion/retraction is automatically reflected; no duplicate preference history.
@@ -516,7 +521,8 @@ object SharedExperienceTimeline {
         }
     }
 
-    private fun query(characterId: String, limit: Int?, sessionId: String? = null): List<SharedTimelineEvent> {
+    private fun query(characterId: String, limit: Int?, sessionId: String? = null,
+        sourceLike: String? = null, after: Instant? = null): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
         val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
         val birth = DigitalLifeProfileStore.birthAt(characterId)
@@ -524,11 +530,15 @@ object SharedExperienceTimeline {
             add("character_id = ?")
             if (birth != null) add("occurred_at >= ?")
             if (sessionId != null) add("session_id = ?")
+            if (sourceLike != null) add("source LIKE ?")
+            if (after != null) add("occurred_at >= ?")
         }.joinToString(" AND ")
         val args = buildList {
             add(characterId)
             if (birth != null) add(birth.toEpochMilli().toString())
             if (sessionId != null) add(sessionId)
+            if (sourceLike != null) add(sourceLike)
+            if (after != null) add(after.toEpochMilli().toString())
         }.toTypedArray()
         return database.query(
             "timeline_events",
