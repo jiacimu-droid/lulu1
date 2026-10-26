@@ -83,6 +83,49 @@ internal object Live2DAssets {
         return runCatching { genuinePortrait(modelFile) }.getOrNull()
     }
 
+    /**
+     * Install our own parameter-only Motion3 clips beside an already imported
+     * wolf rig. No re-import and no modification of the creator's model3.json,
+     * moc3 or textures. Clips are original Lulu keyframes, not model assets.
+     *
+     * Check the actual display-info parameter list before enabling the pack:
+     * unrelated Live2D models must not inherit this particular choreography.
+     */
+    private fun ensureWolfMotionPack(context: Context, settings: File) {
+        val directory = settings.parentFile ?: return
+        val refs = JSONObject(settings.readText()).getJSONObject("FileReferences")
+        val displayInfo = refs.optString("DisplayInfo")
+        if (!displayInfo.endsWith(".cdi3.json")) return
+        val info = File(directory, displayInfo).canonicalFile
+        if (!info.isFile || !inside(base(context), info)) return
+        val parameters = JSONObject(info.readText()).optJSONArray("Parameters") ?: return
+        val ids = (0 until parameters.length()).mapNotNull {
+            parameters.optJSONObject(it)?.optString("Id")
+        }.toSet()
+        val signature = setOf("ParamCheekPuff", "ParamJawOpen", "ParamAngleZ2",
+            "body_gensui_z", "ParamMouthPuckerWiden", "ParamBrowLForm")
+        if (!ids.containsAll(signature)) return
+        val assetDir = "live2d/wolf-motions"
+        val names = context.assets.list(assetDir).orEmpty()
+            .filter { it.matches(Regex("[0-9]{2}_[a-z_]+\\.motion3\\.json")) }.sorted()
+        if (names.isEmpty()) return
+        val targetDir = File(directory, "__lulu_wolf_motions")
+        if (!inside(base(context), targetDir)) return
+        check(targetDir.isDirectory || targetDir.mkdirs()) { "无法创建小狼动作资源目录" }
+        for (name in names) {
+            val data = context.assets.open("$assetDir/$name").use { it.readBytes() }
+            require(data.size in 100..64_000) { "小狼动作资源长度异常" }
+            val destination = File(targetDir, name)
+            if (!destination.isFile || !destination.readBytes().contentEquals(data)) {
+                val tmp = File(targetDir, "$name.tmp")
+                tmp.writeBytes(data)
+                // Updating across APK releases must never expose half a JSON file.
+                if (destination.exists()) check(destination.delete())
+                check(tmp.renameTo(destination)) { "无法更新小狼动作资源" }
+            }
+        }
+    }
+
     /** An in-memory manifest for the renderer; the imported model3.json stays unmodified. */
     fun rendererManifest(context: Context, characterId: String): String? {
         val relative = prefs(context).getString("model:$characterId", null).orEmpty()
@@ -90,6 +133,7 @@ internal object Live2DAssets {
         val settings = File(base(context), relative)
         if (!inside(base(context), settings) || !settings.isFile) return null
         return runCatching {
+            ensureWolfMotionPack(context, settings)
             Live2DMobileTextureAdapter.prepare(
                 settings, Live2DModelManifestAdapter.normalizedSettings(settings)
             ).toString()
@@ -107,6 +151,7 @@ internal object Live2DAssets {
         val settings = File(base(context), relative)
         if (relative.isBlank() || !inside(base(context), settings) || !settings.isFile) return Live2DModelControls()
         return runCatching {
+            ensureWolfMotionPack(context, settings)
             val refs = Live2DModelManifestAdapter.normalizedSettings(settings)
                 .getJSONObject("FileReferences")
             val expressions = refs.optJSONArray("Expressions")?.let { array ->
