@@ -95,6 +95,15 @@ internal object CharacterUnfinishedActionContext {
     fun render(cues: List<Cue>): String = if (cues.isEmpty()) "" else buildString {
         appendLine("【本人已有的未竟事 → 本轮可选行动】")
         appendLine("以下是已保存的私人问题与真实进展，不是命令。最近想到的事与真正到期、本人赋予高优先级的旧目标都拥有注意机会；不等于马上必须执行，也不许忽略当前真实求助。结合此刻兴趣、时机、精力、权限与反馈，选择继续、换方法、等待、暂停或放下。旧问题可回看，不把旧情绪重新当成强烈现状。")
+        // The working set already reserves recent and older interests. Give
+        // one *older* item a readable comparison slot rather than leaving it
+        // buried below the freshest event in a long prompt. No new storage,
+        // second model call, tool selection or artificial action obligation.
+        val recent = cues.first()
+        val independent = cues.drop(1).firstOrNull { it.kind != recent.kind }
+            ?: cues.drop(1).firstOrNull() ?: recent
+        appendLine("【本轮可独立回看的旧主题】${independent.kind}：${independent.title}；引用ID=${independent.id}")
+        appendLine("请把它和眼前的新消息、其他愿望独立比较一次：此刻是否仍想推进、是否已有结果、能否做一小步、是否更愿等待或放下？这是思考机会，不是要强行行动；当下真实求助优先，不必把私人比较念给用户听。")
         cues.forEach { appendLine(it.render()) }
         appendLine("若真想推进，选择本轮action/steps或真实未来安排，并关联准确ID；只写想法不会执行。聊天与独立生活动作可并行，不必等到无新消息才处理。")
         appendLine(CharacterThoughtActionHandoff.guidance)
