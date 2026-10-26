@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T03:46:43.685401+00:00",
-  "commit": "6b1c1472b856d13f31e74c4cc5106d5645fdd702",
+  "generatedAt": "2026-10-26T03:47:01.960420+00:00",
+  "commit": "2101e18a389d24cb2769ee55f684205920487f8c",
   "branch": "main",
-  "sourceFingerprint": "5e44c2a82000066f09f9b905c7124cf9c06866493f1393146fedf868d3214689",
+  "sourceFingerprint": "6573979189231eaa61c40c9b29c9902dc57467875eccb9c7b1bb279b5e9ee9ad",
   "summary": {
     "files": 920,
-    "lines": 181851,
+    "lines": 181869,
     "symbols": 2700
   },
   "symbolIndex": {
@@ -9603,7 +9603,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2463
+        "line": 2476
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -17533,8 +17533,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 620,
-      "sha256": "ed9d2a8e525917e1ef84d1a8a55bca6197005608235db96860f37124665734b5",
+      "lines": 625,
+      "sha256": "7b02a507ceae56626c5e45068ad43ea3ca47dec902599c46bfbc72d301852121",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
@@ -24405,8 +24405,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2529,
-      "sha256": "ccfac009e5377adab1d625e3125821d2b1b3b3d542f4d4235803cee7bf9f5d77",
+      "lines": 2542,
+      "sha256": "b6ada85b202ab0c82d2a13c053a3431fb8df2cd1117426a770cf83ee12abde09",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -24438,7 +24438,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2463
+          "line": 2476
         }
       ]
     },
