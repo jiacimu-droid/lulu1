@@ -74,3 +74,51 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
   assert.equal(wolf.roll, base.roll, 'body contact must not inherit a face strike')
   assert.deepEqual(wolf.body, base.body)
 }
+
+
+// A simultaneously playing authored Motion3 and a strong physical reflex
+// must NOT add their neck/torso angles. Otherwise two individually legal
+// ±25/30-degree movements combine to exceed the real Cubism rig range and
+// the clamp creates a visually frozen, then suddenly snapping, head.
+{
+  const values = {
+    ParamAngleX: 0, ParamAngleY: 0, ParamAngleZ: 21,
+    ParamBodyAngleX: 0, ParamBodyAngleY: 0, ParamBodyAngleZ: 8,
+  }
+  const writes = []
+  const layer = createVisualLayerRuntime({
+    has: (_core, id) => Object.hasOwn(values, id),
+    read: (_core, id) => values[id],
+    write: (_core, id, value) => {
+      writes.push({ id, value })
+      values[id] = value
+    },
+  })
+  const strike = {
+    impactMotion: true, yaw: 0, pitch: 0, roll: 29,
+    body: { yaw: 0, pitch: 0, roll: 9 },
+  }
+  for (let i = 0; i < 45; i++) {
+    // Emulate a real authored Motion3 updating its own pose before the
+    // beforeModelUpdate callback, as pixi-live2d-display does each frame.
+    values.ParamAngleZ = 21
+    values.ParamBodyAngleZ = 8
+    layer.update(values, { deltaMs: 16, seconds: i * .016,
+      authoredMotion: true, touchReflex: strike })
+    assert.ok(Number.isFinite(values.ParamAngleZ) &&
+      values.ParamAngleZ <= 30.1, 'physical reflex owns the neck during impact')
+    assert.ok(Number.isFinite(values.ParamBodyAngleZ) &&
+      values.ParamBodyAngleZ <= 10.1, 'physical reflex owns torso during impact')
+  }
+  assert.ok(writes.some(w => w.id === 'ParamAngleZ' && w.value > 25),
+    'the strong touch still produces a visible neck recoil')
+  for (let i = 0; i < 270; i++) {
+    values.ParamAngleZ = 0
+    values.ParamBodyAngleZ = 0
+    layer.update(values, { deltaMs: 16, seconds: 1 + i * .016,
+      authoredMotion: false, touchReflex: null })
+  }
+  assert.ok(Math.abs(values.ParamAngleZ) < .05 &&
+    Math.abs(values.ParamBodyAngleZ) < .05,
+    'motion + touch ends with a neutral head and torso')
+}
