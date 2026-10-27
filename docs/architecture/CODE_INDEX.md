@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`acc5cb4e56ac8bd172b73b1e2c9b085a553f2208`
+- 基准提交：`e3570992e22c8559ae42e4a3bd4289ddf72e2172`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196319
+- 已索引代码/文本行：196368
 - 已发现符号：2911
 
 | 文件 | 行数 | 符号数 |
@@ -945,14 +945,14 @@
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 209 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 136 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 45 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 92 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 109 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 304 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 157 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 37 | 1 |

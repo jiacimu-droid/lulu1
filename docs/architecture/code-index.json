@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:42:50.994299+00:00",
-  "commit": "acc5cb4e56ac8bd172b73b1e2c9b085a553f2208",
+  "generatedAt": "2026-10-27T18:44:04.357431+00:00",
+  "commit": "e3570992e22c8559ae42e4a3bd4289ddf72e2172",
   "branch": "main",
-  "sourceFingerprint": "72ecb5f3515f66b70b69d11810f80b535c570639ce224710b944dcc882354698",
+  "sourceFingerprint": "323aef95ef2f284f221b2fdf160e80dcf54792fcde6028d5d46db86be92a0e31",
   "summary": {
     "files": 993,
-    "lines": 196319,
+    "lines": 196368,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -1889,7 +1889,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 80
+        "line": 112
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
@@ -16029,7 +16029,7 @@
     "propose": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 105
+        "line": 137
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
@@ -34104,8 +34104,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-      "lines": 136,
-      "sha256": "8c4e318d99a4b68fa68ed614a24854dda42671972af456eb023f0f05b82516a8",
+      "lines": 168,
+      "sha256": "29609c5510a021c30d57e22342c667885b614a048b3d968bdf26f7199ae5aeed",
       "symbols": [
         {
           "name": "TimelineLedgerTest",
@@ -34117,11 +34117,11 @@
         },
         {
           "name": "record",
-          "line": 80
+          "line": 112
         },
         {
           "name": "propose",
-          "line": 105
+          "line": 137
         }
       ]
     },
@@ -34193,8 +34193,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-      "lines": 92,
-      "sha256": "c41e1dbff6d7cfc2df04deb47947d6e6ed78932c9f8814b88599474af92127e8",
+      "lines": 109,
+      "sha256": "eae36fd0a91a6ee3ffc250abcbd1659571770197c0d766e1b726a6ef98d7217c",
       "symbols": [
         {
           "name": "UserInteractionPresenceTest",
