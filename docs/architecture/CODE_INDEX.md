@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`30a013ec3285f71ba71e9e3223ff681c6bb8c4fe`
+- 基准提交：`b3eac88571841dd7a608361482dd7f9b1c6063a3`
 - 分支：`main`
-- 已索引文件：975
-- 已索引代码/文本行：192365
-- 已发现符号：2813
+- 已索引文件：977
+- 已索引代码/文本行：192688
+- 已发现符号：2821
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 221 | 0 |
-| `app/src/main/AndroidManifest.xml` | 174 | 0 |
+| `app/src/main/AndroidManifest.xml` | 186 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -129,7 +129,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 340 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 458 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 888 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 162 | 6 |
@@ -142,7 +142,8 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 154 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 190 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 68 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 262 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
@@ -696,6 +697,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |

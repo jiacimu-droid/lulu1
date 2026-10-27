@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T13:05:03.246290+00:00",
-  "commit": "30a013ec3285f71ba71e9e3223ff681c6bb8c4fe",
+  "generatedAt": "2026-10-27T13:28:47.127759+00:00",
+  "commit": "b3eac88571841dd7a608361482dd7f9b1c6063a3",
   "branch": "main",
-  "sourceFingerprint": "22759ddc09a75c8b8212a32648263cc7610f754b6cbff2fc57de373d57fa3b3c",
+  "sourceFingerprint": "5d729e4a1c0aea37393f8e6bac9e3f74d3f9c6bd5d5e890aa1a76eaa6a655ad4",
   "summary": {
-    "files": 975,
-    "lines": 192365,
-    "symbols": 2813
+    "files": 977,
+    "lines": 192688,
+    "symbols": 2821
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1615,55 +1615,55 @@
     "notifyCoreChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 28
+        "line": 29
       }
     ],
     "base": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "coreFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "hasCore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "modelUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "modelLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "previewFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 76
+        "line": 77
       }
     ],
     "rendererManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 130
+        "line": 131
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 149
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1673,7 +1673,43 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 172
+        "line": 173
+      }
+    ],
+    "ArchiveEntry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 335
+      }
+    ],
+    "listArchives": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 385
+      }
+    ],
+    "currentModelSettings": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 393
+      }
+    ],
+    "listModeledCharacters": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 396
+      }
+    ],
+    "switchArchive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 406
+      }
+    ],
+    "deleteArchive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 421
       }
     ],
     "send": [
@@ -1886,22 +1922,28 @@
         "line": 12
       }
     ],
+    "Live2DPreviewPlaygroundActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt",
+        "line": 28
+      }
+    ],
     "playMotion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 60
+        "line": 95
       }
     ],
     "playExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 74
+        "line": 109
       }
     ],
     "reset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 80
+        "line": 115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -13468,6 +13510,12 @@
         "line": 15
       }
     ],
+    "Live2DArchiveTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt",
+        "line": 14
+      }
+    ],
     "Live2DAssetsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
@@ -15776,8 +15824,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 174,
-      "sha256": "a7b9671338966f497014232c5b3d6af243abf2b7e5f1ccf218214225e40a5c6e",
+      "lines": 186,
+      "sha256": "6116cf03ac0163ee76934592c206c722a50662f0cb5e316cfe5dc85078e14b9c",
       "symbols": []
     },
     {
@@ -17119,48 +17167,72 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 340,
-      "sha256": "31c5c5329f5cab4331d1993d9581453681bd40ea0f7f5324edec8efd6fd52139",
+      "lines": 458,
+      "sha256": "03671206e3e09f803f346885283a8e8a379aea7a3fd7c58cfe420905f2045fde",
       "symbols": [
         {
           "name": "notifyCoreChanged",
-          "line": 28
-        },
-        {
-          "name": "base",
           "line": 29
         },
         {
-          "name": "coreFile",
+          "name": "base",
           "line": 30
         },
         {
-          "name": "hasCore",
+          "name": "coreFile",
           "line": 31
         },
         {
+          "name": "hasCore",
+          "line": 32
+        },
+        {
           "name": "modelUrl",
-          "line": 33
+          "line": 34
         },
         {
           "name": "modelLabel",
-          "line": 42
+          "line": 43
         },
         {
           "name": "previewFile",
-          "line": 76
+          "line": 77
         },
         {
           "name": "rendererManifest",
-          "line": 130
+          "line": 131
         },
         {
           "name": "controls",
-          "line": 149
+          "line": 150
         },
         {
           "name": "removeModel",
-          "line": 172
+          "line": 173
+        },
+        {
+          "name": "ArchiveEntry",
+          "line": 335
+        },
+        {
+          "name": "listArchives",
+          "line": 385
+        },
+        {
+          "name": "currentModelSettings",
+          "line": 393
+        },
+        {
+          "name": "listModeledCharacters",
+          "line": 396
+        },
+        {
+          "name": "switchArchive",
+          "line": 406
+        },
+        {
+          "name": "deleteArchive",
+          "line": 421
         }
       ]
     },
@@ -17343,21 +17415,32 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt",
+      "lines": 68,
+      "sha256": "4d7977e62c3398dd542fbfee9852adcee4630b666aa74972eeec6e0ded110aa6",
+      "symbols": [
+        {
+          "name": "Live2DPreviewPlaygroundActivity",
+          "line": 28
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-      "lines": 190,
-      "sha256": "6d03cbc1e9d3f2fb884f024ceda85b345177911ffe5d1abd7037a7aa2dc5ff83",
+      "lines": 262,
+      "sha256": "bf0066d4363f4577c0d01101d6292315c8b96de53b81448796c7cfb2fd196434",
       "symbols": [
         {
           "name": "playMotion",
-          "line": 60
+          "line": 95
         },
         {
           "name": "playExpression",
-          "line": 74
+          "line": 109
         },
         {
           "name": "reset",
-          "line": 80
+          "line": 115
         }
       ]
     },
@@ -30023,6 +30106,17 @@
         {
           "name": "ListenTogetherRoomTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt",
+      "lines": 53,
+      "sha256": "f51932d1bce462fd8866a1fce49c6fb25191f83c5372428581c101ef4bf674b3",
+      "symbols": [
+        {
+          "name": "Live2DArchiveTest",
+          "line": 14
         }
       ]
     },
