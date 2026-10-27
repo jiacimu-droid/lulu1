@@ -329,7 +329,7 @@ const bridge = {
   wolfRigActive: false, enhanceWolfTouch,
   touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, isImpact,
   actualAvatarPixel: () => true, tactileContact: null,
-  touchSequence: 0, touchReflex: null, touchReflexEndAt: 0,
+  tactileGestureCancelled: false, touchSequence: 0, touchReflex: null, touchReflexEndAt: 0,
   touchExpressionNames: wolf, touchExpressionMetadata: metadata,
   mouthExclusiveExpressions: new Set(['吐舌']), playing: false,
   activeExpressionName: null, activeTouchExpression: null,
@@ -357,6 +357,34 @@ assert.equal(completedHit.force, .9)
 assert.equal(stageResponse.snapshot().shyness, 0)
 assert.ok(stageResponse.snapshot().impact > 40)
 assert.ok(bridge.touchReflex.roll < -2, 'even a stationary tap bends the cheek-side neck, without toppling the avatar')
+// A palm or kiss stays the selected TOOL during MOVE. Raw Android strokes
+// describe the path, not a second petting action before release.
+stageResponse.reset()
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
+stageTime += 650
+bridge.touch(.68, .235, 'stroke-right', { phase: 'move', mode: 'pat', force: .9 })
+assert.equal(bridge.tactileContact.kind, 'slap')
+assert.equal(bridge.tactileContact.region, 'cheek-left')
+bridge.tickTactileContact(stageTime)
+assert.equal(bridge.touchReflex, null, 'moving palm cannot play impact early')
+assert.equal(stageResponse.snapshot().shyness, 0, 'palm MOVE is not a caress')
+assert.equal(stageResponse.snapshot().impact, 0, 'palm MOVE is not an impact')
+const sweptPalm = bridge.touch(.68, .235, 'slap-right',
+  { phase: 'complete', mode: 'pat', force: .9 })
+assert.equal(sweptPalm.region, 'cheek-left')
+assert.equal(sweptPalm.gesture, 'slap-right')
+assert.ok(stageResponse.snapshot().impact > 40)
+stageResponse.reset()
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'kiss' })
+stageTime += 650
+bridge.touch(.34, .235, 'stroke-right', { phase: 'move', mode: 'kiss', force: .9 })
+assert.equal(bridge.tactileContact.kind, 'kiss')
+assert.equal(stageResponse.snapshot().shyness, 0, 'kiss MOVE cannot count as petting')
+assert.equal(stageResponse.snapshot().impact, 0)
+const movedKiss = bridge.touch(.34, .235, 'kiss',
+  { phase: 'complete', mode: 'kiss', force: .9 })
+assert.equal(movedKiss.region, 'cheek-left')
+assert.ok(stageResponse.snapshot().shyness > 10, 'kiss is counted once on release')
 // The first real cheek contact owns the hit even if release crosses the
 // other cheek or leaves the avatar silhouette within the video viewport.
 stageResponse.reset()
@@ -406,6 +434,22 @@ bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
 assert.equal(stageResponse.snapshot().impact, beforeMiss)
 bridge.touch(.32, .235, 'cancel')
 assert.equal(bridge.tactileContact, null)
+assert.equal(bridge.touch(.32, .235, 'tap',
+  { phase: 'complete', mode: 'hand' }).hit, false,
+  'a cancelled Android pointer cannot return as a phantom release')
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand' })
+assert.equal(bridge.touch(.32, .235, 'tap',
+  { phase: 'complete', mode: 'hand' }).hit, true,
+  'a fresh DOWN can start a new valid gesture after cancellation')
+bridge.touchCalibration = { 'cheek-left': {
+  u: .32, v: .235, rx: .08, ry: .025,
+} }
+bridge.actualAvatarPixel = () => false
+assert.equal(bridge.touch(.32, .235, 'down',
+  { phase: 'move', mode: 'hand' }).hit, false,
+  'calibrated body zones cannot override confirmed background pixels')
+bridge.actualAvatarPixel = () => true
+bridge.touchCalibration = {}
 bridge.calibrationVisible = true
 const beforeCalibration = stageResponse.snapshot().shyness
 assert.equal(bridge.touch(.5, .04, 'kiss').hit, false)

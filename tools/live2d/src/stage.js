@@ -113,6 +113,8 @@ let touchReflex = null
 let touchReflexEndAt = 0
 let lastTouchMotionSequence = -1
 let tactileContact = null
+// A cancelled pointer stream cannot reappear as a standalone release hit.
+let tactileGestureCancelled = false
 const touchResponse = createTouchResponseRuntime()
 let touchSequence = 0
 let touchCalibration = Object.create(null)
@@ -1217,6 +1219,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     touchResponse.end()
     tactileContact = null
     touchReflex = null
+    tactileGestureCancelled = true
     return { hit: false }
   }
   if (!model || !previewObserved || paused || calibrationVisible ||
@@ -1224,11 +1227,16 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
       normalizedX < 0 || normalizedX > 1 ||
       normalizedY < 0 || normalizedY > 1) {
     touchResponse.end()
-    if (tactileContact) tactileContact.pressed = false
+    if (options.phase === 'move') tactileGestureCancelled = true
+    tactileContact = null
+    touchReflex = null
     return { hit: false }
   }
   if (!['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
       'stroke-up', 'stroke-down', 'kiss', 'slap', 'slap-left', 'slap-right'].includes(gesture))
+    return { hit: false }
+  if (gesture === 'down') tactileGestureCancelled = false
+  else if (options.phase === 'complete' && tactileGestureCancelled)
     return { hit: false }
   const x = normalizedX * root.clientWidth
   const y = normalizedY * root.clientHeight
@@ -1242,19 +1250,31 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // accepted DOWN/MOVE still needs an actual fresh model hit.
   const completionRegion = options.phase === 'complete' &&
     tactileContact?.pressed ? tactileContact.region : null
-  if (!completionRegion && !manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
+  // Calibration chooses a BODY PART, never fabricates an avatar pixel.
+  // A confirmed room/background sample remains a miss even in a saved zone.
+  if (!completionRegion && actualAvatarPixel(normalizedX, normalizedY) === false) {
     touchResponse.end()
-    if (tactileContact) tactileContact.pressed = false
+    if (options.phase === 'move') tactileGestureCancelled = true
+    tactileContact = null
+    touchReflex = null
     return { hit: false }
   }
   let hits = []
   try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
-  const region = completionRegion || resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
-    calibration: touchCalibration })
+  // A kiss/palm sweep belongs to its first accepted body part. Only a hand
+  // caress follows the moving finger across independently hit-tested zones.
+  const heldRegion = options.phase === 'move' &&
+    (options.mode === 'pat' || options.mode === 'kiss') &&
+    tactileContact?.pressed ? tactileContact.region : null
+  const region = completionRegion || heldRegion || resolveTouchRegion({
+    hits, authoredAreas, bounds, x, y, calibration: touchCalibration,
+  })
   if (!region) {
     touchResponse.end()
-    if (tactileContact) tactileContact.pressed = false
+    if (options.phase === 'move') tactileGestureCancelled = true
+    tactileContact = null
+    touchReflex = null
     return { hit: false }
   }
   let kind = ['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
@@ -1265,6 +1285,12 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   if (starting) {
     touchSequence++
     kind = options.mode === 'kiss' ? 'kiss' : options.mode === 'pat' ? 'slap' : 'tap'
+  } else if (options.mode === 'kiss') {
+    kind = 'kiss'
+  } else if (options.mode === 'pat' && !isImpact(kind)) {
+    // MOVE reports its geometric stroke, not a change from palm to petting.
+    // The actual impact is committed once, on release, with net direction.
+    kind = 'slap'
   }
   const downPoint = starting || !tactileContact
     ? { x, y } : tactileContact.downPoint
