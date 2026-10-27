@@ -198,8 +198,18 @@ private suspend fun updateCommitmentTask(
                 attemptCount = 0,
                 status = if (needsClarification) CommitmentTaskStatus.NeedsClarification
                     else if (ongoing) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Scheduled,
+                // Time and wording together: when the model reschedules to a
+                // new time but supplies no new title, the old title is carried
+                // over verbatim, so it can still name the old time (the
+                // screenshot case: a 09:30 item titled "after 8:30"). The
+                // program must not rewrite the model's wording, but it can
+                // record the plain fact that the title was not updated with
+                // the time, so the next turn and the schedule UI can see the
+                // mismatch instead of silently showing a stale title.
                 lastActionResult = if (needsClarification) {
                     "约定已更新，但仍缺少明确时间或条件；需要自然追问，禁止猜测"
+                } else if (draft.goal.isBlank() && draft.dueAt != null && draft.dueAt != current.dueAt) {
+                    "约定时间或条件已更新；旧执行计划已取消；标题沿用旧文字，未随时间一起更新"
                 } else {
                     "约定时间或条件已更新；旧执行计划已取消"
                 },
