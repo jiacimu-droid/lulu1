@@ -174,6 +174,78 @@ class ResidentDailyContinuityTest {
         }
     }
 
+    @Test(timeout = 60_000) fun dailyPlanPreservesChosenFriendshipAndFurnitureWithoutExecutingThem() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val zone = java.time.ZoneId.systemDefault()
+        val now = java.time.LocalDate.now(zone).atTime(8, 0).atZone(zone).toInstant()
+        val a = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "布置家园居民${UUID.randomUUID().toString().take(5)}",
+            identity = "花艺爱好者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val b = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "庭院熟人${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        CharacterFriendRequests.initialize(app)
+        val role = ResidentCharacterBridge.characterId(a.id)
+        val peer = ResidentCharacterBridge.characterId(b.id)
+        assertTrue(ResidentSocialMailbox.canContact(role, peer))
+        val agenda = JSONArray().put(JSONObject().put("at", "11:00")
+            .put("title", "申请和新认识的人做好友").put("intent", "想慢慢继续交流")
+            .put("activityAction", "send_friend_request")
+            .put("targetCharacterId", peer)
+            .put("activityArgs", JSONObject().put("greeting", "很高兴在庭院认识你")))
+            .put(JSONObject().put("at", "12:00")
+                .put("title", "回家布置一盏灯").put("intent", "想让房间温馨一点")
+                .put("activityAction", "digital_world_action")
+                .put("activityArgs", JSONObject().put("worldAction", "build_home_item")
+                    .put("name", "窗边小灯").put("itemType", "lamp")
+                    .put("appearance", "蓝灰色小台灯").put("position", "窗边桌上")))
+        val saved = ResidentDailyDecision.saveAgenda(app, a, JSONObject().put("agenda", agenda), now)
+        assertEquals(2, saved.size)
+        assertEquals("send_friend_request", saved[0].activityAction)
+        assertEquals(peer, JSONObject(saved[0].activityArgs).optString("targetCharacterId"))
+        assertEquals("build_home_item", JSONObject(saved[1].activityArgs).optString("worldAction"))
+        assertTrue(CharacterFriendRequests.historyFor(role).isEmpty())
+        assertFalse(DigitalWorldStore.itemsAtHome(role).any { it.name == "窗边小灯" })
+        assertTrue(RoleDayScheduleStore.plans(app, role).any { it.id == saved[1].id })
+        // A request already waiting for an independent response cannot be
+        // silently queued a second time in tomorrow's plan.
+        CharacterFriendRequests.send(role, peer, "希望以后聊聊", now)
+        val repeated = ResidentDailyDecision.saveAgenda(app, a,
+            JSONObject().put("agenda", JSONArray().put(agenda.getJSONObject(0))), now)
+        assertTrue(repeated.isEmpty())
+    }
+
+    @Test(timeout = 60_000) fun invalidFurnitureProposalNeverBecomesAnExecutableAppointment() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val zone = java.time.ZoneId.systemDefault()
+        val now = java.time.LocalDate.now(zone).atTime(8, 0).atZone(zone).toInstant()
+        val person = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "谨慎布置居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val bad = JSONArray().put(JSONObject().put("at", "13:30")
+            .put("title", "买没有看到的家具").put("intent", "想换换心情")
+            .put("activityAction", "digital_world_action")
+            .put("activityArgs", JSONObject().put("worldAction", "build_home_item")
+                .put("name", "没有外观的家具")))
+            .put(JSONObject().put("at", "15:00")
+                .put("title", "挪动不存在的家具").put("intent", "觉得它太占地方")
+                .put("activityAction", "digital_world_action")
+                .put("activityArgs", JSONObject().put("worldAction", "move_home_item")
+                    .put("itemId", "not-owned").put("position", "靠墙")))
+        assertTrue(ResidentDailyDecision.saveAgenda(app, person,
+            JSONObject().put("agenda", bad), now).isEmpty())
+    }
+
     @Test fun fixedMorningSlotAndAgendaTimesAreCalendarBased() {
         val zone = java.time.ZoneId.of("Asia/Shanghai")
         val day = java.time.LocalDate.of(2026, 10, 24)
