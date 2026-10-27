@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b9318e24ebf0f0e399ebcf0dfc3afea5d649dd44`
+- 基准提交：`9c10445225afdbefc52786c197499aa45b905574`
 - 分支：`main`
-- 已索引文件：961
-- 已索引代码/文本行：190526
-- 已发现符号：2807
+- 已索引文件：974
+- 已索引代码/文本行：191992
+- 已发现符号：2810
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -31,6 +31,17 @@
 | `app/src/main/assets/live2d/wolf-motions/16_curiosity_bob.motion3.json` | 199 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/17_happy_bounce.motion3.json` | 234 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json` | 248 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json` | 156 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/20_sad_droop.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/21_proud_chest.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/22_shy_turn_away.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/23_surprise_jolt.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/24_sleepy_sway.motion3.json` | 128 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/25_excited_tremble.motion3.json` | 170 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/26_thoughtful_look_up.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/27_shy_tilt.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/29_playful_dodge.motion3.json` | 156 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -129,13 +140,14 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 420 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 63 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 296 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 298 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
@@ -691,6 +703,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 95 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 34 | 1 |

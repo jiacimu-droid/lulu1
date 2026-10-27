@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T12:05:13.236824+00:00",
-  "commit": "b9318e24ebf0f0e399ebcf0dfc3afea5d649dd44",
+  "generatedAt": "2026-10-27T12:25:13.963992+00:00",
+  "commit": "9c10445225afdbefc52786c197499aa45b905574",
   "branch": "main",
-  "sourceFingerprint": "89253e4dcbd15fcf679643e2298d0248a0d98ff2a127bb509f6a079c0ebe5c6a",
+  "sourceFingerprint": "be8df67d17c4bb1250f008dccbb1da819ecc05b381d368d61c0b961f43c56ca2",
   "summary": {
-    "files": 961,
-    "lines": 190526,
-    "symbols": 2807
+    "files": 974,
+    "lines": 191992,
+    "symbols": 2810
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1858,6 +1858,34 @@
         "line": 12
       }
     ],
+    "Entry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 14
+      }
+    ],
+    "describe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+        "line": 20
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
+        "line": 12
+      }
+    ],
     "Phase": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
@@ -1969,7 +1997,7 @@
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 152
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1987,7 +2015,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 184
+        "line": 186
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1997,7 +2025,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 203
+        "line": 205
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2011,19 +2039,19 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 214
+        "line": 216
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 248
+        "line": 250
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 258
+        "line": 260
       }
     ],
     "Model": [
@@ -4284,20 +4312,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt",
         "line": 8
-      }
-    ],
-    "describe": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 20
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-        "line": 12
       }
     ],
     "Snapshot": [
@@ -10838,12 +10852,6 @@
         "line": 13
       }
     ],
-    "Entry": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 14
-      }
-    ],
     "recentIfAvailable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -13492,6 +13500,12 @@
         "line": 14
       }
     ],
+    "Live2DMotionCatalogTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
+        "line": 7
+      }
+    ],
     "Live2DOfficialCoreInstallerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt",
@@ -15877,6 +15891,72 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json",
+      "lines": 156,
+      "sha256": "64d4c68135bddaf1fd545e7feeeffa383794d7a402b3b5c3b5cafd178307e602",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/20_sad_droop.motion3.json",
+      "lines": 107,
+      "sha256": "d6fe0a6464ec9706920c325255fd8fd5fe596b85259e513028455cbd0ccd9ba2",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/21_proud_chest.motion3.json",
+      "lines": 107,
+      "sha256": "0424163af1f8e34f0efe2873934a8c0ff8e88cde8439a651ae66e54f72102025",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/22_shy_turn_away.motion3.json",
+      "lines": 107,
+      "sha256": "03732715b5352539f1f428f6a4069268902be7cda72c13f773d5264a2abf7277",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/23_surprise_jolt.motion3.json",
+      "lines": 107,
+      "sha256": "5e4c3cb6e94b1dbee56a38239acb680b655bc93bc6922ad316df63fdad874ee6",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/24_sleepy_sway.motion3.json",
+      "lines": 128,
+      "sha256": "416cd0119b3bb73ed9926bd945a522ddebcad676b5d9f3969f272057881bb8f5",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/25_excited_tremble.motion3.json",
+      "lines": 170,
+      "sha256": "184a8bc461e7604eceb0923efe8272ca481702d5760f30c168f50773e3789068",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/26_thoughtful_look_up.motion3.json",
+      "lines": 107,
+      "sha256": "fbba584e01d9fd114c0c13286295d773064482d46312a59dc37eaa14629ddc07",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/27_shy_tilt.motion3.json",
+      "lines": 107,
+      "sha256": "34f13482bc5a5f074e5b7a50b45c2484e5770f8802af7b0ec0ed985ee2ef9c22",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json",
+      "lines": 107,
+      "sha256": "384b47743d190db370e1aa3b34d062c307ac2318c5fcf982c9d9c1bdbea5b9ae",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/29_playful_dodge.motion3.json",
+      "lines": 156,
+      "sha256": "4683330d7655cf106fa46f8e5d1828b46a228c4217da77704025964314c68371",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/stickers/animals.json",
       "lines": 1,
       "sha256": "27d1c0b2f0decd7a4344f2e2aeb9904168acdaa100a6b7e3e8e803a3a737bfc2",
@@ -17226,6 +17306,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
+      "lines": 63,
+      "sha256": "89cfd52692a9364425e1b812af064a1bf7d2a14375b3cfdec8c5e09d60882dbd",
+      "symbols": [
+        {
+          "name": "Entry",
+          "line": 14
+        },
+        {
+          "name": "describe",
+          "line": 53
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt",
       "lines": 123,
       "sha256": "70a06ad85b3e8a84d978b1733eaa035b4c41c78a8495717e0be3f3195146aa06",
@@ -17298,8 +17393,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 296,
-      "sha256": "e8fc43c66667c7f5d65a3fd83fbc5a0c4e93b80d1f136a5638a6d5f66f6a505b",
+      "lines": 298,
+      "sha256": "fae4dc4581b7090ab122a51790064a046e48cee519d6c54bf7f2ebf2a6fc9ed1",
       "symbols": [
         {
           "name": "Head",
@@ -17343,27 +17438,27 @@
         },
         {
           "name": "normalized",
-          "line": 152
+          "line": 154
         },
         {
           "name": "publish",
-          "line": 184
+          "line": 186
         },
         {
           "name": "bounded",
-          "line": 203
+          "line": 205
         },
         {
           "name": "boundedBody",
-          "line": 214
+          "line": 216
         },
         {
           "name": "headNumber",
-          "line": 248
+          "line": 250
         },
         {
           "name": "bodyNumber",
-          "line": 258
+          "line": 260
         }
       ]
     },
@@ -29981,6 +30076,17 @@
         {
           "name": "Live2DModelManifestAdapterTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
+      "lines": 42,
+      "sha256": "63368bff27598d1f4816827af6d806515561c0e66380a77eb8ee86c2faaa78aa",
+      "symbols": [
+        {
+          "name": "Live2DMotionCatalogTest",
+          "line": 7
         }
       ]
     },
