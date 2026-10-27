@@ -75,6 +75,28 @@ class CharacterLearningLedgerTest {
             now, triggerExtraction = false, source = "xiaohongshu-mcp", evidenceKind = EventEvidenceKind.Observation)
         assertFalse(CharacterLearningLedger.recordReading(character, "xhs-empty-test", note("只看到标题不能算理解")))
     }
+    @Test fun actualXhsDetailTokenDoesNotInvalidateReadingButSpoofedHostsAreRejected() {
+        val noteId = "1234567890abcdef12345678"
+        val urls = mapOf(
+            "genuine" to "https://www.xiaohongshu.com/explore/$noteId?xsec_source=pc_search&xsec_token=test",
+            "bare" to "https://www.xiaohongshu.com/explore/$noteId",
+            "spoofed-host" to "https://www.xiaohongshu.com.evil.example/explore/$noteId",
+            "insecure" to "http://www.xiaohongshu.com/explore/$noteId",
+            "wrong-path" to "https://www.xiaohongshu.com/explore/$noteId/another",
+        )
+        urls.forEach { (key, url) ->
+            val id = "xhs-url-$key"
+            SharedExperienceTimeline.record(id, character, "小红书阅读", "外部平台",
+                JSONObject().put("url", url).put("text", "真实读到的正文").toString(),
+                now, triggerExtraction = false, source = "xiaohongshu-webview",
+                evidenceKind = EventEvidenceKind.Observation)
+            val trusted = key in setOf("genuine", "bare")
+            assertEquals(key, trusted, CharacterLearningLedger.isMaterialEvidence(character, id))
+            assertEquals(key, trusted, CharacterLearningLedger.recordReading(
+                character, id, note("根据真实笔记核实来源的个人理解")))
+        }
+    }
+
     @Test fun learnedIdeaRequiresRealReadingNotUserClaim() {
         assertFalse(CharacterLearningLedger.recordReading(character, "imagined", note("动机未必单一")))
         SharedExperienceTimeline.record("user-said", character, "私聊", "用户", "读过书",
