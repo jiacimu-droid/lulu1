@@ -89,8 +89,9 @@ private suspend fun probePresentedWebGL(context: Context, webView: WebView?): In
                         val red = AndroidPixelColor.red(pixel)
                         val green = AndroidPixelColor.green(pixel)
                         val blue = AndroidPixelColor.blue(pixel)
-                        if (maxOf(red, green, blue) > 90 ||
-                            maxOf(red, green, blue) - minOf(red, green, blue) > 28)
+                        if (!Live2DGpuSurfaceFrameCheck.isBackdropPixel(pixel) &&
+                            (maxOf(red, green, blue) > 90 ||
+                                maxOf(red, green, blue) - minOf(red, green, blue) > 28))
                             nonBackground++
                     }
                     colored = nonBackground
@@ -344,7 +345,7 @@ internal fun Live2DFullscreenVideoCall(
         label = "video-first-frame-dissolve",
     )
     val hasCreatorPreview = creatorPreview?.isFile == true
-    Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
+    Box(Modifier.fillMaxSize().background(Color(0xFFE9EDF4))) {
         // The stage can switch between waist-up and full-body framing without
         // destroying its native WebView or touching the existing audio session.
         // A terminated GPU renderer must be removed from the hierarchy before
@@ -674,9 +675,9 @@ internal fun Live2DFullscreenVideoCall(
         }
         // A compact gradient over the avatar preserves the video-call feel.
         Box(Modifier.fillMaxWidth().height(162.dp).align(Alignment.TopCenter)
-            .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .55f), Color.Transparent))))
+            .background(Brush.verticalGradient(listOf(Color(0xFF263C50).copy(alpha = .42f), Color.Transparent))))
         Box(Modifier.fillMaxWidth().height(295.dp).align(Alignment.BottomCenter)
-            .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .85f)))))
+            .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF263C50).copy(alpha = .66f)))))
         Column(
             modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
                 .padding(horizontal = 22.dp, vertical = 16.dp),
