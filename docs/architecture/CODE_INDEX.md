@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6e65a511ed069d6bd4c5a107944c6a5192cee633`
+- 基准提交：`3f145f7af87ea56deebd77bdfa35bea2a903a73b`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196864
+- 已索引代码/文本行：196873
 - 已发现符号：2912
 
 | 文件 | 行数 | 符号数 |
@@ -720,7 +720,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt` | 85 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 218 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 227 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
