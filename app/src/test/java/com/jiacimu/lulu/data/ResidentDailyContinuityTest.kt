@@ -251,6 +251,13 @@ class ResidentDailyContinuityTest {
         CharacterFriendRequests.initialize(app)
         val role = ResidentCharacterBridge.characterId(a.id)
         val peer = ResidentCharacterBridge.characterId(b.id)
+        // Newly registered citizens start in their own homes even if the
+        // caller describes a courtyard as their intended neighborhood.
+        // Persist an actual trip for each before asserting acquaintance.
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            a.id, DigitalWorldPublicPlaces.COURTYARD, now))
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            b.id, DigitalWorldPublicPlaces.COURTYARD, now))
         assertTrue(ResidentSocialMailbox.canContact(role, peer))
         val agenda = JSONArray().put(JSONObject().put("at", "11:00")
             .put("title", "申请和新认识的人做好友").put("intent", "想慢慢继续交流")
