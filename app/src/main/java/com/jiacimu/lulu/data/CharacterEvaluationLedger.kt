@@ -19,9 +19,9 @@ import java.time.Instant
 * What it deliberately does NOT measure: contradiction rate, drift and
 * cross-channel consistency all need semantic comparison, which a
 * program must not fake with keywords or thresholds; proactive
-* reply/ignore rate needs proactive sends stored as receipts first
-* (today they only exist as shadow log lines). Those are named in the
-* report footer so the gap stays visible instead of silently absent.
+* reply/ignore rate is computed from stored proactive-send receipts
+* (private sends are recorded as decisions by the perception runtime).
+* The rate itself is a later batch; the footer names what is still missing.
 */
 object CharacterEvaluationLedger {
 private const val PREFS = "lulu_character_evaluation_v1"
@@ -161,6 +161,6 @@ appendLine("琢磨事：还留着${delta(current.optInt("heldThoughts"), previou
 appendLine("自我修正${current.optInt("corrections")}次；行动回执${current.optInt("decisions")}次，" +
 "其中成功${current.optInt("succeededDecisions")}次；情绪历程保留${current.optInt("emotionHistory")}段。")
 append("暂未衡量：矛盾率、漂移、跨渠道一致性需要语义判断，程序不猜；" +
-"主动回复率需要先把主动发出的消息记成回执，下一批再接。")
+"主动发出的消息已记成回执，主动回复率下一批再接。")
 }.trim()
 }

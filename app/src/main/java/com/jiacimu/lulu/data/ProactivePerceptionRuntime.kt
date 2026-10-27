@@ -1931,6 +1931,19 @@ object ProactivePerceptionRuntime {
                 if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER) && execution.primarySuccess) setOf("user") else emptySet(), now,
             )
         }
+        // A delivered private proactive send becomes a decision receipt first, so a
+        // later weekly report can compute a reply rate from facts instead of guessing.
+        // Only actually delivered private sends count: group sends and failures do not,
+        // and the stable id keeps a repeated bookkeeping pass from double-counting.
+        if (execution.primarySuccess && decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER)) {
+            CharacterInnerLifeStore.recordDecision(
+                characterId, "proactive-send:$actionEvidenceId",
+                if (decision.action == Action.STICKER) "send_private_sticker" else "send_private_message",
+                decision.reason, decision.motiveId, null,
+                execution.primarySummary, true, now,
+                causalEvidenceId = actionEvidenceId,
+            )
+        }
         val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
         val readingUpdatedPresence = execution.success && newReading != null && newReading.id != lastReading?.id

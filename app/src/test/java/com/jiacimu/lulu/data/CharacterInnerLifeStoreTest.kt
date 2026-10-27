@@ -140,6 +140,27 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(role)
     }
 
+    @Test fun proactiveSendReceiptsStayFilterableForLaterReplyRate() {
+        start()
+        val role = "inside-proactive-send-receipt"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T03:45:00Z")
+        CharacterInnerLifeStore.recordDecision(role, "proactive-send:ev-1", "send_private_message",
+            "主动问候", "", null, "已送达", true, now = now, causalEvidenceId = "ev-1")
+        CharacterInnerLifeStore.recordDecision(role, "decision-2", "silent",
+            "安静", "", null, "没有执行外部动作", false, now = now)
+        val entries = CharacterInnerLifeStore.snapshot(role).getJSONArray("decisions")
+        val sends = (0 until entries.length()).map(entries::getJSONObject)
+            .filter { it.optString("id").startsWith("proactive-send:") }
+        assertEquals(1, sends.size)
+        assertEquals("send_private_message", sends.single().getString("selected"))
+        assertTrue(sends.single().getBoolean("succeeded"))
+        CharacterInnerLifeStore.recordDecision(role, "proactive-send:ev-1", "send_private_message",
+            "主动问候", "", null, "已送达", true, now = now, causalEvidenceId = "ev-1")
+        assertEquals(2, CharacterInnerLifeStore.snapshot(role).getJSONArray("decisions").length())
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun pagedHistorySurvivesHotWindowAndRetractsOldEvidence() {
         start()
         val role = "inner-history-paged-test"
