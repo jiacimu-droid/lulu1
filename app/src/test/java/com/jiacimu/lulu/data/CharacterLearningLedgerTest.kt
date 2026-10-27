@@ -97,6 +97,37 @@ class CharacterLearningLedgerTest {
         }
     }
 
+    @Test fun signedOfficialXhsNoteUrlCanCreateLearningButForgedHostsCannot() {
+        val url = "https://www.xiaohongshu.com/explore/1234567890abcdef12345678"
+        fun record(id: String, link: String) {
+            val payload = JSONObject().put("title", "真实笔记")
+                .put("text", "这篇实际读取到的原始文字可以作为理解依据")
+                .put("url", link)
+            SharedExperienceTimeline.record(id, character, "小红书阅读", "外部平台",
+                payload.toString(), now, triggerExtraction = false,
+                source = "xiaohongshu-webview", evidenceKind = EventEvidenceKind.Observation)
+        }
+        val signedId = "xhs-signed-url-" + java.util.UUID.randomUUID()
+        record(signedId, "$url?xsec_token=auth-token&xsec_source=pc_search")
+        assertTrue(CharacterLearningLedger.recordReading(character, signedId,
+            note("阅读官方带鉴权参数的笔记后形成了自己的理解")))
+        assertTrue(CharacterLearningLedger.hasInsight(character, signedId))
+        val forged = listOf(
+            "https://www.xiaohongshu.com.evil.example/explore/1234567890abcdef12345678",
+            "https://evil.example/explore/1234567890abcdef12345678",
+            "http://www.xiaohongshu.com/explore/1234567890abcdef12345678",
+            "https://www.xiaohongshu.com/explore/not-valid?xsec_source=pc_search",
+        )
+        forged.forEachIndexed { index, link ->
+            val id = "xhs-forged-url-$index-" + java.util.UUID.randomUUID()
+            record(id, link)
+            assertFalse(CharacterLearningLedger.recordReading(character, id,
+                note("未经验证的其他域名或无效页面不能作为已读来源")))
+        }
+        SharedExperienceTimeline.deleteEvent(signedId)
+        assertFalse(CharacterLearningLedger.hasInsight(character, signedId))
+    }
+
     @Test fun learnedIdeaRequiresRealReadingNotUserClaim() {
         assertFalse(CharacterLearningLedger.recordReading(character, "imagined", note("动机未必单一")))
         SharedExperienceTimeline.record("user-said", character, "私聊", "用户", "读过书",
