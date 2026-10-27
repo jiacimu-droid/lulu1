@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T14:16:30.000378+00:00",
-  "commit": "c09419ec7f160f9cad5f57fe7312a8bbb61ac9c5",
+  "generatedAt": "2026-10-27T14:27:12.338549+00:00",
+  "commit": "6552c4033d9200619644b316053c8b721e598fb3",
   "branch": "main",
-  "sourceFingerprint": "c97e228307b0e55c638bcbdf8fa0bc5a0bafeb65c26fb05dd548c4d3c8e823f7",
+  "sourceFingerprint": "c8df8cfafb09b9cdad8a7a9380b3f4bd4c99f5cb67645df817c85fa52fb89b6b",
   "summary": {
     "files": 979,
-    "lines": 192963,
+    "lines": 192972,
     "symbols": 2832
   },
   "symbolIndex": {
@@ -15363,25 +15363,25 @@
     "ProactiveSendAttributionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 17
+        "line": 26
       }
     ],
     "receiptsKeepOnlyDeliveredProactiveSendsWithParsableTime": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 35
+        "line": 44
       }
     ],
     "repliedOnlyByLaterUserStatementInSameSession": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 49
+        "line": 58
       }
     ],
     "userStatementAtExactlySendTimeDoesNotCount": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-        "line": 73
+        "line": 82
       }
     ],
     "PromptContextPolicyTest": [
@@ -32916,24 +32916,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt",
-      "lines": 85,
-      "sha256": "ebe9c3f3099761c0674de4395640858e4a5153346b09cedc0ffed300bc792ee2",
+      "lines": 94,
+      "sha256": "a026307b382e3ca8fc3cb294cf5e013f5197d16d4d9c8dc773904c1a30453ac7",
       "symbols": [
         {
           "name": "ProactiveSendAttributionTest",
-          "line": 17
+          "line": 26
         },
         {
           "name": "receiptsKeepOnlyDeliveredProactiveSendsWithParsableTime",
-          "line": 35
+          "line": 44
         },
         {
           "name": "repliedOnlyByLaterUserStatementInSameSession",
-          "line": 49
+          "line": 58
         },
         {
           "name": "userStatementAtExactlySendTimeDoesNotCount",
-          "line": 73
+          "line": 82
         }
       ]
     },
