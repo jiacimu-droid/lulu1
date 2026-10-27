@@ -108,8 +108,10 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     // Switching framing must not recreate the stage (calls rely on that too).
     var framingMode by remember { mutableStateOf("portrait") }
     var menuExpanded by remember { mutableStateOf(false) }
-    var panelExpanded by remember { mutableStateOf(true) }
     val coreInstalled = remember(revision) { Live2DAssets.hasCore(context) }
+    // Keep the missing-renderer recovery controls visible instead of hiding
+    // them under the 320dp motion catalog on a narrow portrait screen.
+    var panelExpanded by remember(characterId, coreInstalled) { mutableStateOf(coreInstalled) }
     var confirmOfficialCore by remember { mutableStateOf(false) }
     var coreLicenseChecked by remember { mutableStateOf(false) }
     val coreLicensePrefs = remember(context) {
