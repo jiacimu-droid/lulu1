@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T20:12:10.634485+00:00",
-  "commit": "758e9954c925e6e83f07514c5471b15e63553708",
+  "generatedAt": "2026-10-27T20:16:52.223643+00:00",
+  "commit": "2e5e2d845a83c37b4e95f585ee3eebe6ad59930c",
   "branch": "main",
-  "sourceFingerprint": "65988fddd274194fc7fdc036ac7b5ac310308e2b2cf3b51ad33f959a2d143b15",
+  "sourceFingerprint": "f5979db3a069659cf66aeb00f77e82400f3451a9828ab46eaa60eff12ed4afc5",
   "summary": {
     "files": 993,
-    "lines": 196915,
+    "lines": 196883,
     "symbols": 2912
   },
   "symbolIndex": {
@@ -3693,7 +3693,7 @@
     "instruction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-        "line": 69
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
@@ -19708,8 +19708,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 92,
-      "sha256": "64bbd38e376cdc8330278c658d5677e97fc98d9b7db1fa9b44a10317f488bfa3",
+      "lines": 60,
+      "sha256": "d66541502f8f3020a274904f236de8e8aa513bc497aa29a2d83ea53c23126866",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -19717,7 +19717,7 @@
         },
         {
           "name": "instruction",
-          "line": 69
+          "line": 37
         }
       ]
     },
