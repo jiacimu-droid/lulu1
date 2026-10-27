@@ -31,6 +31,38 @@ class CharacterSocialActionOpportunitiesTest {
         assertTrue(view.contains("不需要"))
     }
 
+    @Test fun anExecutedRemarkActionPersistsAndTheInspectedPhoneUsesIt() = kotlinx.coroutines.runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
+        CharacterLifeStore.initialize(ctx)
+        val character = MigratedDomainStores.characters.create(
+            "备注执行测试-" + java.util.UUID.randomUUID(), "重视私人称呼")
+        val chat = MigratedDomainStores.chat.ensureConversation(
+            character.characterId, character.displayName)
+        val before = com.jiacimu.lulu.inspectedThreads(
+            character.characterId, listOf(chat), emptyList(), emptyMap())
+        assertEquals("主人", before.single().title)
+
+        val receipt = CompanionActionRuntime.execute(ctx, character.characterId,
+            "set_user_remark", JSONObject().put("nickname", "佳辞"))
+        assertTrue(receipt.summary, receipt.success)
+        val actual = CharacterLifeStore.state(character.characterId)
+            .optJSONObject("socialNames")?.optString("userRemark").orEmpty()
+        assertEquals("佳辞", actual)
+        assertTrue(receipt.summary.contains("佳辞"))
+        val ownerContact = com.jiacimu.lulu.inspectedOwnerContactName(actual, "主人")
+        assertEquals("佳辞", com.jiacimu.lulu.inspectedThreads(
+            character.characterId, listOf(chat), emptyList(), emptyMap(), ownerContact
+        ).single().title)
+        val repeated = CompanionActionRuntime.execute(ctx, character.characterId,
+            "set_user_remark", JSONObject().put("nickname", "佳辞"))
+        assertFalse(repeated.success) // Do not pretend an unchanged remark was a new action.
+        assertEquals("佳辞", CharacterLifeStore.state(character.characterId)
+            .getJSONObject("socialNames").getString("userRemark"))
+    }
+
     @Test fun phoneTranscriptOffersAnActuallyStoredMessageIdForImmediateFavorite() = kotlinx.coroutines.runBlocking {
         val ctx = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(ctx)
