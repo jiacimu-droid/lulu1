@@ -96,6 +96,15 @@ internal object StickerLibraryStore {
         return items.value.firstOrNull { it.id == id }
     }
 
+    /** A persisted sticker record is not proof that its backed-up image bytes
+     * still exist. Missing images must fail before a chat message is saved. */
+    internal fun canActuallySend(context: Context, sticker: LuluSticker): Boolean =
+        runCatching {
+            context.contentResolver.openInputStream(Uri.parse(sticker.uri))?.use { stream ->
+                stream.read() >= 0
+            } == true
+        }.getOrDefault(false)
+
     /** Visual facts and possible usage remain separate for models without vision. */
     fun imageDescription(sticker: LuluSticker): String = buildString {
         append("表情包；")
