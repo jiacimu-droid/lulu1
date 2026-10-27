@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:57:22.496706+00:00",
-  "commit": "5c895372d78bd6cd1a160e7b4fe61cbfdafedcf3",
+  "generatedAt": "2026-10-27T19:06:49.132111+00:00",
+  "commit": "47190912f6343b39f4741703e377e6c2c48819cd",
   "branch": "main",
-  "sourceFingerprint": "065d8fef925777647e18851629a1d91e27aeaad08d1b10c1e80de4aaeb1cf1cc",
+  "sourceFingerprint": "5d74b1978e5c01336e5d21e9844e5934e2fcaff6174142153c43db9595b396ff",
   "summary": {
     "files": 993,
-    "lines": 196483,
+    "lines": 196484,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -14867,7 +14867,7 @@
     "CharacterSocialActionOpportunitiesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "CharacterSocialNetworkTest": [
@@ -32571,12 +32571,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
-      "lines": 134,
-      "sha256": "1c851f5b210a214851218eb1b094f6ceac48f1c36b4c37ec69658c7d1894e1d6",
+      "lines": 135,
+      "sha256": "ad1a88f021698004b3e3e496c0b44aa9d165ed8120ce24d34a86b7763e894a06",
       "symbols": [
         {
           "name": "CharacterSocialActionOpportunitiesTest",
-          "line": 14
+          "line": 15
         }
       ]
     },
