@@ -68,7 +68,7 @@
             android:name=".Live2DPreviewPlaygroundActivity"
             android:exported="false"
             android:icon="@drawable/lulu_exact_icon"
-            android:label="动作试验场"
+            android:label="Live2D"
             android:theme="@style/Theme.Lulu" />
 
         <receiver
