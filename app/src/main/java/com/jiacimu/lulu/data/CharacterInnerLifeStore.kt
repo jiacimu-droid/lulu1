@@ -1733,6 +1733,7 @@ object CharacterInnerLifeStore {
             val recentThoughts = openThoughts(thoughts, now)
             if (recentThoughts.isNotEmpty()) {
                 appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经解决、已经放下或已经演变成别的想法的不会出现在这里；标注了上次说过的，自己判断要不要再提；若某个琢磨事已经想通、放下或演变成别的想法，可在本轮内心记录的 thoughtUpdates 里按原话标注（resolve/discard/spoken/evolve，evolve 可带 newThought），标注后它不再出现在这里；回答用户问题时不用硬找话题】")
+                appendLine("【想法要拆开、要落地】一个比较大的心愿（比如想把对方哄好）不要只留一条笼统的琢磨事：先按不同的原因拆成几条小的琢磨事，每条写清楚针对哪个原因、打算用什么办法；再往下想一步，每条小想法对应一件现在就能做的事（比如道歉、查资料、说一句、做一件小事），或者一件需要约到以后做的事（须本轮明确选择并走已有日程/约定执行器、拿到真实回执才算数）；办法先排自己能做的事，不要把‘让对方自己讲’当成办法，把责任推回给对方；想了但还没做的继续留着，不自动变成待办。")
                 recentThoughts.forEach { item ->
                     val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                     val ageText = parsedAt?.let { at ->
@@ -1869,6 +1870,7 @@ object CharacterInnerLifeStore {
             val recentThoughts = openThoughts(thoughts, now)
             if (recentThoughts.isNotEmpty()) {
                 appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；没有时间限制：只要还没解决，不论多久以前都可以聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经解决、放下或演变成别的想法的不会出现在这里；标注了上次说过的，自己判断要不要再提；若某个念头已经想通、放下或演变成别的想法，可在本轮内心记录的 thoughtUpdates 里按原话标注（resolve/discard/spoken/evolve，evolve 可带 newThought），标注后它不再出现在这里】")
+                appendLine("【想法要拆开、要落地】一个比较大的心愿（比如想把对方哄好）不要只留一条笼统的琢磨事：先按不同的原因拆成几条小的琢磨事，每条写清楚针对哪个原因、打算用什么办法；再往下想一步，每条小想法对应一件现在就能做的事（比如道歉、查资料、说一句、做一件小事），或者一件需要约到以后做的事（须本轮明确选择并走已有日程/约定执行器、拿到真实回执才算数）；办法先排自己能做的事，不要把‘让对方自己讲’当成办法，把责任推回给对方；想了但还没做的继续留着，不自动变成待办。")
                 recentThoughts.forEach { item ->
                     val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                     val ageText = parsedAt?.let { at ->
