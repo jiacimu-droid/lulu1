@@ -260,8 +260,8 @@ export function touchExpressionCategory(name) {
   const n = String(name || '').toLowerCase().replace(/[\s_-]+/g, '')
   if (/(?:兽耳|獸耳|耳机|耳機|头饰|頭飾|衣服|服装|服裝|麦克风|麥克風|立麦|立麥|microphone|headphone|headset|accessor|costume|outfit|^麦$|^麥$)/i.test(n)) return 'appearance'
   if (/(?:吐舌|舌头|舌頭|tongue)/i.test(n)) return 'tongue'
-  if (/(?:爱心|愛心|心形眼|hearteye|loveeye|heartshape)/i.test(n)) return 'heart'
-  if (/(?:星星|星眼|星形眼|stareye|starryeye|sparkleeye)/i.test(n)) return 'star'
+  if (/(?:爱心|愛心|心形眼|hearteye|loveeye|heartshape|^heart$)/i.test(n)) return 'heart'
+  if (/(?:星星|星眼|星形眼|stareye|starryeye|sparkleeye|^star$)/i.test(n)) return 'star'
   if (/(?:脸红|臉紅|羞|blush|flush|shy|embarras)/i.test(n)) return 'blush'
   if (/(?:流泪|流淚|眼泪|眼淚|哭|tear|cry|sob)/i.test(n)) return 'tear'
   if (/(?:脸黑|臉黑|黑脸|黑臉|阴影脸|陰影臉|暗脸|暗臉|darkface|shadowface|gloom)/i.test(n)) return 'dark'
