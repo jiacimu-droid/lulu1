@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:48:00.116927+00:00",
-  "commit": "17f1d28bd785c418209e2d67d37adb2dd740a94a",
+  "generatedAt": "2026-10-27T16:50:24.235199+00:00",
+  "commit": "ad53bdbb8758c7a1761fc37e4afd43b8b42a7af3",
   "branch": "main",
-  "sourceFingerprint": "6cf7d46124798090793f018dd53e217cca483ebf6b7dc84c156ab11f3e1a288f",
+  "sourceFingerprint": "fc7956b82344c64f1affaaf14cfc2e0bb6517f53afc8935e81eff653229df37f",
   "summary": {
     "files": 991,
-    "lines": 194903,
+    "lines": 194967,
     "symbols": 2895
   },
   "symbolIndex": {
@@ -5517,7 +5517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 474
+        "line": 538
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -5557,7 +5557,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 490
+        "line": 554
       }
     ],
     "informativeAction": [
@@ -8541,7 +8541,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 595
+        "line": 659
       }
     ],
     "LegacyLuluImportResult": [
@@ -10797,25 +10797,25 @@
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 430
+        "line": 494
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 439
+        "line": 503
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 471
+        "line": 535
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 577
+        "line": 641
       }
     ],
     "Limits": [
@@ -26770,8 +26770,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 709,
-      "sha256": "0f68d60c6ef7785b4be87a472956ba2e40e84d9b46c243c8509c971b7b3b8583",
+      "lines": 773,
+      "sha256": "f7e655220a74d8bd41ff5f9e768e9f79767ed0ecb2238bc62f304b0c21f5ad9f",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -26835,31 +26835,31 @@
         },
         {
           "name": "recentUserActivities",
-          "line": 430
+          "line": 494
         },
         {
           "name": "recentXhsReadings",
-          "line": 439
+          "line": 503
         },
         {
           "name": "sessionEvents",
-          "line": 471
+          "line": 535
         },
         {
           "name": "recentContext",
-          "line": 474
+          "line": 538
         },
         {
           "name": "remember",
-          "line": 490
+          "line": 554
         },
         {
           "name": "exportBackup",
-          "line": 577
+          "line": 641
         },
         {
           "name": "importBackup",
-          "line": 595
+          "line": 659
         }
       ]
     },
