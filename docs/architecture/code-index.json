@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T15:37:21.695340+00:00",
-  "commit": "ddcd3f60f69239d06dc0a1af7aa056afa0e99e0f",
+  "generatedAt": "2026-10-27T15:50:19.255687+00:00",
+  "commit": "2e172f40a2d1cc6eba5bc808f2be8a715ddd6bf9",
   "branch": "main",
-  "sourceFingerprint": "4beb5e86099dffe9abdd745514c264c60938d3d89ba6fdb84c303a442a1ed08c",
+  "sourceFingerprint": "96aee35934af9f16bde9e6055eb969ec220c81f6ef0e575557053b7a3654260c",
   "summary": {
     "files": 985,
-    "lines": 194323,
+    "lines": 194329,
     "symbols": 2876
   },
   "symbolIndex": {
@@ -15249,19 +15249,19 @@
     "putSucceedsWithBasicAuth": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 115
+        "line": 121
       }
     ],
     "missingFolderIsCreatedThenRetried": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 135
+        "line": 141
       }
     ],
     "wrongCredentialsFailWithReadableReason": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 162
+        "line": 168
       }
     ],
     "LuluDataBackupTest": [
@@ -32920,8 +32920,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-      "lines": 177,
-      "sha256": "b4daee7c70f59d3b4b58b223eed89009882b3f9772173466f1dca31fec62476e",
+      "lines": 183,
+      "sha256": "b1e6225d0e483df6ec5e2254d584f3994b333a4cc3e57ae739ad5d8fab1ee78f",
       "symbols": [
         {
           "name": "LuluCloudBackupTest",
@@ -32937,15 +32937,15 @@
         },
         {
           "name": "putSucceedsWithBasicAuth",
-          "line": 115
+          "line": 121
         },
         {
           "name": "missingFolderIsCreatedThenRetried",
-          "line": 135
+          "line": 141
         },
         {
           "name": "wrongCredentialsFailWithReadableReason",
-          "line": 162
+          "line": 168
         }
       ]
     },
