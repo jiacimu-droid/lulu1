@@ -122,10 +122,14 @@ private suspend fun updateCommitmentTask(
     complete: Boolean = false,
 ) {
     val target = findTargetTask(characterId, draft) ?: return
-    // Failed verification must not cancel the real pending reminder/review.
-    if (!complete) target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
+    // No-gap rule: a reschedule that lands in "needs clarification" has no
+    // new time to schedule, so cancelling the old alarm would leave the
+    // responsibility with no alarm at all. Keep the old alarm until a clear
+    // new time actually replaces it. Cancel/complete still cancel as before.
+    // Failed verification must not cancel the real pending reminder/review.
+    if (!complete && !(reschedule && needsClarification)) target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     val next = CommitmentTaskStore.update(target.id) { current ->
         when {
             cancel -> current.copy(status = CommitmentTaskStatus.Cancelled, nextCheckAt = null, linkedAlarmId = null, followUpKind = "", lastActionResult = "用户取消了约定")
@@ -156,12 +160,14 @@ private suspend fun updateCommitmentTask(
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 repeat = draft.repeat ?: current.repeat,
-                linkedAlarmId = null,
+                // When the new time is unclear, keep the old alarm's identity
+                // so the kept alarm above still belongs to this task.
+                linkedAlarmId = if (needsClarification) current.linkedAlarmId else null,
                 followUpKind = "",
                 completionEvidenceIds = emptyList(),
                 lastVerificationReason = "",
-                lastAlarmScheduledAt = null,
-                executionToken = null,
+                lastAlarmScheduledAt = if (needsClarification) current.lastAlarmScheduledAt else null,
+                executionToken = if (needsClarification) current.executionToken else null,
                 lastAlarmReceivedAt = null,
                 lastAlarmDeliverySource = "",
                 attemptCount = 0,
@@ -300,3 +306,4 @@ internal fun sameTimedReminderTask(existing: CommitmentTask, draft: CommitmentTa
         old.toLocalDate() != fresh.toLocalDate()) return false
     return sameDailyClockAndPurpose(existing.goal, oldAt, draft.goal, newAt, zone)
 }
+
