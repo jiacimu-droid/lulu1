@@ -15,6 +15,19 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class Live2DVisualActionBusTest {
+    @Test fun visualActionSurvivesHarmlessPhoneTextNormalizationButNotRejectedTurns() {
+        assertTrue(Live2DVisualActionBus.canPublishPhoneVisual(
+            false, false, "call-1", "已经净化并准备播放的口语"))
+        assertFalse(Live2DVisualActionBus.canPublishPhoneVisual(
+            true, false, "call-1", "口语"))
+        assertFalse(Live2DVisualActionBus.canPublishPhoneVisual(
+            false, true, "call-1", "口语"))
+        assertFalse(Live2DVisualActionBus.canPublishPhoneVisual(
+            false, false, "", "口语"))
+        assertFalse(Live2DVisualActionBus.canPublishPhoneVisual(
+            false, false, "call-1", ""))
+    }
+
     @Test fun starEyeAliasesOnlyResolveToRealModelExpressions() {
         val names = listOf("小狼-星星眼", "脸红", "吐舌", "笑眼")
         assertEquals("小狼-星星眼",
