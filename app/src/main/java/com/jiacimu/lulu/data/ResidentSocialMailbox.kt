@@ -173,6 +173,13 @@ internal object ResidentSocialMailbox {
     }
 
     @Synchronized
+    /** Mail wake gate: protagonist recipients need a resolved DIGITAL life form.
+     *  Native citizens (resident:) are already proven to exist by canContact in
+     *  send(), and the mail worker itself respects autonomy and quiet hours at
+     *  execution, so they are not gated on the life-form store. */
+    internal fun mailWakeEnabled(to: String): Boolean =
+        if (to.startsWith("resident:")) true else DigitalLifeProfileStore.isEnabled(to)
+
     fun send(from: String, to: String, content: String,
         author: String = "character", at: Instant = Instant.now()): ResidentDirectMessage {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
@@ -209,8 +216,11 @@ internal object ResidentSocialMailbox {
         // owner while inspecting a phone, is a real incoming stimulus.
         // The recipient must be able to react through its OWN next perception,
         // but this does not imply the sender voluntarily chose those words.
-        // Native citizens retain their existing low-frequency wake schedule.
-        if (!to.startsWith("resident:") && DigitalLifeProfileStore.isEnabled(to)) {
+        // Native citizens get the same prompt 12-second mail wake as the
+        // protagonist now: later letters replace the queued cue, so at most
+        // one wake is pending per recipient, and the worker still respects
+        // the recipient's autonomy switch and quiet hours at execution.
+        if (mailWakeEnabled(to)) {
             appContext?.let { context ->
                 runCatching {
                     ProactivePerceptionScheduler.scheduleResidentMail(
