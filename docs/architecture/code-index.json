@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:38:17.442317+00:00",
-  "commit": "d2eeb3ebd75323f627b241b14e1a86a2ba1ed2cd",
+  "generatedAt": "2026-10-27T18:38:38.641470+00:00",
+  "commit": "892b1272881cbe900b4cb333adfcf91b4c937cc4",
   "branch": "main",
-  "sourceFingerprint": "9caeaf31c7c5af1d27931193d60983bdf43a9c8c99f7d8a57372c6f288a1be08",
+  "sourceFingerprint": "64afcf700fbd55a05db2a91c591b1fa192ad2404c563345618b6ed3bade601f4",
   "summary": {
     "files": 993,
-    "lines": 196117,
+    "lines": 196150,
     "symbols": 2910
   },
   "symbolIndex": {
@@ -1569,7 +1569,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 430
+        "line": 463
       }
     ],
     "takeFinal": [
@@ -5229,11 +5229,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 15
+        "line": 48
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 35
+        "line": 68
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -8301,7 +8301,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 56
+        "line": 89
       }
     ],
     "ImportantEventBridge": [
@@ -14323,7 +14323,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 227
+        "line": 260
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -14825,7 +14825,7 @@
     "outcome": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 97
+        "line": 130
       }
     ],
     "CharacterPhoneCoverTest": [
@@ -32471,8 +32471,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 480,
-      "sha256": "6db709611044c16b7bd787d3e6c6fb4c8a003621323435b090d7e76b4cdffe43",
+      "lines": 513,
+      "sha256": "b4140578c5ae65a9b56794fe973c1953d2c4c7fe2c7cc2460686be714d047d20",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -32480,27 +32480,27 @@
         },
         {
           "name": "receipt",
-          "line": 15
+          "line": 48
         },
         {
           "name": "receipt",
-          "line": 35
+          "line": 68
         },
         {
           "name": "search",
-          "line": 56
+          "line": 89
         },
         {
           "name": "outcome",
-          "line": 97
+          "line": 130
         },
         {
           "name": "event",
-          "line": 227
+          "line": 260
         },
         {
           "name": "commit",
-          "line": 430
+          "line": 463
         }
       ]
     },
