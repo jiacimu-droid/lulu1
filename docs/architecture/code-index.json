@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T15:15:50.454780+00:00",
-  "commit": "82678e5596509bd5c71e23a57e09c2bebdf33688",
+  "generatedAt": "2026-10-27T15:28:59.136505+00:00",
+  "commit": "09af6e11698fcf692228f2dada24f38ab8ca6199",
   "branch": "main",
-  "sourceFingerprint": "f532794df1b5e97617b51b254ecd6a61a60426f0b3c60c49ad057b564fb5b7f5",
+  "sourceFingerprint": "08dfd1b38cb28ad364f203086c9b12a27aeaa0b28bcd05dc7ad1f399f8b40c11",
   "summary": {
-    "files": 983,
-    "lines": 193730,
-    "symbols": 2861
+    "files": 985,
+    "lines": 194250,
+    "symbols": 2875
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1295,7 +1295,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 297
+        "line": 325
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -1931,19 +1931,19 @@
     "playMotion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 95
+        "line": 116
       }
     ],
     "playExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 109
+        "line": 130
       }
     ],
     "reset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 115
+        "line": 136
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2193,25 +2193,25 @@
     "LuluVoiceSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 84
+        "line": 90
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 284
+        "line": 312
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 377
+        "line": 405
       }
     ],
     "LuluAppearanceScreen": [
@@ -2223,13 +2223,25 @@
     "LuluBackupScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 57
+        "line": 62
+      }
+    ],
+    "saveCloud": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
+        "line": 72
+      }
+    ],
+    "uploadNow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
+        "line": 77
       }
     ],
     "restartApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 112
+        "line": 161
       }
     ],
     "setVideoMode": [
@@ -8790,6 +8802,64 @@
         "line": 105
       }
     ],
+    "LuluCloudBackup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 23
+      }
+    ],
+    "Config": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 31
+      }
+    ],
+    "loadConfig": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
+        "line": 143
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
+        "line": 174
+      }
+    ],
+    "saveConfig": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
+        "line": 149
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
+        "line": 185
+      }
+    ],
+    "lastUploadText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 60
+      }
+    ],
+    "recordUpload": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 64
+      }
+    ],
+    "upload": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+        "line": 75
+      }
+    ],
     "LuluDataBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
@@ -11586,26 +11656,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
         "line": 169
-      }
-    ],
-    "loadConfig": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 143
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
-        "line": 174
-      }
-    ],
-    "saveConfig": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 149
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
-        "line": 185
       }
     ],
     "createSave": [
@@ -15182,6 +15232,36 @@
         "line": 75
       }
     ],
+    "LuluCloudBackupTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 17
+      }
+    ],
+    "putSucceedsWithBasicAuth": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 25
+      }
+    ],
+    "Seen": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 26
+      }
+    ],
+    "missingFolderIsCreatedThenRetried": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 58
+      }
+    ],
+    "wrongCredentialsFailWithReadableReason": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 85
+      }
+    ],
     "LuluDataBackupTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
@@ -17652,8 +17732,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt",
-      "lines": 68,
-      "sha256": "4d7977e62c3398dd542fbfee9852adcee4630b666aa74972eeec6e0ded110aa6",
+      "lines": 72,
+      "sha256": "54d9d4a6041ebacaf90b43af5188d7e00797b1698fa79cf0afdcffc51d8ca8db",
       "symbols": [
         {
           "name": "Live2DPreviewPlaygroundActivity",
@@ -17663,20 +17743,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-      "lines": 262,
-      "sha256": "bf0066d4363f4577c0d01101d6292315c8b96de53b81448796c7cfb2fd196434",
+      "lines": 356,
+      "sha256": "9762ac0504d441ed4fbd8da3b10298f01dce7243dd8f7d3123a08f630b167d5c",
       "symbols": [
         {
           "name": "playMotion",
-          "line": 95
+          "line": 116
         },
         {
           "name": "playExpression",
-          "line": 109
+          "line": 130
         },
         {
           "name": "reset",
-          "line": 115
+          "line": 136
         }
       ]
     },
@@ -17853,28 +17933,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 569,
-      "sha256": "6cabf7d4d0a604f523120be983cbfc0eaf75e428e8be9f82f0eb8dcdff525a7f",
+      "lines": 597,
+      "sha256": "e14b0cb7fa1681081a9d57413c7cf493a8db06e9a8ec11d670be99483c52b6b3",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
-          "line": 53
+          "line": 54
         },
         {
           "name": "saveVoiceSettings",
-          "line": 84
+          "line": 90
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 284
+          "line": 312
         },
         {
           "name": "save",
-          "line": 297
+          "line": 325
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 377
+          "line": 405
         }
       ]
     },
@@ -17891,16 +17971,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-      "lines": 235,
-      "sha256": "7d751cafadd586cced9a4a892b0e19a7ccf8fe98812598aeeee31dc63cf78cac",
+      "lines": 344,
+      "sha256": "cb0a1eb56a9f99fbd993d88a9d1104ee32aed8b25dc8700a3028ccaa10717668",
       "symbols": [
         {
           "name": "LuluBackupScreen",
-          "line": 57
+          "line": 62
+        },
+        {
+          "name": "saveCloud",
+          "line": 72
+        },
+        {
+          "name": "uploadNow",
+          "line": 77
         },
         {
           "name": "restartApp",
-          "line": 112
+          "line": 161
         }
       ]
     },
@@ -17960,7 +18048,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 580,
-      "sha256": "65945504ead9e8d427697243c6b1e7ef81910774a7bbffe5f57882bd204bdde4",
+      "sha256": "4fae306036f1f7b4f64b936fde81a7bde1e4ddc140e2d28dbc326682fcae6f75",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -18087,7 +18175,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
       "lines": 241,
-      "sha256": "b736088f0dbca303e47c9d38f2b9e9c4338f8f009ef54e03e29021d8e6a43c56",
+      "sha256": "7760e3557c959454cef753e06c3e5e1ce0113f449fbc05154e1a4851b95b86ac",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -18098,7 +18186,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
       "lines": 337,
-      "sha256": "1867853b0e87eabc1c27482a39f37bdb31380d9645063dd49e0134f6d4844a1a",
+      "sha256": "8e2e1a876e09deddc11087ac06eee2c630c0fa2ae07f97af9380e295274f91d6",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
@@ -18164,7 +18252,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
       "lines": 142,
-      "sha256": "45d742e6abce8a7bffe8aab0047d7e0e69af76d76282e10e499cdee4644d4c17",
+      "sha256": "206ffe434baf3e193e506a387f236ed22b8defef6089a52c0897743fb29a3ce3",
       "symbols": [
         {
           "name": "LuluVisionSettingsScreen",
@@ -24538,8 +24626,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
-      "lines": 114,
-      "sha256": "6a8dd4069a725fd089f7e403b39181e5914e7ea5b2d40fb79f334127bbf725a4",
+      "lines": 144,
+      "sha256": "2a052a57589a0c2f6e90fdd02975d8eabaa7de6d849fb859c2c401632e610d72",
       "symbols": [
         {
           "name": "isLuluAutoBackupEnabled",
@@ -24575,6 +24663,41 @@
         {
           "name": "BackupImportResult",
           "line": 105
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
+      "lines": 151,
+      "sha256": "0e24bf281ca084b86952a498fe2ddef9cc620c7fbefd9f444cf485625f1f2250",
+      "symbols": [
+        {
+          "name": "LuluCloudBackup",
+          "line": 23
+        },
+        {
+          "name": "Config",
+          "line": 31
+        },
+        {
+          "name": "loadConfig",
+          "line": 39
+        },
+        {
+          "name": "saveConfig",
+          "line": 50
+        },
+        {
+          "name": "lastUploadText",
+          "line": 60
+        },
+        {
+          "name": "recordUpload",
+          "line": 64
+        },
+        {
+          "name": "upload",
+          "line": 75
         }
       ]
     },
@@ -32790,6 +32913,33 @@
         {
           "name": "unknownRecipeNeverDestroysAnExistingBinding",
           "line": 75
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+      "lines": 104,
+      "sha256": "87138e65edab0f6b77a901cc47607f85dd1a4a8c408dc0a7039b021682b0c707",
+      "symbols": [
+        {
+          "name": "LuluCloudBackupTest",
+          "line": 17
+        },
+        {
+          "name": "putSucceedsWithBasicAuth",
+          "line": 25
+        },
+        {
+          "name": "Seen",
+          "line": 26
+        },
+        {
+          "name": "missingFolderIsCreatedThenRetried",
+          "line": 58
+        },
+        {
+          "name": "wrongCredentialsFailWithReadableReason",
+          "line": 85
         }
       ]
     },

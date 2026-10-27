@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`82678e5596509bd5c71e23a57e09c2bebdf33688`
+- 基准提交：`09af6e11698fcf692228f2dada24f38ab8ca6199`
 - 分支：`main`
-- 已索引文件：983
-- 已索引代码/文本行：193730
-- 已发现符号：2861
+- 已索引文件：985
+- 已索引代码/文本行：194250
+- 已发现符号：2875
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -142,8 +142,8 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 154 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 68 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 262 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 72 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 356 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
@@ -151,9 +151,9 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 320 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 597 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 235 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 344 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 159 | 3 |
@@ -441,8 +441,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 146 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt` | 114 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt` | 144 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 151 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 560 | 8 |
@@ -881,6 +882,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 104 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
