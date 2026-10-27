@@ -482,7 +482,7 @@ private fun Live2DNativeFrameOverlay(
     val nativeImage = remember(webView) {
         ImageView(webView.context).apply {
             scaleType = ImageView.ScaleType.FIT_XY
-            setBackgroundColor(AndroidColor.rgb(21, 23, 25))
+            setBackgroundColor(AndroidColor.rgb(233, 237, 244))
             contentDescription = "Live2D Android 原生帧显示"
         }
     }
@@ -689,12 +689,12 @@ private fun Live2DNativeFrameOverlay(
     )
     if (!receivedFirstFrame) {
         Box(
-            modifier = Modifier.fillMaxSize().background(Color(0xFF15354C)),
+            modifier = Modifier.fillMaxSize().background(Color(0xFFE9EDF4)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 "Android 原生画面通道已启动\n正在读取 Live2D 图像帧…",
-                color = Color.White,
+                color = Color(0xFF27384B),
                 modifier = Modifier.padding(16.dp),
             )
         }
@@ -731,7 +731,7 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
     return WebView(context).apply {
         // A fully opaque video window prevents chat content bleeding through a
         // transparent hardware WebView surface when Android redraws its layer.
-        setBackgroundColor(AndroidColor.rgb(21, 23, 25))
+        setBackgroundColor(AndroidColor.rgb(233, 237, 244))
         // Strictly same-origin and main-frame only. Unlike JavaScriptInterface,
         // AndroidX WebMessage supports binary ArrayBuffer without Base64.
         // Must register BEFORE loading the HTML page.
