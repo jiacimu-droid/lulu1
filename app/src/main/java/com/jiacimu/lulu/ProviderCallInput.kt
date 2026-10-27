@@ -71,9 +71,13 @@ internal class ProviderCallInput(private val context: Context, private val scope
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
         when (elevenPath) {
             CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME -> {
-                // Switching while muted must not briefly open a billable socket.
+                // Switching while muted must not briefly open a billable socket,
+                // but muted gates CAPTURE, not connection: dial() starts muted,
+                // and onReady is the only signal that moves Dialing to Connected.
+                // Without it the incoming-call overlay waits forever. Signal ready
+                // now; resumeCapture() opens the fresh socket on explicit unmute.
                 capturePaused = startMuted
-                if (!startMuted) startRealtime(epoch, prefs)
+                if (!startMuted) startRealtime(epoch, prefs) else onReady()
                 return
             }
             CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD -> {
@@ -170,8 +174,11 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 producer.cancel()
             }
         }
+        // Same rule as the realtime branch: a muted start must not open the
+        // microphone, but must still report ready so the call can connect.
+        // resumeCapture() starts the microphone on explicit unmute.
         capturePaused = startMuted
-        if (!startMuted) startMicrophone(epoch, queue, prefs)
+        if (!startMuted) startMicrophone(epoch, queue, prefs) else onReady()
     }
 
     private fun startRealtime(

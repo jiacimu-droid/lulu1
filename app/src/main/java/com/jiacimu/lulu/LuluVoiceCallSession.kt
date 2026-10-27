@@ -2015,6 +2015,7 @@ internal object LuluVoiceCallSession {
                         listening = !it.speaking && !it.microphoneMuted,
                         inputMeterAvailable = true,
                         errorMessage = "", statusMessage = if (it.thinking) it.statusMessage
+                            else if (it.microphoneMuted) "已接通，麦克风默认关闭，想说话点一下麦克风"
                             else if (scribeRealtime) "Scribe 实时转写已就绪，可以直接说话"
                             else "麦克风已就绪，可以直接说话，停顿后自动转写") }
                     if (!wasConnected) { startTimer(); startOpening() }
