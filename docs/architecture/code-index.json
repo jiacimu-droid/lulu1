@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T17:56:52.525857+00:00",
-  "commit": "35bc3473c1302929798c02f463d09d079d372f9c",
+  "generatedAt": "2026-10-27T17:57:33.160894+00:00",
+  "commit": "a77d5d3ae46702dd1a641324f3b8971568e7c5a5",
   "branch": "main",
-  "sourceFingerprint": "43410756a62a200fe0d832e254691b1a520b999570415d52aa7f99e7befdd6d1",
+  "sourceFingerprint": "38c1c6fcb69f5bf2bcf7b55a6514f707cd8d0a459e7ca82feab4ad7c1054216e",
   "summary": {
     "files": 991,
-    "lines": 195559,
-    "symbols": 2898
+    "lines": 195632,
+    "symbols": 2904
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15444,10 +15444,46 @@
         "line": 99
       }
     ],
-    "noteIsAtMostOneLine": [
+    "futureTimestampCannotBeCountedAsRecentEvidence": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
         "line": 107
+      }
+    ],
+    "multipleRecordsFromSameDayDoNotPretendToBeCrossDayHabit": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 118
+      }
+    ],
+    "extractionDuplicatesWithSameSourceCountOnlyOnce": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 129
+      }
+    ],
+    "differentUnitsNeverShareStatisticsOrDeviationThreshold": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 140
+      }
+    ],
+    "weeklyPatternRequiresSeparateCalendarWeeks": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 154
+      }
+    ],
+    "unknownUnitsCannotClaimMeaningfulDeviation": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 170
+      }
+    ],
+    "noteIsAtMostOneLine": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 180
       }
     ],
     "MemoryRecallGatingTest": [
@@ -33267,8 +33303,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
-      "lines": 114,
-      "sha256": "1d3eec8b351a8bfc9854d4f4cd5772072b6674217f44490963d575bdcf62fc1d",
+      "lines": 187,
+      "sha256": "26054541447c03a587e2b99b51cdb616e74f83485881d0c96dff758b76c357cc",
       "symbols": [
         {
           "name": "MemoryPatternNotesTest",
@@ -33299,8 +33335,32 @@
           "line": 99
         },
         {
-          "name": "noteIsAtMostOneLine",
+          "name": "futureTimestampCannotBeCountedAsRecentEvidence",
           "line": 107
+        },
+        {
+          "name": "multipleRecordsFromSameDayDoNotPretendToBeCrossDayHabit",
+          "line": 118
+        },
+        {
+          "name": "extractionDuplicatesWithSameSourceCountOnlyOnce",
+          "line": 129
+        },
+        {
+          "name": "differentUnitsNeverShareStatisticsOrDeviationThreshold",
+          "line": 140
+        },
+        {
+          "name": "weeklyPatternRequiresSeparateCalendarWeeks",
+          "line": 154
+        },
+        {
+          "name": "unknownUnitsCannotClaimMeaningfulDeviation",
+          "line": 170
+        },
+        {
+          "name": "noteIsAtMostOneLine",
+          "line": 180
         }
       ]
     },
