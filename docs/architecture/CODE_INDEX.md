@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`88a1399a4261c0bce4b761c219a8fe1eccb1765e`
+- 基准提交：`4e79f0c200677effda20a81cc0a9dcade3486192`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196951
-- 已发现符号：2914
+- 已索引代码/文本行：196996
+- 已发现符号：2915
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 458 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 897 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 914 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
@@ -147,7 +147,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 59 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 341 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
@@ -710,7 +710,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 86 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
