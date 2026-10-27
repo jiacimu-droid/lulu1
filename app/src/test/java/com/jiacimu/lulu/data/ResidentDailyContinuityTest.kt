@@ -76,6 +76,61 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun savedDecisionRecoveryIsLimitedAndNeverReissuesAnUncertainModelRequest() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        val nativeId = "resume-budget-" + UUID.randomUUID()
+        val now = Instant.now()
+        val day = ResidentDailyDecision.date(now)
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", android.content.Context.MODE_PRIVATE)
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
+        p.edit().putString("attempt:$nativeId", day)
+            .putString("phase:$nativeId:$day", "uncertain").commit()
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
+        p.edit().putString("decision:$nativeId:$day", "{\\"agenda\\":[]}")
+            .putString("phase:$nativeId:$day", "decided").commit()
+        assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
+        p.edit().putInt("recoveries:$nativeId:$day", 2).commit()
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
+        p.edit().putInt("recoveries:$nativeId:$day", 0)
+            .putString("phase:$nativeId:$day", "finished").commit()
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
+    }
+
+    @Test(timeout = 60_000) fun cachedDailyDecisionResumesWithoutAnotherModelRequest() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "恢复日程居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val day = ResidentDailyDecision.date(now)
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", android.content.Context.MODE_PRIVATE)
+        val decision = JSONObject().put("agenda", JSONArray()).put("lunch", "home")
+            .put("evening", "courtyard").put("thought", "想在庭院看看天空")
+        p.edit().putString("attempt:${native.id}", day)
+            .putString("decision:${native.id}:$day", decision.toString())
+            .putString("phase:${native.id}:$day", "decided").commit()
+        val server = MockWebServer()
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "resume-only-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+            assertTrue(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(0, server.requestCount)
+            assertEquals("home", ResidentDailyDecision.planFor(app, native.id, now)?.optString("lunch"))
+            assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun fixedMorningSlotAndAgendaTimesAreCalendarBased() {
         val zone = java.time.ZoneId.of("Asia/Shanghai")
         val day = java.time.LocalDate.of(2026, 10, 24)
