@@ -27,10 +27,10 @@ class CallTimeFactsTest {
             scheduledDueAt = halfPastEightAm,
             dailyCallClocks = listOf(halfPastElevenPm, halfPastEightAm),
         )
-        assertTrue(text.contains("现在是上海时间10月27日 9:00（早上）"))
+        assertTrue(text.contains("现在是上海时间10月27日 9:00（上午）"))
         assertTrue(text.contains("用户上次说话是10月27日 2:00，距今约7小时"))
         assertTrue(text.contains("这次来电约定的时间是10月27日 8:30"))
-        assertTrue(text.contains("用户每天固定有角色来电约定：8:30（早上）、23:30（晚上）"))
+        assertTrue(text.contains("用户每天固定有角色来电约定：8:30（早上）、23:30（深夜）"))
     }
 
     @Test
@@ -41,7 +41,7 @@ class CallTimeFactsTest {
             scheduledDueAt = null,
             dailyCallClocks = emptyList(),
         )
-        assertEquals("现在是上海时间10月27日 9:00（早上）。", text)
+        assertEquals("现在是上海时间10月27日 9:00（上午）。", text)
         assertFalse(text.contains("上次说话"))
         assertFalse(text.contains("约定"))
     }
