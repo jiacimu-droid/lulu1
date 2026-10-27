@@ -190,7 +190,9 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     Box(
         Modifier.fillMaxSize().background(Color(0xFF151719)),
     ) {
-        if (modelUrl != null) {
+        if (modelUrl != null && coreInstalled) {
+            // Never start the WebView model loader before the licensed Cubism Core is installed.
+            // A missing Core is an actionable setup state, not a blank rendering crash.
             // A new Core installation must recreate this WebView, not merely recompose controls.
             key(characterId, modelUrl, revision) {
                 Live2DCallStage(
@@ -214,7 +216,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                     },
                 )
             }
-        } else {
+        } else if (modelUrl == null) {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
