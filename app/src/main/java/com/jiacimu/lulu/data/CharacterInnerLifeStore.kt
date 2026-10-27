@@ -1643,6 +1643,19 @@ object CharacterInnerLifeStore {
                         ?.let { !it.isAfter(now) } == true
             }.takeLast(6)
 
+
+    /** Contacts for the network section: bond ids plus explicit-agreement
+     * targets, minus the focal character and the user. Pair relations
+     * between contacts are what the network section reports. */
+    private fun networkContactIds(characterId: String, bonds: JSONObject?): List<String> {
+        val ids = relevantBondIds(bonds).toMutableList()
+        CharacterLifeStore.state(characterId).optJSONObject("relationshipAgreements")
+            ?.keys()?.asSequence()?.toList().orEmpty().forEach { id ->
+                if (id !in ids) ids.add(id)
+            }
+        return ids.filter { it != characterId && it != "user" }
+    }
+
     fun compactContext(characterId: String, now: Instant = Instant.now(), query: String = ""): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -1700,6 +1713,11 @@ object CharacterInnerLifeStore {
                     appendLine("关系近期趋势：$it（趋势不是好感分，也不能由单次互动定型）")
                 }
             }
+            // Network section: how my own contacts relate to each other.
+            // Silent when nothing is connected, so it never dumps
+            // "尚未认识" lines into private chat.
+            CharacterSocialRelationship.networkContext(characterId, networkContactIds(characterId, bonds))
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             val corrections = root.optJSONArray("corrections")
             if (corrections != null && corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
@@ -1838,6 +1856,8 @@ object CharacterInnerLifeStore {
                 }
                 appendLine("  不是绝对结论，观点可以纠结、相互矛盾，不能只凭一次聊天就彻底爱上/讨厌。")
             }
+            CharacterSocialRelationship.networkContext(characterId, networkContactIds(characterId, bonds))
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             if (corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")

@@ -232,6 +232,75 @@ object CharacterSocialRelationship {
     fun knowsEachOther(firstCharacterId: String, secondCharacterId: String): Boolean =
         snapshot(firstCharacterId, secondCharacterId).knowsEachOther
 
+    /**
+     * One line for a pair of the focal character's contacts, or null when
+     * the two have no real connection at all. Only the connection itself
+     * is reported (shared group, real meetings, direct mail contact):
+     * never the names of groups the focal character is not in, never
+     * either side's private impression of the other, and never a score.
+     * Pure function of the snapshot so it can be tested without stores.
+     */
+    internal fun networkPairLine(
+        firstName: String, secondName: String,
+        relation: CharacterSocialRelationshipSnapshot,
+    ): String? {
+        if (!relation.knowsEachOther) return null
+        val details = buildList {
+            if (relation.commonGroupNames.isNotEmpty()) add("共同群聊认识")
+            if (relation.sharedMeetingCount > 0) add("真实见面${relation.sharedMeetingCount}次")
+            if (relation.hasDirectContact) add("有真实私信来往")
+        }
+        return "$firstName ↔ $secondName：" + relation.stage +
+            if (details.isEmpty()) "" else "；" + details.joinToString("；")
+    }
+
+    private fun networkDisplayName(id: String): String = when {
+        id == "user" -> "用户"
+        id.startsWith("resident:") ->
+            DigitalWorldExpansionStore.residents()
+                .firstOrNull { "resident:${it.id}" == id }?.name ?: "原住民"
+        else -> runCatching { MigratedDomainStores.characters.get(id).displayName }
+            .getOrDefault("另一位角色")
+    }
+
+    /**
+     * Network view for private chat: how the focal character's own
+     * contacts relate to EACH OTHER. The focal character's own bonds
+     * already arrive from CharacterInnerLifeStore; what was missing is
+     * the between-contacts structure (do my two friends know each other,
+     * have they actually met), which group chats already get from
+     * contextForGroup but private chat never did. Only stored facts are
+     * used, unconnected pairs are skipped entirely so the section stays
+     * silent instead of dumping "尚未认识" lines, and the list is capped
+     * at 6 pairs. Returns "" when there is nothing connected to report.
+     */
+    fun networkContext(characterId: String, contactIds: Collection<String>): String {
+        val contacts = contactIds.map(String::trim)
+            .filter { it.isNotBlank() && it != characterId && it != "user" }.distinct()
+        if (contacts.size < 2) return ""
+        val lines = buildList {
+            for (firstIndex in 0 until contacts.lastIndex) {
+                for (secondIndex in firstIndex + 1 until contacts.size) {
+                    val first = contacts[firstIndex]
+                    val second = contacts[secondIndex]
+                    networkPairLine(
+                        networkDisplayName(first), networkDisplayName(second),
+                        snapshot(first, second),
+                    )?.let(::add)
+                    if (size >= 6) break
+                }
+                if (size >= 6) break
+            }
+        }
+        if (lines.isEmpty()) return ""
+        return buildString {
+            appendLine("【身边人的关系网｜只看他们彼此之间有没有真实交集】")
+            lines.forEach(::appendLine)
+            append("这只是两人之间有没有真实交集，不是好感度，也不代表他们彼此怎么看对方；" +
+                "想叫谁一起、托谁传话时，先看这里，不要假设两个人互相认识。")
+        }.trim()
+    }
+
     fun contextForGroup(participantIds: List<String>): String {
         val ids = participantIds.map(String::trim).filter(String::isNotBlank).distinct()
         if (ids.size < 2) return "暂无角色间社会关系历史。"
