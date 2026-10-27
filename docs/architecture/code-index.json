@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T07:06:24.827867+00:00",
-  "commit": "0001fe75bfb673f261ae82147128a097cdd19651",
+  "generatedAt": "2026-10-27T07:17:46.144160+00:00",
+  "commit": "579b3a0472bd90e7f845dccffeff22f7ec06bdd0",
   "branch": "main",
-  "sourceFingerprint": "8660d6fb15ea1f825ccc959b5cc0bea411af803af3e158271c12c3f3cf8707c6",
+  "sourceFingerprint": "fb80b0efda96735327fc3f063c3d9c786d6e9de31f60b6a1c8d9bff155e13e4b",
   "summary": {
     "files": 960,
-    "lines": 190360,
+    "lines": 190412,
     "symbols": 2806
   },
   "symbolIndex": {
@@ -4875,7 +4875,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 527
+        "line": 562
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -5135,7 +5135,7 @@
     "matches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 365
+        "line": 399
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -5145,7 +5145,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 422
+        "line": 456
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5155,7 +5155,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 493
+        "line": 527
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5455,13 +5455,13 @@
     "informativeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "returned": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 86
+        "line": 87
       }
     ],
     "guide": [
@@ -20298,8 +20298,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 603,
-      "sha256": "530a56cf8cfef9dab51d3ae1ca643e50dd80d00afbdb4a7f00e6adeb6bfad928",
+      "lines": 639,
+      "sha256": "b2c65ab9462458b283678bef5eae0b3fe1790db1f6a777eaf08d86386623b1c8",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -20315,19 +20315,19 @@
         },
         {
           "name": "matches",
-          "line": 365
+          "line": 399
         },
         {
           "name": "pendingDecisionCues",
-          "line": 422
+          "line": 456
         },
         {
           "name": "briefContext",
-          "line": 493
+          "line": 527
         },
         {
           "name": "promptSection",
-          "line": 527
+          "line": 562
         }
       ]
     },
@@ -20545,8 +20545,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-      "lines": 115,
-      "sha256": "2fab35e343488896a81de37a1682594b16c4a485fa1fca13d399f48e7f64a506",
+      "lines": 116,
+      "sha256": "0b08e8af468bc8c41fa5a8213b686c3a02d5aadedb63a65576da62c623c2cac6",
       "symbols": [
         {
           "name": "context",
@@ -20566,11 +20566,11 @@
         },
         {
           "name": "informativeAction",
-          "line": 79
+          "line": 80
         },
         {
           "name": "returned",
-          "line": 86
+          "line": 87
         }
       ]
     },
@@ -31013,8 +31013,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 236,
-      "sha256": "6062915a6ceeedc352bdb6d0d85065f2b1705b73f6188c29d2d02ebd3acb550e",
+      "lines": 251,
+      "sha256": "23d9a4f32351ea3892ad04281eb3e584fe1088b69589763986a5f6c317c18f5e",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
