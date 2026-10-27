@@ -40,6 +40,9 @@ enum class MigrationRoute {
     ApocalypseSurvival,
     Settings,
     Appearance,
+    // The motion/expression playground is an Activity opened from the
+    // in-app desktop, not a Compose screen and not a phone launcher icon.
+    Playground,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

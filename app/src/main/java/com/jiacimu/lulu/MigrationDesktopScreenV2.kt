@@ -65,6 +65,7 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("apocalypse", "末世求生", Icons.Outlined.Map, MigrationRoute.ApocalypseSurvival),
     DesktopV2Launcher("settings", "设置", Icons.Outlined.Settings, MigrationRoute.Settings),
     DesktopV2Launcher("appearance", "美化", Icons.Outlined.Palette, MigrationRoute.Appearance),
+    DesktopV2Launcher("playground", "动作试验场", Icons.Outlined.Face, MigrationRoute.Playground),
 )
 
 private const val DESKTOP_COLUMNS = 4

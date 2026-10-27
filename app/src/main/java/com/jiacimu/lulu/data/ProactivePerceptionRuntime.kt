@@ -1811,6 +1811,21 @@ object ProactivePerceptionRuntime {
         if (decision.action == Action.MESSAGE || decision.action == Action.KAOMOJI) {
             val shadowPolicy = ProactivePerceptionPolicyStore.get(characterId)
             val shadowNow = Instant.now()
+            // Step 2: delivery facts now come from the stored proactive-send
+            // receipts (batch 25), so this shadow evaluation reconciles
+            // against real sends instead of placeholders. Only the thought
+            // metadata is still unavailable, so same-topic and expiry
+            // checks stay unevaluated; thought must stay null, never
+            // fabricate createdAt/expiresAt from now. Receipts share the
+            // last-60-decisions store, so on a busy day the counts are a
+            // lower bound, not a full-day census. On failure this falls
+            // back to the old placeholder values; the gate stays shadow-only.
+            val proactiveSummary = runCatching {
+                ProactiveSendAttribution.summarize(characterId)
+            }.getOrNull()
+            val proactiveSentToday = proactiveSummary?.receipts?.count { receipt ->
+                receipt.sentAt.atZone(zoneId).toLocalDate() == shadowNow.atZone(zoneId).toLocalDate()
+            } ?: 0
             val shadowDecision = ProactiveMessageGate.evaluate(
                 ProactiveGateInput(
                     characterId = characterId,
@@ -1825,17 +1840,19 @@ object ProactivePerceptionRuntime {
                     ),
                     modelAction = decision.action.name.lowercase(),
                     hasFreshUserMessage = messageStimulus != null,
-                    // Step 1 has no authoritative source for the three facts
-                    // below: they are passed as unreverified placeholders and
-                    // must NOT be read as real delivery facts. Do NOT
-                    // substitute chat-history upper bounds here.
-                    lastProactiveSentAt = null,
-                    proactiveSentToday = 0,
-                    unansweredOutstanding = 0,
-                    recentAttempts = emptyList(),
-                    // Step 1 has no gate metadata for this thought yet, so
-                    // same-topic and expiry checks are effectively not
-                    // evaluated; thought must stay null, never fabricate
+                    lastProactiveSentAt = proactiveSummary?.lastSentAt,
+                    proactiveSentToday = proactiveSentToday,
+                    unansweredOutstanding = proactiveSummary?.unanswered ?: 0,
+                    recentAttempts = proactiveSummary?.receipts?.map {
+                        ProactiveAttempt(
+                            topicKey = it.motiveId,
+                            attemptedAt = it.sentAt,
+                            delivered = true,
+                        )
+                    } ?: emptyList(),
+                    // No gate metadata for this thought yet, so same-topic
+                    // and expiry checks are effectively not evaluated;
+                    // thought must stay null, never fabricate
                     // createdAt/expiresAt from now.
                     thought = null,
                 )
@@ -1845,6 +1862,10 @@ object ProactivePerceptionRuntime {
                 "decisionId=$shadowRequestId characterId=$characterId " +
                     "modelAction=${decision.action} hasFreshUserMessage=${messageStimulus != null} " +
                     "allowedInShadow=${shadowDecision.allowedInShadow} reasons=${shadowDecision.reasons} " +
+                    "proactiveSentToday=$proactiveSentToday " +
+                    "unansweredOutstanding=${proactiveSummary?.unanswered ?: 0} " +
+                    "attributable=${proactiveSummary?.attributable ?: 0} " +
+                    "unattributed=${proactiveSummary?.unattributed ?: 0} " +
                     "drives=[$driveSummary] strongest=$driveTop",
             )
         } else if (decision.action == Action.SILENT) {

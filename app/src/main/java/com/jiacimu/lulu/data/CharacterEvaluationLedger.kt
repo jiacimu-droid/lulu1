@@ -18,10 +18,10 @@ import java.time.Instant
 *
 * What it deliberately does NOT measure: contradiction rate, drift and
 * cross-channel consistency all need semantic comparison, which a
-* program must not fake with keywords or thresholds; proactive
-* reply/ignore rate is computed from stored proactive-send receipts
-* (private sends are recorded as decisions by the perception runtime).
-* The rate itself is a later batch; the footer names what is still missing.
+* program must not fake with keywords or thresholds. Proactive reply
+* rate is computed from stored proactive-send receipts matched against
+* later user statements in the same timeline session (see
+* ProactiveSendAttribution); the footer names what is still missing.
 */
 object CharacterEvaluationLedger {
 private const val PREFS = "lulu_character_evaluation_v1"
@@ -100,6 +100,7 @@ for (i in 0 until decisions.length()) {
 if (decisions.optJSONObject(i)?.optBoolean("succeeded") == true) succeeded++
 }
 val emotionHistory = root.optJSONArray("emotionHistory")?: JSONArray()
+val proactiveSummary = ProactiveSendAttribution.summarize(characterId)
 return JSONObject()
 .put("activeMotives", active).put("pausedMotives", paused)
 .put("waitingMotives", waiting).put("achievedMotives", achieved)
@@ -110,6 +111,11 @@ return JSONObject()
 .put("corrections", corrections.length())
 .put("decisions", decisions.length()).put("succeededDecisions", succeeded)
 .put("emotionHistory", emotionHistory.length())
+.put("proactiveSends", proactiveSummary.receipts.size)
+.put("proactiveAttributable", proactiveSummary.attributable)
+.put("proactiveReplied", proactiveSummary.replied)
+.put("proactiveUnanswered", proactiveSummary.unanswered)
+.put("proactiveUnattributed", proactiveSummary.unattributed)
 .also { census ->
 oldestHeldDays?.let { census.put("oldestHeldThoughtDays", it)}
 }
@@ -160,7 +166,14 @@ appendLine("琢磨事：还留着${delta(current.optInt("heldThoughts"), previou
 "已演变${current.optInt("evolvedThoughts")}条。")
 appendLine("自我修正${current.optInt("corrections")}次；行动回执${current.optInt("decisions")}次，" +
 "其中成功${current.optInt("succeededDecisions")}次；情绪历程保留${current.optInt("emotionHistory")}段。")
+val proactiveAttributable = current.optInt("proactiveAttributable")
+val proactiveReplied = current.optInt("proactiveReplied")
+val proactiveRate = if (proactiveAttributable > 0) "（回复率约${proactiveReplied * 100 / proactiveAttributable}%）" else "（暂无可归属回执，算不出回复率）"
+appendLine("主动消息：最近保留的主动发出${delta(current.optInt("proactiveSends"), previous, "proactiveSends")}条，" +
+"其中可归属${delta(proactiveAttributable, previous, "proactiveAttributable")}条，用户随后回应${delta(proactiveReplied, previous, "proactiveReplied")}条$proactiveRate，" +
+"未回应${current.optInt("proactiveUnanswered")}条；归属不明${current.optInt("proactiveUnattributed")}条不计入。")
 append("暂未衡量：矛盾率、漂移、跨渠道一致性需要语义判断，程序不猜；" +
-"主动发出的消息已记成回执，主动回复率下一批再接。")
+"主动回复率只按仍保留的回执算（回执与每轮感知决定共用最近 60 条，旧的会被顶掉），" +
+"回应指同一对话里发出之后用户有说话，不读内容、不猜是不是针对哪一句；归属不明的回执不计入。")
 }.trim()
 }

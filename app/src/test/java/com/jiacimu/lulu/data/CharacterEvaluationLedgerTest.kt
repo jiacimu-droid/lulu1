@@ -113,4 +113,35 @@ class CharacterEvaluationLedgerTest {
         assertTrue(text.contains("进行中1件"))
         assertFalse(text.contains("与上周持平"))
     }
+
+    @Test
+    fun censusCountsProactiveSendsWithoutTimelineAsUnattributed() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        CharacterEvaluationLedger.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "eval-proactive-a"
+        CharacterInnerLifeStore.clear(role)
+        CharacterEvaluationLedger.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+        CharacterInnerLifeStore.recordDecision(
+            role, "proactive-send:evt1", "send_private_message", "想打招呼", "m1", null,
+            "已送达", true, now, causalEvidenceId = "evt1",
+        )
+        CharacterInnerLifeStore.recordDecision(
+            role, "proactive-send:evt2", "send_private_sticker", "想贴贴", "m1", null,
+            "已送达", true, now, causalEvidenceId = "evt2",
+        )
+        // No timeline is initialized in this test, so both receipts stay
+        // unattributed instead of being guessed as ignored.
+        val census = CharacterEvaluationLedger.census(role, now)
+        assertEquals(2, census.optInt("proactiveSends"))
+        assertEquals(0, census.optInt("proactiveAttributable"))
+        assertEquals(0, census.optInt("proactiveReplied"))
+        assertEquals(2, census.optInt("proactiveUnattributed"))
+        val report = CharacterEvaluationLedger.weeklyReport(role, now)
+        assertNotNull(report)
+        assertTrue(report!!.contains("主动消息"))
+        assertTrue(report.contains("归属不明2条不计入"))
+        CharacterInnerLifeStore.clear(role)
+        CharacterEvaluationLedger.clear(role)
+    }
 }

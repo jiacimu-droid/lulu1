@@ -62,17 +62,14 @@
             </intent-filter>
         </activity>
 
+        <!-- Opened only from the in-app desktop, not from the phone launcher:
+            no MAIN/LAUNCHER filter, so it no longer adds a phone home-screen icon. -->
         <activity
             android:name=".Live2DPreviewPlaygroundActivity"
-            android:exported="true"
+            android:exported="false"
             android:icon="@drawable/lulu_exact_icon"
             android:label="动作试验场"
-            android:theme="@style/Theme.Lulu">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.Lulu" />
 
         <receiver
             android:name=".system.LuluScreenRequestReceiver"

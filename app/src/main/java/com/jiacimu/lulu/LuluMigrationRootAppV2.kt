@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Alignment
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalDensity
@@ -51,6 +53,7 @@ fun LuluMigrationRootAppV2(
     incomingSharedNote: String? = null,
     onSharedNoteHandled: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val deepLinkRoute = remember(initialRouteName) {
         runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
             ?.takeIf { it == MigrationRoute.Lexicon || it == MigrationRoute.Reading || it == MigrationRoute.Meeting }
@@ -291,16 +294,25 @@ fun LuluMigrationRootAppV2(
                             when (route) {
                                 MigrationRoute.Home -> MigrationHomeV2(
                                     onOpen = { target ->
-                                        if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
-                                        if (target == MigrationRoute.Memory) personalMemory = false
-                                        if (target == MigrationRoute.Lexicon) {
-                                            selectedCharacterId = "lulu"
-                                            lexiconInitialDiaryTitle = null
-                                            lexiconInitialSection = null
-                                            lexiconInitialFavoriteId = null
+                                        if (target == MigrationRoute.Playground) {
+                                            // The playground is an Activity, not a Compose
+                                            // screen: open it without pushing a route, so
+                                            // the desktop stays underneath when coming back.
+                                            context.startActivity(
+                                                Intent(context, Live2DPreviewPlaygroundActivity::class.java)
+                                            )
+                                        } else {
+                                            if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                                            if (target == MigrationRoute.Memory) personalMemory = false
+                                            if (target == MigrationRoute.Lexicon) {
+                                                selectedCharacterId = "lulu"
+                                                lexiconInitialDiaryTitle = null
+                                                lexiconInitialSection = null
+                                                lexiconInitialFavoriteId = null
+                                            }
+                                            if (target == MigrationRoute.Reading) readingInitialTitle = null
+                                            pushRoute(target)
                                         }
-                                        if (target == MigrationRoute.Reading) readingInitialTitle = null
-                                        pushRoute(target)
                                     },
                                     onOpenConversation = ::openConversation,
                                 )
