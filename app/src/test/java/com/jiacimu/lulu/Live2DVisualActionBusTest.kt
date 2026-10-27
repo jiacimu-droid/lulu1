@@ -21,6 +21,12 @@ class Live2DVisualActionBusTest {
             Live2DVisualActionBus.resolveExpression("星星眼", names))
         assertEquals("小狼-星星眼",
             Live2DVisualActionBus.resolveExpression("StarryEyes", names))
+        assertEquals("小狼-星星眼", Live2DVisualActionBus.resolveExpression(
+            "爱心眼", names + "爱心眼"))
+        assertEquals("脸红", Live2DVisualActionBus.resolveExpression(
+            "爱心眼", listOf("爱心眼", "脸红")))
+        assertEquals(null, Live2DVisualActionBus.resolveExpression(
+            "爱心眼", listOf("爱心眼")))
         assertEquals("吐舌", Live2DVisualActionBus.resolveExpression("吐舌", names))
         assertEquals("脸红", Live2DVisualActionBus.resolveExpression("害羞", names))
         assertEquals(null,
@@ -191,6 +197,9 @@ class Live2DVisualActionBusTest {
                 JSONObject().put("motion", JSONObject().put("group", "LuluWolf").put("index", 20))))
             val filled = Live2DVisualActionBus.cues.value[role]
             assertEquals("LuluWolf" to 20, filled?.motion)
+            assertEquals("星星眼", Live2DMotionCatalog.entries[17]?.expression)
+            assertEquals("星星眼", Live2DMotionCatalog.entries[25]?.expression)
+            assertEquals("星星眼", Live2DMotionCatalog.entries[28]?.expression)
             assertEquals("流泪", filled?.expression)
             assertEquals(-0.3f, filled?.face?.values?.get("smile"))
             assertEquals(0.82f, filled?.face?.values?.get("eyeOpen"))
