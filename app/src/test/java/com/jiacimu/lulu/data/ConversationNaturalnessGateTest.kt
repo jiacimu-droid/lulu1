@@ -35,7 +35,11 @@ class ConversationNaturalnessGateTest {
     @Test fun requestedLongExplanationDoesNotGetShortChatGate() {
         assertNull(ConversationNaturalnessGate.onlinePrivateReview(
             "请详细解释并分析这段代码的原因和修复步骤",
-            listOf("这里需要把实际原因和边界交代清楚。".repeat(20)),
+            listOf(
+                "请求进入后，先核对输入里究竟有哪些事实：时间线的原始事件、模型选择的内容和实际授权并不是同一回事。",
+                "接着看执行器有没有收到动作、是否发出了网络请求、是否有可追溯的成功或失败回执；只有台词不能证明执行完成。",
+                "如果保存时中断，还应通过请求编号恢复结果，避免再次调用工具制造重复行为；这需要与下一轮感知的确认机制一并验证。",
+            ),
             hasVoice = false, hasLinkedActions = false))
     }
 
@@ -255,6 +259,16 @@ class ConversationNaturalnessGateTest {
         )
         assertFalse(result.reasons.any { it.contains("多段事后说明") })
         assertFalse("A specifically requested technical explanation must not be shortened just because it is detailed", result.needsRerender)
+    }
+
+    @Test fun aShortQuestionDoesNotForbidACompleteNonRepetitiveExplanation() {
+        val answer = listOf(
+            "因为那次我只拿到了网页地址，没有收到真正的文章正文。请求发出去和读到文章是两个不同的事实。",
+            "我还需要核对有没有登录、页面是否加载成功，以及解析出来的正文是否真的属于你发来的那一篇，不能拿搜索摘要冒充阅读结果。",
+            "现在能确定的是没有获得可验证的正文回执；至于卡在网络、权限还是解析阶段，需要依据真实的执行日志再判断。",
+        )
+        val assessment = ConversationNaturalnessGate.assess("为什么？", answer)
+        assertFalse(assessment.needsRerender)
     }
 
     @Test fun oneShortEmotionalResponseIsStillFine() {
