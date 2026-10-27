@@ -58,6 +58,22 @@ class PhoneInspectionProjectionTest {
         assertFalse(inspectedChatMessageIsMine("b", original, characterMessage))
     }
 
+    @Test fun savedPrivateOwnerRemarkOverridesLegacyContactNameInPhoneAndThreads() {
+        assertEquals("佳辞", inspectedOwnerContactName("佳辞", "主人"))
+        assertEquals("佳辞", inspectedOwnerContactName("   佳辞  ", "主人"))
+        assertEquals("公开昵称", inspectedOwnerContactName("", "公开昵称"))
+        assertEquals("主人", inspectedOwnerContactName(" ", ""))
+
+        val renamed = inspectedThreads("a", chats, nativeMail, emptyMap(), "佳辞")
+        assertEquals("佳辞", renamed.single { it.key == "chat:owner-a" }.title)
+        assertEquals("好友群", renamed.single { it.key == "chat:group" }.title)
+        val unchanged = inspectedThreads("a", chats, nativeMail, emptyMap(), "另一个备注")
+        assertEquals("另一个备注", unchanged.single { it.key == "chat:owner-a" }.title)
+        assertEquals("佳辞", renamed.single { it.key == "chat:owner-a" }.title)
+        assertEquals("主人", inspectedThreads("a", chats, nativeMail, emptyMap())
+            .single { it.key == "chat:owner-a" }.title)
+    }
+
     @Test fun onlyActualGroupAuthorCountsAsSelf() {
         val group = chats.last()
         val fromB = LuluChatMessage(conversationId = group.id,
