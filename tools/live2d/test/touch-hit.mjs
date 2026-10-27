@@ -9,6 +9,27 @@ import { createTouchResponseRuntime, touchFamily, isImpact } from '../src/touch-
 import { createTouchExpressionLayer } from '../src/touch-expression-layer.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { isWolfRig, enhanceWolfTouch } from '../src/wolf-rig-profile.mjs'
+import { isScenePixel, hasAvatarPixels, SCENE_COLORS } from '../src/scene-pixels.mjs'
+
+// Renderer and Android must not mistake the new light room for a loaded avatar
+// or for a touched cheek, even with JPEG/antialiasing variation.
+for (const color of SCENE_COLORS) {
+  const r = color >> 16 & 255, g = color >> 8 & 255, b = color & 255
+  assert.equal(isScenePixel(r, g, b), true)
+  assert.equal(isScenePixel(r - 6, g + 4, b - 3), true)
+  const scene = Uint8Array.from(Array.from({ length: 64 * 64 }, () => [r, g, b, 255]).flat())
+  assert.equal(hasAvatarPixels(scene, 32), false)
+}
+const avatar = new Uint8Array(64 * 64 * 4)
+for (let i = 0; i < 64 * 64; i++) {
+  const color = i < 600 ? [120, 80, 65] : [233, 237, 244]
+  avatar.set([...color, 255], i * 4)
+}
+assert.equal(hasAvatarPixels(avatar, 32), true)
+assert.equal(isScenePixel(120, 80, 65), false)
+const textOnly = avatar.slice()
+for (let i = 60; i < 600; i++) textOnly.set([233, 237, 244, 255], i * 4)
+assert.equal(hasAvatarPixels(textOnly, 64), false)
 
 const bounds = { x: 60, y: -160, width: 250, height: 750 }
 const hit = (x, y, hits = [], authoredAreas = 0, calibration = null) =>
