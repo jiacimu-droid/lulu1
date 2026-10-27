@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T03:44:40.419584+00:00",
-  "commit": "59109f68569816d0fff3af9818d5386d027c5adb",
+  "generatedAt": "2026-10-27T03:50:06.036296+00:00",
+  "commit": "2e249022068cd91ef56eeb5006cc27d234b6b0ae",
   "branch": "main",
-  "sourceFingerprint": "9d57c6dae53063910fcc82b07829fe99f49866c1adc035b339d2f36692a5eb8a",
+  "sourceFingerprint": "8d3fcdd931caf79cb4b4b9023f4235febccbba75184558425a48a12342125325",
   "summary": {
     "files": 952,
-    "lines": 188785,
+    "lines": 188829,
     "symbols": 2766
   },
   "symbolIndex": {
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1683
+        "line": 1690
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -749,7 +749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-        "line": 40
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -3893,7 +3893,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-        "line": 44
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
@@ -17483,8 +17483,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2364,
-      "sha256": "d3dc0d273b1233c21d7c51986f5fea93c98e44e1adee582b13da7ca8364be49e",
+      "lines": 2365,
+      "sha256": "65cd138ab46c0942a9cfd9a0d74d17a251a095a772fd89d351a7df353525f347",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -18312,8 +18312,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 439,
-      "sha256": "51acb3de09288a3fbc211979b83c2c2d115e200e10a006d3a9119aeaa702d85f",
+      "lines": 446,
+      "sha256": "6cdd49dbad5d9ac1243bf1aeeb40f7184dcf63cca903f2274d8903d82a28d3ec",
       "symbols": [
         {
           "name": "render",
@@ -20515,8 +20515,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1835,
-      "sha256": "6753ab68392ccd0d3c2470365391c857f181555dc93468bb12995e8620f4b28a",
+      "lines": 1854,
+      "sha256": "6b172e71e9c25f382e7568bdba7617141634287c61618beb2645fe3336aa0b37",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20552,7 +20552,7 @@
         },
         {
           "name": "context",
-          "line": 1683
+          "line": 1690
         }
       ]
     },
@@ -22301,8 +22301,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-      "lines": 104,
-      "sha256": "4ed4761e70812c76f17b8c64256aa0d997954d8d4ad2631e86eb90a0d0f56977",
+      "lines": 111,
+      "sha256": "d57d04e2d5c5ea3b1558439f04ec80961657a13c6351da132e0b73709fbf48fc",
       "symbols": [
         {
           "name": "active",
@@ -22314,11 +22314,11 @@
         },
         {
           "name": "initialize",
-          "line": 40
+          "line": 46
         },
         {
           "name": "recent",
-          "line": 44
+          "line": 50
         }
       ]
     },
@@ -24064,8 +24064,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-      "lines": 51,
-      "sha256": "4f371f218c7de6642d2adf42e6c26f25fd808d363e2629182dd1e3fc1664c7ad",
+      "lines": 56,
+      "sha256": "8f3daf49ac459cbc4ea969ff77d0f0dbb5efca135947800bf6752fddbfae4682",
       "symbols": [
         {
           "name": "expand",
@@ -25160,8 +25160,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
-      "lines": 35,
-      "sha256": "7c0a4d587d1d23b1b30064f6674b45d2d865a13fc62b082c9d40de560821d524",
+      "lines": 40,
+      "sha256": "0e25e8c0a11c31f46dfb1666551c747ab1d3145006ec62a905fb1e74c8c02401",
       "symbols": [
         {
           "name": "render",
