@@ -2358,6 +2358,7 @@ private fun buildCallHistory(messages: List<LuluChatMessage>, characterName: Str
         // tell that a 2am "I can't sleep" is seven hours before a 9am wake call,
         // and will carry the night's state into the morning unchanged.
         val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
-            .format(message.createdAt.atZone(java.time.ZoneId.systemDefault()))
+            .format(message.createdAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
         "$role（$at）：${message.content.trim()}"
     }
+

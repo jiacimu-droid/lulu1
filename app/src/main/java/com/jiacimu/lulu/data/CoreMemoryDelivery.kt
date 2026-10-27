@@ -18,7 +18,13 @@ internal object CoreMemoryDelivery {
         if (memories.isEmpty()) "" else buildString {
             appendLine("【持续生效的核心记忆｜独立于普通召回名额】")
             appendLine("仅在有关时自然使用，不逐条复述；当前明确纠正优先，临时状态不覆盖长期事实。")
-            memories.forEach { appendLine("- ${it.content.trim().replace("\n", " ")}") }
+            memories.forEach {
+                // Core memories previously carried no time at all, so the
+                // model could not tell a years-old fact from a fresh one.
+                val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                    .format((it.occurredAt ?: it.createdAt).atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                appendLine("- （$at）${it.content.trim().replace("\n", " ")}")
+            }
         }.trim()
 }
 
@@ -101,3 +107,4 @@ internal object CoreMemoryInjectionAudit {
         prefs.edit().putString("role:$characterId", array.toString()).apply()
     }
 }
+

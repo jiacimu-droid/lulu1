@@ -34,7 +34,11 @@ internal object MemoryEvidenceSelection {
         val kept = mutableListOf<Pair<SharedTimelineEvent, String>>()
         val truncated = mutableListOf<String>()
         events.distinctBy { it.id }.forEach { event ->
-            val prefix = "[${event.occurredAt}] [${event.channel}] ${event.speaker}："
+            // Same UTC-trap as recalled summaries: a raw instant reads 8
+            // hours off local time. Render local readable time instead.
+            val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                .format(event.occurredAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+            val prefix = "[$at] [${event.channel}] ${event.speaker}："
             val space = remaining - prefix.length - 1
             if (space < 48) return@forEach
             val content = event.evidenceContent.trim().replace("\n", " ")
@@ -48,3 +52,4 @@ internal object MemoryEvidenceSelection {
             kept.map { it.first.id }, truncated)
     }
 }
+

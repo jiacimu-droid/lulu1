@@ -17,8 +17,12 @@ internal object PromptMemoryRenderer {
         var remaining = characterBudget - header.length - 1
         val perEntry = if (characterBudget >= 6_000) 1_500 else 850
         for (memory in memories) {
-            val at = memory.occurredAt ?: memory.createdAt
-            val prefix = "- [$at] "
+            // Previously a raw UTC instant (e.g. 2026-10-27T02:15:00Z), which
+            // reads 8 hours off local time in Shanghai and misleads exactly
+            // the night-to-morning reasoning. Render local readable time.
+            val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                .format((memory.occurredAt ?: memory.createdAt).atZone(java.time.ZoneId.of("Asia/Shanghai")))
+            val prefix = "- （$at）"
             val space = (remaining - prefix.length - 1).coerceAtLeast(0)
             if (space < 65) break
             val clean = memory.content.trim().replace(Regex("\\s+"), " ")
@@ -32,3 +36,4 @@ internal object PromptMemoryRenderer {
         return if (lines.size <= 1) RenderedMemorySection() else RenderedMemorySection(lines.joinToString("\n"), ids, truncated)
     }
 }
+

@@ -427,7 +427,13 @@ internal fun buildBoundedHistory(
             message, eligible, recalled)
         val content = if (message.sender == LuluChatMessage.Sender.System)
             stripRecallReceiptDirective(message.content) else qqForwardContextText(message.content)
-        "$role$quote：$content"
+        // Time is part of the fact, not decoration: without it the model
+        // cannot tell how long ago a line was said, and carries a night's
+        // state into the morning unchanged. Local readable time, same as
+        // the phone call history, not a raw UTC timestamp.
+        val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+            .format(message.createdAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+        "$role（$at）$quote：$content"
     }
     // Only decode/render messages examined by the recent-turn selector.
     // Years of archived chat remain in their original store; they must not
@@ -436,3 +442,4 @@ internal fun buildBoundedHistory(
         visible, maxMessages, maxChars,
     ) { render(it).length }.joinToString("\n") { render(it) }
 }
+

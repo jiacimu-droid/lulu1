@@ -1651,12 +1651,19 @@ object CharacterInnerLifeStore {
             if (recentThoughts.isNotEmpty()) {
                 appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；对照同一轮里已有的在意事项、仍在挂心的心事和已走过的心路判断它是否还悬而未决，已经说过、已经想通、已经放下或已经不重要了的不要翻出来；回答用户问题时不用硬找话题】")
                 recentThoughts.forEach { item ->
-                    val ageText = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { at ->
-                            val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
-                            if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
-                        }.orEmpty()
+                    val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                    val ageText = parsedAt?.let { at ->
+                        val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
+                        if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
+                    }.orEmpty()
+                    // Relative age alone cannot anchor a night-to-morning
+                    // judgment; add the absolute local time as well.
+                    val absoluteText = parsedAt?.let { at ->
+                        java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                            .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                    }.orEmpty()
                     appendLine("· ${item.optString("thought").take(170)}；犹豫=${item.optString("hesitation").take(120)}" +
+                        (if (absoluteText.isNotBlank()) "；（$absoluteText）" else "") +
                         (if (ageText.isNotBlank()) "；$ageText" else ""))
                 }
             }
@@ -1776,12 +1783,17 @@ object CharacterInnerLifeStore {
             if (recentThoughts.isNotEmpty()) {
                 appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；没有时间限制：只要还没解决，不论多久以前都可以聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经说过、想通、放下或不重要的不要翻出来】")
                 recentThoughts.forEach { item ->
-                    val ageText = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { at ->
-                            val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
-                            if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
-                        }.orEmpty()
+                    val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                    val ageText = parsedAt?.let { at ->
+                        val hours = Duration.between(at, now).toHours().coerceAtLeast(0)
+                        if (hours < 24) "约${hours}小时前" else "约${hours / 24}天前"
+                    }.orEmpty()
+                    val absoluteText = parsedAt?.let { at ->
+                        java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                            .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                    }.orEmpty()
                     appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}" +
+                        (if (absoluteText.isNotBlank()) "；（$absoluteText）" else "") +
                         (if (ageText.isNotBlank()) "；$ageText" else ""))
                 }
                 appendLine("这些念头可以冲突，也可以随着新事件消退。若要落实，先检查对方边界和实际工具；下一轮须依据真实结果修正，不得把想象写成执行成功。")
@@ -1790,7 +1802,13 @@ object CharacterInnerLifeStore {
                 appendLine("过往没说出口的真实主观心声（思绪可改变，不是已发生的事件）：")
                 for (i in maxOf(0, innerVoices.length() - 3) until innerVoices.length()) {
                     val voiceMoment = innerVoices.optJSONObject(i) ?: continue
-                    appendLine("· ${voiceMoment.optString("thought")}")
+                    val voiceAt = runCatching { Instant.parse(voiceMoment.optString("occurredAt")) }.getOrNull()
+                        ?.let { at ->
+                            java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                                .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                        }.orEmpty()
+                    appendLine("· ${voiceMoment.optString("thought")}" +
+                        (if (voiceAt.isNotBlank()) "（$voiceAt）" else ""))
                 }
                 appendLine("若情境有关，可让旧念头继续、碰撞或自然淡化；避免逐字复读、反复提起同一念头。")
             }
@@ -1832,3 +1850,4 @@ object CharacterInnerLifeStore {
         }.trim()
     }
 }
+
