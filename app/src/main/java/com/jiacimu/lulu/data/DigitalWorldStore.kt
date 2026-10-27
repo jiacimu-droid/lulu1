@@ -166,6 +166,10 @@ object DigitalWorldStore {
     fun itemsAtHome(characterId: String): List<DigitalWorldItem> =
         mutable.value.items.filter { it.ownerCharacterId == characterId }.sortedBy(DigitalWorldItem::createdAt)
 
+    /** Same bound as the executor; no duplicated furniture-capacity magic number. */
+    internal fun remainingHomeCapacity(characterId: String): Int =
+        (MAX_HOME_ITEMS - itemsAtHome(characterId).size).coerceAtLeast(0)
+
     /** Read the same authoritative constraints enforced by performAction.
      * No invented currency, ingredients or gifting API. Counts are advisory;
      * the executor rechecks under its lock when an action is actually chosen.
@@ -174,7 +178,7 @@ object DigitalWorldStore {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
         val owned = itemsAtHome(characterId)
         val atHome = locationOf(characterId) == homeLocation(characterId)
-        val remaining = (MAX_HOME_ITEMS - owned.size).coerceAtLeast(0)
+        val remaining = remainingHomeCapacity(characterId)
         return buildString {
             append("【真实世界资源与可行性】本人家中固定物品=${owned.size}/$MAX_HOME_ITEMS；")
             append("尚有$remaining 个可用物品位置；")
