@@ -12,6 +12,22 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class OfflineStickerAssetsTest {
+    @Test fun missingStickerFilesCannotBeReportedAsActuallySent() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val file = java.io.File(context.cacheDir, "lulu-sticker-readability-test.png")
+        file.writeBytes(byteArrayOf(137.toByte(), 80, 78, 71))
+        val sticker = LuluSticker("readability-test",
+            android.net.Uri.fromFile(file).toString(), "测试表情")
+        try {
+            assertTrue(StickerLibraryStore.canActuallySend(context, sticker))
+        } finally {
+            file.delete()
+        }
+        assertFalse(StickerLibraryStore.canActuallySend(context, sticker))
+        assertFalse(StickerLibraryStore.canActuallySend(context,
+            sticker.copy(uri = "file:///nonexistent/sticker.png")))
+    }
+
     @Test fun allCuratedDescriptionsCorrespondToActualBundledSvgFiles() {
         val app = RuntimeEnvironment.getApplication()
         val ids = mutableSetOf<String>()
