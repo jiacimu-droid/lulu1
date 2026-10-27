@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5de783cfa74d8ccf3e5a6139c7ecd8db232370a2`
+- 基准提交：`ce6951cad0dfb907428377927a2bd37f0ca747ba`
 - 分支：`main`
-- 已索引文件：990
-- 已索引代码/文本行：194863
-- 已发现符号：2894
+- 已索引文件：991
+- 已索引代码/文本行：194911
+- 已发现符号：2895
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -327,7 +327,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 673 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 315 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 882 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 889 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 87 | 3 |
@@ -784,6 +784,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 105 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 104 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 112 | 1 |
