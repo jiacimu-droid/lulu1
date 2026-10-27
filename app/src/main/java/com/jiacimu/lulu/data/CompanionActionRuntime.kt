@@ -1506,7 +1506,7 @@ internal object XhsRoleShare {
         return noteFromEvidence(selected, characterId)
     }
 
-    fun deliver(
+    suspend fun deliver(
         characterId: String, args: JSONObject, conversation: LuluConversation, replyIds: Set<String>,
     ): CompanionActionResult {
         require(!characterId.startsWith("resident:")) { "数字世界原住民没有现实小红书阅读权限" }
