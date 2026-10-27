@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:40:32.417278+00:00",
-  "commit": "674c6f4231b7eb6f0b34d14e3c04afe4978b69da",
+  "generatedAt": "2026-10-27T18:40:57.988881+00:00",
+  "commit": "47359a3895cd309c1d97ed0a2c3808a147d69558",
   "branch": "main",
-  "sourceFingerprint": "5862b8019b5f0f75db5ff6de8743aeef69729bbf1cfb1c22a4cfacf052dcbcf1",
+  "sourceFingerprint": "74bb15d0ab8c9bca3a345cfb1d24f95380b14f26a8e25a73d8ba11c72439a9fc",
   "summary": {
     "files": 993,
-    "lines": 196253,
+    "lines": 196266,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -19427,14 +19427,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt",
-      "lines": 128,
-      "sha256": "71e7db21e7355b89bb2c49b205df752e1c908f5adad60ba000ffcfd30d2b171b",
+      "lines": 130,
+      "sha256": "a201ceef59e5f7ff55466355afc89780b1b7bc1fe4cd0fa7501ff75e7d60e26d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt",
-      "lines": 178,
-      "sha256": "88633e9b78b1da443b1f114c02d5db388b54748ea10e46b70db8a8a1766ce3a5",
+      "lines": 189,
+      "sha256": "5040fa11af6a8b4bc350b7420876359d2a6e6cca74522ebc1b26a7490b4a0364",
       "symbols": []
     },
     {
