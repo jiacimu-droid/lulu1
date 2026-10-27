@@ -1526,8 +1526,14 @@ internal object LuluVoiceCallSession {
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
-            val archiveId = library.archiveIdFor(ModelUsage.VoiceCall)
-                ?: if (autonomousSilence) library.archiveIdFor(ModelUsage.Chat) else null
+            // Sleep-mode turns resolve the dedicated sleep model when one
+            // is chosen, and fall back to the chat model otherwise, so a
+            // sleep call never needs hanging up and redialling to change
+            // models. Leaving sleep mode returns to the call model by the
+            // same condition, with no redial and no lost call context.
+            val archiveId = library.archiveIdFor(
+                if (mutableState.value.sleepMode) ModelUsage.Sleep else ModelUsage.VoiceCall,
+            ) ?: if (autonomousSilence) library.archiveIdFor(ModelUsage.Chat) else null
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null && !(opening && latest.incomingReason.isNotBlank())) {
                 replyIsSilence = false

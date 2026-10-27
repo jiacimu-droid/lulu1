@@ -43,6 +43,8 @@ enum class ModelUsage {
     Chat,
     VoiceCall,
     Game,
+    /** Dedicated sleep-guidance model for phone calls in sleep mode. */
+    Sleep,
 }
 
 /**
@@ -68,6 +70,8 @@ data class ModelLibraryState(
     val chatArchiveId: String? = null,
     val voiceCallArchiveId: String? = null,
     val gameArchiveId: String? = null,
+    /** Chosen sleep model; null means sleep follows the chat model, as before. */
+    val sleepArchiveId: String? = null,
     val voiceCallFollowsChat: Boolean = true,
 )
 
@@ -81,6 +85,9 @@ fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? {
     // phone choices remain readable for old backups but never override chat.
     ModelUsage.VoiceCall -> chatArchiveId
     ModelUsage.Game -> gameArchiveId
+    // Sleep has its own slot when the user picks one; otherwise it follows
+    // chat, which is exactly what sleep calls did before this slot existed.
+    ModelUsage.Sleep -> sleepArchiveId ?: chatArchiveId
     }?.takeIf { candidate -> compatible.any { it.id == candidate } }
         ?: activeArchiveId?.takeIf { candidate -> compatible.any { it.id == candidate } }
         ?: compatible.firstOrNull()?.id
@@ -167,6 +174,7 @@ class ModelConnectionStore private constructor(context: Context) {
                 chatArchiveId = current.chatArchiveId?.takeUnless { it in removedArchiveIds },
                 voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it in removedArchiveIds },
                 gameArchiveId = current.gameArchiveId?.takeUnless { it in removedArchiveIds },
+                sleepArchiveId = current.sleepArchiveId?.takeUnless { it in removedArchiveIds },
             ),
         )
     }
@@ -204,6 +212,7 @@ class ModelConnectionStore private constructor(context: Context) {
                 chatArchiveId = current.chatArchiveId?.takeUnless { it == id },
                 voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it == id },
                 gameArchiveId = current.gameArchiveId?.takeUnless { it == id },
+                sleepArchiveId = current.sleepArchiveId?.takeUnless { it == id },
             ),
         )
     }
@@ -221,6 +230,7 @@ class ModelConnectionStore private constructor(context: Context) {
                 ModelUsage.Chat -> current.copy(chatArchiveId = id)
                 ModelUsage.VoiceCall -> current.copy(chatArchiveId = id, voiceCallArchiveId = id, voiceCallFollowsChat = true)
                 ModelUsage.Game -> current.copy(gameArchiveId = id)
+                ModelUsage.Sleep -> current.copy(sleepArchiveId = id)
             },
         )
     }
@@ -317,6 +327,7 @@ class ModelConnectionStore private constructor(context: Context) {
         .put("voiceCallArchiveId", state.voiceCallArchiveId ?: JSONObject.NULL)
         .put("voiceCallFollowsChat", state.voiceCallFollowsChat)
         .put("gameArchiveId", state.gameArchiveId ?: JSONObject.NULL)
+        .put("sleepArchiveId", state.sleepArchiveId ?: JSONObject.NULL)
 
     private fun decode(root: JSONObject): ModelLibraryState {
         val configurations = buildList {
@@ -361,6 +372,7 @@ class ModelConnectionStore private constructor(context: Context) {
             voiceCallArchiveId = root.optString("voiceCallArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
             voiceCallFollowsChat = root.optBoolean("voiceCallFollowsChat", true),
             gameArchiveId = root.optString("gameArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
+            sleepArchiveId = root.optString("sleepArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
         )
     }
 
