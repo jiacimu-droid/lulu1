@@ -41,6 +41,50 @@ internal object DigitalLifeDriveContext {
             event.occurredAt <= now &&
                 (event.channel.contains("角色自主") || event.channel.contains("数字世界见面") || event.channel.contains("共同经历"))
         }?.occurredAt
+        // Phase 1 drive inputs: curiosity counts every real exploration
+        // avenue, not only books and going out. Any real tool execution
+        // (web search, image search, Xiaohongshu, and so on) counts, as
+        // does learning something new about the user.
+        val lastToolUse = events.asReversed().firstOrNull { event ->
+            event.channel == "实际工具执行" || event.channel == "小红书阅读"
+        }?.occurredAt
+        val explorationCandidates = listOf(
+            lastReading to "看书",
+            lastWorldAction to "出门逛",
+            lastRealityWindow to "看现实窗口",
+            lastToolUse to "用工具查/看",
+        ).filter { it.first != null }
+        val lastExploration = explorationCandidates.maxByOrNull { it.first!! }?.first
+        val explorationLabel = explorationCandidates.maxByOrNull { it.first!! }?.second ?: "探索"
+        val lastUserInfo = events.asReversed().firstOrNull { event ->
+            event.speaker != displayName &&
+                (event.channel == "私聊" || event.channel.contains("朋友圈"))
+        }?.occurredAt
+        val recentInteractions = events.count { event ->
+            !event.occurredAt.isBefore(now.minus(Duration.ofHours(1))) &&
+                (event.channel == "私聊" || event.channel.contains("电话"))
+        }
+        val innerSnapshot = runCatching { CharacterInnerLifeStore.snapshot(characterId) }.getOrNull()
+        val openConcernCount = innerSnapshot?.optJSONArray("openConcerns")?.length() ?: 0
+        val waitingFeedbackCount = (0 until (innerSnapshot?.optJSONArray("motives")?.length() ?: 0)).count { i ->
+            innerSnapshot?.optJSONArray("motives")?.optJSONObject(i)?.optString("status") == "waiting_feedback"
+        }
+        val unspokenThoughtCount = innerSnapshot?.optJSONArray("thoughts")?.length() ?: 0
+        val unclosedTaskCount = runCatching { CommitmentTaskStore.active(characterId).size }.getOrDefault(0)
+        val shanghaiHour = now.atZone(java.time.ZoneId.of("Asia/Shanghai")).hour
+        val driveInput = DriveInput(
+            // Most recent social contact satisfies affiliation best.
+            socialGapHours = minOf(gapHours(lastPrivate), gapHours(lastCall), gapHours(lastGroup)),
+            explorationGapHours = gapHours(lastExploration),
+            explorationLabel = explorationLabel,
+            userInfoGapHours = gapHours(lastUserInfo),
+            gameGapHours = gapHours(lastGame),
+            journalGapHours = gapHours(lastJournal),
+            openItems = openConcernCount + waitingFeedbackCount + unclosedTaskCount,
+            unspokenThoughts = unspokenThoughtCount,
+            recentInteractions = recentInteractions,
+            shanghaiHour = shanghaiHour,
+        )
 
         fun gapHours(last: Instant?): Long = Duration.between(last ?: birth, now).toHours().coerceAtLeast(0)
         fun ageLabel(last: Instant?): String {
@@ -85,6 +129,11 @@ internal object DigitalLifeDriveContext {
                 appendLine("- 当前可能自然冒出来、但完全不强制的生活冲动：")
                 softSignals.take(7).forEach { appendLine("  · $it") }
             }
+            // Phase 1 only: deliver the numeric snapshot beside the soft
+            // text above. It changes no decision, sends nothing, and creates
+            // no motive; the model may ignore it entirely.
+            appendLine()
+            appendLine(DriveState.render(DriveState.snapshot(driveInput)))
         }.trim()
     }
 }
