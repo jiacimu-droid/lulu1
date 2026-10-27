@@ -263,11 +263,42 @@ internal fun SelfTodoScreen(
     }
 
     val pending = remember(tasks, today) { SelfTodoCalendar.allPending(tasks, today) }
-    val visiblePending = (pending + exiting.values).distinctBy { it.task.id + "@" + it.date }
-        .sortedWith(compareBy<TodoOccurrence> { it.date }
-            .thenBy { it.task.minutes ?: Int.MAX_VALUE }
-            .thenBy { it.task.createdAt }
-            .thenBy { it.task.id })
+    // Sorted once per task/today/exiting change, not on every recomposition.
+    // Row callbacks are stabilized for the same reason: per-item lambdas
+    // recreated on every composition force every visible row to recompose
+    // whenever the screen recomposes for any reason, which is what makes
+    // scrolling stutter even though each card itself is light. These keep
+    // their identity until the data they actually use changes, so rows can
+    // skip recomposition while scrolling.
+    val visiblePending = remember(pending, exiting) {
+        (pending + exiting.values).distinctBy { it.task.id + "@" + it.date }
+            .sortedWith(compareBy<TodoOccurrence> { it.date }
+                .thenBy { it.task.minutes ?: Int.MAX_VALUE }
+                .thenBy { it.task.createdAt }
+                .thenBy { it.task.id })
+    }
+    val onEditRow: (TodoOccurrence) -> Unit = remember {
+        { occurrence -> editing = occurrence.task; showEditor = true }
+    }
+    val onCompleteRow: (TodoOccurrence) -> Boolean = remember(tasks, exiting) {
+        { occurrence ->
+            val success = save(tasks.map { current ->
+                if (current.id == occurrence.task.id) {
+                    SelfTodoCalendar.complete(
+                        current, occurrence.date, System.currentTimeMillis(),
+                    )
+                } else current
+            })
+            if (success) {
+                val key = occurrence.task.id + "@" + occurrence.date
+                exiting = exiting + (key to occurrence)
+            }
+            success
+        }
+    }
+    val onFadedRow: (TodoOccurrence) -> Unit = remember(exiting) {
+        { occurrence -> exiting = exiting - (occurrence.task.id + "@" + occurrence.date) }
+    }
     val completed = remember(tasks) {
         tasks.flatMap { task -> task.completions.map { task to it } }
             .sortedByDescending { it.second.completedAt }
@@ -311,49 +342,33 @@ internal fun SelfTodoScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (error.isNotBlank()) {
-                item(key = "todo_error") {
+                item(key = "todo_error", contentType = { "error" }) {
                     Text(error, color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(8.dp))
                 }
             }
             if (!showingHistory) {
-                item(key = "todo_heading") {
+                item(key = "todo_heading", contentType = { "heading" }) {
                     TodoListHeading("待办清单", pending.size.toString() + " 件未完成")
                 }
                 if (visiblePending.isEmpty()) {
-                    item(key = "todo_empty") {
+                    item(key = "todo_empty", contentType = { "empty" }) {
                         TodoEmptyState(history = false) {
                             editing = null
                             showEditor = true
                         }
                     }
                 } else {
-                    items(visiblePending, key = { it.task.id + "@" + it.date }) { occurrence ->
+                    items(visiblePending, key = { it.task.id + "@" + it.date },
+                        contentType = { "pending" }) { occurrence ->
                         TodoPendingRow(
                             occurrence = occurrence, today = today,
-                            onEdit = { editing = occurrence.task; showEditor = true },
-                            onComplete = {
-                                val success = save(tasks.map { current ->
-                                    if (current.id == occurrence.task.id) {
-                                        SelfTodoCalendar.complete(
-                                            current, occurrence.date, System.currentTimeMillis(),
-                                        )
-                                    } else current
-                                })
-                                if (success) {
-                                    val key = occurrence.task.id + "@" + occurrence.date
-                                    exiting = exiting + (key to occurrence)
-                                }
-                                success
-                            },
-                            onFaded = {
-                                exiting = exiting - (occurrence.task.id + "@" + occurrence.date)
-                            },
+                            onEdit = onEditRow, onComplete = onCompleteRow, onFaded = onFadedRow,
                         )
                     }
                 }
             } else {
-                item(key = "history_hero") {
+                item(key = "history_hero", contentType = { "hero" }) {
                     Surface(
                         shape = RoundedCornerShape(26.dp),
                         color = TodoInk.sageLight,
@@ -379,14 +394,15 @@ internal fun SelfTodoScreen(
                         }
                     }
                 }
-                item(key = "history_heading") {
+                item(key = "history_heading", contentType = { "heading" }) {
                     Spacer(Modifier.height(9.dp))
                     TodoListHeading("完成记录", completed.size.toString() + " 件")
                 }
                 if (completed.isEmpty()) {
-                    item(key = "history_empty") { TodoEmptyState(history = true) }
+                    item(key = "history_empty", contentType = { "empty" }) { TodoEmptyState(history = true) }
                 } else {
-                    items(completed, key = { (task, log) -> task.id + "@" + log.date }) {
+                    items(completed, key = { (task, log) -> task.id + "@" + log.date },
+                        contentType = { "history" }) {
                         (task, log) ->
                         TodoHistoryCard(
                             task = task, completion = log,
@@ -442,15 +458,15 @@ internal fun SelfTodoScreen(
 private fun TodoPendingRow(
     occurrence: TodoOccurrence,
     today: LocalDate,
-    onEdit: () -> Unit,
-    onComplete: () -> Boolean,
-    onFaded: () -> Unit,
+    onEdit: (TodoOccurrence) -> Unit,
+    onComplete: (TodoOccurrence) -> Boolean,
+    onFaded: (TodoOccurrence) -> Unit,
 ) {
     var hiding by remember(occurrence.task.id, occurrence.date) { mutableStateOf(false) }
     LaunchedEffect(hiding) {
         if (hiding) {
             delay(230L)
-            onFaded()
+            onFaded(occurrence)
         }
     }
     AnimatedVisibility(
@@ -459,8 +475,8 @@ private fun TodoPendingRow(
     ) {
         TodoTaskCard(
             occurrence = occurrence, today = today, checked = hiding,
-            onCheck = { if (!hiding && onComplete()) hiding = true },
-            onEdit = onEdit,
+            onCheck = { if (!hiding && onComplete(occurrence)) hiding = true },
+            onEdit = { onEdit(occurrence) },
         )
     }
 }
