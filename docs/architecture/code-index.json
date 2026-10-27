@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:20:32.341860+00:00",
-  "commit": "4ca479c9b88fcc80d13be06fc57efbef481511bc",
+  "generatedAt": "2026-10-27T19:21:00.249855+00:00",
+  "commit": "0782f6966d0c6ec84134045fc8ea9d35feffb1e9",
   "branch": "main",
-  "sourceFingerprint": "d2cd070e2e3072b7a026f015e1e8bf401fc7d6c6d43b20b74decc00a9625b397",
+  "sourceFingerprint": "ccf42c7d176e511aba3e4da4ac2b5577ea4709abe4a62c9392423e94e15b7fdb",
   "summary": {
     "files": 993,
-    "lines": 196647,
+    "lines": 196669,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -32250,8 +32250,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-      "lines": 196,
-      "sha256": "63e825daec6a091d18338bb72fbef7b83b0af43bcdb972215ac490c4c792db9d",
+      "lines": 218,
+      "sha256": "f1abd4d95c6f012ee7e349d4f3bd8880c84bb100bfc12e96dbc2277934af5a19",
       "symbols": [
         {
           "name": "CharacterLearningLedgerTest",
