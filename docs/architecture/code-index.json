@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:12:09.976264+00:00",
-  "commit": "566b8c572663860bce09c856947f17c60047b8cb",
+  "generatedAt": "2026-10-27T18:12:39.957741+00:00",
+  "commit": "46c4dc605ae50c97d4dfbcba6d09cbf94de0f29c",
   "branch": "main",
-  "sourceFingerprint": "6ef6906a626f07d395b2df786e5d45eb0697d657fc43e22536ceda0c8132827b",
+  "sourceFingerprint": "550283e26878f727890f1b8f5b1b5d61a42257f2310cf6d8cd03b8cf8116e43c",
   "summary": {
     "files": 991,
-    "lines": 195745,
+    "lines": 195746,
     "symbols": 2905
   },
   "symbolIndex": {
@@ -1811,7 +1811,7 @@
     "toggleSelfCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-        "line": 195
+        "line": 196
       }
     ],
     "isBackdropPixel": [
@@ -16329,7 +16329,7 @@
     {
       "path": "app/src/main/assets/live2d/stage.html",
       "lines": 17,
-      "sha256": "26bf2a4a3c286ae1724b8a4d12c32617f3e0b55616ea721b08fce1bd1c7408d6",
+      "sha256": "191e488d29e3db294137d41313a4e6817b9cfdab7df65b730b502c818262c13f",
       "symbols": []
     },
     {
@@ -17731,7 +17731,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
       "lines": 894,
-      "sha256": "99d5a3f4ca20f74e295b0ae8e11840951ba673cd0b2465d35ff1be727afe614e",
+      "sha256": "547f1a59c8bd834e846dc95030b46333c3accd9e1f9767c7d168c1a38dbe57a9",
       "symbols": [
         {
           "name": "send",
@@ -17816,12 +17816,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 984,
-      "sha256": "6be9ddce8b4b3a7473ae37d40dd0b53188a053457d0a379c0b5e255039c8708e",
+      "lines": 985,
+      "sha256": "4176515964e4dc1f93d560d20519e70efd1df8c397b93c8badd0c8d565bd84a6",
       "symbols": [
         {
           "name": "toggleSelfCamera",
-          "line": 195
+          "line": 196
         }
       ]
     },
