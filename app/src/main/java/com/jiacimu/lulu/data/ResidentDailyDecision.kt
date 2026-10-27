@@ -284,6 +284,7 @@ internal object ResidentDailyDecision {
                 私信必须是真实认识的人，面对面互动必须实际同场；对方没有回答不算聊过，去过地点不等于已经见面。
                 行动后由工具留下独立真实回执，禁止自行宣告结果或替另一人说话。
                 一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
+                最近真见过面但还未加好友的人，可考虑 send_friend_request；已有待处理申请就不要重复发，别人有权拒绝。也可用 digital_world_action 的 go_home/build_home_item 在家布置自己的家具，选择应来自本人此刻兴趣且必须满足世界实际位置与物品容量。
                 原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action","args":{}}]。
                 如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
                 每步可填写 requiresPreviousSuccess=true|false；true 仅在前一步有实际成功回执后才执行，false 为独立行动。首个附加步骤若选true，需原计划本轮已执行成功；改期、取消、等待不算原活动执行成功。每步可带原有 motiveId/concernId/experienceId，分别关联真实结果。
@@ -500,7 +501,20 @@ internal object ResidentDailyDecision {
         unread: List<MomentPost> = CharacterPhoneInbox.unreadMoments(
             ResidentCharacterBridge.characterId(native.id))): String {
         val id = ResidentCharacterBridge.characterId(native.id)
-        val facts = context(native, at, pending) + "\n" +
+        // The native resident location and the character's home-item ledger
+        // are already shared authoritative world state. Surface the *current*
+        // home capacity and object IDs in this same daily decision, rather
+        // than mentioning furniture only in a rarely reached generic tool list.
+        val housing = DigitalWorldStore.resourceContext(id)
+        val possessions = DigitalWorldStore.itemsAtHome(id).take(12)
+            .joinToString("\n") { "- itemId=${it.id}；${it.name}；位置=${it.position}" }
+        val homeOptions = buildString {
+            appendLine("【本人家中的真实陈设｜可自行考虑，但不是每日必须做】")
+            appendLine(housing)
+            if (possessions.isNotBlank()) appendLine(possessions)
+            appendLine("想回家整理可选 digital_world_action，args.worldAction=go_home；确实在自己家且有空位时可选 worldAction=build_home_item，填写自己想要的 itemType/name/appearance/position。调整已有家具用 move_home_item 与真实 itemId/position；无法在咖啡厅凭空布置家中。执行结果才是家具已存在的依据。")
+        }
+        val facts = context(native, at, pending) + "\n" + homeOptions + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
             CharacterPhoneInbox.requestContext(id) + "\n" +
             appContext?.let { wakeToolContext(CompanionActionRuntime.capabilityContext(it, id)) }.orEmpty()
@@ -566,12 +580,13 @@ internal object ResidentDailyDecision {
                 这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
                 注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
                 更重要的是：你活在有人际交往的真实小世界里。想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊、组织自己认识的好友建群或结识新朋友，都可以成为具体行程；不是每天只有喝水和独处。
+                见过面但尚未成为好友的人，不等于已经发出了申请。今天若确实想继续来往，可以从上文真实认识且没有待处理申请的 targetCharacterId 自主选择 steps 中的 send_friend_request；对方仍可以拒绝，也可以彼此保持普通熟人。已收到申请则由你决定 respond_friend_request，不允许替对方同意。
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
                 agenda 中每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：send_character_message（只限上文已认识的真实ID，targetCharacterId 与 args.targetCharacterId 一致）；digital_world_action（visit_public_place，args.worldAction 与 locationCode 用真实公共地点码；或已同场时 interact_resident，args.itemId 为真实居民ID）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                可用：send_character_message（只限上文已认识的真实ID，targetCharacterId 与 args.targetCharacterId 一致）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident，真实 itemId；也可 go_home 返回自己家，真实在家且还有空位时 build_home_item，args.itemType/name/appearance/position 均由自己选择，绝不凭空完成）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
                 仅输出 JSON，不能替别人发言：
                 {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
