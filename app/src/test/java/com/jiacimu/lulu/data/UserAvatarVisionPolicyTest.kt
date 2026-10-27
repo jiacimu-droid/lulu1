@@ -1,27 +1,23 @@
 package com.jiacimu.lulu.data
 
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class UserAvatarVisionPolicyTest {
-    @Test fun onlyTheNewestSavedAvatarCanProduceAnObservation() {
-        assertTrue(UserAvatarVision.stillCurrent("content://new", "new-revision",
-            "content://new", "new-revision"))
-        assertFalse(UserAvatarVision.stillCurrent("content://new", "new-revision",
-            "content://old", "old-revision"))
-        assertFalse(UserAvatarVision.stillCurrent("content://new", "new-revision",
-            "content://new", "old-revision"))
-        assertFalse(UserAvatarVision.stillCurrent("", "deleted-revision",
-            "content://old", "old-revision"))
+    @Test fun previousAvatarIsNotCurrentAfterTheNextEdit() {
+        assertTrue(UserAvatarVision.stillCurrent("content://new", "r2", "content://new", "r2"))
+        assertFalse(UserAvatarVision.stillCurrent("content://new", "r2", "content://old", "r1"))
+        assertFalse(UserAvatarVision.stillCurrent("content://new", "r2", "content://new", "r1"))
+        assertFalse(UserAvatarVision.stillCurrent(null, "r3", "content://new", "r2"))
     }
 
-    @Test fun anActualNonemptyVisualResponseIsRequiredBeforeClaimingToSeeTheAvatar() {
-        assertNull(UserAvatarVision.successEvidence("   "))
-        assertTrue(UserAvatarVision.successEvidence("蓝色天空下的小猫")
-            ?.contains("蓝色天空下的小猫") == true)
-        assertFalse(UserAvatarVision.failureEvidence("视觉服务请求失败")
-            .contains("已实际读取"))
+    @Test fun actualPixelsAreAttachedToAnExistingDecisionWithoutForcedCommentary() {
+        val observation = UserAvatarVision.Attachment(
+            "revision", "content://photo", "data:image/jpeg;base64,YWJj",
+        )
+        assertTrue(observation.dataUrl.startsWith("data:image/jpeg;base64,"))
+        assertTrue(observation.promptNote.contains("avatarObservation"))
+        assertTrue(observation.promptNote.contains("由你自己决定"))
     }
 }
