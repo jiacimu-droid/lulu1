@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:10:53.599654+00:00",
-  "commit": "89059b2f170fcd34bfeb59302d09dfe163cbc28f",
+  "generatedAt": "2026-10-27T18:12:09.976264+00:00",
+  "commit": "566b8c572663860bce09c856947f17c60047b8cb",
   "branch": "main",
-  "sourceFingerprint": "1cad249fccb48750ba64466f19f058516c82320f17ef015f0f3ba7d84e82b82d",
+  "sourceFingerprint": "6ef6906a626f07d395b2df786e5d45eb0697d657fc43e22536ceda0c8132827b",
   "summary": {
     "files": 991,
-    "lines": 195723,
-    "symbols": 2904
+    "lines": 195745,
+    "symbols": 2905
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1814,16 +1814,22 @@
         "line": 195
       }
     ],
+    "isBackdropPixel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
+        "line": 259
+      }
+    ],
     "hasCharacterPixels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-        "line": 252
+        "line": 272
       }
     ],
     "choose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-        "line": 270
+        "line": 292
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
@@ -17821,8 +17827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
-      "lines": 278,
-      "sha256": "8c7fca0038e6b6efc8b258c39a1fddab53f7cc25a4e2da48829aaf193392a54b",
+      "lines": 300,
+      "sha256": "3cc43547ca0f1b782400eb5377b69116681fe190fab1e3680e44a8adc54229d2",
       "symbols": [
         {
           "name": "start",
@@ -17833,12 +17839,16 @@
           "line": 223
         },
         {
+          "name": "isBackdropPixel",
+          "line": 259
+        },
+        {
           "name": "hasCharacterPixels",
-          "line": 252
+          "line": 272
         },
         {
           "name": "choose",
-          "line": 270
+          "line": 292
         }
       ]
     },
