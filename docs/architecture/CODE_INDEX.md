@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cfc1387d09b63dc155069a68159ad0f00d1a065f`
+- 基准提交：`a3d7085469b54a1ebf3c244f4d9bc0fbb95c33c5`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196033
+- 已索引代码/文本行：196075
 - 已发现符号：2908
 
 | 文件 | 行数 | 符号数 |
@@ -103,7 +103,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1516 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1527 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 743 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 640 | 5 |
@@ -778,7 +778,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 106 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 191 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 91 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 332 | 1 |
