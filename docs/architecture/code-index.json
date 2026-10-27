@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:29:37.622593+00:00",
-  "commit": "ca4c18618b0d60b5148cf722d610d259fc343aff",
+  "generatedAt": "2026-10-27T16:33:17.782486+00:00",
+  "commit": "b43ce966d1afb6d411c91b4508f46436b57010f6",
   "branch": "main",
-  "sourceFingerprint": "2a9b8a26414f42ea34d85eb9847680fc706cb6cffff734ddbde8bc56540a3fdb",
+  "sourceFingerprint": "c3c36bb1e08742ca9341a5f54b8cfb47a10cf399132fecec2ff2f1b15599f1e8",
   "summary": {
-    "files": 988,
-    "lines": 194665,
-    "symbols": 2889
+    "files": 989,
+    "lines": 194741,
+    "symbols": 2893
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10477,19 +10477,19 @@
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 182
+        "line": 186
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 216
+        "line": 220
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 242
+        "line": 246
       }
     ],
     "characterId": [
@@ -15418,6 +15418,30 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
         "line": 107
+      }
+    ],
+    "MemoryRecallGatingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt",
+        "line": 11
+      }
+    ],
+    "smallStoreSkipsGating": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt",
+        "line": 33
+      }
+    ],
+    "commonTermIsGatedButRareTermKept": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt",
+        "line": 41
+      }
+    ],
+    "allGatedFallsBackToOriginalTerms": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt",
+        "line": 52
       }
     ],
     "MemoryRecallIntegrationTest": [
@@ -26482,8 +26506,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 559,
-      "sha256": "a989fdcf151cbb043cb5e6e2dab8a539e994c3c592ee8ad12a092c57115ed76d",
+      "lines": 576,
+      "sha256": "3b5e7de2d645cdd5408f13448a5070d29f77f8223c8715ae683f90815fdee8d6",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -26495,15 +26519,15 @@
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 182
+          "line": 186
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 216
+          "line": 220
         },
         {
           "name": "formatForPrompt",
-          "line": 242
+          "line": 246
         }
       ]
     },
@@ -33212,6 +33236,29 @@
         {
           "name": "noteIsAtMostOneLine",
           "line": 107
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt",
+      "lines": 59,
+      "sha256": "04717f798de2fe8c7554af6c00a8606cc29a6bca6017f01e3772a538ccb81fe4",
+      "symbols": [
+        {
+          "name": "MemoryRecallGatingTest",
+          "line": 11
+        },
+        {
+          "name": "smallStoreSkipsGating",
+          "line": 33
+        },
+        {
+          "name": "commonTermIsGatedButRareTermKept",
+          "line": 41
+        },
+        {
+          "name": "allGatedFallsBackToOriginalTerms",
+          "line": 52
         }
       ]
     },
