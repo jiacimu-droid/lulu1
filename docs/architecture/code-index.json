@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T05:51:02.969445+00:00",
-  "commit": "db3b9051e947b87235e8f89c552b2b1ec1069ab5",
+  "generatedAt": "2026-10-27T05:56:37.626875+00:00",
+  "commit": "e8b9f56248d28955e8c434021833f74aaec713d5",
   "branch": "main",
-  "sourceFingerprint": "86b08d05205d2202945772b456a1eac7450827615a488f5faa98953378cfffd0",
+  "sourceFingerprint": "ee428b90b51f0c1be2cc3d89ba772e507eb04c8a24161b1ec265602035cf61f1",
   "summary": {
-    "files": 954,
-    "lines": 189560,
-    "symbols": 2784
+    "files": 955,
+    "lines": 189729,
+    "symbols": 2790
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1763
+        "line": 1781
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5689,7 +5689,7 @@
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1645
+        "line": 1658
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -6452,10 +6452,16 @@
         "line": 231
       }
     ],
+    "networkContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 277
+      }
+    ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 234
+        "line": 303
       }
     ],
     "collect": [
@@ -14394,6 +14400,36 @@
         "line": 14
       }
     ],
+    "CharacterSocialNetworkTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 28
+      }
+    ],
+    "pairLineSkipsUnconnectedPairs": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 31
+      }
+    ],
+    "pairLineReportsConnectionFactsWithoutScoresOrGroupNames": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 38
+      }
+    ],
+    "networkContextIsSilentWithoutConnections": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 52
+      }
+    ],
+    "compactContextStaysSilentWhenContactsAreUnconnected": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 61
+      }
+    ],
     "CharacterThoughtActionHandoffTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
@@ -20621,8 +20657,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1929,
-      "sha256": "faef94372747e742e75b7e569084b88aedcdd972180e26a63e4206c2fb7dea7c",
+      "lines": 1949,
+      "sha256": "bc583843e0dba722504a7cfb351d84e440588c3ad2a968475cace07fd81bff76",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20654,11 +20690,11 @@
         },
         {
           "name": "compactContext",
-          "line": 1645
+          "line": 1658
         },
         {
           "name": "context",
-          "line": 1763
+          "line": 1781
         }
       ]
     },
@@ -21412,8 +21448,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 263,
-      "sha256": "253a39c742f6ed6d9673f7ddbdea2af37b8488e6f2b95551818261d145f5dca2",
+      "lines": 332,
+      "sha256": "57696619489fae1f14056dead6a33356ae3fdd88eaeb931a01a6029420ecd891",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -21464,8 +21500,12 @@
           "line": 231
         },
         {
+          "name": "networkContext",
+          "line": 277
+        },
+        {
           "name": "contextForGroup",
-          "line": 234
+          "line": 303
         }
       ]
     },
@@ -31314,6 +31354,33 @@
         {
           "name": "CharacterSocialActionOpportunitiesTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+      "lines": 80,
+      "sha256": "0e908673edf54d11bcdcdf830412cec521d0adb2c895473880bbf3dec060944f",
+      "symbols": [
+        {
+          "name": "CharacterSocialNetworkTest",
+          "line": 28
+        },
+        {
+          "name": "pairLineSkipsUnconnectedPairs",
+          "line": 31
+        },
+        {
+          "name": "pairLineReportsConnectionFactsWithoutScoresOrGroupNames",
+          "line": 38
+        },
+        {
+          "name": "networkContextIsSilentWithoutConnections",
+          "line": 52
+        },
+        {
+          "name": "compactContextStaysSilentWhenContactsAreUnconnected",
+          "line": 61
         }
       ]
     },
