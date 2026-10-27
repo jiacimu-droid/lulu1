@@ -79,6 +79,37 @@ class AutonomousAffordanceContextTest {
             "某角色", DigitalWorldPublicPlaces.CAFE, "order_drink", "浮光咖啡角"))
     }
 
+    @Test fun furnitureOptionsAppearOnlyWhenActorIsActuallyHomeWithCapacity() {
+        val atHome = AutonomousAffordanceContext.render(
+            digital = true, location = "resident-home:homeowner",
+            books = emptyList(), groups = emptyList(),
+            atOwnHome = true, homeCapacityRemaining = 3,
+            homeFurniture = listOf("owned-chair-1" to "书桌旁的小椅子"),
+        )
+        assertTrue(atHome.contains("worldAction=build_home_item"))
+        assertTrue(atHome.contains("worldAction=move_home_item"))
+        assertTrue(atHome.contains("itemId=owned-chair-1"))
+        assertTrue(atHome.contains("3个可用位置"))
+        val full = AutonomousAffordanceContext.render(
+            digital = true, location = "resident-home:full",
+            books = emptyList(), groups = emptyList(),
+            atOwnHome = true, homeCapacityRemaining = 0,
+        )
+        assertFalse(full.contains("worldAction=build_home_item"))
+        val away = AutonomousAffordanceContext.render(
+            digital = true, location = DigitalWorldPublicPlaces.CAFE,
+            books = emptyList(), groups = emptyList(),
+            homeCapacityRemaining = 3,
+        )
+        assertFalse(away.contains("worldAction=build_home_item"))
+        assertTrue(away.contains("worldAction=go_home"))
+        val nonDigital = AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+            atOwnHome = true, homeCapacityRemaining = 3,
+        )
+        assertFalse(nonDigital.contains("worldAction=build_home_item"))
+    }
+
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
         val text = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
