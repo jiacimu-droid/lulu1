@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6ce3f500ecd17430158566d0f5e8cded2b8be0f1`
+- 基准提交：`1dbcc5047a2e5e63aa17b863d739bc48fe183671`
 - 分支：`main`
 - 已索引文件：954
-- 已索引代码/文本行：189330
-- 已发现符号：2780
+- 已索引代码/文本行：189374
+- 已发现符号：2781
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -180,7 +180,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 308 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 77 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 412 | 1 |
@@ -249,7 +249,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1244 | 27 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1251 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
