@@ -124,6 +124,7 @@ data class ModelReply(
 )
 
 class ModelConnectionStore private constructor(context: Context) {
+    internal val appContext = context.applicationContext
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
     val library: StateFlow<ModelLibraryState> = mutable.asStateFlow()
@@ -511,6 +512,13 @@ class CompanionModelGateway(
             val connection = ScopedModelSelections.expressionConnection(source, contextMode, connectionStore)
                 ?: connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             require(!connection.model.startsWith("jev-")) { "Jev是思路参考模型，不能生成台词；请为聊天/表达选择文字模型" }
+            // Reuse the selected multimodal chat model (e.g. Gemini); never
+            // start another API request just to identify the owner's avatar.
+            val ownerAvatar = if (source in setOf("后台主动感知", "聊天工具规划", "电话回复"))
+                com.jiacimu.lulu.data.UserAvatarVision.prepare(
+                    connectionStore.appContext, characterId, imageDataUrls.size)
+            else null
+            val imagesForThisTurn = imageDataUrls + listOfNotNull(ownerAvatar?.dataUrl)
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
             val recallQuery = "$facts\n$instruction"
@@ -640,6 +648,7 @@ class CompanionModelGateway(
                     appendLine("身份、人设、关系是你的内在依据，不是每轮要说出口的内容；对方已经知道你是谁，不要自我介绍、不要总结自己的人设、不要向对方汇报自己是什么角色，除非对方直接问你是谁。")
                 }
                 appendLine("本次任务：$instruction")
+                if (ownerAvatar != null) appendLine(ownerAvatar.promptNote)
             }.trim()
             val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "身份与背景事实（客观层）：\n$it" }.orEmpty()
             val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let {
@@ -770,7 +779,7 @@ class CompanionModelGateway(
             // instruction and prior messages. An image is recorded separately, not
             // incorrectly estimated as if its base64 bytes were ordinary prose.
             val fullAudit = PromptInputAudit.inspect(
-                systemSections, systemPrompt, userPrompt, dialogueHistory, imageDataUrls,
+                systemSections, systemPrompt, userPrompt, dialogueHistory, imagesForThisTurn,
                 instruction = instruction,
             )
             val promptMillis = elapsedMillis(promptStartedAt)
@@ -779,14 +788,14 @@ class CompanionModelGateway(
             // and single-character decision. No second semantic planner, no
             // new role identity, no fake reply or action is introduced.
             val originalBytes = RelayRequestPressurePolicy.payloadBytes(
-                systemPrompt, userPrompt, dialogueHistory, imageDataUrls)
+                systemPrompt, userPrompt, dialogueHistory, imagesForThisTurn)
             val reducedSystem = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactSections(systemSections) else ""
             val reducedHistory = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactHistory(dialogueHistory) else emptyList()
             val reducedBytes = if (reducedSystem.isNotBlank())
                 RelayRequestPressurePolicy.payloadBytes(
-                    reducedSystem, userPrompt, reducedHistory, imageDataUrls) else originalBytes
+                    reducedSystem, userPrompt, reducedHistory, imagesForThisTurn) else originalBytes
             val reductionAvailable = RelayRequestPressurePolicy.savesEnough(originalBytes, reducedBytes)
             var sentReduced = reductionAvailable &&
                 RelayRequestPressurePolicy.shouldCompactBeforeSend(source, originalBytes)
@@ -800,7 +809,7 @@ class CompanionModelGateway(
                     streamResponse = streamResponse,
                     readTimeoutMillis = readTimeoutMillis,
                     onStreamText = onStreamText,
-                    imageDataUrls = imageDataUrls,
+                    imageDataUrls = imagesForThisTurn,
                     conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it },
                 )
@@ -812,7 +821,7 @@ class CompanionModelGateway(
                     val measured = sentRequestBodyBytes.takeIf { it > 0L }
                         ?.let { "；本次实际发送约${it / 1024}KB" }.orEmpty()
                     throw ModelHttpException(413, error.message.orEmpty() +
-                        measured + "；含${imageDataUrls.size}张输入图片")
+                        measured + "；含${imagesForThisTurn.size}张输入图片")
                 }
                 if (sentReduced || !reductionAvailable ||
                     !RelayRequestPressurePolicy.canRecover(source) ||
@@ -833,7 +842,7 @@ class CompanionModelGateway(
                     streamResponse = streamResponse,
                     readTimeoutMillis = readTimeoutMillis,
                     onStreamText = onStreamText,
-                    imageDataUrls = imageDataUrls, // never quietly pretend to have seen omitted photos
+                    imageDataUrls = imagesForThisTurn, // never quietly pretend to have seen omitted photos
                     conversationHistory = reducedHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it },
                 )
@@ -843,6 +852,11 @@ class CompanionModelGateway(
                 CompanionPresenceStore.recordPerceptionAttempt(characterId,
                     "Relay 请求负载保护 · 已使用精简上下文成功完成模型请求（约" +
                         "${originalBytes / 1024}KB → ${reducedBytes / 1024}KB）")
+            }
+            if (ownerAvatar != null) {
+                com.jiacimu.lulu.data.UserAvatarVision.observeModelResponse(
+                    connectionStore.appContext, characterId, ownerAvatar, reply.text,
+                )
             }
             // Record only after the request returned a valid model reply. The audit
             // reflects the exact core IDs included in this outgoing system prompt,
@@ -856,7 +870,7 @@ class CompanionModelGateway(
             val totalMillis = elapsedMillis(totalStartedAt)
             val actualAudit = if (sentReduced) PromptInputAudit.inspect(
                 listOf("Relay精简后系统上下文" to reducedSystem),
-                reducedSystem, userPrompt, reducedHistory, imageDataUrls, reduced = true,
+                reducedSystem, userPrompt, reducedHistory, imagesForThisTurn, reduced = true,
             ) else fullAudit
             LuluRepositories.performance.recordGeneration(
                 source = source,
