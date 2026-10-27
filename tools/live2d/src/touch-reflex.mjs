@@ -324,6 +324,8 @@ export function touchCompanionOverlayFor(primary, names = [], metadata = {}, ges
   const id = String(extra?.Id || '')
   const value = Number(extra?.Value)
   if (!/^[A-Za-z][A-Za-z0-9_]{0,60}$/.test(id) ||
+      // A single-channel blush must not wink over automatic star eyes.
+      /^ParamEye(?:[LR](?:Open|Smile|Squint)|BallForm)$/.test(id) ||
       primaryParams.some(p => p.Id === id) || extra.Blend !== 'Add' ||
       !Number.isFinite(value) || value <= 0 || value > 1) return null
   return { name: candidate, id, value: value * touchExpressionWeight(candidate, state) }

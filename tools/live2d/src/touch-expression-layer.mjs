@@ -32,16 +32,32 @@ export function createTouchExpressionLayer({ has, read, write }) {
       ['ParamEyeLSmile', 'ParamEyeRSmile'],
       ['ParamEyeLSquint', 'ParamEyeRSquint'],
     ]
-    const ids = new Set(parameters.map(p => p?.Id))
-    const unpairedEyeIds = new Set(eyePairs.flatMap(([left, right]) =>
-      ids.has(left) !== ids.has(right) ?
-        [ids.has(left) ? left : right] : []))
+    // Even a two-channel exp3 can encode a wink with unequal eye values.
+    // Only automatic touch uses these symmetric values; manually selected
+    // authored expressions retain their original asymmetric animation.
+    const unpairedEyeIds = new Set()
+    const pairedEyeValues = new Map()
+    for (const [left, right] of eyePairs) {
+      const l = parameters.find(p => p?.Id === left && p.Blend === 'Add' &&
+        Number.isFinite(p.Value))
+      const r = parameters.find(p => p?.Id === right && p.Blend === 'Add' &&
+        Number.isFinite(p.Value))
+      if (l && r) {
+        const common = (l.Value + r.Value) / 2
+        pairedEyeValues.set(left, common)
+        pairedEyeValues.set(right, common)
+      } else {
+        unpairedEyeIds.add(left)
+        unpairedEyeIds.add(right)
+      }
+    }
     for (const p of parameters) {
       if (p?.Blend !== 'Add' || !Number.isFinite(p.Value) ||
           unpairedEyeIds.has(p.Id) || !has(core, p.Id)) continue
       const base = read(core, p.Id)
+      const value = pairedEyeValues.get(p.Id) ?? p.Value
       if (Number.isFinite(base)) channels.push({ id: p.Id, base,
-        expression: name, value: p.Value, delta: p.Value * weight })
+        expression: name, value, delta: value * weight })
     }
     if (extra && has(core, extra.id) && !channels.some(c => c.id === extra.id)) {
       const base = read(core, extra.id)

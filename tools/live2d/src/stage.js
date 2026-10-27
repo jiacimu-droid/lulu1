@@ -1227,7 +1227,8 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
       normalizedX < 0 || normalizedX > 1 ||
       normalizedY < 0 || normalizedY > 1) {
     touchResponse.end()
-    if (options.phase === 'move') tactileGestureCancelled = true
+    // A background excursion ends this contact, but an uncancelled finger
+    // can re-enter the model later. Only an explicit OS cancel is terminal.
     tactileContact = null
     touchReflex = null
     return { hit: false }
@@ -1236,7 +1237,11 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
       'stroke-up', 'stroke-down', 'kiss', 'slap', 'slap-left', 'slap-right'].includes(gesture))
     return { hit: false }
   if (gesture === 'down') tactileGestureCancelled = false
-  else if (options.phase === 'complete' && tactileGestureCancelled)
+  else if (options.phase && tactileGestureCancelled) return { hit: false }
+  // Android UP only completes a verified DOWN/MOVE. A release over the
+  // avatar after a background DOWN cannot manufacture a kiss or strike.
+  // Legacy direct calls without a phase remain backward compatible.
+  if (options.phase === 'complete' && !tactileContact?.pressed)
     return { hit: false }
   const x = normalizedX * root.clientWidth
   const y = normalizedY * root.clientHeight
@@ -1254,7 +1259,8 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // A confirmed room/background sample remains a miss even in a saved zone.
   if (!completionRegion && actualAvatarPixel(normalizedX, normalizedY) === false) {
     touchResponse.end()
-    if (options.phase === 'move') tactileGestureCancelled = true
+    // A background excursion ends this contact, but an uncancelled finger
+    // can re-enter the model later. Only an explicit OS cancel is terminal.
     tactileContact = null
     touchReflex = null
     return { hit: false }
@@ -1272,7 +1278,8 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   })
   if (!region) {
     touchResponse.end()
-    if (options.phase === 'move') tactileGestureCancelled = true
+    // A background excursion ends this contact, but an uncancelled finger
+    // can re-enter the model later. Only an explicit OS cancel is terminal.
     tactileContact = null
     touchReflex = null
     return { hit: false }

@@ -260,6 +260,9 @@ assert.equal(extra.id, 'bq4')
 assert.ok(extra.value < 1)
 assert.equal(touchCompanionOverlayFor('爱心眼', wolf, {
   ...metadata, '爱心眼': exp3('bq4') }, 'kiss', high), null)
+assert.equal(touchCompanionOverlayFor('星星眼', wolf, {
+  ...metadata, '脸红': exp3('ParamEyeLOpen') }, 'kiss', high), null,
+  'a one-eye blush overlay must not wink over star eyes')
 
 // Real additive channels retain baseline, gain intensity gradually, release,
 // and never fabricate missing rig parameters or switch accessories.
@@ -298,6 +301,31 @@ assert.equal(layer.start({}, '兽耳', { '兽耳': exp3('qh_1') }, null, high, 5
   l.update({}, 1200)
   assert.equal(eyeVals.get('ParamEyeROpen'), 1)
   assert.equal(eyeVals.get('ParamEyeLOpen'), 1)
+  assert.ok(eyeVals.get('ParamCheekPuff') > 0)
+  l.clear({})
+  const unevenPair = { 星星: { Parameters: [
+    { Id: 'ParamEyeLOpen', Blend: 'Add', Value: -.8 },
+    { Id: 'ParamEyeROpen', Blend: 'Add', Value: -.2 },
+    { Id: 'ParamCheekPuff', Blend: 'Add', Value: .3 },
+  ] } }
+  assert.equal(l.start({}, '星星', unevenPair, null, { shyness: 80 }, 1500), true)
+  l.update({}, 1750)
+  assert.ok(eyeVals.get('ParamEyeLOpen') < 1)
+  assert.ok(Math.abs(eyeVals.get('ParamEyeLOpen') -
+    eyeVals.get('ParamEyeROpen')) < 1e-8,
+    'automatic paired exp3 cannot inherit an asymmetric wink')
+  l.clear({})
+  assert.equal(eyeVals.get('ParamEyeLOpen'), 1)
+  assert.equal(eyeVals.get('ParamEyeROpen'), 1)
+  const malformedPair = { 星星: { Parameters: [
+    { Id: 'ParamEyeLOpen', Blend: 'Add', Value: -.8 },
+    { Id: 'ParamEyeROpen', Blend: 'Multiply', Value: -.2 },
+    { Id: 'ParamCheekPuff', Blend: 'Add', Value: .3 },
+  ] } }
+  assert.equal(l.start({}, '星星', malformedPair, null, { shyness: 80 }, 2000), true)
+  l.update({}, 2300)
+  assert.equal(eyeVals.get('ParamEyeLOpen'), 1)
+  assert.equal(eyeVals.get('ParamEyeROpen'), 1)
   assert.ok(eyeVals.get('ParamCheekPuff') > 0)
   l.clear({})
 }
@@ -429,11 +457,39 @@ const phantomRelease = bridge.touch(.96, .235, 'kiss',
   { phase: 'complete', mode: 'kiss' })
 assert.equal(phantomRelease.hit, false, 'release without an active hit cannot touch background')
 bridge.actualAvatarPixel = () => true
+for (const mode of ['hand', 'pat', 'kiss']) {
+  const gesture = mode === 'pat' ? 'slap' : mode === 'kiss' ? 'kiss' : 'tap'
+  assert.equal(bridge.touch(.32, .235, gesture,
+    { phase: 'complete', mode }).hit, false,
+    mode + ': release without DOWN cannot invent a contact')
+}
+bridge.actualAvatarPixel = nx => nx < .5
+assert.equal(bridge.touch(.68, .235, 'down',
+  { phase: 'move', mode: 'kiss' }).hit, false)
+assert.equal(bridge.touch(.32, .235, 'kiss',
+  { phase: 'complete', mode: 'kiss' }).hit, false,
+  'background DOWN followed by avatar UP is not a real kiss')
+bridge.actualAvatarPixel = () => true
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand' })
+bridge.actualAvatarPixel = nx => nx < .5
+assert.equal(bridge.touch(.68, .235, 'stroke-right',
+  { phase: 'move', mode: 'hand' }).hit, false,
+  'leaving the avatar stops contact accumulation')
+bridge.actualAvatarPixel = () => true
+assert.equal(bridge.touch(.32, .235, 'stroke-left',
+  { phase: 'move', mode: 'hand' }).hit, true,
+  're-entering the avatar starts a new verified contact')
+assert.equal(bridge.touch(.32, .235, 'stroke-left',
+  { phase: 'complete', mode: 'hand' }).hit, true,
+  'a verified re-entry can finish normally')
 const beforeMiss = stageResponse.snapshot().impact
 bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
 assert.equal(stageResponse.snapshot().impact, beforeMiss)
 bridge.touch(.32, .235, 'cancel')
 assert.equal(bridge.tactileContact, null)
+assert.equal(bridge.touch(.32, .235, 'stroke-right',
+  { phase: 'move', mode: 'hand' }).hit, false,
+  'OS-cancelled pointer cannot resume without a fresh DOWN')
 assert.equal(bridge.touch(.32, .235, 'tap',
   { phase: 'complete', mode: 'hand' }).hit, false,
   'a cancelled Android pointer cannot return as a phantom release')
