@@ -1235,13 +1235,14 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const bounds = model.getBounds()
   const manualZone = calibratedRegion(
     (x - bounds.x) / bounds.width, (y - bounds.y) / bounds.height, touchCalibration)
-  // Anchor a completed palm sweep to the actual region hit on DOWN, not
-  // its release over the opposite cheek or empty pixels. No valid DOWN
-  // means no cached hit; regular model hit-testing still applies.
-  const impactRegion = options.phase === 'complete' && isImpact(gesture) &&
-    tactileContact?.pressed && isImpact(tactileContact.kind)
-    ? tactileContact.region : null
-  if (!impactRegion && !manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
+  // Release is the end of a verified, already active model contact.
+  // The last MOVE/press hit owns the body part, not the release coordinate:
+  // fast palm swipes, cheek caresses and kisses can finish over a blank
+  // background pixel without losing the real touch. A release with no
+  // accepted DOWN/MOVE still needs an actual fresh model hit.
+  const completionRegion = options.phase === 'complete' &&
+    tactileContact?.pressed ? tactileContact.region : null
+  if (!completionRegion && !manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
     touchResponse.end()
     if (tactileContact) tactileContact.pressed = false
     return { hit: false }
@@ -1249,7 +1250,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   let hits = []
   try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
-  const region = impactRegion || resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
+  const region = completionRegion || resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
     calibration: touchCalibration })
   if (!region) {
     touchResponse.end()
@@ -1267,7 +1268,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   }
   const downPoint = starting || !tactileContact
     ? { x, y } : tactileContact.downPoint
-  if (completed && isImpact(kind) && impactRegion && downPoint) {
+  if (completed && isImpact(kind) && completionRegion && downPoint) {
     const dx = x - downPoint.x
     const dy = y - downPoint.y
     // Android's final MOVE sample can point opposite the whole swipe.
