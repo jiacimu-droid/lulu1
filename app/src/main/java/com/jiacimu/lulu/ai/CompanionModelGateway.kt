@@ -237,6 +237,13 @@ class ModelConnectionStore private constructor(context: Context) {
 
     fun selectedArchiveId(usage: ModelUsage): String? = mutable.value.archiveIdFor(usage)
 
+    /** Sleep follows the chat model again. Only the sleep slot is clearable;
+     * chat, call and game selections keep their existing behaviour. */
+    fun clearSleepArchive() {
+        val current = mutable.value
+        if (current.sleepArchiveId != null) persist(current.copy(sleepArchiveId = null))
+    }
+
     fun resolveConnection(archiveId: String? = mutable.value.activeArchiveId): ModelConnection {
         val state = mutable.value
         val resolvedArchiveId = archiveId ?: state.activeArchiveId ?: state.archives.firstOrNull()?.id

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.ai.JevDirections
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.ScopedModelSelections
 
 @Composable
@@ -44,6 +45,23 @@ internal fun OptionalModelRolesSettings() {
         }
         Text("文字表达仅替换已有润色阶段。Jev仅在角色主动选择时单独调用并计费，概率不会自动变成行动。",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // Sleep model: its own library slot, not a scoped preference. Picking
+        // one makes sleep-mode call turns use it; leaving it unset follows
+        // the chat model, and exiting sleep returns to the call model.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val sleepArchive = library.sleepArchiveId?.let { id -> library.archives.firstOrNull { it.id == id } }
+            Column(Modifier.weight(1f)) {
+                Text("哄睡模型")
+                Text(sleepArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "跟随聊天模型",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            TextButton(onClick = { choosing = "sleep"; notice = "" }) { Text("选择") }
+            if (sleepArchive != null) TextButton(onClick = {
+                LuluAiServices.connectionStore.clearSleepArchive()
+            }) { Text("跟随") }
+        }
+        Text("哄睡模型只在通话进入哄睡时使用，退出哄睡自动回普通通话模型；不选就跟随聊天模型。",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (selections[ScopedModelSelections.JEV] != null) Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Jev 长上下文")
@@ -54,6 +72,25 @@ internal fun OptionalModelRolesSettings() {
         if (notice.isNotBlank()) Text(notice, color = MaterialTheme.colorScheme.error)
     }
     choosing?.let { role ->
+        if (role == "sleep") {
+            ModelArchivePickerSheet(
+                title = "哄睡模型",
+                subtitle = "只在通话进入哄睡时使用；不选就跟随聊天模型。",
+                selectedArchiveId = library.sleepArchiveId,
+                onSelect = { id ->
+                    val model = library.archives.first { it.id == id }.model
+                    if (model.startsWith("jev-")) {
+                        notice = "Jev不是文字生成模型，请选择可聊天的型号"
+                    } else {
+                        LuluAiServices.connectionStore.selectArchive(id, ModelUsage.Sleep); notice = ""
+                    }
+                    choosing = null
+                }, onDismiss = { choosing = null },
+                accent = Color(0xFF292929), background = Color.White,
+                ink = Color(0xFF1D1D1F), muted = Color(0xFF7A7A7E), border = Color(0xFFE7E7E7),
+            )
+            return@let
+        }
         ModelArchivePickerSheet(
             title = if (role == ScopedModelSelections.EXPRESSION) "文字表达模型" else "Jev 思路参考模型",
             subtitle = if (role == ScopedModelSelections.EXPRESSION) "只负责已有表达阶段，思考与行动决策仍用原模型。"
