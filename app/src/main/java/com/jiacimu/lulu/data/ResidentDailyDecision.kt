@@ -43,6 +43,22 @@ internal object ResidentDailyDecision {
     internal val DAILY_PLANNING_TIME: LocalTime = LocalTime.of(8, 0)
     private const val MAX_AGENDA_ITEMS = 8
     private const val MAX_MESSAGE = 500
+    private const val MAX_SAVED_DECISION_RECOVERIES = 2
+    private fun dayDecisionKey(nativeId: String, day: String) = "decision:$nativeId:$day"
+    private fun dayPhaseKey(nativeId: String, day: String) = "phase:$nativeId:$day"
+    private fun dayRecoveriesKey(nativeId: String, day: String) = "recoveries:$nativeId:$day"
+
+    /** A saved model choice can be resumed after a process death without buying
+     * another model response. An unanswered/uncertain request never implies
+     * permission to re-issue the same chargeable call. */
+    internal fun hasSavedDayToResume(context: Context, nativeId: String, at: Instant): Boolean {
+        val p = prefs(context)
+        val day = date(at)
+        return p.contains(dayDecisionKey(nativeId, day)) &&
+            p.getString(dayPhaseKey(nativeId, day), "") != "finished" &&
+            p.getInt(dayRecoveriesKey(nativeId, day), 0) < MAX_SAVED_DECISION_RECOVERIES
+    }
+
     @Volatile private var appContext: Context? = null
 
     fun planForApp(residentId: String, at: Instant): JSONObject? =
@@ -470,10 +486,29 @@ internal object ResidentDailyDecision {
             ScopedModelSelections.initialize(app)
             ScopedModelSelections.resolveConnection(SCOPE)
         }.getOrNull() ?: return false
-        if (!claim(app, native.id, now)) return false
+        val today = date(now)
+        val p = prefs(app)
+        val decisionKey = dayDecisionKey(native.id, today)
+        val phaseKey = dayPhaseKey(native.id, today)
+        val recoveriesKey = dayRecoveriesKey(native.id, today)
+        val savedDecision = p.getString(decisionKey, null)?.let {
+            runCatching { JSONObject(it) }.getOrNull()
+        }
+        if (savedDecision != null) {
+            if (p.getString(phaseKey, "") == "finished" ||
+                p.getInt(recoveriesKey, 0) >= MAX_SAVED_DECISION_RECOVERIES) return false
+            check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
+                "原住民有效决定的恢复次数未保存"
+            }
+        } else {
+            if (!claim(app, native.id, now)) return false
+            check(p.edit().putString(phaseKey, "requesting").commit()) {
+                "原住民模型请求状态未保存"
+            }
+        }
         val pending = ResidentSocialMailbox.pendingIncoming(id)
         val unread = CharacterPhoneInbox.unreadMoments(id)
-        val reply = LuluAiServices.gateway.generate(
+        val reply = if (savedDecision == null) LuluAiServices.gateway.generate(
             characterId = id,
             facts = decisionFacts(native, now, pending, unread),
             instruction = """
@@ -514,13 +549,24 @@ internal object ResidentDailyDecision {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}今天规划失败",
                 message = error.message.orEmpty().take(180))
-        }.getOrNull()
-        val json = reply?.text?.let(ModelStructuredOutput::objectOrNull)
+        }.getOrNull() else null
+        val json = savedDecision ?: reply?.text?.let(ModelStructuredOutput::objectOrNull)
         if (json == null) {
+            // The request may have reached the provider despite an exception.
+            // Keep the original charged attempt locked; do not buy blindly again.
+            p.edit().putString(phaseKey, if (reply == null) "uncertain" else "invalid_output").commit()
             if (reply != null) com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}规划格式不完整",
                 message = "模型未返回可解析的当天日程 JSON，原消息未当作真实安排")
             return false
+        }
+        // The exact model decision is durable before any calendar, inner-life,
+        // inbox or messaging side effects. Replays retain original request IDs.
+        if (savedDecision == null) {
+            check(p.edit().putString(decisionKey, json.toString())
+                .putString(phaseKey, "decided").commit()) {
+                "原住民有效模型决定尚未持久化，不能开始副作用"
+            }
         }
         val lunch = allowedLeisureLocation(json.optString("lunch")) ?: "cafe"
         val evening = allowedLeisureLocation(json.optString("evening")) ?: "home"
@@ -591,6 +637,9 @@ internal object ResidentDailyDecision {
         pending.lastOrNull()?.let { check(ResidentSocialMailbox.acknowledgeIncoming(id, it.id)) {
             "居民来信处理进度没有保存"
         } }
+        check(p.edit().putString(phaseKey, "finished").commit()) {
+            "原住民本次决定的完成状态没有保存"
+        }
         return true
     }
 
@@ -655,7 +704,8 @@ internal object ResidentDailyDecision {
         if (now.atZone(ZoneId.systemDefault()).toLocalTime() >= DAILY_PLANNING_TIME &&
             runCatching { ScopedModelSelections.selectedArchiveId(SCOPE) }.getOrNull() != null &&
             DigitalWorldExpansionStore.residents().any {
-                prefs(app).getString("attempt:${it.id}", "") != date(now)
+                prefs(app).getString("attempt:${it.id}", "") != date(now) ||
+                    hasSavedDayToResume(app, it.id, now)
             }) {
             manager.enqueueUniqueWork("${WORK_FIXED}-catchup-${date(now)}",
                 ExistingWorkPolicy.KEEP,
