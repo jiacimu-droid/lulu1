@@ -610,16 +610,75 @@ object CharacterInnerLifeStore {
             for (index in 0 until history.length()) {
                 history.optJSONObject(index)?.let(updated::add)
             }
-            val seenThoughts = updated.map { it.optString("thought") }.toMutableSet()
             for (index in 0 until minOf(proposed.length(), 4)) {
                 val item = proposed.optJSONObject(index) ?: continue
                 val thought = item.optString("thought").replace(Regex("\\s+"), " ").trim().take(180)
-                if (thought.isBlank() || !seenThoughts.add(thought)) continue
+                if (thought.isBlank()) continue
+                val existing = updated.firstOrNull { it.optString("thought") == thought }
+                if (existing != null) {
+                    // The same worry came up again from a new fact. Count it
+                    // (mentions is only a factual count, never a semantic
+                    // score), remember the new trigger, refresh lastSeenAt.
+                    // The original `at` stays so the age stays honest.
+                    existing.put("mentions", existing.optInt("mentions", 1) + 1)
+                    val stimuli = existing.optJSONArray("stimuli") ?: JSONArray()
+                    if ((0 until stimuli.length()).none { stimuli.optString(it) == evidenceId }) {
+                        stimuli.put(evidenceId)
+                    }
+                    if (stimuli.length() > 5) {
+                        val trimmed = JSONArray()
+                        for (i in stimuli.length() - 5 until stimuli.length()) trimmed.put(stimuli.optString(i))
+                        existing.put("stimuli", trimmed)
+                    } else {
+                        existing.put("stimuli", stimuli)
+                    }
+                    existing.put("lastSeenAt", now.toString())
+                    continue
+                }
                 updated += JSONObject()
                     .put("thought", thought)
                     .put("impulse", item.optString("impulse").trim().take(120))
                     .put("hesitation", item.optString("hesitation").trim().take(120))
                     .put("evidenceId", evidenceId).put("at", now.toString())
+                    .put("status", "held")
+                    .put("mentions", 1)
+                    .put("stimuli", JSONArray().put(evidenceId))
+            }
+            root.put("thoughts", JSONArray().apply { updated.forEach { put(it) } })
+        }
+        // Reservoir lifecycle, decided by the role itself in its own
+        // proposal, never by a program rule: thoughtUpdates entries match
+        // an existing thought by its exact text. resolve/discard/evolve
+        // settle it so it is never delivered as a candidate again; spoken
+        // only stamps when it was said, the thought stays held and the
+        // role judges whether to raise it again.
+        proposal.optJSONArray("thoughtUpdates")?.let { updates ->
+            val history = root.optJSONArray("thoughts") ?: JSONArray()
+            val updated = (0 until history.length()).mapNotNull(history::optJSONObject).toMutableList()
+            for (index in 0 until minOf(updates.length(), 4)) {
+                val update = updates.optJSONObject(index) ?: continue
+                val text = update.optString("thought").trim()
+                if (text.isBlank()) continue
+                val target = updated.firstOrNull { it.optString("thought") == text } ?: continue
+                when (update.optString("op").lowercase()) {
+                    "resolve" -> target.put("status", "resolved").put("resolvedAt", now.toString())
+                    "discard" -> target.put("status", "discarded")
+                    "spoken" -> target.put("spokenAt", now.toString())
+                    "evolve" -> {
+                        target.put("status", "evolved")
+                        val next = update.optString("newThought").replace(Regex("\\s+"), " ").trim().take(180)
+                        if (next.isNotBlank() && updated.none { it.optString("thought") == next }) {
+                            updated += JSONObject()
+                                .put("thought", next)
+                                .put("impulse", update.optString("impulse").trim().take(120))
+                                .put("hesitation", update.optString("hesitation").trim().take(120))
+                                .put("evidenceId", evidenceId).put("at", now.toString())
+                                .put("status", "held")
+                                .put("mentions", 1)
+                                .put("stimuli", JSONArray().put(evidenceId))
+                        }
+                    }
+                }
             }
             root.put("thoughts", JSONArray().apply { updated.forEach { put(it) } })
         }
@@ -1568,6 +1627,22 @@ object CharacterInnerLifeStore {
 
     private const val USER_GUESS_EVIDENCE_BOUNDARY = "旧心声、私人看法和上轮行动理由都是本人当时的主观解释，不是后来新增的用户事实。尤其不能把以前猜测的‘她正在忙／不想被打扰／已经在学习’反复继承成此刻结论；当前是否忙、学习、愿不愿交流，须重新对照用户最新原话和有时间来源的真实设备/学习/获准观察，未知就保留未知。"
 
+    /**
+     * Reservoir rule: only still-held thoughts are delivered as topic
+     * candidates. A thought with no stored status (written before this
+     * batch) counts as held. Resolved, discarded and evolved thoughts are
+     * settled and never delivered again; spoken ones stay held but carry
+     * their spoken time so the role can judge whether to raise them
+     * again. No time limit: age is shown, never used as a gate.
+     */
+    internal fun openThoughts(thoughts: JSONArray, now: Instant): List<JSONObject> =
+        (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
+            .filter { item ->
+                item.optString("status").ifBlank { "held" } == "held" &&
+                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { !it.isAfter(now) } == true
+            }.takeLast(6)
+
     fun compactContext(characterId: String, now: Instant = Instant.now(), query: String = ""): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -1630,26 +1705,16 @@ object CharacterInnerLifeStore {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("最近自我修正：${last?.optString("nextTime")?.take(140)}")
             }
-            // Batch 3 fix, topic candidates: NO time limit. A thought has no
-            // stored resolved/spoken flag and no motive/concern link in this
-            // store (observe() writes only thought/impulse/hesitation/
-            // evidenceId/at), so "unresolved" cannot be proved from a flag
-            // here. The honest local rule is therefore: deliver the newest
-            // bounded set regardless of age, show age in days once it passes
-            // a day, and let the role judge against the active motives,
-            // still-open concerns and closed-concern closures delivered in
-            // this same context. The only future-date guard is a clock-skew
-            // guard, not a TTL. Topic unification: compact now also takes the newest 6,
-            // the same as full, so casual private chat does not hide the 5th/6th
-            // unresolved thought from topic-seeking. The model still picks at most one, or none,
-            // and never reads this list aloud or turns it into todos.
-            val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
-                .filter { item ->
-                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { !it.isAfter(now) } == true
-                }.takeLast(6)
+            // Reservoir rule (see openThoughts): only still-held thoughts,
+            // newest 6, no time limit. Resolved/discarded/evolved thoughts
+            // are settled by the role's own thoughtUpdates and never appear
+            // here again; the role still judges the held ones against the
+            // active motives, still-open concerns and closed-concern
+            // closures delivered in this same context. The only
+            // future-date guard is a clock-skew guard, not a TTL.
+            val recentThoughts = openThoughts(thoughts, now)
             if (recentThoughts.isNotEmpty()) {
-                appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；对照同一轮里已有的在意事项、仍在挂心的心事和已走过的心路判断它是否还悬而未决，已经说过、已经想通、已经放下或已经不重要了的不要翻出来；回答用户问题时不用硬找话题】")
+                appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经解决、已经放下或已经演变成别的想法的不会出现在这里；标注了上次说过的，自己判断要不要再提；若某个琢磨事已经想通、放下或演变成别的想法，可在本轮内心记录的 thoughtUpdates 里按原话标注（resolve/discard/spoken/evolve，evolve 可带 newThought），标注后它不再出现在这里；回答用户问题时不用硬找话题】")
                 recentThoughts.forEach { item ->
                     val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                     val ageText = parsedAt?.let { at ->
@@ -1662,9 +1727,17 @@ object CharacterInnerLifeStore {
                         java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
                             .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
                     }.orEmpty()
+                    val mentions = item.optInt("mentions", 1)
+                    val spokenText = runCatching { Instant.parse(item.optString("spokenAt")) }.getOrNull()
+                        ?.let { at ->
+                            java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                                .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                        }.orEmpty()
                     appendLine("· ${item.optString("thought").take(170)}；犹豫=${item.optString("hesitation").take(120)}" +
                         (if (absoluteText.isNotBlank()) "；（$absoluteText）" else "") +
-                        (if (ageText.isNotBlank()) "；$ageText" else ""))
+                        (if (ageText.isNotBlank()) "；$ageText" else "") +
+                        (if (mentions > 1) "；被想起过${mentions}次" else "") +
+                        (if (spokenText.isNotBlank()) "；上次说过$spokenText" else ""))
                 }
             }
             // Read actual executor receipts even when no motiveId was supplied.
@@ -1769,19 +1842,13 @@ object CharacterInnerLifeStore {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")
             }
-            // Batch 3 fix: same no-time-limit rule as compactContext. No
-            // stored resolved flag exists for thoughts, so age is shown (in
-            // days once past a day) and resolution is judged by the role
-            // against the active motives, still-open concerns and closures
-            // delivered in this same context. Future dates are excluded
+            // Reservoir rule: same as compactContext (see openThoughts).
+            // Only still-held thoughts, newest 6, no time limit; settled
+            // thoughts never appear here again. Future dates are excluded
             // only as a clock-skew guard, not as a TTL.
-            val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
-                .filter { item ->
-                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
-                        ?.let { at -> !at.isAfter(now) } == true
-                }.takeLast(6)
+            val recentThoughts = openThoughts(thoughts, now)
             if (recentThoughts.isNotEmpty()) {
-                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；没有时间限制：只要还没解决，不论多久以前都可以聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经说过、想通、放下或不重要的不要翻出来】")
+                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动；没有时间限制：只要还没解决，不论多久以前都可以聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；已经解决、放下或演变成别的想法的不会出现在这里；标注了上次说过的，自己判断要不要再提；若某个念头已经想通、放下或演变成别的想法，可在本轮内心记录的 thoughtUpdates 里按原话标注（resolve/discard/spoken/evolve，evolve 可带 newThought），标注后它不再出现在这里】")
                 recentThoughts.forEach { item ->
                     val parsedAt = runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                     val ageText = parsedAt?.let { at ->
@@ -1792,9 +1859,17 @@ object CharacterInnerLifeStore {
                         java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
                             .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
                     }.orEmpty()
+                    val mentions = item.optInt("mentions", 1)
+                    val spokenText = runCatching { Instant.parse(item.optString("spokenAt")) }.getOrNull()
+                        ?.let { at ->
+                            java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+                                .format(at.atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                        }.orEmpty()
                     appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}" +
                         (if (absoluteText.isNotBlank()) "；（$absoluteText）" else "") +
-                        (if (ageText.isNotBlank()) "；$ageText" else ""))
+                        (if (ageText.isNotBlank()) "；$ageText" else "") +
+                        (if (mentions > 1) "；被想起过${mentions}次" else "") +
+                        (if (spokenText.isNotBlank()) "；上次说过$spokenText" else ""))
                 }
                 appendLine("这些念头可以冲突，也可以随着新事件消退。若要落实，先检查对方边界和实际工具；下一轮须依据真实结果修正，不得把想象写成执行成功。")
             }

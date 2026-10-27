@@ -17,16 +17,17 @@ import java.time.Instant
  * Batch 3 fix: the 72-hour limit on thoughts is removed, per the user's
  * correction — anything still unresolved may be brought up, however old.
  *
- * Honest basis, read from CharacterInnerLifeStore.observe(): a thought
- * stores only thought/impulse/hesitation/evidenceId/at. There is NO
- * resolved/spoken/discarded flag and NO motive/concern link on a thought,
- * so "unresolved" cannot be proved from a stored flag here. The delivery
- * rule is therefore: no time limit, bounded to the newest 6 in both compact and full, age shown in days once past a day, and the role judges
- * resolution against the active motives, still-open concerns and
- * closed-concern closures delivered in the same context. The only real
- * exclusion mechanism for a thought in this store is explicit deletion
- * via forgetExactThought (or source-deletion invalidation), which this
- * test also covers. This test only checks delivery, never a topic choice.
+ * Reservoir basis, read from CharacterInnerLifeStore.observe(): a
+ * thought stores thought/impulse/hesitation/evidenceId/at plus
+ * status (held/resolved/discarded/evolved), mentions (a factual count
+ * of how many times it came up), stimuli (triggering evidence ids) and
+ * optional spokenAt/resolvedAt/lastSeenAt. Delivery therefore has a
+ * system-level rule now: only still-held thoughts are delivered, newest
+ * 6 in both compact and full, no time limit, age shown in days once
+ * past a day. Resolved/discarded/evolved thoughts never appear again;
+ * spoken thoughts stay held with their spoken time annotated. Explicit
+ * deletion via forgetExactThought (or source-deletion invalidation)
+ * still works as well. This test only checks delivery, never a topic choice.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -140,6 +141,94 @@ class CharacterTopicCandidatesTest {
         assertTrue(full.contains("【自我整理"))
         assertTrue(full.contains("不自动变成待办或日程"))
         assertTrue(full.contains("真实回执"))
+
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    private fun updateThought(
+        role: String, evidenceId: String, text: String, op: String,
+        newThought: String? = null, at: Instant,
+    ) {
+        val update = JSONObject().put("thought", text).put("op", op)
+        if (newThought != null) update.put("newThought", newThought)
+        CharacterInnerLifeStore.observe(
+            role, evidenceId, "seed $evidenceId",
+            JSONObject().put("thoughtUpdates", JSONArray().put(update)),
+            now = at,
+        )
+    }
+
+    @Test
+    fun repeatedThoughtCountsMentionsInsteadOfDuplicating() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "reservoir-mentions"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+        seedThought(role, "men-1", "反复琢磨的旧事", now.minus(Duration.ofHours(5)))
+        seedThought(role, "men-2", "反复琢磨的旧事", now.minus(Duration.ofHours(1)))
+        seedThought(role, "men-3", "只出现一次的琢磨事", now.minus(Duration.ofHours(2)))
+
+        val stored = CharacterInnerLifeStore.snapshot(role).optJSONArray("thoughts")!!
+        assertTrue(stored.length() == 2)
+        val repeated = (0 until stored.length()).mapNotNull(stored::optJSONObject)
+            .first { it.optString("thought") == "反复琢磨的旧事" }
+        assertTrue(repeated.optInt("mentions", 0) == 2)
+        assertTrue(repeated.optJSONArray("stimuli")!!.length() == 2)
+        // Original time is kept, so the age stays honest.
+        assertTrue(repeated.optString("at") == now.minus(Duration.ofHours(5)).toString())
+
+        val compact = CharacterInnerLifeStore.compactContext(role, now)
+        assertTrue(compact.contains("反复琢磨的旧事"))
+        assertTrue(compact.contains("被想起过2次"))
+        // The repeated thought is delivered once, not once per mention.
+        assertTrue(compact.split("反复琢磨的旧事").size - 1 == 1)
+
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test
+    fun resolvedDiscardedAndEvolvedThoughtsAreNotDelivered() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "reservoir-settled"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+        seedThought(role, "set-1", "已经想通的琢磨事", now.minus(Duration.ofHours(5)))
+        seedThought(role, "set-2", "已经放下的琢磨事", now.minus(Duration.ofHours(4)))
+        seedThought(role, "set-3", "已经变了的琢磨事", now.minus(Duration.ofHours(3)))
+        seedThought(role, "set-4", "还悬着的琢磨事", now.minus(Duration.ofHours(2)))
+        updateThought(role, "set-u1", "已经想通的琢磨事", "resolve", at = now)
+        updateThought(role, "set-u2", "已经放下的琢磨事", "discard", at = now)
+        updateThought(role, "set-u3", "已经变了的琢磨事", "evolve", newThought = "变了之后的新琢磨事", at = now)
+
+        val compact = CharacterInnerLifeStore.compactContext(role, now)
+        assertFalse(compact.contains("已经想通的琢磨事"))
+        assertFalse(compact.contains("已经放下的琢磨事"))
+        assertFalse(compact.contains("已经变了的琢磨事"))
+        assertTrue(compact.contains("变了之后的新琢磨事"))
+        assertTrue(compact.contains("还悬着的琢磨事"))
+
+        val full = CharacterInnerLifeStore.context(role, now)
+        assertFalse(full.contains("已经想通的琢磨事"))
+        assertFalse(full.contains("已经放下的琢磨事"))
+        assertFalse(full.contains("已经变了的琢磨事"))
+        assertTrue(full.contains("变了之后的新琢磨事"))
+        assertTrue(full.contains("还悬着的琢磨事"))
+
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test
+    fun spokenThoughtStaysHeldWithSpokenTime() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "reservoir-spoken"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+        seedThought(role, "spk-1", "已经说过的琢磨事", now.minus(Duration.ofHours(5)))
+        updateThought(role, "spk-u1", "已经说过的琢磨事", "spoken", at = now)
+
+        val compact = CharacterInnerLifeStore.compactContext(role, now)
+        assertTrue(compact.contains("已经说过的琢磨事"))
+        assertTrue(compact.contains("上次说过10月26日 20:00"))
 
         CharacterInnerLifeStore.clear(role)
     }
