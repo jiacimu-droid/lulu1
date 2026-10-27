@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T20:58:40.023379+00:00",
-  "commit": "4d918b15d9148c6b0e1cf30d9f419337bb250064",
+  "generatedAt": "2026-10-27T20:59:55.580744+00:00",
+  "commit": "f443b4dbb5c783d581295aa0aee1f0fdc2046bd2",
   "branch": "main",
-  "sourceFingerprint": "52e35527770d8080719bfe18ae25076c3c23ca72454acf2998fd48e6ec4bb7fa",
+  "sourceFingerprint": "625be4ec3773eb8db0fdb62263d27c359b21d698ceca7a686d2dc5eecdd5deac",
   "summary": {
     "files": 993,
-    "lines": 196876,
-    "symbols": 2912
+    "lines": 196901,
+    "symbols": 2913
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1733,13 +1733,13 @@
     "angles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 417
+        "line": 410
       }
     ],
     "faceValues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 422
+        "line": 415
       }
     ],
     "Capture": [
@@ -2026,6 +2026,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
         "line": 5
+      }
+    ],
+    "releasedGesture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
+        "line": 21
       }
     ],
     "defaultRadius": [
@@ -17770,8 +17776,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 894,
-      "sha256": "547f1a59c8bd834e846dc95030b46333c3accd9e1f9767c7d168c1a38dbe57a9",
+      "lines": 887,
+      "sha256": "ea907ea2cddb69d40f69f4ed9c1ed6fcd12064f7e53ef1f9bbaeda1780b1f2e7",
       "symbols": [
         {
           "name": "send",
@@ -17779,11 +17785,11 @@
         },
         {
           "name": "angles",
-          "line": 417
+          "line": 410
         },
         {
           "name": "faceValues",
-          "line": 422
+          "line": 415
         }
       ]
     },
@@ -18021,12 +18027,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
-      "lines": 22,
-      "sha256": "93247da1a4bac1975fb180ec43b087b57ea7e1188a9b6e8a9afc194baf08c87e",
+      "lines": 54,
+      "sha256": "f494a2ebe863a65d61dd258df25d6ff11c6ac5805ca0d6c3479fe939ad0c3d64",
       "symbols": [
         {
           "name": "performed",
           "line": 5
+        },
+        {
+          "name": "releasedGesture",
+          "line": 21
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4d918b15d9148c6b0e1cf30d9f419337bb250064`
+- 基准提交：`f443b4dbb5c783d581295aa0aee1f0fdc2046bd2`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196876
-- 已发现符号：2912
+- 已索引代码/文本行：196901
+- 已发现符号：2913
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 458 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 894 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 887 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
@@ -147,7 +147,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 22 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 341 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
