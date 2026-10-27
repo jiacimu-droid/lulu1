@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:37:56.635284+00:00",
-  "commit": "e9a07b8310c4ca2156d6b2cff0215deac7d2cc4b",
+  "generatedAt": "2026-10-27T18:38:17.442317+00:00",
+  "commit": "d2eeb3ebd75323f627b241b14e1a86a2ba1ed2cd",
   "branch": "main",
-  "sourceFingerprint": "dd936aa9d658d0e1a4c6760398d08da03faf520ea2df8ce4224b1e3a7d79d9cf",
+  "sourceFingerprint": "9caeaf31c7c5af1d27931193d60983bdf43a9c8c99f7d8a57372c6f288a1be08",
   "summary": {
     "files": 993,
-    "lines": 196120,
+    "lines": 196117,
     "symbols": 2910
   },
   "symbolIndex": {
@@ -32029,8 +32029,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-      "lines": 102,
-      "sha256": "21204fd04b3c92d9919d7621352c84a0e9eb0dce1717f141e19b34684c523e8a",
+      "lines": 99,
+      "sha256": "fffb086c475e639e80906d105c27fddc9359c59694c8e50961037a0f43aeb2b9",
       "symbols": [
         {
           "name": "CharacterCreatedGroupTest",
