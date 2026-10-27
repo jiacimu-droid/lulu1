@@ -104,6 +104,24 @@ internal object AutonomousActionWireProtocol {
         return step
     }
 
+    /**
+     * A syntactically selected build is not executable without its actual
+     * required fields. This only validates the model's authored JSON; it never
+     * selects a world action, names an item, or invents its appearance.
+     */
+    internal fun missingWorldBuildFields(normalized: JSONObject): List<String> {
+        val action = normalized.optString("action").trim().lowercase()
+        val asTool = action == "tool" && normalized.optString("tool") == "digital_world_action"
+        if (action != "digital_world" && !asTool) return emptyList()
+        val parameters = if (asTool) normalized.optJSONObject("args") ?: JSONObject() else normalized
+        if (parameters.optString("worldAction") != "build_home_item") return emptyList()
+        return buildList {
+            if (parameters.optString("name").isBlank() &&
+                parameters.optString("itemName").isBlank()) add("name")
+            if (parameters.optString("appearance").isBlank()) add("appearance")
+        }
+    }
+
     fun normalize(original: JSONObject): JSONObject {
         val result = JSONObject(original.toString())
         val specified = result.optString("action").trim().lowercase()
@@ -171,6 +189,8 @@ internal object AutonomousActionWireProtocol {
             argumentKeys.forEach { key ->
                 if (!toolArgs.has(key) && result.has(key)) toolArgs.put(key, result.opt(key))
             }
+            if (toolArgs.optString("name").isBlank() && result.optString("itemName").isNotBlank())
+                toolArgs.put("name", result.optString("itemName"))
             result.put("args", toolArgs)
         }
         val nested = result.optJSONObject("args")
