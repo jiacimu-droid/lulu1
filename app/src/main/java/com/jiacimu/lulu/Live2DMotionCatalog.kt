@@ -144,9 +144,10 @@ internal object Live2DMotionCatalog {
         if (group != "LuluWolf") return null
         val entry = entries[index] ?: return null
         return buildString {
-            append("$group#$index=${entry.name}（${entry.fits}）")
+            append("$group#$index=${entry.name}（${entry.fits}")
             entry.expression?.let { append("；配$it") }
             entry.faceNote?.let { append("；神态：$it") }
+            append("）")
         }
     }
 }
