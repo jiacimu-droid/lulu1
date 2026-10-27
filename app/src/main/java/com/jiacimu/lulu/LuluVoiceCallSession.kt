@@ -59,7 +59,10 @@ internal data class LuluVoiceCallState(
     val speaking: Boolean = false,
     val speakerEnabled: Boolean = true,
     val audioRouteLabel: String = "扬声器",
-    val microphoneMuted: Boolean = false,
+    /** Calls start with the microphone off; the user taps to speak. This keeps
+     * sleeping or silent listeners from paying for transcription turns they
+     * never asked for. */
+    val microphoneMuted: Boolean = true,
     /** User may listen silently; the character owns the initiative until stopped. */
     val sleepMode: Boolean = false,
     val sleepFocus: SleepGuidanceFocus = SleepGuidanceFocus.Natural,
@@ -602,7 +605,7 @@ internal object LuluVoiceCallSession {
             it.copy(
                 phase = CallPhase.Dialing,
                 statusMessage = "正在呼叫…",
-                microphoneMuted = false,
+                microphoneMuted = true,
             )
         }
         dialJob?.cancel()
@@ -618,7 +621,7 @@ internal object LuluVoiceCallSession {
                     phase = CallPhase.Connected,
                     callStartedAt = Instant.now(),
                     everConnected = true,
-                    statusMessage = "已接通，直接说话就好",
+                    statusMessage = "已接通，麦克风默认关闭，想说话点一下麦克风",
                 )
             }
             startTimer()
@@ -1688,12 +1691,11 @@ internal object LuluVoiceCallSession {
                 secondsSinceUserActivity = (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1000L,
                 microphoneMuted = latest.microphoneMuted,
             )
-            // Incoming calls already carry the character's first spoken line.
-            // Play it through the SAME call queue used for model replies: real PCM
-            // starts the subtitles, and successful playback saves one voice
-            // transcript in the private conversation. Do not make the model
-            // paraphrase this line or create an extra opening on top of it.
-            if (opening && latest.incomingReason.isNotBlank()) {
+            // A pre-written incoming line is only a fallback when no model is
+            // available. Otherwise the opening is generated live, with the
+            // incoming reason passed as context below, so a wake call does not
+            // read out a line written hours earlier as if it were fresh speech.
+            if (opening && latest.incomingReason.isNotBlank() && activeArchive == null) {
                 val firstLine = latest.incomingReason.trim()
                 finalText = VoicePerformance.plain(firstLine)
                 mutableState.update {
@@ -1773,6 +1775,10 @@ internal object LuluVoiceCallSession {
                     if (existingTurnEvent.isNotBlank()) {
                         append('\n')
                         append(existingTurnEvent)
+                    }
+                    if (opening && latest.microphoneMuted) {
+                        append('\n')
+                        append("【通话开始状态】用户麦克风默认关闭，她想说话时会自己点开；你先开口第一句时顺带提一句就行，不用每轮都提，也不要把这件事说成工单。")
                     }
                 },
                 sceneContext = "正在与用户进行一对一实时电话。\n" + (when {
@@ -1861,7 +1867,7 @@ internal object LuluVoiceCallSession {
                 }
                 // Apply the role model’s decision BEFORE the first TTS enqueue, so
                 // an invited bedtime reply uses the bedtime voice in this same turn.
-                if (!wakeOpening && !autonomousSleep && !autonomousSilence) when (reply.sleepDecision) {
+                if (!autonomousSleep && !autonomousSilence) when (reply.sleepDecision) {
                     "enable" -> setSleepMode(true)
                     "disable" -> setSleepMode(false)
                 }
@@ -2132,7 +2138,7 @@ internal object LuluVoiceCallSession {
         replyGeneration++; replyJob?.cancel()
         cancelPendingCharacterHangup()
         subtitleRevealJob?.cancel(); speechQueue?.stop()
-        mutableState.update { it.copy(speaking = false, thinking = false, userSpeaking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
+        mutableState.update { it.copy(speaking = false, thinking = false, userSpeaking = false, opening = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()
         if (appContext?.let(CallVoiceConfiguration::sttEngine) != "system") startProviderInput()
@@ -2348,5 +2354,10 @@ private fun buildCallHistory(messages: List<LuluChatMessage>, characterName: Str
     .takeLast(24)
     .joinToString("\n") { message ->
         val role = if (message.sender == LuluChatMessage.Sender.User) "用户" else characterName
-        "$role：${message.content.trim()}"
+        // Time is part of the fact, not decoration: without it the model cannot
+        // tell that a 2am "I can't sleep" is seven hours before a 9am wake call,
+        // and will carry the night's state into the morning unchanged.
+        val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
+            .format(message.createdAt.atZone(java.time.ZoneId.systemDefault()))
+        "$role（$at）：${message.content.trim()}"
     }
