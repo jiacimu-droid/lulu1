@@ -199,19 +199,20 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     var last = down.position
                     var travel = 0f
                     var lastSent = began
+                    var lastSentPosition = down.position
+                    var unsentTravel = 0f
+                    var lastOutside = false
                     var lastStrokeGesture: String? = null
                     fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
-                        // A real DOWN hit may finish outside the viewport during
-                        // a fast swipe, long caress or kiss. Only the release is
-                        // clamped; the renderer validates its cached active hit.
-                        // A DOWN/MOVE outside the stage can never create a hit.
+                        // A real DOWN hit may finish outside the viewport. Only
+                        // release is clamped; the renderer validates its cached
+                        // contact. An out-of-bounds MOVE is an ordinary miss:
+                        // send its invalid coordinate to end this contact, NOT
+                        // an OS cancel that would forbid re-entry by this finger.
                         val anchoredRelease = completed && !calibrationMode
-                        if ((x < 0 || y < 0 || x >= size.width || y >= size.height) &&
-                            !anchoredRelease) {
-                            if (!calibrationMode) stage.evaluateJavascript(
-                                "window.LuluLive2D && window.LuluLive2D.touch(0,0,'cancel')", null)
+                        if (calibrationMode &&
+                            (x < 0 || y < 0 || x >= size.width || y >= size.height))
                             return
-                        }
                         val nx = (if (anchoredRelease)
                             x.coerceIn(0f, (size.width - 1).toFloat()) else x) / size.width
                         val ny = (if (anchoredRelease)
@@ -267,22 +268,38 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                                 .firstOrNull { it.id == down.id } ?: break
                             val moved = pointer.position - last
                             travel += moved.getDistance()
+                            unsentTravel += moved.getDistance()
                             last = pointer.position
                             if (!pointer.pressed) {
                                 released = true
                                 break
                             }
                             val now = android.os.SystemClock.uptimeMillis()
-                            if (moved.getDistance() > 1f) {
-                                lastStrokeGesture = if (kotlin.math.abs(moved.x) >= kotlin.math.abs(moved.y)) {
-                                    if (moved.x >= 0) "stroke-right" else "stroke-left"
-                                } else if (moved.y >= 0) "stroke-down" else "stroke-up"
-                            }
+                            val outside = last.x < 0f || last.y < 0f ||
+                                last.x >= size.width || last.y >= size.height
+                            // Individual 120Hz MOVE deltas can be below one
+                            // pixel even during a real slow caress. Sample the
+                            // accumulated path, not the latest tiny fragment.
+                            // Crossing the viewport boundary must immediately
+                            // release/reacquire contact, independent of cadence.
                             if ((interactionMode == "hand" || calibrationMode) &&
-                                moved.getDistance() > 1f && now - lastSent >= 70L) {
-                                send(last.x, last.y, lastStrokeGesture ?: "stroke-right")
+                                Live2DTouchGesture.shouldDispatchMove(
+                                    unsentTravel, now - lastSent,
+                                    viewConfiguration.touchSlop, outside != lastOutside,
+                                )) {
+                                val sentDelta = last - lastSentPosition
+                                if (sentDelta.getDistance() > 1f) {
+                                    lastStrokeGesture = if (kotlin.math.abs(sentDelta.x) >=
+                                        kotlin.math.abs(sentDelta.y)) {
+                                        if (sentDelta.x >= 0) "stroke-right" else "stroke-left"
+                                    } else if (sentDelta.y >= 0) "stroke-down" else "stroke-up"
+                                }
+                                send(last.x, last.y, lastStrokeGesture ?: "hold")
                                 lastSent = now
+                                lastSentPosition = last
+                                unsentTravel = 0f
                             }
+                            lastOutside = outside
                         }
                         if (!released) {
                             if (!calibrationMode) send(last.x, last.y, "cancel")

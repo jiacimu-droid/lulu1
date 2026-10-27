@@ -37,6 +37,19 @@ class Live2DFineTouchTest {
         assertNull(InteractionSignalBridge.avatarContactDescription("hair", "down", 1))
     }
 
+    @Test fun slowCaressAccumulatesMoveFramesAndBoundaryReentryIsImmediate() {
+        val slop = 8f
+        // Each 120Hz frame moves only .5px: none alone clears the old 1px
+        // cutoff, but the accumulated 80ms path is a real stroke.
+        assertFalse(Live2DTouchGesture.shouldDispatchMove(.5f, 16L, slop))
+        assertFalse(Live2DTouchGesture.shouldDispatchMove(2.5f, 64L, slop))
+        assertTrue(Live2DTouchGesture.shouldDispatchMove(2.5f, 80L, slop))
+        assertFalse(Live2DTouchGesture.shouldDispatchMove(.5f, 100L, slop))
+        assertTrue(Live2DTouchGesture.shouldDispatchMove(0f, 4L, slop, true))
+        assertFalse(Live2DTouchGesture.shouldDispatchMove(Float.NaN, 100L, slop, true))
+        assertFalse(Live2DTouchGesture.shouldDispatchMove(2f, 100L, Float.NaN))
+    }
+
     @Test fun completedGestureUsesWholePathNotLastJitter() {
         val slop = 8f
         assertEquals("stroke-right", Live2DTouchGesture.releasedGesture(

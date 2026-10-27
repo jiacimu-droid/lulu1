@@ -7,6 +7,21 @@ internal object Live2DTouchGesture {
         rendererReady: Boolean, stageAlive: Boolean): Boolean =
         beganCallId == currentCallId && rendererReady && stageAlive
 
+    /**
+     * Gesture sampling is a local display operation, never an AI call.
+     * Distance accumulates across MOVE frames; a viewport exit/re-entry
+     * cannot wait for the next 70ms tick or the old contact stays active.
+     */
+    fun shouldDispatchMove(
+        unsentTravel: Float, sinceLastSentMillis: Long, touchSlop: Float,
+        crossedViewportBoundary: Boolean = false,
+    ): Boolean {
+        if (!unsentTravel.isFinite() || !touchSlop.isFinite()) return false
+        if (crossedViewportBoundary) return true
+        return sinceLastSentMillis >= 70L &&
+            unsentTravel >= maxOf(1f, touchSlop.coerceAtLeast(0f) * .15f)
+    }
+
     fun performed(mode: String, handGesture: String): String = when (mode) {
         "kiss" -> "kiss"
         "pat" -> when (handGesture) {
