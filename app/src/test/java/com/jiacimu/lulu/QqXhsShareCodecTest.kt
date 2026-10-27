@@ -1,6 +1,11 @@
 package com.jiacimu.lulu
 
 import org.junit.Assert.*
+import org.json.JSONObject
+import java.time.Instant
+import com.jiacimu.lulu.data.XhsRoleShare
+import com.jiacimu.lulu.data.SharedTimelineEvent
+import com.jiacimu.lulu.data.EventEvidenceKind
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,6 +65,58 @@ class QqXhsShareCodecTest {
         assertNull(externalXhsSharedNote("https://example.com/not-xiaohongshu"))
         assertNull(externalXhsSharedNote("https://www.xiaohongshu.com.evil.tld/explore/abc"))
         assertNull(decodeQqXhsSharedNote("随便一句普通聊天，不是分享"))
+    }
+
+    private fun readEvent(
+        role: String = "jiangdu",
+        source: String = "xiaohongshu-webview",
+        bodyLoaded: Boolean = true,
+        analyzedImages: Int = 1,
+        link: String = "https://www.xiaohongshu.com/explore/6777abcdef1234567890abcd",
+    ): SharedTimelineEvent {
+        val observation = JSONObject()
+            .put("title", "真实的原木房间").put("url", link).put("author", "生活小屋")
+            .put("coverUrl", "https://sns-webpic-qc.xhscdn.com/cover")
+            .put("bodyActuallyLoaded", bodyLoaded)
+            .put("authorBody", if (bodyLoaded) "我家的木头书架。" else "")
+            .put("text", if (bodyLoaded) "我家的木头书架。" else "[图片理解]原木书架")
+            .put("imageAnalyzedCount", analyzedImages)
+            .put("imageUnderstanding", if (analyzedImages > 0) "画面中有一排书架" else "")
+            .put("commentsActuallyLoaded", org.json.JSONArray().put("很温暖"))
+        return SharedTimelineEvent("xhs-read-$role-123", role, "小红书阅读",
+            "外部平台", observation.toString(), Instant.now(),
+            source = source, evidenceKind = EventEvidenceKind.Observation)
+    }
+
+    @Test fun roleCanSendVerifiedArticleUsingOriginalTwoWayCardProtocol() {
+        val note = XhsRoleShare.noteFromEvidence(readEvent(), "jiangdu")!!
+        assertTrue(note.sharedByCharacter)
+        assertTrue(note.verified)
+        assertEquals("我家的木头书架。", note.body)
+        assertEquals("画面中有一排书架", note.visualReading)
+        assertEquals("很温暖", note.comments.first())
+        val encoded = encodeQqXhsSharedNote(note)
+        val restored = decodeQqXhsSharedNote(encoded)!!
+        assertTrue(restored.sharedByCharacter)
+        assertEquals(note.coverUrl, restored.coverUrl)
+        assertTrue(qqForwardContextText(encoded).contains("角色发给用户"))
+        assertFalse(qqForwardContextText(encoded).contains("用户分享小红书笔记"))
+    }
+
+    @Test fun cannotPresentOtherRolesOrUnvisitedResultsAsOwnReadNote() {
+        assertNull(XhsRoleShare.noteFromEvidence(readEvent(), "somebody-else"))
+        assertNull(XhsRoleShare.noteFromEvidence(readEvent(source = "legacy"), "jiangdu"))
+        assertNull(XhsRoleShare.noteFromEvidence(
+            readEvent(bodyLoaded = false, analyzedImages = 0), "jiangdu"))
+        assertNull(XhsRoleShare.noteFromEvidence(
+            readEvent(link = "https://example.com/pretend-note"), "jiangdu"))
+    }
+
+    @Test fun imageOnlyReadDoesNotPretendVisualTextIsOriginalArticleBody() {
+        val note = XhsRoleShare.noteFromEvidence(
+            readEvent(bodyLoaded = false, analyzedImages = 1), "jiangdu")!!
+        assertEquals("", note.body)
+        assertEquals("画面中有一排书架", note.visualReading)
     }
 
     @Test fun externalShortLinkIsAcceptedWithoutFakingVision() {
