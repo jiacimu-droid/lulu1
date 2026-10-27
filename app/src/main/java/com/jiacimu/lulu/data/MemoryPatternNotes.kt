@@ -33,14 +33,28 @@ object MemoryPatternNotes {
             .map(::keyOf).toSet()
         if (wanted.isEmpty()) return ""
 
-        val grouped = snapshot.asSequence()
+        val candidates = snapshot.asSequence()
             .filter { it.characterId == characterId && it.measureKind.isNotBlank() }
+            .filter { keyOf(it) in wanted }
             .filter { (it.occurredAt ?: it.createdAt) <= now }
             .filter { it.measureValue?.isFinite() == true }
             .filter { MemoryValidityStore.isActive(it.id) }
-            .filter { memoryHasLiveSources(it, characterId) }
+            .toList()
+        // Resolve all source evidence in one indexed query. Calling
+        // memoryHasLiveSources() for every historical memory would cause
+        // one SQLite read per record when a role accumulates years of data.
+        val live = SharedExperienceTimeline.eventsByIds(
+            characterId, candidates.flatMap(MemoryEntry::sourceIds).distinct(),
+        ).associateBy(SharedTimelineEvent::id)
+        val grouped = candidates.asSequence()
+            .filter { entry ->
+                entry.sourceIds().all { id ->
+                    live[id]?.let { event ->
+                        entry.sourceRevisions[id]?.let { revision -> revision == event.revision } ?: true
+                    } == true
+                }
+            }
             .groupBy(::keyOf)
-            .filterKeys { it in wanted }
             .mapValues { (_, group) -> dedupeSameEvidence(group) }
             .filterValues { it.isNotEmpty() }
         if (grouped.isEmpty()) return ""
@@ -67,7 +81,7 @@ object MemoryPatternNotes {
                     "${valuesOf(in14Days)}，最近一次是$latestText。"
             weeklyCount >= 3 && weeklyDay != null -> {
                 val weekly = weeklyEntries(sorted, weeklyDay, now, zone)
-                "$label 最近6周在$weeklyCount 个不同周的${weekdayName(weeklyDay)}有记录" +
+                "$label 最近6周在$weeklyCount个不同周的${weekdayName(weeklyDay)}有记录" +
                     "（共${weekly.size}次）：${valuesOf(weekly)}，最近一次是$latestText。" +
                     deviationClause(sorted, key.kind, key.unit)
             }
