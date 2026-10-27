@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T05:56:37.626875+00:00",
-  "commit": "e8b9f56248d28955e8c434021833f74aaec713d5",
+  "generatedAt": "2026-10-27T06:07:35.081874+00:00",
+  "commit": "a3dfc1c61b65b2a2abd0c1dbf5cb41f19eb83e04",
   "branch": "main",
-  "sourceFingerprint": "ee428b90b51f0c1be2cc3d89ba772e507eb04c8a24161b1ec265602035cf61f1",
+  "sourceFingerprint": "81b84dc0bc2ca2d4c8163f765cdb8d3a20efedcd7aa87d504ca5f8de1c7331b8",
   "summary": {
-    "files": 955,
-    "lines": 189729,
-    "symbols": 2790
+    "files": 957,
+    "lines": 190024,
+    "symbols": 2797
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -694,6 +694,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
         "line": 42
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -3732,6 +3736,10 @@
         "line": 62
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+        "line": 39
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
         "line": 107
       },
@@ -5358,6 +5366,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
         "line": 117
+      }
+    ],
+    "CharacterEvaluationLedger": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+        "line": 26
+      }
+    ],
+    "weeklyReport": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+        "line": 126
       }
     ],
     "Receipt": [
@@ -9753,7 +9773,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2647
+        "line": 2657
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14094,6 +14114,24 @@
         "line": 6
       }
     ],
+    "CharacterEvaluationLedgerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt",
+        "line": 28
+      }
+    ],
+    "weeklyReportCountsFactsAndRollsOverOnlyWeekly": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt",
+        "line": 66
+      }
+    ],
+    "renderWithoutPreviousWeekHasNoDeltaNotes": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt",
+        "line": 103
+      }
+    ],
     "CharacterExperienceLearningTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt",
@@ -17948,8 +17986,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 294,
-      "sha256": "739fce088a7755293023ca24ec92d78dc7c5ba11239bb8e7cc2bb8bdb41a7d5f",
+      "lines": 295,
+      "sha256": "e95444ce34d627030be397794736e62346a99fe3df6c2c0de970973c9b1432dd",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -20373,6 +20411,29 @@
         {
           "name": "clearCharacter",
           "line": 283
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+      "lines": 167,
+      "sha256": "4e5e1ff10929efc097a58c178c6c4903dea299fb9cea68ec8f06000cda911e96",
+      "symbols": [
+        {
+          "name": "CharacterEvaluationLedger",
+          "line": 26
+        },
+        {
+          "name": "initialize",
+          "line": 33
+        },
+        {
+          "name": "clear",
+          "line": 39
+        },
+        {
+          "name": "weeklyReport",
+          "line": 126
         }
       ]
     },
@@ -25160,8 +25221,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2714,
-      "sha256": "011f37785d5b302630f50aecd3c23dc42fdca9e8bef8bfd4a14354839a39f4ec",
+      "lines": 2724,
+      "sha256": "2b222e5547c441f5a414a57f4d7cb9483d164b7b1f7481e3d0d626de3ddecb11",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -25193,7 +25254,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2647
+          "line": 2657
         }
       ]
     },
@@ -30915,6 +30976,25 @@
         {
           "name": "CharacterDevelopmentRecallTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt",
+      "lines": 117,
+      "sha256": "b35a5d41868ede7234f16f40161ab612150ae3e1353764934bcd903ca5162180",
+      "symbols": [
+        {
+          "name": "CharacterEvaluationLedgerTest",
+          "line": 28
+        },
+        {
+          "name": "weeklyReportCountsFactsAndRollsOverOnlyWeekly",
+          "line": 66
+        },
+        {
+          "name": "renderWithoutPreviousWeekHasNoDeltaNotes",
+          "line": 103
         }
       ]
     },

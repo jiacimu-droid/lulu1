@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e8b9f56248d28955e8c434021833f74aaec713d5`
+- 基准提交：`a3dfc1c61b65b2a2abd0c1dbf5cb41f19eb83e04`
 - 分支：`main`
-- 已索引文件：955
-- 已索引代码/文本行：189729
-- 已发现符号：2790
+- 已索引文件：957
+- 已索引代码/文本行：190024
+- 已发现符号：2797
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 678 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 294 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 295 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 98 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
@@ -292,6 +292,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 247 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 301 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 167 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 153 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 115 | 6 |
@@ -462,7 +463,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 156 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2714 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1025 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 40 | 2 |
@@ -780,6 +781,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDevelopmentRecallTest.kt` | 53 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt` | 117 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 249 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 307 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 58 | 1 |
