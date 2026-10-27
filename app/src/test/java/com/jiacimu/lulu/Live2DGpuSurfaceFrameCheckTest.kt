@@ -22,6 +22,29 @@ class Live2DGpuSurfaceFrameCheckTest {
         assertFalse(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(specks))
     }
 
+    @Test fun pastelRoomBackdropAloneDoesNotPassAsRenderedCharacter() {
+        val roomColors = listOf(
+            0xFFE9EDF4.toInt(), 0xFFDFE8F2.toInt(), 0xFFD3E2EE.toInt(),
+            0xFFEAF1F8.toInt(), 0xFFD8E2EB.toInt(), 0xFFEFF3F8.toInt(),
+        )
+        roomColors.forEach { color ->
+            assertTrue(Live2DGpuSurfaceFrameCheck.isBackdropPixel(color))
+            assertFalse(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(IntArray(96 * 160) { color }))
+        }
+        val mixedRoom = IntArray(96 * 160) { index -> roomColors[index % roomColors.size] }
+        assertFalse(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(mixedRoom))
+    }
+
+    @Test fun actualCharacterPixelsStillPassOnPastelBackdrop() {
+        val scene = IntArray(96 * 160) { 0xFFE9EDF4.toInt() }
+        repeat(1700) { scene[it + 1500] = 0xFF82648A.toInt() }
+        assertTrue(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(scene))
+        // A handful of title/text antialias pixels is not evidence of a model.
+        val withoutAvatar = IntArray(96 * 160) { 0xFFE9EDF4.toInt() }
+        repeat(90) { withoutAvatar[it] = 0xFF34465F.toInt() }
+        assertFalse(Live2DGpuSurfaceFrameCheck.hasCharacterPixels(withoutAvatar))
+    }
+
     @Test fun actualPortraitPixelsPassWithoutRequiringColoredCostume() {
         val mostlyDark = IntArray(96 * 160) { 0xFF151719.toInt() }
         for (i in 0 until 1250) mostlyDark[i] = 0xFF8A8A8A.toInt()
