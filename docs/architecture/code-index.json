@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T14:51:48.598147+00:00",
-  "commit": "63007740ac9f11d985260f99dd64291a31f8628c",
+  "generatedAt": "2026-10-27T15:15:50.454780+00:00",
+  "commit": "82678e5596509bd5c71e23a57e09c2bebdf33688",
   "branch": "main",
-  "sourceFingerprint": "14d45f7ae98ae10b4d59a8e977727d8d839fe2e361b97d8cd632d4c111c9bb15",
+  "sourceFingerprint": "f532794df1b5e97617b51b254ecd6a61a60426f0b3c60c49ad057b564fb5b7f5",
   "summary": {
     "files": 983,
-    "lines": 193713,
-    "symbols": 2860
+    "lines": 193730,
+    "symbols": 2861
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2893,7 +2893,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "MomentsScreen": [
@@ -8793,49 +8793,49 @@
     "LuluDataBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "ExportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "ValidatedZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "RestoreOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "None": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "Applied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "exportZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "walk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 63
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -8845,55 +8845,61 @@
     "validateZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 90
+        "line": 91
+      }
+    ],
+    "validateZipFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 104
       }
     ],
     "restoreZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 122
+        "line": 139
       }
     ],
     "dataDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 160
+        "line": 177
       }
     ],
     "stagingDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 162
+        "line": 179
       }
     ],
     "hasPendingRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 164
+        "line": 181
       }
     ],
     "readRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 167
+        "line": 184
       }
     ],
     "clearRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 171
+        "line": 188
       }
     ],
     "stageForRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 177
+        "line": 194
       }
     ],
     "applyPendingRestoreIfNeeded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 192
+        "line": 209
       }
     ],
     "endpoint": [
@@ -24580,80 +24586,84 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-      "lines": 219,
-      "sha256": "2b295cdba07bab1e866f1d3bfe7825be1e4a8d8796384e5d9f3669d6aafe11b3",
+      "lines": 236,
+      "sha256": "cdd04b40ecb007041a8b97f7869130534de1f6dd22b536db462924616a8ded36",
       "symbols": [
         {
           "name": "LuluDataBackup",
-          "line": 36
+          "line": 37
         },
         {
           "name": "ExportResult",
-          "line": 45
+          "line": 46
         },
         {
           "name": "ValidatedZip",
-          "line": 47
-        },
-        {
-          "name": "RestoreOutcome",
           "line": 48
         },
         {
-          "name": "None",
-          "line": 50
+          "name": "RestoreOutcome",
+          "line": 49
         },
         {
-          "name": "Applied",
+          "name": "None",
           "line": 51
         },
         {
-          "name": "Failed",
+          "name": "Applied",
           "line": 52
         },
         {
+          "name": "Failed",
+          "line": 53
+        },
+        {
           "name": "exportZip",
-          "line": 56
+          "line": 57
         },
         {
           "name": "walk",
-          "line": 63
+          "line": 64
         },
         {
           "name": "validateZip",
-          "line": 90
+          "line": 91
+        },
+        {
+          "name": "validateZipFile",
+          "line": 104
         },
         {
           "name": "restoreZip",
-          "line": 122
+          "line": 139
         },
         {
           "name": "dataDir",
-          "line": 160
-        },
-        {
-          "name": "stagingDir",
-          "line": 162
-        },
-        {
-          "name": "hasPendingRestore",
-          "line": 164
-        },
-        {
-          "name": "readRestoreResult",
-          "line": 167
-        },
-        {
-          "name": "clearRestoreResult",
-          "line": 171
-        },
-        {
-          "name": "stageForRestore",
           "line": 177
         },
         {
+          "name": "stagingDir",
+          "line": 179
+        },
+        {
+          "name": "hasPendingRestore",
+          "line": 181
+        },
+        {
+          "name": "readRestoreResult",
+          "line": 184
+        },
+        {
+          "name": "clearRestoreResult",
+          "line": 188
+        },
+        {
+          "name": "stageForRestore",
+          "line": 194
+        },
+        {
           "name": "applyPendingRestoreIfNeeded",
-          "line": 192
+          "line": 209
         }
       ]
     },
