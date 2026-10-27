@@ -11,6 +11,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
@@ -88,27 +89,43 @@ object LuluDataBackup {
 
     /** 整包读一遍校验（CRC 不对或截断都会抛），返回条目数。 */
     fun validateZip(input: InputStream): ValidatedZip {
+        // 先落到临时文件再用 ZipFile 校验：流式 ZipInputStream 读到
+        // 截断处只会返回 null（当作“读完了”），截断的包也能蒙混过关，
+        // 而 ZipFile 必须解析中央目录，缺尾巴会直接抛 ZipException。
+        // 这是 #5905 的教训：损坏的备份绝不能被当成好的放行。
+        val temp = File.createTempFile("lulu-validate-", ".zip")
+        try {
+            input.use { source -> FileOutputStream(temp).use { dest -> source.copyTo(dest) } }
+            return validateZipFile(temp)
+        } finally {
+            temp.delete()
+        }
+    }
+
+    fun validateZipFile(file: File): ValidatedZip {
         var entries = 0
         var schema: Int? = null
-        ZipInputStream(BufferedInputStream(input)).use { zip ->
-            while (true) {
-                val entry = zip.nextEntry ?: break
+        ZipFile(file).use { zip ->
+            for (entry in zip.entries().toList()) {
                 entries += 1
-                if (entry.name == MANIFEST_NAME) {
-                    val text = zip.readBytes().toString(Charsets.UTF_8)
-                    schema = Regex("\"schemaVersion\"\\s*:\\s*(\\d+)")
-                        .find(text)?.groupValues?.get(1)?.toIntOrNull()
-                } else {
-                    val buffer = ByteArray(8192)
-                    while (zip.read(buffer) >= 0) {
-                        // 只读不存：读完即完成 CRC 校验。
+                zip.getInputStream(entry).use { stream ->
+                    if (entry.name == MANIFEST_NAME) {
+                        val text = stream.readBytes().toString(Charsets.UTF_8)
+                        schema = Regex("\"schemaVersion\"\\s*:\\s*(\\d+)")
+                            .find(text)?.groupValues?.get(1)?.toIntOrNull()
+                    } else {
+                        val buffer = ByteArray(8192)
+                        while (stream.read(buffer) >= 0) {
+                            // 只读不存：读完即完成 CRC 校验。
+                        }
                     }
                 }
-                zip.closeEntry()
             }
         }
-        if (schema != null && schema != SCHEMA_VERSION) {
-            throw IOException("不支持的备份版本：$schema")
+        // 备份必须带清单且版本一致：没有清单的 zip（哪怕条目都完好）
+        // 也不是露露备份，不能放行。
+        if (schema != SCHEMA_VERSION) {
+            throw IOException("不是有效的露露备份：缺少清单或版本不对（schema=$schema）")
         }
         return ValidatedZip(entries)
     }
@@ -180,7 +197,7 @@ object LuluDataBackup {
         input.use { source ->
             FileOutputStream(zipFile).use { dest -> source.copyTo(dest) }
         }
-        val validated = FileInputStream(zipFile).use { validateZip(it) }
+        val validated = validateZipFile(zipFile)
         File(staging, PENDING_FLAG_NAME).createNewFile()
         return validated
     }
