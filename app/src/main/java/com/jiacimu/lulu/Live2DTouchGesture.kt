@@ -2,6 +2,11 @@ package com.jiacimu.lulu
 
 /** Keep the selected contact tool through DOWN, MOVE and release. */
 internal object Live2DTouchGesture {
+    /** Validate actual lifecycle facts, never reassign a stale touch to a new call. */
+    fun acceptsCompletion(beganCallId: String, currentCallId: String,
+        rendererReady: Boolean, stageAlive: Boolean): Boolean =
+        beganCallId == currentCallId && rendererReady && stageAlive
+
     fun performed(mode: String, handGesture: String): String = when (mode) {
         "kiss" -> "kiss"
         "pat" -> when (handGesture) {

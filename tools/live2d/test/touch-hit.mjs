@@ -260,6 +260,8 @@ assert.equal(extra.id, 'bq4')
 assert.ok(extra.value < 1)
 assert.equal(touchCompanionOverlayFor('爱心眼', wolf, {
   ...metadata, '爱心眼': exp3('bq4') }, 'kiss', high), null)
+assert.equal(touchCompanionOverlayFor('爱心眼', wolf, metadata, 'kiss', high), null,
+  'heart eyes cannot trigger any automatic tactile companion overlay')
 assert.equal(touchCompanionOverlayFor('星星眼', wolf, {
   ...metadata, '脸红': exp3('ParamEyeLOpen') }, 'kiss', high), null,
   'a one-eye blush overlay must not wink over star eyes')

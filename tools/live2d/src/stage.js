@@ -500,7 +500,7 @@ function applyFinalParameters(core, deltaMs) {
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: visibleFace,
     authoredMotion: motionActive,
-    touchReflex: tactilePose, physical: physicalState,
+    touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
   })

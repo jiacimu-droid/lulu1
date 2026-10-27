@@ -313,7 +313,7 @@ export function touchExpressionWeight(name, state = {}) {
 
 /** Combine only a real independent additive blush with high-tier eyes. */
 export function touchCompanionOverlayFor(primary, names = [], metadata = {}, gesture = '', state = {}) {
-  if (!['heart', 'star'].includes(touchExpressionCategory(primary)) ||
+  if (touchExpressionCategory(primary) !== 'star' ||
       isImpact(gesture) || (state.shyness || 0) < 60) return null
   const candidate = names.find(name => name !== primary && touchExpressionCategory(name) === 'blush')
   if (!candidate) return null

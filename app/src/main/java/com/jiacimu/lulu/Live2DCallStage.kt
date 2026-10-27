@@ -107,6 +107,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val touchReceiver = rememberUpdatedState(onModelTouch)
+    val currentCallId = rememberUpdatedState(callId)
     val gpuSurfaceReceiver = rememberUpdatedState(onGpuSurfaceResult)
     val latestCalibrationReset = rememberUpdatedState(calibrationResetRevision)
     val latestCalibrationSize = rememberUpdatedState(calibrationSizeRevision)
@@ -132,12 +133,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             statusReceiver.value(phase, detail)
         }
     }
+    val stageAlive = remember(stage) { java.util.concurrent.atomic.AtomicBoolean(true) }
     LaunchedEffect(stage) { webViewReceiver.value?.invoke(stage) }
     // Keep one stable AndroidView parent. VirtualDisplay presentation temporarily
     // reparents the SAME WebView; no second Live2D instance or audio session.
     val stageHost = remember(stage) { FrameLayout(context) }
     DisposableEffect(stage) {
         onDispose {
+            stageAlive.set(false)
             runCatching { stage.stopLoading() }
             runCatching { stage.loadUrl("about:blank") }
             runCatching { stage.destroy() }
@@ -184,13 +187,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         // final action is batched into the real call timeline.
         if (onModelTouch != null) {
             Box(Modifier.fillMaxSize().pointerInput(
-                stage, rendererReady.value, interactionMode, interactionForce, calibrationMode,
+                stage, rendererReady.value, callId, interactionMode, interactionForce, calibrationMode,
                 calibrationRegion, calibrationRadius,
             ) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     if (!rendererReady.value || size.width < 20 || size.height < 20)
                         return@awaitEachGesture
+                    val beganCallId = currentCallId.value
                     val began = android.os.SystemClock.uptimeMillis()
                     var last = down.position
                     var travel = 0f
@@ -228,6 +232,12 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                             "JSON.stringify(window.LuluLive2D && ($js))",
                         ) { response ->
                             if (!completed) return@evaluateJavascript
+                            // A delayed JS result belongs to the original gesture/call.
+                            // A new call or a destroyed WebView must not inherit it.
+                            if (!Live2DTouchGesture.acceptsCompletion(
+                                    beganCallId, currentCallId.value,
+                                    rendererReady.value, stageAlive.get()
+                                )) return@evaluateJavascript
                             val hit = runCatching {
                                 val payload = JSONTokener(response).nextValue() as? String
                                 payload?.let(::JSONObject)

@@ -463,6 +463,51 @@ assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - .54) < .05,
   'left eyelid must restore the authored wink, not a forced neutral face')
 assert.ok(Math.abs(valuesById.get('ParamEyeROpen') - 1) < .05,
   'right eyelid must independently restore the authored opening')
+// The real star/closed-eye exp3 is already on the Cubism core when the
+// final actuator runs. It must win over an older caress/blink release.
+{
+  const eyeValues = new Map([
+    ['ParamEyeLOpen', 1], ['ParamEyeROpen', 1],
+    ['ParamEyeLSmile', 0], ['ParamEyeRSmile', 0],
+    ['ParamEyeBallX', 0], ['ParamEyeBallY', 0],
+  ])
+  const eyeWrites = []
+  const eyeLayer = createVisualLayerRuntime({
+    has: (_core, id) => eyeValues.has(id),
+    read: (_core, id) => eyeValues.get(id),
+    write: (_core, id, value) => { eyeWrites.push(id); eyeValues.set(id, value) },
+  })
+  const cue = { face: { eyeOpen: .25, eyeSmile: .55, gazeX: .45, gazeY: -.2 } }
+  for (let i = 0; i < 48; i++) eyeLayer.update({}, {
+    deltaMs: 16, seconds: i * .016, touchReflex: cue,
+  })
+  assert.ok(eyeValues.get('ParamEyeLOpen') < .4)
+  assert.ok(eyeValues.get('ParamEyeBallX') > .3)
+  // A verified star-eye expression changes the actual authored parameters.
+  // No local eye/gaze write is permitted, including from stale smoothing.
+  eyeValues.set('ParamEyeLOpen', .91)
+  eyeValues.set('ParamEyeROpen', .86)
+  eyeValues.set('ParamEyeLSmile', .77)
+  eyeValues.set('ParamEyeRSmile', .72)
+  eyeValues.set('ParamEyeBallX', -.45)
+  eyeValues.set('ParamEyeBallY', .2)
+  eyeWrites.length = 0
+  eyeLayer.update({}, { deltaMs: 16, seconds: 1,
+    touchReflex: cue, expressionActive: true, eyeShapeLocked: true })
+  assert.deepEqual([...eyeValues.values()], [.91, .86, .77, .72, -.45, .2],
+    'authored star eyes and gaze must survive a simultaneous tactile reflex')
+  assert.equal(eyeWrites.length, 0,
+    'the final layer must not write any authored eye channel while locked')
+  // Once the special expression ends, normal bilateral touch can take over.
+  for (let i = 0; i < 48; i++) eyeLayer.update({}, {
+    deltaMs: 16, seconds: 1 + i * .016, touchReflex: cue,
+    eyeShapeLocked: false,
+  })
+  assert.ok(eyeValues.get('ParamEyeLOpen') < .4)
+  assert.ok(Math.abs(eyeValues.get('ParamEyeLOpen') -
+    eyeValues.get('ParamEyeROpen')) < .02,
+    'the same touch closes both eyes together after the authored cue ends')
+}
 rig.reset()
 frame()
 assert.ok(Math.abs(valuesById.get('ParamAngleX')) < .8)
@@ -589,6 +634,8 @@ assert.equal(gate.started().reset, true,
   'a new sentence closes an existing tongue before playing sound')
 assert.ok(stage.includes('mouthExpressionGate.tick()'))
 assert.ok(stage.includes('!eyePoseBusy'))
+assert.ok(stage.includes('eyeShapeLocked: eyesLocked'),
+  'the real stage must transfer authored eye ownership to the final Cubism layer')
 assert.ok(stage.includes('voiceLevel: pcmAvailable ? mouth : null'))
 assert.ok(stage.includes('if (playing) {\n      activatePendingSpeechMoment()'))
 assert.ok(stage.includes('mouthExpressionGate.finished()'))

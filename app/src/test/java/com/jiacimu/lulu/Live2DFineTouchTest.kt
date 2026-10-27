@@ -2,11 +2,22 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.InteractionSignalBridge
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Live2DFineTouchTest {
+    @Test fun lateRendererTouchCannotLeakAcrossCallsOrDisposedStages() {
+        assertTrue(Live2DTouchGesture.acceptsCompletion("call-A", "call-A", true, true))
+        // Preview/diagnostic stages legitimately have no call ID.
+        assertTrue(Live2DTouchGesture.acceptsCompletion("", "", true, true))
+        assertFalse(Live2DTouchGesture.acceptsCompletion("", "call-A", true, true))
+        assertFalse(Live2DTouchGesture.acceptsCompletion("call-A", "call-B", true, true))
+        assertFalse(Live2DTouchGesture.acceptsCompletion("call-A", "call-A", false, true))
+        assertFalse(Live2DTouchGesture.acceptsCompletion("call-A", "call-A", true, false))
+    }
+
     @Test fun fineTouchesPreserveActualBodyPartInExistingCallTimelineContract() {
         for ((region, label) in Live2DTouchZones.labels) {
             assertEquals(label, Live2DTouchZones.label(region))

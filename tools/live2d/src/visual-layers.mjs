@@ -39,6 +39,9 @@ const MAIN_HEAD = [
   ['ParamAngleX', 'yaw'], ['ParamAngleY', 'pitch'], ['ParamAngleZ', 'roll'],
 ]
 const clamp01 = v => Math.min(1, Math.max(0, v))
+// An authored star/closed-eye exp3 owns its eye channels until it fades out.
+// Do not let a previous touch's smoothing write over the imported expression.
+const AUTHORED_EYE_CHANNELS = new Set(['gazeX', 'gazeY', 'eyeOpen', 'eyeSmile', 'squint'])
 
 export function createVisualLayerRuntime({ has, read, write }) {
   // Enter a selected pose promptly, relax out of it without a fast snap.
@@ -66,7 +69,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, voiceLevel = null, seconds, wolf = false }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -160,6 +163,12 @@ export function createVisualLayerRuntime({ has, read, write }) {
     }
 
     for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
+      // The exp3 was applied earlier in the Cubism frame. Even a pending
+      // release of a local blink/gaze cue must not flatten its special eyes.
+      if (eyeShapeLocked && AUTHORED_EYE_CHANNELS.has(key)) {
+        delete smoothedFace[key]
+        continue
+      }
       if (ids.some(id => !has(core, id))) continue
       // Speech amplitude articulates a selected smile; speech alone never
       // assigns a happy face to a serious, sad or otherwise neutral reply.
