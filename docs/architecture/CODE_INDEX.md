@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`263859568425289f887044ee726f91e1b530be05`
+- 基准提交：`acee66c47e19d89c4992085e08701599e36a3301`
 - 分支：`main`
 - 已索引文件：991
-- 已索引代码/文本行：194992
+- 已索引代码/文本行：195074
 - 已发现符号：2895
 
 | 文件 | 行数 | 符号数 |
@@ -831,7 +831,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 334 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 174 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 396 | 7 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 478 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 362 | 1 |
