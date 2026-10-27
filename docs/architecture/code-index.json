@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T15:28:59.136505+00:00",
-  "commit": "09af6e11698fcf692228f2dada24f38ab8ca6199",
+  "generatedAt": "2026-10-27T15:37:21.695340+00:00",
+  "commit": "ddcd3f60f69239d06dc0a1af7aa056afa0e99e0f",
   "branch": "main",
-  "sourceFingerprint": "08dfd1b38cb28ad364f203086c9b12a27aeaa0b28bcd05dc7ad1f399f8b40c11",
+  "sourceFingerprint": "4beb5e86099dffe9abdd745514c264c60938d3d89ba6fdb84c303a442a1ed08c",
   "summary": {
     "files": 985,
-    "lines": 194250,
-    "symbols": 2875
+    "lines": 194323,
+    "symbols": 2876
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -50,6 +50,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
         "line": 69
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 54
       }
     ],
     "bindInput": [
@@ -110,6 +114,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
         "line": 340
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 56
       }
     ],
     "microphone": [
@@ -15235,31 +15243,25 @@
     "LuluCloudBackupTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 17
+        "line": 24
       }
     ],
     "putSucceedsWithBasicAuth": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 25
-      }
-    ],
-    "Seen": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 26
+        "line": 115
       }
     ],
     "missingFolderIsCreatedThenRetried": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 58
+        "line": 135
       }
     ],
     "wrongCredentialsFailWithReadableReason": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-        "line": 85
+        "line": 162
       }
     ],
     "LuluDataBackupTest": [
@@ -32918,28 +32920,32 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-      "lines": 104,
-      "sha256": "87138e65edab0f6b77a901cc47607f85dd1a4a8c408dc0a7039b021682b0c707",
+      "lines": 177,
+      "sha256": "b4daee7c70f59d3b4b58b223eed89009882b3f9772173466f1dca31fec62476e",
       "symbols": [
         {
           "name": "LuluCloudBackupTest",
-          "line": 17
+          "line": 24
+        },
+        {
+          "name": "start",
+          "line": 54
+        },
+        {
+          "name": "stop",
+          "line": 56
         },
         {
           "name": "putSucceedsWithBasicAuth",
-          "line": 25
-        },
-        {
-          "name": "Seen",
-          "line": 26
+          "line": 115
         },
         {
           "name": "missingFolderIsCreatedThenRetried",
-          "line": 58
+          "line": 135
         },
         {
           "name": "wrongCredentialsFailWithReadableReason",
-          "line": 85
+          "line": 162
         }
       ]
     },
