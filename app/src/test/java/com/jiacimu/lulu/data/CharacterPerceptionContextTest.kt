@@ -315,7 +315,9 @@ class CharacterPerceptionContextTest {
             assertEquals(listOf(id), revised.map { it.id })
             assertEquals(2L, revised.single().revision)
             assertTrue(revised.single().content.contains("修订"))
-            assertTrue(PerceptionStimulusLedger.hasSeen(app, role, id, 1L))
+            // Editing canonically invalidates the previous revision's checkpoint;
+            // the new revision is offered again without retaining stale claims.
+            assertFalse(PerceptionStimulusLedger.hasSeen(app, role, id, 1L))
             assertFalse(PerceptionStimulusLedger.hasSeen(app, role, id, 2L))
         } finally {
             SharedExperienceTimeline.deleteEvent(id)
