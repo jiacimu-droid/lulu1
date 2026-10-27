@@ -83,7 +83,7 @@ internal object CommitmentDecisionRuntime {
         val drafts = CommitmentDecisionProtocol.drafts(changes, active)
         val completed = drafts.filter { it.action == "complete" }.mapNotNull { it.targetTaskId }.toSet()
         val before = CommitmentTaskStore.snapshot(characterId).associateBy(CommitmentTask::id)
-        applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, drafts)
+        val outcomes = applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, drafts)
         // A rejected completion suggestion cannot change music/alarms.
         if (evidenceIds.isNotEmpty() && CommitmentTaskStore.snapshot(characterId).any {
                 it.id in completed && it.status == CommitmentTaskStatus.Completed &&
@@ -104,9 +104,19 @@ internal object CommitmentDecisionRuntime {
             saved += evidenceIds.map { "$characterId:${it.substringBefore(":group:")}" }
             check(prefs.edit().putStringSet("handled", saved.takeLast(2000).toSet()).commit())
         }
-        val receipt = if (drafts.isEmpty()) "本轮模型判断没有约定变化。" else changed.joinToString("\n") {
+        // A failed draft used to collapse into the generic "nothing
+        // changed" line, hiding which change failed and why. Name each
+        // failure so the next turn can correct the claim instead of
+        // repeating that the change was made.
+        val failedLines = outcomes.filter { it.appliedTaskId == null }.map {
+            "未落成：${it.action}「${it.goal}」——${it.note}"
+        }
+        val changedLines = changed.map {
             "id=${it.id}; 关联记录id=${it.lexiconEntryId}; goal=${it.goal}; dueAt=${it.dueAt}; status=${it.status}; 实际结果=${it.readableLastResult()}"
-        }.ifBlank { "未新增或更改任务，已有记录保持原状。" }
+        }
+        val receipt = if (drafts.isEmpty()) "本轮模型判断没有约定变化。"
+            else (changedLines + failedLines).joinToString("\n")
+                .ifBlank { "未新增或更改任务，已有记录保持原状。" }
         if (drafts.isNotEmpty()) SharedExperienceTimeline.record(
             eventId = "commitment:$sourceTurnId", characterId = characterId, channel = "约定保存与执行回执",
             speaker = "执行器", content = receipt, occurredAt = Instant.now(), source = "commitment-decision",
@@ -115,3 +125,4 @@ internal object CommitmentDecisionRuntime {
         receipt
     }
 }
+

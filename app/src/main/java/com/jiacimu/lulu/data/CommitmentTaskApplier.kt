@@ -9,18 +9,32 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * Per-draft execution outcome, so a failed change is a visible fact instead
+ * of a silent no-op. The receipt built from these outcomes is recorded to
+ * the shared timeline, where the next turn can see exactly which change
+ * did not land and why, rather than a generic "nothing changed".
+ */
+internal data class CommitmentDraftOutcome(
+    val action: String,
+    val goal: String,
+    val appliedTaskId: String?,
+    val note: String,
+)
+
 internal suspend fun applyCommitmentTaskDrafts(
     characterId: String,
     sourceTurnId: String,
     sourceEventIds: List<String>,
     drafts: List<CommitmentTaskDraft>,
-) {
-    drafts.forEach { draft ->
+): List<CommitmentDraftOutcome> {
+    return drafts.map { draft ->
         when (draft.action) {
             "create" -> createCommitmentTask(characterId, sourceTurnId, sourceEventIds, draft)
             "reschedule" -> updateCommitmentTask(characterId, draft, sourceEventIds, reschedule = true)
             "cancel" -> updateCommitmentTask(characterId, draft, sourceEventIds, cancel = true)
             "complete" -> updateCommitmentTask(characterId, draft, sourceEventIds, complete = true)
+            else -> CommitmentDraftOutcome(draft.action, draft.goal, null, "未知的约定动作，未执行")
         }
     }
 }
@@ -30,7 +44,7 @@ private suspend fun createCommitmentTask(
     sourceTurnId: String,
     sourceEventIds: List<String>,
     draft: CommitmentTaskDraft,
-) {
+): CommitmentDraftOutcome {
     val now = Instant.now()
     // A role reply arrives as multiple bubbles. Extractor can see each growing batch and
     // may re-run, but a promised wake-up must create exactly one alarm-backed task.
@@ -53,8 +67,9 @@ private suspend fun createCommitmentTask(
                 current.copy(repeat = "daily",
                     sourceEventIds = (current.sourceEventIds + sourceEventIds).distinct())
             }?.let { CommitmentLexiconSync.syncTask(it) }
+            return CommitmentDraftOutcome(draft.action, draft.goal, existing.id, "已有相同约定，已升级为每天，未新建")
         }
-        return
+        return CommitmentDraftOutcome(draft.action, draft.goal, existing.id, "已有相同约定，未新建")
     }
     val existingLexicon = LuluRepositories.lexicon.snapshot(characterId)
         .asSequence()
@@ -111,6 +126,10 @@ private suspend fun createCommitmentTask(
     task = CommitmentTaskStore.save(task)
     if (task.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(task)
     CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == task.id }?.let { CommitmentLexiconSync.syncTask(it) }
+    return CommitmentDraftOutcome(
+        draft.action, draft.goal, task.id,
+        task.readableLastResult().ifBlank { "已新建" },
+    )
 }
 
 private suspend fun updateCommitmentTask(
@@ -120,8 +139,14 @@ private suspend fun updateCommitmentTask(
     reschedule: Boolean = false,
     cancel: Boolean = false,
     complete: Boolean = false,
-) {
-    val target = findTargetTask(characterId, draft) ?: return
+): CommitmentDraftOutcome {
+    // No silent drop: a change that names no existing responsibility must
+    // say so in its outcome, so the receipt can tell the next turn that
+    // this change did not land at all.
+    val target = findTargetTask(characterId, draft)
+        ?: return CommitmentDraftOutcome(
+            draft.action, draft.goal, null, "没有选中已有约定的精确ID，未更改任何任务",
+        )
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
     // No-gap rule: a reschedule that lands in "needs clarification" has no
@@ -186,6 +211,10 @@ private suspend fun updateCommitmentTask(
         target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     if (next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
     CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }?.let { CommitmentLexiconSync.syncTask(it) }
+    return CommitmentDraftOutcome(
+        draft.action, draft.goal, target.id,
+        next?.readableLastResult().orEmpty(),
+    )
 }
 
 private fun findTargetTask(characterId: String, draft: CommitmentTaskDraft): CommitmentTask? {
@@ -306,4 +335,5 @@ internal fun sameTimedReminderTask(existing: CommitmentTask, draft: CommitmentTa
         old.toLocalDate() != fresh.toLocalDate()) return false
     return sameDailyClockAndPurpose(existing.goal, oldAt, draft.goal, newAt, zone)
 }
+
 
