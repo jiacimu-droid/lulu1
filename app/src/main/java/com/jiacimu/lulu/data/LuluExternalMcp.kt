@@ -203,9 +203,11 @@ internal object LuluExternalMcp {
                 candidates.filter { it.id in history }).distinctBy { it.id }.take(2)
             var lastReadError: Exception? = null
             var verifiedArticle: XhsArticle? = null
+            var verifiedCard: XhsCard? = null
             for (candidate in candidatesToTry) {
                 try {
                     verifiedArticle = XhsReadingEngine.read(context, candidate)
+                    verifiedCard = candidate
                     break
                 } catch (cancelled: CancellationException) {
                     throw cancelled
@@ -224,7 +226,9 @@ internal object LuluExternalMcp {
             }
             val feedId = article.id
             val title = article.title
-            val link = article.sourceUrl
+            // Keep the actual opened card's share token when available; a bare
+            // /explore/id often cannot be reopened outside the logged-in reader.
+            val link = verifiedCard?.url() ?: article.sourceUrl
             val event = "xhs-read-$characterId-${UUID.randomUUID()}"
             var visualStatus = if (article.images.isEmpty()) "无图片" else "尚未读取图片"
             val prepared = VisionModelService.prepareXhsImagesDetailed(article.images.map { it.url })
