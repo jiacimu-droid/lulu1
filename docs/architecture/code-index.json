@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:41:57.103086+00:00",
-  "commit": "ce6951cad0dfb907428377927a2bd37f0ca747ba",
+  "generatedAt": "2026-10-27T16:46:36.659739+00:00",
+  "commit": "832af788e3f92c32f5de6d312c3928b1ce0d5577",
   "branch": "main",
-  "sourceFingerprint": "454bcba5f35a3c01e1c9357927b08f0e7024c2a562fc8e591e56e4dc8088e743",
+  "sourceFingerprint": "fddfbf745f561a144d0b3bfe476222466bc1e7f7b5e01c1cdafbbecffe9e5d74",
   "summary": {
     "files": 991,
-    "lines": 194911,
+    "lines": 194889,
     "symbols": 2895
   },
   "symbolIndex": {
@@ -7297,25 +7297,25 @@
     "onlinePrivateReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 73
+        "line": 66
       }
     ],
     "shouldUseRewrite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 85
+        "line": 78
       }
     ],
     "preservesSurfaceIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 107
+        "line": 92
       }
     ],
     "assess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-        "line": 153
+        "line": 138
       }
     ],
     "fromWire": [
@@ -21282,7 +21282,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 106,
-      "sha256": "fe5bf667907eed292207514a33916c4615428475c87274f3029a636cae48d9d7",
+      "sha256": "50fe5331ee385b5a35010de4787c3079cc631f753c7388cd4d102bf0448695b4",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -23153,8 +23153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-      "lines": 292,
-      "sha256": "b2f5c7bd60f6b29386f1ba977e249a2328703687858bf3e6df6c6e5b735415c9",
+      "lines": 279,
+      "sha256": "fcee5172e0516808365b5e9085cc3cc2b68fbd3cb677f97068b148b7e7a20e50",
       "symbols": [
         {
           "name": "repairInstruction",
@@ -23162,19 +23162,19 @@
         },
         {
           "name": "onlinePrivateReview",
-          "line": 73
+          "line": 66
         },
         {
           "name": "shouldUseRewrite",
-          "line": 85
+          "line": 78
         },
         {
           "name": "preservesSurfaceIntent",
-          "line": 107
+          "line": 92
         },
         {
           "name": "assess",
-          "line": 153
+          "line": 138
         }
       ]
     },
@@ -32036,8 +32036,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 439,
-      "sha256": "130434f9999748b32f81c724fac6f241dbbb243e156d8793c3dde0875b15c47c",
+      "lines": 446,
+      "sha256": "948082ded682cd7833f73e6258b730d8330d69cd499277607713da964fc14e3f",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -32674,8 +32674,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 367,
-      "sha256": "28c17204eca1298832fa4a18d2c0f4ace85e469cccd44e558fb106875c58d35f",
+      "lines": 351,
+      "sha256": "8dca6c19f2711d71bc799e15aa227d7a030b1a1df0ba9edeba1fc31d1263b769",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
