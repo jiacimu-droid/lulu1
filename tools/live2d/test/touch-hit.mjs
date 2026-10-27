@@ -4,7 +4,7 @@ import vm from 'node:vm'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion,
   TOUCH_REGIONS, TOUCH_ZONE_DEFAULTS, touchZoneArea } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchExpressionWeight,
-  touchExpressionCategory, touchCompanionOverlayFor } from '../src/touch-reflex.mjs'
+  touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from '../src/touch-reflex.mjs'
 import { createTouchResponseRuntime, touchFamily, isImpact } from '../src/touch-response.mjs'
 import { createTouchExpressionLayer } from '../src/touch-expression-layer.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
@@ -391,4 +391,18 @@ runtime.end()
 const ended = runtime.snapshot().shyness
 time += 5000
 assert.ok(runtime.snapshot().shyness < ended)
+assert.equal(touchMotionFor('beast-ear-left', 'stroke-left'), 1)
+assert.equal(touchMotionFor('beast-ear-right', 'stroke-right'), 2)
+assert.equal(touchMotionFor('hair', 'stroke-left'), 1)
+assert.equal(touchMotionFor('hair', 'stroke-right'), 2)
+assert.equal(touchMotionFor('cheek-left', 'slap'), 9)
+assert.equal(touchMotionFor('cheek-right', 'slap-left'), 9)
+assert.equal(touchMotionFor('chest', 'tap'), 17)
+assert.equal(touchMotionFor('nose', 'tap'), 23)
+assert.equal(touchMotionFor('forehead', 'stroke-up'), 26)
+assert.equal(touchMotionFor('cheek-right', 'stroke-down'), 28)
+assert.equal(touchMotionFor('mouth', 'tap'), null)
+assert.equal(touchMotionFor('chest', 'hold'), null)
+assert.equal(touchMotionFor('chest', 'kiss'), null)
+assert.equal(touchMotionFor('nose', 'stroke-left'), null)
 console.log(`Live2D precise calibration, progression, layered release and ${cases} contact cases passed`)

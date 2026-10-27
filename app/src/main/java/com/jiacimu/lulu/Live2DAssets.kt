@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -268,6 +269,10 @@ internal object Live2DAssets {
                     }
                 }
             } ?: error("无法读取模型 ZIP")
+            // Some creator zips store entry names #U-encoded (e.g. #U5c0f#U72fc
+            // for 小狼) while model3.json references the decoded Chinese names.
+            // Decode names first so reference validation can find the files.
+            decodeUFileNames(staging)
             val settingsFiles = staging.walkTopDown()
                 .filter { it.isFile && it.name.endsWith(".model3.json", ignoreCase = true) }.toList()
             require(settingsFiles.size == 1) {
@@ -305,15 +310,20 @@ internal object Live2DAssets {
             destination.parentFile?.mkdirs()
             check(staging.renameTo(destination)) { "无法存储 Live2D 模型" }
             val stored = "models/$hash/$stamp/$relativeSettings"
-            val previous = prefs(context).getString("model:$characterId", null)
+            val label = decodeUName(settings.nameWithoutExtension)
+            val archives = readArchives(context, characterId).toMutableList()
+            if (archives.none { it.settings == stored }) {
+                archives.add(ArchiveEntry(stored, label))
+            }
             val editor = prefs(context).edit().putString("model:$characterId", stored)
-                .putString("label:$characterId", settings.nameWithoutExtension)
+                .putString("label:$characterId", label)
+                .putString("archives:$characterId", archivesJson(archives))
             if (previewRelative != null) editor.putString("preview:$characterId", "models/$hash/$stamp/$previewRelative")
             else editor.remove("preview:$characterId")
             check(editor.commit()) {
                 "角色模型绑定保存失败"
             }
-            if (previous != stored) previous?.let { deleteImportedFolder(context, it) }
+            // Previous skins stay as switchable archives instead of being deleted.
             revisionState.value++
             "已导入 ${settings.name}，打开视频画面即可预览。"
         } finally {
@@ -321,6 +331,114 @@ internal object Live2DAssets {
             if (prefs(context).getString("model:$characterId", null)?.contains("/$stamp/") != true)
                 destination.deleteRecursively()
         }
+    }
+
+    data class ArchiveEntry(val settings: String, val label: String)
+
+    internal fun decodeUName(name: String): String {
+        val pattern = Regex("#U([0-9a-fA-F]{4,6})")
+        if (!pattern.containsMatchIn(name)) return name
+        return pattern.replace(name) { match ->
+            val code = match.groupValues[1].toIntOrNull(16) ?: return@replace match.value
+            if (code in 0..0x10FFFF) String(Character.toChars(code)) else match.value
+        }
+    }
+
+    private fun decodeUFileNames(root: File) {
+        root.walkTopDown().filter { it.isFile }.forEach { file ->
+            val decoded = decodeUName(file.name)
+            if (decoded != file.name) {
+                val target = File(file.parentFile, decoded)
+                if (!target.exists()) file.renameTo(target)
+            }
+        }
+        root.walkTopDown().filter { it.isDirectory && it != root }
+            .sortedByDescending { it.relativeTo(root).invariantSeparatorsPath.count { ch -> ch == '/' } }
+            .forEach { dir ->
+                val decoded = decodeUName(dir.name)
+                if (decoded != dir.name) {
+                    val target = File(dir.parentFile, decoded)
+                    if (!target.exists()) dir.renameTo(target)
+                }
+            }
+    }
+
+    private fun archivesJson(entries: List<ArchiveEntry>): String {
+        val array = JSONArray()
+        entries.forEach { entry ->
+            array.put(JSONObject().put("settings", entry.settings).put("label", entry.label))
+        }
+        return array.toString()
+    }
+
+    private fun readArchives(context: Context, characterId: String): List<ArchiveEntry> {
+        val raw = prefs(context).getString("archives:$characterId", null) ?: return emptyList()
+        return runCatching {
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { i ->
+                val obj = array.optJSONObject(i) ?: return@mapNotNull null
+                val settings = obj.optString("settings").takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                ArchiveEntry(settings, obj.optString("label").takeIf { it.isNotBlank() } ?: settings)
+            }
+        }.getOrDefault(emptyList())
+    }
+
+    fun listArchives(context: Context, characterId: String): List<ArchiveEntry> {
+        return readArchives(context, characterId).filter { entry ->
+            if (!entry.settings.startsWith("models/") || entry.settings.contains("..")) return@filter false
+            val file = File(base(context), entry.settings)
+            file.isFile && inside(base(context), file)
+        }
+    }
+
+    fun currentModelSettings(context: Context, characterId: String): String? =
+        prefs(context).getString("model:$characterId", null)
+
+    fun listModeledCharacters(context: Context): List<Pair<String, String>> {
+        val all = prefs(context).all
+        return all.keys.filter { it.startsWith("model:") }.mapNotNull { key ->
+            val id = key.removePrefix("model:")
+            val relative = all[key] as? String ?: return@mapNotNull null
+            if (id.isBlank() || !relative.startsWith("models/") || relative.contains("..")) return@mapNotNull null
+            id to (prefs(context).getString("label:$id", null).takeIf { !it.isNullOrBlank() } ?: id)
+        }.sortedBy { it.second }
+    }
+
+    fun switchArchive(context: Context, characterId: String, settings: String): Boolean {
+        val entry = listArchives(context, characterId).find { it.settings == settings } ?: return false
+        val file = File(base(context), settings)
+        if (!file.isFile || !inside(base(context), file)) return false
+        val portrait = genuinePortrait(file)
+        val editor = prefs(context).edit().putString("model:$characterId", settings)
+            .putString("label:$characterId", entry.label)
+        val preview = portrait?.relativeTo(base(context))?.invariantSeparatorsPath
+        if (preview != null) editor.putString("preview:$characterId", preview)
+        else editor.remove("preview:$characterId")
+        if (!editor.commit()) return false
+        revisionState.value++
+        return true
+    }
+
+    fun deleteArchive(context: Context, characterId: String, settings: String): Boolean {
+        val remaining = readArchives(context, characterId).filter { it.settings != settings }
+        val editor = prefs(context).edit().putString("archives:$characterId", archivesJson(remaining))
+        val current = prefs(context).getString("model:$characterId", null)
+        if (current == settings) {
+            val fallback = remaining.firstOrNull { candidate ->
+                val file = File(base(context), candidate.settings)
+                candidate.settings.startsWith("models/") && file.isFile && inside(base(context), file)
+            }
+            if (fallback != null) {
+                editor.putString("model:$characterId", fallback.settings)
+                    .putString("label:$characterId", fallback.label)
+            } else {
+                editor.remove("model:$characterId").remove("label:$characterId").remove("preview:$characterId")
+            }
+        }
+        if (!editor.commit()) return false
+        deleteImportedFolder(context, settings)
+        revisionState.value++
+        return true
     }
 
     private fun validateReference(root: File, directory: File, relative: String) {

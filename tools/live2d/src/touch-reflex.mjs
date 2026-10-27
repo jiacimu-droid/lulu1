@@ -310,3 +310,34 @@ export function touchCompanionOverlayFor(primary, names = [], metadata = {}, ges
       !Number.isFinite(value) || value <= 0 || value > 1) return null
   return { name: candidate, id, value: value * touchExpressionWeight(candidate, state) }
 }
+
+/**
+ * Deterministic touch-to-motion wiring for the wolf pack: a completed
+ * touch plays one catalog clip, never a model decision. The map is keyed
+ * by touch family (side suffix stripped) and gesture kind. Side only
+ * picks between the mirrored tilt pair; hair follows the stroke
+ * direction because it has no side. Anything unmapped returns null.
+ */
+export function touchMotionFor(region, gesture) {
+  const family = touchFamily(String(region || ''))
+  const side = String(region || '').endsWith('-left') ? -1
+    : String(region || '').endsWith('-right') ? 1 : 0
+  const kind = String(gesture || '')
+  if (kind === 'tap') {
+    if (family === 'chest') return 17
+    if (family === 'nose') return 23
+    return null
+  }
+  if (kind.startsWith('stroke')) {
+    if (family === 'beast-ear') return side < 0 ? 1 : 2
+    if (family === 'hair') return kind === 'stroke-right' ? 2 : 1
+    if (family === 'forehead') return 26
+    if (family === 'cheek') return 28
+    return null
+  }
+  if (/^slap(-left|-right)?$/.test(kind)) {
+    if (family === 'cheek') return 9
+    return null
+  }
+  return null
+}

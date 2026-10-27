@@ -62,6 +62,18 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".Live2DPreviewPlaygroundActivity"
+            android:exported="true"
+            android:icon="@drawable/lulu_exact_icon"
+            android:label="动作试验场"
+            android:theme="@style/Theme.Lulu">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".system.LuluScreenRequestReceiver"
             android:enabled="true"

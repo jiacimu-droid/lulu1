@@ -12,7 +12,7 @@ import { createSpeechMouthRuntime } from './speech-mouth.mjs'
 import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
-import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
+import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor, touchMotionFor } from './touch-reflex.mjs'
 import { createTouchResponseRuntime, isImpact } from './touch-response.mjs'
 import { createTouchExpressionLayer } from './touch-expression-layer.mjs'
 
@@ -109,6 +109,7 @@ let headRequest = null
 let headRequestEndAt = 0
 let touchReflex = null
 let touchReflexEndAt = 0
+let lastTouchMotionSequence = -1
 let tactileContact = null
 const touchResponse = createTouchResponseRuntime()
 let touchSequence = 0
@@ -1289,6 +1290,14 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // and path length while held, not with the number of MOVE callbacks.
   if (isImpact(kind)) clearTouchCompanion()
   if (completed) updateTactileExpression(region, kind, state, now)
+  // One completed touch plays at most one catalog clip: the sequence
+  // guard keeps stroke MOVE repeats from replaying it, and the wolf gate
+  // keeps other skins from inheriting wolf clip numbers.
+  if (completed && wolfRigActive && touchSequence !== lastTouchMotionSequence) {
+    lastTouchMotionSequence = touchSequence
+    const motionIndex = touchMotionFor(region, kind)
+    if (motionIndex !== null) motion('LuluWolf', motionIndex, true)
+  }
   return { hit: true, region, gesture: kind, force: state.force }
 }
 
