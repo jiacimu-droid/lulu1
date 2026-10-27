@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:17:08.269700+00:00",
-  "commit": "a559911c0daee975453aad5045666e1b3b877b1f",
+  "generatedAt": "2026-10-27T19:17:45.185754+00:00",
+  "commit": "f1e8c284d5d2358a77d6006076c63798ee75e574",
   "branch": "main",
-  "sourceFingerprint": "b2c1a6875040ee5f69fa6e241431f9d4eced0f1f3378f58067db2dfc2bdcb2c2",
+  "sourceFingerprint": "995c92b2fa08c160a53dfe75ad00959b82a01e1a8a7727e06308e84146f9c480",
   "summary": {
     "files": 993,
-    "lines": 196569,
+    "lines": 196589,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -4763,7 +4763,7 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 106
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -20646,8 +20646,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 198,
-      "sha256": "1479ea055dfc8c92627be059dc09d7d49a0ed1bc90e1597f0bb36794378246d8",
+      "lines": 218,
+      "sha256": "6f6cfc41af8cb40c52a1b2318046e61d800d14a80c1d3fe613bcccad4eef8dcb",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -20655,7 +20655,7 @@
         },
         {
           "name": "normalize",
-          "line": 106
+          "line": 124
         }
       ]
     },
