@@ -167,6 +167,8 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
+        appendLine("- share_xiaohongshu，args={\"evidenceId\":\"本人已读小红书的真实阅读证据ID\",\"comment\":\"可选、自己想对用户说的话\"}：把本人确实读过的笔记作为可点击的小红书分享卡片发进私聊，也可明确填 latest=true 选择最近一篇真实已读笔记。只凭搜索结果、链接、他人的口头描述不能冒充已读；分享不是自动义务，可在读完后下一轮自行决定，也可与其他行动同时选择。")
+        appendLine(XhsRoleShare.availableContext(characterId))
         appendLine("- go_offline，args={}：角色自主立刻休眠/下线，数字身体同时开始恢复。不必等五分钟到期；要先告别就先回复，再把 go_offline 作为 steps 最后一步，依赖消息真正送达。已安排的本人日程会在准确时间唤醒你，例如15点阅读、18点见朋友；两项之间不用为了默认两小时感知额外上线。只有**实际由你自己自主选择的近期生活活动**才能让其独立唤醒接管兜底感知；用户交代的提醒不算。无本人近期计划时才使用可调自适应唤醒。不会清除记忆、未读、计划或唤醒闹钟；通话中需先挂断。")
         com.jiacimu.lulu.StickerLibraryStore.initialize(context)
         val stickerChoices = com.jiacimu.lulu.StickerLibraryStore.items.value
@@ -597,6 +599,10 @@ internal object CompanionActionRuntime {
                 }
                 CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id, delivered.id)
             }
+            "share_xiaohongshu" -> XhsRoleShare.deliver(
+                characterId, args, privateConversation(characterId, character.displayName),
+                replyEvidenceIds,
+            )
             "send_private_message" -> {
                 // An explicit multi-bubble turn is not one plain 2000-character message.
                 val bubbleModes = args.optJSONArray("bubbleDeliveries")?.let { modes ->
@@ -1430,5 +1436,97 @@ internal object OrderedCharacterActions {
             }.take(160)
         }
         return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts, anyCompleted, completedCount)
+    }
+}
+
+/**
+ * Characters can share a REAL already-read Xiaohongshu article in the owner's
+ * existing QQ chat. The authoritative source is the role-owned reading event,
+ * not text the model fabricates or a keyword search hit.
+ */
+internal object XhsRoleShare {
+    private val readableSources = setOf("xiaohongshu-webview", "xiaohongshu-mcp")
+
+    internal fun noteFromEvidence(event: SharedTimelineEvent, role: String): com.jiacimu.lulu.QqXhsSharedNote? {
+        if (event.characterId != role || event.evidenceKind != EventEvidenceKind.Observation ||
+            event.channel != "小红书阅读" || event.source !in readableSources) return null
+        val actual = runCatching { JSONObject(event.content) }.getOrNull() ?: return null
+        val authorBody = if (actual.has("authorBody")) actual.optString("authorBody")
+            else if (actual.optBoolean("bodyActuallyLoaded")) actual.optString("text")
+            else ""
+        val visual = actual.optString("imageUnderstanding")
+            .takeIf { actual.optInt("imageAnalyzedCount", 0) > 0 }.orEmpty()
+        // A partially visited search listing or a failed/empty image reading
+        // cannot become a verified note by setting a title or guessed URL.
+        if (!actual.optBoolean("bodyActuallyLoaded") && visual.isBlank()) return null
+        if (authorBody.isBlank() && visual.isBlank()) return null
+        val url = actual.optString("url").trim()
+        val title = actual.optString("title").trim()
+        if (title.isBlank() || url.isBlank()) return null
+        val commentsJson = actual.optJSONArray("commentsActuallyLoaded")
+        val comments = (0 until minOf(commentsJson?.length() ?: 0, 8))
+            .map { commentsJson!!.optString(it).trim().take(320) }.filter(String::isNotBlank)
+        val note = com.jiacimu.lulu.QqXhsSharedNote(
+            title = title.take(160), url = url, author = actual.optString("author").take(100),
+            coverUrl = actual.optString("coverUrl").take(2000),
+            body = authorBody.take(8_000),
+            visualReading = visual.take(3_000),
+            comments = comments, verified = true, sharedByCharacter = true,
+        )
+        // The official-link encoder is the same one already used for the
+        // owner's share cards; no arbitrary URL may reach an external preview.
+        return note.takeIf { runCatching { com.jiacimu.lulu.encodeQqXhsSharedNote(it) }.isSuccess }
+    }
+
+    internal fun recentNotes(characterId: String): List<Pair<SharedTimelineEvent, com.jiacimu.lulu.QqXhsSharedNote>> =
+        SharedExperienceTimeline.recentEvents(characterId, 240)
+            .asReversed().mapNotNull { event ->
+                noteFromEvidence(event, characterId)?.let { event to it }
+            }.distinctBy { it.first.id }.take(6)
+
+    fun availableContext(characterId: String): String {
+        val notes = recentNotes(characterId)
+        if (notes.isEmpty()) return "【本人可分享的小红书】暂无真实已读笔记；先实际使用 read_xiaohongshu 并等成功回执。"
+        return buildString {
+            appendLine("【本人已读、可用卡片分享的小红书｜仅事实，不要求自动发送】")
+            notes.forEach { (event, note) ->
+                appendLine("evidenceId=${event.id}；标题=${note.title.take(80)}；来源=${note.url}")
+            }
+            append("想分享其中一篇时选择 share_xiaohongshu；只有明确要发最新那篇时才传 latest=true，不能把未读的搜索候选当作已读。")
+        }
+    }
+
+    internal fun select(characterId: String, evidenceId: String, latest: Boolean): com.jiacimu.lulu.QqXhsSharedNote? {
+        val selected = when {
+            evidenceId.isNotBlank() -> SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+                .firstOrNull()
+            latest -> recentNotes(characterId).firstOrNull()?.first
+            else -> null
+        } ?: return null
+        return noteFromEvidence(selected, characterId)
+    }
+
+    fun deliver(
+        characterId: String, args: JSONObject, conversation: LuluConversation, replyIds: Set<String>,
+    ): CompanionActionResult {
+        require(!characterId.startsWith("resident:")) { "数字世界原住民没有现实小红书阅读权限" }
+        val evidenceId = args.optString("evidenceId").trim()
+        val note = select(characterId, evidenceId, args.optBoolean("latest", false))
+            ?: error("没有找到本人对应的真实已读小红书笔记；不能把未阅读的链接当作已读分享")
+        val payload = com.jiacimu.lulu.encodeQqXhsSharedNote(note)
+        val comment = args.optString("comment").trim().take(240)
+        val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+            val card = MigratedDomainStores.chat.appendCharacterMessage(
+                conversation.id, payload, characterId)
+            if (comment.isNotBlank()) {
+                MigratedDomainStores.chat.appendCharacterMessage(conversation.id, comment, characterId)
+            }
+            card
+        }
+        if (replyIds.isNotEmpty()) {
+            CompanionOnlineStore.acknowledgeDeliveredReply(characterId, conversation.id, replyIds)
+        }
+        return CompanionActionResult(true, "已在私聊真正发送已读小红书卡片《${note.title.take(90)}》",
+            conversation.id, delivered.id)
     }
 }
