@@ -74,6 +74,10 @@ private const val DESKTOP_COLUMNS = 4
 private const val DESKTOP_ROWS = 4
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
 
+// 至少保留一张空白桌面页；如果最后一张已经放了应用，就预留下一张。
+internal fun desktopAllocatedPageCount(neededSlots: Int): Int =
+    maxOf(2, (neededSlots + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT + 1)
+
 // Resolve colors inside each composable, from the chosen desktop recipe.
 private val DesktopPaper: Color @Composable get() = MaterialTheme.colorScheme.background
 private val DesktopSoft: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
@@ -217,17 +221,19 @@ internal fun MigrationHomeV2(
             }
 
             Spacer(Modifier.height(9.dp))
-            // 一页 16 格，格子不够就加页：已有格子不动，新应用往后排进空位。
-            val pageCount = (slots.size + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+            // 像手机桌面一样横向翻页，即使应用尚未填满也保留第二页。
+            val pageCount = slots.size / DESKTOP_SLOT_COUNT
             val pagerState = rememberPagerState(pageCount = { pageCount })
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxWidth().weight(1f),
+                reverseLayout = true, // 首屏向右滑可进入下一桌面
             ) { page ->
                 val pageSlots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT)
                 DesktopLauncherGrid(
                     slots = pageSlots,
-                    modifier = Modifier.fillMaxWidth(),
+                    // Pager 默认会垂直居中未撑满的子元素；必须占满高度，图标才能从顶部排列。
+                    modifier = Modifier.fillMaxSize(),
                     onMove = { from, to ->
                         val globalFrom = page * DESKTOP_SLOT_COUNT + from
                         val globalTo = page * DESKTOP_SLOT_COUNT + to
@@ -505,19 +511,15 @@ private fun loadDesktopSlots(context: Context): List<String?> {
     val missing = DesktopV2Launchers.filterNot { it.id in existing }
     val lastOccupied = saved.indexOfLast { it != null }
     val totalNeeded = maxOf(existing.size + missing.size, DESKTOP_SLOT_COUNT, lastOccupied + 1)
-    val pageCount = (totalNeeded + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+    val pageCount = desktopAllocatedPageCount(totalNeeded)
     val sized = MutableList<String?>(pageCount * DESKTOP_SLOT_COUNT) { null }
     saved.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
     missing.forEach { launcher ->
         val empty = sized.indexOfFirst { it == null }
         if (empty >= 0) sized[empty] = launcher.id
     }
-    // 删掉尾部全空的页（比如某应用下线后留下的空页），至少留一页。
-    var pages = pageCount
-    while (pages > 1 && sized.drop((pages - 1) * DESKTOP_SLOT_COUNT).all { it == null }) {
-        pages -= 1
-    }
-    return sized.take(pages * DESKTOP_SLOT_COUNT)
+    // 不丢弃最后一张空白桌面；保存的历史位置仍保持不变。
+    return sized
 }
 
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
