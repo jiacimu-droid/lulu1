@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T05:32:19.960245+00:00",
-  "commit": "1dbcc5047a2e5e63aa17b863d739bc48fe183671",
+  "generatedAt": "2026-10-27T05:35:31.535232+00:00",
+  "commit": "e67ad15fde0a55d7ab08119e08a608a45e6f37d6",
   "branch": "main",
-  "sourceFingerprint": "09471abfb92122c124833b396170d7298f39e5f8ea79d205d7bb037def2a91c8",
+  "sourceFingerprint": "539a8c8a70afd3d07493412f8639219a2947df9c91e230a2d1cb748a5a2a05c3",
   "summary": {
     "files": 954,
-    "lines": 189374,
-    "symbols": 2781
+    "lines": 189538,
+    "symbols": 2784
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1690
+        "line": 1763
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4627,7 +4627,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1481
+        "line": 1540
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -5671,25 +5671,25 @@
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 801
+        "line": 860
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 964
+        "line": 1023
       }
     ],
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1547
+        "line": 1606
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1570
+        "line": 1645
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -14403,31 +14403,49 @@
     "CharacterTopicCandidatesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "compactAndFullDeliverOldThoughtsWithNoTimeLimit": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "deliveryIsStillBoundedToNewestThoughts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 88
+        "line": 89
       }
     ],
     "selfOrganizeSectionAppearsWhenThoughtsAreDelivered": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 127
+        "line": 128
+      }
+    ],
+    "repeatedThoughtCountsMentionsInsteadOfDuplicating": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 162
+      }
+    ],
+    "resolvedDiscardedAndEvolvedThoughtsAreNotDelivered": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 190
+      }
+    ],
+    "spokenThoughtStaysHeldWithSpokenTime": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 221
       }
     ],
     "selfOrganizeSectionIsAbsentWhenNothingIsDelivered": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 148
+        "line": 237
       }
     ],
     "CharacterUnfinishedActionContextTest": [
@@ -20603,8 +20621,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1854,
-      "sha256": "6b172e71e9c25f382e7568bdba7617141634287c61618beb2645fe3336aa0b37",
+      "lines": 1929,
+      "sha256": "faef94372747e742e75b7e569084b88aedcdd972180e26a63e4206c2fb7dea7c",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20620,27 +20638,27 @@
         },
         {
           "name": "interactionContext",
-          "line": 801
+          "line": 860
         },
         {
           "name": "groundingContext",
-          "line": 964
+          "line": 1023
         },
         {
           "name": "normalize",
-          "line": 1481
+          "line": 1540
         },
         {
           "name": "axis",
-          "line": 1547
+          "line": 1606
         },
         {
           "name": "compactContext",
-          "line": 1570
+          "line": 1645
         },
         {
           "name": "context",
-          "line": 1690
+          "line": 1763
         }
       ]
     },
@@ -31312,28 +31330,40 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-      "lines": 162,
-      "sha256": "86f2ca1fd6d2e9c1019da64306a9b2dfaa8bedaa30523ff3d03462f2c8c16e4d",
+      "lines": 251,
+      "sha256": "79a35217008f42a0a4554c290743c448bf3e0be34dfef09f282538c9c49ba68a",
       "symbols": [
         {
           "name": "CharacterTopicCandidatesTest",
-          "line": 33
+          "line": 34
         },
         {
           "name": "compactAndFullDeliverOldThoughtsWithNoTimeLimit",
-          "line": 51
+          "line": 52
         },
         {
           "name": "deliveryIsStillBoundedToNewestThoughts",
-          "line": 88
+          "line": 89
         },
         {
           "name": "selfOrganizeSectionAppearsWhenThoughtsAreDelivered",
-          "line": 127
+          "line": 128
+        },
+        {
+          "name": "repeatedThoughtCountsMentionsInsteadOfDuplicating",
+          "line": 162
+        },
+        {
+          "name": "resolvedDiscardedAndEvolvedThoughtsAreNotDelivered",
+          "line": 190
+        },
+        {
+          "name": "spokenThoughtStaysHeldWithSpokenTime",
+          "line": 221
         },
         {
           "name": "selfOrganizeSectionIsAbsentWhenNothingIsDelivered",
-          "line": 148
+          "line": 237
         }
       ]
     },
