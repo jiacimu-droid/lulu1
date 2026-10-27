@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-26T17:04:51.738037+00:00",
-  "commit": "a92520fe928c4a5d30c397e71f395f53c78dffd5",
+  "generatedAt": "2026-10-27T02:49:40.327615+00:00",
+  "commit": "f05e2ce4aa82c7aece955ee1a6a6a12ecf317e4e",
   "branch": "main",
-  "sourceFingerprint": "e7bac439c705b2e427de033a90301821ec1900bceffab939ea59aa44ac556c5a",
+  "sourceFingerprint": "d53cf28fcabf4074fb6d38dc03832b7244b85f40bd96e1ba67bbdc6da73d050b",
   "summary": {
     "files": 952,
-    "lines": 188709,
-    "symbols": 2764
+    "lines": 188767,
+    "symbols": 2766
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1674
+        "line": 1683
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3189,61 +3189,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 194
+        "line": 199
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 206
+        "line": 211
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 212
+        "line": 217
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 219
+        "line": 224
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 223
+        "line": 228
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 246
+        "line": 251
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 259
+        "line": 264
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 267
+        "line": 272
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 294
+        "line": 299
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 373
+        "line": 378
       }
     ],
     "ScheduleFeatureScreen": [
@@ -14373,19 +14373,31 @@
     "CharacterTopicCandidatesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 34
+        "line": 33
       }
     ],
     "compactAndFullDeliverOldThoughtsWithNoTimeLimit": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 52
+        "line": 51
       }
     ],
     "deliveryIsStillBoundedToNewestThoughts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-        "line": 89
+        "line": 88
+      }
+    ],
+    "selfOrganizeSectionAppearsWhenThoughtsAreDelivered": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 127
+      }
+    ],
+    "selfOrganizeSectionIsAbsentWhenNothingIsDelivered": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
+        "line": 148
       }
     ],
     "CharacterUnfinishedActionContextTest": [
@@ -18341,8 +18353,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 998,
-      "sha256": "bcd082ef2f1e70c79ad6894ad0dfdea7e3dda9699da2420fd7ba53c98ad27ab8",
+      "lines": 1003,
+      "sha256": "dced6f45dc9fdb1b1e82aa823f8c3cdf19b7f417f37ccdc1cb6900d506aa6296",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -18350,43 +18362,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 194
+          "line": 199
         },
         {
           "name": "repliedPreview",
-          "line": 206
+          "line": 211
         },
         {
           "name": "beginReply",
-          "line": 212
+          "line": 217
         },
         {
           "name": "toggleSelected",
-          "line": 219
+          "line": 224
         },
         {
           "name": "buildForwardPayload",
-          "line": 223
+          "line": 228
         },
         {
           "name": "appendDraft",
-          "line": 246
+          "line": 251
         },
         {
           "name": "stopReceiving",
-          "line": 259
+          "line": 264
         },
         {
           "name": "wakeOnline",
-          "line": 267
+          "line": 272
         },
         {
           "name": "sendAndReceive",
-          "line": 294
+          "line": 299
         },
         {
           "name": "regenerateLatestReply",
-          "line": 373
+          "line": 378
         }
       ]
     },
@@ -20503,8 +20515,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1822,
-      "sha256": "ffe03c9d13dff670b81a20d053c6d0f90082749275e9862008212df0e135ab8c",
+      "lines": 1835,
+      "sha256": "6753ab68392ccd0d3c2470365391c857f181555dc93468bb12995e8620f4b28a",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -20540,7 +20552,7 @@
         },
         {
           "name": "context",
-          "line": 1674
+          "line": 1683
         }
       ]
     },
@@ -31185,20 +31197,28 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
-      "lines": 122,
-      "sha256": "2e132b24d3ed973471984fd747928f04d89bc8bb9d03bcb56f4684d2df88c453",
+      "lines": 162,
+      "sha256": "86f2ca1fd6d2e9c1019da64306a9b2dfaa8bedaa30523ff3d03462f2c8c16e4d",
       "symbols": [
         {
           "name": "CharacterTopicCandidatesTest",
-          "line": 34
+          "line": 33
         },
         {
           "name": "compactAndFullDeliverOldThoughtsWithNoTimeLimit",
-          "line": 52
+          "line": 51
         },
         {
           "name": "deliveryIsStillBoundedToNewestThoughts",
-          "line": 89
+          "line": 88
+        },
+        {
+          "name": "selfOrganizeSectionAppearsWhenThoughtsAreDelivered",
+          "line": 127
+        },
+        {
+          "name": "selfOrganizeSectionIsAbsentWhenNothingIsDelivered",
+          "line": 148
         }
       ]
     },
