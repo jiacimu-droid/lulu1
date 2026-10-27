@@ -122,6 +122,53 @@ internal object AutonomousActionWireProtocol {
         }
     }
 
+    /** Validate each *actually chosen* secondary world step, including
+     * those originating in nextAction, without guessing an intended verb. */
+    internal fun missingWorldBuildStepFields(steps: org.json.JSONArray?): List<String> = buildList {
+        for (index in 0 until (steps?.length() ?: 0)) {
+            val step = steps?.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "digital_world_action") continue
+            val args = step.optJSONObject("args") ?: continue
+            if (args.optString("worldAction") != "build_home_item") continue
+            if (args.optString("name").isBlank()) add("steps[$index].name")
+            if (args.optString("appearance").isBlank()) add("steps[$index].appearance")
+        }
+    }
+
+    /**
+     * Apply only the same model's explicit field-only corrections to existing
+     * build steps; retain exact other steps, order, tools and original args.
+     * Missing model values stay missing, not filled by executor heuristics.
+     */
+    internal fun repairWorldBuildSteps(
+        original: org.json.JSONArray?, correction: JSONObject,
+    ): org.json.JSONArray? {
+        if (original == null) return null
+        if (missingWorldBuildStepFields(original).isEmpty()) return original
+        val patches = correction.optJSONArray("repairs") ?: return null
+        val copied = org.json.JSONArray(original.toString())
+        for (patchIndex in 0 until patches.length()) {
+            val patch = patches.optJSONObject(patchIndex) ?: continue
+            val index = patch.optInt("index", -1)
+            if (index !in 0 until copied.length()) continue
+            val step = copied.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "digital_world_action") continue
+            val args = step.optJSONObject("args") ?: continue
+            if (args.optString("worldAction") != "build_home_item") continue
+            if (args.optString("name").isBlank()) {
+                patch.optString("name").trim().take(40).takeIf(String::isNotBlank)
+                    ?.let { args.put("name", it) }
+            }
+            if (args.optString("appearance").isBlank()) {
+                patch.optString("appearance").trim().take(500).takeIf(String::isNotBlank)
+                    ?.let { args.put("appearance", it) }
+            }
+            step.put("args", args)
+            copied.put(index, step)
+        }
+        return copied.takeIf { missingWorldBuildStepFields(it).isEmpty() }
+    }
+
     fun normalize(original: JSONObject): JSONObject {
         val result = JSONObject(original.toString())
         val specified = result.optString("action").trim().lowercase()
@@ -183,8 +230,8 @@ internal object AutonomousActionWireProtocol {
         // The direct-action path consumes top-level keys, but Action.TOOL sends
         // args verbatim: mirror *authored* parameters rather than dropping them.
         // Nested args retain precedence; never synthesize item names/looks.
-        if (result.optString("action") == "tool" &&
-            result.optString("tool") == "digital_world_action") {
+        if ((specified == "tool" && toolName == "digital_world_action") ||
+            specified == "digital_world_action") {
             val toolArgs = result.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()
             argumentKeys.forEach { key ->
                 if (!toolArgs.has(key) && result.has(key)) toolArgs.put(key, result.opt(key))
