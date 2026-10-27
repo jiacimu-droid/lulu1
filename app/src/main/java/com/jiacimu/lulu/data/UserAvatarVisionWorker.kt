@@ -32,6 +32,11 @@ internal object UserAvatarVision {
         !requestedUri.isNullOrBlank() && !requestedRevision.isNullOrBlank() &&
             savedUri == requestedUri && savedRevision == requestedRevision
 
+    private fun revisionFor(prefs: android.content.SharedPreferences, uri: String): String =
+        prefs.getString(REVISION, null)?.takeIf(String::isNotBlank)
+            ?: prefs.getString("avatar_vision_revision_v1", null)?.takeIf(String::isNotBlank)
+            ?: "existing-avatar-" + uri.hashCode().toString()
+
     fun onAvatarSaved(context: Context, avatarUri: String?, revision: String) {
         if (revision.isNotBlank())
             context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -44,7 +49,7 @@ internal object UserAvatarVision {
         val app = context.applicationContext
         val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val uri = prefs.getString("avatar_uri", null)?.takeIf(String::isNotBlank) ?: return null
-        val revision = prefs.getString(REVISION, null)?.takeIf(String::isNotBlank) ?: return null
+        val revision = revisionFor(prefs, uri)
         if (prefs.getString(SEEN + role, null) == revision ||
             prefs.getInt(ATTEMPTS + role + ":" + revision, 0) >= 2) return null
         val pixels = VisionModelService.prepareChatImageDataUrl(app, uri).getOrNull()
@@ -60,7 +65,8 @@ internal object UserAvatarVision {
     fun observeModelResponse(context: Context, role: String, attached: Attachment, text: String) {
         val app = context.applicationContext
         val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (!stillCurrent(prefs.getString("avatar_uri", null), prefs.getString(REVISION, null),
+        if (!stillCurrent(prefs.getString("avatar_uri", null),
+                revisionFor(prefs, attached.uri),
                 attached.uri, attached.revision)) return
         val description = ModelStructuredOutput.objectOrNull(text)
             ?.optString("avatarObservation").orEmpty().trim().take(120)
