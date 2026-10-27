@@ -1,9 +1,9 @@
 package com.jiacimu.lulu
 
 /**
- * Bedtime options are preferences, not exclusive modes or fixed scripts.
- * A whole quiet hour needs an evolving conversation, not the same exercise
- * repeated or an instruction to keep the listener awake.
+ * Public bedtime controls offer only Body or Story. Legacy enum values
+ * remain readable so an existing call/session cannot crash after an update;
+ * the active prompt treats those old options as gentle body relaxation.
  */
 internal enum class SleepGuidanceFocus(val label: String, val emphasis: String) {
     Natural("自然哄睡", "综合当下情绪、关系和前文，自然选用具体夸奖、爱意、轻声故事或一种睡眠引导，不必每轮换项目。"),
@@ -28,38 +28,6 @@ internal object SleepGuidanceGuide {
             compact in setOf("放松身体", "身体放松", "身体扫描")
         val refusal = Regex("(不要|不想|不用|别).{0,5}(放松身体|身体放松|身体扫描)").containsMatchIn(compact)
         return if (body && request && !refusal) SleepGuidanceFocus.Body else null
-    }
-
-    /**
-     * Companion techniques are options the character can choose at a natural
-     * transition; they are NOT an enforced alternation schedule.
-     */
-    private fun companionOptions(focus: SleepGuidanceFocus): String = when (focus) {
-        SleepGuidanceFocus.Natural ->
-            "可按今晚的气氛交织温柔的夸奖与爱意、渐进式身体放松、安稳的意象、呼吸觉察、轻柔的睡前故事；主线由你和对方的真实交流自然形成。"
-        SleepGuidanceFocus.Body ->
-            "身体扫描是这段的入口，不是接下来全部哄睡时间的唯一内容。某一部位放松后可接自然呼吸、安心想象或轻声夸奖；全身放松完成就向更少指令的安静陪伴过渡，不从头反复报身体部位。"
-        SleepGuidanceFocus.Breath ->
-            "呼吸只是温柔的注意力落点，可转向肩颈放松、安静意象、暖心的话或故事；无需持续数呼吸，更不必把每一轮变成呼吸训练。"
-        SleepGuidanceFocus.Thoughts ->
-            "让烦心事暂时放下后，可以自然衔接安心的想象、轻声故事、温柔肯定或轻缓身体觉察，而不是不停让对方不要想。"
-        SleepGuidanceFocus.Imagery ->
-            "保留当前安全意象的连续性，适当穿插舒缓的身体感受、轻柔故事或爱意；不要每次换一个全新地方，让听者重新想象。"
-        SleepGuidanceFocus.Affection ->
-            "以爱意和具体夸奖为主，但可不着痕迹地穿插呼吸、放松肩膀、温暖意象或小故事；不要长时间不停夸、反复保证或使人不得不回应。"
-        SleepGuidanceFocus.Story ->
-            "以连贯故事为主，剧情自然有停顿时可以融入安宁的画面、人物间温柔的爱与欣赏、轻声的睡意引导；不要突然暂停剧情强行插入整套练习，也不要每轮重讲故事开头。故事要记得已讲过的人物与情节，沿着已发生的行动和关系继续推进。"
-    }
-
-    private fun quietStage(silenceMillis: Long): String = when {
-        silenceMillis >= SleepCallContinuationPolicy.NEAR_SLEEP_AT_MILLIS ->
-            "对方已经很久没有回应：此时更适合把当前放松主题完整而缓慢地讲完，再用更长的播放间隔留白；不要把每次模型回复缩成几句重复的晚安，也不再开新冒险、引入复杂情节、开始全新的完整放松练习，也不要确认她睡着没有。"
-        silenceMillis >= 20 * 60_000L ->
-            "已经安静了较长时间：降低语言密度和认知负担，可以用一段完整连贯的长文本延续已有的身体放松、呼吸、故事意象或安心感，减少追问和新话题。通过播放间隔给她更多留白，不重新刺激注意力。"
-        silenceMillis >= 6 * 60_000L ->
-            "对方安静了一会儿：自然放慢、留些停顿。可以在一段内容完成后温柔转向互补的引导，也可以沿着她可能正在听的故事继续，不必机械换项目。"
-        else ->
-            "此时可以更完整地回应她、建立安全感，慢慢铺陈一个舒服的睡前主题。即使刚开始也不用同时讲完所有技巧。"
     }
 
     /** Two clear experiences, not a grab bag of seven techniques.
