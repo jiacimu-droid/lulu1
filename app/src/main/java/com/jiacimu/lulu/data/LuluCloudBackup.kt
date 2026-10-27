@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import java.io.File
+import java.io.IOException
 import java.net.URLEncoder
 import java.util.Base64
 import java.util.concurrent.TimeUnit
@@ -18,8 +19,12 @@ import okhttp3.RequestBody.Companion.asRequestBody
  * 它们共通的上传口，地址、账号、密码都由用户在备份页自己填。
  * 密码存在本机设置里（和已有的语音 API Key 同一级别），不发给别人。
  *
- * 上传本身是纯 java.net，不碰 Android API，单元测试可以直接对着
- * 本地 HTTP 服务器测；配置读写才需要 Context。
+ * 上传走 OkHttp（App 已有依赖），不碰 Android 私有 API，单元测试
+ * 可以直接对着本地服务器测；配置读写才需要 Context。
+ * 不用 HttpURLConnection：建文件夹要发 MKCOL，这不在它白名单里的
+ * 方法里，测试环境的 JDK 会直接拒掉（setRequestMethod 抛错），而
+ * OkHttp 在测试环境和真机上都能发。第 43 批的测试失败就是这么查
+ * 出来的：MKCOL 根本没发出去，上传在文件夹不存在时永远建不了。
  */
 object LuluCloudBackup {
     private const val PREFS = "lulu_cloud_backup"
@@ -29,13 +34,6 @@ object LuluCloudBackup {
     private const val KEY_PASSWORD = "password"
     private const val KEY_DIR = "remote_dir"
     private const val KEY_LAST = "last_upload"
-
-    // Share one HTTP transport for PUT and WebDAV-specific MKCOL. The JDK's
-    // HttpURLConnection rejects MKCOL as an invalid request method.
-    private val webDavClient = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
-        .build()
 
     data class Config(
         val enabled: Boolean = false,
@@ -96,11 +94,8 @@ object LuluCloudBackup {
         val fileUrl = dirUrl + "/" + encodeSegment(fileName)
         val first = putFile(fileUrl, username, password, file)
         if (first == 404 || first == 409) {
-            // 只有服务端确认建成或目录已经存在，才重试上传。
-            val folderStatus = mkcol(dirUrl, username, password)
-            check(folderStatus in 200..299 || folderStatus == 405) {
-                "创建备份文件夹失败：" + httpMessage(folderStatus)
-            }
+            // 文件夹不存在时先建，再传一次；建失败由第二次 PUT 再报错。
+            mkcol(dirUrl, username, password)
             val retry = putFile(fileUrl, username, password, file)
             check(retry in 200..299) { httpMessage(retry) }
         } else {
@@ -124,21 +119,32 @@ object LuluCloudBackup {
         return "Basic $token"
     }
 
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .writeTimeout(120, TimeUnit.SECONDS)
+        .build()
+
     private fun putFile(url: String, username: String, password: String, file: File): Int {
         val request = Request.Builder()
             .url(url)
             .header("Authorization", authHeader(username, password))
             .put(file.asRequestBody("application/zip".toMediaType()))
             .build()
-        return webDavClient.newCall(request).execute().use { response -> response.code }
+        return client.newCall(request).execute().use { it.code }
     }
 
-    private fun mkcol(url: String, username: String, password: String): Int {
-        val request = Request.Builder()
-            .url(url)
-            .header("Authorization", authHeader(username, password))
-            .method("MKCOL", null)
-            .build()
-        return webDavClient.newCall(request).execute().use { response -> response.code }
+    private fun mkcol(url: String, username: String, password: String) {
+        try {
+            val request = Request.Builder()
+                .url(url)
+                .header("Authorization", authHeader(username, password))
+                .method("MKCOL", null)
+                .build()
+            // 201 已建、405 已存在都算过；真失败由后面的 PUT 再报。
+            client.newCall(request).execute().use { }
+        } catch (ignored: IOException) {
+            // 建文件夹失败不单独报错，交给 PUT 的结果说话。
+        }
     }
 }
