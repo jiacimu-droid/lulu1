@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0782f6966d0c6ec84134045fc8ea9d35feffb1e9`
+- 基准提交：`aabec660d7932b8d47404a7ae225dcc4bbe47c55`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196669
-- 已发现符号：2911
+- 已索引代码/文本行：196747
+- 已发现符号：2912
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -279,7 +279,7 @@
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 164 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 133 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 218 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 265 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 102 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
@@ -819,7 +819,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 807 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 218 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 249 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 977 | 19 |

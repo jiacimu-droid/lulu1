@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:21:00.249855+00:00",
-  "commit": "0782f6966d0c6ec84134045fc8ea9d35feffb1e9",
+  "generatedAt": "2026-10-27T19:21:27.606929+00:00",
+  "commit": "aabec660d7932b8d47404a7ae225dcc4bbe47c55",
   "branch": "main",
-  "sourceFingerprint": "ccf42c7d176e511aba3e4da4ac2b5577ea4709abe4a62c9392423e94e15b7fdb",
+  "sourceFingerprint": "6f459035928dd1c75ffc8a4efdb9f259df3cab49eef233a4f0ba71fad1c81d35",
   "summary": {
     "files": 993,
-    "lines": 196669,
-    "symbols": 2911
+    "lines": 196747,
+    "symbols": 2912
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1886,6 +1886,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
         "line": 84
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
+        "line": 102
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
@@ -4763,7 +4767,7 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 124
+        "line": 171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -20646,8 +20650,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 218,
-      "sha256": "6f6cfc41af8cb40c52a1b2318046e61d800d14a80c1d3fe613bcccad4eef8dcb",
+      "lines": 265,
+      "sha256": "d954f32dd3eff8e23b58e757c75fdbb9e67f1f8b3f8d5839585eabdb2bda403b",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -20655,7 +20659,7 @@
         },
         {
           "name": "normalize",
-          "line": 124
+          "line": 171
         }
       ]
     },
@@ -32250,12 +32254,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-      "lines": 218,
-      "sha256": "f1abd4d95c6f012ee7e349d4f3bd8880c84bb100bfc12e96dbc2277934af5a19",
+      "lines": 249,
+      "sha256": "e6ee36f3313a50b4609fc5bbf53069219caa8f6e65342f0ec532644b42ef64ee",
       "symbols": [
         {
           "name": "CharacterLearningLedgerTest",
           "line": 18
+        },
+        {
+          "name": "record",
+          "line": 102
         }
       ]
     },
