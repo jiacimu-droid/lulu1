@@ -46,11 +46,15 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
     const direction = right || left ? travel :
       (family === 'cheek' && side !== 0 ? side : -side || -1)
     if (family === 'cheek' || family === 'mouth') {
-      pose.roll = direction * Math.min(30, 12 + 20 * force) * envelope
-      pose.yaw = direction * (4 + 9 * force) * envelope
-      pose.body.roll = direction * (5 + 10 * force) * envelope *
-        (.18 + .82 * Math.min(1, Math.max(0, elapsedMs) / 240))
-      pose.body.yaw = direction * (1 + 3 * force) * envelope
+      // The supplied wolf model has neck ±30°, torso ±10°. Keep most motion
+      // in the neck, not in the screen-space sprite or its whole-body mesh.
+      // Short stationary taps are smaller than a directional swipe.
+      const contactGain = right || left ? 1 : .58
+      pose.roll = direction * (11 + 15 * force) * envelope * contactGain
+      pose.yaw = direction * (2 + 5 * force) * envelope * contactGain
+      pose.body.roll = direction * (1 + 2.6 * force) * envelope *
+        (.12 + .88 * Math.min(1, Math.max(0, elapsedMs - 100) / 380)) * contactGain
+      pose.body.yaw = direction * (.4 + 1.1 * force) * envelope * contactGain
     }
     if (family === 'cheek') {
       pose.face.cheekPuff = elapsedMs < 230 ? .05 : .2 + force * .12
@@ -106,10 +110,11 @@ export function createWolfImpactPresentation() {
     const torso = pose?.impactMotion && Number.isFinite(pose.body?.roll)
       ? pose.body.roll : 0
     const direction = Math.sign(roll || torso)
-    // Lean the *whole visible body* in the real swipe direction. The
-    // authored ParamAngleZ / ParamBodyAngleZ keep their own deformation.
-    const target = direction * Math.min(.32,
-      Math.abs(roll) / 30 * .24 + Math.abs(torso) / 10 * .075)
+    // Only a near-imperceptible display stabilizer remains; the actual
+    // visible slap is driven by head Cubism joints. The old 0.32-radian
+    // full-avatar tilt made chest taps and cheek swipes look like a fall.
+    const target = pose?.impactFace && direction
+      ? direction * Math.min(.012, Math.abs(roll) / 30 * .012) : 0
     const dt = Math.max(0, Math.min(60, Number.isFinite(deltaMs) ? deltaMs : 0))
     // A quick impact and a slower, soft return. The touch envelope already
     // contains one small reverse overshoot; preserve it rather than snapping.
