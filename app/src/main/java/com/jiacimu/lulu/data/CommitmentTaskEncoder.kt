@@ -23,6 +23,7 @@ internal fun encodeCommitmentTasks(values: List<CommitmentTask>): String = JSONA
             put("steps", JSONArray(task.steps))
             put("deliveryAction", task.deliveryAction)
             put("repeat", task.repeat)
+            put("dailyBaseDueAt", task.dailyBaseDueAt?.toString() ?: JSONObject.NULL)
             put("currentStep", task.currentStep)
             put("attemptCount", task.attemptCount)
             put("lastActionResult", task.lastActionResult)
@@ -38,3 +39,4 @@ internal fun encodeCommitmentTasks(values: List<CommitmentTask>): String = JSONA
         })
     }
 }.toString()
+

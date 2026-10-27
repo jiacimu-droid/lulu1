@@ -24,6 +24,13 @@ data class CommitmentTask(
     val deliveryAction: String = "send_private_message",
     /** Recurring clock commitments keep the same task ID; one-shot is legacy default. */
     val repeat: String = "once",
+    /**
+     * The recurring wall-clock anchor for a daily task. A one-time
+     * reschedule changes dueAt only and leaves this untouched, so the next
+     * day rolls back to the usual time; only a permanent change moves it.
+     * Null for one-time tasks and for daily tasks saved before this field.
+     */
+    val dailyBaseDueAt: Instant? = null,
     val currentStep: Int = 0,
     val attemptCount: Int = 0,
     val lastActionResult: String = "",
@@ -78,4 +85,5 @@ internal fun nextDailyCommitmentDue(
     if (!candidate.toInstant().isAfter(now.plusSeconds(5))) candidate = candidate.plusDays(1)
     return candidate.toInstant()
 }
+
 

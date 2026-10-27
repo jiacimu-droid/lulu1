@@ -95,6 +95,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     } ?: if (action == "create" && !isWake) "send_private_message" else "",
                     promiseKind = item.optString("promiseKind").trim().takeIf(String::isNotBlank),
                     repeat = item.optString("repeat").takeIf { it in setOf("once", "daily") },
+                    permanent = item.optBoolean("permanent", false),
                     needsClarification = wakeMethodMissing ||
                         item.optBoolean("needsClarification", dueAt == null && action == "create"),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
@@ -117,3 +118,4 @@ internal fun detectSelfPromisedCall(text: String): Boolean {
     val call = listOf("打电话", "打个电话", "来电话", "打给你", "给你打", "拨电话", "电话催", "电话叫").any(clean::contains)
     return future && call
 }
+

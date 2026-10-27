@@ -28,6 +28,23 @@ class DailyCommitmentRecurrenceTest {
         assertEquals(before.dueAt, after.single().dueAt)
     }
 
+    @Test fun dailyBaseAnchorSurvivesCodecAndRollReturnsToUsualTime() {
+        val before = CommitmentTask(characterId = "role", goal = "每天八点半叫醒",
+            dueAt = at(2026, 10, 25, 9, 30), dailyBaseDueAt = at(2026, 10, 24, 8, 30),
+            timezone = shanghai.id, deliveryAction = "start_call", repeat = "daily",
+            status = CommitmentTaskStatus.Scheduled)
+        val after = decodeCommitmentTasks(encodeCommitmentTasks(listOf(before))).single()
+        assertEquals(at(2026, 10, 24, 8, 30), after.dailyBaseDueAt)
+        assertEquals(at(2026, 10, 25, 9, 30), after.dueAt)
+        // A task saved before this field decodes with a null anchor and
+        // falls back to its dueAt, so old data keeps working.
+        assertNull(decodeCommitmentTasks(
+            encodeCommitmentTasks(listOf(before.copy(dailyBaseDueAt = null)))).single().dailyBaseDueAt)
+        // Rolling from the anchor (not the one-off 9:30) returns to 8:30.
+        assertEquals(at(2026, 10, 26, 8, 30),
+            nextDailyCommitmentDue(after.dailyBaseDueAt!!, at(2026, 10, 25, 10, 0), shanghai))
+    }
+
     @Test fun oldSavedTasksAreNotAccidentallyMadeDaily() {
         val before = CommitmentTask(characterId = "role", goal = "今晚电话提醒",
             dueAt = at(2026, 10, 24, 23, 30))
@@ -88,3 +105,4 @@ class DailyCommitmentRecurrenceTest {
             "每天23点45来电哄睡", a.plusSeconds(900)))
     }
 }
+

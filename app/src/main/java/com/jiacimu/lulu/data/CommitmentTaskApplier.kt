@@ -65,6 +65,7 @@ private suspend fun createCommitmentTask(
             sameTimedReminderTask(existing, draft)) {
             CommitmentTaskStore.update(existing.id) { current ->
                 current.copy(repeat = "daily",
+                    dailyBaseDueAt = current.dailyBaseDueAt ?: current.dueAt,
                     sourceEventIds = (current.sourceEventIds + sourceEventIds).distinct())
             }?.let { CommitmentLexiconSync.syncTask(it) }
             return CommitmentDraftOutcome(draft.action, draft.goal, existing.id, "已有相同约定，已升级为每天，未新建")
@@ -118,6 +119,7 @@ private suspend fun createCommitmentTask(
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
         repeat = draft.repeat ?: "once",
+        dailyBaseDueAt = if ((draft.repeat ?: "once") == "daily") draft.dueAt else null,
         lastActionResult = if (needsClarification && wakeChoiceMissing)
             "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
             else if (needsClarification) "缺少必要条件，需要后续自然确认"
@@ -149,6 +151,19 @@ private suspend fun updateCommitmentTask(
         )
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
+    // One-time versus permanent: a daily task's anchor is its usual time.
+    // A plain postponement moves only this occurrence; only an explicit
+    // permanent change moves the anchor, so tomorrow rolls back to usual.
+    val newDailyBaseDueAt = when {
+        (draft.repeat ?: target.repeat) != "daily" -> target.dailyBaseDueAt
+        draft.permanent && draft.dueAt != null -> draft.dueAt
+        else -> target.dailyBaseDueAt ?: target.dueAt
+    }
+    val dailyRescheduleNote = if (reschedule && (draft.repeat ?: target.repeat) == "daily" &&
+        draft.dueAt != null && draft.dueAt != target.dueAt
+    ) {
+        if (draft.permanent) "；每天本来时刻已改为新时间" else "；本次只改当次，每天本来时刻未变"
+    } else ""
     // No-gap rule: a reschedule that lands in "needs clarification" has no
     // new time to schedule, so cancelling the old alarm would leave the
     // responsibility with no alarm at all. Keep the old alarm until a clear
@@ -185,6 +200,7 @@ private suspend fun updateCommitmentTask(
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 repeat = draft.repeat ?: current.repeat,
+                dailyBaseDueAt = newDailyBaseDueAt,
                 // When the new time is unclear, keep the old alarm's identity
                 // so the kept alarm above still belongs to this task.
                 linkedAlarmId = if (needsClarification) current.linkedAlarmId else null,
@@ -206,13 +222,13 @@ private suspend fun updateCommitmentTask(
                 // record the plain fact that the title was not updated with
                 // the time, so the next turn and the schedule UI can see the
                 // mismatch instead of silently showing a stale title.
-                lastActionResult = if (needsClarification) {
+                lastActionResult = (if (needsClarification) {
                     "约定已更新，但仍缺少明确时间或条件；需要自然追问，禁止猜测"
                 } else if (draft.goal.isBlank() && draft.dueAt != null && draft.dueAt != current.dueAt) {
                     "约定时间或条件已更新；旧执行计划已取消；标题沿用旧文字，未随时间一起更新"
                 } else {
                     "约定时间或条件已更新；旧执行计划已取消"
-                },
+                }) + dailyRescheduleNote,
             )
             else -> current
         }.let { it.copy(sourceEventIds = (it.sourceEventIds + sourceEventIds).distinct()) }
@@ -345,5 +361,6 @@ internal fun sameTimedReminderTask(existing: CommitmentTask, draft: CommitmentTa
         old.toLocalDate() != fresh.toLocalDate()) return false
     return sameDailyClockAndPurpose(existing.goal, oldAt, draft.goal, newAt, zone)
 }
+
 
 

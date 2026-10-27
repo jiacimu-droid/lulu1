@@ -157,7 +157,9 @@ object CommitmentTaskStore {
         overdue.forEach { task ->
             val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
                 ?: java.time.ZoneId.systemDefault()
-            val next = nextDailyCommitmentDue(task.dueAt!!, now, zone)
+            // Roll from the daily anchor, not from a one-off override,
+            // so a single postponed day does not permanently move the task.
+            val next = nextDailyCommitmentDue(task.dailyBaseDueAt ?: task.dueAt!!, now, zone)
             task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
             val character = MigratedDomainStores.characters.get(task.characterId)
             if (task.deliveryAction == "start_call" &&
@@ -282,7 +284,8 @@ object CommitmentTaskStore {
             task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true) return
         val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
             ?: java.time.ZoneId.systemDefault()
-        val next = nextDailyCommitmentDue(previousDue, now, zone)
+        // Same anchor rule as the missed-call restore above.
+        val next = nextDailyCommitmentDue(task.dailyBaseDueAt ?: previousDue, now, zone)
         task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
         val allowed = task.deliveryAction != "start_call" ||
             MigratedDomainStores.characters.get(task.characterId).contactPolicy.proactiveCallsEnabled
@@ -379,3 +382,4 @@ object CommitmentTaskStore {
         mutableTasks.value = next
     }
 }
+

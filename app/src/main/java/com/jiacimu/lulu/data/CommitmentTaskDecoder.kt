@@ -37,6 +37,7 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         deliveryAction = item.optString("deliveryAction", "send_private_message")
                             .takeIf { it in setOf("start_call", "alarm_only") } ?: "send_private_message",
                         repeat = item.optString("repeat", "once").takeIf { it == "daily" } ?: "once",
+                        dailyBaseDueAt = item.nullInstant("dailyBaseDueAt"),
                         currentStep = item.optInt("currentStep", 0),
                         attemptCount = item.optInt("attemptCount", 0),
                         lastActionResult = item.optString("lastActionResult"),
@@ -69,3 +70,4 @@ private fun JSONArray?.strings(): List<String> {
 }
 
 private fun String.instantOrNow(): Instant = runCatching { Instant.parse(this) }.getOrDefault(Instant.now())
+

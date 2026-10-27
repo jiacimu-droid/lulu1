@@ -16,6 +16,13 @@ data class CommitmentTaskDraft(
     val needsClarification: Boolean = false,
     /** null means unchanged for rescheduling an existing recurring commitment. */
     val repeat: String? = null,
+    /**
+     * Only for rescheduling a daily task. True only when the user explicitly
+     * wants every day changed; a plain "postpone it a bit" is one-time and
+     * leaves the daily anchor untouched. Defaults to false.
+     */
+    val permanent: Boolean = false,
     val targetTaskId: String? = null,
     val promiseKind: String? = null,
 )
+
