@@ -10,6 +10,39 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun previouslySavedPhonePageVisitsStayArchivedButNeverWakeTheRole() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val role = "quiet-navigation-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        val oldId = "$role-phone-page"
+        val inviteId = "$role-real-invitation"
+        try {
+            SharedExperienceTimeline.record(oldId, role, "手机·查看痕迹", "主人",
+                "主人以前切换到了消息列表", now.minusSeconds(120),
+                source = "owner-phone-inspection", triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record(inviteId, role, "手机·群聊", "系统消息",
+                "确实收到了群聊邀请", now.minusSeconds(60),
+                source = "group-membership", triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.Observation)
+            val raw = SharedExperienceTimeline.eventsByIds(role, listOf(oldId, inviteId))
+            assertEquals(2, raw.size) // no deletion or rewriting of historical data
+            assertEquals(listOf(inviteId),
+                CharacterPerceptionContext.pending(app, role, now).map { it.id })
+            val integrated = CharacterPerceptionContext.integrate(app, role, raw,
+                deferAcknowledgement = true)
+            assertEquals(listOf(inviteId), integrated.freshStimuli.map { it.evidenceId })
+            assertEquals(listOf(inviteId),
+                CharacterPerceptionContext.recent(role, now).map { it.id })
+        } finally {
+            SharedExperienceTimeline.deleteEvent(oldId)
+            SharedExperienceTimeline.deleteEvent(inviteId)
+            PerceptionStimulusLedger.clear(role)
+        }
+    }
+
     @Test fun personalReceiptsEnterPerceptionWithoutMistakingRoutineMovementOrClaimsForNewExperience() {
         val now = Instant.parse("2026-10-16T12:00:00Z")
         fun receipt(tool: String, action: String = "", status: String = "succeeded") = org.json.JSONObject()
