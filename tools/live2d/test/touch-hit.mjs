@@ -407,8 +407,10 @@ assert.equal(stageResponse.snapshot().impact, beforeMiss)
 bridge.touch(.32, .235, 'cancel')
 assert.equal(bridge.tactileContact, null)
 bridge.calibrationVisible = true
+const beforeCalibration = stageResponse.snapshot().shyness
 assert.equal(bridge.touch(.5, .04, 'kiss').hit, false)
-assert.equal(stageResponse.snapshot().shyness, 0)
+assert.equal(stageResponse.snapshot().shyness, beforeCalibration,
+  'calibration mode must not add touch state after earlier valid kisses')
 
 // Long, uninterrupted petting: actual stage frames update the weighted
 // blush while the finger is STILL DOWN; release does not add it all again.
