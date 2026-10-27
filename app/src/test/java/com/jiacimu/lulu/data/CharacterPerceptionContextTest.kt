@@ -241,6 +241,88 @@ class CharacterPerceptionContextTest {
         assertEquals(setOf("user"), combined.socialIds)
     }
 
+    @Test fun offlineBacklogSurvivesOlderThanOneDayAndMoreThan160NewerReceipts() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val role = "offline-backlog-" + java.util.UUID.randomUUID()
+        val otherRole = "unrelated-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        val oldest = "$role-old-unhandled"
+        try {
+            SharedExperienceTimeline.record(oldest, role, "数字世界事件", "世界",
+                "三天前留下、尚未理解的事实", now.minusSeconds(3 * 86_400L),
+                triggerExtraction = false, source = "digital-world",
+                evidenceKind = EventEvidenceKind.Observation)
+            repeat(205) { index ->
+                val id = "$role-burst-$index"
+                SharedExperienceTimeline.record(id, role, "数字世界事件", "世界",
+                    "已有确认回执 $index", now.minusSeconds((205 - index).toLong()),
+                    triggerExtraction = false, source = "digital-world",
+                    evidenceKind = EventEvidenceKind.Observation)
+                assertTrue(PerceptionStimulusLedger.claim(app, role,
+                    PerceptionStimulus(id, "先前已理解")))
+            }
+            SharedExperienceTimeline.record("$role-future", role, "数字世界事件", "世界",
+                "明天的事实尚未发生", now.plusSeconds(86_400),
+                triggerExtraction = false, source = "digital-world",
+                evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record("$role-claim", role, "私聊", "角色",
+                "模型自称经历了某事", now.minusSeconds(50),
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.CharacterStatement)
+            SharedExperienceTimeline.record("$otherRole-private", otherRole, "数字世界事件", "世界",
+                "别人专属的观察", now.minusSeconds(86_400L),
+                triggerExtraction = false, source = "digital-world",
+                evidenceKind = EventEvidenceKind.Observation)
+
+            val first = CharacterPerceptionContext.pending(app, role, now)
+            assertEquals(listOf(oldest), first.map { it.id })
+            // A cancelled decision has not acknowledged the input.
+            assertEquals(listOf(oldest), CharacterPerceptionContext.pending(app, role, now).map { it.id })
+            val perceived = CharacterPerceptionContext.integrate(
+                app, role, observed = first, deferAcknowledgement = true)
+            CharacterPerceptionContext.acknowledge(app, role, perceived)
+            assertTrue(CharacterPerceptionContext.pending(app, role, now).isEmpty())
+            assertEquals(listOf("$otherRole-private"),
+                CharacterPerceptionContext.pending(app, otherRole, now).map { it.id })
+        } finally {
+            SharedExperienceTimeline.all(role).forEach { SharedExperienceTimeline.deleteEvent(it.id) }
+            SharedExperienceTimeline.all(otherRole).forEach { SharedExperienceTimeline.deleteEvent(it.id) }
+            PerceptionStimulusLedger.clear(role)
+            PerceptionStimulusLedger.clear(otherRole)
+        }
+    }
+
+    @Test fun editedOldEvidenceIsReconsideredByExactRevisionNotByItsOriginalDate() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val role = "edited-old-event-" + java.util.UUID.randomUUID()
+        val id = "$role-event"
+        val occurredAt = Instant.now().minusSeconds(5 * 86_400L)
+        val now = Instant.now()
+        try {
+            SharedExperienceTimeline.record(id, role, "数字世界事件", "世界",
+                "最初的事实", occurredAt, triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+            assertTrue(PerceptionStimulusLedger.claim(app, role, PerceptionStimulus(id, "最初")))
+            SharedExperienceTimeline.record(id, role, "数字世界事件", "世界",
+                "修订后的事实", occurredAt, triggerExtraction = false,
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation,
+                expectedRevision = 1L)
+            val revised = CharacterPerceptionContext.pending(app, role, now)
+            assertEquals(listOf(id), revised.map { it.id })
+            assertEquals(2L, revised.single().revision)
+            assertTrue(revised.single().content.contains("修订"))
+            assertTrue(PerceptionStimulusLedger.hasSeen(app, role, id, 1L))
+            assertFalse(PerceptionStimulusLedger.hasSeen(app, role, id, 2L))
+        } finally {
+            SharedExperienceTimeline.deleteEvent(id)
+            PerceptionStimulusLedger.clear(role)
+        }
+    }
+
     @Test fun burstOfResultsDoesNotHideOlderUnacknowledgedEvents() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(app)
