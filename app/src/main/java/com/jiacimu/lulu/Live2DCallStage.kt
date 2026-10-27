@@ -824,6 +824,12 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse {
                 val uri = request.url
                 if (uri.scheme == "https" && uri.host == "appassets.androidplatform.net") {
+                    // Chromium may request its own favicon independently of the
+                    // stage/model. This is not a missing texture or Cubism Core.
+                    if (uri.path == "/favicon.ico") {
+                        return WebResourceResponse("image/x-icon", null,
+                            ByteArrayInputStream(ByteArray(0)))
+                    }
                     // AIRI discovers model expressions missing from FileReferences. Expose
                     // the amended manifest at exactly the current model URL, never on disk.
                     if (android.net.Uri.decode(uri.toString()) ==
