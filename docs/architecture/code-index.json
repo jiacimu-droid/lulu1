@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:33:17.782486+00:00",
-  "commit": "b43ce966d1afb6d411c91b4508f46436b57010f6",
+  "generatedAt": "2026-10-27T16:38:20.554198+00:00",
+  "commit": "5de783cfa74d8ccf3e5a6139c7ecd8db232370a2",
   "branch": "main",
-  "sourceFingerprint": "c3c36bb1e08742ca9341a5f54b8cfb47a10cf399132fecec2ff2f1b15599f1e8",
+  "sourceFingerprint": "6c47e1c835d7a5546bc167c693986be101ef418be0d2266314f0ff8ca4fc9dff",
   "summary": {
-    "files": 989,
-    "lines": 194741,
-    "symbols": 2893
+    "files": 990,
+    "lines": 194863,
+    "symbols": 2894
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -431,7 +431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 805
+        "line": 835
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1101,7 +1101,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 39
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -5821,7 +5821,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 767
+        "line": 797
       }
     ],
     "cue": [
@@ -5959,31 +5959,31 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 49
+        "line": 79
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 50
+        "line": 80
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 52
+        "line": 82
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 228
+        "line": 258
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 739
+        "line": 769
       }
     ],
     "current": [
@@ -13738,6 +13738,12 @@
         "line": 18
       }
     ],
+    "DesktopLauncherMoveTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/DesktopLauncherMoveTest.kt",
+        "line": 5
+      }
+    ],
     "DesktopPageCountTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
@@ -18719,8 +18725,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 531,
-      "sha256": "35f7df885ef36eb714e3bb808d4ed46e80f1dab1ed407b063d4398ebcc6514a0",
+      "lines": 591,
+      "sha256": "c3fff313d41b958d1db0c42a0310621da6f5b5946d2c7b1f6286f83edfd397c2",
       "symbols": []
     },
     {
@@ -21630,8 +21636,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 852,
-      "sha256": "9002770b1a98ac87adfe51d5047ec29715843c35d69208fc0eae97ad7bac1415",
+      "lines": 882,
+      "sha256": "f66c8686af393cbffe6024f52ab2bfd3837c95451e1ab5775de4913655c878fc",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -21639,35 +21645,35 @@
         },
         {
           "name": "state",
-          "line": 39
+          "line": 69
         },
         {
           "name": "bodyStorageReady",
-          "line": 49
+          "line": 79
         },
         {
           "name": "bodyState",
-          "line": 50
+          "line": 80
         },
         {
           "name": "lastBodyChange",
-          "line": 52
+          "line": 82
         },
         {
           "name": "afterglowContext",
-          "line": 228
+          "line": 258
         },
         {
           "name": "profileContext",
-          "line": 739
+          "line": 769
         },
         {
           "name": "compactContext",
-          "line": 767
+          "line": 797
         },
         {
           "name": "context",
-          "line": 805
+          "line": 835
         }
       ]
     },
@@ -30699,6 +30705,17 @@
         {
           "name": "ConversationHistoryWindowTest",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/DesktopLauncherMoveTest.kt",
+      "lines": 32,
+      "sha256": "0b03706e5b6082a271b62964b1b2bdef1c6aed2c25585b54035619ee4904b24c",
+      "symbols": [
+        {
+          "name": "DesktopLauncherMoveTest",
+          "line": 5
         }
       ]
     },
