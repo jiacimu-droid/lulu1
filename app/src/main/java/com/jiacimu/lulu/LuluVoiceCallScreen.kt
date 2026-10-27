@@ -368,14 +368,14 @@ fun LuluVoiceCallScreen(
                     }
                 }
                 if (state.connected && state.sleepMode) {
-                    Text("今晚更想听 · 可自然穿插其他引导",
+                    Text("哄睡内容 · 只选一种，通话中可随时切换",
                         fontSize = 11.sp, color = CallMuted)
                     Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        SleepGuidanceFocus.values().forEach { focus ->
+                        SleepGuidanceGuide.choices.forEach { focus ->
                             FilterChip(
                                 selected = state.sleepFocus == focus,
                                 onClick = { LuluVoiceCallSession.selectSleepFocus(focus) },
