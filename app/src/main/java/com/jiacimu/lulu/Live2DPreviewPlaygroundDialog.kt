@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Portrait
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DropdownMenu
@@ -110,6 +111,10 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     var panelExpanded by remember { mutableStateOf(true) }
     val coreInstalled = remember(revision) { Live2DAssets.hasCore(context) }
     var confirmOfficialCore by remember { mutableStateOf(false) }
+    var coreLicenseChecked by remember { mutableStateOf(false) }
+    val coreLicensePrefs = remember(context) {
+        context.getSharedPreferences("lulu_live2d_core_license_v1", android.content.Context.MODE_PRIVATE)
+    }
     var coreBusy by remember { mutableStateOf(false) }
     var coreMessage by remember { mutableStateOf("") }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -139,21 +144,40 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
 
     if (confirmOfficialCore) {
         AlertDialog(
-            onDismissRequest = { confirmOfficialCore = false },
+            onDismissRequest = { if (!coreBusy) confirmOfficialCore = false },
             title = { Text("安装 Live2D 官方 Cubism Core") },
-            text = { Text("模型 ZIP 只包含皮套资源，渲染还需要 Live2D 单独授权的 Cubism Core。继续前请阅读并同意官方许可；Core 将从 Live2D 官方站点下载到本机，不随 APK 分发。") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmOfficialCore = false
-                    coreBusy = true
-                    scope.launch {
-                        coreMessage = try {
-                            Live2DOfficialCoreInstaller.install(context)
-                        } catch (error: Exception) {
-                            "官方 Core 安装失败：${error.message.orEmpty().take(150)}，也可以手动导入 Core JS"
-                        } finally { coreBusy = false }
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("皮套 ZIP 不包含官方渲染核心。首次安装前需要阅读许可；Core 仅下载到本机，不打包进 APK。")
+                    TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse(Live2DOfficialCoreInstaller.LICENSE_URL)))
+                        }.onFailure { coreMessage = "无法打开官方许可页面" }
+                    }) { Text("阅读 Live2D 官方许可") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = coreLicenseChecked,
+                            onCheckedChange = { coreLicenseChecked = it })
+                        Text("我已阅读并同意官方许可")
                     }
-                }) { Text("已阅读并同意，安装") }
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = coreLicenseChecked && !coreBusy, onClick = {
+                    if (!coreLicensePrefs.edit().putBoolean("license_accepted", true).commit()) {
+                        coreMessage = "无法保存许可确认，安装未开始"
+                    } else {
+                        confirmOfficialCore = false
+                        coreBusy = true
+                        scope.launch {
+                            coreMessage = try {
+                                Live2DOfficialCoreInstaller.install(context)
+                            } catch (error: Exception) {
+                                "官方 Core 安装失败：${error.message.orEmpty().take(150)}，也可以手动导入 Core JS"
+                            } finally { coreBusy = false }
+                        }
+                    }
+                }) { Text("确认并安装") }
             },
             dismissButton = {
                 TextButton(onClick = { confirmOfficialCore = false }) { Text("取消") }
