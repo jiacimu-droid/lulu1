@@ -178,6 +178,28 @@ fun QqStyleChatDetailScreen(
     val keyboardVisible by remember {
         derivedStateOf { imeInsets.getBottom(density) > 0 }
     }
+    // Keyboard-open pinning: adjustResize shrinks the list viewport
+    // gradually while the keyboard animates in, but LazyColumn anchors
+    // scroll by first visible item, not by distance from the bottom. A
+    // single scroll when the keyboard first appears therefore ends up
+    // short of the bottom once the viewport finishes shrinking, and the
+    // newest messages sit below the fold. While the keyboard is open,
+    // re-pin to the last item on every viewport-size change, but only if
+    // the user was near the end when the keyboard opened. Viewport size
+    // does not change on user scrolling, so a history reader keeps their
+    // place once the viewport settles, and the jump-to-latest button
+    // stays available for returning.
+    LaunchedEffect(keyboardVisible, visibleMessages) {
+        if (!keyboardVisible) return@LaunchedEffect
+        val layout = listState.layoutInfo
+        val pinned = layout.visibleItemsInfo.lastOrNull()?.index
+            ?.let { it >= layout.totalItemsCount - 3 } ?: false
+        if (!pinned) return@LaunchedEffect
+        snapshotFlow { listState.layoutInfo.viewportSize }.collect {
+            val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
+            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
+        }
+    }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
 
