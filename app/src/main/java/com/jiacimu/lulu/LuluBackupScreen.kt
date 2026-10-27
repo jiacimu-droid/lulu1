@@ -3,6 +3,8 @@ package com.jiacimu.lulu
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +73,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
     var autoBackup by remember { mutableStateOf(isLuluAutoBackupEnabled(context)) }
     var cloudConfig by remember { mutableStateOf(LuluCloudBackup.loadConfig(context)) }
     var cloudLast by remember { mutableStateOf(LuluCloudBackup.lastUploadText(context)) }
+    var cloudDetailsOpen by remember { mutableStateOf(false) }
 
     fun saveCloud(config: LuluCloudBackup.Config) {
         LuluCloudBackup.saveConfig(context, config)
@@ -185,7 +190,10 @@ fun LuluBackupScreen(onBack: () -> Unit) {
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp),
+            modifier = Modifier.fillMaxSize().padding(padding)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
@@ -201,6 +209,31 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 fontSize = 14.sp,
                 lineHeight = 21.sp,
             )
+            Text("先把现在的数据保存下来", fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleMedium)
+            Text("① 点导出备份  ② 选「下载」文件夹  ③ 点保存。看见导出成功才算备份完成。",
+                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, lineHeight = 19.sp)
+            Button(
+                onClick = {
+                    val stamp = LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))
+                    exportLauncher.launch("lulu-backup-$stamp.zip")
+                },
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(if (busy) "正在处理…" else "导出备份到手机") }
+            OutlinedButton(
+                onClick = { importLauncher.launch(arrayOf("application/zip")) },
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("从 ZIP 恢复备份") }
+            if (status != null) {
+                Text(status!!, fontSize = 13.sp, lineHeight = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text("恢复会替换现有文件；请先导出当前版本，确认文件安全保存后再操作。",
+                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+            HorizontalDivider()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -250,7 +283,11 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                     },
                 )
             }
-            if (cloudConfig.enabled) {
+            TextButton(onClick = { cloudDetailsOpen = !cloudDetailsOpen },
+                modifier = Modifier.fillMaxWidth()) {
+                Text(if (cloudDetailsOpen) "收起云盘高级配置" else "WebDAV 云盘配置（可选）")
+            }
+            if (cloudDetailsOpen) {
                 OutlinedTextField(
                     value = cloudConfig.serverUrl,
                     onValueChange = { saveCloud(cloudConfig.copy(serverUrl = it)) },
@@ -309,23 +346,6 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 }) { Text("知道了") }
             }
             Spacer(Modifier.height(4.dp))
-            Button(
-                onClick = {
-                    val stamp = LocalDateTime.now()
-                        .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))
-                    exportLauncher.launch("lulu-backup-$stamp.zip")
-                },
-                enabled = !busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("导出备份") }
-            OutlinedButton(
-                onClick = { importLauncher.launch(arrayOf("application/zip")) },
-                enabled = !busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("恢复备份") }
-            if (status != null) {
-                Text(status!!, fontSize = 14.sp, lineHeight = 21.sp)
-            }
             Text(
                 "恢复说明：全新安装后恢复最干净；已有数据上恢复时，同名文件会被覆盖，多余文件不会被删。",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
