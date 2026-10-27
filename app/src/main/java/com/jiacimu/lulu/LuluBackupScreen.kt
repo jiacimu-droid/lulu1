@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,11 +36,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.LuluCloudBackup
 import com.jiacimu.lulu.data.LuluDataBackup
 import com.jiacimu.lulu.data.isLuluAutoBackupEnabled
 import com.jiacimu.lulu.data.setLuluAutoBackupEnabled
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -62,6 +67,50 @@ fun LuluBackupScreen(onBack: () -> Unit) {
     var pending by remember { mutableStateOf(LuluDataBackup.hasPendingRestore(context)) }
     var lastResult by remember { mutableStateOf(LuluDataBackup.readRestoreResult(context)) }
     var autoBackup by remember { mutableStateOf(isLuluAutoBackupEnabled(context)) }
+    var cloudConfig by remember { mutableStateOf(LuluCloudBackup.loadConfig(context)) }
+    var cloudLast by remember { mutableStateOf(LuluCloudBackup.lastUploadText(context)) }
+
+    fun saveCloud(config: LuluCloudBackup.Config) {
+        LuluCloudBackup.saveConfig(context, config)
+        cloudConfig = config
+    }
+
+    fun uploadNow() {
+        val config = cloudConfig
+        busy = true
+        status = "正在上传到云盘…"
+        scope.launch(Dispatchers.IO) {
+            try {
+                val tmp = File.createTempFile("lulu-backup-manual-", ".zip", context.cacheDir)
+                try {
+                    FileOutputStream(tmp).use { out ->
+                        LuluDataBackup.exportZip(LuluDataBackup.dataDir(context), out)
+                    }
+                    val stamp = LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))
+                    val result = LuluCloudBackup.upload(
+                        config.serverUrl, config.username, config.password,
+                        config.remoteDir, tmp, "lulu-backup-$stamp.zip",
+                    )
+                    val text = result.fold(
+                        onSuccess = { "云备份成功" },
+                        onFailure = { "云备份失败：${it.message}" },
+                    )
+                    LuluCloudBackup.recordUpload(context, text)
+                    withContext(Dispatchers.Main) {
+                        cloudLast = text
+                        status = text
+                    }
+                } finally {
+                    tmp.delete()
+                }
+            } catch (error: Exception) {
+                withContext(Dispatchers.Main) { status = "上传失败：${error.message}" }
+            } finally {
+                withContext(Dispatchers.Main) { busy = false }
+            }
+        }
+    }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip")
@@ -141,8 +190,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
         ) {
             Text(
                 "导出会把设置、聊天与时间线、各角色数据、日记与词库、模型皮套打成一个包，" +
-                    "存在你自己选的位置（比如下载文件夹）。这个文件不在 app 肚子里，" +
-                    "就算把 app 卸了，文件也还在，重装后恢复就能找回来。",
+                    "存在你自己选的位置，卸了 app 也还在。",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 lineHeight = 21.sp,
@@ -161,8 +209,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text("每天自动备份", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     Text(
-                        "每天自动把数据打成包存到下载文件夹里的 lulu-backups，不用你动手；" +
-                            "只留最近 7 份，旧的自动删。卸了 app，包还在。",
+                        "每天自动存一份到下载文件夹 lulu-backups，只留最近 7 份。",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp,
                         lineHeight = 18.sp,
@@ -180,6 +227,69 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                         }
                     },
                 )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("云备份（WebDAV）", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(
+                        "自动备份后同步传到你的 WebDAV 网盘（坚果云、Nextcloud、群晖等）。",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp,
+                    )
+                }
+                Switch(
+                    checked = cloudConfig.enabled,
+                    onCheckedChange = { checked ->
+                        saveCloud(cloudConfig.copy(enabled = checked))
+                        status = if (checked) "已开启云备份，下次自动备份时会同步上传。" else "已关闭云备份。"
+                    },
+                )
+            }
+            if (cloudConfig.enabled) {
+                OutlinedTextField(
+                    value = cloudConfig.serverUrl,
+                    onValueChange = { saveCloud(cloudConfig.copy(serverUrl = it)) },
+                    label = { Text("服务器地址") },
+                    placeholder = { Text("https://dav.jianguoyun.com/dav/") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cloudConfig.username,
+                    onValueChange = { saveCloud(cloudConfig.copy(username = it)) },
+                    label = { Text("用户名") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cloudConfig.password,
+                    onValueChange = { saveCloud(cloudConfig.copy(password = it)) },
+                    label = { Text("密码") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = cloudConfig.remoteDir,
+                    onValueChange = { saveCloud(cloudConfig.copy(remoteDir = it)) },
+                    label = { Text("云端文件夹") },
+                    placeholder = { Text("lulu-backups") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                if (cloudLast != null) {
+                    Text("上次云备份：$cloudLast", fontSize = 13.sp)
+                }
+                OutlinedButton(
+                    onClick = ::uploadNow,
+                    enabled = !busy && cloudConfig.serverUrl.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("立即上传到云盘") }
             }
             if (pending) {
                 Text(
@@ -217,8 +327,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 Text(status!!, fontSize = 14.sp, lineHeight = 21.sp)
             }
             Text(
-                "恢复说明：全新安装后恢复最干净；在已有数据上恢复时，同名文件会被覆盖，" +
-                    "备份里没有的零散文件不会被删。",
+                "恢复说明：全新安装后恢复最干净；已有数据上恢复时，同名文件会被覆盖，多余文件不会被删。",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
                 lineHeight = 18.sp,

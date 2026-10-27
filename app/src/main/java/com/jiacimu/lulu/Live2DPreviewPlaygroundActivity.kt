@@ -44,9 +44,13 @@ class Live2DPreviewPlaygroundActivity : ComponentActivity() {
                         Spacer(Modifier.height(12.dp))
                         if (modeled.isEmpty()) {
                             Text(
-                                "还没有导入任何 Live2D 模型，先在主应用里导入一个皮套。",
+                                "还没有导入任何 Live2D 模型，直接在这里给主角导一个就行。",
                                 fontSize = 13.sp,
                             )
+                            Spacer(Modifier.height(12.dp))
+                            Button(onClick = { selected = "lulu" }) {
+                                Text("给主角导入皮套", fontSize = 13.sp)
+                            }
                         } else {
                             for ((id, label) in modeled) {
                                 Button(onClick = { selected = id }) {

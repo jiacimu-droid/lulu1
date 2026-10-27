@@ -236,7 +236,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     if (musicTestReport.isNotBlank()) {
                         Text(musicTestReport, color = CapabilityMuted, fontSize = 12.sp)
                     }
-                    Text("直接调用 Android 媒体控制，不产生模型费用。建议在音乐App开始播放后测试；如仍无法暂停，请查看返回的播放器状态。",
+                    Text("直接调用系统媒体控制，不产生模型费用。",
                         color = CapabilityMuted, fontSize = 11.sp)
                 }
             }

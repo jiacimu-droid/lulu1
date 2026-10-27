@@ -63,14 +63,44 @@ class LuluAutoBackupWorker(appContext: Context, params: WorkerParameters) :
                 }
                 val stamp = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))
-                insertToDownloads(tmp, "lulu-backup-auto-$stamp.zip")
+                val displayName = "lulu-backup-auto-$stamp.zip"
+                insertToDownloads(tmp, displayName)
                 pruneOldAutoBackups(AUTO_BACKUP_KEEP_COUNT)
+                // 云备份是顺带的：本地包已经落袋，云传失败只记一条结果，
+                // 绝不因此把整轮备份判成失败、下次重传也由下一轮补。
+                uploadToCloudIfEnabled(tmp, displayName)
             } finally {
                 tmp.delete()
             }
             Result.success()
         } catch (error: Exception) {
             Result.retry()
+        }
+    }
+
+    private fun uploadToCloudIfEnabled(file: File, fileName: String) {
+        try {
+            val context = applicationContext
+            val config = LuluCloudBackup.loadConfig(context)
+            if (!config.enabled) return
+            val stamp = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("HH:mm"))
+            val result = LuluCloudBackup.upload(
+                config.serverUrl, config.username, config.password,
+                config.remoteDir, file, fileName,
+            )
+            LuluCloudBackup.recordUpload(
+                context,
+                result.fold(
+                    onSuccess = { "云备份成功（$stamp）" },
+                    onFailure = { "云备份失败：${it.message}" },
+                ),
+            )
+        } catch (error: Exception) {
+            // 云传的任何异常都只记结果，不连累本地备份。
+            runCatching {
+                LuluCloudBackup.recordUpload(applicationContext, "云备份失败：${error.message}")
+            }
         }
     }
 

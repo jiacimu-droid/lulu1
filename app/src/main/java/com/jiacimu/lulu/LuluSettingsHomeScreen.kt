@@ -191,7 +191,7 @@ private fun SettingsEntryScreen(
                 SettingsEntryRow(
                     icon = Icons.Outlined.Backup,
                     title = "备份与恢复",
-                    subtitle = "把全部数据打成包存在你选的位置，卸了 app 也还在；可开每天自动备份",
+                    subtitle = "把全部数据打成包，卸了 app 也还在；支持每天自动备份与云备份",
                     onClick = onOpenBackup,
                 )
             }

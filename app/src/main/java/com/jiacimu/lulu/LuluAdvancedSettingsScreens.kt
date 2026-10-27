@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import kotlinx.coroutines.launch
 
 private val AdvancedPage = Color.White
@@ -77,6 +78,11 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
     var voiceNotice by remember { mutableStateOf("") }
+    // 哄睡专属声线以前只藏在角色设置里，语音设置页找不到；主角（lulu）
+    // 的那份挪到这里，和平时声线放一起。只对 ElevenLabs 生效。
+    CharacterVoicePreferenceStore.initialize(context)
+    var sleepVoiceId by remember { mutableStateOf(CharacterVoicePreferenceStore.sleepVoiceId("lulu")) }
+    var sleepVoiceEnabled by remember { mutableStateOf(CharacterVoicePreferenceStore.isSleepVoiceEnabled("lulu")) }
 
     DisposableEffect(speechEngine) {
         onDispose { speechEngine.shutdown() }
@@ -134,7 +140,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
-                subtitle = "总开关：关闭后停止正在发声的 TTS，并结束当前电话；手动朗读也不可使用。",
+                subtitle = "关闭后停止当前语音与电话，手动朗读也不可用。",
                 checked = enabled,
                 onCheckedChange = {
                     enabled = it
@@ -149,7 +155,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "自动朗读",
-                subtitle = "默认关闭以节约语音费用。只有主动开启后，聊天的新文字气泡才可能自动调用 TTS；手动朗读、电话另行控制。",
+                subtitle = "默认关闭。开启后聊天新消息才可能自动朗读。",
                 checked = autoSpeak,
                 enabled = enabled,
                 onCheckedChange = {
@@ -274,6 +280,28 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 }
                 if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
+        }
+        if (provider == "elevenlabs") item {
+            SettingsSectionCard("哄睡专用声线") {
+                AdvancedTextField("哄睡 Voice ID", sleepVoiceId, {
+                    sleepVoiceId = it
+                    CharacterVoicePreferenceStore.setSleepVoiceId("lulu", it)
+                }, "填写哄睡时用的声线 ID")
+                Spacer(Modifier.height(8.dp))
+                Text("只对 ElevenLabs 生效；不开就用平时那个声音。", color = AdvancedMuted, fontSize = 12.sp)
+            }
+        }
+        if (provider == "elevenlabs") item {
+            SettingsSwitchCard(
+                title = "哄睡时切换专属声线",
+                subtitle = "哄睡电话接通后改用上面这个声音",
+                checked = sleepVoiceEnabled,
+                enabled = sleepVoiceId.isNotBlank(),
+                onCheckedChange = {
+                    sleepVoiceEnabled = it
+                    CharacterVoicePreferenceStore.setSleepVoiceEnabled("lulu", it)
+                },
+            )
         }
         item { SettingsSectionCard("云端任务（可选）") { CloudConnectionSettings() } }
     }

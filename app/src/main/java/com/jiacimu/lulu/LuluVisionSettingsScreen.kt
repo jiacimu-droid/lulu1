@@ -70,7 +70,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             Text("图片理解 · 聊天 / 小红书", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            "当前聊天模型：$chatModel。小红书的真实图文阅读会在同一次模型请求中输入正文、已加载评论和最多六张实际下载成功的图片；没有设置独立识图模型时，就使用当前聊天模型。模型和API中转都必须支持图片输入，否则图片不会被标记为已理解。",
+                            "当前聊天模型：$chatModel。没有独立识图模型时就用它；模型与中转都必须支持图片输入。",
                             color = Color(0xFF77777B),
                             fontSize = 13.sp,
                             lineHeight = 19.sp,
@@ -92,7 +92,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             else "当前小红书图片跟随聊天模型：$chatModel",
                             color = Color(0xFF3C7667), fontSize = 13.sp)
                         Text(
-                            "聊天识图优先用这里的模型，失败或留空时尝试聊天模型。小红书图文阅读默认用私聊模型；这里选好模型后改用它。",
+                            "优先用这里的模型，失败或留空时用聊天模型。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,
