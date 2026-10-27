@@ -65,7 +65,7 @@ internal data class LuluVoiceCallState(
     val microphoneMuted: Boolean = true,
     /** User may listen silently; the character owns the initiative until stopped. */
     val sleepMode: Boolean = false,
-    val sleepFocus: SleepGuidanceFocus = SleepGuidanceFocus.Natural,
+    val sleepFocus: SleepGuidanceFocus = SleepGuidanceFocus.Body,
     val partialTranscript: String = "",
     val inputLevel: Float = 0f,
     val inputMeterAvailable: Boolean = false,
@@ -240,7 +240,7 @@ internal object LuluVoiceCallSession {
         subtitleRevealJob?.cancel()
         replyGeneration++
         mutableState.update { current ->
-            current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Natural,
+            current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Body,
                 thinking = false, opening = false, playingTranscript = "",
                 generatedTranscript = "", statusMessage = "通话内响铃叫醒 · 不会重新拨号")
         }
@@ -707,8 +707,8 @@ internal object LuluVoiceCallSession {
                 ?: SystemClock.elapsedRealtime()
         else null
         mutableState.update {
-            it.copy(sleepMode = enabled, sleepFocus = SleepGuidanceFocus.Natural,
-                statusMessage = if (enabled) "正在自然哄睡 · 已切换哄睡声线"
+            it.copy(sleepMode = enabled, sleepFocus = SleepGuidanceFocus.Body,
+                statusMessage = if (enabled) "正在放松身体 · 已切换哄睡声线"
                 else "已退出哄睡 · 恢复普通通话声线")
         }
         // The operation is a fact, not a claim that the user fell asleep.
@@ -1584,7 +1584,7 @@ internal object LuluVoiceCallSession {
                     if (mutableState.value.sleepMode) {
                         SleepNarrativeStore.accept(latest.callExperienceId, lastDeliveredMessageId, bedtimeContinuation)
                         val kind = bedtimeContinuation?.let { runCatching { org.json.JSONObject(it).optString("kind") }.getOrNull() }
-                        if (mutableState.value.sleepFocus == SleepGuidanceFocus.Natural) {
+                        if (mutableState.value.sleepFocus == SleepGuidanceFocus.Body) {
                             if (kind == "story") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Story) }
                             else if (kind == "body") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Body) }
                         }
