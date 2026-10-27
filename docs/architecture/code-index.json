@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T06:07:35.081874+00:00",
-  "commit": "a3dfc1c61b65b2a2abd0c1dbf5cb41f19eb83e04",
+  "generatedAt": "2026-10-27T06:29:48.739604+00:00",
+  "commit": "3367d673232b2c4dd5fbf5734cd9ffe5be4708c6",
   "branch": "main",
-  "sourceFingerprint": "81b84dc0bc2ca2d4c8163f765cdb8d3a20efedcd7aa87d504ca5f8de1c7331b8",
+  "sourceFingerprint": "01a2de21a76dd37e03c0086c8eff2ccbddb736afda9c346c7d035d3a21179308",
   "summary": {
-    "files": 957,
-    "lines": 190024,
-    "symbols": 2797
+    "files": 958,
+    "lines": 190123,
+    "symbols": 2801
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1683,7 +1683,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 152
+        "line": 176
       }
     ],
     "angles": [
@@ -10211,31 +10211,31 @@
     "contactsOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "inbox": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 77
+        "line": 78
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 133
+        "line": 134
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 146
+        "line": 147
       }
     ],
     "RoleDayPlan": [
@@ -15310,6 +15310,30 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
         "line": 20
+      }
+    ],
+    "ResidentSocialMailboxTrimTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
+        "line": 19
+      }
+    ],
+    "busyPairCannotEvictOtherPairsMail": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
+        "line": 32
+      }
+    ],
+    "globalCapStillAppliesAfterPairCaps": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
+        "line": 52
+      }
+    ],
+    "orderIsPreservedUnderCaps": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
+        "line": 68
       }
     ],
     "RoleDayScheduleStoreTest": [
@@ -25697,32 +25721,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 201,
-      "sha256": "47bfcd6eb45fcbaed1b81407bc3a73fd9dc05286815ff7d34f6e7f80faf796b6",
+      "lines": 225,
+      "sha256": "b5ca16e4d06d7dbc0e3135be2938019c7d3c6244a0624e51713eb42e806438c7",
       "symbols": [
         {
           "name": "contactsOf",
-          "line": 48
+          "line": 49
         },
         {
           "name": "inbox",
-          "line": 55
+          "line": 56
         },
         {
           "name": "evidenceId",
-          "line": 77
+          "line": 78
         },
         {
           "name": "canContact",
-          "line": 133
+          "line": 134
         },
         {
           "name": "visibleContacts",
-          "line": 146
+          "line": 147
         },
         {
           "name": "send",
-          "line": 152
+          "line": 176
         }
       ]
     },
@@ -32662,6 +32686,29 @@
         {
           "name": "ResidentPhoneWakeIntegrationTest",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
+      "lines": 75,
+      "sha256": "3df28a645e1a63cabcd8b1d9aff3eb6e606a8ec194d22cdb17dd76962dd6606b",
+      "symbols": [
+        {
+          "name": "ResidentSocialMailboxTrimTest",
+          "line": 19
+        },
+        {
+          "name": "busyPairCannotEvictOtherPairsMail",
+          "line": 32
+        },
+        {
+          "name": "globalCapStillAppliesAfterPairCaps",
+          "line": 52
+        },
+        {
+          "name": "orderIsPreservedUnderCaps",
+          "line": 68
         }
       ]
     },
