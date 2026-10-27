@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:55:42.822728+00:00",
-  "commit": "2a8c8e1153e6f64c9a9ddf14982d81a4ef45c589",
+  "generatedAt": "2026-10-27T18:56:01.905643+00:00",
+  "commit": "f7b28a346e28bc8e9431aa447db101068594627b",
   "branch": "main",
-  "sourceFingerprint": "6d831a639de0c7846d9a819636b23409b8d0c6e915a5c0460603a48e2a643459",
+  "sourceFingerprint": "02679b8f4ccf8d92bbcd4a7f90e104a4bbbd3a0b18cfea2daf6170823a9f60c7",
   "summary": {
     "files": 993,
-    "lines": 196466,
+    "lines": 196482,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -31131,8 +31131,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt",
-      "lines": 37,
-      "sha256": "706e372a73467ffc6cf62b18d35ef290c283548e23ee241dcfaac45ae70cfd65",
+      "lines": 53,
+      "sha256": "c60f7f04b174fa8fe15bb1172b1cb70f9548188163b52e1b3dc64f36c6347cba",
       "symbols": [
         {
           "name": "OfflineStickerAssetsTest",

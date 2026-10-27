@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2a8c8e1153e6f64c9a9ddf14982d81a4ef45c589`
+- 基准提交：`f7b28a346e28bc8e9431aa447db101068594627b`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196466
+- 已索引代码/文本行：196482
 - 已发现符号：2911
 
 | 文件 | 行数 | 符号数 |
@@ -726,7 +726,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 37 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 61 | 1 |
