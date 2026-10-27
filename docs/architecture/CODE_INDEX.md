@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`074ba2c1417a85dc69d63439622736443ddc455a`
+- 基准提交：`5a039308706c77a5cddd32dbba93116d933657c8`
 - 分支：`main`
 - 已索引文件：954
-- 已索引代码/文本行：189140
-- 已发现符号：2778
+- 已索引代码/文本行：189193
+- 已发现符号：2780
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -380,7 +380,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 40 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt` | 37 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 140 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 180 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 249 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActionId.kt` | 7 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 265 | 5 |
@@ -462,7 +462,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 156 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2701 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2714 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1025 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 40 | 2 |

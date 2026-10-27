@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T04:06:30.383844+00:00",
-  "commit": "074ba2c1417a85dc69d63439622736443ddc455a",
+  "generatedAt": "2026-10-27T04:14:58.983531+00:00",
+  "commit": "5a039308706c77a5cddd32dbba93116d933657c8",
   "branch": "main",
-  "sourceFingerprint": "64f05aa8ab839bf3f976fe91b64fa9cabe316da0326c9eaa36a7f4ffccc4cdc0",
+  "sourceFingerprint": "e20d15faba1ad10c97605be32be59dfb2b9bd584ec125a17eac17d6683998cf2",
   "summary": {
     "files": 954,
-    "lines": 189140,
-    "symbols": 2778
+    "lines": 189193,
+    "symbols": 2780
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7350,24 +7350,34 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
         "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 121
       }
     ],
     "gapHours": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 88
+        "line": 47
       }
     ],
     "ageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 90
+        "line": 49
       }
     ],
     "addIfOld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 104
+        "line": 63
+      }
+    ],
+    "readings": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 99
       }
     ],
     "CharacterLifeForm": [
@@ -9731,7 +9741,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2635
+        "line": 2647
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -22510,8 +22520,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-      "lines": 140,
-      "sha256": "bb5d44f2b6c2f0d5d4c77bd6670e7f6e2e2c45e6d78e4b8eb1272834d2cc5a61",
+      "lines": 180,
+      "sha256": "5718ecfc01a086fd784a9254f7576b3010e3261e7fc500d910f844d9ed902241",
       "symbols": [
         {
           "name": "promptSection",
@@ -22523,15 +22533,23 @@
         },
         {
           "name": "gapHours",
-          "line": 88
+          "line": 47
         },
         {
           "name": "ageLabel",
-          "line": 90
+          "line": 49
         },
         {
           "name": "addIfOld",
-          "line": 104
+          "line": 63
+        },
+        {
+          "name": "readings",
+          "line": 99
+        },
+        {
+          "name": "lastOwn",
+          "line": 121
         }
       ]
     },
@@ -25074,8 +25092,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2701,
-      "sha256": "b74f921c8738502d07b86512c4ffd4714f849b195570d616c4c933285bb69afb",
+      "lines": 2714,
+      "sha256": "011f37785d5b302630f50aecd3c23dc42fdca9e8bef8bfd4a14354839a39f4ec",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -25107,7 +25125,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2635
+          "line": 2647
         }
       ]
     },
