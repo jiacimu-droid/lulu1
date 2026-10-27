@@ -572,6 +572,14 @@ private fun ChatHubV2Profile(onFavorites: () -> Unit) {
                                         evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
                                     )
                                 }
+                                // Picture pixels are NOT included in the profile-change event.
+                                // Read the saved avatar via the existing vision provider in a
+                                // durable worker, then write a separate verified observation.
+                                if (previousAvatar != avatarUri.orEmpty()) {
+                                    com.jiacimu.lulu.data.UserAvatarVision.onAvatarSaved(
+                                        context, avatarUri, changeId,
+                                    )
+                                }
                             }
                         }
                         notice = if (saved) "个人资料已保存" else "保存失败，请重试"
