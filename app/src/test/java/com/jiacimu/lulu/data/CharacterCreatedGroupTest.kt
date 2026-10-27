@@ -77,25 +77,22 @@ class CharacterCreatedGroupTest {
         assertEquals(before, MigratedDomainStores.chat.conversations.value.size)
     }
 
-    @Test fun groupAndPhoneVisitAreOrdinaryPerceptionObservations() {
+    @Test fun legacyPhoneNavigationIsNotAStimulusButRealGroupInvitesStillAre() {
         val now = Instant.parse("2026-10-26T07:00:00Z")
         fun event(source: String) = SharedTimelineEvent(
             "e-$source", "some-role", "手机·查看痕迹", "主人",
-            "主人确实查看了你的手机", now, source = source,
+            "过去查看过角色手机页面", now, source = source,
             evidenceKind = EventEvidenceKind.Observation,
         )
-        val observed = CharacterPerceptionContext.selectRecent(
-            listOf(event("owner-phone-inspection"), event("group-membership")),
-            now.plusSeconds(20),
-        )
-        assertEquals(2, observed.size)
-        // A character waking after a long rest must still perceive the owner
-        // browsing its phone or a genuine group invitation.
-        assertEquals(2, CharacterPerceptionContext.selectRecent(
-            listOf(event("owner-phone-inspection"), event("group-membership")),
-            now.plusSeconds(259_200),
-        ).size)
-        assertTrue("user" in CharacterPerceptionContext.stimulus(
-            event("owner-phone-inspection")).socialIds)
+        val oldPhonePage = event("owner-phone-inspection")
+        val invitation = event("group-membership")
+        val recent = CharacterPerceptionContext.selectRecent(
+            listOf(oldPhonePage, invitation), now.plusSeconds(20))
+        assertEquals(listOf(invitation.id), recent.map { it.id })
+        // Historical inspection events stay in the archive; they no longer
+        // remain permanently eligible or distort the next character turn.
+        assertEquals(listOf(invitation.id), CharacterPerceptionContext.selectRecent(
+            listOf(oldPhonePage, invitation), now.plusSeconds(259_200),
+        ).map { it.id })
     }
 }
