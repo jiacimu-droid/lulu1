@@ -67,6 +67,32 @@ class CharacterThoughtActionHandoffTest {
         assertNull(CharacterThoughtActionHandoff.actions(speechOnly))
     }
 
+    @Test fun explicitlySelectedStickerAndRemarkShareRealToolPathWithoutTurningThoughtsIntoActions() {
+        val decision = JSONObject().put("action", "message").put("text", "有个小惊喜")
+            .put("steps", JSONArray().put(JSONObject()
+                .put("action", "sticker").put("stickerId", "openmoji-1f63d")
+                .put("requiresPreviousSuccess", true)))
+            .put("innerLife", JSONObject().put("thoughts", JSONArray().put(JSONObject()
+                .put("nextAction", JSONObject().put("tool", "set_user_remark")
+                    .put("nickname", "佳辞")))))
+        val original = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(2, steps.length())
+        assertEquals("send_private_sticker", steps.getJSONObject(0).getString("tool"))
+        assertEquals("openmoji-1f63d",
+            steps.getJSONObject(0).getJSONObject("args").getString("stickerId"))
+        assertTrue(steps.getJSONObject(0).getBoolean("requiresPreviousSuccess"))
+        assertEquals("set_user_remark", steps.getJSONObject(1).getString("tool"))
+        assertEquals("佳辞", steps.getJSONObject(1).getJSONObject("args").getString("nickname"))
+        assertEquals(original, decision.toString())
+
+        val thoughtOnly = JSONObject().put("action", "silent")
+            .put("innerThought", "有点想发亲亲猫猫表情包，回头再说")
+            .put("innerLife", JSONObject().put("thoughts", JSONArray().put(JSONObject()
+                .put("possibleNextStep", "再给她改个备注吧"))))
+        assertNull(CharacterThoughtActionHandoff.actions(thoughtOnly))
+    }
+
     @Test fun aPossibleStepInProseNeverExecutesByItself() {
         assertNull(CharacterThoughtActionHandoff.actions(concern(JSONObject()
             .put("possibleNextStep", "明天下午三点搜搜资料"))))
