@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:27:54.900484+00:00",
-  "commit": "15216345c371c705d858f2cba69fb89949a17397",
+  "generatedAt": "2026-10-27T18:28:19.370078+00:00",
+  "commit": "3f12e10fb099484cda0cdd46a316443692372dde",
   "branch": "main",
-  "sourceFingerprint": "74cb3917846efa1a4228e3d9e038a0cd3efd01301f4dcd439c0619c9918df5a6",
+  "sourceFingerprint": "61f1ce5aa798f5479399ee5c20452ac3fcba7a5e5bfa936bd7ce4552849ae21e",
   "summary": {
     "files": 993,
-    "lines": 196152,
+    "lines": 196158,
     "symbols": 2910
   },
   "symbolIndex": {
@@ -11043,19 +11043,19 @@
     "onAvatarSaved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 34
+        "line": 39
       }
     ],
     "observeModelResponse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 59
+        "line": 64
       }
     ],
     "UserAvatarVisionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 94
+        "line": 100
       }
     ],
     "UserDataUpgradeGuard": [
@@ -27182,8 +27182,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-      "lines": 98,
-      "sha256": "9dac709baa39c0b0c89d89aeb56815ff52e17e30d217c2d6c3c5ec18a3018872",
+      "lines": 104,
+      "sha256": "f27bac5c54fb136abdc565aa3cd03ca001e5f260584a15c8fba314bd4ee3c3fa",
       "symbols": [
         {
           "name": "Attachment",
@@ -27191,15 +27191,15 @@
         },
         {
           "name": "onAvatarSaved",
-          "line": 34
+          "line": 39
         },
         {
           "name": "observeModelResponse",
-          "line": 59
+          "line": 64
         },
         {
           "name": "UserAvatarVisionWorker",
-          "line": 94
+          "line": 100
         }
       ]
     },

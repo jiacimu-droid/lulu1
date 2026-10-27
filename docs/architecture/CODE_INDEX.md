@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`15216345c371c705d858f2cba69fb89949a17397`
+- 基准提交：`3f12e10fb099484cda0cdd46a316443692372dde`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196152
+- 已索引代码/文本行：196158
 - 已发现符号：2910
 
 | 文件 | 行数 | 符号数 |
@@ -514,7 +514,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 271 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 98 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 246 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
