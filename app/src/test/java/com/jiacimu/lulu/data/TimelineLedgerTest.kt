@@ -64,6 +64,38 @@ class TimelineLedgerTest {
         assertFalse(CharacterDevelopmentStore.active(role).any { it.slot == "comfort:playful" })
     }
 
+    @Test fun oldPhoneTabVisitsRemainInArchiveButNeverEnterMemoryOrRecalledMood() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val role = "owner-navigation-" + java.util.UUID.randomUUID()
+        val time = Instant.now().minusSeconds(120)
+        val passiveId = "old-nav-" + role
+        val avatarId = "avatar-change-" + role
+        try {
+            SharedExperienceTimeline.record(
+                passiveId, role, "手机·查看痕迹", "主人",
+                "主人切到消息列表", time, triggerExtraction = false,
+                source = "owner-phone-inspection", evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record(
+                avatarId, role, "用户资料", "头像视觉观察",
+                "本人的聊天模型确实收到了用户更新后的头像", time.plusSeconds(30),
+                triggerExtraction = false, source = "user-profile-avatar-vision",
+                evidenceKind = EventEvidenceKind.Observation)
+            val memory = LuluRepositories.memory
+            val events = SharedExperienceTimeline.eventsByIds(role, listOf(passiveId, avatarId))
+            assertEquals(2, events.size) // no destructive data migration
+            assertFalse(memory.allowsRawRecall(events.first { it.id == passiveId }))
+            assertTrue(memory.allowsRawRecall(events.first { it.id == avatarId }))
+            val contextEvents = memory.contextTimelineEvents(role)
+            assertFalse(contextEvents.any { it.id == passiveId })
+            assertTrue(contextEvents.any { it.id == avatarId })
+        } finally {
+            SharedExperienceTimeline.deleteEvent(passiveId)
+            SharedExperienceTimeline.deleteEvent(avatarId)
+        }
+    }
+
     @Test fun migrationDedupIsolationCorrectionAndDeletionAreDurable() {
         val context = RuntimeEnvironment.getApplication() as Context
         context.openOrCreateDatabase("shared_experience_timeline.db", 0, null).use { db ->
