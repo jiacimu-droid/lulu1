@@ -710,6 +710,11 @@ object ProactivePerceptionRuntime {
             currentItems = itemChoices,
             currentResidents = if (digital) DigitalWorldExpansionStore.residentsAt(currentLocation)
                 .map { Triple(it.id, it.name, it.identity) } else emptyList(),
+            atOwnHome = digital && currentLocation == DigitalWorldStore.homeLocation(characterId),
+            homeCapacityRemaining = if (digital)
+                DigitalWorldStore.remainingHomeCapacity(characterId) else 0,
+            homeFurniture = if (digital) DigitalWorldStore.itemsAtHome(characterId)
+                .map { it.id to it.name } else emptyList(),
         )
 
         // User photos were already posted to chat. Let the role's normal
