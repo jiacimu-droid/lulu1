@@ -40,6 +40,22 @@ class SleepNarrativeStoreTest {
         assertEquals(2_500L, SleepCallContinuationPolicy.nextPauseMillis(45 * 60_000L, story = true))
         SleepNarrativeStore.clear(id)
     }
+    @Test fun bedtimeChoicesRemainTwoDistinctContinuousExperiences() {
+        assertEquals(listOf(SleepGuidanceFocus.Body, SleepGuidanceFocus.Story),
+            SleepGuidanceGuide.choices)
+        val body = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Body, true, 24 * 60_000L)
+        assertTrue(body.contains("只有放松身体"))
+        assertTrue(body.contains("严格禁止机械收尾"))
+        assertTrue(body.contains("不要每段末尾"))
+        assertTrue(body.contains("继续当前身体部位"))
+        assertFalse(body.contains("自然穿插："))
+        assertFalse(body.contains("讲完整个故事"))
+        val story = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Story, true, 25 * 60_000L)
+        assertTrue(story.contains("只有睡前故事"))
+        assertTrue(story.contains("延续") || story.contains("接着往前走"))
+        assertFalse(story.contains("讲完一个部位"))
+    }
+
     @Test fun explicitSpokenStoryPreferenceWinsWithoutTreatingRefusalAsARequest() {
         assertEquals(SleepGuidanceFocus.Story, SleepGuidanceGuide.requestedFocus("我想听一个长故事"))
         assertEquals(SleepGuidanceFocus.Body, SleepGuidanceGuide.requestedFocus("帮我放松身体吧"))
