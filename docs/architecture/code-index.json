@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:27:12.284882+00:00",
-  "commit": "70bd9fbe861420a50a4f33a96929fc022628392f",
+  "generatedAt": "2026-10-27T18:27:37.585166+00:00",
+  "commit": "5f00a048e8858c287696dca7f7d43d0389eb5c1f",
   "branch": "main",
-  "sourceFingerprint": "abe75e3b00163710d5f3713479bcdf9b8b77e08eefc513d290fcde6d0feeb695",
+  "sourceFingerprint": "9a134c81eac3464f29f2e3f117515a681631b98cac3588c8c8cf6c90b8c48de8",
   "summary": {
     "files": 993,
-    "lines": 196081,
+    "lines": 196080,
     "symbols": 2910
   },
   "symbolIndex": {
@@ -11037,25 +11037,25 @@
     "Attachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 19
+        "line": 18
       }
     ],
     "onAvatarSaved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 35
+        "line": 34
       }
     ],
     "observeModelResponse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 60
+        "line": 59
       }
     ],
     "UserAvatarVisionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-        "line": 95
+        "line": 94
       }
     ],
     "UserDataUpgradeGuard": [
@@ -27182,24 +27182,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt",
-      "lines": 99,
-      "sha256": "263bba496bce8ee059806425981bf0c771dc440b97e47a72ea9efed609fa918a",
+      "lines": 98,
+      "sha256": "9dac709baa39c0b0c89d89aeb56815ff52e17e30d217c2d6c3c5ec18a3018872",
       "symbols": [
         {
           "name": "Attachment",
-          "line": 19
+          "line": 18
         },
         {
           "name": "onAvatarSaved",
-          "line": 35
+          "line": 34
         },
         {
           "name": "observeModelResponse",
-          "line": 60
+          "line": 59
         },
         {
           "name": "UserAvatarVisionWorker",
-          "line": 95
+          "line": 94
         }
       ]
     },
