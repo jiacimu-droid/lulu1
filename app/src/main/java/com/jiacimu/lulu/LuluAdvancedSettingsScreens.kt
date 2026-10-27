@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
 
 private val AdvancedPage = Color.White
@@ -78,11 +79,23 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
     var voiceNotice by remember { mutableStateOf("") }
-    // 哄睡专属声线以前只藏在角色设置里，语音设置页找不到；主角（lulu）
-    // 的那份挪到这里，和平时声线放一起。只对 ElevenLabs 生效。
+    // Read and write the same per-character voice keys used by live calls.
     CharacterVoicePreferenceStore.initialize(context)
-    var sleepVoiceId by remember { mutableStateOf(CharacterVoicePreferenceStore.sleepVoiceId("lulu")) }
-    var sleepVoiceEnabled by remember { mutableStateOf(CharacterVoicePreferenceStore.isSleepVoiceEnabled("lulu")) }
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    var selectedVoiceRole by remember { mutableStateOf("lulu") }
+    val voiceRoleOptions = (listOf("主角" to "lulu") +
+        characters.entries.map { (id, character) ->
+            character.displayName.ifBlank { id } to id
+        }).distinctBy { it.second }
+    var sleepVoiceId by remember(selectedVoiceRole) {
+        mutableStateOf(CharacterVoicePreferenceStore.sleepVoiceId(selectedVoiceRole))
+    }
+    var sleepVoiceEnabled by remember(selectedVoiceRole) {
+        mutableStateOf(CharacterVoicePreferenceStore.isSleepVoiceEnabled(selectedVoiceRole))
+    }
+    var phoneOptionsOpen by remember { mutableStateOf(false) }
+    var providerAdvancedOpen by remember { mutableStateOf(false) }
+    var cloudTasksOpen by remember { mutableStateOf(false) }
 
     DisposableEffect(speechEngine) {
         onDispose { speechEngine.shutdown() }
@@ -136,7 +149,14 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item { SettingsSectionCard("电话线路") { VoiceCallSettings(provider) } }
+        item {
+            SettingsSectionCard("电话线路") {
+                TextButton(onClick = { phoneOptionsOpen = !phoneOptionsOpen }) {
+                    Text(if (phoneOptionsOpen) "收起电话线路" else "电话线路与实时通话 · 展开")
+                }
+                if (phoneOptionsOpen) VoiceCallSettings(provider)
+            }
+        }
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
@@ -187,40 +207,36 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             }
         }
         if (provider == "minimax") item {
-            SettingsSectionCard("MiniMax 接口") {
-                AdvancedChoiceField(
-                    label = "接口线路",
-                    value = minimaxEndpoint,
-                    options = MiniMaxEndpoints,
-                    onSelected = { minimaxEndpoint = it },
-                )
+            SettingsSectionCard("MiniMax · 声音") {
+                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it },
+                    "填写 MiniMax API Key", password = true)
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key", password = true)
+                AdvancedTextField("Group ID", minimaxGroupId, { minimaxGroupId = it },
+                    "国内账号填写 Group ID")
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("Group ID", minimaxGroupId, { minimaxGroupId = it }, "国内账号请填写 Group ID")
+                AdvancedChoiceField("语音模型", minimaxModel,
+                    MiniMaxSpeechModels.map { it to it }, { minimaxModel = it })
                 Spacer(Modifier.height(10.dp))
-                AdvancedChoiceField(
-                    label = "语音模型",
-                    value = minimaxModel,
-                    options = MiniMaxSpeechModels.map { it to it },
-                    onSelected = { minimaxModel = it },
-                )
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写系统音色或克隆音色 ID")
-                Spacer(Modifier.height(10.dp))
-                AdvancedChoiceField(
-                    label = "语言增强",
-                    value = minimaxLanguage,
-                    options = MiniMaxLanguages.map { it to it },
-                    onSelected = { minimaxLanguage = it },
-                )
-                Spacer(Modifier.height(18.dp))
-                Text("语速  ${"%.2f".format(minimaxSpeed)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
-                Slider(value = minimaxSpeed, onValueChange = { minimaxSpeed = it }, valueRange = 0.5f..2f, enabled = enabled)
-                Text("音量  ${"%.2f".format(minimaxVolume)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
-                Slider(value = minimaxVolume, onValueChange = { minimaxVolume = it }, valueRange = 0.1f..10f, enabled = enabled)
-                Text("音调  ${minimaxPitch.toInt()}", color = AdvancedInk, fontWeight = FontWeight.Medium)
-                Slider(value = minimaxPitch, onValueChange = { minimaxPitch = it }, valueRange = -12f..12f, steps = 23, enabled = enabled)
+                AdvancedTextField("Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写声线 ID")
+                TextButton(onClick = { providerAdvancedOpen = !providerAdvancedOpen }) {
+                    Text(if (providerAdvancedOpen) "收起高级参数" else "更多参数 · 线路 / 语速 / 音调")
+                }
+                if (providerAdvancedOpen) {
+                    AdvancedChoiceField("接口线路", minimaxEndpoint, MiniMaxEndpoints,
+                        { minimaxEndpoint = it })
+                    Spacer(Modifier.height(10.dp))
+                    AdvancedChoiceField("语言增强", minimaxLanguage,
+                        MiniMaxLanguages.map { it to it }, { minimaxLanguage = it })
+                    Text("语速  ${"%.2f".format(minimaxSpeed)}", color = AdvancedInk)
+                    Slider(value = minimaxSpeed, onValueChange = { minimaxSpeed = it },
+                        valueRange = 0.5f..2f, enabled = enabled)
+                    Text("音量  ${"%.2f".format(minimaxVolume)}", color = AdvancedInk)
+                    Slider(value = minimaxVolume, onValueChange = { minimaxVolume = it },
+                        valueRange = 0.1f..10f, enabled = enabled)
+                    Text("音调  ${minimaxPitch.toInt()}", color = AdvancedInk)
+                    Slider(value = minimaxPitch, onValueChange = { minimaxPitch = it },
+                        valueRange = -12f..12f, steps = 23, enabled = enabled)
+                }
                 Spacer(Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = {
@@ -262,10 +278,17 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     onSelected = { elevenModel = it; prefs.edit().putString("eleven_tts_model", it).apply() },
                 )
                 if (!ElevenLabsModels.dialogue(elevenModel)) {
-                    Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
-                    Slider(value = elevenStability, onValueChange = { elevenStability = it }, valueRange = 0f..1f, enabled = enabled)
-                    Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
-                    Slider(value = elevenSimilarity, onValueChange = { elevenSimilarity = it }, valueRange = 0f..1f, enabled = enabled)
+                    TextButton(onClick = { providerAdvancedOpen = !providerAdvancedOpen }) {
+                        Text(if (providerAdvancedOpen) "收起高级参数" else "更多参数 · 稳定性 / 相似度")
+                    }
+                    if (providerAdvancedOpen) {
+                        Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
+                        Slider(value = elevenStability, onValueChange = { elevenStability = it },
+                            valueRange = 0f..1f, enabled = enabled)
+                        Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
+                        Slider(value = elevenSimilarity, onValueChange = { elevenSimilarity = it },
+                            valueRange = 0f..1f, enabled = enabled)
+                    }
                 }
                 OutlinedButton(onClick = {
                     saveVoiceSettings(); testingVoice = true; voiceNotice = "正在连接 ElevenLabs 并试听…"
@@ -282,28 +305,39 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             }
         }
         if (provider == "elevenlabs") item {
-            SettingsSectionCard("哄睡专用声线") {
+            SettingsSectionCard("哄睡声线 · 按角色") {
+                AdvancedChoiceField("选择角色", selectedVoiceRole, voiceRoleOptions) {
+                    selectedVoiceRole = it
+                }
+                Spacer(Modifier.height(10.dp))
                 AdvancedTextField("哄睡 Voice ID", sleepVoiceId, {
                     sleepVoiceId = it
-                    CharacterVoicePreferenceStore.setSleepVoiceId("lulu", it)
-                }, "填写哄睡时用的声线 ID")
-                Spacer(Modifier.height(8.dp))
-                Text("只对 ElevenLabs 生效；不开就用平时那个声音。", color = AdvancedMuted, fontSize = 12.sp)
+                    CharacterVoicePreferenceStore.setSleepVoiceId(selectedVoiceRole, it)
+                }, "该角色哄睡时用的 ElevenLabs Voice ID")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("哄睡时切换这条声线", modifier = Modifier.weight(1f),
+                        color = AdvancedInk, fontSize = 14.sp)
+                    Switch(
+                        checked = sleepVoiceEnabled,
+                        enabled = sleepVoiceId.isNotBlank(),
+                        onCheckedChange = {
+                            sleepVoiceEnabled = it
+                            CharacterVoicePreferenceStore.setSleepVoiceEnabled(selectedVoiceRole, it)
+                        },
+                    )
+                }
+                Text("只修改所选角色；不启用时继续用平时声线。",
+                    color = AdvancedMuted, fontSize = 12.sp)
             }
         }
-        if (provider == "elevenlabs") item {
-            SettingsSwitchCard(
-                title = "哄睡时切换专属声线",
-                subtitle = "哄睡电话接通后改用上面这个声音",
-                checked = sleepVoiceEnabled,
-                enabled = sleepVoiceId.isNotBlank(),
-                onCheckedChange = {
-                    sleepVoiceEnabled = it
-                    CharacterVoicePreferenceStore.setSleepVoiceEnabled("lulu", it)
-                },
-            )
+        item {
+            SettingsSectionCard("其他") {
+                TextButton(onClick = { cloudTasksOpen = !cloudTasksOpen }) {
+                    Text(if (cloudTasksOpen) "收起云端任务" else "云端任务（可选）")
+                }
+                if (cloudTasksOpen) CloudConnectionSettings()
+            }
         }
-        item { SettingsSectionCard("云端任务（可选）") { CloudConnectionSettings() } }
     }
 }
 
