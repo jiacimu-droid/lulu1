@@ -87,7 +87,10 @@ class UserInteractionPresenceTest {
         val speech = UserInteractionPresenceStore.salientTimeCue(
             touch, false, at.minusSeconds(600), at, java.time.ZoneId.of("Asia/Shanghai"))
         assertTrue(speech.contains("确实收到用户发言"))
-        assertFalse(speech.contains("触摸"))
+        // The caution "touch does not prove wakefulness" is correct; only
+        // claiming a positive observed touch as new emotional evidence is not.
+        assertTrue(speech.contains("触摸也不能证明一直清醒"))
+        assertFalse(speech.contains("观察到当前相关页面有触摸操作"))
     }
 
     @Test fun silenceOrStaleContactCannotBecomeFalseProofOfStayingAwake() {
