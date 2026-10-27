@@ -19,6 +19,10 @@ internal fun sameCharacterMotive(first: String, second: String): Boolean {
 
 /** Subjective motives are never evidence of an action or a fulfilled promise. */
 object CharacterLifeStore {
+    // One-time bundled template, not a shadow personality store or a new shared character.
+    internal const val BUNDLED_JIANG_DU_ID = "bundled-jiangdu"
+    private const val BUNDLED_JIANG_DU_IMPORTED = "bundled_jiangdu_imported_v1"
+
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private val mutable = MutableStateFlow<Map<String, String>>(emptyMap())
@@ -33,8 +37,34 @@ object CharacterLifeStore {
         // 预设补跑不能只在第一次启动做一次：重装后主角可能先叫默认名、
         // 或之后才被改名叫江渡，错过那一次就永远装不上。补跑本身是幂等的
         // （已到最新版直接返回、用户改过的字段一律不动），每次启动都跑才安全。
+        // 恢复仓库内建的人设为独立联系人；仅首次升级导入。
+        // 导入标记独立保存，之后用户删除/编辑角色都不会在启动时被反复逆转。
+        ensureBundledJiangDu()
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
+    }
+
+    @Synchronized private fun ensureBundledJiangDu() {
+        val preferences = prefs ?: return
+        if (preferences.getBoolean(BUNDLED_JIANG_DU_IMPORTED, false)) return
+        val characters = MigratedDomainStores.characters
+        // A bundled ID allows interrupted imports to resume without creating duplicates.
+        if (BUNDLED_JIANG_DU_ID !in characters.settings.value) {
+            characters.update(CharacterSettings(
+                characterId = BUNDLED_JIANG_DU_ID,
+                displayName = "江渡",
+                persona = CharacterProfileSchema.jiangDuV24Persona,
+            ))
+        }
+        if (!DigitalLifeProfileStore.isResolved(BUNDLED_JIANG_DU_ID)) {
+            DigitalLifeProfileStore.registerNewLife(BUNDLED_JIANG_DU_ID, "江渡", "主人")
+        }
+        if (CharacterIdentityStore.identities.value[BUNDLED_JIANG_DU_ID].isNullOrBlank()) {
+            CharacterIdentityStore.set(BUNDLED_JIANG_DU_ID, CharacterProfileSchema.jiangDuIdentity)
+        }
+        applyJiangDuPreset(BUNDLED_JIANG_DU_ID)
+        // Marker last: next launch can safely retry any unfinished step.
+        preferences.edit().putBoolean(BUNDLED_JIANG_DU_IMPORTED, true).commit()
     }
 
     fun state(characterId: String): JSONObject = runCatching {
@@ -254,10 +284,10 @@ object CharacterLifeStore {
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
         if (version >= CharacterProfileSchema.jiangDuPresetVersion) return
-        // A previous preset identifies the SAME character after a rename.
-        // 主角 lulu 就是江渡本人：重装后默认名是“露露”，只认名字会把他漏掉，
-        // 所以主角 ID 直接算数，不用等用户改名。
-        if (version <= 0 && characterId != "lulu" && character.displayName !in CharacterProfileSchema.jiangDuNames) return
+        // Only a known Jiang Du, a previously versioned preset or the bundled
+        // role qualifies. The stock 'lulu' entry is not automatically Jiang Du.
+        if (version <= 0 && characterId != BUNDLED_JIANG_DU_ID &&
+            character.displayName !in CharacterProfileSchema.jiangDuNames) return
         if (DigitalLifeProfileStore.lifeForm(characterId) == CharacterLifeForm.REAL_WORLD) return
         val profile = root.optJSONObject("profile") ?: JSONObject()
         if (!root.has("jiangDuV9Backup")) {

@@ -17,12 +17,14 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +46,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 private data class DesktopV2Launcher(
     val id: String,
@@ -73,6 +76,19 @@ private val DesktopV2Launchers = listOf(
 private const val DESKTOP_COLUMNS = 4
 private const val DESKTOP_ROWS = 4
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
+
+/** One shared layout for local and cross-page drag; moving to an empty slot leaves a hole. */
+internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List<String?> {
+    if (from !in slots.indices || to !in slots.indices || from == to || slots[from] == null) return slots
+    val updated = slots.toMutableList()
+    updated[from] = slots[to]
+    updated[to] = slots[from]
+    val lastOccupied = updated.indexOfLast { it != null } + 1
+    val wanted = desktopAllocatedPageCount(maxOf(DESKTOP_SLOT_COUNT, lastOccupied)) * DESKTOP_SLOT_COUNT
+    return if (wanted <= updated.size) updated.take(wanted)
+        else updated + List<String?>(wanted - updated.size) { null }
+}
+
 
 // 至少保留一张空白桌面页；如果最后一张已经放了应用，就预留下一张。
 internal fun desktopAllocatedPageCount(neededSlots: Int): Int =
@@ -221,33 +237,111 @@ internal fun MigrationHomeV2(
             }
 
             Spacer(Modifier.height(9.dp))
-            // 像手机桌面一样横向翻页，即使应用尚未填满也保留第二页。
+            // 手势属于整张桌面，不属于某一页上的图标：翻页时仍能拖着同一图标。
             val pageCount = slots.size / DESKTOP_SLOT_COUNT
             val pagerState = rememberPagerState(pageCount = { pageCount })
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                reverseLayout = true, // 首屏向右滑可进入下一桌面
-            ) { page ->
-                val pageSlots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT)
-                DesktopLauncherGrid(
-                    slots = pageSlots,
-                    // Pager 默认会垂直居中未撑满的子元素；必须占满高度，图标才能从顶部排列。
-                    modifier = Modifier.fillMaxSize(),
-                    onMove = { from, to ->
-                        val globalFrom = page * DESKTOP_SLOT_COUNT + from
-                        val globalTo = page * DESKTOP_SLOT_COUNT + to
-                        if (globalFrom != globalTo) {
-                            val updated = slots.toMutableList()
-                            val moving = updated[globalFrom]
-                            updated[globalFrom] = updated[globalTo]
-                            updated[globalTo] = moving
-                            slots = updated
-                            saveDesktopSlots(context, updated)
-                        }
+            val scope = rememberCoroutineScope()
+            var draggingSource by remember { mutableStateOf<Int?>(null) }
+            var dragPosition by remember { mutableStateOf(Offset.Zero) }
+            var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
+            var edgePageHandled by remember { mutableIntStateOf(-1) }
+            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
+                val density = LocalDensity.current
+                val cellWidth = maxWidth / DESKTOP_COLUMNS
+                val cellHeight = maxHeight / DESKTOP_ROWS
+                val cellWidthPx = with(density) { cellWidth.toPx() }
+                val cellHeightPx = with(density) { cellHeight.toPx() }
+                val edgePx = with(density) { 32.dp.toPx() }
+                val iconHeightPx = with(density) { 86.dp.toPx() }
+                Box(
+                    Modifier.fillMaxSize().pointerInput(slots, cellWidthPx, cellHeightPx) {
+                        if (cellWidthPx <= 0f || cellHeightPx <= 0f) return@pointerInput
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { start ->
+                                val col = (start.x / cellWidthPx).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
+                                val row = (start.y / cellHeightPx).toInt().coerceIn(0, DESKTOP_ROWS - 1)
+                                val source = pagerState.currentPage * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+                                // Long-pressing empty page space should not start moving an icon.
+                                if (slots.getOrNull(source) != null &&
+                                    start.y - row * cellHeightPx <= iconHeightPx) {
+                                    draggingSource = source
+                                    dragPosition = start
+                                    dragGrabOffset = Offset(start.x - col * cellWidthPx, start.y - row * cellHeightPx)
+                                    edgePageHandled = -1
+                                }
+                            },
+                            onDrag = { change, _ ->
+                                if (draggingSource != null) {
+                                    change.consume()
+                                    dragPosition = change.position
+                                    val currentPage = pagerState.currentPage
+                                    val edgeTarget = when {
+                                        dragPosition.x > size.width - edgePx -> currentPage + 1
+                                        dragPosition.x < edgePx -> currentPage - 1
+                                        else -> -1
+                                    }
+                                    if (edgeTarget == -1) {
+                                        edgePageHandled = -1
+                                    } else if (edgeTarget in 0 until pageCount && edgePageHandled == -1) {
+                                        edgePageHandled = currentPage
+                                        scope.launch { pagerState.scrollToPage(edgeTarget) }
+                                    }
+                                }
+                            },
+                            onDragEnd = {
+                                draggingSource?.let { from ->
+                                    val col = (dragPosition.x / cellWidthPx).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
+                                    val row = (dragPosition.y / cellHeightPx).toInt().coerceIn(0, DESKTOP_ROWS - 1)
+                                    val to = pagerState.currentPage * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+                                    val updated = desktopMoveLauncher(slots, from, to)
+                                    if (updated != slots) {
+                                        slots = updated
+                                        saveDesktopSlots(context, updated)
+                                    }
+                                }
+                                draggingSource = null
+                                edgePageHandled = -1
+                            },
+                            onDragCancel = {
+                                draggingSource = null
+                                edgePageHandled = -1
+                            },
+                        )
                     },
-                    onOpen = onOpen,
-                )
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        reverseLayout = true,
+                        userScrollEnabled = draggingSource == null,
+                    ) { page ->
+                        DesktopLauncherGrid(
+                            slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
+                            modifier = Modifier.fillMaxSize(),
+                            draggedLauncherId = draggingSource?.let(slots::get),
+                            onOpen = onOpen,
+                        )
+                    }
+                    val active = draggingSource?.let { source ->
+                        slots.getOrNull(source)?.let { id -> DesktopV2Launchers.firstOrNull { it.id == id } }
+                    }
+                    if (active != null) {
+                        DesktopV2LauncherItem(
+                            launcher = active,
+                            modifier = Modifier.width(cellWidth).height(cellHeight)
+                                .offset { IntOffset(
+                                    (dragPosition.x - dragGrabOffset.x).roundToInt(),
+                                    (dragPosition.y - dragGrabOffset.y).roundToInt(),
+                                ) }
+                                .graphicsLayer {
+                                    scaleX = 1.08f
+                                    scaleY = 1.08f
+                                    shadowElevation = 9f
+                                },
+                            onClick = {},
+                        )
+                    }
+                }
             }
             if (pageCount > 1) {
                 Row(
@@ -399,7 +493,7 @@ private fun DesktopTinyTag(text: String) {
 private fun DesktopLauncherGrid(
     slots: List<String?>,
     modifier: Modifier,
-    onMove: (Int, Int) -> Unit,
+    draggedLauncherId: String?,
     onOpen: (MigrationRoute) -> Unit,
 ) {
     BoxWithConstraints(modifier) {
@@ -409,46 +503,12 @@ private fun DesktopLauncherGrid(
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
             val row = index / DESKTOP_COLUMNS
-            var dragX by remember(launcherId) { mutableFloatStateOf(0f) }
-            var dragY by remember(launcherId) { mutableFloatStateOf(0f) }
-            var dragging by remember(launcherId) { mutableStateOf(false) }
-
             DesktopV2LauncherItem(
                 launcher = launcher,
-                modifier = Modifier
-                    .width(cellWidth)
-                    .height(cellHeight)
+                modifier = Modifier.width(cellWidth).height(cellHeight)
                     .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
-                    .graphicsLayer {
-                        translationX = dragX
-                        translationY = dragY
-                        scaleX = if (dragging) 1.05f else 1f
-                        scaleY = if (dragging) 1.05f else 1f
-                        shadowElevation = if (dragging) 10f else 0f
-                    }
-                    .pointerInput(index, cellWidth, cellHeight) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { dragging = true },
-                            onDragCancel = {
-                                dragging = false
-                                dragX = 0f
-                                dragY = 0f
-                            },
-                            onDragEnd = {
-                                val targetColumn = (column + dragX / cellWidth.toPx()).roundToInt().coerceIn(0, DESKTOP_COLUMNS - 1)
-                                val targetRow = (row + dragY / cellHeight.toPx()).roundToInt().coerceIn(0, DESKTOP_ROWS - 1)
-                                onMove(index, targetRow * DESKTOP_COLUMNS + targetColumn)
-                                dragging = false
-                                dragX = 0f
-                                dragY = 0f
-                            },
-                        ) { change, dragAmount ->
-                            change.consume()
-                            dragX += dragAmount.x
-                            dragY += dragAmount.y
-                        }
-                    },
-                onClick = { if (!dragging) onOpen(launcher.route) },
+                    .graphicsLayer { alpha = if (launcherId == draggedLauncherId) 0f else 1f },
+                onClick = { onOpen(launcher.route) },
             )
         }
     }
