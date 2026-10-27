@@ -1170,7 +1170,7 @@ object ProactivePerceptionRuntime {
                             initialDecision?.let { original ->
                                 fixed.action == original.action &&
                                     fixed.worldAction == original.worldAction &&
-                                    fixed.tool == original.tool
+                                    (original.action != Action.TOOL || fixed.tool == original.tool)
                             } == true
                     }
                 } else candidate
@@ -1199,6 +1199,8 @@ object ProactivePerceptionRuntime {
                     motiveId = if (missingBuildFields.isNotEmpty()) initialDecision.motiveId else validCorrection.motiveId,
                     concernId = if (missingBuildFields.isNotEmpty()) initialDecision.concernId else validCorrection.concernId,
                     experienceId = if (missingBuildFields.isNotEmpty()) initialDecision.experienceId else validCorrection.experienceId,
+                    onlineChoice = if (missingBuildFields.isNotEmpty()) initialDecision.onlineChoice else validCorrection.onlineChoice,
+                    onlineChoiceReason = if (missingBuildFields.isNotEmpty()) initialDecision.onlineChoiceReason else validCorrection.onlineChoiceReason,
                 )
             }
         } else null
