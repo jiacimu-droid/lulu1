@@ -174,9 +174,9 @@ class Live2DVisualActionBusTest {
         settings.parentFile?.mkdirs()
         val motions = (0..20).joinToString(",") { "{\"File\":\"m$it.motion3.json\"}" }
         settings.writeText(
-            "{\"FileReferences\":{\"Moc\":\"avatar.moc3\",\"Textures\":[\"skin.png\"]," +
-                "\"Expressions\":[{\"Name\":\"smile\",\"File\":\"smile.exp3.json\"},{\"Name\":\"流泪\",\"File\":\"tears.exp3.json\"}],\" +
-                "\"Motions\":{\"LuluWolf\":[$motions]}}}"
+            """{"FileReferences":{"Moc":"avatar.moc3","Textures":["skin.png"],""" +
+                """"Expressions":[{"Name":"smile","File":"smile.exp3.json"},{"Name":"流泪","File":"tears.exp3.json"}],""" +
+                """"Motions":{"LuluWolf":[$motions]}}}"""
         )
         val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
         prefs.edit().putString("model:$role", relative).commit()
