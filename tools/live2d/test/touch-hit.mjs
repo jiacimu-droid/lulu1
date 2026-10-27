@@ -483,6 +483,7 @@ assert.equal(bridge.touch(.32, .235, 'stroke-left',
   're-entering the avatar starts a new verified contact')
 assert.equal(bridge.touch(.32, .235, 'stroke-left',
   { phase: 'complete', mode: 'hand' }).hit, true,
+  'a verified re-entry can finish normally')
 
 // Android forwards an out-of-bounds MOVE as an ordinary miss, not an OS
 // cancellation. The same finger can then establish a fresh model hit.
@@ -493,9 +494,8 @@ assert.equal(bridge.tactileGestureCancelled, false)
 assert.equal(bridge.touch(.32, .235, 'stroke-left',
   { phase: 'move', mode: 'hand' }).hit, true)
 assert.equal(bridge.touch(.32, .235, 'stroke-left',
-  { phase: 'complete', mode: 'hand' }).hit, true)
-
-  'a verified re-entry can finish normally')
+  { phase: 'complete', mode: 'hand' }).hit, true,
+  'a verified contact after viewport re-entry completes normally')
 const beforeMiss = stageResponse.snapshot().impact
 bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
 assert.equal(stageResponse.snapshot().impact, beforeMiss)
