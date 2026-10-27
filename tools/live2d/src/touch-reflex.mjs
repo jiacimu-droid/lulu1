@@ -33,9 +33,12 @@ const BODY_FOLLOW = Object.freeze({
 // Absolute contact time makes the sequence identical at different render FPS.
 export function impactEnvelope(elapsedMs) {
   const t = Math.max(0, elapsedMs)
-  if (t <= 420) return 1
-  if (t <= 1500) return .5 + .5 * Math.cos(Math.PI * (t - 420) / 1080)
-  if (t < 2200) return -.1 * Math.sin(Math.PI * (t - 1500) / 700)
+  // Reach the sideways peak in ~90ms, not an instant teleport or a 420ms
+  // rigid freeze. A longer 1.5s release lets the head come back naturally.
+  if (t < 90) return Math.sin(t / 90 * Math.PI / 2)
+  if (t < 250) return 1
+  if (t < 1750) return .5 + .5 * Math.cos(Math.PI * (t - 250) / 1500)
+  if (t < 2300) return -.035 * Math.sin(Math.PI * (t - 1750) / 550)
   return 0
 }
 
@@ -52,53 +55,66 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     yaw: 0, pitch: 0, roll: 0, impactMotion: false,
     body: { yaw: 0, pitch: 0, roll: 0 }, face: {}, parameters: {},
   }
-  const closeTouchedEye = (value) => {
-    response.face[side < 0 ? 'eyeLeftOpen' : 'eyeRightOpen'] = value
-  }
+  // The imported rig's eyes share their blink reflex. Closing only the
+  // touched eye while the opposite one stays wide open looks like a broken
+  // eyelid, particularly on eye taps or impacts.
+  const closeEyesTogether = value => { response.face.eyeOpen = value }
   if (isImpact(gesture)) {
-    // First recoil in the actual direction, THEN knitted brows/pout/tears.
-    // A slap is screen-space motion: rightward swipe moves the visible head
-    // to screen right, independently of which cheek was touched.
-    // A stationary palm uses the contacted cheek only as a fallback.
-    // Hold the neck bend across low-FPS mirrored video frames, then relax.
     const recoil = impactEnvelope(elapsedMs)
     const swipe = direction || (family === 'cheek' && side !== 0 ? side : -side || -1)
-    const follow = .2 + .8 * Math.min(1, Math.max(0, elapsedMs) / 260)
+    const stationary = direction === 0
+    const contactGain = stationary ? .58 : 1
+    const headHit = ['hair', 'forehead', 'beast-ear', 'ear', 'eye',
+      'nose', 'cheek', 'mouth'].includes(family)
+    const faceHit = ['forehead', 'eye', 'nose', 'cheek', 'mouth'].includes(family)
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
-    // A slap is a fast NECK ROLL recoil, not the whole face sliding side
-    // to side on yaw. The torso follows later with a much smaller angle.
-    // The impact spring has a quicker attack, a deliberately slower release.
-    response.impactMotion = true
-    // Mostly neck rotation, not a side-to-side face translation.
-    // Respect typical rig Z limits instead of demanding unreachable angles.
-    response.yaw = swipe * yaw * .24 * scale * recoil
-    response.roll = swipe * Math.min(30, roll * (.4 + .95 * force)) * recoil
-    response.pitch = pitch * .7 * scale * recoil
-    // Shoulders follow the neck rather than preceding the hit.
-    response.body = {
-      yaw: swipe * torso * .24 * scale * recoil * follow,
-      pitch: -torso * .7 * scale * recoil * follow,
-      roll: swipe * torso * .6 * scale * recoil * follow,
+    const follow = .15 + .85 * Math.min(1, Math.max(0, elapsedMs - 100) / 380)
+    // A cheek swipe bends the HEAD around the neck; touching the chest or
+    // arm never throws the whole face/body sideways. Stationary taps register
+    // a much smaller local jolt than a lateral finger sweep.
+    response.impactMotion = headHit
+    response.impactFace = faceHit
+    if (headHit) {
+      response.yaw = swipe * yaw * .17 * scale * recoil * contactGain
+      response.roll = swipe * Math.min(28, roll * (.36 + .8 * force)) *
+        recoil * contactGain
+      response.pitch = pitch * .38 * scale * recoil * contactGain
+      // The torso only yields slightly AFTER the neck. Never rotate the
+      // entire model for a cheek impact.
+      response.body = {
+        yaw: swipe * torso * .08 * scale * recoil * follow * contactGain,
+        pitch: -torso * .12 * scale * recoil * follow * contactGain,
+        roll: swipe * torso * .16 * scale * recoil * follow * contactGain,
+      }
+    } else {
+      // Upper-body contact is a small local flinch, not a slap to the face.
+      response.yaw = 0
+      response.roll = 0
+      response.pitch = 0
+      response.body = {
+        yaw: 0,
+        pitch: Math.min(2.2, torso * .17 * scale) * recoil * contactGain,
+        roll: swipe * Math.min(1.7, torso * .11 * scale) * recoil * contactGain,
+      }
     }
-    const startled = elapsedMs < 230
-    // Wide-eyed surprise first, then raised inner brows, glistening eyes and
-    // a trembling pout. Never convert an impact into a scowling dark face.
+    const startled = elapsedMs < 220
     response.face = startled
-      ? { eyeOpen: 1, browY: .55, browAngle: .16, smile: -.18, pout: .12 }
+      ? { eyeOpen: 1, browY: .48, browAngle: .08, smile: -.12, pout: .08 }
       : { eyeOpen: .78 + .12 * (1 - force), eyeSmile: 0,
-          browY: .36 + force * .26, browAngle: .35,
-          browForm: .24, smile: -.52, pout: .48 + force * .32,
-          gazeX: -swipe * .5 * Math.max(0, 1 - (elapsedMs - 230) / 1700),
-          gazeY: -.22 }
-    if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
+          browY: .34 + force * .22, browAngle: .25,
+          browForm: .22, smile: -.44, pout: .34 + force * .24,
+          gazeX: -swipe * .35 * Math.max(0, 1 - (elapsedMs - 220) / 1600),
+          gazeY: -.16 }
+    if (family === 'eye') closeEyesTogether(elapsedMs < 200 ? .18 : .52)
     if (family === 'cheek' || family === 'mouth') {
-      response.face.cheekPuff = startled ? .05 : Math.min(.38, force * .23)
-      response.face.jawOpen = startled ? .2 : 0
+      response.face.cheekPuff = startled ? .04 : Math.min(.32, force * .22)
+      response.face.jawOpen = startled ? .12 : 0
       response.face[side < 0 ? 'browLeftY' : 'browRightY'] =
-        startled ? .55 : .38
+        startled ? .45 : .32
     }
     if (family === 'beast-ear') {
-      response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] = -.7 * scale * recoil
+      response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] =
+        -.55 * scale * recoil
     }
     return response
   }
@@ -106,7 +122,6 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   const kiss = gesture === 'kiss'
   const stroking = gesture.startsWith('stroke') || gesture === 'hold'
   const soft = stroking || kiss
-  const blink = variation === 1 ? .1 : 0
   // The same pet is not a permanent squint. Alongside accumulated shyness,
   // real contact direction/side and touch ordinal choose different visible
   // eye and brow articulations, without inventing an emotion from random data.
@@ -141,7 +156,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       response.yaw = -side * (kiss ? 3 : 6)
       response.pitch = kiss ? -1 : -3
       response.face = { eyeOpen: .9, eyeSmile: kiss ? .2 : 0, smile: kiss ? .2 : .05 }
-      closeTouchedEye(kiss ? .03 : .12)
+      closeEyesTogether(kiss ? .24 : .42)
       break
     case 'nose':
       response.pitch = kiss ? 5 : -5
@@ -277,7 +292,7 @@ export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 't
   }
   const family = touchFamily(region)
   if (gesture === 'kiss' && shy >= 86 &&
-      ['mouth', 'neck', 'throat', 'collarbone'].includes(family)) return first(['heart', 'blush', 'smile'])
+      ['mouth', 'neck', 'throat', 'collarbone'].includes(family)) return first(['star', 'blush', 'smile'])
   if (shy >= 60 && ['nose', 'beast-ear'].includes(family) && gesture !== 'kiss')
     return first(['star', 'blush', 'smile'])
   return first(shy >= 14 ? ['blush', 'smile'] : ['smile'])
