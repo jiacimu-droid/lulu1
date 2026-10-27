@@ -18,6 +18,7 @@ import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldStore
 import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
+import com.jiacimu.lulu.data.LuluDataBackup
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
 import com.jiacimu.lulu.data.MemorySourceIntegrityRuntime
@@ -176,6 +177,9 @@ class MigrationActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val appContext = applicationContext
         StartupFailureRecovery.install(appContext)
+        // A backup restore staged in Settings must land before any store
+        // reads its files; it only runs when a restore is pending.
+        LuluDataBackup.applyPendingRestoreIfNeeded(appContext)
         StartupFailureRecovery.latest(appContext)?.let { report ->
             StartupFailureRecovery.display(this, report)
             return

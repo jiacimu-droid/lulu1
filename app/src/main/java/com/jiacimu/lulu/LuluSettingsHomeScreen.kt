@@ -66,6 +66,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         SettingsHomePage.Memory -> LuluMemorySettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Vision -> LuluVisionSettingsScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Backup -> LuluBackupScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Home -> SettingsEntryScreen(
             onBack = onBack,
             onOpenApi = { page = SettingsHomePage.Api },
@@ -75,11 +76,12 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onOpenMemory = { page = SettingsHomePage.Memory },
             onOpenImage = { page = SettingsHomePage.Image },
             onOpenVision = { page = SettingsHomePage.Vision },
+            onOpenBackup = { page = SettingsHomePage.Backup },
         )
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Image, Vision }
+private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Image, Vision, Backup }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +94,7 @@ private fun SettingsEntryScreen(
     onOpenMemory: () -> Unit,
     onOpenImage: () -> Unit,
     onOpenVision: () -> Unit,
+    onOpenBackup: () -> Unit,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
     var showUpdateNotes by rememberSaveable { mutableStateOf(false) }
@@ -182,6 +185,14 @@ private fun SettingsEntryScreen(
                     title = "权限与能力",
                     subtitle = "位置、闹钟、应用感知、通知、屏幕控制与后台运行",
                     onClick = onOpenCapabilities,
+                )
+            }
+            item {
+                SettingsEntryRow(
+                    icon = Icons.Outlined.Backup,
+                    title = "备份与恢复",
+                    subtitle = "把全部数据打成包存在你选的位置，卸了 app 也还在；可开每天自动备份",
+                    onClick = onOpenBackup,
                 )
             }
         }
