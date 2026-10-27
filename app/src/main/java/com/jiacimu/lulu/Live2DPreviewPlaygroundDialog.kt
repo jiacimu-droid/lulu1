@@ -279,7 +279,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("尚未导入角色 Live2D 模型", color = Color.LightGray, fontSize = 13.sp)
+                Text("尚未导入角色 Live2D 模型", color = Color(0xFF31445A), fontSize = 13.sp)
                 Spacer(Modifier.height(12.dp))
                 Button(onClick = { importLauncher.launch("application/zip") }) {
                     Text("导入 zip 皮套", fontSize = 12.sp)
@@ -297,8 +297,8 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text("皮套已导入，缺少 Cubism Core", color = Color.White, fontSize = 15.sp)
-                Text("Core 是官方渲染引擎，不包含在皮套 ZIP 中。", color = Color.LightGray, fontSize = 12.sp)
+                Text("皮套已导入，缺少 Cubism Core", color = Color(0xFF27384B), fontSize = 15.sp)
+                Text("Core 是官方渲染引擎，不包含在皮套 ZIP 中。", color = Color(0xFF52677C), fontSize = 12.sp)
                 Button(enabled = !coreBusy, onClick = { confirmOfficialCore = true }) {
                     Text(if (coreBusy) "正在安装…" else "安装官方 Core")
                 }
@@ -316,7 +316,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         if (coreMessage.isNotBlank()) {
             Text(
                 coreMessage,
-                color = Color(0xFFFAE3AE),
+                color = Color(0xFF31445A),
                 fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.Center).padding(top = 275.dp, start = 22.dp, end = 22.dp),
             )
