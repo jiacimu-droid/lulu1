@@ -675,9 +675,9 @@ internal fun Live2DFullscreenVideoCall(
         }
         // A compact gradient over the avatar preserves the video-call feel.
         Box(Modifier.fillMaxWidth().height(162.dp).align(Alignment.TopCenter)
-            .background(Brush.verticalGradient(listOf(Color(0xFF263C50).copy(alpha = .42f), Color.Transparent))))
+            .background(Brush.verticalGradient(listOf(Color(0xFF4E708B).copy(alpha = .20f), Color.Transparent))))
         Box(Modifier.fillMaxWidth().height(295.dp).align(Alignment.BottomCenter)
-            .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF263C50).copy(alpha = .66f)))))
+            .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF385B74).copy(alpha = .39f)))))
         Column(
             modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
                 .padding(horizontal = 22.dp, vertical = 16.dp),
@@ -686,7 +686,7 @@ internal fun Live2DFullscreenVideoCall(
             Row(
                 Modifier.fillMaxWidth()
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color.Black.copy(alpha = .32f))
+                    .background(Color(0xFF304C62).copy(alpha = .58f))
                     .padding(horizontal = 4.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -832,14 +832,18 @@ internal fun Live2DFullscreenVideoCall(
             }
             if (liveWords.isNotBlank() && state.connected) {
                 Text(liveWords.takeLast(180), fontSize = 15.sp,
-                    lineHeight = 23.sp, color = Color.White, textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp))
+                    lineHeight = 23.sp, color = Color(0xFF22374A),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White.copy(alpha = .88f))
+                        .padding(horizontal = 14.dp, vertical = 10.dp))
             } else Spacer(Modifier.height(18.dp))
             if (modelUrl != null && state.connected) {
                 Row(
                     Modifier.fillMaxWidth()
                         .clip(RoundedCornerShape(22.dp))
-                        .background(Color.Black.copy(alpha = .48f))
+                        .background(Color(0xFF304C62).copy(alpha = .65f))
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -902,7 +906,7 @@ internal fun Live2DFullscreenVideoCall(
                         Modifier.fillMaxWidth()
                             .padding(top = 5.dp)
                             .clip(RoundedCornerShape(22.dp))
-                            .background(Color.Black.copy(alpha = .6f))
+                            .background(Color(0xFF304C62).copy(alpha = .74f))
                             .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -973,7 +977,7 @@ private fun VideoCallButton(icon: ImageVector, label: String, onClick: () -> Uni
     danger: Boolean = false) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(56.dp).clip(CircleShape)
-            .background(if (danger) Color(0xFFD94352) else Color(0xFF272C33).copy(alpha = .88f))
+            .background(if (danger) Color(0xFFD94352) else Color(0xFF385971).copy(alpha = .89f))
             .border(1.dp, Color.White.copy(alpha = if (danger) .12f else .24f), CircleShape)
             .clickable(onClick = onClick), contentAlignment = Alignment.Center) {
             Icon(icon, label, tint = Color.White, modifier = Modifier.size(25.dp))
