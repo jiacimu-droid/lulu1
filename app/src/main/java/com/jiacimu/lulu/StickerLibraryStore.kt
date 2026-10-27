@@ -124,9 +124,10 @@ internal object StickerLibraryStore {
         recentConversation: String = "", actorMood: String = "",
     ): String {
         initialize(context)
-        val available = selectPromptStickers(items.value, limit, StickerRetrievalContext(
-            userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
-        ))
+        val available = selectPromptStickers(items.value, (limit * 2).coerceAtMost(MAX_ITEMS),
+            StickerRetrievalContext(
+                userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
+            )).filter { canActuallySend(context, it) }.take(limit.coerceAtLeast(0))
         if (available.isEmpty()) return "角色支持图片表情包（与颜文字是两种不同功能），但本次真实可选图库暂时为空或内置素材仍在加载。此时不要捏造 stickerId、不要尝试发送不存在的图片；也不要说角色永远没有表情包功能。仍可用颜文字、emoji 和正常语言。" 
         return buildString {
             appendLine("【本轮社交语境检索的真实可发送表情包候选】")
