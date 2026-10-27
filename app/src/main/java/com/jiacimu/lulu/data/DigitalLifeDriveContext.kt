@@ -41,50 +41,9 @@ internal object DigitalLifeDriveContext {
             event.occurredAt <= now &&
                 (event.channel.contains("角色自主") || event.channel.contains("数字世界见面") || event.channel.contains("共同经历"))
         }?.occurredAt
-        // Phase 1 drive inputs: curiosity counts every real exploration
-        // avenue, not only books and going out. Any real tool execution
-        // (web search, image search, Xiaohongshu, and so on) counts, as
-        // does learning something new about the user.
-        val lastToolUse = events.asReversed().firstOrNull { event ->
-            event.channel == "实际工具执行" || event.channel == "小红书阅读"
-        }?.occurredAt
-        val explorationCandidates = listOf(
-            lastReading to "看书",
-            lastWorldAction to "出门逛",
-            lastRealityWindow to "看现实窗口",
-            lastToolUse to "用工具查/看",
-        ).filter { it.first != null }
-        val lastExploration = explorationCandidates.maxByOrNull { it.first!! }?.first
-        val explorationLabel = explorationCandidates.maxByOrNull { it.first!! }?.second ?: "探索"
-        val lastUserInfo = events.asReversed().firstOrNull { event ->
-            event.speaker != displayName &&
-                (event.channel == "私聊" || event.channel.contains("朋友圈"))
-        }?.occurredAt
-        val recentInteractions = events.count { event ->
-            !event.occurredAt.isBefore(now.minus(Duration.ofHours(1))) &&
-                (event.channel == "私聊" || event.channel.contains("电话"))
-        }
-        val innerSnapshot = runCatching { CharacterInnerLifeStore.snapshot(characterId) }.getOrNull()
-        val openConcernCount = innerSnapshot?.optJSONArray("openConcerns")?.length() ?: 0
-        val waitingFeedbackCount = (0 until (innerSnapshot?.optJSONArray("motives")?.length() ?: 0)).count { i ->
-            innerSnapshot?.optJSONArray("motives")?.optJSONObject(i)?.optString("status") == "waiting_feedback"
-        }
-        val unspokenThoughtCount = innerSnapshot?.optJSONArray("thoughts")?.length() ?: 0
-        val unclosedTaskCount = runCatching { CommitmentTaskStore.active(characterId).size }.getOrDefault(0)
-        val shanghaiHour = now.atZone(java.time.ZoneId.of("Asia/Shanghai")).hour
-        val driveInput = DriveInput(
-            // Most recent social contact satisfies affiliation best.
-            socialGapHours = minOf(gapHours(lastPrivate), gapHours(lastCall), gapHours(lastGroup)),
-            explorationGapHours = gapHours(lastExploration),
-            explorationLabel = explorationLabel,
-            userInfoGapHours = gapHours(lastUserInfo),
-            gameGapHours = gapHours(lastGame),
-            journalGapHours = gapHours(lastJournal),
-            openItems = openConcernCount + waitingFeedbackCount + unclosedTaskCount,
-            unspokenThoughts = unspokenThoughtCount,
-            recentInteractions = recentInteractions,
-            shanghaiHour = shanghaiHour,
-        )
+        // Phase 2: the same drive inputs are shared with the decision log
+        // via readings() below, so the log and the prompt cannot drift apart.
+        val driveInput = driveInput(characterId, displayName, now, events, birth)
 
         fun gapHours(last: Instant?): Long = Duration.between(last ?: birth, now).toHours().coerceAtLeast(0)
         fun ageLabel(last: Instant?): String {
@@ -136,4 +95,85 @@ internal object DigitalLifeDriveContext {
             appendLine(DriveState.render(DriveState.snapshot(driveInput)))
         }.trim()
     }
+    /** Phase 2 entry point for the decision log: same inputs as the prompt. */
+    fun readings(
+        characterId: String,
+        displayName: String,
+        now: Instant = Instant.now(),
+    ): List<DriveReading> {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return emptyList()
+        val birth = DigitalLifeProfileStore.birthAt(characterId) ?: now
+        val events = SharedExperienceTimeline.all(characterId)
+            .filter { !it.occurredAt.isAfter(now) }
+        return DriveState.snapshot(driveInput(characterId, displayName, now, events, birth))
+    }
+
+    private fun gapHours(last: Instant?, birth: Instant, now: Instant): Long =
+        Duration.between(last ?: birth, now).toHours().coerceAtLeast(0)
+
+    private fun driveInput(
+        characterId: String,
+        displayName: String,
+        now: Instant,
+        events: List<SharedTimelineEvent>,
+        birth: Instant,
+    ): DriveInput {
+        fun lastOwn(predicate: (SharedTimelineEvent) -> Boolean): Instant? = events.asReversed()
+            .firstOrNull { event -> event.speaker == displayName && predicate(event) }
+            ?.occurredAt
+        val lastPrivate = lastOwn { it.channel == "私聊" }
+        val lastCall = lastOwn { it.channel.contains("电话") }
+        val lastGroup = lastOwn { it.channel.startsWith("群聊") }
+        val lastReading = lastOwn { it.channel.startsWith("独自阅读") }
+        val lastGame = lastOwn { it.channel.startsWith("独自游戏") }
+        val lastJournal = lastOwn { it.channel.contains("日记") }
+        val lastWorldAction = lastOwn {
+            it.channel == "数字世界" || it.channel.startsWith("数字世界·生活片段")
+        }
+        val lastRealityWindow = lastOwn { it.channel.startsWith("现实世界窗口") }
+        val lastToolUse = events.asReversed().firstOrNull { event ->
+            event.channel == "实际工具执行" || event.channel == "小红书阅读"
+        }?.occurredAt
+        val explorationCandidates = listOf(
+            lastReading to "看书",
+            lastWorldAction to "出门逛",
+            lastRealityWindow to "看现实窗口",
+            lastToolUse to "用工具查/看",
+        ).filter { it.first != null }
+        val lastExploration = explorationCandidates.maxByOrNull { it.first!! }?.first
+        val explorationLabel = explorationCandidates.maxByOrNull { it.first!! }?.second ?: "探索"
+        val lastUserInfo = events.asReversed().firstOrNull { event ->
+            event.speaker != displayName &&
+                (event.channel == "私聊" || event.channel.contains("朋友圈"))
+        }?.occurredAt
+        val recentInteractions = events.count { event ->
+            !event.occurredAt.isBefore(now.minus(Duration.ofHours(1))) &&
+                (event.channel == "私聊" || event.channel.contains("电话"))
+        }
+        val innerSnapshot = runCatching { CharacterInnerLifeStore.snapshot(characterId) }.getOrNull()
+        val openConcernCount = innerSnapshot?.optJSONArray("openConcerns")?.length() ?: 0
+        val waitingFeedbackCount = (0 until (innerSnapshot?.optJSONArray("motives")?.length() ?: 0)).count { i ->
+            innerSnapshot?.optJSONArray("motives")?.optJSONObject(i)?.optString("status") == "waiting_feedback"
+        }
+        val unspokenThoughtCount = innerSnapshot?.optJSONArray("thoughts")?.length() ?: 0
+        val unclosedTaskCount = runCatching { CommitmentTaskStore.active(characterId).size }.getOrDefault(0)
+        return DriveInput(
+            socialGapHours = minOf(
+                gapHours(lastPrivate, birth, now),
+                gapHours(lastCall, birth, now),
+                gapHours(lastGroup, birth, now),
+            ),
+            explorationGapHours = gapHours(lastExploration, birth, now),
+            explorationLabel = explorationLabel,
+            userInfoGapHours = gapHours(lastUserInfo, birth, now),
+            gameGapHours = gapHours(lastGame, birth, now),
+            journalGapHours = gapHours(lastJournal, birth, now),
+            openItems = openConcernCount + waitingFeedbackCount + unclosedTaskCount,
+            unspokenThoughts = unspokenThoughtCount,
+            recentInteractions = recentInteractions,
+            shanghaiHour = now.atZone(java.time.ZoneId.of("Asia/Shanghai")).hour,
+        )
+    }
+
 }
+

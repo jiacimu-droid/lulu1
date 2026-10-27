@@ -1788,6 +1788,16 @@ object ProactivePerceptionRuntime {
                 "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
             else -> "proactive-${now.toEpochMilli()}"
         }
+        // Phase 2: log the drive snapshot beside the gate decision, so
+        // "why did she send this" can later be answered from numbers, not
+        // guessed. Logging only; it never changes the decision or text.
+        val driveReadings = runCatching {
+            DigitalLifeDriveContext.readings(characterId, character.displayName, now)
+        }.getOrDefault(emptyList())
+        val driveSummary = driveReadings.joinToString(",") {
+            "${it.kind.label}${(it.value * 100).toInt()}"
+        }
+        val driveTop = DriveState.strongest(driveReadings)?.kind?.label.orEmpty()
         if (decision.action == Action.MESSAGE || decision.action == Action.KAOMOJI) {
             val shadowPolicy = ProactivePerceptionPolicyStore.get(characterId)
             val shadowNow = Instant.now()
@@ -1824,7 +1834,8 @@ object ProactivePerceptionRuntime {
                 "ProactiveGateShadow",
                 "decisionId=$shadowRequestId characterId=$characterId " +
                     "modelAction=${decision.action} hasFreshUserMessage=${messageStimulus != null} " +
-                    "allowedInShadow=${shadowDecision.allowedInShadow} reasons=${shadowDecision.reasons}",
+                    "allowedInShadow=${shadowDecision.allowedInShadow} reasons=${shadowDecision.reasons} " +
+                    "drives=[$driveSummary] strongest=$driveTop",
             )
         } else if (decision.action == Action.SILENT) {
             // Silent-decision diagnosis only (“想发又没发”): log separately,
@@ -1835,7 +1846,8 @@ object ProactivePerceptionRuntime {
                 "ProactiveGateShadow",
                 "silentDecision characterId=$characterId trigger=$trigger " +
                     "hasFreshUserMessage=${messageStimulus != null} " +
-                    "hasSideActions=${(decision.sideActions?.length() ?: 0) > 0}",
+                    "hasSideActions=${(decision.sideActions?.length() ?: 0) > 0} " +
+                    "drives=[$driveSummary] strongest=$driveTop",
             )
         }
         // GROUP_MESSAGE / GROUP_KAOMOJI and all other actions are not
@@ -2698,3 +2710,4 @@ internal fun adaptivePerceptionMultiplier(
     }
     return (jitter.coerceIn(0.85, 1.15) * engagement).coerceIn(0.55, 1.4)
 }
+
