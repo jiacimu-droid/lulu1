@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:22:01.891149+00:00",
-  "commit": "1910d473ef397ccf29efab173dbd3cb763319757",
+  "generatedAt": "2026-10-27T19:22:37.681230+00:00",
+  "commit": "0bc2dbfd41f59b39867175fda3a59b6ed9b2f4ff",
   "branch": "main",
-  "sourceFingerprint": "104aca74fc83d35d8397c5bc64b6c86117ca166ac167617c43fed5173aa59b4d",
+  "sourceFingerprint": "875ea41ec21d0d5235d5b65275bd64b945753e7ebbd739ede98b335c120dbceb",
   "summary": {
     "files": 993,
-    "lines": 196790,
+    "lines": 196844,
     "symbols": 2912
   },
   "symbolIndex": {
@@ -31756,8 +31756,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 191,
-      "sha256": "8bc02f710362fb17d3fd21875bf235c90082f38aa028b5da271a799e3e038abd",
+      "lines": 245,
+      "sha256": "0e696cdaa0a357b960b28748fafeeffcf6f2700088775f1a2e0b073a7f791f5d",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
