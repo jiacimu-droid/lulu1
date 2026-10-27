@@ -58,6 +58,14 @@ data class MemoryEntry(
     val tier: MemoryTier = if (kind == MemoryKind.Fact) MemoryTier.Stable else MemoryTier.Episode,
     val subject: String = "",
     val slot: String = "",
+    /** 归一化场景钥匙，如“睡觉|卧室|自己|夜里”；空表示未知，绝不猜测。 */
+    val sceneKey: String = "",
+    /** 可量度种类，如 sleep_hours、bedtime；空表示这条记忆没有可量数字。 */
+    val measureKind: String = "",
+    /** 可量数值；bedtime 用 24 小时制小时数（如 23.5 表示 23:30）。 */
+    val measureValue: Double? = null,
+    /** 数值单位，如“小时”“时”。 */
+    val measureUnit: String = "",
     /** Revisions of the exact evidence read by the extractor; empty for legacy/manual entries. */
     val sourceRevisions: Map<String, Long> = emptyMap(),
 )

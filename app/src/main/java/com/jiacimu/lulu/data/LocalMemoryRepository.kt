@@ -151,11 +151,12 @@ class LocalMemoryRepository : MemoryRepository {
                     判断目标用户事件 ${targetIds.joinToString("|")} 是否包含应立即保存的稳定事实、明确偏好、边界或重要长期安排。
                     信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
                     只返回 JSON 数组；没有则返回 []。每项：
-                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位","supersedes":[]}
+                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位","supersedes":[],"sceneKey":"活动|地点|参与人|时段的短串或空","measureKind":"sleep_hours/bedtime等或空","measureValue":数字或null,"measureUnit":"小时/时或空"}
                     每条来源必须包含至少一个目标用户事件。Core 用于用户郑重要求持续遵守或长期牢记的稳定事实，包括重要边界、关系、安排及明确要求始终记住的偏好；普通喜好用 Stable。
                     相处中的条件约定要保留完整触发条件和表达要求，例如“做某种互动时要带上指定拟声”；不能摘要成笼统的“喜欢亲密”而丢掉具体要求。用户反复强调、明确拒绝的相处方式与稳定称呼应进入 Core。
                     ‘今天不吃辣’不是‘以后不喜欢辣’；‘记住’后面的临时提醒交给责任系统，不保存为长期核心事实。
                     只保存真实明确内容，不猜测、不扩写，不把角色答应行动当作完成。
+                    场景与可量数字只有原话明确给才填：sceneKey 写“活动|地点|参与人|时段”的短串（如睡觉|卧室|自己|夜里），原话没给地点或时段就留空；measureKind 只用于原话明确说出的可量数字（睡多久填 sleep_hours、几点睡填 bedtime），measureValue 填数字（bedtime 用 24 小时制小数，如 23.5 表示 23:30），measureUnit 填“小时”或“时”；没有就留空或 null，绝不换算、绝不猜测。
                     ${understandingUpdateInstruction()}
                 """.trimIndent(),
                 source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
@@ -240,7 +241,7 @@ class LocalMemoryRepository : MemoryRepository {
                 instruction = """
                     从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
                     每项格式：
-                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空","supersedes":[]}
+                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空","supersedes":[],"sceneKey":"活动|地点|参与人|时段的短串或空","measureKind":"sleep_hours/bedtime等或空","measureValue":数字或null,"measureUnit":"小时/时或空"}
                     规则：
                     0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
@@ -255,6 +256,7 @@ class LocalMemoryRepository : MemoryRepository {
                     10. 日常寒暄、同义重复不要重复写入；电话和哄睡的普通陪伴、气音、反复夸奖、呼吸与全身放松引导、虚构睡前故事、角色单方面续讲，都不自动转为长期记忆。若用户在通话中明确透露真实重要事实、长期偏好、关系变化，仍按事实证据选择性提取；故事情节仅属于故事而非两人的现实经历。没有值得保存的内容时返回 []。
                     11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
                     12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
+                    13. 场景与可量数字只有原话明确给才填：sceneKey 写“活动|地点|参与人|时段”的短串（如睡觉|卧室|自己|夜里），原话没给地点或时段就留空；measureKind 只用于原话明确说出的可量数字（睡多久填 sleep_hours、几点睡填 bedtime），measureValue 填数字（bedtime 用 24 小时制小数，如 23.5 表示 23:30），measureUnit 填“小时”或“时”；没有就留空或 null，绝不换算、绝不猜测。
                     ${understandingUpdateInstruction()}
                 """.trimIndent(),
                 source = "记忆",
@@ -707,6 +709,12 @@ class LocalMemoryRepository : MemoryRepository {
                         tier = parseMemoryTier(item.optString("tier"), kind),
                         subject = item.optString("subject").trim().take(100),
                         slot = item.optString("slot").trim().take(100),
+                        sceneKey = item.optString("sceneKey").trim().take(100),
+                        measureKind = item.optString("measureKind").trim().take(60),
+                        measureValue = if (item.has("measureValue") && !item.isNull("measureValue")) {
+                            item.optDouble("measureValue")
+                        } else null,
+                        measureUnit = item.optString("measureUnit").trim().take(20),
                     ),
                     item.optJSONArray("supersedes")?.let { ids ->
                         (0 until ids.length()).map { ids.optString(it) }.filter(String::isNotBlank).distinct()
@@ -940,6 +948,10 @@ class LocalMemoryRepository : MemoryRepository {
         .put("tier", entry.tier.name)
         .put("subject", entry.subject)
         .put("slot", entry.slot)
+        .put("sceneKey", entry.sceneKey)
+        .put("measureKind", entry.measureKind)
+        .put("measureValue", entry.measureValue ?: JSONObject.NULL)
+        .put("measureUnit", entry.measureUnit)
         .put("sourceRevisions", JSONObject(entry.sourceRevisions))
 
     private fun decodeEntry(item: JSONObject): MemoryEntry = MemoryEntry(
@@ -956,6 +968,10 @@ class LocalMemoryRepository : MemoryRepository {
         tier = parseMemoryTier(item.optString("tier"), runCatching { MemoryKind.valueOf(item.optString("kind")) }.getOrDefault(MemoryKind.Fact)),
         subject = item.optString("subject"),
         slot = item.optString("slot"),
+        sceneKey = item.optString("sceneKey"),
+        measureKind = item.optString("measureKind"),
+        measureValue = if (item.has("measureValue") && !item.isNull("measureValue")) item.optDouble("measureValue") else null,
+        measureUnit = item.optString("measureUnit"),
         sourceRevisions = item.optJSONObject("sourceRevisions")?.let { revisions ->
             revisions.keys().asSequence().associateWith { revisions.optLong(it) }
         }.orEmpty(),

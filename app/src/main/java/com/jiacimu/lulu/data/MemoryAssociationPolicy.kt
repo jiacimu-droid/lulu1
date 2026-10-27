@@ -17,6 +17,8 @@ internal object MemoryAssociationPolicy {
         val subject = normalized(memory.subject)
         val slot = normalized(memory.slot)
         if (subject.isNotBlank() && slot.length >= 2 && slot !in generic) add("slot:$subject:$slot")
+        val scene = normalized(memory.sceneKey)
+        if (scene.isNotBlank()) add("scene:$scene")
     }
 
     fun expand(memories: List<MemoryEntry>, seeds: List<MemoryEntry>, limit: Int = 16): List<MemoryAssociationHit> {
@@ -32,12 +34,12 @@ internal object MemoryAssociationPolicy {
                 keys(seed).forEach keyLoop@ { key ->
                     // Frequent broad slots are weak associations, not permission to flood context.
                     val linked = index[key].orEmpty()
-                    if (key.startsWith("slot:") && linked.size > 12) return@keyLoop
+                    if ((key.startsWith("slot:") || key.startsWith("scene:")) && linked.size > 12) return@keyLoop
                     linked.filter { it.characterId == seed.characterId }.sortedWith(compareByDescending<MemoryEntry> { it.strength }
                         .thenByDescending { it.occurredAt ?: it.createdAt }).forEach { memory ->
                         if (hits.size < limit && seen.add(memory.id)) {
                             hits += MemoryAssociationHit(memory, seed.id,
-                                if (key.startsWith("evidence:")) "同一原始事件" else "同一对象的具体事实槽位", depth)
+                                if (key.startsWith("evidence:")) "同一原始事件" else if (key.startsWith("scene:")) "同一场景" else "同一对象的具体事实槽位", depth)
                             next += memory
                         }
                     }

@@ -86,9 +86,11 @@ data class UnifiedMemoryContext(
         val summaryBudget = (remainingBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
         val summary = PromptMemoryRenderer.renderWithTrace(memories, summaryBudget)
         recordActualPrompt(summary, evidenceBudget, recentBudget)
+        // 同类记录统计只给事实（次数、日期、数值），怎么说由模型自己决定；本轮没有可量同类记录时为空。
+        val patternNote = MemoryPatternNotes.build(memories, LuluRepositories.memory.snapshot(characterId), characterId)
         return listOf(coreMemorySection, activeTaskContext, recallUseGuidance,
             recentRendered(recentBudget).text.takeIf(String::isNotBlank)?.let { "这个角色最近亲历的原始时间线：\n$it" }.orEmpty(),
-            evidenceRendered(evidenceBudget).text, summary.text, understandingContext.take(knowledgeBudget),
+            evidenceRendered(evidenceBudget).text, summary.text, patternNote, understandingContext.take(knowledgeBudget),
         ).filter(String::isNotBlank).joinToString("\n")
     }
 }
