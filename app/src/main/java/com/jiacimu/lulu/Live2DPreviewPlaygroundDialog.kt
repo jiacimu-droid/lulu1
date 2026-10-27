@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Face
@@ -267,6 +269,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         // Call-style top chrome: title, framing menu, close.
         Row(
             Modifier.align(Alignment.TopCenter).fillMaxWidth()
+                .statusBarsPadding()
                 .background(Color.Black.copy(alpha = 0.35f)).padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -321,7 +324,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         // Bottom control strip over the stage.
         Column(
             Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                .background(Color(0xE6202326)).padding(12.dp),
+                .background(Color(0xE6202326)).navigationBarsPadding().padding(12.dp),
         ) {
             Text("当前：$lastPlayed", color = Color(0xFFFAE3AE), fontSize = 12.sp)
             Text("触摸：$lastTouch", color = Color.LightGray, fontSize = 12.sp)
