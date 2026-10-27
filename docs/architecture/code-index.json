@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T21:11:23.694171+00:00",
-  "commit": "7dd8be3aee316559298ab3865e0567e11f7c24c5",
+  "generatedAt": "2026-10-27T22:55:03.149067+00:00",
+  "commit": "88a1399a4261c0bce4b761c219a8fe1eccb1765e",
   "branch": "main",
-  "sourceFingerprint": "3eb7379d025636ed5c1e1c5ee7d336aba89b4a9328753e08d03229cae2ea99e4",
+  "sourceFingerprint": "4d374d316c86141e9a8e5efaa78c766a17ac07af58657a22e7d565fea7fe9b15",
   "summary": {
     "files": 993,
-    "lines": 196925,
-    "symbols": 2913
+    "lines": 196951,
+    "symbols": 2914
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1723,7 +1723,7 @@
     "send": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 199
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
@@ -1733,13 +1733,13 @@
     "angles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 410
+        "line": 420
       }
     ],
     "faceValues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 415
+        "line": 425
       }
     ],
     "Capture": [
@@ -2022,16 +2022,22 @@
         "line": 44
       }
     ],
+    "acceptsCompletion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
+        "line": 6
+      }
+    ],
     "performed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
-        "line": 5
+        "line": 9
       }
     ],
     "releasedGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
-        "line": 21
+        "line": 26
       }
     ],
     "defaultRadius": [
@@ -13859,7 +13865,7 @@
     "Live2DFineTouchTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt",
-        "line": 8
+        "line": 9
       }
     ],
     "Live2DFrameStatsTest": [
@@ -17776,20 +17782,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 887,
-      "sha256": "ea907ea2cddb69d40f69f4ed9c1ed6fcd12064f7e53ef1f9bbaeda1780b1f2e7",
+      "lines": 897,
+      "sha256": "203464aebde21eb491e94f13c849b6a5521c665f9f66555a31a01a5dd783f945",
       "symbols": [
         {
           "name": "send",
-          "line": 199
+          "line": 203
         },
         {
           "name": "angles",
-          "line": 410
+          "line": 420
         },
         {
           "name": "faceValues",
-          "line": 415
+          "line": 425
         }
       ]
     },
@@ -18027,16 +18033,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt",
-      "lines": 54,
-      "sha256": "f494a2ebe863a65d61dd258df25d6ff11c6ac5805ca0d6c3479fe939ad0c3d64",
+      "lines": 59,
+      "sha256": "022cc99a6f8aa677dd43b730da7b45a4d9fbaa117599695bdf7c7054c7df674e",
       "symbols": [
         {
+          "name": "acceptsCompletion",
+          "line": 6
+        },
+        {
           "name": "performed",
-          "line": 5
+          "line": 9
         },
         {
           "name": "releasedGesture",
-          "line": 21
+          "line": 26
         }
       ]
     },
@@ -30969,12 +30979,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt",
-      "lines": 75,
-      "sha256": "191dacedb540e62942b6a553ca20fb6ec8cae7fd70ee74eec767daaf169e24e4",
+      "lines": 86,
+      "sha256": "7536e4fde8d24918ac8d04b6e02e4e4942a2fff67f74dd25d334b7138b2421c3",
       "symbols": [
         {
           "name": "Live2DFineTouchTest",
-          "line": 8
+          "line": 9
         }
       ]
     },
