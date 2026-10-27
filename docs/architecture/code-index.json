@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:41:34.507535+00:00",
-  "commit": "e99e76e38698acf4fa1ec9fc0076fd7786eac509",
+  "generatedAt": "2026-10-27T18:42:31.452632+00:00",
+  "commit": "32db181dc1e765ef27fe9e993739077f3e5e5db1",
   "branch": "main",
-  "sourceFingerprint": "5851c0a69af37a7b5a18b373ae02307ec1eedfffdb25ae80dec1e038fae1b507",
+  "sourceFingerprint": "72ecb5f3515f66b70b69d11810f80b535c570639ce224710b944dcc882354698",
   "summary": {
     "files": 993,
-    "lines": 196323,
+    "lines": 196319,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -5355,7 +5355,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1078
+        "line": 1083
       }
     ],
     "DevelopmentKind": [
@@ -8617,43 +8617,43 @@
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 623
+        "line": 627
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 626
+        "line": 630
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 628
+        "line": 632
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 639
+        "line": 643
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 736
+        "line": 741
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 986
+        "line": 991
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1047
+        "line": 1052
       }
     ],
     "ApiUsageSource": [
@@ -10111,7 +10111,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2696
+        "line": 2700
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24636,8 +24636,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1115,
-      "sha256": "70b71f29c7a55a2fc310c0dfd601be6c2b03bfeae88f68c2cb2b9ac3175df532",
+      "lines": 1120,
+      "sha256": "378f8cfe293307e340bd2e057a33ce0598495a7c6de8a5c33ce9057770dbc71b",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -24665,35 +24665,35 @@
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 623
+          "line": 627
         },
         {
           "name": "pendingMessageCount",
-          "line": 626
+          "line": 630
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 628
+          "line": 632
         },
         {
           "name": "contextTimelineEvents",
-          "line": 639
+          "line": 643
         },
         {
           "name": "refreshInspection",
-          "line": 736
+          "line": 741
         },
         {
           "name": "MemoryDebugState",
-          "line": 986
+          "line": 991
         },
         {
           "name": "grams",
-          "line": 1047
+          "line": 1052
         },
         {
           "name": "ids",
-          "line": 1078
+          "line": 1083
         }
       ]
     },
@@ -26224,8 +26224,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2763,
-      "sha256": "3989a94675f3b21c860d4d2d1c1fa3cf7a0d370ebfe448fe38a285e168f33d2e",
+      "lines": 2767,
+      "sha256": "8f608b69e59d69161fad97b8dc70ebaed7d85807108f5ac2bf844f3159c0b6a8",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -26257,7 +26257,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2696
+          "line": 2700
         }
       ]
     },
@@ -27249,8 +27249,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-      "lines": 129,
-      "sha256": "346c0bdc3c35bde94cccf8a317d33eec2fa29389f2f7eb2021429715eddeba46",
+      "lines": 116,
+      "sha256": "d138b074b97e48ef47042085e81d64a1b649a7ec7fd1cb66a0e8f2583bf1e388",
       "symbols": [
         {
           "name": "UserInteractionPresence",
