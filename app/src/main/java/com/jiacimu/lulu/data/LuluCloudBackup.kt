@@ -2,7 +2,6 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import java.io.File
-import java.io.IOException
 import java.net.URLEncoder
 import java.util.Base64
 import java.util.concurrent.TimeUnit
@@ -94,8 +93,11 @@ object LuluCloudBackup {
         val fileUrl = dirUrl + "/" + encodeSegment(fileName)
         val first = putFile(fileUrl, username, password, file)
         if (first == 404 || first == 409) {
-            // 文件夹不存在时先建，再传一次；建失败由第二次 PUT 再报错。
-            mkcol(dirUrl, username, password)
+            // Only retry after the server confirms the directory exists.
+            val folderStatus = mkcol(dirUrl, username, password)
+            check(folderStatus in 200..299 || folderStatus == 405) {
+                "创建备份文件夹失败：" + httpMessage(folderStatus)
+            }
             val retry = putFile(fileUrl, username, password, file)
             check(retry in 200..299) { httpMessage(retry) }
         } else {
@@ -134,17 +136,12 @@ object LuluCloudBackup {
         return client.newCall(request).execute().use { it.code }
     }
 
-    private fun mkcol(url: String, username: String, password: String) {
-        try {
-            val request = Request.Builder()
-                .url(url)
-                .header("Authorization", authHeader(username, password))
-                .method("MKCOL", null)
-                .build()
-            // 201 已建、405 已存在都算过；真失败由后面的 PUT 再报。
-            client.newCall(request).execute().use { }
-        } catch (ignored: IOException) {
-            // 建文件夹失败不单独报错，交给 PUT 的结果说话。
-        }
+    private fun mkcol(url: String, username: String, password: String): Int {
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(username, password))
+            .method("MKCOL", null)
+            .build()
+        return client.newCall(request).execute().use { it.code }
     }
 }
