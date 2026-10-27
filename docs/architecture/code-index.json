@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:28:19.370078+00:00",
-  "commit": "3f12e10fb099484cda0cdd46a316443692372dde",
+  "generatedAt": "2026-10-27T18:37:34.967594+00:00",
+  "commit": "1580ae27f32f10093aaf9ca460c3bd1ab87339bf",
   "branch": "main",
-  "sourceFingerprint": "61f1ce5aa798f5479399ee5c20452ac3fcba7a5e5bfa936bd7ce4552849ae21e",
+  "sourceFingerprint": "ef39ed0f60d52ad8c5567d6875eb686a2f53aca5af2029388f893d7b1e02f2ef",
   "summary": {
     "files": 993,
-    "lines": 196158,
+    "lines": 196115,
     "symbols": 2910
   },
   "symbolIndex": {
@@ -3049,13 +3049,13 @@
     "PhoneInspectionScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 104
+        "line": 103
       }
     ],
     "goBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-        "line": 189
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -3325,7 +3325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 231
+        "line": 235
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -3559,7 +3559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 145
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4047,7 +4047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 60
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -6295,37 +6295,37 @@
     "acknowledge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 48
+        "line": 53
       }
     ],
     "outcomeEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 70
+        "line": 75
       }
     ],
     "latestObservedEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 79
+        "line": 84
       }
     ],
     "personalOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 87
+        "line": 92
       }
     ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 138
+        "line": 143
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 216
+        "line": 221
       }
     ],
     "keepOrBlank": [
@@ -19044,16 +19044,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
-      "lines": 936,
-      "sha256": "f2afa5ff486b145dba56dc8502f5c5fd872325ec31ee2ecc48b2d2c230a82d5a",
+      "lines": 889,
+      "sha256": "661bf951a237045a133f611e9e29282b69dbc76f92958a55d336e987fa01c66e",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
-          "line": 104
+          "line": 103
         },
         {
           "name": "goBack",
-          "line": 189
+          "line": 184
         }
       ]
     },
@@ -22074,8 +22074,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 240,
-      "sha256": "49faee473d7bf90f301afb09d3ea27d802ba26ef0dcb2f580f3cdee7afaafe95",
+      "lines": 244,
+      "sha256": "0e91565ec3fc656ba3ccf8898317f77b00a628308abc0012f734ee04099a9ff9",
       "symbols": [
         {
           "name": "integrate",
@@ -22083,39 +22083,39 @@
         },
         {
           "name": "acknowledge",
-          "line": 48
+          "line": 53
         },
         {
           "name": "recent",
-          "line": 60
+          "line": 65
         },
         {
           "name": "outcomeEvidenceId",
-          "line": 70
+          "line": 75
         },
         {
           "name": "latestObservedEvidenceId",
-          "line": 79
+          "line": 84
         },
         {
           "name": "personalOutcome",
-          "line": 87
+          "line": 92
         },
         {
           "name": "selectRecent",
-          "line": 138
+          "line": 143
         },
         {
           "name": "pending",
-          "line": 145
+          "line": 150
         },
         {
           "name": "stimulus",
-          "line": 216
+          "line": 221
         },
         {
           "name": "render",
-          "line": 231
+          "line": 235
         }
       ]
     },

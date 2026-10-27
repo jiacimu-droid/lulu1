@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3f12e10fb099484cda0cdd46a316443692372dde`
+- 基准提交：`1580ae27f32f10093aaf9ca460c3bd1ab87339bf`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196158
+- 已索引代码/文本行：196115
 - 已发现符号：2910
 
 | 文件 | 行数 | 符号数 |
@@ -202,7 +202,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 412 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 936 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 889 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 70 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
@@ -338,7 +338,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 132 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 350 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 240 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 244 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 162 | 3 |
