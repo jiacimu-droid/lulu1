@@ -28,14 +28,27 @@ class Live2DMotionCatalogTest {
 
     @Test fun describeNamesWolfMotionsAndPassesOthersThrough() {
         assertEquals(
-            "LuluWolf#19=咯咯笑晃动（忍不住笑、咯咯笑时）",
+            "LuluWolf#19=咯咯笑晃动（忍不住笑、咯咯笑时；神态：笑眯眯、眯起眼）",
             Live2DMotionCatalog.describe("LuluWolf", 19),
         )
         assertEquals(
-            "LuluWolf#20=难过垂头（难过、低落、叹气时；配流泪）",
+            "LuluWolf#20=难过垂头（难过、低落、叹气时；配流泪；神态：眉眼低垂、嘴角下压）",
             Live2DMotionCatalog.describe("LuluWolf", 20),
         )
         assertNull(Live2DMotionCatalog.describe("LuluWolf", 99))
         assertNull(Live2DMotionCatalog.describe("Lulu", 0))
+    }
+
+    @Test fun facePresetsOnlyUseRealChannelsInRangeAndMatchTheirNotes() {
+        val positive = setOf("eyeOpen", "eyeSmile", "squint", "cheekPuff", "pout")
+        val channels = Live2DVisualActionBus.faceChannels.keys
+        for ((_, entry) in Live2DMotionCatalog.entries) {
+            assertEquals(entry.face.isNotEmpty(), entry.faceNote != null)
+            for ((key, value) in entry.face) {
+                assertTrue(key in channels)
+                val min = if (key in positive) 0f else -1f
+                assertTrue(value in min..1f)
+            }
+        }
     }
 }

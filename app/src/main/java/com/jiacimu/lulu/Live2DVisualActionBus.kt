@@ -123,7 +123,7 @@ internal object Live2DVisualActionBus {
             思考不必伴随点头，笑意不必伴随亲密；组合、强弱、是否显露由本人决定，例子不是固定人设或聊天脚本。
 
             需要精确控制时，仍可同时填写 expression、motion、head、body、face 或 beats；显式数值优先于 performance。
-            真实表情/外观 expression 原名=$expressions；真实预制 motion（group#index=名字·适合时；配表情为建议搭配）=$motions。
+            真实表情/外观 expression 原名=$expressions；真实预制 motion（group#index=名字·适合时；配表情与神态为默认搭配）=$motions。选 motion 时若不另外指定表情/神态，默认带目录里的配表情与神态；想换就明确写 expression/face。
             若明确答应展示模型已有表情（如星星眼），须在 live2d.expression 选择对应真实名字，不能只口头答应；没有资源不能虚构。
             星星眼、爱心眼、流泪、吐舌等强表情由你明确选择 expression；轻微笑意或羞赧不会自动升级成它们。
             兽耳、耳机、麦克风是外观开关，不当情绪用；没有预制手部动作不能声称已经挥手或捂嘴。
@@ -234,6 +234,28 @@ internal object Live2DVisualActionBus {
             }
         }
         val face = faceValues.takeIf { it.isNotEmpty() }?.let(::Face)
+        // A chosen catalog motion carries its combined performance: the
+        // catalog's suggested expression and face apply only when the role
+        // did not specify them. Explicit values always win.
+        val catalogEntry = motion?.takeIf { it.first == "LuluWolf" }
+            ?.let { Live2DMotionCatalog.entries[it.second] }
+        var filledExpression = selected
+        var filledFace = face
+        if (catalogEntry != null) {
+            if (filledExpression == null && catalogEntry.expression != null) {
+                filledExpression = resolveExpression(catalogEntry.expression, controls.expressions)
+            }
+            if (filledFace == null && catalogEntry.face.isNotEmpty()) {
+                val filledValues = mutableMapOf<String, Float>()
+                for ((key, ids) in faceChannels) {
+                    val value = catalogEntry.face[key] ?: continue
+                    if (!ids.all { it in allowed }) continue
+                    filledValues[key] = value.coerceIn(
+                        if (key in positiveFaceChannels) 0f else -1f, 1f)
+                }
+                filledFace = filledValues.takeIf { it.isNotEmpty() }?.let(::Face)
+            }
+        }
         // A model may plan a small progression during ONE paid speech turn.
         // Filter each beat against THIS imported model, not a global catalogue.
         val beatsJson = request.optJSONArray("beats")
@@ -284,11 +306,11 @@ internal object Live2DVisualActionBus {
                 }
             }
         }.sortedBy(Beat::atMs)
-        if (selected == null && motion == null && angles == null && body == null &&
-            face == null && beats.isEmpty()) return false
+        if (filledExpression == null && motion == null && angles == null && body == null &&
+            filledFace == null && beats.isEmpty()) return false
         sequence++
         mutableCues.value = mutableCues.value + (characterId to Cue(
-            callId, characterId, selected, motion, angles, body, face, sequence,
+            callId, characterId, filledExpression, motion, angles, body, filledFace, sequence,
             immediate = request.optBoolean("_executeNow", false),
             beats = beats,
         ))

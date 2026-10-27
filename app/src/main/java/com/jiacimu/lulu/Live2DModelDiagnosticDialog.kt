@@ -105,6 +105,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     var stageMessage by remember(roleId, modelUrl, session) { mutableStateOf("尚未开始动态渲染") }
     var lastStatusRecord by remember { mutableStateOf("") }
     var logsExpanded by remember { mutableStateOf(false) }
+    var showPlayground by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<String>>(emptyList()) }
     var manualHead by remember { mutableStateOf<Live2DVisualActionBus.Head?>(null) }
     var motionRevision by remember { mutableIntStateOf(0) }
@@ -338,6 +339,9 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                     TextButton(onClick = ::attemptReload, enabled = modelUrl != null && coreReady) {
                         Text("重新测试", fontSize = 12.sp)
                     }
+                    TextButton(onClick = { showPlayground = true }, enabled = modelUrl != null && coreReady) {
+                        Text("动作表情试验场", fontSize = 12.sp)
+                    }
                     TextButton(onClick = {
                         manualHead = Live2DVisualActionBus.Head(yaw = -18f)
                         motionRevision++
@@ -412,6 +416,9 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                         Text(entry, color = Color(0xFFE0E2E6), fontSize = 11.sp,
                             lineHeight = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
                     }
+                }
+                if (showPlayground) {
+                    Live2DPreviewPlaygroundDialog(characterId) { showPlayground = false }
                 }
             }
         }

@@ -164,4 +164,54 @@ class Live2DVisualActionBusTest {
             Live2DVisualActionBus.stageClosed(role, call)
         }
     }
+
+    @Test fun catalogMotionFillsExpressionAndFaceUnlessExplicitlyOverridden() {
+        val context = RuntimeEnvironment.getApplication()
+        val role = "live2d-role-" + UUID.randomUUID()
+        val call = "call-" + UUID.randomUUID()
+        val relative = "models/test-" + UUID.randomUUID() + "/avatar.model3.json"
+        val settings = File(Live2DAssets.base(context), relative)
+        settings.parentFile?.mkdirs()
+        val motions = (0..20).joinToString(",") { "{\"File\":\"m$it.motion3.json\"}" }
+        settings.writeText(
+            "{\"FileReferences\":{\"Moc\":\"avatar.moc3\",\"Textures\":[\"skin.png\"]," +
+                "\"Expressions\":[{\"Name\":\"smile\",\"File\":\"smile.exp3.json\"},{\"Name\":\"流泪\",\"File\":\"tears.exp3.json\"}],\" +
+                "\"Motions\":{\"LuluWolf\":[$motions]}}}"
+        )
+        val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
+        prefs.edit().putString("model:$role", relative).commit()
+        try {
+            Live2DVisualActionBus.stageReady(role, call)
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamEyeBallX,ParamEyeBallY,ParamMouthForm,ParamEyeLSmile,ParamEyeRSmile," +
+                "ParamEyeLOpen,ParamEyeROpen,ParamBrowLX,ParamBrowRX,ParamBrowLY,ParamBrowRY," +
+                "ParamBrowLAngle,ParamBrowRAngle,ParamBrowLForm,ParamBrowRForm," +
+                "ParamEyeLSquint,ParamEyeRSquint,ParamCheekPuff,ParamMouthFunnel")
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("motion", JSONObject().put("group", "LuluWolf").put("index", 20))))
+            val filled = Live2DVisualActionBus.cues.value[role]
+            assertEquals("LuluWolf" to 20, filled?.motion)
+            assertEquals("流泪", filled?.expression)
+            assertEquals(-0.3f, filled?.face?.values?.get("smile"))
+            assertEquals(0.82f, filled?.face?.values?.get("eyeOpen"))
+            assertEquals(0.2f, filled?.face?.values?.get("browY"))
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("motion", JSONObject().put("group", "LuluWolf").put("index", 20))
+                    .put("expression", "smile")))
+            assertEquals("smile", Live2DVisualActionBus.cues.value[role]?.expression)
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("motion", JSONObject().put("group", "LuluWolf").put("index", 20))
+                    .put("face", JSONObject().put("smile", 0.9))))
+            assertEquals(0.9f, Live2DVisualActionBus.cues.value[role]?.face?.values?.get("smile"))
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("motion", JSONObject().put("group", "LuluWolf").put("index", 0))))
+            val nod = Live2DVisualActionBus.cues.value[role]
+            assertEquals("LuluWolf" to 0, nod?.motion)
+            assertEquals(null, nod?.expression)
+            assertEquals(null, nod?.face)
+        } finally {
+            settings.parentFile?.deleteRecursively()
+            prefs.edit().remove("model:$role").commit()
+        }
+    }
 }
