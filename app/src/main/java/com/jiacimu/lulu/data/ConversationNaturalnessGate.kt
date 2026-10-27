@@ -179,6 +179,9 @@ internal object ConversationNaturalnessGate {
             reasons += "把即时聊天组织成说明书/提纲"
         }
         val userLength = userText.count { !it.isWhitespace() }
+        // Only used by the repeated-opening diagnostic. Not a global reply
+        // limit and not a reason to shorten a valid character-owned answer.
+        val replyLength = reply.count { !it.isWhitespace() }
         if (ConversationTurnEconomy.hasUnsupportedDeliveryCause(reply, operationalEvidence)) {
             score += 2
             reasons += "把回复间隔编成了未经本轮程序回执证实的消息或网络故障；保留未及时回应的事实，省略未知原因"
