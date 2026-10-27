@@ -571,6 +571,9 @@ internal object CompanionActionRuntime {
                 val stickerId = args.optString("stickerId").trim()
                 val sticker = com.jiacimu.lulu.StickerLibraryStore.byId(context, stickerId)
                     ?: error("这张表情不在用户已确认的图库中，不能发送")
+                require(com.jiacimu.lulu.StickerLibraryStore.canActuallySend(context, sticker)) {
+                    "表情包「${sticker.name}」的原图文件不可读取，本轮未发送；请恢复本地素材或重新导入后再试"
+                }
                 val conversation = if (normalizedAction == "send_private_sticker") {
                     privateConversation(characterId, character.displayName)
                 } else {
