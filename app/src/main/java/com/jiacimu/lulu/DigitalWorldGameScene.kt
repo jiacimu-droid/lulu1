@@ -166,17 +166,28 @@ internal fun DigitalWorldGameScene(
     val discoveredPlace = remember(sceneCode) {
         DigitalWorldExpansionStore.places().firstOrNull { it.code == sceneCode }
     }
-    val roomItems = remember(world.items, homeCharacterId) {
-        homeCharacterId?.let { owner -> world.items.filter { it.ownerCharacterId == owner } }.orEmpty()
+    val roomOwnerId = homeCharacterId ?: nativeHome?.let {
+        com.jiacimu.lulu.data.ResidentCharacterBridge.characterId(it.id)
     }
-    val props = remember(roomItems) { buildDigitalRoomProps(roomItems) }
+    val roomItems = remember(world.items, roomOwnerId) {
+        roomOwnerId?.let { owner ->
+            world.items.filter { it.ownerCharacterId == owner }
+        }.orEmpty()
+    }
+    // Native homes retain their existing fixed starter furniture. Additional
+    // furniture built by the resident is taken from the SAME persisted world
+    // inventory as a protagonist home; never fabricate it from a dialogue.
+    val displayRoomItems = remember(roomItems, nativeHome) {
+        if (nativeHome == null) roomItems
+        else roomItems.filterNot { it.id.startsWith("home-reading-shelf-") }
+    }
+    val props = remember(displayRoomItems) { buildDigitalRoomProps(displayRoomItems) }
     val nativeHomeProps = remember(nativeHome) { nativeHome?.let(::nativeResidentHomeProps).orEmpty() }
-    // NPC furniture is physically present and can be inspected, but isn't user-editable inventory.
-    val interactiveProps = if (nativeHome != null) nativeHomeProps else props
+    val interactiveProps = nativeHomeProps + props
     val venueAnchors = remember(sceneCode) { DigitalWorldVenueAnchors.forScene(sceneCode) }
     val discoverySpots = remember(sceneCode) { DigitalWorldExplorationSpots.forScene(sceneCode) }
-    val obstacles = remember(props, nativeHomeProps) {
-        (props + nativeHomeProps).mapNotNull(DigitalRoomProp::obstacle)
+    val obstacles = remember(interactiveProps) {
+        interactiveProps.mapNotNull(DigitalRoomProp::obstacle)
     }
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
     var discoveredSpots by remember(sceneKey) { mutableStateOf(stateStore.loadDiscoveries()) }
