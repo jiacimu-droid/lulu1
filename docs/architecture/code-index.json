@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T20:06:02.176207+00:00",
-  "commit": "a87c086f6599e73266d53cf59ca4d69cceca7c9a",
+  "generatedAt": "2026-10-27T20:06:50.446079+00:00",
+  "commit": "b7bca31a358a543ca3ac2c50d45b0e9de058d0c2",
   "branch": "main",
-  "sourceFingerprint": "ab82826640839e254c1e20abf33fc397d8f0fab1053fb4a6fce75635aba77a75",
+  "sourceFingerprint": "5b2188ab956bb0eeac6110f3eed81a7fa83565ad826300960f39e52127d6086e",
   "summary": {
     "files": 993,
-    "lines": 196848,
+    "lines": 196851,
     "symbols": 2912
   },
   "symbolIndex": {
@@ -3693,7 +3693,7 @@
     "instruction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-        "line": 64
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
@@ -18498,7 +18498,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 2385,
-      "sha256": "e7599e7ea2ccafb49394aeef5200a19b2299248a3c30fc8e0a57d3ae534aa050",
+      "sha256": "a55ad2f529cc0576f7bdf99ecbf8f93e62a57060161fb2837a4eb30d0391c87e",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -19708,8 +19708,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 89,
-      "sha256": "76fc7707c222281edff70d44a346fe3924db26de9ad29131f3411cf7e131a2eb",
+      "lines": 92,
+      "sha256": "64bbd38e376cdc8330278c658d5677e97fc98d9b7db1fa9b44a10317f488bfa3",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -19717,7 +19717,7 @@
         },
         {
           "name": "instruction",
-          "line": 64
+          "line": 69
         }
       ]
     },
