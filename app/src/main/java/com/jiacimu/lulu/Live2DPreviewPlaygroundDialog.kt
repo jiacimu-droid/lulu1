@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.unit.dp
+import org.json.JSONObject
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -109,9 +111,27 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     var framingMode by remember { mutableStateOf("portrait") }
     var menuExpanded by remember { mutableStateOf(false) }
     val coreInstalled = remember(revision) { Live2DAssets.hasCore(context) }
-    // Keep the missing-renderer recovery controls visible instead of hiding
-    // them under the 320dp motion catalog on a narrow portrait screen.
-    var panelExpanded by remember(characterId, coreInstalled) { mutableStateOf(coreInstalled) }
+    // The portrait has priority: the controls start as a compact dock.
+    // A catalog opens temporarily, then closes as soon as an action is chosen.
+    var panelExpanded by remember(characterId) { mutableStateOf(false) }
+    var panelSection by remember(characterId) { mutableStateOf("motions") }
+    var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
+    var interactionForce by remember(modelUrl) { mutableStateOf(.25f) }
+    var touchCalibrationMode by remember(modelUrl) { mutableStateOf(false) }
+    var touchRegion by remember(modelUrl) { mutableStateOf("cheek-left") }
+    var touchRegionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
+    val touchPrefs = remember(context) {
+        context.getSharedPreferences("lulu_live2d_touch_zones_v1", android.content.Context.MODE_PRIVATE)
+    }
+    var touchRadius by remember(modelUrl, touchRegion) {
+        val saved = runCatching {
+            JSONObject(touchPrefs.getString(modelUrl.orEmpty(), "{}") ?: "{}")
+                .optJSONObject(touchRegion)?.optDouble("rx")?.toFloat()
+        }.getOrNull()?.takeIf { it.isFinite() && it >= Live2DTouchZones.minimumRadius }
+        mutableStateOf(saved ?: Live2DTouchZones.defaultRadius(touchRegion))
+    }
+    var touchSizeRevision by remember(modelUrl) { mutableIntStateOf(0) }
+    var touchCalibrationReset by remember(modelUrl) { mutableIntStateOf(0) }
     var confirmOfficialCore by remember { mutableStateOf(false) }
     var coreLicenseChecked by remember { mutableStateOf(false) }
     val coreLicensePrefs = remember(context) {
@@ -199,12 +219,14 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
             (entry?.expression?.let { "＋$it" } ?: "") +
             (entry?.faceNote?.let { "＋$it" } ?: "")
         motionRevision++
+        panelExpanded = false
     }
 
     fun playExpression(name: String) {
         previewExpression = name
         lastPlayed = "表情 $name"
         motionRevision++
+        panelExpanded = false
     }
 
     fun reset() {
@@ -216,7 +238,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     }
 
     Box(
-        Modifier.fillMaxSize().background(Color(0xFF151719)),
+        Modifier.fillMaxSize().background(Color(0xFFE6EDF3)),
     ) {
         if (modelUrl != null && coreInstalled) {
             // Never start the WebView model loader before the licensed Cubism Core is installed.
@@ -235,6 +257,13 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                     previewRevision = motionRevision,
                     previewImmediate = true,
                     framingMode = framingMode,
+                    interactionMode = interactionMode,
+                    interactionForce = interactionForce,
+                    calibrationMode = touchCalibrationMode,
+                    calibrationRegion = touchRegion,
+                    calibrationRadius = touchRadius,
+                    calibrationSizeRevision = touchSizeRevision,
+                    calibrationResetRevision = touchCalibrationReset,
                     onModelTouch = { region, gesture, force, durationMillis ->
                         lastTouch = "$region · $gesture · $force · ${durationMillis}ms"
                     },
@@ -347,113 +376,161 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
             }
             TextButton(onClick = onClose) { Text("关闭", color = Color.White, fontSize = 13.sp) }
         }
-        // Bottom control strip over the stage.
+        // Preview first: only two small rows are persistent. The motion catalog
+        // never reserves half the display and collapses after playback starts.
         Column(
             Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                .background(Color(0xE6202326)).navigationBarsPadding().padding(12.dp),
+                .background(Color(0xE91E2937)).navigationBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 5.dp),
         ) {
-            Text("当前：$lastPlayed", color = Color(0xFFFAE3AE), fontSize = 12.sp)
-            Text("触摸：$lastTouch", color = Color.LightGray, fontSize = 12.sp)
-            Text("阶段：$stagePhase · $stageMessage", color = Color.LightGray, fontSize = 12.sp)
-            Spacer(Modifier.height(8.dp))
-            if (!panelExpanded) {
-                TextButton(onClick = { panelExpanded = true }) {
-                    Text("展开动作 / 表情 / 皮套", fontSize = 12.sp)
-                }
-            } else {
-                LazyColumn(
-                    Modifier.fillMaxWidth().height(320.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    item {
-                        Text("皮套存档（一个 zip 就是一个存档，切换不删旧皮）", color = Color.White, fontSize = 13.sp)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically) {
+                listOf("hand" to "抚摸", "pat" to "扇脸", "kiss" to "亲吻").forEach { (id, label) ->
+                    TextButton(onClick = { interactionMode = id }) {
+                        Text((if (interactionMode == id) "● " else "") + label,
+                            color = if (interactionMode == id) Color(0xFFB8E6FF) else Color.White,
+                            fontSize = 12.sp)
                     }
-                    item {
-                        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Button(onClick = { importLauncher.launch("application/zip") }) {
-                                Text("导入 zip 皮套", fontSize = 12.sp)
-                            }
-                            TextButton(onClick = { panelExpanded = false }) {
-                                Text("收起", fontSize = 12.sp)
+                }
+                Text("│", color = Color.LightGray)
+                listOf(.25f to "轻", .9f to "重").forEach { (force, label) ->
+                    TextButton(onClick = { interactionForce = force }) {
+                        Text((if (interactionForce == force) "●" else "") + label,
+                            color = if (interactionForce == force) Color(0xFFB8E6FF) else Color.White,
+                            fontSize = 12.sp)
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically) {
+                listOf("motions" to "动作", "expressions" to "表情", "archives" to "皮套").forEach { (id, label) ->
+                    TextButton(onClick = {
+                        panelExpanded = if (panelSection == id) !panelExpanded else true
+                        panelSection = id
+                    }) {
+                        Text(if (panelExpanded && panelSection == id) "收起$label" else label,
+                            color = Color.White, fontSize = 12.sp)
+                    }
+                }
+                TextButton(onClick = {
+                    touchCalibrationMode = !touchCalibrationMode
+                    if (touchCalibrationMode) panelExpanded = false
+                }) {
+                    Text(if (touchCalibrationMode) "完成校准" else "校准部位",
+                        color = if (touchCalibrationMode) Color(0xFFB8E6FF) else Color.White,
+                        fontSize = 12.sp)
+                }
+                if (!touchCalibrationMode) {
+                    TextButton(onClick = ::reset) { Text("复位", color = Color.White, fontSize = 12.sp) }
+                }
+            }
+            if (touchCalibrationMode) {
+                Text("在人物对应部位轻点，标记该区域中心；调节范围后自动保存",
+                    color = Color(0xFFDDE8F2), fontSize = 11.sp)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Box {
+                        TextButton(onClick = { touchRegionMenuOpen = true }) {
+                            Text((Live2DTouchZones.label(touchRegion) ?: "脸颊") + " ▾",
+                                color = Color.White, fontSize = 12.sp)
+                        }
+                        DropdownMenu(expanded = touchRegionMenuOpen,
+                            onDismissRequest = { touchRegionMenuOpen = false }) {
+                            Live2DTouchZones.labels.filterKeys {
+                                it !in setOf("head", "arm")
+                            }.forEach { (id, label) ->
+                                DropdownMenuItem(text = { Text(label) }, onClick = {
+                                    touchRegion = id
+                                    touchRegionMenuOpen = false
+                                })
                             }
                         }
                     }
-                    if (archiveMessage.isNotBlank()) {
-                        item { Text(archiveMessage, color = Color(0xFFFAE3AE), fontSize = 12.sp) }
-                    }
-                    if (archives.isEmpty()) {
-                        item { Text("暂无存档，导入一个 zip 就会出现在这里", color = Color.LightGray, fontSize = 12.sp) }
-                    } else {
-                        items(archives.size) { index ->
-                            val entry = archives[index]
-                            val isCurrent = entry.settings == currentSettings
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    entry.label + if (isCurrent) "（当前）" else "",
-                                    color = Color.White, fontSize = 12.sp,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (!isCurrent) {
-                                    TextButton(onClick = {
+                    Slider(value = touchRadius, onValueChange = {
+                        touchRadius = it
+                        touchSizeRevision++
+                    }, valueRange = Live2DTouchZones.minimumRadius.. .30f,
+                        modifier = Modifier.weight(1f))
+                    TextButton(onClick = {
+                        touchCalibrationReset++
+                        touchRadius = Live2DTouchZones.defaultRadius(touchRegion)
+                    }) { Text("重置", color = Color.White, fontSize = 12.sp) }
+                }
+            }
+            if (panelExpanded && !touchCalibrationMode) {
+                Text("当前：$lastPlayed · 触摸：$lastTouch",
+                    color = Color(0xFFE7F0F6), fontSize = 11.sp, maxLines = 1)
+                LazyColumn(
+                    Modifier.fillMaxWidth().height(158.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    when (panelSection) {
+                        "archives" -> {
+                            item {
+                                Button(onClick = { importLauncher.launch("application/zip") }) {
+                                    Text("导入 ZIP 皮套", fontSize = 12.sp)
+                                }
+                            }
+                            if (archiveMessage.isNotBlank()) item {
+                                Text(archiveMessage, color = Color(0xFFFAE3AE), fontSize = 12.sp)
+                            }
+                            if (archives.isEmpty()) item {
+                                Text("还没有皮套存档", color = Color.White, fontSize = 12.sp)
+                            }
+                            items(archives.size) { index ->
+                                val entry = archives[index]
+                                val isCurrent = entry.settings == currentSettings
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(entry.label + if (isCurrent) "（当前）" else "",
+                                        color = Color.White, fontSize = 12.sp,
+                                        modifier = Modifier.weight(1f))
+                                    if (!isCurrent) TextButton(onClick = {
                                         archiveMessage = if (Live2DAssets.switchArchive(
                                                 context, characterId, entry.settings,
                                             )
                                         ) "已切换到 ${entry.label}" else "切换失败"
+                                        if (archiveMessage.startsWith("已切换")) panelExpanded = false
                                     }) { Text("切换", fontSize = 12.sp) }
+                                    TextButton(onClick = {
+                                        archiveMessage = if (Live2DAssets.deleteArchive(
+                                                context, characterId, entry.settings,
+                                            )
+                                        ) "已删除 ${entry.label}" else "删除失败"
+                                    }) { Text("删除", fontSize = 12.sp) }
                                 }
-                                TextButton(onClick = {
-                                    archiveMessage = if (Live2DAssets.deleteArchive(
-                                            context, characterId, entry.settings,
-                                        )
-                                    ) "已删除 ${entry.label}" else "删除失败"
-                                }) { Text("删除", fontSize = 12.sp) }
                             }
                         }
-                    }
-                    item {
-                        Text("动作（点一下播整套：动作＋配表情＋神态）", color = Color.White, fontSize = 13.sp)
-                    }
-                    val motions = controls.motions
-                    if (motions.isEmpty()) {
-                        item { Text("该模型没有可用动作", color = Color.LightGray, fontSize = 12.sp) }
-                    } else {
-                        items(motions.chunked(3).size) { row ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                                for ((group, index) in motions.chunked(3)[row]) {
-                                    val label = if (group == "LuluWolf") {
-                                        Live2DMotionCatalog.entries[index]?.name ?: "$group#$index"
-                                    } else {
-                                        "$group#$index"
+                        "expressions" -> {
+                            if (controls.expressions.isEmpty()) item {
+                                Text("该皮套没有表情", color = Color.White, fontSize = 12.sp)
+                            }
+                            items(controls.expressions.chunked(3).size) { row ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                                    for (name in controls.expressions.chunked(3)[row]) {
+                                        Button(onClick = { playExpression(name) },
+                                            modifier = Modifier.weight(1f)) {
+                                            Text(name, fontSize = 12.sp)
+                                        }
                                     }
-                                    Button(
-                                        onClick = { playMotion(group, index) },
-                                        modifier = Modifier.weight(1f),
-                                    ) { Text(label, fontSize = 12.sp) }
                                 }
                             }
                         }
-                    }
-                    item {
-                        Text("表情（只换表情）", color = Color.White, fontSize = 13.sp)
-                    }
-                    if (controls.expressions.isEmpty()) {
-                        item { Text("该模型没有可用表情", color = Color.LightGray, fontSize = 12.sp) }
-                    } else {
-                        items(controls.expressions.chunked(4).size) { row ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                                for (name in controls.expressions.chunked(4)[row]) {
-                                    Button(
-                                        onClick = { playExpression(name) },
-                                        modifier = Modifier.weight(1f),
-                                    ) { Text(name, fontSize = 12.sp) }
+                        else -> {
+                            if (controls.motions.isEmpty()) item {
+                                Text("该皮套没有动作", color = Color.White, fontSize = 12.sp)
+                            }
+                            items(controls.motions.chunked(3).size) { row ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                                    for ((group, index) in controls.motions.chunked(3)[row]) {
+                                        val label = if (group == "LuluWolf") {
+                                            Live2DMotionCatalog.entries[index]?.name ?: "$group#$index"
+                                        } else "$group#$index"
+                                        Button(onClick = { playMotion(group, index) },
+                                            modifier = Modifier.weight(1f)) {
+                                            Text(label, fontSize = 12.sp)
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
-                    item {
-                        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            TextButton(onClick = ::reset) { Text("复位", fontSize = 12.sp) }
-                            TextButton(onClick = onClose) { Text("关闭", fontSize = 12.sp) }
                         }
                     }
                 }
