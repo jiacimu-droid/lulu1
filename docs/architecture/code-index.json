@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T07:17:46.144160+00:00",
-  "commit": "579b3a0472bd90e7f845dccffeff22f7ec06bdd0",
+  "generatedAt": "2026-10-27T07:46:11.591717+00:00",
+  "commit": "daf2d6ce232b315e618cedc49492ffd738a32c51",
   "branch": "main",
-  "sourceFingerprint": "fb80b0efda96735327fc3f063c3d9c786d6e9de31f60b6a1c8d9bff155e13e4b",
+  "sourceFingerprint": "44651c65760357e04c303649ebd2d2a0dfa055cb32f0156637c20be4b6897e92",
   "summary": {
     "files": 960,
-    "lines": 190412,
+    "lines": 190446,
     "symbols": 2806
   },
   "symbolIndex": {
@@ -9773,7 +9773,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2657
+        "line": 2670
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14219,13 +14219,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 527
+        "line": 548
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 626
+        "line": 647
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -20477,7 +20477,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
       "lines": 167,
-      "sha256": "4e5e1ff10929efc097a58c178c6c4903dea299fb9cea68ec8f06000cda911e96",
+      "sha256": "d92f8f3d824f9e616ff883ef8cd6159af345e116513af30e5f64b8115c8d0889",
       "symbols": [
         {
           "name": "CharacterEvaluationLedger",
@@ -25281,8 +25281,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2724,
-      "sha256": "2b222e5547c441f5a414a57f4d7cb9483d164b7b1f7481e3d0d626de3ddecb11",
+      "lines": 2737,
+      "sha256": "63278d2f46c63f22e115115a78a10528549086453370f927989a917ee4be9b75",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -25314,7 +25314,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2657
+          "line": 2670
         }
       ]
     },
@@ -31175,8 +31175,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 786,
-      "sha256": "10c7fa07aaa8dd8a1e1944195c899aacbe8179980de898d3098f4ad5d3678055",
+      "lines": 807,
+      "sha256": "9eb0a7625170763a104a4453800801ea9ccbe80ce09bed33021ea18f82c29963",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -31184,11 +31184,11 @@
         },
         {
           "name": "social",
-          "line": 527
+          "line": 548
         },
         {
           "name": "feeling",
-          "line": 626
+          "line": 647
         }
       ]
     },
