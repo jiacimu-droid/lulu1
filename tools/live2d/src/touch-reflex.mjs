@@ -351,7 +351,9 @@ export function touchMotionFor(region, gesture) {
     return null
   }
   if (/^slap(-left|-right)?$/.test(kind)) {
-    if (family === 'cheek') return 9
+    // A baked slap Motion3 drives the entire body independently of the
+    // contact location, then stacks with local recoil. Procedural neck
+    // physics now owns all impacts; preserve the gesture, not the old clip.
     return null
   }
   return null
