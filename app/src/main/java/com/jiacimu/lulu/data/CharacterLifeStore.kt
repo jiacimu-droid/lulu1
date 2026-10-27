@@ -47,6 +47,13 @@ object CharacterLifeStore {
     @Synchronized private fun ensureBundledJiangDu() {
         val preferences = prefs ?: return
         if (preferences.getBoolean(BUNDLED_JIANG_DU_IMPORTED, false)) return
+        // The import is also invoked from background/test startup paths: bind
+        // the authoritative stores before any persistent character creation.
+        appContext?.let { context ->
+            MigratedDomainStores.characters.initialize(context)
+            DigitalLifeProfileStore.initialize(context)
+            CharacterIdentityStore.initialize(context)
+        }
         val characters = MigratedDomainStores.characters
         // A bundled ID allows interrupted imports to resume without creating duplicates.
         if (BUNDLED_JIANG_DU_ID !in characters.settings.value) {
