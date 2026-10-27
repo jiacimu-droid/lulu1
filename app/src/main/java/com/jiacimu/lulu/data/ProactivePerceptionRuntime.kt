@@ -781,6 +781,10 @@ object ProactivePerceptionRuntime {
                 com.jiacimu.lulu.system.LuluStudyWatch.context(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
+                // One shared app tool, available to both active private chats
+                // and self-initiated life turns. Reading a link never sends it.
+                appendLine(XhsRoleShare.availableContext(characterId))
+                appendLine("如你自己想把真实读过的小红书发给用户，可以选择 action=tool,tool=share_xiaohongshu,args={\"evidenceId\":\"上方真实阅读ID\",\"comment\":\"可选自己的话\"}；也可明确选 latest=true。执行器会验证阅读证据并发真正的小红书卡片，而非贴网址。是否分享由你自己决定；只有真实消息送达才算发过。")
                 appendLine(DigitalWorldLiveScene.context(characterId))
                 salientInteraction?.let { event ->
                     appendLine("【本轮真实互动的同次理解与抉择】")
