@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f39a2ef80f898e9967014781744002563e5d6db3`
+- 基准提交：`6f0050300dffa66e5a1dbe91ea6b3a2f4379a113`
 - 分支：`main`
 - 已索引文件：991
-- 已索引代码/文本行：195482
+- 已索引代码/文本行：195484
 - 已发现符号：2898
 
 | 文件 | 行数 | 符号数 |
@@ -143,7 +143,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 154 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 72 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 462 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 464 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
