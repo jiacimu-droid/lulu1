@@ -1167,9 +1167,11 @@ object ProactivePerceptionRuntime {
                     candidate?.takeIf { fixed ->
                         normalized != null &&
                             AutonomousActionWireProtocol.missingWorldBuildFields(normalized).isEmpty() &&
-                            fixed.action == initialDecision?.action &&
-                            fixed.worldAction == initialDecision.worldAction &&
-                            fixed.tool == initialDecision.tool
+                            initialDecision?.let { original ->
+                                fixed.action == original.action &&
+                                    fixed.worldAction == original.worldAction &&
+                                    fixed.tool == original.tool
+                            } == true
                     }
                 } else candidate
             }
