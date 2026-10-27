@@ -10,6 +10,14 @@ import org.json.JSONObject
  * No personality, memory, extra model call, invented action names or durable side store.
  */
 internal object Live2DVisualActionBus {
+    /** One validated phone turn can independently contain speech and a body
+     * action. Cosmetic text normalization is not a reason to discard the
+     * chosen visual cue; a rejected/empty turn still cannot animate. */
+    internal fun canPublishPhoneVisual(
+        invalidBlame: Boolean, rewriting: Boolean, callId: String, spoken: String,
+    ): Boolean = !invalidBlame && !rewriting &&
+        callId.isNotBlank() && spoken.isNotBlank()
+
     data class Head(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Body(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Face(val values: Map<String, Float>)
