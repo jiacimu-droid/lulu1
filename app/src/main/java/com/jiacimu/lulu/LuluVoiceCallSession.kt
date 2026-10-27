@@ -1583,11 +1583,11 @@ internal object LuluVoiceCallSession {
                         interactionReceipt, lastDeliveredMessageId, heard.toString(), phone = true)
                     if (mutableState.value.sleepMode) {
                         SleepNarrativeStore.accept(latest.callExperienceId, lastDeliveredMessageId, bedtimeContinuation)
-                        val kind = bedtimeContinuation?.let { runCatching { org.json.JSONObject(it).optString("kind") }.getOrNull() }
-                        if (mutableState.value.sleepFocus == SleepGuidanceFocus.Body) {
-                            if (kind == "story") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Story) }
-                            else if (kind == "body") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Body) }
-                        }
+                        // A narrative kind describes what was actually played,
+                        // not permission to switch the user's selected mode.
+                        // The two bedtime controls remain authoritative until
+                        // the listener selects another one.
+
                     }
                     mutableState.update { it.copy(generatedTranscript = "", playingTranscript = "") }
                 }
