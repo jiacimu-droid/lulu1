@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T20:59:55.580744+00:00",
-  "commit": "f443b4dbb5c783d581295aa0aee1f0fdc2046bd2",
+  "generatedAt": "2026-10-27T21:00:17.687426+00:00",
+  "commit": "1ab46484aec7cc12157eba5f1e34b53a71ec1b67",
   "branch": "main",
-  "sourceFingerprint": "625be4ec3773eb8db0fdb62263d27c359b21d698ceca7a686d2dc5eecdd5deac",
+  "sourceFingerprint": "d1f21ee9d9a3d1e241f8a7ec5d950b226c8273fee00db51e74c518497fcee606",
   "summary": {
     "files": 993,
-    "lines": 196901,
+    "lines": 196925,
     "symbols": 2913
   },
   "symbolIndex": {
@@ -30969,8 +30969,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt",
-      "lines": 51,
-      "sha256": "5db2cfc6cf093d4467b377e20220df2ab3218566042bb2ef3d3c982be0649edb",
+      "lines": 75,
+      "sha256": "191dacedb540e62942b6a553ca20fb6ec8cae7fd70ee74eec767daaf169e24e4",
       "symbols": [
         {
           "name": "Live2DFineTouchTest",

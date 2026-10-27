@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f443b4dbb5c783d581295aa0aee1f0fdc2046bd2`
+- 基准提交：`1ab46484aec7cc12157eba5f1e34b53a71ec1b67`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：196901
+- 已索引代码/文本行：196925
 - 已发现符号：2913
 
 | 文件 | 行数 | 符号数 |
@@ -710,7 +710,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
