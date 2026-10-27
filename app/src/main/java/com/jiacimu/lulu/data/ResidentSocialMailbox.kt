@@ -20,6 +20,7 @@ internal data class ResidentDirectMessage(
 internal object ResidentSocialMailbox {
     private const val PREFS = "lulu_native_social_mail_v1"
     private const val LIMIT = 1200
+    private const val PAIR_LIMIT = 200
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private var messages: List<ResidentDirectMessage> = emptyList()
@@ -148,6 +149,29 @@ internal object ResidentSocialMailbox {
         MigratedDomainStores.characters.settings.value.keys.filter { it != characterId &&
             DigitalLifeProfileStore.isEnabled(it) && canContact(characterId, it) }.take(16)
 
+    /**
+     * Fair trimming for the mailbox. The old global takeLast(1200) let a
+     * single busy pair evict everyone else's mail. Now each unordered
+     * pair keeps at most PAIR_LIMIT recent messages first, and only then
+     * does the global cap apply. Original order is preserved exactly
+     * (no timestamp sort), so inbox/history views are unaffected.
+     * Pure function of the list so it can be tested without stores.
+     */
+    internal fun trimForStorage(all: List<ResidentDirectMessage>): List<ResidentDirectMessage> {
+        val counts = mutableMapOf<Pair<String, String>, Int>()
+        val keptReversed = all.asReversed().filter { msg ->
+            val key = if (msg.fromId <= msg.toId) msg.fromId to msg.toId else msg.toId to msg.fromId
+            val next = (counts[key] ?: 0) + 1
+            if (next <= PAIR_LIMIT) {
+                counts[key] = next
+                true
+            } else {
+                false
+            }
+        }
+        return keptReversed.asReversed().takeLast(LIMIT)
+    }
+
     @Synchronized
     fun send(from: String, to: String, content: String,
         author: String = "character", at: Instant = Instant.now()): ResidentDirectMessage {
@@ -155,7 +179,7 @@ internal object ResidentSocialMailbox {
         val text = content.trim().take(650)
         require(text.isNotBlank() && canContact(from, to)) { "双方尚未真实认识或同处现场，不能凭空通信" }
         val item = ResidentDirectMessage(UUID.randomUUID().toString(), from, to, text, at, author)
-        val updated = (messages + item).takeLast(LIMIT)
+        val updated = trimForStorage(messages + item)
         val array = JSONArray()
         updated.forEach { msg ->
             array.put(JSONObject().put("id", msg.id).put("fromId", msg.fromId)
