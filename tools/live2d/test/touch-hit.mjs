@@ -281,12 +281,35 @@ layer.clear({})
 assert.equal(values.get('bq3'), 0)
 assert.equal(layer.start({}, '兽耳', { '兽耳': exp3('qh_1') }, null, high, 5000), false)
 
+// A premade exp3 can contain an unpaired wink. Automatic tactile feedback
+// must skip that channel rather than blinking the wrong eye.
+{
+  const eyeVals = new Map([['ParamEyeLOpen', 1], ['ParamEyeROpen', 1], ['ParamCheekPuff', 0]])
+  const l = createTouchExpressionLayer({
+    has: (_c, id) => eyeVals.has(id),
+    read: (_c, id) => eyeVals.get(id),
+    write: (_c, id, value) => eyeVals.set(id, value),
+  })
+  const accidentalWink = { 露珠: { Parameters: [
+    { Id: 'ParamEyeROpen', Blend: 'Add', Value: -1 },
+    { Id: 'ParamCheekPuff', Blend: 'Add', Value: .3 },
+  ] } }
+  assert.equal(l.start({}, '露珠', accidentalWink, null, { shyness: 40 }, 1000), true)
+  l.update({}, 1200)
+  assert.equal(eyeVals.get('ParamEyeROpen'), 1)
+  assert.equal(eyeVals.get('ParamEyeLOpen'), 1)
+  assert.ok(eyeVals.get('ParamCheekPuff') > 0)
+  l.clear({})
+}
+
 const faceValues = new Map([['ParamEyeLOpen', 1], ['ParamEyeROpen', 1]])
 const rig = createVisualLayerRuntime({ has: (_c, id) => faceValues.has(id),
   read: (_c, id) => faceValues.get(id), write: (_c, id, value) => faceValues.set(id, value) })
 for (let i = 0; i < 45; i++) rig.update({}, { deltaMs: 16, seconds: i * .016, touchReflex: unilateral })
-assert.ok(faceValues.get('ParamEyeLOpen') < .1)
-assert.ok(faceValues.get('ParamEyeROpen') > .8)
+assert.ok(faceValues.get('ParamEyeLOpen') < .5)
+assert.ok(Math.abs(faceValues.get('ParamEyeLOpen') -
+  faceValues.get('ParamEyeROpen')) < .001,
+  'touching one eye must never make only the opposite eye blink')
 for (let i = 0; i < 100; i++) rig.update({}, { deltaMs: 16, seconds: i * .016 })
 assert.ok(faceValues.get('ParamEyeLOpen') > .95 && faceValues.get('ParamEyeROpen') > .95)
 
