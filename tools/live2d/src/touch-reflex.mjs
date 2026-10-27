@@ -266,7 +266,10 @@ export function touchExpressionCategory(name) {
   if (/(?:流泪|流淚|眼泪|眼淚|哭|tear|cry|sob)/i.test(n)) return 'tear'
   if (/(?:脸黑|臉黑|黑脸|黑臉|阴影脸|陰影臉|暗脸|暗臉|darkface|shadowface|gloom)/i.test(n)) return 'dark'
   if (/(?:惊|驚|shock|surpris|startle|慌|pout|鼓嘴)/i.test(n)) return 'surprise'
-  if (/(?:微笑|笑|开心|開心|happy|smil|wink|relax|calm|warm)/i.test(n)) return 'smile'
+  // A wink intentionally closes only one eye; it is not a safe automatic
+  // response to touching the opposite eye. Manual authored wink remains valid.
+  if (/(?:wink|眨单眼|单眼眨|單眼眨|眨單眼)/i.test(n)) return 'wink'
+  if (/(?:微笑|笑|开心|開心|happy|smil|relax|calm|warm)/i.test(n)) return 'smile'
   return 'other'
 }
 
