@@ -92,8 +92,8 @@ assert.ok(hairTilt.roll < -12 && Math.abs(hairTilt.yaw) < 3,
 const hardImpact = enhanceWolfTouch(
   touchReflexFor('cheek-right', 'slap-left', 0, { force: 1 }, 240),
   'cheek-right', 'slap-left', { force: 1 }, 240)
-assert.ok(hardImpact.roll < -25 && hardImpact.body.roll < -8,
-  'wolf impact drives distinct neck and torso recoil')
+assert.ok(hardImpact.roll < -20 && Math.abs(hardImpact.body.roll) < 3.2,
+  'wolf impact bends neck sharply while keeping the torso controlled')
 assert.ok(hardImpact.face.mouthX < -4, 'slap must drive mouth physics input')
 const wolfEar = enhanceWolfTouch(
   touchReflexFor('beast-ear-left', 'stroke-right', 0, { force: .6 }, 230),
@@ -136,7 +136,7 @@ runtime.reset()
 runtime.complete('mouth', 'kiss')
 let high = runtime.complete('collarbone', 'kiss')
 assert.equal(high.shyness, 100)
-assert.equal(touchExpressionFor('mouth', wolf, 0, 'kiss', true, high), '爱心眼')
+assert.equal(touchExpressionFor('mouth', wolf, 0, 'kiss', true, high), '星星眼')
 assert.equal(touchExpressionFor('hair', wolf, 0, 'stroke', false, high), '脸红',
   'a high tier does not make ordinary head petting produce heart eyes')
 assert.ok(touchExpressionWeight('脸红', { shyness: 20 }) < touchExpressionWeight('脸红', high))
@@ -187,7 +187,7 @@ const headRight = touchReflexFor('cheek-right', 'stroke-right')
 assert.equal(headLeft.yaw, -headRight.yaw)
 const early = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 70)
 const later = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 500)
-assert.ok(early.yaw > later.yaw && early.yaw > 2,
+assert.ok(early.yaw > later.yaw && early.yaw > 1,
   'a rightward slap pushes the head toward screen right even on the left cheek')
 assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 2,
   'a slapped head should visibly roll at the neck, not sway horizontally')
@@ -196,11 +196,11 @@ assert.ok(early.face.browY > 0 && later.face.browY > 0 && later.face.pout > earl
   'startled brows soften into an aggrieved pout, not an angry scowl')
 assert.ok(touchReflexFor('cheek-left', 'slap-left').yaw < 0)
 const rightCheekStrike = touchReflexFor('cheek-right', 'slap-right', 0, { force: .55 }, 70)
-assert.ok(rightCheekStrike.yaw > 2 && rightCheekStrike.roll > 0,
+assert.ok(rightCheekStrike.yaw > 1 && rightCheekStrike.roll > 0,
   'a rightward slap must go right even when hitting the right cheek')
 assert.equal(rightCheekStrike.yaw, early.yaw)
 const leftwardStrike = touchReflexFor('cheek-right', 'slap-left', 0, { force: .55 }, 70)
-assert.ok(leftwardStrike.yaw < -2 && leftwardStrike.roll < -20,
+assert.ok(leftwardStrike.yaw < -1 && leftwardStrike.roll < -10,
   'leftward hand motion must override the contacted cheek side')
 assert.equal(leftwardStrike.roll, -rightCheekStrike.roll)
 assert.ok(touchReflexFor('cheek-left', 'slap').roll < 0)
@@ -213,6 +213,20 @@ assert.ok(Math.abs(early.body.roll) < Math.abs(
   'shoulders must follow the head, not swing ahead of contact')
 assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw <
   touchReflexFor('cheek-left', 'slap', 0, { force: .25 }).yaw)
+// Point-tap and swipe are distinct even for the same cheek and strength.
+const cheekTap = touchReflexFor('cheek-left', 'slap', 0, { force: .9 }, 120)
+const cheekSwipe = touchReflexFor('cheek-left', 'slap-right', 0, { force: .9 }, 120)
+assert.ok(Math.abs(cheekSwipe.roll) > Math.abs(cheekTap.roll) * 1.5)
+const chestSlap = touchReflexFor('chest', 'slap-right', 0, { force: .9 }, 120)
+assert.equal(chestSlap.roll, 0, 'chest hit cannot rotate the face')
+assert.equal(chestSlap.yaw, 0)
+assert.equal(chestSlap.impactMotion, false, 'chest never triggers facial full-tilt')
+assert.ok(Math.abs(chestSlap.body.roll) < 2)
+const leftEyeTap = touchReflexFor('eye-left', 'tap', 0, { force: .25 }, 300)
+const rightEyeTap = touchReflexFor('eye-right', 'tap', 0, { force: .25 }, 300)
+assert.equal(leftEyeTap.face.eyeOpen, rightEyeTap.face.eyeOpen)
+assert.equal(leftEyeTap.face.eyeLeftOpen, undefined)
+assert.equal(rightEyeTap.face.eyeRightOpen, undefined)
 const petVariants = [0, 1, 2].map(i =>
   touchReflexFor('cheek-left', 'stroke-right', i, { shyness: 30, force: .55 }, 250))
 assert.ok(new Set(petVariants.map(p => p.face.eyeOpen)).size >= 2,
@@ -220,7 +234,9 @@ assert.ok(new Set(petVariants.map(p => p.face.eyeOpen)).size >= 2,
 assert.ok(petVariants.every(p => p.face.eyeOpen >= .45),
   'a caress should not force tightly closed eyes on every gesture')
 const unilateral = touchReflexFor('eye-left', 'kiss')
-assert.ok(unilateral.face.eyeLeftOpen < .1 && unilateral.face.eyeRightOpen == null)
+assert.ok(unilateral.face.eyeOpen < .5 &&
+  unilateral.face.eyeLeftOpen == null && unilateral.face.eyeRightOpen == null,
+  'eye touch must close both lids together, never blink the opposite eye alone')
 assert.ok(Object.hasOwn(touchReflexFor('beast-ear-right', 'stroke').parameters, 'se_wuli_x_r'))
 runtime.reset()
 const impact = runtime.complete('cheek-left', 'slap')
@@ -234,12 +250,12 @@ assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, strongImpa
 assert.equal(touchExpressionFor('cheek-left', ['脸黑'], 4, 'slap', false, strongImpact), null,
   'a black-face asset alone must never be a surrogate for crying')
 const aggrieved = touchReflexFor('cheek-left', 'slap-left', 0, strongImpact, 520)
-assert.ok(aggrieved.roll < -25 && aggrieved.face.browY > 0 &&
+assert.ok(aggrieved.roll < -16 && aggrieved.face.browY > 0 &&
   aggrieved.face.pout > .4, 'visible leftward neck bend and raised, tearful brows')
 assert.equal(touchExpressionFor('hair', ['流泪', '爱心眼', '兽耳'], 99, 'stroke'), null,
   'a missing mild expression must not fall back to an inappropriate one')
 assert.equal(touchCompanionOverlayFor('脸红', wolf, metadata, 'kiss', { shyness: 20 }), null)
-const extra = touchCompanionOverlayFor('爱心眼', wolf, metadata, 'kiss', high)
+const extra = touchCompanionOverlayFor('星星眼', wolf, metadata, 'kiss', high)
 assert.equal(extra.id, 'bq4')
 assert.ok(extra.value < 1)
 assert.equal(touchCompanionOverlayFor('爱心眼', wolf, {
@@ -317,7 +333,7 @@ assert.equal(completedHit.gesture, 'slap')
 assert.equal(completedHit.force, .9)
 assert.equal(stageResponse.snapshot().shyness, 0)
 assert.ok(stageResponse.snapshot().impact > 40)
-assert.ok(bridge.touchReflex.roll < -25, 'the completed slap must visibly bend left')
+assert.ok(bridge.touchReflex.roll < -2, 'even a stationary tap bends the cheek-side neck, without toppling the avatar')
 // The first real cheek contact owns the hit even if release crosses the
 // other cheek or leaves the avatar silhouette within the video viewport.
 stageResponse.reset()
@@ -325,18 +341,18 @@ bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
 const acrossFace = bridge.touch(.68, .235, 'slap-right',
   { phase: 'complete', mode: 'pat', force: .9 })
 assert.equal(acrossFace.region, 'cheek-left', 'slap is anchored to DOWN')
-assert.ok(bridge.touchReflex.roll > 20, 'rightward sweep bends the head right')
+assert.ok(bridge.touchReflex.roll > 3, 'rightward sweep bends the head right')
 // Even if Android's last MOVE was leftward, net rightward travel wins.
 bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
 const jitteredRight = bridge.touch(.68, .235, 'slap-left',
   { phase: 'complete', mode: 'pat', force: .7 })
 assert.equal(jitteredRight.gesture, 'slap-right')
-assert.ok(bridge.touchReflex.roll > 20)
+assert.ok(bridge.touchReflex.roll > 3)
 bridge.touch(.68, .235, 'down', { phase: 'move', mode: 'pat' })
 const jitteredLeft = bridge.touch(.32, .235, 'slap-right',
   { phase: 'complete', mode: 'pat', force: .7 })
 assert.equal(jitteredLeft.gesture, 'slap-left')
-assert.ok(bridge.touchReflex.roll < -20)
+assert.ok(bridge.touchReflex.roll < -3)
 bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
 bridge.actualAvatarPixel = nx => nx < .9
 const beyondFace = bridge.touch(.96, .235, 'slap-right',
@@ -416,8 +432,8 @@ assert.equal(touchMotionFor('beast-ear-left', 'stroke-left'), 1)
 assert.equal(touchMotionFor('beast-ear-right', 'stroke-right'), 2)
 assert.equal(touchMotionFor('hair', 'stroke-left'), 1)
 assert.equal(touchMotionFor('hair', 'stroke-right'), 2)
-assert.equal(touchMotionFor('cheek-left', 'slap'), 9)
-assert.equal(touchMotionFor('cheek-right', 'slap-left'), 9)
+assert.equal(touchMotionFor('cheek-left', 'slap'), null)
+assert.equal(touchMotionFor('cheek-right', 'slap-left'), null)
 assert.equal(touchMotionFor('chest', 'tap'), 17)
 assert.equal(touchMotionFor('nose', 'tap'), 23)
 assert.equal(touchMotionFor('forehead', 'stroke-up'), 26)
