@@ -23,7 +23,12 @@ internal object CharacterPerceptionContext {
         claimDirect: Boolean = false,
         deferAcknowledgement: Boolean = false,
     ): CharacterPerceptionInput {
-        val sensed = (direct + observed.map(::stimulus))
+        // Historical passive phone-page traces remain in the durable archive,
+        // but they are no longer psychological stimuli. A mere page switch is
+        // not a message, permission, social interaction or evidence of mood.
+        val sensed = (direct + observed.filterNot {
+            it.source == "owner-phone-inspection"
+        }.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
             // Edited evidence may be present in both the direct input and the
             // authoritative timeline; only the latest revision is the new fact.
@@ -128,7 +133,7 @@ internal object CharacterPerceptionContext {
             (event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting",
                     InteractionSignalBridge.SOURCE, "xiaohongshu-webview", "xiaohongshu-mcp",
-                    "owner-phone-inspection", "group-membership") ||
+                    "group-membership") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
             (event.evidenceKind == EventEvidenceKind.ToolResult &&
@@ -140,7 +145,7 @@ internal object CharacterPerceptionContext {
         events.filter { event ->
             isPerceptible(event, now) &&
                 (Duration.between(event.occurredAt, now) <= Duration.ofHours(24) ||
-                    event.source in setOf("owner-phone-inspection", "group-membership"))
+                    event.source == "group-membership")
         }.takeLast(limit.coerceAtLeast(1))
 
     fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> {
@@ -220,8 +225,7 @@ internal object CharacterPerceptionContext {
             setOf(if (event.characterId == message.toId) message.fromId else message.toId)
         } ?: if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
-            event.source == InteractionSignalBridge.SOURCE ||
-            event.source == "owner-phone-inspection") setOf("user")
+            event.source == InteractionSignalBridge.SOURCE) setOf("user")
         else if (event.source == "meeting") DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == event.sessionId }?.turns.orEmpty().mapNotNull { it.speakerId }
             .filter { it.startsWith("resident:") }.toSet()
