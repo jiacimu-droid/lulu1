@@ -355,6 +355,40 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
+    /** A curiosity already shared with the other person, or talked through, counts as settled.
+     *  Unlike releaseInterest it needs no tool receipt: sharing in chat produces none, so
+     *  without this path a shared thread would stay "exploring" forever. The model judges
+     *  whether it was shared; the program only records the state change. Past steps stay. */
+    @Synchronized fun settleInterest(
+        characterId: String, proposal: JSONObject?, now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || proposal?.optString("status") != "satisfied") return
+        val fields = proposalFields(proposal) ?: return
+        val root = snapshot(characterId)
+        val threads = root.optJSONArray("threads") ?: JSONArray()
+        val questions = root.optJSONArray("questions") ?: JSONArray()
+        val threadEntries = entries(threads)
+        val questionEntries = entries(questions)
+        val matchQuestion = matching(questionEntries, proposal)
+        val matchThread = matching(threadEntries, proposal) ?: matchQuestion?.let { pendingQuestion ->
+            threadEntries.firstOrNull { identity(it) == identity(pendingQuestion) }
+        } ?: if (proposal?.optString("threadId").isNullOrBlank() &&
+            matchQuestion == null) threadEntries.filter {
+                normalized(it.optString("topic")) == normalized(fields[0])
+            }.singleOrNull() else null
+        if (matchQuestion == null && matchThread == null) return
+        if (matchThread != null) {
+            matchThread.put("status", "satisfied")
+                .put("settleReason", fields[2]).put("settledAt", now.toString())
+            root.put("threads", threads)
+        }
+        root.put("questions", JSONArray().apply {
+            questionEntries.filterNot { matchQuestion != null &&
+                identity(it) == identity(matchQuestion) }.forEach(::put)
+        })
+        save(characterId, root)
+    }
+
     /** Owner-controlled removal of one pending curiosity. Verified past actions stay in the timeline. */
     @Synchronized fun deleteInterest(characterId: String, threadId: String): Boolean {
         if (prefs == null || threadId.isBlank()) return false
@@ -516,6 +550,7 @@ internal object CharacterCuriosityRuntime {
                     "；此前真实结果=" + previousResult(characterId, root, q).take(120) +
                     "（这个新问题尚未实践，不是客观结论）")
             }
+            appendLine("已经把结果告诉对方、或者已经聊清楚的线索，下次整理时标 satisfied 退出来；还想追问的才留着。")
             appendLine("兴趣影响注意、观点和话题选择，不要因此自动改变当前聊天主题；过去接触到的信息范围以真实记录为限。")
         }.trim()
     }
@@ -579,6 +614,7 @@ internal object CharacterCuriosityRuntime {
                         "；最近真实行动结果=" + last?.optString("receipt").orEmpty().take(150) +
                         "；约" + hours + "小时前；可选下一步=" + t.optString("nextStep"))
                 }
+                appendLine("已经把最近结果告诉对方、或者已经和对方聊清楚的问题，下次整理好奇心时把 status 标成 satisfied，让它从心事里退出来，不要一直占着探索位；还想继续追问的才留 exploring；不感兴趣了标 dropped。")
             }
             if (recentFailures.isNotEmpty()) {
                 appendLine("最近实际尝试未成功的办法（只是失败回执，不代表主题不值得继续）：")

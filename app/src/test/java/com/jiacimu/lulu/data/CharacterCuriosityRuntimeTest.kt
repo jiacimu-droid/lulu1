@@ -232,4 +232,19 @@ class CharacterCuriosityRuntimeTest {
         assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").length())
         CharacterCuriosityRuntime.clear(id)
     }
+
+    @Test fun characterCanSettleSharedInterestWithoutErasingItsRealPast() {
+        begin()
+        realRead("past-chapter", at)
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "实际读过第一章", "past-chapter", at)
+        CharacterCuriosityRuntime.settleInterest(id,
+            proposal().put("status", "satisfied"), at.plusSeconds(180))
+        val thread = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", thread.getString("status"))
+        assertEquals(1, thread.getJSONArray("steps").length())
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
 }
