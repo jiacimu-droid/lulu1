@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:40:14.190157+00:00",
-  "commit": "499ea1ebe63c1271e3e0d094c643d06530cc2ee1",
+  "generatedAt": "2026-10-27T18:40:32.417278+00:00",
+  "commit": "674c6f4231b7eb6f0b34d14e3c04afe4978b69da",
   "branch": "main",
-  "sourceFingerprint": "8cc18c9e19e8959f587cc101e644e585a02d0385a59e6234a341973312ab3b7f",
+  "sourceFingerprint": "5862b8019b5f0f75db5ff6de8743aeef69729bbf1cfb1c22a4cfacf052dcbcf1",
   "summary": {
     "files": 993,
-    "lines": 196252,
+    "lines": 196253,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -26524,8 +26524,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt",
-      "lines": 46,
-      "sha256": "77bebf3c95c266db99e7df15a9a7be0a1cffc1f67da7f84eacdb67d4bbca6201",
+      "lines": 47,
+      "sha256": "70a71fc00943bf6154a1378c79a6f9cab55dd4eb03c9d5c3f4a29c85a59d6b79",
       "symbols": [
         {
           "name": "requiresBufferedSpeech",
