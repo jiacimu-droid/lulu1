@@ -158,6 +158,22 @@ internal fun LuluIntegrationsSettingsScreen(
 
                 if (mcpExpanded) {
                     HorizontalDivider()
+                    Text("Go MCP · Chromium 浏览器", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "本机线路由 Termux / Ubuntu 中运行的 Go 服务和 Chromium 提供。重启手机后需先在终端恢复服务；这里重新保存地址、检查真实登录和读帖，不会删除原 Cookie。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-xpzouying/README.md"),
+                            ))
+                        }.onFailure {
+                            connectionStatus = "无法打开部署说明：${it.message.orEmpty().take(80)}"
+                        }
+                    }) { Text("查看手机 Go / Chromium 恢复步骤") }
                     OutlinedTextField(
                         value = mcpUrl,
                         onValueChange = { mcpUrl = it },
@@ -166,7 +182,7 @@ internal fun LuluIntegrationsSettingsScreen(
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                         trailingIcon = {
                             TextButton(onClick = { mcpUrl = "http://127.0.0.1:18061/mcp" }) {
-                                Text("本机")
+                                Text("Go 本机")
                             }
                         },
                     )
@@ -228,7 +244,7 @@ internal fun LuluIntegrationsSettingsScreen(
                                     check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
                                     LuluExternalMcp.testService(context, "xiaohongshu")
                                 }.fold(
-                                    { "MCP 已响应 · 登录待验证" },
+                                    { result -> "$result；接下来请检查登录，再执行真实读帖测试" },
                                     { "连接失败：" + it.message.orEmpty().take(180) },
                                 )
                             }
