@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T21:00:17.687426+00:00",
-  "commit": "1ab46484aec7cc12157eba5f1e34b53a71ec1b67",
+  "generatedAt": "2026-10-27T21:00:35.734182+00:00",
+  "commit": "5c50f2b865fbc35869eece03a1a62040868387b5",
   "branch": "main",
-  "sourceFingerprint": "d1f21ee9d9a3d1e241f8a7ec5d950b226c8273fee00db51e74c518497fcee606",
+  "sourceFingerprint": "861848aa864cc2eeeb899b57f83d5d868f5dcfb3791f4a3cc8b0c4af995879ed",
   "summary": {
     "files": 993,
     "lines": 196925,
@@ -31454,7 +31454,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
       "lines": 55,
-      "sha256": "8bd38c844cfb9ecf63a940a2afaa0b0a544a2eaf7612e0416134060dce6ccf48",
+      "sha256": "6e113deaa834cbcec13eba0f06880168db08c53ec696741ec6c5dda0bb2a18f2",
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
