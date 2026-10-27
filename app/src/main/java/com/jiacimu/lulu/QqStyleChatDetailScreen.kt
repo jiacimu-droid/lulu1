@@ -109,9 +109,16 @@ fun QqStyleChatDetailScreen(
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
     // Do not show "typing" while the user is sending more bubbles this turn.
-    val lastCharacterTurn = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-    val lastPendingUserBubble = messages.drop(lastCharacterTurn + 1)
-        .lastOrNull { it.sender == LuluChatMessage.Sender.User }
+    // Keyboard-lag follow-up: these two scans are pure functions of messages,
+    // so cache them until messages change instead of re-scanning the full
+    // history on every recomposition (typing, keyboard animation, etc.).
+    val lastCharacterTurn = remember(messages) {
+        messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+    }
+    val lastPendingUserBubble = remember(messages, lastCharacterTurn) {
+        messages.drop(lastCharacterTurn + 1)
+            .lastOrNull { it.sender == LuluChatMessage.Sender.User }
+    }
     val lastBubbleDeadline = lastPendingUserBubble?.let { bubble ->
         // Match the true durable, adaptive chat-batch deadline rather than
         // showing "typing" while the character is still collecting bubbles.
