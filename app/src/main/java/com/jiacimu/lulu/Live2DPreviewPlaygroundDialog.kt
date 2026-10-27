@@ -18,6 +18,8 @@ import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Portrait
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -102,6 +106,10 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     var framingMode by remember { mutableStateOf("portrait") }
     var menuExpanded by remember { mutableStateOf(false) }
     var panelExpanded by remember { mutableStateOf(true) }
+    val coreInstalled = remember(revision) { Live2DAssets.hasCore(context) }
+    var confirmOfficialCore by remember { mutableStateOf(false) }
+    var coreBusy by remember { mutableStateOf(false) }
+    var coreMessage by remember { mutableStateOf("") }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             scope.launch {
@@ -112,6 +120,43 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                 }
             }
         }
+    }
+
+    val importCoreLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) scope.launch {
+            coreBusy = true
+            coreMessage = try {
+                Live2DAssets.importOfficialCore(context, uri)
+            } catch (error: Exception) {
+                "Core 导入失败：${error.message.orEmpty().take(150)}"
+            } finally {
+                coreBusy = false
+            }
+        }
+    }
+
+    if (confirmOfficialCore) {
+        AlertDialog(
+            onDismissRequest = { confirmOfficialCore = false },
+            title = { Text("安装 Live2D 官方 Cubism Core") },
+            text = { Text("模型 ZIP 只包含皮套资源，渲染还需要 Live2D 单独授权的 Cubism Core。继续前请阅读并同意官方许可；Core 将从 Live2D 官方站点下载到本机，不随 APK 分发。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmOfficialCore = false
+                    coreBusy = true
+                    scope.launch {
+                        coreMessage = try {
+                            Live2DOfficialCoreInstaller.install(context)
+                        } catch (error: Exception) {
+                            "官方 Core 安装失败：${error.message.orEmpty().take(150)}，也可以手动导入 Core JS"
+                        } finally { coreBusy = false }
+                    }
+                }) { Text("已阅读并同意，安装") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmOfficialCore = false }) { Text("取消") }
+            },
+        )
     }
 
     fun playMotion(group: String, index: Int) {
@@ -146,7 +191,8 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         Modifier.fillMaxSize().background(Color(0xFF151719)),
     ) {
         if (modelUrl != null) {
-            key(characterId, modelUrl) {
+            // A new Core installation must recreate this WebView, not merely recompose controls.
+            key(characterId, modelUrl, revision) {
                 Live2DCallStage(
                     characterId = characterId,
                     modelUrl = modelUrl,
@@ -185,6 +231,37 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                 }
             }
         }
+        if (modelUrl != null && !coreInstalled) {
+            Column(
+                modifier = Modifier.align(Alignment.Center).fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text("皮套已导入，缺少 Cubism Core", color = Color.White, fontSize = 15.sp)
+                Text("Core 是官方渲染引擎，不包含在皮套 ZIP 中。", color = Color.LightGray, fontSize = 12.sp)
+                Button(enabled = !coreBusy, onClick = { confirmOfficialCore = true }) {
+                    Text(if (coreBusy) "正在安装…" else "安装官方 Core")
+                }
+                OutlinedButton(enabled = !coreBusy, onClick = { importCoreLauncher.launch("*/*") }) {
+                    Text("从文件导入 Core JS")
+                }
+                TextButton(onClick = {
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW,
+                            Uri.parse(Live2DOfficialCoreInstaller.LICENSE_URL)))
+                    }.onFailure { coreMessage = "无法打开许可页面，请在浏览器访问 Live2D 官方许可协议" }
+                }) { Text("查看官方许可") }
+            }
+        }
+        if (coreMessage.isNotBlank()) {
+            Text(
+                coreMessage,
+                color = Color(0xFFFAE3AE),
+                fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.Center).padding(top = 275.dp, start = 22.dp, end = 22.dp),
+            )
+        }
         // Call-style top chrome: title, framing menu, close.
         Row(
             Modifier.align(Alignment.TopCenter).fillMaxWidth()
@@ -192,7 +269,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "动作表情试验场" + (modelLabel.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""),
+                "Live2D" + (modelLabel.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""),
                 color = Color.White, fontSize = 16.sp,
                 modifier = Modifier.weight(1f),
             )
