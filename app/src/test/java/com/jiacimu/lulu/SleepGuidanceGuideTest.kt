@@ -23,7 +23,7 @@ class SleepGuidanceGuideTest {
         val prompt = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Story, true, 21 * 60_000L)
         assertTrue(prompt.contains("【持续哄睡：睡前故事】"))
         assertTrue(prompt.contains("已经真实播完的人物、地点、情节"))
-        assertTrue(prompt.contains("不冒充真实共同回忆"))
+        assertTrue(prompt.contains("不要编造故事是你们现实发生过的经历"))
         assertTrue(prompt.contains("突然插入一套身体扫描"))
         assertTrue(prompt.contains("不因此中断"))
         assertTrue(prompt.contains("虚构她已睡着"))
