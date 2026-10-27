@@ -70,6 +70,10 @@ internal object ResidentCharacterBridge {
             if (CharacterLifeStore.bodyState(id) == null) {
                 CharacterLifeStore.saveBodyState(id, EmbodiedBodyPhysics.fresh(now).toJson())
             }
+            // A native citizen owns a persistent, editable home just like any
+            // digital character. Seeding does not move them: the authoritative
+            // native location is projected immediately afterward.
+            DigitalWorldStore.ensureHome(id, resident.name, now)
             DigitalWorldStore.syncNativeResidentLocation(id, resident.currentLocationCode, now)
         }
         return created
