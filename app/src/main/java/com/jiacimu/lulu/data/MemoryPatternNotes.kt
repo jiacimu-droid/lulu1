@@ -81,7 +81,7 @@ object MemoryPatternNotes {
                     "${valuesOf(in14Days)}，最近一次是$latestText。"
             weeklyCount >= 3 && weeklyDay != null -> {
                 val weekly = weeklyEntries(sorted, weeklyDay, now, zone)
-                "$label 最近6周在$weeklyCount个不同周的${weekdayName(weeklyDay)}有记录" +
+                "$label 最近6周在${weeklyCount}个不同周的${weekdayName(weeklyDay)}有记录" +
                     "（共${weekly.size}次）：${valuesOf(weekly)}，最近一次是$latestText。" +
                     deviationClause(sorted, key.kind, key.unit)
             }
