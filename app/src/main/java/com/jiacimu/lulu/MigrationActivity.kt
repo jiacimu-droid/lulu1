@@ -202,6 +202,7 @@ class MigrationActivity : ComponentActivity() {
         com.jiacimu.lulu.data.CharacterDevelopmentStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterLifeStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterInnerLifeStore.initialize(appContext)
+        com.jiacimu.lulu.data.CharacterEvaluationLedger.initialize(appContext)
         com.jiacimu.lulu.data.CharacterDevelopmentRuntime.initialize(appContext)
         com.jiacimu.lulu.data.PerceptionStimulusLedger.initialize(appContext)
         CompanionOnlineStore.initialize(appContext)

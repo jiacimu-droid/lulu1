@@ -1798,6 +1798,16 @@ object ProactivePerceptionRuntime {
             "${it.kind.label}${(it.value * 100).toInt()}"
         }
         val driveTop = DriveState.strongest(driveReadings)?.kind?.label.orEmpty()
+        // Long-term evaluation, phase 1: a weekly local census only. It
+        // never changes the decision or text; it only appends one
+        // snapshot per week and logs the report when a new week rolls
+        // over, piggybacking on this existing wake-up instead of adding
+        // a new poller.
+        runCatching {
+            CharacterEvaluationLedger.weeklyReport(characterId, now)?.let { report ->
+                android.util.Log.d("ProactiveGateShadow", report)
+            }
+        }
         if (decision.action == Action.MESSAGE || decision.action == Action.KAOMOJI) {
             val shadowPolicy = ProactivePerceptionPolicyStore.get(characterId)
             val shadowNow = Instant.now()
