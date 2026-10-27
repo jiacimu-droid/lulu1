@@ -2,12 +2,13 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
 import java.net.URLEncoder
 import java.util.Base64
+import java.util.concurrent.TimeUnit
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 
 /**
  * WebDAV 云备份：每天自动备份后，把同一份包 PUT 到用户自己的网盘
@@ -28,6 +29,13 @@ object LuluCloudBackup {
     private const val KEY_PASSWORD = "password"
     private const val KEY_DIR = "remote_dir"
     private const val KEY_LAST = "last_upload"
+
+    // Share one HTTP transport for PUT and WebDAV-specific MKCOL. The JDK's
+    // HttpURLConnection rejects MKCOL as an invalid request method.
+    private val webDavClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .build()
 
     data class Config(
         val enabled: Boolean = false,
@@ -88,8 +96,11 @@ object LuluCloudBackup {
         val fileUrl = dirUrl + "/" + encodeSegment(fileName)
         val first = putFile(fileUrl, username, password, file)
         if (first == 404 || first == 409) {
-            // 文件夹不存在时先建，再传一次；建失败由第二次 PUT 再报错。
-            mkcol(dirUrl, username, password)
+            // 只有服务端确认建成或目录已经存在，才重试上传。
+            val folderStatus = mkcol(dirUrl, username, password)
+            check(folderStatus in 200..299 || folderStatus == 405) {
+                "创建备份文件夹失败：" + httpMessage(folderStatus)
+            }
             val retry = putFile(fileUrl, username, password, file)
             check(retry in 200..299) { httpMessage(retry) }
         } else {
@@ -114,37 +125,20 @@ object LuluCloudBackup {
     }
 
     private fun putFile(url: String, username: String, password: String, file: File): Int {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        try {
-            connection.requestMethod = "PUT"
-            connection.doOutput = true
-            connection.connectTimeout = 15_000
-            connection.readTimeout = 120_000
-            connection.setRequestProperty("Authorization", authHeader(username, password))
-            connection.setRequestProperty("Content-Type", "application/zip")
-            connection.setFixedLengthStreamingMode(file.length())
-            FileInputStream(file).use { input ->
-                connection.outputStream.use { out -> input.copyTo(out) }
-            }
-            return connection.responseCode
-        } finally {
-            connection.disconnect()
-        }
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(username, password))
+            .put(file.asRequestBody("application/zip".toMediaType()))
+            .build()
+        return webDavClient.newCall(request).execute().use { response -> response.code }
     }
 
-    private fun mkcol(url: String, username: String, password: String) {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        try {
-            connection.requestMethod = "MKCOL"
-            connection.connectTimeout = 15_000
-            connection.readTimeout = 30_000
-            connection.setRequestProperty("Authorization", authHeader(username, password))
-            // 201 已建、405 已存在都算过；真失败由后面的 PUT 再报。
-            connection.responseCode
-        } catch (ignored: IOException) {
-            // 建文件夹失败不单独报错，交给 PUT 的结果说话。
-        } finally {
-            connection.disconnect()
-        }
+    private fun mkcol(url: String, username: String, password: String): Int {
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(username, password))
+            .method("MKCOL", null)
+            .build()
+        return webDavClient.newCall(request).execute().use { response -> response.code }
     }
 }

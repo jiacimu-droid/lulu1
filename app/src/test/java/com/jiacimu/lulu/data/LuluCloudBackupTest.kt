@@ -165,6 +165,39 @@ class LuluCloudBackupTest {
     }
 
     @Test
+    fun existingFolderAcceptsMkcol405ThenRetries() {
+        val server = FakeServer(listOf(404, 405, 201))
+        server.start()
+        try {
+            val result = LuluCloudBackup.upload(
+                "http://localhost:${server.port}/dav", "user", "pass",
+                "lulu-backups", backupFile(), "a.zip",
+            )
+            assertTrue("upload failed: ${result.exceptionOrNull()?.message}", result.isSuccess)
+            assertEquals(listOf("PUT", "MKCOL", "PUT"), server.seen.map { it.method })
+        } finally {
+            server.stop()
+        }
+    }
+
+    @Test
+    fun rejectedMkcolStopsRetryAndReportsServerError() {
+        val server = FakeServer(listOf(404, 403))
+        server.start()
+        try {
+            val result = LuluCloudBackup.upload(
+                "http://localhost:${server.port}/dav", "user", "pass",
+                "lulu-backups", backupFile(), "a.zip",
+            )
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull()?.message.orEmpty().contains("HTTP 403"))
+            assertEquals(listOf("PUT", "MKCOL"), server.seen.map { it.method })
+        } finally {
+            server.stop()
+        }
+    }
+
+    @Test
     fun wrongCredentialsFailWithReadableReason() {
         val server = FakeServer(listOf(401))
         server.start()
