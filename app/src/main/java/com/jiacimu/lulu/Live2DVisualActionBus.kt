@@ -89,7 +89,9 @@ internal object Live2DVisualActionBus {
         val supported = availableParameters[characterId].orEmpty()
         if (controls.expressions.isEmpty() && controls.motions.isEmpty() && supported.isEmpty()) return ""
         val expressions = controls.expressions.take(20).joinToString("、").ifBlank { "无" }
-        val motions = controls.motions.take(20).joinToString("、") { "${it.first}#${it.second}" }.ifBlank { "无" }
+        val motions = controls.motions.joinToString("、") { (group, index) ->
+            Live2DMotionCatalog.describe(group, index) ?: "$group#$index"
+        }.ifBlank { "无" }
         val headFields = listOfNotNull(
             "yaw".takeIf { "ParamAngleX" in supported }?.let { "yaw=左右转头" },
             "pitch".takeIf { "ParamAngleY" in supported }?.let { "pitch=抬头低头" },
@@ -121,7 +123,7 @@ internal object Live2DVisualActionBus {
             思考不必伴随点头，笑意不必伴随亲密；组合、强弱、是否显露由本人决定，例子不是固定人设或聊天脚本。
 
             需要精确控制时，仍可同时填写 expression、motion、head、body、face 或 beats；显式数值优先于 performance。
-            真实表情/外观 expression 原名=$expressions；真实预制 motion(group#index)=$motions。
+            真实表情/外观 expression 原名=$expressions；真实预制 motion（group#index=名字·适合时；配表情为建议搭配）=$motions。
             若明确答应展示模型已有表情（如星星眼），须在 live2d.expression 选择对应真实名字，不能只口头答应；没有资源不能虚构。
             星星眼、爱心眼、流泪、吐舌等强表情由你明确选择 expression；轻微笑意或羞赧不会自动升级成它们。
             兽耳、耳机、麦克风是外观开关，不当情绪用；没有预制手部动作不能声称已经挥手或捂嘴。
