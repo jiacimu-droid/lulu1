@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T14:27:12.338549+00:00",
-  "commit": "6552c4033d9200619644b316053c8b721e598fb3",
+  "generatedAt": "2026-10-27T14:43:49.860187+00:00",
+  "commit": "bac2d0e751295a8ec5e58e27f3e761a3e943359a",
   "branch": "main",
-  "sourceFingerprint": "c8df8cfafb09b9cdad8a7a9380b3f4bd4c99f5cb67645df817c85fa52fb89b6b",
+  "sourceFingerprint": "aaa438cd300421de0b2b8c1ce029eb024de4c3f8a5d89d0307c0473dd8d43bcf",
   "summary": {
-    "files": 979,
-    "lines": 192972,
-    "symbols": 2832
+    "files": 983,
+    "lines": 193668,
+    "symbols": 2860
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2220,6 +2220,18 @@
         "line": 41
       }
     ],
+    "LuluBackupScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
+        "line": 57
+      }
+    ],
+    "restartApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
+        "line": 112
+      }
+    ],
     "setVideoMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
@@ -2841,7 +2853,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "MigrationRoute": [
@@ -2878,6 +2890,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
         "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 52
       }
     ],
     "MomentsScreen": [
@@ -8732,6 +8748,24 @@
         "line": 56
       }
     ],
+    "isLuluAutoBackupEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 27
+      }
+    ],
+    "setLuluAutoBackupEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 31
+      }
+    ],
+    "LuluAutoBackupWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 52
+      }
+    ],
     "LuluBackupManager": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
@@ -8754,6 +8788,112 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 105
+      }
+    ],
+    "LuluDataBackup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 36
+      }
+    ],
+    "ExportResult": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 45
+      }
+    ],
+    "ValidatedZip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 47
+      }
+    ],
+    "RestoreOutcome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 48
+      }
+    ],
+    "None": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 50
+      }
+    ],
+    "Applied": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 51
+      }
+    ],
+    "exportZip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 56
+      }
+    ],
+    "walk": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 135
+      }
+    ],
+    "validateZip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 90
+      }
+    ],
+    "restoreZip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 122
+      }
+    ],
+    "dataDir": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 160
+      }
+    ],
+    "stagingDir": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 162
+      }
+    ],
+    "hasPendingRestore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 164
+      }
+    ],
+    "readRestoreResult": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 167
+      }
+    ],
+    "clearRestoreResult": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 171
+      }
+    ],
+    "stageForRestore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 177
+      }
+    ],
+    "applyPendingRestoreIfNeeded": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+        "line": 192
       }
     ],
     "endpoint": [
@@ -13076,12 +13216,6 @@
         "line": 129
       }
     ],
-    "walk": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 135
-      }
-    ],
     "LuluAlarm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -15040,6 +15174,36 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
         "line": 75
+      }
+    ],
+    "LuluDataBackupTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 22
+      }
+    ],
+    "exportIncludesDataSkipsCacheAndStaging": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 55
+      }
+    ],
+    "restoreRoundTrip": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 69
+      }
+    ],
+    "truncatedZipFailsValidation": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 80
+      }
+    ],
+    "zipSlipEntryIsRejected": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 98
       }
     ],
     "MeetingLocationRenderingTest": [
@@ -17720,6 +17884,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
+      "lines": 235,
+      "sha256": "7d751cafadd586cced9a4a892b0e19a7ccf8fe98812598aeeee31dc63cf78cac",
+      "symbols": [
+        {
+          "name": "LuluBackupScreen",
+          "line": 57
+        },
+        {
+          "name": "restartApp",
+          "line": 112
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
       "lines": 145,
       "sha256": "6168c92e938008f351e1c796e4bb635dd3149d042575e634f80c7812398efc67",
@@ -17901,8 +18080,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 230,
-      "sha256": "0b5664efb0804b138cb97a7d71a410187f83fea2e26610d5ea34141faa72c040",
+      "lines": 241,
+      "sha256": "b736088f0dbca303e47c9d38f2b9e9c4338f8f009ef54e03e29021d8e6a43c56",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -18331,12 +18510,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 295,
-      "sha256": "e95444ce34d627030be397794736e62346a99fe3df6c2c0de970973c9b1432dd",
+      "lines": 299,
+      "sha256": "a0d062ecabde00c73a668f21ec87ecfa671f2aec67ac90a27b462ade61ade1c1",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 42
+          "line": 43
         }
       ]
     },
@@ -24352,6 +24531,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+      "lines": 114,
+      "sha256": "6a8dd4069a725fd089f7e403b39181e5914e7ea5b2d40fb79f334127bbf725a4",
+      "symbols": [
+        {
+          "name": "isLuluAutoBackupEnabled",
+          "line": 27
+        },
+        {
+          "name": "setLuluAutoBackupEnabled",
+          "line": 31
+        },
+        {
+          "name": "LuluAutoBackupWorker",
+          "line": 52
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
       "lines": 110,
       "sha256": "f337cf4c3f25cf9eee3b91b0619ca9be0ddd841c5f79560ed8550e365a0b5bf1",
@@ -24379,6 +24577,85 @@
       "lines": 10,
       "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
+      "lines": 219,
+      "sha256": "2b295cdba07bab1e866f1d3bfe7825be1e4a8d8796384e5d9f3669d6aafe11b3",
+      "symbols": [
+        {
+          "name": "LuluDataBackup",
+          "line": 36
+        },
+        {
+          "name": "ExportResult",
+          "line": 45
+        },
+        {
+          "name": "ValidatedZip",
+          "line": 47
+        },
+        {
+          "name": "RestoreOutcome",
+          "line": 48
+        },
+        {
+          "name": "None",
+          "line": 50
+        },
+        {
+          "name": "Applied",
+          "line": 51
+        },
+        {
+          "name": "Failed",
+          "line": 52
+        },
+        {
+          "name": "exportZip",
+          "line": 56
+        },
+        {
+          "name": "walk",
+          "line": 63
+        },
+        {
+          "name": "validateZip",
+          "line": 90
+        },
+        {
+          "name": "restoreZip",
+          "line": 122
+        },
+        {
+          "name": "dataDir",
+          "line": 160
+        },
+        {
+          "name": "stagingDir",
+          "line": 162
+        },
+        {
+          "name": "hasPendingRestore",
+          "line": 164
+        },
+        {
+          "name": "readRestoreResult",
+          "line": 167
+        },
+        {
+          "name": "clearRestoreResult",
+          "line": 171
+        },
+        {
+          "name": "stageForRestore",
+          "line": 177
+        },
+        {
+          "name": "applyPendingRestoreIfNeeded",
+          "line": 192
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
@@ -32503,6 +32780,33 @@
         {
           "name": "unknownRecipeNeverDestroysAnExistingBinding",
           "line": 75
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+      "lines": 113,
+      "sha256": "ff81760bd4e31674180de6faadcf357cb66d2ded06f24136f9c1463272db220d",
+      "symbols": [
+        {
+          "name": "LuluDataBackupTest",
+          "line": 22
+        },
+        {
+          "name": "exportIncludesDataSkipsCacheAndStaging",
+          "line": 55
+        },
+        {
+          "name": "restoreRoundTrip",
+          "line": 69
+        },
+        {
+          "name": "truncatedZipFailsValidation",
+          "line": 80
+        },
+        {
+          "name": "zipSlipEntryIsRejected",
+          "line": 98
         }
       ]
     },
