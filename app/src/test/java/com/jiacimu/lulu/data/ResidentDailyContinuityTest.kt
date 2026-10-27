@@ -76,6 +76,49 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun savedDueDecisionReplaysReceiptWithoutAnotherModelCall() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "续行居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val post = "中断后才发布的真实想法-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院见闻", "我自己想分享",
+            now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment", activityArgs = JSONObject().put("text", post))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val decision = JSONObject().put("choice", "execute")
+            .put("reason", "我想兑现原本的分享")
+            .put("args", JSONObject().put("text", post))
+            .put("steps", JSONArray())
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", android.content.Context.MODE_PRIVATE)
+        p.edit().putBoolean(key, true).putString("due-decision:$key", decision.toString())
+            .putString("due-phase:$key", "decided").commit()
+        assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        val server = MockWebServer()
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "due-resume-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(0, server.requestCount)
+            assertEquals("completed", RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(1, MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == post })
+            assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == post })
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun savedDecisionRecoveryIsLimitedAndNeverReissuesAnUncertainModelRequest() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         val nativeId = "resume-budget-" + UUID.randomUUID()
