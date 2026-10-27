@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T20:11:28.231726+00:00",
-  "commit": "4bf08035429b937568a3cd59fd894dba1d2a124d",
+  "generatedAt": "2026-10-27T20:11:44.761284+00:00",
+  "commit": "4ecdf607227962b293189b38b20d483ff0af76d7",
   "branch": "main",
-  "sourceFingerprint": "de437f84a1e6c281c85aef0100fc32beddc7c5e2e16f7d49156ff87c767f1bcd",
+  "sourceFingerprint": "65988fddd274194fc7fdc036ac7b5ac310308e2b2cf3b51ad33f959a2d143b15",
   "summary": {
     "files": 993,
-    "lines": 196899,
+    "lines": 196915,
     "symbols": 2912
   },
   "symbolIndex": {
@@ -31454,8 +31454,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt",
-      "lines": 50,
-      "sha256": "8b211084146a81b727a5ff062d0a74e1926e73f33937afc2035acfd8cd39b5e9",
+      "lines": 66,
+      "sha256": "ba348cec9ddd58d3a4d28fa0de907a0ca01027d4cf7d6cfa8e85f2ca4d122d0b",
       "symbols": [
         {
           "name": "SleepNarrativeStoreTest",
