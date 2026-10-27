@@ -74,14 +74,18 @@ object RelevantMemoryRecall {
             .toList()
         if (memories.isEmpty()) return MemoryRecallResult(excluded = excluded)
 
+        // 超高频词没有区分度：出现在 15% 以上候选记忆里的词会让通用记忆挤掉具体记忆，
+        // 所以先把它从关键词集合里拿掉。记忆太少时频率没有意义，直接跳过；如果拿掉后一个词
+        // 都不剩，就保留原集合，绝不因为过滤把查询变成无词查询。
+        val effectiveTerms = gateCommonTerms(queryTerms, memories)
         val lexicalScores = memories.associate { memory ->
-            memory.id to score(memory, queryTerms, cleanQuery, now)
+            memory.id to score(memory, effectiveTerms, cleanQuery, now)
         }
         val lexicalRanked = memories
             .asSequence()
             .filter { memory ->
                 memory.pinned || (
-                    hasLexicalSignal(memory, queryTerms, cleanQuery, now) &&
+                    hasLexicalSignal(memory, effectiveTerms, cleanQuery, now) &&
                         (lexicalScores[memory.id] ?: 0.0) > MIN_RELEVANCE_SCORE
                     )
             }
@@ -95,7 +99,7 @@ object RelevantMemoryRecall {
         val lexicalPositiveIds = lexicalRanked
             .asSequence()
             .filterNot(MemoryEntry::pinned)
-            .filter { memory -> hasLexicalSignal(memory, queryTerms, cleanQuery, now) }
+            .filter { memory -> hasLexicalSignal(memory, effectiveTerms, cleanQuery, now) }
             .map(MemoryEntry::id)
             .toSet()
 
@@ -399,6 +403,19 @@ object RelevantMemoryRecall {
                     .thenByDescending { memory -> memory.strength }
                     .thenByDescending { memory -> memory.occurredAt ?: memory.createdAt },
             )
+    }
+
+    /**
+     * 超高频词过滤：候选记忆少于 20 条时不做（频率没有意义）；词出现在 15% 以上候选记忆
+     * 里时拿掉；拿掉后为空则返回原集合。只影响关键词这一条腿，不动时间、向量与置顶。
+     */
+    internal fun gateCommonTerms(queryTerms: Set<String>, memories: List<MemoryEntry>): Set<String> {
+        if (queryTerms.isEmpty() || memories.size < 20) return queryTerms
+        val memoryTermSets = memories.map { terms(it.content) }
+        val gated = queryTerms.filter { term ->
+            memoryTermSets.count { term in it }.toDouble() / memories.size <= 0.15
+        }.toSet()
+        return gated.ifEmpty { queryTerms }
     }
 
     private fun hasLexicalSignal(
