@@ -110,8 +110,10 @@ internal object Live2DVisualActionBus {
             这是普通聊天也能自主使用的身体能力，无需等用户要求“做个表情”。
             在这同一次决定里，结合本人此刻感受、关系、这句话的意思与语气，选择要说的话与愿意显露的神态/小动作；
             它们是同一个人的一次表达，不另起人格、不增加模型调用。也允许不动或安静地只用神态回应。
-            想表现时直接在回复 JSON 的 live2d 中写简短的 performance，无需计算骨骼数值：
+            你可以在正常说话的同时主动使用这个真实数字身体，不必等用户点动作按钮，也不需要第二次模型调用。自然聊天可有点头、转头、歪头、笑眼、好奇探头、害羞低头等反应；由你根据本人的真实感受选择，没有想动时可以静止。
+            【必须选择结构化可执行动作】只在文字中写“我歪歪头/笑了/跳起来”，身体是不会动的；同一次 reply JSON 要明确填写 live2d 才能播放：
             {"action":"reply","text":"自己真正要说的话","live2d":{"performance":{"feeling":"thinking","movement":"glance","intensity":0.35,"side":"left"}}}。
+            若更想用这套皮套已有的完整动作，可以同时选择真实 motion，例如 {"live2d":{"motion":{"group":"LuluWolf","index":3},"performance":{"feeling":"curious"}}}；group/index 必须来自下方当前皮套目录。
             feeling 与 movement 可单独选，也可组合；intensity 为0至1，省略为0.45；side=left|right。
             ${Live2DConversationPerformance.capabilityNote(supported)}
             这些名字是你主动选择的视觉意图，不是系统根据台词关键词判情绪。不要为了填字段强迫自己笑、害羞、点头；
@@ -125,7 +127,7 @@ internal object Live2DVisualActionBus {
             需要精确控制时，仍可同时填写 expression、motion、head、body、face 或 beats；显式数值优先于 performance。
             真实表情/外观 expression 原名=$expressions；真实预制 motion（group#index=名字·适合时；配表情与神态为默认搭配）=$motions。选 motion 时若不另外指定表情/神态，默认带目录里的配表情与神态；想换就明确写 expression/face。
             若明确答应展示模型已有表情（如星星眼），须在 live2d.expression 选择对应真实名字，不能只口头答应；没有资源不能虚构。
-            星星眼、爱心眼、流泪、吐舌等强表情由你明确选择 expression；轻微笑意或羞赧不会自动升级成它们。
+            若真的兴奋想呈现特殊眼睛，只选真实存在的星星眼；本皮套不再使用爱心眼，原来配爱心眼的动作仍能播放，程序只替换眼睛效果。流泪、吐舌等强表情仅按本人当下需要明确选择；轻微笑意或羞赧不会自动升级成它们。
             兽耳、耳机、麦克风是外观开关，不当情绪用；没有预制手部动作不能声称已经挥手或捂嘴。
             可用 head=$headFields（-25至25），body=$bodyFields（-10至10）；face=$faceFields。
             face 每项-1至1；eyeSmile、squint、cheekPuff、pout、eyeOpen 为0至1，eyeOpen=1正常睁眼；
@@ -150,12 +152,23 @@ internal object Live2DVisualActionBus {
     internal fun resolveExpression(requested: String, names: List<String>): String? {
         val clean = requested.trim()
         if (clean.isEmpty()) return null
-        names.firstOrNull { it == clean }?.let { return it }
         fun normalized(value: String): String =
             value.trim().lowercase(java.util.Locale.ROOT)
                 .replace(Regex("[\\s_\\-·.（）()\\[\\]]+"), "")
                 .removeSuffix("exp3")
         val key = normalized(clean)
+        val isHeart = listOf("爱心眼", "愛心眼", "心形眼", "hearteye",
+            "loveeye", "heartshape").any { normalized(clean).contains(normalized(it)) }
+        if (isHeart) {
+            // Keep the user's selected motion; only replace the disliked eye
+            // overlay with a real supported alternative or no overlay.
+            return names.firstOrNull { actual ->
+                val n = normalized(actual)
+                listOf("星星眼", "星眼", "stareye", "starryeye", "sparkleeye")
+                    .any(n::contains)
+            } ?: names.firstOrNull { normalized(it).contains("脸红") ||
+                normalized(it).contains("blush") }
+        }
         names.firstOrNull { normalized(it) == key }?.let { return it }
         // Only high-confidence names, e.g. "星星眼" vs "小狼-星星眼".
         // Don't select vaguely similar expressions such as "笑眼".
