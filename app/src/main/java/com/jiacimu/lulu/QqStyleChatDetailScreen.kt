@@ -163,8 +163,13 @@ fun QqStyleChatDetailScreen(
     // composition. During the keyboard animation that value changes every
     // frame and would recompose the whole screen each frame. Collapse it to
     // a visibility boolean, which only changes on show/hide.
+    // WindowInsets.ime itself is a @Composable getter: it must be read here,
+    // in composition, not inside derivedStateOf (which is not a @Composable
+    // context). The lambda below only reads the captured insets' height,
+    // so the boolean still only flips on keyboard show/hide.
+    val imeInsets = WindowInsets.ime
     val keyboardVisible by remember {
-        derivedStateOf { WindowInsets.ime.getBottom(density) > 0 }
+        derivedStateOf { imeInsets.getBottom(density) > 0 }
     }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }

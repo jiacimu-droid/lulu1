@@ -21,8 +21,7 @@ import java.time.Instant
  * stores only thought/impulse/hesitation/evidenceId/at. There is NO
  * resolved/spoken/discarded flag and NO motive/concern link on a thought,
  * so "unresolved" cannot be proved from a stored flag here. The delivery
- * rule is therefore: no time limit, bounded to the newest 4 (compact) /
- * 6 (full), age shown in days once past a day, and the role judges
+ * rule is therefore: no time limit, bounded to the newest 6 in both compact and full, age shown in days once past a day, and the role judges
  * resolution against the active motives, still-open concerns and
  * closed-concern closures delivered in the same context. The only real
  * exclusion mechanism for a thought in this store is explicit deletion
@@ -91,7 +90,8 @@ class CharacterTopicCandidatesTest {
         val role = "topic-fix-cap"
         CharacterInnerLifeStore.clear(role)
         val now = Instant.parse("2026-10-26T12:00:00Z")
-        // Seeded oldest-first; compact takes the newest 4, full the newest 6.
+        // Seeded oldest-first; compact and full both take the newest 6
+        // (topic unification: casual chat must not hide the 5th/6th thought).
         // Ages are deliberately mixed, including very old ones: age alone
         // must not exclude, and the cap — not age — is what bounds delivery.
         seedThought(role, "cap-1", "上限测试最旧的琢磨事", now.minus(Duration.ofDays(60)))
@@ -104,8 +104,8 @@ class CharacterTopicCandidatesTest {
 
         val compact = CharacterInnerLifeStore.compactContext(role, now)
         assertFalse(compact.contains("上限测试最旧的琢磨事"))
-        assertFalse(compact.contains("上限测试第二旧的琢磨事"))
-        assertFalse(compact.contains("上限测试第三个琢磨事"))
+        assertTrue(compact.contains("上限测试第二旧的琢磨事"))
+        assertTrue(compact.contains("上限测试第三个琢磨事"))
         assertTrue(compact.contains("上限测试第四个琢磨事"))
         assertTrue(compact.contains("上限测试第五个琢磨事"))
         assertTrue(compact.contains("上限测试第六个琢磨事"))
@@ -114,7 +114,47 @@ class CharacterTopicCandidatesTest {
         val full = CharacterInnerLifeStore.context(role, now)
         assertFalse(full.contains("上限测试最旧的琢磨事"))
         assertTrue(full.contains("上限测试第二旧的琢磨事"))
+        assertTrue(full.contains("上限测试第三个琢磨事"))
+        assertTrue(full.contains("上限测试第四个琢磨事"))
+        assertTrue(full.contains("上限测试第五个琢磨事"))
+        assertTrue(full.contains("上限测试第六个琢磨事"))
         assertTrue(full.contains("上限测试最新的琢磨事"))
+
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test
+    fun selfOrganizeSectionAppearsWhenThoughtsAreDelivered() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "self-organize-a"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+        seedThought(role, "org-1", "还没说出口的整理测试琢磨事", now.minus(Duration.ofHours(3)))
+
+        val compact = CharacterInnerLifeStore.compactContext(role, now)
+        assertTrue(compact.contains("【自我整理"))
+        assertTrue(compact.contains("不自动变成待办或日程"))
+        assertTrue(compact.contains("真实回执"))
+
+        val full = CharacterInnerLifeStore.context(role, now)
+        assertTrue(full.contains("【自我整理"))
+        assertTrue(full.contains("不自动变成待办或日程"))
+        assertTrue(full.contains("真实回执"))
+
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test
+    fun selfOrganizeSectionIsAbsentWhenNothingIsDelivered() {
+        CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
+        val role = "self-organize-empty"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-26T12:00:00Z")
+
+        // No motives, no open concerns, no thoughts: the section must not
+        // invent a tidy-up prompt out of an empty inner life.
+        assertFalse(CharacterInnerLifeStore.compactContext(role, now).contains("【自我整理"))
+        assertFalse(CharacterInnerLifeStore.context(role, now).contains("【自我整理"))
 
         CharacterInnerLifeStore.clear(role)
     }

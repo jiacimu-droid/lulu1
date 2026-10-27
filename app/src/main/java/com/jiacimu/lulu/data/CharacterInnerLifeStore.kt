@@ -1639,13 +1639,15 @@ object CharacterInnerLifeStore {
             // a day, and let the role judge against the active motives,
             // still-open concerns and closed-concern closures delivered in
             // this same context. The only future-date guard is a clock-skew
-            // guard, not a TTL. The model still picks at most one, or none,
+            // guard, not a TTL. Topic unification: compact now also takes the newest 6,
+            // the same as full, so casual private chat does not hide the 5th/6th
+            // unresolved thought from topic-seeking. The model still picks at most one, or none,
             // and never reads this list aloud or turns it into todos.
             val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
                 .filter { item ->
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                         ?.let { !it.isAfter(now) } == true
-                }.takeLast(4)
+                }.takeLast(6)
             if (recentThoughts.isNotEmpty()) {
                 appendLine("【还没说出口的琢磨事｜没有时间限制：只要心里还没解决，不论多久以前都可以拿出来聊；自己找话题时先从这里挑一个最想说的，不要现编无关新话题，也不要把清单原样念出来；对照同一轮里已有的在意事项、仍在挂心的心事和已走过的心路判断它是否还悬而未决，已经说过、已经想通、已经放下或已经不重要了的不要翻出来；回答用户问题时不用硬找话题】")
                 recentThoughts.forEach { item ->
@@ -1669,6 +1671,13 @@ object CharacterInnerLifeStore {
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            // Self-organize batch 2 (revised), prompt only: tidy from already-delivered
+            // motives, still-open concerns and thoughts, not only when thoughts exist.
+            // No new model call, no new store, no hard rule; unpicked items stay in
+            // mind and do not become todos or schedules by themselves.
+            if (active.isNotEmpty() || (root.optJSONArray("openConcerns")?.length() ?: 0) > 0 || recentThoughts.isNotEmpty()) {
+                appendLine("【自我整理｜只用本轮已递内容，不要现编】闲聊、对方让自己找话题时，可从本轮已递的在意事项、仍在挂心的事、还没说出口的琢磨事里自己挑一件还悬着的，问一句、推进一步或先在心里理清；没挑中的继续留在心里，不自动变成待办或日程；回答具体问题时不用硬整理；未来安排须本轮明确选择并走已有执行器、拿到真实回执才算数，不要在聊天里口头承诺当作已安排。")
+            }
         }.trim()
     }
 
@@ -1815,6 +1824,10 @@ object CharacterInnerLifeStore {
             // and competing ideas as compact chat, without a second mental store.
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            // Self-organize batch 2 (revised), prompt only: same rule as compact.
+            if (active.isNotEmpty() || (root.optJSONArray("openConcerns")?.length() ?: 0) > 0 || recentThoughts.isNotEmpty()) {
+                appendLine("【自我整理｜只用本轮已递内容，不要现编】闲聊、对方让自己找话题时，可从本轮已递的在意事项、仍在挂心的事、还没说出口的琢磨事里自己挑一件还悬着的，问一句、推进一步或先在心里理清；没挑中的继续留在心里，不自动变成待办或日程；回答具体问题时不用硬整理；未来安排须本轮明确选择并走已有执行器、拿到真实回执才算数，不要在聊天里口头承诺当作已安排。")
+            }
             appendLine("愿望可以并存、冲突和暂停。选择前考虑性格、时间、用户边界与执行能力；只从工具回执确认成功，失败后可反省并改法。")
         }.trim()
     }
