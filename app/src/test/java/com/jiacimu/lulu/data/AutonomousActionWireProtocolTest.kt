@@ -93,6 +93,60 @@ class AutonomousActionWireProtocolTest {
         assertEquals("msg-user-2", nested.getJSONObject("args").getString("messageId"))
     }
 
+    @Test fun digitalWorldToolCopiesAuthoredFurnitureFieldsWithoutInventingAny() {
+        val supplied = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool").put("tool", "digital_world_action")
+                .put("worldAction", "build_home_item")
+                .put("itemType", "shelf").put("itemName", "原木书架")
+                .put("appearance", "浅橡木的开放式书架")
+                .put("position", "靠墙"))
+        assertEquals("digital_world", supplied.optString("action"))
+        assertEquals("原木书架", supplied.optJSONObject("args")?.optString("name"))
+        assertEquals("浅橡木的开放式书架", supplied.optJSONObject("args")?.optString("appearance"))
+        assertTrue(AutonomousActionWireProtocol.missingWorldBuildFields(supplied).isEmpty())
+
+        val incomplete = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "digital_world").put("worldAction", "build_home_item")
+                .put("itemType", "lamp").put("position", "窗台"))
+        assertEquals(listOf("name", "appearance"),
+            AutonomousActionWireProtocol.missingWorldBuildFields(incomplete))
+    }
+
+    @Test fun incompleteFurnitureStepCanOnlyBeRepairedWithExplicitModelAuthoredValues() {
+        val chat = JSONObject().put("tool", "send_private_message")
+            .put("args", JSONObject().put("text", "我想在家里放个小台灯"))
+        val build = JSONObject().put("tool", "digital_world_action")
+            .put("args", JSONObject().put("worldAction", "build_home_item")
+                .put("itemType", "lamp").put("position", "桌上"))
+        val steps = org.json.JSONArray().put(chat).put(build)
+        assertEquals(listOf("steps[1].name", "steps[1].appearance"),
+            AutonomousActionWireProtocol.missingWorldBuildStepFields(steps))
+        assertNull(AutonomousActionWireProtocol.repairWorldBuildSteps(steps,
+            JSONObject().put("repairs", org.json.JSONArray().put(
+                JSONObject().put("index", 1).put("name", "窗边小灯")))))
+        val fixed = AutonomousActionWireProtocol.repairWorldBuildSteps(steps,
+            JSONObject().put("repairs", org.json.JSONArray().put(
+                JSONObject().put("index", 1).put("name", "窗边小灯")
+                    .put("appearance", "乳白玻璃灯罩和木底座"))))!!
+        assertTrue(AutonomousActionWireProtocol.missingWorldBuildStepFields(fixed).isEmpty())
+        assertEquals(chat.toString(), fixed.getJSONObject(0).toString())
+        assertEquals("lamp", fixed.getJSONObject(1).getJSONObject("args").getString("itemType"))
+        assertEquals("窗边小灯", fixed.getJSONObject(1).getJSONObject("args").getString("name"))
+        assertEquals("", steps.getJSONObject(1).getJSONObject("args").optString("name"))
+    }
+
+    @Test fun misplacedTopLevelWorldStepFieldsReachTheSameExecutorArguments() {
+        val step = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("action", "build_home_item")
+                .put("itemType", "shelf").put("name", "原木书架")
+                .put("appearance", "木制开放式")
+                .put("position", "靠墙"))
+        assertEquals("digital_world_action", step.getString("tool"))
+        assertTrue(AutonomousActionWireProtocol.missingWorldBuildStepFields(
+            org.json.JSONArray().put(step)).isEmpty())
+        assertEquals("原木书架", step.getJSONObject("args").getString("name"))
+    }
+
     @Test fun genuineSilenceIsNeverReplacedWithMandatoryAction() {
         val original = JSONObject().put("action", "silent")
             .put("reason", "我现在只想一个人慢慢整理这段心情")
