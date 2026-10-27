@@ -123,6 +123,13 @@ class CharacterExpressionGuideTest {
         assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每条不超过"))
     }
 
+    @Test fun nonExplicitDetailRequestsMayStillReceiveACompleteAnswer() {
+        val guidance = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        assertTrue(guidance.contains("即使对方没有说“详细”"))
+        assertTrue(guidance.contains("不要根据对方消息长短替角色决定说多少"))
+        assertFalse(guidance.contains("长解释只在对方明确要详细"))
+    }
+
     @Test fun oneSpeakerIdentityRuleSurvivesEveryDeliveryChannel() {
         val channels = CharacterSpeechChannel.values().toList()
         assertEquals(6, channels.size)

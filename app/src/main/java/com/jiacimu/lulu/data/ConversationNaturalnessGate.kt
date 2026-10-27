@@ -56,13 +56,6 @@ internal object ConversationNaturalnessGate {
         """(?:怎么.{0,5}(?:缓解|放松|冷静)|(?:教我|带我|帮我).{0,8}(?:呼吸|放松|冷静)|一步一步)"""
     )
 
-    private fun conversationalReviewLength(userText: String): Int =
-        when (TransientConversationStyle.analyze(userText).pace) {
-            TransientConversationStyle.Pace.BRIEF -> 90
-            TransientConversationStyle.Pace.NORMAL -> 160
-            TransientConversationStyle.Pace.EXPANSIVE -> Int.MAX_VALUE
-        }
-
     /**
      * Online private chat commits its first reply inside the autonomous decision call,
      * instead of passing through the foreground expression renderer. Share the SAME
@@ -93,16 +86,8 @@ internal object ConversationNaturalnessGate {
             !preservesSurfaceIntent(original, rewritten)) return false
         // A lower total must not hide a newly introduced assistant-like habit.
         if (rewrittenAssessment.reasons.any { it !in originalAssessment.reasons }) return false
-        if (rewrittenAssessment.score < originalAssessment.score) return true
-        if (rewrittenAssessment.score != originalAssessment.score ||
-            TransientConversationStyle.allowsExpansion(userText)) return false
-        val beforeLength = original.sumOf { it.count { char -> !char.isWhitespace() } }
-        val afterLength = rewritten.sumOf { it.count { char -> !char.isWhitespace() } }
-        // Discrete flags can remain identical after substantial improvement.
-        // Accept a materially lighter turn when it adds no new flagged problem
-        // and preserves facts; otherwise the old verbose draft would win a tie.
-        return beforeLength >= conversationalReviewLength(userText) &&
-            afterLength <= beforeLength * 3 / 4
+        // Being shorter on a tied score is not evidence of a better reply.
+        return rewrittenAssessment.score < originalAssessment.score
     }
 
     fun preservesSurfaceIntent(original: List<String>, rewritten: List<String>): Boolean {
@@ -194,7 +179,6 @@ internal object ConversationNaturalnessGate {
             reasons += "把即时聊天组织成说明书/提纲"
         }
         val userLength = userText.count { !it.isWhitespace() }
-        val replyLength = reply.count { !it.isWhitespace() }
         if (ConversationTurnEconomy.hasUnsupportedDeliveryCause(reply, operationalEvidence)) {
             score += 2
             reasons += "把回复间隔编成了未经本轮程序回执证实的消息或网络故障；保留未及时回应的事实，省略未知原因"
@@ -208,29 +192,12 @@ internal object ConversationNaturalnessGate {
             score += 2
             reasons += "简单接话附带报时和连续新问题，偏离对方这一拍正在交流的事"
         }
-        // This is only a cue for the existing bounded model revision, never a
-        // text truncator. Long user transcripts don't grant essay-sized turns;
-        // explicit explanations, concrete tasks and narratives remain exempt.
+        // Model-selected depth is not a function of message length or key phrases.
+        // Spot real repeated content, whether in one bubble or several.
         val detailRequested = TransientConversationStyle.allowsExpansion(userText)
-        if (!detailRequested && userLength > 0 && replyLength >= conversationalReviewLength(userText)) {
+        if (repeatsSubstantialPassage(reply)) {
             score += 2
-            reasons += "日常一拍展开过满；先说核心态度与一个必要细节，给对方接话的余地，不把全部联想都解释完"
-        }
-        // Multi-paragraph postmortems can evade the existing assistant-phrase
-        // and lexical-overlap checks: all three paragraphs may use different
-        // words to explain the SAME one-line tool failure. Detect excessive
-        // explanation without setting a blanket character or bubble quota.
-        // Two fairly substantial explanations plus a third self-justifying
-        // follow-up can be verbose even without any single 55-character bubble.
-        // Keep the gate disabled when the user asked for a detailed answer.
-        val longBubbles = bubbles.count { bubble ->
-            bubble.count { !it.isWhitespace() } >= 38
-        }
-        if (!detailRequested && userLength in 1..50 &&
-            ((replyLength >= 120 && longBubbles >= 2) ||
-                (replyLength >= 180 && longBubbles >= 1))) {
-            score += 2
-            reasons += "简单追问被写成多段事后说明，缺乏真实对话的轻重取舍"
+            reasons += "同一轮反复重复较长语段，没有推进对话"
         }
         if (!detailRequested && !requestedCalmingGuidance.containsMatchIn(userText) &&
             comfortScriptMoves.count { it.containsMatchIn(reply) } >= 3) {
@@ -276,6 +243,26 @@ internal object ConversationNaturalnessGate {
         }
 
         return ConversationNaturalnessAssessment(score, reasons.distinct())
+    }
+
+    /** Find three non-overlapping appearances of the same substantial wording. */
+    private fun repeatsSubstantialPassage(reply: String): Boolean {
+        val normalized = surfaceNormalize(reply)
+        val spanSize = 24
+        if (normalized.length < spanSize * 3) return false
+        val first = mutableMapOf<String, Int>()
+        val second = mutableMapOf<String, Int>()
+        for (index in 0..normalized.length - spanSize) {
+            val span = normalized.substring(index, index + spanSize)
+            val earliest = first[span]
+            if (earliest == null) first[span] = index
+            else if (index - earliest >= spanSize) {
+                val next = second[span]
+                if (next == null) second[span] = index
+                else if (index - next >= spanSize) return true
+            }
+        }
+        return false
     }
 
     private fun surfaceNormalize(value: String): String =

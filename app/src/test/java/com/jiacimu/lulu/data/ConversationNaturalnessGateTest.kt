@@ -4,33 +4,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ConversationNaturalnessGateTest {
-    @Test fun onlinePrivateComfortGetsTheSameReviewAsForegroundConversation() {
-        val screenshotLike = listOf(
+    @Test fun naturalDetailedReplySurvivesWithoutAnArtificialLengthLimit() {
+        val thoughtful = listOf(
             "怪不得刚才连打视频都懒得开口，原来是一直硬撑着没合眼。",
             "早上起来就累，看来昨晚那点觉根本没睡够，脑子转不动太正常了。",
             "这时候硬逼着自己背书也是白费劲，别硬扛了。",
             "赶紧把手机锁屏扔一边，被子拉好。",
             "先踏踏实实睡一觉把精力补回来，学习的事等你睡醒了我们再算账。",
         )
-        val review = ConversationNaturalnessGate.onlinePrivateReview(
-            "我现在要睡了", screenshotLike, hasVoice = false, hasLinkedActions = false)
-        assertNotNull(review)
-        assertTrue(review!!.needsRerender)
-        // Five bubbles are NOT evidence of five distinct conversational moves.
-        assertNotNull(ConversationNaturalnessGate.onlinePrivateReview(
-            "我现在要睡了", listOf(screenshotLike.joinToString("")),
-            hasVoice = false, hasLinkedActions = false))
-        val natural = listOf("困了还逞强。", "快睡，醒了再说。")
         assertNull(ConversationNaturalnessGate.onlinePrivateReview(
-            "我现在要睡了", natural, hasVoice = false, hasLinkedActions = false))
-        assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
-            "我现在要睡了", screenshotLike, natural, review,
-            ConversationNaturalnessGate.assess("我现在要睡了", natural)))
-        // Cosmetic editing must not add a new question when the role did not ask one.
-        val changedIntent = listOf("困了还逞强？", "快睡，醒了再说。")
-        assertFalse(ConversationNaturalnessGate.shouldUseRewrite(
-            "我现在要睡了", screenshotLike, changedIntent, review,
-            ConversationNaturalnessGate.assess("我现在要睡了", changedIntent)))
+            "我现在要睡了", thoughtful, hasVoice = false, hasLinkedActions = false))
+        assertNull(ConversationNaturalnessGate.onlinePrivateReview(
+            "我现在要睡了", listOf(thoughtful.joinToString("")),
+            hasVoice = false, hasLinkedActions = false))
     }
 
     @Test fun onlineReviewDoesNotRewriteVoiceOrLinkedActionsOrQuoteTokens() {
@@ -79,7 +65,7 @@ class ConversationNaturalnessGateTest {
             .reasons.any { it.contains("安慰流程") })
     }
 
-    @Test fun materiallyLighterRevisionWinsEvenWhenDiscreteFlagsTie() {
+    @Test fun significantPersonalReflectionIsNotDiscardedOnATiedScore() {
         val original = listOf(
             "这个名字我很喜欢，听着很自在，也保留了原来那种温和的感觉。",
             "第一个字让我想到山间的清风，第二个字又带着少年人自由自在的意味。",
@@ -87,15 +73,13 @@ class ConversationNaturalnessGateTest {
             "所以这不只是一个称呼，也是你把我们之间的归属感放进了几个字里面。",
             "从此每次听到你这样叫我，我都会想起今天这一刻，想起你为我花的心思。",
         )
-        val rewritten = original.take(3)
+        val shorter = original.take(3)
         val before = ConversationNaturalnessGate.assess("这个名字怎么样", original)
-        val after = ConversationNaturalnessGate.assess("这个名字怎么样", rewritten)
-        assertTrue(before.needsRerender)
+        val after = ConversationNaturalnessGate.assess("这个名字怎么样", shorter)
+        assertFalse(before.needsRerender)
         assertEquals(before.score, after.score)
-        assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
-            "这个名字怎么样", original, rewritten, before, after))
         assertFalse(ConversationNaturalnessGate.shouldUseRewrite(
-            "这个名字怎么样", original, original, before, before))
+            "这个名字怎么样", original, shorter, before, after))
     }
 
     @Test fun lighterRevisionStillCannotDropToolEvidenceOrAddAssistantSpeech() {
@@ -257,7 +241,7 @@ class ConversationNaturalnessGateTest {
             ),
         )
         assertTrue(result.needsRerender)
-        assertTrue(result.reasons.any { it.contains("多段事后说明") })
+        assertTrue(result.reasons.any { it.contains("自我检讨") })
     }
 
     @Test fun userExplicitlyRequestsDetailAndCanReceiveSeveralParagraphs() {
@@ -330,26 +314,26 @@ class ConversationNaturalnessGateTest {
             "所以这不只是一个称呼，也是你把我们之间的归属感放进了几个字里面。",
             "从此每次听到你这样叫我，我都会想起今天这一刻，想起你为我花的心思。",
         )
-        assertTrue(ConversationNaturalnessGate.assess("这个名字怎么样", bubbles).needsRerender)
-        assertTrue(ConversationNaturalnessGate.assess("这个名字怎么样", listOf(bubbles.joinToString("")))
+        assertFalse(ConversationNaturalnessGate.assess("这个名字怎么样", bubbles).needsRerender)
+        assertFalse(ConversationNaturalnessGate.assess("这个名字怎么样", listOf(bubbles.joinToString("")))
             .needsRerender)
         assertFalse(ConversationNaturalnessGate.assess("这个名字怎么样",
             listOf("喜欢，就这个。", "以后你叫这个名字，我就知道在喊我了。")).needsRerender)
     }
 
-    @Test fun longCasualInputDoesNotHideAnOverfilledReply() {
+    @Test fun longCasualInputDoesNotHideLiteralRepetition() {
         val input = "今天先去上了课，然后回家时看见了晚霞，还有那家小店也开门了，" +
             "我在门口站了很久也没买东西。回家收拾完房间，忽然觉得今天过得还挺舒服的，想跟你说一声。"
         val reply = "听到你说今天过得舒服，我也很开心，原来这样普通的一天可以有这么多让人留恋的小细节。".repeat(6)
         assertTrue(ConversationNaturalnessGate.assess(input, listOf(reply)).needsRerender)
     }
 
-    @Test fun casualWhyStillAllowsAReasonButDoesNotExemptAnEssay() {
+    @Test fun casualWhyStillAllowsAReasonButDoesNotExemptRepetition() {
         val reply = "我偏心原来的名字，因为叫得久，已经有种熟悉感了。"
         assertFalse(ConversationNaturalnessGate.assess("为什么呀", listOf(reply)).needsRerender)
         assertTrue(ConversationNaturalnessGate.assess("为什么呀", listOf(reply.repeat(8))).needsRerender)
-        assertFalse(ConversationNaturalnessGate.assess("请详细解释原因", listOf(reply.repeat(8)))
-            .reasons.any { it.contains("展开过满") })
+        assertTrue(ConversationNaturalnessGate.assess("请详细解释原因", listOf(reply.repeat(8)))
+            .reasons.any { it.contains("重复较长语段") })
     }
 }
 
