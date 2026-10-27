@@ -119,36 +119,61 @@ internal object CharacterPerceptionContext {
         return "本人实际尝试 ${execution.optString("tool")}；执行成功=${result.optBoolean("success")}；$summary"
     }
 
-    fun selectRecent(events: List<SharedTimelineEvent>, now: Instant, limit: Int = 12): List<SharedTimelineEvent> =
-        events.filter { event ->
-            ((event.evidenceKind == EventEvidenceKind.Observation &&
-                (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE,
-                    "xiaohongshu-webview", "xiaohongshu-mcp",
+    /** A real event may need to be perceived days after it happened. Age is
+     * for displaying ambient recent activity, never for eligibility to process
+     * unacknowledged evidence. Model dialogue and routine self-movement remain
+     * outside this factual stimulus stream. */
+    private fun isPerceptible(event: SharedTimelineEvent, now: Instant): Boolean =
+        !event.occurredAt.isAfter(now) && (
+            (event.evidenceKind == EventEvidenceKind.Observation &&
+                (event.source in setOf("digital-world", "digital-environment", "meeting",
+                    InteractionSignalBridge.SOURCE, "xiaohongshu-webview", "xiaohongshu-mcp",
                     "owner-phone-inspection", "group-membership") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
-                (event.evidenceKind == EventEvidenceKind.ToolResult &&
-                    (personalOutcome(event.source, event.content) != null ||
-                        event.source in setOf("meeting", "solo-game")))) &&
-                !event.occurredAt.isAfter(now) &&
+            (event.evidenceKind == EventEvidenceKind.ToolResult &&
+                (personalOutcome(event.source, event.content) != null ||
+                    event.source in setOf("meeting", "solo-game")))
+        )
+
+    fun selectRecent(events: List<SharedTimelineEvent>, now: Instant, limit: Int = 12): List<SharedTimelineEvent> =
+        events.filter { event ->
+            isPerceptible(event, now) &&
                 (Duration.between(event.occurredAt, now) <= Duration.ofHours(24) ||
                     event.source in setOf("owner-phone-inspection", "group-membership"))
         }.takeLast(limit.coerceAtLeast(1))
 
     fun pending(context: Context, characterId: String, now: Instant): List<SharedTimelineEvent> {
         ResidentSocialMailbox.initialize(context)
-        // Unconsidered incoming mail can be older than the ambient 24-hour
-        // window. Offline time must not silently discard a real letter.
         val letters = ResidentSocialMailbox.pendingIncoming(characterId)
         val incoming = SharedExperienceTimeline.eventsByIds(characterId,
             letters.map { ResidentSocialMailbox.evidenceId(it, characterId) })
-            .filter { !it.occurredAt.isAfter(now) }
-        // Never truncate the candidate window BEFORE testing acknowledgements:
-        // a burst of search receipts could otherwise permanently displace older
-        // unprocessed observations from the bounded model-facing batch.
-        return (recent(characterId, now, limit = 160) + incoming).distinctBy { it.id }
-            .sortedBy { it.occurredAt }
-            .filterNot { PerceptionStimulusLedger.hasSeen(context, characterId, it.id, it.revision) }
+            .filter { !it.occurredAt.isAfter(now) &&
+                !PerceptionStimulusLedger.hasSeen(context, characterId, it.id, it.revision) }
+
+        // Do not take the last 160 records or impose a 24-hour deadline before
+        // checking the exact (role, evidence, revision) acknowledgement. Scan
+        // the indexed timeline in small keyset pages, but offer only 12 real
+        // unhandled events to this model turn. No page scan marks an event seen.
+        val unhandled = mutableListOf<SharedTimelineEvent>()
+        var after: SharedTimelineEvent? = null
+        val pageSize = 192
+        while (unhandled.size < 12) {
+            val page = SharedExperienceTimeline.perceptionPage(
+                characterId, now, after?.occurredAt, after?.id.orEmpty(), pageSize)
+            if (page.isEmpty()) break
+            for (event in page) {
+                if (isPerceptible(event, now) &&
+                    !PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)) {
+                    unhandled.add(event)
+                    if (unhandled.size == 12) break
+                }
+            }
+            after = page.last()
+            if (page.size < pageSize) break
+        }
+        return (unhandled + incoming).distinctBy { it.id }
+            .sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id })
             .take(12)
     }
 
