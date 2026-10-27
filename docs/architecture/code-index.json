@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:48:39.687705+00:00",
-  "commit": "05b84e45f70eb660d3c7dc77a43faca4d81dad49",
+  "generatedAt": "2026-10-27T18:49:06.282166+00:00",
+  "commit": "236dfd35bab51df8d2f8ccaa25fa0b6788b55ef5",
   "branch": "main",
-  "sourceFingerprint": "997ea671c9f26dc4ef3a0566bbc04143fdb19aad70a6d85712f98f923be998f3",
+  "sourceFingerprint": "ffbe4c87e6e05efa6e0740cf030c206ad3a804b2cc8d8daabba6f1de78235db0",
   "summary": {
     "files": 993,
-    "lines": 196380,
+    "lines": 196396,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -31186,8 +31186,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneInspectionProjectionTest.kt",
-      "lines": 70,
-      "sha256": "d28f132338bd6b8de23520d2f1e7cdda39bcdf108e74ceb1d4b2f8d091f5a25f",
+      "lines": 86,
+      "sha256": "4eadb6a33286e5ed154b9ada836c7e18836ee585a985b88879f505cbb9998af2",
       "symbols": [
         {
           "name": "PhoneInspectionProjectionTest",
