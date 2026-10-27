@@ -86,7 +86,7 @@ class ResidentDailyContinuityTest {
         p.edit().putString("attempt:$nativeId", day)
             .putString("phase:$nativeId:$day", "uncertain").commit()
         assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
-        p.edit().putString("decision:$nativeId:$day", "{\\"agenda\\":[]}")
+        p.edit().putString("decision:$nativeId:$day", JSONObject().put("agenda", JSONArray()).toString())
             .putString("phase:$nativeId:$day", "decided").commit()
         assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, nativeId, now))
         p.edit().putInt("recoveries:$nativeId:$day", 2).commit()
