@@ -16,6 +16,9 @@ internal object AutonomousAffordanceContext {
         publicPlaces: List<Pair<String, String>> = emptyList(),
         currentItems: List<Pair<String, List<Pair<String, String>>>> = emptyList(),
         currentResidents: List<Triple<String, String, String>> = emptyList(),
+        atOwnHome: Boolean = false,
+        homeCapacityRemaining: Int = 0,
+        homeFurniture: List<Pair<String, String>> = emptyList(),
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
         appendLine("这里列出此刻确实存在的行动机会，不是新任务或规定的日常安排；决定做、稍后安排或独处均由本人选择。")
@@ -50,6 +53,21 @@ internal object AutonomousAffordanceContext {
                 locationActivities.distinctBy { it.first }.forEach { (id, label) ->
                     appendLine("  · activityId=" + id + "；" + label)
                 }
+            }
+            // This is an opportunity, not a duty, and never mutates world
+            // state. The actual executor still validates home ownership,
+            // capacity, item ID and the actor's real location at execution.
+            if (atOwnHome) {
+                appendLine("- 这里确实是我自己的家；现有家具可自行调整位置，但不要求每次都布置。")
+                homeFurniture.take(8).forEach { (id, label) ->
+                    appendLine("  · worldAction=move_home_item；itemId=" + id +
+                        "；家具=" + label.take(70) + "；position=自己决定的新位置")
+                }
+                if (homeCapacityRemaining > 0) {
+                    appendLine("- 家里还有${homeCapacityRemaining}个可用位置。若本人真想添置家具，可以选 action=digital_world，worldAction=build_home_item，并亲自填写 itemType/name/appearance/position；执行成功后才有新家具。")
+                }
+            } else {
+                appendLine("- 不在自己家中，不能直接建设或搬动家具；想布置家园可以先选择 worldAction=go_home，然后再根据真实地点作决定。")
             }
             if (currentItems.isNotEmpty()) {
                 appendLine("- 此地已有可交互物品：")
