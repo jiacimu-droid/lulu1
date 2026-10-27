@@ -139,6 +139,32 @@ class ResidentPhoneWakeIntegrationTest {
             listOf("moment-like-${post.id}-$actor")).isEmpty())
     }
 
+    @Test fun socialContextOffersFriendshipWithoutDuplicatingPendingOrInventingConsent() {
+        CharacterFriendRequests.initialize(app)
+        val sender = role()
+        val recipient = role()
+        assertTrue(DigitalWorldStore.performAction(sender, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        assertTrue(DigitalWorldStore.performAction(recipient, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        ResidentSocialMailbox.send(sender, recipient, "刚才在庭院碰到了你")
+        val before = CharacterEverydaySocialContext.render(sender)
+        assertTrue(before.contains("targetCharacterId=$recipient"))
+        assertTrue(before.contains("send_friend_request"))
+        assertTrue(before.contains("没有待处理申请"))
+        val request = CharacterFriendRequests.send(sender, recipient, "以后可以一起看书吗")
+        val pending = CharacterEverydaySocialContext.render(sender)
+        assertTrue(pending.contains("已经发出申请"))
+        assertFalse(MomentFriendAccess.areFriends(sender, recipient))
+        val incoming = CharacterEverydaySocialContext.render(recipient)
+        assertTrue(incoming.contains("对方向我提出了申请"))
+        CharacterFriendRequests.respond(recipient, request.id, accept = true)
+        val after = CharacterEverydaySocialContext.render(sender)
+        assertFalse(after.contains("没有待处理申请"))
+        assertFalse(after.contains("已经发出申请"))
+        assertTrue(MomentFriendAccess.areFriends(sender, recipient))
+    }
+
     @Test fun requestAndConsentAreSeparateEventsAndLeaveQQThreadNotices() {
         val from = role()
         val to = role()
