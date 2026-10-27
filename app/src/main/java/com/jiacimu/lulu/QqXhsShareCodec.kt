@@ -120,7 +120,9 @@ internal fun qqXhsContextText(content: String): String? =
                 if (note.comments.isNotEmpty()) append("\n已加载的评论：${note.comments.take(6).joinToString("；").take(900)}")
                 if (note.visualReading.isBlank() && note.coverUrl.isNotBlank()) append("\n存在封面或图片，但没有可确认的图片理解")
             } else {
-                append("\n目前只有分享的标题和链接，尚未实际读取网页正文、图片或评论；不能声称已经看过")
+                append(if (note.sharedByCharacter)
+                    "\n目前只有角色分享的标题和链接，尚未实际读取网页正文、图片或评论；不能声称已经看过"
+                    else "\n目前只有用户分享的标题和链接，尚未实际读取网页正文、图片或评论；不能声称已经看过")
                 if (note.shareText.isNotBlank()) append("\n原分享附言：${note.shareText.take(400)}")
             }
         }
