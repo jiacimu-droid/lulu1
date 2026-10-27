@@ -6,6 +6,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
 /**
@@ -13,7 +16,13 @@ import java.time.Instant
  * proactive-send receipts exist, and whether a user statement follows
  * each one in the same timeline session. No content is read, no meaning
  * is judged, and no timeline database is needed here.
+ *
+ * Runs under Robolectric (like the ledger tests) because the receipts
+ * test builds its snapshots with org.json, whose methods are stubs
+ * that throw in plain local unit tests.
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ProactiveSendAttributionTest {
 
     private fun receipt(
