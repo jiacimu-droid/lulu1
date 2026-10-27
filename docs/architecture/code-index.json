@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:12:39.957741+00:00",
-  "commit": "46c4dc605ae50c97d4dfbcba6d09cbf94de0f29c",
+  "generatedAt": "2026-10-27T18:13:19.599963+00:00",
+  "commit": "c884c1024574f017402b68a257b98b0548b03de7",
   "branch": "main",
-  "sourceFingerprint": "550283e26878f727890f1b8f5b1b5d61a42257f2310cf6d8cd03b8cf8116e43c",
+  "sourceFingerprint": "c8c1b9b3939416fea98d32047d03674c7d8259359f6b35e94db4923b2da0be15",
   "summary": {
     "files": 991,
-    "lines": 195746,
+    "lines": 195769,
     "symbols": 2905
   },
   "symbolIndex": {
@@ -17924,7 +17924,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
       "lines": 541,
-      "sha256": "87a4cceed86bf270c2f1c83a379c852c4a3abe8530eb10d61e7ebe2e3c66193a",
+      "sha256": "13927eb7f49c17ba58724031358871b635bfc1a03521ab38a78a102f3f3333d0",
       "symbols": [
         {
           "name": "playMotion",
@@ -30914,8 +30914,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt",
-      "lines": 31,
-      "sha256": "40632f8f05ea39307f4ed8933a1e47af4212b989238fe1bee415cc94855aa804",
+      "lines": 54,
+      "sha256": "1f48b9a501424cc41e50dd0dd0fb9aa9a2355b93588d1da8275b9fd7e9480c68",
       "symbols": [
         {
           "name": "Live2DGpuSurfaceFrameCheckTest",
