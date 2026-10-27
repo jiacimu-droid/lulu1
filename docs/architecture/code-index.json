@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:55:07.932864+00:00",
-  "commit": "856255af28eb824cbb0277a85e134a78eebc6405",
+  "generatedAt": "2026-10-27T18:55:42.822728+00:00",
+  "commit": "2a8c8e1153e6f64c9a9ddf14982d81a4ef45c589",
   "branch": "main",
-  "sourceFingerprint": "6206f9259da194b8d35684cdd320afdc7e1ffd2450bba21cb8eb835e1c7fb7d2",
+  "sourceFingerprint": "6d831a639de0c7846d9a819636b23409b8d0c6e915a5c0460603a48e2a643459",
   "summary": {
     "files": 993,
-    "lines": 196454,
+    "lines": 196466,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -259,7 +259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 112
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
@@ -1003,7 +1003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 153
+        "line": 162
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -2169,7 +2169,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1282
+        "line": 1285
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -3635,7 +3635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 132
+        "line": 141
       }
     ],
     "categoryId": [
@@ -3763,13 +3763,13 @@
     "imageDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 100
+        "line": 109
       }
     ],
     "toggleFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 142
+        "line": 151
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -3779,7 +3779,7 @@
     "move": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 146
+        "line": 155
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -7063,37 +7063,37 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1215
+        "line": 1218
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1251
+        "line": 1254
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1265
+        "line": 1268
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1275
+        "line": 1278
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1320
+        "line": 1323
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1486
+        "line": 1489
       }
     ],
     "age": [
@@ -19775,8 +19775,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 318,
-      "sha256": "818bc4e72dff1d0a1e7d2e0d13e9f4b5bc82d6d32f59e08b3477e991a09575d5",
+      "lines": 327,
+      "sha256": "5bb0f993778dfc224776b6e72003c734976dafba477268ea283b9b0f8d032529",
       "symbols": [
         {
           "name": "byId",
@@ -19784,27 +19784,27 @@
         },
         {
           "name": "imageDescription",
-          "line": 100
+          "line": 109
         },
         {
           "name": "prompt",
-          "line": 112
+          "line": 121
         },
         {
           "name": "rename",
-          "line": 132
+          "line": 141
         },
         {
           "name": "toggleFavorite",
-          "line": 142
+          "line": 151
         },
         {
           "name": "move",
-          "line": 146
+          "line": 155
         },
         {
           "name": "remove",
-          "line": 153
+          "line": 162
         }
       ]
     },
@@ -23012,8 +23012,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1533,
-      "sha256": "876236cfe19af6855807693bdd6052d58159790b50cbaa536bcf5eb3e5681bcb",
+      "lines": 1536,
+      "sha256": "2189fbcb3efac76caccc7e43d7debcdd62772c898281424bd7060334280e6c8c",
       "symbols": [
         {
           "name": "asJson",
@@ -23029,31 +23029,31 @@
         },
         {
           "name": "world",
-          "line": 1215
+          "line": 1218
         },
         {
           "name": "completedEvidence",
-          "line": 1251
+          "line": 1254
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1265
+          "line": 1268
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1275
+          "line": 1278
         },
         {
           "name": "from",
-          "line": 1282
+          "line": 1285
         },
         {
           "name": "requiresCompletion",
-          "line": 1320
+          "line": 1323
         },
         {
           "name": "availableContext",
-          "line": 1486
+          "line": 1489
         }
       ]
     },
