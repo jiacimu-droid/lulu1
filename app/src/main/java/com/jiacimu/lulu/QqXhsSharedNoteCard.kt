@@ -3,6 +3,8 @@ package com.jiacimu.lulu
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -172,6 +174,15 @@ internal fun QqXhsSharedNoteDetail(note: QqXhsSharedNote, onDismiss: () -> Unit)
                 onDismiss()
             }) { Text("复制链接", color = xhsRed) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("关闭", color = secondaryInk) } },
+        dismissButton = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = {
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(note.url)))
+                    }.onSuccess { onDismiss() }
+                }) { Text("打开原笔记", color = xhsRed) }
+                TextButton(onClick = onDismiss) { Text("关闭", color = secondaryInk) }
+            }
+        },
     )
 }
