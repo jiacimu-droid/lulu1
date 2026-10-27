@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:50:24.235199+00:00",
-  "commit": "ad53bdbb8758c7a1761fc37e4afd43b8b42a7af3",
+  "generatedAt": "2026-10-27T16:51:05.424917+00:00",
+  "commit": "263859568425289f887044ee726f91e1b530be05",
   "branch": "main",
-  "sourceFingerprint": "fc7956b82344c64f1affaaf14cfc2e0bb6517f53afc8935e81eff653229df37f",
+  "sourceFingerprint": "13bc39df8ee01c8cb2f95549dc3854ce2666a78d0734cc584f4e7e6805e4311f",
   "summary": {
     "files": 991,
-    "lines": 194967,
+    "lines": 194992,
     "symbols": 2895
   },
   "symbolIndex": {
@@ -3301,7 +3301,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 206
+        "line": 231
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -3535,7 +3535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 137
+        "line": 145
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6295,13 +6295,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 121
+        "line": 138
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 191
+        "line": 216
       }
     ],
     "keepOrBlank": [
@@ -21967,8 +21967,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 215,
-      "sha256": "82725ca30a5040d1395d5f748b49039010291d5fd64e30d60b3f89e94224efdb",
+      "lines": 240,
+      "sha256": "49faee473d7bf90f301afb09d3ea27d802ba26ef0dcb2f580f3cdee7afaafe95",
       "symbols": [
         {
           "name": "integrate",
@@ -21996,19 +21996,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 121
+          "line": 138
         },
         {
           "name": "pending",
-          "line": 137
+          "line": 145
         },
         {
           "name": "stimulus",
-          "line": 191
+          "line": 216
         },
         {
           "name": "render",
-          "line": 206
+          "line": 231
         }
       ]
     },
