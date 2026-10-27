@@ -108,8 +108,17 @@ internal object CharacterLearningLedger {
         if (event.source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") &&
             event.evidenceKind == EventEvidenceKind.Observation) {
             val material = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
+            // Genuine XHS cards carry xsec_source/xsec_token in the query.
+            // Do not reject an actually read post merely for the platform's
+            // official parameters; validate the trusted scheme, host and
+            // canonical note path separately, never with a full-URL regex.
+            val url = runCatching {
+                android.net.Uri.parse(material.optString("url"))
+            }.getOrNull() ?: return false
             return material.optString("text").isNotBlank() &&
-                Regex("https://www\\.xiaohongshu\\.com/explore/[a-zA-Z0-9]{12,40}").matches(material.optString("url"))
+                url.scheme.equals("https", ignoreCase = true) &&
+                url.host.equals("www.xiaohongshu.com", ignoreCase = true) &&
+                Regex("^/explore/[a-zA-Z0-9]{12,40}/?$").matches(url.path.orEmpty())
         }
         if (event.source.startsWith("reading:")) return true // Existing authoritative reading compatibility.
         if (!event.source.startsWith("learning-material:") ||
