@@ -155,6 +155,26 @@ fun QqStyleChatDetailScreen(
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
     val privateOnline = onlineStates[characterId]?.isOnline() == true
     val listState = rememberLazyListState()
+    // Chat-window history window (keyboard-lag follow-up): the raw record
+    // stays in the timeline and the stores; only this window is capped.
+    // The newest runs render; older runs load on demand. Display-only:
+    // model context and stored history are untouched.
+    var runWindow by rememberSaveable(conversationId) { mutableIntStateOf(120) }
+    val windowedRuns = remember(displayRuns, runWindow) { displayRuns.takeLast(runWindow) }
+    val windowStart = displayRuns.size - windowedRuns.size
+    val loadMoreVisible = windowedRuns.size < displayRuns.size
+    var pendingWindowRestore by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    // After the window grows, keep the run the user was reading at the
+    // same viewport position instead of jumping to the top or bottom.
+    LaunchedEffect(windowedRuns.size) {
+        val restore = pendingWindowRestore ?: return@LaunchedEffect
+        pendingWindowRestore = null
+        val newStart = displayRuns.size - windowedRuns.size
+        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
+        val lazyIndex = (restore.first - newStart + announcementOffset)
+            .coerceIn(announcementOffset, announcementOffset + windowedRuns.size - 1)
+        listState.scrollToItem(lazyIndex, restore.second)
+    }
     val showJumpToLatest by remember(listState) {
         derivedStateOf {
             val layout = listState.layoutInfo
@@ -183,9 +203,11 @@ fun QqStyleChatDetailScreen(
     // scroll by first visible item, not by distance from the bottom. A
     // single scroll when the keyboard first appears therefore ends up
     // short of the bottom once the viewport finishes shrinking, and the
-    // newest messages sit below the fold. While the keyboard is open,
-    // re-pin to the last item on every viewport-size change, but only if
-    // the user was near the end when the keyboard opened. Viewport size
+    // newest messages sit below the fold. Pin once when the keyboard
+    // starts opening, then once more after the size settles. Scrolling
+    // on every viewport-size change fought the resize animation frame
+    // by frame and was itself a source of keyboard lag. Only pin if the
+    // user was near the end when the keyboard opened. Viewport size
     // does not change on user scrolling, so a history reader keeps their
     // place once the viewport settles, and the jump-to-latest button
     // stays available for returning.
@@ -195,9 +217,21 @@ fun QqStyleChatDetailScreen(
         val pinned = layout.visibleItemsInfo.lastOrNull()?.index
             ?.let { it >= layout.totalItemsCount - 3 } ?: false
         if (!pinned) return@LaunchedEffect
+        var first = true
+        var settleJob: kotlinx.coroutines.Job? = null
         snapshotFlow { listState.layoutInfo.viewportSize }.collect {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
+            val target = windowedRuns.lastIndex + announcementOffset
+            if (first) {
+                first = false
+                listState.scrollToItem(target)
+            } else {
+                settleJob?.cancel()
+                settleJob = launch {
+                    kotlinx.coroutines.delay(120)
+                    listState.scrollToItem(target)
+                }
+            }
         }
     }
     val scope = rememberCoroutineScope()
@@ -533,7 +567,7 @@ fun QqStyleChatDetailScreen(
         if (ChatScrollFollowPolicy.shouldFollow(initial, appended,
                 keyboardVisible, preferences.autoScrollChat, nearEnd)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
+            listState.scrollToItem(windowedRuns.lastIndex + announcementOffset)
         }
         hasPositionedChat = true
         previousVisibleCount = count
@@ -769,7 +803,7 @@ fun QqStyleChatDetailScreen(
                     }
                 }
             }
-            itemsIndexed(displayRuns,
+            itemsIndexed(windowedRuns,
                 key = { _, item -> item.key },
                 contentType = { _, run ->
                     if (run.messages.size > 1) "receipt-group"
@@ -782,8 +816,8 @@ fun QqStyleChatDetailScreen(
                     return@itemsIndexed
                 }
                 val message = run.messages.first()
-                val previous = displayRuns.getOrNull(index - 1)?.messages?.lastOrNull()
-                val next = displayRuns.getOrNull(index + 1)?.messages?.firstOrNull()
+                val previous = windowedRuns.getOrNull(index - 1)?.messages?.lastOrNull()
+                val next = windowedRuns.getOrNull(index + 1)?.messages?.firstOrNull()
                 val groupStart = previous == null || !sameQqMessageGroup(previous, message)
                 val groupEnd = next == null || !sameQqMessageGroup(message, next)
                 val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) } ?: character
@@ -845,14 +879,31 @@ fun QqStyleChatDetailScreen(
                 }
             }
             } // LazyColumn content ends before the overlay composable.
-            if (hasPositionedChat && showJumpToLatest && displayRuns.isNotEmpty()) {
+            if (loadMoreVisible) {
+                FilledTonalButton(
+                    onClick = {
+                        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
+                        val firstRun = listState.layoutInfo.visibleItemsInfo
+                            .firstOrNull { it.index >= announcementOffset }
+                        pendingWindowRestore = firstRun?.let {
+                            (it.index - announcementOffset + windowStart) to it.offset
+                        }
+                        runWindow += 120
+                    },
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                ) {
+                    Text("加载更早的消息", fontSize = 12.sp)
+                }
+            }
+            if (hasPositionedChat && showJumpToLatest && windowedRuns.isNotEmpty()) {
                 FilledTonalIconButton(
                     onClick = {
                         val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
                         scope.launch {
                             // Snap directly even with years of chat history;
                             // animating thousands of lazy rows is expensive.
-                            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
+                            listState.scrollToItem(windowedRuns.lastIndex + announcementOffset)
                         }
                     },
                     modifier = Modifier.align(Alignment.BottomEnd)
