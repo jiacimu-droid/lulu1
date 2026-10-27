@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3367d673232b2c4dd5fbf5734cd9ffe5be4708c6`
+- 基准提交：`979def17c8a3c5064711dd6789c16b4f65c01999`
 - 分支：`main`
 - 已索引文件：958
-- 已索引代码/文本行：190123
+- 已索引代码/文本行：190131
 - 已发现符号：2801
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 738 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2371 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2372 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -194,7 +194,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 518 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 525 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 309 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
