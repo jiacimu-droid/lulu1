@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:24:52.693386+00:00",
-  "commit": "bf928de2d69b9b791dc1f0dc0681cabc5db65967",
+  "generatedAt": "2026-10-27T20:06:02.176207+00:00",
+  "commit": "a87c086f6599e73266d53cf59ca4d69cceca7c9a",
   "branch": "main",
-  "sourceFingerprint": "4150dec50474a2dbe2b887739abf4b1b28f2784ab2a89a40140989503712f2b5",
+  "sourceFingerprint": "ab82826640839e254c1e20abf33fc397d8f0fab1053fb4a6fce75635aba77a75",
   "summary": {
     "files": 993,
     "lines": 196848,
@@ -17932,7 +17932,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
       "lines": 154,
-      "sha256": "0e3785a862d9af1105a8d189f76f736bf3da506ee9329bb0ac7bf6d909f78dc6",
+      "sha256": "cd4a16d464355dca1b420132f6e70af37fa64c7165d402b899779a780d435fc6",
       "symbols": [
         {
           "name": "Entry",
