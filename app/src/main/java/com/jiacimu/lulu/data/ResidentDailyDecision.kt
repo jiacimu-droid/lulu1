@@ -48,6 +48,15 @@ internal object ResidentDailyDecision {
     private fun dayPhaseKey(nativeId: String, day: String) = "phase:$nativeId:$day"
     private fun dayRecoveriesKey(nativeId: String, day: String) = "recoveries:$nativeId:$day"
 
+    private fun dueAttemptKey(plan: RoleDayPlan) = "execute:${plan.id}:${plan.dueAt}"
+    internal fun hasSavedDueToResume(context: Context, plan: RoleDayPlan): Boolean {
+        val p = prefs(context)
+        val key = dueAttemptKey(plan)
+        return p.contains("due-decision:$key") &&
+            p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery") &&
+            p.getInt("due-recoveries:$key", 0) < MAX_SAVED_DECISION_RECOVERIES
+    }
+
     /** A saved model choice can be resumed after a process death without buying
      * another model response. An unanswered/uncertain request never implies
      * permission to re-issue the same chargeable call. */
@@ -237,16 +246,31 @@ internal object ResidentDailyDecision {
         val selected = runCatching {
             ScopedModelSelections.resolveConnection(SCOPE)
         }.getOrNull() ?: return false
-        val key = "execute:${plan.id}:${plan.dueAt}"
-        // Failures remain visible as due; a stopped worker cannot silently buy another call.
-        if (prefs(app).getBoolean(key, false)) return false
-        if (!prefs(app).edit().putBoolean(key, true).commit()) return false
+        val key = dueAttemptKey(plan)
+        val p = prefs(app)
+        val decisionKey = "due-decision:$key"
+        val phaseKey = "due-phase:$key"
+        val recoveriesKey = "due-recoveries:$key"
+        val savedChoice = p.getString(decisionKey, null)?.let {
+            runCatching { JSONObject(it) }.getOrNull()
+        }
+        if (savedChoice != null) {
+            if (!hasSavedDueToResume(app, plan)) return false
+            check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
+                "居民到点决定恢复计数未保存"
+            }
+        } else {
+            // A crash/timeout before receiving an answer is uncertain: never
+            // silently buy a second model request for this appointment.
+            if (p.getBoolean(key, false)) return false
+            if (!p.edit().putBoolean(key, true).putString(phaseKey, "requesting").commit()) return false
+        }
         CharacterPhoneInbox.initialize(app)
         val pending = ResidentSocialMailbox.pendingIncoming(plan.characterId)
         val unread = CharacterPhoneInbox.unreadMoments(plan.characterId)
         val proposedArgs = runCatching { JSONObject(plan.activityArgs) }.getOrDefault(JSONObject())
         val now = Instant.now()
-        val response = LuluAiServices.gateway.generate(
+        val response = if (savedChoice == null) LuluAiServices.gateway.generate(
             characterId = plan.characterId,
             facts = decisionFacts(native, now, pending, unread) + "\n" +
                 "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
@@ -274,10 +298,25 @@ internal object ResidentDailyDecision {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}的到点决策失败",
                 message = error.message.orEmpty().take(180))
-        }.getOrNull() ?: return false
-        val choice = response.text.let(ModelStructuredOutput::objectOrNull) ?: return false
+        }.getOrNull() else null
+        val choice = savedChoice ?: response?.text?.let(ModelStructuredOutput::objectOrNull)
+        if (choice == null) {
+            p.edit().putString(phaseKey, if (response == null) "uncertain" else "invalid_output").commit()
+            return false
+        }
         val wanted = choice.optString("choice")
-        if (wanted !in setOf("execute", "reschedule", "cancel", "wait")) return false
+        if (wanted !in setOf("execute", "reschedule", "cancel", "wait")) {
+            p.edit().putString(phaseKey, "invalid_output").commit()
+            return false
+        }
+        // Persist the exact model-selected choice before any original or side
+        // action. Replays recover the same request IDs, not a fresh decision.
+        if (savedChoice == null) {
+            check(p.edit().putString(decisionKey, choice.toString())
+                .putString(phaseKey, "decided").commit()) {
+                "居民到点模型决定尚未保存，禁止开始执行"
+            }
+        }
         val originalHandled = when (wanted) {
             "execute" -> {
                 // When the model explicitly chooses to execute but leaves args
@@ -316,6 +355,16 @@ internal object ResidentDailyDecision {
         }
         pending.lastOrNull()?.let {
             check(ResidentSocialMailbox.acknowledgeIncoming(plan.characterId, it.id))
+        }
+        // Waiting isn't an accomplished activity. Keep its state distinct;
+        // failed effects remain visible and eligible for bounded replay.
+        val phase = when {
+            wanted == "wait" -> "waiting"
+            originalHandled -> "finished"
+            else -> "needs_recovery"
+        }
+        check(p.edit().putString(phaseKey, phase).commit()) {
+            "居民到点回执的执行阶段尚未保存"
         }
         return originalHandled
     }
