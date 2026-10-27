@@ -35,7 +35,7 @@ export function impactEnvelope(elapsedMs) {
   const t = Math.max(0, elapsedMs)
   // Reach the sideways peak in ~90ms, not an instant teleport or a 420ms
   // rigid freeze. A longer 1.5s release lets the head come back naturally.
-  if (t < 90) return Math.sin(t / 90 * Math.PI / 2)
+  if (t < 90) return .22 + .78 * Math.sin(t / 90 * Math.PI / 2)
   if (t < 250) return 1
   if (t < 1750) return .5 + .5 * Math.cos(Math.PI * (t - 250) / 1500)
   if (t < 2300) return -.035 * Math.sin(Math.PI * (t - 1750) / 550)
