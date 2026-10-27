@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:21:43.541000+00:00",
-  "commit": "43293f1aede4ba36c498c0b0530b270e78e3c64d",
+  "generatedAt": "2026-10-27T18:22:28.730571+00:00",
+  "commit": "eab051a925a5361da7c5cd35b33ff13994a81cfc",
   "branch": "main",
-  "sourceFingerprint": "835f8730935c4e7eea225c2f7d55502ddb71afbd29af85fb29a1987b87aa53fd",
+  "sourceFingerprint": "0c914361c9254338411607ba7f07699e7e727fd832b95a89f48041329f56a51e",
   "summary": {
     "files": 993,
-    "lines": 195987,
+    "lines": 196002,
     "symbols": 2908
   },
   "symbolIndex": {
@@ -6191,7 +6191,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 733
+        "line": 748
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10567,7 +10567,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 373
+        "line": 374
       }
     ],
     "plan": [
@@ -26667,8 +26667,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 783,
-      "sha256": "326f3fff35851aec59f1c76386802dd753e6176d9affadf676888e10f16c6e51",
+      "lines": 798,
+      "sha256": "7e4143117c7bc5cafab279329330b056ae85cd5bc79199076024299b84557210",
       "symbols": [
         {
           "name": "planForApp",
@@ -26684,11 +26684,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 373
+          "line": 374
         },
         {
           "name": "schedule",
-          "line": 733
+          "line": 748
         }
       ]
     },
