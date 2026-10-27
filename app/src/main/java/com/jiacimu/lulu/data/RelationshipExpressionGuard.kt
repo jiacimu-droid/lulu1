@@ -7,7 +7,8 @@ internal object RelationshipExpressionGuard {
         return state.rejectedAddresses.isNotEmpty() || state.preferences.any { it.requiredForms.isNotEmpty() }
     }
     fun apply(characterId: String, text: String, allowNames: Boolean = true): String {
-        if (text.isBlank() || text.startsWith("[图片|") || text.startsWith("[游戏邀约|")) return text
+        if (text.isBlank() || text.startsWith("[图片|") || text.startsWith("[游戏邀约|") ||
+            text.startsWith("[小红书分享]")) return text
         CharacterAddressPreference.refresh(characterId)
         val names = CharacterLifeStore.state(characterId).optJSONObject("socialNames")
         return repair(text, CharacterRelationshipPreferences.snapshot(characterId),
