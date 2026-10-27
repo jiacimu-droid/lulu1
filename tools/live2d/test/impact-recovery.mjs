@@ -45,21 +45,22 @@ function run(force, direction, fps, range = 30) {
 for (const fps of [15, 30, 60, 120]) for (const direction of [-1, 1]) {
   const curves = [.25, .55, .9].map(force => run(force, direction, fps))
   const peaks = curves.map(c => Math.max(...c.map(p => p.z)))
-  assert.ok(peaks[1] > peaks[0] + 4 && peaks[2] > peaks[1] + 5,
-    `distinct light/medium/heavy final rig outputs at ${fps}fps: ${peaks}`)
+  assert.ok(peaks[1] > peaks[0] + 2.5 && peaks[2] > peaks[1] + 3,
+    `light and strong swipes must have visibly different neck motion at ${fps}fps: ${peaks}`)
   const heavy = curves[2]
-  assert.ok(peaks[2] > 27 && heavy.some(p => p.x > 10 && p.body > 9.2),
-    'real ±10° torso should visibly reach its bound')
-  const screenPeaks = curves.map(c => Math.max(...c.map(p => p.screen)))
-  assert.ok(screenPeaks[1] > screenPeaks[0] + .025 &&
-    screenPeaks[2] > screenPeaks[1] + .015,
-    `light/medium/heavy display recoil at ${fps}fps: ${screenPeaks}`)
-  assert.ok(screenPeaks[2] > .23, 'heavy impact must visibly tilt the entire model')
-  assert.ok(heavy.some(p => p.t > 1500 && p.z < -1), 'one spring return overshoot')
+  assert.ok(peaks[2] > 18 && heavy.some(p => p.x > 3),
+    'strong impact should rotate the head without toppling the torso')
+  assert.ok(heavy.every(p => Math.abs(p.body) < 5),
+    'a cheek swipe must never turn the torso to the old 10-degree limit')
+  const screenPeaks = curves.map(c => Math.max(...c.map(p => Math.abs(p.screen))))
+  assert.ok(screenPeaks.every(p => p <= .015),
+    `whole-avatar rotation must remain nearly imperceptible at ${fps}fps: ${screenPeaks}`)
+  assert.ok(heavy.some(p => p.t > 1700 && Math.abs(p.z) < 3),
+    'the neck should gradually recover over the long release')
   assert.ok(heavy.some(p => p.t > 350 && p.t < 1000 && p.gaze < -.2 && p.pout > .5),
     'eyes look back while the head is still displaced, with the aggrieved mouth')
   assert.ok(Math.abs(heavy.at(-1).z) < .02 && Math.abs(heavy.at(-1).x) < .02)
-  assert.ok(Math.abs(heavy.at(-1).screen) < .015, 'whole body returns to rest')
+  assert.ok(Math.abs(heavy.at(-1).screen) < .015, 'display returns to rest')
   run(.9, direction, fps, 10)
 }
 // Non-impact gestures keep their own actuators (especially directional mouth touch).
