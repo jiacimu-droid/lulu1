@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T17:29:37.611891+00:00",
-  "commit": "924f92e1a5766b29c60e4694e2419b678b085935",
+  "generatedAt": "2026-10-27T17:29:56.170768+00:00",
+  "commit": "d2419a3c835fd37b37598c0707c52f77d4c36d21",
   "branch": "main",
-  "sourceFingerprint": "640a215a8552db05de92c73653aa3090855f2dc27fc19b74be51243cfdbf60d7",
+  "sourceFingerprint": "e278e1d3b979c59c7f4628475d53bc70249c9d662c121435f5404e9e50cdae32",
   "summary": {
     "files": 991,
     "lines": 195386,
@@ -16257,7 +16257,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 183,
-      "sha256": "a0490694b3356f01de1b86fbd172d05f3537a82ac429a1202bc2eae1e2b6fa17",
+      "sha256": "b632ebc91fe5a3a680b532d306397aec6146c3902634e9bd9d0de189af1a5f6b",
       "symbols": []
     },
     {
@@ -17802,7 +17802,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
       "lines": 427,
-      "sha256": "9023513a7581bbae0f725690bd3a8862fa8146c4b24783e2a8e2da34b2554228",
+      "sha256": "f5de6780a3f0add8706019e7e020d51adc99480e7acbb45945f4bae90679b33d",
       "symbols": [
         {
           "name": "record",
