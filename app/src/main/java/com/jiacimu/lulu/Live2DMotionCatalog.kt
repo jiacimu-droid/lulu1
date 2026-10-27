@@ -82,7 +82,7 @@ internal object Live2DMotionCatalog {
         15 to Entry("右摇晃", "摇晃、心情好、晃悠时"),
         16 to Entry("好奇点动", "好奇、点动、真的吗时", face = curiousFace, faceNote = "好奇抬眉、眼睛睁大"),
         17 to Entry(
-            "开心蹦跳", "开心、好耶、蹦跳时", "爱心眼", "chest:tap",
+            "开心蹦跳", "开心、好耶、蹦跳时", "星星眼", "chest:tap",
             face = happyFace, faceNote = "大笑容、笑眼",
         ),
         18 to Entry("缓慢重心移动", "放松、换姿势、慢慢晃时"),
@@ -108,7 +108,7 @@ internal object Live2DMotionCatalog {
             faceNote = "半闭眼、没精神",
         ),
         25 to Entry(
-            "兴奋小抖动", "兴奋、期待时", "爱心眼",
+            "兴奋小抖动", "兴奋、期待时", "星星眼",
             face = happyFace, faceNote = "大笑容、笑眼",
         ),
         26 to Entry(
@@ -123,7 +123,7 @@ internal object Live2DMotionCatalog {
             face = shyFace, faceNote = "含笑低眼、视线偏开",
         ),
         28 to Entry(
-            "温柔靠近", "温柔、安慰、靠近你时", "爱心眼", "cheek:stroke",
+            "温柔靠近", "温柔、安慰、靠近你时", "星星眼", "cheek:stroke",
             face = mapOf(
                 "smile" to 0.46f, "eyeSmile" to 0.35f, "eyeOpen" to 0.82f,
                 "browY" to 0.16f, "gazeX" to 0.0f,
