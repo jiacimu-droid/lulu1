@@ -5,6 +5,7 @@ import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from '../src/v
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
+import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
 // voice gating and authored motions. No mock reimplementation of the player.
@@ -35,7 +36,8 @@ const bridge = {
   speechMouth: createSpeechMouthRuntime({
     has: () => false, write: () => false,
   }), wolfRigActive: false,
-  FACE_BINDINGS, BODY_BINDINGS,
+  FACE_BINDINGS, BODY_BINDINGS, touchExpressionCategory,
+  touchExpressionNames: ['star', 'heart'],
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   mouthExclusiveExpressions: new Set(['tongue']),
@@ -79,6 +81,9 @@ bridge.onPlaybackEvent('playing')
 assert.equal(motions.length, 1, 'duplicate audio callbacks cannot restart an action')
 
 // A new expression-only decision cancels ALL old unplayed beats and poses.
+bridge.perform({ expression: 'heart' })
+assert.equal(expressions.at(-1), 'star',
+  'heart-eye selection must keep the motion but use the available star eyes')
 bridge.perform({ expression: 'star' })
 assert.equal(bridge.headRequest, null)
 assert.equal(bridge.bodyRequest, null)
