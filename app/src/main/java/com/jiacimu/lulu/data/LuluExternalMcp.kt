@@ -239,6 +239,10 @@ internal object LuluExternalMcp {
             require(article.body.isNotBlank() || data.isNotEmpty()) { "图片下载失败，没有可读取的图文，未标记已读" }
             val baseObservation = JSONObject().put("title", title).put("author", article.author)
                 .put("url", link).put("text", article.body)
+                // Preserve actual source fields separately for a future role-authored
+                // share card. Image-only observations must not masquerade as post body.
+                .put("authorBody", article.body)
+                .put("coverUrl", article.images.firstOrNull()?.url.orEmpty())
                 .put("topic", if (fromShare) title else keyword.ifBlank { title })
                 .put("discoveryMode", if (fromShare) "shared_link" else if (keyword.isBlank()) "home" else "search")
                 .put("imageCount", article.images.size).put("imageReadingStatus", visualStatus)
