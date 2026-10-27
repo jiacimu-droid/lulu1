@@ -26,6 +26,30 @@ class Live2DFineTouchTest {
         assertNull(InteractionSignalBridge.avatarContactDescription("hair", "down", 1))
     }
 
+    @Test fun completedGestureUsesWholePathNotLastJitter() {
+        val slop = 8f
+        assertEquals("stroke-right", Live2DTouchGesture.releasedGesture(
+            96f, -4f, 130f, slop, 180L, "stroke-left"))
+        assertEquals("stroke-left", Live2DTouchGesture.releasedGesture(
+            -96f, 4f, 130f, slop, 180L, "stroke-right"))
+        assertEquals("stroke-down", Live2DTouchGesture.releasedGesture(
+            3f, 90f, 115f, slop, 180L, "stroke-left"))
+        assertEquals("stroke-up", Live2DTouchGesture.releasedGesture(
+            -2f, -90f, 115f, slop, 180L, "stroke-right"))
+        assertEquals("stroke-left", Live2DTouchGesture.releasedGesture(
+            1f, 1f, 190f, slop, 180L, "stroke-left"))
+        assertEquals("hold", Live2DTouchGesture.releasedGesture(
+            0f, 0f, 190f, slop, 180L, null))
+        assertEquals("tap", Live2DTouchGesture.releasedGesture(
+            1f, 1f, 5f, slop, 120L, null))
+        assertEquals("hold", Live2DTouchGesture.releasedGesture(
+            1f, 1f, 5f, slop, 600L, null))
+        assertEquals("slap-right", Live2DTouchGesture.performed("pat",
+            Live2DTouchGesture.releasedGesture(96f, 0f, 130f, slop, 180L, "stroke-left")))
+        assertEquals("kiss", Live2DTouchGesture.performed("kiss",
+            Live2DTouchGesture.releasedGesture(96f, 0f, 130f, slop, 180L, "stroke-left")))
+    }
+
     @Test fun selectedContactToolSurvivesSingleTapAndDirectionalDrag() {
         val singleTap = Live2DTouchGesture.performed("pat", "tap")
         assertEquals("slap", singleTap)
