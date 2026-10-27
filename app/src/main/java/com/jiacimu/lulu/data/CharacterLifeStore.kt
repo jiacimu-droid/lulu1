@@ -26,10 +26,13 @@ object CharacterLifeStore {
 
     @Synchronized fun initialize(context: Context) {
         appContext = context.applicationContext
-        if (prefs != null) return
-        prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
-        mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
-        // User-requested installation migration, limited to this named companion.
+        if (prefs == null) {
+            prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
+        }
+        // 预设补跑不能只在第一次启动做一次：重装后主角可能先叫默认名、
+        // 或之后才被改名叫江渡，错过那一次就永远装不上。补跑本身是幂等的
+        // （已到最新版直接返回、用户改过的字段一律不动），每次启动都跑才安全。
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
     }
@@ -252,7 +255,9 @@ object CharacterLifeStore {
         val version = root.optInt("jiangDuPresetVersion")
         if (version >= CharacterProfileSchema.jiangDuPresetVersion) return
         // A previous preset identifies the SAME character after a rename.
-        if (version <= 0 && character.displayName !in CharacterProfileSchema.jiangDuNames) return
+        // 主角 lulu 就是江渡本人：重装后默认名是“露露”，只认名字会把他漏掉，
+        // 所以主角 ID 直接算数，不用等用户改名。
+        if (version <= 0 && characterId != "lulu" && character.displayName !in CharacterProfileSchema.jiangDuNames) return
         if (DigitalLifeProfileStore.lifeForm(characterId) == CharacterLifeForm.REAL_WORLD) return
         val profile = root.optJSONObject("profile") ?: JSONObject()
         if (!root.has("jiangDuV9Backup")) {

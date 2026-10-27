@@ -7,6 +7,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -215,21 +217,47 @@ internal fun MigrationHomeV2(
             }
 
             Spacer(Modifier.height(9.dp))
-            DesktopLauncherGrid(
-                slots = slots,
+            // 一页 16 格，格子不够就加页：已有格子不动，新应用往后排进空位。
+            val pageCount = (slots.size + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+            val pagerState = rememberPagerState(pageCount = { pageCount })
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                onMove = { from, to ->
-                    if (from != to) {
-                        val updated = slots.toMutableList()
-                        val moving = updated[from]
-                        updated[from] = updated[to]
-                        updated[to] = moving
-                        slots = updated
-                        saveDesktopSlots(context, updated)
+            ) { page ->
+                val pageSlots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT)
+                DesktopLauncherGrid(
+                    slots = pageSlots,
+                    modifier = Modifier.fillMaxWidth(),
+                    onMove = { from, to ->
+                        val globalFrom = page * DESKTOP_SLOT_COUNT + from
+                        val globalTo = page * DESKTOP_SLOT_COUNT + to
+                        if (globalFrom != globalTo) {
+                            val updated = slots.toMutableList()
+                            val moving = updated[globalFrom]
+                            updated[globalFrom] = updated[globalTo]
+                            updated[globalTo] = moving
+                            slots = updated
+                            saveDesktopSlots(context, updated)
+                        }
+                    },
+                    onOpen = onOpen,
+                )
+            }
+            if (pageCount > 1) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    repeat(pageCount) { index ->
+                        Surface(
+                            modifier = Modifier.padding(horizontal = 3.dp)
+                                .size(if (index == pagerState.currentPage) 7.dp else 5.dp),
+                            shape = CircleShape,
+                            color = if (index == pagerState.currentPage) DesktopAccent else DesktopLine,
+                        ) {}
                     }
-                },
-                onOpen = onOpen,
-            )
+                }
+            }
         }
         }
     }
@@ -463,26 +491,38 @@ private fun DesktopV2Avatar(text: String, size: Int, imageUri: String? = null, m
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size, modifier = modifier)
 
 private fun loadDesktopSlots(context: Context): List<String?> {
-    val defaults = MutableList<String?>(DESKTOP_SLOT_COUNT) { null }
-    DesktopV2Launchers.forEachIndexed { index, launcher -> defaults[index] = launcher.id }
+    val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
     val raw = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .getString("slots_v1", null)
-        ?: return defaults
-    val parsed = raw.split('|').map { value -> value.takeIf(String::isNotBlank) }.toMutableList()
-    while (parsed.size < DESKTOP_SLOT_COUNT) parsed.add(null)
-    val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
-    val sanitized = parsed.take(DESKTOP_SLOT_COUNT).map { id -> id?.takeIf { it in known } }.toMutableList()
-    val existing = sanitized.filterNotNull().toMutableSet()
-    DesktopV2Launchers.filterNot { it.id in existing }.forEach { launcher ->
-        val empty = sanitized.indexOfFirst { it == null }
-        if (empty >= 0) sanitized[empty] = launcher.id
+    val saved = raw?.split('|')
+        ?.map { value -> value.takeIf(String::isNotBlank) }
+        ?.map { id -> id?.takeIf { it in known } }
+        ?.toMutableList()
+        ?: mutableListOf()
+    // 旧版只有一页 16 格；新版按页扩：已有格子保持原位，新应用往后排进空位，
+    // 格子不够就加一页，绝不丢应用。位置以最远已有格子为准，避免后页应用被裁掉。
+    val existing = saved.filterNotNull().toMutableSet()
+    val missing = DesktopV2Launchers.filterNot { it.id in existing }
+    val lastOccupied = saved.indexOfLast { it != null }
+    val totalNeeded = maxOf(existing.size + missing.size, DESKTOP_SLOT_COUNT, lastOccupied + 1)
+    val pageCount = (totalNeeded + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+    val sized = MutableList<String?>(pageCount * DESKTOP_SLOT_COUNT) { null }
+    saved.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
+    missing.forEach { launcher ->
+        val empty = sized.indexOfFirst { it == null }
+        if (empty >= 0) sized[empty] = launcher.id
     }
-    return sanitized
+    // 删掉尾部全空的页（比如某应用下线后留下的空页），至少留一页。
+    var pages = pageCount
+    while (pages > 1 && sized.drop((pages - 1) * DESKTOP_SLOT_COUNT).all { it == null }) {
+        pages -= 1
+    }
+    return sized.take(pages * DESKTOP_SLOT_COUNT)
 }
 
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
     context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .edit()
-        .putString("slots_v1", slots.take(DESKTOP_SLOT_COUNT).joinToString("|") { it.orEmpty() })
+        .putString("slots_v1", slots.joinToString("|") { it.orEmpty() })
         .apply()
 }
