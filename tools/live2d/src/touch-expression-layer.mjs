@@ -23,9 +23,22 @@ export function createTouchExpressionLayer({ has, read, write }) {
     const parameters = metadata?.[name]?.Parameters
     if (!Array.isArray(parameters)) return false
     const weight = touchExpressionWeight(name, state)
+    // Many imported exp3 presets bundle a cute blush with a SINGLE eye lid
+    // closure (a wink). Automatic touch must not close the untouched eye.
+    // Preserve the blush/tear/accessory-independent additive channels; a
+    // deliberate manually selected expression is not handled by this layer.
+    const eyePairs = [
+      ['ParamEyeLOpen', 'ParamEyeROpen'],
+      ['ParamEyeLSmile', 'ParamEyeRSmile'],
+      ['ParamEyeLSquint', 'ParamEyeRSquint'],
+    ]
+    const ids = new Set(parameters.map(p => p?.Id))
+    const unpairedEyeIds = new Set(eyePairs.flatMap(([left, right]) =>
+      ids.has(left) !== ids.has(right) ?
+        [ids.has(left) ? left : right] : []))
     for (const p of parameters) {
       if (p?.Blend !== 'Add' || !Number.isFinite(p.Value) ||
-          !has(core, p.Id)) continue
+          unpairedEyeIds.has(p.Id) || !has(core, p.Id)) continue
       const base = read(core, p.Id)
       if (Number.isFinite(base)) channels.push({ id: p.Id, base,
         expression: name, value: p.Value, delta: p.Value * weight })
