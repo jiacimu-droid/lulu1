@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2e249022068cd91ef56eeb5006cc27d234b6b0ae`
+- 基准提交：`074ba2c1417a85dc69d63439622736443ddc455a`
 - 分支：`main`
-- 已索引文件：952
-- 已索引代码/文本行：188829
-- 已发现符号：2766
+- 已索引文件：954
+- 已索引代码/文本行：189140
+- 已发现符号：2778
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -380,7 +380,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 40 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt` | 37 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 140 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 249 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActionId.kt` | 7 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 265 | 5 |
@@ -401,6 +401,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 223 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1186 | 36 |
+| `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 364 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
@@ -842,6 +843,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt` | 96 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt` | 114 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 337 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 67 | 1 |

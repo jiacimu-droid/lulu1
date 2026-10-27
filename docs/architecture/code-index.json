@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T03:50:06.036296+00:00",
-  "commit": "2e249022068cd91ef56eeb5006cc27d234b6b0ae",
+  "generatedAt": "2026-10-27T04:06:30.383844+00:00",
+  "commit": "074ba2c1417a85dc69d63439622736443ddc455a",
   "branch": "main",
-  "sourceFingerprint": "8d3fcdd931caf79cb4b4b9023f4235febccbba75184558425a48a12342125325",
+  "sourceFingerprint": "64f05aa8ab839bf3f976fe91b64fa9cabe316da0326c9eaa36a7f4ffccc4cdc0",
   "summary": {
-    "files": 952,
-    "lines": 188829,
-    "symbols": 2766
+    "files": 954,
+    "lines": 189140,
+    "symbols": 2778
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3164,6 +3164,10 @@
         "line": 16
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+        "line": 131
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
         "line": 30
       },
@@ -5026,6 +5030,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
         "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -7347,19 +7355,19 @@
     "gapHours": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 44
+        "line": 88
       }
     ],
     "ageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 46
+        "line": 90
       }
     ],
     "addIfOld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 60
+        "line": 104
       }
     ],
     "CharacterLifeForm": [
@@ -7932,6 +7940,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 830
+      }
+    ],
+    "strongest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+        "line": 126
       }
     ],
     "toJson": [
@@ -14606,6 +14620,60 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt",
         "line": 15
+      }
+    ],
+    "DriveStateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 12
+      }
+    ],
+    "valuesAreClampedToZeroAndOne": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 18
+      }
+    ],
+    "affiliationUsesMostRecentSocialContact": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 28
+      }
+    ],
+    "curiosityIsSatisfiedByToolsAndByLearningAboutTheUser": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 39
+      }
+    ],
+    "nightRestDominatesOtherDrives": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 64
+      }
+    ],
+    "daytimeRestOnlyReflectsRecentLoad": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 79
+      }
+    ],
+    "careGrowsWithOpenItemsAndCaps": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 93
+      }
+    ],
+    "autonomyGrowsWithUnspokenThoughts": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 100
+      }
+    ],
+    "strongThresholdIsConservative": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+        "line": 105
       }
     ],
     "EmbodiedBodyPhysicsTest": [
@@ -22442,8 +22510,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-      "lines": 90,
-      "sha256": "201d9e0e60c220a3e778e39d8dd869262809b8a4669d8e906420198b2a53527d",
+      "lines": 140,
+      "sha256": "bb5d44f2b6c2f0d5d4c77bd6670e7f6e2e2c45e6d78e4b8eb1272834d2cc5a61",
       "symbols": [
         {
           "name": "promptSection",
@@ -22455,15 +22523,15 @@
         },
         {
           "name": "gapHours",
-          "line": 44
+          "line": 88
         },
         {
           "name": "ageLabel",
-          "line": 46
+          "line": 90
         },
         {
           "name": "addIfOld",
-          "line": 60
+          "line": 104
         }
       ]
     },
@@ -23073,6 +23141,25 @@
         {
           "name": "clearCharacter",
           "line": 899
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+      "lines": 147,
+      "sha256": "f2dc0b34df012223008c1a8ab4c98881fb536bc4ed74db18ee70b958049f9f29",
+      "symbols": [
+        {
+          "name": "snapshot",
+          "line": 87
+        },
+        {
+          "name": "strongest",
+          "line": 126
+        },
+        {
+          "name": "render",
+          "line": 131
         }
       ]
     },
@@ -31583,6 +31670,49 @@
         {
           "name": "DigitalWorldResidentEpisodeStoreTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DriveStateTest.kt",
+      "lines": 114,
+      "sha256": "477f5ae1d3db3f6470ccca2036db7f237351c206485a0f8f559274dd0e77afe4",
+      "symbols": [
+        {
+          "name": "DriveStateTest",
+          "line": 12
+        },
+        {
+          "name": "valuesAreClampedToZeroAndOne",
+          "line": 18
+        },
+        {
+          "name": "affiliationUsesMostRecentSocialContact",
+          "line": 28
+        },
+        {
+          "name": "curiosityIsSatisfiedByToolsAndByLearningAboutTheUser",
+          "line": 39
+        },
+        {
+          "name": "nightRestDominatesOtherDrives",
+          "line": 64
+        },
+        {
+          "name": "daytimeRestOnlyReflectsRecentLoad",
+          "line": 79
+        },
+        {
+          "name": "careGrowsWithOpenItemsAndCaps",
+          "line": 93
+        },
+        {
+          "name": "autonomyGrowsWithUnspokenThoughts",
+          "line": 100
+        },
+        {
+          "name": "strongThresholdIsConservative",
+          "line": 105
         }
       ]
     },
