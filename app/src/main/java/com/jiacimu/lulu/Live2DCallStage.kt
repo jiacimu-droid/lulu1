@@ -197,23 +197,20 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     var lastSent = began
                     var lastStrokeGesture: String? = null
                     fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
-                        // Ignore coordinates outside the real stage; clamping formerly
-                        // converted overscroll/background contact into model contact.
-                        // A fast palm swipe often RELEASES beyond the visible
-                        // viewport. Preserve its registered DOWN hit and travel
-                        // direction; cancelling here used to drop the slap.
-                        // Other modes still reject out-of-bounds contacts.
-                        val palmRelease = completed && !calibrationMode &&
-                            interactionMode == "pat"
+                        // A real DOWN hit may finish outside the viewport during
+                        // a fast swipe, long caress or kiss. Only the release is
+                        // clamped; the renderer validates its cached active hit.
+                        // A DOWN/MOVE outside the stage can never create a hit.
+                        val anchoredRelease = completed && !calibrationMode
                         if ((x < 0 || y < 0 || x >= size.width || y >= size.height) &&
-                            !palmRelease) {
+                            !anchoredRelease) {
                             if (!calibrationMode) stage.evaluateJavascript(
                                 "window.LuluLive2D && window.LuluLive2D.touch(0,0,'cancel')", null)
                             return
                         }
-                        val nx = (if (palmRelease)
+                        val nx = (if (anchoredRelease)
                             x.coerceIn(0f, (size.width - 1).toFloat()) else x) / size.width
-                        val ny = (if (palmRelease)
+                        val ny = (if (anchoredRelease)
                             y.coerceIn(0f, (size.height - 1).toFloat()) else y) / size.height
                         val elapsed = (android.os.SystemClock.uptimeMillis() - began).coerceAtLeast(0L)
                         val js = if (calibrationMode) {
@@ -284,14 +281,10 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                         val dx = last.x - down.position.x
                         val dy = last.y - down.position.y
                         val stroke = travel > viewConfiguration.touchSlop * 3
-                        val kind = when {
-                            stroke && lastStrokeGesture != null -> lastStrokeGesture!!
-                            stroke && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
-                                if (dx >= 0) "stroke-right" else "stroke-left"
-                            stroke -> if (dy >= 0) "stroke-down" else "stroke-up"
-                            android.os.SystemClock.uptimeMillis() - began >= 520L -> "hold"
-                            else -> "tap"
-                        }
+                        val kind = Live2DTouchGesture.releasedGesture(
+                            dx, dy, travel, viewConfiguration.touchSlop,
+                            android.os.SystemClock.uptimeMillis() - began, lastStrokeGesture,
+                        )
                         val pos = if (stroke) last else down.position
                         val performed = if (calibrationMode) "calibrate"
                             else Live2DTouchGesture.performed(interactionMode, kind)
