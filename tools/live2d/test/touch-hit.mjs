@@ -381,6 +381,25 @@ bridge.actualAvatarPixel = nx => nx < .9
 const beyondFace = bridge.touch(.96, .235, 'slap-right',
   { phase: 'complete', mode: 'pat', force: .9 })
 assert.equal(beyondFace.region, 'cheek-left', 'a valid strike survives release outside the face')
+// The same verified contact rule applies to long caresses and kisses,
+// not only palm strikes. Releasing over a blank pixel must not erase
+// the real last-touched body part or create a phantom touch from nowhere.
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand' })
+bridge.actualAvatarPixel = nx => nx < .9
+const offscreenCaress = bridge.touch(.96, .235, 'stroke-right',
+  { phase: 'complete', mode: 'hand', force: .25 })
+assert.equal(offscreenCaress.region, 'cheek-left')
+assert.equal(offscreenCaress.gesture, 'stroke-right')
+bridge.actualAvatarPixel = () => true
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'kiss' })
+bridge.actualAvatarPixel = nx => nx < .9
+const offscreenKiss = bridge.touch(.96, .235, 'kiss',
+  { phase: 'complete', mode: 'kiss', force: .9 })
+assert.equal(offscreenKiss.region, 'cheek-left')
+assert.equal(offscreenKiss.gesture, 'kiss')
+const phantomRelease = bridge.touch(.96, .235, 'kiss',
+  { phase: 'complete', mode: 'kiss' })
+assert.equal(phantomRelease.hit, false, 'release without an active hit cannot touch background')
 bridge.actualAvatarPixel = () => true
 const beforeMiss = stageResponse.snapshot().impact
 bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
