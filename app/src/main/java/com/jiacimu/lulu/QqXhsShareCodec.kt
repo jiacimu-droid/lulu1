@@ -17,6 +17,8 @@ internal data class QqXhsSharedNote(
     val comments: List<String> = emptyList(),
     val verified: Boolean = false,
     val shareText: String = "",
+    /** An authenticated app-generated outgoing role share, not user-authored narration. */
+    val sharedByCharacter: Boolean = false,
 )
 
 private val xhsDirective = Regex("""⟪XHS_NOTE:([A-Za-z0-9_-]+)⟫""")
@@ -55,6 +57,7 @@ internal fun encodeQqXhsSharedNote(note: QqXhsSharedNote): String {
         .put("body", note.body.trim().take(8_000))
         .put("visual", note.visualReading.trim().take(6_000))
         .put("verified", note.verified)
+        .put("sharedByCharacter", note.sharedByCharacter)
         .put("shareText", note.shareText.trim().take(3_000))
         .put("comments", JSONArray().apply { note.comments.take(8).forEach { put(it.take(320)) } })
     val token = Base64.getUrlEncoder().withoutPadding()
@@ -99,6 +102,7 @@ internal fun decodeQqXhsSharedNote(content: String): QqXhsSharedNote? {
                 .map { comments!!.optString(it).take(320) }.filter(String::isNotBlank),
             verified = json.optBoolean("verified", false),
             shareText = json.optString("shareText").take(3_000),
+            sharedByCharacter = json.optBoolean("sharedByCharacter", false),
         )
     }.getOrNull()
 }
@@ -107,7 +111,8 @@ internal fun decodeQqXhsSharedNote(content: String): QqXhsSharedNote? {
 internal fun qqXhsContextText(content: String): String? =
     decodeQqXhsSharedNote(content)?.let { note ->
         buildString {
-            append("[用户分享小红书笔记] 标题：${note.title}；链接：${note.url}")
+            append(if (note.sharedByCharacter) "[角色发给用户的小红书分享]" else "[用户分享小红书笔记]")
+            append(" 标题：${note.title}；链接：${note.url}")
             if (note.author.isNotBlank()) append("；作者：${note.author}")
             if (note.verified) {
                 if (note.body.isNotBlank()) append("\n真实提取的正文：${note.body.take(4_000)}")
@@ -115,7 +120,7 @@ internal fun qqXhsContextText(content: String): String? =
                 if (note.comments.isNotEmpty()) append("\n已加载的评论：${note.comments.take(6).joinToString("；").take(900)}")
                 if (note.visualReading.isBlank() && note.coverUrl.isNotBlank()) append("\n存在封面或图片，但没有可确认的图片理解")
             } else {
-                append("\n目前只有用户分享的标题和链接，尚未实际读取网页正文、图片或评论；不能声称已经看过")
+                append("\n目前只有分享的标题和链接，尚未实际读取网页正文、图片或评论；不能声称已经看过")
                 if (note.shareText.isNotBlank()) append("\n原分享附言：${note.shareText.take(400)}")
             }
         }
