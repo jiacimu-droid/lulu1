@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
@@ -153,17 +155,124 @@ internal fun MigrationHomeV2(
         }
     }
 
+    val pageCount = slots.size / DESKTOP_SLOT_COUNT
+    val pagerState = rememberPagerState(pageCount = { pageCount })
+    val dragScope = rememberCoroutineScope()
+    var draggingSource by remember { mutableStateOf<Int?>(null) }
+    var dragPosition by remember { mutableStateOf(Offset.Zero) }
+    var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
+    var edgePageHandled by remember { mutableIntStateOf(-1) }
+    var viewportTopInWindow by remember { mutableFloatStateOf(0f) }
+    var homeGridTopInWindow by remember { mutableFloatStateOf(0f) }
+    var homeGridHeightPx by remember { mutableFloatStateOf(0f) }
+
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         Box(Modifier.fillMaxSize()) {
             if (!journal) LuluAppearancePattern(Modifier.fillMaxSize())
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(if (journal) Modifier.journalLinen(appearance) else Modifier)
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = 20.dp),
-        ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .then(if (journal) Modifier.journalLinen(appearance) else Modifier)
+                    .statusBarsPadding().navigationBarsPadding()
+                    .padding(horizontal = 20.dp),
+            ) {
+                // The pager owns the ENTIRE desktop content, not only the last 4x4
+                // icon grid. Page 0 is the familiar companion dashboard; subsequent
+                // pages each receive their own independent full-height 4x4 grid.
+                BoxWithConstraints(
+                    Modifier.fillMaxWidth().weight(1f)
+                        .onGloballyPositioned {
+                            viewportTopInWindow = it.positionInWindow().y
+                        }
+                        .pointerInput(slots, homeGridTopInWindow, homeGridHeightPx, viewportTopInWindow) {
+                            val cellWidth = size.width.toFloat() / DESKTOP_COLUMNS
+                            if (cellWidth <= 0f) return@pointerInput
+                            val edgePx = 32.dp.toPx()
+                            val iconHeightPx = 86.dp.toPx()
+
+                            fun gridTop(page: Int): Float =
+                                if (page == 0) homeGridTopInWindow - viewportTopInWindow else 0f
+                            fun gridHeight(page: Int): Float =
+                                if (page == 0) homeGridHeightPx else size.height.toFloat()
+                            fun slotAt(position: Offset, page: Int): Int? {
+                                val top = gridTop(page)
+                                val height = gridHeight(page)
+                                if (height <= 0f || position.y < top || position.y >= top + height) return null
+                                val cellHeight = height / DESKTOP_ROWS
+                                val row = ((position.y - top) / cellHeight).toInt().coerceIn(0, DESKTOP_ROWS - 1)
+                                val col = (position.x / cellWidth).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
+                                return page * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+                            }
+
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { start ->
+                                    val page = pagerState.currentPage
+                                    val source = slotAt(start, page)
+                                    if (source != null && slots.getOrNull(source) != null) {
+                                        val row = (source % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS
+                                        val col = source % DESKTOP_COLUMNS
+                                        val height = gridHeight(page) / DESKTOP_ROWS
+                                        if (start.y - gridTop(page) - row * height <= iconHeightPx) {
+                                            draggingSource = source
+                                            dragPosition = start
+                                            dragGrabOffset = Offset(
+                                                start.x - col * cellWidth,
+                                                start.y - gridTop(page) - row * height,
+                                            )
+                                            edgePageHandled = -1
+                                        }
+                                    }
+                                },
+                                onDrag = { change, _ ->
+                                    if (draggingSource != null) {
+                                        change.consume()
+                                        dragPosition = change.position
+                                        val currentPage = pagerState.currentPage
+                                        val edgeTarget = when {
+                                            dragPosition.x >= size.width - edgePx -> currentPage + 1
+                                            dragPosition.x <= edgePx -> currentPage - 1
+                                            else -> -1
+                                        }
+                                        if (edgeTarget == -1) {
+                                            edgePageHandled = -1
+                                        } else if (edgeTarget in 0 until pageCount && edgePageHandled == -1) {
+                                            edgePageHandled = currentPage
+                                            dragScope.launch { pagerState.scrollToPage(edgeTarget) }
+                                        }
+                                    }
+                                },
+                                onDragEnd = {
+                                    draggingSource?.let { from ->
+                                        val target = slotAt(dragPosition, pagerState.currentPage)
+                                        if (target != null) {
+                                            val updated = desktopMoveLauncher(slots, from, target)
+                                            if (updated != slots) {
+                                                slots = updated
+                                                saveDesktopSlots(context, updated)
+                                            }
+                                        }
+                                    }
+                                    draggingSource = null
+                                    edgePageHandled = -1
+                                },
+                                onDragCancel = {
+                                    draggingSource = null
+                                    edgePageHandled = -1
+                                },
+                            )
+                        },
+                ) {
+                    val density = LocalDensity.current
+                    val cellWidth = maxWidth / DESKTOP_COLUMNS
+                    // The page root is the drag surface so a long press can cross a
+                    // page boundary without destroying its pointer gesture owner.
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        reverseLayout = false,
+                        userScrollEnabled = draggingSource == null,
+                    ) { page ->
+                        if (page == 0) {
+                            Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -237,97 +346,40 @@ internal fun MigrationHomeV2(
             }
 
             Spacer(Modifier.height(9.dp))
-            // 手势属于整张桌面，不属于某一页上的图标：翻页时仍能拖着同一图标。
-            val pageCount = slots.size / DESKTOP_SLOT_COUNT
-            val pagerState = rememberPagerState(pageCount = { pageCount })
-            val scope = rememberCoroutineScope()
-            var draggingSource by remember { mutableStateOf<Int?>(null) }
-            var dragPosition by remember { mutableStateOf(Offset.Zero) }
-            var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
-            var edgePageHandled by remember { mutableIntStateOf(-1) }
-            BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
-                val density = LocalDensity.current
-                val cellWidth = maxWidth / DESKTOP_COLUMNS
-                val cellHeight = maxHeight / DESKTOP_ROWS
-                val cellWidthPx = with(density) { cellWidth.toPx() }
-                val cellHeightPx = with(density) { cellHeight.toPx() }
-                val edgePx = with(density) { 32.dp.toPx() }
-                val iconHeightPx = with(density) { 86.dp.toPx() }
-                Box(
-                    Modifier.fillMaxSize().pointerInput(slots, cellWidthPx, cellHeightPx) {
-                        if (cellWidthPx <= 0f || cellHeightPx <= 0f) return@pointerInput
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { start ->
-                                val col = (start.x / cellWidthPx).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
-                                val row = (start.y / cellHeightPx).toInt().coerceIn(0, DESKTOP_ROWS - 1)
-                                val source = pagerState.currentPage * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
-                                // Long-pressing empty page space should not start moving an icon.
-                                if (slots.getOrNull(source) != null &&
-                                    start.y - row * cellHeightPx <= iconHeightPx) {
-                                    draggingSource = source
-                                    dragPosition = start
-                                    dragGrabOffset = Offset(start.x - col * cellWidthPx, start.y - row * cellHeightPx)
-                                    edgePageHandled = -1
+
+                                Box(
+                                    Modifier.fillMaxWidth().weight(1f)
+                                        .onGloballyPositioned {
+                                            homeGridTopInWindow = it.positionInWindow().y
+                                            homeGridHeightPx = it.size.height.toFloat()
+                                        },
+                                ) {
+                                    DesktopLauncherGrid(
+                                        slots = slots.take(DESKTOP_SLOT_COUNT),
+                                        modifier = Modifier.fillMaxSize(),
+                                        draggedLauncherId = draggingSource?.let(slots::get),
+                                        onOpen = onOpen,
+                                    )
                                 }
-                            },
-                            onDrag = { change, _ ->
-                                if (draggingSource != null) {
-                                    change.consume()
-                                    dragPosition = change.position
-                                    val currentPage = pagerState.currentPage
-                                    val edgeTarget = when {
-                                        dragPosition.x > size.width - edgePx -> currentPage + 1
-                                        dragPosition.x < edgePx -> currentPage - 1
-                                        else -> -1
-                                    }
-                                    if (edgeTarget == -1) {
-                                        edgePageHandled = -1
-                                    } else if (edgeTarget in 0 until pageCount && edgePageHandled == -1) {
-                                        edgePageHandled = currentPage
-                                        scope.launch { pagerState.scrollToPage(edgeTarget) }
-                                    }
-                                }
-                            },
-                            onDragEnd = {
-                                draggingSource?.let { from ->
-                                    val col = (dragPosition.x / cellWidthPx).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
-                                    val row = (dragPosition.y / cellHeightPx).toInt().coerceIn(0, DESKTOP_ROWS - 1)
-                                    val to = pagerState.currentPage * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
-                                    val updated = desktopMoveLauncher(slots, from, to)
-                                    if (updated != slots) {
-                                        slots = updated
-                                        saveDesktopSlots(context, updated)
-                                    }
-                                }
-                                draggingSource = null
-                                edgePageHandled = -1
-                            },
-                            onDragCancel = {
-                                draggingSource = null
-                                edgePageHandled = -1
-                            },
-                        )
-                    },
-                ) {
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize(),
-                        // The next desktop is physically to the right: finger swipes LEFT.
-                        // reverseLayout previously made page 1 sit on the wrong side.
-                        reverseLayout = false,
-                        userScrollEnabled = draggingSource == null,
-                    ) { page ->
-                        DesktopLauncherGrid(
-                            slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
-                            modifier = Modifier.fillMaxSize(),
-                            draggedLauncherId = draggingSource?.let(slots::get),
-                            onOpen = onOpen,
-                        )
+                            }
+                        } else {
+                            DesktopLauncherGrid(
+                                slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
+                                modifier = Modifier.fillMaxSize(),
+                                draggedLauncherId = draggingSource?.let(slots::get),
+                                onOpen = onOpen,
+                            )
+                        }
                     }
-                    val active = draggingSource?.let { source ->
-                        slots.getOrNull(source)?.let { id -> DesktopV2Launchers.firstOrNull { it.id == id } }
-                    }
-                    if (active != null) {
+                    draggingSource?.let { source ->
+                        slots.getOrNull(source)?.let { id ->
+                            DesktopV2Launchers.firstOrNull { it.id == id }
+                        }
+                    }?.let { active ->
+                        val activePage = pagerState.currentPage
+                        val cellHeight = if (activePage == 0) {
+                            with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
+                        } else maxHeight / DESKTOP_ROWS
                         DesktopV2LauncherItem(
                             launcher = active,
                             modifier = Modifier.width(cellWidth).height(cellHeight)
@@ -344,23 +396,22 @@ internal fun MigrationHomeV2(
                         )
                     }
                 }
-            }
-            if (pageCount > 1) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    repeat(pageCount) { index ->
-                        Surface(
-                            modifier = Modifier.padding(horizontal = 3.dp)
-                                .size(if (index == pagerState.currentPage) 7.dp else 5.dp),
-                            shape = CircleShape,
-                            color = if (index == pagerState.currentPage) DesktopAccent else DesktopLine,
-                        ) {}
+                if (pageCount > 1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 3.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        repeat(pageCount) { index ->
+                            Surface(
+                                modifier = Modifier.padding(horizontal = 3.dp)
+                                    .size(if (index == pagerState.currentPage) 7.dp else 5.dp),
+                                shape = CircleShape,
+                                color = if (index == pagerState.currentPage) DesktopAccent else DesktopLine,
+                            ) {}
+                        }
                     }
                 }
             }
-        }
         }
     }
 }
