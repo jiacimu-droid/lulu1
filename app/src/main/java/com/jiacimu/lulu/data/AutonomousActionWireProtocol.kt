@@ -160,6 +160,19 @@ internal object AutonomousActionWireProtocol {
                 put("reason", result.optString("reason"))
             })
         }
+        // A registered tool sometimes arrives with explicit parameters at
+        // the outer level and only worldAction (or an empty object) in args.
+        // The direct-action path consumes top-level keys, but Action.TOOL sends
+        // args verbatim: mirror *authored* parameters rather than dropping them.
+        // Nested args retain precedence; never synthesize item names/looks.
+        if (result.optString("action") == "tool" &&
+            result.optString("tool") == "digital_world_action") {
+            val toolArgs = result.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()
+            argumentKeys.forEach { key ->
+                if (!toolArgs.has(key) && result.has(key)) toolArgs.put(key, result.opt(key))
+            }
+            result.put("args", toolArgs)
+        }
         val nested = result.optJSONObject("args")
         if (nested != null) {
             argumentKeys.forEach { key ->
