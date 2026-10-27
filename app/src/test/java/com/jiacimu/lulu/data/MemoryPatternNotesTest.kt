@@ -73,7 +73,7 @@ class MemoryPatternNotesTest {
             entry("m3", "睡眠", "入睡时间", "bedtime", 23.6, "时", daysAgo(3)),
         )
         val note = MemoryPatternNotes.build(listOf(entries[0]), entries, "lulu", now)
-        assertTrue(note.contains("最近14天内出现3次"))
+        assertTrue(note.contains("最近14天在3天记录3次"))
         assertFalse(note.contains("与之前不同"))
     }
 
