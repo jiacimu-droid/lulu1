@@ -327,7 +327,7 @@ const bridge = {
   performance: { now: () => stageTime }, touchResponse: stageResponse,
   touchCalibration: {}, calibratedRegion, resolveTouchRegion, touchReflexFor,
   wolfRigActive: false, enhanceWolfTouch,
-  touchExpressionFor, touchCompanionOverlayFor, isImpact,
+  touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, isImpact,
   actualAvatarPixel: () => true, tactileContact: null,
   touchSequence: 0, touchReflex: null, touchReflexEndAt: 0,
   touchExpressionNames: wolf, touchExpressionMetadata: metadata,
