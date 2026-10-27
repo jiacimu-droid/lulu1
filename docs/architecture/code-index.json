@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:27:08.023022+00:00",
-  "commit": "b16a631f3c6bbefd26c54c4821a546a1aaa757b7",
+  "generatedAt": "2026-10-27T16:29:37.622593+00:00",
+  "commit": "ca4c18618b0d60b5148cf722d610d259fc343aff",
   "branch": "main",
-  "sourceFingerprint": "3444c6988a3a908a295f27c88661eebfdf3d0d923f669516f21906f0ea6cb7ee",
+  "sourceFingerprint": "2a9b8a26414f42ea34d85eb9847680fc706cb6cffff734ddbde8bc56540a3fdb",
   "summary": {
-    "files": 987,
-    "lines": 194644,
-    "symbols": 2888
+    "files": 988,
+    "lines": 194665,
+    "symbols": 2889
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13738,6 +13738,12 @@
         "line": 18
       }
     ],
+    "DesktopPageCountTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
+        "line": 5
+      }
+    ],
     "DigitalResidentFurniturePoseTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt",
@@ -18689,8 +18695,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 529,
-      "sha256": "bcad51f77c632b053ce469120e28f43ac3e20605f5bb5e3450c23daaee16b48b",
+      "lines": 531,
+      "sha256": "35f7df885ef36eb714e3bb808d4ed46e80f1dab1ed407b063d4398ebcc6514a0",
       "symbols": []
     },
     {
@@ -30669,6 +30675,17 @@
         {
           "name": "ConversationHistoryWindowTest",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
+      "lines": 19,
+      "sha256": "3d3d818afcae8cd78e5e27ec7403e99e23bdce640bb3a6db6ab8be8b7646702d",
+      "symbols": [
+        {
+          "name": "DesktopPageCountTest",
+          "line": 5
         }
       ]
     },

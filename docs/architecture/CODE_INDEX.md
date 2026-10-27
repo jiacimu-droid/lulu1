@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b16a631f3c6bbefd26c54c4821a546a1aaa757b7`
+- 基准提交：`ca4c18618b0d60b5148cf722d610d259fc343aff`
 - 分支：`main`
-- 已索引文件：987
-- 已索引代码/文本行：194644
-- 已发现符号：2888
+- 已索引文件：988
+- 已索引代码/文本行：194665
+- 已发现符号：2889
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -185,7 +185,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 299 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 529 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 531 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 119 | 1 |
@@ -700,6 +700,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatScrollFollowPolicyTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ConversationHistoryWindowTest.kt` | 130 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
