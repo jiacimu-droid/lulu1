@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T06:33:01.445962+00:00",
-  "commit": "979def17c8a3c5064711dd6789c16b4f65c01999",
+  "generatedAt": "2026-10-27T06:43:43.977959+00:00",
+  "commit": "d01c85550dac323079e94fd81da03596a83ba729",
   "branch": "main",
-  "sourceFingerprint": "c66b3fb98ebc914500921c9ace37075cdd118315f87aaa8f800bbec4ceba848e",
+  "sourceFingerprint": "503ccf3d1ad95be33fdcea2a7d7a9f9305f490bfe87176eea1763130992262f0",
   "summary": {
-    "files": 958,
-    "lines": 190131,
-    "symbols": 2801
+    "files": 960,
+    "lines": 190304,
+    "symbols": 2806
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2519,19 +2519,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1985
+        "line": 1998
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2140
+        "line": 2152
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2280
+        "line": 2292
       }
     ],
     "returnToList": [
@@ -13360,6 +13360,36 @@
         "line": 5
       }
     ],
+    "CallTimeFactsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+        "line": 14
+      }
+    ],
+    "wakeMorningRendersGapAndRoutine": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+        "line": 23
+      }
+    ],
+    "unknownFactsAreOmittedNeverGuessed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+        "line": 37
+      }
+    ],
+    "shortGapRendersMinutes": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+        "line": 50
+      }
+    ],
+    "dayPartsCoverTheClock": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+        "line": 61
+      }
+    ],
     "CallTimedHangupTimingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt",
@@ -16139,6 +16169,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallTimeFacts.kt",
+      "lines": 90,
+      "sha256": "cf545045e2f5a59c31b431cc902764a9cfe1f73b9ba0b92b232d93963437b409",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt",
       "lines": 14,
       "sha256": "7ac28dbbf992a7af90d21d5009324338f9d4cc6eae1397b1bd67cda352f49a27",
@@ -17683,8 +17719,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2372,
-      "sha256": "f441b0886f22cb51a3cf54eee0eb84e3b29fb785aad42af5e776cbbb1f439576",
+      "lines": 2384,
+      "sha256": "59353691e088603eb5dcfeb657f237efdb141aa6de6f3ead54207e5d1e1bc06f",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -17768,15 +17804,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1985
+          "line": 1998
         },
         {
           "name": "retryListening",
-          "line": 2140
+          "line": 2152
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2280
+          "line": 2292
         }
       ]
     },
@@ -29725,6 +29761,33 @@
         {
           "name": "CallSpokenHangupPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt",
+      "lines": 71,
+      "sha256": "703b64acad8a6079f63c5b43483ec29ef734009dc4e2252f2810da115d71b922",
+      "symbols": [
+        {
+          "name": "CallTimeFactsTest",
+          "line": 14
+        },
+        {
+          "name": "wakeMorningRendersGapAndRoutine",
+          "line": 23
+        },
+        {
+          "name": "unknownFactsAreOmittedNeverGuessed",
+          "line": 37
+        },
+        {
+          "name": "shortGapRendersMinutes",
+          "line": 50
+        },
+        {
+          "name": "dayPartsCoverTheClock",
+          "line": 61
         }
       ]
     },
