@@ -16,7 +16,8 @@ class DesktopPageCountTest {
         slots[15] = "settings"
         slots[18] = "games"
         val moved = desktopMoveLauncher(slots, 0, 20)
-        assertEquals(32, moved.size)
+        // Page 2 becomes occupied, so keep one extra empty page for future dragging.
+        assertEquals(48, moved.size)
         assertEquals(null, moved[0])
         assertEquals("chat", moved[20])
         assertEquals("settings", moved[15])
