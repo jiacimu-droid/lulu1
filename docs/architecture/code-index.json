@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:56:19.136347+00:00",
-  "commit": "349e2ee054d3432f6b9e87ffbf1ffba3a65a490c",
+  "generatedAt": "2026-10-27T18:56:41.061281+00:00",
+  "commit": "0f55cfcb6db5cd79e480d4071ca019b07309b350",
   "branch": "main",
-  "sourceFingerprint": "02679b8f4ccf8d92bbcd4a7f90e104a4bbbd3a0b18cfea2daf6170823a9f60c7",
+  "sourceFingerprint": "065d8fef925777647e18851629a1d91e27aeaad08d1b10c1e80de4aaeb1cf1cc",
   "summary": {
     "files": 993,
-    "lines": 196482,
+    "lines": 196483,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -1003,7 +1003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 162
+        "line": 163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -3635,7 +3635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 141
+        "line": 142
       }
     ],
     "categoryId": [
@@ -3769,7 +3769,7 @@
     "toggleFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 151
+        "line": 152
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -3779,7 +3779,7 @@
     "move": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 155
+        "line": 156
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -19775,8 +19775,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 327,
-      "sha256": "5bb0f993778dfc224776b6e72003c734976dafba477268ea283b9b0f8d032529",
+      "lines": 328,
+      "sha256": "a2a106cff83763828d5e73ff3763bc733a042ee1ff663f36525fbfcc07faf4cd",
       "symbols": [
         {
           "name": "byId",
@@ -19792,19 +19792,19 @@
         },
         {
           "name": "rename",
-          "line": 141
+          "line": 142
         },
         {
           "name": "toggleFavorite",
-          "line": 151
+          "line": 152
         },
         {
           "name": "move",
-          "line": 155
+          "line": 156
         },
         {
           "name": "remove",
-          "line": 162
+          "line": 163
         }
       ]
     },
