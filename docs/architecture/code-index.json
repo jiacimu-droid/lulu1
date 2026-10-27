@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T17:31:15.280562+00:00",
-  "commit": "95131ed7b981865d40685436fba0c148efab0620",
+  "generatedAt": "2026-10-27T17:32:00.359132+00:00",
+  "commit": "0d26bbf85206b2b0aa45923a46c7ac63c6ace79e",
   "branch": "main",
-  "sourceFingerprint": "d293a01ae63b2b0cf344d3095dd080e2ddc6d81560980d7190ef8ad9c8600c84",
+  "sourceFingerprint": "5351f6fe6154b4948854996ddedffb3c45072c22b5cfdb4eaa9f497a72b02c50",
   "summary": {
     "files": 991,
-    "lines": 195437,
+    "lines": 195455,
     "symbols": 2898
   },
   "symbolIndex": {
@@ -30758,8 +30758,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
-      "lines": 19,
-      "sha256": "3d3d818afcae8cd78e5e27ec7403e99e23bdce640bb3a6db6ab8be8b7646702d",
+      "lines": 37,
+      "sha256": "0e5606ba218f0be68af6e2d168741934adcbcce83cbec96c7d7e70631625e533",
       "symbols": [
         {
           "name": "DesktopPageCountTest",
