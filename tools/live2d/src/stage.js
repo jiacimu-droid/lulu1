@@ -13,7 +13,7 @@ import { createSpeechMouthRuntime } from './speech-mouth.mjs'
 import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
-import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor, touchMotionFor } from './touch-reflex.mjs'
+import { touchReflexFor, touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from './touch-reflex.mjs'
 import { createTouchResponseRuntime, isImpact } from './touch-response.mjs'
 import { createTouchExpressionLayer } from './touch-expression-layer.mjs'
 
@@ -477,7 +477,7 @@ function applyFinalParameters(core, deltaMs) {
   // Hold steady eye contact, spring deliberate poses, release expressions,
   // and preserve subtle dedicated breathing; passive blink and speech mouth
   // remain subsequent independent layers.
-  // An authored star/heart/closed-eye exp3 owns its eye shape. Keep local
+  // An authored star/closed-eye exp3 owns its eye shape. Keep local
   // tactile neck/cheek pose and smile, but don't close over the special eyes.
   const touchEyesLocked = eyeLockedExpressions.has(visibleTouchExpression)
   const eyesLocked = eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked
@@ -1293,7 +1293,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     touchReflexFor(region, kind, touchSequence, state)
   touchReflex = wolfRigActive && baseTouch
     ? enhanceWolfTouch(baseTouch, region, kind, state, 0) : baseTouch
-  touchReflexEndAt = now + (isImpact(kind) ? 2250 : kind === 'kiss' ? 1850
+  touchReflexEndAt = now + (isImpact(kind) ? 2350 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time
   // and path length while held, not with the number of MOVE callbacks.
@@ -1354,7 +1354,17 @@ function clearSpeechMoment() {
     authoredMotion = null
   }
 }
+function preferredExpression(name) {
+  if (!name || touchExpressionCategory(name) !== 'heart') return name
+  // Keep the surrounding authored motion/voice beat intact. Never turn a
+  // missing star exp3 into the disliked heart eyes (including preview and
+  // queued TTS performance cues); use a real calm alternative or no exp3.
+  return touchExpressionNames.find(n => touchExpressionCategory(n) === 'star') ||
+    touchExpressionNames.find(n => touchExpressionCategory(n) === 'blush') ||
+    touchExpressionNames.find(n => touchExpressionCategory(n) === 'smile') || null
+}
 function startSpeechExpression(name, immediatePreview = false) {
+  name = preferredExpression(name)
   if (!model || !name) return
   clearTouchCompanion()
   if (mouthExclusiveExpressions.has(name)) {
@@ -1365,6 +1375,7 @@ function startSpeechExpression(name, immediatePreview = false) {
   playVerifiedSpeechExpression(name, immediatePreview)
 }
 function playVerifiedSpeechExpression(name, immediatePreview = false) {
+  name = preferredExpression(name)
   if (!model || !name) return
   resetSpeechExpression()
   activeExpressionName = name
@@ -1392,6 +1403,7 @@ function playVerifiedSpeechExpression(name, immediatePreview = false) {
   })
 }
 function expression(name, immediatePreview = false) {
+  name = preferredExpression(name)
   if (!model || !name || name.length > 128) return
   // Explicit manual/role-selected expressions take priority over the local
   // touch companion (but still respect the speech/mouth gate below).
