@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T16:04:45.247279+00:00",
-  "commit": "1acc1a538500baaa4e3231ced4623fb9d25cd18a",
+  "generatedAt": "2026-10-27T16:06:04.872702+00:00",
+  "commit": "920330eac3dc2d9e2522fead665a0147f5cad947",
   "branch": "main",
-  "sourceFingerprint": "acc72fcf3ec269bc25fd0d5fe195c21ab45b1bddd6aefb56ec5ae31b2603e04b",
+  "sourceFingerprint": "fc9c265337f602f2e397ea2d528fd40801bf7f72cc10ea6469d229abc1b742f1",
   "summary": {
     "files": 985,
-    "lines": 194356,
+    "lines": 194362,
     "symbols": 2878
   },
   "symbolIndex": {
@@ -8813,19 +8813,19 @@
     "LuluCloudBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 24
+        "line": 29
       }
     ],
     "Config": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 39
+        "line": 37
       }
     ],
     "loadConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 47
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -8839,7 +8839,7 @@
     "saveConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 58
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -8853,19 +8853,19 @@
     "lastUploadText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 68
+        "line": 66
       }
     ],
     "recordUpload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 72
+        "line": 70
       }
     ],
     "upload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 83
+        "line": 81
       }
     ],
     "LuluDataBackup": [
@@ -24682,36 +24682,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-      "lines": 145,
-      "sha256": "c4d2b22a004c9af77e680f884005d57843ea8ef72411db7db15f692226a204bd",
+      "lines": 151,
+      "sha256": "e6045b21ef012d8f0d3a059ac2299caa20ed5ddb1262557e91452a5049a26c75",
       "symbols": [
         {
           "name": "LuluCloudBackup",
-          "line": 24
+          "line": 29
         },
         {
           "name": "Config",
-          "line": 39
+          "line": 37
         },
         {
           "name": "loadConfig",
-          "line": 47
+          "line": 45
         },
         {
           "name": "saveConfig",
-          "line": 58
+          "line": 56
         },
         {
           "name": "lastUploadText",
-          "line": 68
+          "line": 66
         },
         {
           "name": "recordUpload",
-          "line": 72
+          "line": 70
         },
         {
           "name": "upload",
-          "line": 83
+          "line": 81
         }
       ]
     },
