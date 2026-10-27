@@ -47,6 +47,29 @@ internal object CharacterEverydaySocialContext {
             } else if (contacts.isEmpty() && groups.isEmpty()) {
                 appendLine("目前没有经真实相遇/共同群聊确认的熟人。可以出门认识人，也可以独处；不能把登记的陌生居民直接写成朋友。")
             }
+            if (acquaintances.isNotEmpty()) {
+                val requests = CharacterFriendRequests.historyFor(characterId)
+                val candidates = acquaintances.filterNot { (id, _) ->
+                    MomentFriendAccess.areFriends(characterId, id)
+                }
+                if (candidates.isNotEmpty()) {
+                    appendLine("【真实认识但还不是QQ好友的人｜关系并非自动建立】")
+                    candidates.take(8).forEach { (id, _) ->
+                        val peer = MigratedDomainStores.characters.get(id).displayName
+                        val latest = requests.filter { setOf(it.fromId, it.toId) ==
+                            setOf(characterId, id) }.maxByOrNull { it.createdAt }
+                        val status = when (latest?.status) {
+                            "pending" -> if (latest.fromId == characterId)
+                                "已经发出申请，正在等对方独立决定"
+                                else "对方向我提出了申请，需我独立决定"
+                            "declined" -> "之前有申请被拒绝，尊重对方界限"
+                            else -> "没有待处理申请，可由本人考虑是否发送"
+                        }
+                        appendLine("- targetCharacterId=$id；$peer；$status")
+                    }
+                    appendLine("若本人确实想进一步结识，且没有重复申请，可用 send_friend_request(targetCharacterId,greeting)；申请送达≠已经成为好友。是否发、是否同意，由双方各自决定。")
+                }
+            }
             if (contacts.isNotEmpty()) {
                 appendLine("【本人手机里确实可以联系的对象｜模型可自由选择联系或不联系】")
                 contacts.take(12).forEach { id ->
