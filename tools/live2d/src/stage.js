@@ -1,5 +1,6 @@
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
+import { isScenePixel, hasAvatarPixels } from './scene-pixels.mjs'
 // Pixi v6.5.x does NOT auto-install the CSP adapter via a bare import.
 // Its source exports install({ ShaderSystem }), which patches the exact Pixi core
 // class used by our renderer. Do this before the first PIXI.Application.
@@ -382,19 +383,9 @@ async function verifyVisibleFrame(loaded, sequence) {
         priorError = 'GPU 画面读取失败'
         continue
       }
-      let visibleColoredPixels = 0
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i]
-        const g = pixels[i + 1]
-        const b = pixels[i + 2]
-        const alpha = pixels[i + 3]
-        // A fully opaque black frame is NOT a valid model preview.
-        if (alpha > 32 && (Math.max(r, g, b) > 45 ||
-          Math.max(r, g, b) - Math.min(r, g, b) > 18)) {
-          visibleColoredPixels++
-        }
-      }
-      if (visibleColoredPixels >= 48) {
+      // The opaque pastel room is visible even if the model failed.
+      // Only non-scene pixels can establish a real character frame.
+      if (hasAvatarPixels(pixels, 48)) {
         // AIRI captures the actual canvas instead of trusting an arbitrary
         // WebGL framebuffer. Some GPU pipelines leave colored pixels in a
         // render target while the canvas presented to WebView stays black.
@@ -406,28 +397,16 @@ async function verifyVisibleFrame(loaded, sequence) {
         snapshot.clearRect(0, 0, 64, 64)
         snapshot.drawImage(app.view, 0, 0, 64, 64)
         const presentedPixels = snapshot.getImageData(0, 0, 64, 64).data
-        let presentedColored = 0
-        for (let i = 0; i < presentedPixels.length; i += 4) {
-          const r = presentedPixels[i]
-          const g = presentedPixels[i + 1]
-          const b = presentedPixels[i + 2]
-          const alpha = presentedPixels[i + 3]
-          if (alpha > 32 && (Math.max(r, g, b) > 45 ||
-            Math.max(r, g, b) - Math.min(r, g, b) > 18)) {
-            presentedColored++
-          }
-        }
-        if (presentedColored >= 32) {
+        if (hasAvatarPixels(presentedPixels, 32)) {
           previewObserved = true
           // This proves the canvas buffer, NOT Android's onscreen compositor.
-          notify('diagnostic', 'Canvas 缓冲区有角色（彩色像素 ' +
-            presentedColored + '）；画布 ' +
+          notify('diagnostic', 'Canvas 缓冲区已检测到人物像素；画布 ' +
             Math.round(bounds.width) + '×' + Math.round(bounds.height))
           return
         }
-        priorError = 'GPU 已处理模型，但屏幕 Canvas 仍是黑色；已保留静态预览'
+        priorError = 'GPU 已处理模型，但屏幕 Canvas 未检测到人物像素；已保留静态预览'
       } else {
-        priorError = 'Pixi 画布仍为黑色或透明（彩色像素 ' + visibleColoredPixels + ')'
+        priorError = 'Pixi 画布仅显示背景或透明，未检测到人物像素'
       }
     } catch (error) {
       priorError = error?.message || String(error)
@@ -1174,10 +1153,9 @@ function actualAvatarPixel(nx, ny) {
     const rgb = nativeCaptureContext.getImageData(left, top, width, height).data
     let colored = 0
     for (let i = 0; i < rgb.length; i += 4) {
-      // Opaque stage background is exactly #151719.
-      const delta = Math.max(Math.abs(rgb[i] - 21),
-        Math.abs(rgb[i + 1] - 23), Math.abs(rgb[i + 2] - 25))
-      if (delta > 12) colored++
+      // The same scene palette is used by frame verification. A bright
+      // empty room must never turn a background tap into a virtual touch.
+      if (!isScenePixel(rgb[i], rgb[i + 1], rgb[i + 2])) colored++
     }
     return colored >= 2
   } catch (_) {
