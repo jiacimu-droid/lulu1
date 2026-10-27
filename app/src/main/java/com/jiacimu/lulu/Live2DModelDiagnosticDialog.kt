@@ -340,7 +340,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                         Text("重新测试", fontSize = 12.sp)
                     }
                     TextButton(onClick = { showPlayground = true }, enabled = modelUrl != null && coreReady) {
-                        Text("动作表情试验场", fontSize = 12.sp)
+                        Text("Live2D", fontSize = 12.sp)
                     }
                     TextButton(onClick = {
                         manualHead = Live2DVisualActionBus.Head(yaw = -18f)
