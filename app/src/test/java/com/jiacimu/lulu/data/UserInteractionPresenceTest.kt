@@ -7,18 +7,21 @@ import java.time.Instant
 class UserInteractionPresenceTest {
     private val now = Instant.parse("2026-10-10T08:00:00Z")
 
-    @Test fun sameSilenceDistinguishesForegroundChatFromLeavingAppWithoutClaimingReadOrAnger() {
+    @Test fun pageNavigationIsInvisibleToPsychologicalContextButActualAppVisibilityRemains() {
         val page = UserInteractionPresence(true, now.minusSeconds(600), "private", now.minusSeconds(60))
-        fun describe(presence: UserInteractionPresence) = UserInteractionPresenceStore.describe(
-            presence, true, now.minusSeconds(1200), now.minusSeconds(900), now)
-        val here = describe(page)
-        val away = describe(page.copy(appVisible = false))
-        assertTrue(here.contains("当前打开的是你参与的聊天页面"))
-        assertTrue(here.contains("已等待约 900 秒"))
-        assertTrue(here.contains("触摸操作约 60 秒"))
+        fun describe(presence: UserInteractionPresence, onRoleChat: Boolean?) =
+            UserInteractionPresenceStore.describe(presence, onRoleChat,
+                now.minusSeconds(1200), now.minusSeconds(900), now)
+        val inChat = describe(page, true)
+        val messageList = describe(page.copy(conversationId = null), false)
+        val away = describe(page.copy(appVisible = false), false)
+        assertEquals(inChat, messageList) // browsing messages cannot suggest mood
+        assertTrue(inChat.contains("露露机当前处于前台可交互状态"))
+        assertTrue(inChat.contains("已等待约 900 秒"))
+        assertFalse(inChat.contains("触摸操作约"))
+        assertFalse(inChat.contains("当前打开的是你参与的聊天页面"))
         assertTrue(away.contains("可能切换应用、锁屏或被其他窗口遮挡"))
-        assertFalse(away.contains("当前打开的是你参与的聊天页面"))
-        for (text in listOf(here, away)) {
+        for (text in listOf(inChat, messageList, away)) {
             assertTrue(text.contains("之前的真实对话、关系、已有情绪"))
             assertTrue(text.contains("不能证明已读、生气、离开或同意"))
             assertTrue(text.contains("推测保持为推测"))
@@ -71,6 +74,20 @@ class UserInteractionPresenceTest {
         assertTrue(cue.contains("尚不确定用户有没有睡过"))
         assertTrue(cue.contains("不是必须劝睡"))
         assertTrue(cue.contains("已表达的关心和用户回应"))
+    }
+
+    @Test fun touchingOrOpeningChatAtNightCannotTriggerNewEmotionalCueWithoutSpeech() {
+        val at = Instant.parse("2026-10-22T20:30:00Z")
+        val touch = UserInteractionPresence(appVisible = true,
+            conversationId = "private", lastTouchAt = at.minusSeconds(20))
+        for (onChat in listOf(true, false, null)) {
+            assertEquals("", UserInteractionPresenceStore.salientTimeCue(
+                touch, onChat, null, at, java.time.ZoneId.of("Asia/Shanghai")))
+        }
+        val speech = UserInteractionPresenceStore.salientTimeCue(
+            touch, false, at.minusSeconds(600), at, java.time.ZoneId.of("Asia/Shanghai"))
+        assertTrue(speech.contains("确实收到用户发言"))
+        assertFalse(speech.contains("触摸"))
     }
 
     @Test fun silenceOrStaleContactCannotBecomeFalseProofOfStayingAwake() {
