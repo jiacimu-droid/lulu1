@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T12:25:13.963992+00:00",
-  "commit": "9c10445225afdbefc52786c197499aa45b905574",
+  "generatedAt": "2026-10-27T12:36:15.773854+00:00",
+  "commit": "d2f33eaa1342d055b72c1d02aaf9bf5074a608f1",
   "branch": "main",
-  "sourceFingerprint": "be8df67d17c4bb1250f008dccbb1da819ecc05b381d368d61c0b961f43c56ca2",
+  "sourceFingerprint": "48dfe3f74ae3d869705a02ea1813731b54a8851b5d781655ccb8cc63c7cb6351",
   "summary": {
-    "files": 974,
-    "lines": 191992,
-    "symbols": 2810
+    "files": 975,
+    "lines": 192364,
+    "symbols": 2813
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1811,7 +1811,7 @@
     "record": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-        "line": 115
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
@@ -1849,7 +1849,7 @@
     "attemptReload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "normalizedSettings": [
@@ -1861,7 +1861,7 @@
     "Entry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 14
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -1871,7 +1871,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 53
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -1884,6 +1884,48 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
         "line": 12
+      }
+    ],
+    "playMotion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
+        "line": 60
+      }
+    ],
+    "playExpression": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
+        "line": 74
+      }
+    ],
+    "reset": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
+        "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 68
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 66
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 379
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
+        "line": 467
       }
     ],
     "Phase": [
@@ -2045,13 +2087,13 @@
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 250
+        "line": 272
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 260
+        "line": 282
       }
     ],
     "Model": [
@@ -3698,32 +3740,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 50
-      }
-    ],
-    "reset": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
-        "line": 68
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
-        "line": 44
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 66
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 379
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 467
       }
     ],
     "play": [
@@ -17281,16 +17297,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-      "lines": 420,
-      "sha256": "a0c40bfa17615a51a8ad2a6c5a38a314d662bedb8c19fb67610353839dbc6d38",
+      "lines": 427,
+      "sha256": "9023513a7581bbae0f725690bd3a8862fa8146c4b24783e2a8e2da34b2554228",
       "symbols": [
         {
           "name": "record",
-          "line": 115
+          "line": 116
         },
         {
           "name": "attemptReload",
-          "line": 120
+          "line": 121
         }
       ]
     },
@@ -17307,16 +17323,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 63,
-      "sha256": "89cfd52692a9364425e1b812af064a1bf7d2a14375b3cfdec8c5e09d60882dbd",
+      "lines": 153,
+      "sha256": "eab153b4b1cafb330f778f38a901d657cab7d000a23f778fbd0629f1762e018c",
       "symbols": [
         {
           "name": "Entry",
-          "line": 14
+          "line": 25
         },
         {
           "name": "describe",
-          "line": 53
+          "line": 142
         }
       ]
     },
@@ -17325,6 +17341,25 @@
       "lines": 123,
       "sha256": "70a06ad85b3e8a84d978b1733eaa035b4c41c78a8495717e0be3f3195146aa06",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
+      "lines": 190,
+      "sha256": "6d03cbc1e9d3f2fb884f024ceda85b345177911ffe5d1abd7037a7aa2dc5ff83",
+      "symbols": [
+        {
+          "name": "playMotion",
+          "line": 60
+        },
+        {
+          "name": "playExpression",
+          "line": 74
+        },
+        {
+          "name": "reset",
+          "line": 80
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt",
@@ -17393,8 +17428,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 298,
-      "sha256": "fae4dc4581b7090ab122a51790064a046e48cee519d6c54bf7f2ebf2a6fc9ed1",
+      "lines": 320,
+      "sha256": "b2cb2c5c1135537515c5112df15c8660c12d0996cc57ca3bb826587648cc3bc0",
       "symbols": [
         {
           "name": "Head",
@@ -17454,11 +17489,11 @@
         },
         {
           "name": "headNumber",
-          "line": 250
+          "line": 272
         },
         {
           "name": "bodyNumber",
-          "line": 260
+          "line": 282
         }
       ]
     },
@@ -30081,8 +30116,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 42,
-      "sha256": "63368bff27598d1f4816827af6d806515561c0e66380a77eb8ee86c2faaa78aa",
+      "lines": 55,
+      "sha256": "05f5125c11765f8a0bf56fa98ac7e49cfcdc26ab5a25f575d2684d1a51dde748",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
@@ -30136,8 +30171,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt",
-      "lines": 168,
-      "sha256": "a5bb3226119be2e391f8aa91a22c07b810aa3ac6eeae501857cbc3257cb65fc1",
+      "lines": 218,
+      "sha256": "56cda0f6f2bcc42c900e249ceb45e6a35975e5dcfa25be36126e932cfaa3b5c3",
       "symbols": [
         {
           "name": "Live2DVisualActionBusTest",
