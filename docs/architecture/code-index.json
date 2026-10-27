@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T18:24:54.494017+00:00",
-  "commit": "4eba6f198e6644827f51257ad631b7c23318a239",
+  "generatedAt": "2026-10-27T18:25:17.834185+00:00",
+  "commit": "c32eca40d0d84fbe3e9f49892b14cee49c9b522c",
   "branch": "main",
-  "sourceFingerprint": "a4099b5df67bf2a30220f978cc8f01bf78e925e3436994283fef562ed5556e21",
+  "sourceFingerprint": "4a210c3a7e9b030923e9f175ec7947f45374a4092bf96cc49eb3aefa2a82b83b",
   "summary": {
     "files": 993,
-    "lines": 196101,
+    "lines": 196107,
     "symbols": 2908
   },
   "symbolIndex": {
@@ -2169,7 +2169,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1270
+        "line": 1276
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7063,31 +7063,31 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1203
+        "line": 1209
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1239
+        "line": 1245
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1253
+        "line": 1259
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1263
+        "line": 1269
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1308
+        "line": 1314
       }
     ],
     "age": [
@@ -22994,8 +22994,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1429,
-      "sha256": "a8c08d32a675e969677d7184f158dc342dcd7193a5b2c9c9ba9d349a9d7f0f2b",
+      "lines": 1435,
+      "sha256": "1a8bf8b61b5077f12533d712e6364c3c6b40a4fb89d981b2b78b4c79eb6fb63f",
       "symbols": [
         {
           "name": "asJson",
@@ -23011,27 +23011,27 @@
         },
         {
           "name": "world",
-          "line": 1203
+          "line": 1209
         },
         {
           "name": "completedEvidence",
-          "line": 1239
+          "line": 1245
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1253
+          "line": 1259
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1263
+          "line": 1269
         },
         {
           "name": "from",
-          "line": 1270
+          "line": 1276
         },
         {
           "name": "requiresCompletion",
-          "line": 1308
+          "line": 1314
         }
       ]
     },
