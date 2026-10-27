@@ -613,6 +613,10 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     fun allowsRawRecall(event: SharedTimelineEvent): Boolean {
+        // Old, already archived phone-navigation traces must not slip back
+        // into the character's model through semantic recall after their
+        // event producer and perception route were retired.
+        if (event.source == "owner-phone-inspection") return false
         val current = state.value
         if (event.id in current.forgottenSourceIds[event.characterId].orEmpty()) return false
         return current.entries.none { memory ->
@@ -650,7 +654,8 @@ class LocalMemoryRepository : MemoryRepository {
 
     private fun memoryEligibleTimelineEvents(characterId: String): List<SharedTimelineEvent> =
         SharedExperienceTimeline.all(characterId).filterNot { event ->
-            event.channel == "私聊" && event.speaker == "系统"
+            (event.channel == "私聊" && event.speaker == "系统") ||
+                event.source == "owner-phone-inspection"
         }
 
     private fun readableMessages(characterId: String, policy: MemoryPolicy, flushTail: Boolean = false): List<LuluChatMessage> =
