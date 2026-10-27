@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T17:34:22.599292+00:00",
-  "commit": "6f0050300dffa66e5a1dbe91ea6b3a2f4379a113",
+  "generatedAt": "2026-10-27T17:41:15.342357+00:00",
+  "commit": "dc9c68eb9d25fffe6db04381c3ef48a656021aee",
   "branch": "main",
-  "sourceFingerprint": "e9979f2239e62232bfef26cafc0d988f4f18269873917672c22b26a9d2d3e986",
+  "sourceFingerprint": "63728b51f5c97dc850cee93fc05520683e3bdf81c3cba9d6d8d3b61375905875",
   "summary": {
     "files": 991,
-    "lines": 195484,
+    "lines": 195504,
     "symbols": 2898
   },
   "symbolIndex": {
@@ -2231,25 +2231,25 @@
     "LuluBackupScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 62
+        "line": 66
       }
     ],
     "saveCloud": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 72
+        "line": 77
       }
     ],
     "uploadNow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 77
+        "line": 82
       }
     ],
     "restartApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 161
+        "line": 166
       }
     ],
     "setVideoMode": [
@@ -18105,24 +18105,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-      "lines": 344,
-      "sha256": "cb0a1eb56a9f99fbd993d88a9d1104ee32aed8b25dc8700a3028ccaa10717668",
+      "lines": 364,
+      "sha256": "2560e5cfdeb6b8ebcf9f7ccc532ca6620087c0fdcde460cff0e6593077b1af42",
       "symbols": [
         {
           "name": "LuluBackupScreen",
-          "line": 62
+          "line": 66
         },
         {
           "name": "saveCloud",
-          "line": 72
-        },
-        {
-          "name": "uploadNow",
           "line": 77
         },
         {
+          "name": "uploadNow",
+          "line": 82
+        },
+        {
           "name": "restartApp",
-          "line": 161
+          "line": 166
         }
       ]
     },
