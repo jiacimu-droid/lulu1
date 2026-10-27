@@ -1786,6 +1786,19 @@ internal object LuluVoiceCallSession {
                         append('\n')
                         append("【通话开始状态】用户麦克风默认关闭，她想说话时会自己点开；你先开口第一句时顺带提一句就行，不用每轮都提，也不要把这件事说成工单。")
                     }
+                    if (opening || scheduledWakeReason != null) {
+                        val timeFacts = CallTimeFacts.forCall(
+                            characterId = latest.characterId,
+                            conversationId = latest.conversationId,
+                            commitmentTaskId = latest.incomingCommitmentTaskId,
+                            now = java.time.Instant.now(),
+                        )
+                        if (timeFacts.isNotBlank()) {
+                            append('\n')
+                            append("【时间事实｜只给事实，不替你下结论】\n")
+                            append(timeFacts)
+                        }
+                    }
                 },
                 sceneContext = "正在与用户进行一对一实时电话。\n" + (when {
                     externalToolResult?.id?.startsWith("interaction-call-touch-") == true ->
@@ -2015,7 +2028,6 @@ internal object LuluVoiceCallSession {
                         listening = !it.speaking && !it.microphoneMuted,
                         inputMeterAvailable = true,
                         errorMessage = "", statusMessage = if (it.thinking) it.statusMessage
-                            else if (it.microphoneMuted) "已接通，麦克风默认关闭，想说话点一下麦克风"
                             else if (scribeRealtime) "Scribe 实时转写已就绪，可以直接说话"
                             else "麦克风已就绪，可以直接说话，停顿后自动转写") }
                     if (!wasConnected) { startTimer(); startOpening() }
