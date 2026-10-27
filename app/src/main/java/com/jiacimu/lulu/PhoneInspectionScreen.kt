@@ -56,6 +56,7 @@ internal fun inspectedThreads(
     conversations: List<LuluConversation>,
     mail: List<ResidentDirectMessage>,
     names: Map<String, String>,
+    ownerContactName: String = "主人",
 ): List<InspectedThread> {
     if (roleId.isBlank()) return emptyList()
     val existing = conversations.mapNotNull { chat ->
@@ -64,7 +65,7 @@ internal fun inspectedThreads(
         if (group == null && chat.characterId != roleId) return@mapNotNull null
         InspectedThread(
             key = "chat:${chat.id}",
-            title = group?.name ?: "主人",
+            title = group?.name ?: ownerContactName,
             lastText = chat.lastMessage,
             updatedAt = chat.updatedAt,
             conversationId = chat.id,
@@ -86,6 +87,11 @@ internal fun inspectedThreads(
         }
     return (existing + native).sortedByDescending(InspectedThread::updatedAt)
 }
+
+/** The contact name stored by this role takes precedence over the owner's
+ * public profile name; both views project the same role-owned socialNames. */
+internal fun inspectedOwnerContactName(privateRemark: String, ownerProfileName: String): String =
+    privateRemark.trim().ifBlank { ownerProfileName.trim().ifBlank { "主人" } }
 
 internal fun inspectedChatMessageIsMine(
     roleId: String,
@@ -150,8 +156,16 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             ResidentSocialMailbox.historyForInspection(actualRole)
         } else emptyList()
     }
-    val threads = remember(actualRole, allChats, mail, names, pinned) {
-        inspectedThreads(actualRole, allChats, mail, names)
+    val ownerProfilePrefs = remember(context) {
+        context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+    }
+    val userName = ownerProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
+    val userAvatar = ownerProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    val userAvatarUri = ownerProfilePrefs.getString("avatar_uri", null)
+    val privateRemark = ownPhoneLife.optJSONObject("socialNames")?.optString("userRemark").orEmpty()
+    val ownerContactName = inspectedOwnerContactName(privateRemark, userName)
+    val threads = remember(actualRole, allChats, mail, names, pinned, ownerContactName) {
+        inspectedThreads(actualRole, allChats, mail, names, ownerContactName)
             .sortedWith(compareByDescending<InspectedThread> { it.key in pinned }
                 .thenByDescending(InspectedThread::updatedAt))
     }
@@ -170,12 +184,6 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val userProfilePrefs = remember(context) {
-        context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
-    }
-    val userName = userProfilePrefs.getString("display_name", "我").orEmpty().ifBlank { "我" }
-    val userAvatar = userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
-    val userAvatarUri = userProfilePrefs.getString("avatar_uri", null)
     val availableFriends = remember(actualRole, friendsRevision, people, mailReady) {
         people.values.filter { it.characterId != actualRole &&
             MomentFriendAccess.areFriends(actualRole, it.characterId)
@@ -424,7 +432,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                                     ChatHubV2Avatar(userAvatar, 50, userAvatarUri)
                                     Spacer(Modifier.width(12.dp))
                                     Column(Modifier.weight(1f)) {
-                                        Text(userName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                                        Text(ownerContactName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                                         Text("好友", fontSize = 12.sp, color = QqMuted)
                                     }
                                 }
