@@ -417,6 +417,11 @@ fun LuluMigrationRootAppV2(
                                 )
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                                 MigrationRoute.Appearance -> LuluAppearanceScreen(::popRoute)
+                                // Playground is opened as an Activity from the
+                                // desktop and is never pushed as a screen, so
+                                // it renders nothing here; the branch exists
+                                // only to keep this when exhaustive.
+                                MigrationRoute.Playground -> Unit
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
