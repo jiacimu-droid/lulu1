@@ -264,8 +264,11 @@ object RoleDayScheduleStore {
     /** Restore future self-appointed wakeups, but do not replay potentially
      * executed activities. Old due plans remain visible at the next decision. */
     fun restorePending(context: Context, now: Instant = Instant.now()) {
-        all(context).filter { it.status == "planned" && it.dueAt.isAfter(now) }
-            .forEach { plan ->
+        all(context).filter { plan ->
+            (plan.status == "planned" && plan.dueAt.isAfter(now)) ||
+                (plan.status == "due" && plan.characterId.startsWith("resident:") &&
+                    ResidentDailyDecision.hasSavedDueToResume(context, plan))
+        }.forEach { plan ->
                 runCatching { scheduleWake(context, plan, now, replace = false) }
                     .onFailure { android.util.Log.w("LuluSchedule", "Role wake restoration failed", it) }
             }
@@ -625,7 +628,7 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             // A native resident has no ordinary user-facing private chat. Route its
             // appointment directly to the resident's inexpensive model decision,
             // rather than waking a non-existent chat conversation.
-            try {
+            val completed = try {
                 ResidentDailyDecision.runDuePlan(applicationContext, plan)
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
@@ -633,8 +636,12 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "居民行程到点执行失败",
                     message = failure.message.orEmpty().take(180))
+                false
             }
-            // A failed/declined action stays due; no paid retry loop or fake receipt.
+            // Only an already-saved model choice is safe for a bounded retry.
+            // A lost/uncertain response must never cause another paid request.
+            if (!completed && ResidentDailyDecision.hasSavedDueToResume(applicationContext, plan))
+                return Result.retry()
             return Result.success()
         }
         return runCatching {
