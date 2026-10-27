@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T07:46:11.591717+00:00",
-  "commit": "daf2d6ce232b315e618cedc49492ffd738a32c51",
+  "generatedAt": "2026-10-27T08:56:36.302648+00:00",
+  "commit": "46cf9b2ec4409b1f245510b6e5a8ad7da4b06c99",
   "branch": "main",
-  "sourceFingerprint": "44651c65760357e04c303649ebd2d2a0dfa055cb32f0156637c20be4b6897e92",
+  "sourceFingerprint": "c897fecea2651c9485c3e598fc5db09825252989912b890465c23a62c82b4411",
   "summary": {
-    "files": 960,
-    "lines": 190446,
-    "symbols": 2806
+    "files": 961,
+    "lines": 190487,
+    "symbols": 2807
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1683,7 +1683,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 176
+        "line": 182
       }
     ],
     "angles": [
@@ -15366,6 +15366,12 @@
         "line": 68
       }
     ],
+    "ResidentSocialMailboxWakeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt",
+        "line": 20
+      }
+    ],
     "RoleDayScheduleStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
@@ -25757,8 +25763,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 225,
-      "sha256": "b5ca16e4d06d7dbc0e3135be2938019c7d3c6244a0624e51713eb42e806438c7",
+      "lines": 235,
+      "sha256": "73dd4a0da90f7bfe3cfed6ddb08bf5ca886a060a3e10c9df4d144fa89e14ceaf",
       "symbols": [
         {
           "name": "contactsOf",
@@ -25782,7 +25788,7 @@
         },
         {
           "name": "send",
-          "line": 176
+          "line": 182
         }
       ]
     },
@@ -32772,6 +32778,17 @@
         {
           "name": "orderIsPreservedUnderCaps",
           "line": 68
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt",
+      "lines": 31,
+      "sha256": "a8c38ec835e352754db44b370378179769d46d60a33e5059a4fd626366f4cafc",
+      "symbols": [
+        {
+          "name": "ResidentSocialMailboxWakeTest",
+          "line": 20
         }
       ]
     },

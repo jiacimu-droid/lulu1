@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`daf2d6ce232b315e618cedc49492ffd738a32c51`
+- 基准提交：`46cf9b2ec4409b1f245510b6e5a8ad7da4b06c99`
 - 分支：`main`
-- 已索引文件：960
-- 已索引代码/文本行：190446
-- 已发现符号：2806
+- 已索引文件：961
+- 已索引代码/文本行：190487
+- 已发现符号：2807
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -480,7 +480,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 684 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 225 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 697 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
@@ -906,6 +906,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 284 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt` | 75 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 293 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
