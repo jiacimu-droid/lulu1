@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:06:49.132111+00:00",
-  "commit": "47190912f6343b39f4741703e377e6c2c48819cd",
+  "generatedAt": "2026-10-27T19:10:20.372777+00:00",
+  "commit": "33834777f462bf67c99574e9adee7280be3ab3f3",
   "branch": "main",
-  "sourceFingerprint": "5d74b1978e5c01336e5d21e9844e5934e2fcaff6174142153c43db9595b396ff",
+  "sourceFingerprint": "dc0cf11dd4f663e897a49018600e6ed42bc3100ad481353cb10dbc0f86cc19f7",
   "summary": {
     "files": 993,
-    "lines": 196484,
+    "lines": 196555,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -6191,7 +6191,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 768
+        "line": 781
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10573,7 +10573,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 393
+        "line": 406
       }
     ],
     "plan": [
@@ -15927,7 +15927,7 @@
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 292
+        "line": 350
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -26689,8 +26689,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 818,
-      "sha256": "b7c5e973f1246d8e9698ab81e2a99f2c5ea1caf7f36823b8e37211ec9b2b14ed",
+      "lines": 831,
+      "sha256": "c6ae0ad551f5c2c36114d6a035c8d4c50f9aeebbc1525cf999e4aedbb29b217e",
       "symbols": [
         {
           "name": "planForApp",
@@ -26706,11 +26706,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 393
+          "line": 406
         },
         {
           "name": "schedule",
-          "line": 768
+          "line": 781
         }
       ]
     },
@@ -33948,8 +33948,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 424,
-      "sha256": "6ff23603d5074268ccc4a2fe0a0253ae103a48e2963599fcc9f885c51fe3addd",
+      "lines": 482,
+      "sha256": "2c26b92d5548e5497df059ecc34db57e8824b5cc7fe03b7881f5bccb38fa0d0b",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -33957,7 +33957,7 @@
         },
         {
           "name": "item",
-          "line": 292
+          "line": 350
         }
       ]
     },
