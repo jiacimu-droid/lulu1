@@ -358,9 +358,22 @@ internal object ResidentDailyDecision {
             }
             "reschedule" -> {
                 val replacement = runCatching { java.time.OffsetDateTime.parse(
-                    choice.getString("dueAt")).toInstant() }.getOrNull() ?: return false
-                runCatching { RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
-                    replacement, choice.optString("reason"), Instant.now()) }.isSuccess
+                    choice.getString("dueAt")).toInstant() }.getOrNull()
+                if (replacement == null) {
+                    // A malformed primary choice must not discard independent
+                    // steps in the same saved decision or falsely mark it done.
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字世界居民日程", title = "${native.name}的改期时间无效",
+                        message = "planId=${plan.id}；模型未给出有效的 ISO8601 改期时间；原日程仍未完成")
+                    false
+                } else runCatching {
+                    RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
+                        replacement, choice.optString("reason"), Instant.now())
+                }.onFailure { error ->
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字世界居民日程", title = "${native.name}的改期未生效",
+                        message = "planId=${plan.id}；${error.message.orEmpty().take(180)}")
+                }.isSuccess
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
                 choice.optString("reason"), Instant.now())
