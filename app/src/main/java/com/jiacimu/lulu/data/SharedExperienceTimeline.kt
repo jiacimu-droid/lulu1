@@ -426,6 +426,70 @@ object SharedExperienceTimeline {
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /**
+     * Read real perceptible evidence in chronological pages, including older
+     * unacknowledged events. The caller checks the existing exact perception
+     * ledger before placing a small batch in the model prompt.
+     *
+     * A (occurred_at, id) keyset avoids losing same-millisecond records or
+     * skipping earlier rows when new events arrive during paging. This is a
+     * read-only projection; it does not advance a cursor or claim an event.
+     */
+    internal fun perceptionPage(
+        characterId: String,
+        now: Instant,
+        afterTime: Instant? = null,
+        afterId: String = "",
+        limit: Int = 192,
+    ): List<SharedTimelineEvent> {
+        if (characterId.isBlank()) return emptyList()
+        val db = helper?.readableDatabase ?: return emptyList()
+        val birth = DigitalLifeProfileStore.birthAt(characterId)
+        val selection = buildList {
+            add("character_id = ?")
+            add("occurred_at <= ?")
+            add("evidence_kind IN (?, ?)")
+            if (birth != null) add("occurred_at >= ?")
+            if (afterTime != null) add("(occurred_at > ? OR (occurred_at = ? AND id > ?))")
+        }.joinToString(" AND ")
+        val args = buildList {
+            add(characterId)
+            add(now.toEpochMilli().toString())
+            add(EventEvidenceKind.Observation.name)
+            add(EventEvidenceKind.ToolResult.name)
+            if (birth != null) add(birth.toEpochMilli().toString())
+            if (afterTime != null) {
+                add(afterTime.toEpochMilli().toString())
+                add(afterTime.toEpochMilli().toString())
+                add(afterId)
+            }
+        }.toTypedArray()
+        return db.query(
+            "timeline_events", EVENT_COLUMNS, selection, args,
+            null, null, "occurred_at ASC, id ASC", limit.coerceIn(1, 256).toString(),
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(SharedTimelineEvent(
+                        id = cursor.getString(0),
+                        characterId = cursor.getString(1),
+                        channel = cursor.getString(2),
+                        speaker = cursor.getString(3),
+                        content = cursor.getString(4),
+                        occurredAt = Instant.ofEpochMilli(cursor.getLong(5)),
+                        sessionId = cursor.getString(6),
+                        source = cursor.getString(7),
+                        evidenceKind = runCatching {
+                            EventEvidenceKind.valueOf(cursor.getString(8))
+                        }.getOrDefault(EventEvidenceKind.Legacy),
+                        taskId = cursor.getString(9),
+                        revision = cursor.getLong(10),
+                    ))
+                }
+            }
+        }
+    }
+
     /** Indexed, bounded projection of actual user-facing activity, not a second habit store. */
     fun recentUserActivities(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> =
         query(characterId, 240, sourceLike = "user-activity:%:start",
