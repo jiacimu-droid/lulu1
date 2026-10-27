@@ -101,8 +101,8 @@ internal object ResidentDailyDecision {
     }
 
     private val residentAgendaActions = setOf(
-        "send_character_message", "send_group_message", "publish_moment",
-        "digital_world_action", "play_solo_game",
+        "send_character_message", "send_friend_request", "respond_friend_request",
+        "send_group_message", "publish_moment", "digital_world_action", "play_solo_game",
     )
 
     /** Preserve model-selected targets and destinations in the SAME args checked at execution.
@@ -113,7 +113,7 @@ internal object ResidentDailyDecision {
     internal fun agendaArgs(action: String, row: JSONObject): JSONObject {
         val args = row.optJSONObject("activityArgs")?.let { JSONObject(it.toString()) } ?: JSONObject()
         args.remove("planId")
-        if (action == "send_character_message") {
+        if (action in setOf("send_character_message", "send_friend_request")) {
             val target = row.optString("targetCharacterId").trim()
                 .ifBlank { args.optString("targetCharacterId").trim() }
             if (target.isNotBlank()) args.put("targetCharacterId", target)
@@ -148,8 +148,18 @@ internal object ResidentDailyDecision {
             // Keep target/location in the persisted tool arguments, not only in plan metadata.
             val params = agendaArgs(action, row)
             val target = params.optString("targetCharacterId").trim()
-            if (action == "send_character_message" &&
+            if (action in setOf("send_character_message", "send_friend_request") &&
                 (target !in known || target == actor)) continue
+            if (action == "send_friend_request" &&
+                (MomentFriendAccess.areFriends(actor, target) ||
+                    CharacterFriendRequests.historyFor(actor).any { request ->
+                        request.status == "pending" &&
+                            setOf(request.fromId, request.toId) == setOf(actor, target)
+                    })) continue
+            if (action == "respond_friend_request" &&
+                CharacterFriendRequests.pendingFor(actor).none {
+                    it.id == params.optString("requestId")
+                }) continue
             if (action == "send_group_message") {
                 val group = params.optString("groupId")
                 if (group.isBlank() || MigratedDomainStores.chat.conversations.value.none {
@@ -162,7 +172,16 @@ internal object ResidentDailyDecision {
             val worldAction = params.optString("worldAction")
             if (action == "digital_world_action" && (worldAction !in setOf(
                 "visit_public_place", "interact_resident", "visit_resident_home",
-                "use_location", "go_home"))) continue
+                "use_location", "go_home", "build_home_item", "move_home_item",
+                "remove_home_item"))) continue
+            if (action == "digital_world_action" && worldAction == "build_home_item" &&
+                (params.optString("name").isBlank() ||
+                    params.optString("appearance").isBlank())) continue
+            if (action == "digital_world_action" && worldAction in setOf(
+                    "move_home_item", "remove_home_item") &&
+                DigitalWorldStore.itemsAtHome(actor).none { it.id == params.optString("itemId") }) continue
+            if (action == "digital_world_action" && worldAction == "move_home_item" &&
+                params.optString("position").isBlank()) continue
             if (action == "digital_world_action" && worldAction == "visit_public_place" &&
                 location.isBlank()) continue
             // An agenda is not permission to generate a future message with no content.
@@ -586,10 +605,11 @@ internal object ResidentDailyDecision {
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
                 agenda 中每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：send_character_message（只限上文已认识的真实ID，targetCharacterId 与 args.targetCharacterId 一致）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident，真实 itemId；也可 go_home 返回自己家，真实在家且还有空位时 build_home_item，args.itemType/name/appearance/position 均由自己选择，绝不凭空完成）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                可用：send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
+                真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
                 仅输出 JSON，不能替别人发言：
-                {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
+                {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|send_friend_request|respond_friend_request|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
                  "lunch":"cafe|home|courtyard|games",
                  "evening":"cafe|home|courtyard|games",
                  "eveningActivity":"一件自己愿意做的短活动",
