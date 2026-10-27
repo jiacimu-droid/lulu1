@@ -659,7 +659,7 @@ async function loadCore() {
     const script = document.createElement('script')
     script.src = '/private/core/live2dcubismcore.min.js'
     script.onload = () => window.Live2DCubismCore ? resolve() : reject(new Error('Cubism Core 无效'))
-    script.onerror = () => reject(new Error('尚未导入官方 Cubism Core，请在视频通话中选择导入'))
+    script.onerror = () => reject(new Error('缺少官方 Cubism Core，请在 Live2D 页面安装或导入 Core JS'))
     document.head.appendChild(script)
   })
 }
