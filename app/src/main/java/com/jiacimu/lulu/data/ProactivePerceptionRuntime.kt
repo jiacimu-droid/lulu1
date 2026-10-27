@@ -1100,27 +1100,39 @@ object ProactivePerceptionRuntime {
                 Action.KAOMOJI, Action.GROUP_KAOMOJI) &&
                 decision.conversationWords().isBlank()
         } == true
-        val needsCorrection = initialDecision == null || invalidTool || emptySpeech
+        // A chosen furniture construction with missing required parameters is
+        // an invalid execution contract, not a character's decision to give up.
+        // Only inspect the actual structured JSON, never infer missing values
+        // from narration, mood or a private thought.
+        val missingBuildFields = ModelStructuredOutput.objectOrNull(result.text)
+            ?.let(AutonomousActionWireProtocol::normalize)
+            ?.let(AutonomousActionWireProtocol::missingWorldBuildFields).orEmpty()
+        val needsCorrection = initialDecision == null || invalidTool || emptySpeech ||
+            missingBuildFields.isNotEmpty()
         // Diagnostics contain only format categories, never the user's message
         // or the model's private/possibly sensitive unparsed response.
         val firstFailure = when {
             invalidTool -> "工具名未注册"
             emptySpeech -> "消息缺少正文"
+            missingBuildFields.isNotEmpty() -> "建设家具缺少实际参数：" + missingBuildFields.joinToString("、")
             result.text.isBlank() -> "模型没有返回内容"
             ModelStructuredOutput.objectOrNull(result.text) == null -> "JSON不完整"
             initialDecision == null -> "action字段无法识别"
             else -> ""
         }
         var correctionFailure = ""
-        val recoveredDecision = if (needsCorrection && onlineUnread.text.isNotBlank()) {
+        val recoveredDecision = if (needsCorrection &&
+            (onlineUnread.text.isNotBlank() || missingBuildFields.isNotEmpty())) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
-                    appendLine("当前仍待处理的真实用户消息：${onlineUnread.text.takeLast(1_400)}")
+                    if (onlineUnread.text.isNotBlank())
+                        appendLine("当前仍待处理的真实用户消息：${onlineUnread.text.takeLast(1_400)}")
                     appendLine("上一轮模型原始输出（格式无效、完全没有执行）：${result.text.take(1_300)}")
                     appendLine(when {
                         invalidTool -> "失败原因：工具名称未注册或为空。"
                         emptySpeech -> "失败原因：模型选择了发消息，却没有给出可发送的正文。"
+                        missingBuildFields.isNotEmpty() -> "失败原因：build_home_item 真正必填的 ${missingBuildFields.joinToString("、")} 缺失。保留本人的原行动意愿，只修复执行参数。"
                         else -> "失败原因：上一轮没有解析出合法的顶层 action 或完整 JSON。"
                     })
                     appendLine("当前角色真正可以选择的操作：")
@@ -1130,6 +1142,7 @@ object ProactivePerceptionRuntime {
                     你仍是同一个角色。这只是修正上次未执行的模型决定，不是重新开始对话。
                     保持你上一轮真正想做的事、原本的态度和对用户的具体回应；不要复述错误、道歉或编造已经完成的动作。
                     只返回一个短而完整的顶层 JSON 对象，第一项必须是 action，随后是对应的实际参数。
+                    如果上一轮已决定 build_home_item，只补齐参数，不改动原来的行为意愿与其他动作。建设必须提供 name=家具名称、appearance=具体材质/颜色/外形（非空），以及本人选定的 itemType 和 position；例如 {"action":"digital_world","worldAction":"build_home_item","itemType":"lamp","name":"窗边小灯","appearance":"木质底座与乳白色玻璃灯罩","position":"窗台边"}，也可以 action=tool、tool=digital_world_action、args 内写这些字段。不要编造已建好，不能用心声替代参数。
                     如果确实想回应当前消息：{"action":"message","text":"自然完整的实际回复","reason":"你的真实理由"}。
                     如果想先保持安静：{"action":"silent","reason":"你确实选择安静的本人理由"}。
                     如果真正要操作获授权的设备或生活能力：{"action":"tool","tool":"实际注册的工具名","args":{},"reason":"真实缘由"}，参数按能力说明填写。
@@ -1143,7 +1156,23 @@ object ProactivePerceptionRuntime {
                 connectionOverride = connection,
             ).onFailure { failure ->
                 correctionFailure = "补正请求失败：${failure::class.java.simpleName}"
-            }.getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
+            }.getOrNull()?.text?.let { rawCorrection ->
+                val candidate = parseDecision(rawCorrection, actionOnly = false)
+                if (missingBuildFields.isNotEmpty()) {
+                    // A repair may fill missing fields, but may not silently
+                    // replace the original build intention with a different
+                    // activity, a made-up success, or voluntary silence.
+                    val normalized = ModelStructuredOutput.objectOrNull(rawCorrection)
+                        ?.let(AutonomousActionWireProtocol::normalize)
+                    candidate?.takeIf { fixed ->
+                        normalized != null &&
+                            AutonomousActionWireProtocol.missingWorldBuildFields(normalized).isEmpty() &&
+                            fixed.action == initialDecision?.action &&
+                            fixed.worldAction == initialDecision.worldAction &&
+                            fixed.tool == initialDecision.tool
+                    }
+                } else candidate
+            }
             correction?.takeUnless {
                 (it.action == Action.TOOL && CapabilityRegistry.find(it.tool) == null) ||
                     (it.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
@@ -1153,6 +1182,11 @@ object ProactivePerceptionRuntime {
                 // When only a tool name was invalid, retain the already parsed
                 // first-stage psychology rather than letting a repair rewrite it.
                 if (initialDecision == null) validCorrection else validCorrection.copy(
+                    // A missing construction field is not permission to
+                    // rewrite the spoken reply or independent side effects.
+                    text = if (missingBuildFields.isNotEmpty()) initialDecision.text else validCorrection.text,
+                    reason = if (missingBuildFields.isNotEmpty()) initialDecision.reason else validCorrection.reason,
+                    sideActions = if (missingBuildFields.isNotEmpty()) initialDecision.sideActions else validCorrection.sideActions,
                     innerLife = initialDecision.innerLife,
                     appraisal = initialDecision.appraisal,
                     innerThought = initialDecision.innerThought,
@@ -1160,6 +1194,9 @@ object ProactivePerceptionRuntime {
                     intention = initialDecision.intention,
                     afterglow = initialDecision.afterglow,
                     mood = initialDecision.mood,
+                    motiveId = if (missingBuildFields.isNotEmpty()) initialDecision.motiveId else validCorrection.motiveId,
+                    concernId = if (missingBuildFields.isNotEmpty()) initialDecision.concernId else validCorrection.concernId,
+                    experienceId = if (missingBuildFields.isNotEmpty()) initialDecision.experienceId else validCorrection.experienceId,
                 )
             }
         } else null
@@ -1173,7 +1210,9 @@ object ProactivePerceptionRuntime {
             return Action.SILENT
         }
         if (batchSuperseded()) return deferSupersededDecision()
-        var parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool || emptySpeech }) ?: run {
+        var parsed = (recoveredDecision ?: initialDecision?.takeUnless {
+            invalidTool || emptySpeech || missingBuildFields.isNotEmpty()
+        }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -1200,7 +1239,7 @@ object ProactivePerceptionRuntime {
             // No valid action means no autonomous choice was made. In the
             // absence of user messages this still requires a bounded recovery
             // rather than becoming another successful "silent" history entry.
-            throw IllegalStateException("后台主动感知未返回有效决定，等待限次恢复")
+            throw IllegalStateException("后台主动感知未返回有效决定（${firstFailure.ifBlank { "格式无效" }}），等待限次恢复")
         }
         // A schema error in the online field does NOT transfer its decision
         // to the executor. Reask the same role once; keep the already chosen
