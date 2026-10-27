@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8db7f69a74ff88afb5a0bb8c6801b5f249493bc1`
+- 基准提交：`281feb8fef9e0dc06120a2aaa521e2293e0461a1`
 - 分支：`main`
-- 已索引文件：991
-- 已索引代码/文本行：195769
-- 已发现符号：2905
+- 已索引文件：993
+- 已索引代码/文本行：195960
+- 已发现符号：2908
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -181,7 +181,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 366 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 678 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 686 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 299 | 1 |
@@ -514,6 +514,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 271 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 155 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 246 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 129 | 3 |
@@ -949,6 +950,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 92 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 304 | 2 |
