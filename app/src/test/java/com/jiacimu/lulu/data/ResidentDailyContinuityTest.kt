@@ -119,6 +119,64 @@ class ResidentDailyContinuityTest {
         }
     }
 
+    @Test(timeout = 60_000) fun invalidRescheduleStillRunsIndependentStepsAndReplaysIdempotently() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "改期恢复居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val original = "原定分享-${UUID.randomUUID()}"
+        val independent = "不依赖改期的分享-${UUID.randomUUID()}"
+        val dependent = "依赖改期成功的分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享今天的观察",
+            "自己想分享", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment", activityArgs = JSONObject().put("text", original))
+        val decision = JSONObject().put("choice", "reschedule")
+            .put("dueAt", "invalid-date").put("reason", "想改天再发")
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", true)
+                    .put("args", JSONObject().put("text", dependent)))
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", independent))))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            android.content.Context.MODE_PRIVATE)
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", decision.toString())
+            .putString("due-phase:$key", "decided").commit())
+        val server = MockWebServer()
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "invalid-reschedule-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val posts = MomentsStore.posts.value.filter { it.authorCharacterId == actor }
+                .map { it.content }
+            assertTrue(posts.contains(independent))
+            assertFalse(posts.contains(dependent))
+            assertFalse(posts.contains(original))
+            assertEquals("needs_recovery", p.getString("due-phase:$key", ""))
+            assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == independent
+            })
+            assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+            assertEquals(0, server.requestCount)
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun savedDecisionRecoveryIsLimitedAndNeverReissuesAnUncertainModelRequest() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         val nativeId = "resume-budget-" + UUID.randomUUID()
