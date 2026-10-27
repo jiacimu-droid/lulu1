@@ -249,16 +249,38 @@ internal class Live2DGpuSurfacePresentation(
 
 /** Pure color validator: a black Surface must never pass as a working model. */
 internal object Live2DGpuSurfaceFrameCheck {
+    // The lightweight Pixi room scene is rendered INTO the opaque WebGL canvas.
+    // Its own pastel pixels must not pass as successfully displayed character
+    // pixels (the old all-dark detector would falsely accept a blank light room).
+    private val stageColors = intArrayOf(
+        0xE9EDF4, 0xDFE8F2, 0xD3E2EE, 0xEAF1F8, 0xD8E2EB, 0xEFF3F8,
+        0x151719, 0xE6EDF3,
+    )
+
+    fun isBackdropPixel(pixel: Int): Boolean {
+        val r = (pixel ushr 16) and 255
+        val g = (pixel ushr 8) and 255
+        val b = pixel and 255
+        // Antialiasing and JPEG roundtrips can slightly soften the static
+        // background colors. Preserve dark model costumes and real skin.
+        return stageColors.any { color ->
+            kotlin.math.abs(r - (color shr 16 and 255)) <= 18 &&
+                kotlin.math.abs(g - (color shr 8 and 255)) <= 18 &&
+                kotlin.math.abs(b - (color and 255)) <= 18
+        }
+    }
+
     fun hasCharacterPixels(pixels: IntArray): Boolean {
         if (pixels.isEmpty()) return false
-        var colored = 0
+        var different = 0
         val minimum = maxOf(64, pixels.size / 30)
         for (pixel in pixels) {
             val r = (pixel ushr 16) and 255
             val g = (pixel ushr 8) and 255
             val b = pixel and 255
-            if (maxOf(r, g, b) > 65 || maxOf(r, g, b) - minOf(r, g, b) > 22) {
-                if (++colored >= minimum) return true
+            if (!isBackdropPixel(pixel) &&
+                (maxOf(r, g, b) > 65 || maxOf(r, g, b) - minOf(r, g, b) > 22)) {
+                if (++different >= minimum) return true
             }
         }
         return false
