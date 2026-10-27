@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T19:18:53.420728+00:00",
-  "commit": "fc41cf367594995d2490f885b5e331ba14124f0f",
+  "generatedAt": "2026-10-27T19:19:44.098552+00:00",
+  "commit": "7dc4f39d35751e425eb4b3a9df992de95e8eeaf4",
   "branch": "main",
-  "sourceFingerprint": "09aac4ea52d63f6041a66aceb19b27a0565efbbce060de5667c53653722e73b9",
+  "sourceFingerprint": "6db07d462eae1cd9d2d332f2ea5604aa6418362e49a40302f124575fd51a2e7a",
   "summary": {
     "files": 993,
-    "lines": 196628,
+    "lines": 196637,
     "symbols": 2911
   },
   "symbolIndex": {
@@ -3793,7 +3793,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 538
+        "line": 547
       }
     ],
     "wordsToSubmitOnMute": [
@@ -5441,7 +5441,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 468
+        "line": 477
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5901,19 +5901,19 @@
     "isMaterialEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 124
+        "line": 133
       }
     ],
     "observeInteraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 196
+        "line": 205
       }
     ],
     "matchingActionFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 620
+        "line": 629
       }
     ],
     "register": [
@@ -21650,8 +21650,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 673,
-      "sha256": "c9fa691bd4dcf33045e68f0809782a63f084e9db98bbb2645a085262eefe460b",
+      "lines": 682,
+      "sha256": "8137de35409e28398904dd148a4b89dc2cd6813885885dc499b17bd6a6c2ca1f",
       "symbols": [
         {
           "name": "InsightRow",
@@ -21659,23 +21659,23 @@
         },
         {
           "name": "isMaterialEvidence",
-          "line": 124
+          "line": 133
         },
         {
           "name": "observeInteraction",
-          "line": 196
+          "line": 205
         },
         {
           "name": "invalidateEvidence",
-          "line": 468
+          "line": 477
         },
         {
           "name": "score",
-          "line": 538
+          "line": 547
         },
         {
           "name": "matchingActionFeedback",
-          "line": 620
+          "line": 629
         }
       ]
     },
