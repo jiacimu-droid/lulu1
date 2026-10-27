@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2e172f40a2d1cc6eba5bc808f2be8a715ddd6bf9`
+- 基准提交：`1acc1a538500baaa4e3231ced4623fb9d25cd18a`
 - 分支：`main`
 - 已索引文件：985
-- 已索引代码/文本行：194329
-- 已发现符号：2876
+- 已索引代码/文本行：194356
+- 已发现符号：2878
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -443,7 +443,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 146 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt` | 144 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 151 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 145 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 560 | 8 |
@@ -882,7 +882,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
-| `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 183 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-27T15:50:19.255687+00:00",
-  "commit": "2e172f40a2d1cc6eba5bc808f2be8a715ddd6bf9",
+  "generatedAt": "2026-10-27T16:04:45.247279+00:00",
+  "commit": "1acc1a538500baaa4e3231ced4623fb9d25cd18a",
   "branch": "main",
-  "sourceFingerprint": "96aee35934af9f16bde9e6055eb969ec220c81f6ef0e575557053b7a3654260c",
+  "sourceFingerprint": "acc72fcf3ec269bc25fd0d5fe195c21ab45b1bddd6aefb56ec5ae31b2603e04b",
   "summary": {
     "files": 985,
-    "lines": 194329,
-    "symbols": 2876
+    "lines": 194356,
+    "symbols": 2878
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8813,19 +8813,19 @@
     "LuluCloudBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "Config": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 31
+        "line": 39
       }
     ],
     "loadConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 39
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -8839,7 +8839,7 @@
     "saveConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 50
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -8853,19 +8853,19 @@
     "lastUploadText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 60
+        "line": 68
       }
     ],
     "recordUpload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 64
+        "line": 72
       }
     ],
     "upload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-        "line": 75
+        "line": 83
       }
     ],
     "LuluDataBackup": [
@@ -15258,10 +15258,22 @@
         "line": 141
       }
     ],
-    "wrongCredentialsFailWithReadableReason": [
+    "existingFolderAcceptsMkcol405ThenRetries": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
         "line": 168
+      }
+    ],
+    "rejectedMkcolStopsRetryAndReportsServerError": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 184
+      }
+    ],
+    "wrongCredentialsFailWithReadableReason": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
+        "line": 201
       }
     ],
     "LuluDataBackupTest": [
@@ -24670,36 +24682,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt",
-      "lines": 151,
-      "sha256": "0e24bf281ca084b86952a498fe2ddef9cc620c7fbefd9f444cf485625f1f2250",
+      "lines": 145,
+      "sha256": "c4d2b22a004c9af77e680f884005d57843ea8ef72411db7db15f692226a204bd",
       "symbols": [
         {
           "name": "LuluCloudBackup",
-          "line": 23
+          "line": 24
         },
         {
           "name": "Config",
-          "line": 31
-        },
-        {
-          "name": "loadConfig",
           "line": 39
         },
         {
+          "name": "loadConfig",
+          "line": 47
+        },
+        {
           "name": "saveConfig",
-          "line": 50
+          "line": 58
         },
         {
           "name": "lastUploadText",
-          "line": 60
+          "line": 68
         },
         {
           "name": "recordUpload",
-          "line": 64
+          "line": 72
         },
         {
           "name": "upload",
-          "line": 75
+          "line": 83
         }
       ]
     },
@@ -32920,8 +32932,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
-      "lines": 183,
-      "sha256": "b1e6225d0e483df6ec5e2254d584f3994b333a4cc3e57ae739ad5d8fab1ee78f",
+      "lines": 216,
+      "sha256": "e25f729af38dba0e040f56aa61be52fa09390a28194bb12def0e77c4c3b012fa",
       "symbols": [
         {
           "name": "LuluCloudBackupTest",
@@ -32944,8 +32956,16 @@
           "line": 141
         },
         {
-          "name": "wrongCredentialsFailWithReadableReason",
+          "name": "existingFolderAcceptsMkcol405ThenRetries",
           "line": 168
+        },
+        {
+          "name": "rejectedMkcolStopsRetryAndReportsServerError",
+          "line": 184
+        },
+        {
+          "name": "wrongCredentialsFailWithReadableReason",
+          "line": 201
         }
       ]
     },
