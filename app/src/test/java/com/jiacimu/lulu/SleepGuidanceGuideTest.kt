@@ -4,58 +4,51 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SleepGuidanceGuideTest {
-    @Test fun naturalBedtimeIncludesMultiplePossibleWaysIntoSleep() {
-        val prompt = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, false, 0L)
-        assertTrue(prompt.contains("身体扫描"))
-        assertTrue(prompt.contains("放下思绪"))
-        assertTrue(prompt.contains("想象画面"))
-        assertTrue(prompt.contains("被夸"))
-        assertTrue(prompt.contains("不要求马上睡着"))
-        assertTrue(prompt.contains("不是统一的催眠口播"))
-        assertTrue(prompt.contains("不是必须独占 30 分钟的单一模式"))
-        assertTrue(prompt.contains("不要定时轮换"))
+    @Test fun onlyTwoPublicBedtimeModesRemainAvailable() {
+        assertEquals(listOf(SleepGuidanceFocus.Body, SleepGuidanceFocus.Story), SleepGuidanceGuide.choices)
     }
 
-    @Test fun focusChangesPriorityWithoutIgnoringListenerOrInventingReplies() {
-        for (focus in SleepGuidanceFocus.values()) {
-            val prompt = SleepGuidanceGuide.instruction(focus, true, 21 * 60_000L)
-            assertTrue(prompt.contains(focus.label))
-            assertTrue(prompt.contains(focus.emphasis))
-            assertTrue(prompt.contains("以她的新要求为先"))
-            assertTrue(prompt.contains("不凭空模拟用户回答"))
-            assertTrue(prompt.contains("降低语言密度"))
-            assertTrue(prompt.contains("30 分钟从最近一次确认的用户发言起算"))
+    @Test fun bodyModeFollowsActualProgressWithoutRepeatedFarewells() {
+        val prompt = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Body, true, 25 * 60_000L)
+        assertTrue(prompt.contains("【持续哄睡：放松身体】"))
+        assertTrue(prompt.contains("继续上段真实讲过的位置"))
+        assertTrue(prompt.contains("不转去讲故事"))
+        assertTrue(prompt.contains("不要每段末尾"))
+        assertTrue(prompt.contains("不强求闭眼"))
+        assertTrue(prompt.contains("更长停顿"))
+        assertTrue(prompt.contains("用户不回应不代表已经睡着"))
+    }
+
+    @Test fun storyModePreservesRealNarrativeAndDoesNotInventSleep() {
+        val prompt = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Story, true, 21 * 60_000L)
+        assertTrue(prompt.contains("【持续哄睡：睡前故事】"))
+        assertTrue(prompt.contains("已经真实播完的人物、地点、情节"))
+        assertTrue(prompt.contains("不冒充真实共同回忆"))
+        assertTrue(prompt.contains("不突然插入一套身体扫描"))
+        assertTrue(prompt.contains("不因此中断"))
+        assertTrue(prompt.contains("不虚构她已睡着"))
+    }
+
+    @Test fun oldSavedFocusesFallBackToBodyWithoutExposingOldModes() {
+        val baseline = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Body, false, 0L)
+        for (legacy in listOf(
+            SleepGuidanceFocus.Natural, SleepGuidanceFocus.Breath,
+            SleepGuidanceFocus.Thoughts, SleepGuidanceFocus.Imagery,
+            SleepGuidanceFocus.Affection
+        )) {
+            assertEquals(baseline, SleepGuidanceGuide.instruction(legacy, false, 0L))
         }
     }
 
-    @Test fun eachPreferenceAllowsNaturalCombinationRatherThanAnHourOfOneExercise() {
-        val body = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Body, true, 15 * 60_000L)
-        val affection = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Affection, true, 2 * 60_000L)
-        val story = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Story, true, 8 * 60_000L)
-        assertTrue(body.contains("不从头反复报身体部位"))
-        assertTrue(body.contains("安静陪伴"))
-        assertTrue(affection.contains("不要长时间不停夸"))
-        assertTrue(story.contains("不要突然暂停剧情强行插入整套练习"))
-        assertTrue(story.contains("故事要记得已讲过的人物与情节"))
-    }
-
-    @Test fun laterSilenceReducesMentalEffortInsteadOfStartingNewActivities() {
-        val early = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, false, 0L)
-        val middle = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, true, 25 * 60_000L)
-        val late = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, true, 30 * 60_000L)
-        assertTrue(early.contains("慢慢铺陈一个舒服的睡前主题"))
-        assertTrue(middle.contains("减少追问和新话题"))
-        assertTrue(late.contains("不再开新冒险"))
-        assertTrue(late.contains("更长的播放间隔留白"))
-        assertTrue(late.contains("不要把每次模型回复缩成几句重复的晚安"))
-    }
-
-    @Test fun breathingAndBodyGuidanceDoNotImposeUncomfortableExercise() {
-        val breath = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Breath, false, 0L)
-        val body = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Body, false, 0L)
-        assertTrue(breath.contains("不强制深呼吸"))
-        assertTrue(breath.contains("不强迫屏息"))
-        assertTrue(body.contains("脚趾"))
-        assertTrue(body.contains("不必一口气念完全部部位"))
+    @Test fun longSilenceChangesDensityButNotChosenActivity() {
+        for (focus in SleepGuidanceGuide.choices) {
+            val early = SleepGuidanceGuide.instruction(focus, true, 0L)
+            val late = SleepGuidanceGuide.instruction(focus, true, 25 * 60_000L)
+            assertFalse(early.contains("已经很安静"))
+            assertTrue(late.contains("已经很安静"))
+            assertTrue(late.contains("留出更长停顿"))
+            assertTrue(late.contains("30分钟上限"))
+            assertTrue(late.contains("不应靠收尾套话"))
+        }
     }
 }
