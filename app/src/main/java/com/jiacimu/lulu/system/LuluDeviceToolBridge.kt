@@ -1440,7 +1440,12 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
             if (!invalidBlame && !rewriting && phoneCallId.isNotBlank() &&
-                safeText == naturalText) {
+                safeText.isNotBlank()) {
+                // Visual expression is an independent action chosen by the
+                // SAME phone-turn model. Guarding it with safeText == naturalText
+                // previously dropped real gestures whenever speech needed
+                // harmless boundary normalization (while the safe speech still
+                // played). Only invalid or undeliverable turns suppress it.
                 plan.live2d?.let { chosen ->
                     runCatching { onLive2DAction?.invoke(chosen) }
                 }
