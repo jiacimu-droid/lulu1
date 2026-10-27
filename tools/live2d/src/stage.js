@@ -30,6 +30,7 @@ console.info('__LULU_LIVE2D__' + JSON.stringify({
   type: 'loading', detail: 'Pixi 6 CSP ShaderSystem adapter 已显式安装'
 }))
 let app
+let sceneBackdrop = null
 let model
 let wolfRigActive = false
 let nativeViewport = { width: 0, height: 0 }
@@ -289,6 +290,7 @@ function fit() {
   if (app.renderer.screen.width !== viewWidth ||
       app.renderer.screen.height !== viewHeight) {
     app.renderer.resize(viewWidth, viewHeight)
+    drawSceneBackdrop()
   }
   if (!model) return
   const originalWidth = model.width / Math.max(Math.abs(model.scale.x), 1e-6)
@@ -594,6 +596,34 @@ function installFinalParameterControl(loadedModel) {
   return true
 }
 
+// A static, low-cost room illustration behind the avatar. Draw in the
+// opaque Pixi render target: Android's native JPEG/GPU bridges do not display
+// backgrounds painted only on the underlying HTML/Compose surface.
+function drawSceneBackdrop() {
+  if (!app) return
+  const w = Math.max(1, root.clientWidth)
+  const h = Math.max(1, root.clientHeight)
+  if (!sceneBackdrop) {
+    sceneBackdrop = new PIXI.Graphics()
+    app.stage.addChildAt(sceneBackdrop, 0)
+  }
+  const g = sceneBackdrop
+  g.clear()
+  // Quiet blue-grey wall, a soft window and a gentle floor line. No external
+  // image assets, per-frame allocations or GPU shaders are needed.
+  g.beginFill(0xE9EDF4).drawRect(0, 0, w, h).endFill()
+  const windowW = w * .76
+  const windowH = h * .50
+  const windowX = (w - windowW) / 2
+  const windowY = h * .13
+  g.beginFill(0xDFE8F2).drawRoundedRect(windowX, windowY, windowW, windowH, 28).endFill()
+  g.beginFill(0xD3E2EE).drawRoundedRect(windowX + 10, windowY + 10,
+    windowW - 20, windowH - 20, 22).endFill()
+  g.beginFill(0xEAF1F8).drawEllipse(w * .52, h * .37, w * .32, h * .26).endFill()
+  g.beginFill(0xD8E2EB).drawRect(0, h * .78, w, h * .22).endFill()
+  g.beginFill(0xEFF3F8).drawRect(0, h * .78, w, Math.max(2, h * .005)).endFill()
+}
+
 function ensureApp() {
   if (app) return
   app = new PIXI.Application({
@@ -601,7 +631,7 @@ function ensureApp() {
     height: Math.max(1, root.clientHeight),
     // Android WebView can fail to composite a transparent WebGL surface onto
     // an opaque WebView. Render a truly opaque drawing buffer instead.
-    backgroundColor: 0x151719,
+    backgroundColor: 0xE9EDF4,
     backgroundAlpha: 1,
     // AIRI keeps the drawing buffer across WebView compositor frames.
     // Without this, readback can pass before Android composites a cleared buffer.
@@ -623,6 +653,7 @@ function ensureApp() {
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
+  drawSceneBackdrop()
   app.ticker.remove(app.render, app)
   // AIRI's Canvas.vue wraps ticker renders so animation exceptions cannot
   // silently terminate rendering while Android still shows a "ready" status.
