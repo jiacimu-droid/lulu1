@@ -89,7 +89,13 @@ class LuluCloudBackupTest {
                 seen += SeenRequest(method, path, auth, body.copyOf(read))
                 val code = codes[(served - 1).coerceIn(codes.indices)]
                 val out = it.getOutputStream()
-                out.write("HTTP/1.1 $code Done\r\nContent-Length: 0\r\n\r\n".toByteArray(Charsets.US_ASCII))
+                // 回完就关连接，必须明说 Connection: close。HTTP/1.1 默认
+                // 连接可复用，客户端会拿着这个已关的旧连接发下一个请求；
+                // 没 body 的 MKCOL 能自动换新连接重试，但带 body 的重试
+                // PUT 换不了，就会报连接被重置——上一轮测试就是这么挂的。
+                // 真实网盘不会这样（它要么保持连接、要么明说关闭），所以
+                // 这是假服务器的毛病，不是上传代码的毛病。
+                out.write("HTTP/1.1 $code Done\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".toByteArray(Charsets.US_ASCII))
                 out.flush()
             }
         }
@@ -140,7 +146,7 @@ class LuluCloudBackupTest {
                 "http://localhost:${server.port}/dav", "user", "pass",
                 "lulu-backups", backupFile(), "a.zip",
             )
-            assertTrue(result.isSuccess)
+            assertTrue("upload failed: ${result.exceptionOrNull()?.message}", result.isSuccess)
             assertEquals(
                 listOf("PUT", "MKCOL", "PUT"),
                 server.seen.map { it.method },
