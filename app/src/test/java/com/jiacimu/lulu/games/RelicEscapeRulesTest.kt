@@ -94,4 +94,85 @@ class RelicEscapeRulesTest {
         assertNotEquals(failed.run?.id,newRun.run?.id)
         assertEquals(1,newRun.awarded.size)
     }
+
+    @Test fun traverseOpenFightAndExtractCarriesConcreteItem() {
+        var s=RelicEscapeWorld.create(915,2,emptyList(),2,2).copy(mobs=emptyList())
+        val chest=s.chests.first()
+        repeat(100) {
+            if(s.hero.x==chest.x && s.hero.y==chest.y)return@repeat
+            val step=RelicEscapeRules.path(s,s.hero.x,s.hero.y,chest.x,chest.y)
+                ?:return@repeat
+            s=RelicEscapeRules.act(s,"move",step.first,step.second)
+        }
+        assertEquals(chest.x,s.hero.x)
+        assertEquals(chest.y,s.hero.y)
+        s=RelicEscapeRules.act(s,"open",chest.x,chest.y)
+        assertTrue(s.hero.bag.any{it.id==s.id+":chest:"+chest.id})
+        val once=s.carried
+        s=RelicEscapeRules.act(s,"open",chest.x,chest.y)
+        assertEquals(once,s.carried)
+        var safety=100
+        while(RelicEscapeRules.distance(s.hero.x,s.hero.y,s.exitX,s.exitY)>0 && safety-->0) {
+            val step=RelicEscapeRules.path(s,s.hero.x,s.hero.y,s.exitX,s.exitY)!!
+            s=RelicEscapeRules.act(s,"move",step.first,step.second)
+        }
+        assertTrue(safety>0)
+        assertEquals(RelicPhase.EXTRACT,RelicEscapeRules.act(s,"extract").phase)
+        s=RelicEscapeRules.act(s,"extract")
+        repeat(3){s=RelicEscapeRules.act(s,"wait")}
+        assertEquals(RelicPhase.SUCCESS,s.phase)
+        assertEquals(once,s.secured)
+        assertEquals(once.sumOf{it.value},s.secured.sumOf{it.value})
+    }
+
+    @Test fun rescueConsumesRealMedicineAndClearsTeammateDown() {
+        val raw=RelicEscapeWorld.create(4,1,listOf("ally-a"),1,1).copy(mobs=emptyList())
+        val actor=raw.allies.first()
+        val injured=raw.copy(allies=listOf(actor.copy(hp=0,downs=1)))
+        val healed=RelicEscapeRules.act(injured,"revive",lootId="ally-a")
+        assertEquals(4,healed.allies.first().hp)
+        assertEquals(0,healed.hero.kits)
+        assertEquals(1,healed.hero.rescues)
+        assertTrue(healed.events.any{it.action=="rescue"})
+    }
+
+    @Test fun repeatedSettlementAndTwoDifferentRunsNeverMintSameTreasureTwice() {
+        val ledger=cleared()
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        val first=RelicEscapeWorld.create(551,1,emptyList(),0,1)
+        val second=RelicEscapeWorld.create(552,1,emptyList(),0,1)
+        for((index,run) in listOf(first,second).withIndex()) {
+            val unique=RelicLoot(run.id+":manual","测试遗物",RelicTier.RARE,200+index)
+            val prepared=run.copy(mobs=emptyList(),
+                hero=run.hero.copy(x=run.exitX,y=run.exitY,bag=listOf(unique)))
+            val previous=ledger.read()
+            prefs.edit().putString("ledger",previous.copy(run=prepared).json().toString()).commit()
+            assertEquals(RelicPhase.EXTRACT,ledger.perform("extract").run!!.phase)
+            repeat(3){ledger.perform("wait")}
+            val settled=ledger.read()
+            assertEquals(index+1,settled.vault.size)
+            assertEquals(index+1,settled.awarded.size)
+            assertEquals(index+1,settled.successes)
+            val reopened=RelicEscapeLedger(context)
+            assertEquals(settled.vault,reopened.read().vault)
+            reopened.perform("wait")
+            reopened.perform("extract")
+            assertEquals(settled.vault,reopened.read().vault)
+        }
+        assertEquals(401,ledger.read().vault.sumOf{it.value})
+    }
+
+    @Test fun midRunRecoveryRetainsExploredTilesAndCannotStartSecondRun() {
+        val ledger=cleared()
+        val original=ledger.begin(listOf("ally-a"),1)
+        val s=original.run!!
+        val next=RelicEscapeRules.path(s,s.hero.x,s.hero.y,s.exitX,s.exitY)!!
+        val moved=ledger.perform("move",next.first,next.second)
+        val reopened=RelicEscapeLedger(RuntimeEnvironment.getApplication())
+        assertEquals(moved,reopened.read())
+        assertEquals(moved,reopened.begin(emptyList(),0))
+        assertEquals(original.run!!.id,moved.run!!.id)
+        assertTrue(moved.run!!.seen.contains(moved.run!!.index(next.first,next.second)))
+    }
 }

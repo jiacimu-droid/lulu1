@@ -327,6 +327,19 @@ private fun relicDirection(dx:Int,dy:Int):String=
                 if(run.events.any{it.who==ally.id && it.action=="escape"})"撤离" else "未撤离",
                 color=relicMuted,fontSize=12.sp)
         }
+        Text("行动回顾",color=Color.White,fontWeight=FontWeight.Bold)
+        val actorEvents=run.events.filter{it.action in setOf(
+            "open","attack","heal","rescue","down","revived","escape","left","hurt","failure","pickup")}
+        if(actorEvents.isEmpty())Text("本局没有特殊行动",color=relicMuted)
+        actorEvents.takeLast(24).forEach{event->
+            val actor=if(event.who=="player")"玩家" else if(event.who=="world")"遗迹"
+                else run.allies.firstOrNull{it.id==event.who}?.let{
+                    MigratedDomainStores.characters.get(it.id).displayName
+                }?:event.who
+            Text("第"+event.turn+"回合 · "+actor+"："+event.text,
+                color=if(event.action=="hurt" || event.action=="failure")relicRed else relicMuted,
+                fontSize=11.sp)
+        }
         Text("回合 "+run.turns+" · 本局宝物的结算已锁定，不可重复领取",
             fontSize=11.sp,color=relicMuted)
     }
