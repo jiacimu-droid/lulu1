@@ -69,6 +69,9 @@ internal fun DrawScope.drawDeepSeaWorld(
     player: WorldVector,
     companion: WorldVector?,
     visited: Set<String> = emptySet(),
+    revealedRelics: Set<String> = emptySet(),
+    salvagedRelics: Set<String> = emptySet(),
+    observedCreatures: Set<String> = emptySet(),
 ) {
     drawRect(
         Brush.verticalGradient(
@@ -78,6 +81,38 @@ internal fun DrawScope.drawDeepSeaWorld(
         ),
         size = Size(DEEP_SEA_WORLD_WIDTH, DEEP_SEA_WORLD_HEIGHT),
     )
+
+    // Distant seabed terraces and haze establish depth without adding collidable geometry.
+    repeat(7) { layer ->
+        val base = 220f + layer * 182f
+        val silhouette = Path().apply {
+            moveTo(0f, base + 90f)
+            repeat(17) { step ->
+                val x = step * 145f
+                val y = base + sin(step * .9f + layer * 1.8f) * (34f + layer * 2f)
+                lineTo(x, y)
+            }
+        }
+        drawPath(silhouette, Color(0xFF7FD6C9).copy(alpha = .035f + (layer % 2) * .012f),
+            style = Stroke(3f))
+    }
+    // Water currents are visible, and the same zones change actual piloting speed.
+    deepSeaCurrents.forEachIndexed { index, current ->
+        repeat(5) { ring ->
+            val radius = 40f + ring * 37f
+            val alpha = .06f + (4 - ring) * .013f
+            drawArc(
+                color = if (current.speedFactor > 1f) Color(0xFF99F6DB).copy(alpha = alpha)
+                        else Color(0xFF9AB5F6).copy(alpha = alpha),
+                startAngle = phase * 360f * (if (index == 0) -1 else 1) + ring * 29f,
+                sweepAngle = 165f,
+                useCenter = false,
+                topLeft = Offset(current.center.x - radius, current.center.y - radius),
+                size = Size(radius * 2f, radius * 2f),
+                style = Stroke(width = 6f + ring),
+            )
+        }
+    }
 
     repeat(9) { ray ->
         val topX = 120f + ray * 270f + sin(phase * 6.28f + ray) * 36f
@@ -152,6 +187,13 @@ internal fun DrawScope.drawDeepSeaWorld(
         drawCircle(glow.copy(alpha = if (seen) .35f else .75f), 14f + sin(phase * 6.28f) * 3f,
             center, style = Stroke(3f))
         drawCircle(glow.copy(alpha = .65f), 4f, center)
+    }
+    deepSeaCreatures.forEach { creature ->
+        drawDeepSeaCreature(creature, phase, creature.id in observedCreatures)
+    }
+    deepSeaRelics.filter { it.id !in salvagedRelics &&
+        (it.id in revealedRelics || player.distanceTo(it.position) < 185f) }.forEach { relic ->
+        drawDeepSeaRelic(relic, phase)
     }
     map.echoes.filterNot { it.id in collected }.forEachIndexed { index, echo ->
         drawEchoCrystal(echo.position, phase, index)
@@ -287,6 +329,84 @@ private fun DrawScope.drawDeepSeaDiver(position: WorldVector, phase: Float, comp
     drawLine(body.copy(alpha = .95f), Offset(position.x + 6f, position.y + 28f), Offset(position.x - 22f, position.y + 61f - sin(phase * 12f) * 8f), 11f, StrokeCap.Round)
     drawCircle(Color(0xFFC7FFF2).copy(alpha = .35f), 8f, Offset(position.x - direction * 62f, position.y - 41f - phase * 20f))
     drawCircle(Color(0xFFC7FFF2).copy(alpha = .25f), 5f, Offset(position.x - direction * 75f, position.y - 70f - phase * 30f))
+}
+
+
+private fun DrawScope.drawDeepSeaRelic(relic: DeepSeaRelic, phase: Float) {
+    val p = relic.position.toOffset()
+    val bob = sin(phase * 6.283f + relic.position.x) * 5f
+    val center = Offset(p.x, p.y + bob)
+    drawCircle(Brush.radialGradient(listOf(Color(0xFFFFDAB0).copy(alpha = .43f), Color.Transparent),
+        center = center, radius = 74f), 74f, center)
+    // An illuminated salvage capsule reads differently from the mandatory blue crystals.
+    drawRoundRect(Color(0xFF284D59), Offset(center.x - 25f, center.y - 15f), Size(50f, 30f), CornerRadius(12f))
+    drawRoundRect(Brush.linearGradient(listOf(Color(0xFFFFECC2), Color(0xFFE2AA63), Color(0xFF9A6B4B))),
+        Offset(center.x - 17f, center.y - 11f), Size(34f, 22f), CornerRadius(9f))
+    drawCircle(Color.White.copy(alpha = .8f), 5f, Offset(center.x - 6f, center.y - 5f))
+    drawCircle(Color(0xFFFFE0AC).copy(alpha = .65f), 29f + sin(phase * 6.28f) * 3f,
+        center, style = Stroke(2.4f))
+}
+
+private fun DrawScope.drawDeepSeaCreature(creature: DeepSeaCreature, phase: Float, observed: Boolean) {
+    val p = creature.position
+    val bob = sin(phase * 6.283f + p.x * .02f) * 8f
+    val c = Offset(p.x, p.y + bob)
+    val glow = if (observed) .12f else .26f
+    drawCircle(Brush.radialGradient(
+        listOf(Color(0xFFBEFFF4).copy(alpha = glow), Color.Transparent), center = c, radius = 100f),
+        100f, c)
+    when (creature.id) {
+        "creature-jelly" -> {
+            drawOval(Brush.verticalGradient(listOf(Color(0xFFC9B9FF), Color(0xFF5BB5C6))),
+                Offset(c.x - 36f, c.y - 37f), Size(72f, 48f))
+            repeat(5) { tentacle ->
+                val x = c.x - 26f + tentacle * 13f
+                val drift = sin(phase * 6.28f + tentacle) * 11f
+                drawLine(Color(0xFF8CE6EA).copy(alpha = .66f), Offset(x, c.y + 6f),
+                    Offset(x + drift, c.y + 62f + tentacle % 2 * 9f),
+                    3f, StrokeCap.Round)
+            }
+            drawCircle(Color.White.copy(alpha = .62f), 7f, Offset(c.x - 12f, c.y - 17f))
+        }
+        "creature-ray" -> {
+            val wing = Path().apply {
+                moveTo(c.x - 72f, c.y - 5f)
+                quadraticTo(c.x - 35f, c.y - 62f, c.x, c.y - 19f)
+                quadraticTo(c.x + 35f, c.y - 62f, c.x + 72f, c.y - 5f)
+                quadraticTo(c.x + 43f, c.y + 36f, c.x, c.y + 15f)
+                quadraticTo(c.x - 43f, c.y + 36f, c.x - 72f, c.y - 5f)
+                close()
+            }
+            drawPath(wing, Brush.verticalGradient(listOf(Color(0xFF82C7DC), Color(0xFF24496C))))
+            drawLine(Color(0xFF78D6D8), Offset(c.x, c.y + 12f), Offset(c.x + 7f, c.y + 66f), 5f)
+            drawCircle(Color(0xFFD7FFF2), 4f, Offset(c.x - 8f, c.y - 12f))
+            drawCircle(Color(0xFFD7FFF2), 4f, Offset(c.x + 8f, c.y - 12f))
+        }
+        "creature-turtle" -> {
+            repeat(4) { fin ->
+                val dx = if (fin % 2 == 0) -1f else 1f
+                val dy = if (fin < 2) -1f else 1f
+                drawOval(Color(0xFF629C84),
+                    Offset(c.x + dx * 27f - 18f, c.y + dy * 22f - 11f), Size(36f, 22f))
+            }
+            drawOval(Color(0xFF729F78), Offset(c.x - 37f, c.y - 26f), Size(74f, 52f))
+            drawOval(Color(0xFF3B6F65), Offset(c.x - 27f, c.y - 21f), Size(54f, 42f))
+            drawCircle(Color(0xFF85BA9C), 15f, Offset(c.x + 42f, c.y - 1f))
+            drawCircle(Color(0xFF072837), 3f, Offset(c.x + 49f, c.y - 7f))
+            drawLine(Color(0xFFA8D6B8), Offset(c.x, c.y - 19f), Offset(c.x, c.y + 19f), 3f)
+        }
+        else -> {
+            drawOval(Color(0xFFEEBF79), Offset(c.x - 20f, c.y - 34f), Size(40f, 61f))
+            drawCircle(Color(0xFFFFDFA8), 20f, Offset(c.x + 9f, c.y - 32f))
+            drawCircle(Color(0xFF102E3E), 3f, Offset(c.x + 16f, c.y - 35f))
+            drawArc(Color(0xFFEDBA7C), phase * 160f, 260f, false,
+                Offset(c.x - 15f, c.y + 14f), Size(45f, 38f), style = Stroke(5f))
+        }
+    }
+    if (!observed) {
+        drawCircle(Color(0xFFCDFEF2).copy(alpha = .48f + .2f * sin(phase * 6.28f)), 84f, c,
+            style = Stroke(2.4f))
+    }
 }
 
 private fun DrawScope.drawFish(center: Offset, length: Float, right: Boolean) {
