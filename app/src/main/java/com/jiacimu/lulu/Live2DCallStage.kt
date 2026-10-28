@@ -424,7 +424,8 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             val phase = playbackEvent.phase.name.lowercase(java.util.Locale.ROOT)
             stage.evaluateJavascript(
                 "window.LuluLive2D && window.LuluLive2D.onPlaybackEvent(" +
-                    JSONObject.quote(phase) + ")", null,
+                    JSONObject.quote(phase) + ", " + playbackEvent.segmentIndex +
+                    ", " + playbackEvent.visualSequence + ")", null,
             )
         }
     }
@@ -433,7 +434,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // requested expression (e.g. the wolf's star eyes) in a JS no-op.
     LaunchedEffect(stage, previewRevision, rendererReady.value) {
         if (rendererReady.value && previewRevision > 0) {
-            val cue = JSONObject()
+            val cue = JSONObject().put("visualSequence", previewRevision)
             fun angles(yaw: Float?, pitch: Float?, roll: Float?) = JSONObject().also { values ->
                 yaw?.let { values.put("yaw", it.toDouble()) }
                 pitch?.let { values.put("pitch", it.toDouble()) }
@@ -451,6 +452,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 val beats = JSONArray()
                 previewBeats.forEach { beat ->
                     val item = JSONObject().put("atMs", beat.atMs)
+                        .put("segmentIndex", beat.segmentIndex)
                     beat.durationMs?.let { item.put("durationMs", it) }
                     beat.expression?.let { item.put("expression", it) }
                     beat.head?.let { item.put("head", angles(it.yaw, it.pitch, it.roll)) }
