@@ -62,6 +62,10 @@ internal object CommitmentDecisionRuntime {
         recovered += recoveryKey
         check(prefs.edit().putStringSet("recovery_handled", recovered.takeLast(2000).toSet())
             .commit()) { "无法保存补救执行回执" }
+        // The recovery path must trigger the same owner-selected follow-up as
+        // the primary planner. Otherwise promises recovered after a delivered
+        // bubble are saved but never re-enter the character's action loop.
+        scheduleUndatedFollowThroughIfNeeded(context, characterId, changed)
         if (changed.isNotEmpty()) SharedExperienceTimeline.record(
             eventId = "commitment:model-recovery:$sourceTurnId",
             characterId = characterId, channel = "约定保存与执行回执",
@@ -73,6 +77,19 @@ internal object CommitmentDecisionRuntime {
             triggerExtraction = false,
         )
         changed
+    }
+
+    private fun scheduleUndatedFollowThroughIfNeeded(
+        context: Context, characterId: String, changed: List<CommitmentTask>,
+    ) {
+        if (changed.any {
+                it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback
+            } && RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
+            // Save the accepted responsibility first; ask its owner to choose
+            // an actual next action through the existing unified decision loop.
+            // This never manufactures a clock time or promises an already-run tool.
+            ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
+        }
     }
 
     suspend fun apply(context: Context, characterId: String, sourceTurnId: String,
@@ -90,14 +107,7 @@ internal object CommitmentDecisionRuntime {
                     before[it.id]?.status != CommitmentTaskStatus.Completed && it.isWakeResponsibility()
             }) WakeMusicCoordinator.onModelConfirmedWake(context, characterId)
         val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id]?.revision != it.revision }
-        if (changed.any {
-                it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback
-            } && RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
-            // The extractor records an accepted promise, not a model-chosen clock time.
-            // Re-enter the existing role decision loop once so the owner can choose a
-            // concrete appointment without requiring the user to supply an hour.
-            ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
-        }
+        scheduleUndatedFollowThroughIfNeeded(context, characterId, changed)
         if (evidenceIds.isNotEmpty()) {
             val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val saved = prefs.getStringSet("handled", emptySet()).orEmpty().toMutableList()
