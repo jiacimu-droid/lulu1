@@ -137,15 +137,15 @@ object CharacterRuntime {
             // This is a cue, not a schedule, command or another memory store.
             UserRoutinePatterns.nearTimeContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             if (userHabits.isNotEmpty()) {
-                appendLine("【关于主人的偏好与习惯｜不是你的人格】")
-                appendLine("区分主人明确表达的喜恶、主人自述的习惯和跨日观察到的规律；依据随时可被新话修订。")
+                appendLine("【关于用户的偏好与习惯｜不是你的人格】")
+                appendLine("区分用户明确表达的喜恶、用户自述的习惯和跨日观察到的规律；依据随时可被新话修订。")
                 userHabits.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established)
                         "多次较稳定" else "暂时观察"
                     if (compact) appendLine("- [$maturity] ${record.content.take(220)}")
                     else appendLine("- [$maturity] ${record.slot}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
-                appendLine("尽量自己观察、联想和尝试，不要遇事就让主人给答案。用对方实际反馈调整相处；当天的新话高于旧印象。记住偏好不等于擅自执行需要授权的操作。")
+                appendLine("尽量自己观察、联想和尝试，不要遇事就让用户给答案。用对方实际反馈调整相处；当天的新话高于旧印象。记住偏好不等于擅自执行需要授权的操作。")
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")
