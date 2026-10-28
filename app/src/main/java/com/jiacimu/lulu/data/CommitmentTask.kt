@@ -67,6 +67,19 @@ internal fun CommitmentTask.needsUndatedActionReview(): Boolean =
         CommitmentTaskStatus.WaitingForFeedback,
     )
 
+/** The canonical state transition owns cancelling obsolete child plans.
+ * Changes to receipts alone never invalidate the original next-step choices. */
+internal fun CommitmentTask.invalidatesUndatedFollowUps(next: CommitmentTask): Boolean =
+    needsUndatedActionReview() && (
+        !next.needsUndatedActionReview() ||
+            goal != next.goal ||
+            completionCondition != next.completionCondition ||
+            verificationMode != next.verificationMode ||
+            deliveryAction != next.deliveryAction ||
+            steps != next.steps ||
+            repeat != next.repeat
+    )
+
 internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
     CommitmentTaskStatus.NeedsClarification,
     CommitmentTaskStatus.Scheduled,

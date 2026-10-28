@@ -54,6 +54,13 @@ object CommitmentTaskStore {
             updatedAt = Instant.now(),
         )
         persist(listOf(next) + mutableTasks.value.filterNot { it.id == id })
+        // Every completion/cancellation path (tool verification, model turns,
+        // wake confirmation and UI) passes through this single durable store.
+        // The old pending child wakeups cannot outlive their parent contract.
+        if (current.invalidatesUndatedFollowUps(next)) {
+            revokePendingLinkedPlans(id,
+                "原约定已改变或不再需要后续执行；保留已经发生的结果")
+        }
         return next
     }
 
@@ -257,8 +264,6 @@ object CommitmentTaskStore {
                 lastActionResult = reason,
             )
         }
-        if (cancelled?.status == CommitmentTaskStatus.Cancelled)
-            revokePendingLinkedPlans(id, "原约定已取消：$reason")
         return cancelled
     }
 

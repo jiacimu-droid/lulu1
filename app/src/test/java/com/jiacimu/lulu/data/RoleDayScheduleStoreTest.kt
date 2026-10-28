@@ -338,6 +338,30 @@ class RoleDayScheduleStoreTest {
         }
     }
 
+    @Test fun oneStoreTransitionRevokesOnlyTrulyObsoleteUndatedSteps() {
+        val original = CommitmentTask(characterId = "role-a",
+            status = CommitmentTaskStatus.NeedsClarification,
+            goal = "监督学习与饮食", dueAt = null,
+            completionCondition = "需要真实学习反馈")
+        assertFalse(original.invalidatesUndatedFollowUps(original.copy(
+            lastActionResult = "刚查看过安排但还没执行", revision = 4)))
+        assertFalse(original.invalidatesUndatedFollowUps(original.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback)))
+        assertTrue(original.invalidatesUndatedFollowUps(original.copy(
+            status = CommitmentTaskStatus.Cancelled)))
+        assertTrue(original.invalidatesUndatedFollowUps(original.copy(
+            status = CommitmentTaskStatus.Completed)))
+        assertTrue(original.invalidatesUndatedFollowUps(original.copy(
+            dueAt = Instant.parse("2026-10-30T02:00:00Z"),
+            status = CommitmentTaskStatus.Scheduled)))
+        assertTrue(original.invalidatesUndatedFollowUps(original.copy(
+            goal = "只监督睡觉")))
+        assertTrue(original.invalidatesUndatedFollowUps(original.copy(
+            completionCondition = "由本人确认已经就寝")))
+        assertFalse(original.copy(status = CommitmentTaskStatus.Cancelled)
+            .invalidatesUndatedFollowUps(original))
+    }
+
     @Test fun chosenAppointmentLinksAcceptedResponsibilityWithoutInventingAnOutcome() {
         val actual = plan.copy(
             activityAction = "send_private_message",
