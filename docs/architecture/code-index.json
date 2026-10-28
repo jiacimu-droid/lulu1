@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:49:59.919703+00:00",
-  "commit": "c9738a166fc6d3b8bf527cc3e0d4db00227d81ec",
+  "generatedAt": "2026-10-28T09:52:36.051506+00:00",
+  "commit": "5669ffba82749ff77c39f1a077c9c81fdc6a673b",
   "branch": "main",
-  "sourceFingerprint": "d2c84825d797b294b57bb44af182192f1b5786b26c2e0beb03f092dfaf05ade3",
+  "sourceFingerprint": "53634b4cfa69227cfe3b5df8fb8a63307c03cdc423cf1d7f6627ed92cd4e8942",
   "summary": {
-    "files": 1026,
-    "lines": 206099,
-    "symbols": 2997
+    "files": 1027,
+    "lines": 206259,
+    "symbols": 2998
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3026,6 +3026,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
         "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
+        "line": 51
       }
     ],
     "inspectImportedModel": [
@@ -21709,6 +21713,17 @@
         {
           "name": "instruction",
           "line": 202
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
+      "lines": 160,
+      "sha256": "6e1a25d4339a26d2ea505ac763562c2b2b1ee823c4504be7f03b4f34dce4a587",
+      "symbols": [
+        {
+          "name": "inspect",
+          "line": 51
         }
       ]
     },
