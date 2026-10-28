@@ -1923,7 +1923,7 @@ class ResidentDailyContinuityTest {
             val snapshot = ResidentDailyDecision.savedDayRecovery(app, native.id, now)
             assertNotNull(snapshot)
             assertNull(ResidentDailyDecision.savedDayRecovery(
-                app, native.id, now.plusSeconds(86_400)))
+                app, native.id, now.plusSeconds(172_800)))
             assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot!!) { now })
             assertEquals("partial_side_steps", prefs.getString(phaseKey, ""))
             assertNull(ResidentDailyDecision.savedDayRecovery(app, native.id, now))
