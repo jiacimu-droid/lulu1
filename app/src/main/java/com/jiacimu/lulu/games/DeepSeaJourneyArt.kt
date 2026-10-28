@@ -118,6 +118,33 @@ internal fun DrawScope.drawDeepSeaWorld(
     map.reefs.sortedBy { it.bounds.bottom }.forEach { drawDeepSeaReef(it, phase) }
     deepSeaSites.forEach { site ->
         val center = site.position.toOffset()
+        when (site.id) {
+            "hidden-cave" -> {
+                drawOval(Color(0xFF3D676C).copy(alpha = .75f),
+                    Offset(center.x - 58f, center.y - 37f), Size(116f, 76f))
+                drawOval(Color(0xFF031A2C),
+                    Offset(center.x - 42f, center.y - 23f), Size(84f, 54f))
+                drawOval(Color(0xFF91DDD4).copy(alpha = .35f),
+                    Offset(center.x - 42f, center.y - 23f), Size(84f, 54f), style = Stroke(4f))
+            }
+            "wreck-log" -> {
+                drawRoundRect(Color(0xFFB08F6D),
+                    Offset(center.x - 25f, center.y - 17f), Size(50f, 34f), CornerRadius(6f))
+                drawLine(Color(0xFFE4D5AE), Offset(center.x - 16f, center.y - 7f),
+                    Offset(center.x + 15f, center.y - 7f), strokeWidth = 3f)
+            }
+            "kelp-garden" -> repeat(5) { plant ->
+                val px = center.x - 32f + plant * 16f
+                drawLine(Color(0xFF70C7A7).copy(alpha = .56f),
+                    Offset(px, center.y + 38f),
+                    Offset(px + sin(phase * 6f + plant) * 14f, center.y - 33f - plant % 3 * 9f),
+                    strokeWidth = 5f, cap = StrokeCap.Round)
+            }
+            "whale-song" -> repeat(3) { ring ->
+                drawCircle(Color(0xFF8BD9DE).copy(alpha = .2f),
+                    30f + ring * 18f + sin(phase * 6.28f) * 5f, center, style = Stroke(3f))
+            }
+        }
         val seen = site.id in visited
         val glow = if (seen) Color(0xFF6F9C9A) else Color(0xFFBCE9DA)
         drawCircle(Brush.radialGradient(listOf(glow.copy(alpha = if (seen) .1f else .30f), Color.Transparent),
