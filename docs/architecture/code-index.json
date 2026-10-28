@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:57:24.943992+00:00",
-  "commit": "7840da4a61dab52ee20a375a1b72be1bab43a773",
+  "generatedAt": "2026-10-28T15:06:05.991590+00:00",
+  "commit": "f05378ae8b80f8d6320880f4fba671b3ea6295d3",
   "branch": "main",
-  "sourceFingerprint": "82069b40518bf54e437a84e23cad90bcf4593a1e2a103128790d014cb827045a",
+  "sourceFingerprint": "c24fde4075b7bba368562b73f4bcddc6e50454a15d0661031995d77aa2e32cb9",
   "summary": {
     "files": 1053,
-    "lines": 214481,
+    "lines": 214482,
     "symbols": 3078
   },
   "symbolIndex": {
@@ -14747,7 +14747,7 @@
     "RolePhotoAlbumStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -33001,12 +33001,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
-      "lines": 51,
-      "sha256": "fda4021d13ecd1a6909842f77eab5be9a8321b87675f8af4f8601fee51ef0ec3",
+      "lines": 52,
+      "sha256": "5629519ec5d96d338203dcb1610646c05b61a9e1e9ca977b2bd0f132587e1ede",
       "symbols": [
         {
           "name": "RolePhotoAlbumStoreTest",
-          "line": 16
+          "line": 17
         }
       ]
     },
