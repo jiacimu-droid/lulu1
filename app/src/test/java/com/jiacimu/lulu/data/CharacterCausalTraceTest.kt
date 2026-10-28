@@ -145,6 +145,24 @@ class CharacterCausalTraceTest {
         assertFalse(withoutDeleted.any { it.evidenceId == "trace-failed" })
     }
 
+    @Test fun sharedTaskIdDoesNotClaimDirectCauseWithoutMatchingSourceId() {
+        SharedExperienceTimeline.record("trace-task-source", a, "日程", "角色", "同一日程的原始记录",
+            at, triggerExtraction = false, source = "resident-day",
+            evidenceKind = EventEvidenceKind.Observation, taskId = "shared-task")
+        SharedExperienceTimeline.record("trace-task-receipt", a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "web_search").put("status", "failed")
+                .put("causeEvidenceId", "some-other-event")
+                .put("result", JSONObject().put("success", false)
+                    .put("error", "另一个动作的失败").toString()).toString(),
+            at.plusSeconds(5), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult,
+            taskId = "shared-task")
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, "trace-task-source"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(lines.any { it.title.contains("同任务记录") &&
+            it.detail.contains("不证明由当前事件直接触发") })
+    }
+
     @Test fun originalResultDeletionAndSourceWithdrawalNeverReviveOldEvidence() {
         source(a, "trace-origin")
         SharedExperienceTimeline.record("trace-native", a, "独自阅读", "角色", "真正读到的材料",
