@@ -40,6 +40,7 @@ object CharacterLifeStore {
         // 恢复仓库内建的人设为独立联系人；仅首次升级导入。
         // 导入标记独立保存，之后用户删除/编辑角色都不会在启动时被反复逆转。
         ensureBundledJiangDu()
+        migrateLegacyLuluToXingHe()
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
     }
@@ -72,6 +73,64 @@ object CharacterLifeStore {
         applyJiangDuPreset(BUNDLED_JIANG_DU_ID)
         // Marker last: next launch can safely retry any unfinished step.
         preferences.edit().putBoolean(BUNDLED_JIANG_DU_IMPORTED, true).commit()
+    }
+
+    /**
+     * The user retired the original butler identity and explicitly replaced it
+     * with Xing He, her best friend. One-time conversion of the legacy contact
+     * keeps real messages, memories, avatar, schedule and independent actions.
+     *
+     * Back up ALL authored identity/profile/relationship fields before rewriting
+     * them; never interpret an old motive or an AI utterance as a new friendship.
+     * The special legacy role ID is a separate navigation-compatibility issue.
+     */
+    @Synchronized private fun migrateLegacyLuluToXingHe() {
+        val characterId = "lulu"
+        val characters = MigratedDomainStores.characters
+        val character = characters.settings.value[characterId] ?: return
+        val root = state(characterId)
+        if (root.optInt("xingHeProfileVersion") >= 1) return
+        // Do not hijack a legacy slot that the owner has already renamed to
+        // another person, nor convert a user-marked real-world identity.
+        if (character.displayName !in setOf("露露", "星禾") ||
+            DigitalLifeProfileStore.lifeForm(characterId) == CharacterLifeForm.REAL_WORLD) return
+        if (!root.has("xingHeMigrationBackupV1")) {
+            root.put("xingHeMigrationBackupV1", JSONObject()
+                .put("name", character.displayName)
+                .put("persona", character.persona)
+                .put("identity", CharacterIdentityStore.identities.value[characterId].orEmpty())
+                .put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString()))
+                .put("relationshipAgreements",
+                    JSONObject((root.optJSONObject("relationshipAgreements") ?: JSONObject()).toString()))
+                .put("socialNames",
+                    JSONObject((root.optJSONObject("socialNames") ?: JSONObject()).toString()))
+                .put("jiangDuPresetVersion", root.optInt("jiangDuPresetVersion")))
+            // First persist the original editable data. Interrupted migration
+            // can retry without losing the only recoverable copy.
+            save(characterId, root)
+        }
+        characters.update(character.copy(
+            displayName = "星禾",
+            persona = CharacterProfileSchema.xingHePersona,
+        ))
+        CharacterIdentityStore.set(characterId, CharacterProfileSchema.xingHeIdentity)
+        val profile = JSONObject()
+        CharacterProfileSchema.xingHeProfile.forEach { (key, value) ->
+            profile.put(key, value)
+        }
+        val agreements = root.optJSONObject("relationshipAgreements") ?: JSONObject()
+        agreements.put("user", JSONObject()
+            .put("title", "闺蜜")
+            .put("details", CharacterProfileSchema.xingHeFriendship)
+            .put("updatedAt", Instant.now().toString()))
+        root.put("profile", profile)
+            .put("relationshipAgreements", agreements)
+            .put("xingHeProfileVersion", 1)
+        // Legacy butler nicknames and Jiang Du version flags cannot continue
+        // overriding the explicitly changed character identity.
+        root.remove("socialNames")
+        root.remove("jiangDuPresetVersion")
+        save(characterId, root)
     }
 
     fun state(characterId: String): JSONObject = runCatching {
@@ -289,6 +348,7 @@ object CharacterLifeStore {
         if (prefs == null) return
         val character = MigratedDomainStores.characters.settings.value[characterId] ?: return
         val root = state(characterId)
+        if (root.optInt("xingHeProfileVersion") >= 1) return
         val version = root.optInt("jiangDuPresetVersion")
         if (version >= CharacterProfileSchema.jiangDuPresetVersion) return
         // Only a known Jiang Du, a previously versioned preset or the bundled
