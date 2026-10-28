@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:54:54.099547+00:00",
-  "commit": "9a71340f2a170980a69ead1e7428ce021598af1a",
+  "generatedAt": "2026-10-28T09:55:46.830606+00:00",
+  "commit": "bca86aa253038a9424499dbaf430fef93ca59f87",
   "branch": "main",
-  "sourceFingerprint": "401db6d228ab73a86b5c4c3b3a29ce6e6b49bed9abfb8f90c0d11d914dfa1fb9",
+  "sourceFingerprint": "b1ace3b07c41a8864f46126a7f2b1c188bf58a3f1335ed5c42ca41fb8f783ed9",
   "summary": {
     "files": 1028,
-    "lines": 206501,
+    "lines": 206505,
     "symbols": 2999
   },
   "symbolIndex": {
@@ -3029,7 +3029,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "inspectImportedModel": [
@@ -17523,8 +17523,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-      "lines": 363,
-      "sha256": "1779d2828bc0720d84d64acd92a9b7e74bfb1c8f1e4e4043df1acbd5ed3f49ce",
+      "lines": 364,
+      "sha256": "2a136801c878b5352410fc0c269b0726312af6ba7b53527402cc514491484a74",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
@@ -21724,12 +21724,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 174,
-      "sha256": "fec6641dc1f6318b3887584f372d120aac8fed96b0f28887684eb4d762b84440",
+      "lines": 177,
+      "sha256": "208fe2d1195ccdb89e7f6b9d94f66b4436c61a279426224477c5f6ad354c1954",
       "symbols": [
         {
           "name": "inspect",
-          "line": 51
+          "line": 54
         }
       ]
     },
