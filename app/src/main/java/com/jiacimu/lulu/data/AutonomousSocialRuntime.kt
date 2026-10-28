@@ -127,7 +127,8 @@ internal object AutonomousSocialRuntime {
             )
         }
 
-        val generated = generateEncounter(session, participantIds, characters, location, worldTick, now)
+        val generated = generateEncounter(context, session, participantIds, characters, location, worldTick, now)
+        val witnessedTick = generated.directedMoment ?: worldTick
         if (generated.turns.isEmpty() && generated.privateReactions.isEmpty()) {
             // The encounter happened even if no valid model decision arrived.
             // Keep its evidence; do not turn a request failure into voluntary silence.
@@ -275,7 +276,7 @@ internal object AutonomousSocialRuntime {
             .firstOrNull { it.id == session.id } ?: return@withLock
         AutonomousEncounterChapters.enqueue(
             context = context, meeting = committedSession,
-            locationCode = currentLocation, worldTick = worldTick,
+            locationCode = currentLocation, worldTick = witnessedTick,
         )
     }
 
@@ -343,6 +344,7 @@ internal object AutonomousSocialRuntime {
     }
 
     private suspend fun generateEncounter(
+        context: Context,
         session: MeetingSession,
         participantIds: List<String>,
         characters: Map<String, CharacterSettings>,
@@ -394,8 +396,21 @@ internal object AutonomousSocialRuntime {
 
         // One optional public scene adviser + one private decision per role.
         // A single final literary pass later supplies the shared chapters.
-        val sceneIdea = suggestEncounterPossibilities(
+        val scenePlan = suggestEncounterPossibilities(
             participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
+        // Only a concrete supported tiny incident can enter the world, AFTER
+        // director planning but BEFORE the characters independently react.
+        // An unresolved world incident takes precedence over a surprise beat.
+        val directedMoment = if (worldTick == null || DigitalWorldLifeEventStore.isAmbientMoment(worldTick)) {
+            scenePlan.moment?.let { selected ->
+                DigitalWorldLifeEventStore.stageSharedSceneMoment(
+                    context, session,
+                    selected.optString("kind"), selected.optString("actorId"),
+                    selected.optString("otherId"), now)
+            }
+        } else null
+        val currentTick = directedMoment ?: worldTick
+        val sceneIdea = scenePlan.idea
         val proposals = linkedMapOf<String, List<AutonomousEncounterScript.Beat>>()
         val privateReactions = mutableMapOf<String, JSONObject>()
         for (speakerId in participantIds) {
@@ -422,12 +437,12 @@ internal object AutonomousSocialRuntime {
                     appendLine("【你本人在数字世界的真实相遇；主人不在现场】")
                     appendLine("当前时间=$now；$authority")
                     appendLine(DigitalWorldEnvironment.snapshot(now).context())
-                    if (worldTick == null) {
+                    if (currentTick == null) {
                         appendLine("本轮没有新环境事件；不得创造天气、事故、道具或故障。")
                     } else {
-                        appendLine("本轮已发生且亲眼见到的世界事件：${worldTick.summary}")
-                        appendLine("incidentId=${worldTick.incidentId}；status=${worldTick.status}；stage=${worldTick.stage}")
-                        if (worldTick.status == "active") {
+                        appendLine("本轮已发生且亲眼见到的世界事件：${currentTick.summary}")
+                        appendLine("incidentId=${currentTick.incidentId}；status=${currentTick.status}；stage=${currentTick.stage}")
+                        if (currentTick.status == "active") {
                             appendLine(DigitalWorldLifeEventStore.contextFor(speakerId))
                         }
                     }
@@ -537,10 +552,12 @@ internal object AutonomousSocialRuntime {
                 append(turn.segments.joinToString("；") { it.text })
             }
         }.take(2400)
-        return GeneratedEncounter(turns, summary, privateReactions)
+        return GeneratedEncounter(turns, summary, privateReactions, directedMoment)
     }
 
     /** An isolated public-world adviser: suggestions, never authored actions. */
+    private data class ScenePlan(val idea: String = "", val moment: JSONObject? = null)
+
     private suspend fun suggestEncounterPossibilities(
         participants: List<String>,
         characters: Map<String, CharacterSettings>,
@@ -549,9 +566,9 @@ internal object AutonomousSocialRuntime {
         publicRelations: String,
         tick: DigitalWorldLifeTick?,
         at: Instant,
-    ): String {
+    ): ScenePlan {
         val sceneConnection = runCatching { ScopedModelSelections.worldSceneConnection() }
-            .getOrNull() ?: return ""
+            .getOrNull() ?: return ScenePlan()
         val suggestion = LuluAiServices.gateway.generate(
             characterId = participants.first(),
             facts = buildString {
@@ -581,7 +598,7 @@ internal object AutonomousSocialRuntime {
             contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
             connectionOverride = sceneConnection,
         ).getOrNull()?.text.orEmpty()
-        val json = ModelStructuredOutput.objectOrNull(suggestion) ?: return ""
+        val json = ModelStructuredOutput.objectOrNull(suggestion) ?: return ScenePlan()
         val angle = json.optString("angle").trim().take(180)
         val options = json.optJSONArray("options")
         val ideas = (0 until minOf(2, options?.length() ?: 0)).mapNotNull { index ->
@@ -595,8 +612,10 @@ internal object AutonomousSocialRuntime {
             if (number !in 1..AutonomousEncounterScript.MAX_PHASES) return@mapNotNull null
             "阶段$number：${phase.optString("direction").trim().take(110)}"
         }
-        return (listOf(angle) + ideas + stageNotes).filter(String::isNotBlank)
-            .joinToString("；").take(1050)
+        val scriptedMoment = json.optJSONObject("moment")
+            ?.takeIf { it.optString("kind") in setOf("social_stumble", "social_frame_crossing") }
+        return ScenePlan((listOf(angle) + ideas + stageNotes).filter(String::isNotBlank)
+            .joinToString("；").take(1050), scriptedMoment)
     }
 
     private suspend fun generateSoloIncidentReaction(
@@ -907,5 +926,6 @@ internal object AutonomousSocialRuntime {
         val turns: List<GeneratedTurn>,
         val summary: String,
         val privateReactions: Map<String, JSONObject> = emptyMap(),
+        val directedMoment: DigitalWorldLifeTick? = null,
     )
 }
