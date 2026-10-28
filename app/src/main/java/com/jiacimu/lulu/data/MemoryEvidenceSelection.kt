@@ -19,7 +19,12 @@ internal object MemoryEvidenceSelection {
             // hours off local time. Render local readable time instead.
             val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
                 .format(event.occurredAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
-            val prefix = "[$at] [${event.channel}] ${event.speaker}${episodeHints[event.id].orEmpty()}："
+            // Narrative annotations are optional. Never allow a link label
+            // to evict the original statement under a tight prompt budget.
+            val basePrefix = "[$at] [${event.channel}] ${event.speaker}："
+            val note = episodeHints[event.id].orEmpty()
+            val prefix = if (remaining - basePrefix.length - note.length - 1 >= 48)
+                basePrefix.dropLast(1) + note + "：" else basePrefix
             val space = remaining - prefix.length - 1
             if (space < 48) return@forEach
             val content = event.evidenceContent.trim().replace("\n", " ")
