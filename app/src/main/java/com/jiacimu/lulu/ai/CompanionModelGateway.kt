@@ -502,6 +502,10 @@ class CompanionModelGateway(
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
         var attemptedModel: String? = null
+        // Only input sizes are persisted, never raw prompts, user messages,
+        // world books, image contents or credentials.
+        var failedRequestShape = ""
+        var failedRequestBytes = 0L
         runCatching {
             val promptStartedAt = System.nanoTime()
             val requestedArchiveId = if (source.startsWith("末世求生")) {
@@ -803,6 +807,9 @@ class CompanionModelGateway(
             // new role identity, no fake reply or action is introduced.
             val originalBytes = RelayRequestPressurePolicy.payloadBytes(
                 systemPrompt, userPrompt, dialogueHistory, imagesForThisTurn)
+            failedRequestShape =
+                "systemChars=${systemPrompt.length};currentChars=${userPrompt.length};" +
+                "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size}"
             val reducedSystem = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactSections(systemSections) else ""
             val reducedHistory = if (RelayRequestPressurePolicy.canRecover(source))
@@ -825,7 +832,7 @@ class CompanionModelGateway(
                     onStreamText = onStreamText,
                     imageDataUrls = imagesForThisTurn,
                     conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
-                    onRequestBodyBytes = { sentRequestBodyBytes = it },
+                    onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
                 )
             } catch (error: ModelHttpException) {
                 if (error.status == 413) {
@@ -858,7 +865,7 @@ class CompanionModelGateway(
                     onStreamText = onStreamText,
                     imageDataUrls = imagesForThisTurn, // never quietly pretend to have seen omitted photos
                     conversationHistory = reducedHistory,
-                    onRequestBodyBytes = { sentRequestBodyBytes = it },
+                    onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
                 )
             }
             if (sentReduced) {
@@ -922,7 +929,10 @@ class CompanionModelGateway(
             LuluRepositories.performance.recordError(
                 source = source,
                 title = attemptedModel?.let { "$title · $it" } ?: title,
-                message = error.message ?: error::class.java.simpleName,
+                message = (error.message ?: error::class.java.simpleName) +
+                    if (failedRequestShape.isNotBlank()) {
+                        " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes;重复相同输入不会自动解除400]"
+                    } else "",
                 requestUrl = requestUrl,
                 durationMillis = elapsedMillis(totalStartedAt),
             )
