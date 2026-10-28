@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:50:49.348945+00:00",
-  "commit": "ed2629d2a261f831c055c51a2f30a618d8915dc6",
+  "generatedAt": "2026-10-28T08:54:32.606072+00:00",
+  "commit": "bca12967d5377a4d5e85e38820a4b466935bd4d4",
   "branch": "main",
-  "sourceFingerprint": "882004ca917e99ddf551409428850f2ea4556de594d944cc69f02ba9c51cc912",
+  "sourceFingerprint": "e6a3e24fdd46bb4e51d19c4e317f75ffb181c6ed7c2c313220d5a0d044075070",
   "summary": {
     "files": 1020,
-    "lines": 204070,
+    "lines": 204069,
     "symbols": 2972
   },
   "symbolIndex": {
@@ -28124,8 +28124,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-      "lines": 139,
-      "sha256": "f232603dd3b59c1f355992ca3ec40ad00a917241ffad8a872cf4ab136156d283",
+      "lines": 138,
+      "sha256": "a765a79e58d9a19efe41a0c74d62a451a4c65c640fc790cd4bb70f3c67054afb",
       "symbols": [
         {
           "name": "WorldLifeEpisodeWorker",
