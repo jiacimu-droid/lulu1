@@ -57,6 +57,8 @@ internal object LuluCallCameraSession {
     private var previewView: PreviewView? = null
     private var captureTimer: Job? = null
     private var analysis: Job? = null
+    private var capturePending = false
+    private var shareRevision = 0L
     private var generation: Long = 0L
 
     fun requestOpen(context: Context, characterId: String, callId: String) {
@@ -155,6 +157,7 @@ internal object LuluCallCameraSession {
         }
         captureTimer?.cancel()
         captureTimer = null
+        shareRevision++
         analysis?.cancel()
         analysis = null
         if (snapshot.sharing) Live2DCallVisionState.disable(snapshot.characterId, snapshot.callId)
@@ -183,21 +186,26 @@ internal object LuluCallCameraSession {
         val app = application ?: return
         val photo = capture ?: return
         val snapshot = mutable.value
-        if (!snapshot.enabled || !snapshot.sharing || analysis?.isActive == true) return
+        if (!snapshot.enabled || !snapshot.sharing || capturePending ||
+            analysis?.isActive == true) return
         val token = generation
+        val revision = shareRevision
+        capturePending = true
         photo.takePicture(ContextCompat.getMainExecutor(app),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
                     var bitmap: Bitmap? = null
                     try {
-                        if (token != generation || !mutable.value.sharing) return
+                        if (token != generation || revision != shareRevision ||
+                            !mutable.value.sharing) return
                         bitmap = image.toBitmap()
                         val degrees = image.imageInfo.rotationDegrees
                         if (degrees != 0) {
                             val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-                            val rotated = Bitmap.createBitmap(bitmap, 0, 0,
-                                bitmap.width, bitmap.height, matrix, true)
-                            if (rotated !== bitmap) bitmap.recycle()
+                            val source = checkNotNull(bitmap)
+                            val rotated = Bitmap.createBitmap(source, 0, 0,
+                                source.width, source.height, matrix, true)
+                            if (rotated !== source) source.recycle()
                             bitmap = rotated
                         }
                         val frame = Live2DCallVisionState.beginFrame(
@@ -230,17 +238,23 @@ internal object LuluCallCameraSession {
                     } finally {
                         bitmap?.recycle()
                         image.close()
+                        if (token == generation && revision == shareRevision) capturePending = false
                     }
                 }
                 override fun onError(exception: ImageCaptureException) {
-                    if (token == generation) mutable.value = mutable.value.copy(
-                        error = "取帧失败：" + exception.message.orEmpty().take(90))
+                    if (token == generation && revision == shareRevision) {
+                        capturePending = false
+                        mutable.value = mutable.value.copy(
+                            error = "取帧失败：" + exception.message.orEmpty().take(90))
+                    }
                 }
             })
     }
 
     fun closeInService() {
         generation++
+        shareRevision++
+        capturePending = false
         captureTimer?.cancel(); captureTimer = null
         analysis?.cancel(); analysis = null
         val old = mutable.value
