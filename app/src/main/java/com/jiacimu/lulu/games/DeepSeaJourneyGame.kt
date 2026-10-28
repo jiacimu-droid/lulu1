@@ -41,7 +41,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import org.json.JSONArray
 import org.json.JSONObject
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
 
@@ -197,7 +196,6 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         }
     }
 
-    val targetEcho = deepSeaClosestEcho(map, player, collected)
     val nearbyEcho = deepSeaNearbyEcho(map, player, collected, obstacles)
     val nearbySite = deepSeaNearbySite(player, visited, obstacles)
     val gateReady = map.echoes.all { it.id in collected }
