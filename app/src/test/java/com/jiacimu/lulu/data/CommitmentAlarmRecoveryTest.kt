@@ -148,6 +148,44 @@ class CommitmentAlarmRecoveryTest {
         assertNull(LuluAlarmSystem.find(context, "alarm"))
     }
 
+    @Test fun missingRoleNeverBecomesAnotherCharactersAlarmOnCreateOrRestore() {
+        val due = Instant.now().plusSeconds(3600)
+        val requestedId = "ownerless-" + java.util.UUID.randomUUID()
+        val rejected = LuluAlarmSystem.create("", "", due, "没有归属的提醒", requestedId)
+        assertTrue(rejected.isFailure)
+        assertTrue(LuluAlarmSystem.list().isEmpty())
+
+        val corrupted = JSONObject().put("id", requestedId)
+            .put("characterName", "旧系统的默认名称")
+            .put("triggerAt", due.toString())
+            .put("label", "不能误投给星禾")
+        val owned = JSONObject().put("id", requestedId + "-own")
+            .put("characterId", "person-b")
+            .put("triggerAt", due.plusSeconds(180).toString())
+            .put("label", "B自己的提醒")
+        context.getSharedPreferences("lulu_alarm_store", Context.MODE_PRIVATE).edit()
+            .putString("alarms_v1", JSONArray().put(corrupted).put(owned).toString())
+            .commit()
+        val decoded = LuluAlarmSystem.list()
+        assertEquals(1, decoded.size)
+        assertEquals("person-b", decoded.single().characterId)
+        assertEquals("person-b", decoded.single().characterName)
+        assertNull(LuluAlarmSystem.find(context, requestedId))
+        // Do not overwrite or delete the malformed original persisted bytes:
+        // users should be able to inspect a backup and recover genuine owner.
+        val raw = context.getSharedPreferences("lulu_alarm_store", Context.MODE_PRIVATE)
+            .getString("alarms_v1", "")!!
+        assertTrue(raw.contains("不能误投给星禾"))
+        assertFalse(decoded.any { it.characterId == "lulu" })
+
+        val own = LuluAlarmSystem.create("person-a", "", due.plusSeconds(300), "A自己的提醒")
+            .getOrThrow()
+        assertEquals("person-a", own.characterId)
+        assertEquals("person-a", own.characterName)
+        assertFalse(LuluAlarmSystem.list().any { it.characterId == "lulu" })
+        LuluAlarmSystem.cancel(own.id)
+    }
+
     @Test fun futureAlarmAndSilentReviewSurviveRegistrationRestore() {
         val due = Instant.now().plusSeconds(3600)
         val alarm = LuluAlarmSystem.create("role", "角色", due, "叫醒结果复查", silentCallback = true).getOrThrow()
