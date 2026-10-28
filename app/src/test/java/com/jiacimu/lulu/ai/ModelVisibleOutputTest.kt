@@ -23,7 +23,7 @@ class ModelVisibleOutputTest {
         val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
         val server = MockWebServer()
         server.enqueue(MockResponse().setResponseCode(400)
-            .setBody("""{"error":{"code":"prohibited_content","message":"AI Studio refused: prohibited_content"}}"""))
+            .setBody("""{"error":{"code":"prohibited_content","message":"Input blocked"}}"""))
         server.start()
         try {
             val response = gateway.generate(
@@ -34,6 +34,8 @@ class ModelVisibleOutputTest {
             )
             assertTrue(response.isFailure)
             assertTrue(isNonRetryableModelFailure(response.exceptionOrNull()!!))
+            assertEquals("prohibited_content",
+                (response.exceptionOrNull() as ModelHttpException).providerCode)
             assertEquals("Content rejection must make only ONE HTTP request", 1, server.requestCount)
             assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
         } finally { server.shutdown() }
