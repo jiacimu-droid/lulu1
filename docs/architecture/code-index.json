@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T03:43:34.838450+00:00",
-  "commit": "d9de4e9a5f4d2c82bb0aba979b0cd5171f77b333",
+  "generatedAt": "2026-10-28T03:45:34.574396+00:00",
+  "commit": "225c4d168029173a1e24c97d7da9c3793cde0616",
   "branch": "main",
-  "sourceFingerprint": "2a6aa441c0823a4dd52600f695bff778901adab506d24aac2ac8b03f37158555",
+  "sourceFingerprint": "cd512e30621888f9ed651c45ebcf0c909853fc2138c629bcd5afbfe9e9f42503",
   "summary": {
     "files": 993,
-    "lines": 197164,
+    "lines": 197198,
     "symbols": 2918
   },
   "symbolIndex": {
@@ -5515,7 +5515,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 596
+        "line": 600
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -6213,7 +6213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 820
+        "line": 823
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10595,7 +10595,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 445
+        "line": 448
       }
     ],
     "plan": [
@@ -10719,31 +10719,31 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 503
+        "line": 507
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 518
+        "line": 522
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 558
+        "line": 562
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 572
+        "line": 576
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 603
+        "line": 607
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -15961,13 +15961,13 @@
     "modelAnswer": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 68
+        "line": 95
       }
     ],
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 429
+        "line": 456
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -26741,8 +26741,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 870,
-      "sha256": "36a69865ee9d39cf70bba741c4e531534094a83348cfc1679066fd7a3f1b2214",
+      "lines": 873,
+      "sha256": "b4a11cd4b72a09c0e9eff9f57e6d97d99b8d9b00df2a6cff12dadf39b8dc2361",
       "symbols": [
         {
           "name": "planForApp",
@@ -26758,11 +26758,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 445
+          "line": 448
         },
         {
           "name": "schedule",
-          "line": 820
+          "line": 823
         }
       ]
     },
@@ -26814,8 +26814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 709,
-      "sha256": "f9e040d3618a7b44aa863eb150f7bf0918fb6c014b361ed570e577e333a176db",
+      "lines": 713,
+      "sha256": "301b7f5b0576c91d1b8cc480e58805fe5a98526b3b1da4f887755bbe10a0435d",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -26879,27 +26879,27 @@
         },
         {
           "name": "canBegin",
-          "line": 503
+          "line": 507
         },
         {
           "name": "completeFromReceipt",
-          "line": 518
+          "line": 522
         },
         {
           "name": "markDue",
-          "line": 558
+          "line": 562
         },
         {
           "name": "dueContext",
-          "line": 572
+          "line": 576
         },
         {
           "name": "clearCharacter",
-          "line": 596
+          "line": 600
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 603
+          "line": 607
         }
       ]
     },
@@ -34012,8 +34012,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 561,
-      "sha256": "9ec967d9864ede94025b5fee246e8cdc97536256993dce25ba421f63b1c3ac23",
+      "lines": 588,
+      "sha256": "f9138a330a8786f9720c6eede01b27d518ff20b0c14c907f12d69e4117f160df",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34021,11 +34021,11 @@
         },
         {
           "name": "modelAnswer",
-          "line": 68
+          "line": 95
         },
         {
           "name": "item",
-          "line": 429
+          "line": 456
         }
       ]
     },
