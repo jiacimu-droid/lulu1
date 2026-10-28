@@ -267,7 +267,43 @@ internal object ResidentDailyDecision {
         return report.completedCount
     }
 
-    /** Each due item receives ONE fresh, cheap role decision. A recorded action is not an effect. */
+    /** Only validate new model responses: previously saved choices keep their
+     * original request IDs and must never trigger another charge on replay. */
+    internal fun dueContractError(choice: JSONObject?, now: Instant): String? {
+        if (choice == null) return "没有可解析的 JSON 对象"
+        val action = choice.optString("choice")
+        if (action !in setOf("execute", "reschedule", "cancel", "wait"))
+            return "choice 不是 execute/reschedule/cancel/wait"
+        if (choice.has("steps") && choice.optJSONArray("steps") == null)
+            return "steps 不是数组"
+        if (action == "execute" && choice.has("args") && choice.optJSONObject("args") == null)
+            return "执行参数 args 不是对象"
+        if (action == "reschedule") {
+            val due = runCatching {
+                java.time.OffsetDateTime.parse(choice.getString("dueAt")).toInstant()
+            }.getOrNull()
+            if (due == null || !due.isAfter(now.plusSeconds(60)))
+                return "改期必须提供有效的未来 ISO8601 时刻"
+        }
+        if (action == "wait" && waitReviewAt(choice, now) == null)
+            return "等待复议时间无效"
+        return null
+    }
+
+    internal fun dayContractError(choice: JSONObject?): String? {
+        if (choice == null) return "没有可解析的 JSON 对象"
+        if (allowedLeisureLocation(choice.optString("lunch")) == null ||
+            allowedLeisureLocation(choice.optString("evening")) == null)
+            return "午间与晚间地点必须是本人明确选择的合法地点"
+        if (choice.has("agenda") && choice.optJSONArray("agenda") == null)
+            return "agenda 不是数组"
+        if (choice.has("steps") && choice.optJSONArray("steps") == null)
+            return "steps 不是数组"
+        return null
+    }
+
+    /** Each due item receives one role decision on the normal path.
+     * Only a confirmed malformed reply permits one same-role correction. */
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean {
         val app = context.applicationContext
         appContext = app
@@ -302,13 +338,14 @@ internal object ResidentDailyDecision {
         val unread = CharacterPhoneInbox.unreadMoments(plan.characterId)
         val proposedArgs = runCatching { JSONObject(plan.activityArgs) }.getOrDefault(JSONObject())
         val now = Instant.now()
+        val dueFacts = if (savedChoice == null) decisionFacts(native, now, pending, unread) + "\n" +
+            "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
+            "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
+            "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
+            "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。" else ""
         val response = if (savedChoice == null) LuluAiServices.gateway.generate(
             characterId = plan.characterId,
-            facts = decisionFacts(native, now, pending, unread) + "\n" +
-                "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
-                "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
-                "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
-                "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。",
+            facts = dueFacts,
             instruction = """
                 你是${native.name}。此刻你从休眠中醒来，先感知自己的地点、身体、到期活动和手机里的未读动态、聊天消息、好友申请，再选择行为。
                 你本人预先安排的一项真实生活活动已经到点，它是当前优先要复议的原计划；看手机不等于完成、撤销或放弃它。
@@ -334,16 +371,47 @@ internal object ResidentDailyDecision {
                 source = "数字世界居民日程", title = "${native.name}的到点决策失败",
                 message = error.message.orEmpty().take(180))
         }.getOrNull() else null
-        val choice = savedChoice ?: response?.text?.let(ModelStructuredOutput::objectOrNull)
-        if (choice == null) {
-            p.edit().putString(phaseKey, if (response == null) "uncertain" else "invalid_output").commit()
+        val firstChoice = response?.text?.let(ModelStructuredOutput::objectOrNull)
+        val firstError = if (savedChoice == null && response != null)
+            dueContractError(firstChoice, now) else null
+        val repaired = if (firstError != null) {
+            // First response was received. Persist the exact invalid answer
+            // BEFORE the one optional correction request. If the correction
+            // is interrupted, the original claim prevents blind re-billing.
+            check(p.edit().putString("due-invalid:$key", response!!.text.take(8_000))
+                .putString("due-invalid-reason:$key", firstError)
+                .putString(phaseKey, "repair_requesting").commit()) {
+                "原始无效决定未保存，禁止补正请求"
+            }
+            LuluAiServices.gateway.generate(
+                characterId = plan.characterId,
+                facts = dueFacts + "\n【上一条原始决定（未执行）】" + response.text.take(4_000) +
+                    "\n【结构错误】" + firstError,
+                instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
+                source = "原住民个人日程到点·结构补正",
+                title = "${native.name} · 到点决定补正",
+                connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
+                maxTokens = 1_300,
+            ).onFailure { error ->
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界居民日程", title = "${native.name}到点决定补正失败",
+                    message = error.message.orEmpty().take(180))
+            }.getOrNull()
+        } else null
+        val choice = savedChoice ?: if (firstError == null) firstChoice
+            else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
+        val remainingError = if (savedChoice == null && response != null)
+            dueContractError(choice, now) else null
+        if (choice == null || remainingError != null) {
+            check(p.edit().putString(phaseKey,
+                if (response == null || (firstError != null && repaired == null))
+                    "uncertain" else "invalid_output")
+                .putString("due-last-error:$key", remainingError ?: firstError.orEmpty()).commit()) {
+                "居民到点决定失败状态未保存"
+            }
             return false
         }
         val wanted = choice.optString("choice")
-        if (wanted !in setOf("execute", "reschedule", "cancel", "wait")) {
-            p.edit().putString(phaseKey, "invalid_output").commit()
-            return false
-        }
         // Persist the exact model-selected choice before any original or side
         // action. Replays recover the same request IDs, not a fresh decision.
         if (savedChoice == null) {
@@ -645,9 +713,10 @@ internal object ResidentDailyDecision {
         }
         val pending = ResidentSocialMailbox.pendingIncoming(id)
         val unread = CharacterPhoneInbox.unreadMoments(id)
+        val dailyFacts = if (savedDecision == null) decisionFacts(native, now, pending, unread) else ""
         val reply = if (savedDecision == null) LuluAiServices.gateway.generate(
             characterId = id,
-            facts = decisionFacts(native, now, pending, unread),
+            facts = dailyFacts,
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
@@ -689,14 +758,43 @@ internal object ResidentDailyDecision {
                 source = "数字世界居民日程", title = "${native.name}今天规划失败",
                 message = error.message.orEmpty().take(180))
         }.getOrNull() else null
-        val json = savedDecision ?: reply?.text?.let(ModelStructuredOutput::objectOrNull)
-        if (json == null) {
-            // The request may have reached the provider despite an exception.
-            // Keep the original charged attempt locked; do not buy blindly again.
-            p.edit().putString(phaseKey, if (reply == null) "uncertain" else "invalid_output").commit()
-            if (reply != null) com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                source = "数字世界居民日程", title = "${native.name}规划格式不完整",
-                message = "模型未返回可解析的当天日程 JSON，原消息未当作真实安排")
+        val firstPlan = reply?.text?.let(ModelStructuredOutput::objectOrNull)
+        val firstError = if (savedDecision == null && reply != null)
+            dayContractError(firstPlan) else null
+        val repaired = if (firstError != null) {
+            check(p.edit().putString("invalid:${native.id}:$today", reply!!.text.take(8_000))
+                .putString("invalid-reason:${native.id}:$today", firstError)
+                .putString(phaseKey, "repair_requesting").commit()) {
+                "原始无效每日决定未保存，禁止补正请求"
+            }
+            LuluAiServices.gateway.generate(
+                characterId = id,
+                facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + reply.text.take(4_000) +
+                    "\n【结构错误】" + firstError,
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard，agenda 和 steps 如填写须为数组。只输出完整的每日规划 JSON 对象。",
+                source = "数字世界原住民每日规划·结构补正",
+                title = "${native.name} · 日计划补正",
+                connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
+                maxTokens = 1_900,
+            ).onFailure { error ->
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界居民日程", title = "${native.name}日计划补正失败",
+                    message = error.message.orEmpty().take(180))
+            }.getOrNull()
+        } else null
+        val json = savedDecision ?: if (firstError == null) firstPlan
+            else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
+        val remainingError = if (savedDecision == null && reply != null)
+            dayContractError(json) else null
+        if (json == null || remainingError != null) {
+            // A failed or interrupted correction may already have been charged.
+            // Never buy a third response on this attempt.
+            check(p.edit().putString(phaseKey,
+                if (reply == null || (firstError != null && repaired == null))
+                    "uncertain" else "invalid_output")
+                .putString("last-error:${native.id}:$today", remainingError ?: firstError.orEmpty()).commit()) {
+                "居民每日决定失败状态未保存"
+            }
             return false
         }
         // The exact model decision is durable before any calendar, inner-life,

@@ -20,10 +20,37 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ResidentDailyContinuityTest {
+    // The production world has a deliberate twelve-resident limit. These
+    // Robolectric cases must not consume one another's persistent residents:
+    // isolate ONLY the test world's expansion fixture and restore it afterward.
+    private var savedResidents: List<DigitalWorldResident> = emptyList()
+    private var savedResidentJson: String? = null
+    private lateinit var residentPrefs: android.content.SharedPreferences
+
+    private fun residentField() = DigitalWorldExpansionStore::class.java
+        .getDeclaredField("residents").apply { isAccessible = true }
+
     @org.junit.Before fun initializeWorkerHost() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
+        DigitalWorldExpansionStore.initialize(app)
+        val prefsField = DigitalWorldExpansionStore::class.java
+            .getDeclaredField("prefs").apply { isAccessible = true }
+        residentPrefs = prefsField.get(DigitalWorldExpansionStore) as android.content.SharedPreferences
+        @Suppress("UNCHECKED_CAST")
+        savedResidents = residentField().get(DigitalWorldExpansionStore) as List<DigitalWorldResident>
+        savedResidentJson = residentPrefs.getString("residents", null)
+        residentField().set(DigitalWorldExpansionStore, emptyList<DigitalWorldResident>())
+        assertTrue(residentPrefs.edit().putString("residents", "[]").commit())
+    }
+
+    @org.junit.After fun restoreWorldFixture() {
+        residentField().set(DigitalWorldExpansionStore, savedResidents)
+        val edit = residentPrefs.edit()
+        if (savedResidentJson == null) edit.remove("residents")
+        else edit.putString("residents", savedResidentJson)
+        assertTrue(edit.commit())
     }
 
 
@@ -582,6 +609,125 @@ class ResidentDailyContinuityTest {
             SharedExperienceTimeline.deleteEvent(incomingId)
             assertNull(CharacterSocialRelationship.perspective(id, peer.characterId))
             assertFalse(CharacterInnerLifeStore.snapshot(id).toString().contains("还想接着聊河流的事"))
+        } finally { server.shutdown() }
+    }
+
+    private fun answer(json: String): MockResponse = MockResponse().setBody(
+        JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+            JSONObject().put("content", json)))).toString())
+
+    @Test(timeout = 60_000) fun malformedDueDecisionIsCorrectedBySameResidentBeforeAnyEffect() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "补正到点居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院观察者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val text = "补正后本人选择分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "整理庭院笔记", "自己想记录",
+            now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "旧活动未被执行"))
+        val repaired = JSONObject().put("choice", "cancel").put("reason", "今天先不整理")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", text))))
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("choice", "reschedule")
+            .put("dueAt", "not-an-ISO-time").put("reason", "我想改期").toString()))
+        server.enqueue(answer(repaired.toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-due-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            assertEquals("cancelled",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == text
+            })
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertTrue(p.getString("due-invalid:$key", "").orEmpty().contains("not-an-ISO-time"))
+            assertEquals("finished", p.getString("due-phase:$key", ""))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun secondMalformedDueResponseStopsWithoutChargingAgainOrExecuting() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "无效结构居民${UUID.randomUUID().toString().take(5)}",
+            identity = "园艺爱好者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "观察花草", "自己想看看",
+            now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "绝不能自动发送"))
+        val server = MockWebServer()
+        server.enqueue(answer("not-json"))
+        server.enqueue(answer(JSONObject().put("choice", "reschedule")
+            .put("dueAt", "still-invalid").toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-fail-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertEquals("invalid_output", p.getString("due-phase:$key", ""))
+            assertFalse(p.contains("due-decision:$key"))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            assertEquals("planned",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun dailyMalformedOutputGetsOneBoundedRepairAndPersistsOriginal() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "补正日程居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("lunch", "unknown-place")
+            .put("evening", "home").put("agenda", JSONArray()).toString()))
+        server.enqueue(answer(JSONObject().put("lunch", "cafe")
+            .put("evening", "home").put("agenda", JSONArray())
+            .put("thought", "我今天想去咖啡馆坐坐").toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-day-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            assertEquals("cafe", ResidentDailyDecision.planFor(app, native.id, now)?.optString("lunch"))
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertTrue(p.getString("invalid:${native.id}:${ResidentDailyDecision.date(now)}", "")
+                .orEmpty().contains("unknown-place"))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
         } finally { server.shutdown() }
     }
 }
