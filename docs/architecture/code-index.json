@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:46:47.025362+00:00",
-  "commit": "1f98ff54cdb899edbabc8babdf810a0937379f1a",
+  "generatedAt": "2026-10-28T08:47:59.936652+00:00",
+  "commit": "eb2b59da283337a8a65b5fc2e4f848a2022b14d5",
   "branch": "main",
-  "sourceFingerprint": "391196839a91dcf6b2378b0e54f46709462f58bfa1f765246ec1ac0ae99c6c7c",
+  "sourceFingerprint": "cd03fa1cbc8639ccf7cd5571e1cc5de22c3d95b77f8ba9352efe891cbf5c5430",
   "summary": {
     "files": 1018,
-    "lines": 203803,
+    "lines": 203807,
     "symbols": 2966
   },
   "symbolIndex": {
@@ -5697,7 +5697,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 144
+        "line": 148
       }
     ],
     "dependenciesValid": [
@@ -21131,7 +21131,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
       "lines": 143,
-      "sha256": "982c2c5688d0894ae1e4fcfc4d550046800288a4a004d1112676d90c045e1799",
+      "sha256": "f680bd135796a36a511e81b9c034b9b3a78f63913d39e76d8553f4bd2eb76c46",
       "symbols": [
         {
           "name": "parseChapters",
@@ -21183,7 +21183,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 883,
-      "sha256": "a7f4f3bc93dc8b158be946bb00cbaa240d76699d6155e4adf29174cc093cde4b",
+      "sha256": "7642c97f00e1cf9ad0f299e33a7a4b9b688f454019e4c4afa8ac0200057d166c",
       "symbols": []
     },
     {
@@ -28034,8 +28034,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 228,
-      "sha256": "2da007f7989ce3b1bdcfd8ae59336e783b074e9e746eca70be544e67533fcd1a",
+      "lines": 232,
+      "sha256": "78c215ba46236c76fe752d1a3bed1ce5ab7c85525b73fadeb4315a58836af006",
       "symbols": [
         {
           "name": "episodes",
@@ -28059,7 +28059,7 @@
         },
         {
           "name": "recentContext",
-          "line": 144
+          "line": 148
         }
       ]
     },
