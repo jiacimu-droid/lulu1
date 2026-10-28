@@ -19,28 +19,69 @@ internal data class TokenCalibratedEstimate(
 
 /** Explicit grouping, never modifies persisted/token-accounted components. */
 internal object TokenConsolePresentation {
-    private val order = listOf("人物与固定规则", "长期记忆与状态", "近期历史与召回", "本轮感知与消息", "其他／合并上下文")
+    private val order = listOf(
+        "身份、人设与表达", "行动与工具协议", "自主心理与生活规则",
+        "世界书与世界状态", "核心记忆与长期目标", "近期证据与回忆",
+        "真实聊天与历史", "现实设备与感知", "本轮新消息与回执",
+        "其他背景材料", "旧版未拆分材料",
+    )
 
+    private fun starts(label: String, vararg choices: String) =
+        choices.any(label::startsWith)
+
+    private fun has(label: String, vararg choices: String) =
+        choices.any(label::contains)
+
+    /** Labels are fixed, privacy-safe source titles, never user-authored content. */
     private fun category(label: String): String = when {
-        listOf("角色身份", "角色人设", "用户资料", "基础身份与通用规则",
-            "任务规则/工具协议", "本轮任务指令", "角色视频能力和通话实况",
-            "全局世界书", "角色世界书/设计书", "系统段落间隔").any { label.startsWith(it) } ->
-            "人物与固定规则"
-
-        listOf("核心记忆", "未完成责任", "当前状态", "成长与持续动机",
-            "跨场景连续性锚点", "数字世界权威状态", "生活记录",
-            "已读材料与可修订的理解", "辞海", "往事与当前理解").any { label.startsWith(it) } ->
-            "长期记忆与状态"
-
-        listOf("本轮背景依据", "近期原始时间线", "近期时间线",
-            "召回的原始依据", "召回原始证据", "召回记忆摘要", "真实聊天/",
-            "历史对话 #", "近期聊天", "召回的原始依据").any { label.startsWith(it) } ->
-            "近期历史与召回"
-
-        listOf("本轮完整输入", "本次感知/聊天素材", "本轮完整用户输入",
-            "段落分隔").any { label.startsWith(it) } -> "本轮感知与消息"
-
-        else -> "其他／合并上下文"
+        starts(label, "历史对话 #", "真实聊天/", "近期聊天") -> "真实聊天与历史"
+        starts(label, "本轮完整输入", "本次感知/聊天素材",
+            "本轮完整用户输入", "段落分隔") -> "本轮新消息与回执"
+        starts(label, "本轮任务指令", "任务规则/工具协议") -> when {
+            has(label, "【真实数字世界】") -> "世界书与世界状态"
+            has(label, "【生活事件不是工作报告】", "【统一持续意愿】",
+                "【意愿不等于行动】", "【好奇心不是随机行动】",
+                "【可选心理与持续性】", "【行动出自本人选择】",
+                "【旧机制各留其长】", "【本轮自主决策】",
+                "【像普通人一样表达】", "【观察如何成为你自己的生活】",
+                "【亲身参与的互动", "【已沟通完成的事",
+                "【主动行动承接过去", "【成长是本人想改变",
+                "【不是等待指令", "【真实生活产生的双重动力】") ->
+                "自主心理与生活规则"
+            else -> "行动与工具协议"
+        }
+        starts(label, "基础身份与通用规则", "角色身份", "角色人设",
+            "用户资料", "角色视频能力和通话实况", "系统段落间隔") ->
+            "身份、人设与表达"
+        starts(label, "全局世界书", "角色世界书", "数字世界权威状态") ->
+            "世界书与世界状态"
+        starts(label, "核心记忆", "未完成责任", "当前状态",
+            "成长与持续动机", "跨场景连续性锚点",
+            "已读材料与可修订的理解", "生活记录", "辞海",
+            "往事与当前理解") -> "核心记忆与长期目标"
+        starts(label, "近期原始时间线", "近期时间线",
+            "召回的原始依据", "召回原始证据", "召回记忆摘要") ->
+            "近期证据与回忆"
+        starts(label, "本轮背景依据") -> when {
+            has(label, "【紧接上一轮的双方实际言语", "【最近聊天与生活事件】",
+                "【本轮仍未回应的真实新消息】",
+                "【本次上线尚未处理的新动态", "【用户跨场景最新动态") ->
+                "真实聊天与历史"
+            has(label, "【本轮数字世界程序事件") -> "世界书与世界状态"
+            has(label, "【用户现实设备", "【你自己的数字手机",
+                "【此刻的真实状态】", "【手机音乐自主能力】",
+                "【时间已推进】") -> "现实设备与感知"
+            has(label, "【当前已承担的目标", "【本人的未来日程",
+                "【自己先前真正安排", "【近期已到时刻的约定") ->
+                "核心记忆与长期目标"
+            has(label, "【本轮真实互动", "【角色最近自己的生活记录",
+                "【上次自己决定做的生活小事",
+                "【本人刚刚真实执行的联网工具结果") ->
+                "本轮新消息与回执"
+            else -> "其他背景材料"
+        }
+        starts(label, "Relay精简后系统上下文") -> "旧版未拆分材料"
+        else -> "其他背景材料"
     }
 
     fun groups(breakdown: List<TokenBreakdownItem>): List<TokenSourceGroup> {
