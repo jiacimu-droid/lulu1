@@ -147,11 +147,11 @@ class CharacterCausalTraceTest {
 
     @Test fun originalResultDeletionAndSourceWithdrawalNeverReviveOldEvidence() {
         source(a, "trace-origin")
-        SharedExperienceTimeline.record("trace-native", a, "朋友圈", "角色", "真正发布的内容",
+        SharedExperienceTimeline.record("trace-native", a, "独自阅读", "角色", "真正读到的材料",
             at.plusSeconds(2), triggerExtraction = false,
-            source = "moment:self", evidenceKind = EventEvidenceKind.CharacterStatement)
-        receipt(a, "trace-receipt", "trace-origin", "publish_moment", "succeeded", true,
-            "已发布", native = "trace-native")
+            source = "reading:story", evidenceKind = EventEvidenceKind.Observation)
+        receipt(a, "trace-receipt", "trace-origin", "read_book", "succeeded", true,
+            "已读到材料", native = "trace-native")
         val present = CharacterCausalTrace.inspect(context, a, event(a, "trace-receipt"),
             SharedExperienceTimeline.all(a), JSONObject())
         assertTrue(present.any { it.title == "原生结果记录" && it.evidenceId == "trace-native" })
