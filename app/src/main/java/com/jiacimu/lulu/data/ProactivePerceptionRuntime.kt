@@ -1049,7 +1049,7 @@ object ProactivePerceptionRuntime {
                     onlineDecision.choice 和 reason 均为必填：continue/sleep 都由你本人选择，理由可以很短，但必须真实。字段缺失时程序只会请你补正，不会视作本人自愿休眠。
                 """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
-                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮可以 action=message,text=本人原话,steps=[{\\\"tool\\\":\\\"已注册工具名\\\",\\\"args\\\":{},\\\"requiresPreviousSuccess\\\":false}]，或 action=tool 并附 text。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
+                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮可以 action=message,text=本人原话,steps=[{\"tool\":\"已注册工具名\",\"args\":{},\"requiresPreviousSuccess\":false}]，或 action=tool 并附 text。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可在 steps 最后选择 go_offline。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应搜索就必须实际选 web_search/image_search，结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
                 else """【此时没有新消息】你不是聊天待命机器人：想想此刻真正好奇的事情、想去的地点、想继续读的书或认识的人。自己决定现在去做、给稍后选一个具体时刻并用 action=tool、tool=plan_personal_activity 保存日程，或者诚实地暂时不做；别强制排满时间，也别让「等会要做」只停在 innerThought。当前行动请放在 JSON 第一项 action，多个彼此独立的行动可放在 steps；执行器会分别留真实回执。也可 action=tool 收藏用户确实说过的一句话。""",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
