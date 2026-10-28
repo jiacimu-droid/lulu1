@@ -205,6 +205,20 @@ object LuluAlarmSystem {
     }
 
     private fun save(context: Context, alarms: List<LuluAlarm>) {
+        // Orphaned legacy alarms are NEVER delivered to a guessed person,
+        // but don't delete their original bytes merely because another
+        // character creates/cancels a valid alarm. Keep them for explicit
+        // recovery from a local backup with the correct owner assigned.
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val unresolved = runCatching {
+            JSONArray(prefs.getString(KEY_ALARMS, "[]") ?: "[]")
+        }.getOrNull()?.let { original ->
+            (0 until original.length()).mapNotNull { i ->
+                original.optJSONObject(i)?.takeIf {
+                    it.optString("characterId").isBlank()
+                }?.let { JSONObject(it.toString()) }
+            }
+        }.orEmpty()
         val array = JSONArray().apply {
             alarms.forEach { alarm ->
                 put(
@@ -219,9 +233,9 @@ object LuluAlarmSystem {
                         .put("commitmentTaskId", alarm.commitmentTaskId ?: JSONObject.NULL),
                 )
             }
+            unresolved.forEach(::put)
         }
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_ALARMS, array.toString()).commit().also { check(it) { "闹钟记录未能保存" } }
+        prefs.edit().putString(KEY_ALARMS, array.toString()).commit().also { check(it) { "闹钟记录未能保存" } }
     }
 
     private fun createChannel(context: Context) {
