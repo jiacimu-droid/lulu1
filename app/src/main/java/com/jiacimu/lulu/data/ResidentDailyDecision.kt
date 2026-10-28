@@ -570,6 +570,17 @@ internal object ResidentDailyDecision {
         if (allowedLeisureLocation(choice.optString("lunch")) == null ||
             allowedLeisureLocation(choice.optString("evening")) == null)
             return "午间与晚间地点必须是本人明确选择的合法地点"
+        // Optional direct actions must be complete before any side effects.
+        // Otherwise the original message is silently skipped after the daily
+        // decision is marked finished, with no bounded correction opportunity.
+        for (field in listOf("post", "message", "messageTo")) {
+            if (choice.has(field) && choice.opt(field) != JSONObject.NULL &&
+                choice.opt(field) !is String) return "$field 必须是字符串"
+        }
+        val message = choice.optString("message").trim()
+        val messageTo = choice.optString("messageTo").trim()
+        if (message.isNotBlank() != messageTo.isNotBlank())
+            return "message 与 messageTo 必须同时提供正文和收件人，或同时留空"
         if (choice.has("agenda") && choice.optJSONArray("agenda") == null)
             return "agenda 不是数组"
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
