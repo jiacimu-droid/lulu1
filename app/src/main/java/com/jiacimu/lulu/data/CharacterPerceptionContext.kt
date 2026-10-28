@@ -42,6 +42,12 @@ internal object CharacterPerceptionContext {
         val foreignIds = observed.asSequence()
             .filter { it.characterId != characterId }
             .mapTo(hashSetOf()) { it.id }
+        // An adapter may pass just a direct, pre-rendered stimulus without
+        // also passing the original observed row. Check the exact ID against
+        // canonical evidence too: a different person's recorded experience
+        // is never this person's input, even if the adapter misroutes it.
+        foreignIds += SharedExperienceTimeline.foreignEvidenceIds(
+            characterId, direct.map { it.evidenceId })
         val ownedDirect = direct.filterNot { it.evidenceId in foreignIds }
         val sensed = (ownedDirect + ownedObserved.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
