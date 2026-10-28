@@ -46,7 +46,8 @@ object ToolRouter {
         learningApplication: JSONObject? = null, causeEvidenceId: String = "",
         reason: String = "", curiosity: JSONObject? = null,
         motiveId: String = "", concernId: String = "", experienceId: String = "",
-        goalReviewMode: Boolean = false): String = requests.withLock("$characterId:$requestId") {
+        goalReviewMode: Boolean = false,
+        expectedPlanDueAt: Instant? = null): String = requests.withLock("$characterId:$requestId") {
         CharacterCuriosityRuntime.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterLifeFollowThroughStore.initialize(context)
@@ -148,7 +149,8 @@ object ToolRouter {
             val scheduledPlanId = args.optString("planId")
             if (scheduledPlanId.isNotBlank() &&
                 name !in setOf("reschedule_personal_activity", "cancel_personal_activity") &&
-                !RoleDayScheduleStore.canBegin(context, characterId, scheduledPlanId, name, args))
+                !RoleDayScheduleStore.canBegin(context, characterId, scheduledPlanId, name, args,
+                    expectedDueAt = expectedPlanDueAt))
                 return@withLock rejected("这项日程已取消、未到期或所选工具与原计划不符")
             val goalReceiptId = "tool-$characterId-$requestId"
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
