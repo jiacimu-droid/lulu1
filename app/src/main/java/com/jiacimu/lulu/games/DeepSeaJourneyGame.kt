@@ -12,6 +12,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -74,6 +77,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var companionAssists by remember { mutableIntStateOf(if (restored.sessionCompanionId == sessionCompanionId) restored.companionAssists else 0) }
     var survey by remember { mutableStateOf(restored.survey) }
     var focusSalvage by remember { mutableStateOf(false) }
+    var showJournal by remember { mutableStateOf(false) }
     var sonarCharge by remember { mutableFloatStateOf(1f) }
     var sonarPulse by remember { mutableFloatStateOf(0f) }
     var pickupPulse by remember { mutableFloatStateOf(0f) }
@@ -119,11 +123,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         notice = ""
     }
 
-    LaunchedEffect(viewport, completed) {
+    LaunchedEffect(viewport, completed, showJournal) {
         var previousFrame = withFrameNanos { it }
         var lastBump = 0L
         var nextCompanionRouteAt = 0f
-        while (isActive && !completed) {
+        while (isActive && !completed && !showJournal) {
             withFrameNanos { frame ->
                 val dt = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
@@ -327,10 +331,15 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             wildlife = survey.observedCreatures.size,
             totalWildlife = deepSeaCreatures.size,
             current = localCurrent?.title,
+            onJournal = { showJournal = true },
             companionName = companion?.displayName,
             depth = 38 + (player.y / DEEP_SEA_WORLD_HEIGHT * 212f).toInt(),
             modifier = Modifier.align(Alignment.TopCenter).padding(11.dp),
         )
+
+        if (showJournal) {
+            DeepSeaDiscoveryJournal(survey, visited, onDismiss = { showJournal = false })
+        }
 
         if (!completed && navigationTarget != null) {
             DeepSeaNavigationPanel(
@@ -570,6 +579,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     scanned = emptySet()
                     survey = DeepSeaSurvey()
                     focusSalvage = false
+                    showJournal = false
                     sonarCharge = 1f
                     visited = emptySet()
                     companionAssists = 0
@@ -660,6 +670,7 @@ private fun DeepSeaHud(
     wildlife: Int,
     totalWildlife: Int,
     current: String?,
+    onJournal: () -> Unit,
     companionName: String?,
     depth: Int,
     modifier: Modifier = Modifier,
@@ -702,10 +713,104 @@ private fun DeepSeaHud(
                 Text(current ?: if (gateReady) "可以返航" else "声呐在线",
                     color = if (current == null) Color(0xFF9EFFE9) else Color(0xFFE9C789), fontSize = 8.sp)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("遗物 $relics/$totalRelics", color = Color(0xFFFFD8A2), fontSize = 9.sp)
                 Text("生物 $wildlife/$totalWildlife", color = Color(0xFFB7E4FA), fontSize = 9.sp)
-                Text(if (gateReady) "主线完成 · 可自由探索" else "探索中", color = Color(0xFF91B6B4), fontSize = 9.sp)
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onJournal, modifier = Modifier.height(26.dp),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)) {
+                    Icon(Icons.Outlined.MenuBook, null, modifier = Modifier.size(14.dp),
+                        tint = Color(0xFFAFFFF0))
+                    Spacer(Modifier.width(3.dp))
+                    Text("航海日志", color = Color(0xFFAFFFF0), fontSize = 9.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeepSeaDiscoveryJournal(
+    survey: DeepSeaSurvey,
+    visited: Set<String>,
+    onDismiss: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 590.dp),
+            color = Color(0xF5082635),
+            shape = RoundedCornerShape(26.dp),
+            border = BorderStroke(1.dp, Color(0xFF9CEADE).copy(alpha = .34f)),
+            shadowElevation = 18.dp,
+        ) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.MenuBook, null, tint = Color(0xFFA5FFEC),
+                        modifier = Modifier.size(22.dp))
+                    Spacer(Modifier.width(9.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("深海航海日志", color = Color.White, fontSize = 19.sp,
+                            fontWeight = FontWeight.Black)
+                        Text("每一处发现都来自这次真实潜航", color = Color(0xFF94BDB7), fontSize = 10.sp)
+                    }
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
+                        Icon(Icons.Outlined.Close, "关闭航海日志", tint = Color(0xFFCFEEE7))
+                    }
+                }
+                Text("遗物打捞 · ${survey.salvagedRelics.size}/${deepSeaRelics.size}",
+                    color = Color(0xFFFFDEAB), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                deepSeaRelics.forEach { relic ->
+                    DeepSeaDiscoveryRow(
+                        title = if (relic.id in survey.salvagedRelics) relic.name else "尚未打捞的遗物",
+                        detail = if (relic.id in survey.salvagedRelics) "已安全收纳 · +120探索分"
+                            else if (relic.id in survey.revealedRelics) "声呐已定位 · 可切换遗物导航" else "等待声呐信号",
+                        found = relic.id in survey.salvagedRelics,
+                    )
+                }
+                Text("海洋生物 · ${survey.observedCreatures.size}/${deepSeaCreatures.size}",
+                    color = Color(0xFFB3E8FF), fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 7.dp))
+                deepSeaCreatures.forEach { creature ->
+                    DeepSeaDiscoveryRow(
+                        title = if (creature.id in survey.observedCreatures) creature.name else "尚未观察的生物",
+                        detail = if (creature.id in survey.observedCreatures) creature.description else "靠近后观察，不会打扰它",
+                        found = creature.id in survey.observedCreatures,
+                    )
+                }
+                Text("海沟秘境 · ${visited.size}/${deepSeaSites.size}",
+                    color = Color(0xFFB8EAC6), fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 7.dp))
+                deepSeaSites.forEach { site ->
+                    DeepSeaDiscoveryRow(
+                        title = if (site.id in visited) site.name else "尚未探索的地点",
+                        detail = if (site.id in visited) "已留下真实探索记录" else "沿着光线和海流寻找",
+                        found = site.id in visited,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeepSeaDiscoveryRow(title: String, detail: String, found: Boolean) {
+    Surface(
+        color = if (found) Color(0xFF214956).copy(alpha = .78f)
+            else Color.White.copy(alpha = .045f),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = if (found) .13f else .06f)),
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 11.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Icon(if (found) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked,
+                null, modifier = Modifier.size(18.dp),
+                tint = if (found) Color(0xFFA5FFE1) else Color(0xFF607E88))
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(title, color = if (found) Color.White else Color(0xFF99ADA9),
+                    fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Text(detail, color = Color(0xFF8FABA9), fontSize = 9.sp, lineHeight = 13.sp)
             }
         }
     }
