@@ -371,13 +371,22 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
 
         if (!completed) {
             Button(
+                enabled = sonarCharge >= 1f,
                 onClick = {
+                    if (sonarCharge < 1f) return@Button
+                    sonarCharge = 0f
                     val baseSignals = deepSeaSonarFind(map, player, collected)
                     val companionSignals = if (companion == null) emptySet() else
                         deepSeaSonarFind(map, companionPosition, collected, DEEP_SEA_SONAR_RADIUS + 140f) - baseSignals
                     val assistedSignals = companionSignals - scanned
                     val newlyFound = (baseSignals + companionSignals) - scanned
                     scanned = scanned + newlyFound
+                    val foundSalvage = (deepSeaRevealRelics(player, survey.salvagedRelics) +
+                        (if (companion == null) emptySet() else deepSeaRevealRelics(companionPosition, survey.salvagedRelics))) -
+                        survey.revealedRelics
+                    if (foundSalvage.isNotEmpty()) {
+                        survey = survey.copy(revealedRelics = survey.revealedRelics + foundSalvage)
+                    }
                     sonarPulse = 1f
                     GameSoundEffects.play(GameSoundEffect.Interact)
                     if (assistedSignals.isNotEmpty()) companionAssists++
@@ -387,9 +396,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                         newlyFound.isNotEmpty() && companion != null ->
                             "你和 ${companion.displayName}扫描到 ${newlyFound.size} 处回声信号"
                         newlyFound.isNotEmpty() -> "声呐定位到 ${newlyFound.size} 处新回声，选择导航前往"
+                        foundSalvage.isNotEmpty() -> "声呐找到 ${foundSalvage.size} 件隐藏遗物，可切换目标前往打捞"
                         else -> "附近暂无新回声，继续探索未测绘水域"
                     }
-                    progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
+                    progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId, survey)
                 },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp).height(38.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -399,7 +409,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             ) {
                 Icon(Icons.Outlined.Radar, null, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(5.dp))
-                Text("声呐扫描", fontSize = 11.sp)
+                Text(if (sonarCharge >= 1f) "声呐扫描" else "声呐充能 ${kotlin.math.ceil((1f - sonarCharge) * 4.8f).toInt()}s",
+                    fontSize = 11.sp)
             }
         }
 
@@ -433,11 +444,14 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 label = when {
                     nearGate -> "归航"
                     nearbyEcho != null -> "共鸣"
+                    nearbyRelic != null -> "打捞"
+                    nearbyCreature != null -> "观察"
                     nearbySite != null -> "探索"
                     gateReady -> "接近归航门"
                     else -> "搜索"
                 },
-                enabled = nearbyEcho != null || nearGate || nearbySite != null,
+                enabled = nearbyEcho != null || nearGate || nearbyRelic != null ||
+                    nearbyCreature != null || nearbySite != null,
                 onClick = {
                     when {
                         nearbyEcho != null -> {
@@ -448,17 +462,38 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                             navigationRoute = emptyList()
                             GameSoundEffects.play(if (collected.size == map.echoes.size) GameSoundEffect.Objective else GameSoundEffect.Collect)
                             notice = if (collected.size == map.echoes.size) "晶体集齐！右上方「导航前往」可带你找归航门" else "获得：${nearbyEcho.title}"
-                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId, survey)
+                        }
+                        nearbyRelic != null -> {
+                            survey = survey.copy(
+                                revealedRelics = survey.revealedRelics + nearbyRelic.id,
+                                salvagedRelics = survey.salvagedRelics + nearbyRelic.id,
+                            )
+                            lastPickupPosition = nearbyRelic.position
+                            pickupPulse = 1f
+                            navigationRoute = emptyList()
+                            GameSoundEffects.play(GameSoundEffect.Collect)
+                            notice = "打捞成功：${nearbyRelic.name} · +120探索分"
+                            progress.save(player, collected, completed, score, scanned, visited,
+                                companionAssists, sessionCompanionId, survey)
+                        }
+                        nearbyCreature != null -> {
+                            survey = survey.copy(observedCreatures = survey.observedCreatures + nearbyCreature.id)
+                            GameSoundEffects.play(GameSoundEffect.Interact)
+                            notice = "图鉴 +1 · ${nearbyCreature.name}：${nearbyCreature.description}"
+                            progress.save(player, collected, completed, score, scanned, visited,
+                                companionAssists, sessionCompanionId, survey)
                         }
                         nearbySite != null -> {
                             visited = visited + nearbySite.id
                             GameSoundEffects.play(GameSoundEffect.Collect)
                             notice = "${nearbySite.name}：${deepSeaSiteStory(nearbySite, runStartedAt)}"
-                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId, survey)
                         }
                         nearGate -> {
                             val elapsedSeconds = ((System.currentTimeMillis() - runStartedAt) / 1_000L).coerceAtLeast(1L)
-                            score = (1_500 - elapsedSeconds.toInt() * 2).coerceAtLeast(350)
+                            score = (1_500 - elapsedSeconds.toInt() * 2).coerceAtLeast(350) +
+                                deepSeaExplorationBonus(survey.salvagedRelics, survey.observedCreatures, visited)
                             completed = true
                             GameSoundEffects.play(GameSoundEffect.Objective)
                             if (!recorded) {
@@ -470,6 +505,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                     summary = buildString {
                                         append("在深海遗迹中收集了 ${collected.size} 枚回声并成功归航")
                                         if (visited.isNotEmpty()) append("，探索了 ${visited.size} 处海底遗迹")
+                                        if (survey.salvagedRelics.isNotEmpty()) append("，打捞 ${survey.salvagedRelics.size} 件遗物")
+                                        if (survey.observedCreatures.isNotEmpty()) append("，观察 ${survey.observedCreatures.size} 种生物")
                                         companion?.let { append("，${it.displayName}同行，实际协助声呐定位 ${companionAssists} 次") }
                                         append("。")
                                     },
@@ -478,6 +515,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                         .put("echoes", JSONArray(collected.toList()))
                                         .put("elapsed_seconds", elapsedSeconds)
                                         .put("sites_visited", JSONArray(visited.sorted()))
+                                        .put("relics_salvaged", JSONArray(survey.salvagedRelics.sorted()))
+                                        .put("wildlife_observed", JSONArray(survey.observedCreatures.sorted()))
+                                        .put("exploration_bonus", deepSeaExplorationBonus(
+                                            survey.salvagedRelics, survey.observedCreatures, visited))
                                         .put("sonar_assists", if (companion == null) 0 else companionAssists)
                                         .put("session_companion_id", sessionCompanionId)
                                         .put("solo", companion == null)
@@ -488,7 +529,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                 progress.markRecorded()
                                 recorded = true
                             }
-                            progress.save(player, collected, true, score, scanned, visited, companionAssists, sessionCompanionId)
+                            progress.save(player, collected, true, score, scanned, visited, companionAssists, sessionCompanionId, survey)
                         }
                     }
                 },
@@ -496,7 +537,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 accent = Color(0xFF9FFFF0),
             )
             val nearbyLabel = if (nearGate) "已到达归航门，点击归航"
-                else nearbyEcho?.title ?: nearbySite?.name
+                else nearbyEcho?.title ?: nearbyRelic?.name ?: nearbyCreature?.name ?: nearbySite?.name
             if (nearbyLabel != null) {
                 Surface(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 116.dp),
@@ -513,6 +554,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 companionName = companion?.displayName,
                 sitesVisited = visited.size,
                 companionAssists = companionAssists,
+                relicsSalvaged = survey.salvagedRelics.size,
+                wildlifeObserved = survey.observedCreatures.size,
+                bonus = deepSeaExplorationBonus(survey.salvagedRelics, survey.observedCreatures, visited),
                 onRestart = {
                     progress.reset()
                     player = map.start
@@ -525,6 +569,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     swimVelocity = WorldVector.Zero
                     collected = emptySet()
                     scanned = emptySet()
+                    survey = DeepSeaSurvey()
+                    focusSalvage = false
+                    sonarCharge = 1f
                     visited = emptySet()
                     companionAssists = 0
                     pickupPulse = 0f
@@ -669,6 +716,9 @@ private fun DeepSeaCompletion(
     companionName: String?,
     sitesVisited: Int,
     companionAssists: Int,
+    relicsSalvaged: Int,
+    wildlifeObserved: Int,
+    bonus: Int,
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -691,6 +741,8 @@ private fun DeepSeaCompletion(
             )
             Text("带回 5 枚晶体 · 探索 $sitesVisited 处海底秘境",
                 color = Color(0xFFE1EABF), fontSize = 10.sp)
+            Text("遗物 $relicsSalvaged 件 · 生物图鉴 $wildlifeObserved 种 · 探索奖励 +$bonus",
+                color = Color(0xFFB9EDE1), fontSize = 10.sp)
             if (companionName != null && companionAssists > 0) {
                 Text("$companionName 真实发现了 $companionAssists 次回声线索",
                     color = Color(0xFF9AE6DB), fontSize = 10.sp)
