@@ -1863,6 +1863,106 @@ class ResidentDailyContinuityTest {
     }
 
 
+    @Test(timeout = 60_000) fun manualDueRecoveryCorrectsSavedMalformedAnswerWithoutNewInitialDecision() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "断点补正居民${UUID.randomUUID().toString().take(5)}",
+            identity = "园艺爱好者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val original = "原活动不得代发-${UUID.randomUUID()}"
+        val post = "补正后本人独立分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "观察花草", "自己的计划",
+            now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment", activityArgs = JSONObject().put("text", original))
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("choice", "reschedule")
+            .put("dueAt", "first-invalid-date").toString()))
+        server.enqueue(answer("not-json"))
+        server.enqueue(answer(JSONObject().put("choice", "cancel").put("reason", "现在决定休息")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", post)))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "saved-due-repair-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            assertEquals("invalid_output", prefs.getString("due-phase:$key", ""))
+            assertFalse(prefs.contains("due-decision:$key"))
+            assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == actor &&
+                (it.content == original || it.content == post) })
+            val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
+            assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(3, server.requestCount)
+            val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
+            assertTrue(requests[2].body.readUtf8().contains("first-invalid-date"))
+            assertEquals("finished", prefs.getString("due-phase:$key", ""))
+            assertEquals("cancelled", RoleDayScheduleStore.plans(app, actor).single {
+                it.id == plan.id }.status)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == post })
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == original })
+            assertFalse(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun interruptedDailyRepairUsesSavedOriginalWithoutRebuyOrPrematurePost() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "每日补正恢复${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val post = "恢复后才发表-${UUID.randomUUID()}"
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("lunch", "not-a-location")
+            .put("evening", "home").toString()))
+        server.enqueue(answer("still-not-json"))
+        server.enqueue(answer(JSONObject().put("lunch", "home").put("evening", "home")
+            .put("agenda", JSONArray()).put("steps", JSONArray()).put("post", post).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "saved-daily-repair-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            val day = ResidentDailyDecision.date(now)
+            val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            val phaseKey = "phase:${native.id}:$day"
+            assertEquals("invalid_output", prefs.getString(phaseKey, ""))
+            assertFalse(prefs.contains("decision:${native.id}:$day"))
+            assertFalse(MomentsStore.posts.value.any { it.content == post })
+            // Simulate an app killed while the bounded correction was in
+            // flight. The durable original response remains the authority.
+            assertTrue(prefs.edit().putString(phaseKey, "repair_requesting").commit())
+            val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
+            assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(3, server.requestCount)
+            val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
+            assertTrue(requests[2].body.readUtf8().contains("not-a-location"))
+            assertEquals("finished", prefs.getString(phaseKey, ""))
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == post })
+            assertFalse(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun residentDailyCatchupUsesDistinctBoundedWorkerNamesForSavedReplays() {
         val now = Instant.parse("2026-10-28T10:00:00Z")
         val initial = ResidentDailyDecision.catchupWorkName(now, null)
