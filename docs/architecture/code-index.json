@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:25:58.702853+00:00",
-  "commit": "6998251f7898a247e2f29b105007310b46e96803",
+  "generatedAt": "2026-10-28T10:26:32.187862+00:00",
+  "commit": "be7eec579f40acb3844342cbf979cf85e22839cc",
   "branch": "main",
-  "sourceFingerprint": "9468f1c05e8b73e2a3300d8400570a994ee077fbab86f402880cf48205b463ef",
+  "sourceFingerprint": "5bc7851313da295609f8145f167e522f874fd32d63c4224d8c457c6c45f609f9",
   "summary": {
     "files": 1037,
-    "lines": 209125,
+    "lines": 209131,
     "symbols": 3044
   },
   "symbolIndex": {
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 687
+        "line": 691
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 705
+        "line": 710
       }
     ],
     "Plan": [
@@ -11845,7 +11845,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 667
+        "line": 670
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12343,7 +12343,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 701
+        "line": 706
       }
     ],
     "index": [
@@ -29682,24 +29682,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 710,
-      "sha256": "35b576c50ab3f069b218ad7c0e1ae8217c7682794d044b381df4dc9b4cde3bc2",
+      "lines": 715,
+      "sha256": "1890c67fcd639198cb38b2e51f22ac6f2c9b59fe5e2ac067024311840fee4b01",
       "symbols": [
         {
           "name": "load",
-          "line": 667
+          "line": 670
         },
         {
           "name": "save",
-          "line": 687
+          "line": 691
         },
         {
           "name": "markRecorded",
-          "line": 701
+          "line": 706
         },
         {
           "name": "reset",
-          "line": 705
+          "line": 710
         }
       ]
     },
@@ -32866,8 +32866,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt",
-      "lines": 210,
-      "sha256": "0c8e3ecd5c5a2a8a7cdb5e28225ff1d39dfc3e44029911ef3040ee2c8aa1ce3a",
+      "lines": 211,
+      "sha256": "c109bd02d228c4b26bace4d5f06965e78284b6ebddbc0cf59791a481692e8ec4",
       "symbols": [
         {
           "name": "WorldExplorationContractsTest",
