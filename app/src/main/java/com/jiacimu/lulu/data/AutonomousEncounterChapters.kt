@@ -1,12 +1,22 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 /**
  * One grounded literary request for the entire witnessed encounter (N roles,
@@ -16,6 +26,39 @@ import java.time.Instant
  * Literary text is a non-authoritative artifact, never an event or receipt.
  */
 internal object AutonomousEncounterChapters {
+    /** Exactly ONE queued literary job for a completed shared meeting, not
+     * one work item per witness. World/social execution never waits for prose. */
+    fun enqueue(
+        context: Context,
+        meeting: MeetingSession,
+        locationCode: String,
+        worldTick: DigitalWorldLifeTick?,
+    ) {
+        val input = Data.Builder()
+            .putString("meetingId", meeting.id)
+            .putString("locationCode", locationCode)
+        worldTick?.let { tick ->
+            input.putString("tickId", tick.incidentId)
+                .putString("tickLocation", tick.locationCode)
+                .putString("tickName", tick.locationName)
+                .putString("tickKind", tick.kind)
+                .putString("tickItemId", tick.anchorItemId)
+                .putString("tickItemName", tick.anchorItemName)
+                .putString("tickStatus", tick.status)
+                .putInt("tickStage", tick.stage)
+                .putString("tickSummary", tick.summary.take(700))
+                .putLong("tickOccurredAt", tick.occurredAt.toEpochMilli())
+        }
+        val request = OneTimeWorkRequestBuilder<AutonomousEncounterChaptersWorker>()
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(input.build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-world-one-chapter-request-${meeting.id}",
+            ExistingWorkPolicy.KEEP, request)
+    }
+
     fun parseChapters(raw: String, participantIds: List<String>): Map<String, WorldLifeSceneDraft> {
         val json = ModelStructuredOutput.objectOrNull(raw) ?: return emptyMap()
         val entries = json.optJSONArray("chapters") ?: return emptyMap()
@@ -137,6 +180,53 @@ internal object AutonomousEncounterChapters {
                 MigratedDomainStores.chat.appendPrivateActivityNotice(
                     id, "[独处片段|${episode.id}] ${characters.getValue(id).displayName}的《${episode.title}》 · 查看生活小剧场")
             }
+        }
+    }
+}
+
+/** WorkManager owns the single optional literary model request. On failure
+ * leave the already verified public conversation untouched; no paid retry. */
+class AutonomousEncounterChaptersWorker(
+    context: Context, params: WorkerParameters,
+) : CoroutineWorker(context, params) {
+    override suspend fun doWork(): Result {
+        try {
+            initializeBackgroundRuntime(applicationContext)
+            val meetingId = inputData.getString("meetingId") ?: return Result.success()
+            val location = inputData.getString("locationCode") ?: return Result.success()
+            val meeting = DigitalWorldStore.state.value.meetings.firstOrNull {
+                it.id == meetingId && it.endedAt != null
+            } ?: return Result.success()
+            if (meeting.turns.isEmpty()) return Result.success()
+            val characters = meeting.participantIds.associateWith {
+                MigratedDomainStores.characters.get(it)
+            }
+            val tick = inputData.getString("tickId")?.let { incidentId ->
+                DigitalWorldLifeTick(
+                    incidentId = incidentId,
+                    locationCode = inputData.getString("tickLocation").orEmpty(),
+                    locationName = inputData.getString("tickName").orEmpty(),
+                    kind = inputData.getString("tickKind").orEmpty(),
+                    anchorItemId = inputData.getString("tickItemId").orEmpty(),
+                    anchorItemName = inputData.getString("tickItemName").orEmpty(),
+                    status = inputData.getString("tickStatus").orEmpty(),
+                    stage = inputData.getInt("tickStage", 0),
+                    summary = inputData.getString("tickSummary").orEmpty(),
+                    occurredAt = Instant.ofEpochMilli(
+                        inputData.getLong("tickOccurredAt", meeting.startedAt.toEpochMilli())),
+                )
+            }
+            AutonomousEncounterChapters.composeAndRecord(
+                applicationContext, meeting, characters, location, tick,
+                meeting.endedAt ?: return Result.success())
+            return Result.success()
+        } catch (cancel: CancellationException) {
+            throw cancel
+        } catch (error: Exception) {
+            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "生活小剧场", title = "合场文学任务失败",
+                message = error.message.orEmpty().take(160))
+            return Result.success()
         }
     }
 }
