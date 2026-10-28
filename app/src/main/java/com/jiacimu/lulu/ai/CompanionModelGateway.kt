@@ -815,8 +815,9 @@ class CompanionModelGateway(
                 "systemChars=${systemPrompt.length};currentChars=${userPrompt.length};" +
                 "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size};" +
                 "largestSections=$largestSections"
-            val reducedSystem = if (RelayRequestPressurePolicy.canRecover(source))
-                RelayRequestPressurePolicy.compactSections(systemSections) else ""
+            val reducedSections = if (RelayRequestPressurePolicy.canRecover(source))
+                RelayRequestPressurePolicy.compactSectionPairs(systemSections) else emptyList()
+            val reducedSystem = reducedSections.joinToString("\n\n") { it.second }
             val reducedHistory = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactHistory(dialogueHistory) else emptyList()
             val reducedBytes = if (reducedSystem.isNotBlank())
@@ -895,8 +896,8 @@ class CompanionModelGateway(
             val modelMillis = elapsedMillis(modelStartedAt)
             val totalMillis = elapsedMillis(totalStartedAt)
             val actualAudit = if (sentReduced) PromptInputAudit.inspect(
-                listOf("Relay精简后系统上下文" to reducedSystem),
-                reducedSystem, userPrompt, reducedHistory, imagesForThisTurn, reduced = true,
+                reducedSections, reducedSystem, userPrompt, reducedHistory, imagesForThisTurn,
+                instruction = instruction, reduced = true,
             ) else fullAudit
             LuluRepositories.performance.recordGeneration(
                 source = source,
