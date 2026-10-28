@@ -1187,11 +1187,15 @@ function maybePlayTactileMotion(region, gesture, state, completed, alreadyPlayed
       (!completed && !gesture.startsWith('stroke'))) return false
   const clip = touchMotionFor(region, gesture, state)
   if (!clip || !tactileMotionIndices.has(clip.index)) return false
-  // An explicitly chosen character motion wins over an optional touch clip.
-  // A local physical reflex still runs while that authored motion is active.
+  // An explicitly chosen character motion wins over an optional touch clip,
+  // including its asynchronous STARTING interval. The old check only looked
+  // at isFinished() and could replace an intentional motion before the
+  // Promise from model.motion() had reported that it started.
+  // Local contact reflexes still run without stealing the authored clip.
   if (authoredMotion && authoredMotion.source !== 'touch' &&
       authoredMotion.model === model &&
-      model?.internalModel?.motionManager?.isFinished?.() === false) return false
+      (!authoredMotion.started ||
+        model?.internalModel?.motionManager?.isFinished?.() === false)) return false
   motion(clip.group, clip.index, true, 'touch')
   return true
 }
