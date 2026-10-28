@@ -72,6 +72,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var scanned by remember { mutableStateOf(restored.scanned.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
     var visited by remember { mutableStateOf(restored.visited.intersect(deepSeaSites.map(DeepSeaSite::id).toSet())) }
     var companionAssists by remember { mutableIntStateOf(if (restored.sessionCompanionId == sessionCompanionId) restored.companionAssists else 0) }
+    var survey by remember { mutableStateOf(restored.survey) }
+    var focusSalvage by remember { mutableStateOf(false) }
+    var sonarCharge by remember { mutableFloatStateOf(1f) }
     var sonarPulse by remember { mutableFloatStateOf(0f) }
     var pickupPulse by remember { mutableFloatStateOf(0f) }
     var lastPickupPosition by remember { mutableStateOf<WorldVector?>(null) }
@@ -100,13 +103,14 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val latestScanned by rememberUpdatedState(scanned)
     val latestVisited by rememberUpdatedState(visited)
     val latestAssists by rememberUpdatedState(companionAssists)
+    val latestSurvey by rememberUpdatedState(survey)
     DisposableEffect(progress) {
-        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists, sessionCompanionId) }
+        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists, sessionCompanionId, latestSurvey) }
     }
     LaunchedEffect(progress) {
         while (isActive) {
             delay(1_500)
-            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
+            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId, survey)
         }
     }
     LaunchedEffect(notice) {
@@ -138,7 +142,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 val manual = joystick.length > .08f
                 if (manual && navigationRoute.isNotEmpty()) navigationRoute = emptyList()
                 val direction = if (manual) joystick.normalized() else toWaypoint.normalized()
-                val speed = if (manual) 300f else (toWaypoint.length * 5f).coerceAtMost(300f)
+                val speed = (if (manual) 300f else (toWaypoint.length * 5f).coerceAtMost(300f)) *
+                    (deepSeaCurrentAt(player)?.speedFactor ?: 1f)
                 // Manual steering keeps inertia; autopilot follows exact safe segments without cutting corners.
                 swimVelocity = if (manual || waypoint == null)
                     swimVelocity.lerp(direction * speed, (dt * 7.5f).coerceIn(0f, 1f))
@@ -160,6 +165,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     }
                 }
                 sonarPulse = (sonarPulse - dt * .95f).coerceAtLeast(0f)
+                sonarCharge = (sonarCharge + dt / 4.8f).coerceAtMost(1f)
                 pickupPulse = (pickupPulse - dt * 1.65f).coerceAtLeast(0f)
                 camera = camera.lerp(
                     worldCameraTarget(player, viewportWorldWidth, viewportWorldHeight,
@@ -198,13 +204,22 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
 
     val nearbyEcho = deepSeaNearbyEcho(map, player, collected, obstacles)
     val nearbySite = deepSeaNearbySite(player, visited, obstacles)
+    val nearbyRelic = deepSeaNearbyRelic(player, survey.revealedRelics, survey.salvagedRelics, obstacles)
+    val nearbyCreature = deepSeaNearbyCreature(player, survey.observedCreatures, obstacles)
+    val optionalRelic = deepSeaOptionalTarget(player, survey.revealedRelics, survey.salvagedRelics)
+    val activeSalvage = focusSalvage && optionalRelic != null
+    val localCurrent = deepSeaCurrentAt(player)
     val gateReady = map.echoes.all { it.id in collected }
     val nearGate = deepSeaCanReturn(map, player, collected, obstacles)
     val revealedTarget = map.echoes.asSequence()
         .filterNot { it.id in collected }
         .filter { it.id in scanned || player.distanceTo(it.position) <= 260f }
         .minByOrNull { player.distanceTo(it.position) }
-    val navigationTarget = if (gateReady) map.gate else revealedTarget?.position
+    val navigationTarget = when {
+        activeSalvage -> optionalRelic?.position
+        gateReady -> map.gate
+        else -> revealedTarget?.position
+    }
     val navigationDistance = navigationTarget?.let { destination ->
         navigationRoute.takeIf { it.lastOrNull() == destination }?.let { deepSeaRouteDistance(player, it) }
     }
@@ -241,6 +256,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     player = player,
                     companion = companion?.let { companionPosition },
                     visited = visited,
+                    revealedRelics = survey.revealedRelics,
+                    salvagedRelics = survey.salvagedRelics,
+                    observedCreatures = survey.observedCreatures,
                 )
                 if (sonarPulse > 0f) {
                     drawCircle(Color(0xFFB5FFF0).copy(alpha = sonarPulse * .55f),
@@ -305,6 +323,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             total = map.echoes.size,
             distance = navigationTarget?.let { player.distanceTo(it) },
             gateReady = gateReady,
+            relics = survey.salvagedRelics.size,
+            totalRelics = deepSeaRelics.size,
+            wildlife = survey.observedCreatures.size,
+            totalWildlife = deepSeaCreatures.size,
+            current = localCurrent?.title,
             companionName = companion?.displayName,
             depth = 38 + (player.y / DEEP_SEA_WORLD_HEIGHT * 212f).toInt(),
             modifier = Modifier.align(Alignment.TopCenter).padding(11.dp),
@@ -650,6 +673,12 @@ private fun DeepSeaCompletion(
     }
 }
 
+internal data class DeepSeaSurvey(
+    val revealedRelics: Set<String> = emptySet(),
+    val salvagedRelics: Set<String> = emptySet(),
+    val observedCreatures: Set<String> = emptySet(),
+)
+
 internal data class DeepSeaRestoredState(
     val position: WorldVector,
     val collected: Set<String>,
@@ -661,6 +690,7 @@ internal data class DeepSeaRestoredState(
     val visited: Set<String>,
     val companionAssists: Int,
     val sessionCompanionId: String,
+    val survey: DeepSeaSurvey,
 )
 
 internal class DeepSeaJourneyProgress(context: Context) {
@@ -684,11 +714,17 @@ internal class DeepSeaJourneyProgress(context: Context) {
             visited = prefs.getStringSet("visited", emptySet()).orEmpty().toSet(),
             companionAssists = prefs.getInt("companion_assists", 0).coerceAtLeast(0),
             sessionCompanionId = prefs.getString("session_companion_id", "").orEmpty(),
+            survey = DeepSeaSurvey(
+                revealedRelics = prefs.getStringSet("revealed_relics", emptySet()).orEmpty().toSet(),
+                salvagedRelics = prefs.getStringSet("salvaged_relics", emptySet()).orEmpty().toSet(),
+                observedCreatures = prefs.getStringSet("observed_creatures", emptySet()).orEmpty().toSet(),
+            ),
         )
     }
 
     fun save(position: WorldVector, collected: Set<String>, completed: Boolean, score: Int,
-        scanned: Set<String>, visited: Set<String>, companionAssists: Int, sessionCompanionId: String) {
+        scanned: Set<String>, visited: Set<String>, companionAssists: Int,
+        sessionCompanionId: String, survey: DeepSeaSurvey = DeepSeaSurvey()) {
         prefs.edit()
             .putFloat("x", position.x)
             .putFloat("y", position.y)
@@ -697,6 +733,9 @@ internal class DeepSeaJourneyProgress(context: Context) {
             .putStringSet("visited", visited.toSet())
             .putInt("companion_assists", companionAssists)
             .putString("session_companion_id", sessionCompanionId)
+            .putStringSet("revealed_relics", survey.revealedRelics.toSet())
+            .putStringSet("salvaged_relics", survey.salvagedRelics.toSet())
+            .putStringSet("observed_creatures", survey.observedCreatures.toSet())
             .putBoolean("completed", completed)
             .putInt("score", score)
             .apply()
