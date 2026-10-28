@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:33:43.242736+00:00",
-  "commit": "6147e14f0bface001eea585a0c6ca77aa3d3af30",
+  "generatedAt": "2026-10-28T10:34:14.121017+00:00",
+  "commit": "1152541824f91fc18ef5da0b2f1f894a11d4ed19",
   "branch": "main",
-  "sourceFingerprint": "cbd1aa5ca1fba0ef63052424d6cb29a1ae8cfa67d015ff386b7197f62c498254",
+  "sourceFingerprint": "08123d212b6a9c490b59b6bc00e38d1705f0416d241367b9a03892ceb7214a23",
   "summary": {
     "files": 1038,
-    "lines": 209638,
+    "lines": 209715,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -1371,7 +1371,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 84
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -12245,7 +12245,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 89
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12259,7 +12259,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 432
+        "line": 435
       }
     ],
     "saveTurn": [
@@ -29565,20 +29565,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 460,
-      "sha256": "27ed48fc1973b8d1a04f0ea7e71380542edb1674bee62452e6e763b9af32e756",
+      "lines": 463,
+      "sha256": "1be33df2ca79aa1aa4074b46000e94ccea03ca5762539b2107ee42a10ddde5d4",
       "symbols": [
         {
           "name": "save",
-          "line": 84
+          "line": 80
         },
         {
           "name": "perform",
-          "line": 89
+          "line": 85
         },
         {
           "name": "targetFor",
-          "line": 432
+          "line": 435
         }
       ]
     },
@@ -29730,8 +29730,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt",
-      "lines": 76,
-      "sha256": "bb624e8696b2d03a5eaeb55a6f253ed4a6264b07850367520b7b20d2f1dd98ef",
+      "lines": 150,
+      "sha256": "f23c21c7fe3165e6a4ab0f5905da5ca6c1c7926df7b86378de8c0e7055b67973",
       "symbols": []
     },
     {
