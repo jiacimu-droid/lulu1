@@ -148,7 +148,7 @@ fun LuluVoiceCallScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (archives.isEmpty()) {
-                        Text("此角色尚未上传模型，请先在桌面 Live2D 页面导入和校准。")
+                        Text("模型库还是空的，请先在桌面的 Live2D 模型库里导入模型，再回来选用。")
                     } else {
                         Text("选择已上传的皮套，不再复制 ZIP；同一模型的触摸校准会随模型一起使用。",
                             fontSize = 12.sp, color = CallMuted)

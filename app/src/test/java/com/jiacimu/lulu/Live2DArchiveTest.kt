@@ -146,4 +146,62 @@ class Live2DArchiveTest {
             touch.edit().remove(url).commit()
         }
     }
+
+    @Test fun modeledCharactersNeverIncludeTheLibraryHost() {
+        val context=RuntimeEnvironment.getApplication()
+        val relative="models/library-host/x/avatar.model3.json"
+        val file=File(Live2DAssets.base(context),relative)
+        file.parentFile?.mkdirs()
+        file.writeText("{}")
+        val prefs=context.getSharedPreferences("lulu_live2d_models_v1",0)
+        prefs.edit().putString("model:"+Live2DAssets.LIBRARY_OWNER_ID,relative)
+            .putString("label:"+Live2DAssets.LIBRARY_OWNER_ID,"小狼").commit()
+        try {
+            assertTrue(Live2DAssets.listModeledCharacters(context)
+                .none { it.first==Live2DAssets.LIBRARY_OWNER_ID })
+            assertTrue(Live2DAssets.listAvailableModels(context)
+                .any { it.settings==relative })
+        } finally {
+            file.parentFile?.deleteRecursively()
+            prefs.edit().remove("model:"+Live2DAssets.LIBRARY_OWNER_ID)
+                .remove("label:"+Live2DAssets.LIBRARY_OWNER_ID).commit()
+        }
+    }
+
+    @Test fun deletingFromLibraryUnbindsEveryCharacterAndDeletesTheFile() {
+        val context=RuntimeEnvironment.getApplication()
+        val suffix=java.util.UUID.randomUUID().toString()
+        val roleA="lib-a-$suffix"
+        val roleB="lib-b-$suffix"
+        val relative="models/library-delete/$suffix/avatar.model3.json"
+        val file=File(Live2DAssets.base(context),relative)
+        file.parentFile?.mkdirs()
+        file.writeText("{}")
+        val prefs=context.getSharedPreferences("lulu_live2d_models_v1",0)
+        val archivesJson="""[{"settings":"$relative","label":"库模型"}]"""
+        val editor=prefs.edit()
+        for(id in listOf(roleA,roleB,Live2DAssets.LIBRARY_OWNER_ID)) {
+            editor.putString("model:$id",relative).putString("label:$id","库模型")
+                .putString("archives:$id",archivesJson)
+        }
+        editor.commit()
+        try {
+            assertEquals(1,Live2DAssets.listAvailableModels(context)
+                .count { it.settings==relative })
+            assertTrue(Live2DAssets.deleteFromLibrary(context,relative))
+            assertTrue(Live2DAssets.listAvailableModels(context)
+                .none { it.settings==relative })
+            assertEquals(null,Live2DAssets.modelUrl(context,roleA))
+            assertEquals(null,Live2DAssets.modelUrl(context,roleB))
+            assertTrue(!file.exists())
+        } finally {
+            file.parentFile?.deleteRecursively()
+            val cleanup=prefs.edit()
+            for(id in listOf(roleA,roleB,Live2DAssets.LIBRARY_OWNER_ID)) {
+                cleanup.remove("model:$id").remove("label:$id")
+                    .remove("archives:$id").remove("preview:$id")
+            }
+            cleanup.commit()
+        }
+    }
 }

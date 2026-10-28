@@ -25,6 +25,13 @@ internal object Live2DAssets {
     private const val PREFS = "lulu_live2d_models_v1"
     private val revisionState = MutableStateFlow(0L)
     val revisions = revisionState.asStateFlow()
+    /**
+     * Reserved owner of the character-independent model library. Imports
+     * made from the library page are registered under this id, and the
+     * playground stage is hosted by it, so managing models never requires
+     * picking a character first. It is never a real character.
+     */
+    const val LIBRARY_OWNER_ID = "__library__"
     /** An installed official Core is shared by every role; this refreshes all open previews. */
     fun notifyCoreChanged() { revisionState.value++ }
     fun base(context: Context) = File(context.applicationContext.filesDir, STORAGE).apply { mkdirs() }
@@ -333,6 +340,10 @@ internal object Live2DAssets {
         }
     }
 
+    /** Import a model ZIP into the shared library, without binding it to any character. */
+    suspend fun importModelToLibrary(context: Context, uri: Uri): String =
+        importModel(context, LIBRARY_OWNER_ID, uri)
+
     data class ArchiveEntry(val settings: String, val label: String)
 
     internal fun decodeUName(name: String): String {
@@ -443,7 +454,7 @@ internal object Live2DAssets {
         return all.keys.filter { it.startsWith("model:") }.mapNotNull { key ->
             val id = key.removePrefix("model:")
             val relative = all[key] as? String ?: return@mapNotNull null
-            if (id.isBlank() || !relative.startsWith("models/") || relative.contains("..")) return@mapNotNull null
+            if (id.isBlank() || id == LIBRARY_OWNER_ID || !relative.startsWith("models/") || relative.contains("..")) return@mapNotNull null
             id to (prefs(context).getString("label:$id", null).takeIf { !it.isNullOrBlank() } ?: id)
         }.sortedBy { it.second }
     }
@@ -500,6 +511,32 @@ internal object Live2DAssets {
         }
         revisionState.value++
         return true
+    }
+
+    private fun ownerIds(context: Context): List<String> =
+        prefs(context).all.keys.mapNotNull { key ->
+            when {
+                key.startsWith("archives:") -> key.removePrefix("archives:")
+                key.startsWith("model:") -> key.removePrefix("model:")
+                else -> null
+            }
+        }.filter(String::isNotBlank).distinct()
+
+    /**
+     * Remove a model from the library entirely: unbind it from every
+     * character (each falls back to its next archived model, as in
+     * [deleteArchive]) and drop the library registration. The model folder
+     * and its touch calibration are deleted by the last per-owner removal,
+     * once no reference remains.
+     */
+    fun deleteFromLibrary(context: Context, settings: String): Boolean {
+        var removed = false
+        for (owner in ownerIds(context)) {
+            if (listArchives(context, owner).any { it.settings == settings } &&
+                deleteArchive(context, owner, settings)
+            ) removed = true
+        }
+        return removed
     }
 
     private fun validateReference(root: File, directory: File, relative: String) {
