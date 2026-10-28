@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:52:49.920874+00:00",
-  "commit": "03db6365006bd481d45060929bc69d76b0bd814c",
+  "generatedAt": "2026-10-28T14:53:06.542038+00:00",
+  "commit": "12c6e20efa2b69f1bfc1ad13930548a14fd6f844",
   "branch": "main",
-  "sourceFingerprint": "18c05eae9f248a3e31d4fe9fe230d50d15ee6aecd99deb1e349c51bc40124e32",
+  "sourceFingerprint": "bd7ad23ca27bde6aca2830b94eaf8a92c2cac42f4e5794a793e2eebc294788b6",
   "summary": {
     "files": 1053,
-    "lines": 214443,
+    "lines": 214449,
     "symbols": 3078
   },
   "symbolIndex": {
@@ -20551,8 +20551,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
-      "lines": 132,
-      "sha256": "86366d18d11c0b538d39cad5d4d2ab138871b85c3ff2f45293fe78fd3945e7c7",
+      "lines": 137,
+      "sha256": "ba918408eaa38998459ef5140be2367c9a35ec4f5baa5a2bc749acf9e2a2cda5",
       "symbols": []
     },
     {
@@ -35811,8 +35811,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1938,
-      "sha256": "0fc118371eef49d07a68ece7baee2ab3c686c7eea8bff7bb53040ef641c570ec",
+      "lines": 1939,
+      "sha256": "8adbaae314cefa3838e99ed8f1a58c32becb122c333ff499eb6ce97e1875f5b0",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
