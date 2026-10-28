@@ -13,8 +13,8 @@ class Live2DMotionCatalogTest {
     )
 
     @Test fun catalogCoversWholeWolfPackExactlyOnce() {
-        assertEquals((0..33).toSet(), Live2DMotionCatalog.entries.keys)
-        assertEquals(34, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
+        assertEquals((0..39).toSet(), Live2DMotionCatalog.entries.keys)
+        assertEquals(40, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
     }
 
     @Test fun everyEntryHasUsableNameFitsAndRealReferences() {
