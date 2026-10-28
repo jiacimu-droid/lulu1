@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:46:02.054026+00:00",
-  "commit": "1fcf3887920f1eb58df5463e1180d4fb60082a67",
+  "generatedAt": "2026-10-28T08:46:21.263671+00:00",
+  "commit": "a6cf310e206b31fd42e514648a2e564b3def8533",
   "branch": "main",
-  "sourceFingerprint": "ab9ceba84c4e918b4e689c68f6ab71ab767431d8d283e4f15734e30bc1659f72",
+  "sourceFingerprint": "f1671f03486fef4792c3b421a52d4a474c715669e1685c68c02b74f313e769ea",
   "summary": {
-    "files": 1016,
-    "lines": 203690,
-    "symbols": 2964
+    "files": 1017,
+    "lines": 203760,
+    "symbols": 2965
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14550,6 +14550,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt",
         "line": 12
+      }
+    ],
+    "AutonomousEncounterScriptTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt",
+        "line": 13
       }
     ],
     "AutonomousGameOutcomeTest": [
@@ -32312,6 +32318,17 @@
         {
           "name": "AutonomousEncounterPrivacyTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt",
+      "lines": 70,
+      "sha256": "f8f5fc6ba6a7e7765c3ab6383c28b9abf23d1b7de59c5af692ab3a824a5d965d",
+      "symbols": [
+        {
+          "name": "AutonomousEncounterScriptTest",
+          "line": 13
         }
       ]
     },
