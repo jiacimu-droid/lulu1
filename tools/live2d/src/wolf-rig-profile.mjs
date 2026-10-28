@@ -39,7 +39,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   const travel = right ? 1 : left ? -1 : side || 1
   const family = region.replace(/-(?:left|right)$/, '')
   if (/^slap(?:-(?:left|right))?$/.test(gesture)) {
-    // Spend this rig's real ±30 neck range across the three force settings.
+    // Use the chosen force in both stationary and directional strikes.
     // Yaw supplies visible side displacement; Z alone only tips the chin.
     // Keep the signed return so the body and head share the spring recovery.
     const envelope = impactEnvelope(elapsedMs)
@@ -49,13 +49,14 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
     if (family === 'cheek' || family === 'mouth') {
       // The supplied wolf model has neck ±30°, torso ±10°. Keep most motion
       // in the neck, not in the screen-space sprite or its whole-body mesh.
-      // Short stationary taps are smaller than a directional swipe.
-      const contactGain = right || left ? 1 : .58
-      pose.roll = direction * (11 + 15 * force) * envelope * contactGain
-      pose.yaw = direction * (2 + 5 * force) * envelope * contactGain
-      pose.body.roll = direction * (1 + 2.6 * force) * envelope *
+      // A stationary strong slap is still strong; direction is not force.
+      const contactGain = 1
+      pose.roll = direction * (9 + 20 * force) * envelope * contactGain
+      pose.yaw = direction * (3 + 9 * force) * envelope * contactGain
+      pose.pitch = -(3 + 6 * force) * envelope
+      pose.body.roll = direction * (2 + 4.5 * force) * envelope *
         (.12 + .88 * Math.min(1, Math.max(0, elapsedMs - 100) / 380)) * contactGain
-      pose.body.yaw = direction * (.4 + 1.1 * force) * envelope * contactGain
+      pose.body.yaw = direction * (.8 + 2.2 * force) * envelope * contactGain
     }
     if (family === 'cheek') {
       pose.face.cheekPuff = elapsedMs < 230 ? .05 : .2 + force * .12
@@ -66,11 +67,13 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   } else if ((family === 'hair' || family === 'forehead' ||
       family === 'ear' || family === 'beast-ear') &&
       (/^stroke/.test(gesture) || gesture === 'hold')) {
-    // Most motion is in neck Z, rather than yawing the entire chin across
-    // the image. The torso's subtle follow is already owned by touch-reflex.
-    pose.roll = travel * (10 + force * 4) * rest
-    pose.yaw *= .24
-    pose.body.roll *= .55
+    // Match the authored tilt pair's coordinated peak (Z 17.1, X 8.1,
+    // torso Z 6.5), scaled by selected force. Physics adds the real follow.
+    const strength = .55 + .6 * force
+    pose.roll = travel * 17.1 * strength * rest
+    pose.yaw = travel * 8.1 * strength * rest
+    pose.body.roll = travel * 6.5 * strength * rest
+    pose.body.yaw = travel * 3 * strength * rest
     if (family === 'ear' || family === 'beast-ear')
       pose.face[side < 0 ? 'browLeftY' : 'browRightY'] = .22 + .13 * force
   } else if (family === 'cheek' && gesture !== 'kiss') {

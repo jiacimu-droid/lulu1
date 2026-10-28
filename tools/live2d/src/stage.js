@@ -1,3 +1,4 @@
+import { installPhysicsFrameControl } from './physics-frame-control.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
 import { isScenePixel, hasAvatarPixels } from './scene-pixels.mjs'
@@ -439,9 +440,9 @@ function settleSpeechMoment() {
   bodyRequestEndAt = Math.min(bodyRequestEndAt, until)
   faceRequestEndAt = Math.min(faceRequestEndAt, until)
 }
-// Apply at the LAST mutable stage: after motion, expressions, focus, auto
-// breathing, physics and pose, but before core.update computes the drawables.
-// The former motionManager.update hook ran before breathing and physics.
+// Compose inputs after motion, expressions, focus and breathing, before physics.
+// Cubism restores saved motion parameters after drawing, so post-physics touch
+// writes never reached the next frame's physics inputs either.
 function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
@@ -506,6 +507,7 @@ function applyFinalParameters(core, deltaMs) {
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
+    deferPhysicsOutputs: true,
   })
   // Keep authored torso deformation and screen-space recoil together.
   // The latter is restricted to the verified wolf rig and never overwrites
@@ -568,16 +570,12 @@ function installFinalParameterControl(loadedModel) {
     status('模型未提供 Cubism 每帧更新事件', 'error')
     return false
   }
-  let previousTime = 0
-  // pixi-live2d-display Cubism4InternalModel.update emits this after
-  // the model's auto-breath and physics and immediately before model.update.
-  internal.on('beforeModelUpdate', () => {
-    const now = performance.now()
-    const deltaMs = previousTime ? Math.min(Math.max(now - previousTime, 0), 60) : 16
-    previousTime = now
-    applyFinalParameters(internal.coreModel, deltaMs)
+  // The installed Cubism4 update calls natural movement immediately before
+  // physics. Compose once there, then only gate secondary outputs at draw time.
+  return installPhysicsFrameControl(internal, {
+    beforePhysics: deltaMs => applyFinalParameters(internal.coreModel, deltaMs),
+    afterPhysics: () => { if (!paused) visualLayers.finishPhysics(internal.coreModel) },
   })
-  return true
 }
 
 // A static, low-cost room illustration behind the avatar. Draw in the

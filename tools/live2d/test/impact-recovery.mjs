@@ -51,8 +51,8 @@ for (const fps of [15, 30, 60, 120]) for (const direction of [-1, 1]) {
   const heavy = curves[2]
   assert.ok(peaks[2] > 18 && heavy.some(p => p.x > 3),
     'strong impact should rotate the head without toppling the torso')
-  assert.ok(heavy.every(p => Math.abs(p.body) < 5),
-    'a cheek swipe must never turn the torso to the old 10-degree limit')
+  assert.ok(heavy.every(p => Math.abs(p.body) < 7),
+    'a cheek swipe must never turn the torso to the rig limit')
   const screenPeaks = curves.map(c => Math.max(...c.map(p => Math.abs(p.screen))))
   assert.ok(screenPeaks.every(p => p <= .015),
     `whole-avatar rotation must remain nearly imperceptible at ${fps}fps: ${screenPeaks}`)

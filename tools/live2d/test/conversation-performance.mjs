@@ -11,7 +11,7 @@ import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 // voice gating and authored motions. No mock reimplementation of the player.
 const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 const entries = source.slice(source.indexOf('function applyPerformanceBeat('),
-  source.indexOf('// Apply at the LAST mutable stage')) +
+  source.indexOf('function applyFinalParameters(')) +
   source.slice(source.indexOf('function applyFinalParameters('),
     source.indexOf('function installFinalParameterControl(')) +
   source.slice(source.indexOf('function activatePendingSpeechMoment('),

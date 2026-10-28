@@ -11,6 +11,7 @@ import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveE
 import './conversation-performance.mjs'
 
 import './impact-recovery.mjs'
+import './physics-frame-control.mjs'
 
 // This shipped pack is made of genuine Cubism Motion3 files, not mock pose
 // objects. Validate counts, signed keyframes and a neutral final pose before
@@ -19,7 +20,7 @@ const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
   /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
-  Array.from({ length: 30 }, (_, index) => String(index).padStart(2, '0')),
+  Array.from({ length: 34 }, (_, index) => String(index).padStart(2, '0')),
   'wolf motion indices are stable and contiguous across releases')
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
@@ -192,7 +193,7 @@ assert.match(fullscreenVideo, /displayChannelLabel \+ displayChannelDetail/)
 assert.doesNotMatch(fullscreenVideo, /Text\(rendererPerformance, fontSize/)
 
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
-assert.match(stage, /internal\.on\('beforeModelUpdate'/)
+assert.match(stage, /installPhysicsFrameControl\(internal/)
 assert.doesNotMatch(stage, /\.getParameterIndex\(|\.setParameterValueById\(/)
 assert.match(stage, /speechMouth\.update\(core, \{/)
 assert.match(stage, /wolfRigActive = isWolfRig/)

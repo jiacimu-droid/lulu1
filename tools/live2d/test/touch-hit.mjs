@@ -87,12 +87,12 @@ assert.equal(isWolfRig({}, (_core, id) => id === 'ParamMouthOpenY'), false)
 const hairTilt = enhanceWolfTouch(
   touchReflexFor('hair', 'stroke-left', 0, { force: .7 }, 300),
   'hair', 'stroke-left', { force: .7 }, 300)
-assert.ok(hairTilt.roll < -12 && Math.abs(hairTilt.yaw) < 3,
-  'wolf soft touch tilts its neck without a sideways head shake')
+assert.ok(hairTilt.roll < -12 && Math.abs(hairTilt.yaw) > 5 && Math.abs(hairTilt.body.roll) > 4,
+  'wolf soft touch coordinates neck and torso like the authored tilt')
 const hardImpact = enhanceWolfTouch(
   touchReflexFor('cheek-right', 'slap-left', 0, { force: 1 }, 240),
   'cheek-right', 'slap-left', { force: 1 }, 240)
-assert.ok(hardImpact.roll < -20 && Math.abs(hardImpact.body.roll) < 3.2,
+assert.ok(hardImpact.roll < -20 && Math.abs(hardImpact.body.roll) < 4,
   'wolf impact bends neck sharply while keeping the torso controlled')
 assert.ok(hardImpact.face.mouthX < -4, 'slap must drive mouth physics input')
 const wolfEar = enhanceWolfTouch(

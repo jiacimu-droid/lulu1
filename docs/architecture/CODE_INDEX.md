@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`93b8e5354bd5ccaaa50bf7977ece462a61e7a9e6`
+- 基准提交：`e5a4aed7041011edc94ee66a3b5bf7175937b68a`
 - 分支：`main`
-- 已索引文件：998
-- 已索引代码/文本行：198558
+- 已索引文件：1002
+- 已索引代码/文本行：199231
 - 已发现符号：2931
 
 | 文件 | 行数 | 符号数 |
@@ -42,6 +42,10 @@
 | `app/src/main/assets/live2d/wolf-motions/27_shy_tilt.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/29_playful_dodge.motion3.json` | 156 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/30_listening_tilt.motion3.json` | 171 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/31_hesitant_turn.motion3.json` | 164 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/32_relaxed_exhale.motion3.json` | 164 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/33_recoil_look_back.motion3.json` | 164 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -140,7 +144,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 427 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 154 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 164 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 541 | 3 |

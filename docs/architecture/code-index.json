@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:21:33.078796+00:00",
-  "commit": "93b8e5354bd5ccaaa50bf7977ece462a61e7a9e6",
+  "generatedAt": "2026-10-28T05:25:21.469260+00:00",
+  "commit": "e5a4aed7041011edc94ee66a3b5bf7175937b68a",
   "branch": "main",
-  "sourceFingerprint": "39f0dc9fdbac3de5ec3e12c1382cf4f81894542107eacde91c04a65fdc226360",
+  "sourceFingerprint": "5429d160dc7c29abe50536466f6afd76a47fa9c61b05fa296248ffa1ad9ff449",
   "summary": {
-    "files": 998,
-    "lines": 198558,
+    "files": 1002,
+    "lines": 199231,
     "symbols": 2931
   },
   "symbolIndex": {
@@ -1929,7 +1929,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 142
+        "line": 152
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -16661,6 +16661,30 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/live2d/wolf-motions/30_listening_tilt.motion3.json",
+      "lines": 171,
+      "sha256": "07dd3fe50c347753816cfda7d6909fb59a261dd41d2a9d5f05cf540eb53c620a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/31_hesitant_turn.motion3.json",
+      "lines": 164,
+      "sha256": "f7ed104256c0d9cffd37b7256a4ccb4cee4b17ef702361e11fe4b1cdf74c64ac",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/32_relaxed_exhale.motion3.json",
+      "lines": 164,
+      "sha256": "07cc15fd99687f4c8507bdd350e18ed5538cbb874c5d7b99e210fd0888190702",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/33_recoil_look_back.motion3.json",
+      "lines": 164,
+      "sha256": "570acd9d81274b69a3e4112529ab0920e64d70b9aa4335b1f446a96302da34c2",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/stickers/animals.json",
       "lines": 1,
       "sha256": "27d1c0b2f0decd7a4344f2e2aeb9904168acdaa100a6b7e3e8e803a3a737bfc2",
@@ -18039,8 +18063,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 154,
-      "sha256": "cd4a16d464355dca1b420132f6e70af37fa64c7165d402b899779a780d435fc6",
+      "lines": 164,
+      "sha256": "68edaebb6bb60eeb0192a67e5b2df657d5b7a4cab22cb8d4a7023e7625d918e5",
       "symbols": [
         {
           "name": "Entry",
@@ -18048,7 +18072,7 @@
         },
         {
           "name": "describe",
-          "line": 142
+          "line": 152
         }
       ]
     },
@@ -31189,7 +31213,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
       "lines": 55,
-      "sha256": "05f5125c11765f8a0bf56fa98ac7e49cfcdc26ab5a25f575d2684d1a51dde748",
+      "sha256": "4e7a476f4d54c4de11250de462f13ee0f95456de557d414ff0a0818061351cf9",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",

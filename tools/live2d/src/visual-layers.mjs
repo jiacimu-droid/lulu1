@@ -5,8 +5,8 @@ import { createPoseSpring } from './pose-spring.mjs'
  * gestures. The renderer owns camera contact, stable resting posture and
  * small physical reflexes; never manufactures emotional intentions.
  *
- * Called AFTER authored motions, expressions, focus, breathing and physics,
- * BEFORE drawable model.update. This ownership ordering is essential.
+ * Pose inputs run after motions/focus/breathing but BEFORE physics.
+ * Secondary output gating runs after physics, before drawable model.update.
  */
 export const FACE_BINDINGS = Object.freeze({
   gazeX: ['ParamEyeBallX'], gazeY: ['ParamEyeBallY'],
@@ -69,7 +69,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -152,15 +152,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     secondaryBodyMix += ((bodyActive ? 1 : 0) - secondaryBodyMix) * bodyStep
     if (!headActive && secondaryHeadMix < .008) secondaryHeadMix = 0
     if (!bodyActive && secondaryBodyMix < .008) secondaryBodyMix = 0
-    // Secondary axes are authored physics outputs, not a per-frame additive
-    // accumulator. Gate them on during touch; never add our own previous
-    // result back each frame or the angles would grow without bound.
-    for (const id of SECONDARY_HEAD) {
-      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryHeadMix)
-    }
-    for (const id of SECONDARY_BODY) {
-      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryBodyMix)
-    }
+    if (!deferPhysicsOutputs) finishPhysics(core)
 
     for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
       // The exp3 was applied earlier in the Cubism frame. Even a pending
@@ -251,5 +243,18 @@ export function createVisualLayerRuntime({ has, read, write }) {
     }
   }
 
-  return { update, reset }
+  function finishPhysics(core) {
+    // Secondary axes are authored physics outputs, not a per-frame additive
+    // accumulator. Gate them on during touch; never add our own previous
+    // result back each frame or the angles would grow without bound.
+    for (const id of SECONDARY_HEAD) {
+      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryHeadMix)
+    }
+    for (const id of SECONDARY_BODY) {
+      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryBodyMix)
+    }
+
+  }
+
+  return { update, finishPhysics, reset }
 }

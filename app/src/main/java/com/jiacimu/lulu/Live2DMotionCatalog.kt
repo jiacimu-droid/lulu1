@@ -2,7 +2,7 @@ package com.jiacimu.lulu
 
 /**
  * Names, fits, suggested expression pairings and default face presets for
- * the shipped wolf motion pack (LuluWolf group, indices 00..29).
+ * the shipped wolf motion pack (LuluWolf group, indices 00..33).
  *
  * Selection only: the role picks an existing group#index from this list;
  * curves are never generated, and a suggested expression pairing never
@@ -138,6 +138,16 @@ internal object Live2DMotionCatalog {
             ),
             faceNote = "俏皮笑容、视线灵动",
         ),
+        30 to Entry("侧倾倾听后点头", "专心听完、理解后回应时", face = curiousFace,
+            faceNote = "抬眉注视、侧倾后轻点头"),
+        31 to Entry("犹豫转开再回望", "迟疑、斟酌措辞、欲言又止时",
+            face = mapOf("eyeOpen" to 0.86f, "browY" to 0.16f, "gazeX" to 0.25f),
+            faceNote = "视线略偏、眉毛轻抬"),
+        32 to Entry("松口气缓缓放松", "释然、紧张消退、终于放心时",
+            face = mapOf("eyeOpen" to 0.76f, "smile" to 0.22f, "browY" to 0.08f),
+            faceNote = "眼睛稍放松、嘴角轻扬"),
+        33 to Entry("后缩侧偏再回望", "受惊后重新看向对方时", face = surprisedFace,
+            faceNote = "抬眉、睁眼回望"),
     )
 
     fun describe(group: String, index: Int): String? {
