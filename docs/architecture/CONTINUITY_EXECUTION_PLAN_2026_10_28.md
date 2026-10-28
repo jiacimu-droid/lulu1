@@ -255,3 +255,5 @@
 - **回归**：CharacterCausalTraceTest 覆盖 A/B 混合输入仍只显示 A 的想法、决定、回执和感知；执行器真实拒绝仍有来源与版本；编辑来源不能将旧回执当新决定；pending/failed/waiting_user 不当成功；原生事实撤回时依照原时间线撤销依赖回执；PerceptionStimulusLedgerTest 证明诊断不暗中 claim/migrate。新增与修改：CharacterCausalTrace.kt、CharacterRememberedThingsScreen.kt、ToolRouter.kt、PerceptionStimulusLedger.kt 及两份测试。
 - **提交**：387267ab、5669ffba、14a79d04、69fa4f69、14afeedb、cb010ec7、0c9cc34a、3dc738f8、aea23fc9、026b63ee；按仓库已有代码索引 workflow 自动刷新，不能以 workflow 启动代替索引完成。Android JVM、APK、真机结果按最新 main 独立核对。
 - **明确剩余 P0-B**：本轮是原时间线中「有精确来源 ID 的动作/回执」诊断，不声称所有聊天、电话、群聊或居民决定都已提供精确来源；旧记录缺 causeEvidenceId/revision 时不编造关联。后续核查各入口源 ID 传递、非工具的消息真实送达/等待同意/独立回执、搜索结果进入下一轮心理及目标是否达成、跨日数据量下分页查询与性能。不得把「已展示执行器成功」等同「已感知/已理解/目标完成」。
+
+- **本轮尾段加固**：`b022f3b7`、`9bda1716`、`f0ab8c17` 让心声版本更新后诊断刷新，且只有展开的时间线卡片才进行数据库关联查询；`bca86aa2`、`82fd60bd` 区分外层成功但内层仍 pending 的异步回执；`b11b33d7` 校正原生阅读删除引发的回执撤回测试；`b4709a90`、`35a542bc` 明确同 taskId 仅是相关记录而非直接因果，不把共享任务当作源事件触发证据。上述提交均仍需最新 main 的 CI/真机核对。
