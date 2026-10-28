@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:01:08.051887+00:00",
-  "commit": "78c0af0865c45cc51e2ef3afd0761c4a5bee7ae9",
+  "generatedAt": "2026-10-28T13:01:58.612493+00:00",
+  "commit": "c89ed9191a8b4ff89d155871ee5a2f494ff7a618",
   "branch": "main",
-  "sourceFingerprint": "dce877a986a9bc9e76a1cb72476db2237bf4cdbe2833cf24d6467c6278ef55bc",
+  "sourceFingerprint": "3432a35e4870eb408ab97680c98a576262c9ac1b0e4d9ea64139d59972a321fb",
   "summary": {
     "files": 1047,
-    "lines": 213008,
+    "lines": 213014,
     "symbols": 3054
   },
   "symbolIndex": {
@@ -17866,8 +17866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 616,
-      "sha256": "20e1f1dd7b3d79dd675cb822eb16c07ba0b19adbb34006ba5babaa11449a575c",
+      "lines": 620,
+      "sha256": "18c230d68e0fdaf3eb6e12593c9dcca45e026cfbc72fed1019cce505784cd59c",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -35536,8 +35536,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1756,
-      "sha256": "08aee7504898f20e21f7f699fabb8810ff94b34d1408fc07b7a6e1c84d46a165",
+      "lines": 1758,
+      "sha256": "af1e3ce3141a90e59b14bddd718e40f9e0eb958daaa93cbb81b461efafb67898",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
