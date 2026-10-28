@@ -1071,6 +1071,12 @@ object ProactivePerceptionRuntime {
             // Headroom keeps a final JSON brace from being cut off.
             maxTokens = 3_000,
             connectionOverride = connection,
+            // A single structured decision can take longer than the default
+            // non-streaming read window. Consume incremental chunks from the
+            // same request rather than letting a silent 90s read expire.
+            // The gateway falls back only on an explicit stream-protocol rejection;
+            // ambiguous timeouts must not be replayed and charged twice.
+            streamResponse = true,
             conversation = privateDialogue,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = listOf(privateInput.ifBlank { onlineUnread.text }, salientInteraction?.content.orEmpty())
