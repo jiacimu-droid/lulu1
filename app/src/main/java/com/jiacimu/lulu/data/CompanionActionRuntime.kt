@@ -1262,7 +1262,7 @@ internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
      * references, across all scene adapters. No result selects a new action. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu",
-        com.jiacimu.lulu.ai.JevDirections.TOOL)
+        "capture_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
 
     fun completedEvidence(event: SharedTimelineEvent): Boolean {
         if (event.evidenceKind != EventEvidenceKind.ToolResult ||
@@ -1300,7 +1300,8 @@ internal object SearchReceiptFeedback {
             args.optString("url").isNotBlank() -> "shared_link"
             args.optString("keyword").isNotBlank() -> "search_read"
             else -> "home_read"
-        } else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL) "consider"
+        } else if (tool == "capture_screen") "observe"
+        else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL) "consider"
         else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
         val status = result.optString("status").trim().lowercase()
