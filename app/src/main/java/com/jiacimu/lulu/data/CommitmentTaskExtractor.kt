@@ -70,7 +70,10 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                 .containsMatchIn(goal + " " + item.optString("completionCondition"))
             // An omitted or quiet delivery method is unresolved for a real
             // wake-up, not permission to invent a private-message alarm.
-            val wakeMethodMissing = action == "create" && isWake &&
+            // Only a clock-bound wake promise requires an audible delivery choice.
+            // An untimed long-term responsibility that also mentions "起床" is
+            // not a failed phone alarm; it remains an ongoing responsibility.
+            val wakeMethodMissing = action == "create" && dueAt != null && isWake &&
                 proposedRoute !in setOf("start_call", "alarm_only")
             val proof = item.optJSONArray("completionEvidenceIds")?.let { values ->
                 buildList { for (i in 0 until values.length()) values.optString(i).trim().takeIf(String::isNotBlank)?.let(::add) }
@@ -97,7 +100,9 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     repeat = item.optString("repeat").takeIf { it in setOf("once", "daily") },
                     permanent = item.optBoolean("permanent", false),
                     needsClarification = wakeMethodMissing ||
-                        item.optBoolean("needsClarification", dueAt == null && action == "create"),
+                        item.optBoolean("needsClarification",
+                            dueAt == null && action == "create" &&
+                                item.optString("promiseKind") !in setOf("long_term_supervision", "responsibility")),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
                 ),
             )
