@@ -76,6 +76,15 @@ class BackgroundPerceptionRecoveryTest {
         assertFalse(attempts().contains(role))
     }
 
+    @Test fun terminalFailureDoesNotScheduleAnIdenticalAutonomyAttempt() {
+        val attempt = AutonomousPerceptionAttempts.begin(context, role, "角色时间间隔", Instant.now())
+        AutonomousPerceptionAttempts.finish(context, attempt, failed = true, retryable = false)
+        var count = 0
+        AutonomousPerceptionAttempts.recoverInterrupted(context) { _, _ -> count++ }
+        assertEquals(0, count)
+        assertFalse(attempts().contains(role))
+    }
+
     @Test fun nativeWakeSurvivesUiAbsenceAndRearmsAfterRegistrationWasRemoved() {
         val manager = context.getSystemService(AlarmManager::class.java)
         val shadow = shadowOf(manager)
