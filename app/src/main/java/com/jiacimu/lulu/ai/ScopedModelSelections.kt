@@ -111,7 +111,10 @@ object ScopedModelSelections {
     fun worldSocialArchiveId(characterId: String,
         library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
     ): String? = selectedArchiveId(WORLD_SOCIAL, library)
-        ?: if (characterId.startsWith("resident:")) residentSocialArchiveId(library)
+        // Social life uses the chosen cheap resident model by default.
+        // This changes neither the character's private-chat choice nor memories.
+        ?: residentSocialArchiveId(library)
+        ?: if (characterId.startsWith("resident:")) null
             else selectedCharacterChatArchiveId(characterId, library)
 
     fun worldSceneArchiveId(
