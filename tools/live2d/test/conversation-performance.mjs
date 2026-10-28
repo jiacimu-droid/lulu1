@@ -265,4 +265,32 @@ for (const ms of [200, 400, 600, 1200]) {
     'lip opening/release must not drift across video frame rates at ' + ms + 'ms')
 }
 
+// Exact audible TTS fragment starts, not elapsed time guessed from words,
+// are the only authority for model-authored phrase movements.
+bridge.onPlaybackEvent('interrupted')
+bridge.perform({ visualSequence: 123, beats: [
+  { segmentIndex: 0, atMs: 0, head: { roll: 4 }, durationMs: 250 },
+  { segmentIndex: 1, atMs: 0, face: { smile: .6 }, durationMs: 330 },
+] })
+bridge.onPlaybackEvent('playing', 0, 122)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0,
+  'old utterance must not trigger a new visual choice')
+bridge.onPlaybackEvent('finished', 0, 122)
+bridge.onPlaybackEvent('playing', 0, 123)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+assert.equal(bridge.headRequest.roll, 4)
+bridge.onPlaybackEvent('playing', 0, 123)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0,
+  'duplicate playback-start callback must not restart a gesture')
+bridge.onPlaybackEvent('finished', 0, 123)
+bridge.onPlaybackEvent('playing', 1, 123)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+assert.equal(bridge.faceRequest.smile, .6,
+  'second phrase should start its OWN action when its audio becomes audible')
+bridge.onPlaybackEvent('interrupted', 1, 123)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+bridge.onPlaybackEvent('playing', 1, 123)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0,
+  'cancelled turn may not resurrect the former phrase')
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')
