@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:13:33.094462+00:00",
-  "commit": "71c039a36380a37567c15be1b76ff1d4917bda5b",
+  "generatedAt": "2026-10-28T06:14:05.019003+00:00",
+  "commit": "4bd8e2fd9951ea874137002674a5a789f22b2c68",
   "branch": "main",
-  "sourceFingerprint": "7fc23e3a4a595949ecbc4de126b58f77f98a51be71cbc5a0bb354031860027aa",
+  "sourceFingerprint": "1e8e803c161010d19bd12b4911eea99ee9607531ce7ac60bfa2e7e4d141b546c",
   "summary": {
     "files": 1004,
     "lines": 199829,
@@ -21375,7 +21375,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
       "lines": 247,
-      "sha256": "588fdf325cd6465078b57dd19cf9092900bfffb9811e9ec1c4dd4cc49124b1c5",
+      "sha256": "97a8c1929f7156d8cf6e416b349b4206802ed9c444e46f0ffe504aa71402faab",
       "symbols": [
         {
           "name": "snapshot",
@@ -21410,7 +21410,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
       "lines": 301,
-      "sha256": "80dc0540e5254b34da1cd7966bf4433d9b22f3799ec832733e527e0c49257805",
+      "sha256": "92055db259eee565a6827e709e41824c7315bd427042038662bc69df202ffa38",
       "symbols": [
         {
           "name": "DevelopmentKind",
