@@ -28,6 +28,43 @@ import java.time.Instant
 class CharacterSocialNetworkTest {
 
     @Test
+    fun encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife() {
+        val a = "scene-a"
+        val b = "scene-b"
+        val c = "scene-c"
+        val earlier = Instant.parse("2026-10-26T09:00:00Z")
+        fun session(id: String, participants: List<String>, phrase: String, at: Instant) =
+            MeetingSession(
+                id = id, participantIds = participants,
+                reality = MeetingReality.DIGITAL_WORLD,
+                location = "共生庭院",
+                startedAt = at.minusSeconds(60), endedAt = at,
+                turns = listOf(MeetingTurn("spoken-$id", participants.first(),
+                    "当时说话的人", "", phrase, at.minusSeconds(10))),
+            )
+        val privateMeeting = session("private", listOf(a, b),
+            "只在甲乙之间说过的私下秘密", earlier)
+        val publicMeeting = session("shared", listOf(a, b, c),
+            "三人真的一起听见的那句笑话", earlier.plusSeconds(7200))
+        val unfinished = publicMeeting.copy(id = "unfinished", endedAt = null,
+            turns = listOf(MeetingTurn("incomplete", a, "甲", "",
+                "没有结束也没有交付的草稿", earlier)))
+        val projected = AutonomousSocialRuntime.witnessedSharedEncounterContext(
+            listOf(a, b, c), listOf(privateMeeting, publicMeeting, unfinished))
+        assertTrue(projected.contains("三人真的一起听见"))
+        assertTrue(projected.contains("shared"))
+        assertFalse(projected.contains("私下秘密"))
+        assertFalse(projected.contains("没有结束也没有交付的草稿"))
+        // Two-person memory can retain their own witnessed words. Nothing is
+        // transferred to the absent third party by the scene director.
+        val pairOnly = AutonomousSocialRuntime.witnessedSharedEncounterContext(
+            listOf(a, b), listOf(privateMeeting))
+        assertTrue(pairOnly.contains("只在甲乙之间说过"))
+        assertEquals("", AutonomousSocialRuntime.witnessedSharedEncounterContext(
+            listOf(a, c), listOf(privateMeeting)))
+    }
+
+    @Test
     fun pairLineSkipsUnconnectedPairs() {
         val unconnected = CharacterSocialRelationshipSnapshot(
             "a", "b", emptyList(), 0, null, "尚未认识", false)
