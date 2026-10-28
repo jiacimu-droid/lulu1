@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a913df037416712958b577059a336e5850da046e`
+- 基准提交：`585d42fb24bc11da7a9b604c320060aef8a66ec4`
 - 分支：`main`
 - 已索引文件：1053
-- 已索引代码/文本行：214280
-- 已发现符号：3074
+- 已索引代码/文本行：214361
+- 已发现符号：3076
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -247,7 +247,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1093 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 104 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 132 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 97 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 180 | 3 |
@@ -528,7 +528,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 576 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1558 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1611 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 765 | 22 |
