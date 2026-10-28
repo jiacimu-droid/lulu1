@@ -71,3 +71,9 @@
 - 补充到点无效→本人修正→独立动态恰好一次、连续两次无效不执行/不第三次请求、每日规划无效地点→本人修正的 MockWebServer 回归。另修复该测试类长期注册居民达到世界 12 人上限造成的 CI 测试污染：Robolectric 每个用例只隔离测试居民列表并在结束后恢复原快照，不放宽正式世界上限。
 - **验证结果（2026-10-28）**：功能提交 `4e963d701e1f37a5f05b8f61e557b5f72fcd1d11`，GitHub Actions [Lulu APK #40629868825](https://github.com/jiacimu-droid/lulu1/actions/runs/40629868825) 完整成功（Live2D 打包、Android JVM 单测、phone APK、字节码检查、正式发布）；[代码索引 #40629868798](https://github.com/jiacimu-droid/lulu1/actions/runs/40629868798) 成功并生成索引提交 `51a2fda552655e359bb0ed04813893b26938ac90`。已发布 [Lulu v6079 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6079/Lulu-arm64.apk)，**真机未验收**。此前 `225c4d1` 的 CI #40628478408 因 Robolectric 测试类居民上限污染失败，已在本提交修复并由本轮完整 CI 通过验证。
 - **仍未完成**：网络确定失败与结果未知的细分/可恢复预算、补正中断后的显式人工恢复入口、主动作已改期/取消/完成后副动作中断的独立恢复，以及等待条件变化提前复议。需后续专门测试。
+
+## 2026-10-28 续修记录：日程改期/撤销与独立动作不中断（待 CI）
+
+- 根因：`runDuePlan` 原先先对 `choice=reschedule|cancel` 改写唯一日程，再执行本轮附加动作；改期调用 WorkManager `REPLACE`、取消调用 `cancelUniqueWork`，会取消正在执行的居民唤醒 Worker。若中间退出，副动作还没来得及执行但原计划已经不是 due，原 `hasSavedDueToResume` 无从唤醒。此前 wait 分支已修同类问题。
+- 当前对原计划未执行的 `reschedule/cancel/wait` 先用原 `OrderedCharacterActions` + `ToolRouter` 执行附加步骤，原计划依赖步骤不能错误视为成功；其后才改期或撤销。改期沿同一 WorkManager 唤醒链 `APPEND_OR_REPLACE` 且验证原 dueAt 版本；取消保留正在处理的同一个唤醒 Worker 到回执落盘，普通用户撤销仍取消待办。execute 继续先判定主动作成功、再处理依赖步骤。
+- 增加居民模型改期与撤销时独立动态确实执行、依赖主动作的副步不误执行、计划状态一致、单次模型请求和无重复动态的端到端 Robolectric 回归。本轮提交后还需要 CI / 真机验收，不能拿静态检查冒充真机结果。

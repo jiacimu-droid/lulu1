@@ -391,7 +391,7 @@ object RoleDayScheduleStore {
 
     @Synchronized
     fun cancel(context: Context, characterId: String, planId: String, reason: String = "",
-        now: Instant = Instant.now()): Boolean {
+        now: Instant = Instant.now(), retainRunningWake: Boolean = false): Boolean {
         val records = all(context)
         val target = records.firstOrNull { it.characterId == characterId && it.id == planId &&
             it.status in setOf("planned", "due") } ?: return false
@@ -399,8 +399,13 @@ object RoleDayScheduleStore {
             if (it.id == target.id) it.copy(status = "cancelled", resolvedAt = now,
                 resultSummary = reason.trim().take(180)) else it
         })
-        WorkManager.getInstance(context.applicationContext)
-            .cancelUniqueWork("role-own-plan-$planId")
+        // The resident's own due worker must be allowed to finish persisting
+        // the SAME model decision and independent receipts. Normal user-driven
+        // cancellation still revokes its pending worker as before.
+        if (!retainRunningWake) {
+            WorkManager.getInstance(context.applicationContext)
+                .cancelUniqueWork("role-own-plan-$planId")
+        }
         refreshAutonomousWake(context)
         return true
     }

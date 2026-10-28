@@ -152,6 +152,106 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+
+    @Test(timeout = 60_000) fun nativeRescheduleKeepsItsIndependentStepsAndDoesNotRepeatModelCall() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "自主改期居民${UUID.randomUUID().toString().take(6)}",
+            identity = "散步者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val originalText = "准备以后分享-${UUID.randomUUID()}"
+        val independent = "改期时突然想分享-${UUID.randomUUID()}"
+        val dependent = "必须依赖原活动完成-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享今天的见闻",
+            "想把看到的事情记下来", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", originalText))
+        val next = now.plusSeconds(600)
+        val choice = JSONObject().put("choice", "reschedule")
+            .put("dueAt", next.toString()).put("reason", "想晚一点再做")
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", true)
+                    .put("args", JSONObject().put("text", dependent)))
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", independent))))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(JSONObject()
+            .put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", choice.toString())))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "resident-reschedule-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val changed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+            assertEquals("planned", changed.status)
+            assertEquals(next, changed.dueAt)
+            assertEquals(1, changed.rescheduleCount)
+            assertEquals(1, server.requestCount)
+            val all = MomentsStore.posts.value.filter { it.authorCharacterId == actor }
+                .map { it.content }
+            assertTrue(all.contains(independent))
+            assertFalse(all.contains(dependent))
+            assertFalse(all.contains(originalText))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == independent
+            })
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun nativeCancelKeepsIndependentReceiptWithoutCancellingDecision() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "自主撤销居民${UUID.randomUUID().toString().take(6)}",
+            identity = "花店学徒", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val independent = "取消旧计划但顺手分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "原定整理花园",
+            "今天想打理院子", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "不应自动执行的原计划"))
+        val choice = JSONObject().put("choice", "cancel")
+            .put("reason", "今天更想独处")
+            .put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", independent))))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(JSONObject()
+            .put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", choice.toString())))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "resident-cancel-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals("cancelled",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(1, server.requestCount)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == independent
+            })
+            assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun cancelledDuringDecisionKeepsIndependentStepsAndRejectsDependentOnes() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)

@@ -420,6 +420,16 @@ internal object ResidentDailyDecision {
                 "居民到点模型决定尚未保存，禁止开始执行"
             }
         }
+        // Reschedule, cancel and wait are NOT successes of the original
+        // activity. Perform independently selected side actions while the
+        // original due slot still exists, so an interruption can replay them
+        // using the same per-step request IDs. Moving/cancelling the slot first
+        // would make the remaining side steps unreachable on process death.
+        if (wanted in setOf("reschedule", "cancel", "wait")) {
+            executeWakeSteps(app, plan.characterId, choice,
+                "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
+                initialCompleted = false)
+        }
         var originalHandled = when (wanted) {
             "execute" -> {
                 // When the model explicitly chooses to execute but leaves args
@@ -451,7 +461,8 @@ internal object ResidentDailyDecision {
                     false
                 } else runCatching {
                     RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
-                        replacement, choice.optString("reason"), Instant.now())
+                        replacement, choice.optString("reason"), Instant.now(),
+                        appendToCurrentWork = true, expectedDueAt = plan.dueAt)
                 }.onFailure { error ->
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "数字世界居民日程", title = "${native.name}的改期未生效",
@@ -459,7 +470,7 @@ internal object ResidentDailyDecision {
                 }.isSuccess
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
-                choice.optString("reason"), Instant.now())
+                choice.optString("reason"), Instant.now(), retainRunningWake = true)
             "wait" -> {
                 if (waitReviewAt(choice, now) == null) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -470,14 +481,15 @@ internal object ResidentDailyDecision {
             }
             else -> false
         }
-        executeWakeSteps(app, plan.characterId, choice,
-            "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
-            initialCompleted = wanted == "execute" && originalHandled)
+        if (wanted == "execute") {
+            executeWakeSteps(app, plan.characterId, choice,
+                "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
+                initialCompleted = originalHandled)
+        }
         if (wanted == "wait" && originalHandled) {
-            // Commit independently selected actions first. If this process dies
-            // before scheduling review, the still-due original plan can resume
-            // the saved decision with identical idempotent action request IDs.
-            // Rescheduling first would make these actions unreachable on crash.
+            // The original plan is still due after its independent side steps,
+            // so a crash before rescheduling can resume the saved decision with
+            // identical idempotent action request IDs.
             val reviewAt = checkNotNull(waitReviewAt(choice, now))
             originalHandled = runCatching {
                 val condition = choice.optString("waitCondition").trim()
