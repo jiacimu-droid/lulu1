@@ -56,11 +56,11 @@ internal object CompanionActionRuntime {
 
     private val readingLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     private val gameTitles = mapOf(
+        "block_island" to "方块小岛",
+        "relic_escape" to "迷雾摸金",
         "deep_sea_journey" to "深海回声",
-        "roleplay" to "跑团",
         "turtle_soup" to "海龟汤",
         "yacht_dice" to "快艇骰子",
-        "gomoku" to "五子棋",
         "memory_match" to "记忆配对",
     )
 
