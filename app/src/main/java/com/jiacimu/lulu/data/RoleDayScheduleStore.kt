@@ -42,6 +42,9 @@ data class RoleDayPlan(
     val selfInitiated: Boolean = false,
     /** Original unresolved concern; this is not another goal ledger. */
     val concernId: String = "",
+    /** Exact model decision that created this plan; never inferred from matching prose or time. */
+    val originEvidenceId: String = "",
+    val originEvidenceRevision: Long = 0L,
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -74,7 +77,8 @@ object RoleDayScheduleStore {
                     o.optString("targetCharacterId"), o.optString("targetResidentId"),
                     o.optString("locationCode"), o.optString("activityArgs"),
                     o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false),
-                    o.optString("concernId"))
+                    o.optString("concernId"), o.optString("originEvidenceId"),
+                    o.optLong("originEvidenceRevision", 0L))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -98,7 +102,9 @@ object RoleDayScheduleStore {
                 .put("locationCode", p.locationCode)
                 .put("activityArgs", p.activityArgs)
                 .put("commitmentTaskId", p.commitmentTaskId)
-                .put("selfInitiated", p.selfInitiated).put("concernId", p.concernId))
+                .put("selfInitiated", p.selfInitiated).put("concernId", p.concernId)
+                .put("originEvidenceId", p.originEvidenceId)
+                .put("originEvidenceRevision", p.originEvidenceRevision))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -290,8 +296,13 @@ object RoleDayScheduleStore {
         targetCharacterId: String = "", targetResidentId: String = "",
         locationCode: String = "", activityArgs: JSONObject = JSONObject(),
         commitmentTaskId: String = "", selfInitiated: Boolean = false,
-        concernId: String = ""): RoleDayPlan {
+        concernId: String = "", originEvidenceId: String = "",
+        originEvidenceRevision: Long = 0L): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
+        require(originEvidenceRevision >= 0L &&
+            (originEvidenceId.isNotBlank() || originEvidenceRevision == 0L)) {
+            "日程来源版本必须对应明确的原始证据"
+        }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
         }
@@ -363,6 +374,7 @@ object RoleDayScheduleStore {
             targetCharacterId = targetRole, targetResidentId = targetNative,
             locationCode = place, commitmentTaskId = linkedCommitment,
             concernId = linkedConcern,
+            originEvidenceId = originEvidenceId, originEvidenceRevision = originEvidenceRevision,
         )
         require(CommitmentTaskStore.snapshot(characterId).none { task ->
             task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running,
@@ -382,7 +394,8 @@ object RoleDayScheduleStore {
             targetResidentId = targetNative, locationCode = place,
             activityArgs = activityArgs.toString(),
             commitmentTaskId = linkedCommitment, concernId = linkedConcern,
-            selfInitiated = selfInitiated && linkedCommitment.isBlank())
+            selfInitiated = selfInitiated && linkedCommitment.isBlank(),
+            originEvidenceId = originEvidenceId, originEvidenceRevision = originEvidenceRevision)
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
