@@ -342,4 +342,60 @@ class CharacterCausalTraceTest {
         assertFalse(lines.any { it.title.contains("回执后的本人选择") })
     }
 
+    @Test fun searchFinalReplyIsVisibleFromOriginalRequestAndOnlyFromLiveResultRevision() = runBlocking {
+        val origin = "trace-feedback-original"
+        val searchRequest = "trace-feedback-request"
+        val searchReceipt = "tool-$a-$searchRequest"
+        source(a, origin, "先搜资料，再告诉我结果")
+        receipt(a, searchReceipt, origin, "web_search", "succeeded", true, "找到真实网页")
+        assertEquals(searchReceipt, SearchReceiptFeedback.recordedReceiptId(a, searchRequest))
+        assertEquals("", SearchReceiptFeedback.recordedReceiptId(b, searchRequest))
+
+        // ToolRouter's real pre-execution refusal must also preserve a
+        // terminal, role-owned search receipt as its cause.
+        ToolRouter.execute(context, a, "nonexistent_feedback_tool", JSONObject(),
+            requestId = "trace-feedback-denied", causeEvidenceId = searchReceipt)
+        val denied = event(a, "tool-rejected-$a-trace-feedback-denied")
+        assertEquals(searchReceipt, JSONObject(denied.content).optString("causeEvidenceId"))
+        assertEquals(1L, JSONObject(denied.content).optLong("causeEvidenceRevision"))
+        ToolRouter.execute(context, b, "nonexistent_feedback_tool", JSONObject(),
+            requestId = "trace-feedback-foreign", causeEvidenceId = searchReceipt)
+        assertEquals("", JSONObject(event(b, "tool-rejected-$b-trace-feedback-foreign").content)
+            .optString("causeEvidenceId"))
+
+        val replyId = "tool-$a-$searchRequest:verified-search-feedback"
+        SharedExperienceTimeline.record(replyId, a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "send_private_message")
+                .put("requestId", "$searchRequest:verified-search-feedback")
+                .put("causeEvidenceId", searchReceipt)
+                .put("causeEvidenceRevision", 1L)
+                .put("status", "succeeded")
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "结果确实发给了用户").toString()).toString(),
+            at.plusSeconds(30), triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        val original = CharacterCausalTrace.inspect(context, a, event(a, origin),
+            SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
+        assertTrue(original.any { it.evidenceId == replyId &&
+            it.title.contains("搜索结果后的实际反馈") && it.title.contains("执行器确认成功") })
+        assertTrue(CharacterCausalTrace.inspect(context, a, event(a, searchReceipt),
+            SharedExperienceTimeline.all(a), JSONObject()).any { it.evidenceId == replyId })
+        assertFalse(CharacterCausalTrace.inspect(context, b, event(b,
+            "tool-rejected-$b-trace-feedback-foreign"),
+            SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
+            .any { it.evidenceId == replyId })
+
+        // Editing the search result breaks the old source revision. An old
+        // delivered message must never be attributed to the revised result.
+        receipt(a, searchReceipt, origin, "web_search", "succeeded", true, "编辑后的结果")
+        val revised = CharacterCausalTrace.inspect(context, a, event(a, origin),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertFalse(revised.any { it.evidenceId == replyId &&
+            it.title.contains("搜索结果后的实际反馈") })
+        SharedExperienceTimeline.deleteEvent(replyId)
+        assertFalse(CharacterCausalTrace.inspect(context, a, event(a, origin),
+            SharedExperienceTimeline.all(a), JSONObject())
+            .any { it.evidenceId == replyId && it.title.contains("搜索结果后的实际反馈") })
+    }
+
 }

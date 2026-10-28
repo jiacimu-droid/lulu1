@@ -1252,6 +1252,9 @@ internal object CompanionActionRuntime {
 internal data class VerifiedSearchReceipt(
     val tool: String, val operation: String, val success: Boolean,
     val details: String, val evidenceId: String,
+    // Exact persisted ToolRouter receipt, not the native article/screenshot.
+    // This is provenance for a subsequent spoken feedback, never permission.
+    val receiptEvidenceId: String = "",
 )
 internal data class OrderedCharacterActionReport(
     val notes: List<String>, val anyAccepted: Boolean,
@@ -1264,6 +1267,18 @@ internal object SearchReceiptFeedback {
      * references, across all scene adapters. No result selects a new action. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu",
         "capture_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
+
+    /** Use the actual persisted receipt ID, including a pre-execution refusal.
+     * A native result ID alone does not prove which request produced it.
+     * Missing/withdrawn receipts must never be fabricated as causal sources.
+     */
+    fun recordedReceiptId(characterId: String, requestId: String): String =
+        listOf("tool-$characterId-$requestId", "tool-rejected-$characterId-$requestId")
+            .firstOrNull { id ->
+                SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).any {
+                    it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult
+                }
+            }.orEmpty()
 
     fun completedEvidence(event: SharedTimelineEvent): Boolean {
         if (event.evidenceKind != EventEvidenceKind.ToolResult ||
@@ -1441,7 +1456,10 @@ internal object OrderedCharacterActions {
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
             }
-            SearchReceiptFeedback.from(name, args, result)?.let(searchReceipts::add)
+            SearchReceiptFeedback.from(name, args, result)?.let { feedback ->
+                searchReceipts += feedback.copy(receiptEvidenceId =
+                    SearchReceiptFeedback.recordedReceiptId(characterId, requestIdForStep(index)))
+            }
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
             previousCompleted = ToolExecutionStatus.completed(result)

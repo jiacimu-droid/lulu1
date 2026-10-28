@@ -139,6 +139,11 @@ internal object CharacterCausalTrace {
                 directCause -> {
                     rows += receiptLine(context, characterId, event, body)
                     rows += receiptContinuation(context, characterId, event, body, mind)
+                    // The first user event caused the search, while the search
+                    // receipt caused the final spoken answer. Do not hide that
+                    // second edge merely because it is not a direct child of
+                    // the user's original evidence ID.
+                    rows += searchFeedbackLines(context, characterId, event, body, events)
                 }
                 else -> rows += receiptLine(context, characterId, event, body).let { line ->
                     line.copy(title = "同任务记录 · ${line.title}",
@@ -210,6 +215,38 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
         }
         return rows
+    }
+
+    /**
+     * A final search reply is a separate ToolRouter effect. Follow only its
+     * exact, revision-matched search receipt ID (never a shared task, title or
+     * native URL); verify the live record and keep failed delivery distinct.
+     * The receipt card already lists its direct child through [linked].
+     */
+    private fun searchFeedbackLines(
+        context: Context, characterId: String, receipt: SharedTimelineEvent,
+        receiptBody: JSONObject, events: List<SharedTimelineEvent>,
+    ): List<CharacterCausalTraceLine> {
+        if (receiptBody.optString("tool") !in SearchReceiptFeedback.resultTools) return emptyList()
+        val candidates = events.filter { event ->
+            if (event.characterId != characterId || event.source != "tool-router" ||
+                event.evidenceKind != EventEvidenceKind.ToolResult ||
+                event.occurredAt.isBefore(receipt.occurredAt)) return@filter false
+            val body = objectValue(event.content) ?: return@filter false
+            body.optString("tool") == "send_private_message" &&
+                body.optString("requestId").endsWith(":verified-search-feedback") &&
+                body.optString("causeEvidenceId") == receipt.id &&
+                body.optLong("causeEvidenceRevision", 0L) == receipt.revision
+        }
+        val active = SharedExperienceTimeline.eventsByIds(characterId,
+            candidates.map { it.id }).associateBy { it.id }
+        return candidates.filter { active[it.id]?.revision == it.revision }
+            .sortedBy { it.occurredAt }.takeLast(3).mapNotNull { event ->
+                val body = objectValue(event.content) ?: return@mapNotNull null
+                receiptLine(context, characterId, event, body).let { line ->
+                    line.copy(title = "搜索结果后的实际反馈 · ${line.title}")
+                }
+            }
     }
 
     /**

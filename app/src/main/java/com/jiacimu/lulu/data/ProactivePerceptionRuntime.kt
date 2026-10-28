@@ -2497,7 +2497,10 @@ object ProactivePerceptionRuntime {
         // web/search steps finish. This costs one additional reply-model call
         // per explicit result-bearing turn, never one call per URL or step.
         val verifiedSearch = buildList {
-            SearchReceiptFeedback.from(tool, args, resultJson)?.let(::add)
+            SearchReceiptFeedback.from(tool, args, resultJson)?.let { feedback ->
+                add(feedback.copy(receiptEvidenceId =
+                    SearchReceiptFeedback.recordedReceiptId(character.characterId, requestId)))
+            }
             addAll(stepReport.searchReceipts)
         }
         // A chosen tool does not consume its own optional spoken message.
@@ -2665,6 +2668,13 @@ object ProactivePerceptionRuntime {
                 JSONObject().put("text", spoken).put("_replyEvidenceIds",
                     org.json.JSONArray(userEvidenceIds.toList())),
                 requestId = "$requestId:verified-search-feedback",
+                // The reply was authored AFTER seeing the persisted search
+                // result. Link its independent delivery receipt to the exact
+                // same-role tool receipt; a user message alone is not proof
+                // that the search was actually completed.
+                causeEvidenceId = receipts.asReversed().firstOrNull {
+                    it.receiptEvidenceId.isNotBlank()
+                }?.receiptEvidenceId.orEmpty(),
             ))
         }.getOrNull()
         val delivered = result?.optBoolean("success") == true &&

@@ -71,7 +71,10 @@ object ToolRouter {
                 val result = failure(message, status)
                 val cause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
                     ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement,
-                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) }
+                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) ||
+                        // A verified search result is a real, role-owned cause
+                        // for its subsequent spoken feedback, not a model guess.
+                        SearchReceiptFeedback.completedEvidence(it) }
                 val evidenceId = "tool-rejected-$characterId-$requestId"
                 if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isEmpty()) {
                     val receipt = JSONObject().put("characterId", characterId)
@@ -161,7 +164,10 @@ object ToolRouter {
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
             val verifiedCause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
                 ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement,
-                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) }
+                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) ||
+                        // A verified search result is a real, role-owned cause
+                        // for its subsequent spoken feedback, not a model guess.
+                        SearchReceiptFeedback.completedEvidence(it) }
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
