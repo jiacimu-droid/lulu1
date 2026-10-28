@@ -1195,6 +1195,15 @@ class ResidentDailyContinuityTest {
                     JSONObject(it.activityArgs).optString("text") == content }
             assertEquals(1, saved.size)
             assertEquals("planned", saved.single().status)
+            val decisionId = "native-daily-${native.id}-${ResidentDailyDecision.date(now)}"
+            assertEquals(decisionId, saved.single().originEvidenceId)
+            assertEquals(1L, saved.single().originEvidenceRevision)
+            val decisionEvent = SharedExperienceTimeline.eventsByIds(actor, listOf(decisionId)).single()
+            val scheduleTrace = CharacterCausalTrace.inspect(app, actor, decisionEvent,
+                SharedExperienceTimeline.all(actor), JSONObject())
+            assertTrue(scheduleTrace.any { it.title.contains("已排入日程") &&
+                it.detail.contains("分享花草观察") })
+            assertFalse(scheduleTrace.any { it.title.contains("日程执行有回执") })
             assertEquals(0, MomentsStore.posts.value.count {
                 it.authorCharacterId == actor && it.content == content })
             val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
