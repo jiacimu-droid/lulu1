@@ -18,7 +18,7 @@ internal data class DeepSeaSite(
 
 // The same dive sees the same event after restore; a new dive can reveal another detail.
 internal fun deepSeaSiteStory(site: DeepSeaSite, runStartedAt: Long): String =
-    if (((runStartedAt / 1_000L) + site.id.hashCode().toLong()) and 1L == 0L)
+    if ((((runStartedAt / 1_000L) + site.id.hashCode().toLong()).and(1L)) == 0L)
         site.discovery else site.alternateDiscovery
 
 internal val deepSeaSites = listOf(
