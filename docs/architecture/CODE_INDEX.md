@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f95ffd52ad81216dbc4c00eee30391a90397a460`
+- 基准提交：`2ca243925888db0f24dc1ba9ff3f9d414ad04db1`
 - 分支：`main`
-- 已索引文件：1032
-- 已索引代码/文本行：207938
-- 已发现符号：3015
+- 已索引文件：1037
+- 已索引代码/文本行：209002
+- 已发现符号：3044
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -629,6 +629,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 587 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 739 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 506 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 136 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 331 | 20 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 418 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 81 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
@@ -1014,6 +1018,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 167 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
