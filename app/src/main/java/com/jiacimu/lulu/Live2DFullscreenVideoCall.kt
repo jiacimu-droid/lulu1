@@ -174,55 +174,38 @@ internal fun Live2DFullscreenVideoCall(
     var touchSizeRevision by remember(modelUrl) { mutableIntStateOf(0) }
     var touchCalibrationReset by remember(modelUrl) { mutableIntStateOf(0) }
     val cameraContext = LocalContext.current
-    val cameraVisionScope = rememberCoroutineScope()
-    var cameraShared by remember(characterId, state.callExperienceId) { mutableStateOf(false) }
-    var cameraCaptureRequest by remember(characterId, state.callExperienceId) { mutableIntStateOf(0) }
-    var cameraAnalyzing by remember(characterId, state.callExperienceId) { mutableStateOf(false) }
-    var cameraShareStatus by remember(characterId, state.callExperienceId) { mutableStateOf("") }
-    var cameraVisionJob by remember(characterId, state.callExperienceId) { mutableStateOf<Job?>(null) }
-    DisposableEffect(characterId, state.callExperienceId) {
-        onDispose {
-            cameraVisionJob?.cancel()
-            Live2DCallVisionState.disable(characterId, state.callExperienceId)
-        }
+    val cameraSession by LuluCallCameraSession.state.collectAsState()
+    val selfCameraEnabled = cameraSession.enabled &&
+        cameraSession.characterId == characterId &&
+        cameraSession.callId == state.callExperienceId
+    val cameraShared = selfCameraEnabled && cameraSession.sharing
+    var cameraPermissionFailure by remember(characterId) { mutableStateOf("") }
+    var cameraStatusMessage by remember(characterId, state.callExperienceId) {
+        mutableStateOf("")
     }
-    var selfCameraEnabled by remember { mutableStateOf(false) }
-    var cameraFailure by remember { mutableStateOf("") }
+    val cameraFailure = cameraPermissionFailure.ifBlank { cameraSession.error }
+    val cameraShareStatus = cameraStatusMessage.ifBlank { cameraSession.status }
     val cameraPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        selfCameraEnabled = granted
-        if (!granted) cameraFailure = "未授予相机权限，前置摄像头保持关闭"
+        if (granted) {
+            cameraPermissionFailure = ""
+            LuluCallCameraSession.requestOpen(cameraContext,
+                characterId, state.callExperienceId)
+        } else cameraPermissionFailure = "未授予相机权限，前置摄像头保持关闭"
     }
     fun toggleSelfCamera() {
         if (selfCameraEnabled) {
-            cameraShared = false
-            cameraVisionJob?.cancel()
-            Live2DCallVisionState.disable(characterId, state.callExperienceId)
-            selfCameraEnabled = false
-            cameraFailure = ""
+            LuluCallCameraSession.requestClose(cameraContext)
+            cameraStatusMessage = ""
+        } else if (!state.connected || state.callExperienceId.isBlank()) {
+            cameraPermissionFailure = "请在通话接通后开启摄像头"
         } else if (ContextCompat.checkSelfPermission(cameraContext, Manifest.permission.CAMERA) ==
             PackageManager.PERMISSION_GRANTED) {
-            cameraFailure = ""
-            selfCameraEnabled = true
+            cameraPermissionFailure = ""
+            LuluCallCameraSession.requestOpen(cameraContext, characterId, state.callExperienceId)
         } else {
             cameraPermission.launch(Manifest.permission.CAMERA)
-        }
-    }
-    // Sharing starts with one immediate photo, then refreshes at most every
-    // 45 seconds. Each real vision request is billable; the default is OFF.
-    // Unmounting the video call cancels this loop and revokes observations.
-    LaunchedEffect(cameraShared, selfCameraEnabled, state.connected,
-        state.callExperienceId) {
-        if (cameraShared && selfCameraEnabled && state.connected &&
-            state.callExperienceId.isNotBlank()) {
-            Live2DCallVisionState.enable(characterId, state.callExperienceId)
-            while (true) {
-                if (!cameraAnalyzing) cameraCaptureRequest++
-                delay(45_000L)
-            }
-        } else {
-            Live2DCallVisionState.disable(characterId, state.callExperienceId)
         }
     }
     var touchFeedback by remember(characterId, modelUrl) { mutableStateOf("") }
@@ -490,8 +473,7 @@ internal fun Live2DFullscreenVideoCall(
                 )
             }
         }
-        // Opt-in on-device-only front-camera picture-in-picture. No frame ever leaves
-        // this view or enters the model unless a separate vision-sharing flow is built.
+        // The service owns capture; leaving this page only detaches the preview.
         if (selfCameraEnabled) {
             Column(
                 modifier = Modifier.align(Alignment.TopEnd)
@@ -500,52 +482,10 @@ internal fun Live2DFullscreenVideoCall(
             ) {
                 Box(Modifier.size(width = 112.dp, height = 154.dp)
                     .clip(RoundedCornerShape(17.dp)).background(Color(0xFF33363B))) {
-                    Live2DSelfCameraPreview(
-                        onFailure = {
-                            cameraFailure = it
-                            cameraShared = false
-                            cameraVisionJob?.cancel()
-                            Live2DCallVisionState.disable(characterId, state.callExperienceId)
-                            selfCameraEnabled = false
-                        },
-                        captureRequest = cameraCaptureRequest.toLong(),
-                        onFrameCaptured = { bitmap ->
-                            val capture = if (cameraShared && state.connected && !cameraAnalyzing)
-                                Live2DCallVisionState.beginFrame(characterId, state.callExperienceId)
-                                else null
-                            if (capture == null) {
-                                bitmap.recycle()
-                            } else {
-                                cameraAnalyzing = true
-                                cameraShareStatus = "识图中…"
-                                cameraVisionJob = cameraVisionScope.launch {
-                                    try {
-                                        val result = VisionModelService.describeCameraFrame(
-                                            cameraContext, bitmap)
-                                        if (result.isSuccess) {
-                                            val accepted = Live2DCallVisionState.accept(
-                                                capture, result.getOrThrow())
-                                            if (accepted) cameraShareStatus =
-                                                "已看见 · 下一轮回复可用"
-                                            else if (Live2DCallVisionState.isCurrent(capture))
-                                                cameraShareStatus = "画面已过期，等待下一帧"
-                                        } else if (Live2DCallVisionState.isCurrent(capture)) {
-                                            cameraShareStatus = "看图失败：" +
-                                                result.exceptionOrNull()?.message.orEmpty().take(85)
-                                        }
-                                    } catch (cancelled: CancellationException) {
-                                        throw cancelled
-                                    } finally {
-                                        bitmap.recycle()
-                                        cameraAnalyzing = false
-                                    }
-                                }
-                            }
-                        },
-                    )
+                    Live2DSelfCameraPreview()
                 }
                 Spacer(Modifier.height(5.dp))
-                Text(if (cameraShared) "已同意共享 · 每45秒取帧"
+                Text(if (cameraShared) "正在共享 · 每45秒取帧"
                     else "本机预览 · 未分享给AI",
                     color = Color.White, fontSize = 10.sp,
                     modifier = Modifier.background(Color.Black.copy(alpha = .5f))
@@ -553,18 +493,15 @@ internal fun Live2DFullscreenVideoCall(
                 TextButton(
                     onClick = {
                         if (cameraShared) {
-                            cameraShared = false
-                            cameraVisionJob?.cancel()
-                            Live2DCallVisionState.disable(
-                                characterId, state.callExperienceId)
-                            cameraShareStatus = "已停止共享"
+                            LuluCallCameraSession.setSharing(false)
+                            cameraStatusMessage = ""
                         } else if (!state.connected || state.callExperienceId.isBlank()) {
-                            cameraShareStatus = "通话接通后才能分享"
-                        } else if (!VisionModelService.canDescribeCamera(cameraContext)) {
-                            cameraShareStatus = "请先在设置中配置支持图片的识图模型"
+                            cameraStatusMessage = "通话接通后才能分享"
+                        } else if (!VisionModelService.canDescribeCamera(cameraContext, characterId)) {
+                            cameraStatusMessage = "请先为当前角色选择支持图片的聊天模型"
                         } else {
-                            cameraShared = true
-                            cameraShareStatus = "共享已开启，正在取第一帧"
+                            cameraStatusMessage = ""
+                            LuluCallCameraSession.setSharing(true)
                         }
                     },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 3.dp),
@@ -575,7 +512,7 @@ internal fun Live2DFullscreenVideoCall(
                 }
                 if (cameraShared) {
                     TextButton(
-                        onClick = { if (!cameraAnalyzing) cameraCaptureRequest++ },
+                        onClick = LuluCallCameraSession::captureNow,
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                     ) { Text("现在看一眼", color = Color.White, fontSize = 10.sp) }
                 }
