@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4254cbb30eaa028e7860586f6e1d5e664f256351`
+- 基准提交：`de58e0c170a5fdf27eb4a5920d6b8c46c19cc01b`
 - 分支：`main`
 - 已索引文件：1039
-- 已索引代码/文本行：211632
+- 已索引代码/文本行：211633
 - 已发现符号：3052
 
 | 文件 | 行数 | 符号数 |
@@ -1037,7 +1037,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 169 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 170 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
