@@ -491,7 +491,7 @@ object LuluDeviceToolBridge {
                     appendLine("角色可按自身意愿回应、主动分享或不提；不能伪造后续结果。")
                 }
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
-                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
+                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(characterId, observedWorld))
                 appendLine(com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.briefContext(characterId, now))
                 appendLine(com.jiacimu.lulu.data.CharacterUnfinishedActionContext.context(appContext, characterId, now))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
