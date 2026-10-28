@@ -2,7 +2,7 @@ package com.jiacimu.lulu
 
 /**
  * Names, fits, suggested expression pairings and default face presets for
- * the shipped wolf motion pack (LuluWolf group, indices 00..33).
+ * the shipped wolf motion pack (LuluWolf group, indices 00..39).
  *
  * Selection only: the role picks an existing group#index from this list;
  * curves are never generated, and a suggested expression pairing never
@@ -15,8 +15,9 @@ package com.jiacimu.lulu
  * forcing a smile onto a plain nod would be a second decision, not a
  * combination.
  *
- * Touch triggers are advisory data for the touch-to-motion wiring: a touch
- * reflex stays deterministic and is never a model decision.
+ * Legacy touch hints are retained for compatibility and documentation only.
+ * Local physical contact never auto-plays an authored whole-body Motion3.
+ * The character may select one of these clips explicitly during dialogue.
  *
  * New pack files must keep using numbers after the existing maximum so the
  * group#index identity of every older clip stays stable.
@@ -148,6 +149,19 @@ internal object Live2DMotionCatalog {
             faceNote = "眼睛稍放松、嘴角轻扬"),
         33 to Entry("后缩侧偏再回望", "受惊后重新看向对方时", face = surprisedFace,
             faceNote = "抬眉、睁眼回望"),
+        34 to Entry("认真侧耳倾听", "侧耳细听、温柔地关注对方时",
+            face = curiousFace, faceNote = "目光专注、轻抬眉"),
+        35 to Entry("耳朵欢快点弹", "轻快开心、被逗笑、雀跃回应时",
+            face = happyFace, faceNote = "眼睛发亮、笑意明显"),
+        36 to Entry("害羞偷看回眸", "不好意思却忍不住回头看时", "脸红",
+            face = shyFace, faceNote = "视线先移开再偷偷回望"),
+        37 to Entry("委屈垂眼再抬头", "委屈、难过后慢慢重新看向对方时",
+            face = sadFace, faceNote = "先垂眸，再缓缓恢复目光"),
+        38 to Entry("好奇回头二连看", "突然注意到有趣的事情、诶等一下时",
+            face = curiousFace, faceNote = "目光来回确认、眉毛轻扬"),
+        39 to Entry("困倦轻轻侧靠", "睡意朦胧、靠一会儿、安静休息时",
+            face = mapOf("eyeOpen" to 0.52f, "gazeY" to -0.2f, "smile" to 0.04f),
+            faceNote = "眼皮半垂、渐渐放松"),
     )
 
     fun describe(group: String, index: Int): String? {
