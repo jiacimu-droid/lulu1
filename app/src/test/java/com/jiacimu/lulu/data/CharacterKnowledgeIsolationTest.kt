@@ -83,6 +83,43 @@ class CharacterKnowledgeIsolationTest {
             .contains("玻璃花房里的燕麦饼"))
     }
 
+    @Test fun multiRoleSceneUsesIsolatedModelContextNotAnchorPersonalKnowledge() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val anchorRole = MigratedDomainStores.characters.create(
+            "场景参与甲", "私人设定仅属于这个角色-不应传给多人场景")
+        val token = "角色独占的心事-" + UUID.randomUUID()
+        CharacterLifeStore.setProfile(anchorRole.characterId, "speechHabits", token)
+        SharedExperienceTimeline.record("private-${UUID.randomUUID()}",
+            anchorRole.characterId, "私聊", "用户", "这事只有甲知道-$token",
+            Instant.now().minusSeconds(20), false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type","application/json")
+            .setBody("""{"choices":[{"message":{"content":"{\"turns\":[],\"summary\":\"\"}"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            LuluAiServices.gateway.generate(anchorRole.characterId,
+                "共同现场：只有三名参与者在庭院，谁都没有说过私人往事",
+                "仅根据本次公开现场做场景叙事",
+                "角色自主相遇", "test",
+                connectionOverride = ModelConnection(server.url("/").toString(),
+                    "isolated-test", "test-model"),
+                contextMode = CompanionContextMode.Isolated,
+            ).getOrThrow()
+            val wire = server.takeRequest(10, TimeUnit.SECONDS)!!.body.readUtf8()
+            assertTrue(wire.contains("共同现场"))
+            assertFalse(wire.contains(token))
+            assertFalse(wire.contains("私人设定仅属于这个角色"))
+            assertFalse(wire.contains("这事只有甲知道"))
+            assertFalse(wire.contains("用户的偏好与习惯"))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun fullChatGatewayDoesNotBroadcastAccountProfileOrAnotherRolesPreference() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
