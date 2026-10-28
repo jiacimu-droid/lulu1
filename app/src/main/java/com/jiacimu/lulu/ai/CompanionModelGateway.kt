@@ -639,6 +639,15 @@ class CompanionModelGateway(
                         includeCore = false,
                         query = request.retrievalQuery(),
                     ))
+                    // Only this role's CURRENT, user-editable peer agreement
+                    // may refine the companionship style. The same boundary
+                    // reaches chat planning, lean expression, phone and autonomous
+                    // decisions without a second AI call or a shared role template.
+                    if (effectiveMode == CompanionContextMode.Full ||
+                        effectiveMode == CompanionContextMode.CharacterAndScenario) {
+                        com.jiacimu.lulu.data.PeerRelationshipContext.promptSection(characterId)
+                            .takeIf(String::isNotBlank)?.let(::appendLine)
+                    }
                     if (effectiveMode == CompanionContextMode.Ensemble) {
                         appendLine("多人编排由本轮逐成员的准确角色ID决定语言与立场；当前发言者ID只是路由信息，不是其他成员共用的人格。")
                     } else {
