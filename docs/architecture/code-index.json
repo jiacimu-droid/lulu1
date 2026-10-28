@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:26:09.192140+00:00",
-  "commit": "5537b3f834c8a01e8aadeb3f80ea3b05d44e9949",
+  "generatedAt": "2026-10-28T07:27:04.910185+00:00",
+  "commit": "fd6b4b105e10956ac5e3a23bd724580439a3b48c",
   "branch": "main",
-  "sourceFingerprint": "e7a3da2863dffd8f6264fb7f0b2bf738c1dae9568578adb2cfc956f6c7af1acf",
+  "sourceFingerprint": "bf3a348efb8b20cfef38316a7a758de694c3641e06e0a78428c0602867432db4",
   "summary": {
     "files": 1013,
-    "lines": 202061,
+    "lines": 202093,
     "symbols": 2944
   },
   "symbolIndex": {
@@ -3373,7 +3373,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 250
+        "line": 256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -3619,7 +3619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 165
+        "line": 171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4107,7 +4107,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 80
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -5623,7 +5623,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 538
+        "line": 564
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -5663,7 +5663,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 554
+        "line": 580
       }
     ],
     "informativeAction": [
@@ -6381,37 +6381,37 @@
     "acknowledge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 68
+        "line": 74
       }
     ],
     "outcomeEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 90
+        "line": 96
       }
     ],
     "latestObservedEvidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 99
+        "line": 105
       }
     ],
     "personalOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 107
+        "line": 113
       }
     ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 158
+        "line": 164
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 236
+        "line": 242
       }
     ],
     "keepOrBlank": [
@@ -8657,7 +8657,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 659
+        "line": 685
       }
     ],
     "LegacyLuluImportResult": [
@@ -10919,25 +10919,25 @@
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 494
+        "line": 520
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 503
+        "line": 529
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 535
+        "line": 561
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 641
+        "line": 667
       }
     ],
     "Limits": [
@@ -22365,8 +22365,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 259,
-      "sha256": "09e2457ee07a0c0567eda9bca348f1164a49d007c7e9a6a8b8039b0e33a90a4f",
+      "lines": 265,
+      "sha256": "a80d9cb2ef285589da716548a2d567b904167d2ae84d96f713b5b8e838b4a12c",
       "symbols": [
         {
           "name": "integrate",
@@ -22374,39 +22374,39 @@
         },
         {
           "name": "acknowledge",
-          "line": 68
+          "line": 74
         },
         {
           "name": "recent",
-          "line": 80
+          "line": 86
         },
         {
           "name": "outcomeEvidenceId",
-          "line": 90
+          "line": 96
         },
         {
           "name": "latestObservedEvidenceId",
-          "line": 99
+          "line": 105
         },
         {
           "name": "personalOutcome",
-          "line": 107
+          "line": 113
         },
         {
           "name": "selectRecent",
-          "line": 158
+          "line": 164
         },
         {
           "name": "pending",
-          "line": 165
+          "line": 171
         },
         {
           "name": "stimulus",
-          "line": 236
+          "line": 242
         },
         {
           "name": "render",
-          "line": 250
+          "line": 256
         }
       ]
     },
@@ -27206,8 +27206,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 773,
-      "sha256": "f7e655220a74d8bd41ff5f9e768e9f79767ed0ecb2238bc62f304b0c21f5ad9f",
+      "lines": 799,
+      "sha256": "1c935839d0fc998bb233d2a7d2c150f5e768a8ef4193e664d69fe056551b73e3",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -27271,31 +27271,31 @@
         },
         {
           "name": "recentUserActivities",
-          "line": 494
+          "line": 520
         },
         {
           "name": "recentXhsReadings",
-          "line": 503
+          "line": 529
         },
         {
           "name": "sessionEvents",
-          "line": 535
+          "line": 561
         },
         {
           "name": "recentContext",
-          "line": 538
+          "line": 564
         },
         {
           "name": "remember",
-          "line": 554
+          "line": 580
         },
         {
           "name": "exportBackup",
-          "line": 641
+          "line": 667
         },
         {
           "name": "importBackup",
-          "line": 659
+          "line": 685
         }
       ]
     },
