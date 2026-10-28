@@ -393,7 +393,6 @@ object RoleDayScheduleStore {
     }
 
     @Synchronized
-    @Synchronized
     fun cancel(context: Context, characterId: String, planId: String, reason: String = "",
         now: Instant = Instant.now(), retainRunningWake: Boolean = false,
         expectedDueAt: Instant? = null): Boolean {
