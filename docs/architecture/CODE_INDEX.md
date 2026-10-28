@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f6baa931d7f9e7ecd4b2720cf3c7095e9ee98f4e`
+- 基准提交：`f923d8f19817a34420f30d75ba485af148fb0015`
 - 分支：`main`
 - 已索引文件：1047
-- 已索引代码/文本行：213212
-- 已发现符号：3055
+- 已索引代码/文本行：213298
+- 已发现符号：3056
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -153,7 +153,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 197 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 989 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 997 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt` | 300 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 427 | 2 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 54 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 377 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 406 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 785 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2418 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2432 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -758,7 +758,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt` | 85 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 299 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 334 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |

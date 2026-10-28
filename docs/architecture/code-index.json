@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:56:27.401255+00:00",
-  "commit": "f6baa931d7f9e7ecd4b2720cf3c7095e9ee98f4e",
+  "generatedAt": "2026-10-28T13:57:00.779281+00:00",
+  "commit": "f923d8f19817a34420f30d75ba485af148fb0015",
   "branch": "main",
-  "sourceFingerprint": "51bd0fb7d9aaa963e3561c3a803d0f4bce54743d3f4c04e28a8571aa1209b571",
+  "sourceFingerprint": "29bd3a124cdf83709f4ad73645c9fbde0571086914b053a3756f6c4e8bc74308",
   "summary": {
     "files": 1047,
-    "lines": 213212,
-    "symbols": 3055
+    "lines": 213298,
+    "symbols": 3056
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1853,7 +1853,7 @@
     "toggleSelfCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-        "line": 196
+        "line": 197
       }
     ],
     "isBackdropPixel": [
@@ -2236,10 +2236,16 @@
         "line": 291
       }
     ],
+    "publishLivenessFloor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 372
+      }
+    ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 360
+        "line": 389
       }
     ],
     "Model": [
@@ -2767,19 +2773,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2031
+        "line": 2045
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2186
+        "line": 2200
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2326
+        "line": 2340
       }
     ],
     "returnToList": [
@@ -18742,12 +18748,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 989,
-      "sha256": "821c28f33a58ad896c30d843ba637581edf72e285fe2b87db544beafe76ffe64",
+      "lines": 997,
+      "sha256": "6372ccdc5db87ffdaafef38577368affafda90acd5c6c277fb206c773090408b",
       "symbols": [
         {
           "name": "toggleSelfCamera",
-          "line": 196
+          "line": 197
         }
       ]
     },
@@ -18960,8 +18966,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 377,
-      "sha256": "591bf1ed87ec211925b7fb4fdefdff5310acc091fb13983dea3c51743cf4adc0",
+      "lines": 406,
+      "sha256": "94c299495777b9c6f5b533f4033bb94d4e2efa519dfe39f7da4cdda03480e27e",
       "symbols": [
         {
           "name": "Head",
@@ -19028,8 +19034,12 @@
           "line": 291
         },
         {
+          "name": "publishLivenessFloor",
+          "line": 372
+        },
+        {
           "name": "bindSpeechAnchors",
-          "line": 360
+          "line": 389
         }
       ]
     },
@@ -19414,8 +19424,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2418,
-      "sha256": "0701b8b2a3d9a95ab12581091e84b73864c0951dc250392d6841e3bcfe29f5c9",
+      "lines": 2432,
+      "sha256": "d04d6fcf0b47ffb9c0e1f920222b43293e39c359b98af2d2908f18cce50840d6",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -19499,15 +19509,15 @@
         },
         {
           "name": "sameSession",
-          "line": 2031
+          "line": 2045
         },
         {
           "name": "retryListening",
-          "line": 2186
+          "line": 2200
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2326
+          "line": 2340
         }
       ]
     },
@@ -32505,8 +32515,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt",
-      "lines": 299,
-      "sha256": "c3e4f2f58cc80f4d6f146c730a69a0e5d88b5a0cbf600bc92fc152d23040c38d",
+      "lines": 334,
+      "sha256": "225876b5ead67db53067d6cc3d6c6fd7bc332cca17b7bbd26703692869caa5ac",
       "symbols": [
         {
           "name": "Live2DVisualActionBusTest",
