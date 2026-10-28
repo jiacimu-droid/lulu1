@@ -21,7 +21,7 @@ internal object AutonomousEncounterChapters {
         val entries = json.optJSONArray("chapters") ?: return emptyMap()
         val allowed = participantIds.toSet()
         val result = linkedMapOf<String, WorldLifeSceneDraft>()
-        for (index in 0 until minOf(entries.length(), allowed.size)) {
+        for (index in 0 until minOf(entries.length(), allowed.size * 3)) {
             val entry = entries.optJSONObject(index) ?: continue
             val id = entry.optString("characterId")
             if (id !in allowed || id in result) continue
@@ -124,7 +124,7 @@ internal object AutonomousEncounterChapters {
             val verified = SharedExperienceTimeline.eventsByIds(id, candidateIds)
             val present = verified.mapTo(hashSetOf()) { it.id }
             val links = (listOf(sourceId) + candidateIds.filter { it in present })
-                .distinct().take(16)
+                .distinct().take(32)
             val episode = WorldLifeEpisodeStore.record(
                 characterId = id, location = locationCode,
                 title = draft.title, prose = draft.scene,
