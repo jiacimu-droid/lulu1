@@ -71,6 +71,7 @@ internal object BlockIslandArt {
                     7 -> drawSpawn(base, tile, phase)
                 }
                 when (island.structures[w.index(x, y)]) {
+                    "bridge" -> drawBridge(base, tile)
                     "door" -> drawDoor(base, tile)
                     "workbench" -> drawWorkbench(base, tile)
                     "bed" -> drawBed(base, tile)
@@ -166,6 +167,13 @@ internal object BlockIslandArt {
                 Size(t * .20f, t * .07f))
             drawRect(Color(0xFF8CBCC6).copy(alpha = .5f), p + Offset(t * .56f - drift, t * .72f),
                 Size(t * .13f, t * .05f))
+            if (hash % 13 == 0) {
+                // A tiny school of fish is decorative, never an unearned fishing result.
+                val fish = p + Offset(t * (.45f + .11f * sin(phase * 6.28318f)), t * .55f)
+                drawRect(Color(0xFFB6D5CB), fish, Size(t * .16f, t * .07f))
+                drawRect(Color(0xFF9BC5CF), fish + Offset(-t * .06f, -t * .04f),
+                    Size(t * .07f, t * .14f))
+            }
             return
         }
         if (kind == 4) {
@@ -240,6 +248,25 @@ internal object BlockIslandArt {
             Size(t * .07f, t * .63f))
         drawRect(Color(0xFF70513B), p + Offset(t * .13f, t * .48f),
             Size(t * .75f, t * .07f))
+    }
+
+    private fun DrawScope.drawBridge(p: Offset, t: Float) {
+        // Crossing water becomes visually legible: pilings, broad plank deck and rails.
+        drawRect(Color(0xFF3E5560).copy(alpha = .65f),
+            p + Offset(t * .08f, t * .14f), Size(t * .86f, t * .79f))
+        drawRect(Color(0xFF6D5545), p + Offset(t * .13f, t * .08f),
+            Size(t * .76f, t * .85f))
+        repeat(4) { i ->
+            drawRect(if (i % 2 == 0) Color(0xFFCEA77D) else Color(0xFFB68F68),
+                p + Offset(t * .20f, t * (.10f + i * .20f)),
+                Size(t * .60f, t * .16f))
+        }
+        drawRect(Color(0xFFE5C099), p + Offset(t * .08f, t * .07f),
+            Size(t * .12f, t * .88f))
+        drawRect(Color(0xFF76594B), p + Offset(t * .79f, t * .07f),
+            Size(t * .12f, t * .88f))
+        drawRect(Color(0xFF66564D), p + Offset(t * .10f, t * .26f),
+            Size(t * .80f, t * .045f))
     }
 
     private fun DrawScope.drawDoor(p: Offset, t: Float) {
