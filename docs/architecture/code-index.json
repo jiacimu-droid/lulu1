@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:48:12.805783+00:00",
-  "commit": "6cb378c8742f5f495f9ca66a89d243d3bbb73f7a",
+  "generatedAt": "2026-10-28T10:53:38.830409+00:00",
+  "commit": "60463e9e3336bad217e448a1607e272b59412107",
   "branch": "main",
-  "sourceFingerprint": "988b7c97fee12bb617fc5740719f251f2209df22a2aa477270c413134a46157d",
+  "sourceFingerprint": "09211063ac60276153b84064c0dde893b96eeceeb5cf4fc86612e66ca56149d7",
   "summary": {
     "files": 1039,
-    "lines": 210680,
+    "lines": 210686,
     "symbols": 3048
   },
   "symbolIndex": {
@@ -7317,7 +7317,7 @@
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1501
+        "line": 1505
       }
     ],
     "age": [
@@ -11273,7 +11273,7 @@
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 331
+        "line": 333
       }
     ],
     "allowsExpansion": [
@@ -23951,8 +23951,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1548,
-      "sha256": "07a7f85ae837d0c03ce876b7086433ba0bc4e19de8c4ea948c878a997ff44c31",
+      "lines": 1552,
+      "sha256": "2066bc9f02c6a75c447fa389cfefc9ff840f43ac185e256621232e2a61769a4e",
       "symbols": [
         {
           "name": "asJson",
@@ -23992,7 +23992,7 @@
         },
         {
           "name": "availableContext",
-          "line": 1501
+          "line": 1505
         }
       ]
     },
@@ -28097,8 +28097,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 431,
-      "sha256": "79cac3a8ec1604089c5a67257b28ff497c33a349b56d2a020793e65e6f871c33",
+      "lines": 433,
+      "sha256": "491a12c4c02f208531ea2972969533c93ad08a5bd11578a253f99e742e5dbe27",
       "symbols": [
         {
           "name": "completed",
@@ -28118,7 +28118,7 @@
         },
         {
           "name": "project",
-          "line": 331
+          "line": 333
         }
       ]
     },
