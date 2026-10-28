@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d50470f123b3d6e994bd9c67ccdc9fb89d312627`
+- 基准提交：`4c1897094f3959cef92302a45a31d368af658380`
 - 分支：`main`
 - 已索引文件：1039
-- 已索引代码/文本行：211507
-- 已发现符号：3053
+- 已索引代码/文本行：211523
+- 已发现符号：3051
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -140,9 +140,9 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 519 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 918 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 920 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 212 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 190 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 989 | 1 |
@@ -160,7 +160,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 54 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 375 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 374 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
@@ -516,10 +516,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 576 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1473 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1474 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 752 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 765 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 799 | 22 |
@@ -738,7 +738,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 142 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 138 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
@@ -750,7 +750,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt` | 85 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 272 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 299 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
