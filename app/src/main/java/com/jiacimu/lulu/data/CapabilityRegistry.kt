@@ -99,11 +99,13 @@ object CapabilityRegistry {
             appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
             appendLine("read_screen 只能读无障碍文字，capture_screen 才会真实获取一帧屏幕并调用已配置的视觉模型。")
-            appendLine("【可由你自己发起的现场核实】当你真的好奇主人此刻在做什么，或已有挂心需要实际证据时，可以独立选择 get_current_app、已获许可的 read_screen 或申请 capture_screen（工具仍由各自权限和真实回执约束），不必等主人开口指挥。电量下降、没回消息、挂断电话、应用没变化都不能证实她睡着；已看到新鲜的实际操作线索也只能说明当时设备有活动，不能保证一直清醒。是否核实、是否继续在线、是否关心她都由你根据现场和自己的心愿决定；不是每次感知、每次安静或每次休眠前的必做步骤。申请截图不等于已经看到了画面；结果返回后再据实改变理解。")
-            if (permittedOnDemand) {
-                appendLine("当你根据对话实际需求或自身好奇心决定看屏幕时，选择 action=tool,tool=capture_screen,args={}；用户刚明确请求可按需读取，自己主动读取须有自主授权且两次至少间隔5分钟。是否真的看到以及画面内容只能根据实际工具回执回答；截屏可能因锁屏、隐私排除或系统保护失败，识图有 API 费用。")
+            appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
+            if (permittedAutonomous) {
+                appendLine("角色已获准自主识图：action=tool,tool=capture_screen,args={}；直接读取当前一帧，无须逐次申请、无固定五分钟间隔。工具完成后由原有回执进入下一轮感知，再据实际画面更新判断；未获取成功不得声称看到。")
+            } else if (permittedOnDemand) {
+                appendLine("按需识图已授权，但自主识图尚未开启；主人本轮明确要求时可用 action=tool,tool=capture_screen,args={}。需要自主查看时请主人打开『权限与能力→角色屏幕视觉→自主观察』。")
             } else {
-                appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务及识图模型。你可以直接提出授权请求，但不得说工具根本不存在或已经看到了屏幕。")
+                appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务及识图模型。你可以直接提出授权请求，但不得说工具不存在或已经看到了屏幕。")
             }
             appendLine("【学习监督真实状态】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
             appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
