@@ -9,7 +9,7 @@ import java.util.UUID
 
 enum class DevelopmentKind(val label: String) {
     Interest("兴趣"), Preference("偏好"), Habit("习惯"),
-    UserPreference("主人的偏好"), UserHabit("主人的习惯"),
+    UserPreference("用户的偏好"), UserHabit("用户的习惯"),
     ExpressionHabit("表达习惯"), Judgment("判断"),
     SituationalPattern("情境反应倾向"), NarrativeMeaning("叙事意义"),
     RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
