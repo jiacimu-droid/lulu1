@@ -20,16 +20,19 @@ internal object Live2DSpeechTimeline {
         val utteranceId: String = "",
         val phase: Phase = Phase.Idle,
         val revision: Long = 0L,
+        val segmentIndex: Int = 0,
+        val visualSequence: Long = 0L,
     )
     private val mutableEvents = MutableStateFlow(Event())
     val events = mutableEvents.asStateFlow()
     private var revision = 0L
 
     @Synchronized
-    fun started(characterId: String, callId: String, utteranceId: String) {
+    fun started(characterId: String, callId: String, utteranceId: String,
+        segmentIndex: Int = 0, visualSequence: Long = 0L) {
         if (characterId.isBlank() || callId.isBlank() || utteranceId.isBlank()) return
         mutableEvents.value = Event(characterId, callId, utteranceId,
-            Phase.Playing, ++revision)
+            Phase.Playing, ++revision, segmentIndex, visualSequence)
     }
 
     @Synchronized
