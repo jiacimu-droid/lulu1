@@ -15,6 +15,10 @@ object ScopedModelSelections {
     const val THEATER = "star_wish_theater"
     const val MEETING = "meeting"
     const val RESIDENT_DAILY = "resident_daily"
+    const val RESIDENT_SOCIAL = "resident_social"
+    const val WORLD_SOCIAL = "world_social_character"
+    const val WORLD_SCENE = "world_social_scene"
+    const val WORLD_LIFE = "world_life_episode"
     const val EXPRESSION = "character_expression"
     const val JEV = "thought_directions_jev"
 
@@ -78,7 +82,8 @@ object ScopedModelSelections {
         val fallback = when (scope) {
             APOCALYPSE, THEATER -> library.archiveIdFor(ModelUsage.Game)
             MEETING -> library.archiveIdFor(ModelUsage.Chat)
-            RESIDENT_DAILY, EXPRESSION, JEV -> null // Optional roles never silently select a paid model.
+            RESIDENT_DAILY, RESIDENT_SOCIAL, WORLD_SOCIAL, WORLD_SCENE, WORLD_LIFE,
+            EXPRESSION, JEV -> null // Optional roles never silently select a paid model.
             else -> library.activeArchiveId?.takeIf { candidate -> library.archives.any { it.id == candidate } }
                 ?: library.archives.firstOrNull()?.id
         }
@@ -93,6 +98,40 @@ object ScopedModelSelections {
             .edit()
             .putString(key(scope), archiveId)
             .apply()
+        mutableRevision.value++
+    }
+
+    /** Resident replies must not inherit a protagonist's chat model. */
+    fun residentSocialConnection(): ModelConnection {
+        val id = selectedArchiveId(RESIDENT_SOCIAL) ?: selectedArchiveId(RESIDENT_DAILY)
+            ?: error("请先在 API 设置中选择居民模型")
+        return LuluAiServices.connectionStore.resolveConnection(id)
+    }
+
+    /** An optional world-wide cheap model, without merging any characters' contexts. */
+    fun worldSocialConnection(characterId: String): ModelConnection? {
+        val id = selectedArchiveId(WORLD_SOCIAL)
+        return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
+        else if (characterId.startsWith("resident:")) residentSocialConnection()
+        else null
+    }
+
+    /** A public adviser sees only shared scene facts, never private character data. */
+    fun worldSceneConnection(): ModelConnection {
+        val id = selectedArchiveId(WORLD_SCENE)
+            ?: selectedArchiveId(WORLD_SOCIAL)
+            ?: selectedArchiveId(RESIDENT_SOCIAL)
+            ?: selectedArchiveId(RESIDENT_DAILY)
+            ?: LuluAiServices.connectionStore.selectedArchiveId(ModelUsage.Chat)
+        return LuluAiServices.connectionStore.resolveConnection(id)
+    }
+
+    /** A literary writer never becomes an authority on actual world state. */
+    fun worldLifeConnection(characterId: String): ModelConnection? {
+        val id = selectedArchiveId(WORLD_LIFE)
+        return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
+        else if (characterId.startsWith("resident:")) residentSocialConnection()
+        else null
     }
 
     fun resolveConnection(scope: String): ModelConnection {
@@ -104,6 +143,7 @@ object ScopedModelSelections {
     fun clear(scope: String) {
         checkNotNull(prefs) { "ScopedModelSelections 尚未初始化" }
             .edit().remove(key(scope)).apply()
+        mutableRevision.value++
     }
 
     /** Change the writer only at the existing expression stage, never the
