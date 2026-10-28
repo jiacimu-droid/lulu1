@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:52:46.861622+00:00",
-  "commit": "01d1e7ebebd14dd0f7dbc23cc103b1e1569f4689",
+  "generatedAt": "2026-10-28T16:55:02.750072+00:00",
+  "commit": "9437ffcab03bea143f6559d9d1934b5b23e7f71d",
   "branch": "main",
-  "sourceFingerprint": "c0fbfba0a8b4768de00df38c3f34ed04348589e2eb833b4ae5e44328db93167c",
+  "sourceFingerprint": "7a4c5c106474285b9dd34ea89994128216505ef14e5e274dbed47ce719f7cac9",
   "summary": {
     "files": 1053,
-    "lines": 214858,
-    "symbols": 3081
+    "lines": 215103,
+    "symbols": 3085
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6541,7 +6541,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1619
+        "line": 1720
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11002,28 +11002,40 @@
         "line": 174
       }
     ],
+    "SavedIndependentSideRecovery": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 221
+      }
+    ],
+    "savedIndependentSideRecoveries": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 226
+      }
+    ],
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 378
+        "line": 457
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 387
+        "line": 466
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 390
+        "line": 469
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 460
+        "line": 539
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11033,7 +11045,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1173
+        "line": 1274
       }
     ],
     "plan": [
@@ -16812,6 +16824,18 @@
         "line": 2011
       }
     ],
+    "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 2053
+      }
+    ],
+    "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 2112
+      }
+    ],
     "ResidentMailCausalIntegrationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
@@ -18026,8 +18050,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 624,
-      "sha256": "0cd2ce2ebea14a4ada4f55f6e8ae8736b9cc97a0d3445faf95268f1f27371e4f",
+      "lines": 632,
+      "sha256": "e19bac4d731229da16bd4dde1b21ed6633ed65280e266db03d3a279cd3eb9633",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -20577,8 +20601,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
-      "lines": 137,
-      "sha256": "ba918408eaa38998459ef5140be2367c9a35ec4f5baa5a2bc749acf9e2a2cda5",
+      "lines": 173,
+      "sha256": "c43cddc76ed33887e307fc59b6b705a630deefe1ee6b4f6d011c21fda60f2421",
       "symbols": []
     },
     {
@@ -28027,8 +28051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1683,
-      "sha256": "9deba50b714435688401795a8d6bef6bfaba887704727fe95537e9487b388bbe",
+      "lines": 1784,
+      "sha256": "9f46ee4c848f94b93235ed1253eb54504c41cee635efee32f706837c39e5af11",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -28067,28 +28091,36 @@
           "line": 174
         },
         {
+          "name": "SavedIndependentSideRecovery",
+          "line": 221
+        },
+        {
+          "name": "savedIndependentSideRecoveries",
+          "line": 226
+        },
+        {
           "name": "planForApp",
-          "line": 378
+          "line": 457
         },
         {
           "name": "attemptedToday",
-          "line": 387
+          "line": 466
         },
         {
           "name": "planFor",
-          "line": 390
+          "line": 469
         },
         {
           "name": "reject",
-          "line": 460
+          "line": 539
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1173
+          "line": 1274
         },
         {
           "name": "schedule",
-          "line": 1619
+          "line": 1720
         }
       ]
     },
@@ -35841,8 +35873,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2052,
-      "sha256": "d2a762281204219b5cf3f6445e4d8034e283e07fb07ad31f76d90872d61acf73",
+      "lines": 2152,
+      "sha256": "d9b83b8c2ec3da0eb49114ee2289ea70c89886b52c565290e2f095134b800239",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -35887,6 +35919,14 @@
         {
           "name": "posts",
           "line": 2011
+        },
+        {
+          "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
+          "line": 2053
+        },
+        {
+          "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
+          "line": 2112
         }
       ]
     },
