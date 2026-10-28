@@ -148,7 +148,10 @@ internal object CharacterCausalTrace {
                     "这项行动引用本事件的旧版本 $originalRevision，不能视为对当前版本的回应",
                     event.id)
             } else {
-                rows += receiptLine(context, characterId, event, body)
+                val line = receiptLine(context, characterId, event, body)
+                rows += if (body.optString("causeEvidenceId") == current.id) line
+                else line.copy(title = "同任务记录 · ${line.title}",
+                    detail = "仅共享任务 ID，不证明由当前事件直接触发；${line.detail}")
             }
         }
         if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty()) {
