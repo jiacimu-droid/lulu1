@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:14:20.283052+00:00",
-  "commit": "d3d9159cb754c5df1190802e8bde875a9c7f7ee3",
+  "generatedAt": "2026-10-28T05:17:26.882947+00:00",
+  "commit": "8e53c02c643061551bfceef8745a43916ce0e66c",
   "branch": "main",
-  "sourceFingerprint": "5d7a8a905996abc3c8c8c013454aca9159567f05d6c5be85e6d0e9a7b01ec31b",
+  "sourceFingerprint": "20192db65680c55237f81276d75485bc6e48ce940de5ca2e489462c9e051c350",
   "summary": {
     "files": 997,
-    "lines": 198336,
+    "lines": 198389,
     "symbols": 2927
   },
   "symbolIndex": {
@@ -6141,7 +6141,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 40
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9901,7 +9901,7 @@
     "annotations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 84
+        "line": 89
       }
     ],
     "Batch": [
@@ -14385,7 +14385,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-        "line": 103
+        "line": 117
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
@@ -21049,8 +21049,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-      "lines": 289,
-      "sha256": "9707f7008195e737c22b9932f952d2c6cff2b686a5a6f26356cd90deaff5526f",
+      "lines": 311,
+      "sha256": "891cbc22e326dce9e4076991a4d0bb191607d88fceac41e6c3ede8232fdb1aff",
       "symbols": [
         {
           "name": "memoryLane",
@@ -26056,8 +26056,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-      "lines": 118,
-      "sha256": "1a02e967b6767e3b0e5aa2da4ace8358eabce774b0df6807e64ce2460a84f36f",
+      "lines": 123,
+      "sha256": "cddeed91b41e612d2d6f332bbf630cd932386bcaa9833963de4ea8bf8732665c",
       "symbols": [
         {
           "name": "expand",
@@ -26065,11 +26065,11 @@
         },
         {
           "name": "add",
-          "line": 40
+          "line": 44
         },
         {
           "name": "annotations",
-          "line": 84
+          "line": 89
         }
       ]
     },
@@ -32100,8 +32100,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-      "lines": 139,
-      "sha256": "f234ea59f91f688af23dfeafdd07785f54ee119c07c73d327d1ec871e9ec1e91",
+      "lines": 153,
+      "sha256": "d8968ae2eba4f56f3ca63514ce5ece7a1a574b9385a7a52d3d12aaf08ea9c1ed",
       "symbols": [
         {
           "name": "CharacterAssociativeRecallTest",
@@ -32109,7 +32109,7 @@
         },
         {
           "name": "event",
-          "line": 103
+          "line": 117
         }
       ]
     },
@@ -33500,8 +33500,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
-      "lines": 114,
-      "sha256": "29534689f70e7b1ab5bf7a821541f21dae2eb9d12c45309da201ec527317cec9",
+      "lines": 126,
+      "sha256": "6f9f21ac352f9e693c7a7e998d4503e33219c468ae7197136ae082e6fc6b9099",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",

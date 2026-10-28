@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d3d9159cb754c5df1190802e8bde875a9c7f7ee3`
+- 基准提交：`8e53c02c643061551bfceef8745a43916ce0e66c`
 - 分支：`main`
 - 已索引文件：997
-- 已索引代码/文本行：198336
+- 已索引代码/文本行：198389
 - 已发现符号：2927
 
 | 文件 | 行数 | 符号数 |
@@ -295,7 +295,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 94 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt` | 56 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 79 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 289 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 311 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSet.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
@@ -470,7 +470,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1058 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 118 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
@@ -797,7 +797,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 139 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 153 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSetTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
@@ -897,7 +897,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 171 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 126 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 152 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
