@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:13:33.039309+00:00",
-  "commit": "3c6516d12b835ddd65f3fd8edb2da1af487a1461",
+  "generatedAt": "2026-10-28T05:14:20.283052+00:00",
+  "commit": "d3d9159cb754c5df1190802e8bde875a9c7f7ee3",
   "branch": "main",
-  "sourceFingerprint": "9db8065be7a42c2db8de62c6eff3f25c7912ae5640f6cda08b254b881758ca30",
+  "sourceFingerprint": "5d7a8a905996abc3c8c8c013454aca9159567f05d6c5be85e6d0e9a7b01ec31b",
   "summary": {
-    "files": 996,
-    "lines": 198233,
-    "symbols": 2926
+    "files": 997,
+    "lines": 198336,
+    "symbols": 2927
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15656,6 +15656,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt",
         "line": 5
+      }
+    ],
+    "NarrativeMemoryRecallIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
+        "line": 21
       }
     ],
     "NativeResidentLifeIntegrationTest": [
@@ -33494,8 +33500,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
-      "lines": 113,
-      "sha256": "2a34a02f4263bc54d426ff2bb6a6f57844211c24cbb380dd19a251a2d5d4ebbe",
+      "lines": 114,
+      "sha256": "29534689f70e7b1ab5bf7a821541f21dae2eb9d12c45309da201ec527317cec9",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",
@@ -33682,6 +33688,17 @@
         {
           "name": "MomentFriendAccessTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
+      "lines": 102,
+      "sha256": "7ed95019f6144758b2d961d4f3a434709213938837ed62b219024e6a2ecff962",
+      "symbols": [
+        {
+          "name": "NarrativeMemoryRecallIntegrationTest",
+          "line": 21
         }
       ]
     },
