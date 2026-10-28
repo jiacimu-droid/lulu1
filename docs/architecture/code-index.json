@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:05:53.075338+00:00",
-  "commit": "3b088726840f38a7a29bde5a699a7fd848fc3de1",
+  "generatedAt": "2026-10-28T07:06:19.034138+00:00",
+  "commit": "cba7a636edf850476a300c2ddf1a13aac701e33c",
   "branch": "main",
-  "sourceFingerprint": "7d2821c85266414432b5612a46477f4628cea79290749011d0d8dda984bacb75",
+  "sourceFingerprint": "514c4555e42526af78e1c97e36f0962807440f226c6225d8eb30f5cbea029730",
   "summary": {
-    "files": 1012,
-    "lines": 201933,
-    "symbols": 2943
+    "files": 1013,
+    "lines": 202026,
+    "symbols": 2944
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14738,6 +14738,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
         "line": 647
+      }
+    ],
+    "CharacterKnowledgeBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeBoundaryTest.kt",
+        "line": 21
       }
     ],
     "CharacterKnowledgeIsolationTest": [
@@ -32591,6 +32597,17 @@
         {
           "name": "feeling",
           "line": 647
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeBoundaryTest.kt",
+      "lines": 93,
+      "sha256": "2625bedfd420c0ce1043bc01c31cc5b523ebb135ef84082b5b7edc197cb0e65c",
+      "symbols": [
+        {
+          "name": "CharacterKnowledgeBoundaryTest",
+          "line": 21
         }
       ]
     },
