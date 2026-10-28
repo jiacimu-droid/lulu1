@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:15:07.151976+00:00",
-  "commit": "24c4d9d28781eecdafa80b6351acd06a08614cae",
+  "generatedAt": "2026-10-28T10:15:27.305937+00:00",
+  "commit": "4d84698a97933c2a9ab3b01e4fb97e293d277a65",
   "branch": "main",
-  "sourceFingerprint": "17fe8019fbb925d60dffcf95e22a2b0290926109cdeea27d4ea5b3a60f0d6ef2",
+  "sourceFingerprint": "90a0dd705e98ac9de4e5aed7af0d78cd51873a28f1eb447f9baee6cb9115fe3a",
   "summary": {
     "files": 1031,
-    "lines": 207488,
+    "lines": 207515,
     "symbols": 3014
   },
   "symbolIndex": {
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 544
+        "line": 569
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 558
+        "line": 583
       }
     ],
     "Plan": [
@@ -11825,7 +11825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 527
+        "line": 552
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12219,7 +12219,7 @@
     "centre": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 367
+        "line": 369
       }
     ],
     "saveTurn": [
@@ -12315,7 +12315,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 554
+        "line": 579
       }
     ],
     "index": [
@@ -29390,8 +29390,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 464,
-      "sha256": "773072857509c8bc615e1aed525e69130ae57c4e2fceeeae4325d9c3c7f5ff8e",
+      "lines": 466,
+      "sha256": "f7992bbfb7f0e4ea34185a5010751366ca0f417ba63d749f1a2868aa8bd67ba9",
       "symbols": [
         {
           "name": "save",
@@ -29403,7 +29403,7 @@
         },
         {
           "name": "centre",
-          "line": 367
+          "line": 369
         }
       ]
     },
@@ -29532,24 +29532,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 563,
-      "sha256": "c4c2f148c3def1a87c6a9e89570e9c34f62b239ef529d343e1c9722d2a00d82b",
+      "lines": 588,
+      "sha256": "e957f84406c1e9644d336d28b759862e6bfcea37541b7ac4bb6416bdfde2efa4",
       "symbols": [
         {
           "name": "load",
-          "line": 527
+          "line": 552
         },
         {
           "name": "save",
-          "line": 544
+          "line": 569
         },
         {
           "name": "markRecorded",
-          "line": 554
+          "line": 579
         },
         {
           "name": "reset",
-          "line": 558
+          "line": 583
         }
       ]
     },
@@ -29870,7 +29870,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
       "lines": 739,
-      "sha256": "ab4d288bd1b2761cc76a898b63ed82baa3e3172e7a788cf54125d3c4202e7e04",
+      "sha256": "7c11e4809c4618e6e89dfc75c46e0b898f28ebd3d58069b8cd7b096f34289030",
       "symbols": [
         {
           "name": "Home",
