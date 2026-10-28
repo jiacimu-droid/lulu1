@@ -709,7 +709,12 @@ internal object ResidentDailyDecision {
     private fun dueDecisionEvidence(plan: RoleDayPlan, choice: JSONObject, at: Instant): String {
         val id = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
         val existing = SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(id)).firstOrNull()
-        if (existing != null) return id
+        // If a user has edited the old decision text, its new revision
+        // cannot explain an action chosen from the original saved JSON.
+        // Continue the idempotent action, but leave provenance unknown.
+        if (existing != null) return id.takeIf {
+            existing.source == "resident-due-decision" && existing.revision == 1L
+        }.orEmpty()
         val tools = choice.optJSONArray("steps")
         val selected = (0 until (tools?.length() ?: 0))
             .mapNotNull { tools?.optJSONObject(it)?.optString("tool")?.takeIf(String::isNotBlank) }
@@ -724,7 +729,8 @@ internal object ResidentDailyDecision {
                 "这是本人已保存的决定，不能证明活动或附加动作已经执行。",
         )
         return SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(id))
-            .firstOrNull()?.id.orEmpty()
+            .firstOrNull { it.source == "resident-due-decision" && it.revision == 1L }
+            ?.id.orEmpty()
     }
 
     /** Each due item receives one role decision on the normal path.
@@ -1319,7 +1325,8 @@ internal object ResidentDailyDecision {
             )
         }
         val decisionEvidenceId = SharedExperienceTimeline.eventsByIds(id, listOf(eventId))
-            .firstOrNull()?.id.orEmpty()
+            .firstOrNull { it.source == "resident-daily" && it.revision == 1L }
+            ?.id.orEmpty()
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
         val known = ResidentSocialMailbox.visibleContacts(id).toSet()
