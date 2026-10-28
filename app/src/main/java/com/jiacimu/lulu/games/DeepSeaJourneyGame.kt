@@ -245,6 +245,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 }
                 if (pickupPulse > 0f) {
                     lastPickupPosition?.let { where ->
+                        val glow = where.lerp(player, 1f - pickupPulse)
+                        drawLine(Color(0xFF9CFFE7).copy(alpha = pickupPulse * .7f),
+                            Offset(where.x, where.y), Offset(glow.x, glow.y), strokeWidth = 5f)
+                        drawCircle(Color(0xFFE1FFFA).copy(alpha = pickupPulse),
+                            radius = 7f + 15f * pickupPulse, center = Offset(glow.x, glow.y))
                         drawCircle(Color(0xFFD7FFF5).copy(alpha = pickupPulse * .85f),
                             radius = 30f + (1f - pickupPulse) * 105f,
                             center = Offset(where.x, where.y),
@@ -403,7 +408,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                         nearbySite != null -> {
                             visited = visited + nearbySite.id
                             GameSoundEffects.play(GameSoundEffect.Collect)
-                            notice = "${nearbySite.name}：${nearbySite.discovery}"
+                            notice = "${nearbySite.name}：${deepSeaSiteStory(nearbySite, runStartedAt)}"
                             progress.save(player, collected, completed, score, scanned, visited, companionAssists)
                         }
                         nearGate -> {
@@ -460,6 +465,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             DeepSeaCompletion(
                 score = score,
                 companionName = companion?.displayName,
+                sitesVisited = visited.size,
+                companionAssists = companionAssists,
                 onRestart = {
                     progress.reset()
                     player = map.start
@@ -589,6 +596,8 @@ private fun DeepSeaHud(
 private fun DeepSeaCompletion(
     score: Int,
     companionName: String?,
+    sitesVisited: Int,
+    companionAssists: Int,
     onRestart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -609,6 +618,12 @@ private fun DeepSeaCompletion(
                 fontSize = 11.sp,
                 lineHeight = 17.sp,
             )
+            Text("带回 5 枚晶体 · 探索 $sitesVisited 处海底秘境",
+                color = Color(0xFFE1EABF), fontSize = 10.sp)
+            if (companionName != null && companionAssists > 0) {
+                Text("$companionName 真实发现了 $companionAssists 次回声线索",
+                    color = Color(0xFF9AE6DB), fontSize = 10.sp)
+            }
             Text("$score", color = Color(0xFFAFFFF0), fontSize = 42.sp, fontWeight = FontWeight.Black)
             Text("潜航评分", color = Color(0xFF8DAFA8), fontSize = 9.sp)
             Button(
