@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:28:28.877491+00:00",
-  "commit": "299609c05f36da408d3f63d5e811be29f04bfded",
+  "generatedAt": "2026-10-28T10:30:39.051210+00:00",
+  "commit": "0efbc9832a59043d3f85fb93ccdcdd4155f1c33c",
   "branch": "main",
-  "sourceFingerprint": "ec7199b6f10face6ffa5736f99ab771d2fceea1bdce55a8eb84e3c5c0b49a984",
+  "sourceFingerprint": "6c42fb05ed0f76d32d70978a9b5bf0de0e1f8bf223fc03bd6c88c1af6ad0f122",
   "summary": {
-    "files": 1037,
-    "lines": 209223,
-    "symbols": 3044
+    "files": 1038,
+    "lines": 209563,
+    "symbols": 3046
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12166,6 +12166,22 @@
         "line": 483
       }
     ],
+    "origin": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
+        "line": 50
+      }
+    ],
+    "center": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
+        "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
+        "line": 365
+      }
+    ],
     "newWorld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -12382,12 +12398,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
         "line": 132
-      }
-    ],
-    "center": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
-        "line": 365
       }
     ],
     "attach": [
@@ -29482,6 +29492,21 @@
       "lines": 94,
       "sha256": "c04cff2dec37536e71acec2f0b7a3bf967a4b57764230c3dccab326cb7175857",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
+      "lines": 340,
+      "sha256": "21d2d74831ab7490a170064217747f698e4ab8261e2e824de566da75db240fb3",
+      "symbols": [
+        {
+          "name": "origin",
+          "line": 50
+        },
+        {
+          "name": "center",
+          "line": 54
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
