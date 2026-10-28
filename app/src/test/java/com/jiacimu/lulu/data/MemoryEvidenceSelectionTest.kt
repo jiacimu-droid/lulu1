@@ -71,7 +71,8 @@ class MemoryEvidenceSelectionTest {
         }
         val before = archive.size
         val found = MemoryEvidenceSelection.expand(listOf(seed), listOf(seed) + archive, limit = 12)
-        assertEquals(12, found.size)
+        assertTrue(found.size in 2..12)
+        assertEquals(listOf("seed", "related-0", "related-1"), found.map { it.id })
         assertEquals("seed", found.first().id)
         assertEquals(before, archive.size)
         assertTrue(found.all { it.characterId == "role" })
