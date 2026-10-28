@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f1112a426830f822156c1c5f3067ca2410452f9e`
+- 基准提交：`0b15372906e8217c5be7fa558f6c1ea44a631b14`
 - 分支：`main`
-- 已索引文件：1002
-- 已索引代码/文本行：199751
-- 已发现符号：2934
+- 已索引文件：1003
+- 已索引代码/文本行：199783
+- 已发现符号：2935
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -270,7 +270,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1275 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1284 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -477,6 +477,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/PeerRelationshipContext.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 68 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 119 | 0 |
