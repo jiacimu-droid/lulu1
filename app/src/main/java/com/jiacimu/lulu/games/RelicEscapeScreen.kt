@@ -67,9 +67,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     RelicTier.PRECIOUS->GameSoundEffect.Objective
                     null->GameSoundEffect.Bump
                 }
-                "attack","extract"->GameSoundEffect.Objective
-                "pickup","heal","revive"->GameSoundEffect.Collect
+                "attack","extract","invoke","flare"->GameSoundEffect.Objective
+                "pickup","heal","revive","disarm"->GameSoundEffect.Collect
                 "move","sneak"->GameSoundEffect.Move
+                "lure"->GameSoundEffect.Interact
                 else->GameSoundEffect.Interact
             }
             GameSoundEffects.play(sound)
@@ -86,16 +87,21 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         Row(verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("迷雾摸金",fontSize=24.sp,fontWeight=FontWeight.Black,color=Color.White)
-                Text("合作搜宝 · 怪物巡逻 · 活着离开",fontSize=11.sp,color=relicMuted)
+                Text("暗影遗迹 · 随机宝藏 · 战术撤离",fontSize=11.sp,color=relicMuted)
             }
-            Text("仓库 "+snapshot.vault.size+"件",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
+            Surface(color=relicGold.copy(alpha=.12f),shape=RoundedCornerShape(14.dp),
+                border=BorderStroke(1.dp,relicGold.copy(alpha=.38f))) {
+                Text("◇  仓库 "+snapshot.vault.size+" 件",color=relicGold,
+                    fontWeight=FontWeight.Bold,fontSize=12.sp,
+                    modifier=Modifier.padding(horizontal=12.dp,vertical=9.dp))
+            }
         }
         if(error.isNotBlank())RelicPanel {Text(error,color=relicRed)}
         if(run==null || run.phase in listOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
             if(run!=null)RelicSettlement(run)
             RelicPanel {
                 Text("出发准备",color=Color.White,fontWeight=FontWeight.Black,fontSize=19.sp)
-                Text("每次入场都会扣除携带的药剂；宝物仅在安全撤离后入库。失败丢失本局战利品，不扣已有仓库藏品。",
+                Text("出发自带2枚照明弹、1枚声响诱饵和2套机关工具。祭坛有更贵重的藏品，也会唤醒守卫。成功撤离才将宝物入库；倒地失败只丢失本局战利品。",
                     color=relicMuted,fontSize=12.sp)
                 Text("本次同行："+(if(game.playWithCharacter)game.selectedCharacterIds.distinct().take(3).size else 0)+
                     "位伙伴（每人自带1份救援药剂）",color=relicGreen,fontSize=12.sp)
@@ -157,15 +163,22 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 if(run.phase==RelicPhase.EXTRACT)
                     LinearProgressIndicator(progress={run.extraction/3f},
                         modifier=Modifier.fillMaxWidth(),color=relicGold)
+                HorizontalDivider(color=Color.White.copy(alpha=.10f))
+                Text("✧ 照明弹 "+run.flares+"   ◈ 诱饵 "+run.lures+
+                    "   ⚒ 拆解工具 "+run.tools+"     ·     "+run.sites.count{!it.spent && it.kind=="altar"}+" 处未知秘藏",
+                    color=relicMuted,fontSize=11.sp)
             }
-            RelicEscapeMap(run,selected){x,y->selected=x to y}
+            RelicEscapeWorldMap(run,selected){x,y->selected=x to y}
             RelicPanel {
                 val sx=selected.first;val sy=selected.second
                 val visible=run.visible(sx,sy)
                 val chest=run.chests.firstOrNull{it.x==sx && it.y==sy && !it.opened}
                 val mob=run.mobs.firstOrNull{it.x==sx && it.y==sy && it.hp>0}
+                val site=run.sites.firstOrNull{it.x==sx && it.y==sy && visible && !it.spent}
                 Text("目标 "+sx+","+sy+" · "+if(!visible)"迷雾未探明" else when {
                     chest!=null->chest.tier.label+"宝箱"
+                    site?.kind=="altar"->"古老祭坛 · 唤醒后会有守卫"
+                    site?.kind=="trap"->"古代陷阱 · 可提前解除"
                     mob!=null->"敌人 · 生命"+mob.hp
                     sx==run.exitX && sy==run.exitY->"撤离信标"
                     run.tile(sx,sy)==1->"石墙"
@@ -217,6 +230,37 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         }
                     }
                 }
+                Text("遗迹战术",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    RelicCommand("照明弹 · "+run.flares,Modifier.weight(1f),enabled=run.flares>0) {
+                        action("flare")
+                    }
+                    RelicCommand("诱饵 · "+run.lures,Modifier.weight(1f),
+                        enabled=run.lures>0 && visible && run.walk(sx,sy) &&
+                            RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=4) {
+                        action("lure",sx,sy)
+                    }
+                }
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    RelicCommand("唤醒祭坛",Modifier.weight(1f),
+                        enabled=site?.kind=="altar" &&
+                            RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=1) {
+                        action("invoke",sx,sy)
+                    }
+                    RelicCommand("拆解机关 · "+run.tools,Modifier.weight(1f),
+                        enabled=site?.kind=="trap" && run.tools>0 &&
+                            RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=1) {
+                        action("disarm",sx,sy)
+                    }
+                }
+                val latestTreasure=run.events.lastOrNull{it.action=="invoke" || it.action=="open"}
+                if(latestTreasure!=null && run.turns-latestTreasure.turn<=1) {
+                    Surface(shape=RoundedCornerShape(12.dp),
+                        color=Color(0xFF604B39),border=BorderStroke(1.dp,relicGold.copy(alpha=.5f))) {
+                        Text("✦ "+latestTreasure.text,color=relicGold,fontSize=12.sp,
+                            fontWeight=FontWeight.Bold,modifier=Modifier.padding(11.dp))
+                    }
+                }
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick={action("wait")}) {
                         Text(if(run.phase==RelicPhase.DOWNED)"等待救援" else "等待 / 守住出口")
@@ -264,7 +308,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             RelicPanel {
                 Text("现场动静",color=Color.White,fontWeight=FontWeight.Bold)
                 run.events.takeLast(5).reversed().forEach{
-                    Text("· "+it.text,color=if(it.action=="warning" || it.action=="hurt")relicRed else relicMuted,
+                    Text("· "+it.text,color=when(it.action){
+                        "warning","hurt"->relicRed
+                        "invoke","open","escape"->relicGold
+                        else->relicMuted
+                    },
                         fontSize=11.sp)
                 }
             }
@@ -345,88 +393,3 @@ private fun relicDirection(dx:Int,dy:Int):String=
     }
 }
 
-@Composable private fun RelicEscapeMap(run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit) {
-    val breathe=rememberInfiniteTransition(label="relic-glow")
-        .animateFloat(.45f,1f,infiniteRepeatable(tween(1400),RepeatMode.Reverse),label="pulse").value
-    Surface(color=Color(0xFF090F18),shape=RoundedCornerShape(20.dp),
-        border=BorderStroke(1.dp,Color(0xFF546376))) {
-        Canvas(Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h)
-            .pointerInput(run.id,onSelect) {
-                detectTapGestures{tap->
-                    val sizePx=min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
-                    val tx=(tap.x/sizePx).toInt();val ty=(tap.y/sizePx).toInt()
-                    if(run.bounds(tx,ty))onSelect(tx,ty)
-                }
-            }) {
-            val t=min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
-            fun at(x:Int,y:Int)=Offset((x+.5f)*t,(y+.5f)*t)
-            for(y in 0 until run.h)for(x in 0 until run.w) {
-                val pos=Offset(x*t,y*t)
-                if(!run.visible(x,y)) {
-                    drawRect(Color(0xFF0A101A),pos,Size(t+.5f,t+.5f))
-                    if((x*11+y*13)%7==0)drawCircle(Color(0xFF283342).copy(alpha=.30f),
-                        t*.22f,at(x,y))
-                    continue
-                }
-                val floor=when(run.tile(x,y)) {
-                    1->Color(0xFF293545);2->Color(0xFF42574D)
-                    3->Color(0xFF414852)
-                    else->if((x*7+y*13)%4==0)Color(0xFF3D3B44)else Color(0xFF33343F)
-                }
-                drawRect(floor,pos,Size(t+.5f,t+.5f))
-                drawLine(Color.White.copy(alpha=.055f),pos+Offset(t*.1f,t*.18f),
-                    pos+Offset(t*.86f,t*.12f),strokeWidth=.85f)
-                if(run.tile(x,y)==1) {
-                    drawRect(Color(0xFF5C6470),pos+Offset(t*.07f,t*.1f),Size(t*.86f,t*.78f))
-                    drawLine(Color(0xFF252C3A),pos+Offset(t*.1f,t*.45f),
-                        pos+Offset(t*.87f,t*.45f),strokeWidth=t*.06f)
-                }
-                if(run.tile(x,y)==2)drawCircle(Color(0xFF81BFA6).copy(alpha=.3f),
-                    t*.33f,at(x,y))
-                if(run.tile(x,y)==3)drawRoundRect(Color(0xFF74747D),
-                    pos+Offset(t*.17f,t*.27f),Size(t*.64f,t*.53f),
-                    cornerRadius=CornerRadius(t*.12f))
-                val chest=run.chests.firstOrNull{it.x==x && it.y==y && !it.opened}
-                if(chest!=null) {
-                    val glow=when(chest.tier){RelicTier.COMMON->Color(0xFFD4AF69)
-                        RelicTier.RARE->Color(0xFF70CBE0);RelicTier.PRECIOUS->Color(0xFFFFDD8A)}
-                    drawCircle(glow.copy(alpha=.15f*breathe),t*.52f,at(x,y))
-                    drawRoundRect(Color(0xFF8C623C),pos+Offset(t*.13f,t*.29f),
-                        Size(t*.74f,t*.48f),CornerRadius(t*.08f))
-                    drawRect(glow,pos+Offset(t*.19f,t*.31f),Size(t*.64f,t*.11f))
-                    drawCircle(glow,t*.10f,at(x,y))
-                }
-                if(x==run.exitX && y==run.exitY) {
-                    drawCircle(relicGreen.copy(alpha=.19f*breathe),t*.55f,at(x,y))
-                    drawCircle(relicGreen,t*.30f,at(x,y),style=Stroke(t*.10f))
-                    drawCircle(Color.White.copy(alpha=.65f),t*.08f,at(x,y))
-                }
-                run.drops.filter{it.x==x && it.y==y}.forEach {
-                    drawCircle(relicGold,t*.10f,at(x,y)+Offset(t*.27f,t*.23f))
-                }
-                if(x==selected.first && y==selected.second)
-                    drawRect(relicGold,pos+Offset(1f,1f),Size(t-2f,t-2f),style=Stroke(2.2f))
-            }
-            run.mobs.filter{it.hp>0 && run.visible(it.x,it.y)}.forEach{m->
-                val p=at(m.x,m.y)
-                if(m.windup)drawCircle(relicRed.copy(alpha=.43f*breathe),t*.55f,p)
-                drawCircle(if(m.kind==2)Color(0xFF762F49)else Color(0xFF594058),t*.34f,p)
-                drawCircle(relicRed,t*.08f,p+Offset(-t*.13f,-t*.04f))
-                drawCircle(relicRed,t*.08f,p+Offset(t*.13f,-t*.04f))
-            }
-            run.allies.forEachIndexed{index,a->
-                if(!run.visible(a.x,a.y))return@forEachIndexed
-                val p=at(a.x,a.y)
-                drawCircle(if(a.hp>0)Color(0xFF83C7EC)else Color(0xFF536375),t*.30f,p)
-                drawCircle(Color(0xFF223947),t*.13f,p)
-                if(a.hp<=0)drawLine(relicRed,p+Offset(-t*.17f,-t*.17f),
-                    p+Offset(t*.17f,t*.17f),strokeWidth=t*.10f)
-            }
-            val player=at(run.hero.x,run.hero.y)
-            drawCircle(relicGold.copy(alpha=.24f),t*.46f,player)
-            drawCircle(if(run.hero.hp>0)relicGold else relicRed,t*.33f,player)
-            drawCircle(Color(0xFF4A5268),t*.15f,player+Offset(0f,t*.06f))
-            drawCircle(Color.White,t*.06f,player+Offset(t*.1f,-t*.11f))
-        }
-    }
-}

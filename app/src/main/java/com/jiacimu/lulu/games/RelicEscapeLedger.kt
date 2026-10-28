@@ -76,8 +76,8 @@ internal class RelicEscapeLedger(context:Context) {
         val old=read();val current=old.run?:return old
         val result=if(action=="abandon")RelicEscapeRules.abandon(current)
             else RelicEscapeRules.act(current,action,
-                if(action=="move" || action=="sneak" || action=="open" || action=="attack")x else current.hero.x,
-                if(action=="move" || action=="sneak" || action=="open" || action=="attack")y else current.hero.y,
+                if(action in setOf("move","sneak","open","attack","invoke","disarm","lure"))x else current.hero.x,
+                if(action in setOf("move","sneak","open","attack","invoke","disarm","lure"))y else current.hero.y,
                 itemId)
         if(result==current)return old
         val next=if(result.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && result.completedAtMs==0L)

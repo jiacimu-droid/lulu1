@@ -66,6 +66,19 @@ internal object RelicEscapeWorld {
             val kind=if(level<=1)index%2 else rng.nextInt(3)
             mobs+=RelicMob(index,x,y,2+kind*2+level/2,kind)
         }
+        // Optional danger rooms and one-use traps are world entities, not narrative rewards.
+        val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
+            .filter{(x,y)->cells[y*w+x]==0 && x to y !in occupied &&
+                abs(x-2)+abs(y-2)>=5}
+            .shuffled(rng)
+        val sites=mutableListOf<RelicSite>()
+        val altar=possibleSites.firstOrNull()
+        if(altar!=null) {
+            occupied+=altar
+            sites+=RelicSite(0,altar.first,altar.second,"altar")
+        }
+        val traps=possibleSites.filter{it !in occupied}.take((1+level/2).coerceAtMost(4))
+        traps.forEachIndexed { index,(x,y)->sites+=RelicSite(index+1,x,y,"trap") }
         val allies=companions.distinct().filter{it.isNotBlank()}.take(3).mapIndexed{index,id->
             val positions=listOf(3 to 2,2 to 3,3 to 3)
             val (x,y)=positions[index]
@@ -73,7 +86,7 @@ internal object RelicEscapeWorld {
         }
         val run=RelicRun(UUID.randomUUID().toString(),seed,level,w,h,cells,RelicPhase.EXPLORE,
             RelicActor("player",2,2,kits=kits),allies,chests,mobs,emptyList(),
-            exit.first,exit.second,weapon=weapon,
+            exit.first,exit.second,weapon=weapon,sites=sites,
             notice="深入遗迹。远处有一处绿色撤离信标。")
         return RelicEscapeRules.reveal(run).log("player","enter","进入第"+level+"层遗迹，同行"+allies.size+"人")
     }

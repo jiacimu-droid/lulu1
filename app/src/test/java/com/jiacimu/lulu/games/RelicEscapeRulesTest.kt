@@ -175,4 +175,90 @@ class RelicEscapeRulesTest {
         assertEquals(original.run!!.id,moved.run!!.id)
         assertTrue(moved.run!!.seen.contains(moved.run!!.index(next.first,next.second)))
     }
+
+    @Test fun altarSpawnsRealGuardianAndOneUniqueHighValueRelic() {
+        val run=RelicEscapeWorld.create(1281,3,emptyList(),1,1).copy(mobs=emptyList())
+        val altar=run.sites.first{it.kind=="altar"}
+        val at=RelicEscapeRules.reveal(run.copy(
+            hero=run.hero.copy(x=altar.x,y=altar.y),allies=emptyList()))
+        val opened=RelicEscapeRules.act(at,"invoke",altar.x,altar.y)
+        assertTrue(opened.sites.first{it.id==altar.id}.spent)
+        val rewardId=run.id+":altar:"+altar.id
+        assertTrue((opened.hero.bag+opened.drops.map{it.loot}).any{
+            it.id==rewardId && it.tier==RelicTier.PRECIOUS && it.value>=650
+        })
+        assertTrue(opened.mobs.any{it.kind==2 && it.hp>0})
+        val repeated=RelicEscapeRules.act(opened,"invoke",altar.x,altar.y)
+        assertEquals(opened.turns,repeated.turns)
+        assertEquals(1,(repeated.hero.bag+repeated.drops.map{it.loot})
+            .count{it.id==rewardId})
+        val restored=RelicRun.read(JSONObject(opened.json().toString()))!!
+        assertEquals(opened.sites,restored.sites)
+        assertEquals(opened.hero.bag,restored.hero.bag)
+    }
+
+    @Test fun trapsCanBeDisarmedOrCauseActualDamage() {
+        val world=RelicEscapeWorld.create(1289,2,emptyList(),0,1).copy(mobs=emptyList())
+        val trap=world.sites.first{it.kind=="trap"}
+        val around=listOf(trap.x+1 to trap.y,trap.x-1 to trap.y,
+            trap.x to trap.y+1,trap.x to trap.y-1).first{(x,y)->world.walk(x,y)}
+        val at=RelicEscapeRules.reveal(world.copy(hero=world.hero.copy(x=around.first,y=around.second)))
+        val disarmed=RelicEscapeRules.act(at,"disarm",trap.x,trap.y)
+        assertTrue(disarmed.sites.first{it.id==trap.id}.spent)
+        assertEquals(world.tools-1,disarmed.tools)
+        val safe=RelicEscapeRules.act(disarmed,"move",trap.x,trap.y)
+        assertEquals(world.hero.hp,safe.hero.hp)
+        val danger=RelicEscapeRules.act(at,"move",trap.x,trap.y)
+        assertEquals(world.hero.hp-2,danger.hero.hp)
+        assertTrue(danger.sites.first{it.id==trap.id}.spent)
+        val again=RelicEscapeRules.act(danger,"disarm",trap.x,trap.y)
+        assertEquals(danger.tools,again.tools)
+    }
+
+    @Test fun tacticalLightAndLureConsumeOnceAndPersistThroughRestore() {
+        val run=RelicEscapeWorld.create(1293,1,emptyList(),1,1).copy(mobs=emptyList())
+        val lit=RelicEscapeRules.act(run,"flare")
+        assertEquals(1,lit.flares)
+        assertTrue(lit.seen.size>run.seen.size)
+        assertTrue(lit.flareTurns>0)
+        val lure=RelicEscapeRules.act(lit,"lure",run.hero.x,run.hero.y)
+        assertEquals(0,lure.lures)
+        assertTrue(lure.lureTurns>0)
+        val duplicate=RelicEscapeRules.act(lure,"lure",run.hero.x,run.hero.y)
+        assertEquals(lure.turns,duplicate.turns)
+        val restored=RelicRun.read(JSONObject(lure.json().toString()))!!
+        assertEquals(lure.flares,restored.flares)
+        assertEquals(lure.lures,restored.lures)
+        assertEquals(lure.lureX to lure.lureY,restored.lureX to restored.lureY)
+        assertEquals(lure.sites,restored.sites)
+    }
+
+    @Test fun oldSaveRestoresWithDefaultTacticalGearWithoutMintingLoot() {
+        val run=RelicEscapeWorld.create(1294,1,emptyList(),0,1)
+        val old=JSONObject(run.json().toString())
+        listOf("sites","flares","lures","tools","flareX","flareY","flareTurns",
+            "lureX","lureY","lureTurns").forEach{old.remove(it)}
+        val restored=RelicRun.read(old)!!
+        assertTrue(restored.sites.isEmpty())
+        assertEquals(2,restored.flares)
+        assertEquals(1,restored.lures)
+        assertEquals(2,restored.tools)
+        assertEquals(run.hero.bag,restored.hero.bag)
+        assertEquals(run.chests,restored.chests)
+    }
+
+    @Test fun everySpawnHasOptionalLandmarksAndTrapsAreNeverUnderChests() {
+        for(seed in listOf(55,1294,20261028,-832)) {
+            val run=RelicEscapeWorld.create(seed,4,listOf("friend"),1,1)
+            assertTrue(run.sites.any{it.kind=="altar"})
+            assertTrue(run.sites.any{it.kind=="trap"})
+            for(site in run.sites) {
+                assertTrue(run.walk(site.x,site.y))
+                assertTrue(RelicEscapeRules.distance(site.x,site.y,2,2)>=5)
+                assertTrue(run.chests.none{it.x==site.x && it.y==site.y})
+                assertFalse(site.x==run.exitX && site.y==run.exitY)
+                assertNotNull(RelicEscapeRules.path(run,2,2,site.x,site.y))
+            }
+        }
+    }
 }
