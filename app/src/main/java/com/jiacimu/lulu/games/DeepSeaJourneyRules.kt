@@ -147,3 +147,10 @@ internal fun deepSeaExplorationBonus(salvaged: Set<String>, observed: Set<String
     salvaged.intersect(deepSeaRelics.map { it.id }.toSet()).size * 120 +
         observed.intersect(deepSeaCreatures.map { it.id }.toSet()).size * 45 +
         sites.intersect(deepSeaSites.map { it.id }.toSet()).size * 30
+
+/** Turn through the shorter angular arc, including the -180/180-degree seam. */
+internal fun deepSeaSmoothHeading(current: Float, target: Float, smoothing: Float): Float {
+    val delta = ((target - current + 540f) % 360f) - 180f
+    val turned = current + delta * smoothing.coerceIn(0f, 1f)
+    return ((turned + 180f) % 360f + 360f) % 360f - 180f
+}
