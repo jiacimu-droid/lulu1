@@ -255,7 +255,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("管理所有可用模型；各功能在各自页面选模型，这里只设新功能的默认兜底。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
+                    Text("所有模型存档与功能分工都在这里统一管理；角色私聊仍可单独选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             item { SettingsCardBox { OptionalModelRolesSettings() } }
