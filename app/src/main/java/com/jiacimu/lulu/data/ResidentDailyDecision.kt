@@ -569,7 +569,8 @@ internal object ResidentDailyDecision {
         residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
         val side = choice.optJSONArray("steps")
         for (i in 0 until (side?.length() ?: 0)) {
-            val step = side?.optJSONObject(i) ?: continue
+            val row = side?.optJSONObject(i) ?: continue
+            val step = AutonomousActionWireProtocol.normalizeStep(row)
             if (protectedPlanId.isNotBlank() && step.optString("tool") in
                 setOf("reschedule_personal_activity", "cancel_personal_activity") &&
                 step.optJSONObject("args")?.optString("planId") == protectedPlanId)
