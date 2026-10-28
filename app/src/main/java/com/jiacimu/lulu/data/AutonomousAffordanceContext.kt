@@ -26,7 +26,7 @@ internal object AutonomousAffordanceContext {
         appendLine("【兴趣自己向外延伸】人设与长期经历里写明的兴趣即使没有用户新话题也仍属于你。若自己有真正想追的新问题，可以从本轮已配置且授权的能力里主动选：web_search(op=search_read,query=具体想弄懂的问题)了解外部资料；image_search(op=search,kind=gif|sticker,query=想看的动图或表情素材)搜图片候选；read_xiaohongshu(keyword=兴趣话题)真实阅读笔记与评论。搜图工具目前侧重 GIF/表情素材，不可当成已获得任意高清静态图或已看懂图片。未配置或权限、会话不可用则保留问题/换合法方式；不应反复请求失败接口。") 
         appendLine("真实读到的结果可让你形成新疑问、对原看法改观、准备向别人分享，或者觉得无趣就放下；只想以后看时可用同一个 plan_personal_activity 工具安排搜索的真实时间与动作，但不为了消除单调感强行搜索、更不默认把结果发给主人。")
         appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
-        appendLine("- 想自己找消遣：solo_game + gameId=memory_match 能运行真实的一局游戏；无须用户陪同。")
+        appendLine("- 想自己找消遣：solo_game 可选 gameId=memory_match（记忆配对）或 yacht_dice（快艇骰子，13轮）；各有真实规则、结算和可回放过程，无须用户陪同。")
         appendLine("- 如果某句真实用户原话打动了自己，可在聊天原始ID可核实的前提下选择 tool=favorite_user_message 保存在生活记录的「收藏」；不能凭空收藏。")
         if (books.isNotEmpty()) {
             appendLine("- 剧场已生成、现在可以真实读取的章节（未知后续内容只能读后知道）：")
