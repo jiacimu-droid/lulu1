@@ -15,6 +15,8 @@ internal data class BlockIslandState(
     val tools: Set<String> = emptySet(),
     val structures: Map<Int, String> = emptyMap(),
     val lastRestTurn: Int = -20,
+    val fish: Int = 0,
+    val lastFishTurn: Int = -20,
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -25,6 +27,7 @@ internal data class BlockIslandState(
             structures.forEach { (index, item) -> put(index.toString(), item) }
         })
         .put("lastRestTurn", lastRestTurn)
+        .put("fish", fish).put("lastFishTurn", lastFishTurn)
         .toString()
 
     companion object {
@@ -36,7 +39,7 @@ internal data class BlockIslandState(
             ) ?: return@runCatching null
             val list = json.optJSONArray("tools") ?: JSONArray()
             val tools = (0 until list.length()).map { list.getString(it) }.toSet()
-            if (tools.any { it !in setOf("axe", "pickaxe", "sword") }) return@runCatching null
+            if (tools.any { it !in setOf("axe", "pickaxe", "sword", "rod") }) return@runCatching null
             val obj = json.optJSONObject("structures") ?: JSONObject()
             val positions = mutableMapOf<Int, String>()
             val keys = obj.keys()
@@ -45,13 +48,16 @@ internal data class BlockIslandState(
                 val index = key.toIntOrNull() ?: return@runCatching null
                 val kind = obj.getString(key)
                 if (index !in world.tiles.indices ||
-                    kind !in setOf("door", "workbench", "campfire", "bed") ||
-                    world.tiles[index] !in listOf(0, 4)) return@runCatching null
+                    kind !in setOf("door", "workbench", "campfire", "bed", "bridge") ||
+                    (if (kind == "bridge") world.tiles[index] != 8 else world.tiles[index] !in listOf(0, 4))
+                ) return@runCatching null
                 positions[index] = kind
             }
             val fruit = json.optInt("fruit")
-            if (fruit < 0) return@runCatching null
-            BlockIslandState(world, fruit, tools, positions, json.optInt("lastRestTurn", -20))
+            val fish = json.optInt("fish", 0)
+            if (fruit < 0 || fish < 0) return@runCatching null
+            BlockIslandState(world, fruit, tools, positions,
+                json.optInt("lastRestTurn", -20), fish, json.optInt("lastFishTurn", -20))
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -126,8 +132,11 @@ internal object BlockIslandRules {
 
     fun isWalkable(s: BlockIslandState, x: Int, y: Int): Boolean {
         val w = s.world
-        if (!w.inBounds(x, y) || w.cell(x, y) !in setOf(0, 4, 7)) return false
-        return s.structures[w.index(x, y)] !in setOf("workbench", "campfire", "bed")
+        if (!w.inBounds(x, y)) return false
+        val structure = s.structures[w.index(x, y)]
+        if (w.cell(x, y) == 8) return structure == "bridge"
+        if (w.cell(x, y) !in setOf(0, 4, 7)) return false
+        return structure !in setOf("workbench", "campfire", "bed")
     }
 
     fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y): BlockIslandState {
@@ -160,11 +169,13 @@ internal object BlockIslandRules {
                 message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
                 else "开采矿石 +$amount"
             }
-            "wall", "floor", "door", "workbench", "campfire", "bed" -> {
+            "wall", "floor", "door", "workbench", "campfire", "bed", "bridge" -> {
                 if (!near() || (tx == w.x && ty == w.y) ||
                     action == "floor" && cell == 4 ||
                     w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } || mob != null ||
-                    (cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
+                    (if (action == "bridge") cell != 8 ||
+                        tx == 0 || ty == 0 || tx == w.width - 1 || ty == w.height - 1
+                    else cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
                     index in s.structures) return reject("这里无法放置，靠近空地后再试")
                 val (woodCost, stoneCost) = when (action) {
                     "wall" -> 2 to 0
@@ -172,6 +183,7 @@ internal object BlockIslandRules {
                     "door" -> 2 to 0
                     "workbench" -> 4 to 2
                     "bed" -> 3 to 1
+                    "bridge" -> 3 to 0
                     else -> 2 to 1
                 }
                 if (w.wood < woodCost || w.stone < stoneCost)
@@ -182,7 +194,7 @@ internal object BlockIslandRules {
                     else -> cell
                 }
                 val updated = w.setTile(tx, ty, newTile).copy(wood = w.wood - woodCost, stone = w.stone - stoneCost)
-                val added = if (action in setOf("door", "workbench", "campfire", "bed")) s.structures + (index to action)
+                val added = if (action in setOf("door", "workbench", "campfire", "bed", "bridge")) s.structures + (index to action)
                     else s.structures
                 next = s.copy(world = updated, structures = added)
                 message = "建造成功：${actionName(action)}"
@@ -203,16 +215,18 @@ internal object BlockIslandRules {
                 val refundWood = when (structure) {
                     "workbench" -> 2
                     "campfire", "door", "bed" -> 1
+                    "bridge" -> 2
                     else -> if (cell == 3 || cell == 4) 1 else 0
                 }
                 val refundStone = if (structure == "workbench") 1 else 0
                 next = s.copy(
-                    world = w.setTile(tx, ty, 0).copy(wood = w.wood + refundWood, stone = w.stone + refundStone),
+                    world = w.setTile(tx, ty, if (structure == "bridge") 8 else 0)
+                        .copy(wood = w.wood + refundWood, stone = w.stone + refundStone),
                     structures = s.structures - index,
                 )
                 message = "拆除了${if (structure == null) "建筑" else actionName(structure)}，返还部分材料"
             }
-            "craft_axe", "craft_pickaxe", "craft_sword" -> {
+            "craft_axe", "craft_pickaxe", "craft_sword", "craft_rod" -> {
                 val tool = action.removePrefix("craft_")
                 if (tool in s.tools) return reject("已经制作过这件工具")
                 val tableNear = s.structures.any { (location, kind) ->
@@ -222,6 +236,7 @@ internal object BlockIslandRules {
                 val cost = when (tool) {
                     "axe" -> 2 to 1
                     "pickaxe" -> 2 to 2
+                    "rod" -> 2 to 1
                     else -> 1 to 3
                 }
                 if (w.wood < cost.first || w.stone < cost.second)
@@ -239,6 +254,21 @@ internal object BlockIslandRules {
                     friends = w.friends.map { if (it.id == companion.id) it.copy(hp = 4) else it },
                 ))
                 message = "救起了队友[${companion.id}]，恢复生命至4"
+            }
+            "fish" -> {
+                if (!near() || cell != 8) return reject("靠近水边才能钓鱼")
+                if ("rod" !in s.tools) return reject("先在工作台制作鱼竿")
+                if (w.turns - s.lastFishTurn < 3) return reject("鱼儿还没回来，稍后再试")
+                // Deterministic, state-driven outcome. A failed cast still advances the world.
+                val caught = Random(w.seed xor (w.turns * 4271) xor index).nextInt(100) < 70
+                next = s.copy(fish = s.fish + if (caught) 1 else 0, lastFishTurn = w.turns)
+                message = if (caught) "钓起一条小鱼，已放进背包" else "鱼儿溜走了，换个时机再来"
+            }
+            "eat_fish" -> {
+                if (s.fish < 1) return reject("背包没有鱼，先去水边钓")
+                if (w.hp >= 12) return reject("生命值已满")
+                next = s.copy(world = w.copy(hp = (w.hp + 5).coerceAtMost(12)), fish = s.fish - 1)
+                message = "吃下烤鱼，恢复生命"
             }
             "eat" -> {
                 if (s.fruit < 1) return reject("背包里没有野果，砍树时可能找到")
@@ -460,9 +490,9 @@ internal object BlockIslandRules {
     private fun ExpeditionState.setTile(x: Int, y: Int, tile: Int) =
         copy(tiles = tiles.toMutableList().also { it[index(x, y)] = tile })
     fun actionName(action: String): String = when (action) {
-        "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"
+        "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"; "rod" -> "鱼竿"
         "wall" -> "木墙"; "floor" -> "木地板"; "door" -> "木门"
-        "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"
+        "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
         else -> action
     }
 }
