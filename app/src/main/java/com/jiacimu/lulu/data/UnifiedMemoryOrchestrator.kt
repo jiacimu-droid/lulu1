@@ -7,11 +7,12 @@ data class UnifiedMemoryRequest(
     val currentInput: String = "",
     val sceneContext: String = "",
     val recentContext: String = "",
-    // Evidence that the caller is already sending to the model. It is used
-    // ONLY for exact source de-duplication; not for semantic memory retrieval.
-    val alreadyPresentedEvidence: String = "",
     val taskIntent: String = "",
     val actionContext: String = "",
+    // Added last to preserve older positional constructor calls.
+    // Already-sent evidence is only used for source de-duplication, never
+    // included in semantic retrievalQuery().
+    val alreadyPresentedEvidence: String = "",
 ) {
     fun retrievalQuery(): String = buildString {
         if (currentInput.isNotBlank()) appendLine("当前输入：${currentInput.trim()}")
