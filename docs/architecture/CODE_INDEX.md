@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c9cc34aa8529befb814c0df7aa8dbdc20c69cd9`
+- 基准提交：`026b63ee6cd2c01f202b68f788d8716d023cc6ce`
 - 分支：`main`
 - 已索引文件：1028
-- 已索引代码/文本行：206463
+- 已索引代码/文本行：206501
 - 已发现符号：2999
 
 | 文件 | 行数 | 符号数 |
@@ -491,7 +491,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PeerRelationshipContext.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 68 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 119 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 137 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 75 | 3 |
@@ -940,7 +940,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 905 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 92 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 84 | 1 |

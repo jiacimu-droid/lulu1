@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:54:14.138361+00:00",
-  "commit": "0c9cc34aa8529befb814c0df7aa8dbdc20c69cd9",
+  "generatedAt": "2026-10-28T09:54:36.721679+00:00",
+  "commit": "026b63ee6cd2c01f202b68f788d8716d023cc6ce",
   "branch": "main",
-  "sourceFingerprint": "cab3ab7fbfd09495f47497dcff0c27eeceda405de0a2cdc70e0f3bfc01dc7197",
+  "sourceFingerprint": "401db6d228ab73a86b5c4c3b3a29ce6e6b49bed9abfb8f90c0d11d914dfa1fb9",
   "summary": {
     "files": 1028,
-    "lines": 206463,
+    "lines": 206501,
     "symbols": 2999
   },
   "symbolIndex": {
@@ -21725,7 +21725,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
       "lines": 174,
-      "sha256": "f7e8c4a6993786eb552107170061abed4e268f4a57fe236500a3b707dac0570e",
+      "sha256": "fec6641dc1f6318b3887584f372d120aac8fed96b0f28887684eb4d762b84440",
       "symbols": [
         {
           "name": "inspect",
@@ -26725,8 +26725,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-      "lines": 119,
-      "sha256": "98045455e0678a481d0d99acc11519139045a9fd31883bcfdd7bf19fcddfe63b",
+      "lines": 137,
+      "sha256": "aadc600bc2c29a516857359885af68db02abe5a117bdbf9d3e0613eefd9fba25",
       "symbols": []
     },
     {
@@ -34564,8 +34564,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt",
-      "lines": 92,
-      "sha256": "54e7b172518309b3499efade11f02e91d8dca4934ea42949307e04237fbfcc16",
+      "lines": 112,
+      "sha256": "2a8430a39f26ea60d26e398807da9095329ad70f5f2696eedef76021b28cc423",
       "symbols": [
         {
           "name": "PerceptionStimulusLedgerTest",
