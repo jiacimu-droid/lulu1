@@ -992,6 +992,54 @@ class ResidentDailyContinuityTest {
                     .put("activityArgs", JSONObject().put("text", "今天的花")))), at))
     }
 
+    @Test(timeout = 60_000) fun incompleteDirectMessageIsRepairedBySameResidentBeforeAnySend() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        ResidentSocialMailbox.initialize(app)
+        val now = java.time.LocalDate.now().atTime(8, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "私信补正居民${UUID.randomUUID().toString().take(6)}",
+            identity = "喜欢与熟人通信", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val friend = MigratedDomainStores.characters.create(
+            "私信对象${UUID.randomUUID().toString().take(6)}")
+        DigitalLifeProfileStore.registerNewLife(friend.characterId, friend.displayName,
+            "数字生命", now.minusSeconds(3600))
+        assertNotNull(ResidentSocialMailbox.send(friend.characterId, actor, "你今天想聊什么？", at = now))
+        val greeting = "我想跟你聊聊今天的花${UUID.randomUUID()}"
+        fun choice(to: String?) = JSONObject().put("lunch", "home")
+            .put("evening", "courtyard").put("message", greeting).apply {
+                if (to != null) put("messageTo", to)
+            }
+        val server = MockWebServer()
+        server.enqueue(answer(choice(null).toString()))
+        server.enqueue(answer(choice(friend.characterId).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "direct-repair-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            assertEquals(1, ResidentSocialMailbox.historyForInspection(friend.characterId)
+                .count { it.fromId == actor && it.content == greeting })
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            assertEquals(1, ResidentSocialMailbox.historyForInspection(friend.characterId)
+                .count { it.fromId == actor && it.content == greeting })
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertTrue(p.getString("invalid-reason:${native.id}:${ResidentDailyDecision.date(now)}", "")
+                .orEmpty().contains("messageTo"))
+            assertEquals("finished", p.getString(
+                "phase:${native.id}:${ResidentDailyDecision.date(now)}", ""))
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun malformedNestedDailyAgendaIsRepairedInsteadOfSilentlyDropped() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
