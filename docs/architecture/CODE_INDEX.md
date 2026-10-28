@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`00d609439f68423ed046151be270584de713ec73`
+- 基准提交：`b363a312b539a58ef57eabe17b6eb3cb00d1e49a`
 - 分支：`main`
 - 已索引文件：1005
-- 已索引代码/文本行：199993
-- 已发现符号：2937
+- 已索引代码/文本行：200024
+- 已发现符号：2938
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -527,7 +527,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 116 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 95 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt` | 121 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt` | 126 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
@@ -966,7 +966,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 112 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 304 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 157 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 183 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |

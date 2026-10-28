@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:14:42.113278+00:00",
-  "commit": "00d609439f68423ed046151be270584de713ec73",
+  "generatedAt": "2026-10-28T06:15:18.491734+00:00",
+  "commit": "b363a312b539a58ef57eabe17b6eb3cb00d1e49a",
   "branch": "main",
-  "sourceFingerprint": "c07be9574990e1ad36d1ecb209ceb77f98b2326f5d680526466d6cf01559f64f",
+  "sourceFingerprint": "1cfdfb7cf477742243e144e818fc58e01df6e3302eb32d4879e9abce18a5269d",
   "summary": {
     "files": 1005,
-    "lines": 199993,
-    "symbols": 2937
+    "lines": 200024,
+    "symbols": 2938
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4115,7 +4115,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 90
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -11247,13 +11247,13 @@
     "nearTimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 95
+        "line": 100
       }
     ],
     "reflectionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-        "line": 109
+        "line": 114
       }
     ],
     "Choice": [
@@ -16234,6 +16234,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
         "line": 18
+      }
+    ],
+    "observed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+        "line": 49
       }
     ],
     "WakeActionPlannerTest": [
@@ -27575,8 +27581,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserRoutinePatterns.kt",
-      "lines": 121,
-      "sha256": "1b56ae4968b1bd5b29a57b5a398f4d8410ccce3ee6c426bc6a03ecabf547a5cb",
+      "lines": 126,
+      "sha256": "b7fe7449dc8e4fa7c7652f4775f3ac7d99e28fb7a5546c3e15da332789cd8e14",
       "symbols": [
         {
           "name": "Pattern",
@@ -27592,15 +27598,15 @@
         },
         {
           "name": "recent",
-          "line": 90
-        },
-        {
-          "name": "nearTimeContext",
           "line": 95
         },
         {
+          "name": "nearTimeContext",
+          "line": 100
+        },
+        {
           "name": "reflectionContext",
-          "line": 109
+          "line": 114
         }
       ]
     },
@@ -34547,8 +34553,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
-      "lines": 157,
-      "sha256": "9d6723095291f6d266e8d42caa6175056d406cc5cceb854d50ca8a4bd9ac462f",
+      "lines": 183,
+      "sha256": "fae790505a82ab11ca1ecf9c457ca8c1fdabbc3e3ac31ada25a7a48c54b0a405",
       "symbols": [
         {
           "name": "UserRoutinePatternsTest",
@@ -34557,6 +34563,10 @@
         {
           "name": "event",
           "line": 24
+        },
+        {
+          "name": "observed",
+          "line": 49
         }
       ]
     },
