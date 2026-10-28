@@ -355,9 +355,9 @@ internal object ResidentDailyDecision {
         return report.completedCount
     }
 
-    /** Only validate new model responses: previously saved choices keep their
-     * original request IDs and must never trigger another charge on replay. */
-    /** Validate only the documented wire shape, never the resident's wishes.
+    /** Validate only NEW model responses: previously saved choices keep their
+     * original request IDs and never trigger another charge on replay.
+     * Validate the documented wire shape, never the resident's wishes.
      * Previously a malformed nested step or agenda row was silently skipped
      * AFTER the outer decision had been accepted and marked finished. Those
      * missing actions had neither a repair opportunity nor an execution receipt.
@@ -378,6 +378,46 @@ internal object ResidentDailyDecision {
                 return "steps[${index}].requiresPreviousSuccess 必须是布尔值"
             if (row.optJSONObject("args")?.has("planId") == true)
                 return "steps[${index}] 不能代替原活动传入 planId"
+            val args = normalized.optJSONObject("args") ?: JSONObject()
+            val tool = normalized.optString("tool")
+            // The model's explicit choice must not be silently converted into
+            // a failed/no-op tool by supplying empty defaults for required data.
+            val missing = when (tool) {
+                "publish_moment" -> if (args.optString("text").isBlank()) "text" else ""
+                "send_character_message" -> when {
+                    args.optString("targetCharacterId").isBlank() -> "targetCharacterId"
+                    args.optString("text").isBlank() -> "text"
+                    else -> ""
+                }
+                "send_group_message" -> when {
+                    args.optString("groupId").isBlank() -> "groupId"
+                    args.optString("text").isBlank() -> "text"
+                    else -> ""
+                }
+                "like_moment" -> if (args.optString("postId").isBlank()) "postId" else ""
+                "comment_moment" -> when {
+                    args.optString("postId").isBlank() -> "postId"
+                    args.optString("text").isBlank() -> "text"
+                    else -> ""
+                }
+                "send_friend_request" ->
+                    if (args.optString("targetCharacterId").isBlank()) "targetCharacterId" else ""
+                "respond_friend_request" -> when {
+                    args.optString("requestId").isBlank() -> "requestId"
+                    args.optString("decision") !in setOf("accept", "decline") -> "decision"
+                    else -> ""
+                }
+                "create_group_chat" -> when {
+                    args.optString("groupName").isBlank() -> "groupName"
+                    args.optJSONArray("memberIds") == null -> "memberIds"
+                    else -> ""
+                }
+                "digital_world_action" ->
+                    if (args.optString("worldAction").isBlank()) "worldAction" else ""
+                else -> ""
+            }
+            if (missing.isNotBlank())
+                return "steps[${index}].args 缺少 ${missing}，须由本人补正"
         }
         return null
     }
