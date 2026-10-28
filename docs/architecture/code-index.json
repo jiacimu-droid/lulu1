@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:53:56.301038+00:00",
-  "commit": "3675eee68e5d17939fdabdeb6e6841fd87dc377d",
+  "generatedAt": "2026-10-28T05:13:33.039309+00:00",
+  "commit": "3c6516d12b835ddd65f3fd8edb2da1af487a1461",
   "branch": "main",
-  "sourceFingerprint": "ec94525c2f04c51e1a863752bf1b9e6105cfd8f07d4e9e86bd5f6a6af67ad7f7",
+  "sourceFingerprint": "9db8065be7a42c2db8de62c6eff3f25c7912ae5640f6cda08b254b881758ca30",
   "summary": {
-    "files": 995,
-    "lines": 198075,
-    "symbols": 2923
+    "files": 996,
+    "lines": 198233,
+    "symbols": 2926
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1781,7 +1781,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-        "line": 10
+        "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
+        "line": 15
       }
     ],
     "choice": [
@@ -3389,7 +3393,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-        "line": 30
+        "line": 10
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6134,6 +6138,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
         "line": 56
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9479,7 +9487,7 @@
     "evidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 22
+        "line": 24
       }
     ],
     "LuluChatMessage": [
@@ -9888,6 +9896,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
         "line": 777
+      }
+    ],
+    "annotations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
+        "line": 84
       }
     ],
     "Batch": [
@@ -25385,16 +25399,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-      "lines": 56,
-      "sha256": "8f3daf49ac459cbc4ea969ff77d0f0dbb5efca135947800bf6752fddbfae4682",
+      "lines": 37,
+      "sha256": "aeffc172ce0bd17990edd64ed5714ef624a2f6a38196256cd888a84048f7dc21",
       "symbols": [
         {
           "name": "expand",
-          "line": 10
+          "line": 8
         },
         {
           "name": "render",
-          "line": 30
+          "line": 10
         }
       ]
     },
@@ -25654,8 +25668,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 90,
-      "sha256": "19ae1777fd571496415851aa87ef9ec618c69738b8acf6ad30ce2641631065bd",
+      "lines": 92,
+      "sha256": "b4ea235ca9e1b722cedb5ce3fdc2a677a5ae57d9a798e29628ab12593c60c311",
       "symbols": [
         {
           "name": "assemble",
@@ -25663,7 +25677,7 @@
         },
         {
           "name": "evidence",
-          "line": 22
+          "line": 24
         }
       ]
     },
@@ -26031,6 +26045,25 @@
         {
           "name": "clearCharacterData",
           "line": 777
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
+      "lines": 118,
+      "sha256": "1a02e967b6767e3b0e5aa2da4ace8358eabce774b0df6807e64ce2460a84f36f",
+      "symbols": [
+        {
+          "name": "expand",
+          "line": 15
+        },
+        {
+          "name": "add",
+          "line": 40
+        },
+        {
+          "name": "annotations",
+          "line": 84
         }
       ]
     },
@@ -33461,8 +33494,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
-      "lines": 56,
-      "sha256": "195ea08f0623d5eca1c02c6ae216eccbcce68a39651a1ec133b856ce434a4afc",
+      "lines": 113,
+      "sha256": "2a34a02f4263bc54d426ff2bb6a6f57844211c24cbb380dd19a251a2d5d4ebbe",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",
