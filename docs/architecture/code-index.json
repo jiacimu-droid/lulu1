@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:26:59.832596+00:00",
-  "commit": "9befde0e11dbd45fc980def23d3c3886c85dfb4c",
+  "generatedAt": "2026-10-28T08:27:21.864974+00:00",
+  "commit": "cd200d67de2d9684a9b67658733b9ac760e81f82",
   "branch": "main",
-  "sourceFingerprint": "3ad649230397ea07e75687b11d0af5c3930ae6213cb81e291dc9e657906c80ee",
+  "sourceFingerprint": "9633db79d354bc874e0e87b470f432ceb43220376658018c8dcd6be88edb4e10",
   "summary": {
     "files": 1013,
-    "lines": 203292,
-    "symbols": 2957
+    "lines": 203356,
+    "symbols": 2958
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5157,7 +5157,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 73
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
@@ -5297,7 +5297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 96
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6687,67 +6687,67 @@
     "shortContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 16
+        "line": 18
       }
     ],
     "SocialPerspective": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 38
+        "line": 41
       }
     ],
     "SocialRelationshipAgreement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 48
+        "line": 51
       }
     ],
     "CharacterSocialRelationship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "agreement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 61
+        "line": 64
       }
     ],
     "setAgreement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 70
+        "line": 73
       }
     ],
     "perspective": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 152
+        "line": 161
       }
     ],
     "perspectivesFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 205
+        "line": 214
       }
     ],
     "knowsEachOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 231
+        "line": 240
       }
     ],
     "networkContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 320
+        "line": 329
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 346
+        "line": 355
       }
     ],
     "collect": [
@@ -10233,19 +10233,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 559
+        "line": 566
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 561
+        "line": 568
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2807
+        "line": 2814
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -15066,52 +15066,58 @@
         "line": 28
       }
     ],
-    "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife": [
+    "acceptedQQFriendIsAnActualRelationshipEvenBeforeFirstMessageOrFormalMeeting": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
         "line": 31
       }
     ],
+    "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 64
+      }
+    ],
     "session": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 36
+        "line": 69
       }
     ],
     "pairLineSkipsUnconnectedPairs": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 68
+        "line": 101
       }
     ],
     "pairLineReportsConnectionFactsWithoutScoresOrGroupNames": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 75
+        "line": 108
       }
     ],
     "groupSceneDoesNotExposePairPrivateImpressionsOrPrivateLetters": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 89
+        "line": 122
       }
     ],
     "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 127
+        "line": 160
       }
     ],
     "networkContextIsSilentWithoutConnections": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 172
+        "line": 205
       }
     ],
     "compactContextStaysSilentWhenContactsAreUnconnected": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 181
+        "line": 214
       }
     ],
     "CharacterThoughtActionHandoffTest": [
@@ -17817,7 +17823,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt",
       "lines": 316,
-      "sha256": "18c681bf700bdad6774823462ffbc8f8514a7416c62fba1a0db47c8ffe57be13",
+      "sha256": "4a3ffc40667064bd3a9bc3cec7cc115e4083b806e9858af9a4b271bf739b6c08",
       "symbols": []
     },
     {
@@ -21100,8 +21106,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 837,
-      "sha256": "e0c36e72115200a4c30101e2d9ed7fa599f6f9ba9ee8b3c5b70855cdaa87d02a",
+      "lines": 852,
+      "sha256": "26ee9a684fab6bcd0fe7d8285574fb5f0124f31694076cf02215b5cef38ca463",
       "symbols": []
     },
     {
@@ -22747,8 +22753,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 388,
-      "sha256": "544704c996dca80576255b942ee8d558a30e2cbff6f1600795616a6d53aa64d8",
+      "lines": 397,
+      "sha256": "bcba0667933d402272e7cda12baf9e34afd14eb304a78d08be43964db922d1e4",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -22756,55 +22762,55 @@
         },
         {
           "name": "shortContext",
-          "line": 16
+          "line": 18
         },
         {
           "name": "SocialPerspective",
-          "line": 38
+          "line": 41
         },
         {
           "name": "SocialRelationshipAgreement",
-          "line": 48
+          "line": 51
         },
         {
           "name": "CharacterSocialRelationship",
-          "line": 56
+          "line": 59
         },
         {
           "name": "agreement",
-          "line": 61
+          "line": 64
         },
         {
           "name": "setAgreement",
-          "line": 70
-        },
-        {
-          "name": "promptSection",
           "line": 73
         },
         {
+          "name": "promptSection",
+          "line": 76
+        },
+        {
           "name": "snapshot",
-          "line": 96
+          "line": 99
         },
         {
           "name": "perspective",
-          "line": 152
+          "line": 161
         },
         {
           "name": "perspectivesFor",
-          "line": 205
+          "line": 214
         },
         {
           "name": "knowsEachOther",
-          "line": 231
+          "line": 240
         },
         {
           "name": "networkContext",
-          "line": 320
+          "line": 329
         },
         {
           "name": "contextForGroup",
-          "line": 346
+          "line": 355
         }
       ]
     },
@@ -26645,8 +26651,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2874,
-      "sha256": "783e08e88de46393be3bacd7b70b0d03753cd26d06168495cacb8a201ec202b7",
+      "lines": 2881,
+      "sha256": "543e21c036ce0c8ed4734b706e73fd3510d5df8bdf2c696906bbcfbd05e3a90b",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -26670,15 +26676,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 559
+          "line": 566
         },
         {
           "name": "deferSupersededDecision",
-          "line": 561
+          "line": 568
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2807
+          "line": 2814
         }
       ]
     },
@@ -33078,44 +33084,48 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-      "lines": 200,
-      "sha256": "53e8d27a276199afc8738d407049eb4b75d3dc4dd27f80cd583f2288b83694fe",
+      "lines": 233,
+      "sha256": "1d25ce366eeedbc078ad91d96f26f21c6907a2e6121ef0ccb09ee48746fd639a",
       "symbols": [
         {
           "name": "CharacterSocialNetworkTest",
           "line": 28
         },
         {
-          "name": "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife",
+          "name": "acceptedQQFriendIsAnActualRelationshipEvenBeforeFirstMessageOrFormalMeeting",
           "line": 31
         },
         {
+          "name": "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife",
+          "line": 64
+        },
+        {
           "name": "session",
-          "line": 36
+          "line": 69
         },
         {
           "name": "pairLineSkipsUnconnectedPairs",
-          "line": 68
+          "line": 101
         },
         {
           "name": "pairLineReportsConnectionFactsWithoutScoresOrGroupNames",
-          "line": 75
+          "line": 108
         },
         {
           "name": "groupSceneDoesNotExposePairPrivateImpressionsOrPrivateLetters",
-          "line": 89
+          "line": 122
         },
         {
           "name": "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed",
-          "line": 127
+          "line": 160
         },
         {
           "name": "networkContextIsSilentWithoutConnections",
-          "line": 172
+          "line": 205
         },
         {
           "name": "compactContextStaysSilentWhenContactsAreUnconnected",
-          "line": 181
+          "line": 214
         }
       ]
     },
