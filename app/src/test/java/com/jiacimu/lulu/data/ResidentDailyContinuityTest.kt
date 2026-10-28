@@ -2148,4 +2148,115 @@ class ResidentDailyContinuityTest {
         }
     }
 
+
+    @Test(timeout = 60_000) fun definiteDailyRepairRejectionCannotRebuyFirstAnswerAfterModelChange() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "日计划补正拒绝${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val post = "补正授权后才发送-${UUID.randomUUID()}"
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("lunch", "bad-first-location")
+            .put("evening", "home").toString()))
+        server.enqueue(MockResponse().setResponseCode(401)
+            .setBody("""{"error":{"message":"repair-auth-denied"}}"""))
+        server.enqueue(answer(JSONObject().put("lunch", "home")
+            .put("evening", "home").put("post", post).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-day-401-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            val day = ResidentDailyDecision.date(now)
+            assertEquals("definite_rejected", p.getString("phase:${native.id}:$day", ""))
+            assertTrue(p.getString("last-error:${native.id}:$day", "").orEmpty()
+                .contains("repair-auth-denied"))
+            assertTrue(p.getString("invalid:${native.id}:$day", "").orEmpty()
+                .contains("bad-first-location"))
+            assertFalse(p.contains("decision:${native.id}:$day"))
+            val changed = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-day-new-model-${UUID.randomUUID()}", server.url("/").toString(), "test2")
+            val changedArchive = LuluAiServices.connectionStore.addArchive(changed.id, "test2")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, changedArchive.id)
+            assertFalse(ResidentDailyDecision.hasSafeDayRequestToRetry(app, native.id, now))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
+            assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(3, server.requestCount)
+            val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
+            assertTrue(requests[2].body.readUtf8().contains("bad-first-location"))
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == post })
+            assertFalse(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun definiteDueRepairRejectionCannotRebuyFirstAnswerAfterModelChange() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "到点补正拒绝${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院观察者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val originalPost = "绝不能自动发送-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "观察庭院",
+            "想记录今天的景色", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", originalPost))
+        val server = MockWebServer()
+        server.enqueue(answer(JSONObject().put("choice", "reschedule")
+            .put("dueAt", "bad-first-due-at").put("reason", "想改时间").toString()))
+        server.enqueue(MockResponse().setResponseCode(401)
+            .setBody("""{"error":{"message":"due-repair-auth-denied"}}"""))
+        server.enqueue(answer(JSONObject().put("choice", "cancel")
+            .put("reason", "现在想休息").put("steps", JSONArray()).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-due-401-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            assertEquals("definite_rejected", p.getString("due-phase:$key", ""))
+            assertTrue(p.getString("due-last-error:$key", "").orEmpty()
+                .contains("due-repair-auth-denied"))
+            assertTrue(p.getString("due-invalid:$key", "").orEmpty()
+                .contains("bad-first-due-at"))
+            assertFalse(p.contains("due-decision:$key"))
+            val changed = LuluAiServices.connectionStore.saveConfiguration(null,
+                "repair-due-new-model-${UUID.randomUUID()}", server.url("/").toString(), "test2")
+            val changedArchive = LuluAiServices.connectionStore.addArchive(changed.id, "test2")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, changedArchive.id)
+            assertFalse(ResidentDailyDecision.hasSafeDueRequestToRetry(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
+            assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(3, server.requestCount)
+            val requests = (1..3).map { server.takeRequest(2, TimeUnit.SECONDS)!! }
+            assertTrue(requests[2].body.readUtf8().contains("bad-first-due-at"))
+            assertEquals("cancelled", RoleDayScheduleStore.plans(app, actor)
+                .single { it.id == plan.id }.status)
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == originalPost })
+            assertFalse(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
 }
