@@ -2338,31 +2338,71 @@ internal object LuluVoiceCallSession {
     }
 }
 
-class LuluVoiceCallService : Service() {
+class LuluVoiceCallService : Service(), androidx.lifecycle.LifecycleOwner {
+    private val cameraLifecycle = androidx.lifecycle.LifecycleRegistry(this)
+    override val lifecycle: androidx.lifecycle.Lifecycle get() = cameraLifecycle
+
     override fun onCreate() {
         super.onCreate()
+        cameraLifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
         createChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (cameraLifecycle.currentState == androidx.lifecycle.Lifecycle.State.CREATED) {
+            cameraLifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
+        }
         when (intent?.action) {
             ACTION_STOP -> {
+                LuluCallCameraSession.closeInService()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
             ACTION_END -> {
+                LuluCallCameraSession.closeInService()
                 LuluVoiceCallSession.endCall()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
-            else -> startForeground(NOTIFICATION_ID, buildNotification())
+            ACTION_CAMERA_ON -> {
+                val character = intent.getStringExtra(EXTRA_CHARACTER_ID).orEmpty()
+                val call = intent.getStringExtra(EXTRA_CALL_ID).orEmpty()
+                val actual = LuluVoiceCallSession.state.value
+                if (actual.connected && character == actual.characterId &&
+                    call == actual.callExperienceId &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    startForegroundForCall(camera = true)
+                    LuluCallCameraSession.openInService(this, this, character, call)
+                    startForegroundForCall(camera = true)
+                } else startForegroundForCall(camera = false)
+            }
+            ACTION_CAMERA_OFF -> {
+                LuluCallCameraSession.closeInService()
+                startForegroundForCall(camera = false)
+            }
+            else -> startForegroundForCall(camera = LuluCallCameraSession.state.value.enabled)
         }
         return START_NOT_STICKY
+    }
+
+    private fun startForegroundForCall(camera: Boolean) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val types = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK or
+                (if (camera) android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA else 0)
+            startForeground(NOTIFICATION_ID, buildNotification(camera), types)
+        } else {
+            startForeground(NOTIFICATION_ID, buildNotification(camera))
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        LuluCallCameraSession.closeInService()
+        cameraLifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
+        cameraLifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }
@@ -2377,7 +2417,7 @@ class LuluVoiceCallService : Service() {
         )
     }
 
-    private fun buildNotification(): android.app.Notification {
+    private fun buildNotification(camera: Boolean): android.app.Notification {
         val state = LuluVoiceCallSession.state.value
         val openIntent = PendingIntent.getActivity(
             this,
@@ -2394,16 +2434,26 @@ class LuluVoiceCallService : Service() {
             Intent(this, LuluVoiceCallService::class.java).setAction(ACTION_END),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
+        val cameraOffIntent = PendingIntent.getService(
+            this, 9103,
+            Intent(this, LuluVoiceCallService::class.java).setAction(ACTION_CAMERA_OFF),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.sym_call_outgoing)
             .setContentTitle("正在与 ${state.characterName.ifBlank { "露露" }} 通话")
-            .setContentText("切到后台也会继续听你说话和播放回复")
+            .setContentText(if (camera) "摄像头已开启；离开视频页仍持续运行，可在此关闭"
+                else "切到后台也会继续听你说话和播放回复")
             .setContentIntent(openIntent)
             .setOngoing(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "挂断", endIntent)
+            .apply {
+                if (camera) addAction(android.R.drawable.ic_menu_close_clear_cancel,
+                    "关闭摄像头", cameraOffIntent)
+            }
             .build()
     }
 
@@ -2411,6 +2461,10 @@ class LuluVoiceCallService : Service() {
         const val ACTION_START = "com.jiacimu.lulu.voicecall.START"
         const val ACTION_STOP = "com.jiacimu.lulu.voicecall.STOP"
         const val ACTION_END = "com.jiacimu.lulu.voicecall.END"
+        const val ACTION_CAMERA_ON = "com.jiacimu.lulu.voicecall.CAMERA_ON"
+        const val ACTION_CAMERA_OFF = "com.jiacimu.lulu.voicecall.CAMERA_OFF"
+        const val EXTRA_CHARACTER_ID = "camera_character_id"
+        const val EXTRA_CALL_ID = "camera_call_id"
         private const val CHANNEL_ID = "lulu_voice_call"
         private const val NOTIFICATION_ID = 7124
     }
