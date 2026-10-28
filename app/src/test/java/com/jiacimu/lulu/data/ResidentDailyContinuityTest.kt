@@ -961,6 +961,21 @@ class ResidentDailyContinuityTest {
             it.evidenceKind == EventEvidenceKind.Observation &&
             it.taskId == prefix })
         assertTrue(SharedExperienceTimeline.eventsByIds(bystander, ids).isEmpty())
+        // The already existing daily decision card must explain which
+        // planned items were rejected without inventing an executed action.
+        SharedExperienceTimeline.record(prefix, actor, "原住民·每日自我安排",
+            native.name, "本人已经选择今天的安排，计划不等于执行", at,
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val anchor = SharedExperienceTimeline.eventsByIds(actor, listOf(prefix)).single()
+        val trace = CharacterCausalTrace.inspect(app, actor, anchor,
+            SharedExperienceTimeline.all(actor), JSONObject())
+        assertEquals(ids.toSet(), trace.filter { it.title.contains("日程未排入") }
+            .map { it.evidenceId }.toSet())
+        assertFalse(trace.any { it.title.contains("执行器确认成功") })
+        assertTrue(CharacterCausalTrace.inspect(app, bystander, anchor,
+            SharedExperienceTimeline.all(actor) + SharedExperienceTimeline.all(bystander),
+            JSONObject()).isEmpty())
         val revisions = rejected.associate { it.id to it.revision }
         // Re-enter after process interruption: same item IDs and no
         // rewritten failure history, even if the same decision is replayed.
@@ -975,6 +990,10 @@ class ResidentDailyContinuityTest {
         ResidentDailyDecision.saveAgenda(app, native, proposal, at)
         assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(ids[0])).isEmpty())
         assertEquals(1, SharedExperienceTimeline.eventsByIds(actor, listOf(ids[1])).size)
+        val afterWithdrawal = CharacterCausalTrace.inspect(app, actor, anchor,
+            SharedExperienceTimeline.all(actor), JSONObject())
+        assertFalse(afterWithdrawal.any { it.evidenceId == ids[0] })
+        assertTrue(afterWithdrawal.any { it.evidenceId == ids[1] })
     }
 
     @Test fun nestedResidentChoicesMustBeStructurallyValidBeforeAnySideEffect() {
