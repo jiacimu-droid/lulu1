@@ -295,4 +295,39 @@ class Live2DVisualActionBusTest {
             prefs.edit().remove("model:$role").commit()
         }
     }
+
+    @Test fun livenessFloorFillsOnlyNeutralEverydayClipsWhenReplyChoseNothing() {
+        val context = RuntimeEnvironment.getApplication()
+        val role = "live2d-role-" + UUID.randomUUID()
+        val call = "call-" + UUID.randomUUID()
+        val relative = "models/test-" + UUID.randomUUID() + "/avatar.model3.json"
+        val settings = File(Live2DAssets.base(context), relative)
+        settings.parentFile?.mkdirs()
+        val motions = (0..20).joinToString(",") { "{\"File\":\"m$it.motion3.json\"}" }
+        settings.writeText(
+            """{"FileReferences":{"Moc":"avatar.moc3","Textures":["skin.png"],""" +
+                """"Motions":{"LuluWolf":[$motions]}}}"""
+        )
+        val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
+        prefs.edit().putString("model:$role", relative).commit()
+        try {
+            // No visible stage for this call: no floor.
+            assertFalse(Live2DVisualActionBus.publishLivenessFloor(context, role, call))
+            Live2DVisualActionBus.stageReady(role, call)
+            assertFalse(Live2DVisualActionBus.publishLivenessFloor(context, role, "other-call"))
+            // Only catalog indices 0 (nod) and 3 (listening) exist in this
+            // model's 0..20 clips; the floor must stay inside that neutral
+            // set and rotate between them across replies.
+            assertTrue(Live2DVisualActionBus.publishLivenessFloor(context, role, call))
+            val first = Live2DVisualActionBus.cues.value[role]?.motion
+            assertTrue(first == ("LuluWolf" to 0) || first == ("LuluWolf" to 3))
+            assertTrue(Live2DVisualActionBus.publishLivenessFloor(context, role, call))
+            val second = Live2DVisualActionBus.cues.value[role]?.motion
+            assertTrue(second == ("LuluWolf" to 0) || second == ("LuluWolf" to 3))
+            assertTrue("floor rotates instead of repeating one clip", first != second)
+        } finally {
+            settings.parentFile?.deleteRecursively()
+            prefs.edit().remove("model:$role").commit()
+        }
+    }
 }

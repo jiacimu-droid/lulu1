@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -830,14 +831,21 @@ internal fun Live2DFullscreenVideoCall(
             val liveWords = state.playingTranscript.ifBlank {
                 state.partialTranscript.ifBlank { state.statusMessage }
             }
-            if (liveWords.isNotBlank() && state.connected) {
-                Text(liveWords.takeLast(180), fontSize = 15.sp,
-                    lineHeight = 23.sp, color = Color(0xFF22374A),
+            // Captions behave like subtitles: only the line being spoken
+            // now (plus the one just finished) stays on screen. The full
+            // transcript lives in the chat record; a whole-reply card
+            // would cover the character's face and body.
+            val caption = liveWords.split('\n').filter { it.isNotBlank() }
+                .takeLast(2).joinToString("\n").takeLast(96)
+            if (caption.isNotBlank() && state.connected) {
+                Text(caption, fontSize = 14.sp, maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 21.sp, color = Color(0xFF22374A),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
-                        .clip(RoundedCornerShape(18.dp))
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Color.White.copy(alpha = .88f))
-                        .padding(horizontal = 14.dp, vertical = 10.dp))
+                        .padding(horizontal = 14.dp, vertical = 8.dp))
             } else Spacer(Modifier.height(18.dp))
             if (modelUrl != null && state.connected) {
                 Row(

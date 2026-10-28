@@ -596,19 +596,17 @@ function drawSceneBackdrop() {
   }
   const g = sceneBackdrop
   g.clear()
-  // Quiet blue-grey wall, a soft window and a gentle floor line. No external
-  // image assets, per-frame allocations or GPU shaders are needed.
+  // Quiet wall, a soft halo behind the character and a gentle floor with a
+  // contact shadow. Every fill stays inside the SCENE_COLORS palette (scene
+  // recognition separates background from avatar by these colors), and no
+  // external image assets or GPU shaders are needed. The old fake window
+  // frame and portal ellipse read as clip-art; keep the room abstract.
   g.beginFill(0xE9EDF4).drawRect(0, 0, w, h).endFill()
-  const windowW = w * .76
-  const windowH = h * .50
-  const windowX = (w - windowW) / 2
-  const windowY = h * .13
-  g.beginFill(0xDFE8F2).drawRoundedRect(windowX, windowY, windowW, windowH, 28).endFill()
-  g.beginFill(0xD3E2EE).drawRoundedRect(windowX + 10, windowY + 10,
-    windowW - 20, windowH - 20, 22).endFill()
-  g.beginFill(0xEAF1F8).drawEllipse(w * .52, h * .37, w * .32, h * .26).endFill()
+  g.beginFill(0xEAF1F8, .55).drawEllipse(w * .5, h * .40, w * .46, h * .33).endFill()
+  g.beginFill(0xEFF3F8, .5).drawEllipse(w * .5, h * .38, w * .33, h * .24).endFill()
   g.beginFill(0xD8E2EB).drawRect(0, h * .78, w, h * .22).endFill()
   g.beginFill(0xEFF3F8).drawRect(0, h * .78, w, Math.max(2, h * .005)).endFill()
+  g.beginFill(0xD3E2EE, .5).drawEllipse(w * .5, h * .795, w * .30, h * .022).endFill()
 }
 
 function ensureApp() {

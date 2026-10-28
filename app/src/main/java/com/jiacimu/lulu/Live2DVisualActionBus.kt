@@ -103,12 +103,12 @@ internal object Live2DVisualActionBus {
         }.ifBlank { "无" }
         return """
             【当前 Live2D 视频通话：同一次回复里由你亲自选择动作】
-            你的角色可以自己决定说什么、什么时候做出什么神态或动作；也可以不动。
+            你的角色可以自己决定说什么、什么时候做出什么神态或动作；说话时默认要有动作陪着，不要站着干说。
             最重要的是使用真正存在的 Motion3 动作，不要自己编造头部/身体角度或指望文字描述让角色动起来。
             真实动作目录（group#index=动作描述）：
             $motions
             真实表情资源：$expressions
-            结合你的性格、当下心情和这句话的语气，从上面的动作目录自主选择最合适的动作。不是按关键词机械匹配，也不需要每句话都做。
+            结合你的性格、当下心情和这句话的语气，从上面的动作目录自主选择最合适的动作。不是按关键词机械匹配；但只要你在开口说话，这一句话就至少挑一个动作，长句或情绪有转折时挑两段，让身体一直活着。
             同一次正常回复即可填写 live2d，不会额外调用语言模型：
             {"action":"reply","text":"你回来了！我刚才还想着你呢。不过我可没一直等你。",
              "live2d":{"beats":[
@@ -116,14 +116,14 @@ internal object Live2DVisualActionBus {
                {"anchor":"不过我可没一直等你","motion":{"group":"LuluWolf","index":6}}
              ]}}
             上面仅说明格式；必须自行从真实目录选动作，示例不是固定搭配。
-            beats 中每项 motion.group 与 motion.index 必须与目录完全一致（索引从0开始）。同一句最多挑两三段重要时刻，不要每个分句都摆动作。
+            beats 中每项 motion.group 与 motion.index 必须与目录完全一致（索引从0开始）。同一句挑一到两段最贴合语气的时刻即可，句子长时可以三段；挑不出特别贴切的，就挑一个轻的日常动作（点头、倾听、轻晃这类），不要整句空着。
             anchor 必须逐字来自这次 text 的分句开头（如句首、逗号后、句号后），并且只出现一次；程序会等对应 TTS 片段真正开始发声才播放 Motion。
             若希望在整句话开始时做一个动作，可直接用 {"live2d":{"motion":{"group":"LuluWolf","index":3}}}；等实际发声后播放。
             不要为普通 Motion 使用 head/body/face 数值或 performance.movement；原生 Motion 包含自己完整的身体协调、节奏与回弹，唇形随真实声音独立变化。
             如果你想用这个模型真实提供的表情资源，可单独选择 expression，也可配合一个 motion；没有的资源不能虚构。
             beats 允许 {"anchor":"原话分句","motion":{"group":"真实组名","index":真实序号},"expression":"真实表情名"}。
             没有匹配锚点或无效组名/序号时，执行器跳过该动作，不凭台词猜动作，也不补造替代动作。
-            没有 Motion 或不想动时可以不填写 live2d，保持自然。
+            只有极少数想安安静静陪着对方的时刻才可以不填写 live2d；日常说话不填会显得呆板，像站着背台词。
             老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
         """.trimIndent()
@@ -352,6 +352,35 @@ internal object Live2DVisualActionBus {
             beats = beats,
         ))
         return true
+    }
+
+    private val livenessFloorCounter = java.util.concurrent.atomic.AtomicLong(0)
+
+    /** Small authored everyday clips (nod, listening) eligible for the floor. */
+    private val livenessFloorMotions = listOf(0, 3, 30, 34)
+
+    /**
+     * Liveness floor for a spoken reply that carried no visual choice at
+     * all. The character's own choices always win: this runs only when the
+     * reply produced no cue, and it never invents an emotion, an expression
+     * or a pose — it replays one small authored everyday clip from the real
+     * catalog so a talking character does not stand frozen for a whole
+     * reply. Rotation across replies is deterministic, not random. Models
+     * without the wolf catalog simply get no floor.
+     */
+    @Synchronized
+    fun publishLivenessFloor(context: Context, characterId: String, callId: String): Boolean {
+        if (callId.isBlank() || visibleStages[characterId] != callId) return false
+        val controls = Live2DAssets.controls(context, characterId)
+        val candidates = livenessFloorMotions.filter { index ->
+            ("LuluWolf" to index) in controls.motions &&
+                Live2DMotionCatalog.describe("LuluWolf", index) != null
+        }
+        if (candidates.isEmpty()) return false
+        val index = candidates[Math.floorMod(
+            livenessFloorCounter.getAndIncrement(), candidates.size.toLong()).toInt()]
+        return publish(context, characterId, callId, JSONObject()
+            .put("motion", JSONObject().put("group", "LuluWolf").put("index", index)))
     }
 
     /** Bind only exact phrase anchors to actual queued TTS starts, fenced by

@@ -1950,6 +1950,20 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
+                // If this reply carried no visual choice at all, keep the
+                // talking character from standing frozen for the whole
+                // reply: one small neutral everyday clip from the bus.
+                if (visualSequenceForReply == 0L) {
+                    appContext?.let { context ->
+                        if (Live2DVisualActionBus.publishLivenessFloor(
+                                context, latest.characterId, latest.callExperienceId)) {
+                            visualSequenceForReply = Live2DVisualActionBus.cues
+                                .value[latest.characterId]
+                                ?.takeIf { it.callId == latest.callExperienceId }
+                                ?.sequence ?: 0L
+                        }
+                    }
+                }
                 val authoredAnchors = Live2DVisualActionBus.cues.value[latest.characterId]
                     ?.takeIf { it.callId == latest.callExperienceId &&
                         it.sequence == visualSequenceForReply && visualSequenceForReply != 0L }
