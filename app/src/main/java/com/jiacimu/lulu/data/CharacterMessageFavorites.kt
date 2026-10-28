@@ -160,7 +160,7 @@ object CharacterMessageFavorites {
                     characterId = characterId,
                     channel = "收藏",
                     speaker = character.displayName,
-                    content = "收藏了主人在聊天中的一条消息：$messageText\n收藏理由：$reason",
+                    content = "收藏了用户在聊天中的一条消息：$messageText\n收藏理由：$reason",
                     occurredAt = actionNow,
                 )
                 appendSavedFavoriteNotice(characterId, entryId, character.displayName)
@@ -187,27 +187,27 @@ object CharacterMessageFavorites {
     ): String {
         val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == conversationId }
         val scene = if (conversation?.groupChat == null) {
-            "与主人的一对一聊天"
+            "与用户的一对一聊天"
         } else {
             "群聊《${conversation.groupChat?.name.orEmpty().ifBlank { conversation.title }}》"
         }
         val request = UnifiedMemoryRequest(
             currentInput = messageText,
             sceneContext = scene,
-            taskIntent = "说明自己为什么真心想把主人这句话收藏下来",
+            taskIntent = "说明自己为什么真心想把用户这句话收藏下来",
         )
         val generated = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
                 appendLine("当前角色：${character.displayName}")
                 appendLine("发生场景：$scene")
-                appendLine("主人原话：$messageText")
+                appendLine("用户原话：$messageText")
             },
             instruction = """
                 你就是${character.displayName}。这句话已经让你产生了强烈到足以“收藏”的个人动机。
                 只输出一句第一人称收藏理由，不要标题、引号、JSON、解释或系统口吻。
                 理由要具体落在这句话为什么对你有意义：可以是喜欢、在意、被触动、想记住某个约定或细节、以后想回来重看。
-                不要泛泛写“很重要”“值得收藏”，不要替主人编造未说过的想法，也不要为了煽情夸大关系。
+                不要泛泛写“很重要”“值得收藏”，不要替用户编造未说过的想法，也不要为了煽情夸大关系。
                 长度通常 12—45 个中文字符，服从角色自己的说话与思考方式。
             """.trimIndent(),
             source = "角色收藏理由",

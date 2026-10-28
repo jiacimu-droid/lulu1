@@ -113,12 +113,10 @@ class CharacterSocialActionOpportunitiesTest {
             "${message.id}:group:${b.characterId}", b.characterId, "群聊",
             "用户", message.content, message.createdAt, false,
             source = "message", evidenceKind = EventEvidenceKind.UserStatement)
-        val aReceipt = CharacterMessageFavorites.favoriteExplicit(a.characterId,
-            message, "我在意这句话的温柔")
-        val bReceipt = CharacterMessageFavorites.favoriteExplicit(b.characterId,
-            message, "我在意这句话的勇气")
-        assertNotNull(aReceipt)
-        assertNotNull(bReceipt)
+        val aReceipt = requireNotNull(CharacterMessageFavorites.favoriteExplicit(a.characterId,
+            message, "我在意这句话的温柔"))
+        val bReceipt = requireNotNull(CharacterMessageFavorites.favoriteExplicit(b.characterId,
+            message, "我在意这句话的勇气"))
         assertNotEquals(aReceipt, bReceipt)
         val aEntry = CharacterMessageFavorites.entryId(a.characterId, message.id)
         val bEntry = CharacterMessageFavorites.entryId(b.characterId, message.id)
@@ -127,8 +125,8 @@ class CharacterSocialActionOpportunitiesTest {
             .count { it.section == com.jiacimu.lulu.core.LexiconSection.Favorite && it.id == aEntry })
         assertEquals(1, LuluRepositories.lexicon.snapshot(b.characterId)
             .count { it.section == com.jiacimu.lulu.core.LexiconSection.Favorite && it.id == bEntry })
-        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(aReceipt!!)).size)
-        assertEquals(1, SharedExperienceTimeline.eventsByIds(b.characterId, listOf(bReceipt!!)).size)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(aReceipt)).size)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(b.characterId, listOf(bReceipt)).size)
         assertTrue(SharedExperienceTimeline.eventsByIds(a.characterId, listOf(bReceipt)).isEmpty())
         // Deleting one person's saved keepsake and its evidence cannot erase
         // the other character's entry, timeline or reason.
@@ -137,11 +135,10 @@ class CharacterSocialActionOpportunitiesTest {
         assertEquals(1, SharedExperienceTimeline.eventsByIds(b.characterId, listOf(bReceipt)).size)
         assertTrue(LuluRepositories.lexicon.snapshot(b.characterId).any { it.id == bEntry })
         // Re-favoriting must use new evidence rather than the deleted tombstone.
-        val fresh = CharacterMessageFavorites.favoriteExplicit(a.characterId,
-            message, "重看以后我有了新的理解")
-        assertNotNull(fresh)
+        val fresh = requireNotNull(CharacterMessageFavorites.favoriteExplicit(a.characterId,
+            message, "重看以后我有了新的理解"))
         assertNotEquals(aReceipt, fresh)
-        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(fresh!!)).size)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(fresh)).size)
     }
 
     @Test fun unwitnessedForeignPrivateMessageCannotEnterPersonalFavoriteArchive() = kotlinx.coroutines.runBlocking {
