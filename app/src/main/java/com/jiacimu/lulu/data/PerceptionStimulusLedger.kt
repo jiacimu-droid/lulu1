@@ -40,6 +40,24 @@ internal object PerceptionStimulusLedger {
         return false
     }
 
+    /** Diagnostic read: unlike hasSeen, this never migrates legacy hashes or
+     * claims an event. The absence of a checkpoint is not proof of no thought.
+     */
+    @Synchronized fun peekSeen(
+        context: Context, characterId: String, evidenceId: String, revision: Long = 1L,
+    ): Boolean {
+        if (characterId.isBlank() || evidenceId.isBlank()) return false
+        initialize(context)
+        if (contains(characterId, evidenceId, revision)) return true
+        if (revision != 1L) return false
+        val p = legacy ?: return false
+        val expiresAt = p.getLong("migration_expires_at", 0L)
+        if (expiresAt == 0L || System.currentTimeMillis() >= expiresAt) return false
+        val token = evidenceId.hashCode().toString()
+        return p.getString("seen:$characterId", "").orEmpty()
+            .lineSequence().any { it == token }
+    }
+
     @Synchronized fun claim(context: Context, characterId: String, stimulus: PerceptionStimulus): Boolean {
         if (characterId.isBlank() || stimulus.evidenceId.isBlank()) return false
         if (hasSeen(context, characterId, stimulus.evidenceId, stimulus.revision)) return false
