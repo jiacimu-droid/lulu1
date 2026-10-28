@@ -539,7 +539,7 @@ private fun LuluScreenAwarenessSettings() {
                 Switch(onDemand, { onDemand = it; prefs.edit().putBoolean(LuluScreenAwareness.ON_DEMAND, it).commit() })
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("自主观察 · 最短间隔5分钟", Modifier.weight(1f), color = CapabilityInk)
+                Text("自主观察 · 单帧识图", Modifier.weight(1f), color = CapabilityInk)
                 Switch(autonomy, { autonomy = it; prefs.edit().putBoolean(LuluScreenAwareness.AUTONOMOUS, it).commit() })
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
