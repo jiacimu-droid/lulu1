@@ -76,7 +76,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     LaunchedEffect(navigateTo, world.x, world.y) {
         val destination = navigateTo ?: return@LaunchedEffect
-        if (destination == world.x to world.y) {
+        if (destination == (world.x to world.y)) {
             navigateTo = null
             return@LaunchedEffect
         }
@@ -87,7 +87,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             return@LaunchedEffect
         }
         delay(145)
-        save(BlockIslandRules.act(island, "move", step.first, step.second))
+        val next = BlockIslandRules.act(island, "move", step.first, step.second)
+        if (next.world.x == world.x && next.world.y == world.y) navigateTo = null
+        save(next)
     }
 
     val night = world.turns % 48 >= 30
@@ -288,7 +290,7 @@ private fun IslandStat(label: String, value: String, tint: Color, modifier: Modi
         color = Color(0xFF254A4A), border = BorderStroke(1.dp, tint.copy(alpha = .2f))) {
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            horizontalArrangement = Arrangement.Center) {
             Text(label, color = tint, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             Spacer(Modifier.width(5.dp))
             Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
