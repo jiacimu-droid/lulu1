@@ -127,7 +127,7 @@ internal object ResidentDailyDecision {
             return null
         val phase = p.getString("due-phase:$key", "").orEmpty()
         val recoveries = p.getInt("due-recoveries:$key", 0)
-        if (phase !in setOf("decided", "needs_recovery") ||
+        if (phase !in setOf("decided", "needs_recovery", "partial_side_steps") ||
             recoveries < MAX_SAVED_DECISION_RECOVERIES ||
             p.getInt("due-manual-resume:$key", 0) > 0) return null
         return SavedDueRecovery(live.id, live.characterId, live.dueAt, phase, recoveries)
@@ -287,7 +287,7 @@ internal object ResidentDailyDecision {
                 plan.resultEvidenceId.isBlank() ||
                 runCatching { JSONObject(raw).optString("choice") }.getOrNull() != "execute"))
             return false
-        return p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery") &&
+        return p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery", "partial_side_steps") &&
             p.getInt("due-recoveries:$key", 0) < MAX_SAVED_DECISION_RECOVERIES
     }
 
