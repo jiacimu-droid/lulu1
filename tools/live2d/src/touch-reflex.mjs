@@ -375,10 +375,40 @@ export function touchCompanionOverlayFor(primary, names = [], metadata = {}, ges
 }
 
 /**
- * Touch uses its local physical reflex; do not auto-play a whole-body
- * Motion3 on release. The authored clips are still available to the
- * character for deliberate speech/emotion choreography.
+ * Optional AUTHORED tactile choreography for the verified wolf rig.
+ * This is a physical clip selection, never a character emotion decision.
+ * Only reuse clips whose head/body motion fits the touched region.
+ *
+ * Arm/hand taps and chest/body impacts deliberately stay procedural:
+ * a whole-avatar lean/dodge would look like flying toward the finger.
+ * Stage checks the actual imported LuluWolf group before playing.
  */
-export function touchMotionFor(_region, _gesture) {
-  return null
+export function touchMotionFor(region, gesture, state = {}) {
+  const family = touchFamily(region)
+  const side = region?.endsWith('-left') ? -1 :
+    region?.endsWith('-right') ? 1 : 0
+  const force = Math.max(0, Math.min(1, Number(state.force ?? .55)))
+  const stroke = gesture?.startsWith('stroke')
+  const travel = gesture?.endsWith('-left') ? -1 :
+    gesture?.endsWith('-right') ? 1 : side
+  let index = null
+  if (isImpact(gesture)) {
+    // Paired positive/negative head-and-torso recovery clips. Chest/arms
+    // instead retain the directional torso recoil without a face dodge.
+    if (['cheek', 'mouth', 'ear', 'beast-ear'].includes(family) && force >= .48)
+      index = (travel || -1) < 0 ? 33 : 9
+  } else if (gesture === 'kiss') {
+    if (['cheek', 'mouth', 'ear', 'beast-ear', 'neck'].includes(family)) index = 36
+    else if (['forehead', 'hair'].includes(family)) index = 32
+  } else if (stroke) {
+    if (['ear', 'beast-ear', 'cheek'].includes(family)) {
+      // Mirrored neck tilt: a right-to-left stroke cannot send the
+      // character in the opposite direction.
+      index = (travel || side || -1) < 0 ? 1 : 2
+    } else if (['hair', 'forehead'].includes(family)) index = 34
+  } else if (gesture === 'tap') {
+    if (family === 'beast-ear' && force >= .5) index = 35
+    else if (family === 'nose' && force >= .55) index = 23
+  }
+  return index == null ? null : { group: 'LuluWolf', index }
 }
