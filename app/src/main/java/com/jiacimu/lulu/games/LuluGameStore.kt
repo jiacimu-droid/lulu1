@@ -31,6 +31,8 @@ enum class LuluGameType {
     MemoryMatch,
     DeepSeaJourney,
     MoodGuess,
+    BlockIsland,
+    RelicEscape,
 }
 
 /** Autonomous games are a subset of the games playable with the user. */
