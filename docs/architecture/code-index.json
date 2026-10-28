@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:40:09.651454+00:00",
-  "commit": "6ed54ffedafab68f2a82b86b388f6504af33f932",
+  "generatedAt": "2026-10-28T09:41:41.318592+00:00",
+  "commit": "c94e857bbe4b23350fa7d05b6740316d28734777",
   "branch": "main",
-  "sourceFingerprint": "c7f1a1c49a5438dccee5df70f8459f18d7c9d3a566bdd1229749ed70d7587e36",
+  "sourceFingerprint": "d91cdd0a160ef2c121e95120ef6353b78180d33c5d80711313ada4f41c1b6d19",
   "summary": {
-    "files": 1024,
-    "lines": 205541,
-    "symbols": 2992
+    "files": 1025,
+    "lines": 205962,
+    "symbols": 2994
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1376,6 +1376,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
         "line": 544
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12256,6 +12260,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
         "line": 132
+      }
+    ],
+    "center": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
+        "line": 365
       }
     ],
     "perform": [
@@ -29394,6 +29404,21 @@
         {
           "name": "act",
           "line": 142
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
+      "lines": 421,
+      "sha256": "3d909c4bfab07cb538008c36f3d37ce2f4fbb1ea9cc7a7537c72038617b694f4",
+      "symbols": [
+        {
+          "name": "save",
+          "line": 51
+        },
+        {
+          "name": "center",
+          "line": 365
         }
       ]
     },
