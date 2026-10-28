@@ -150,6 +150,53 @@ class BlockIslandRulesTest {
         assertTrue(workshop.world.events.any { it.contains("新的") })
     }
 
+    @Test fun woodenBridgeIsPassableAndCannotBeDemolishedUnderAnOccupant() {
+        val baseline = BlockIslandRules.newWorld(2026, emptyList())
+        val tiles = baseline.world.tiles.toMutableList()
+        tiles[baseline.world.index(5, 5)] = 8
+        val start = baseline.copy(world = baseline.world.copy(tiles = tiles, wood = 6, mobs = emptyList()))
+        assertFalse(BlockIslandRules.isWalkable(start, 5, 5))
+        val bridged = BlockIslandRules.act(start, "bridge", 5, 5)
+        assertEquals("bridge", bridged.structures[bridged.world.index(5, 5)])
+        assertEquals(3, bridged.world.wood)
+        assertEquals(8, bridged.world.cell(5, 5))
+        assertTrue(BlockIslandRules.isWalkable(bridged, 5, 5))
+        val stepped = BlockIslandRules.act(bridged, "move", 5, 5)
+        assertEquals(5, stepped.world.x)
+        val blocked = BlockIslandRules.act(stepped, "remove", 5, 5)
+        assertEquals(stepped.world.turns, blocked.world.turns)
+        assertEquals("bridge", blocked.structures[stepped.world.index(5, 5)])
+        val returned = BlockIslandRules.act(stepped, "move", 4, 5)
+        val removed = BlockIslandRules.act(returned, "remove", 5, 5)
+        assertEquals(8, removed.world.cell(5, 5))
+        assertFalse(BlockIslandRules.isWalkable(removed, 5, 5))
+        assertEquals(5, removed.world.wood)
+        assertEquals(removed.structures, BlockIslandState.fromJson(removed.toJson())!!.structures)
+    }
+
+    @Test fun fishingRequiresARealRodAndCookingNeedsCampfire() {
+        val baseline = BlockIslandRules.newWorld(27, emptyList())
+        val tiles = baseline.world.tiles.toMutableList()
+        tiles[baseline.world.index(5, 5)] = 8
+        val start = baseline.copy(world = baseline.world.copy(tiles = tiles, mobs = emptyList(), hp = 5))
+        val withoutRod = BlockIslandRules.act(start, "fish", 5, 5)
+        assertEquals(start.world.turns, withoutRod.world.turns)
+        val withRod = start.copy(tools = setOf("rod"), fish = 1)
+        val caughtOrMissed = BlockIslandRules.act(withRod, "fish", 5, 5)
+        assertEquals(withRod.world.turns + 1, caughtOrMissed.world.turns)
+        val tooEarly = BlockIslandRules.act(caughtOrMissed, "fish", 5, 5)
+        assertEquals(caughtOrMissed.world.turns, tooEarly.world.turns)
+        val noCampfire = BlockIslandRules.act(withRod, "eat_fish")
+        assertEquals(5, noCampfire.world.hp)
+        val withFire = withRod.copy(structures = mapOf(withRod.world.index(5, 4) to "campfire"))
+        val cooked = BlockIslandRules.act(withFire, "eat_fish")
+        assertEquals(10, cooked.world.hp)
+        assertEquals(0, cooked.fish)
+        val restored = BlockIslandState.fromJson(cooked.toJson())!!
+        assertEquals(0, restored.fish)
+        assertEquals(1, BlockIslandState.fromJson(caughtOrMissed.toJson())!!.lastFishTurn.takeIf { it >= 0 }?.let { 1 })
+    }
+
     @Test fun olderIslandSaveMigratesWithoutDeletingBuildingsOrHistory() {
         val old = ExpeditionRules.start(ExpeditionMode.HOMESTEAD, 315, listOf("oldRole"))
             .copy(wood = 7, stone = 4, turns = 19, events = listOf("旧小屋完成"))
