@@ -347,3 +347,10 @@
 - [x] **修复**：在 `ResidentDailyDecision.historicalAttempts` 只读投影原始每日 `phase:<resident>:<date>` 与本人仍持有的 `due-phase:execute:<planId>:<dueAt>`；按原阶段区分模型结果未知、无效原文、已保存决定及独立动作未完，保留原错误类别。现有 `ResidentDecisionRecoveryControl` 居民卡展示最近六条历史，明确只供核对、不授权补发；只显示确有本人日程归属的到点请求，避免跨角色数据泄漏。只限制屏幕展示数，不删除原历史，不创建状态中心、模型调用、自动补发或跨日重试权限。
 - [x] **回归已编写**：`ResidentDailyContinuityTest.pastResidentRequestsRemainReadOnlyAfterMidnightAndAcrossPlanChanges` 覆盖跨午夜请求未知、已保存到点决定、另一居民无效答案隔离、当前日不获得旧日恢复资格、后续改期不复活旧活动/授权。提交与 CI 结果以实际 main SHA 和工作流为准。
 - [ ] **待验**：Android JVM/phone APK、真机居民行程卡跨日展示、进程重启、外部供应商未知计费结果仍需核对；历史快照只是原状态与错误的可见性，无法从本机推断供应商是否已经收费或远端消息是否送达。P0-B 应进一步关联原请求 ID 的独立工具回执与本人后续感知。
+
+## 2026-10-29 P0-B：工具原始结果与下一轮选择的同源因果接续（源码/回归已提交，CI/真机另验）
+
+- [x] **根因**：原始时间线详情已有工具回执和本人感知 checkpoint，但只在“直接打开工具回执”时展示 result.evidenceId 的原生结果、持续目标；从触发事件打开时只看到单条回执，无法追踪搜索/阅读之后是否产生新决定。即使后续本人 decision 的 causalEvidenceId 精确指向工具回执，也未接入来源卡。“搜索后没后续”会误以为没有任何选择。旧版没有保存 causeEvidenceRevision 的回执还被直接标成当前修订事件的行动，容易误认编辑后的新文字触发了旧执行。
+- [x] **源码**：CharacterCausalTrace 复用已有 ToolRouter 原回执、原生结果 evidenceId、CharacterInnerLifeStore.decisions/motives 和 PerceptionStimulusLedger.peekSeen：来源卡与回执卡均可只读展示同一原生结果、下一轮本人选择、持续目标；已感知但当前历史中未找到精确后续时明确“未检索到”，不冒充主动沉默/目标达成。仅 causeEvidenceRevision 与当前原始事件完全一致时沿因果链接；旧版无版本的回执标为未证实，不沿它串接新决定。不同角色/撤回的原生结果不能串入。无新增模型调用、调度、写入或影子状态中心。
+- [x] **回归已编写**：CharacterCausalTraceTest 新增来源卡/回执卡搜索结果一致性、下一轮决定来源、诊断不修改感知 checkpoint、原文编辑后旧回执不解释新文字、已有感知但缺后续不伪造“放弃”、旧无版本回执及跨角色隔离。Android JVM/APK 与真机需按本次提交对应 CI 核实，不能以测试编写代替测试通过。
+- [ ] **待验**：真实前台/后台搜索与阅读后的后续决定是否实际保存了精确 causalEvidenceId，历史快照默认最近200条可能不包含更早的决定；需要真机长历史与不同入口检验。此处只读解释事实，不替人物决定是否分享。

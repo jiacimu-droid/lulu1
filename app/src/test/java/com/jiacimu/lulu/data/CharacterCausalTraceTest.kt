@@ -271,4 +271,75 @@ class CharacterCausalTraceTest {
         assertTrue(CharacterCausalTrace.inspect(context, a, original,
             SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
     }
+    @Test fun searchResultHasSameFollowThroughFromOriginAndReceiptWithoutClaimingGoalCompletion() {
+        source(a, "trace-search-origin", "想搜索后再分享")
+        SharedExperienceTimeline.record("trace-search-native", a, "网页搜索结果", "执行器",
+            "实际找到了三条网页", at.plusSeconds(8), triggerExtraction = false,
+            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
+        receipt(a, "trace-search-receipt", "trace-search-origin", "web_search",
+            "succeeded", true, "搜索已完成", native = "trace-search-native")
+        source(b, "trace-search-foreign", "另一人物自己的私聊")
+        val mind = JSONObject().put("decisions", JSONArray().put(
+            JSONObject().put("causalEvidenceId", "trace-search-receipt")
+                .put("selected", "publish_moment")
+                .put("reason", "搜索后想整理内容再分享")
+                .put("outcome", "尚未收到发布回执")))
+        val mixed = SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b)
+        val origin = CharacterCausalTrace.inspect(context, a, event(a, "trace-search-origin"),
+            mixed, mind)
+        val ownReceipt = CharacterCausalTrace.inspect(context, a, event(a, "trace-search-receipt"),
+            mixed, mind)
+        for (lines in listOf(origin, ownReceipt)) {
+            assertTrue(lines.any { it.title == "原生结果记录" &&
+                it.evidenceId == "trace-search-native" })
+            assertTrue(lines.any { it.title.contains("回执后的本人选择") &&
+                it.detail.contains("尚未收到发布回执") })
+            assertFalse(lines.any { it.detail.contains("另一人物自己的私聊") })
+            assertFalse(lines.any { it.title.contains("目标已完成") })
+        }
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, "trace-search-receipt"))
+        // Reading the diagnostic cannot silently mark the tool result perceived.
+        CharacterCausalTrace.inspect(context, a, event(a, "trace-search-origin"), mixed, mind)
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, "trace-search-receipt"))
+        source(a, "trace-search-origin", "修订后的另一个问题")
+        val revised = CharacterCausalTrace.inspect(context, a, event(a, "trace-search-origin"),
+            SharedExperienceTimeline.all(a), mind)
+        assertTrue(revised.any { it.title.contains("历史版本的行动回执") })
+        assertFalse(revised.any { it.title.contains("回执后的本人选择") })
+        assertFalse(revised.any { it.title == "原生结果记录" })
+    }
+
+    @Test fun perceivedReceiptWithoutFollowUpIsNotMisreportedAsDeliberateSilence() {
+        source(a, "trace-perceived-source")
+        receipt(a, "trace-perceived-receipt", "trace-perceived-source",
+            "web_search", "succeeded", true, "搜索完成")
+        assertTrue(PerceptionStimulusLedger.claim(context, a,
+            CharacterPerceptionContext.stimulus(event(a, "trace-perceived-receipt"))))
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, "trace-perceived-source"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(lines.any { it.title == "回执后的后续" &&
+            it.detail.contains("不能推断已放弃") })
+        assertFalse(lines.any { it.title.contains("本人选择安静") })
+        assertFalse(CharacterCausalTrace.inspect(context, b,
+            event(a, "trace-perceived-source"), SharedExperienceTimeline.all(a),
+            JSONObject()).isNotEmpty())
+    }
+
+    @Test fun oldReceiptWithoutSourceRevisionCannotAssertCurrentTextCausedFollowUp() {
+        source(a, "trace-legacy-source")
+        SharedExperienceTimeline.record("trace-legacy-receipt", a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "web_search").put("status", "succeeded")
+                .put("causeEvidenceId", "trace-legacy-source")
+                .put("result", JSONObject().put("success", true).toString()).toString(),
+            at.plusSeconds(10), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        val mind = JSONObject().put("decisions", JSONArray().put(
+            JSONObject().put("causalEvidenceId", "trace-legacy-receipt")
+                .put("selected", "publish_moment").put("reason", "准备分享")))
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, "trace-legacy-source"),
+            SharedExperienceTimeline.all(a), mind)
+        assertTrue(lines.any { it.title.contains("来源版本未证实") })
+        assertFalse(lines.any { it.title.contains("回执后的本人选择") })
+    }
+
 }

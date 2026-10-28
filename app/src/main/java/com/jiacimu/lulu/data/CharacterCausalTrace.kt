@@ -121,37 +121,29 @@ internal object CharacterCausalTrace {
                     }, if (source == null) "" else source.id)
             }
             rows += receiptLine(context, characterId, current, payload)
-            val result = objectValue(payload.opt("result"))
-            val nativeId = result?.optString("evidenceId").orEmpty()
-            if (nativeId.isNotBlank() && nativeId != current.id) {
-                val native = SharedExperienceTimeline.eventsByIds(characterId, listOf(nativeId)).firstOrNull()
-                rows += CharacterCausalTraceLine("原生结果记录",
-                    if (native == null) "执行器引用的原始结果不存在或已撤回"
-                    else "真实记录：${native.channel}；不等于目标已完成",
-                    native?.id.orEmpty())
-            }
-            val motiveId = payload.optString("motiveId")
-            if (motiveId.isNotBlank()) {
-                val motives = mind.optJSONArray("motives")
-                val motive = (0 until (motives?.length() ?: 0))
-                    .mapNotNull { index -> motives?.optJSONObject(index) }.firstOrNull { it.optString("id") == motiveId }
-                rows += CharacterCausalTraceLine("持续目标",
-                    if (motive == null) "原目标当前不可检索，不能推断已完成"
-                    else "当前状态：${motive.optString("status")}；${motive.optString("waitingFor").take(150)}")
-            }
+            rows += receiptContinuation(context, characterId, current, payload, mind)
         }
         linked.takeLast(12).forEach { (event, body) ->
             val originalRevision = body.optLong("causeEvidenceRevision", 0L)
-            if (body.optString("causeEvidenceId") == current.id &&
-                originalRevision > 0 && originalRevision != current.revision) {
-                rows += CharacterCausalTraceLine("历史版本的行动回执",
-                    "这项行动引用本事件的旧版本 $originalRevision，不能视为对当前版本的回应",
-                    event.id)
-            } else {
-                val line = receiptLine(context, characterId, event, body)
-                rows += if (body.optString("causeEvidenceId") == current.id) line
-                else line.copy(title = "同任务记录 · ${line.title}",
-                    detail = "仅共享任务 ID，不证明由当前事件直接触发；${line.detail}")
+            val directCause = body.optString("causeEvidenceId") == current.id
+            when {
+                directCause && originalRevision > 0 && originalRevision != current.revision ->
+                    rows += CharacterCausalTraceLine("历史版本的行动回执",
+                        "这项行动引用本事件的旧版本 $originalRevision，不能视为对当前版本的回应",
+                        event.id)
+                directCause && originalRevision == 0L ->
+                    rows += receiptLine(context, characterId, event, body).copy(
+                        title = "旧回执 · 来源版本未证实",
+                        detail = "旧记录未保存来源版本，不能断定是当前文字触发；" +
+                            receiptLine(context, characterId, event, body).detail)
+                directCause -> {
+                    rows += receiptLine(context, characterId, event, body)
+                    rows += receiptContinuation(context, characterId, event, body, mind)
+                }
+                else -> rows += receiptLine(context, characterId, event, body).let { line ->
+                    line.copy(title = "同任务记录 · ${line.title}",
+                        detail = "仅共享任务 ID，不证明由当前事件直接触发；${line.detail}")
+                }
             }
         }
         // Resident agenda validation is a factual scheduling outcome, not a
@@ -216,6 +208,59 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
         } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
+        }
+        return rows
+    }
+
+    /**
+     * A tool receipt can be inspected from its own card or from the original
+     * source card. Only exact, live evidence IDs join the next perception and
+     * decision; a shared task ID, stale revision or similar text never does.
+     * No reads here claim a stimulus or schedule another model request.
+     */
+    private fun receiptContinuation(
+        context: Context, characterId: String, receipt: SharedTimelineEvent,
+        body: JSONObject, mind: JSONObject,
+    ): List<CharacterCausalTraceLine> {
+        val rows = mutableListOf<CharacterCausalTraceLine>()
+        val result = objectValue(body.opt("result"))
+        val nativeId = result?.optString("evidenceId").orEmpty()
+        val native = if (nativeId.isNotBlank() && nativeId != receipt.id)
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(nativeId)).firstOrNull()
+        else null
+        if (nativeId.isNotBlank() && nativeId != receipt.id) {
+            rows += CharacterCausalTraceLine("原生结果记录",
+                if (native == null) "执行器引用的原始结果不存在或已撤回"
+                else "真实记录：${native.channel}；不等于目标已完成",
+                native?.id.orEmpty())
+        }
+        val causes = setOfNotNull(receipt.id, native?.id)
+        val decisions = mind.optJSONArray("decisions")
+        val followUps = (0 until (decisions?.length() ?: 0))
+            .mapNotNull { index -> decisions?.optJSONObject(index) }
+            .filter { it.optString("causalEvidenceId") in causes }
+        followUps.takeLast(3).forEach { decision ->
+            rows += CharacterCausalTraceLine("回执后的本人选择 · " +
+                CharacterRecordProjection.actionLabel(decision.optString("selected")),
+                listOf(decision.optString("reason"), decision.optString("outcome"))
+                    .filter(String::isNotBlank).joinToString("；").take(240),
+                receipt.id)
+        }
+        if (followUps.isEmpty() &&
+            PerceptionStimulusLedger.peekSeen(context, characterId, receipt.id, receipt.revision)) {
+            rows += CharacterCausalTraceLine("回执后的后续",
+                "本人已有这条回执的感知检查点，但当前可检索的决定中没有精确后续；" +
+                    "不能推断已放弃、未思考或目标完成", receipt.id)
+        }
+        val motiveId = body.optString("motiveId")
+        if (motiveId.isNotBlank()) {
+            val motives = mind.optJSONArray("motives")
+            val motive = (0 until (motives?.length() ?: 0))
+                .mapNotNull { index -> motives?.optJSONObject(index) }
+                .firstOrNull { it.optString("id") == motiveId }
+            rows += CharacterCausalTraceLine("持续目标",
+                if (motive == null) "原目标当前不可检索，不能推断已完成"
+                else "当前状态：${motive.optString("status")}；${motive.optString("waitingFor").take(150)}")
         }
         return rows
     }
