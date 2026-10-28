@@ -40,6 +40,20 @@ internal object Live2DSpeechAnchorPlan {
         return if (atBoundary(speech, position)) position else null
     }
 
+    /**
+     * Already-prepared TTS segments must not be split or re-synthesized just
+     * to animate. Bind only a unique, literal clause-start match to its
+     * actually queued fragment; never invent a timestamp within a fragment.
+     */
+    fun bindExistingSegments(parts: List<String>, anchors: List<String>): Map<String, Int> =
+        anchors.distinct().mapNotNull { anchor ->
+            val matching = parts.indices.filter { index ->
+                val plan = build(parts[index], listOf(anchor))
+                plan.segmentForAnchor[anchor] == 0
+            }
+            if (matching.size == 1) anchor to matching.single() else null
+        }.toMap()
+
     fun build(speech: String, anchors: List<String>): Plan {
         if (speech.isBlank()) return Plan(emptyList(), emptyMap())
         val distinct = anchors.distinct()

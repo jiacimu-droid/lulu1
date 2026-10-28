@@ -39,13 +39,20 @@ internal object Live2DAssets {
     fun hasCore(context: Context) = coreFile(context).let { it.isFile && it.length() > 1024 }
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
+    /** The renderer and calibration must use the identical WebView asset URL. */
+    internal fun modelUrlForSettings(context: Context, settings: File): String? {
+        val root = base(context)
+        if (!settings.isFile || !inside(root, settings)) return null
+        val relative = settings.relativeTo(root).invariantSeparatorsPath
+        if (!relative.startsWith("models/")) return null
+        return "https://appassets.androidplatform.net/private/" +
+            relative.split('/').joinToString("/") { Uri.encode(it) }
+    }
+
     fun modelUrl(context: Context, characterId: String): String? {
         val relative = prefs(context).getString("model:$characterId", null).orEmpty()
         if (!relative.startsWith("models/") || relative.contains("..")) return null
-        val file = File(base(context), relative)
-        if (!file.isFile || !inside(base(context), file)) return null
-        return "https://appassets.androidplatform.net/private/" +
-            relative.split('/').joinToString("/") { Uri.encode(it) }
+        return modelUrlForSettings(context, File(base(context), relative))
     }
     fun modelLabel(context: Context, characterId: String) =
         prefs(context).getString("label:$characterId", null).orEmpty()
@@ -223,9 +230,13 @@ internal object Live2DAssets {
                     ids.containsAll(WOLF_PACK_SIGNATURE)
                 }
             }.getOrDefault(false)
-            val calibrated = context
-                .getSharedPreferences("lulu_live2d_touch_zones_v1", 0)
-                .contains(settings.toURI().toURL().toString())
+            // Live2DCallStage stores calibration by the HTTPS WebView URL,
+            // not by a local file: URL. Empty/invalid JSON is not calibration.
+            val calibrated = modelUrlForSettings(context, settings)?.let { url ->
+                val raw = context.getSharedPreferences("lulu_live2d_touch_zones_v1", 0)
+                    .getString(url, null)
+                runCatching { JSONObject(raw ?: "{}").length() > 0 }.getOrDefault(false)
+            } ?: false
             LibraryModelHealth(expressions, motions, wolf, calibrated,
                 genuinePortrait(settings))
         }.getOrDefault(empty)

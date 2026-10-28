@@ -1977,11 +1977,17 @@ internal object LuluVoiceCallSession {
                     Live2DSpeechAnchorPlan.build(text, authoredAnchors)
                 else null
                 val segments = anchorPlan?.parts?.takeIf { it.isNotEmpty() } ?: remaining
+                // Split/bedtime/streamed TTS can already be segmented before
+                // the visual plan arrives. An empty map previously erased every
+                // authored Motion beat even when a fragment started with its
+                // exact anchor. Match real fragment starts without guessing time.
+                val segmentForAnchor = anchorPlan?.segmentForAnchor
+                    ?: Live2DSpeechAnchorPlan.bindExistingSegments(segments, authoredAnchors)
                 val synchronizedSequence = if (visualSequenceForReply != 0L &&
                     authoredAnchors.isNotEmpty())
                     Live2DVisualActionBus.bindSpeechAnchors(
                         latest.characterId, latest.callExperienceId,
-                        visualSequenceForReply, anchorPlan?.segmentForAnchor.orEmpty())
+                        visualSequenceForReply, segmentForAnchor)
                 else visualSequenceForReply
                 enqueueSpoken(segments, synchronizedSequence)
                 // During a new call's opening, do not reopen the microphone while

@@ -302,3 +302,10 @@
 - **回归**：`ResidentDailyContinuityTest.dailyImmediateActionFailureKeepsSavedChoiceAndNeverRepeatsSuccessfulPosts` 以 MockWebServer 验证合法模型决定中直接动态与独立动态成功、陌生人私信被拒绝；重复恢复和一次人工续接后模型请求始终为一次，两个动态各一次，拒绝回执保留、过日或旧确认不能再续接。代码提交 `ad2692ba`、`585d42fb`、`4c60a426`、`7d612967`、`03db6365`、`1d10ec59`、`12c6e20e`。以上为**源码与测试提交**，不等于最新 main Android 单测/APK/真机通过；索引需由既有 Refresh code index 工作流生成并核对。
 - **WorkManager 补充**：原 catchup 始终使用同一个 KEEP 名称，正在运行的恢复 Worker 无法为下一次恢复再入队。现在在原定每日 catchup 上使用按已保存决定恢复计数分代的唯一工作名（0/1），每次延迟120秒，恢复预算耗尽不再安排；纯函数回归验证不同恢复代不冲突，仍需 Android WorkManager 实际运行/真机后台调度验收。追加提交 `03367e34`、`bb81ff56`、`c5e4b504`。
 - **仍有风险**：真正已发送但服务端结果未知的外部动作不得自动重发；相同请求 ID 的失败结果可能继续保持失败，主人续接并不保证完成。已取消/改期日程的独立失败步骤仍需单独设计不复活旧计划的恢复。跨午夜未完成的“当日即时动作”不自动补发，避免隔日擅自发送过期消息；应由角色在新一日的原有感知/决策中自主复议。真机须核验前台关闭、进程中断、权限变化、重启、重复点击和跨日。
+
+
+## 2026-10-28 Live2D 视频通话模型与动作接线排查（本次源码提交，未真机验收）
+
+- 模型库与视频通话本来已有上传、全局删除、复用已上传模型和角色单独选择；不重复实现第二个库。修正 `Live2DAssets.libraryModelHealth` 用本机 file URL 而非 Stage 实际 HTTPS 模型 URL 判断校准的错误，要求真正非空校准区域才显示“已校准”；两入口仍通过同一模型设置路径读取原触摸区。
+- `LuluVoiceCallSession` 原在分段 TTS/哄睡场景无法生成追加切段方案时，将空的锚点映射传入 `Live2DVisualActionBus.bindSpeechAnchors`，因此删掉模型明明已选择的全部带 anchor Motion。复用已排好的真实 TTS 片段，在 `Live2DSpeechAnchorPlan.bindExistingSegments` 中仅绑定唯一、真实分句起点的锚点，不拆新片段、不猜片段内时间、不追加模型调用。无法定位的锚点仍不执行，不虚构成功。
+- 新增校准键一致性/空记录测试、已有 TTS 分段精准匹配/重复与非分句起点拒绝测试。代码索引须依仓库现有工作流生成；Android CI 和真实视频动作效果必须单独核验，不能因静态修复宣称真机已通过。

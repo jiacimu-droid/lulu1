@@ -51,6 +51,25 @@ class Live2DSpeechAnchorPlanTest {
         assertEquals(text, plan.parts.joinToString(""))
     }
 
+    @Test fun existingAudioFragmentsPreserveOnlyActuallyAlignedMotionAnchors() {
+        val parts = listOf("你回来啦！", "不过，我可没一直等你。", "其实呢，今天还有件事。")
+        val matched = Live2DSpeechAnchorPlan.bindExistingSegments(parts,
+            listOf("你回来啦", "不过我可没一直等你", "今天还有件事", "不存在"))
+        assertEquals(mapOf("你回来啦" to 0, "不过我可没一直等你" to 1), matched)
+        // The audio queue remains exactly the one it was before animation.
+        assertEquals("你回来啦！", parts[0])
+        assertEquals(3, parts.size)
+    }
+
+    @Test fun repeatedAndMidFragmentAnchorsNeverGuessAMotionTimestamp() {
+        val parts = listOf("你好。然后再见。", "你好！", "下次见。")
+        val matched = Live2DSpeechAnchorPlan.bindExistingSegments(parts,
+            listOf("你好", "然后再见", "下次见"))
+        assertNull(matched["你好"])
+        assertNull(matched["然后再见"])
+        assertEquals(2, matched["下次见"])
+    }
+
     @Test fun blankInputProducesNoSyntheticSpeech() {
         assertTrue(Live2DSpeechAnchorPlan.build(" ", listOf("嗨")).parts.isEmpty())
     }

@@ -223,14 +223,19 @@ class Live2DArchiveTest {
                 """{"Id":"ParamMouthPuckerWiden"},{"Id":"ParamBrowLForm"},{"Id":"ParamAngleX"}]}"""
         )
         val zones = context.getSharedPreferences("lulu_live2d_touch_zones_v1", 0)
-        val zoneKey = settings.toURI().toURL().toString()
+        val zoneKey = Live2DAssets.modelUrlForSettings(context, settings)!!
         try {
             val health = Live2DAssets.libraryModelHealth(context, settings)
             assertEquals(2, health.expressions)
             assertEquals(2, health.motions)
             assertTrue(health.wolfPackEligible)
             assertFalse(health.touchCalibrated)
+            // Legacy file: URL is not the actual call-stage calibration key.
+            zones.edit().putString(settings.toURI().toURL().toString(), "{\"cheek-left\":{}}").commit()
+            assertFalse(Live2DAssets.libraryModelHealth(context, settings).touchCalibrated)
             zones.edit().putString(zoneKey, "{}").commit()
+            assertFalse(Live2DAssets.libraryModelHealth(context, settings).touchCalibrated)
+            zones.edit().putString(zoneKey, "{\"cheek-left\":{\"x\":0.4,\"y\":0.5,\"rx\":0.1}}").commit()
             assertTrue(Live2DAssets.libraryModelHealth(context, settings).touchCalibrated)
             // A missing settings file reports an empty health, never a crash.
             val missing = Live2DAssets.libraryModelHealth(context,
@@ -238,7 +243,8 @@ class Live2DArchiveTest {
             assertEquals(0, missing.expressions)
             assertFalse(missing.wolfPackEligible)
         } finally {
-            zones.edit().remove(zoneKey).commit()
+            zones.edit().remove(zoneKey)
+                .remove(settings.toURI().toURL().toString()).commit()
             settings.parentFile?.deleteRecursively()
         }
     }
