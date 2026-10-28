@@ -154,7 +154,27 @@ internal object CharacterCausalTrace {
                     detail = "仅共享任务 ID，不证明由当前事件直接触发；${line.detail}")
             }
         }
-        if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty()) {
+        // Resident agenda validation is a factual scheduling outcome, not a
+        // ToolRouter execution. Its own role-owned rows already carry the
+        // exact daily decision task ID; don't confuse rejected planning with
+        // an action the resident performed or chose to cancel.
+        val rejectedAgenda = if (current.source == "resident-daily") {
+            val candidates = events.filter {
+                it.characterId == characterId &&
+                    it.source == "resident-agenda-rejected" &&
+                    it.taskId == current.id &&
+                    it.id.startsWith("${current.id}-agenda-rejected-")
+            }
+            val live = SharedExperienceTimeline.eventsByIds(characterId, candidates.map { it.id })
+                .associateBy { it.id }
+            candidates.filter { live[it.id]?.revision == it.revision }
+                .sortedBy { it.id }.takeLast(12)
+        } else emptyList()
+        rejectedAgenda.forEach { rejected ->
+            rows += CharacterCausalTraceLine("日程未排入 · 执行器拒绝",
+                rejected.content.take(260), rejected.id)
+        }
+        if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty() && rejectedAgenda.isEmpty()) {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
         } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
