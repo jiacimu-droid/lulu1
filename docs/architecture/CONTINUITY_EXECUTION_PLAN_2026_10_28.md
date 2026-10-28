@@ -332,3 +332,11 @@
 - [x] **跨入口回归已编写**：`ResidentDailyContinuityTest` 新增 MockWebServer「第一次结构无效→补正 401→切换模型→后台/到点入口不再请求→主人明确恢复只补正一次→原始动态/计划不提前执行」的每日、到点两条端到端用例；校验失败阶段、错误原文、原始选择、请求数量、旧确认失效、朋友圈不重复。原有首次 401/413 改连接可重试、502 未知结果不重买的测试继续保留。
 - [x] **已提交 main**：源码 `61f8a509d38652dc9d805e22a26dc22fd9dc8d10`，回归 `0500c56235079ceac3e1b3768e619629a2f1094f`。代码索引遵循原有 `Refresh code index` 工作流，必须以自动生成提交/实际 workflow 结果确认，不能手工假造索引。
 - [ ] **尚未验收**：本轮 Android JVM / phone APK / 真机及进程被杀、真实供应商 401/413/5xx、后台 WorkManager 的实际恢复行为，须核对最新 main 对应运行结果。下一项 P0-A 优先调查原日程变更与独立副动作回执之间的进程死亡间隙，并验证跨日结果未知时是否有安全的只读确认途径；不能以新的自动重试代替模型决定。
+
+
+## 2026-10-29 P0-A：日程主变更已落盘、独立回执阶段未落盘的进程中断（源码/回归已提交，CI 与真机待验）
+
+- [x] **根因**：cancel/reschedule/wait 的原决定及独立动作 requestId 已持久化，但 RoleDayScheduleStore 成功修改日程后与 ResidentDailyDecision 的 `due-primary-applied` / phase 是两次不同 SharedPreferences 提交。若在间隙被杀，旧 dueAt 的 Worker 被版本门禁拒绝，新日程又没有恢复标记，导致真实失败的独立步骤永久不可达；仅凭相同时间或标题无法安全归属。
+- [x] **源码修复**：RoleDayPlan 增加可选 `lastMutationRequestId`，仅由程序把原 due 决定稳定 key 与取消/改期/等待的日程变更在**同一次日程持久化**写入；普通用户再次改期/取消会清空旧标记。ResidentDailyDecision 的既有居民行程卡恢复入口同时识别原有完整 marker 和“日程已变、phase 仍为 decided”的确切原决定。仍须验证本人原始首版证据、原 choice、日程状态/版本、未用过的人工授权；只续接独立 steps，绝不复活旧活动、重买模型或盲目补发。人工授权与 partial phase 在执行前一起持久化，进程再次中断不谎称 finished。
+- [x] **回归源码**：ResidentDailyContinuityTest 用 MockWebServer 覆盖 cancel/reschedule/wait 三类真实模型决定→成功动态+被拒私信→模拟主日程已提交但 phase/marker 丢失→恢复只执行原 requestId，已发动态恰好一次、旧主动作零次、模型请求不增加；另核对后续用户改期、撤回原决定后旧恢复资格失效。
+- [ ] **尚待实证**：GitHub Android JVM 测试、APK 构建、索引生成工作流、真实设备进程死亡注入与重启/后台调度；代码提交或 Robolectric 测试编写不能冒充通过。旧版本没有日程内 mutationRequestId 且恰好死在该间隙时，仍无法安全倒推出原决定，保守不自动恢复。

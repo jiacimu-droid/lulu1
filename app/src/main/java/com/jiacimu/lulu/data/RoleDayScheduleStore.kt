@@ -45,6 +45,8 @@ data class RoleDayPlan(
     /** Exact model decision that created this plan; never inferred from matching prose or time. */
     val originEvidenceId: String = "",
     val originEvidenceRevision: Long = 0L,
+    /** Calendar-atomic provenance of a resident due mutation, never model-supplied. */
+    val lastMutationRequestId: String = "",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -78,7 +80,8 @@ object RoleDayScheduleStore {
                     o.optString("locationCode"), o.optString("activityArgs"),
                     o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false),
                     o.optString("concernId"), o.optString("originEvidenceId"),
-                    o.optLong("originEvidenceRevision", 0L))
+                    o.optLong("originEvidenceRevision", 0L),
+                    o.optString("lastMutationRequestId"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -104,7 +107,8 @@ object RoleDayScheduleStore {
                 .put("commitmentTaskId", p.commitmentTaskId)
                 .put("selfInitiated", p.selfInitiated).put("concernId", p.concernId)
                 .put("originEvidenceId", p.originEvidenceId)
-                .put("originEvidenceRevision", p.originEvidenceRevision))
+                .put("originEvidenceRevision", p.originEvidenceRevision)
+                .put("lastMutationRequestId", p.lastMutationRequestId))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -410,7 +414,7 @@ object RoleDayScheduleStore {
     @Synchronized
     fun cancel(context: Context, characterId: String, planId: String, reason: String = "",
         now: Instant = Instant.now(), retainRunningWake: Boolean = false,
-        expectedDueAt: Instant? = null): Boolean {
+        expectedDueAt: Instant? = null, mutationRequestId: String = ""): Boolean {
         val records = all(context)
         val target = records.firstOrNull { it.characterId == characterId && it.id == planId &&
             it.status in setOf("planned", "due") } ?: return false
@@ -418,7 +422,8 @@ object RoleDayScheduleStore {
         if (expectedDueAt != null && target.dueAt != expectedDueAt) return false
         persist(context, records.map {
             if (it.id == target.id) it.copy(status = "cancelled", resolvedAt = now,
-                resultSummary = reason.trim().take(180)) else it
+                resultSummary = reason.trim().take(180),
+                lastMutationRequestId = mutationRequestId) else it
         })
         // The resident's own due worker must be allowed to finish persisting
         // the SAME model decision and independent receipts. Normal user-driven
@@ -509,7 +514,7 @@ object RoleDayScheduleStore {
     fun reschedule(context: Context, characterId: String, planId: String,
         dueAt: Instant, reason: String, now: Instant = Instant.now(),
         appendToCurrentWork: Boolean = false,
-        expectedDueAt: Instant? = null): RoleDayPlan {
+        expectedDueAt: Instant? = null, mutationRequestId: String = ""): RoleDayPlan {
         require(dueAt.isAfter(now.plusSeconds(60))) { "改期必须是未来时间" }
         val previous = all(context)
         val original = previous.firstOrNull { it.characterId == characterId && it.id == planId &&
@@ -518,7 +523,8 @@ object RoleDayScheduleStore {
             "原日程已被其他决定修改，禁止旧模型结果覆盖新时间"
         }
         val revised = original.copy(dueAt = dueAt, status = "planned",
-            resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1)
+            resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1,
+            lastMutationRequestId = mutationRequestId)
         persist(context, previous.map { if (it.id == planId) revised else it })
         try {
             scheduleWake(context, revised, now, appendToCurrentWork = appendToCurrentWork)

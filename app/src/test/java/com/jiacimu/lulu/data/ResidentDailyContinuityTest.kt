@@ -2108,6 +2108,72 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+
+    @Test(timeout = 60_000)
+    fun interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "中断日程居民${UUID.randomUUID().toString().take(6)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val kinds = listOf("cancel", "reschedule", "wait")
+        val posts = kinds.associateWith { "中断前已发送-$it-${UUID.randomUUID()}" }
+        val server = MockWebServer()
+        for (kind in kinds) {
+            val choice = JSONObject().put("choice", kind).put("reason", "本人选择")
+                .put("steps", JSONArray()
+                    .put(JSONObject().put("tool", "publish_moment")
+                        .put("args", JSONObject().put("text", posts.getValue(kind))))
+                    .put(JSONObject().put("tool", "send_character_message")
+                        .put("args", JSONObject().put("targetCharacterId",
+                            "resident:unknown-${UUID.randomUUID()}").put("text", "你好"))))
+            if (kind == "reschedule") choice.put("dueAt", now.plusSeconds(1200).toString())
+            if (kind == "wait") choice.put("reviewAt", now.plusSeconds(1500).toString())
+            server.enqueue(answer(choice.toString()))
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "calendar-crash-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            for ((index, kind) in kinds.withIndex()) {
+                val plan = RoleDayScheduleStore.arrange(app, actor, "中断旧计划$kind",
+                    "本人复议", now.minusSeconds(120L + index), now.minusSeconds(600),
+                    activityAction = "publish_moment",
+                    activityArgs = JSONObject().put("text", "原主动作绝不能发送$kind"))
+                assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+                val key = "execute:${plan.id}:${plan.dueAt}"
+                val live = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+                assertEquals(key, live.lastMutationRequestId)
+                // Simulate death between the calendar mutation and the
+                // separate decision phase/side-receipt commit.
+                assertTrue(prefs.edit().remove("due-primary-applied:$key")
+                    .putString("due-phase:$key", "decided").commit())
+                val recovered = ResidentDailyDecision.savedIndependentSideRecoveries(app, live).single()
+                assertEquals("decided", recovered.phase)
+                assertFalse(ResidentDailyDecision.resumeSavedIndependentSideSteps(app, recovered))
+                assertEquals(if (kind == "wait") "waiting_partial" else "partial_side_steps",
+                    prefs.getString("due-phase:$key", ""))
+                assertTrue(ResidentDailyDecision.savedIndependentSideRecoveries(app, live).isEmpty())
+                assertFalse(ResidentDailyDecision.resumeSavedIndependentSideSteps(app, recovered))
+                assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+                assertEquals(index + 1, server.requestCount)
+                assertEquals(1, MomentsStore.posts.value.count {
+                    it.authorCharacterId == actor && it.content == posts.getValue(kind)
+                })
+                assertFalse(MomentsStore.posts.value.any {
+                    it.authorCharacterId == actor && it.content == "原主动作绝不能发送$kind"
+                })
+            }
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000)
     fun changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
@@ -2136,6 +2202,9 @@ class ResidentDailyContinuityTest {
                 .putString("due-phase:$key", "decided").commit())
             assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
             val live = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+            // Simulate the phase/marker commit being interrupted.
+            assertTrue(prefs.edit().remove("due-primary-applied:$key")
+                .putString("due-phase:$key", "decided").commit())
             val snapshot = ResidentDailyDecision.savedIndependentSideRecoveries(app, live).single()
             if (withdraw) SharedExperienceTimeline.deleteEvent(
                 "native-wake-${plan.id}-${plan.dueAt.epochSecond}")

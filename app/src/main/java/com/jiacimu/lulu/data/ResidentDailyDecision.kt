@@ -230,34 +230,60 @@ internal object ResidentDailyDecision {
             it.id == plan.id && it.dueAt == plan.dueAt &&
                 it.status == plan.status && it.rescheduleCount == plan.rescheduleCount
         } ?: return emptyList()
+
         val p = prefs(context)
-        val prefix = "due-primary-applied:execute:${live.id}:"
-        return p.all.asSequence().mapNotNull { (markerKey, value) ->
-            if (!markerKey.startsWith(prefix)) return@mapNotNull null
-            val marker = runCatching { JSONObject(value as? String ?: return@mapNotNull null) }
-                .getOrNull() ?: return@mapNotNull null
+        val markerPrefix = "due-primary-applied:execute:${live.id}:"
+        val requestPrefix = "execute:${live.id}:"
+        // A process may die after the calendar commit but before the separate
+        // phase/marker commit. The calendar's own durable mutation request ID
+        // proves exactly which decision changed this slot. Legacy markers
+        // remain readable; no model decision or external effect is guessed.
+        val keys = (p.all.keys.asSequence().filter { it.startsWith(markerPrefix) }
+            .map { it.removePrefix("due-primary-applied:") } +
+            sequenceOf(live.lastMutationRequestId).filter { it.startsWith(requestPrefix) })
+            .distinct()
+        return keys.mapNotNull { key ->
             val originalDueAt = runCatching {
-                Instant.parse(marker.optString("originalDueAt"))
+                Instant.parse(key.removePrefix(requestPrefix))
             }.getOrNull() ?: return@mapNotNull null
-            val key = "execute:${live.id}:$originalDueAt"
-            if (markerKey != "due-primary-applied:$key" ||
+            if (key != "execute:${live.id}:$originalDueAt") return@mapNotNull null
+            val marker = p.getString("due-primary-applied:$key", null)?.let {
+                runCatching { JSONObject(it) }.getOrNull()
+            }
+            val provedByCalendar = live.lastMutationRequestId == key
+            if (marker == null && !provedByCalendar) return@mapNotNull null
+            if (live.lastMutationRequestId.isNotBlank() && !provedByCalendar)
+                return@mapNotNull null
+            if (marker != null && (
                 marker.optString("characterId") != live.characterId ||
+                marker.optString("originalDueAt") != originalDueAt.toString() ||
                 marker.optString("liveDueAt") != live.dueAt.toString() ||
                 marker.optString("liveStatus") != live.status ||
-                marker.optInt("rescheduleCount", -1) != live.rescheduleCount ||
-                marker.optInt("stepCount", 0) < 1 ||
-                p.getInt("due-side-manual-resume:$key", 0) != 0)
+                marker.optInt("rescheduleCount", -1) != live.rescheduleCount))
                 return@mapNotNull null
-            val phase = p.getString("due-phase:$key", "").orEmpty()
+            if (p.getInt("due-side-manual-resume:$key", 0) != 0)
+                return@mapNotNull null
             val choice = p.getString("due-decision:$key", null)?.let {
                 runCatching { JSONObject(it) }.getOrNull()
             } ?: return@mapNotNull null
             val wanted = choice.optString("choice")
             if (wanted !in setOf("cancel", "reschedule", "wait") ||
-                marker.optString("choice") != wanted ||
-                phase != (if (wanted == "wait") "waiting_partial" else "partial_side_steps"))
+                (marker != null && marker.optString("choice") != wanted) ||
+                (choice.optJSONArray("steps")?.length() ?: 0) < 1)
                 return@mapNotNull null
-            // A deleted or edited decision cannot authorize fresh effects.
+            val mutationMatches = when (wanted) {
+                "cancel" -> live.status == "cancelled" && live.dueAt == originalDueAt
+                "reschedule", "wait" -> live.status == "planned" &&
+                    live.dueAt != originalDueAt
+                else -> false
+            }
+            if (!mutationMatches) return@mapNotNull null
+            val phase = p.getString("due-phase:$key", "").orEmpty()
+            val expectedPhase = if (wanted == "wait") "waiting_partial" else "partial_side_steps"
+            // An unfinished "decided" phase is recoverable ONLY when the
+            // calendar itself proves that this primary mutation committed.
+            if (phase != expectedPhase && !(marker == null && provedByCalendar &&
+                    phase == "decided")) return@mapNotNull null
             val evidenceId = "native-wake-${live.id}-${originalDueAt.epochSecond}"
             if (SharedExperienceTimeline.eventsByIds(live.characterId, listOf(evidenceId))
                     .none { it.id == evidenceId && it.source == "resident-due-decision" &&
@@ -281,7 +307,10 @@ internal object ResidentDailyDecision {
             } ?: return@withLock false
             val turnId = "native-wake-${expected.planId}-${expected.originalDueAt.epochSecond}"
             // Persist the one-use grant before touching any external tool.
-            check(p.edit().putInt("due-side-manual-resume:$key", 1).commit()) {
+            val partialPhase = if (choice.optString("choice") == "wait")
+                "waiting_partial" else "partial_side_steps"
+            check(p.edit().putInt("due-side-manual-resume:$key", 1)
+                .putString("due-phase:$key", partialPhase).commit()) {
                 "旧决定独立步骤授权未保存"
             }
             val total = choice.optJSONArray("steps")?.length() ?: 0
@@ -1173,7 +1202,8 @@ internal object ResidentDailyDecision {
                 } else runCatching {
                     RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
                         replacement, choice.optString("reason"), Instant.now(),
-                        appendToCurrentWork = true, expectedDueAt = plan.dueAt)
+                        appendToCurrentWork = true, expectedDueAt = plan.dueAt,
+                        mutationRequestId = key)
                 }.onFailure { error ->
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "数字世界居民日程", title = "${native.name}的改期未生效",
@@ -1182,7 +1212,7 @@ internal object ResidentDailyDecision {
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
                 choice.optString("reason"), Instant.now(), retainRunningWake = true,
-                expectedDueAt = plan.dueAt)
+                expectedDueAt = plan.dueAt, mutationRequestId = key)
             "wait" -> {
                 if (chosenReviewAt == null) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -1215,7 +1245,8 @@ internal object ResidentDailyDecision {
                     nextWake, ("等待复议：" + reason +
                         (if (condition.isNotBlank()) "；条件：" + condition else "") +
                         (if (catchUp) "；原定复议=${reviewAt}，中断后尽快复议" else "")),
-                    schedulingNow, appendToCurrentWork = true, expectedDueAt = plan.dueAt)
+                    schedulingNow, appendToCurrentWork = true, expectedDueAt = plan.dueAt,
+                    mutationRequestId = key)
             }.onFailure { error ->
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "${native.name}的等待复议没有排期",
