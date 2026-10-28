@@ -295,7 +295,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
             }
         },
         bottomBar = {
-            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser) {
+            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
                 RolePhoneOnBehalfComposer(
                     roleName = identity?.displayName ?: "角色",
                     roleId = actualRole, thread = selectedThread,
@@ -307,7 +307,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                         }.isSuccess
                     },
                 )
-            } else if (selectedThread == null && !showRoleFavorites && !showRoleBrowser) {
+            } else if (selectedThread == null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
                 ChatHubV2Navigation(
                     selectedTab = phoneTab,
                     labels = listOf("消息", "好友", "朋友圈", "我的"),
