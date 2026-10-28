@@ -118,4 +118,20 @@ class AutonomousAffordanceContextTest {
         assertFalse(text.contains("readingBookId="))
         assertTrue(text.contains("solo_game"))
     }
+
+    @Test fun exposesBothAutonomousGamesAndOnlySuppliedPersonalPlayHistory() {
+        val withoutHistory = AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+        )
+        assertTrue(withoutHistory.contains("gameId=memory_match"))
+        assertTrue(withoutHistory.contains("yacht_dice"))
+        assertFalse(withoutHistory.contains("本人最近实际玩过的游戏"))
+        val played = AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+            recentSoloGames = listOf("记忆配对" to 840, "快艇骰子" to 167),
+        )
+        assertTrue(played.contains("记忆配对：840 分"))
+        assertTrue(played.contains("快艇骰子：167 分"))
+        assertTrue(played.contains("不是强制轮换任务"))
+    }
 }
