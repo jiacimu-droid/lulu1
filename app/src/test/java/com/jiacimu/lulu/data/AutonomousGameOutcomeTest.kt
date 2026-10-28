@@ -32,4 +32,33 @@ class AutonomousGameOutcomeTest {
         assertEquals(first.score, JSONObject(second.detailsJson).getInt("previousBest"))
         assertTrue(runCatching { games.playAutonomousGame("actual-solo-target", "memory_match", now, 5000) }.isFailure)
     }
+
+    @Test fun yachtDiceUsesThirteenLegalRoundsAndPersistsEveryRoll() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val games = LuluGameStore(context)
+        val now = Instant.parse("2026-10-28T10:00:00Z")
+        val played = games.playAutonomousGame("solo-yacht-record", "yacht_dice", now)!!
+        val details = JSONObject(played.detailsJson)
+        val turns = details.getJSONArray("turns")
+        assertEquals("yacht_dice", details.getString("game"))
+        assertEquals(13, turns.length())
+        val categories = mutableSetOf<String>()
+        var subtotal = 0
+        for (index in 0 until turns.length()) {
+            val turn = turns.getJSONObject(index)
+            assertTrue(categories.add(turn.getString("category")))
+            val rolls = turn.getJSONArray("rolls")
+            assertEquals(3, rolls.length())
+            for (r in 0 until rolls.length()) {
+                val dice = rolls.getJSONArray(r)
+                assertEquals(5, dice.length())
+                for (d in 0 until dice.length()) assertTrue(dice.getInt(d) in 1..6)
+            }
+            subtotal += turn.getInt("points")
+            assertEquals(subtotal, turn.getInt("total"))
+        }
+        assertEquals(subtotal, played.score)
+        assertEquals(played.detailsJson, games.state.value.records.first { it.id == played.recordId }.detailsJson)
+        assertTrue(runCatching { games.playAutonomousGame("solo-yacht-record", "yacht_dice", now, 900) }.isFailure)
+    }
 }
