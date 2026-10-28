@@ -106,10 +106,16 @@ internal object CharacterCausalTrace {
             val cause = payload.optString("causeEvidenceId")
             if (cause.isNotBlank()) {
                 val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(cause)).firstOrNull()
+                val expectedRevision = payload.optLong("causeEvidenceRevision", 0L)
                 rows += CharacterCausalTraceLine("行动依据",
-                    if (source == null) "原始依据已撤回或不可见"
-                    else "关联原始事件（旧记录可能没有来源版本）：${source.channel}",
-                    if (source == null) "" else source.id)
+                    when {
+                        source == null -> "原始依据已撤回或不可见"
+                        expectedRevision > 0 && expectedRevision != source.revision ->
+                            "来源已被编辑；当时依据版本 $expectedRevision，当前版本 ${source.revision}，不能用新内容解释旧决定"
+                        expectedRevision == 0L ->
+                            "关联原始事件：${source.channel}（旧回执未保存当时的来源版本）"
+                        else -> "关联原始事件：${source.channel} · 版本 $expectedRevision"
+                    }, if (source == null) "" else source.id)
             }
             rows += receiptLine(context, characterId, current, payload)
             val result = objectValue(payload.opt("result"))
@@ -132,7 +138,15 @@ internal object CharacterCausalTrace {
             }
         }
         linked.takeLast(12).forEach { (event, body) ->
-            rows += receiptLine(context, characterId, event, body)
+            val originalRevision = body.optLong("causeEvidenceRevision", 0L)
+            if (body.optString("causeEvidenceId") == current.id &&
+                originalRevision > 0 && originalRevision != current.revision) {
+                rows += CharacterCausalTraceLine("历史版本的行动回执",
+                    "这项行动引用本事件的旧版本 $originalRevision，不能视为对当前版本的回应",
+                    event.id)
+            } else {
+                rows += receiptLine(context, characterId, event, body)
+            }
         }
         if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty()) {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
