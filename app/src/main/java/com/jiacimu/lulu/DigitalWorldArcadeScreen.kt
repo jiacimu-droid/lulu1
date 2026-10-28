@@ -26,7 +26,10 @@ internal fun DigitalWorldArcadeScreen(
     val store = LuluGames.store
     val gameState by store.state.collectAsState()
     var started by rememberSaveable(gameId) { mutableStateOf(false) }
-    var partnerId by rememberSaveable(gameId) { mutableStateOf(residents.firstOrNull()?.characterId.orEmpty()) }
+    val maxParty = if (gameId in setOf("block_island", "relic_escape", "yacht_dice", "turtle_soup")) 3 else 1
+    var selectedIds by rememberSaveable(gameId) {
+        mutableStateOf(residents.firstOrNull()?.characterId?.let(::listOf).orEmpty())
+    }
     var errorText by remember { mutableStateOf("") }
     val memoryMatch = gameId == "memory_match"
     val deepSea = gameId == "deep_sea_journey"
@@ -39,7 +42,7 @@ internal fun DigitalWorldArcadeScreen(
         "turtle_soup" -> "海龟汤"
         else -> "深海回声"
     }
-    val partner = residents.firstOrNull { it.characterId == partnerId }
+    val partner = residents.firstOrNull { it.characterId == selectedIds.firstOrNull() }
     BackHandler(onBack = onBack)
     if (started) {
         Box(modifier.fillMaxSize()) {
@@ -59,15 +62,23 @@ internal fun DigitalWorldArcadeScreen(
             Text(gameTitle, style = MaterialTheme.typography.headlineMedium)
             Text("选择同伴", style = MaterialTheme.typography.titleMedium)
             if (soloAllowed) {
-                FilterChip(selected = partnerId.isBlank(), onClick = { partnerId = "" }, label = { Text("自己玩") })
+                FilterChip(selected = selectedIds.isEmpty(),
+                    onClick = { selectedIds = emptyList() }, label = { Text("自己玩") })
             }
             residents.forEach { character ->
+                val checked = character.characterId in selectedIds
                 FilterChip(
-                    selected = character.characterId == partnerId,
-                    onClick = { partnerId = character.characterId },
+                    selected = checked,
+                    onClick = {
+                        selectedIds = if (checked) selectedIds - character.characterId
+                            else if (selectedIds.size < maxParty) selectedIds + character.characterId
+                            else selectedIds
+                    },
                     label = { Text(character.displayName) },
                 )
             }
+            if (maxParty > 1) Text("最多邀请${maxParty}位在场伙伴，同行角色会真实采集、战斗和搜索。",
+                style = MaterialTheme.typography.bodySmall)
             if (memoryMatch && residents.isEmpty()) Text("这里暂时没有在场角色，记忆配对需要一位对手。")
             val hasUnfinished = memoryMatch && gameState.memoryMatch.moves > 0 && !gameState.memoryMatch.finished
             if (deepSea && divePrefs.getLong("started_at", 0L) > 0L && !divePrefs.getBoolean("completed", false)) {
@@ -82,9 +93,9 @@ internal fun DigitalWorldArcadeScreen(
                 enabled = soloAllowed || partner != null,
                 onClick = {
                     if (!deepSea || divePrefs.edit().clear().putLong("started_at", System.currentTimeMillis()).commit()) {
-                        store.selectCharacters(partner?.let { listOf(it.characterId) }.orEmpty())
+                        store.selectCharacters(selectedIds)
                         if (memoryMatch) store.resetMemoryMatch()
-                        partner?.let { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId) }
+                        selectedIds.forEach { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it) }
                         started = true
                     } else errorText = "潜航进度保存失败，请重试"
                 },
