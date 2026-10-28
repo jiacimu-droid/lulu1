@@ -209,8 +209,12 @@ internal object BlockIslandRules {
                 message = "种下一棵树，未来可以再次采集木材"
             }
             "remove" -> {
-                if (!near() || cell == 7 || cell !in setOf(3, 4) && index !in s.structures)
-                    return reject("只能拆除附近自己建造的设施")
+                if (!near() || cell == 7 ||
+                    (cell !in setOf(3, 4) && index !in s.structures) ||
+                    (w.x == tx && w.y == ty) ||
+                    w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } ||
+                    mob != null)
+                    return reject("只能拆除附近无人占用的自建设施")
                 val structure = s.structures[index]
                 val refundWood = when (structure) {
                     "workbench" -> 2
