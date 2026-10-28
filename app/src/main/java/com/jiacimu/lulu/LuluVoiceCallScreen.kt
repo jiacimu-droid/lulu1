@@ -168,6 +168,11 @@ fun LuluVoiceCallScreen(
                                     TextButton(enabled = !active, onClick = {
                                         if (Live2DAssets.switchArchive(context, currentCharacterId,
                                                 entry.settings)) {
+                                            // This call continues, but the old renderer's
+                                            // capabilities and pending cues must not leak to
+                                            // the newly selected calibrated model.
+                                            Live2DVisualActionBus.stageClosed(
+                                                currentCharacterId, state.callExperienceId)
                                             previewExpression = null
                                             previewMotion = null
                                             previewHead = null

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import com.jiacimu.lulu.data.MigratedDomainStores
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,29 +34,28 @@ class Live2DPreviewPlaygroundActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 var selected by remember { mutableStateOf(requested) }
-                val modeled = remember { Live2DAssets.listModeledCharacters(this) }
-                val resolved = selected ?: modeled.singleOrNull()?.first
+                // Choose the REAL character before importing a skin. The old
+                // "lulu" fallback put assets under a different character than
+                // the one being called, making calibrated and video skins diverge.
+                val characterSettings by MigratedDomainStores.characters.settings.collectAsState()
+                val modelRevision by Live2DAssets.revisions.collectAsState()
+                val modeled = remember(modelRevision) { Live2DAssets.listModeledCharacters(this) }
+                val choices = (characterSettings.values.map { it.characterId to it.displayName } +
+                    modeled).distinctBy { it.first }.sortedBy { it.second }
+                val resolved = selected ?: choices.singleOrNull()?.first
                 if (resolved != null) {
                     Live2DPreviewPlaygroundContent(resolved) { finish() }
                 } else {
-                    Column(
-                        Modifier.fillMaxSize().padding(16.dp),
-                    ) {
-                        Text("选择要试验的角色", fontSize = 16.sp)
+                    Column(Modifier.fillMaxSize().padding(16.dp)) {
+                        Text("选择角色 · 上传及校准 Live2D", fontSize = 16.sp)
                         Spacer(Modifier.height(12.dp))
-                        if (modeled.isEmpty()) {
-                            Text(
-                                "还没有导入任何 Live2D 模型，直接在这里给主角导一个就行。",
-                                fontSize = 13.sp,
-                            )
-                            Spacer(Modifier.height(12.dp))
-                            Button(onClick = { selected = "lulu" }) {
-                                Text("给主角导入皮套", fontSize = 13.sp)
-                            }
+                        if (choices.isEmpty()) {
+                            Text("请先创建角色，再在这里上传和测试他的模型。", fontSize = 13.sp)
                         } else {
-                            for ((id, label) in modeled) {
+                            for ((id, label) in choices) {
                                 Button(onClick = { selected = id }) {
-                                    Text(label, fontSize = 13.sp)
+                                    Text(label + if (modeled.any { it.first == id }) " · 已上传" else " · 未上传",
+                                        fontSize = 13.sp)
                                 }
                                 Spacer(Modifier.height(8.dp))
                             }

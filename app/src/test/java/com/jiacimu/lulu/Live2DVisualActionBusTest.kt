@@ -251,6 +251,18 @@ class Live2DVisualActionBusTest {
             assertEquals("LuluWolf" to 0, nod?.motion)
             assertEquals(null, nod?.expression)
             assertEquals(null, nod?.face)
+            // Natural phone speech may select a movement without writing a
+            // Motion3 ID. It must resolve to an actual imported authored clip,
+            // while keeping the model-selected facial performance.
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("performance",JSONObject().put("feeling","happy")
+                    .put("movement","lean").put("intensity",0.5))))
+            val talking = Live2DVisualActionBus.cues.value[role]
+            assertEquals("LuluWolf" to 3,talking?.motion)
+            assertTrue(talking?.beats?.any { it.head != null || it.face != null } == true)
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("performance",JSONObject().put("feeling","happy"))))
+            assertEquals(null,Live2DVisualActionBus.cues.value[role]?.motion)
         } finally {
             settings.parentFile?.deleteRecursively()
             prefs.edit().remove("model:$role").commit()
