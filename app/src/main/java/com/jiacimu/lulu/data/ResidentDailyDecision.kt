@@ -1058,7 +1058,10 @@ internal object ResidentDailyDecision {
             wanted == "wait" && originalHandled -> "waiting_partial"
             wanted == "wait" -> "needs_recovery"
             originalHandled && sideStepsComplete -> "finished"
-            originalHandled -> "partial_side_steps"
+            // The current due version still owns unfinished independent steps.
+            // Keep it recoverable with the original request IDs; the completed
+            // primary is verified from its persisted receipt on replay.
+            originalHandled -> "needs_recovery"
             else -> "needs_recovery"
         }
         check(p.edit().putString(phaseKey, phase).commit()) {
