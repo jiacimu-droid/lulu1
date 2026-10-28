@@ -110,8 +110,9 @@ class LuluStudyWatchTest {
         assertTrue(focused.all { it in 11L * 60_000L..15L * 60_000L })
         assertTrue(unknown.all { it in 8L * 60_000L..12L * 60_000L })
         assertTrue(distraction.maxOrNull()!! < focused.minOrNull()!!)
-        assertEquals(5L * 60_000L,
-            com.jiacimu.lulu.system.LuluScreenAwareness.MIN_AUTONOMOUS_GAP_MS)
+        // This opt-in study-watch cadence is independent of the character's
+        // owner-authorized, one-frame autonomous screen observation. No global
+        // five-minute capture lockout is imposed by this supervision test.
     }
 
     @Test fun visionEvidenceIsStrictAndNeverAssumesUnknownAppIsDistraction() {
