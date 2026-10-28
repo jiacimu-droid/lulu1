@@ -1862,4 +1862,76 @@ class ResidentDailyContinuityTest {
         }
     }
 
+
+    @Test(timeout = 60_000) fun dailyImmediateActionFailureKeepsSavedChoiceAndNeverRepeatsSuccessfulPosts() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "每日副动作恢复${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val firstPost = "已成功的直接动态-${UUID.randomUUID()}"
+        val sidePost = "已成功的独立动态-${UUID.randomUUID()}"
+        val day = ResidentDailyDecision.date(now)
+        val eventId = "native-daily-${native.id}-$day"
+        // The model's JSON is structurally valid, but the actual recipient is
+        // not an authorized contact. The executor must reject the direct
+        // message without erasing the two independently completed posts.
+        val decision = JSONObject().put("lunch", "home").put("evening", "home")
+            .put("agenda", JSONArray()).put("post", firstPost)
+            .put("messageTo", "resident:unknown-${UUID.randomUUID()}")
+            .put("message", "想认识你").put("steps", JSONArray().put(
+                JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", sidePost))))
+        assertNull(ResidentDailyDecision.dayContractError(decision, now))
+        val server = MockWebServer()
+        server.enqueue(answer(decision.toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "daily-partial-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            val phaseKey = "phase:${native.id}:$day"
+            fun posts(text: String) = MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == text
+            }
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals("partial_side_steps", prefs.getString(phaseKey, ""))
+            assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+            assertEquals(1, server.requestCount)
+            assertEquals(1, posts(firstPost))
+            assertEquals(1, posts(sidePost))
+            assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+                listOf("tool-$actor-$eventId-message",
+                    "tool-rejected-$actor-$eventId-message")).isNotEmpty())
+
+            // Both bounded automatic recoveries reuse the same decision and
+            // original tool IDs; neither purchases a second model reply.
+            repeat(2) {
+                assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+                assertEquals(1, server.requestCount)
+                assertEquals(1, posts(firstPost))
+                assertEquals(1, posts(sidePost))
+            }
+            assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+            val snapshot = ResidentDailyDecision.savedDayRecovery(app, native.id, now)
+            assertNotNull(snapshot)
+            assertNull(ResidentDailyDecision.savedDayRecovery(
+                app, native.id, now.plusSeconds(86_400)))
+            assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot!!) { now })
+            assertEquals("partial_side_steps", prefs.getString(phaseKey, ""))
+            assertNull(ResidentDailyDecision.savedDayRecovery(app, native.id, now))
+            assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot) { now })
+            assertEquals(1, server.requestCount)
+            assertEquals(1, posts(firstPost))
+            assertEquals(1, posts(sidePost))
+        } finally { server.shutdown() }
+    }
+
 }
