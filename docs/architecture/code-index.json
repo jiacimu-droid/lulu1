@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:42:23.050445+00:00",
-  "commit": "ec175455ac1298dd05b96238501c17d7ba8544c6",
+  "generatedAt": "2026-10-28T11:43:05.806527+00:00",
+  "commit": "480698e1f7bea19228c3cc3415b990342affc771",
   "branch": "main",
-  "sourceFingerprint": "40e82ee0828fe96e9919014eedd7c12cd4f7c57bb014e6a931fa67ad1c38bb56",
+  "sourceFingerprint": "bed1790e1d7c676a3a6cc1790c9217c6f7751b218e43d70b3fdb39a97a5e493a",
   "summary": {
     "files": 1039,
-    "lines": 211129,
-    "symbols": 3049
+    "lines": 211150,
+    "symbols": 3050
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6394,6 +6394,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
         "line": 53
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
+        "line": 90
       }
     ],
     "schedule": [
@@ -33234,12 +33238,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
-      "lines": 104,
-      "sha256": "22fb08f7d44964a5e04a9e7727a37eac95291b14b730f07992029b254477c734",
+      "lines": 125,
+      "sha256": "35ccaf939261a55fa4e7eb4d4174c419a9dc810ac0bf83166acd827bd4d748b3",
       "symbols": [
         {
           "name": "BackgroundPerceptionRecoveryTest",
           "line": 19
+        },
+        {
+          "name": "quiet",
+          "line": 90
         }
       ]
     },
