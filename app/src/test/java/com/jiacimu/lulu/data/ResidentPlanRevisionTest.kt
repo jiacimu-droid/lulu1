@@ -28,7 +28,7 @@ class ResidentPlanRevisionTest {
 
     @Test fun ordinaryWakeCanReviseItsOwnWaitingPlanAndStaleChoiceCannotOverwriteIt() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
-        val role = "plan-review-${UUID.randomUUID()}"
+        val role = "resident:plan-review-${UUID.randomUUID()}"
         val now = Instant.now()
         val plan = RoleDayScheduleStore.arrange(app, role, "和朋友再谈", "等待来信",
             now.plusSeconds(7200), now, activityAction = "publish_moment",
@@ -39,6 +39,10 @@ class ResidentPlanRevisionTest {
         assertTrue(context.contains("朋友回复后再想"))
         assertTrue(context.contains("expectedDueAt=${waiting.dueAt}"))
         assertFalse(RoleDayScheduleStore.plannedContext(app, "other-$role", now).contains(plan.id))
+        assertTrue(CapabilityRegistry.allows(app, role,
+            CapabilityRegistry.find("reschedule_personal_activity")!!, false))
+        assertFalse(CapabilityRegistry.allows(app, role,
+            CapabilityRegistry.find("capture_screen")!!, false))
         val earlier = now.plusSeconds(600)
         val args = JSONObject().put("planId", plan.id).put("expectedDueAt", waiting.dueAt.toString())
             .put("dueAt", earlier.toString()).put("reason", "看到朋友真实来信，想提前再考虑")

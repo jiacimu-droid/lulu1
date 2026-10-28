@@ -61,7 +61,7 @@ object CapabilityRegistry {
         if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request",
                 "send_private_message", "send_group_message", "create_group_chat", "send_character_message",
-                "play_solo_game", "go_offline")
+                "play_solo_game", "go_offline", "reschedule_personal_activity", "cancel_personal_activity")
         }
         if (capability.name == com.jiacimu.lulu.ai.JevDirections.TOOL)
             return com.jiacimu.lulu.ai.JevDirections.configured()
