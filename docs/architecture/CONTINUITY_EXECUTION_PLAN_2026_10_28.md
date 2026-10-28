@@ -77,3 +77,13 @@
 - 根因：`runDuePlan` 原先先对 `choice=reschedule|cancel` 改写唯一日程，再执行本轮附加动作；改期调用 WorkManager `REPLACE`、取消调用 `cancelUniqueWork`，会取消正在执行的居民唤醒 Worker。若中间退出，副动作还没来得及执行但原计划已经不是 due，原 `hasSavedDueToResume` 无从唤醒。此前 wait 分支已修同类问题。
 - 当前对原计划未执行的 `reschedule/cancel/wait` 先用原 `OrderedCharacterActions` + `ToolRouter` 执行附加步骤，原计划依赖步骤不能错误视为成功；其后才改期或撤销。改期沿同一 WorkManager 唤醒链 `APPEND_OR_REPLACE` 且验证原 dueAt 版本；取消保留正在处理的同一个唤醒 Worker 到回执落盘，普通用户撤销仍取消待办。execute 继续先判定主动作成功、再处理依赖步骤。
 - 增加居民模型改期与撤销时独立动态确实执行、依赖主动作的副步不误执行、计划状态一致、单次模型请求和无重复动态的端到端 Robolectric 回归。本轮提交后还需要 CI / 真机验收，不能拿静态检查冒充真机结果。
+
+
+## 2026-10-28 续修记录：模型选择语句位置的 Live2D 动作（源码接线、CI/真机单独验收）
+
+- 根因：已有 `Live2DConversationPerformance` 可以在同一角色模型回复里选择情绪/动作，但默认 0/240/680ms 的整句节拍无法对应第二、第三个分句；各 TTS 提供商不提供统一的逐字时间戳，不能按文本长度臆造播放绝对时刻。
+- 在原有 `live2d.beats` 中增加可选的原文 `anchor` 和每拍 `performance`（feeling/movement/intensity/side）；由模型在一次已有决策里选择具体分句和动作，继续经过真实模型骨骼、表情文件、权限和当前通话验证。未指定锚点的旧 `performance` 与绝对 `atMs` 兼容，不从台词关键词硬猜动作。
+- `Live2DSpeechAnchorPlan` 只接受明确、唯一且位于真实分句边界的锚点；模型主动选择时最多增加 3 个 TTS 分段，无明确锚点不增加合成请求。分段在 `LuluCallSpeechQueue` 真正开始发声时带 `segmentIndex`、`visualSequence`，由 `Live2DSpeechTimeline` → `Live2DCallStage` → 现有 Pixi `performanceRuntime` 按段启动；口型依旧独立使用原 PCM，没发声就不能表演。停顿是跨语音片段的真实边界，不冒充精确字级时间戳。
+- 语音请求/视觉版本不一致、角色或通话变更、旧 TTS 迟到结束、打断、隐藏及重载 Live2D 模型时不得补播旧节拍。新增 Robolectric/JVM 与 stage JS 对锚点、无效/重复锚点、段数量上限、旧版兼容、动作资源及版本校验、不同分句实际开始、打断恢复的回归。
+- 相关源码提交：`519fdc4`、`2040f61`、`21c01f6`、`5c84f66`、`d5a9a08`、`653ec3d`、`392d6e3`，后续完善与测试至 `8c9828e`。旧 JS 静态断言曾在 CI #40634015926 失败，已在 `359ff3c` 更新为分段调度断言。**不能把旧失败/取消运行当通过；以本轮最终 main 的 CI 为准。**
+- **仍需真机验证**：多句对话中动作是否自然、语音服务分段的顿挫、动态加载时的第一句、15FPS/30FPS 掉帧、打断后的面部释放、触摸和语音并发、TTS 提供商真实首音延迟及耗费。普通文字聊天没有 Live2D 画面时不会凭空播放动作。无提供商词级时间戳，因此暂不承诺句内任意字词毫秒级对齐。
