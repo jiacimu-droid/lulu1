@@ -45,7 +45,7 @@ internal data class BlockIslandState(
                 val index = key.toIntOrNull() ?: return@runCatching null
                 val kind = obj.getString(key)
                 if (index !in world.tiles.indices ||
-                    kind !in setOf("door", "workbench", "campfire") ||
+                    kind !in setOf("door", "workbench", "campfire", "bed") ||
                     world.tiles[index] !in listOf(0, 4)) return@runCatching null
                 positions[index] = kind
             }
@@ -127,7 +127,7 @@ internal object BlockIslandRules {
     fun isWalkable(s: BlockIslandState, x: Int, y: Int): Boolean {
         val w = s.world
         if (!w.inBounds(x, y) || w.cell(x, y) !in setOf(0, 4, 7)) return false
-        return s.structures[w.index(x, y)] !in setOf("workbench", "campfire")
+        return s.structures[w.index(x, y)] !in setOf("workbench", "campfire", "bed")
     }
 
     fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y): BlockIslandState {
@@ -160,7 +160,7 @@ internal object BlockIslandRules {
                 message = if (cell == 1) "伐木 +$amount${if (berry > 0) "，找到野果 +1" else ""}"
                 else "开采矿石 +$amount"
             }
-            "wall", "floor", "door", "workbench", "campfire" -> {
+            "wall", "floor", "door", "workbench", "campfire", "bed" -> {
                 if (!near() || (tx == w.x && ty == w.y) ||
                     action == "floor" && cell == 4 ||
                     w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } || mob != null ||
@@ -171,6 +171,7 @@ internal object BlockIslandRules {
                     "floor" -> 1 to 0
                     "door" -> 2 to 0
                     "workbench" -> 4 to 2
+                    "bed" -> 3 to 1
                     else -> 2 to 1
                 }
                 if (w.wood < woodCost || w.stone < stoneCost)
@@ -181,7 +182,7 @@ internal object BlockIslandRules {
                     else -> cell
                 }
                 val updated = w.setTile(tx, ty, newTile).copy(wood = w.wood - woodCost, stone = w.stone - stoneCost)
-                val added = if (action in setOf("door", "workbench", "campfire")) s.structures + (index to action)
+                val added = if (action in setOf("door", "workbench", "campfire", "bed")) s.structures + (index to action)
                     else s.structures
                 next = s.copy(world = updated, structures = added)
                 message = "建造成功：${actionName(action)}"
@@ -201,7 +202,7 @@ internal object BlockIslandRules {
                 val structure = s.structures[index]
                 val refundWood = when (structure) {
                     "workbench" -> 2
-                    "campfire", "door" -> 1
+                    "campfire", "door", "bed" -> 1
                     else -> if (cell == 3 || cell == 4) 1 else 0
                 }
                 val refundStone = if (structure == "workbench") 1 else 0
@@ -229,6 +230,16 @@ internal object BlockIslandRules {
                     tools = s.tools + tool)
                 message = "制作成功：${actionName(tool)}"
             }
+            "revive" -> {
+                val companion = w.friends.firstOrNull { it.hp <= 0 && it.x == tx && it.y == ty }
+                    ?: return reject("选中倒下的队友才能救援")
+                if (!near()) return reject("需要靠近倒下的队友")
+                if (s.fruit < 2) return reject("救援需要2颗野果")
+                next = s.copy(fruit = s.fruit - 2, world = w.copy(
+                    friends = w.friends.map { if (it.id == companion.id) it.copy(hp = 4) else it },
+                ))
+                message = "救起了队友[${companion.id}]，恢复生命至4"
+            }
             "eat" -> {
                 if (s.fruit < 1) return reject("背包里没有野果，砍树时可能找到")
                 if (w.hp >= 12) return reject("现在生命值是满的")
@@ -237,9 +248,10 @@ internal object BlockIslandRules {
             }
             "rest" -> {
                 val campNear = s.structures.any { (location, kind) ->
-                    kind == "campfire" && distance(w.x, w.y, location % w.width, location / w.width) <= 1
+                    kind in setOf("campfire", "bed") &&
+                        distance(w.x, w.y, location % w.width, location / w.width) <= 1
                 }
-                if (!campNear) return reject("需要站在篝火旁边")
+                if (!campNear) return reject("需要站在篝火或床铺旁边")
                 if (w.hp == 12) return reject("生命已满")
                 if (w.turns - s.lastRestTurn < 8) return reject("刚休息过，探索几步后再休息")
                 next = s.copy(world = w.copy(hp = (w.hp + 4).coerceAtMost(12)), lastRestTurn = w.turns)
@@ -271,6 +283,7 @@ internal object BlockIslandRules {
         result = companionTurn(result)
         result = monstersTurn(result)
         result = respawnMonsters(result)
+        result = replenishResources(result)
         return result
     }
 
@@ -386,6 +399,26 @@ internal object BlockIslandRules {
             events = (w.events + "岛上出现了新的野怪").takeLast(150)))
     }
 
+    /** Renewable ore/trees: established buildings, water and occupied cells are never overwritten. */
+    private fun replenishResources(s: BlockIslandState): BlockIslandState {
+        val w = s.world
+        if (w.turns % 28 != 0) return s
+        val rng = Random(w.seed xor (w.turns * 31))
+        val spots = (0 until 35).map {
+            rng.nextInt(2, w.width - 2) to rng.nextInt(2, w.height - 2)
+        }
+        val place = spots.firstOrNull { (x, y) ->
+            w.cell(x, y) == 0 && w.index(x, y) !in s.structures &&
+                distance(x, y, w.x, w.y) > 5 &&
+                w.friends.none { it.x == x && it.y == y } &&
+                w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+        } ?: return s
+        val material = if (rng.nextInt(3) == 0) 2 else 1
+        return s.copy(world = w.setTile(place.first, place.second, material).copy(
+            events = (w.events + "野外出现了新的${if (material == 1) "树木" else "矿石"}").takeLast(150),
+        ))
+    }
+
     /**
      * Find an actual traversable first step, including the approach to an impassable tree or monster.
      * Used by the player and NPCs, never by the UI to fake movement.
@@ -429,7 +462,7 @@ internal object BlockIslandRules {
     fun actionName(action: String): String = when (action) {
         "axe" -> "木斧"; "pickaxe" -> "石镐"; "sword" -> "石剑"
         "wall" -> "木墙"; "floor" -> "木地板"; "door" -> "木门"
-        "workbench" -> "工作台"; "campfire" -> "篝火"
+        "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"
         else -> action
     }
 }
