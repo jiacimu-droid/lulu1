@@ -26,6 +26,8 @@ class CharacterCausalTraceTest {
     @Before fun setup() {
         MemoryTestEnvironment.release()
         context = RuntimeEnvironment.getApplication()
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure)
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
         LuluRepositories.initialize(context)
         MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
