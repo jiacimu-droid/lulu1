@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Instant
@@ -227,6 +228,7 @@ internal object WorldLifeEpisodeComposer {
                     title = "${character.displayName}的生活小剧场",
                     maxTokens = 1_800,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                    connectionOverride = ScopedModelSelections.worldLifeConnection(characterId),
                     readTimeoutMillis = 55_000,
                 )
                 response.exceptionOrNull()?.let { error ->
@@ -276,6 +278,7 @@ internal object WorldLifeEpisodeComposer {
                     title = "${character.displayName}的生活片段补写",
                     maxTokens = 1_250,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                    connectionOverride = ScopedModelSelections.worldLifeConnection(characterId),
                     readTimeoutMillis = 30_000,
                 )
                 response.exceptionOrNull()?.let { error ->
