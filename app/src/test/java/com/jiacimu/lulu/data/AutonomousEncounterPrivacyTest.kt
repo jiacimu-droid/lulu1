@@ -75,4 +75,27 @@ class AutonomousEncounterPrivacyTest {
         assertEquals("", AutonomousSocialRuntime.witnessedSharedEncounterContext(
             listOf("a"), real))
     }
+
+    @Test fun literarySourcesIncludeCommittedConversationAndOnlyCurrentViewersEvidence() {
+        val finished = meeting("social-42", listOf("person-a", "person-b"),
+            "我有个主意，要不要下次一起去玩游戏？")
+        val tick = DigitalWorldLifeTick(
+            incidentId = "event-17", locationCode = "cafe",
+            locationName = "咖啡角", kind = "seat_light",
+            anchorItemId = "", anchorItemName = "", status = "resolved",
+            stage = 0, summary = "咖啡厅座位旁的光线变化", occurredAt = now)
+        val a = AutonomousSocialRuntime.witnessedEpisodeSources(
+            finished, "person-a", tick, now)
+        val b = AutonomousSocialRuntime.witnessedEpisodeSources(
+            finished, "person-b", tick, now)
+        assertEquals(4, a.size)
+        assertTrue(a.contains("meeting-social-42-autonomous-turn-social-42-turn-viewer-person-a"))
+        assertTrue(a.contains("world-fact-event-17-person-a-${now.toEpochMilli()}"))
+        assertEquals("meeting-social-42-autonomous-summary-viewer-person-a", a.last())
+        assertEquals("meeting-social-42-autonomous-summary-viewer-person-b", b.last())
+        assertTrue(a.all { it.endsWith("person-a") || it.contains("-person-a-") })
+        assertTrue(b.all { it.endsWith("person-b") || it.contains("-person-b-") })
+        assertTrue(a.none { it.contains("person-b") })
+    }
+
 }
