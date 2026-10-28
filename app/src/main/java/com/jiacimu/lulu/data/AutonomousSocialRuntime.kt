@@ -190,12 +190,24 @@ internal object AutonomousSocialRuntime {
         }
         DigitalWorldStore.endMeeting(session.id, finishedAt)
 
-        // One literary chapter per witnessed encounter, without a parallel meeting card.
+        // A literary chapter must see the committed public exchange, not just
+        // the summary. Each viewer's evidence IDs belong to that viewer alone.
         WorldLifeEpisodeStore.initialize(context)
+        val committedSession = DigitalWorldStore.state.value.meetings
+            .firstOrNull { it.id == session.id }
         participantIds.forEach { id ->
+            val summaryId = "meeting-${session.id}-autonomous-summary-viewer-$id"
+            val sources = buildList {
+                add("meeting-${session.id}-autonomous-start-viewer-$id")
+                worldTick?.let { add("world-fact-${it.incidentId}-$id-${now.toEpochMilli()}") }
+                committedSession?.turns?.forEach { turn ->
+                    add("meeting-${session.id}-autonomous-turn-${turn.id}-viewer-$id")
+                }
+                add(summaryId)
+            }.distinct().takeLast(16)
             WorldLifeEpisodeWorker.enqueue(
                 context = context, characterId = id, location = currentLocation,
-                evidenceId = "meeting-${session.id}-autonomous-summary-viewer-$id",
+                evidenceId = summaryId, sourceEvidenceIds = sources,
                 title = "", seed = "", category = "encounter",
             )
         }
