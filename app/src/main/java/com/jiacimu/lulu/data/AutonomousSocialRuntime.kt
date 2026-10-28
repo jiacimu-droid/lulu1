@@ -129,7 +129,8 @@ internal object AutonomousSocialRuntime {
 
         val generated = generateEncounter(context, session, participantIds, characters, location, worldTick, now)
         val witnessedTick = generated.directedMoment ?: worldTick
-        if (generated.turns.isEmpty() && generated.privateReactions.isEmpty()) {
+        if (generated.turns.isEmpty() && generated.privateReactions.isEmpty() &&
+            generated.directedMoment == null) {
             // The encounter happened even if no valid model decision arrived.
             // Keep its evidence; do not turn a request failure into voluntary silence.
             DigitalWorldStore.endMeeting(session.id, now)
@@ -271,7 +272,7 @@ internal object AutonomousSocialRuntime {
         // One isolated literary call produces each witnessed POV from the
         // SAME public scene. Never enqueue N independent prose requests.
         // Silence may be meaningful, but buys no automatic chapter.
-        if (generated.turns.isEmpty()) return@withLock
+        if (generated.turns.isEmpty() && generated.directedMoment == null) return@withLock
         val committedSession = DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == session.id } ?: return@withLock
         AutonomousEncounterChapters.enqueue(
