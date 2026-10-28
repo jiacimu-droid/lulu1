@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae0501ebd7aa6069d0bab5954ea31d3d1145b081`
+- 基准提交：`87c054d2403fe87395a71dee50f5c2ffc0a1e71f`
 - 分支：`main`
 - 已索引文件：1011
-- 已索引代码/文本行：201518
-- 已发现符号：2940
+- 已索引代码/文本行：201555
+- 已发现符号：2942
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -855,7 +855,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 135 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 163 | 7 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 200 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 294 | 1 |

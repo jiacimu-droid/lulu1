@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:33:39.978748+00:00",
-  "commit": "ae0501ebd7aa6069d0bab5954ea31d3d1145b081",
+  "generatedAt": "2026-10-28T06:34:27.513642+00:00",
+  "commit": "87c054d2403fe87395a71dee50f5c2ffc0a1e71f",
   "branch": "main",
-  "sourceFingerprint": "3fd1ea4f3257d7161644209b14efb879d7ce9cb8198d9a924fe1fcad49a27827",
+  "sourceFingerprint": "a30bc734e9098e9ab1c1eb59c4294335364a0020cd77b72a2ac9150f6883c27a",
   "summary": {
     "files": 1011,
-    "lines": 201518,
-    "symbols": 2940
+    "lines": 201555,
+    "symbols": 2942
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14986,40 +14986,52 @@
         "line": 28
       }
     ],
-    "pairLineSkipsUnconnectedPairs": [
+    "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
         "line": 31
       }
     ],
+    "session": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 36
+      }
+    ],
+    "pairLineSkipsUnconnectedPairs": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 68
+      }
+    ],
     "pairLineReportsConnectionFactsWithoutScoresOrGroupNames": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 38
+        "line": 75
       }
     ],
     "groupSceneDoesNotExposePairPrivateImpressionsOrPrivateLetters": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 52
+        "line": 89
       }
     ],
     "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 90
+        "line": 127
       }
     ],
     "networkContextIsSilentWithoutConnections": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 135
+        "line": 172
       }
     ],
     "compactContextStaysSilentWhenContactsAreUnconnected": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 144
+        "line": 181
       }
     ],
     "CharacterThoughtActionHandoffTest": [
@@ -32914,36 +32926,44 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-      "lines": 163,
-      "sha256": "5200243e9b7f55009a569da667e663c4d60b4b7a358cabf98f1163efb7e55ce8",
+      "lines": 200,
+      "sha256": "53e8d27a276199afc8738d407049eb4b75d3dc4dd27f80cd583f2288b83694fe",
       "symbols": [
         {
           "name": "CharacterSocialNetworkTest",
           "line": 28
         },
         {
-          "name": "pairLineSkipsUnconnectedPairs",
+          "name": "encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife",
           "line": 31
         },
         {
+          "name": "session",
+          "line": 36
+        },
+        {
+          "name": "pairLineSkipsUnconnectedPairs",
+          "line": 68
+        },
+        {
           "name": "pairLineReportsConnectionFactsWithoutScoresOrGroupNames",
-          "line": 38
+          "line": 75
         },
         {
           "name": "groupSceneDoesNotExposePairPrivateImpressionsOrPrivateLetters",
-          "line": 52
+          "line": 89
         },
         {
           "name": "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed",
-          "line": 90
+          "line": 127
         },
         {
           "name": "networkContextIsSilentWithoutConnections",
-          "line": 135
+          "line": 172
         },
         {
           "name": "compactContextStaysSilentWhenContactsAreUnconnected",
-          "line": 144
+          "line": 181
         }
       ]
     },
