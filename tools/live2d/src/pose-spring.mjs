@@ -1,13 +1,14 @@
 /**
- * Small, frame-rate-independent critical damping for user/AI-selected poses.
- * Inspired by AIRI's Live2D motion-control-spring, adapted to the Android
- * Pixi/Cubism final-stage callback. A neutral target must stay perfectly
- * neutral: the spring never invents head movements or eye wandering.
+ * Continuous-time damped pose spring. The final Cubism callback may run at
+ * 15–120 FPS (or skip a frame during JPEG transfer); integrating only the
+ * first 50ms of a long frame makes the same gesture visibly slower on phones
+ * with low frame cadence. Solve the oscillator over actual elapsed time so
+ * attack, release and head/body follow-through keep their timing.
+ * This is a render-only pose, never an emotional or character state.
  */
 export function createPoseSpring(axes, stiffness = 100, dampingRatio = 1.04, releaseStiffness = stiffness) {
   const value = Object.fromEntries(axes.map(axis => [axis, 0]))
   const velocity = Object.fromEntries(axes.map(axis => [axis, 0]))
-  // Keep velocity continuous while using a gentler stiffness for release.
 
   function reset() {
     for (const axis of axes) { value[axis] = 0; velocity[axis] = 0 }
@@ -16,20 +17,47 @@ export function createPoseSpring(axes, stiffness = 100, dampingRatio = 1.04, rel
   function step(target, elapsedMs, releasing = false, selectedStiffness = null) {
     const frequency = releasing ? releaseStiffness :
       Number.isFinite(selectedStiffness) && selectedStiffness > 0 ? selectedStiffness : stiffness
-    const damping = 2 * dampingRatio * Math.sqrt(frequency)
-    const seconds = Math.min(.05, Math.max(0, elapsedMs / 1000))
-    const count = Math.max(1, Math.ceil(seconds * 120))
-    const dt = seconds / count
-    for (let i = 0; i < count; i++) {
-      for (const axis of axes) {
-        const goal = Number.isFinite(target?.[axis]) ? target[axis] : 0
-        const acceleration = frequency * (goal - value[axis]) - damping * velocity[axis]
-        velocity[axis] += acceleration * dt
-        value[axis] += velocity[axis] * dt
-        if (Math.abs(goal - value[axis]) < .008 && Math.abs(velocity[axis]) < .06) {
-          value[axis] = goal
-          velocity[axis] = 0
-        }
+    const omega = Math.sqrt(frequency)
+    const seconds = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) / 1000 : 0
+    if (!(omega > 0) || !Number.isFinite(omega) ||
+        !Number.isFinite(dampingRatio) || dampingRatio < 0 || !seconds) return value
+    const zeta = dampingRatio
+    for (const axis of axes) {
+      const goal = Number.isFinite(target?.[axis]) ? target[axis] : 0
+      const offset = value[axis] - goal
+      const speed = velocity[axis]
+      let nextOffset, nextSpeed
+      if (zeta > 1 + 1e-5) {
+        const root = Math.sqrt(zeta * zeta - 1)
+        const slow = -omega * (zeta - root)
+        const fast = -omega * (zeta + root)
+        const a = (speed - fast * offset) / (slow - fast)
+        const b = offset - a
+        const slowFade = Math.exp(slow * seconds)
+        const fastFade = Math.exp(fast * seconds)
+        nextOffset = a * slowFade + b * fastFade
+        nextSpeed = a * slow * slowFade + b * fast * fastFade
+      } else if (zeta >= 1 - 1e-5) {
+        const carry = speed + omega * offset
+        const fade = Math.exp(-omega * seconds)
+        nextOffset = (offset + carry * seconds) * fade
+        nextSpeed = (speed - omega * carry * seconds) * fade
+      } else {
+        const rate = zeta * omega
+        const swing = omega * Math.sqrt(1 - zeta * zeta)
+        const b = (speed + rate * offset) / swing
+        const c = Math.cos(swing * seconds)
+        const s = Math.sin(swing * seconds)
+        const fade = Math.exp(-rate * seconds)
+        nextOffset = fade * (offset * c + b * s)
+        nextSpeed = fade * ((-rate * offset + swing * b) * c +
+          (-rate * b - swing * offset) * s)
+      }
+      value[axis] = goal + nextOffset
+      velocity[axis] = nextSpeed
+      if (Math.abs(nextOffset) < .008 && Math.abs(nextSpeed) < .06) {
+        value[axis] = goal
+        velocity[axis] = 0
       }
     }
     return value

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createPoseSpring } from '../src/pose-spring.mjs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { touchReflexFor } from '../src/touch-reflex.mjs'
@@ -139,4 +140,53 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
   assert.ok(Math.abs(values.ParamAngleZ - idleValues.ParamAngleZ) < .05 &&
     Math.abs(values.ParamBodyAngleZ - idleValues.ParamBodyAngleZ) < .05,
     'motion + touch must converge to the normal breathing posture, with no residual recoil')
+}
+
+
+// The video renderer uses the same spring for an impact, a soft caress and
+// the handoff back to an authored motion. An old 50ms/frame integration cap
+// made a 15Hz phone advance only 75% as much physical time as a 120Hz phone.
+// A frame drop must not change the result of an otherwise identical gesture.
+{
+  const sample = fps => {
+    const spring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.04, 32)
+    const samples = new Map()
+    const frame = 1000 / fps
+    for (let i = 1; i <= Math.round(1800 / frame); i++) {
+      const t = i * frame
+      const holding = t <= 400
+      const pose = spring.step(holding
+        ? { yaw: 24, pitch: -8, roll: 5 } : null, frame, !holding)
+      if ([200, 400, 600, 1000, 1800].some(mark => Math.abs(t - mark) < .001))
+        samples.set(Math.round(t), { ...pose })
+    }
+    return samples
+  }
+  const curves = [15, 30, 60, 120].map(sample)
+  for (const t of [200, 400, 600, 1000, 1800]) {
+    const positions = curves.map(curve => curve.get(t))
+    assert.ok(positions.every(Boolean), `all display rates sample ${t}ms`)
+    for (const axis of ['yaw', 'pitch', 'roll']) {
+      const spread = Math.max(...positions.map(p => p[axis])) -
+        Math.min(...positions.map(p => p[axis]))
+      assert.ok(spread < .02, `${axis} at ${t}ms must not depend on 15/120Hz cadence: ${spread}`)
+    }
+  }
+  const single = createPoseSpring(['roll'], 780, 1.02, 32)
+  const split = createPoseSpring(['roll'], 780, 1.02, 32)
+  const once = single.step({ roll: 25 }, 100).roll
+  for (let i = 0; i < 10; i++) split.step({ roll: 25 }, 10)
+  assert.ok(Math.abs(once - split.step({ roll: 25 }, 0).roll) < 1e-8,
+    'one dropped 100ms frame must integrate the same head recoil as ten 10ms frames')
+  for (const damping of [.7, 1, 1.04, 1.5]) {
+    const spring = createPoseSpring(['roll'], 95, damping, 25)
+    const position = spring.step({ roll: -20 }, 110).roll
+    assert.ok(Number.isFinite(position) && position <= 0 && position > -25,
+      'critical, over- and underdamped imported rigs must remain finite')
+    const settled = spring.step(null, 20_000, true).roll
+    assert.ok(Number.isFinite(settled) && Math.abs(settled) < .02,
+      'a long pause cannot preserve a stale face-tilt after the gesture ends')
+    spring.reset()
+    assert.equal(spring.step(null, 16).roll, 0)
+  }
 }
