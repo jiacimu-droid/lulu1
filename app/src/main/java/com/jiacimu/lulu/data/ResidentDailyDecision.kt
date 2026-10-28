@@ -97,6 +97,16 @@ internal object ResidentDailyDecision {
     data class SavedDayRecovery(val nativeId: String, val day: String,
         val phase: String, val recoveries: Int)
 
+    /** Read-only status for the existing resident card; no new task store. */
+    fun hasPartialDayActions(context: Context, nativeId: String,
+        now: Instant = Instant.now()): Boolean {
+        val p = prefs(context)
+        val day = date(now)
+        return p.getString("attempt:$nativeId", "") == day &&
+            p.contains(dayDecisionKey(nativeId, day)) &&
+            p.getString(dayPhaseKey(nativeId, day), "") == "partial_side_steps"
+    }
+
     fun savedDayRecovery(context: Context, nativeId: String,
         now: Instant = Instant.now()): SavedDayRecovery? {
         val p = prefs(context)
