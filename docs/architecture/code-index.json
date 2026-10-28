@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:40:48.303623+00:00",
-  "commit": "519fdc4c474f0657a0b02f6a974fd85209566680",
+  "generatedAt": "2026-10-28T04:41:11.464530+00:00",
+  "commit": "5c84f66d1e1d59a454fb24520ece15b1fe251123",
   "branch": "main",
-  "sourceFingerprint": "e795062a0b78e6e8e18c07f9c76c9ae4380d21cae3714b141b0b9541ee89ec93",
+  "sourceFingerprint": "1505756136673713080f97d5556d0847f09f114bafd79793d366e2410c7339be",
   "summary": {
     "files": 994,
-    "lines": 197802,
-    "symbols": 2920
+    "lines": 197856,
+    "symbols": 2921
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1755,7 +1755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 94
+        "line": 95
       }
     ],
     "supported": [
@@ -1787,13 +1787,13 @@
     "choice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 112
+        "line": 136
       }
     ],
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 139
+        "line": 163
       }
     ],
     "Sample": [
@@ -2019,13 +2019,13 @@
     "started": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
-        "line": 29
+        "line": 31
       }
     ],
     "finished": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
-        "line": 36
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -2035,7 +2035,7 @@
     "interrupted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
-        "line": 44
+        "line": 47
       }
     ],
     "acceptsCompletion": [
@@ -2095,7 +2095,7 @@
     "Cue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 48
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -2109,31 +2109,31 @@
     "stageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 65
+        "line": 66
       }
     ],
     "stageClosed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 70
+        "line": 71
       }
     ],
     "isStageVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 87
+        "line": 88
       }
     ],
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 163
+        "line": 169
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2151,7 +2151,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 207
+        "line": 213
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -2161,7 +2161,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 226
+        "line": 232
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2175,19 +2175,25 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 237
+        "line": 243
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 293
+        "line": 300
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 303
+        "line": 310
+      }
+    ],
+    "bindSpeechAnchors": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 351
       }
     ],
     "Model": [
@@ -17846,8 +17852,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-      "lines": 162,
-      "sha256": "e1894704f477bed821b8149e46759f25b7377322575a85095841a9a363a817d0",
+      "lines": 186,
+      "sha256": "903efafd063f290aba46baf181cece8db3d65b34f9f06582f78b96edee1c18e6",
       "symbols": [
         {
           "name": "capabilityNote",
@@ -17867,11 +17873,11 @@
         },
         {
           "name": "choice",
-          "line": 112
+          "line": 136
         },
         {
           "name": "part",
-          "line": 139
+          "line": 163
         }
       ]
     },
@@ -18055,8 +18061,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
-      "lines": 51,
-      "sha256": "a621e3afa3389b0b04fb82c4b9bac666d5a2abe432a3249e97ab7933bb3329ff",
+      "lines": 54,
+      "sha256": "7bffedb4504ab9b593a80215c6a7d795ece8aca5d1bdf2b58be5e37c478f02ea",
       "symbols": [
         {
           "name": "Phase",
@@ -18068,15 +18074,15 @@
         },
         {
           "name": "started",
-          "line": 29
+          "line": 31
         },
         {
           "name": "finished",
-          "line": 36
+          "line": 39
         },
         {
           "name": "interrupted",
-          "line": 44
+          "line": 47
         }
       ]
     },
@@ -18120,8 +18126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 341,
-      "sha256": "e41a57abaebd85f635deb2c8f088d9e14f0bdf32480893c57ca0a09a1f227f4b",
+      "lines": 368,
+      "sha256": "d2748e9f1308c56373bc4fc39684cdbdefa4bbffde87829910609e7bf8c5e662",
       "symbols": [
         {
           "name": "Head",
@@ -18141,51 +18147,55 @@
         },
         {
           "name": "Cue",
-          "line": 48
+          "line": 49
         },
         {
           "name": "stageReady",
-          "line": 65
+          "line": 66
         },
         {
           "name": "stageClosed",
-          "line": 70
+          "line": 71
         },
         {
           "name": "isStageVisible",
-          "line": 82
+          "line": 83
         },
         {
           "name": "stageParameters",
-          "line": 87
+          "line": 88
         },
         {
           "name": "capabilityNote",
-          "line": 94
+          "line": 95
         },
         {
           "name": "normalized",
-          "line": 163
+          "line": 169
         },
         {
           "name": "publish",
-          "line": 207
+          "line": 213
         },
         {
           "name": "bounded",
-          "line": 226
+          "line": 232
         },
         {
           "name": "boundedBody",
-          "line": 237
+          "line": 243
         },
         {
           "name": "headNumber",
-          "line": 293
+          "line": 300
         },
         {
           "name": "bodyNumber",
-          "line": 303
+          "line": 310
+        },
+        {
+          "name": "bindSpeechAnchors",
+          "line": 351
         }
       ]
     },
