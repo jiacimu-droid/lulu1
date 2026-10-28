@@ -14,7 +14,7 @@ import { createSpeechMouthRuntime } from './speech-mouth.mjs'
 import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
-import { touchReflexFor, touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor } from './touch-reflex.mjs'
+import { touchReflexFor, touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from './touch-reflex.mjs'
 import { createTouchResponseRuntime, isImpact } from './touch-response.mjs'
 import { createTouchExpressionLayer } from './touch-expression-layer.mjs'
 
@@ -113,6 +113,8 @@ let headRequestEndAt = 0
 let touchReflex = null
 let touchReflexEndAt = 0
 let tactileContact = null
+// Only the imported model's actual registered motion group is playable.
+let tactileMotionIndices = new Set()
 // A cancelled pointer stream cannot reappear as a standalone release hit.
 let tactileGestureCancelled = false
 const touchResponse = createTouchResponseRuntime()
@@ -504,6 +506,7 @@ function applyFinalParameters(core, deltaMs) {
     deltaMs, head: headRequest, body: bodyRequest, face: visibleFace,
     authoredMotion: motionActive,
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
+    touchMotionActive: motionActive && authoredMotion?.source === 'touch',
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
     deferPhysicsOutputs: true,
@@ -708,6 +711,10 @@ async function load(modelURL) {
     const settingsResponse = await fetch(modelURL, { cache: 'no-store' })
     if (!settingsResponse.ok) throw new Error('模型配置文件无法加载 (HTTP ' + settingsResponse.status + ')')
     const modelSettings = await settingsResponse.json()
+    const wolfMotions = modelSettings.FileReferences?.Motions?.LuluWolf
+    tactileMotionIndices = new Set(Array.isArray(wolfMotions)
+      ? wolfMotions.map((entry, index) => entry?.File ? index : -1).filter(index => index >= 0)
+      : [])
     // Describe what a .exp3 actually changes; do not assume a Chinese or
     // English filename is enough to infer if it blocks mouth movement.
     mouthExclusiveExpressions = new Set()
@@ -767,6 +774,9 @@ async function load(modelURL) {
     wolfRigActive = false
     touchReflex = null
     tactileContact = null
+    // Stale clips from the previous model must never play against the new rig.
+    motionRevision++
+    authoredMotion = null
     performanceRuntime.reset()
     scoredBeats = []
     scoreVisualSequence = 0
@@ -1167,6 +1177,31 @@ function setNativeStreaming(enabled) {
   scheduleNativeStreamFrame()
 }
 
+/**
+ * A reusable Motion3 has first authority over its authored head/torso
+ * curves. Soft physical detail and the real face expression stay in the
+ * same render layer. Do not restart a clip for every Android MOVE sample.
+ */
+function maybePlayTactileMotion(region, gesture, state, completed, alreadyPlayed) {
+  if (!wolfRigActive || !tactileMotionIndices.size || alreadyPlayed ||
+      (!completed && !gesture.startsWith('stroke'))) return false
+  const clip = touchMotionFor(region, gesture, state)
+  if (!clip || !tactileMotionIndices.has(clip.index)) return false
+  // An explicitly chosen character motion wins over an optional touch clip.
+  // A local physical reflex still runs while that authored motion is active.
+  if (authoredMotion && authoredMotion.source !== 'touch' &&
+      authoredMotion.model === model &&
+      model?.internalModel?.motionManager?.isFinished?.() === false) return false
+  motion(clip.group, clip.index, true, 'touch')
+  return true
+}
+function cancelTactileMotion() {
+  if (authoredMotion?.source !== 'touch') return
+  motionRevision++
+  try { authoredMotion.model?.internalModel?.motionManager?.stopAllMotions?.() } catch (_) {}
+  authoredMotion = null
+}
+
 // Native mirrored video already maintains a recent CPU-side 2D frame.
 // Sampling its 5x5 pixels avoids a new WebGL readPixels stall on each touch.
 // A true background pixel must not become a virtual head just because it falls
@@ -1254,6 +1289,7 @@ function updateTactileExpression(region, kind, state, now) {
 }
 function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   if (gesture === 'cancel') {
+    cancelTactileMotion()
     touchResponse.end()
     tactileContact = null
     touchReflex = null
@@ -1264,6 +1300,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
       !Number.isFinite(normalizedX) || !Number.isFinite(normalizedY) ||
       normalizedX < 0 || normalizedX > 1 ||
       normalizedY < 0 || normalizedY > 1) {
+    cancelTactileMotion()
     touchResponse.end()
     // A background excursion ends this contact, but an uncancelled finger
     // can re-enter the model later. Only an explicit OS cancel is terminal.
@@ -1296,6 +1333,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // Calibration chooses a BODY PART, never fabricates an avatar pixel.
   // A confirmed room/background sample remains a miss even in a saved zone.
   if (!completionRegion && actualAvatarPixel(normalizedX, normalizedY) === false) {
+    cancelTactileMotion()
     touchResponse.end()
     // A background excursion ends this contact, but an uncancelled finger
     // can re-enter the model later. Only an explicit OS cancel is terminal.
@@ -1315,6 +1353,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     hits, authoredAreas, bounds, x, y, calibration: touchCalibration,
   })
   if (!region) {
+    cancelTactileMotion()
     touchResponse.end()
     // A background excursion ends this contact, but an uncancelled finger
     // can re-enter the model later. Only an explicit OS cancel is terminal.
@@ -1360,6 +1399,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const contactStart = isImpact(kind) && completed ? now
     : starting || !tactileContact ? now : tactileContact.start
   const previousPoint = tactileContact?.lastPoint
+  const priorMotionPlayed = !starting && !!tactileContact?.motionPlayed
   const physicallyMoved = !starting && options.mode === 'hand' &&
     (options.phase === 'move' || options.phase === 'complete') &&
     previousPoint && Math.hypot(x - previousPoint.x, y - previousPoint.y) >= .5
@@ -1372,7 +1412,9 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     ? { ...state, motionIdleMs: Math.max(0, now - lastMovementAt) } : state
   tactileContact = { region, kind, ordinal: touchSequence, state: visualState,
     start: contactStart, pressed: !completed, downPoint,
-    lastPoint: { x, y }, lastMovementAt }
+    lastPoint: { x, y }, lastMovementAt, motionPlayed: priorMotionPlayed }
+  if (!starting) tactileContact.motionPlayed = maybePlayTactileMotion(
+    region, kind, state, completed, priorMotionPlayed) || priorMotionPlayed
   const baseTouch = !completed && isImpact(kind) ? null :
     touchReflexFor(region, kind, touchSequence, visualState)
   touchReflex = wolfRigActive && baseTouch
@@ -1383,9 +1425,8 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // and path length while held, not with the number of MOVE callbacks.
   if (isImpact(kind)) clearTouchCompanion()
   if (completed) updateTactileExpression(region, kind, state, now)
-  // Contact is handled by the local reflex layer only. Full authored
-  // Motion3 clips remain available when the character explicitly selects
-  // one during speech; they must not be auto-injected at finger release.
+  // The safe authored clips play only once per contact, on a verified
+  // moving caress or final touch. Unmatched contacts remain local reflexes.
   return { hit: true, region, gesture: kind, force: state.force }
 }
 
@@ -1402,6 +1443,7 @@ function setPaused(value) {
     audioSegmentIndex = 0
     clearSpeechMoment()
     touchReflex = null
+    cancelTactileMotion()
     wolfImpactPresentation.reset(model)
     activeTouchExpression = null
     tactileContact = null
@@ -1540,7 +1582,7 @@ function perform(cue, immediatePreview = false) {
   if (cue.beats) choreography(cue.beats, immediatePreview)
   return true
 }
-function motion(group, index, immediatePreview = false) {
+function motion(group, index, immediatePreview = false, source = 'character') {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
   if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
@@ -1549,7 +1591,7 @@ function motion(group, index, immediatePreview = false) {
   }
   const target = model
   const revision = ++motionRevision
-  const chosen = { model: target, revision, group, index, started: false }
+  const chosen = { model: target, revision, group, index, started: false, source }
   authoredMotion = chosen
   Promise.resolve(target.motion(group, index)).then(ok => {
     if (revision !== motionRevision || target !== model) {
