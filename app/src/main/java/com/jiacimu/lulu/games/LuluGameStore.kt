@@ -33,6 +33,17 @@ enum class LuluGameType {
     MoodGuess,
 }
 
+/** Autonomous games are a subset of the games playable with the user. */
+object AutonomousGameCatalog {
+    const val MEMORY_MATCH = "memory_match"
+    const val YACHT_DICE = "yacht_dice"
+    val gameNames: Map<String, String> = linkedMapOf(
+        MEMORY_MATCH to "记忆配对",
+        YACHT_DICE to "快艇骰子",
+    )
+    fun title(gameId: String): String? = gameNames[gameId.trim().lowercase()]
+}
+
 data class LuluGameRecord(
     val id: String = UUID.randomUUID().toString(),
     val type: LuluGameType,
@@ -282,10 +293,19 @@ class LuluGameStore internal constructor(context: Context) {
         targetScore: Int? = null,
     ): AutonomousGameResult? {
         if (characterId.isBlank()) return null
-        require(targetScore == null || targetScore in 120..1200) { "目标分数必须在真实游戏的120至1200分范围内" }
         val normalized = gameId.trim().lowercase()
+        if (normalized == AutonomousGameCatalog.MEMORY_MATCH) {
+            require(targetScore == null || targetScore in 120..1200) { "记忆配对目标分数必须在120至1200之间" }
+        } else {
+            require(targetScore == null) { "该游戏不支持记忆配对的目标分数，请不带targetScore重新选择" }
+        }
         val previousBest = mutableState.value.records.filter {
-            it.characterId == characterId && !it.playedWithCharacter && it.type == LuluGameType.MemoryMatch
+            it.characterId == characterId && !it.playedWithCharacter &&
+                it.type == when (normalized) {
+                    AutonomousGameCatalog.MEMORY_MATCH -> LuluGameType.MemoryMatch
+                    AutonomousGameCatalog.YACHT_DICE -> LuluGameType.YachtDice
+                    else -> return null
+                }
         }.maxOfOrNull { it.score }
         val random = Random("$characterId:$normalized:${now.toEpochMilli()}".hashCode())
         val played = when (normalized) {
@@ -337,6 +357,52 @@ class LuluGameStore internal constructor(context: Context) {
                         .put("turns", turns)
                         .put("targetScore", targetScore ?: JSONObject.NULL)
                         .put("targetReached", targetScore?.let { score >= it } ?: JSONObject.NULL)
+                        .put("previousBest", previousBest ?: JSONObject.NULL)
+                        .toString(),
+                )
+            }
+            "yacht_dice" -> {
+                // Same thirteen categories, three rolls and scoring function used by the
+                // interactive Yacht Dice table. One round is not a separate activity.
+                val scoreSheet = linkedMapOf<YachtCategory, Int>()
+                val turns = JSONArray()
+                for (round in 1..YachtCategory.entries.size) {
+                    var dice = List(5) { random.nextInt(1, 7) }
+                    val rolls = JSONArray().put(JSONArray(dice))
+                    repeat(2) {
+                        val held = chooseYachtHolds(dice)
+                        dice = dice.mapIndexed { index, value ->
+                            if (index in held) value else random.nextInt(1, 7)
+                        }
+                        rolls.put(JSONArray(dice))
+                    }
+                    val category = YachtCategory.entries
+                        .filterNot { it in scoreSheet }
+                        .maxByOrNull { scoreYacht(it, dice) } ?: error("没有可计分的骰子类别")
+                    val points = scoreYacht(category, dice)
+                    scoreSheet[category] = points
+                    turns.put(JSONObject()
+                        .put("round", round)
+                        .put("rolls", rolls)
+                        .put("category", category.name)
+                        .put("categoryLabel", category.label)
+                        .put("points", points)
+                        .put("total", scoreSheet.values.sum()))
+                }
+                val score = scoreSheet.values.sum()
+                AutonomousGameDraft(
+                    gameId = normalized,
+                    type = LuluGameType.YachtDice,
+                    title = "快艇骰子",
+                    score = score,
+                    summary = buildString {
+                        append("独自完成一局快艇骰子：13轮、每轮三掷，最终 $score 分。")
+                        previousBest?.let { append("个人此前最高 $it 分，${if (score > it) "这次刷新了纪录" else "这次没有刷新纪录"}。") }
+                    },
+                    detailsJson = JSONObject()
+                        .put("game", "yacht_dice")
+                        .put("turns", turns)
+                        .put("total", score)
                         .put("previousBest", previousBest ?: JSONObject.NULL)
                         .toString(),
                 )
