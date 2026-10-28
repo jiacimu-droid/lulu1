@@ -189,8 +189,26 @@ object ToolRouter {
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
                     } else if (name == com.jiacimu.lulu.ai.JevDirections.TOOL) {
                         com.jiacimu.lulu.ai.JevDirections.evaluate(context, characterId, args)
+                    } else if (name == "save_photo") {
+                        val saved = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            val messageId = args.optString("messageId").trim()
+                            val searchId = args.optString("searchId").trim()
+                            when {
+                                messageId.isNotBlank() && searchId.isBlank() ->
+                                    com.jiacimu.lulu.RolePhotoAlbumStore.saveChatMessage(context, characterId, messageId)
+                                searchId.isNotBlank() && messageId.isBlank() ->
+                                    com.jiacimu.lulu.RolePhotoAlbumStore.saveSearchResult(
+                                        context, characterId, searchId, args.optInt("index", -1))
+                                else -> error("请选择本角色实际收到的 messageId 或自己搜到的 searchId+index")
+                            }
+                        }
+                        JSONObject().put("success", true).put("status", "succeeded")
+                            .put("photoId", saved.id).put("summary",
+                                "照片已真正保存到本角色手机相册（${saved.source}），可在查手机→我的→相册查看")
+                            .toString()
                     } else if (name == "capture_screen") {
-                        LuluScreenAwareness.capture(context, userRequested, characterId, requestId)
+                        LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
+                            saveToAlbum = args.optBoolean("saveToAlbum", false))
                     } else if (name == "start_study_watch") {
                         com.jiacimu.lulu.system.LuluStudyWatch.request(
                             context, characterId, args.optInt("minutes", 45))
