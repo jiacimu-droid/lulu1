@@ -12,6 +12,14 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterChatModelSelectionTest {
+    // Robolectric creates a fresh application/preferences sandbox for each test.
+    // Drop the singleton's previous sandbox handle, without changing real fallback policy.
+    @org.junit.Before fun resetPreferenceHandle() {
+        ScopedModelSelections.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(ScopedModelSelections, null)
+    }
+    @org.junit.After fun releasePreferenceHandle() = resetPreferenceHandle()
+
     @Test fun switchingAInItsChatWindowCannotChangeB() {
         val context = RuntimeEnvironment.getApplication() as Context
         ScopedModelSelections.initialize(context)

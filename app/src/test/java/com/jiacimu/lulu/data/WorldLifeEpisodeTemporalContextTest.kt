@@ -14,6 +14,8 @@ import org.robolectric.annotation.Config
 class WorldLifeEpisodeTemporalContextTest {
     @Test fun queuedPsychologySurvivesLaterMoodChangeAndWorkerSerialization() {
         val app = RuntimeEnvironment.getApplication() as Context
+        CharacterInnerLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
         CharacterInnerLifeStore.initialize(app)
         CharacterLifeStore.initialize(app)
         val role = "prose-time-" + java.util.UUID.randomUUID()
