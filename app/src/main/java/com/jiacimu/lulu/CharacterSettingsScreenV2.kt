@@ -375,11 +375,15 @@ fun CharacterSettingsScreenV2(
                         ResidentDailyDecision.planFor(context, nativeResident.id, Instant.now())
                     }
                     val todayDate = java.time.LocalDate.now()
-                    val agenda = remember(characterId, residentScheduleRevision, todayDate) {
+                    val agenda = remember(characterId, residentScheduleRevision, recoveryRevision, todayDate) {
                         RoleDayScheduleStore.plans(context, characterId).filter {
                             it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == todayDate ||
                                 (it.status in setOf("planned", "due") &&
-                                    it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate))
+                                    it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate)) ||
+                                // A finished primary with unfinished side steps must remain
+                                // visible even when the original appointment was days ago.
+                                (it.status == "completed" &&
+                                    ResidentDailyDecision.savedDueRecovery(context, it) != null)
                         }
                     }
                     Text("每日规划 · 08:00", color = MaterialTheme.colorScheme.onSurfaceVariant)

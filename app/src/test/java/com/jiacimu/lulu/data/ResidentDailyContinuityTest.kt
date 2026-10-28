@@ -1703,8 +1703,10 @@ class ResidentDailyContinuityTest {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val primary = "已完成的主动态-${UUID.randomUUID()}"
         val extra = "待续接的副动态-${UUID.randomUUID()}"
+        // The original appointment was two days ago. Recovery must still be
+        // visible and safe instead of disappearing from today's UI.
         val plan = RoleDayScheduleStore.arrange(app, actor, "记录生活",
-            "记录真实见闻", now.minusSeconds(120), now.minusSeconds(600),
+            "记录真实见闻", now.minusSeconds(172800), now.minusSeconds(259200),
             activityAction = "publish_moment",
             activityArgs = JSONObject().put("text", primary))
         val receipt = JSONObject(ToolRouter.execute(app, actor, "publish_moment",

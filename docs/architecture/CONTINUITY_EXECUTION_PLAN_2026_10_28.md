@@ -283,3 +283,5 @@
 - **根因**：居民到点 execute 忽略 `executeWakeSteps` 的 completedCount，主动作成功后即写 finished，导致副步骤失败或尚待完成时失去 WorkManager 与重启恢复机会。
 - **修复**：execute 只有主动作与所有附加步骤完成才写 finished；否则保留 needs_recovery，沿既有 WorkManager、OrderedCharacterActions 和 ToolRouter 的原 requestId 做最多两次自动恢复，不重发已完成主动作。预算耗尽后在原居民日程卡允许主人**最多一次明确授权的已保存决定续接**，不再请求模型；校验人物、原 dueAt、状态及已完成主动作的真实回执，改期/撤销或证据失效不恢复。失败仍保留原工具拒绝回执。
 - **回归**：主动态成功而旧副动作失败、自动预算耗尽、人工恢复不重复发布；已完成主动作只补执行缺失的副动态；日程改期后旧恢复确认失效。**源码提交不代表 CI、APK 或真机通过**。
+
+- **跨日 UI 补充**：居民个人行程原来只列当天和较早的 planned/due，过去已 completed 但副步骤仍需人工续接的行程无法看到按钮；现仅把确实具有已保存恢复资格的旧 completed 行程保留在原日程卡，并使恢复后列表刷新。跨两天完成主动作的回归覆盖旧 dueAt 与不重复主动态。
