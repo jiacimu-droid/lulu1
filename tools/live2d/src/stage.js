@@ -839,8 +839,26 @@ function activatePendingSpeechMoment() {
   if (parts?.body) body(parts.body)
   if (parts?.face) face(parts.face)
 }
-function onPlaybackEvent(phase) {
+function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0) {
   if (phase === 'playing') {
+    // Android sends a start only after this exact queued TTS fragment emits
+    // actual audio. Never replay a visual choice from another voice turn.
+    if (Number.isInteger(segmentIndex) && segmentIndex >= 0 && segmentIndex < 16 &&
+        Number.isSafeInteger(eventVisualSequence) && eventVisualSequence >= 0) {
+      const changed = audioVisualSequence !== eventVisualSequence ||
+        audioSegmentIndex !== segmentIndex
+      audioVisualSequence = eventVisualSequence
+      audioSegmentIndex = segmentIndex
+      if (changed && scoreVisualSequence > 0) {
+        performanceRuntime.stopSpeech()
+        if (scoreVisualSequence === audioVisualSequence) {
+          const selected = scoredBeats.filter(beat =>
+            (beat.segmentIndex ?? 0) === audioSegmentIndex)
+          performanceRuntime.schedule(selected)
+          performanceRuntime.startSpeech()
+        }
+      }
+    }
     // PCM/status and utterance events must not restart one speech performance.
     if (playing) {
       activatePendingSpeechMoment()
@@ -857,6 +875,8 @@ function onPlaybackEvent(phase) {
     return
   }
   if (phase !== 'finished' && phase !== 'interrupted') return
+  audioVisualSequence = 0
+  audioSegmentIndex = 0
   playing = false
   performanceRuntime.stopSpeech()
   const gate = phase === 'finished'
@@ -868,8 +888,11 @@ function onPlaybackEvent(phase) {
   lastRealMouthSignalAt = 0
   pendingExpressionName = null
   pendingSpeechParts = null
-  if (phase === 'interrupted') clearSpeechMoment()
-  else {
+  if (phase === 'interrupted') {
+    clearSpeechMoment()
+    scoredBeats = []
+    scoreVisualSequence = 0
+  } else {
     // A brief utterance still gets a visible settling tail. The normal spring
     // and facial release then return to the imported pose without snapping.
     settleSpeechMoment()
@@ -898,7 +921,10 @@ function update(next) {
   if (playing && !wasPlaying) {
     const gate = mouthExpressionGate.started()
     if (gate.reset && activeExpressionName) resetSpeechExpression()
-    performanceRuntime.startSpeech()
+    // For authored text anchors, only the exact utterance onStarted event
+    // owns choreography timing; the coarse speaking flag owns mouth only.
+    if (scoreVisualSequence === 0 ||
+        scoreVisualSequence === audioVisualSequence) performanceRuntime.startSpeech()
     speakingBeganAt = Date.now()
     fallbackSpeechSeed = Math.random() * 4
   }
@@ -1475,17 +1501,33 @@ function expression(name, immediatePreview = false) {
     pendingExpressionName = { name, queuedAt: Date.now() }
   }
 }
-// AIRI-inspired staged expressivity: separate authored visual beats use the
-// SAME phone turn and timeline, not an independent personality/animation LLM.
+// Score metadata belongs only to the current visual turn. No second cognition
+// loop or audio timers: segment boundaries come from actual TTS onStarted.
+let scoredBeats = []
+let scoreVisualSequence = 0
+let audioVisualSequence = 0
+let audioSegmentIndex = 0
 function choreography(beats, immediatePreview = false) {
   if (!model) return
-  performanceRuntime.schedule(beats, !!immediatePreview)
+  scoredBeats = Array.isArray(beats) ? beats.slice(0, 16) : []
+  const selected = scoredBeats.filter(beat =>
+    (beat.segmentIndex ?? 0) ===
+      (scoreVisualSequence > 0 && audioVisualSequence === scoreVisualSequence
+        ? audioSegmentIndex : 0))
+  performanceRuntime.schedule(selected, !!immediatePreview)
 }
 // One atomic character decision, including ordinary chat performances. A new
 // expression-only cue must also supersede an older, queued choreography.
 function perform(cue, immediatePreview = false) {
   if (!model || !cue || typeof cue !== 'object') return false
   performanceRuntime.clearScore()
+  scoreVisualSequence = Number.isSafeInteger(cue.visualSequence) && cue.visualSequence > 0
+    ? cue.visualSequence : 0
+  scoredBeats = []
+  // A new model decision may arrive while a previous utterance remains
+  // audible. Do not run this turn's score against that older audio clock.
+  if (scoreVisualSequence > 0 && scoreVisualSequence !== audioVisualSequence)
+    performanceRuntime.stopSpeech()
   pendingExpressionName = null
   pendingSpeechParts = null
   if (playing || immediatePreview) clearSpeechMoment()
