@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`39cf1648aacd12d13e2933417bd9a9a06debd996`
+- 基准提交：`ae29e7803afad36433efb6cc3ca72ef86ec3ce74`
 - 分支：`main`
 - 已索引文件：1002
-- 已索引代码/文本行：199231
+- 已索引代码/文本行：199239
 - 已发现符号：2931
 
 | 文件 | 行数 | 符号数 |
@@ -347,7 +347,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 162 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 283 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 291 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 55 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
