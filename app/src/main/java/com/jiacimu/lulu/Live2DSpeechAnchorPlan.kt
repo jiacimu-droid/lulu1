@@ -8,18 +8,57 @@ package com.jiacimu.lulu
 internal object Live2DSpeechAnchorPlan {
     data class Plan(val parts: List<String>, val segmentForAnchor: Map<String, Int>)
 
+    private const val BOUNDARY_CHARS = "。！？!?；;，,：:\n \t"
+    private const val STRIP_CHARS = "。！？!?；;，,：:、·…— \t\n\r"
+
+    private fun atBoundary(speech: String, position: Int): Boolean =
+        position == 0 || speech[position - 1] in BOUNDARY_CHARS
+
+    /**
+     * Punctuation and spacing routinely drift between the anchor the role
+     * authored and the final spoken text (a comma the spoken text has, the
+     * anchor lacks). Compare with clause punctuation and whitespace removed
+     * from both sides; the anchor must still be fully present, occur exactly
+     * once, and start at a real clause boundary. Anything else stays a
+     * non-match: this fallback never guesses a timestamp either.
+     */
+    private fun fallbackPosition(speech: String, anchor: String): Int? {
+        val normalizedAnchor = anchor.filter { it !in STRIP_CHARS }
+        if (normalizedAnchor.isEmpty()) return null
+        val origin = ArrayList<Int>(speech.length)
+        val normalized = StringBuilder(speech.length)
+        for (index in speech.indices) {
+            if (speech[index] in STRIP_CHARS) continue
+            origin.add(index)
+            normalized.append(speech[index])
+        }
+        val text = normalized.toString()
+        val first = text.indexOf(normalizedAnchor)
+        if (first < 0 || text.indexOf(normalizedAnchor, first + normalizedAnchor.length) >= 0)
+            return null
+        val position = origin[first]
+        return if (atBoundary(speech, position)) position else null
+    }
+
     fun build(speech: String, anchors: List<String>): Plan {
         if (speech.isBlank()) return Plan(emptyList(), emptyMap())
-        val found = anchors.distinct().mapNotNull { anchor ->
+        val distinct = anchors.distinct()
+        val primary = distinct.mapNotNull { anchor ->
             if (anchor.isBlank() || anchor.length > 60) return@mapNotNull null
             val position = speech.indexOf(anchor)
             if (position < 0 || speech.indexOf(anchor, position + anchor.length) >= 0)
                 return@mapNotNull null
             // Don't split a TTS word or fabricate a time for a quote that
             // doesn't begin at a real clause boundary in the final spoken text.
-            if (position > 0 && speech[position - 1] !in "。！？!?；;，,：:\n \t")
-                return@mapNotNull null
+            if (!atBoundary(speech, position)) return@mapNotNull null
             anchor to position
+        }
+        val found = if (primary.size == distinct.size) primary else {
+            val done = primary.map { it.first }.toSet()
+            primary + distinct.filter { it !in done }.mapNotNull { anchor ->
+                if (anchor.isBlank() || anchor.length > 60) return@mapNotNull null
+                fallbackPosition(speech, anchor)?.let { position -> anchor to position }
+            }
         }.sortedBy { it.second }
         val boundaries = (listOf(0) + found.map { it.second }.filter { it > 0 }.distinct().take(3))
             .sorted()

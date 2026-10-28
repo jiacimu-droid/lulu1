@@ -35,6 +35,22 @@ class Live2DSpeechAnchorPlanTest {
         assertEquals(text, plan.parts.joinToString(""))
     }
 
+    @Test fun punctuationDriftBetweenAnchorAndSpeechStillBinds() {
+        val text = "不过，我可没一直等你。其实我一直在这儿。"
+        val plan = Live2DSpeechAnchorPlan.build(text, listOf("不过我可没一直等你", "其实我一直在这儿"))
+        assertEquals(0, plan.segmentForAnchor["不过我可没一直等你"])
+        assertEquals(1, plan.segmentForAnchor["其实我一直在这儿"])
+        assertEquals(text, plan.parts.joinToString(""))
+    }
+
+    @Test fun fallbackStillRefusesAmbiguousAndMidClauseAnchors() {
+        val text = "走吧。走吧！我还在想你呢。"
+        val plan = Live2DSpeechAnchorPlan.build(text, listOf("走吧", "还在想你"))
+        assertNull(plan.segmentForAnchor["走吧"])
+        assertNull(plan.segmentForAnchor["还在想你"])
+        assertEquals(text, plan.parts.joinToString(""))
+    }
+
     @Test fun blankInputProducesNoSyntheticSpeech() {
         assertTrue(Live2DSpeechAnchorPlan.build(" ", listOf("嗨")).parts.isEmpty())
     }
