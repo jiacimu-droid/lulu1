@@ -56,7 +56,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val restored = remember(progress) { progress.load(map.start) }
     val selectedCompanionId = if (state.playWithCharacter) state.selectedCharacterIds.firstOrNull().orEmpty() else ""
     // Lock one character to the actual dive so a later lobby selection cannot inherit somebody else's memories.
-    val sessionCompanionId = remember(progress) { restored.sessionCompanionId.ifBlank { selectedCompanionId } }
+    var sessionCompanionId by remember(progress) {
+        mutableStateOf(restored.sessionCompanionId.ifBlank { selectedCompanionId })
+    }
     val companion = sessionCompanionId.takeIf(String::isNotBlank)?.let(MigratedDomainStores.characters::get)
     val obstacles = remember(map) { map.reefs.map(DeepSeaReef::obstacle) }
     val safeRestoredPosition = remember(restored.position, obstacles) {
@@ -75,7 +77,13 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var scanned by remember { mutableStateOf(restored.scanned.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
     var visited by remember { mutableStateOf(restored.visited.intersect(deepSeaSites.map(DeepSeaSite::id).toSet())) }
     var companionAssists by remember { mutableIntStateOf(if (restored.sessionCompanionId == sessionCompanionId) restored.companionAssists else 0) }
-    var survey by remember { mutableStateOf(restored.survey) }
+    var survey by remember {
+        mutableStateOf(restored.survey.copy(
+            revealedRelics = restored.survey.revealedRelics.intersect(deepSeaRelics.map { it.id }.toSet()),
+            salvagedRelics = restored.survey.salvagedRelics.intersect(deepSeaRelics.map { it.id }.toSet()),
+            observedCreatures = restored.survey.observedCreatures.intersect(deepSeaCreatures.map { it.id }.toSet()),
+        ))
+    }
     var focusSalvage by remember { mutableStateOf(false) }
     var showJournal by remember { mutableStateOf(false) }
     var sonarCharge by remember { mutableFloatStateOf(1f) }
@@ -108,8 +116,9 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val latestVisited by rememberUpdatedState(visited)
     val latestAssists by rememberUpdatedState(companionAssists)
     val latestSurvey by rememberUpdatedState(survey)
+    val latestSessionCompanionId by rememberUpdatedState(sessionCompanionId)
     DisposableEffect(progress) {
-        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists, sessionCompanionId, latestSurvey) }
+        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists, latestSessionCompanionId, latestSurvey) }
     }
     LaunchedEffect(progress) {
         while (isActive) {
@@ -222,6 +231,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     // Keep a newly discovered relic navigable even when the next main echo is still unknown.
     val activeSalvage = optionalRelic != null && (focusSalvage || primaryTarget == null)
     val navigationTarget = if (activeSalvage) optionalRelic?.position else primaryTarget
+    LaunchedEffect(navigationTarget) {
+        if (navigationRoute.isNotEmpty() && navigationRoute.lastOrNull() != navigationTarget) {
+            navigationRoute = emptyList()
+        }
+    }
     val navigationDistance = navigationTarget?.let { destination ->
         navigationRoute.takeIf { it.lastOrNull() == destination }?.let { deepSeaRouteDistance(player, it) }
     }
@@ -567,6 +581,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 bonus = deepSeaExplorationBonus(survey.salvagedRelics, survey.observedCreatures, visited),
                 onRestart = {
                     progress.reset()
+                    sessionCompanionId = selectedCompanionId
                     player = map.start
                     camera = WorldVector.Zero
                     cameraInitialized = false
