@@ -797,9 +797,10 @@ object ProactivePerceptionRuntime {
                 if (digital) {
                     appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId, now))
                     appendLine(CharacterEverydaySocialContext.render(characterId, now, pendingMail))
-                    DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
-                        appendLine("可寻找的登记居民 itemId=${resident.id}；${resident.name}；身份=${resident.identity}；当前位置=${resident.currentLocationCode}；住宅=${resident.homeLocationCode}。若真在家，可 visit_resident_home 到门前；公共地点则用现有准确 location 前往。")
-                    }
+                    // Global world registry is NOT this character's perception:
+                    // another resident's current/home location is private
+                    // unless this role actually reaches/observes that place.
+                    appendLine("寻找新朋友可以先亲自到公共场所；只有当前场景确实见到的居民、自己收到的消息和已知联系人，才是本人当前可确认的社会线索。")
                 }
                 // Independent turns receive learn_topic via the same live discovery
                 // catalogue below. A private reply can still discover learning

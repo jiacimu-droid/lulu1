@@ -70,6 +70,32 @@ class ResidentPhoneWakeIntegrationTest {
         assertFalse(CharacterEverydaySocialContext.render(actor).contains("postId=${post.id}"))
     }
 
+    @Test fun phonePromptRejectsOtherCharactersPrivateAndForgedMomentsSnapshots() {
+        val viewer = role()
+        val another = role()
+        assertFalse(MomentFriendAccess.areFriends(viewer, another))
+        val secret = MomentsStore.publishCharacter(another,
+            "只分享给另一角色好友的私密朋友圈-${UUID.randomUUID()}")!!
+        val leaked = CharacterPhoneInbox.modelContext(viewer, listOf(secret))
+        assertFalse(leaked.contains(secret.id))
+        assertFalse(leaked.contains(secret.content))
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(viewer, listOf(secret)))
+        assertTrue(SharedExperienceTimeline.eventsByIds(viewer,
+            listOf("moment-${secret.id}-$viewer")).isEmpty())
+
+        val userPost = MomentsStore.publishUser("确实公开的内容-${UUID.randomUUID()}")!!
+        assertTrue(MomentFriendAccess.canView(userPost, viewer))
+        val forged = userPost.copy(content = "捏造的观察与记忆")
+        val prompt = CharacterPhoneInbox.modelContext(viewer, listOf(forged, userPost))
+        // Duplicate ID must never allow the forged first snapshot to win:
+        // live exact version is authoritative, not caller-controlled order.
+        assertFalse(prompt.contains("捏造的观察与记忆"))
+        assertTrue(prompt.contains(userPost.content))
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(viewer, listOf(forged)))
+        assertTrue(SharedExperienceTimeline.eventsByIds(viewer,
+            listOf("moment-${userPost.id}-$viewer")).isEmpty())
+    }
+
     @Test fun aPostCreatesARedDotButNoMentalObservationBeforePhoneRead() {
         val viewer = role()
         assertTrue(MomentFriendAccess.areFriends(MomentFriendAccess.OWNER, viewer))

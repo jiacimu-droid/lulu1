@@ -236,9 +236,16 @@ internal object CompanionActionRuntime {
             else appendLine(DigitalWorldStore.resourceContext(characterId))
             appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId))
             appendLine("居民的持续小事走 digital_world_action，args={\"worldAction\":\"interact_resident\",\"itemId\":\"在场居民ID\",\"activityId\":\"share_text|co_write|exchange_views|continue_episode\",\"text\":\"本人真实写下的短文/上句/观点，最多500字\",\"incidentId\":\"继续时的原事件ID\"}。先提出，约稍后再当面谈；实际台词和结果分阶段保存，允许对方婉拒、提修改或持不同意见。也可只普通闲聊。去已登记居民家门前用 worldAction=visit_resident_home + itemId=居民ID；对方须真在家，不等于获邀进入室内。")
-            DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
-                appendLine("- 可寻找的真实居民 itemId=${resident.id}；${resident.name}；${resident.identity}；当前位置=${resident.currentLocationCode}；家门地址=${resident.homeLocationCode}")
-            }
+            // Only actually co-located residents are visible targets.
+            // The entire registry (including everyone's home/current
+            // location) belongs to world authority, not each role's memory.
+            val here = DigitalWorldStore.locationOf(characterId)
+            DigitalWorldExpansionStore.residents()
+                .asSequence().filter { it.currentLocationCode == here }
+                .take(12).forEach { resident ->
+                    appendLine("- 当前场景可见居民 itemId=${resident.id}；${resident.name}；可当面互动；对方的其他经历与家中位置未知")
+                }
+            appendLine("没有在当前场景见到的居民不能凭登记资料断言对方在哪、住哪里；可自主前往公共地点探索，认识的人可按已确认的关系继续联系。")
             val socialTargets = MigratedDomainStores.characters.settings.value.keys
                 .asSequence()
                 .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) }

@@ -63,6 +63,31 @@ internal object CharacterPhoneInbox {
         }
     }
 
+    /**
+     * Validate the exact viewer of a supplied snapshot. Passing another
+     * character's saved posts (or a stale/withdrawn post) must not become a
+     * shortcut around the friendship ACL when composing model context.
+     * New likes/comments may arrive during model thinking; older unchanged
+     * fields remain a valid historical view without marking new activity read.
+     */
+    private fun authorizedSnapshots(characterId: String, posts: List<MomentPost>): List<MomentPost> {
+        if (characterId.isBlank() || posts.isEmpty()) return emptyList()
+        val latest = MomentsStore.posts.value.associateBy(MomentPost::id)
+        return posts.filter { snapshot ->
+            val live = latest[snapshot.id] ?: return@filter false
+            MomentFriendAccess.canView(live, characterId) &&
+                live.authorType == snapshot.authorType &&
+                live.authorCharacterId == snapshot.authorCharacterId &&
+                live.createdAt == snapshot.createdAt &&
+                live.content == snapshot.content &&
+                !snapshot.lastActivityAt.isAfter(live.lastActivityAt) &&
+                snapshot.comments.all(live.comments::contains) &&
+                live.likedCharacterIds.containsAll(snapshot.likedCharacterIds) &&
+                (snapshot.imageDescription.isBlank() ||
+                    snapshot.imageDescription == live.imageDescription)
+        }.distinctBy(MomentPost::id)
+    }
+
     /** Advance only up to posts that were actually presented in a completed
      * model decision. Failed or interrupted perception leaves a red dot.
      * A late callback can never roll the cursor back.
@@ -77,10 +102,7 @@ internal object CharacterPhoneInbox {
      */
     @Synchronized fun acknowledgeObserved(characterId: String, observedPosts: List<MomentPost>): Boolean {
         if (observedPosts.isEmpty()) return true
-        val presented = observedPosts.filter { post ->
-            MomentFriendAccess.canView(post, characterId) &&
-                MomentsStore.posts.value.any { it.id == post.id }
-        }
+        val presented = authorizedSnapshots(characterId, observedPosts)
         val observed = presented.maxWithOrNull(
             compareBy<MomentPost> { it.lastActivityAt }.thenBy { it.id },
         ) ?: return true
@@ -123,7 +145,7 @@ internal object CharacterPhoneInbox {
     fun modelContext(characterId: String, posts: List<MomentPost>): String = buildString {
         appendLine("【自己手机的聊天软件 · 朋友圈小红点】")
         appendLine("本次醒来尚未读过的好友动态=${unreadCount(characterId)}条；下列是真实有权限查看的帖子。")
-        posts.forEach { post ->
+        authorizedSnapshots(characterId, posts).forEach { post ->
             val authorId = post.authorCharacterId
             val author = authorId?.let { MigratedDomainStores.characters.get(it).displayName }
                 ?: UserProfileContext.displayLabel()
