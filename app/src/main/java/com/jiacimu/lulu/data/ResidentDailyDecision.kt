@@ -232,40 +232,94 @@ internal object ResidentDailyDecision {
     /** Model plans are proposed intentions, not actions. Registry and social facts own validity. */
     // The failure receipt uses a suspendable performance repository. Keep it
     // in the caller's Worker coroutine instead of launching detached logging.
+    /** A structurally valid resident proposal may still be rejected by live
+     * contact, world, or scheduling authority. Never silently discard that
+     * choice: the original daily decision remains saved, while EACH rejected
+     * agenda item receives its own stable, role-owned factual receipt.
+     * Replaying a saved decision uses the same evidence ID, not a new event.
+     * This does not automatically reinterpret the resident's intent or buy
+     * another model response. */
     internal suspend fun saveAgenda(context: Context, native: DigitalWorldResident, proposal: JSONObject,
         at: Instant): List<RoleDayPlan> {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
         val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
         val saved = mutableListOf<RoleDayPlan>()
-        for (index in 0 until minOf(agenda.length(), MAX_AGENDA_ITEMS)) {
-            val row = agenda.optJSONObject(index) ?: continue
+        val decisionId = "native-daily-${native.id}-${date(at)}"
+        fun reject(index: Int, row: JSONObject?, reason: String) {
+            val title = row?.optString("title").orEmpty().trim().take(95)
+            val action = row?.optString("activityAction").orEmpty().trim().take(80)
+            SharedExperienceTimeline.record(
+                eventId = "$decisionId-agenda-rejected-$index",
+                characterId = actor,
+                channel = "原住民·每日自我安排",
+                speaker = "日程执行器",
+                content = "本人计划的第${index + 1}项未排入日程；活动=${title.ifBlank { "未提供" }}；预选动作=${action.ifBlank { "未提供" }}；原因=$reason。未执行原活动，不能当成居民主动取消或完成。",
+                occurredAt = at,
+                triggerExtraction = false,
+                source = "resident-agenda-rejected",
+                evidenceKind = EventEvidenceKind.Observation,
+                taskId = decisionId,
+            )
+        }
+        for (index in 0 until agenda.length()) {
+            val row = agenda.optJSONObject(index)
+            if (index >= MAX_AGENDA_ITEMS) {
+                reject(index, row, "超过本次每日规划的${MAX_AGENDA_ITEMS}项排程上限")
+                continue
+            }
+            if (row == null) {
+                reject(index, null, "日程项不是对象")
+                continue
+            }
             val action = CapabilityRegistry.scheduledActionName(row.optString("activityAction"))
-            if (action !in residentAgendaActions) continue
-            val dueAt = agendaTime(at, row.optString("at")) ?: continue
+            if (action !in residentAgendaActions) {
+                reject(index, row, "预选动作不是居民可排程的真实工具")
+                continue
+            }
+            val dueAt = agendaTime(at, row.optString("at"))
+            if (dueAt == null) {
+                reject(index, row, "预选时间无效或已经过去")
+                continue
+            }
             val title = row.optString("title").trim().take(95)
             val intent = row.optString("intent").trim().take(270)
-            if (title.length < 2 || intent.length < 3) continue
+            if (title.length < 2 || intent.length < 3) {
+                reject(index, row, "活动名称或本人动机不完整")
+                continue
+            }
             // Keep target/location in the persisted tool arguments, not only in plan metadata.
             val params = agendaArgs(action, row)
             val target = params.optString("targetCharacterId").trim()
             if (action in setOf("send_character_message", "send_friend_request") &&
-                (target !in known || target == actor)) continue
+                (target !in known || target == actor)) {
+                reject(index, row, "当前没有对目标角色的真实联系权限")
+                continue
+            }
             if (action == "send_friend_request" &&
                 (MomentFriendAccess.areFriends(actor, target) ||
                     CharacterFriendRequests.historyFor(actor).any { request ->
                         request.status == "pending" &&
                             setOf(request.fromId, request.toId) == setOf(actor, target)
-                    })) continue
+                    })) {
+                reject(index, row, "双方已经是好友或已有待处理好友申请")
+                continue
+            }
             if (action == "respond_friend_request" &&
                 CharacterFriendRequests.pendingFor(actor).none {
                     it.id == params.optString("requestId")
-                }) continue
+                }) {
+                reject(index, row, "原好友申请已不再待处理")
+                continue
+            }
             if (action == "send_group_message") {
                 val group = params.optString("groupId")
                 if (group.isBlank() || MigratedDomainStores.chat.conversations.value.none {
                     it.id == group && it.groupChat?.members?.any { member -> member.characterId == actor } == true
-                }) continue
+                }) {
+                    reject(index, row, "角色当前不是该群成员或群聊已失效")
+                    continue
+                }
             }
             val location = params.optString("locationCode").ifBlank {
                 row.optString("locationCode").ifBlank { params.optString("location") }
@@ -274,24 +328,42 @@ internal object ResidentDailyDecision {
             if (action == "digital_world_action" && (worldAction !in setOf(
                 "visit_public_place", "interact_resident", "visit_resident_home",
                 "use_location", "go_home", "build_home_item", "move_home_item",
-                "remove_home_item"))) continue
+                "remove_home_item"))) {
+                reject(index, row, "世界动作不存在或不受支持")
+                continue
+            }
             if (action == "digital_world_action" && worldAction == "build_home_item" &&
                 (params.optString("name").isBlank() ||
-                    params.optString("appearance").isBlank())) continue
+                    params.optString("appearance").isBlank())) {
+                reject(index, row, "家具名称或外观参数不完整")
+                continue
+            }
             if (action == "digital_world_action" && worldAction in setOf(
                     "move_home_item", "remove_home_item") &&
-                DigitalWorldStore.itemsAtHome(actor).none { it.id == params.optString("itemId") }) continue
+                DigitalWorldStore.itemsAtHome(actor).none { it.id == params.optString("itemId") }) {
+                reject(index, row, "所选家具已不属于本人或已不存在")
+                continue
+            }
             if (action == "digital_world_action" && worldAction == "move_home_item" &&
-                params.optString("position").isBlank()) continue
+                params.optString("position").isBlank()) {
+                reject(index, row, "家具移动位置未提供")
+                continue
+            }
             if (action == "digital_world_action" && worldAction == "visit_public_place" &&
-                location.isBlank()) continue
-            // An agenda is not permission to generate a future message with no content.
-            // The due decision can revise it, but an empty draft must not enter a
-            // seemingly executable schedule that will predictably fail at ToolRouter.
+                location.isBlank()) {
+                reject(index, row, "目标公共地点不存在")
+                continue
+            }
             if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
-                params.optString("text").isBlank()) continue
+                params.optString("text").isBlank()) {
+                reject(index, row, "预选消息正文为空")
+                continue
+            }
             if (action == "digital_world_action" && worldAction == "interact_resident" &&
-                DigitalWorldExpansionStore.residents().none { it.id == params.optString("itemId") }) continue
+                DigitalWorldExpansionStore.residents().none { it.id == params.optString("itemId") }) {
+                reject(index, row, "互动目标居民已不存在")
+                continue
+            }
             val targetResident = if (action == "digital_world_action" &&
                 worldAction == "interact_resident") params.optString("itemId") else ""
             val result = runCatching {
@@ -301,6 +373,7 @@ internal object ResidentDailyDecision {
                     targetResidentId = targetResident, locationCode = location,
                     selfInitiated = true)
             }.onFailure { error ->
+                reject(index, row, "排程持久化或资源检查失败：${error.message.orEmpty().take(140)}")
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "${native.name}的活动没有排入日程",
                     message = error.message.orEmpty().take(180))
