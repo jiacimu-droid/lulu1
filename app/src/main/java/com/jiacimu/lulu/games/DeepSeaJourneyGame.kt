@@ -70,6 +70,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var cameraInitialized by remember { mutableStateOf(false) }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
     var swimVelocity by remember { mutableStateOf(WorldVector.Zero) }
+    var playerHeading by remember { mutableFloatStateOf(0f) }
+    var companionHeading by remember { mutableFloatStateOf(0f) }
     var companionRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
     var navigationRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
@@ -161,6 +163,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 swimVelocity = if (manual || waypoint == null)
                     swimVelocity.lerp(direction * speed, (dt * 7.5f).coerceIn(0f, 1f))
                 else direction * speed
+                if (swimVelocity.length > 4f) {
+                    val heading = atan2(swimVelocity.y, swimVelocity.x) * 180f / Math.PI.toFloat()
+                    playerHeading = deepSeaSmoothHeading(playerHeading, heading, dt * 8f)
+                }
                 if (swimVelocity.length > 1f) {
                     val moved = moveInWorld(player, swimVelocity, swimVelocity.length, dt,
                         DEEP_SEA_PLAYER_RADIUS, DEEP_SEA_WORLD_BOUNDS, obstacles)
@@ -206,9 +212,14 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     if (follow != null) {
                         val gap = companionPosition.distanceTo(follow)
                         if (gap < 6f) companionRoute = companionRoute.drop(1)
-                        else companionPosition = moveInWorld(companionPosition, follow - companionPosition,
-                            (gap * 5f).coerceAtMost(230f), dt, 23f,
-                            DEEP_SEA_WORLD_BOUNDS, obstacles).position
+                        else {
+                            val toward = follow - companionPosition
+                            companionHeading = deepSeaSmoothHeading(companionHeading,
+                                atan2(toward.y, toward.x) * 180f / Math.PI.toFloat(), dt * 6.5f)
+                            companionPosition = moveInWorld(companionPosition, toward,
+                                (gap * 5f).coerceAtMost(230f), dt, 23f,
+                                DEEP_SEA_WORLD_BOUNDS, obstacles).position
+                        }
                     }
                 }
             }
@@ -275,6 +286,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     revealedRelics = survey.revealedRelics,
                     salvagedRelics = survey.salvagedRelics,
                     observedCreatures = survey.observedCreatures,
+                    playerHeading = playerHeading,
+                    companionHeading = companionHeading,
                 )
                 if (sonarPulse > 0f) {
                     drawCircle(Color(0xFFB5FFF0).copy(alpha = sonarPulse * .55f),
@@ -590,6 +603,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     companionRoute = emptyList()
                     navigationRoute = emptyList()
                     swimVelocity = WorldVector.Zero
+                    playerHeading = 0f
+                    companionHeading = 0f
                     collected = emptySet()
                     scanned = emptySet()
                     survey = DeepSeaSurvey()
