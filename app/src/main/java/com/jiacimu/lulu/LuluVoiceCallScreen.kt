@@ -1,12 +1,14 @@
 package com.jiacimu.lulu
 
 import android.Manifest
+import android.graphics.BitmapFactory
 import android.content.Intent
 import android.net.Uri
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -28,6 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.input.pointer.pointerInput
@@ -49,6 +53,7 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
 import kotlin.math.abs
 
 private val CallInk: Color @Composable get() = MaterialTheme.colorScheme.onSurface
@@ -158,11 +163,41 @@ fun LuluVoiceCallScreen(
                                 val active = entry.settings == current
                                 val fingerprint = entry.settings.split('/').getOrNull(2)
                                     ?.take(7).orEmpty()
+                                val health = remember(entry.settings) {
+                                    Live2DAssets.libraryModelHealth(context,
+                                        File(Live2DAssets.base(context), entry.settings))
+                                }
+                                val portraitBitmap = remember(health.portrait?.absolutePath,
+                                    health.portrait?.lastModified()) {
+                                    health.portrait?.let { file ->
+                                        runCatching {
+                                            BitmapFactory.decodeFile(file.absolutePath)
+                                        }.getOrNull()
+                                    }
+                                }
                                 Row(Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically) {
+                                    if (portraitBitmap != null) {
+                                        Image(
+                                            portraitBitmap.asImageBitmap(),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(44.dp)
+                                                .clip(RoundedCornerShape(8.dp)),
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                    }
                                     Column(Modifier.weight(1f)) {
                                         Text(entry.label, fontSize = 14.sp)
                                         Text(if (active) "当前使用 · $fingerprint" else "存档 · $fingerprint",
+                                            fontSize = 11.sp, color = CallMuted)
+                                        Text(
+                                            buildList {
+                                                add("表情 ${health.expressions} 个")
+                                                add("动作 ${health.motions} 个")
+                                                if (health.wolfPackEligible) add("含小狼专属动作包")
+                                                if (health.touchCalibrated) add("触摸已校准")
+                                            }.joinToString(" · "),
                                             fontSize = 11.sp, color = CallMuted)
                                     }
                                     TextButton(enabled = !active, onClick = {

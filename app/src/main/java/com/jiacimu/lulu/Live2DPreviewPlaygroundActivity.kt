@@ -1,10 +1,12 @@
 package com.jiacimu.lulu
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -29,10 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
+import java.io.File
 import kotlinx.coroutines.launch
 
 /**
@@ -113,14 +122,48 @@ private fun Live2DModelLibraryScreen(onClose: () -> Unit) {
                     }.map { (id, fallback) ->
                         characterSettings[id]?.displayName ?: fallback
                     }
+                    val health = remember(entry.settings, revision) {
+                        Live2DAssets.libraryModelHealth(
+                            context, File(Live2DAssets.base(context), entry.settings))
+                    }
+                    val portraitBitmap = remember(health.portrait?.absolutePath,
+                        health.portrait?.lastModified()) {
+                        health.portrait?.let { file ->
+                            runCatching { BitmapFactory.decodeFile(file.absolutePath) }
+                                .getOrNull()
+                        }
+                    }
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(12.dp)) {
-                            Text(entry.label, fontSize = 15.sp)
-                            Text(
-                                if (users.isEmpty()) "还没有角色在用"
-                                else "正在使用：" + users.joinToString("、"),
-                                fontSize = 12.sp,
-                            )
+                            Row {
+                                if (portraitBitmap != null) {
+                                    Image(
+                                        portraitBitmap.asImageBitmap(),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(64.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                                Column {
+                                    Text(entry.label, fontSize = 15.sp)
+                                    Text(
+                                        if (users.isEmpty()) "还没有角色在用"
+                                        else "正在使用：" + users.joinToString("、"),
+                                        fontSize = 12.sp,
+                                    )
+                                    Text(
+                                        buildList {
+                                            add("表情 ${health.expressions} 个")
+                                            add("动作 ${health.motions} 个")
+                                            if (health.wolfPackEligible) add("含小狼专属动作包")
+                                            if (health.touchCalibrated) add("触摸已校准")
+                                        }.joinToString(" · "),
+                                        fontSize = 12.sp,
+                                    )
+                                }
+                            }
                             Row {
                                 TextButton(onClick = {
                                     if (Live2DAssets.useExistingModel(

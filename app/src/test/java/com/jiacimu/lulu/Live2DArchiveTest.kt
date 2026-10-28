@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -202,6 +203,43 @@ class Live2DArchiveTest {
                     .remove("archives:$id").remove("preview:$id")
             }
             cleanup.commit()
+        }
+    }
+
+    @Test fun libraryModelHealthReportsCountsWolfEligibilityAndCalibration() {
+        val context = RuntimeEnvironment.getApplication()
+        val relative = "models/health-test-" + java.util.UUID.randomUUID() + "/avatar.model3.json"
+        val settings = File(Live2DAssets.base(context), relative)
+        settings.parentFile?.mkdirs()
+        settings.writeText(
+            """{"FileReferences":{"Moc":"avatar.moc3","Textures":["skin.png"],""" +
+                """"DisplayInfo":"avatar.cdi3.json",""" +
+                """"Expressions":[{"Name":"smile","File":"s.exp3.json"},{"Name":"流泪","File":"t.exp3.json"}],""" +
+                """"Motions":{"Tap":[{"File":"a.motion3.json"},{"File":"b.motion3.json"}]}}}"""
+        )
+        File(settings.parentFile, "avatar.cdi3.json").writeText(
+            """{"Parameters":[{"Id":"ParamCheekPuff"},{"Id":"ParamJawOpen"},""" +
+                """{"Id":"ParamAngleZ2"},{"Id":"body_gensui_z"},""" +
+                """{"Id":"ParamMouthPuckerWiden"},{"Id":"ParamBrowLForm"},{"Id":"ParamAngleX"}]}"""
+        )
+        val zones = context.getSharedPreferences("lulu_live2d_touch_zones_v1", 0)
+        val zoneKey = settings.toURI().toURL().toString()
+        try {
+            val health = Live2DAssets.libraryModelHealth(context, settings)
+            assertEquals(2, health.expressions)
+            assertEquals(2, health.motions)
+            assertTrue(health.wolfPackEligible)
+            assertFalse(health.touchCalibrated)
+            zones.edit().putString(zoneKey, "{}").commit()
+            assertTrue(Live2DAssets.libraryModelHealth(context, settings).touchCalibrated)
+            // A missing settings file reports an empty health, never a crash.
+            val missing = Live2DAssets.libraryModelHealth(context,
+                File(Live2DAssets.base(context), "models/nope/x.model3.json"))
+            assertEquals(0, missing.expressions)
+            assertFalse(missing.wolfPackEligible)
+        } finally {
+            zones.edit().remove(zoneKey).commit()
+            settings.parentFile?.deleteRecursively()
         }
     }
 }

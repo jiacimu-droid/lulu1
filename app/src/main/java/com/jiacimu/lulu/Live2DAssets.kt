@@ -99,6 +99,10 @@ internal object Live2DAssets {
      * Check the actual display-info parameter list before enabling the pack:
      * unrelated Live2D models must not inherit this particular choreography.
      */
+    /** Display-info parameters that mark the little-wolf rig (see ensureWolfMotionPack). */
+    private val WOLF_PACK_SIGNATURE = setOf("ParamCheekPuff", "ParamJawOpen", "ParamAngleZ2",
+        "body_gensui_z", "ParamMouthPuckerWiden", "ParamBrowLForm")
+
     private fun ensureWolfMotionPack(context: Context, settings: File) {
         val directory = settings.parentFile ?: return
         val refs = JSONObject(settings.readText()).getJSONObject("FileReferences")
@@ -110,9 +114,7 @@ internal object Live2DAssets {
         val ids = (0 until parameters.length()).mapNotNull {
             parameters.optJSONObject(it)?.optString("Id")
         }.toSet()
-        val signature = setOf("ParamCheekPuff", "ParamJawOpen", "ParamAngleZ2",
-            "body_gensui_z", "ParamMouthPuckerWiden", "ParamBrowLForm")
-        if (!ids.containsAll(signature)) return
+        if (!ids.containsAll(WOLF_PACK_SIGNATURE)) return
         val assetDir = "live2d/wolf-motions"
         val names = context.assets.list(assetDir).orEmpty()
             .filter { it.matches(Regex("[0-9]{2}_[a-z_]+\\.motion3\\.json")) }.sorted()
@@ -176,6 +178,57 @@ internal object Live2DAssets {
             }
             Live2DModelControls(expressions, motions)
         }.getOrDefault(Live2DModelControls())
+    }
+
+    /** Facts about one library model, shown in the library and the call picker. */
+    data class LibraryModelHealth(
+        val expressions: Int,
+        val motions: Int,
+        val wolfPackEligible: Boolean,
+        val touchCalibrated: Boolean,
+        val portrait: File?,
+    )
+
+    /**
+     * Read-only health facts for one model settings file: how many
+     * expressions and motions it really has, whether the wolf motion pack
+     * applies to its rig, whether touch calibration exists for it, and its
+     * genuine portrait when the model provides one. Never installs the
+     * pack or writes anything; eligibility mirrors ensureWolfMotionPack's
+     * signature check so the label stays truthful before first use.
+     */
+    fun libraryModelHealth(context: Context, settings: File): LibraryModelHealth {
+        val empty = LibraryModelHealth(0, 0, false, false, null)
+        if (!inside(base(context), settings) || !settings.isFile) return empty
+        return runCatching {
+            val refs = Live2DModelManifestAdapter.normalizedSettings(settings)
+                .getJSONObject("FileReferences")
+            val expressions = refs.optJSONArray("Expressions")?.length() ?: 0
+            var motions = 0
+            refs.optJSONObject("Motions")?.let { groups ->
+                val names = groups.keys()
+                while (names.hasNext()) motions += groups.getJSONArray(names.next()).length()
+            }
+            val wolf = runCatching {
+                val rawRefs = JSONObject(settings.readText()).getJSONObject("FileReferences")
+                val displayInfo = rawRefs.optString("DisplayInfo")
+                val info = settings.parentFile?.let { File(it, displayInfo) }?.canonicalFile
+                if (!displayInfo.endsWith(".cdi3.json") || info == null ||
+                    !info.isFile || !inside(base(context), info)) false
+                else {
+                    val parameters = JSONObject(info.readText()).optJSONArray("Parameters")
+                    val ids = (0 until (parameters?.length() ?: 0)).mapNotNull {
+                        parameters?.optJSONObject(it)?.optString("Id")
+                    }.toSet()
+                    ids.containsAll(WOLF_PACK_SIGNATURE)
+                }
+            }.getOrDefault(false)
+            val calibrated = context
+                .getSharedPreferences("lulu_live2d_touch_zones_v1", 0)
+                .contains(settings.toURI().toURL().toString())
+            LibraryModelHealth(expressions, motions, wolf, calibrated,
+                genuinePortrait(settings))
+        }.getOrDefault(empty)
     }
 
     fun removeModel(context: Context, characterId: String) {
