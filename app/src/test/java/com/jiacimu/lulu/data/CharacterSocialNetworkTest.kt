@@ -49,6 +49,51 @@ class CharacterSocialNetworkTest {
     }
 
     @Test
+    fun thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        MigratedDomainStores.initialize(app)
+        DigitalWorldStore.initialize(app)
+        ResidentSocialMailbox.initialize(app)
+        val viewer = MigratedDomainStores.characters.create("旁观者").characterId
+        val a = MigratedDomainStores.characters.create("甲方").characterId
+        val b = MigratedDomainStores.characters.create("乙方").characterId
+
+        // A and B know each other, but their group isn't joined by viewer.
+        MigratedDomainStores.chat.createGroupConversation("两人私密群", listOf(a, b),
+            ownerIncluded = false)
+        assertTrue(CharacterSocialRelationship.snapshot(a, b).knowsEachOther)
+        assertEquals("", CharacterSocialRelationship.networkContext(viewer, listOf(a, b)))
+
+        // An actual group with all three gives the viewer limited knowledge.
+        val shared = MigratedDomainStores.chat.createGroupConversation(
+            "三人共同群", listOf(a, b, viewer), ownerIncluded = false)
+        val visible = CharacterSocialRelationship.networkContext(viewer, listOf(a, b))
+        assertTrue(visible.contains("甲方"))
+        assertTrue(visible.contains("乙方"))
+        assertTrue(visible.contains("共同群聊"))
+        assertFalse(visible.contains("两人私密群"))
+
+        // Even when A and B privately exchange messages, the observer gets
+        // neither the message nor a claim that the two have private letters.
+        val mail = ResidentSocialMailbox.send(a, b, "只对乙说过的私信秘密")
+        val afterMail = CharacterSocialRelationship.networkContext(viewer, listOf(a, b))
+        assertFalse(afterMail.contains("私信来往"))
+        assertFalse(afterMail.contains("只对乙说过的私信秘密"))
+        assertTrue(ResidentSocialMailbox.inbox(viewer).isEmpty())
+
+        // Leaving the shared group immediately revokes the relationship
+        // preview without deleting A/B's original group or mail history.
+        assertTrue(MigratedDomainStores.chat.updateGroupConversation(
+            shared.id, shared.groupChat!!.copy(
+                members = listOf(LuluGroupMember(a), LuluGroupMember(b)))))
+        assertEquals("", CharacterSocialRelationship.networkContext(viewer, listOf(a, b)))
+        assertTrue(ResidentSocialMailbox.inbox(a).any { it.id == mail.id })
+        assertTrue(ResidentSocialMailbox.inbox(b).any { it.id == mail.id })
+    }
+
+    @Test
     fun networkContextIsSilentWithoutConnections() {
         assertEquals("", CharacterSocialRelationship.networkContext("focal", emptyList()))
         assertEquals("", CharacterSocialRelationship.networkContext("focal", listOf("only-one")))

@@ -264,6 +264,49 @@ object CharacterSocialRelationship {
     }
 
     /**
+     * Relationship knowledge is NOT symmetric or omniscient. A focal character
+     * may know two contacts, but that never grants access to their private DMs
+     * or meetings at which the focal character was absent. Only connections
+     * the focal character could witness (own group membership, attended
+     * completed meeting) may enter the focal character's mental context.
+     *
+     * The global two-person snapshot remains useful for contact permission
+     * checks and owner UI; it is deliberately NOT a private memory source.
+     */
+    internal fun witnessedNetworkSnapshot(
+        viewerId: String, firstId: String, secondId: String,
+    ): CharacterSocialRelationshipSnapshot {
+        val blank = CharacterSocialRelationshipSnapshot(
+            firstId, secondId, emptyList(), 0, null, "尚未见证二人关系", false)
+        if (viewerId.isBlank() || firstId.isBlank() || secondId.isBlank() ||
+            viewerId == firstId || viewerId == secondId || firstId == secondId) return blank
+        val groups = MigratedDomainStores.chat.conversations.value.asSequence()
+            .mapNotNull { it.groupChat }
+            .filter { group ->
+                val memberIds = group.members.map(LuluGroupMember::characterId)
+                viewerId in memberIds && firstId in memberIds && secondId in memberIds
+            }
+            .map { it.name.trim().ifBlank { "共同群聊" } }.distinct().toList()
+        val meetings = DigitalWorldStore.state.value.meetings.asSequence()
+            .filter { event ->
+                event.endedAt != null && event.turns.isNotEmpty() &&
+                    viewerId in event.participantIds &&
+                    firstId in event.participantIds && secondId in event.participantIds
+            }.sortedBy { it.endedAt ?: it.startedAt }.toList()
+        val stage = when {
+            groups.isNotEmpty() && meetings.isNotEmpty() -> "本人同群且共同见过面"
+            groups.isNotEmpty() -> "本人共同群聊可见"
+            meetings.isNotEmpty() -> "本人见证的共同会面"
+            else -> "尚未见证二人关系"
+        }
+        return CharacterSocialRelationshipSnapshot(
+            firstId, secondId, groups, meetings.size,
+            meetings.lastOrNull()?.let { it.endedAt ?: it.startedAt },
+            stage, false, // Never reveal pairwise private mail to a third party.
+        )
+    }
+
+    /**
      * Network view for private chat: how the focal character's own
      * contacts relate to EACH OTHER. The focal character's own bonds
      * already arrive from CharacterInnerLifeStore; what was missing is
@@ -285,7 +328,7 @@ object CharacterSocialRelationship {
                     val second = contacts[secondIndex]
                     networkPairLine(
                         networkDisplayName(first), networkDisplayName(second),
-                        snapshot(first, second),
+                        witnessedNetworkSnapshot(characterId, first, second),
                     )?.let(::add)
                     if (size >= 6) break
                 }

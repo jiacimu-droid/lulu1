@@ -99,12 +99,11 @@ internal object CharacterEverydaySocialContext {
             if (nearby.isNotEmpty()) {
                 appendLine("此处确实在场的居民：")
                 nearby.take(5).forEach { appendLine("- itemId=${it.id}；${it.name}；${it.identity}") }
-            } else if (acquaintances.isEmpty() && residents.isNotEmpty()) {
-                appendLine("登记居民的真实当前位置（只是可前往的社交机会，不是已经见过面）：")
-                residents.take(5).forEach {
-                    appendLine("- itemId=${it.id}；${it.name}；location=${it.currentLocationCode}")
-                }
             }
+            // Do not turn the global world registry into an all-seeing map.
+            // Another resident's remote location is not this role's observation.
+            // A real encounter, public bulletin, or received message can still
+            // enter the viewer's own timeline and be recalled normally.
             appendLine("【本人最近真实发出的朋友圈｜不是待发布草稿】")
             ownPosts.forEach { post ->
                 appendLine("- postId=${post.id}；${post.createdAt}：${post.content.take(180)}")
