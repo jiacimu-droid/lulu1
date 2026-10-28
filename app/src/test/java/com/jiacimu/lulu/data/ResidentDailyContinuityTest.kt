@@ -898,6 +898,16 @@ class ResidentDailyContinuityTest {
         assertTrue(ResidentDailyDecision.dueContractError(
             JSONObject().put("choice", "cancel").put("steps", wrongDependency), at)
             .orEmpty().contains("布尔"))
+        val missingPostText = JSONArray().put(JSONObject().put("tool", "publish_moment")
+            .put("args", JSONObject()))
+        assertTrue(ResidentDailyDecision.dueContractError(
+            JSONObject().put("choice", "cancel").put("steps", missingPostText), at)
+            .orEmpty().contains("text"))
+        val missingRecipient = JSONArray().put(JSONObject().put("tool", "send_character_message")
+            .put("args", JSONObject().put("text", "想聊聊天")))
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("steps", missingRecipient), at)
+            .orEmpty().contains("targetCharacterId"))
         assertNull(ResidentDailyDecision.dayContractError(
             JSONObject(valid.toString()).put("agenda", JSONArray()
                 .put(JSONObject().put("at", "11:00")
