@@ -330,14 +330,21 @@ internal object ResidentDailyDecision {
             .getOrNull()?.takeIf { it.isAfter(now.plusSeconds(60)) }
     }
     internal fun hasSavedDueToResume(context: Context, plan: RoleDayPlan): Boolean {
+        // The caller may still hold the old RoleDayPlan object after a cancel
+        // or reschedule. That old due-slot cannot be replayed after the owner
+        // has changed its version, even when optional side steps failed.
+        val live = RoleDayScheduleStore.plans(context, plan.characterId).firstOrNull {
+            it.id == plan.id && it.dueAt == plan.dueAt &&
+                it.status in setOf("planned", "due", "completed")
+        } ?: return false
         val p = prefs(context)
-        val key = dueAttemptKey(plan)
+        val key = dueAttemptKey(live)
         val raw = p.getString("due-decision:$key", null) ?: return false
         // A completed primary can still have unprocessed independent steps.
         // Only a settled one-shot execute choice is eligible; cancelled,
         // rescheduled and unrelated completed plans never regain authority.
-        if (plan.status == "completed" && (plan.repeat != "once" ||
-                plan.resultEvidenceId.isBlank() ||
+        if (live.status == "completed" && (live.repeat != "once" ||
+                live.resultEvidenceId.isBlank() ||
                 runCatching { JSONObject(raw).optString("choice") }.getOrNull() != "execute"))
             return false
         return p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery", "partial_side_steps") &&
@@ -850,10 +857,16 @@ internal object ResidentDailyDecision {
         val app = context.applicationContext
         appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
-        val resumeCompleted = plan.status == "completed" && plan.repeat == "once" &&
-            hasSavedDueToResume(app, plan)
-        if ((plan.status !in setOf("due", "planned") && !resumeCompleted) ||
-            at.isBefore(plan.dueAt)) return false
+        // Reject an obsolete scheduled snapshot, even when a caller still
+        // passes the old "planned" object after cancel/reschedule/wait.
+        val live = RoleDayScheduleStore.plans(app, plan.characterId).firstOrNull {
+            it.id == plan.id && it.dueAt == plan.dueAt &&
+                it.status in setOf("planned", "due", "completed")
+        } ?: return false
+        val resumeCompleted = live.status == "completed" && live.repeat == "once" &&
+            hasSavedDueToResume(app, live)
+        if ((live.status !in setOf("due", "planned") && !resumeCompleted) ||
+            at.isBefore(live.dueAt)) return false
         initializeBackgroundRuntime(app)
         ResidentSocialMailbox.initialize(app)
         val key = dueAttemptKey(plan)
@@ -1117,10 +1130,10 @@ internal object ResidentDailyDecision {
             wanted == "wait" && originalHandled -> "waiting_partial"
             wanted == "wait" -> "needs_recovery"
             originalHandled && sideStepsComplete -> "finished"
-            // The current due version still owns unfinished independent steps.
-            // Keep it recoverable with the original request IDs; the completed
-            // primary is verified from its persisted receipt on replay.
-            originalHandled -> "needs_recovery"
+            // An already-settled primary must not hide unsuccessful optional
+            // steps. The phase is an outcome record, while the LIVE plan
+            // version decides whether a bounded resume is permitted.
+            originalHandled -> "partial_side_steps"
             else -> "needs_recovery"
         }
         check(p.edit().putString(phaseKey, phase).commit()) {
