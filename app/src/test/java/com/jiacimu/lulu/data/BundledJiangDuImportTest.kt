@@ -37,4 +37,38 @@ class BundledJiangDuImportTest {
             CharacterLifeStore.state(id).getJSONObject("profile").getString("care"))
         assertEquals(1, MigratedDomainStores.characters.settings.value.keys.count { it == id })
     }
+
+    @Test fun legacyLuluBecomesXingHeWithoutInheritingJiangDuOrLosingEdits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+
+        val friend = MigratedDomainStores.characters.settings.value["lulu"]!!
+        assertEquals("星禾", friend.displayName)
+        assertEquals(CharacterProfileSchema.xingHePersona, friend.persona)
+        assertEquals(CharacterProfileSchema.xingHeIdentity,
+            CharacterIdentityStore.identities.value["lulu"])
+        val state = CharacterLifeStore.state("lulu")
+        assertEquals(1, state.getInt("xingHeProfileVersion"))
+        assertTrue(state.has("xingHeMigrationBackupV1"))
+        assertFalse(state.has("jiangDuPresetVersion"))
+        assertEquals("闺蜜", state.getJSONObject("relationshipAgreements")
+            .getJSONObject("user").getString("title"))
+        assertEquals(CharacterProfileSchema.xingHeProfile.getValue("speechHabits"),
+            state.getJSONObject("profile").getString("speechHabits"))
+
+        CharacterLifeStore.setProfile("lulu", "speechHabits", "我自己改过的说话方式")
+        CharacterLifeStore.initialize(context)
+        assertEquals("我自己改过的说话方式", CharacterLifeStore.state("lulu")
+            .getJSONObject("profile").getString("speechHabits"))
+        assertEquals("星禾", MigratedDomainStores.characters.settings.value["lulu"]!!.displayName)
+
+        val jiangDu = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        assertNotEquals("lulu", jiangDu)
+        assertEquals("江渡", MigratedDomainStores.characters.settings.value[jiangDu]!!.displayName)
+        assertEquals(CharacterProfileSchema.jiangDuV24Persona,
+            MigratedDomainStores.characters.settings.value[jiangDu]!!.persona)
+    }
 }
