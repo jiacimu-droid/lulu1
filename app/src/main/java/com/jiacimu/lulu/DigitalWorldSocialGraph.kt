@@ -79,9 +79,11 @@ internal fun DigitalWorldSocialGraphDialog(
     val relationStateKey = relationData[focusId].orEmpty()
     val focalName = settings[focusId]?.displayName ?: "角色"
     val forward = selectedNode?.let { CharacterSocialRelationship.perspective(focusId, it.id) }
-    val backward = selectedNode?.takeIf { it.kind == "角色" }
+    // Native residents are independent characters too: each has its own
+    // witnessed history and private impression, not merely a speaker name.
+    val backward = selectedNode?.takeIf { it.kind == "角色" || it.kind == "原住民" }
         ?.let { CharacterSocialRelationship.perspective(it.id, focusId) }
-    val shared = selectedNode?.takeIf { it.kind == "角色" }
+    val shared = selectedNode?.takeIf { it.kind == "角色" || it.kind == "原住民" }
         ?.let { CharacterSocialRelationship.snapshot(focusId, it.id) }
     val displayed = nodes.take(7)
 
@@ -288,7 +290,7 @@ internal fun DigitalWorldSocialGraphDialog(
                         forward?.trend?.takeIf(String::isNotBlank)?.let {
                             Text("近期变化：$it", fontSize = 11.sp)
                         }
-                        if (selectedNode.kind == "角色") {
+                        if (selectedNode.kind == "角色" || selectedNode.kind == "原住民") {
                             Text("${selectedNode.label} → $focalName", fontWeight = FontWeight.Medium,
                                 color = Color(0xFF357A67), fontSize = 12.sp)
                             Text(backward?.impression ?: "对方尚没有形成可追溯的主观看法", fontSize = 12.sp)
