@@ -1614,7 +1614,12 @@ function motion(group, index, immediatePreview = false, source = 'character') {
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source }
   authoredMotion = chosen
-  Promise.resolve(target.motion(group, index)).then(ok => {
+  // Pixi/Cubism normally starts clips at NORMAL priority. An idle clip or
+  // an earlier normal speech clip can then silently reject the next sentence.
+  // Explicit character-selected Motion3 is a new authored action: FORCE it
+  // through the motion manager rather than falling back to blinking/mouth.
+  const priority = 3 // MotionPriority.FORCE in pixi-live2d-display
+  Promise.resolve(target.motion(group, index, priority)).then(ok => {
     if (revision !== motionRevision || target !== model) {
       const manager = target.internalModel?.motionManager
       // A resource load may finish after cancellation. Stop only that stale
@@ -1623,9 +1628,18 @@ function motion(group, index, immediatePreview = false, source = 'character') {
           manager?.state?.currentIndex === index) manager.stopAllMotions?.()
       return
     }
-    if (ok === false) authoredMotion = null
-    else chosen.started = true
-  }).catch(() => { if (authoredMotion === chosen) authoredMotion = null })
+    if (ok === false) {
+      authoredMotion = null
+      notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
+    } else {
+      chosen.started = true
+      notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)
+    }
+  }).catch(error => {
+    if (authoredMotion === chosen) authoredMotion = null
+    notify('diagnostic', 'Motion3 播放失败：' + group + '#' + index + ' ' +
+      (error?.message || String(error)))
+  })
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 function face(target, immediatePreview = false) {
