@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -210,7 +211,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 } else {
                     if (timeline.isEmpty()) item { Text("还没有匹配的原始记录", color = LuluColors.Muted) }
                     items(timeline.take(count), key = { it.id }) { event ->
-                        CharacterOriginalEventCard(event, onDelete = { deletingEvent = event })
+                        CharacterOriginalEventCard(event, timeline, onDelete = { deletingEvent = event })
                     }
                 }
                 val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
@@ -318,9 +319,16 @@ internal fun CharacterEvidenceDetails(characterId: String, evidenceIds: Collecti
 }
 
 @Composable
-private fun CharacterOriginalEventCard(event: SharedTimelineEvent, onDelete: () -> Unit) {
+private fun CharacterOriginalEventCard(event: SharedTimelineEvent,
+    timeline: List<SharedTimelineEvent>, onDelete: () -> Unit) {
+    val context = LocalContext.current
     var expanded by rememberSaveable(event.id) { mutableStateOf(false) }
     val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
+    val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val trace = remember(event.id, event.revision, expanded, timelineRevision, timeline) {
+        if (expanded) CharacterCausalTrace.inspect(context, event.characterId, event, timeline)
+        else emptyList()
+    }
     val effects = remember(event.id, developmentRevision, expanded) {
         if (expanded) CharacterRecordProjection.influences(event.characterId, listOf(event.id)) else emptyList()
     }
@@ -333,6 +341,20 @@ private fun CharacterOriginalEventCard(event: SharedTimelineEvent, onDelete: () 
         TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起" else "查看详情") }
         if (expanded) {
             Text(event.evidenceLabel, fontSize = 12.sp, color = LuluColors.Muted)
+            if (trace.isNotEmpty()) {
+                HorizontalDivider(color = LuluColors.Border)
+                Text("这条记录的后续", fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp, color = LuluColors.Ink)
+                trace.forEach { line ->
+                    Text(line.title, fontWeight = FontWeight.Medium, fontSize = 12.sp,
+                        color = LuluColors.Ink)
+                    Text(line.detail, fontSize = 12.sp, lineHeight = 19.sp,
+                        color = LuluColors.Muted)
+                    if (line.evidenceId.isNotBlank())
+                        Text("证据 ID：${line.evidenceId}", fontSize = 10.sp,
+                            color = LuluColors.Muted)
+                }
+            }
             effects.forEach { Text("${it.kind.label}：${it.content}", fontSize = 13.sp) }
             TextButton(onClick = onDelete) { Text("删除原始记录", color = MaterialTheme.colorScheme.error) }
         }
