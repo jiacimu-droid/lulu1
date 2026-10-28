@@ -127,10 +127,10 @@ class Live2DConversationPerformanceTest {
                 .put("performance",JSONObject().put("feeling","happy").put("intensity",.5))))
         val expanded=Live2DConversationPerformance.expand(authored)
         val beats=expanded.getJSONArray("beats")
-        assertEquals(3,beats.length())
+        assertEquals(1,beats.length())
         assertEquals(19,beats.getJSONObject(0).getJSONObject("motion").getInt("index"))
-        assertFalse(beats.getJSONObject(1).has("motion"))
-        assertFalse(beats.getJSONObject(2).has("motion"))
+        assertFalse(beats.getJSONObject(0).has("head"))
+        assertFalse(beats.getJSONObject(0).has("body"))
         assertEquals(19,authored.getJSONArray("beats").getJSONObject(0)
             .getJSONObject("motion").getInt("index"))
     }

@@ -115,6 +115,13 @@ internal object Live2DConversationPerformance {
             val compiled = JSONArray()
             for (i in 0 until minOf(authored.length(), 8)) {
                 val item = authored.optJSONObject(i) ?: continue
+                // A role-authored Motion3 already contains the artist's
+                // complete body choreography. Never lay semantic parameter
+                // microposes over it, even if an older model supplied both.
+                if (item.optJSONObject("motion") != null) {
+                    compiled.put(item)
+                    continue
+                }
                 val selected = item.optJSONObject("performance")
                 if (selected == null) { compiled.put(item); continue }
                 val score = expand(JSONObject().put("performance", selected)).optJSONArray("beats")

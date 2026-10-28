@@ -184,7 +184,10 @@ internal object Live2DVisualActionBus {
     @Synchronized
     fun publish(context: Context, characterId: String, callId: String, chosen: JSONObject?): Boolean {
         if (chosen == null || visibleStages[characterId] != callId || callId.isBlank()) return false
-        val request = Live2DConversationPerformance.expand(chosen)
+        // An explicit original Motion3 is the main performance authority;
+        // never inject a second parameter-generated body score on top of it.
+        val request = if (chosen.optJSONObject("motion") != null) chosen
+            else Live2DConversationPerformance.expand(chosen)
         val controls = Live2DAssets.controls(context, characterId)
         val expression = request.optString("expression").trim().takeIf(String::isNotBlank)
         // The LLM chooses the intent; if it chose a movement, execute the
