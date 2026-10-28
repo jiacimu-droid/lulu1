@@ -44,12 +44,17 @@ class LuluScreenAwarenessTest {
         assertFalse(LuluScreenAwareness.isExcluded(context, "com.example.game"))
     }
 
-    @Test fun gapLimitsAutonomousNotExplicitCaptureAndNeverSchedulesAJob() {
-        LuluScreenAwareness.preferences(context).edit()
-            .putLong("last_autonomous_attempt", 1_000_000L).commit()
-        assertEquals(300_000L, LuluScreenAwareness.cooldownRemaining(context, 1_000_000L))
-        assertEquals(1L, LuluScreenAwareness.cooldownRemaining(context, 1_299_999L))
-        assertEquals(0L, LuluScreenAwareness.cooldownRemaining(context, 1_300_000L))
+    @Test fun ownerCanGrantAndRevokeOngoingAutonomousScreenInspection() {
+        val prefs = LuluScreenAwareness.preferences(context)
+        prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true)
+            .putBoolean(LuluScreenAwareness.AUTONOMOUS, true).commit()
+        assertTrue(LuluScreenAwareness.autonomousAllowed(context))
+        // Previous five-minute timestamps are diagnostic history, not a veto.
+        prefs.edit().putLong("last_autonomous_attempt", System.currentTimeMillis()).commit()
+        assertTrue(LuluScreenAwareness.autonomousAllowed(context))
+        prefs.edit().putBoolean(LuluScreenAwareness.AUTONOMOUS, false).commit()
+        assertFalse(LuluScreenAwareness.autonomousAllowed(context))
+        assertTrue(LuluScreenAwareness.onDemandAllowed(context))
     }
 
     @Test fun noConsentCannotPostInvisibleScreenCapture() = runBlocking {
