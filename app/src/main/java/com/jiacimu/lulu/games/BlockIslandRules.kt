@@ -266,6 +266,11 @@ internal object BlockIslandRules {
             }
             "eat_fish" -> {
                 if (s.fish < 1) return reject("背包没有鱼，先去水边钓")
+                val fireNear = s.structures.any { (location, kind) ->
+                    kind == "campfire" &&
+                        distance(w.x, w.y, location % w.width, location / w.width) <= 2
+                }
+                if (!fireNear) return reject("到篝火附近才能烤鱼")
                 if (w.hp >= 12) return reject("生命值已满")
                 next = s.copy(world = w.copy(hp = (w.hp + 5).coerceAtMost(12)), fish = s.fish - 1)
                 message = "吃下烤鱼，恢复生命"
