@@ -1008,6 +1008,12 @@ class ResidentDailyContinuityTest {
             "私信对象${UUID.randomUUID().toString().take(6)}")
         DigitalLifeProfileStore.registerNewLife(friend.characterId, friend.displayName,
             "数字生命", now.minusSeconds(3600))
+        // Both actually meet in the courtyard before either may send a DM.
+        assertNotNull(DigitalWorldExpansionStore.moveResident(native.id,
+            DigitalWorldPublicPlaces.COURTYARD, now))
+        assertTrue(DigitalWorldStore.performAction(friend.characterId, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        assertTrue(ResidentSocialMailbox.canContact(friend.characterId, actor))
         assertNotNull(ResidentSocialMailbox.send(friend.characterId, actor, "你今天想聊什么？", at = now))
         val greeting = "我想跟你聊聊今天的花${UUID.randomUUID()}"
         fun choice(to: String?) = JSONObject().put("lunch", "home")
