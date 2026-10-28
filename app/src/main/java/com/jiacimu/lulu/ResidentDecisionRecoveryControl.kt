@@ -87,6 +87,13 @@ internal fun ResidentPlanRecoveryControl(plan: com.jiacimu.lulu.data.RoleDayPlan
     val savedRecovery = remember(plan.id, plan.dueAt, refresh) {
         ResidentDailyDecision.savedDueRecovery(context, plan)
     }
+    val independentRecoveries = remember(plan.id, plan.dueAt, plan.status,
+        plan.rescheduleCount, refresh) {
+        ResidentDailyDecision.savedIndependentSideRecoveries(context, plan)
+    }
+    var confirmingIndependent by remember(plan.id, plan.dueAt) {
+        mutableStateOf<ResidentDailyDecision.SavedIndependentSideRecovery?>(null)
+    }
     var confirmingSaved by remember(plan.id, plan.dueAt) { mutableStateOf(false) }
     var confirming by remember(plan.id, plan.dueAt) { mutableStateOf(false) }
     var busy by remember(plan.id) { mutableStateOf(false) }
@@ -98,6 +105,35 @@ internal fun ResidentPlanRecoveryControl(plan: com.jiacimu.lulu.data.RoleDayPlan
         onClick = { confirmingSaved = true }, enabled = !busy,
     ) { Text(if (busy) "正在处理" else "续接已保存的行动") }
     if (result.isNotBlank()) Text(result, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    independentRecoveries.forEach { snapshot ->
+        val localTime = snapshot.originalDueAt.atZone(java.time.ZoneId.systemDefault())
+            .format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        TextButton(onClick = { confirmingIndependent = snapshot }, enabled = !busy) {
+            Text("续接旧决定独立行动 · $localTime")
+        }
+    }
+    val independentConfirmation = confirmingIndependent
+    if (independentConfirmation != null) LuluAlertDialog(
+        onDismissRequest = { confirmingIndependent = null },
+        title = { Text("只续接旧决定的独立行动？") },
+        text = { Text("原活动已经取消或改期，不会重新执行主活动或购买模型决定。只用原请求 ID 尝试未完成的独立步骤；未知投递结果不能保证成功。每项旧决定仅能确认一次。") },
+        confirmButton = { TextButton(onClick = {
+            confirmingIndependent = null; busy = true
+            scope.launch {
+                result = try {
+                    if (ResidentDailyDecision.resumeSavedIndependentSideSteps(
+                            context, independentConfirmation))
+                        "独立行动已续接完成，原活动保持不变"
+                    else "仍有独立行动未完成，请查看执行回执"
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { "独立行动续接未完成，请查看执行回执" }
+                finally { busy = false; refresh++; onUpdated() }
+            }
+        }) { Text("仅续接一次") } },
+        dismissButton = { TextButton(onClick = { confirmingIndependent = null }) {
+            Text("取消")
+        } },
+    )
     if (confirmingSaved && savedRecovery != null) LuluAlertDialog(
         onDismissRequest = { confirmingSaved = false },
         title = { Text("续接未完成的行动？") },

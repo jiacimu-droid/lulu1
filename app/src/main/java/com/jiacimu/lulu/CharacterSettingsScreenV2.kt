@@ -383,7 +383,9 @@ fun CharacterSettingsScreenV2(
                                 // A finished primary with unfinished side steps must remain
                                 // visible even when the original appointment was days ago.
                                 (it.status == "completed" &&
-                                    ResidentDailyDecision.savedDueRecovery(context, it) != null)
+                                    ResidentDailyDecision.savedDueRecovery(context, it) != null) ||
+                                ResidentDailyDecision.savedIndependentSideRecoveries(
+                                    context, it).isNotEmpty()
                         }
                     }
                     Text("每日规划 · 08:00", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -407,18 +409,24 @@ fun CharacterSettingsScreenV2(
                             .format(DateTimeFormatter.ofPattern("HH:mm"))
                         val pendingSavedSteps = item.status == "completed" &&
                             ResidentDailyDecision.savedDueRecovery(context, item) != null
+                        val pendingIndependentSteps =
+                            ResidentDailyDecision.savedIndependentSideRecoveries(
+                                context, item).isNotEmpty()
                         val statusLabel = when (item.status) {
                             "completed" -> if (pendingSavedSteps) "主活动已完成 · 附加行动待续接" else "已完成"
-                            "cancelled" -> "已取消"
+                            "cancelled" -> if (pendingIndependentSteps)
+                                "已取消 · 旧决定独立行动待续接" else "已取消"
                             "due" -> "待执行"
-                            else -> "已安排"
+                            else -> if (pendingIndependentSteps)
+                                "已改期 · 旧决定独立行动待续接" else "已安排"
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(whenLocal, fontWeight = FontWeight.Medium)
                             Column(Modifier.weight(1f)) {
                                 Text(item.title, fontSize = 14.sp)
                                 if (item.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate))
-                                    Text(if (pendingSavedSteps) "较早安排 · 仅续接原决定的未完成步骤"
+                                    Text(if (pendingSavedSteps || pendingIndependentSteps)
+                                        "较早安排 · 仅续接原决定的未完成步骤"
                                         else "较早安排 · 待本人重新考虑",
                                         color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                                 ResidentPlanRecoveryControl(item) { recoveryRevision++ }
