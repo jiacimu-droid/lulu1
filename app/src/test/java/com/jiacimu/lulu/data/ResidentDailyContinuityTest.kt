@@ -890,4 +890,153 @@ class ResidentDailyContinuityTest {
             assertEquals(2, server.requestCount)
         } finally { server.shutdown() }
     }
+
+    @Test(timeout = 60_000) fun explicitDueHttpRejectionRetriesOnlyAfterConnectionChanges() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "拒绝请求居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val originalText = "不得擅自发布-${UUID.randomUUID()}"
+        val sideText = "修复连接后独立分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "整理花草", "今天想记笔记",
+            now.minusSeconds(120), now.minusSeconds(600), activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", originalText))
+        val rejectedServer = MockWebServer()
+        rejectedServer.enqueue(MockResponse().setResponseCode(401)
+            .setBody("{\\"error\\":{\\"message\\":\\"unauthorized\\"}}"))
+        rejectedServer.start()
+        val repairedServer = MockWebServer()
+        repairedServer.enqueue(answer(JSONObject().put("choice", "cancel")
+            .put("reason", "暂时不整理").put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", sideText)))).toString()))
+        repairedServer.start()
+        try {
+            fun select(server: MockWebServer): String {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                    "rejected-due-${UUID.randomUUID()}", server.url("/").toString(), "test")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+                return archive.id
+            }
+            select(rejectedServer)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertEquals("definite_rejected", p.getString("due-phase:$key", ""))
+            assertFalse(ResidentDailyDecision.hasSafeDueRequestToRetry(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, rejectedServer.requestCount)
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == originalText })
+            select(repairedServer)
+            assertTrue(ResidentDailyDecision.hasSafeDueRequestToRetry(app, plan))
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals("cancelled",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(1, repairedServer.requestCount)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == sideText })
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, repairedServer.requestCount)
+        } finally {
+            rejectedServer.shutdown()
+            repairedServer.shutdown()
+        }
+    }
+
+    @Test(timeout = 60_000) fun dailyHttpRejectionRecoversOnceWithoutRebuyingOldRequest() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "每日请求居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val oldServer = MockWebServer()
+        oldServer.enqueue(MockResponse().setResponseCode(413)
+            .setBody("request too large"))
+        oldServer.start()
+        val newServer = MockWebServer()
+        newServer.enqueue(answer(JSONObject().put("lunch", "home")
+            .put("evening", "cafe").put("agenda", JSONArray()).put("steps", JSONArray())
+            .put("post", "修复配置后的日记-${UUID.randomUUID()}").toString()))
+        newServer.start()
+        try {
+            fun select(server: MockWebServer) {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                    "rejected-day-${UUID.randomUUID()}", server.url("/").toString(), "test")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            }
+            select(oldServer)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            val phase = "phase:${native.id}:${ResidentDailyDecision.date(now)}"
+            assertEquals("definite_rejected", p.getString(phase, ""))
+            assertFalse(ResidentDailyDecision.hasSafeDayRequestToRetry(app, native.id, now))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(1, oldServer.requestCount)
+            select(newServer)
+            assertTrue(ResidentDailyDecision.hasSafeDayRequestToRetry(app, native.id, now))
+            assertTrue(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals("finished", p.getString(phase, ""))
+            assertEquals(1, newServer.requestCount)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(1, newServer.requestCount)
+        } finally {
+            oldServer.shutdown()
+            newServer.shutdown()
+        }
+    }
+
+    @Test(timeout = 60_000) fun unknownChargeHttpFailureNeverRetriesAfterConnectionChange() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "未知结果居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "去庭院散步", "想看看花",
+            now.minusSeconds(120), now.minusSeconds(600), activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "绝不能盲目发布"))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(502).setBody("gateway failure"))
+        server.start()
+        val alternate = MockWebServer()
+        alternate.start()
+        try {
+            fun select(target: MockWebServer) {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                    "uncertain-due-${UUID.randomUUID()}", target.url("/").toString(), "test")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            }
+            select(server)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertEquals("uncertain", p.getString("due-phase:$key", ""))
+            select(alternate)
+            assertFalse(ResidentDailyDecision.hasSafeDueRequestToRetry(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(0, alternate.requestCount)
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == "绝不能盲目发布" })
+        } finally {
+            server.shutdown()
+            alternate.shutdown()
+        }
+    }
 }

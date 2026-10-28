@@ -272,7 +272,8 @@ object RoleDayScheduleStore {
             (plan.status == "planned" && plan.dueAt.isAfter(now)) ||
                 (plan.status in setOf("due", "completed") &&
                     plan.characterId.startsWith("resident:") &&
-                    ResidentDailyDecision.hasSavedDueToResume(context, plan))
+                    (ResidentDailyDecision.hasSavedDueToResume(context, plan) ||
+                        ResidentDailyDecision.hasSafeDueRequestToRetry(context, plan)))
         }.forEach { plan ->
                 runCatching { scheduleWake(context, plan, now, replace = false) }
                     .onFailure { android.util.Log.w("LuluSchedule", "Role wake restoration failed", it) }
@@ -666,7 +667,8 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             }
             // Only an already-saved model choice is safe for a bounded retry.
             // A lost/uncertain response must never cause another paid request.
-            if (!completed && ResidentDailyDecision.hasSavedDueToResume(applicationContext, plan))
+            if (!completed && (ResidentDailyDecision.hasSavedDueToResume(applicationContext, plan) ||
+                    ResidentDailyDecision.hasSafeDueRequestToRetry(applicationContext, plan)))
                 return Result.retry()
             return Result.success()
         }

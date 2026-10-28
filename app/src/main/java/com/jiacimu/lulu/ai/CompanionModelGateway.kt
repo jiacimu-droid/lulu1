@@ -1247,6 +1247,12 @@ private fun elapsedMillis(startedAtNanos: Long): Long =
 
 private class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
 
+/** Only an explicit HTTP rejection proves that no model reply was generated.
+ * Timeouts, 429 and 5xx may have consumed a provider request and are NEVER
+ * eligible for automatic replay. Do not classify by localized error strings. */
+internal fun isDefinitelyRejectedModelRequest(error: Throwable): Boolean =
+    error is ModelHttpException && error.status in setOf(400, 401, 402, 403, 404, 413, 422)
+
 private const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 90_000
 
 object LuluAiServices {

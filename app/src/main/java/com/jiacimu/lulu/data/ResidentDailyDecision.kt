@@ -11,6 +11,8 @@ import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
+import com.jiacimu.lulu.ai.ModelConnection
+import com.jiacimu.lulu.ai.isDefinitelyRejectedModelRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,6 +27,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.Duration
 import java.time.ZoneId
+import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 /**
@@ -44,11 +47,89 @@ internal object ResidentDailyDecision {
     private const val MAX_AGENDA_ITEMS = 8
     private const val MAX_MESSAGE = 500
     private const val MAX_SAVED_DECISION_RECOVERIES = 2
+    // A rejected, non-generated request may be retried ONCE only after the
+    // configured connection changes. A timeout/5xx never gets this permission.
+    private const val MAX_REJECTED_REQUEST_RETRIES = 1
     private fun dayDecisionKey(nativeId: String, day: String) = "decision:$nativeId:$day"
     private fun dayPhaseKey(nativeId: String, day: String) = "phase:$nativeId:$day"
     private fun dayRecoveriesKey(nativeId: String, day: String) = "recoveries:$nativeId:$day"
 
     private fun dueAttemptKey(plan: RoleDayPlan) = "execute:${plan.id}:${plan.dueAt}"
+
+    /** Persist only a digest, never a credential, to detect an actual model
+     * connection change after a definite HTTP rejection. */
+    private fun connectionFingerprint(connection: ModelConnection): String {
+        val bytes = listOf(connection.baseUrl, connection.model, connection.apiKey)
+            .joinToString("\u0000").toByteArray(Charsets.UTF_8)
+        return MessageDigest.getInstance("SHA-256").digest(bytes)
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+    }
+
+    private fun canRetryRejected(p: android.content.SharedPreferences,
+        phaseKey: String, retriesKey: String, fingerprintKey: String,
+        fingerprint: String): Boolean =
+        p.getString(phaseKey, "") == "definite_rejected" &&
+            p.getInt(retriesKey, 0) < MAX_REJECTED_REQUEST_RETRIES &&
+            p.getString(fingerprintKey, "")?.isNotBlank() == true &&
+            p.getString(fingerprintKey, "") != fingerprint
+
+    /** Claim + phase are one synchronized durable transaction. Two wake
+     * workers must never both pass a stale Boolean read and buy a response. */
+    @Synchronized
+    private fun claimDueRequest(p: android.content.SharedPreferences, key: String,
+        fingerprint: String): Boolean {
+        val phase = "due-phase:$key"
+        if (!p.getBoolean(key, false)) return p.edit()
+            .putBoolean(key, true).putString(phase, "requesting").commit()
+        if (!canRetryRejected(p, phase, "due-rejected-retries:$key",
+                "due-rejected-fingerprint:$key", fingerprint)) return false
+        return p.edit().putInt("due-rejected-retries:$key",
+            p.getInt("due-rejected-retries:$key", 0) + 1)
+            .putString(phase, "requesting").commit()
+    }
+
+    @Synchronized
+    private fun claimDayRequest(context: Context, nativeId: String, at: Instant,
+        fingerprint: String): Boolean {
+        val p = prefs(context)
+        val today = date(at)
+        val phase = dayPhaseKey(nativeId, today)
+        val retries = "rejected-retries:$nativeId:$today"
+        val rejectedFingerprint = "rejected-fingerprint:$nativeId:$today"
+        if (p.getString("attempt:$nativeId", "") != today) return p.edit()
+            .putString("attempt:$nativeId", today)
+            .putString(phase, "requesting")
+            .putInt(retries, 0).remove(rejectedFingerprint).commit()
+        if (!canRetryRejected(p, phase, retries, rejectedFingerprint, fingerprint)) return false
+        return p.edit().putInt(retries, p.getInt(retries, 0) + 1)
+            .putString(phase, "requesting").commit()
+    }
+
+    /** Read-only eligibility for the EXISTING wake and daily catch-up paths.
+     * Changing a model does not revive an unknown-charge network request. */
+    internal fun hasSafeDueRequestToRetry(context: Context, plan: RoleDayPlan): Boolean {
+        if (plan.status !in setOf("planned", "due")) return false
+        val p = prefs(context)
+        val key = dueAttemptKey(plan)
+        if (!p.getBoolean(key, false) || p.contains("due-decision:$key")) return false
+        val selected = runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
+            ?: return false
+        return canRetryRejected(p, "due-phase:$key", "due-rejected-retries:$key",
+            "due-rejected-fingerprint:$key", connectionFingerprint(selected))
+    }
+
+    internal fun hasSafeDayRequestToRetry(context: Context, nativeId: String,
+        at: Instant): Boolean {
+        val p = prefs(context)
+        val today = date(at)
+        if (p.getString("attempt:$nativeId", "") != today ||
+            p.contains(dayDecisionKey(nativeId, today))) return false
+        val selected = runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
+            ?: return false
+        return canRetryRejected(p, dayPhaseKey(nativeId, today),
+            "rejected-retries:$nativeId:$today",
+            "rejected-fingerprint:$nativeId:$today", connectionFingerprint(selected))
+    }
 
     /** A wait is a decision to RECONSIDER, not permission to run the original
      * action later. Explicit review times belong to the resident's model.
@@ -344,8 +425,7 @@ internal object ResidentDailyDecision {
         } else {
             // A crash/timeout before receiving an answer is uncertain: never
             // silently buy a second model request for this appointment.
-            if (p.getBoolean(key, false)) return false
-            if (!p.edit().putBoolean(key, true).putString(phaseKey, "requesting").commit()) return false
+            if (!claimDueRequest(p, key, connectionFingerprint(checkNotNull(selected)))) return false
         }
         CharacterPhoneInbox.initialize(app)
         val pending = ResidentSocialMailbox.pendingIncoming(plan.characterId)
@@ -357,7 +437,7 @@ internal object ResidentDailyDecision {
             "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
             "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
             "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。" else ""
-        val response = if (savedChoice == null) LuluAiServices.gateway.generate(
+        val responseResult = if (savedChoice == null) LuluAiServices.gateway.generate(
             characterId = plan.characterId,
             facts = dueFacts,
             instruction = """
@@ -384,7 +464,8 @@ internal object ResidentDailyDecision {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}的到点决策失败",
                 message = error.message.orEmpty().take(180))
-        }.getOrNull() else null
+        } else null
+        val response = responseResult?.getOrNull()
         val firstChoice = response?.text?.let(ModelStructuredOutput::objectOrNull)
         val firstError = if (savedChoice == null && response != null)
             dueContractError(firstChoice, now) else null
@@ -417,12 +498,19 @@ internal object ResidentDailyDecision {
         val remainingError = if (savedChoice == null && response != null)
             dueContractError(choice, now) else null
         if (choice == null || remainingError != null) {
-            check(p.edit().putString(phaseKey,
-                if (response == null || (firstError != null && repaired == null))
-                    "uncertain" else "invalid_output")
-                .putString("due-last-error:$key", remainingError ?: firstError.orEmpty()).commit()) {
-                "居民到点决定失败状态未保存"
+            val rejected = response == null && responseResult?.exceptionOrNull()
+                ?.let(::isDefinitelyRejectedModelRequest) == true
+            val failurePhase = when {
+                rejected -> "definite_rejected"
+                response == null || (firstError != null && repaired == null) -> "uncertain"
+                else -> "invalid_output"
             }
+            val failure = p.edit().putString(phaseKey, failurePhase)
+                .putString("due-last-error:$key", (remainingError ?: firstError
+                    ?: responseResult?.exceptionOrNull()?.message.orEmpty()).take(180))
+            if (rejected) failure.putString("due-rejected-fingerprint:$key",
+                connectionFingerprint(checkNotNull(selected)))
+            check(failure.commit()) { "居民到点决定失败状态未保存" }
             return false
         }
         val wanted = choice.optString("choice")
@@ -740,15 +828,13 @@ internal object ResidentDailyDecision {
                 "原住民有效决定的恢复次数未保存"
             }
         } else {
-            if (!claim(app, native.id, now)) return false
-            check(p.edit().putString(phaseKey, "requesting").commit()) {
-                "原住民模型请求状态未保存"
-            }
+            if (!claimDayRequest(app, native.id, now,
+                    connectionFingerprint(checkNotNull(selected)))) return false
         }
         val pending = ResidentSocialMailbox.pendingIncoming(id)
         val unread = CharacterPhoneInbox.unreadMoments(id)
         val dailyFacts = if (savedDecision == null) decisionFacts(native, now, pending, unread) else ""
-        val reply = if (savedDecision == null) LuluAiServices.gateway.generate(
+        val replyResult = if (savedDecision == null) LuluAiServices.gateway.generate(
             characterId = id,
             facts = dailyFacts,
             instruction = """
@@ -791,7 +877,8 @@ internal object ResidentDailyDecision {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "数字世界居民日程", title = "${native.name}今天规划失败",
                 message = error.message.orEmpty().take(180))
-        }.getOrNull() else null
+        } else null
+        val reply = replyResult?.getOrNull()
         val firstPlan = reply?.text?.let(ModelStructuredOutput::objectOrNull)
         val firstError = if (savedDecision == null && reply != null)
             dayContractError(firstPlan) else null
@@ -821,14 +908,21 @@ internal object ResidentDailyDecision {
         val remainingError = if (savedDecision == null && reply != null)
             dayContractError(json) else null
         if (json == null || remainingError != null) {
-            // A failed or interrupted correction may already have been charged.
-            // Never buy a third response on this attempt.
-            check(p.edit().putString(phaseKey,
-                if (reply == null || (firstError != null && repaired == null))
-                    "uncertain" else "invalid_output")
-                .putString("last-error:${native.id}:$today", remainingError ?: firstError.orEmpty()).commit()) {
-                "居民每日决定失败状态未保存"
+            // Only a provider's explicit rejection is provably non-generated.
+            // A timeout or a failed correction may already have been charged.
+            val rejected = reply == null && replyResult?.exceptionOrNull()
+                ?.let(::isDefinitelyRejectedModelRequest) == true
+            val failurePhase = when {
+                rejected -> "definite_rejected"
+                reply == null || (firstError != null && repaired == null) -> "uncertain"
+                else -> "invalid_output"
             }
+            val failure = p.edit().putString(phaseKey, failurePhase)
+                .putString("last-error:${native.id}:$today", (remainingError ?: firstError
+                    ?: replyResult?.exceptionOrNull()?.message.orEmpty()).take(180))
+            if (rejected) failure.putString("rejected-fingerprint:${native.id}:$today",
+                connectionFingerprint(checkNotNull(selected)))
+            check(failure.commit()) { "居民每日决定失败状态未保存" }
             return false
         }
         // The exact model decision is durable before any calendar, inner-life,
@@ -976,7 +1070,8 @@ internal object ResidentDailyDecision {
             runCatching { ScopedModelSelections.selectedArchiveId(SCOPE) }.getOrNull() != null &&
             DigitalWorldExpansionStore.residents().any {
                 prefs(app).getString("attempt:${it.id}", "") != date(now) ||
-                    hasSavedDayToResume(app, it.id, now)
+                    hasSavedDayToResume(app, it.id, now) ||
+                    hasSafeDayRequestToRetry(app, it.id, now)
             }) {
             manager.enqueueUniqueWork("${WORK_FIXED}-catchup-${date(now)}",
                 ExistingWorkPolicy.KEEP,
