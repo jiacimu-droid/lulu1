@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:03:30.055565+00:00",
-  "commit": "fb879f7330b88fd87f79838f40fc380016e7b02f",
+  "generatedAt": "2026-10-28T07:04:27.517204+00:00",
+  "commit": "14faf543276a78974de5ff81626f637d68f8cca8",
   "branch": "main",
-  "sourceFingerprint": "6c25bea41ac18ad8bafae03d206c91dae82662f0b20c8d555e509f68c9ae0fc1",
+  "sourceFingerprint": "71d890eb2db81283344f850a8410f2895f7e52066b3f5bdbd3d8ce0282f218ef",
   "summary": {
     "files": 1012,
-    "lines": 201900,
+    "lines": 201914,
     "symbols": 2943
   },
   "symbolIndex": {
@@ -4199,7 +4199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 99
+        "line": 112
       }
     ],
     "restore": [
@@ -11123,13 +11123,13 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 78
+        "line": 91
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 97
+        "line": 110
       }
     ],
     "Attachment": [
@@ -25834,8 +25834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 92,
-      "sha256": "b4ea235ca9e1b722cedb5ce3fdc2a677a5ae57d9a798e29628ab12593c60c311",
+      "lines": 93,
+      "sha256": "2de4da2b1ab8d25ddf5149827e04d1ecab20e933548c55482fb2a44ddec32e12",
       "symbols": [
         {
           "name": "assemble",
@@ -27459,8 +27459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 271,
-      "sha256": "212da9fd5508b47e2cdec2281bedefe2fa3a70344eed62e71c7941744f448c46",
+      "lines": 284,
+      "sha256": "012cf5908c17416c3e8d5524141e41a35c5d0859bd002327fd6b49289ff2dcac",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -27480,15 +27480,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 78
+          "line": 91
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 97
+          "line": 110
         },
         {
           "name": "empty",
-          "line": 99
+          "line": 112
         }
       ]
     },
