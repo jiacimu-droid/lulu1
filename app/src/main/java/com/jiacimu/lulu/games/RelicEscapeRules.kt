@@ -56,7 +56,8 @@ internal data class RelicRun(
     val mobs:List<RelicMob>,val drops:List<RelicDrop>,val exitX:Int,val exitY:Int,
     val seen:Set<Int> = emptySet(),val weapon:Int=1,val turns:Int=0,val extraction:Int=0,
     val downTurns:Int=0,val notice:String="探索遗迹，寻找宝物",val events:List<RelicEvent> = emptyList(),
-    val secured:List<RelicLoot> = emptyList(),val lost:List<RelicLoot> = emptyList()
+    val secured:List<RelicLoot> = emptyList(),val lost:List<RelicLoot> = emptyList(),
+    val completedAtMs:Long=0L
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -76,6 +77,7 @@ internal data class RelicRun(
         .put("extraction",extraction).put("downTurns",downTurns).put("notice",notice)
         .put("events",JSONArray(events.map{it.json()}))
         .put("secured",JSONArray(secured.map{it.json()})).put("lost",JSONArray(lost.map{it.json()}))
+        .put("completedAtMs",completedAtMs)
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
             if(j.getInt("v")!=2)return@runCatching null
@@ -91,7 +93,7 @@ internal data class RelicRun(
                     (0 until a.length()).map{a.getInt(it)}.filter{it in tiles.indices}.toSet()},
                 j.getInt("weapon"),j.getInt("turns"),j.getInt("extraction"),
                 j.getInt("downTurns"),j.getString("notice"),j.getJSONArray("events").events(),
-                j.getJSONArray("secured").lootList(),j.getJSONArray("lost").lootList())
+                j.getJSONArray("secured").lootList(),j.getJSONArray("lost").lootList(),j.optLong("completedAtMs"))
         }.getOrNull()
     }
 }
@@ -245,8 +247,10 @@ internal object RelicEscapeRules {
                                 .minByOrNull{distance(a.x,a.y,it.x,it.y)}?.let{it.x to it.y}
                                 ?: (s.hero.x to s.hero.y)
                         val step=path(s,a.x,a.y,target.first,target.second)
-                        if(step!=null && s.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second})
+                        if(step!=null && s.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second}) {
                             a=a.copy(x=step.first,y=step.second)
+                            s=s.log(a.id,"move","队友 "+a.id+" 前进到 "+step.first+","+step.second)
+                        }
                     }
                 }
             }
@@ -276,6 +280,8 @@ internal object RelicEscapeRules {
                 continue
             }
             val alert=if(d<=3 || noise>0 && d<=4+noise)4 else (m.alert-1).coerceAtLeast(0)
+            if(d in 3..5 && s.turns%4==0 && noise==0)
+                s=s.log("world","clue","迷雾里传来拖曳脚步声")
             if(d<=1) {
                 alive+=m.copy(alert=4,windup=true)
                 s=s.log("world","warning","怪物蓄力！下一回合攻击，快闪避")

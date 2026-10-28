@@ -74,12 +74,14 @@ internal class RelicEscapeLedger(context:Context) {
     }
     @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String=""):RelicSnapshot {
         val old=read();val current=old.run?:return old
-        val next=if(action=="abandon")RelicEscapeRules.abandon(current)
+        val result=if(action=="abandon")RelicEscapeRules.abandon(current)
             else RelicEscapeRules.act(current,action,
                 if(action=="move" || action=="sneak" || action=="open" || action=="attack")x else current.hero.x,
                 if(action=="move" || action=="sneak" || action=="open" || action=="attack")y else current.hero.y,
                 itemId)
-        if(next==current)return old
+        if(result==current)return old
+        val next=if(result.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && result.completedAtMs==0L)
+            result.copy(completedAtMs=System.currentTimeMillis()) else result
         val terminal=next.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && next.id !in old.awarded
         val award=if(terminal && next.phase==RelicPhase.SUCCESS)next.secured else emptyList()
         // Even if caller replays a stale action, each unique run can be settled only once.
@@ -94,7 +96,7 @@ internal class RelicEscapeLedger(context:Context) {
     fun syncExperiences(snapshot:RelicSnapshot,store:LuluGameStore) {
         val run=snapshot.run?:return
         if(run.id !in snapshot.awarded || run.phase !in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE))return
-        val at=Instant.now()
+        val at=if(run.completedAtMs>0L)Instant.ofEpochMilli(run.completedAtMs) else Instant.now()
         for(actor in run.allies) {
             val id=actor.id
             if(id.isBlank())continue
@@ -102,7 +104,8 @@ internal class RelicEscapeLedger(context:Context) {
                 SharedExperienceTimeline.record(eventId="relic:"+run.id+":"+id+":join",
                     characterId=id,channel="共同游戏《迷雾摸金》",speaker="游戏实况",
                     content="实际进入遗迹；本局"+run.turns+"回合",
-                    occurredAt=at,source="game-relic",evidenceKind=EventEvidenceKind.ToolResult)
+                    occurredAt=at,source="game-relic",evidenceKind=EventEvidenceKind.ToolResult,
+                    triggerExtraction=false)
                 run.events.forEachIndexed{index,event->
                     if(event.who!=id)return@forEachIndexed
                     SharedExperienceTimeline.record(
@@ -116,7 +119,8 @@ internal class RelicEscapeLedger(context:Context) {
                     content=(if(run.phase==RelicPhase.SUCCESS)"本局结算；" else "本局失败；")+
                         "救援"+actor.rescues+"次，倒地"+actor.downs+"次，"+
                         (if(run.events.any{it.who==id && it.action=="escape"})"成功撤离" else "未成功撤离"),
-                    occurredAt=at,source="game-relic",evidenceKind=EventEvidenceKind.ToolResult)
+                    occurredAt=at,source="game-relic",evidenceKind=EventEvidenceKind.ToolResult,
+                    triggerExtraction=false)
             }
         }
         // Keep a conventional game replay record. Detect it on recovery rather than rely on
