@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:31:37.700351+00:00",
-  "commit": "650c08420305265e7af8d4080204dfd35281b061",
+  "generatedAt": "2026-10-28T14:32:53.571709+00:00",
+  "commit": "7e15017b8dc7196aef80563593a4b5fa8a929207",
   "branch": "main",
-  "sourceFingerprint": "f583346c38f54720e7b504211b97092a88dd7480e7b70f51abb2c71aebafff2d",
+  "sourceFingerprint": "c7fd0f5c88c4d10c7dd7d7e0d04bd54c87837d1c02d02a51feb3ed6be649bebc",
   "summary": {
     "files": 1050,
-    "lines": 214129,
+    "lines": 214130,
     "symbols": 3070
   },
   "symbolIndex": {
@@ -2277,7 +2277,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1297
+        "line": 1298
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7399,37 +7399,37 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1230
+        "line": 1231
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1266
+        "line": 1267
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1280
+        "line": 1281
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1290
+        "line": 1291
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1336
+        "line": 1337
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1506
+        "line": 1507
       }
     ],
     "age": [
@@ -21960,7 +21960,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 127,
-      "sha256": "0d1d2c752746b41838b831678299a53ebb5c8f01e5fe0d458f14e82ab0d4dfdb",
+      "sha256": "d543b4d3b41771131d63e5820074e804efb6083d86ab8725835f2fc06704be39",
       "symbols": [
         {
           "name": "Capability",
@@ -24221,8 +24221,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1553,
-      "sha256": "2c3d88ead5b3c0afb3be549880d88487afe4db200044d999eb6d52d839d3c0e7",
+      "lines": 1554,
+      "sha256": "5592e0de9cbecca0614a22f1c9898593140de21438bd6e279f292d4b1fc5cd40",
       "symbols": [
         {
           "name": "asJson",
@@ -24238,31 +24238,31 @@
         },
         {
           "name": "world",
-          "line": 1230
+          "line": 1231
         },
         {
           "name": "completedEvidence",
-          "line": 1266
+          "line": 1267
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1280
+          "line": 1281
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1290
+          "line": 1291
         },
         {
           "name": "from",
-          "line": 1297
+          "line": 1298
         },
         {
           "name": "requiresCompletion",
-          "line": 1336
+          "line": 1337
         },
         {
           "name": "availableContext",
-          "line": 1506
+          "line": 1507
         }
       ]
     },
@@ -27937,7 +27937,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 1558,
-      "sha256": "f6984818b715b2290ed60c5e0382dff5cba1be3576c21c72db1a5f3378a57f6f",
+      "sha256": "fde1ef1f1ea4d5a64e4a094cf6fdf4aa98e9ac6aa4a85cbc2fa47c93a797748a",
       "symbols": [
         {
           "name": "DayRecovery",
