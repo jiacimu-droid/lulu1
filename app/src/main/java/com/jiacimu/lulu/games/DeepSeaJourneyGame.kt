@@ -477,6 +477,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     progress.reset()
                     player = map.start
                     camera = WorldVector.Zero
+                    cameraInitialized = false
+                    joystick = WorldVector.Zero
+                    companionPosition = map.start + WorldVector(-90f, 55f)
+                    companionRoute = emptyList()
                     navigationRoute = emptyList()
                     swimVelocity = WorldVector.Zero
                     collected = emptySet()
