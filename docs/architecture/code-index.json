@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:44:47.343241+00:00",
-  "commit": "bb3db999f1266fc998fb957fc96eede7050902e5",
+  "generatedAt": "2026-10-28T04:51:27.430846+00:00",
+  "commit": "c7768e20e46b5d4ca90dd794df7e346a827346e0",
   "branch": "main",
-  "sourceFingerprint": "1933dbc5c2746cf74215696dac3d1bc78d4a28318dced1ffa2227a392ab8de30",
+  "sourceFingerprint": "e3c915c42111948ee7754d563706c333bb18023e0639e1642df14dd84def9353",
   "summary": {
     "files": 995,
     "lines": 197981,
@@ -31038,7 +31038,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt",
       "lines": 123,
-      "sha256": "ea6b2a6b028e11d12e334388bcef83b0d32c0efcfba997caf901d6dbc7a033d6",
+      "sha256": "39cc6db9266bc6e8b6a808fd66e1193752d8071e9b10be190955346f7ab99cc2",
       "symbols": [
         {
           "name": "Live2DConversationPerformanceTest",
