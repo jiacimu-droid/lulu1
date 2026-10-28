@@ -214,7 +214,7 @@ internal object CharacterCausalTrace {
         }
         if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty() && rejectedAgenda.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
-        } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty()) {
+        } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
         }
         return rows
