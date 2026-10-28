@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:18:48.981300+00:00",
-  "commit": "e328c46fc976d5c5ddc4a1012f1dd994f40bc549",
+  "generatedAt": "2026-10-28T10:19:04.276881+00:00",
+  "commit": "f18db04c59deabeaaf26c5baf1c2f63e9f0074d8",
   "branch": "main",
-  "sourceFingerprint": "01aaedb5a3068e4ba2a059548f6a826759432328f597b146b2a8d7344453ff80",
+  "sourceFingerprint": "829932868dd682f82487bd95d657dd087ef4340ba54c3641a18aae06db0c1f7d",
   "summary": {
     "files": 1032,
-    "lines": 207848,
+    "lines": 207879,
     "symbols": 3015
   },
   "symbolIndex": {
@@ -12219,7 +12219,7 @@
     "centre": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 370
+        "line": 388
       }
     ],
     "saveTurn": [
@@ -29396,8 +29396,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 467,
-      "sha256": "e506f23a6a4bd0b4753c52b25ade679c7149b0183ca72ee100220c4cca6b34f6",
+      "lines": 498,
+      "sha256": "7564d7d8ce04a84d2df01288d990908b7bcc91e60325a9e8337c08aaef820356",
       "symbols": [
         {
           "name": "save",
@@ -29409,7 +29409,7 @@
         },
         {
           "name": "centre",
-          "line": 370
+          "line": 388
         }
       ]
     },
