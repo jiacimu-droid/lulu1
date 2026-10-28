@@ -74,6 +74,76 @@ class WorldExplorationContractsTest {
         }
     }
 
+    @Test fun everyDeepSeaCrystalLandmarkAndGateAreReachableWithoutCrossingReefs() {
+        val map = buildDeepSeaMap()
+        val obstacles = map.reefs.map { it.obstacle }
+        val stops = map.echoes.map { it.position } + deepSeaSites.map { it.position } + map.gate
+        stops.forEach { target ->
+            val route = worldFollowPath(map.start, target, DEEP_SEA_WORLD_BOUNDS, obstacles, DEEP_SEA_PLAYER_RADIUS)
+            assertTrue("Unreachable sea target: $target", route.isNotEmpty())
+            assertEquals(target, route.last())
+            (listOf(map.start) + route).zipWithNext().forEach { (a, b) ->
+                (0..60).forEach { step ->
+                    val at = a.lerp(b, step / 60f)
+                    assertFalse("Route intersects reef at $at", obstacles.any {
+                        circleIntersects(at, DEEP_SEA_PLAYER_RADIUS, it.bounds)
+                    })
+                }
+            }
+        }
+    }
+
+    @Test fun collectingAndReturningRequirePhysicalApproachNotMerelySonarOrMapProgress() {
+        val map = buildDeepSeaMap()
+        val obstacles = map.reefs.map { it.obstacle }
+        val first = map.echoes.first()
+        assertNull(deepSeaNearbyEcho(map, map.start, emptySet(), obstacles))
+        assertEquals(first.id, deepSeaNearbyEcho(map,
+            first.position + WorldVector(70f, 0f), emptySet(), obstacles)?.id)
+        assertNull(deepSeaNearbyEcho(map, first.position, setOf(first.id), obstacles))
+        assertFalse(deepSeaCanReturn(map, map.gate, emptySet(), obstacles))
+        val all = map.echoes.map { it.id }.toSet()
+        assertFalse(deepSeaCanReturn(map, map.start, all, obstacles))
+        assertFalse(deepSeaCanReturn(map, map.gate + WorldVector(95f, 0f), all, obstacles))
+        assertTrue(deepSeaCanReturn(map, map.gate, all, obstacles))
+        assertTrue("Sonar reveals only signals in range",
+            deepSeaSonarFind(map, map.start, emptySet()).contains("echo-whale"))
+        assertFalse(deepSeaSonarFind(map, map.start, emptySet()).contains("echo-moon"))
+        assertFalse(deepSeaSonarFind(map, map.start, setOf("echo-whale")).contains("echo-whale"))
+    }
+
+    @Test fun seaRouteDistanceIsNotMistakenForStraightLineDistance() {
+        val map = buildDeepSeaMap()
+        val route = worldFollowPath(map.start, map.gate, DEEP_SEA_WORLD_BOUNDS,
+            map.reefs.map { it.obstacle }, DEEP_SEA_PLAYER_RADIUS)
+        val sailed = deepSeaRouteDistance(map.start, route)!!
+        assertTrue(sailed >= map.start.distanceTo(map.gate))
+        assertNull(deepSeaRouteDistance(map.start, emptyList()))
+    }
+
+    @Test fun legacyDeepSeaSaveKeepsCrystalsAfterOptionalProgressFieldsAreAdded() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_deep_sea_journey_v1", Context.MODE_PRIVATE)
+        try {
+            prefs.edit().clear().putStringSet("collected", setOf("echo-whale", "echo-city"))
+                .putFloat("x", 620f).putFloat("y", 670f).putBoolean("completed", false).commit()
+            val progress = DeepSeaJourneyProgress(context)
+            val old = progress.load(buildDeepSeaMap().start)
+            assertEquals(setOf("echo-whale", "echo-city"), old.collected)
+            assertTrue(old.scanned.isEmpty())
+            assertTrue(old.visited.isEmpty())
+            progress.save(old.position, old.collected, old.completed, old.score,
+                setOf("echo-whale"), setOf("whale-song"), 1)
+            val recovered = progress.load(buildDeepSeaMap().start)
+            assertEquals(old.collected, recovered.collected)
+            assertEquals(setOf("echo-whale"), recovered.scanned)
+            assertEquals(setOf("whale-song"), recovered.visited)
+            assertEquals(1, recovered.companionAssists)
+        } finally {
+            prefs.edit().clear().commit()
+        }
+    }
+
     @Test fun followingRoutesAroundFurnitureAndCannotPassThroughASealedWall() {
         val bounds = WorldRectangle(0f, 0f, 600f, 400f)
         val sofa = WorldObstacle("sofa", WorldRectangle(240f, 100f, 360f, 300f))
