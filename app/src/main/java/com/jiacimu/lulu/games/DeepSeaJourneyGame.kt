@@ -220,7 +220,22 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     collected = collected,
                     player = player,
                     companion = companion?.let { companionPosition },
+                    visited = visited,
                 )
+                if (sonarPulse > 0f) {
+                    drawCircle(Color(0xFFB5FFF0).copy(alpha = sonarPulse * .55f),
+                        radius = 80f + (1f - sonarPulse) * DEEP_SEA_SONAR_RADIUS,
+                        center = Offset(player.x, player.y),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(5f))
+                }
+                if (pickupPulse > 0f) {
+                    lastPickupPosition?.let { where ->
+                        drawCircle(Color(0xFFD7FFF5).copy(alpha = pickupPulse * .85f),
+                            radius = 30f + (1f - pickupPulse) * 105f,
+                            center = Offset(where.x, where.y),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(8f * pickupPulse + 1f))
+                    }
+                }
                 if (navigationRoute.isNotEmpty()) {
                     (listOf(player) + navigationRoute).zipWithNext().forEach { (start, finish) ->
                         drawLine(Color(0xFF91FFE6).copy(alpha = .60f),
@@ -288,6 +303,34 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             )
         }
 
+        if (!completed) {
+            Button(
+                onClick = {
+                    val newlyFound = deepSeaSonarFind(map, player, collected) - scanned
+                    scanned = scanned + newlyFound
+                    sonarPulse = 1f
+                    GameSoundEffects.play(GameSoundEffect.Interact)
+                    if (companion != null && newlyFound.isNotEmpty()) companionAssists++
+                    notice = when {
+                        newlyFound.isNotEmpty() && companion != null ->
+                            "${companion.displayName}协助定位：发现 ${newlyFound.size} 处新的回声信号"
+                        newlyFound.isNotEmpty() -> "声呐定位到 ${newlyFound.size} 处新回声，选择导航前往"
+                        else -> "附近暂无新回声，继续探索未测绘水域"
+                    }
+                    progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+                },
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp).height(38.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xCC103B49), contentColor = Color(0xFFC5FFF1)),
+                shape = RoundedCornerShape(13.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp),
+            ) {
+                Icon(Icons.Outlined.Radar, null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(5.dp))
+                Text("声呐扫描", fontSize = 11.sp)
+            }
+        }
+
         AnimatedVisibility(
             visible = notice.isNotBlank(),
             enter = fadeIn(),
@@ -318,18 +361,28 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 label = when {
                     nearGate -> "归航"
                     nearbyEcho != null -> "共鸣"
-                    gateReady -> "找归航门"
-                    else -> "找晶体"
+                    nearbySite != null -> "探索"
+                    gateReady -> "接近归航门"
+                    else -> "搜索"
                 },
-                enabled = nearbyEcho != null || nearGate,
+                enabled = nearbyEcho != null || nearGate || nearbySite != null,
                 onClick = {
                     when {
                         nearbyEcho != null -> {
                             collected = collected + nearbyEcho.id
+                            scanned = scanned + nearbyEcho.id
+                            lastPickupPosition = nearbyEcho.position
+                            pickupPulse = 1f
                             navigationRoute = emptyList()
                             GameSoundEffects.play(if (collected.size == map.echoes.size) GameSoundEffect.Objective else GameSoundEffect.Collect)
                             notice = if (collected.size == map.echoes.size) "晶体集齐！右上方「导航前往」可带你找归航门" else "获得：${nearbyEcho.title}"
-                            progress.save(player, collected, completed, score)
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+                        }
+                        nearbySite != null -> {
+                            visited = visited + nearbySite.id
+                            GameSoundEffects.play(GameSoundEffect.Collect)
+                            notice = "${nearbySite.name}：${nearbySite.discovery}"
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
                         }
                         nearGate -> {
                             val elapsedSeconds = ((System.currentTimeMillis() - runStartedAt) / 1_000L).coerceAtLeast(1L)
@@ -344,13 +397,16 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                     reward = collected.size * 3,
                                     summary = buildString {
                                         append("在深海遗迹中收集了 ${collected.size} 枚回声并成功归航")
-                                        companion?.let { append("，${it.displayName}一同完成了潜航") }
+                                        if (visited.isNotEmpty()) append("，探索了 ${visited.size} 处海底遗迹")
+                                        companion?.let { append("，${it.displayName}同行，实际协助声呐定位 ${companionAssists} 次") }
                                         append("。")
                                     },
                                     detailsJson = JSONObject()
                                         .put("game", "deep_sea_journey")
                                         .put("echoes", JSONArray(collected.toList()))
                                         .put("elapsed_seconds", elapsedSeconds)
+                                        .put("sites_visited", JSONArray(visited.sorted()))
+                                        .put("sonar_assists", if (companion == null) 0 else companionAssists)
                                         .put("solo", companion == null)
                                         .toString(),
                                     characterIdOverride = companion?.characterId.orEmpty(),
@@ -359,14 +415,15 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                 progress.markRecorded()
                                 recorded = true
                             }
-                            progress.save(player, collected, true, score)
+                            progress.save(player, collected, true, score, scanned, visited, companionAssists)
                         }
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 22.dp, bottom = 30.dp),
                 accent = Color(0xFF9FFFF0),
             )
-            val nearbyLabel = nearbyEcho?.title ?: if (nearGate) "已到达归航门，点击归航" else null
+            val nearbyLabel = if (nearGate) "已到达归航门，点击归航"
+                else nearbyEcho?.title ?: nearbySite?.name
             if (nearbyLabel != null) {
                 Surface(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 116.dp),
@@ -386,7 +443,13 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     player = map.start
                     camera = WorldVector.Zero
                     navigationRoute = emptyList()
+                    swimVelocity = WorldVector.Zero
                     collected = emptySet()
+                    scanned = emptySet()
+                    visited = emptySet()
+                    companionAssists = 0
+                    pickupPulse = 0f
+                    sonarPulse = 0f
                     completed = false
                     score = 0
                     runStartedAt = System.currentTimeMillis()
