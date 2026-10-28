@@ -14,6 +14,7 @@ import com.jiacimu.lulu.MigrationActivity
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.isNonRetryableModelFailure
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.qqForwardContextText
@@ -263,6 +264,18 @@ object ProactivePerceptionRuntime {
                         (onlineRevision != null && (requiresUnread ||
                             trigger.contains("私聊新消息") || trigger.contains("群聊出现新消息")))
                     if (!policy.enabled && !explicitUserWake) continue
+                    // A known provider 400/403/422 input rejection will not
+                    // change merely because another passive worker woke up.
+                    // A genuine unread chat, direct wake or newly identified
+                    // world interaction still gets its own decision attempt.
+                    if (ProactivePerceptionRecoveryPolicy.shouldDeferAutomatedTurn(
+                            rejectedAtMillis = prefs.getLong(
+                                "last_terminal_model_rejection_$characterId", 0L),
+                            nowMillis = now.toEpochMilli(),
+                            isUserMessage = onlineRevision != null && requiresUnread,
+                            isDirectUserWake = explicitUserWake,
+                            hasNewInteractionEvidence = !requiredInteractionEvidenceId.isNullOrBlank(),
+                        )) continue
                     // One PRIMARY online chat-batch owner should handle unread
                     // content. Opportunistic world/life/timer ticks are NOT
                     // alternative reply workers. Without this guard they could
@@ -371,6 +384,7 @@ object ProactivePerceptionRuntime {
                                 characterId, reviewed.id, reviewed.token, Instant.now(), coalesceDue = false)
                         }
                         AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
+                        prefs.edit().remove("last_terminal_model_rejection_$characterId").apply()
                         evaluated += 1
                         CharacterDevelopmentRuntime.request(characterId)
                         val actionKey = "action_history_$characterId"
@@ -384,7 +398,18 @@ object ProactivePerceptionRuntime {
                     }.onFailure { error ->
                         // This persists recovery even when JobScheduler cancels the coroutine.
                         // Interrupted tool execution is never blindly replayed as a new action.
-                        AutonomousPerceptionAttempts.finish(appContext, attempt, failed = true)
+                        val terminalRejection = isNonRetryableModelFailure(error)
+                        AutonomousPerceptionAttempts.finish(appContext, attempt,
+                            failed = true, retryable = !terminalRejection)
+                        if (terminalRejection) {
+                            // This controls only low-priority repeats, not a newly
+                            // received user message. The failed decision is NEVER
+                            // recorded as deliberate silence or successful action.
+                            prefs.edit().putLong(
+                                "last_terminal_model_rejection_$characterId",
+                                System.currentTimeMillis(),
+                            ).apply()
+                        }
                         if (error is kotlinx.coroutines.CancellationException) {
                             CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知中断；保留已保存的执行记录", Instant.now())
                             throw error
