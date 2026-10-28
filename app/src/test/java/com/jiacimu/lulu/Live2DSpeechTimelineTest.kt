@@ -5,6 +5,20 @@ import org.junit.Test
 import java.util.UUID
 
 class Live2DSpeechTimelineTest {
+    @Test fun realSegmentEventsPreserveVisualDecisionIdentity() {
+        val role = "wolf-" + UUID.randomUUID()
+        val call = "call-" + UUID.randomUUID()
+        Live2DSpeechTimeline.started(role, call, "part-1", 0, 42L)
+        assertEquals(0, Live2DSpeechTimeline.events.value.segmentIndex)
+        assertEquals(42L, Live2DSpeechTimeline.events.value.visualSequence)
+        Live2DSpeechTimeline.finished(role, call, "part-1")
+        Live2DSpeechTimeline.started(role, call, "part-2", 1, 42L)
+        Live2DSpeechTimeline.finished(role, call, "part-1")
+        assertEquals(1, Live2DSpeechTimeline.events.value.segmentIndex)
+        assertEquals("part-2", Live2DSpeechTimeline.events.value.utteranceId)
+        assertEquals(Live2DSpeechTimeline.Phase.Playing, Live2DSpeechTimeline.events.value.phase)
+    }
+
     @Test fun oldUtteranceCannotClearNewPlaybackOrOtherCall() {
         val role = "wolf-" + UUID.randomUUID()
         val call = "call-" + UUID.randomUUID()
