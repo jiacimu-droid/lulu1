@@ -90,7 +90,24 @@ object CharacterLifeStore {
         val character = characters.settings.value[characterId] ?: return
         val root = state(characterId)
         val profileVersion = root.optInt("xingHeProfileVersion")
-        if (profileVersion >= 3) return
+        if (profileVersion >= 4) return
+        if (profileVersion == 3) {
+            // Per-person expression controls were never set on the original
+            // Xing He default. Explicitly choose an ordinary chat baseline
+            // without clobbering a user-selected expressive/quiet preference.
+            if (character.displayName != "星禾") return
+            if (!root.has("xingHeV3ExpressionBackup")) {
+                root.put("xingHeV3ExpressionBackup",
+                    JSONObject((root.optJSONObject("expressionPreferences") ?: JSONObject()).toString()))
+                save(characterId, root)
+            }
+            val expression = root.optJSONObject("expressionPreferences") ?: JSONObject()
+            if (!expression.has("kaomoji")) expression.put("kaomoji", "natural")
+            root.put("expressionPreferences", expression)
+                .put("xingHeProfileVersion", 4)
+            save(characterId, root)
+            return
+        }
         if (profileVersion == 2) {
             // This is a narrow friendship-language upgrade, not a reset.
             // A renamed contact or user-edited profile/persona is authoritative.
@@ -120,6 +137,7 @@ object CharacterLifeStore {
             }
             root.put("profile", profile).put("xingHeProfileVersion", 3)
             save(characterId, root)
+            migrateLegacyLuluToXingHe()
             return
         }
         if (profileVersion == 1) {
@@ -185,11 +203,16 @@ object CharacterLifeStore {
             .put("updatedAt", Instant.now().toString()))
         root.put("profile", profile)
             .put("relationshipAgreements", agreements)
-            .put("xingHeProfileVersion", 3)
+            .put("xingHeProfileVersion", 4)
         // Legacy butler nicknames and Jiang Du version flags cannot continue
         // overriding the explicitly changed character identity.
         root.remove("socialNames")
         root.remove("jiangDuPresetVersion")
+        // A fresh converted legacy contact should not inherit the previous
+        // butler's emoji preference; user explicit choice remains untouched.
+        val expression = root.optJSONObject("expressionPreferences") ?: JSONObject()
+        if (!expression.has("kaomoji")) expression.put("kaomoji", "natural")
+        root.put("expressionPreferences", expression)
         save(characterId, root)
     }
 
