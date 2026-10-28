@@ -478,8 +478,8 @@ internal object AutonomousSocialRuntime {
                     任何地点移动、物品出现、咖啡消费、比赛结果和世界事件完成，都必须有真实执行器回执。
                     私人想法只回传到本人心理系统，不能当作公开事实，不能越权知晓其他人私聊、记忆或日记。
                     你可以对其他人的实际行为形成个人评价、挂心或未来意愿，但没有证据就留空。
-                    若此次相遇让你确实想马上做件有结果的事，可另选填 appraisal={"ownActivity":{"stage":"decided","action":"digital_world|solo_game","worldAction":"use_location|handle_incident","activityId":"上文列出的当前地点真实活动ID","incidentId":"真实持续事件ID","approach":"该事件支持的操作","gameId":"memory_match","whyNow":"此刻自己决定行动的原因"}}。
-                    独立游戏选 solo_game + memory_match；世界动作选 digital_world，按真实参数填写。没有当场行动的意愿就完全省略 appraisal。
+                    若此次相遇让你确实想马上做件有结果的事，可另选填 appraisal={"ownActivity":{"stage":"decided","action":"digital_world|solo_game","worldAction":"use_location|handle_incident","activityId":"上文列出的当前地点真实活动ID","incidentId":"真实持续事件ID","approach":"该事件支持的操作","gameId":"memory_match|yacht_dice","whyNow":"此刻自己决定行动的原因"}}。
+                    独立游戏选 solo_game + memory_match 或 yacht_dice；世界动作选 digital_world，按真实参数填写。没有当场行动的意愿就完全省略 appraisal。
                     你只能替自己决定后续行动，不能让对方也执行；必须经已有执行器验证成功后才算做过，邀请别人不等于别人同意。
                     不必每次生成所有 innerLife 字段；本轮的公开事实记录完毕后，才能保存本人的反应。
                     ${com.jiacimu.lulu.VoicePerformance.direction}
