@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:06:20.646731+00:00",
-  "commit": "06342f23d1cdf0fd9b9a2b1ae9f5f4b8b0f5daff",
+  "generatedAt": "2026-10-28T06:06:52.396254+00:00",
+  "commit": "f89e21a91366bc329081e368709193a12f9f4311",
   "branch": "main",
-  "sourceFingerprint": "ae050cde1adbdb3d3aecddadf6becadb759e3f880f9401ed52d9b038e842f214",
+  "sourceFingerprint": "94f7748097fc988534a6c77ae34e618dd3acf3e5950f51fe8eb8e0b863fc9197",
   "summary": {
-    "files": 1003,
-    "lines": 199790,
-    "symbols": 2935
+    "files": 1004,
+    "lines": 199840,
+    "symbols": 2936
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15732,6 +15732,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "PeerRelationshipContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt",
+        "line": 14
       }
     ],
     "PerceptionStimulusLedgerTest": [
@@ -33845,6 +33851,17 @@
         {
           "name": "OnlineContinuationPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt",
+      "lines": 50,
+      "sha256": "48f94ace285a25b6b8656bfcc90a9c428dc99c021f2aedf445b1528258e773c3",
+      "symbols": [
+        {
+          "name": "PeerRelationshipContextTest",
+          "line": 14
         }
       ]
     },

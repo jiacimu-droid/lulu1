@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`06342f23d1cdf0fd9b9a2b1ae9f5f4b8b0f5daff`
+- 基准提交：`f89e21a91366bc329081e368709193a12f9f4311`
 - 分支：`main`
-- 已索引文件：1003
-- 已索引代码/文本行：199790
-- 已发现符号：2935
+- 已索引文件：1004
+- 已索引代码/文本行：199840
+- 已发现符号：2936
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -919,6 +919,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 905 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 90 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PeerRelationshipContextTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
