@@ -136,3 +136,42 @@ export function createTouchResponseRuntime({ now = () => performance.now() } = {
   }
   return { begin, move, complete, snapshot, end, reset }
 }
+
+export const STROKE_COMMIT_TRAVEL_PX = 26
+const strokeDirection = gesture => gesture === 'stroke-left' ? -1
+  : gesture === 'stroke-right' ? 1 : 0
+
+/**
+ * Pose commitment for one continuous caress. Android reports the geometry
+ * of each ~70ms MOVE fragment, so a back-and-forth stroke flips its
+ * reported direction many times per second, and the same happens to the
+ * left/right side when the finger crosses the middle of one body part.
+ * The visible pose must not chase those fragments: a direction (or side)
+ * is adopted only after the finger has travelled STROKE_COMMIT_TRAVEL_PX
+ * against the committed one. Real reversals still turn the pose, once,
+ * with the travel that proves them. Pure geometry of the ongoing
+ * contact; never an interpretation of the user's intent. Records and
+ * response accumulation keep the true per-sample values.
+ */
+export function committedTouchPose(previous, gesture, region, segmentPx = 0) {
+  const travel = Number.isFinite(segmentPx) ? Math.max(0, segmentPx) : 0
+  if (!previous) return { gesture, region, againstDirection: 0, againstSide: 0 }
+  let nextGesture = gesture
+  let againstDirection = 0
+  const committedDir = strokeDirection(previous.gesture)
+  const sampleDir = strokeDirection(gesture)
+  if (committedDir !== 0 && sampleDir !== 0 && sampleDir !== committedDir) {
+    againstDirection = (previous.againstDirection || 0) + travel
+    if (againstDirection >= STROKE_COMMIT_TRAVEL_PX) againstDirection = 0
+    else nextGesture = previous.gesture
+  }
+  let nextRegion = region
+  let againstSide = 0
+  if (region !== previous.region &&
+      touchFamily(region) === touchFamily(previous.region)) {
+    againstSide = (previous.againstSide || 0) + travel
+    if (againstSide >= STROKE_COMMIT_TRAVEL_PX) againstSide = 0
+    else nextRegion = previous.region
+  }
+  return { gesture: nextGesture, region: nextRegion, againstDirection, againstSide }
+}

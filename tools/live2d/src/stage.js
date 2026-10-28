@@ -15,7 +15,7 @@ import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wol
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from './touch-reflex.mjs'
-import { createTouchResponseRuntime, isImpact } from './touch-response.mjs'
+import { createTouchResponseRuntime, isImpact, committedTouchPose } from './touch-response.mjs'
 import { createTouchExpressionLayer } from './touch-expression-layer.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
@@ -1255,8 +1255,10 @@ function tickTactileContact(tactileNow) {
         updateTactileExpression(tactileContact.region, tactileContact.kind,
           tactileContact.state, tactileNow)
     }
-    const poseKind = tactileContact.pressed && tactileContact.kind === 'tap' &&
-      tactileNow - tactileContact.start > 520 ? 'hold' : tactileContact.kind
+    const committedKind = tactileContact.poseGesture ?? tactileContact.kind
+    const poseRegion = tactileContact.poseRegion ?? tactileContact.region
+    const poseKind = tactileContact.pressed && committedKind === 'tap' &&
+      tactileNow - tactileContact.start > 520 ? 'hold' : committedKind
     const elapsed = tactileNow - tactileContact.start
     // Android can stop sending MOVE while a finger is still pressed. A
     // remembered stroke is a direction, not evidence of ongoing movement:
@@ -1266,10 +1268,10 @@ function tickTactileContact(tactileNow) {
       ? { ...tactileContact.state, motionIdleMs: Math.max(0,
           tactileNow - (tactileContact.lastMovementAt ?? tactileContact.start)) }
       : tactileContact.state
-    const base = touchReflexFor(tactileContact.region, poseKind,
+    const base = touchReflexFor(poseRegion, poseKind,
       tactileContact.ordinal, visualState, elapsed)
     touchReflex = wolfRigActive
-      ? enhanceWolfTouch(base, tactileContact.region, poseKind, visualState, elapsed)
+      ? enhanceWolfTouch(base, poseRegion, poseKind, visualState, elapsed)
       : base
   } else { touchReflex = null; tactileContact = null }
 }
@@ -1417,16 +1419,29 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // directional stroke for another second even though nothing moved.
   const visualState = completed && options.mode === 'hand'
     ? { ...state, motionIdleMs: Math.max(0, now - lastMovementAt) } : state
+  // The visible pose follows the committed stroke, not each MOVE fragment
+  // (see committedTouchPose). Records below keep the true values.
+  let poseCommit = starting ? null : tactileContact?.poseCommit ?? null
+  let poseGesture = poseCommit?.gesture ?? kind
+  let poseRegion = poseCommit?.region ?? region
+  if (options.mode === 'hand' && options.phase === 'move' && !starting) {
+    const segmentPx = previousPoint
+      ? Math.hypot(x - previousPoint.x, y - previousPoint.y) : 0
+    poseCommit = committedTouchPose(poseCommit, kind, region, segmentPx)
+    poseGesture = poseCommit.gesture
+    poseRegion = poseCommit.region
+  }
   tactileContact = { region, kind, ordinal: touchSequence, state: visualState,
     start: contactStart, pressed: !completed, downPoint,
-    lastPoint: { x, y }, lastMovementAt, motionPlayed: priorMotionPlayed }
+    lastPoint: { x, y }, lastMovementAt, motionPlayed: priorMotionPlayed,
+    poseCommit, poseGesture, poseRegion }
   if (!starting && wolfRigActive && tactileMotionIndices.size)
     tactileContact.motionPlayed = maybePlayTactileMotion(
-      region, kind, state, completed, priorMotionPlayed) || priorMotionPlayed
+      poseRegion, poseGesture, state, completed, priorMotionPlayed) || priorMotionPlayed
   const baseTouch = !completed && isImpact(kind) ? null :
-    touchReflexFor(region, kind, touchSequence, visualState)
+    touchReflexFor(poseRegion, poseGesture, touchSequence, visualState)
   touchReflex = wolfRigActive && baseTouch
-    ? enhanceWolfTouch(baseTouch, region, kind, visualState, 0) : baseTouch
+    ? enhanceWolfTouch(baseTouch, poseRegion, poseGesture, visualState, 0) : baseTouch
   touchReflexEndAt = now + (isImpact(kind) ? 2350 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time

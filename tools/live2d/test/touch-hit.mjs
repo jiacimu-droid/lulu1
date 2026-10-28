@@ -5,7 +5,7 @@ import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion,
   TOUCH_REGIONS, TOUCH_ZONE_DEFAULTS, touchZoneArea } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchRestScale, touchExpressionFor, touchExpressionWeight,
   touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from '../src/touch-reflex.mjs'
-import { createTouchResponseRuntime, touchFamily, isImpact } from '../src/touch-response.mjs'
+import { createTouchResponseRuntime, touchFamily, isImpact, committedTouchPose } from '../src/touch-response.mjs'
 import { createTouchExpressionLayer } from '../src/touch-expression-layer.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { isWolfRig, enhanceWolfTouch } from '../src/wolf-rig-profile.mjs'
@@ -407,7 +407,7 @@ const bridge = {
   performance: { now: () => stageTime }, touchResponse: stageResponse,
   touchCalibration: {}, calibratedRegion, resolveTouchRegion, touchReflexFor,
   wolfRigActive: false, enhanceWolfTouch,
-  touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, isImpact,
+  touchExpressionFor, touchExpressionCategory, touchCompanionOverlayFor, isImpact, committedTouchPose,
   actualAvatarPixel: () => true, tactileContact: null,
   tactileGestureCancelled: false, touchSequence: 0, touchReflex: null, touchReflexEndAt: 0,
   touchExpressionNames: wolf, touchExpressionMetadata: metadata,
@@ -636,6 +636,28 @@ assert.ok(stageResponse.snapshot().shyness < beforeRelease)
 const beforeUnsupported = stageResponse.snapshot().shyness
 assert.equal(bridge.touch(.32, .235, 'kick').hit, false)
 assert.equal(stageResponse.snapshot().shyness, beforeUnsupported, 'removed foot action is not a disguised pet')
+
+// Pose commitment: MOVE fragments cannot flip a caress pose on jitter,
+// but a travel-proven reversal turns it exactly once.
+{
+  let pose = committedTouchPose(null, 'stroke-left', 'cheek-left', 0)
+  assert.equal(pose.gesture, 'stroke-left')
+  for (let i = 0; i < 30; i++) {
+    pose = committedTouchPose(pose, i % 2 ? 'stroke-right' : 'stroke-left',
+      'cheek-left', 2)
+    assert.equal(pose.gesture, 'stroke-left',
+      'fragment jitter never flips the committed pose')
+  }
+  pose = committedTouchPose(pose, 'stroke-right', 'cheek-right', 10)
+  assert.equal(pose.gesture, 'stroke-left')
+  assert.equal(pose.region, 'cheek-left')
+  pose = committedTouchPose(pose, 'stroke-right', 'cheek-right', 20)
+  assert.equal(pose.gesture, 'stroke-right',
+    'a reversal with enough travel behind it commits')
+  assert.equal(pose.region, 'cheek-right', 'the side follows the proven reversal')
+  pose = committedTouchPose(pose, 'stroke-right', 'hair', 0)
+  assert.equal(pose.region, 'hair', 'a different body part is adopted at once')
+}
 
 function sameCaressAt(hz) {
   let t = 0

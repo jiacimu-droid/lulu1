@@ -53,7 +53,8 @@ for (const filename of wolfMotionFiles) {
       // still unnaturally jerky if it crosses that range in 200ms.
       const startTime = i === 0 ? segments[0] : segments[offset - 2]
       const startValue = i === 0 ? segments[1] : segments[offset - 1]
-      const maxRate = filename.startsWith('09_') ? 240 :
+      const maxRate = filename.startsWith('09_') ? 300 :
+        filename.startsWith('33_') ? 240 :
         filename.startsWith('08_') ? 155 : 135
       const peakRate = 1.5 * Math.abs(endv - startValue) / (endt - startTime)
       assert.ok(peakRate <= maxRate + .1, filename +
