@@ -430,7 +430,7 @@ class ResidentDailyContinuityTest {
             val decisionId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
             val source = SharedExperienceTimeline.eventsByIds(actor, listOf(decisionId)).single()
             assertEquals("resident-due-decision", source.source)
-            assertTrue(source.content.contains("尚未执行"))
+            assertTrue(source.content.contains("不能证明活动或附加动作已经执行"))
             val actionId = "tool-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}"
             val action = SharedExperienceTimeline.eventsByIds(actor, listOf(actionId)).single()
             assertEquals(decisionId, JSONObject(action.content).optString("causeEvidenceId"))
