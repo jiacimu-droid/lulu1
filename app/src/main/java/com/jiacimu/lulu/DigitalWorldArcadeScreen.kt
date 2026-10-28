@@ -30,6 +30,7 @@ internal fun DigitalWorldArcadeScreen(
     var errorText by remember { mutableStateOf("") }
     val memoryMatch = gameId == "memory_match"
     val deepSea = gameId == "deep_sea_journey"
+    val soloAllowed = deepSea || gameId == "yacht_dice"
     val gameTitle = when (gameId) {
         "memory_match" -> "记忆配对"
         "yacht_dice" -> "快艇骰子"
@@ -54,7 +55,7 @@ internal fun DigitalWorldArcadeScreen(
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(gameTitle, style = MaterialTheme.typography.headlineMedium)
             Text("一起玩", style = MaterialTheme.typography.titleMedium)
-            if (deepSea) {
+            if (soloAllowed) {
                 FilterChip(selected = partnerId.isBlank(), onClick = { partnerId = "" }, label = { Text("自己玩") })
             }
             residents.forEach { character ->
@@ -64,7 +65,7 @@ internal fun DigitalWorldArcadeScreen(
                     label = { Text(character.displayName) },
                 )
             }
-            if (!deepSea && residents.isEmpty()) Text("这里暂时没有在场角色，不能开始双人游戏。角色自己可以在日常活动中独自玩快艇骰子或记忆配对。")
+            if (memoryMatch && residents.isEmpty()) Text("这里暂时没有在场角色，记忆配对需要一位对手。")
             val hasUnfinished = memoryMatch && gameState.memoryMatch.moves > 0 && !gameState.memoryMatch.finished
             if (deepSea && divePrefs.getLong("started_at", 0L) > 0L && !divePrefs.getBoolean("completed", false)) {
                 Text("已有潜航进度；开始新潜航会替换它。已完成的游戏记录会保留。", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -75,7 +76,7 @@ internal fun DigitalWorldArcadeScreen(
                 OutlinedButton(onClick = { partner?.let { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId) }; started = true }, shape = RoundedCornerShape(16.dp)) { Text("继续当前对局") }
             }
             Button(
-                enabled = deepSea || partner != null,
+                enabled = soloAllowed || partner != null,
                 onClick = {
                     if (!deepSea || divePrefs.edit().clear().putLong("started_at", System.currentTimeMillis()).commit()) {
                         store.selectCharacters(partner?.let { listOf(it.characterId) }.orEmpty())
