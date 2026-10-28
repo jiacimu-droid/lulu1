@@ -23,7 +23,7 @@ import org.json.JSONObject
 import kotlin.math.abs
 import kotlin.random.Random
 
-private enum class YachtCategory(val label: String) {
+internal enum class YachtCategory(val label: String) {
     Ones("一点"), Twos("二点"), Threes("三点"), Fours("四点"), Fives("五点"), Sixes("六点"),
     ThreeKind("三条"), FourKind("四条"), FullHouse("葫芦"), SmallStraight("小顺"),
     LargeStraight("大顺"), Yacht("快艇"), Chance("机会"),
@@ -293,13 +293,13 @@ private fun YachtScoreTable(
     }
 }
 
-private fun chooseYachtHolds(dice: List<Int>): Set<Int> {
+internal fun chooseYachtHolds(dice: List<Int>): Set<Int> {
     val counts = dice.groupingBy { it }.eachCount()
     val bestValue = counts.maxWithOrNull(compareBy<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })?.key ?: return emptySet()
     return dice.indices.filterTo(mutableSetOf()) { dice[it] == bestValue }
 }
 
-private fun scoreYacht(category: YachtCategory, dice: List<Int>): Int {
+internal fun scoreYacht(category: YachtCategory, dice: List<Int>): Int {
     val counts = dice.groupingBy { it }.eachCount()
     val distinct = dice.distinct().sorted()
     return when (category) {
