@@ -866,6 +866,144 @@ class ResidentDailyContinuityTest {
         JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
             JSONObject().put("content", json)))).toString())
 
+    @Test fun nestedResidentChoicesMustBeStructurallyValidBeforeAnySideEffect() {
+        val at = java.time.LocalDate.now().atTime(8, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val valid = JSONObject().put("lunch", "home").put("evening", "courtyard")
+        val brokenAgenda = JSONObject().put("at", "11:00")
+            .put("title", "记下今天的花").put("intent", "想记录生活")
+            .put("activityAction", "publish_moment")
+            .put("activityArgs", "not-an-object")
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("agenda", JSONArray().put(brokenAgenda)), at)
+            .orEmpty().contains("activityArgs"))
+        val overLimit = JSONArray()
+        repeat(9) { index ->
+            overLimit.put(JSONObject().put("at", "12:00")
+                .put("title", "活动${index}").put("intent", "今天自己想做")
+                .put("activityAction", "publish_moment")
+                .put("activityArgs", JSONObject().put("text", "第${index}条")))
+        }
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("agenda", overLimit), at)
+            .orEmpty().contains("最多"))
+        val malformedStep = JSONArray().put(JSONObject().put("tool", "publish_moment")
+            .put("args", "not-an-object"))
+        assertTrue(ResidentDailyDecision.dueContractError(
+            JSONObject().put("choice", "cancel").put("steps", malformedStep), at)
+            .orEmpty().contains("args"))
+        val wrongDependency = JSONArray().put(JSONObject().put("tool", "publish_moment")
+            .put("args", JSONObject().put("text", "只做结构验证"))
+            .put("requiresPreviousSuccess", "false"))
+        assertTrue(ResidentDailyDecision.dueContractError(
+            JSONObject().put("choice", "cancel").put("steps", wrongDependency), at)
+            .orEmpty().contains("布尔"))
+        assertNull(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("agenda", JSONArray()
+                .put(JSONObject().put("at", "11:00")
+                    .put("title", "记下今天的花").put("intent", "想记录生活")
+                    .put("activityAction", "publish_moment")
+                    .put("activityArgs", JSONObject().put("text", "今天的花")))), at))
+    }
+
+    @Test(timeout = 60_000) fun malformedNestedDailyAgendaIsRepairedInsteadOfSilentlyDropped() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = java.time.LocalDate.now().atTime(8, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "日程字段补正居民${UUID.randomUUID().toString().take(5)}",
+            identity = "喜欢记录花草", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val content = "日程补正后计划分享${UUID.randomUUID()}"
+        fun decision(args: Any) = JSONObject().put("lunch", "home")
+            .put("evening", "courtyard").put("agenda", JSONArray().put(
+                JSONObject().put("at", "11:00")
+                    .put("title", "分享花草观察").put("intent", "想记住今天的花")
+                    .put("activityAction", "publish_moment")
+                    .put("activityArgs", args)))
+        val server = MockWebServer()
+        server.enqueue(answer(decision("wrong-type").toString()))
+        server.enqueue(answer(decision(JSONObject().put("text", content)).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "nested-agenda-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            val saved = RoleDayScheduleStore.plans(app, actor)
+                .filter { it.activityAction == "publish_moment" &&
+                    JSONObject(it.activityArgs).optString("text") == content }
+            assertEquals(1, saved.size)
+            assertEquals("planned", saved.single().status)
+            assertEquals(0, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == content })
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            val day = ResidentDailyDecision.date(now)
+            assertTrue(p.getString("invalid:${native.id}:$day", "")
+                .orEmpty().contains("wrong-type"))
+            assertEquals("finished", p.getString("phase:${native.id}:$day", ""))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun malformedNestedDueStepGetsBoundedRepairAndOneReceipt() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "到点字段补正居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院观察者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院的花",
+            "想记录真实见闻", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "原计划不应被执行"))
+        val content = "修正后的独立动态${UUID.randomUUID()}"
+        val first = JSONObject().put("choice", "cancel")
+            .put("reason", "今天不执行原计划")
+            .put("steps", JSONArray().put(JSONObject()
+                .put("tool", "publish_moment").put("args", "broken-args")))
+        val corrected = JSONObject().put("choice", "cancel")
+            .put("reason", "今天不执行原计划")
+            .put("steps", JSONArray().put(JSONObject()
+                .put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", content))))
+        val server = MockWebServer()
+        server.enqueue(answer(first.toString()))
+        server.enqueue(answer(corrected.toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "nested-due-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+            assertEquals("cancelled",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == content })
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == "原计划不应被执行" })
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            assertTrue(p.getString("due-invalid:$key", "")
+                .orEmpty().contains("broken-args"))
+            assertEquals("finished", p.getString("due-phase:$key", ""))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun malformedDueDecisionIsCorrectedBySameResidentBeforeAnyEffect() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
