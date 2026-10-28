@@ -137,6 +137,9 @@ internal fun Live2DFullscreenVideoCall(
     onStartCall: () -> Unit,
 ) {
     val cues by Live2DVisualActionBus.cues.collectAsState()
+    // A queued TTS HTTP request is NOT audible speech. Motion must follow the
+    // real onStarted event, never the queue-wide busy flag.
+    val actualSpeech by Live2DSpeechTimeline.events.collectAsState()
     val avatarPresentations by AvatarController.states.collectAsState()
     val avatarPresentation = avatarPresentations[characterId]
     val cue = cues[characterId]?.takeIf { it.callId == state.callExperienceId }
@@ -340,7 +343,9 @@ internal fun Live2DFullscreenVideoCall(
                 characterId = characterId,
                 modelUrl = modelUrl,
                 callId = state.callExperienceId,
-                speaking = state.connected && (state.speaking || avatarPresentation?.speaking == true),
+                speaking = state.connected && actualSpeech.callId == state.callExperienceId &&
+                    actualSpeech.characterId == characterId &&
+                    actualSpeech.phase == Live2DSpeechTimeline.Phase.Playing,
                 listening = state.connected && state.listening,
                 mouthLevel = mouthLevel,
                 hasPcmSamples = avatarPresentation?.hasPcmSamples == true,
