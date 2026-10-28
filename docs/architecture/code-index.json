@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:42:09.038248+00:00",
-  "commit": "5518d7620db267d04bd309280461ab5be47ff155",
+  "generatedAt": "2026-10-28T09:42:47.495688+00:00",
+  "commit": "61954d2bb12f328b916823806e2e127e8ed138fa",
   "branch": "main",
-  "sourceFingerprint": "32965362be4e55b6832aba7f9ed0aa6a03f5cfc6f12dfafa3d783259c27014b5",
+  "sourceFingerprint": "37b280fe2cdcd32a9f0d0d28a8b32b12165839fbf0cb346c832a9a810daeac84",
   "summary": {
     "files": 1025,
-    "lines": 205964,
-    "symbols": 2994
+    "lines": 205981,
+    "symbols": 2996
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12468,70 +12468,82 @@
         "line": 40
       }
     ],
-    "PerfectMan": [
+    "BlockIsland": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 41
       }
     ],
-    "Roleplay": [
+    "RelicEscape": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 42
       }
     ],
-    "TurtleSoup": [
+    "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 43
       }
     ],
-    "RapportQuiz": [
+    "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 44
       }
     ],
-    "YachtDice": [
+    "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 45
       }
     ],
-    "Gomoku": [
+    "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 46
       }
     ],
-    "MemoryMatch": [
+    "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 47
       }
     ],
-    "Records": [
+    "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 48
       }
     ],
-    "Replay": [
+    "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 49
       }
     ],
+    "Records": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+        "line": 50
+      }
+    ],
+    "Replay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+        "line": 51
+      }
+    ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 65
+        "line": 67
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 71
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
@@ -29674,8 +29686,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 736,
-      "sha256": "2146e41d6d58ac2bd9254317d28c3dfb08d27bd28fccac07671a0cb0ba64042e",
+      "lines": 739,
+      "sha256": "ab4d288bd1b2761cc76a898b63ed82baa3e3172e7a788cf54125d3c4202e7e04",
       "symbols": [
         {
           "name": "Home",
@@ -29686,55 +29698,63 @@
           "line": 40
         },
         {
-          "name": "PerfectMan",
+          "name": "BlockIsland",
           "line": 41
         },
         {
-          "name": "Roleplay",
+          "name": "RelicEscape",
           "line": 42
         },
         {
-          "name": "TurtleSoup",
+          "name": "PerfectMan",
           "line": 43
         },
         {
-          "name": "RapportQuiz",
+          "name": "Roleplay",
           "line": 44
         },
         {
-          "name": "YachtDice",
+          "name": "TurtleSoup",
           "line": 45
         },
         {
-          "name": "Gomoku",
+          "name": "RapportQuiz",
           "line": 46
         },
         {
-          "name": "MemoryMatch",
+          "name": "YachtDice",
           "line": 47
         },
         {
-          "name": "Records",
+          "name": "Gomoku",
           "line": 48
         },
         {
-          "name": "Replay",
+          "name": "MemoryMatch",
           "line": 49
         },
         {
+          "name": "Records",
+          "line": 50
+        },
+        {
+          "name": "Replay",
+          "line": 51
+        },
+        {
           "name": "LuluGamesApp",
-          "line": 65
+          "line": 67
         },
         {
           "name": "stepBack",
-          "line": 71
+          "line": 73
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 492,
-      "sha256": "0d11936ae9c2a1765af14fded2f98ec504b5ae34c6d3ea89759385fa1e22ece9",
+      "lines": 506,
+      "sha256": "9cecdb59fd14b3485af46a51edc5ad444773446e7b61f7bdde5f25e11325a39f",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
