@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`392d6e3f40a0cfa331e5fc38324178dbcfbceabc`
+- 基准提交：`dcc66f2bca4d45c9d57bbab515ea0ecc57784a0d`
 - 分支：`main`
-- 已索引文件：994
-- 已索引代码/文本行：197884
-- 已发现符号：2921
+- 已索引文件：995
+- 已索引代码/文本行：197959
+- 已发现符号：2922
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -710,7 +710,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 123 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
@@ -719,7 +719,8 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 34 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 42 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 240 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |

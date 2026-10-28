@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:42:08.683065+00:00",
-  "commit": "392d6e3f40a0cfa331e5fc38324178dbcfbceabc",
+  "generatedAt": "2026-10-28T04:42:52.456663+00:00",
+  "commit": "dcc66f2bca4d45c9d57bbab515ea0ecc57784a0d",
   "branch": "main",
-  "sourceFingerprint": "928b050fee4e2744c3f023130038bd5b9344a6ed288f02f13f820c8427186e5c",
+  "sourceFingerprint": "21c6b9c4aadb88e10430bc6aab63cf43b34eb64263b08a41959e0819b005dfe0",
   "summary": {
-    "files": 994,
-    "lines": 197884,
-    "symbols": 2921
+    "files": 995,
+    "lines": 197959,
+    "symbols": 2922
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13930,6 +13930,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt",
         "line": 19
+      }
+    ],
+    "Live2DSpeechAnchorPlanTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt",
+        "line": 5
       }
     ],
     "Live2DSpeechTimelineTest": [
@@ -31031,8 +31037,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt",
-      "lines": 104,
-      "sha256": "350863b8e7d525b0f824caf78421ea22cb0b61e9f3122d22785c069b903b7feb",
+      "lines": 123,
+      "sha256": "ea6b2a6b028e11d12e334388bcef83b0d32c0efcfba997caf901d6dbc7a033d6",
       "symbols": [
         {
           "name": "Live2DConversationPerformanceTest",
@@ -31129,9 +31135,20 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt",
+      "lines": 42,
+      "sha256": "9fed119034fcab048470212c4a41b29b869087c9d500dc057a3680dada84cf12",
+      "symbols": [
+        {
+          "name": "Live2DSpeechAnchorPlanTest",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt",
-      "lines": 34,
-      "sha256": "2d9eb9f2fb48f391194215f9438eaccdb87cfe1cda7b5be90c2484e102bf3d1d",
+      "lines": 48,
+      "sha256": "d7c0492958c6af2acc6b283ebf33168a0abb307f8f8510d50ad9e4dbca3c81a0",
       "symbols": [
         {
           "name": "Live2DSpeechTimelineTest",
