@@ -2083,7 +2083,7 @@ class ResidentDailyContinuityTest {
             ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
             for ((index, kind) in kinds.withIndex()) {
                 val plan = RoleDayScheduleStore.arrange(app, actor, "旧计划$kind",
-                    "重新考虑$kind", now.minusSeconds(120 + index),
+                    "重新考虑$kind", now.minusSeconds(120L + index),
                     now.minusSeconds(600), activityAction = "publish_moment",
                     activityArgs = JSONObject().put("text", "主活动不能重放$kind"))
                 assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
