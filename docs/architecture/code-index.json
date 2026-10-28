@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:58:21.066807+00:00",
-  "commit": "968f24b923fff5eac0c673a32b3656accc52909f",
+  "generatedAt": "2026-10-28T07:58:52.318238+00:00",
+  "commit": "2cd27b7f7a6017383a9e926b4cede61edf162a05",
   "branch": "main",
-  "sourceFingerprint": "766eca92502b0345b3453971072b0b302403e42a82e3953d9f9260c8fc323c0c",
+  "sourceFingerprint": "c34ce26200c38c92f32c208d4f515c84ea96b4a57f0e2287ec942c65225254af",
   "summary": {
     "files": 1013,
-    "lines": 202658,
-    "symbols": 2947
+    "lines": 202696,
+    "symbols": 2948
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3543,15 +3543,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1148
+        "line": 1186
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1200
+        "line": 1238
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1247
+        "line": 1285
       }
     ],
     "todoId": [
@@ -16124,6 +16124,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 919
+      }
+    ],
+    "invalid": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 964
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -34394,8 +34400,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1271,
-      "sha256": "a53ce8dbf191564833e96485caffbec0842e3453582864cf0b628d83adac2cea",
+      "lines": 1309,
+      "sha256": "e48c67831daf4cc4bbaf1e1b8c99ab9e648e3e7996749b3eb02c1c9dc0795f15",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34414,16 +34420,20 @@
           "line": 919
         },
         {
-          "name": "select",
-          "line": 1148
+          "name": "invalid",
+          "line": 964
         },
         {
           "name": "select",
-          "line": 1200
+          "line": 1186
         },
         {
           "name": "select",
-          "line": 1247
+          "line": 1238
+        },
+        {
+          "name": "select",
+          "line": 1285
         }
       ]
     },
