@@ -14,13 +14,17 @@ internal data class QqPreparedChatPhotos(
     val urls: List<String>,
     val count: Int,
     val failures: Int,
+    val messageIds: List<String> = emptyList(),
 ) {
-    val promptNote: String get() = when {
+    val promptNote: String get() = (when {
         count == 0 -> ""
         urls.isEmpty() -> "用户发来了${count}张图片，但当前无法读取像素；只能理解用户实际提供的文字，不能编造图像内容。"
         failures > 0 -> "本轮用户发来${count}张图片，其中${urls.size}张已附到本次聊天模型请求；其余${failures}张未能读取，请勿声称看见。"
         else -> "本轮用户发来${count}张图片，像素已经准备附加到本次模型请求。请根据可见画面和文字回应，不得臆造未能辨认的小字。"
-    }
+    }) + if (messageIds.isEmpty()) "" else
+        " 若你确实想把其中一张照片留在自己的手机相册，可在同轮 steps 选择 save_photo，" +
+            "args.messageId 必须是对应的真实消息ID：" + messageIds.joinToString("、") +
+            "。需等待真实保存回执；不想保存可跳过。"
 }
 
 internal object QqChatImageModelInput {
@@ -59,15 +63,15 @@ internal object QqChatImageModelInput {
             .filter { it.id in requestedIds && it.sender == LuluChatMessage.Sender.User }
             .distinctBy(LuluChatMessage::id)
             .sortedBy(LuluChatMessage::createdAt)
-            .mapNotNull { decodeQqChatImage(it.content) }
-            .filterNot { it.sticker }
+            .mapNotNull { message -> decodeQqChatImage(message.content)?.let { message.id to it } }
+            .filterNot { it.second.sticker }
             .toList().takeLast(maxPhotos.coerceIn(1, 3))
         if (messages.isEmpty()) return QqPreparedChatPhotos(emptyList(), 0, 0)
 
         val data = mutableListOf<String>()
         var failures = 0
         var failureDetail = ""
-        for (image in messages) {
+        for ((_, image) in messages) {
             try {
                 VisionModelService.prepareChatImageDataUrl(context, image.imageUri)
                     .onSuccess { data += it }
@@ -82,6 +86,6 @@ internal object QqChatImageModelInput {
             }
         }
         recordRead(context, characterId, messages.size, data.size, failureDetail)
-        return QqPreparedChatPhotos(data, messages.size, failures)
+        return QqPreparedChatPhotos(data, messages.size, failures, messages.map { it.first })
     }
 }
