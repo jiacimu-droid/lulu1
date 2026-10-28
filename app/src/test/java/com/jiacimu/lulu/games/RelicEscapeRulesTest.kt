@@ -96,7 +96,7 @@ class RelicEscapeRulesTest {
     }
 
     @Test fun traverseOpenFightAndExtractCarriesConcreteItem() {
-        var s=RelicEscapeWorld.create(915,2,emptyList(),2,2).copy(mobs=emptyList())
+        var s=RelicEscapeWorld.create(915,2,emptyList(),2,2).copy(mobs=emptyList(),sites=emptyList())
         val chest=s.chests.first()
         repeat(100) {
             if(s.hero.x==chest.x && s.hero.y==chest.y)return@repeat
