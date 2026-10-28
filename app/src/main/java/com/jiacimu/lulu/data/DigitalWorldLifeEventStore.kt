@@ -46,6 +46,9 @@ internal object DigitalWorldLifeEventStore {
         // Real little moments of the character's life, not more furniture malfunctions.
         "home_wander", "idle_stretch", "check_own_phone", "digital_sneeze", "chair_stumble",
         "footstep_pause",
+        // Public, short-lived opportunities witnessed only with actual company.
+        "arcade_social_challenge", "cafe_social_choice",
+        "courtyard_social_glimpse", "cloud_social_ripple",
     )
 
     /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
@@ -56,6 +59,20 @@ internal object DigitalWorldLifeEventStore {
      */
     fun isNoticeableLifeMoment(tick: DigitalWorldLifeTick): Boolean =
         tick.kind in setOf("chair_stumble", "digital_sneeze")
+
+    /** These are real, temporary *environment* happenings, not promises that
+     * any character took part. Only expose social opportunities when another
+     * enabled digital person is already co-located in the authoritative map. */
+    internal fun socialOpportunityKinds(location: String, withCompany: Boolean): List<String> {
+        if (!withCompany) return emptyList()
+        return when (location) {
+            DigitalWorldPublicPlaces.GAME_HALL -> listOf("arcade_social_challenge", "arcade_social_challenge")
+            DigitalWorldPublicPlaces.CAFE -> listOf("cafe_social_choice", "cafe_social_choice")
+            DigitalWorldPublicPlaces.COURTYARD -> listOf("courtyard_social_glimpse")
+            DigitalWorldStore.CLOUD_MEADOW -> listOf("cloud_social_ripple")
+            else -> emptyList()
+        }
+    }
 
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
@@ -279,6 +296,9 @@ internal object DigitalWorldLifeEventStore {
         val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
         val anchor = realItems.getOrNull(roll("$locationCode:${now.toEpochMilli()}:anchor", realItems.size.coerceAtLeast(1)))
         val busy = DigitalWorldActivityStateStore.ongoingActivity(characterId) != null
+        val withCompany = DigitalWorldStore.state.value.characterLocations.any { (id, code) ->
+            id != characterId && code == locationCode && DigitalLifeProfileStore.isEnabled(id)
+        }
         val kindOptions = when {
             anchor != null -> homeIncidentKinds(anchor)
             homeOwnerId != null -> listOf(
@@ -309,7 +329,8 @@ internal object DigitalWorldLifeEventStore {
             )
             else -> listOf("floating_specks", "soft_breeze", "gentle_light")
         }
-        val baseKinds = (if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions)
+        val choices = kindOptions + socialOpportunityKinds(locationCode, withCompany)
+        val baseKinds = (if (ambientOnly) choices.filter { it in ambientMoments } else choices)
             .filterNot { busy && it in setOf("home_wander", "chair_stumble", "footstep_pause", "idle_stretch", "check_own_phone") }
         val availableKinds = baseKinds.filter { kind ->
             val exactKey = DigitalWorldEventRules.noveltyKey(kind, locationCode, anchor?.id.orEmpty())
@@ -429,6 +450,10 @@ internal object DigitalWorldLifeEventStore {
         "digital_sneeze" -> "打喷嚏"
         "chair_stumble" -> "碰到家具"
         "footstep_pause" -> "停下来发呆"
+        "arcade_social_challenge" -> "游戏厅挑战提示"
+        "cafe_social_choice" -> "咖啡角菜单话题"
+        "courtyard_social_glimpse" -> "庭院双向光影"
+        "cloud_social_ripple" -> "云面不同触感的波纹"
         "gentle_light" -> "柔和光影"
         "soft_breeze" -> "轻柔气流"
         "home_color_drift" -> "缓慢流动的色泽"
@@ -519,6 +544,10 @@ internal object DigitalWorldLifeEventStore {
         "digital_sneeze" -> "${actorName}忽然打了个喷嚏，揉揉鼻尖，有点意外；这只是数字身体的体感反应，并不代表生病。"
         "chair_stumble" -> "${actorName}在家中走动时不小心被“$anchorName”绊了一下，身体踉跄了一步后站稳；“$anchorName”没有被移动或损坏。"
         "footstep_pause" -> "${actorName}在房间里走了一小段路，忽然停下来想了想下一步做什么，又慢悠悠地转了个方向。"
+        "arcade_social_challenge" -> "游戏厅原有的挑战条幅忽然亮起一句「要不要试一局记忆配对？」的邀请提示，停留片刻后熄灭。这只是现场公开的邀请，不代表已有参赛者、胜负或自动组队。"
+        "cafe_social_choice" -> "咖啡角原有的菜单提示区短暂出现一句「此刻最想推荐哪杯饮品？」的闲聊问句，片刻后回到原来菜单。现场没有因此自动点单、投票或制作新饮品。"
+        "courtyard_social_glimpse" -> "庭院地面两侧各浮起一片不同色调的光影，形成短暂的左右对照，像是给路过的人出了个轻松的选择题；它们只是投影，没有生成新道路。"
+        "cloud_social_ripple" -> "云眠原脚下先后浮起两道触感不同的短暂云纹，一道轻柔、一道人走过会稍稍下沉。云纹很快平息，没让任何人自动参与游戏。"
         "gentle_light" -> "柔和的光落在“$anchorName”边缘，映出一小片明亮的纹理，很快又恢复平常。"
         "soft_breeze" -> "一阵轻柔气流掠过“$anchorName”附近，带来短暂的清凉感，随后散去。"
         "home_color_drift" -> "“$anchorName”表面的颜色随数字环境缓慢偏移了一小段，又自然回到原来的色调。"
