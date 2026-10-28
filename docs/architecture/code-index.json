@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:11:13.396258+00:00",
-  "commit": "0561f6e3a98db830ac485ab7f8b3a2c15505a5cc",
+  "generatedAt": "2026-10-28T08:12:39.716563+00:00",
+  "commit": "84728236a48b634ef5174f65f1c254160efeca7c",
   "branch": "main",
-  "sourceFingerprint": "7db7a55f75c34ab235438408f996eced57fbec02691e2d896ea30f488c2f4a6e",
+  "sourceFingerprint": "f11028cb69be882bfd9d88348d660bec49b0ce6fe92395e4052486b93bcacde9",
   "summary": {
     "files": 1013,
-    "lines": 202874,
+    "lines": 202920,
     "symbols": 2948
   },
   "symbolIndex": {
@@ -789,7 +789,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 65
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -5559,7 +5559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 184
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -7743,7 +7743,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 161
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -7883,19 +7883,19 @@
     "isAmbientMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 52
+        "line": 55
       }
     ],
     "isNoticeableLifeMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 57
+        "line": 60
       }
     ],
     "tick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 74
+        "line": 91
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
@@ -7909,25 +7909,25 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 143
+        "line": 160
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 193
+        "line": 210
       }
     ],
     "canHandle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 207
+        "line": 224
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 215
+        "line": 232
       }
     ],
     "witnessed": [
@@ -24135,48 +24135,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 686,
-      "sha256": "9a13f4f0948eafa491709d20f19cbc7cec56d14dd6cd05d81258fa3059de10ee",
+      "lines": 715,
+      "sha256": "3cb52ba885d6960d83431246fdb7da54749315f40e62e5123e9e52f9f4e8bc62",
       "symbols": [
         {
           "name": "isAmbientMoment",
-          "line": 52
+          "line": 55
         },
         {
           "name": "isNoticeableLifeMoment",
-          "line": 57
+          "line": 60
         },
         {
           "name": "initialize",
-          "line": 65
+          "line": 82
         },
         {
           "name": "tick",
-          "line": 74
+          "line": 91
         },
         {
           "name": "recordWitness",
-          "line": 143
+          "line": 160
         },
         {
           "name": "contextFor",
-          "line": 161
+          "line": 178
         },
         {
           "name": "clearCharacter",
-          "line": 184
+          "line": 201
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 193
+          "line": 210
         },
         {
           "name": "canHandle",
-          "line": 207
+          "line": 224
         },
         {
           "name": "handle",
-          "line": 215
+          "line": 232
         }
       ]
     },
@@ -32146,8 +32146,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt",
-      "lines": 102,
-      "sha256": "42dfd4dfe0cbba36a726e505d059800c7376fd9afefdb8ad9fdd8c6c9b35957d",
+      "lines": 119,
+      "sha256": "95d0ea9054c2fc717997b0b365ee97cb0413caf21273dc6f410b0d5c93333861",
       "symbols": [
         {
           "name": "AutonomousEncounterPrivacyTest",
