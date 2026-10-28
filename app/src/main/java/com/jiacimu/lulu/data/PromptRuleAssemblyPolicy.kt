@@ -12,6 +12,7 @@ internal object PromptRuleAssemblyPolicy {
 
     fun assemble(rules: List<Rule>): String {
         val seen = linkedMapOf<String, String>()
+        val emittedBodies = linkedSetOf<String>()
         for (rule in rules) {
             require(rule.id.isNotBlank()) { "A static prompt rule must have an ID" }
             val body = rule.text.trim()
@@ -19,12 +20,16 @@ internal object PromptRuleAssemblyPolicy {
             val existing = seen[rule.id]
             if (existing == null) {
                 seen[rule.id] = body
+                // Two independently named static modules can have the exact
+                // same authored text. Count the first occurrence once, but
+                // never perform fuzzy merging of different instructions.
+                emittedBodies += body
             } else {
                 // Conflicting versions are a developer error, not a reason to
                 // silently discard one potentially important instruction.
                 require(existing == body) { "Conflicting prompt rule ID: ${rule.id}" }
             }
         }
-        return seen.values.joinToString("\n\n")
+        return emittedBodies.joinToString("\n\n")
     }
 }
