@@ -69,4 +69,5 @@
 - 新的**首轮收到响应且确有结构违例**场景：在原居民决策 prefs 中先持久保存原始模型文本、具体错误与 `repair_requesting`，再最多向同一角色、同一已选模型发起一次有界补正。补正成功后先持久保存本人真实选择，再进入原 `RoleDayScheduleStore` / `ToolRouter` / `OrderedCharacterActions`；不替角色选择取消、默认时间或社交动作。正常有效决定不增加调用。
 - 若首轮网络结果未知、补正请求中断/失败、补正仍不合约，保留 `uncertain` 或 `invalid_output` 和原始材料，不在重启后重复购买；旧版本已保存的选择沿原 requestId 回放，不因新增校验再次收费。保留各角色原有权限、独立 steps 回执与幂等。
 - 补充到点无效→本人修正→独立动态恰好一次、连续两次无效不执行/不第三次请求、每日规划无效地点→本人修正的 MockWebServer 回归。另修复该测试类长期注册居民达到世界 12 人上限造成的 CI 测试污染：Robolectric 每个用例只隔离测试居民列表并在结束后恢复原快照，不放宽正式世界上限。
-- **仍未完成**：网络确定失败与结果未知的细分/可恢复预算、补正中断后的显式人工恢复入口、主动作已改期/取消/完成后副动作中断的独立恢复，以及等待条件变化提前复议。需后续专门测试。这里的代码提交不等于 CI、APK 或真机已通过。
+- **验证结果（2026-10-28）**：功能提交 `4e963d701e1f37a5f05b8f61e557b5f72fcd1d11`，GitHub Actions [Lulu APK #40629868825](https://github.com/jiacimu-droid/lulu1/actions/runs/40629868825) 完整成功（Live2D 打包、Android JVM 单测、phone APK、字节码检查、正式发布）；[代码索引 #40629868798](https://github.com/jiacimu-droid/lulu1/actions/runs/40629868798) 成功并生成索引提交 `51a2fda552655e359bb0ed04813893b26938ac90`。已发布 [Lulu v6079 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6079/Lulu-arm64.apk)，**真机未验收**。此前 `225c4d1` 的 CI #40628478408 因 Robolectric 测试类居民上限污染失败，已在本提交修复并由本轮完整 CI 通过验证。
+- **仍未完成**：网络确定失败与结果未知的细分/可恢复预算、补正中断后的显式人工恢复入口、主动作已改期/取消/完成后副动作中断的独立恢复，以及等待条件变化提前复议。需后续专门测试。
