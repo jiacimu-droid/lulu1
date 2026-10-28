@@ -39,7 +39,8 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 WorldLifeEpisodeComposer.compose(role, location, source.content,
                     inputData.getString("title").orEmpty(), inputData.getString("seed").orEmpty(),
                     witnessedItems = inputData.getString("items").orEmpty(),
-                    verifiedEvents = verified, category = category)
+                    verifiedEvents = verified, category = category,
+                    experiencedContext = decodeExperiencedContext(inputData.getByteArray("experiencedContextGzip")))
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -90,21 +91,45 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
     companion object {
         private val writers = KeyedWorkMutex()
 
+        internal fun encodeExperiencedContext(text: String): ByteArray =
+            java.io.ByteArrayOutputStream().use { buffer ->
+                java.util.zip.GZIPOutputStream(buffer).use { it.write(text.toByteArray(Charsets.UTF_8)) }
+                buffer.toByteArray()
+            }
+
+        internal fun decodeExperiencedContext(bytes: ByteArray?): String =
+            if (bytes == null) "" else runCatching {
+                java.util.zip.GZIPInputStream(bytes.inputStream()).bufferedReader(Charsets.UTF_8).use { it.readText() }
+            }.getOrDefault("")
+
         internal fun enqueue(context: Context, characterId: String, location: String,
             evidenceId: String, title: String, seed: String,
             sourceEvidenceIds: List<String> = listOf(evidenceId), category: String = "outing") {
             val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).firstOrNull() ?: return
             val items = DigitalWorldStore.itemsAtLocation(characterId).take(9)
                 .joinToString("；") { "${it.name}（${it.position.take(65)}）" }.take(900)
+            val snapshot = encodeExperiencedContext(WorldLifeEpisodeComposer.captureExperiencedContext(characterId))
+            val payload = Data.Builder().putString("characterId", characterId)
+                .putString("location", location).putString("evidenceId", evidenceId)
+                .putLong("revision", source.revision).putString("items", items)
+                .putStringArray("sourceEvidenceIds", (listOf(evidenceId) + sourceEvidenceIds)
+                    .distinct().take(16).toTypedArray()).putString("category", category)
+                .putString("title", title.take(70)).putString("seed", seed.take(500))
+            // WorkManager Data has a platform 10KB serialized limit. Preserve
+            // the factual task if its optional snapshot cannot fit; the writer
+            // explicitly treats missing historical psychology as unknown.
+            val factsOnly = payload.build()
+            val input = runCatching { payload.putByteArray("experiencedContextGzip", snapshot).build() }
+                .getOrElse {
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "生活小剧场", title = "心理快照超出任务载荷",
+                        message = "原始事件任务保留；当时心理不作补造")
+                    factsOnly
+                }
             val request = OneTimeWorkRequestBuilder<WorldLifeEpisodeWorker>()
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 2, TimeUnit.MINUTES)
-                .setInputData(Data.Builder().putString("characterId", characterId)
-                    .putString("location", location).putString("evidenceId", evidenceId)
-                    .putLong("revision", source.revision).putString("items", items)
-                    .putStringArray("sourceEvidenceIds", (listOf(evidenceId) + sourceEvidenceIds)
-                        .distinct().take(16).toTypedArray()).putString("category", category)
-                    .putString("title", title.take(70)).putString("seed", seed.take(500)).build())
+                .setInputData(input)
                 .build()
             WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
                 "lulu-world-prose-$characterId-$evidenceId", ExistingWorkPolicy.KEEP, request)

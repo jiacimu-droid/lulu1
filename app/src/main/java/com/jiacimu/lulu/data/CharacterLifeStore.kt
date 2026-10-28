@@ -975,7 +975,9 @@ object CharacterLifeStore {
                 }
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
-            CharacterIntentionContinuation.cue(root.optJSONObject("intention"))?.let(::appendLine)
+            CharacterIntentionContinuation.cue(root.optJSONObject("intention")
+                ?.takeUnless { goal -> innerAims.any { aim -> sameCharacterMotive(goal.optString("aim"), aim) } })
+                ?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { prior ->
                 if (prior.optString("releaseReason") == "用户结束这件事")
                     appendLine("用户已结束的愿望：${prior.optString("aim")}，不可擅自重启")
@@ -1011,13 +1013,15 @@ object CharacterLifeStore {
                     if (address.isNotBlank()) appendLine("用户喜爱的日常称呼：$address（并非每句都必须使用）")
                 }
             }
-            afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
-            CharacterIntentionContinuation.cue(root.optJSONObject("intention"))?.let(::appendLine)
-            root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             val innerGoals = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
             val innerAims = (0 until (innerGoals?.length() ?: 0))
                 .mapNotNull { innerGoals?.optJSONObject(it)?.optString("aim")?.trim() }
                 .toSet()
+            afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterIntentionContinuation.cue(root.optJSONObject("intention")
+                ?.takeUnless { goal -> innerAims.any { aim -> sameCharacterMotive(goal.optString("aim"), aim) } })
+                ?.let(::appendLine)
+            root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             root.optJSONObject("intention")
                 ?.takeUnless { intention -> innerAims.any { aim -> sameCharacterMotive(intention.optString("aim"), aim) } }
                 ?.let { intention ->

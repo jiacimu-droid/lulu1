@@ -165,9 +165,11 @@ internal object DigitalWorldResidentInteractionRuntime {
             provisionalSessionId = null
             // Optional psychology cannot turn an already saved conversation into a false failure.
             runCatching {
-                val lastNative = turns.indexOfLast { it.speakerId == "resident:$residentId" }
                 val state = actorJson.optJSONObject("innerLife")
-                CharacterInnerLifeStore.observe(characterId, evidenceIds[lastNative], turns[lastNative].dialogue,
+                // This state was authored BEFORE the native answered. Its source
+                // is the actor's own turn, never the as-yet unheard response.
+                val actorIndex = turns.indexOfFirst { it.speakerId == characterId }
+                CharacterInnerLifeStore.observe(characterId, evidenceIds[actorIndex], turns[actorIndex].dialogue,
                     state, setOf(nativeId), now)
                 // Only the native's OWN reply model is allowed to save their
                 // private emotion, relation appraisal or thoughts.

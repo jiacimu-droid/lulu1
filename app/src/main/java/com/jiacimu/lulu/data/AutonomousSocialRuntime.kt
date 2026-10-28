@@ -129,8 +129,10 @@ internal object AutonomousSocialRuntime {
         }
 
         val generated = generateEncounter(session, participantIds, characters, location, worldTick, now)
-        if (generated.turns.isEmpty()) {
-            DigitalWorldStore.deleteMeeting(session.id)
+        if (generated.turns.isEmpty() && generated.privateReactions.isEmpty()) {
+            // The encounter happened even if no valid model decision arrived.
+            // Keep its evidence; do not turn a request failure into voluntary silence.
+            DigitalWorldStore.endMeeting(session.id, now)
             return@withLock
         }
 
@@ -264,6 +266,8 @@ internal object AutonomousSocialRuntime {
 
         // A literary chapter must see the committed public exchange, not just
         // the summary. Each viewer's evidence IDs belong to that viewer alone.
+        // Silence is a real encounter, but does not require a paid literary chapter.
+        if (generated.turns.isEmpty()) return@withLock
         WorldLifeEpisodeStore.initialize(context)
         val committedSession = DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == session.id } ?: return@withLock
@@ -480,6 +484,8 @@ internal object AutonomousSocialRuntime {
         // by a separate narrator. The outer caller commits the same turns.
         val summary = buildString {
             append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在${location}相遇。")
+            if (turns.isEmpty() && privateReactions.isNotEmpty())
+                append("本次没有公开发言或动作；个人感受由各自保存，不代表彼此知道。")
             turns.forEach { turn ->
                 append("\n${characters.getValue(turn.speakerId).displayName}：")
                 append(turn.segments.joinToString("；") { it.text })

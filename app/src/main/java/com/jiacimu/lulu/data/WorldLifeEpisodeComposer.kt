@@ -137,6 +137,11 @@ internal object WorldLifeEpisodeComposer {
      * A separate literary pass AFTER the executor's receipt owns prose.
      * On model failure do not invent a fake "life goes on" story as a receipt.
      */
+    internal fun captureExperiencedContext(characterId: String): String = buildString {
+        appendLine(CharacterInnerLifeStore.compactContext(characterId).take(1500))
+        appendLine(CharacterLifeStore.compactContext(characterId).take(950))
+    }
+
     suspend fun compose(
         characterId: String,
         location: String,
@@ -146,6 +151,7 @@ internal object WorldLifeEpisodeComposer {
         witnessedItems: String? = null,
         verifiedEvents: List<SharedTimelineEvent> = emptyList(),
         category: String = "outing",
+        experiencedContext: String = "",
     ): WorldLifeComposeOutcome {
         val character = MigratedDomainStores.characters.get(characterId)
         val locationName = when (location) {
@@ -195,9 +201,8 @@ internal object WorldLifeEpisodeComposer {
                         appendLine("【当前真实地点】$locationName（$location）")
                         appendLine("【现场实际登记的物品】${items.ifBlank { "无可核实的已登记物品" }}")
                         appendLine("【角色】${character.displayName}；尊重他已有的个性、关系经历与语言习惯。")
-                        appendLine("【当前心境与持续意愿（内部体验，不等于客观动作）】")
-                        appendLine(CharacterInnerLifeStore.compactContext(characterId, now).take(1_500))
-                        appendLine(CharacterLifeStore.compactContext(characterId).take(950))
+                        appendLine("【排程时保存的个人心境与意愿｜不可用补写时的新情绪替代过去】")
+                        appendLine(experiencedContext.ifBlank { "旧任务未保存当时心理；只依据原始事件，不推断当时内心。" })
                         if (suppliedTitle.isNotBlank() || suppliedScene.isNotBlank()) {
                             appendLine("【角色决策阶段的私人创作线索，未经执行；不是新事实】")
                             appendLine("题材倾向：${suppliedTitle.take(70)}；戏剧种子：${suppliedScene.take(240)}")
@@ -263,7 +268,7 @@ internal object WorldLifeEpisodeComposer {
                         appendLine("真实地点：$locationName（$location）")
                         appendLine("已登记现场物件：${items.ifBlank { "无" }}")
                         appendLine("角色：${character.displayName}")
-                        appendLine("角色已有内在状态：${CharacterInnerLifeStore.compactContext(characterId, Instant.now()).take(900)}")
+                        appendLine("排程时的内在状态：${experiencedContext.ifBlank { "当时心理未知，不用当前心理补造" }}")
                         appendLine("上次核实的行动：${prior?.actualAction?.take(140).orEmpty()}；不要复演")
                         appendLine("私人情节种子（不是事实）：${suppliedScene.take(160)}")
                     },
