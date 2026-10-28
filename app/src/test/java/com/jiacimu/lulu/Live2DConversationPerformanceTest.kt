@@ -88,6 +88,25 @@ class Live2DConversationPerformanceTest {
         assertSame(authored, Live2DConversationPerformance.expand(authored))
     }
 
+    @Test fun modelChoosesDifferentVisibleMovementsAtDifferentSpokenPhrases() {
+        val choice = JSONObject().put("beats", org.json.JSONArray()
+            .put(JSONObject().put("anchor", "你回来啦")
+                .put("performance", JSONObject().put("feeling", "happy")
+                    .put("movement", "lean").put("intensity", .4)))
+            .put(JSONObject().put("anchor", "不过我没有")
+                .put("performance", JSONObject().put("feeling", "playful")
+                    .put("movement", "glance").put("intensity", .3))))
+        val expanded = Live2DConversationPerformance.expand(choice)
+        assertFalse(choice.getJSONArray("beats").getJSONObject(0).has("head"),
+            "the source decision must not be rewritten")
+        val beats = expanded.getJSONArray("beats")
+        assertEquals(6, beats.length())
+        assertEquals("你回来啦", beats.getJSONObject(0).getString("anchor"))
+        assertEquals("不过我没有", beats.getJSONObject(3).getString("anchor"))
+        assertTrue(beats.getJSONObject(1).getJSONObject("face").getDouble("smile") > 0)
+        assertTrue(beats.getJSONObject(4).getJSONObject("face").getDouble("gazeX") > 0)
+    }
+
     @Test fun omittedInvalidOrZeroIntentionDoesNotManufactureAHappyFace() {
         for (request in listOf(JSONObject(), plan("unknown", "dance"), plan("amused", "tilt", 0.0),
             plan("smile", strength = -1.0))) {
