@@ -10,6 +10,18 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun compiledAutonomousPromptKeepsUniqueActionContractsAfterRuleConsolidation() {
+        val prompt = proactiveDecisionInstruction("prompt-assembly-test-role")
+        for (field in listOf(
+            "web_search", "read_xiaohongshu", "image_search", "learn_topic",
+            "experienceId", "innerThoughtBasis", "innerLife", "motiveRef",
+            "outcomeEvidenceId", "concernId", "send_character_message",
+            "plan_personal_activity", "requiresPreviousSuccess",
+        )) assertTrue("Missing contract: $field", prompt.contains(field))
+        val causal = CharacterDecisionProtocol.runtimePrinciples.trim()
+        assertEquals(prompt.indexOf(causal), prompt.lastIndexOf(causal))
+    }
+
     @Test fun autonomousChoiceKeepsUnansweredOwnerActivityUncertainAndOffersRealConsentTools() {
         val independent = proactiveDecisionInstruction("uncertainty-test-role")
         val privateChat = proactiveDecisionInstruction("uncertainty-test-role", directPrivateChat = true)
