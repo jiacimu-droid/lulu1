@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`321ec144973c42aacffafb09e961bcece92678fe`
+- 基准提交：`deaaa4c696f5125dd771a9fe5c0161a6b5554e7a`
 - 分支：`main`
-- 已索引文件：997
-- 已索引代码/文本行：198389
-- 已发现符号：2927
+- 已索引文件：998
+- 已索引代码/文本行：198523
+- 已发现符号：2931
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 119 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 321 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 340 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
@@ -213,7 +213,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 525 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 309 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 312 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
@@ -225,7 +225,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1083 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1091 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
@@ -275,7 +275,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 116 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 82 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 123 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 375 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 164 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
@@ -485,7 +485,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 156 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2853 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2854 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1025 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
@@ -768,6 +768,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 97 | 1 |
