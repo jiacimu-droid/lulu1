@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d19caf790d4d9bde0b98fb5fb5fbf52a1a8974e2`
+- 基准提交：`baa2cb3a8d977be3da79e401b5a5ebe81dd8b5f9`
 - 分支：`main`
 - 已索引文件：1020
-- 已索引代码/文本行：204380
+- 已索引代码/文本行：204406
 - 已发现符号：2975
 
 | 文件 | 行数 | 符号数 |
@@ -423,7 +423,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 297 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 363 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 780 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 785 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 61 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt` | 40 | 2 |
@@ -800,7 +800,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 74 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt` | 138 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt` | 159 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 332 | 1 |

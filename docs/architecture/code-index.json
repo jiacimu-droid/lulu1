@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:08:57.507793+00:00",
-  "commit": "d19caf790d4d9bde0b98fb5fb5fbf52a1a8974e2",
+  "generatedAt": "2026-10-28T09:09:37.441160+00:00",
+  "commit": "baa2cb3a8d977be3da79e401b5a5ebe81dd8b5f9",
   "branch": "main",
-  "sourceFingerprint": "4712c45ae85e328ed3b477fda4083d9e89c91bae9918f15c3564640f4a5f7def",
+  "sourceFingerprint": "4f22461bab0e06cb847b7ee5dc4fc87aa0b7d880a3f7e58e5b9f05418815f59c",
   "summary": {
     "files": 1020,
-    "lines": 204380,
+    "lines": 204406,
     "symbols": 2975
   },
   "symbolIndex": {
@@ -5665,7 +5665,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 264
+        "line": 269
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -7849,7 +7849,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 241
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -8015,25 +8015,25 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 223
+        "line": 228
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 273
+        "line": 278
       }
     ],
     "canHandle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 287
+        "line": 292
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 295
+        "line": 300
       }
     ],
     "witnessed": [
@@ -24378,8 +24378,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 780,
-      "sha256": "82c0a286a63d4907501926f806ddfc2339e5c7cf4f78ff1eb2bff7bcc9326703",
+      "lines": 785,
+      "sha256": "f3f718b8a95fbbacb0ceda983298131679ef1841b1e74e709eb3af6988742622",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -24399,27 +24399,27 @@
         },
         {
           "name": "recordWitness",
-          "line": 223
+          "line": 228
         },
         {
           "name": "contextFor",
-          "line": 241
+          "line": 246
         },
         {
           "name": "clearCharacter",
-          "line": 264
+          "line": 269
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 273
+          "line": 278
         },
         {
           "name": "canHandle",
-          "line": 287
+          "line": 292
         },
         {
           "name": "handle",
-          "line": 295
+          "line": 300
         }
       ]
     },
@@ -32419,8 +32419,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt",
-      "lines": 138,
-      "sha256": "419b24bba4bada5b97703c706b947d9f026adb06a328be38469b6d158e5bc324",
+      "lines": 159,
+      "sha256": "f990ab6ffa60902b7fd3b703c93a63f517664288f049d6e6fc2c14f8ad460b73",
       "symbols": [
         {
           "name": "AutonomousEncounterPrivacyTest",
