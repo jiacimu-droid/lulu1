@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:22:06.873798+00:00",
-  "commit": "5b3e40995d48c0d14608e6d673913c49010634ed",
+  "generatedAt": "2026-10-28T09:22:26.400941+00:00",
+  "commit": "f543d066877490f2344b43bb1df6cd9f79349704",
   "branch": "main",
-  "sourceFingerprint": "7f01b65b4c49ecf9c0a6785dd8006d01071ae9ba3651931fe2858646d87e14b1",
+  "sourceFingerprint": "3990264232aa80da3737926a2d9a46a6033c33e5575e2fd010006dbd18f7fc26",
   "summary": {
     "files": 1021,
-    "lines": 204757,
+    "lines": 204776,
     "symbols": 2978
   },
   "symbolIndex": {
@@ -14621,7 +14621,7 @@
     "AutonomousGameOutcomeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "AutonomousLearningRuntimeTest": [
@@ -32467,12 +32467,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt",
-      "lines": 65,
-      "sha256": "7365169ec7111077726e30980c1dd3f09f230b1bf265169ea65f6a881f66145c",
+      "lines": 84,
+      "sha256": "843315f3d8eeea7fd378362eddb9c82e78f32b1840c31233cae75a40c92fb83b",
       "symbols": [
         {
           "name": "AutonomousGameOutcomeTest",
-          "line": 15
+          "line": 17
         }
       ]
     },
