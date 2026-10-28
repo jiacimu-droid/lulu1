@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:59:23.774560+00:00",
-  "commit": "769ec01693c68f6442b4f28aa1c2fee0bd9ea1a7",
+  "generatedAt": "2026-10-28T13:59:53.784316+00:00",
+  "commit": "2213572fbebcefc33a63162300de5fde31dea8a7",
   "branch": "main",
-  "sourceFingerprint": "44c202a0949d27928c099bd9f1207c99af25cf7bde8dfbb42cf6158625da2f66",
+  "sourceFingerprint": "c530efe03d8d4e6597a4780ba547a1e02d8db16489dd65097299a2d150798af7",
   "summary": {
     "files": 1047,
-    "lines": 213431,
+    "lines": 213434,
     "symbols": 3056
   },
   "symbolIndex": {
@@ -27777,7 +27777,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 1555,
-      "sha256": "1c36087941cfaf2b433fc39baef25aa54b4804549a6cc38c6b024892b0ed251b",
+      "sha256": "6cc8c998fc74e89a2709ac0056606a1c7e9575877ae7713036abfd020540c286",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -35556,8 +35556,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1860,
-      "sha256": "24c11e8f929ab4be08c0911377fa9816aab35f0cafb60f484cc3f2b0deb139a6",
+      "lines": 1863,
+      "sha256": "a2f76f024ca50735bb07105ab75456882dad723e2e7955aa0a83b438db05add3",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
