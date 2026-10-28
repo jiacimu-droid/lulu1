@@ -223,6 +223,15 @@ class CharacterCausalTraceTest {
             assertTrue(lines.any { it.title.contains("已排入日程") &&
                 it.detail.contains("原活动没有在此处被证明执行成功") })
             assertFalse(lines.any { it.title.contains("执行器确认成功") })
+            val moved = RoleDayScheduleStore.reschedule(context, a, plan.id,
+                now.plusSeconds(10800), "本人选择晚一点", now, expectedDueAt = plan.dueAt)
+            assertEquals(sourceId, moved.originEvidenceId)
+            assertEquals(1L, moved.originEvidenceRevision)
+            assertTrue(RoleDayScheduleStore.cancel(context, a, plan.id,
+                "本人取消今天的安排", now, expectedDueAt = moved.dueAt))
+            val cancelled = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+                SharedExperienceTimeline.all(a), JSONObject())
+            assertTrue(cancelled.any { it.title.contains("日程已取消") })
             assertFalse(CharacterCausalTrace.inspect(context, b, event(b, "trace-scheduled-daily-b"),
                 SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
                 .any { it.title.contains("已排入日程") })
