@@ -209,7 +209,7 @@ internal object AutonomousSocialRuntime {
                 // executor after the real meeting, never through prose or a
                 // script that decides for them. The queue keeps an actual receipt.
                 val decided = reaction.optJSONObject("appraisal")?.optJSONObject("ownActivity")
-                if (decided?.optString("stage") == "decided") {
+                if (decided != null && decided.optString("stage") == "decided") {
                     val queued = CharacterSelfActivityRuntime.offer(
                         context, id, reaction.optJSONObject("appraisal"), ownEvidence)
                     if (!queued) CharacterInnerLifeStore.recordDecision(
@@ -417,9 +417,11 @@ internal object AutonomousSocialRuntime {
                 connectionOverride = residentModel,
             ).getOrNull()?.text.orEmpty()
             val decision = ModelStructuredOutput.objectOrNull(response) ?: continue
-            if (decision.optJSONObject("innerLife") != null ||
-                decision.optString("innerThought").isNotBlank()) {
+            if (decision.optString("choice") == "quiet") {
+                // A silent observer can privately react to the public scene,
+                // but their decision is not an invented spoken meeting turn.
                 privateReactions[speakerId] = decision
+                continue
             }
             if (decision.optString("choice") != "engage") continue
             // Never trust a generated speakerId: the caller, not a model, owns
@@ -429,6 +431,7 @@ internal object AutonomousSocialRuntime {
                 JSONObject().put("turns", JSONArray().put(owned)).toString(),
                 listOf(speakerId),
             ).turns.firstOrNull() ?: continue
+            privateReactions[speakerId] = decision
             turns.add(turn)
         }
         // The summary is grounded in these very public proposals, not invented
