@@ -20,7 +20,7 @@ const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
   /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
-  Array.from({ length: 34 }, (_, index) => String(index).padStart(2, '0')),
+  Array.from({ length: 40 }, (_, index) => String(index).padStart(2, '0')),
   'wolf motion indices are stable and contiguous across releases')
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
