@@ -641,4 +641,21 @@ assert.ok(Math.abs(bridge.touchReflex.roll) > Math.abs(restingPose.roll) * 1.7,
   'a fresh verified MOVE immediately restores the directional caress')
 assert.equal(bridge.touch(.36, .235, 'stroke-left',
   { phase: 'complete', mode: 'hand', force: .9 }).gesture, 'stroke-left')
+// Lifting a stationary finger must not replay the original full-amplitude
+// swipe. The release pose keeps its last real movement timestamp.
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand', force: .9 })
+stageTime += 100
+bridge.touch(.34, .235, 'stroke-left', { phase: 'move', mode: 'hand', force: .9 })
+stageTime += 2500
+bridge.tickTactileContact(stageTime)
+const beforeStillRelease = bridge.touchReflex.roll
+const stillRelease = bridge.touch(.34, .235, 'stroke-left',
+  { phase: 'complete', mode: 'hand', force: .9 })
+assert.equal(stillRelease.gesture, 'stroke-left')
+assert.ok(Math.abs(bridge.touchReflex.roll) <= Math.abs(beforeStillRelease) * 1.02,
+  'release after a long stationary hold cannot jerk the head back to full tilt')
+stageTime += 100
+bridge.tickTactileContact(stageTime)
+assert.ok(Math.abs(bridge.touchReflex.roll) <= Math.abs(beforeStillRelease) * 1.02,
+  'the release tail must preserve the relaxed neck angle')
 console.log(`Live2D precise calibration, progression, layered release and ${cases} contact cases passed`)

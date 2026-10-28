@@ -1330,18 +1330,23 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const contactStart = isImpact(kind) && completed ? now
     : starting || !tactileContact ? now : tactileContact.start
   const previousPoint = tactileContact?.lastPoint
-  const physicallyMoved = options.phase === 'move' && !starting &&
-    options.mode === 'hand' && previousPoint &&
-    Math.hypot(x - previousPoint.x, y - previousPoint.y) >= .5
+  const physicallyMoved = !starting && options.mode === 'hand' &&
+    (options.phase === 'move' || options.phase === 'complete') &&
+    previousPoint && Math.hypot(x - previousPoint.x, y - previousPoint.y) >= .5
   const lastMovementAt = physicallyMoved || starting || !tactileContact
-    ? now : tactileContact.lastMovementAt
-  tactileContact = { region, kind, ordinal: touchSequence, state,
+    ? now : tactileContact.lastMovementAt ?? tactileContact.start
+  // The release must inherit the same settled pose as the held finger.
+  // Otherwise lifting after a long pause snaps the neck back to a full
+  // directional stroke for another second even though nothing moved.
+  const visualState = completed && options.mode === 'hand'
+    ? { ...state, motionIdleMs: Math.max(0, now - lastMovementAt) } : state
+  tactileContact = { region, kind, ordinal: touchSequence, state: visualState,
     start: contactStart, pressed: !completed, downPoint,
     lastPoint: { x, y }, lastMovementAt }
   const baseTouch = !completed && isImpact(kind) ? null :
-    touchReflexFor(region, kind, touchSequence, state)
+    touchReflexFor(region, kind, touchSequence, visualState)
   touchReflex = wolfRigActive && baseTouch
-    ? enhanceWolfTouch(baseTouch, region, kind, state, 0) : baseTouch
+    ? enhanceWolfTouch(baseTouch, region, kind, visualState, 0) : baseTouch
   touchReflexEndAt = now + (isImpact(kind) ? 2350 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time
