@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:20:56.409682+00:00",
-  "commit": "2ca3d1811bb5ad4a82d5d162bf789872de1f9c9a",
+  "generatedAt": "2026-10-28T09:21:47.108280+00:00",
+  "commit": "31269b2c280a0516e7ea0308f07f7ca52e1c70bf",
   "branch": "main",
-  "sourceFingerprint": "b37cbb531cdf4ae898f1713ddab7b73ae921b19be324f354d88a874c95106669",
+  "sourceFingerprint": "646a76ba66d604198f230800c00a799d171fac9cca9ac7c8cdd4b76fccf90e73",
   "summary": {
     "files": 1021,
     "lines": 204757,
@@ -21276,7 +21276,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 942,
-      "sha256": "3dce6e78506247197b26c8f165570f42cf7d970b63c5e5bc9e8ac6aaa42c4171",
+      "sha256": "6acd252c5b66ecf1c963e84a6fa0ac66fc6344fd7e94375b5763a97aa4c872e0",
       "symbols": []
     },
     {
@@ -21687,7 +21687,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 199,
-      "sha256": "4780f0639055906a79e102b48816c55b70a5b393487c6ebffa5e2fe14e83786e",
+      "sha256": "abd4ff03d4a3a313d0793b8662c5b7be0b9a83b5c3767725adf77cf72e602b83",
       "symbols": [
         {
           "name": "expressionContext",
@@ -23579,7 +23579,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1548,
-      "sha256": "fc9f091a1a153fbe24494ce22fa1e36a4f756db11b35dfc437d4d3e1fcd3b0fc",
+      "sha256": "48ecc07f7342ca3947fbc30ebddd3920fd7017d17393fbd6f0ff4418caa22839",
       "symbols": [
         {
           "name": "asJson",
