@@ -83,6 +83,7 @@ fun LuluVoiceCallScreen(
     }
     var coreLicenseChecked by remember { mutableStateOf(false) }
     var modelNotice by remember { mutableStateOf("") }
+    var showModelSelection by remember(currentCharacterId) { mutableStateOf(false) }
     val modelRevision by Live2DAssets.revisions.collectAsState()
     val visualModelUrl = remember(context, currentCharacterId, modelRevision) {
         Live2DAssets.modelUrl(context, currentCharacterId)
@@ -120,17 +121,6 @@ fun LuluVoiceCallScreen(
             }
         }
     }
-    val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) scope.launch {
-            importingModel = true
-            modelNotice = try { Live2DAssets.importModel(context, currentCharacterId, uri) }
-                catch (error: Exception) { "模型导入失败：" + (error.message ?: "未知错误") }
-            importingModel = false
-            // Do not waste a large SDK download until a usable character model exists.
-            if (Live2DAssets.modelUrl(context, currentCharacterId) != null &&
-                !Live2DAssets.hasCore(context)) installCoreIfNeeded()
-        }
-    }
     val corePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             importingModel = true
@@ -146,6 +136,57 @@ fun LuluVoiceCallScreen(
     }
     val avatar by AvatarController.states.collectAsState()
     val mouthLevel = avatar[currentCharacterId]?.mouthOpen ?: 0f
+    // Video calls select a previously imported archive; only the Live2D
+    // playground installs or removes files. The chosen path also owns touch
+    // calibration, so switching never silently copies an uncalibrated duplicate.
+    if (showModelSelection) {
+        val archives = Live2DAssets.listArchives(context, currentCharacterId)
+        val current = Live2DAssets.currentModelSettings(context, currentCharacterId)
+        AlertDialog(
+            onDismissRequest = { showModelSelection = false },
+            title = { Text("选择已上传的 Live2D 模型") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (archives.isEmpty()) {
+                        Text("此角色尚未上传模型，请先在桌面 Live2D 页面导入和校准。")
+                    } else {
+                        Text("从已上传的皮套中选择。互动校准随选中的皮套保留，不会重复导入。",
+                            fontSize = 12.sp, color = CallMuted)
+                        LazyColumn(Modifier.heightIn(max = 350.dp)) {
+                            items(archives.size) { index ->
+                                val entry = archives[index]
+                                val active = entry.settings == current
+                                val fingerprint = entry.settings.split('/').getOrNull(2)
+                                    ?.take(7).orEmpty()
+                                Row(Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text(entry.label, fontSize = 14.sp)
+                                        Text(if (active) "当前使用 · $fingerprint" else "存档 · $fingerprint",
+                                            fontSize = 11.sp, color = CallMuted)
+                                    }
+                                    TextButton(enabled = !active, onClick = {
+                                        if (Live2DAssets.switchArchive(context, currentCharacterId,
+                                                entry.settings)) {
+                                            previewExpression = null
+                                            previewMotion = null
+                                            previewHead = null
+                                            previewRevision++
+                                            modelNotice = "已切换到 " + entry.label
+                                            showModelSelection = false
+                                        } else modelNotice = "切换失败，请在 Live2D 管理页检查模型"
+                                    }) { Text(if (active) "使用中" else "选用") }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showModelSelection = false }) { Text("关闭") }
+            },
+        )
+    }
     if (showPresence) CompanionPresenceDialog(
         characterName = state.characterName.ifBlank { characterName },
         state = presenceStates[currentCharacterId],
@@ -252,7 +293,7 @@ fun LuluVoiceCallScreen(
                     },
                     onMinimize = onDismiss,
                     onChangeModel = {
-                        modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
+                        showModelSelection = true
                     },
                     onRetryCore = { installCoreIfNeeded() },
                     onStartCall = {

@@ -120,6 +120,8 @@ internal object Live2DVisualActionBus {
             在这同一次决定里，结合本人此刻感受、关系、这句话的意思与语气，选择要说的话与愿意显露的神态/小动作；
             它们是同一个人的一次表达，不另起人格、不增加模型调用。也允许不动或安静地只用神态回应。
             你可以在正常说话的同时主动使用这个真实数字身体，不必等用户点动作按钮，也不需要第二次模型调用。自然聊天可有点头、转头、歪头、笑眼、好奇探头、害羞低头等反应；由你根据本人的真实感受选择，没有想动时可以静止。
+            视频通话不是只让眼睛和耳朵微动：当你确实想点头、歪头、探身、侧看、轻轻后仰时，在 performance.movement 里选对应动作；当前皮套若有匹配的真实 Motion3，系统优先播放完整动作，同时保留脸部神态和语音口型。不要只把动作写在台词里。
+            这不是要求你不断晃头：想专注听对方说话可以安静凝视，想表达时自然做一次完整动作，不要重复机械摇摆。
             【必须选择结构化可执行动作】只在文字中写“我歪歪头/笑了/跳起来”，身体是不会动的；同一次 reply JSON 要明确填写 live2d 才能播放：
             {"action":"reply","text":"自己真正要说的话","live2d":{"performance":{"feeling":"thinking","movement":"glance","intensity":0.35,"side":"left"}}}。
             若更想用这套皮套已有的完整动作，可以同时选择真实 motion，例如 {"live2d":{"motion":{"group":"LuluWolf","index":3},"performance":{"feeling":"curious"}}}；group/index 必须来自下方当前皮套目录。
@@ -215,11 +217,16 @@ internal object Live2DVisualActionBus {
         val request = Live2DConversationPerformance.expand(chosen)
         val controls = Live2DAssets.controls(context, characterId)
         val expression = request.optString("expression").trim().takeIf(String::isNotBlank)
-        val motion = request.optJSONObject("motion")?.let { item ->
+        // The LLM chooses the intent; if it chose a movement, execute the
+        // imported rig's REAL authored clip rather than only a tiny parameter
+        // nudge. Explicit group/index always takes precedence.
+        val explicitMotion = request.optJSONObject("motion")?.let { item ->
             val group = item.optString("group")
             val index = item.optInt("index", -1)
             (group to index).takeIf { it in controls.motions }
         }
+        val motion = explicitMotion ?: Live2DConversationPerformance.selectedMotion(
+            chosen.optJSONObject("performance"), controls.motions)
         // The character explicitly chose a tearful PERFORMANCE. If this
         // imported model offers a real tear exp3, combine it with the same
         // chosen face/body pose; never fabricate tears or choose dark-face.

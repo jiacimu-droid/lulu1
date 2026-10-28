@@ -106,6 +106,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     var stagePhase by remember { mutableStateOf("idle") }
     var stageMessage by remember { mutableStateOf("尚未开始动态渲染") }
     var archiveMessage by remember { mutableStateOf("") }
+    var pendingDelete by remember(characterId) { mutableStateOf<Live2DAssets.ArchiveEntry?>(null) }
     // Same framing switch as video calls: waist-up portrait or full body.
     // Switching framing must not recreate the stage (calls rely on that too).
     var framingMode by remember { mutableStateOf("portrait") }
@@ -164,6 +165,29 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         }
     }
 
+    pendingDelete?.let { entry ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text("删除这份 Live2D 皮套？") },
+            text = {
+                Text("即将删除「" + entry.label + "」。这份模型的互动校准也将删除；其他上传版本、校准和角色资料不受影响。")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    archiveMessage = if (Live2DAssets.deleteArchive(context, characterId, entry.settings))
+                        "已删除 " + entry.label else "删除失败，请检查该模型是否仍在使用"
+                    pendingDelete = null
+                    previewMotion = null
+                    previewExpression = null
+                    previewFace = null
+                    motionRevision++
+                }) { Text("确认删除") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) { Text("保留模型") }
+            },
+        )
+    }
     if (confirmOfficialCore) {
         AlertDialog(
             onDismissRequest = { if (!coreBusy) confirmOfficialCore = false },
@@ -480,9 +504,13 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                                 val entry = archives[index]
                                 val isCurrent = entry.settings == currentSettings
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(entry.label + if (isCurrent) "（当前）" else "",
-                                        color = Color.White, fontSize = 12.sp,
-                                        modifier = Modifier.weight(1f))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(entry.label + if (isCurrent) "（当前）" else "",
+                                            color = Color.White, fontSize = 12.sp)
+                                        Text("上传版本 · " + entry.settings.split('/').getOrNull(2)
+                                            .orEmpty().take(7),
+                                            color = Color(0xFFC5D0DE), fontSize = 10.sp)
+                                    }
                                     if (!isCurrent) TextButton(onClick = {
                                         archiveMessage = if (Live2DAssets.switchArchive(
                                                 context, characterId, entry.settings,
@@ -491,10 +519,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                                         if (archiveMessage.startsWith("已切换")) panelExpanded = false
                                     }) { Text("切换", fontSize = 12.sp) }
                                     TextButton(onClick = {
-                                        archiveMessage = if (Live2DAssets.deleteArchive(
-                                                context, characterId, entry.settings,
-                                            )
-                                        ) "已删除 ${entry.label}" else "删除失败"
+                                        pendingDelete = entry
                                     }) { Text("删除", fontSize = 12.sp) }
                                 }
                             }

@@ -119,4 +119,23 @@ class Live2DConversationPerformanceTest {
         assertFalse(note.contains("tilt("))
         assertTrue(Live2DConversationPerformance.capabilityNote(emptySet()).contains("movement：无"))
     }
+
+    @Test fun authoredMovementMapsToActualModelMotionOnlyWhenAvailable() {
+        val available = listOf("LuluWolf" to 0, "LuluWolf" to 1,
+            "LuluWolf" to 2, "LuluWolf" to 3, "LuluWolf" to 8)
+        fun select(movement: String, side: String = "right") =
+            Live2DConversationPerformance.selectedMotion(
+                JSONObject().put("movement",movement).put("side",side),available)
+        assertEquals("LuluWolf" to 0,select("nod"))
+        assertEquals("LuluWolf" to 8,select("shake"))
+        assertEquals("LuluWolf" to 1,select("tilt","left"))
+        assertEquals("LuluWolf" to 2,select("tilt","right"))
+        assertEquals("LuluWolf" to 3,select("lean"))
+        assertNull(select("turn")) // This archive does not ship turn clips.
+        assertNull(select("unknown"))
+        assertNull(Live2DConversationPerformance.selectedMotion(
+            JSONObject().put("movement","nod"),listOf("Other" to 0)))
+        assertNull(Live2DConversationPerformance.selectedMotion(
+            JSONObject().put("feeling","happy"),available)) // No inferred nod.
+    }
 }

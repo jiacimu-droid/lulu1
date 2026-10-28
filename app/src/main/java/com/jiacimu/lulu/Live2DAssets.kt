@@ -384,7 +384,15 @@ internal object Live2DAssets {
     }
 
     fun listArchives(context: Context, characterId: String): List<ArchiveEntry> {
-        return readArchives(context, characterId).filter { entry ->
+        // Older installations sometimes have an active model but no archive
+        // index. Always expose that exact file, including its calibrated URL,
+        // rather than forcing a second import in the video call.
+        val indexed = readArchives(context, characterId)
+        val active = prefs(context).getString("model:$characterId", null)
+        val entries = if (active != null && indexed.none { it.settings == active }) {
+            indexed + ArchiveEntry(active, modelLabel(context, characterId).ifBlank { "已上传模型" })
+        } else indexed
+        return entries.distinctBy { it.settings }.filter { entry ->
             if (!entry.settings.startsWith("models/") || entry.settings.contains("..")) return@filter false
             val file = File(base(context), entry.settings)
             file.isFile && inside(base(context), file)
@@ -419,23 +427,36 @@ internal object Live2DAssets {
         return true
     }
 
+    /** Delete only a verified archive; never remove a sibling or another role's model. */
     fun deleteArchive(context: Context, characterId: String, settings: String): Boolean {
-        val remaining = readArchives(context, characterId).filter { it.settings != settings }
-        val editor = prefs(context).edit().putString("archives:$characterId", archivesJson(remaining))
+        val entries = listArchives(context, characterId)
+        if (entries.none { it.settings == settings }) return false
+        val remaining = entries.filterNot { it.settings == settings }
         val current = prefs(context).getString("model:$characterId", null)
+        val fallback = remaining.firstOrNull()
+        val editor = prefs(context).edit()
+            .putString("archives:$characterId", archivesJson(remaining))
         if (current == settings) {
-            val fallback = remaining.firstOrNull { candidate ->
-                val file = File(base(context), candidate.settings)
-                candidate.settings.startsWith("models/") && file.isFile && inside(base(context), file)
-            }
             if (fallback != null) {
                 editor.putString("model:$characterId", fallback.settings)
                     .putString("label:$characterId", fallback.label)
+                val fallbackFile = File(base(context), fallback.settings)
+                val preview = runCatching { genuinePortrait(fallbackFile) }.getOrNull()
+                    ?.relativeTo(base(context))?.invariantSeparatorsPath
+                if (preview != null) editor.putString("preview:$characterId", preview)
+                else editor.remove("preview:$characterId")
             } else {
-                editor.remove("model:$characterId").remove("label:$characterId").remove("preview:$characterId")
+                editor.remove("model:$characterId").remove("label:$characterId")
+                    .remove("preview:$characterId")
             }
         }
         if (!editor.commit()) return false
+        // The touch zones are indexed by the full model URL. Deleting a
+        // duplicate must never erase the calibration of the retained copy.
+        val oldUrl = "https://appassets.androidplatform.net/private/" +
+            settings.split('/').joinToString("/") { Uri.encode(it) }
+        context.getSharedPreferences("lulu_live2d_touch_zones_v1", Context.MODE_PRIVATE)
+            .edit().remove(oldUrl).apply()
         deleteImportedFolder(context, settings)
         revisionState.value++
         return true
