@@ -10,6 +10,26 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun finalPromptSerializerNeverShowsForeignCharacterExperienceEvenWhenCallerMixedIt() {
+        val now = Instant.now()
+        val a = SharedTimelineEvent("a-observed", "role-a", "数字世界事件",
+            "旁白", "A 亲自见到的真实活动", now,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val b = SharedTimelineEvent("b-secret", "role-b", "私聊",
+            "用户", "只告诉 B 的私密秘密", now,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val aPrompt = CharacterPerceptionContext.render("role-a", listOf(b, a))
+        val bPrompt = CharacterPerceptionContext.render("role-b", listOf(a, b))
+        assertTrue(aPrompt.contains(a.id))
+        assertTrue(aPrompt.contains("A 亲自见到"))
+        assertFalse(aPrompt.contains(b.id))
+        assertFalse(aPrompt.contains("只告诉 B"))
+        assertTrue(bPrompt.contains(b.id))
+        assertFalse(bPrompt.contains(a.id))
+        assertEquals("", CharacterPerceptionContext.render("", listOf(a)))
+        assertEquals("", CharacterPerceptionContext.render("unknown-role", listOf(a, b)))
+    }
+
     @Test fun directOnlyForeignEvidenceNeverEntersAnotherCharactersThoughtOrSeenLedger() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(app)
@@ -231,7 +251,7 @@ class CharacterPerceptionContextTest {
         val observed = CharacterPerceptionContext.stimulus(search).description
         assertTrue(observed.contains("https://example.org/actual-result"))
         assertTrue(observed.length > 700)
-        assertTrue(CharacterPerceptionContext.render(listOf(search)).contains("原始URL="))
+        assertTrue(CharacterPerceptionContext.render("role", listOf(search)).contains("原始URL="))
         assertTrue(CharacterPerceptionContext.stimulus(failed).description.contains("搜索来源与摘要"))
         assertNull(CharacterPerceptionContext.personalOutcome("message", search.content))
     }
@@ -273,7 +293,7 @@ class CharacterPerceptionContextTest {
             note.toString(), now, source = "xiaohongshu-mcp",
             evidenceKind = EventEvidenceKind.Observation)
         assertTrue(CharacterPerceptionContext.stimulus(observed).description.contains("真正加载的玩家评论"))
-        assertTrue(CharacterPerceptionContext.render(listOf(observed)).contains("真实正文"))
+        assertTrue(CharacterPerceptionContext.render("role", listOf(observed)).contains("真实正文"))
         val titleOnly = observed.copy(content = note.put("bodyActuallyLoaded", false).toString())
         assertFalse(CharacterPerceptionContext.stimulus(titleOnly).description.contains("实际正文="))
     }
