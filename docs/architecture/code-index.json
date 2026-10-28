@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:01:34.515119+00:00",
-  "commit": "8fbcf08572a34b6a96ca2a5e5dc01e5d08f649b6",
+  "generatedAt": "2026-10-28T09:02:23.306644+00:00",
+  "commit": "a6bbc003f674ded26504e58b1c2db116ed897e3a",
   "branch": "main",
-  "sourceFingerprint": "6bb8e0623329a5a2a424a9c4b0ed08ecb482df520cc5df1a3379b42e196198fb",
+  "sourceFingerprint": "d224b3ce33dfa2316c805377156b7901040d3a7f767a6d54ac7375f4870f3938",
   "summary": {
     "files": 1020,
-    "lines": 204283,
+    "lines": 204286,
     "symbols": 2975
   },
   "symbolIndex": {
@@ -1799,7 +1799,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1019
+        "line": 1022
       }
     ],
     "part": [
@@ -3555,15 +3555,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1326
+        "line": 1329
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1378
+        "line": 1381
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1425
+        "line": 1428
       }
     ],
     "todoId": [
@@ -16265,13 +16265,13 @@
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1059
+        "line": 1062
       }
     ],
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1104
+        "line": 1107
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -27272,7 +27272,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 1309,
-      "sha256": "ea5f24ea702c00f61eca611e2f24feb7ff219f3f6a0d7d431329aa522362712f",
+      "sha256": "f70f159018fb95d0d6e042d0bcb12b55fd14f8fbcbf031ffbfbfc3f95749a1c1",
       "symbols": [
         {
           "name": "planForApp",
@@ -34688,8 +34688,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1449,
-      "sha256": "ac6a400133664b1d4876f49998eb2763a2570b4478ad4a6563df6a2f8ad9a61e",
+      "lines": 1452,
+      "sha256": "3a1f7d85bbd542f3dc9bc35cd4336d9b18c0516b29d62e07deea1eea703aa556",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34709,27 +34709,27 @@
         },
         {
           "name": "choice",
-          "line": 1019
+          "line": 1022
         },
         {
           "name": "decision",
-          "line": 1059
+          "line": 1062
         },
         {
           "name": "invalid",
-          "line": 1104
+          "line": 1107
         },
         {
           "name": "select",
-          "line": 1326
+          "line": 1329
         },
         {
           "name": "select",
-          "line": 1378
+          "line": 1381
         },
         {
           "name": "select",
-          "line": 1425
+          "line": 1428
         }
       ]
     },
