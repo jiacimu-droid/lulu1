@@ -43,14 +43,26 @@ data class UnifiedMemoryContext(
     // Never trust the incoming lists as already scoped: even if an adapter
     // accidentally supplies a mixed chat/group batch, the final prompt
     // must contain only records owned by the current character.
+    // Existing manually constructed/legacy working contexts can omit a
+    // characterId. Accept them only if EVERY supplied record belongs to the
+    // same one person; if two owners appear, fail closed instead of rendering
+    // the union. Normal gateway calls always specify the expected owner.
+    internal val effectiveOwner: String
+        get() = characterId.takeIf(String::isNotBlank) ?: (
+            memories.map { it.characterId } +
+                coreMemories.map { it.characterId } +
+                sourceEvents.map { it.characterId } +
+                recentEvents.map { it.characterId }
+            ).filter(String::isNotBlank).distinct().singleOrNull().orEmpty()
+
     internal val ownedMemories: List<MemoryEntry>
-        get() = if (characterId.isBlank()) emptyList() else memories.filter { it.characterId == characterId }
+        get() = memories.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
     internal val ownedCoreMemories: List<MemoryEntry>
-        get() = if (characterId.isBlank()) emptyList() else coreMemories.filter { it.characterId == characterId }
+        get() = coreMemories.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
     internal val ownedSourceEvents: List<SharedTimelineEvent>
-        get() = if (characterId.isBlank()) emptyList() else sourceEvents.filter { it.characterId == characterId }
+        get() = sourceEvents.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
     internal val ownedRecentEvents: List<SharedTimelineEvent>
-        get() = if (characterId.isBlank()) emptyList() else recentEvents.filter { it.characterId == characterId }
+        get() = recentEvents.filter { effectiveOwner.isNotBlank() && it.characterId == effectiveOwner }
 
     val coreMemorySection: String get() = CoreMemoryDelivery.render(ownedCoreMemories)
 
