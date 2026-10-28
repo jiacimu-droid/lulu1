@@ -44,6 +44,32 @@ class UserRoutinePatternsTest {
         assertFalse(found.any { "end" in it.sourceIds || "untrusted" in it.sourceIds })
     }
 
+    @Test fun sameTypeOfActivityInTwoCharactersDoesNotCreateAThirdSharedHabit() {
+        val now = Instant.parse("2026-10-28T16:00:00Z")
+        fun observed(role: String, day: Int): SharedTimelineEvent =
+            SharedTimelineEvent(
+                id = "activity-$role-$day", characterId = role, channel = "电话互动",
+                speaker = "实际操作", content = "本角色通话里实际开启睡前语音模式",
+                occurredAt = Instant.parse("2026-10-${20 + day}T12:30:00Z"),
+                sessionId = "call-$role-$day",
+                source = "user-activity:sleep-guidance:start",
+                evidenceKind = EventEvidenceKind.Observation,
+            )
+        val mixed = listOf(observed("xinghe", 0), observed("jiangdu", 1),
+            observed("jiangdu", 2), observed("stranger", 3))
+        // The old code grouped only by source, incorrectly inferring a
+        // four-day shared "user routine" from four separate perspectives.
+        val patterns = UserRoutinePatterns.detect(mixed, now, ZoneId.of("UTC"))
+        assertEquals(1, patterns.size)
+        assertEquals(2, patterns.single().days)
+        assertTrue(patterns.single().sourceIds.all { it.contains("jiangdu") })
+        assertFalse(patterns.any { it.sourceIds.any { id -> id.contains("xinghe") } })
+        val onlyDifferentPeople = listOf(observed("xinghe", 0),
+            observed("jiangdu", 1), observed("stranger", 2))
+        assertTrue(UserRoutinePatterns.detect(
+            onlyDifferentPeople, now, ZoneId.of("UTC")).isEmpty())
+    }
+
     @Test fun habitNeedsThreeIndependentDaysAndCanBeRevokedBySourceDeletion() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
