@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:59:33.463895+00:00",
-  "commit": "5f8eff7f098c9c0f1417fb4103653d5742078322",
+  "generatedAt": "2026-10-28T05:59:54.978218+00:00",
+  "commit": "efcf1c3acfb77dc97f379cd607832fdf26abad4f",
   "branch": "main",
-  "sourceFingerprint": "717278c917be036c78a1483d95cd325116327faee384e4635f8abe15c4b87258",
+  "sourceFingerprint": "f611c03642dba2bf865b58098b438114fb75cabc24f3d36ea11b87487c78d707",
   "summary": {
     "files": 1002,
-    "lines": 199694,
+    "lines": 199751,
     "symbols": 2934
   },
   "symbolIndex": {
@@ -32084,8 +32084,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 219,
-      "sha256": "19fc48d41f563fed2c97e7049f41b7917cd1e0d58970e262f38e3dfcf434422f",
+      "lines": 257,
+      "sha256": "1e2badfeac81acec68cef58afba7816460a33208a1f86f227a92752b744e74f4",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -32401,8 +32401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt",
-      "lines": 58,
-      "sha256": "4b6245f061daba6c508944249bf757749f157cbfc6126de3a768509c666d84d8",
+      "lines": 77,
+      "sha256": "e503a84cae0110b88c3258e0b40ffccb93b97d2e649d85f75ea07812130ed05f",
       "symbols": [
         {
           "name": "CharacterExpressionContinuityTest",
