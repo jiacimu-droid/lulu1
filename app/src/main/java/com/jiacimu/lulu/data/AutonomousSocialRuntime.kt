@@ -50,9 +50,8 @@ internal object AutonomousSocialRuntime {
             }
             .map { it.key }
             .distinct()
-            // Keep a spontaneous encounter small: each role now chooses its OWN
-            // turn with its own model, so pulling in a whole venue is costly.
-            .take(2)
+            // Up to four participants, still only one role decision per person.
+            .take(AutonomousEncounterScript.MAX_PARTICIPANTS - 1)
             .toList()
         if (coLocatedIds.isEmpty()) {
             // Routine walking already has its own one-call narrative. A
@@ -403,18 +402,20 @@ internal object AutonomousSocialRuntime {
         // The third encounter API call is now an isolated creative adviser.
         val sceneIdea = suggestEncounterPossibilities(
             participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
-        val turns = mutableListOf<GeneratedTurn>()
+        val proposals = linkedMapOf<String, List<AutonomousEncounterScript.Beat>>()
         val privateReactions = mutableMapOf<String, JSONObject>()
-        val speakingOrder = participantIds
-        for (speakerId in speakingOrder) {
+        for (speakerId in participantIds) {
             val peers = participantIds.filterNot { it == speakerId }
-            val previous = turns.joinToString("\n") { turn ->
-                val name = characters.getValue(turn.speakerId).displayName
-                name + "：" + turn.segments.joinToString("；") { segment ->
-                    if (segment.type == MeetingSegmentType.DIALOGUE)
-                        "“${segment.text}”" else segment.text
+            val previous = AutonomousEncounterScript.order(participantIds, proposals)
+                .joinToString("\n") { beat ->
+                    val name = characters.getValue(beat.speakerId).displayName
+                    val proposed = beat.turn.optJSONArray("segments") ?: JSONArray()
+                    val lines = (0 until proposed.length()).mapNotNull { index ->
+                        proposed.optJSONObject(index)?.optString("text")?.trim()
+                            ?.takeIf(String::isNotBlank)
+                    }
+                    "阶段${beat.phase} · $name：${lines.joinToString("；")}"
                 }
-            }
             val selectedModel = runCatching { ScopedModelSelections.worldSocialConnection(speakerId) }
             if (selectedModel.isFailure) {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -445,7 +446,7 @@ internal object AutonomousSocialRuntime {
                     appendLine("你本人对对方的主观看法（对方未必知道）：")
                     appendLine(CharacterSocialRelationship.perspectivesFor(speakerId, peers))
                     if (sceneIdea.isNotBlank()) appendLine("【可忽略的创意提议，并非已发生事实】$sceneIdea")
-                    appendLine("本次对话中其他人已经选择的公开话语与动作（仍待正式提交）：")
+                    appendLine("先前在场人物已自己选择的分阶段公开台词与动作草案（尚未提交）：")
                     appendLine(previous.ifBlank { "当前无人说话" })
                     appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
                     appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
@@ -454,7 +455,11 @@ internal object AutonomousSocialRuntime {
                     你是${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
                     自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
                     只返回 JSON：
-                    {"choice":"engage|quiet","reason":"当下真正想做或不做的理由","segments":[{"type":"dialogue|action","text":"只有本人确实说出的话或做出的轻微可见动作","speechText":""}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"实际认识的人ID","greeting":"自己想说的申请语","text":"自己想发送的私信","groupName":"真实群名","memberIds":["已确认的好友ID"],"title":"未来的活动","intent":"个人动机","dueAt":"含时区的ISO8601日期时间","activityAction":"具体执行器"},"requiresPreviousSuccess":false}],"innerThought":"自己未说出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"实际依据"},"social":{"targetId":"当前确实在场的ID","interpretation":"自己的具体初印象或新理解","reason":"自己已经见到或听到的证据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"thoughts":[{"thought":"只属于自己的想法"}],"motives":[{"op":"start","aim":"真正想以后去做的事","why":"这次实际经历的触发原因","reason":"具体依据"}]}}
+                    {"choice":"engage|quiet","reason":"本人为何参与","beats":[{"phase":1,"segments":[{"type":"dialogue|action","text":"开场阶段本人真正愿意说的台词或可见小动作"}]},{"phase":2,"segments":[{"type":"dialogue|action","text":"第二阶段本人想说或做的事"}]}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"已认识对象ID","text":"本人真实想发送的内容"},"requiresPreviousSuccess":false}],"innerThought":"本人未出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"已有依据"},"social":{"targetId":"在场人物ID","interpretation":"个人理解","reason":"已有证据"},"motives":[{"op":"start","aim":"未来想做的事","why":"缘由","reason":"依据"}]}}
+                    这是一场完整的生活戏而不是一句话。你仅调用一次模型，却可以在 beats 中提出阶段1到5的数段自己的公开言语/动作；没有想说的阶段可省略，不能强凑。允许开场、推进、不同看法、转向及余味。
+                    phase 只能是1至5且每个编号最多一次；各段是你自己愿意实施的动作，不是替其他人写剧本。
+                    你看得见前面参与者已经提议的公开阶段台词，可在相同阶段对这些真实台词作回应，也可打趣、婉拒或安静。你并不知道后续尚未选择的人会说什么，不能提前声称他们答应或替他们表态。
+                    未来阶段只写即使他人没有按预想发言也能独立成立的本人行为，不得演出尚未执行的共同活动和结果。
                     choice=quiet 时 segments 为空；若想开口或做动作，choice=engage，reason 不为空。
                     允许说话、小玩笑、观念不同、邀请、婉拒、主动帮忙、关心、紧张和不喜欢；
                     不要求每轮发生大事，更不强制每个人成为朋友。根据真实关系和个人性格自然选择。
@@ -473,30 +478,31 @@ internal object AutonomousSocialRuntime {
                 """.trimIndent(),
                 source = "数字世界·人物独立相遇",
                 title = "${characters.getValue(speakerId).displayName}在$location",
-                maxTokens = 1050,
+                maxTokens = 2100,
                 contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                 connectionOverride = roleModel,
             ).getOrNull()?.text.orEmpty()
             val decision = ModelStructuredOutput.objectOrNull(response) ?: continue
             if (decision.optString("choice") == "quiet") {
-                // A silent observer can privately react to the public scene,
-                // but their decision is not an invented spoken meeting turn.
                 privateReactions[speakerId] = decision
                 continue
             }
-            if (decision.optString("choice") != "engage") continue
-            // Never trust a generated speakerId: the caller, not a model, owns
-            // this turn and the only permitted personal timeline.
-            val owned = JSONObject(decision.toString()).put("speakerId", speakerId)
-            val turn = parseEncounter(
-                JSONObject().put("turns", JSONArray().put(owned)).toString(),
-                listOf(speakerId),
-            ).turns.firstOrNull() ?: continue
+            val verified = AutonomousEncounterScript.approvedBeats(speakerId, decision)
+                .filter { beat ->
+                    parseEncounter(JSONObject().put("turns", JSONArray().put(beat.turn)).toString(),
+                        listOf(speakerId)).turns.isNotEmpty()
+                }
+            if (verified.isEmpty()) continue
+            proposals[speakerId] = verified
             privateReactions[speakerId] = decision
-            turns.add(turn)
         }
-        // The summary is grounded in these very public proposals, not invented
-        // by a separate narrator. The outer caller commits the same turns.
+        // A deterministic stage scheduler can weave a whole scene with no
+        // extra role-model calls. It never invents a spoken line or action.
+        val turns = AutonomousEncounterScript.order(participantIds, proposals)
+            .mapNotNull { beat ->
+                parseEncounter(JSONObject().put("turns", JSONArray().put(beat.turn)).toString(),
+                    listOf(beat.speakerId)).turns.firstOrNull()
+            }
         val summary = buildString {
             append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在${location}相遇。")
             if (turns.isEmpty() && privateReactions.isNotEmpty())
@@ -538,7 +544,8 @@ internal object AutonomousSocialRuntime {
                 根据现有地点、公开关系与已发生的真实事件，提出一到两个可能有趣的交流切入点。
                 可以是不同兴趣的碰撞、轻微误会的解释、自然打趣、分享旧话题、活动邀约。
                 不强制制造冲突、浪漫或高潮；普通的有趣小事同样值得记录。
-                只返回 JSON：{"angle":"一个可选切入角度","options":["一项符合现有事实的互动建议","另一项可选建议"]}。
+                只返回 JSON：{"angle":"一个可选切入角度","options":["一个现有事实支持的机会"],"phases":[{"phase":1,"direction":"开场"},{"phase":2,"direction":"推进"},{"phase":3,"direction":"差异与试探"},{"phase":4,"direction":"转向"},{"phase":5,"direction":"收束"}]}。
+                phases 只是分阶段的公开机会，不是发生结果，不能安排人物台词或强迫人物按剧情行事。
                 不得新建物件、事故、天气、比赛结果，不得替任何人物写台词、替他们接受邀请、
                 设定他们的私人愿望或宣布关系变化。
                 这些只供本人各自决策时参考，不算现场事实，不写入时间线。
@@ -555,7 +562,16 @@ internal object AutonomousSocialRuntime {
         val ideas = (0 until minOf(2, options?.length() ?: 0)).mapNotNull { index ->
             options?.optString(index)?.trim()?.take(130)?.takeIf(String::isNotBlank)
         }
-        return (listOf(angle) + ideas).filter(String::isNotBlank).joinToString("；").take(430)
+        val phases = json.optJSONArray("phases")
+        val stageNotes = (0 until minOf(AutonomousEncounterScript.MAX_PHASES,
+            phases?.length() ?: 0)).mapNotNull { index ->
+            val phase = phases?.optJSONObject(index) ?: return@mapNotNull null
+            val number = phase.optInt("phase")
+            if (number !in 1..AutonomousEncounterScript.MAX_PHASES) return@mapNotNull null
+            "阶段$number：${phase.optString("direction").trim().take(110)}"
+        }
+        return (listOf(angle) + ideas + stageNotes).filter(String::isNotBlank)
+            .joinToString("；").take(1050)
     }
 
     private suspend fun generateSoloIncidentReaction(
