@@ -233,7 +233,7 @@ object LuluAlarmSystem {
                         .put("commitmentTaskId", alarm.commitmentTaskId ?: JSONObject.NULL),
                 )
             }
-            unresolved.forEach(::put)
+            unresolved.forEach { put(it) }
         }
         prefs.edit().putString(KEY_ALARMS, array.toString()).commit().also { check(it) { "闹钟记录未能保存" } }
     }
