@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`848cbb925b6dcd7952a6e0591f263c0c1951680a`
+- 基准提交：`a300c242cfc8971b159ca072d049aa16d299bb3b`
 - 分支：`main`
 - 已索引文件：1039
-- 已索引代码/文本行：211456
+- 已索引代码/文本行：211458
 - 已发现符号：3053
 
 | 文件 | 行数 | 符号数 |
@@ -302,7 +302,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 942 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 125 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 127 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 59 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
