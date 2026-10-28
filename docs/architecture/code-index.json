@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:39:05.697489+00:00",
-  "commit": "7c84802c3779007b5fc9f48b8a825586ac48033b",
+  "generatedAt": "2026-10-28T16:39:33.210274+00:00",
+  "commit": "0dec6ca950702a400e6374f74b2189c7e0c57217",
   "branch": "main",
-  "sourceFingerprint": "7ecd1add1c3fe32f2e29213af79b68df78b340fded3ea3035700c82b367b2bbd",
+  "sourceFingerprint": "370ba70aa38cf99b126f3634a49814cc5c0f8a1b5a05f68991c5fc375b33f37f",
   "summary": {
     "files": 1053,
-    "lines": 214812,
+    "lines": 214843,
     "symbols": 3081
   },
   "symbolIndex": {
@@ -33406,8 +33406,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
-      "lines": 60,
-      "sha256": "3ae0f871fb5da324eaf3f1a35127f18ed540ffa1da9aa6ebb6858dd89f32c03e",
+      "lines": 75,
+      "sha256": "93d9ed074d100151b6684da50b3976ae206686ab2542dfffec109d000eb5c47f",
       "symbols": [
         {
           "name": "PromptInputAuditTest",
@@ -33417,8 +33417,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 131,
-      "sha256": "06a18550528428d7edce6e65cb008627edf5873784f439251152d89b91f208ec",
+      "lines": 147,
+      "sha256": "035e5d06eb7ddd7fe6321c005e8ed0666585ca2f2487ff6fd76326d30d0230f0",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
