@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:27:35.839750+00:00",
-  "commit": "2c4ce19c14c3c04301b64145f85791f152e66656",
+  "generatedAt": "2026-10-28T11:27:59.598572+00:00",
+  "commit": "6d3bac517f3775706ec28ebdb02f8b8c55b7736f",
   "branch": "main",
-  "sourceFingerprint": "c294f29738e4698d942fa2107b297cb4eaa0534ca57d42cdb9586ed1bf844bf5",
+  "sourceFingerprint": "960969de7b2e7611ba0b415eeec38cf88e2b8ec20f4c90b1a0a8b76fbad01f22",
   "summary": {
     "files": 1039,
-    "lines": 210966,
+    "lines": 210991,
     "symbols": 3048
   },
   "symbolIndex": {
@@ -34199,8 +34199,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 330,
-      "sha256": "aff8f8d0f16457be98b328f682d4b7f6127e27ae9c63d1c7542761787e56eb94",
+      "lines": 355,
+      "sha256": "ef7a6b4287ad13adb509b3b2a6cb27ebe7915e4e0bcb8b10816e4de30e48c83c",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
