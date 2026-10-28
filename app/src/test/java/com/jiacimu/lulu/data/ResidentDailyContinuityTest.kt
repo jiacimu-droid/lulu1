@@ -866,10 +866,86 @@ class ResidentDailyContinuityTest {
         JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
             JSONObject().put("content", json)))).toString())
 
+    @Test(timeout = 60_000) fun rejectedLiveAgendaItemsKeepSeparateRoleOwnedReceiptsAcrossReplayAndWithdrawal() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        ResidentSocialMailbox.initialize(app)
+        val at = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "权限变化居民${UUID.randomUUID().toString().take(6)}",
+            identity = "园艺爱好者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = at.minusSeconds(3600)))
+        val other = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "旁观居民${UUID.randomUUID().toString().take(6)}",
+            identity = "图书管理员", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = at.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, at)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val bystander = ResidentCharacterBridge.characterId(other.id)
+        fun row(title: String, tool: String, args: JSONObject) = JSONObject()
+            .put("at", "14:00").put("title", title)
+            .put("intent", "我自己决定要做这件事")
+            .put("activityAction", tool).put("activityArgs", args)
+        // Structurally valid choices, but the live authority now rejects
+        // a stranger and a group this resident never joined. The third
+        // independent agenda item must still be saved.
+        val proposal = JSONObject().put("lunch", "home").put("evening", "courtyard")
+            .put("agenda", JSONArray()
+                .put(row("联系陌生角色", "send_character_message",
+                    JSONObject().put("targetCharacterId", "resident:unknown")
+                        .put("text", "想见面聊聊")))
+                .put(row("在未加入的群里发言", "send_group_message",
+                    JSONObject().put("groupId", "group:unknown")
+                        .put("text", "今天我来啦")))
+                .put(row("记录自己的庭院", "publish_moment",
+                    JSONObject().put("text", "今天庭院里开花了"))))
+        assertNull(ResidentDailyDecision.dayContractError(proposal, at))
+        val saved = ResidentDailyDecision.saveAgenda(app, native, proposal, at)
+        assertEquals(1, saved.size)
+        assertEquals("publish_moment", saved.single().activityAction)
+        val prefix = "native-daily-${native.id}-${ResidentDailyDecision.date(at)}"
+        val ids = listOf("$prefix-agenda-rejected-0", "$prefix-agenda-rejected-1")
+        val rejected = SharedExperienceTimeline.eventsByIds(actor, ids)
+        assertEquals(2, rejected.size)
+        assertTrue(rejected.any { it.content.contains("联系权限") })
+        assertTrue(rejected.any { it.content.contains("群成员") })
+        assertTrue(rejected.all { it.source == "resident-agenda-rejected" &&
+            it.evidenceKind == EventEvidenceKind.Observation &&
+            it.taskId == prefix })
+        assertTrue(SharedExperienceTimeline.eventsByIds(bystander, ids).isEmpty())
+        val revisions = rejected.associate { it.id to it.revision }
+        // Re-enter after process interruption: same item IDs and no
+        // rewritten failure history, even if the same decision is replayed.
+        ResidentDailyDecision.saveAgenda(app, native, proposal, at)
+        assertEquals(revisions, SharedExperienceTimeline.eventsByIds(actor, ids)
+            .associate { it.id to it.revision })
+        assertEquals(1, RoleDayScheduleStore.plans(app, actor).count {
+            it.activityAction == "publish_moment" &&
+                JSONObject(it.activityArgs).optString("text") == "今天庭院里开花了"
+        })
+        SharedExperienceTimeline.deleteEvent(ids[0])
+        ResidentDailyDecision.saveAgenda(app, native, proposal, at)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(ids[0])).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(actor, listOf(ids[1])).size)
+    }
+
     @Test fun nestedResidentChoicesMustBeStructurallyValidBeforeAnySideEffect() {
         val at = java.time.LocalDate.now().atTime(8, 0)
             .atZone(java.time.ZoneId.systemDefault()).toInstant()
         val valid = JSONObject().put("lunch", "home").put("evening", "courtyard")
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("message", "我想约你聊聊"), at)
+            .orEmpty().contains("messageTo"))
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("messageTo", "resident:friend"), at)
+            .orEmpty().contains("message"))
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("post", JSONArray()), at)
+            .orEmpty().contains("post"))
+        assertNull(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("messageTo", "resident:friend")
+                .put("message", "有空聊聊吗"), at))
         val brokenAgenda = JSONObject().put("at", "11:00")
             .put("title", "记下今天的花").put("intent", "想记录生活")
             .put("activityAction", "publish_moment")
