@@ -456,7 +456,7 @@ internal object AutonomousSocialRuntime {
         // The summary is grounded in these very public proposals, not invented
         // by a separate narrator. The outer caller commits the same turns.
         val summary = buildString {
-            append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在$location相遇。")
+            append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在${location}相遇。")
             turns.forEach { turn ->
                 append("\n${characters.getValue(turn.speakerId).displayName}：")
                 append(turn.segments.joinToString("；") { it.text })
