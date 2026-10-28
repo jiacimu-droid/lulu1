@@ -273,9 +273,9 @@ internal object AutonomousSocialRuntime {
         if (generated.turns.isEmpty()) return@withLock
         val committedSession = DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == session.id } ?: return@withLock
-        AutonomousEncounterChapters.composeAndRecord(
-            context = context, meeting = committedSession, characters = characters,
-            locationCode = currentLocation, worldTick = worldTick, at = finishedAt,
+        AutonomousEncounterChapters.enqueue(
+            context = context, meeting = committedSession,
+            locationCode = currentLocation, worldTick = worldTick,
         )
     }
 
