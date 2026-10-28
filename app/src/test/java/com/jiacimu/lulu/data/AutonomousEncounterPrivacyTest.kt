@@ -99,6 +99,27 @@ class AutonomousEncounterPrivacyTest {
     }
 
 
+    @Test fun directedRealIncidentsOnlyAcceptCoLocatedRosterAndKnownKinds() {
+        val people = listOf("a", "b", "c")
+        assertTrue(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, false, "social_stumble", "a", "b"))
+        assertTrue(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, false, "social_frame_crossing", "c", "a"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, false, "social_stumble", "a", "outside"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, false, "social_stumble", "a", "a"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, true, "social_stumble", "a", "b"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            people, false, "invented_car_crash", "a", "b"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            listOf("a"), false, "social_stumble", "a", "b"))
+        assertFalse(DigitalWorldLifeEventStore.allowedSharedSceneMoment(
+            listOf("a", "b", "c", "d", "e"), false,
+            "social_frame_crossing", "a", "b"))
+    }
+
     @Test fun socialWorldOpportunitiesRequireRealCoLocatedPeople() {
         val places = listOf(
             DigitalWorldPublicPlaces.CAFE,
