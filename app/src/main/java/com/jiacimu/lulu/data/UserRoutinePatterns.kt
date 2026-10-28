@@ -103,7 +103,7 @@ internal object UserRoutinePatterns {
             near.forEach {
                 appendLine("- ${it.label}：近45天在${it.days}个不同日期、约${it.timeLabel}出现过；最后一次=${it.latest}。")
             }
-            appendLine("今天是否还会发生并不知道；开启哄睡不等于确认入睡。由你按当前关系、心情与现场自主决定是否想起、提及、询问、行动或安静，不自动安排日程或联系主人。")
+            appendLine("今天是否还会发生并不知道；开启哄睡不等于确认入睡。由你按当前关系、心情与现场自主决定是否想起、提及、询问、行动或安静，不自动安排日程或联系用户。")
         }.trim()
     }
 
@@ -114,7 +114,7 @@ internal object UserRoutinePatterns {
             patterns.take(5).forEach { pattern ->
                 appendLine("- ${pattern.label}：近45天在${pattern.days}个不同自然日、约${pattern.timeLabel}发生；来源ID=${pattern.sourceIds.joinToString(",")}。")
             }
-            appendLine("只可引用输入中真实存在的事件ID；至少三天相近活动才可提议 UserHabit。不能从使用哄睡模式推断主人已经睡着、每天都会如此或要求你主动打电话。")
+            appendLine("只可引用输入中真实存在的事件ID；至少三天相近活动才可提议 UserHabit。不能从使用哄睡模式推断用户已经睡着、每天都会如此或要求你主动打电话。")
         }.trim()
     }
 }
