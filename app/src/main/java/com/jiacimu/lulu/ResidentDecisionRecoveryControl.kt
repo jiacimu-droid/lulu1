@@ -17,6 +17,9 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
     val savedRecovery = remember(nativeId, refresh) {
         ResidentDailyDecision.savedDayRecovery(context, nativeId)
     }
+    val hasPartialActions = remember(nativeId, refresh) {
+        ResidentDailyDecision.hasPartialDayActions(context, nativeId)
+    }
     var confirmingSaved by remember(nativeId) { mutableStateOf(false) }
     var confirming by remember(nativeId) { mutableStateOf(false) }
     var busy by remember(nativeId) { mutableStateOf(false) }
@@ -27,8 +30,10 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
             Text(if (busy) "正在处理" else "重新请求今日规划")
         }
     }
+    if (hasPartialActions) {
+        Text("今日规划有行动未完成，详情见原始时间线", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
     if (savedRecovery != null) {
-        Text("今日规划已有部分行动未完成", color = MaterialTheme.colorScheme.onSurfaceVariant)
         TextButton(onClick = { confirmingSaved = true }, enabled = !busy) {
             Text(if (busy) "正在处理" else "续接今日已保存的行动")
         }
