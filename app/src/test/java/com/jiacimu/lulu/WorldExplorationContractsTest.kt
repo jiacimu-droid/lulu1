@@ -54,6 +54,26 @@ class WorldExplorationContractsTest {
         assertEquals("", MeetingExperienceStore.sceneFor(session).participants.single { it.participantId == "a" }.explorationMode)
     }
 
+    @Test fun deepSeaSonarPicksClosestRemainingAndProvidesSafeReturnRoute() {
+        val map = buildDeepSeaMap()
+        val nearEasternCrystal = WorldVector(1_900f, 670f)
+        val closest = deepSeaClosestEcho(map, nearEasternCrystal, emptySet())!!
+        assertEquals("echo-home", closest.id)
+        assertEquals("echo-city", deepSeaClosestEcho(
+            map, WorldVector(1_520f, 615f), setOf("echo-home"))?.id)
+        assertNull(deepSeaClosestEcho(map, map.gate, map.echoes.map { it.id }.toSet()))
+        val obstacles = map.reefs.map { it.obstacle }
+        val path = worldFollowPath(map.start, map.gate, DEEP_SEA_WORLD_BOUNDS, obstacles, 36f)
+        assertTrue("A player must be able to reach the return gate around reefs", path.isNotEmpty())
+        assertEquals(map.gate, path.last())
+        (listOf(map.start) + path).zipWithNext().forEach { (a, b) ->
+            (0..25).forEach { i ->
+                val at = a.lerp(b, i / 25f)
+                assertTrue(obstacles.none { circleIntersects(at, 36f, it.bounds) })
+            }
+        }
+    }
+
     @Test fun followingRoutesAroundFurnitureAndCannotPassThroughASealedWall() {
         val bounds = WorldRectangle(0f, 0f, 600f, 400f)
         val sofa = WorldObstacle("sofa", WorldRectangle(240f, 100f, 360f, 300f))
