@@ -552,7 +552,7 @@ internal object ResidentDailyDecision {
                 // rejection. A failed primary must not discard independent steps.
                 val receipt = JSONObject(ToolRouter.execute(app, plan.characterId,
                     plan.activityAction, args, requestId = "resident-plan-${plan.id}-${plan.dueAt.epochSecond}",
-                    autonomousLifeTurn = true))
+                    autonomousLifeTurn = true, expectedPlanDueAt = plan.dueAt))
                 receipt.optBoolean("success") &&
                     RoleDayScheduleStore.plans(app, plan.characterId).any {
                         it.id == plan.id && it.status == "completed"
@@ -579,7 +579,8 @@ internal object ResidentDailyDecision {
                 }.isSuccess
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
-                choice.optString("reason"), Instant.now(), retainRunningWake = true)
+                choice.optString("reason"), Instant.now(), retainRunningWake = true,
+                expectedDueAt = plan.dueAt)
             "wait" -> {
                 if (waitReviewAt(choice, now) == null) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -621,7 +622,15 @@ internal object ResidentDailyDecision {
         }
         // Waiting isn't an accomplished activity. Keep its state distinct;
         // failed effects remain visible and eligible for bounded replay.
+        // A newer owner edit supersedes this saved old-version choice. Keep
+        // independent receipts, but do not retry the old appointment forever.
+        val latestSlot = RoleDayScheduleStore.plans(app, plan.characterId)
+            .firstOrNull { it.id == plan.id }
+        val superseded = !originalHandled && (latestSlot == null ||
+            latestSlot.dueAt != plan.dueAt ||
+            latestSlot.status !in setOf("planned", "due"))
         val phase = when {
+            superseded -> "superseded"
             wanted == "wait" && originalHandled -> "waiting"
             wanted == "wait" -> "needs_recovery"
             originalHandled -> "finished"
