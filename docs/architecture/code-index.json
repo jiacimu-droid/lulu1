@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T01:07:43.150630+00:00",
-  "commit": "15367c6fd7454db1dcde2957a9541767be554a10",
+  "generatedAt": "2026-10-28T03:38:44.428110+00:00",
+  "commit": "31ea305a546f6b7cc5537c8a9eec17dac51be449",
   "branch": "main",
-  "sourceFingerprint": "2355af2515d68c0ab199effe079edaeb88752ed9a5a7cce4f9066c6b7995aeb9",
+  "sourceFingerprint": "c84dd0de375b8c5a820aa2012ecdb7c0e39ec18e37f92c70cdcb64d88a9ccd02",
   "summary": {
     "files": 993,
-    "lines": 197005,
-    "symbols": 2915
+    "lines": 197048,
+    "symbols": 2917
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15538,10 +15538,22 @@
         "line": 170
       }
     ],
-    "noteIsAtMostOneLine": [
+    "bedtimeMinuteValuesAreNotMergedOrConvertedToHourClock": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
         "line": 180
+      }
+    ],
+    "multiEventSummaryDoesNotPretendToBeASingleOccurrence": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 199
+      }
+    ],
+    "noteIsAtMostOneLine": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
+        "line": 213
       }
     ],
     "MemoryRecallGatingTest": [
@@ -25448,8 +25460,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
-      "lines": 202,
-      "sha256": "f6aebd173e5effe87cd6d5bbbc926ceb2248d7342040c826432e23dfa8e9809b",
+      "lines": 212,
+      "sha256": "1f91116145c344fdedee1ed566cda84a1ffd1e3a0df0d30a288150f96be5ce35",
       "symbols": [
         {
           "name": "MemoryPatternNotes",
@@ -33414,8 +33426,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt",
-      "lines": 187,
-      "sha256": "80d3074532743cd0089db7835ad6daf5983d7d6fcd24eaa1b0852da3ef49a70f",
+      "lines": 220,
+      "sha256": "6299a2b80439e730da050a9c634ee83dd095daee7f60d714c6455a168ff2c6e0",
       "symbols": [
         {
           "name": "MemoryPatternNotesTest",
@@ -33470,8 +33482,16 @@
           "line": 170
         },
         {
-          "name": "noteIsAtMostOneLine",
+          "name": "bedtimeMinuteValuesAreNotMergedOrConvertedToHourClock",
           "line": 180
+        },
+        {
+          "name": "multiEventSummaryDoesNotPretendToBeASingleOccurrence",
+          "line": 199
+        },
+        {
+          "name": "noteIsAtMostOneLine",
+          "line": 213
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`15367c6fd7454db1dcde2957a9541767be554a10`
+- 基准提交：`31ea305a546f6b7cc5537c8a9eec17dac51be449`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：197005
-- 已发现符号：2915
+- 已索引代码/文本行：197048
+- 已发现符号：2917
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -456,7 +456,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 148 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 202 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 373 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
@@ -897,7 +897,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 152 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 187 | 14 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt` | 59 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt` | 86 | 1 |
