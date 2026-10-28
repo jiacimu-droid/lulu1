@@ -19,6 +19,8 @@ internal object MemoryWorkingSet {
             context.recallUseGuidance.takeIf(String::isNotBlank)?.let { guidance ->
                 add(MemoryPromptCandidate("recall-use-guidance", "回忆与当前对话：", guidance, 900))
             }
+            val episodeHints = NarrativeEvidenceChain.annotations(
+                context.recentEvents + context.sourceEvents)
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
                 val content = event.evidenceContent.trim()
                 // A 1,200-character preview used to hide useful details even
@@ -31,7 +33,7 @@ internal object MemoryWorkingSet {
                         content.takeLast(650)
                 add(MemoryPromptCandidate("${if (recent) "recent" else "event"}:${event.id}",
                     if (recent) RECENT else EVIDENCE,
-                    "- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}] eventId=${event.id}@${event.revision} ${event.speaker}：$shown",
+                    "- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}] eventId=${event.id}@${event.revision} ${event.speaker}${episodeHints[event.id].orEmpty()}：$shown",
                     if (recent) 950 else 800, payload = content, sources = setOf(event.id),
                     originalEvidence = complete))
             }

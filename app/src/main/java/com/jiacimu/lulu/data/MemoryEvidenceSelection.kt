@@ -1,44 +1,25 @@
 package com.jiacimu.lulu.data
 
-import java.time.Duration
-
 internal data class RenderedMemorySection(val text: String = "", val ids: List<String> = emptyList(),
                                          val truncatedIds: List<String> = emptyList())
 
 /** Ranked hits first, then exact adjacent evidence, finally chronological display. */
 internal object MemoryEvidenceSelection {
-    fun expand(seeds: List<SharedTimelineEvent>, live: List<SharedTimelineEvent>, limit: Int = 32): List<SharedTimelineEvent> {
-        if (limit <= 0) return emptyList()
-        val selected = linkedMapOf<String, SharedTimelineEvent>()
-        seeds.take(limit).forEach { selected[it.id] = it }
-        val sessions = live.filter { it.sessionId.isNotBlank() }.groupBy { Triple(it.sessionId, it.characterId, it.channel) }
-        seeds.take(8).forEach { seed ->
-            if (seed.sessionId.isBlank()) return@forEach
-            val events = sessions[Triple(seed.sessionId, seed.characterId, seed.channel)].orEmpty().sortedBy { it.occurredAt }
-            val index = events.indexOfFirst { it.id == seed.id }
-            if (index < 0) return@forEach
-            listOf(index - 1, index + 1).mapNotNull(events::getOrNull).forEach { neighbor ->
-                if (selected.size < limit && neighbor.characterId == seed.characterId &&
-                    neighbor.channel == seed.channel &&
-                    Duration.between(seed.occurredAt, neighbor.occurredAt).abs().seconds <= 900) {
-                    selected.putIfAbsent(neighbor.id, neighbor)
-                }
-            }
-        }
-        return selected.values.toList()
-    }
+    fun expand(seeds: List<SharedTimelineEvent>, live: List<SharedTimelineEvent>, limit: Int = 32): List<SharedTimelineEvent> =
+        NarrativeEvidenceChain.expand(seeds, live, limit)
 
     fun render(events: List<SharedTimelineEvent>, characterBudget: Int): RenderedMemorySection {
         if (characterBudget <= 0) return RenderedMemorySection()
         var remaining = characterBudget
         val kept = mutableListOf<Pair<SharedTimelineEvent, String>>()
         val truncated = mutableListOf<String>()
+        val episodeHints = NarrativeEvidenceChain.annotations(events)
         events.distinctBy { it.id }.forEach { event ->
             // Same UTC-trap as recalled summaries: a raw instant reads 8
             // hours off local time. Render local readable time instead.
             val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
                 .format(event.occurredAt.atZone(java.time.ZoneId.of("Asia/Shanghai")))
-            val prefix = "[$at] [${event.channel}] ${event.speaker}："
+            val prefix = "[$at] [${event.channel}] ${event.speaker}${episodeHints[event.id].orEmpty()}："
             val space = remaining - prefix.length - 1
             if (space < 48) return@forEach
             val content = event.evidenceContent.trim().replace("\n", " ")
