@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3dece686b9e970f7b4bd695e6e0ab2a80aa9679d`
+- 基准提交：`1ec9b88216d44eaceb4a3c80c9d8790691a8cb8c`
 - 分支：`main`
 - 已索引文件：1053
-- 已索引代码/文本行：214538
-- 已发现符号：3079
+- 已索引代码/文本行：214566
+- 已发现符号：3080
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -164,7 +164,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 566 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 32 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt` | 90 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 54 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
@@ -191,7 +191,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 820 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2492 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2495 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -759,7 +759,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 334 | 1 |
