@@ -245,3 +245,13 @@
 - 每日规划确认在取得锁后重新读取实际日期，跨午夜的旧确认失效。较早仍未完成的个人行程继续显示，未知到期请求可在明确确认后按当前事实重新选择执行/改期/取消/等待，绝不自动补发过去计划的消息或动态。已有有效决定依旧走原稳定 requestId 恢复，不借手动恢复重执行。
 - 新增状态/跨角色/陈旧确认/跨午夜单测，以及 MockWebServer 的一次今日手动重试、昨日活动由本人新决定取消、第二次同确认不买请求、旧错误仍可追溯与不补发旧动态的集成回归。Android 单测、APK 与 UI 真机分别验收，未运行成功不能称通过。
 - 本项补齐的是居民每日和到期未知请求的用户显式恢复；所有跨场景状态版本、跨日有效旧决定的复杂副动作恢复和多年数据仍需继续逐项核对。
+
+
+## 2026-10-28 P0-B：原始时间线详情中的只读因果检查（第一段源码已提交，CI/真机待验）
+
+- **实际根因**：已有原始时间线卡片的「查看详情」仅显示一条事件文字和人格影响，CharacterInnerLifeStore 的 decisions/thoughts、ToolRouter 的 causeEvidenceId/requestId/status/result、PerceptionStimulusLedger 的精确已处理检查点虽然分别持久化，却没有在原记录页面连接。用户看到「想分享」「搜索成功」时无法区分本人想法、已选择动作、执行器实际完成、等待授权、执行失败、结果仍待感知、持续目标尚未结案。ToolRouter 的拒绝回执原来还丢失了 causeEvidenceId，导致拒绝无法追到触发它的那条原始输入；已有成功回执只保存来源 ID，来源编辑后可能把旧行动错认成针对新文本。
+- **本轮源码**：新增纯查询 CharacterCausalTrace.inspect，只从同一 characterId 的权威时间线、本人内心历史、工具回执、动机状态及感知 ledger 投影，不保存第二份因果状态、不新增 LLM 或调度。既有 CharacterRememberedThingsScreen 的「原始时间线→查看详情」展示：想法仍保留/已放下、确切关联的决定、工具请求/拒绝/等待/失败/成功、原生执行证据、感知检查点与持续目标当前状态。无记录时明确「未找到」而不是谎称本人没想法或已执行；感知检查点不冒充模型理解/目标完成。回执源事件经 SQLite 本人归属和 revision 再校验，已撤回的行不重现。ToolRouter 新的成功与拒绝回执都记录属主校验后的来源 ID+当时 revision；旧记录不伪造版本，编辑后的来源与旧决定分开说明。
+- **只读保证**：PerceptionStimulusLedger.hasSeen 会迁移旧 hash 并插入精确已读，不能用于纯诊断。新增 peekSeen，只查已有精确行或有效旧迁移标记，不调用 claim、不写已读或改动人物状态；诊断 UI 使用 peekSeen。
+- **回归**：CharacterCausalTraceTest 覆盖 A/B 混合输入仍只显示 A 的想法、决定、回执和感知；执行器真实拒绝仍有来源与版本；编辑来源不能将旧回执当新决定；pending/failed/waiting_user 不当成功；原生事实撤回时依照原时间线撤销依赖回执；PerceptionStimulusLedgerTest 证明诊断不暗中 claim/migrate。新增与修改：CharacterCausalTrace.kt、CharacterRememberedThingsScreen.kt、ToolRouter.kt、PerceptionStimulusLedger.kt 及两份测试。
+- **提交**：387267ab、5669ffba、14a79d04、69fa4f69、14afeedb、cb010ec7、0c9cc34a、3dc738f8、aea23fc9、026b63ee；按仓库已有代码索引 workflow 自动刷新，不能以 workflow 启动代替索引完成。Android JVM、APK、真机结果按最新 main 独立核对。
+- **明确剩余 P0-B**：本轮是原时间线中「有精确来源 ID 的动作/回执」诊断，不声称所有聊天、电话、群聊或居民决定都已提供精确来源；旧记录缺 causeEvidenceId/revision 时不编造关联。后续核查各入口源 ID 传递、非工具的消息真实送达/等待同意/独立回执、搜索结果进入下一轮心理及目标是否达成、跨日数据量下分页查询与性能。不得把「已展示执行器成功」等同「已感知/已理解/目标完成」。
