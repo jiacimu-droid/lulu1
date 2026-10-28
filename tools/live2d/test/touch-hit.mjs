@@ -376,6 +376,7 @@ const bridge = {
   activeExpressionName: null, activeTouchExpression: null,
   activeTouchExpressionUntil: 0,
   clearTouchCompanion: () => {},
+  cancelTactileMotion: () => {},
   tactileExpressionLayer: { start: () => false, retarget: () => {} },
 }
 vm.createContext(bridge)
