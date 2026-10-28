@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:50:46.047962+00:00",
-  "commit": "891879b5eb679ef18e7e5ce7a7981663ffaa89ec",
+  "generatedAt": "2026-10-28T11:51:05.808355+00:00",
+  "commit": "bb9199f9fcba7d8cf86131c5765d357a1a63b55c",
   "branch": "main",
-  "sourceFingerprint": "b9d4986188a9fa80d8fcd18992da5b06aaeea223479ace0457b41708d8dd8819",
+  "sourceFingerprint": "b8737221e88febcd8d7beb74219c5634e2ece4c1dad6468cbd5632c614f3667f",
   "summary": {
     "files": 1039,
-    "lines": 211489,
+    "lines": 211507,
     "symbols": 3053
   },
   "symbolIndex": {
@@ -5475,7 +5475,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 137
+        "line": 155
       }
     ],
     "findOriginal": [
@@ -14913,7 +14913,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 118
+        "line": 136
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
@@ -35645,8 +35645,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 209,
-      "sha256": "ebdf4ece717bfe9ca9e769af88aa116c8439c4eeb61d194c16f4c543b9f5a8d0",
+      "lines": 227,
+      "sha256": "19990cbf0c61cbb45f1c32d6ab298e43f7c77fa45948fd04c23d70bc639369f6",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
@@ -35654,11 +35654,11 @@
         },
         {
           "name": "event",
-          "line": 118
+          "line": 136
         },
         {
           "name": "receipt",
-          "line": 137
+          "line": 155
         }
       ]
     },
