@@ -249,13 +249,25 @@ object CommitmentTaskStore {
     fun cancel(id: String, reason: String): CommitmentTask? {
         val current = mutableTasks.value.firstOrNull { it.id == id } ?: return null
         current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
-        return update(id) { task ->
+        val cancelled = update(id) { task ->
             task.copy(
                 status = CommitmentTaskStatus.Cancelled,
                 nextCheckAt = null,
                 linkedAlarmId = null,
                 lastActionResult = reason,
             )
+        }
+        if (cancelled?.status == CommitmentTaskStatus.Cancelled)
+            revokePendingLinkedPlans(id, "原约定已取消：$reason")
+        return cancelled
+    }
+
+    /** Parent changes revoke only pending executions; completed evidence stays. */
+    internal fun revokePendingLinkedPlans(id: String, reason: String) {
+        val task = mutableTasks.value.firstOrNull { it.id == id } ?: return
+        appContext?.let { context ->
+            RoleDayScheduleStore.cancelPendingLinkedCommitmentPlans(
+                context, task.characterId, id, reason)
         }
     }
 

@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
+import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -293,6 +295,45 @@ class RoleDayScheduleStoreTest {
             assertFalse(task.copy(status = CommitmentTaskStatus.Completed).needsUndatedActionReview())
             assertFalse(task.copy(status = CommitmentTaskStatus.Cancelled).needsUndatedActionReview())
         } finally {
+            CommitmentTaskStore.remove(task.id)
+        }
+    }
+
+    @Test fun sameLongTermSupervisionKeepsSeveralIndependentPlannedStepsVisible() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "multi-child-supervision-test"
+        val task = CommitmentTaskStore.save(CommitmentTask(characterId = role,
+            goal = "监督学习、起床、吃饭和休息",
+            status = CommitmentTaskStatus.NeedsClarification, dueAt = null))
+        val prefs = context.getSharedPreferences("lulu_role_day_plans_v1", android.content.Context.MODE_PRIVATE)
+        fun savedPlan(id: String, title: String, dueAt: String) = JSONObject()
+            .put("id", id).put("characterId", role).put("title", title)
+            .put("intent", "自主选择一次具体监督").put("dueAt", dueAt)
+            .put("createdAt", "2026-10-29T00:00:00Z")
+            .put("status", "planned").put("activityAction", "send_private_message")
+            .put("commitmentTaskId", task.id)
+        val planned = JSONArray()
+            .put(savedPlan("study-follow-up", "下午询问学习情况", "2026-10-29T06:00:00Z"))
+            .put(savedPlan("sleep-follow-up", "夜里关注休息", "2026-10-29T15:00:00Z"))
+        try {
+            assertTrue(prefs.edit().putString("plans", planned.toString()).commit())
+            assertTrue(RoleDayScheduleStore.undatedCommitmentsToPlan(context, role).any { it.id == task.id })
+            val cue = RoleDayScheduleStore.planningOpportunityContext(
+                context, role, Instant.parse("2026-10-29T01:00:00Z"))
+            assertTrue(cue.contains("study-follow-up"))
+            assertTrue(cue.contains("sleep-follow-up"))
+            assertTrue(cue.contains("多项行动"))
+            val first = plan.copy(characterId = role, commitmentTaskId = task.id,
+                dueAt = Instant.parse("2026-10-29T06:00:00Z"), status = "planned",
+                activityAction = "send_private_message")
+            assertTrue(RoleDayScheduleStore.duplicateOwnPlan(first, first.copy(id = "replayed")))
+            assertFalse(RoleDayScheduleStore.duplicateOwnPlan(first,
+                first.copy(id = "another-hour", dueAt = first.dueAt.plusSeconds(7200))))
+            assertFalse(RoleDayScheduleStore.duplicateOwnPlan(first,
+                first.copy(id = "another-role", characterId = "other-role")))
+        } finally {
+            prefs.edit().remove("plans").commit()
             CommitmentTaskStore.remove(task.id)
         }
     }

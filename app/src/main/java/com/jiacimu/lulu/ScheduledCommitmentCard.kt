@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.core.*
 import com.jiacimu.lulu.data.*
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -63,6 +65,13 @@ import java.time.format.DateTimeFormatter
     var confirm by remember(task.id) { mutableStateOf<String?>(null) }
     var error by remember(task.id) { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val scheduleRevision by RoleDayScheduleStore.changes.collectAsState()
+    val followUps = remember(task.id, task.characterId, scheduleRevision) {
+        RoleDayScheduleStore.plans(context, task.characterId).filter {
+            it.commitmentTaskId == task.id && it.status in setOf("planned", "due")
+        }
+    }
     val label = when (task.status) {
         CommitmentTaskStatus.NeedsClarification -> "待明确"
         CommitmentTaskStatus.Scheduled -> "已安排"
@@ -97,8 +106,15 @@ import java.time.format.DateTimeFormatter
                 if (task.repeat == "daily" && time != null)
                     Text("下次 · " + time.format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
                         color = Color(0xFF7A7A7E), fontSize = 12.sp)
-                if (method.isNotBlank())
+                if (method.isNotBlank() && (time != null || followUps.isEmpty()))
                     Text(method, fontSize = 12.sp, color = Color(0xFF7A7A7E))
+                if (followUps.isNotEmpty()) {
+                    val next = followUps.minByOrNull { it.dueAt }
+                    val nextTime = next?.dueAt?.atZone(ZoneId.systemDefault())
+                        ?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm")).orEmpty()
+                    Text("后续已安排 ${followUps.size} 项 · 最近 $nextTime",
+                        fontSize = 12.sp, color = Color(0xFF5A6E65))
+                }
             }
             Box {
                 IconButton(onClick = { menu = true }, modifier = Modifier.size(40.dp)) {

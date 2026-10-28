@@ -161,15 +161,11 @@ object RoleDayScheduleStore {
         return originalDue.plus(Duration.ofDays(days))
     }
 
-    /** An undated ongoing promise has NO alarm. Only its owner may choose a dated action. */
-    fun undatedCommitmentsToPlan(context: Context, characterId: String): List<CommitmentTask> {
-        val linked = plans(context, characterId)
-            .filter { it.status in setOf("planned", "due") }
-            .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
-        return CommitmentTaskStore.active(characterId).filter { task ->
-            task.needsUndatedActionReview() && task.id !in linked
-        }
-    }
+    /** A lasting responsibility stays reviewable after one child step was planned.
+     * Different study/rest/meal checks may be independently scheduled. */
+    fun undatedCommitmentsToPlan(context: Context, characterId: String): List<CommitmentTask> =
+        CommitmentTaskStore.active(characterId).filter(CommitmentTask::needsUndatedActionReview)
+
 
     /**
      * A single bridge from existing subjective motives and real opportunities to
@@ -178,9 +174,12 @@ object RoleDayScheduleStore {
      */
     fun planningOpportunityContext(context: Context, characterId: String, now: Instant = Instant.now()): String {
         val tasks = undatedCommitmentsToPlan(context, characterId)
-        val own = plans(context, characterId).filter {
-            it.selfInitiated && it.status in setOf("planned", "due")
-        }.take(5)
+        val pendingPlans = plans(context, characterId).filter {
+            it.status in setOf("planned", "due")
+        }
+        val linkedPlans = pendingPlans.filter { it.commitmentTaskId.isNotBlank() }
+            .groupBy(RoleDayPlan::commitmentTaskId)
+        val own = pendingPlans.filter { it.selfInitiated }.take(5)
         val motives = CharacterMotiveState.active(
             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
         ).take(4)
@@ -207,10 +206,15 @@ object RoleDayScheduleStore {
             if (tasks.isNotEmpty()) {
                 appendLine("【仍未安排下一步的主人责任｜需要本人主动复议，不是已设置的闹钟】")
                 appendLine("现在本地时间=${now.atZone(java.time.ZoneId.systemDefault())}；这类约定没有实际系统闹钟，不可假称已安排。")
-                tasks.take(6).forEach {
-                    appendLine("- commitmentTaskId=${it.id}；状态=${it.status}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
+                tasks.take(6).forEach { task ->
+                    appendLine("- commitmentTaskId=${task.id}；状态=${task.status}；约定=${task.goal}；创建=${task.createdAt}；完成条件=${task.completionCondition.take(130)}")
+                    linkedPlans[task.id].orEmpty().take(4).forEach { plan ->
+                        appendLine("  已安排 planId=${plan.id}；${plan.title.take(80)}；时间=${plan.dueAt}；动作=${plan.activityAction.ifBlank { "到时本人决定" }}；状态=${plan.status}")
+                    }
+                    val extra = linkedPlans[task.id].orEmpty().size - 4
+                    if (extra > 0) appendLine("  同一责任还有${extra}项待执行安排，详见日程；不要重复建立。")
                 }
-                appendLine("你可以自己选下一步，不要把待确认一律理解为只能等用户：先判断确实缺少用户必须决定的条件，还是缺少你自己可决定的执行办法。前者选择合适时机询问或安排一次确认，绝不代用户编造答案；后者可自己选择未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真实 activityAction，也可现在直接使用有权限的工具。已经有关联待执行计划就不重复建立；工具执行仍要观察真实结果，不能假称目标已完成。")
+                appendLine("你可以自己选下一步，不要把待确认一律理解为只能等用户：先判断确实缺少用户必须决定的条件，还是缺少你自己可决定的执行办法。前者选择合适时机询问或安排一次确认，绝不代用户编造答案；后者可自己选择未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真实 activityAction，也可现在直接使用有权限的工具。一项长期责任可以分出学习、睡觉、吃饭等不同时刻的多项行动，每项独立回执；已经安排的相同步骤不要再建。行动成功不等于整个责任完成，还须观察实际结果。")
             }
             appendLine("现在可以执行、留到日后、改变心意或者暂时什么都不做；只有程序的实际工具和回执证明完成，不得用想象中的行动填日记或制造假经历。")
         }.trim()
@@ -381,10 +385,8 @@ object RoleDayScheduleStore {
         }) { "同一件定时提醒已有约定，已保留原任务；无需重复安排个人日程" }
         // Replayed identical choice keeps its original persistent work/alarm.
         existing.firstOrNull { duplicateOwnPlan(it, proposed) }?.let { return it }
-        require(linkedCommitment.isBlank() || existing.none {
-            it.characterId == characterId && it.commitmentTaskId == linkedCommitment &&
-                it.status in setOf("planned", "due")
-        }) { "这项约定已经有待执行的日程，请先兑现或改期" }
+        // Do not lock a long-term commitment after one future step. Identical
+        // decisions are deduplicated above; different slots/actions are valid.
         // No arbitrary per-person plan quota: an ongoing life may have many distinct intentions.
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
             title.trim(), intent.trim(), dueAt, now, activityAction = action,
@@ -427,6 +429,30 @@ object RoleDayScheduleStore {
         }
         refreshAutonomousWake(context)
         return true
+    }
+
+    /** Revoke unfulfilled child plans when their parent responsibility is
+     * cancelled, completed or amended. Historical actions and receipts survive. */
+    @Synchronized
+    fun cancelPendingLinkedCommitmentPlans(context: Context, characterId: String,
+        commitmentTaskId: String, reason: String, now: Instant = Instant.now()) {
+        if (commitmentTaskId.isBlank()) return
+        val records = all(context)
+        val pendingIds = records.filter { plan ->
+            plan.characterId == characterId && plan.commitmentTaskId == commitmentTaskId &&
+                plan.status in setOf("planned", "due")
+        }.map(RoleDayPlan::id).toSet()
+        if (pendingIds.isEmpty()) return
+        persist(context, records.map { plan ->
+            if (plan.id in pendingIds) plan.copy(
+                status = "cancelled", resolvedAt = now, resultSummary = reason.take(180),
+            ) else plan
+        })
+        pendingIds.forEach { planId ->
+            WorkManager.getInstance(context.applicationContext)
+                .cancelUniqueWork("role-own-plan-$planId")
+        }
+        refreshAutonomousWake(context)
     }
 
     /** Delete only the plan and its wake. Raw conversation and tool evidence remain intact. */
@@ -670,6 +696,16 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             .firstOrNull { it.id == planId } ?: return Result.success()
         if (!canResume(latest) || (expectedDueAt != null && latest.dueAt != expectedDueAt))
             return Result.success()
+        // A stale WorkManager job may survive cancellation, backup restore or
+        // racing parent edits. Never wake a role for a revoked child action.
+        if (latest.commitmentTaskId.isNotBlank() &&
+            CommitmentTaskStore.active(role).none {
+                it.id == latest.commitmentTaskId && it.needsUndatedActionReview()
+            }) {
+            RoleDayScheduleStore.cancel(applicationContext, role, planId,
+                "原约定已撤销或改为定时任务")
+            return Result.success()
+        }
         val covered = CommitmentTaskStore.snapshot(role).any {
             isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(latest, it)
         }

@@ -235,6 +235,14 @@ private suspend fun updateCommitmentTask(
     }
     if (complete && next?.status == CommitmentTaskStatus.Completed)
         target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+    // An old personal step cannot remain armed after the role updates,
+    // cancels or successfully completes its original responsibility.
+    // Failed proof verification must leave already planned steps intact.
+    if (next != null && (cancel || reschedule ||
+            (complete && next.status == CommitmentTaskStatus.Completed))) {
+        CommitmentTaskStore.revokePendingLinkedPlans(target.id,
+            "原约定已变更、取消或完成；旧行动不再执行")
+    }
     if (next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
     CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }?.let { CommitmentLexiconSync.syncTask(it) }
     return CommitmentDraftOutcome(
