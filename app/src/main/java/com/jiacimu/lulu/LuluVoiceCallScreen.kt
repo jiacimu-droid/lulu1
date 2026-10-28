@@ -140,7 +140,7 @@ fun LuluVoiceCallScreen(
     // playground installs or removes files. The chosen path also owns touch
     // calibration, so switching never silently copies an uncalibrated duplicate.
     if (showModelSelection) {
-        val archives = Live2DAssets.listArchives(context, currentCharacterId)
+        val archives = Live2DAssets.listAvailableModels(context)
         val current = Live2DAssets.currentModelSettings(context, currentCharacterId)
         AlertDialog(
             onDismissRequest = { showModelSelection = false },
@@ -150,7 +150,7 @@ fun LuluVoiceCallScreen(
                     if (archives.isEmpty()) {
                         Text("此角色尚未上传模型，请先在桌面 Live2D 页面导入和校准。")
                     } else {
-                        Text("从已上传的皮套中选择。互动校准随选中的皮套保留，不会重复导入。",
+                        Text("选择已上传的皮套，不再复制 ZIP；同一模型的触摸校准会随模型一起使用。",
                             fontSize = 12.sp, color = CallMuted)
                         LazyColumn(Modifier.heightIn(max = 350.dp)) {
                             items(archives.size) { index ->
@@ -166,7 +166,7 @@ fun LuluVoiceCallScreen(
                                             fontSize = 11.sp, color = CallMuted)
                                     }
                                     TextButton(enabled = !active, onClick = {
-                                        if (Live2DAssets.switchArchive(context, currentCharacterId,
+                                        if (Live2DAssets.useExistingModel(context, currentCharacterId,
                                                 entry.settings)) {
                                             // This call continues, but the old renderer's
                                             // capabilities and pending cues must not leak to

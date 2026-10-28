@@ -399,6 +399,42 @@ internal object Live2DAssets {
         }
     }
 
+    /** All imported model files are reusable rigs, not character memories.
+     * An existing ZIP is never re-imported just to use it for another role.
+     */
+    fun listAvailableModels(context: Context): List<ArchiveEntry> {
+        val ids = prefs(context).all.keys.mapNotNull { key ->
+            when {
+                key.startsWith("archives:") -> key.removePrefix("archives:")
+                key.startsWith("model:") -> key.removePrefix("model:")
+                else -> null
+            }
+        }.filter(String::isNotBlank).distinct()
+        return ids.flatMap { listArchives(context, it) }
+            .distinctBy { it.settings }.sortedBy { it.label }
+    }
+
+    fun useExistingModel(context: Context, characterId: String, settings: String): Boolean {
+        if (characterId.isBlank()) return false
+        val selected = listAvailableModels(context).firstOrNull { it.settings == settings }
+            ?: return false
+        val file = File(base(context), settings)
+        if (!inside(base(context), file) || !file.isFile) return false
+        val archives = listArchives(context, characterId).toMutableList()
+        if (archives.none { it.settings == settings }) archives.add(selected)
+        val editor = prefs(context).edit()
+            .putString("model:$characterId", settings)
+            .putString("label:$characterId", selected.label)
+            .putString("archives:$characterId", archivesJson(archives))
+        val preview = runCatching { genuinePortrait(file) }.getOrNull()
+            ?.relativeTo(base(context))?.invariantSeparatorsPath
+        if (preview != null) editor.putString("preview:$characterId", preview)
+        else editor.remove("preview:$characterId")
+        if (!editor.commit()) return false
+        revisionState.value++
+        return true
+    }
+
     fun currentModelSettings(context: Context, characterId: String): String? =
         prefs(context).getString("model:$characterId", null)
 
@@ -451,13 +487,17 @@ internal object Live2DAssets {
             }
         }
         if (!editor.commit()) return false
-        // The touch zones are indexed by the full model URL. Deleting a
-        // duplicate must never erase the calibration of the retained copy.
-        val oldUrl = "https://appassets.androidplatform.net/private/" +
-            settings.split('/').joinToString("/") { Uri.encode(it) }
-        context.getSharedPreferences("lulu_live2d_touch_zones_v1", Context.MODE_PRIVATE)
-            .edit().remove(oldUrl).apply()
-        deleteImportedFolder(context, settings)
+        // One rig may now be selected by several characters. Unbinding a
+        // role's archive is NOT permission to destroy another role's asset or
+        // model-URL-keyed calibration. Collect only when the last reference is gone.
+        val stillReferenced = listAvailableModels(context).any { it.settings == settings }
+        if (!stillReferenced) {
+            val oldUrl = "https://appassets.androidplatform.net/private/" +
+                settings.split('/').joinToString("/") { Uri.encode(it) }
+            context.getSharedPreferences("lulu_live2d_touch_zones_v1", Context.MODE_PRIVATE)
+                .edit().remove(oldUrl).apply()
+            deleteImportedFolder(context, settings)
+        }
         revisionState.value++
         return true
     }

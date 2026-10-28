@@ -109,4 +109,41 @@ class Live2DArchiveTest {
                 .remove("archives:$role").commit()
         }
     }
+
+    @Test fun sharedModelAssignedAcrossCharactersKeepsOneFileAndCalibrationUntilLastDelete() {
+        val context=RuntimeEnvironment.getApplication()
+        val origin="origin-"+java.util.UUID.randomUUID()
+        val guest="guest-"+java.util.UUID.randomUUID()
+        val relative="models/shared-"+origin+"/imported/avatar.model3.json"
+        val file=File(Live2DAssets.base(context),relative)
+        file.parentFile?.mkdirs()
+        file.writeText("{}")
+        val prefs=context.getSharedPreferences("lulu_live2d_models_v1",0)
+        val touch=context.getSharedPreferences("lulu_live2d_touch_zones_v1",0)
+        val url="https://appassets.androidplatform.net/private/"+relative
+        prefs.edit().putString("model:$origin",relative)
+            .putString("label:$origin","已校准的模型")
+            .putString("archives:$origin",
+                """[{"settings":"$relative","label":"已校准的模型"}]""").commit()
+        touch.edit().putString(url,"custom-hit-zones").commit()
+        try {
+            assertTrue(Live2DAssets.listAvailableModels(context).any{it.settings==relative})
+            assertTrue(Live2DAssets.useExistingModel(context,guest,relative))
+            assertEquals(url,Live2DAssets.modelUrl(context,guest))
+            assertEquals("custom-hit-zones",touch.getString(url,null))
+            assertTrue(Live2DAssets.deleteArchive(context,origin,relative))
+            assertTrue(file.isFile)
+            assertEquals(url,Live2DAssets.modelUrl(context,guest))
+            assertEquals("custom-hit-zones",touch.getString(url,null))
+            assertTrue(Live2DAssets.deleteArchive(context,guest,relative))
+            assertEquals(null,Live2DAssets.modelUrl(context,guest))
+            assertTrue(!file.exists())
+            assertEquals(null,touch.getString(url,null))
+        } finally {
+            file.parentFile?.deleteRecursively()
+            for(id in listOf(origin,guest))prefs.edit().remove("model:$id")
+                .remove("label:$id").remove("archives:$id").remove("preview:$id").commit()
+            touch.edit().remove(url).commit()
+        }
+    }
 }
