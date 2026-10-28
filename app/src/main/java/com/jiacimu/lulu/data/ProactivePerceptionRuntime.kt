@@ -590,7 +590,8 @@ object ProactivePerceptionRuntime {
         val recentAutonomousActions = prefs.getString("action_history_$characterId", "").orEmpty()
             .split(',').map(String::trim).filter(String::isNotBlank)
         val library = LuluAiServices.connectionStore.library.value
-        val perceptionArchiveId = library.archiveIdFor(ModelUsage.Chat)
+        val perceptionArchiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+            .selectedCharacterChatArchiveId(characterId, library)
         if (perceptionArchiveId == null) {
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知暂停 · 没有可用的聊天模型", now)
             return Action.SILENT

@@ -35,6 +35,7 @@ internal fun QqChatComposer(
     input: String,
     onInputChange: (String) -> Unit,
     groupMode: Boolean,
+    characterId: String,
     receiving: Boolean,
     onMention: () -> Unit,
     onCall: () -> Unit,
@@ -179,8 +180,10 @@ internal fun QqChatComposer(
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 ModelArchiveIconButton(
                     usage = ModelUsage.Chat,
-                    title = "聊天模型",
-                    subtitle = "只切换聊天使用的模型存档；电话、游戏和末世求生不会跟着改变。",
+                    characterId = characterId.takeUnless { groupMode },
+                    title = if (groupMode) "公共聊天模型" else "当前角色聊天模型",
+                    subtitle = if (groupMode) "只设置未单独选择的角色的默认模型。"
+                        else "这里只修改当前角色，其他角色原来的模型保持不变。",
                     icon = Icons.Outlined.SwapHoriz,
                     contentDescription = "切换聊天模型",
                     tint = QqInk,

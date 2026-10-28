@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.ai
 
 import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Model choices that belong to a feature rather than to the global Chat / Voice / Game slots.
@@ -15,6 +17,45 @@ object ScopedModelSelections {
     const val RESIDENT_DAILY = "resident_daily"
     const val EXPRESSION = "character_expression"
     const val JEV = "thought_directions_jev"
+
+    private const val CHAT_CHARACTER_PREFIX = "chat_character:"
+    private val mutableRevision = MutableStateFlow(0L)
+    val changes = mutableRevision.asStateFlow()
+
+    private fun chatKey(characterId: String): String {
+        require(characterId.isNotBlank()) { "角色 ID 不能为空" }
+        return key(CHAT_CHARACTER_PREFIX + characterId)
+    }
+
+    /** A missing override follows the current public chat model.
+     * Selecting A never changes B or the global model. */
+    fun selectedCharacterChatArchiveId(characterId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value): String? {
+        val selected = prefs?.getString(chatKey(characterId), null)
+        return selected?.takeIf { id ->
+            library.archives.any { it.id == id && !it.model.startsWith("jev-") }
+        } ?: library.archiveIdFor(ModelUsage.Chat)
+    }
+
+    fun selectCharacterChatArchive(characterId: String, archiveId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value) {
+        require(library.archives.any { it.id == archiveId && !it.model.startsWith("jev-") }) {
+            "请选择已保存的聊天模型"
+        }
+        check(checkNotNull(prefs) { "角色模型尚未初始化" }
+            .edit().putString(chatKey(characterId), archiveId).commit()) {
+            "角色模型保存失败"
+        }
+        mutableRevision.value++
+    }
+
+    fun clearCharacterChatArchive(characterId: String) {
+        check(checkNotNull(prefs) { "角色模型尚未初始化" }
+            .edit().remove(chatKey(characterId)).commit()) {
+            "角色模型重置失败"
+        }
+        mutableRevision.value++
+    }
 
     private var prefs: android.content.SharedPreferences? = null
 

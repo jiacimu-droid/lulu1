@@ -72,6 +72,7 @@ internal fun ModelArchivePickerSheet(
     muted: Color = Color(0xFF727975),
     border: Color = Color(0xFFE0E4E1),
     usage: ModelUsage? = null,
+    onFollowDefault: (() -> Unit)? = null,
 ) {
     val library by LuluAiServices.connectionStore.library.collectAsState()
 
@@ -172,6 +173,10 @@ internal fun ModelArchivePickerSheet(
                     }
                 }
             }
+            if (onFollowDefault != null) TextButton(onClick = onFollowDefault,
+                modifier = Modifier.fillMaxWidth()) {
+                Text("跟随公共聊天模型", color = accent)
+            }
             Spacer(Modifier.navigationBarsPadding())
         }
     }
@@ -180,6 +185,7 @@ internal fun ModelArchivePickerSheet(
 @Composable
 internal fun ModelArchiveIconButton(
     usage: ModelUsage,
+    characterId: String? = null,
     title: String,
     subtitle: String,
     icon: ImageVector,
@@ -192,9 +198,16 @@ internal fun ModelArchiveIconButton(
     border: Color = Color(0xFFE0E4E1),
     enabled: Boolean = true,
 ) {
+    val context = LocalContext.current
+    remember(context) { ScopedModelSelections.initialize(context); Unit }
     val library by LuluAiServices.connectionStore.library.collectAsState()
+    val revision by ScopedModelSelections.changes.collectAsState()
     var visible by remember { mutableStateOf(false) }
-    val selectedId = library.archiveIdFor(usage)
+    val selectedId = remember(library, revision, characterId) {
+        if (characterId != null && usage == ModelUsage.Chat)
+            ScopedModelSelections.selectedCharacterChatArchiveId(characterId, library)
+        else library.archiveIdFor(usage)
+    }
     IconButton(onClick = { visible = true }, enabled = enabled) {
         Icon(icon, contentDescription, tint = tint)
     }
@@ -205,9 +218,15 @@ internal fun ModelArchiveIconButton(
             subtitle = subtitle,
             selectedArchiveId = selectedId,
             onSelect = { id ->
-                LuluAiServices.connectionStore.selectArchive(id, usage)
+                if (characterId != null && usage == ModelUsage.Chat)
+                    ScopedModelSelections.selectCharacterChatArchive(characterId, id)
+                else LuluAiServices.connectionStore.selectArchive(id, usage)
                 visible = false
             },
+            onFollowDefault = if (characterId != null && usage == ModelUsage.Chat) ({
+                ScopedModelSelections.clearCharacterChatArchive(characterId)
+                visible = false
+            }) else null,
             onDismiss = { visible = false },
             accent = accent,
             background = background,

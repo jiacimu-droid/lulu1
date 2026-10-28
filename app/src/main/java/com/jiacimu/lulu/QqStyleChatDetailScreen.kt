@@ -149,7 +149,10 @@ fun QqStyleChatDetailScreen(
         CharacterLifeStore.state(characterId).optJSONObject("socialNames")
             ?.optString("selfNickname").orEmpty().ifBlank { character.displayName }
     }
-    val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
+    val modelSelectionRevision by com.jiacimu.lulu.ai.ScopedModelSelections.changes.collectAsState()
+    val chatArchiveId = if (groupChat == null)
+        com.jiacimu.lulu.ai.ScopedModelSelections.selectedCharacterChatArchiveId(characterId, library)
+    else library.archiveIdFor(ModelUsage.Chat)
     val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val onlineMemberCount = groupChat?.members.orEmpty().count { member -> onlineStates[member.characterId]?.isOnline() == true }
@@ -477,8 +480,12 @@ fun QqStyleChatDetailScreen(
                 characterId = roleId,
                 history = history,
                 userText = originalUserText,
-                title = activeLabel,
-                archiveId = chatArchiveId,
+                title = library.archives.firstOrNull {
+                    it.id == com.jiacimu.lulu.ai.ScopedModelSelections
+                        .selectedCharacterChatArchiveId(roleId, library)
+                }?.let(LuluAiServices.connectionStore::archiveLabel) ?: activeLabel,
+                archiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+                    .selectedCharacterChatArchiveId(roleId, library),
                 reconsiderationEvidenceId = observationId,
                 sceneContext = if (groupChat == null)
                     "正在重新回复最近一轮私聊；内容由同一角色人格、主观决策和表达架构生成。"
@@ -728,6 +735,7 @@ fun QqStyleChatDetailScreen(
                             input = input,
                             onInputChange = { input = it },
                             groupMode = groupChat != null,
+                            characterId = characterId,
                             receiving = receiving,
                             onMention = { mentionExpanded = true },
                             onCall = {
