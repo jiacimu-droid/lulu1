@@ -161,6 +161,13 @@ class WorldExplorationContractsTest {
         assertNull(deepSeaNearbyCreature(turtle.position, setOf(turtle.id), obstacles))
     }
 
+    @Test fun submersibleTurnsSmoothlyAcrossTheHeadingSeam() {
+        assertEquals(-180f, deepSeaSmoothHeading(179f, -179f, .5f), .01f)
+        assertEquals(-179f, deepSeaSmoothHeading(179f, -179f, 1f), .01f)
+        assertEquals(179f, deepSeaSmoothHeading(-179f, 179f, 1f), .01f)
+        assertEquals(0f, deepSeaSmoothHeading(0f, 90f, 0f), .01f)
+    }
+
     @Test fun currentsChangeMovementSpeedWithoutAddingUnreachableReefs() {
         val slow = deepSeaCurrents.first()
         val fast = deepSeaCurrents.last()
