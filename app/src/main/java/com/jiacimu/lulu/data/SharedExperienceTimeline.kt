@@ -490,6 +490,32 @@ object SharedExperienceTimeline {
         }
     }
 
+    /**
+     * Authorization check for pre-rendered perception stimuli. Direct input
+     * may come from a live call (no stored event ID) OR be a wrapped canonical
+     * timeline event. An actual row with another owner must never be consumed
+     * as this character's personal experience, even when an adapter omitted
+     * that row from its observed list.
+     *
+     * Read-only exact-ID lookup against the existing global primary key;
+     * synthetic, unstored stimulus IDs are not rejected by this check.
+     */
+    internal fun foreignEvidenceIds(characterId: String, eventIds: Collection<String>): Set<String> {
+        if (characterId.isBlank() || eventIds.isEmpty()) return emptySet()
+        val db = helper?.readableDatabase ?: return emptySet()
+        val foreign = hashSetOf<String>()
+        eventIds.asSequence().filter(String::isNotBlank).distinct().chunked(200).forEach { chunk ->
+            val placeholders = List(chunk.size) { "?" }.joinToString(",")
+            db.rawQuery(
+                "SELECT id FROM timeline_events WHERE id IN ($placeholders) AND character_id != ?",
+                (chunk + characterId).toTypedArray(),
+            ).use { cursor ->
+                while (cursor.moveToNext()) foreign.add(cursor.getString(0))
+            }
+        }
+        return foreign
+    }
+
     /** Indexed, bounded projection of actual user-facing activity, not a second habit store. */
     fun recentUserActivities(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> =
         query(characterId, 240, sourceLike = "user-activity:%:start",
