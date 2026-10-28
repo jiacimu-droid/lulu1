@@ -65,4 +65,15 @@ class PromptContextPolicyTest {
         assertTrue(meeting.memoryCharacters >= 7_800)
         assertTrue(background.recallLimit >= 38)
     }
+    @Test fun alreadySentSceneEvidenceDoesNotPolluteRecallQuery() {
+        val normal = UnifiedMemoryRequest(
+            currentInput = "还记得我们约好的事吗？",
+            recentContext = "昨天说过明天提醒",
+            taskIntent = "按实际经历决定",
+        )
+        val alreadySent = normal.copy(
+            alreadyPresentedEvidence = "这里是已经作为本轮场景发送的另一份原始记录")
+        assertEquals(normal.retrievalQuery(), alreadySent.retrievalQuery())
+    }
+
 }
