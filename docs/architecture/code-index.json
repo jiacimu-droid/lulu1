@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:23:10.285274+00:00",
-  "commit": "175f3cbb52185aa040d6f043b7e3c25e2a8e85e6",
+  "generatedAt": "2026-10-28T10:23:33.572257+00:00",
+  "commit": "0f941bb7083fb2959f37b13fa330a2b74a19a8eb",
   "branch": "main",
-  "sourceFingerprint": "0c2c66b547d8d25beaa47ea4e5adcf478e2a3dd639228760ef9c7a11d043ecbb",
+  "sourceFingerprint": "1865da758e90f9bd14a1347bf649973bf68041c81aa49853d78d95d37b36ddad",
   "summary": {
     "files": 1037,
-    "lines": 209061,
+    "lines": 209119,
     "symbols": 3044
   },
   "symbolIndex": {
@@ -2433,7 +2433,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 80
+        "line": 82
       }
     ],
     "setEnabled": [
@@ -9191,7 +9191,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 64
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -12205,7 +12205,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 119
+        "line": 121
       }
     ],
     "near": [
@@ -12307,7 +12307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 104
+        "line": 106
       }
     ],
     "answer": [
@@ -12353,7 +12353,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 61
+        "line": 62
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -12699,61 +12699,61 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 70
+        "line": 71
       }
     ],
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 94
+        "line": 96
       }
     ],
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 62
+        "line": 63
       }
     ],
     "tile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 65
+        "line": 66
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 68
+        "line": 69
       }
     ],
     "distance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 102
+        "line": 104
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 110
+        "line": 112
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 292
+        "line": 298
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 328
+        "line": 334
       }
     ],
     "change": [
@@ -30097,8 +30097,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 136,
-      "sha256": "07f6d1cf9ab76a7d4dfa0d0fb5c26e938d7c25f1b06b42dd6be46dd803b1a82a",
+      "lines": 140,
+      "sha256": "2107bdab666cfffebb84678be51b4912ee8a782e9205d805d0d5c46b71e2f280",
       "symbols": [
         {
           "name": "json",
@@ -30110,14 +30110,14 @@
         },
         {
           "name": "syncExperiences",
-          "line": 94
+          "line": 96
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 331,
-      "sha256": "6b386c69d5fde3ea73900f4658ba2e7a5608258070c3ea33df45d3bab0413e8e",
+      "lines": 337,
+      "sha256": "bd6644a2ecbf81945c7e72b6ccc357d27120e22640221611ae76962783ae98d0",
       "symbols": [
         {
           "name": "json",
@@ -30145,59 +30145,59 @@
         },
         {
           "name": "index",
-          "line": 61
-        },
-        {
-          "name": "bounds",
           "line": 62
         },
         {
-          "name": "tile",
+          "name": "bounds",
           "line": 63
         },
         {
-          "name": "walk",
+          "name": "tile",
           "line": 64
         },
         {
-          "name": "visible",
+          "name": "walk",
           "line": 65
         },
         {
+          "name": "visible",
+          "line": 66
+        },
+        {
           "name": "log",
-          "line": 68
+          "line": 69
         },
         {
           "name": "json",
-          "line": 70
+          "line": 71
         },
         {
           "name": "read",
-          "line": 80
+          "line": 82
         },
         {
           "name": "distance",
-          "line": 102
-        },
-        {
-          "name": "reveal",
           "line": 104
         },
         {
+          "name": "reveal",
+          "line": 106
+        },
+        {
           "name": "treasure",
-          "line": 110
+          "line": 112
         },
         {
           "name": "act",
-          "line": 119
+          "line": 121
         },
         {
           "name": "path",
-          "line": 292
+          "line": 298
         },
         {
           "name": "abandon",
-          "line": 328
+          "line": 334
         }
       ]
     },
@@ -32866,8 +32866,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt",
-      "lines": 162,
-      "sha256": "37e6817e2d4a1e4bcb92838064939dd96d35dad586c3ba893c946cab63386a0d",
+      "lines": 210,
+      "sha256": "0c8e3ecd5c5a2a8a7cdb5e28225ff1d39dfc3e44029911ef3040ee2c8aa1ce3a",
       "symbols": [
         {
           "name": "WorldExplorationContractsTest",

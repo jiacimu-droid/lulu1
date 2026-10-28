@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`175f3cbb52185aa040d6f043b7e3c25e2a8e85e6`
+- 基准提交：`0f941bb7083fb2959f37b13fa330a2b74a19a8eb`
 - 分支：`main`
 - 已索引文件：1037
-- 已索引代码/文本行：209061
+- 已索引代码/文本行：209119
 - 已发现符号：3044
 
 | 文件 | 行数 | 符号数 |
@@ -629,8 +629,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 587 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 739 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 506 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 136 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 331 | 20 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 140 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 337 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 418 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 81 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
@@ -791,7 +791,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WatchPlaybackEvidenceTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WatchTogetherSubtitleTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 162 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 210 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
