@@ -146,6 +146,26 @@ class Live2DVisualActionBusTest {
             assertEquals(1400, planned.last().atMs)
             assertEquals(0.55f, planned.last().face?.values?.get("eyeOpen"))
             assertFalse(planned.last().face?.values?.containsKey("squint") == true)
+            // A precise gesture can be bound only by the SAME visible role,
+            // call and original decision. Unmatched quotes never play early.
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("beats", org.json.JSONArray()
+                    .put(JSONObject().put("anchor", "后来呢")
+                        .put("face", JSONObject().put("smile", .5)))
+                    .put(JSONObject().put("anchor", "没有说出的话")
+                        .put("head", JSONObject().put("yaw", 4))))))
+            val sourceSeq = Live2DVisualActionBus.cues.value[role]!!.sequence
+            assertEquals(0L, Live2DVisualActionBus.bindSpeechAnchors(
+                role, call, sourceSeq - 1, mapOf("后来呢" to 1)))
+            assertEquals(0L, Live2DVisualActionBus.bindSpeechAnchors(
+                role, "other-call", sourceSeq, mapOf("后来呢" to 1)))
+            val boundSeq = Live2DVisualActionBus.bindSpeechAnchors(
+                role, call, sourceSeq, mapOf("后来呢" to 1))
+            assertTrue(boundSeq > sourceSeq)
+            assertEquals(1, Live2DVisualActionBus.cues.value[role]!!.beats.size)
+            assertEquals(1, Live2DVisualActionBus.cues.value[role]!!.beats[0].segmentIndex)
+            assertEquals(0L, Live2DVisualActionBus.bindSpeechAnchors(
+                role, call, sourceSeq, mapOf("后来呢" to 1)))
             // Ordinary conversation can choose a compact performance in the
             // SAME reply. Generated channels still pass the exact rig gate.
             Live2DVisualActionBus.stageParameters(role, call,
