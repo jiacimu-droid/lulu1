@@ -8,7 +8,7 @@ import org.json.JSONObject
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
     /** UI/store ownership is independent of a character's personality or tone. */
-    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；对主人实际承担的提醒、监督、约定由日程任务引擎负责；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
+    private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」。旧称「辞海」只可能出现在历史数据中，不是当前可打开的页面。本人未解挂心和持续意愿属于心事；对用户实际承担的提醒、监督、约定由日程任务引擎负责；可核实的普通生活事实属于生活近况；亲自写的日记、收藏的真实消息分别查看日记和收藏；长期稳定事实属于记忆。心里想保存并不等于程序已成功保存，日程已安排也不等于已经履行。对外自然谈自己的打算和真实进展，不照念内部存储名称或旧回执。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
