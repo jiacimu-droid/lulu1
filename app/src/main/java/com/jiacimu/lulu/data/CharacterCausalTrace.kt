@@ -73,7 +73,7 @@ internal object CharacterCausalTrace {
         val rows = mutableListOf<CharacterCausalTraceLine>()
         val thoughts = mind.optJSONArray("thoughts")
         val selectedThoughts = (0 until (thoughts?.length() ?: 0))
-            .mapNotNull(thoughts::optJSONObject).filter {
+            .mapNotNull { index -> thoughts?.optJSONObject(index) }.filter {
                 it.optString("evidenceId") == current.id ||
                     (0 until (it.optJSONArray("stimuli")?.length() ?: 0)).any { index ->
                         it.optJSONArray("stimuli")?.optString(index) == current.id
@@ -91,7 +91,7 @@ internal object CharacterCausalTrace {
         }
         val decisions = mind.optJSONArray("decisions")
         val relatedDecisions = (0 until (decisions?.length() ?: 0))
-            .mapNotNull(decisions::optJSONObject).filter {
+            .mapNotNull { index -> decisions?.optJSONObject(index) }.filter {
                 it.optString("causalEvidenceId") == current.id
             }
         relatedDecisions.takeLast(6).forEach { decision ->
@@ -125,7 +125,7 @@ internal object CharacterCausalTrace {
             if (motiveId.isNotBlank()) {
                 val motives = mind.optJSONArray("motives")
                 val motive = (0 until (motives?.length() ?: 0))
-                    .mapNotNull(motives::optJSONObject).firstOrNull { it.optString("id") == motiveId }
+                    .mapNotNull { index -> motives?.optJSONObject(index) }.firstOrNull { it.optString("id") == motiveId }
                 rows += CharacterCausalTraceLine("持续目标",
                     if (motive == null) "原目标当前不可检索，不能推断已完成"
                     else "当前状态：${motive.optString("status")}；${motive.optString("waitingFor").take(150)}")
