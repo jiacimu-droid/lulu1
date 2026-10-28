@@ -952,6 +952,44 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun twiceMalformedNestedDailyAgendaNeverSchedulesOrBuysThirdReply() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = java.time.LocalDate.now().atTime(8, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "无效日程保护居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        fun invalid(value: String) = JSONObject().put("lunch", "home")
+            .put("evening", "courtyard").put("agenda", JSONArray().put(
+                JSONObject().put("at", "11:00").put("title", "想发一条动态")
+                    .put("intent", "记录今日见闻").put("activityAction", "publish_moment")
+                    .put("activityArgs", value)))
+        val server = MockWebServer()
+        server.enqueue(answer(invalid("broken-first").toString()))
+        server.enqueue(answer(invalid("broken-again").toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "nested-twice-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            assertTrue(RoleDayScheduleStore.plans(app, actor).none {
+                it.title == "想发一条动态" })
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                android.content.Context.MODE_PRIVATE)
+            val day = ResidentDailyDecision.date(now)
+            assertEquals("invalid_output", p.getString("phase:${native.id}:$day", ""))
+            assertFalse(p.contains("decision:${native.id}:$day"))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun malformedNestedDueStepGetsBoundedRepairAndOneReceipt() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
