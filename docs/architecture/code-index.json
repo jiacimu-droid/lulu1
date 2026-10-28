@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:30:07.982047+00:00",
-  "commit": "c149e40fea986bfcc43b3f11665cf6fdf4f97267",
+  "generatedAt": "2026-10-28T14:30:34.056149+00:00",
+  "commit": "5d78b2074ff836db183e3cb9fc17d18edb3105d1",
   "branch": "main",
-  "sourceFingerprint": "4c973cba90e996bc76a00d65ab791787f6fd3a643d029a81f1894a9ee587e1f9",
+  "sourceFingerprint": "a31430dd83fc2707d215d11e11d98d1a09bff5877ee866254e73c71fd8b16cf8",
   "summary": {
-    "files": 1049,
-    "lines": 214027,
+    "files": 1050,
+    "lines": 214124,
     "symbols": 3070
   },
   "symbolIndex": {
@@ -20507,6 +20507,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
       "lines": 104,
       "sha256": "cc6a0d63940cce62af07d4f30696b99c8265c85e7fa2e4ac61f6d6f1f1d27f8a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt",
+      "lines": 97,
+      "sha256": "58062e5347db6c82003501423abac4c09b407053f5392e879e246fe96cc16771",
       "symbols": []
     },
     {
