@@ -936,7 +936,14 @@ class CompanionModelGateway(
                 title = attemptedModel?.let { "$title · $it" } ?: title,
                 message = (error.message ?: error::class.java.simpleName) +
                     if (failedRequestShape.isNotBlank()) {
-                        " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes;重复相同输入不会自动解除400]"
+                        val advice = when {
+                            error is ModelHttpException && error.status in setOf(400, 422) ->
+                                "；请求被明确拒绝，原样重试不会修复参数或输入问题"
+                            error is java.net.SocketTimeoutException ->
+                                "；网络读取超时，服务端生成结果未知，客户端没有自动重发"
+                            else -> ""
+                        }
+                        " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes$advice]"
                     } else "",
                 requestUrl = requestUrl,
                 durationMillis = elapsedMillis(totalStartedAt),
