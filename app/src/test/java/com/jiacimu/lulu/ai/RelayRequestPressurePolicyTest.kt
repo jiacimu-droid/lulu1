@@ -127,4 +127,20 @@ class RelayRequestPressurePolicyTest {
         assertTrue(selected.contains("【本轮 Relay 请求压力保护"))
     }
 
+    @Test fun compactProjectionRetainsSourceLabelsAndExactWireBytes() {
+        val original = listOf(
+            "任务规则/工具协议" to "行动由本人决定，工具按真实回执结案",
+            "角色人设" to "本人稳定人格",
+            "本轮背景依据" to ("较早事件内容\\n".repeat(2_000) +
+                "本轮新的真实原话：不要再创建重复日程"),
+        )
+        val parts = RelayRequestPressurePolicy.compactSectionPairs(original)
+        val wire = parts.joinToString("\\n\\n") { it.second }
+        assertEquals(RelayRequestPressurePolicy.compactSections(original), wire)
+        assertEquals(original.map { it.first }, parts.map { it.first })
+        assertTrue(wire.contains("本人稳定人格"))
+        assertTrue(wire.contains("不要再创建重复日程"))
+        assertTrue(wire.length < original.sumOf { it.second.length })
+    }
+
 }
