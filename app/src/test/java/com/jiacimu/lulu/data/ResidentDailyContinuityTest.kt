@@ -2372,7 +2372,9 @@ class ResidentDailyContinuityTest {
         assertFalse(history.any { it.malformedAnswerSaved })
         assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
         assertNull(ResidentDailyDecision.dayRecovery(app, native.id, now))
-        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        // The existing due-plan worker may still resume a saved appointment;
+        // the historical display itself grants no additional replay authority.
+        assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, plan))
         // Changing today's plan cannot turn yesterday's unknown model response
         // into a paid retry or resurrect the old appointment.
         RoleDayScheduleStore.reschedule(app, actor, plan.id,

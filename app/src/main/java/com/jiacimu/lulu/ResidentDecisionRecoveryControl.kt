@@ -47,7 +47,9 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
         Text("历史未完成请求（仅供核对，不会自动补发）",
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         history.forEach { item ->
-            val time = item.occurredAt.atZone(java.time.ZoneId.systemDefault())
+            val time = if (item.scope == "每日规划")
+                item.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
+            else item.occurredAt.atZone(java.time.ZoneId.systemDefault())
                 .format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
             val basis = when {
                 item.savedDecision -> "原决定已保存"
