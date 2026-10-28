@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:59:23.616871+00:00",
-  "commit": "4e72cbedc92dbf5c5b28f51a01d32446e18e81a5",
+  "generatedAt": "2026-10-28T07:01:51.305803+00:00",
+  "commit": "6eae8109d3be8e1913c4ccb044210cae1a3fcf28",
   "branch": "main",
-  "sourceFingerprint": "5ea8441eb153f1992d0721d5bf5e349f746dea76a5daab8a2533f7d48076343c",
+  "sourceFingerprint": "521af8b8df9937906b7546a75f94921cae75f65f6de6fa7acd8aec0ed49ec330",
   "summary": {
-    "files": 1011,
-    "lines": 201762,
-    "symbols": 2942
+    "files": 1012,
+    "lines": 201841,
+    "symbols": 2943
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14467,6 +14467,12 @@
     "AutonomousDecisionRecoveryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
+        "line": 12
+      }
+    ],
+    "AutonomousEncounterPrivacyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt",
         "line": 12
       }
     ],
@@ -32108,6 +32114,17 @@
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt",
+      "lines": 79,
+      "sha256": "d2c3bfd3444d8b6de7af121f201dce290abaea984b35b9af74fe9a623f1246b3",
+      "symbols": [
+        {
+          "name": "AutonomousEncounterPrivacyTest",
           "line": 12
         }
       ]
