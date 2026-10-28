@@ -13,6 +13,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import com.jiacimu.lulu.ai.archiveIdFor
+import com.jiacimu.lulu.data.ResidentDailyDecision
 
 @Composable
 internal fun OptionalModelRolesSettings() {
@@ -149,7 +150,11 @@ internal fun OptionalModelRolesSettings() {
                         isSleep -> LuluAiServices.connectionStore.selectArchive(id, ModelUsage.Sleep)
                         isChat -> LuluAiServices.connectionStore.selectArchive(id, ModelUsage.Chat)
                         isGame -> LuluAiServices.connectionStore.selectArchive(id, ModelUsage.Game)
-                        else -> ScopedModelSelections.select(role, id)
+                        else -> {
+                            ScopedModelSelections.select(role, id)
+                            if (role == ScopedModelSelections.RESIDENT_DAILY)
+                                ResidentDailyDecision.schedule(context.applicationContext)
+                        }
                     }
                     notice = ""
                 }
