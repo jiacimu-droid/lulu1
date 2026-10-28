@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fb0471f70ca9c5f4d01951c853fbf57660fa972a`
+- 基准提交：`93b8e5354bd5ccaaa50bf7977ece462a61e7a9e6`
 - 分支：`main`
 - 已索引文件：998
-- 已索引代码/文本行：198544
+- 已索引代码/文本行：198558
 - 已发现符号：2931
 
 | 文件 | 行数 | 符号数 |
@@ -453,7 +453,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 125 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 111 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 37 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 42 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 148 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
@@ -898,7 +898,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 171 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 126 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 135 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 152 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
