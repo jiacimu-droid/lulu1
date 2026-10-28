@@ -771,6 +771,10 @@ async function load(modelURL) {
     touchReflex = null
     tactileContact = null
     performanceRuntime.reset()
+    scoredBeats = []
+    scoreVisualSequence = 0
+    audioVisualSequence = 0
+    audioSegmentIndex = 0
     mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
     headRequest = null
@@ -1400,6 +1404,10 @@ function setPaused(value) {
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
+    scoredBeats = []
+    scoreVisualSequence = 0
+    audioVisualSequence = 0
+    audioSegmentIndex = 0
     clearSpeechMoment()
     touchReflex = null
     wolfImpactPresentation.reset(model)
