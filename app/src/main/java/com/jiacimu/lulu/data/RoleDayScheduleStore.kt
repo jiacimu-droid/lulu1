@@ -253,7 +253,8 @@ object RoleDayScheduleStore {
         val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
         val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
             .setInputData(Data.Builder().putString("roleId", plan.characterId)
-                .putString("planId", plan.id).build())
+                .putString("planId", plan.id)
+                .putString("dueAt", plan.dueAt.toString()).build())
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
@@ -392,11 +393,15 @@ object RoleDayScheduleStore {
     }
 
     @Synchronized
+    @Synchronized
     fun cancel(context: Context, characterId: String, planId: String, reason: String = "",
-        now: Instant = Instant.now(), retainRunningWake: Boolean = false): Boolean {
+        now: Instant = Instant.now(), retainRunningWake: Boolean = false,
+        expectedDueAt: Instant? = null): Boolean {
         val records = all(context)
         val target = records.firstOrNull { it.characterId == characterId && it.id == planId &&
             it.status in setOf("planned", "due") } ?: return false
+        // A model answer from an earlier wake cannot cancel a later user edit.
+        if (expectedDueAt != null && target.dueAt != expectedDueAt) return false
         persist(context, records.map {
             if (it.id == target.id) it.copy(status = "cancelled", resolvedAt = now,
                 resultSummary = reason.trim().take(180)) else it
@@ -512,8 +517,10 @@ object RoleDayScheduleStore {
 
     /** Do not perform an action for a revoked wish, wrong target or old appointment. */
     fun canBegin(context: Context, characterId: String, planId: String, action: String,
-        args: JSONObject, now: Instant = Instant.now()): Boolean {
+        args: JSONObject, now: Instant = Instant.now(),
+        expectedDueAt: Instant? = null): Boolean {
         val plan = plans(context, characterId).firstOrNull { it.id == planId } ?: return false
+        if (expectedDueAt != null && plan.dueAt != expectedDueAt) return false
         if (!canComplete(plan, characterId, action, "pending-action", now, args)) return false
         if (plan.commitmentTaskId.isNotBlank() && CommitmentTaskStore.active(characterId).none {
                 it.id == plan.commitmentTaskId &&
@@ -572,10 +579,12 @@ object RoleDayScheduleStore {
     }
 
     @Synchronized
-    fun markDue(context: Context, characterId: String, planId: String): RoleDayPlan? {
+    fun markDue(context: Context, characterId: String, planId: String,
+        expectedDueAt: Instant? = null): RoleDayPlan? {
         val existing = all(context)
         val target = existing.firstOrNull {
-            it.characterId == characterId && it.id == planId && it.status in setOf("planned", "due")
+            it.characterId == characterId && it.id == planId && it.status in setOf("planned", "due") &&
+                (expectedDueAt == null || it.dueAt == expectedDueAt)
         } ?: return null
         if (target.status == "planned") {
             // The planned worker now owns this event. Do not enqueue a second
@@ -624,13 +633,21 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         val role = inputData.getString("roleId").orEmpty()
         val planId = inputData.getString("planId").orEmpty()
         if (role.isBlank() || planId.isBlank()) return Result.failure()
+        // Older installed workers have no dueAt field. New workers carry the
+        // exact appointment version so an obsolete wake never claims its replacement.
+        val encodedDueAt = inputData.getString("dueAt").orEmpty()
+        val expectedDueAt = encodedDueAt.takeIf { it.isNotBlank() }?.let {
+            runCatching { Instant.parse(it) }.getOrNull()
+        }
+        if (encodedDueAt.isNotBlank() && expectedDueAt == null) return Result.failure()
         val current = RoleDayScheduleStore.plans(applicationContext, role).firstOrNull { it.id == planId }
             ?: return Result.success()
         fun canResume(p: RoleDayPlan): Boolean =
             p.status in setOf("planned", "due") ||
                 (role.startsWith("resident:") && p.status == "completed" &&
                     ResidentDailyDecision.hasSavedDueToResume(applicationContext, p))
-        if (!canResume(current)) return Result.success()
+        if (!canResume(current) || (expectedDueAt != null && current.dueAt != expectedDueAt))
+            return Result.success()
         // A cold WorkManager process has not loaded CommitmentTaskStore yet.
         // Read the durable alarm authority BEFORE deciding to wake the role.
         if (runCatching {
@@ -639,7 +656,8 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             }.isFailure) return Result.retry()
         val latest = RoleDayScheduleStore.plans(applicationContext, role)
             .firstOrNull { it.id == planId } ?: return Result.success()
-        if (!canResume(latest)) return Result.success()
+        if (!canResume(latest) || (expectedDueAt != null && latest.dueAt != expectedDueAt))
+            return Result.success()
         val covered = CommitmentTaskStore.snapshot(role).any {
             isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(latest, it)
         }
@@ -649,7 +667,8 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         }
         if (Instant.now().isBefore(latest.dueAt)) return Result.retry()
         val plan = if (latest.status == "completed") latest
-            else RoleDayScheduleStore.markDue(applicationContext, role, planId)
+            else RoleDayScheduleStore.markDue(applicationContext, role, planId,
+                expectedDueAt = expectedDueAt)
                 ?: return Result.success()
         if (role.startsWith("resident:")) {
             // A native resident has no ordinary user-facing private chat. Route its
