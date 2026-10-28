@@ -156,7 +156,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                 GameRoute.Records -> GameRecordsScreen(state, store, onReplay = { route = GameRoute.Replay(it) })
                 is GameRoute.Replay -> GameReplayScreen(
                     record = state.records.firstOrNull { it.id == current.recordId },
-                    onDeleteAll = store::clearRecords,
+                    onBack = { route = GameRoute.Records },
                 )
             }
         }
@@ -653,44 +653,13 @@ private fun GameRecordsScreen(
 }
 
 @Composable
-private fun GameReplayScreen(record: LuluGameRecord?, onDeleteAll: () -> Unit) {
+private fun GameReplayScreen(record: LuluGameRecord?, onBack: () -> Unit) {
     if (record == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("这条记录不存在或已被清除") }
-        return
-    }
-    GamePageList {
-        item {
-            GameCard {
-                Text(record.title, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text(record.summary)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("得分 ${record.score}")
-                }
-                Text(record.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), color = GameDesign.muted, fontSize = 12.sp)
-            }
-        }
-        item {
-            GameCard {
-                Text("规则事实", fontWeight = FontWeight.Bold)
-                Text(prettyDetails(record.detailsJson), color = GameDesign.muted)
-            }
-        }
-        if (record.playedWithCharacter) {
-            item {
-                val character = MigratedDomainStores.characters.get(record.characterId)
-                GameCard {
-                    Text("${character.displayName}当时的回应", fontWeight = FontWeight.Bold)
-                    Text(record.characterReply.ifBlank { "该局已保存，但没有成功生成角色回应。" }, color = if (record.characterReply.isBlank()) GameDesign.muted else GameDesign.ink)
-                }
-            }
-        }
-        item { TextButton(onClick = onDeleteAll, modifier = Modifier.fillMaxWidth()) { Text("清空全部游戏记录") } }
+    } else {
+        UniversalGameReplay(record, onBack)
     }
 }
-
-private fun prettyDetails(raw: String): String = runCatching {
-    JSONObject(raw).toString(2)
-}.getOrElse { raw.ifBlank { "没有额外规则详情" } }
 
 @Composable
 private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
