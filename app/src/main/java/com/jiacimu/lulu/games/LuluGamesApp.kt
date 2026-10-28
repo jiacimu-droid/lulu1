@@ -149,7 +149,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.BlockIsland -> BlockIslandScreen(store)
-                GameRoute.RelicEscape -> ExpeditionScreen(store, ExpeditionMode.RELIC_RUN)
+                GameRoute.RelicEscape -> RelicEscapeScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
