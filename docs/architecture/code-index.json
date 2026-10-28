@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:33:04.107332+00:00",
-  "commit": "9cb573dae3a906481b85dafb9216a54ec8e6a130",
+  "generatedAt": "2026-10-28T10:33:26.843988+00:00",
+  "commit": "afaec17f3e7068b39614d006d754b81e4e388fd7",
   "branch": "main",
-  "sourceFingerprint": "7014dce4b8d73046b704fb2371879456e85446580da48c4861b4f5a773080bb8",
+  "sourceFingerprint": "cbd1aa5ca1fba0ef63052424d6cb29a1ae8cfa67d015ff386b7197f62c498254",
   "summary": {
     "files": 1038,
-    "lines": 209587,
+    "lines": 209638,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -12233,13 +12233,13 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 461
+        "line": 465
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 497
+        "line": 501
       }
     ],
     "perform": [
@@ -29510,8 +29510,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 504,
-      "sha256": "64757350e0fe28b863b8a7109ac0592b080ef778a700934bbe2eb7587ed8d126",
+      "lines": 508,
+      "sha256": "e03909d5080a8295948710b49d59eec535ac49628b922193ef4215a4faf7fac2",
       "symbols": [
         {
           "name": "toJson",
@@ -29555,11 +29555,11 @@
         },
         {
           "name": "nextStep",
-          "line": 461
+          "line": 465
         },
         {
           "name": "actionName",
-          "line": 497
+          "line": 501
         }
       ]
     },
@@ -36006,8 +36006,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
-      "lines": 167,
-      "sha256": "37f2e3f51255f3e3b0a7b4a5274ee715fe2ca3ae56d318371e0e9ce89615240c",
+      "lines": 214,
+      "sha256": "ffdd2a5cc613201b328723a29510520de9f3059d14b1ade9c66c211266a13cd1",
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
