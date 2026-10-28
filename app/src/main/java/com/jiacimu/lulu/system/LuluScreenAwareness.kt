@@ -46,8 +46,7 @@ object LuluScreenAwareness {
     private const val CAPTURE_CHANNEL = "lulu_screen_requests_v1"
     private const val CAPTURE_NOTIFICATION_ID = 41032
     private const val CAPTURE_EXPIRES_MS = 120_000L
-    const val MIN_AUTONOMOUS_GAP_MS = 300_000L
-    private val busy = AtomicBoolean(false)
+     private val busy = AtomicBoolean(false)
     private val blockedPrefixes = listOf(
         "com.android.systemui", "com.android.settings", "com.android.permissioncontroller",
         "com.google.android.permissioncontroller", "com.google.android.apps.authenticator",
@@ -79,11 +78,6 @@ object LuluScreenAwareness {
         packageName.contains("authenticator", ignoreCase = true) ||
         packageName in excluded(context)
 
-    fun cooldownRemaining(context: Context, nowMillis: Long = System.currentTimeMillis()): Long {
-        val last = preferences(context).getLong(LAST_AUTO, 0L)
-        return if (last <= 0L || nowMillis < last) 0L
-        else (last + MIN_AUTONOMOUS_GAP_MS - nowMillis).coerceAtLeast(0L)
-    }
     fun diagnostics(context: Context) =
         preferences(context).getString(LAST_DIAG, "尚未尝试获取屏幕图像").orEmpty()
     private fun report(context: Context, state: String) {
@@ -214,7 +208,9 @@ object LuluScreenAwareness {
                 .setOngoing(!finished).build())
     }
 
-    /** One frame, and one clearly visible notification, even for explicit chat requests. */
+    /** Owner-authorized on-demand/autonomous single-frame capture. The Android
+     * permission, unlock state, exclusion list, visible notice and revocation
+     * remain mandatory; autonomy does not mean hidden continuous recording. */
     suspend fun capture(context: Context, userRequested: Boolean,
         characterId: String = "", requestId: String = "", approved: Boolean = false,
         sessionId: String = ""): String {
@@ -230,9 +226,9 @@ object LuluScreenAwareness {
         val first = LuluAccessibilityService.observe()
         if (!first.connected) return rejected(context, "无障碍服务未连接")
         if (isExcluded(context, first.packageName)) return rejected(context, "当前 App 被隐私规则排除")
-        if (!userRequested && cooldownRemaining(context) > 0L)
-            return rejected(context, "距上次自主截图不足五分钟", "cooldown")
-        if (!userRequested && !approved) return requestCapture(context, characterId, requestId)
+        // Autonomous owner consent is durable: no second approval dialog or
+        // arbitrary five-minute veto after the role elects to observe.
+        // Every invocation still obtains one new frame, never a recording.
         // A study session already has a separately enabled, ongoing STOP notification.
         // Do not gate approved monitoring on the unrelated one-off screenshot request channel.
         if (sessionId.isBlank() && !notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
@@ -242,8 +238,6 @@ object LuluScreenAwareness {
         // Do not pop up another notice over the very screen we are capturing.
         if (sessionId.isBlank()) viewingNotice(context, "正在查看屏幕", "识别中")
         try {
-            if (!userRequested && cooldownRemaining(context) > 0L)
-                return rejected(context, "距上次自主截图不足五分钟", "cooldown")
             val bitmap = try { LuluAccessibilityService.captureBitmap() }
                 catch (error: Exception) {
                     return rejected(context, "Android 截图失败：" +
@@ -256,9 +250,8 @@ object LuluScreenAwareness {
                     first.packageName != fresh.packageName || isExcluded(context, fresh.packageName) ||
                     context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
                     return rejected(context, "页面或授权在捕获期间发生变化，画面已丢弃")
-                if (!userRequested && !preferences(context).edit()
-                        .putLong(LAST_AUTO, System.currentTimeMillis()).commit())
-                    return rejected(context, "无法保存观察间隔，已停止")
+                if (!userRequested) preferences(context).edit()
+                    .putLong(LAST_AUTO, System.currentTimeMillis()).apply()
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
                 report(context, "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
