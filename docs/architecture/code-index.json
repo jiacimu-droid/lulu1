@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:33:51.959299+00:00",
-  "commit": "a6ef7f9122ead723b613f696b955509037e66a78",
+  "generatedAt": "2026-10-28T09:40:09.651454+00:00",
+  "commit": "6ed54ffedafab68f2a82b86b388f6504af33f932",
   "branch": "main",
-  "sourceFingerprint": "5f19cda283df999914ffaae948e563ccce4a43080b6fa3bc6817ab2421c9438c",
+  "sourceFingerprint": "c7f1a1c49a5438dccee5df70f8459f18d7c9d3a566bdd1229749ed70d7587e36",
   "summary": {
-    "files": 1023,
-    "lines": 205234,
-    "symbols": 2983
+    "files": 1024,
+    "lines": 205541,
+    "symbols": 2992
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -46,6 +46,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
         "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -8324,12 +8328,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 49
       }
     ],
     "fromJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
         "line": 38
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 62
       }
     ],
     "stat": [
@@ -12152,6 +12164,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
         "line": 273
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 142
       }
     ],
     "finishAdventure": [
@@ -12206,6 +12222,40 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
         "line": 554
+      }
+    ],
+    "index": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 45
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
+        "line": 16
+      }
+    ],
+    "inBounds": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 46
+      }
+    ],
+    "cell": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 47
+      }
+    ],
+    "adjacent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 48
+      }
+    ],
+    "withPartners": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 132
       }
     ],
     "perform": [
@@ -13472,12 +13522,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 33
-      }
-    ],
-    "index": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
-        "line": 16
       }
     ],
     "planningText": [
@@ -29307,6 +29351,49 @@
         {
           "name": "reset",
           "line": 558
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+      "lines": 307,
+      "sha256": "83fc80ab1c4cfecf2b74f3d7941dbd21807db2bf6b812ef414ff2cc799b96c2e",
+      "symbols": [
+        {
+          "name": "index",
+          "line": 45
+        },
+        {
+          "name": "inBounds",
+          "line": 46
+        },
+        {
+          "name": "cell",
+          "line": 47
+        },
+        {
+          "name": "adjacent",
+          "line": 48
+        },
+        {
+          "name": "toJson",
+          "line": 49
+        },
+        {
+          "name": "fromJson",
+          "line": 62
+        },
+        {
+          "name": "start",
+          "line": 95
+        },
+        {
+          "name": "withPartners",
+          "line": 132
+        },
+        {
+          "name": "act",
+          "line": 142
         }
       ]
     },
