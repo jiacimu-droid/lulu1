@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:40:20.876046+00:00",
-  "commit": "64c5602d53817bda4430dbf71bdc702b3d11ee0d",
+  "generatedAt": "2026-10-28T16:40:38.178166+00:00",
+  "commit": "4d98bfc79e1b8413b0c421d8985fb80c6ebd071b",
   "branch": "main",
-  "sourceFingerprint": "8d6fe8f65146ca0ce884818fc81204dc6383a94baf6703a2760310073c21f836",
+  "sourceFingerprint": "d53fe955be29ea0e77204df6daaf3a2d346f192dc161ea86959780efa5c8c8cb",
   "summary": {
     "files": 1053,
-    "lines": 214854,
+    "lines": 214855,
     "symbols": 3081
   },
   "symbolIndex": {
@@ -4359,7 +4359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 127
+        "line": 128
       }
     ],
     "restore": [
@@ -11473,31 +11473,31 @@
     "retrievalQuery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "legacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 106
+        "line": 107
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 125
+        "line": 126
       }
     ],
     "Attachment": [
@@ -28528,8 +28528,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 301,
-      "sha256": "17bb34834da744569585f246ed3672a2b585456ca7219eab11dc47f1c82e0311",
+      "lines": 302,
+      "sha256": "e022d0c68abb4c241b043c00f470a6d33691907b9cabe542b2a91784367b948f",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -28537,27 +28537,27 @@
         },
         {
           "name": "retrievalQuery",
-          "line": 16
+          "line": 17
         },
         {
           "name": "legacy",
-          "line": 25
+          "line": 26
         },
         {
           "name": "UnifiedMemoryContext",
-          "line": 31
+          "line": 32
         },
         {
           "name": "compactPromptSection",
-          "line": 106
+          "line": 107
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 125
+          "line": 126
         },
         {
           "name": "empty",
-          "line": 127
+          "line": 128
         }
       ]
     },
