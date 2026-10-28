@@ -149,7 +149,7 @@ object VisionModelService {
                     // failures; try the dedicated fallback only for an explicit
                     // unsupported-image/bad-endpoint rejection.
                     if (index < candidates.lastIndex &&
-                        !Regex("""(?:\\b400\\b|\\b404\\b|\\b415\\b|\\b422\\b)""")
+                        !Regex("""(?:\b400\b|\b404\b|\b415\b|\b422\b)""")
                             .containsMatchIn(reason)) break
                 }
                 error("摄像头识图失败：" + errors.joinToString("；").take(800))
