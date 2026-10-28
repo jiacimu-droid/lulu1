@@ -202,7 +202,7 @@ internal object LuluCallCameraSession {
                         }
                         val frame = Live2DCallVisionState.beginFrame(
                             snapshot.characterId, snapshot.callId) ?: return
-                        val owned = bitmap
+                        val owned = checkNotNull(bitmap)
                         bitmap = null
                         mutable.value = mutable.value.copy(status = "正在理解最近一帧", error = "")
                         analysis = work.launch {
