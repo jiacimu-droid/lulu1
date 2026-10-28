@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`57797133e7107915e9be03adfca818b65dd4bb0a`
+- 基准提交：`fcfcf1e33d8cb280a93e7371b4a6c9a78a892d02`
 - 分支：`main`
 - 已索引文件：1002
-- 已索引代码/文本行：199409
-- 已发现符号：2931
+- 已索引代码/文本行：199661
+- 已发现符号：2934
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -270,7 +270,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1269 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1275 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
@@ -504,10 +504,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 576 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1005 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1100 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 730 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 732 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 773 | 22 |
@@ -942,7 +942,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 115 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 894 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 1043 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 310 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt` | 75 | 4 |
