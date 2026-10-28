@@ -96,3 +96,11 @@
 - 增加真实 ToolRouter 主动态完成→日程 completed→重启恢复附加动态恰好一次、模型存档清除仍可恢复的 Robolectric 回归。**本段为源码变更记录，CI、APK、真机状态以随后工作流结果为准。**
 
 - **本轮完整构建验收（2026-10-28）**：单测写法纠正提交 `c7768e20e46b5d4ca90dd794df7e346a827346e0`；同期居民副动作修复提交 `3675eee68e5d17939fdabdeb6e6841fd87dc377d` 后的合并主分支 CI [#40634865886](https://github.com/jiacimu-droid/lulu1/actions/runs/40634865886) **completed/success**：Live2D 语音动作 JS 测试、Android JVM `testDebugUnitTest`、`assemblePhone` 和发布均通过；[Lulu v6106 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6106/Lulu-arm64.apk) 真实已发布（28,326,592 字节）。被新 HEAD 取消的 #40634647057 不作为成功证据；**真实 Android 视频多句动作与 PCM 口型仍待手动真机验收**。
+
+## 2026-10-28 增量：原始证据驱动的叙事关联（P4 记忆证据链）
+
+- 本轮针对记忆召回原先只找**同 session + 同频道 + 900 秒**的邻接：多日任务发起→实际动作→失败回执可能断成零散片段。新增只读 `NarrativeEvidenceChain`，在原 `MemoryEvidenceSelection.expand` 找到经当前有效性/权限检查的同角色、同 taskId 证据；有 sessionId 但无共同任务 ID 的仅限真实近邻，跨频道也可关联。不凭关键词判断两个事件属于同一事件，不额外向模型购买摘要，不创独立持久剧情库。
+- 接通 `UnifiedMemoryOrchestrator` 的 compact 原始事件渲染、full `MemoryWorkingSet`、自主 `CharacterAssociativeRecall`，所有入口共享 task/session/time 的证据顺序标签，并显式区分 UserStatement/CharacterStatement/Observation/ToolResult。召回候选满额时预留少量后续事实位置、空余返还原始候选；多年原始历史原封不动。自主回忆只在已有 160 条有权限的旧经历里补足链接，不额外扫描永久历史。
+- 编辑旧 revision、删除/撤回、角色隔离、未来证据、同会话跨日误连及无关任务均被真实有效候选过滤。新增 `MemoryEvidenceSelectionTest`、`CharacterAssociativeRecallTest` 和 `NarrativeMemoryRecallIntegrationTest`（真实 SQLite→compact/full→删除回执不再进入），不将模型说出口的承诺当成成功证据。
+- 实现主提交 `3c6516d12b835ddd65f3fd8edb2da1af487a1461`、回归 `d3d9159cb754c5df1190802e8bde875a9c7f7ee3`、自主联动 `8e53c02c643061551bfceef8745a43916ce0e66c`、文本规范 `321ec144973c42aacffafb09e961bcece92678fe`。**本段仅是源码事实，CI / APK / 真机结果尚待单独核实。**
+- 后续待办：没有共享 ID 的跨场景事件需要追查源 ID 传递；主观叙事学习不自动填入事实层；多年数据量应另做索引/性能测量，尤其 `SharedExperienceTimeline.all` 的长期检索。当前改动不能宣称所有事件都自动连成因果，也不能证明模型下一次一定自主执行。
