@@ -70,7 +70,8 @@ object ToolRouter {
                 // rejection or turn it into an executed action.
                 val result = failure(message, status)
                 val cause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
-                    ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
+                    ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement,
+                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) }
                 val evidenceId = "tool-rejected-$characterId-$requestId"
                 if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isEmpty()) {
                     val receipt = JSONObject().put("characterId", characterId)
@@ -159,7 +160,8 @@ object ToolRouter {
             val goalReceiptId = "tool-$characterId-$requestId"
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
             val verifiedCause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
-                ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
+                ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement,
+                        EventEvidenceKind.Observation, EventEvidenceKind.CharacterStatement) }
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
