@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:44:15.114074+00:00",
-  "commit": "4a50cec3c546e77ffaaac6192a1af3f77ffc16f9",
+  "generatedAt": "2026-10-28T09:44:34.677949+00:00",
+  "commit": "f788aaf3b81c5ed2c88169666faa541369a74fb3",
   "branch": "main",
-  "sourceFingerprint": "c0075325aa79efa5416c9844df0cd124b1f713873a56ec6c8639d0e6176dbd23",
+  "sourceFingerprint": "2ecea2937fa06de19a895430d3624c95918afaad57fa505a3f55bda4aaf47f4d",
   "summary": {
     "files": 1025,
-    "lines": 205994,
+    "lines": 205993,
     "symbols": 2996
   },
   "symbolIndex": {
@@ -29378,8 +29378,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
-      "lines": 307,
-      "sha256": "83fc80ab1c4cfecf2b74f3d7941dbd21807db2bf6b812ef414ff2cc799b96c2e",
+      "lines": 306,
+      "sha256": "ea18a4eba0bf63d0d531728746bcbe3e622dee22156abcbff6e8f191f1998e87",
       "symbols": [
         {
           "name": "index",
