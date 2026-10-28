@@ -107,8 +107,32 @@ internal object Live2DConversationPerformance {
 
     /** Explicit beats win; explicit numeric channels override generated values. */
     fun expand(request: JSONObject): JSONObject {
+        val authored = request.optJSONArray("beats")
+        if (authored != null && authored.length() > 0) {
+            // Per-clause semantic selections stay in the SAME reply decision.
+            // Compile only the chosen moments; no text/keyword emotion mapping.
+            var expandedAny = false
+            val compiled = JSONArray()
+            for (i in 0 until minOf(authored.length(), 8)) {
+                val item = authored.optJSONObject(i) ?: continue
+                val selected = item.optJSONObject("performance")
+                if (selected == null) { compiled.put(item); continue }
+                val score = expand(JSONObject().put("performance", selected)).optJSONArray("beats")
+                if (score == null) { compiled.put(item); continue }
+                expandedAny = true
+                for (j in 0 until minOf(score.length(), 3)) {
+                    val beat = JSONObject(score.getJSONObject(j).toString())
+                    item.optString("anchor").takeIf(String::isNotBlank)?.let { beat.put("anchor", it) }
+                    beat.put("atMs", beat.optInt("atMs") + item.optInt("atMs", 0))
+                    for (field in listOf("expression", "head", "body", "face", "durationMs")) {
+                        if (item.has(field)) beat.put(field, item.get(field))
+                    }
+                    compiled.put(beat)
+                }
+            }
+            return if (expandedAny) JSONObject(request.toString()).put("beats", compiled) else request
+        }
         val intent = request.optJSONObject("performance") ?: return request
-        if ((request.optJSONArray("beats")?.length() ?: 0) > 0) return request
         fun choice(key: String, options: Map<String, Pose>): String? {
             val value = intent.optString(key).trim().lowercase(java.util.Locale.ROOT)
             return options.keys.firstOrNull { it == value || labels[it] == value }
