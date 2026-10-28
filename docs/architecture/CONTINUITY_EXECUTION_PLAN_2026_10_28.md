@@ -276,3 +276,10 @@
 - **修复**：RoleDayPlan 新增向后兼容的 originEvidenceId/originEvidenceRevision，可选且默认空/0；既有存取、改期和撤销沿同一计划保留来源。居民 saveAgenda 以已有稳定 native-daily-<residentId>-<date> 和首版 revision 写入，不创建新时间线或第二套状态中心。CharacterCausalTrace 只读列出同角色、精确来源的计划，区分尚待执行、已取消、已完成但执行证据已撤回/不可见、已完成且原证据仍存在；来源修订后明确标记历史版本，不能拿新版文字解释旧决定。旧计划无来源时保持未知，不做猜测。
 - **测试**：CharacterCausalTraceTest 覆盖原决定→真实持久日程、角色隔离、来源编辑与撤回、计划不冒充成功；ResidentDailyContinuityTest 在真实 MockWebServer 无效嵌套 agenda→本人补正→保存日程的集成路径核验来源 ID/版本、原详情能找到尚未执行的计划、模型请求与发布次数不增加。原有工具幂等与权限执行不变。
 - **提交**：`33c67878bf1f1e2839c7ba316d1ec98f68247f28`（Store）、`4c1897094f3959cef92302a45a31d368af658380`（居民入口）、`821da1589862189bcc875df037847b6ada574b68`（只读诊断）、`90bce7eafbaab8678b7ba8c01102d18c18931e92`、`88baa3e8131efad52338bd2ae4db32bdc637865d`（回归）、`98e17c8c857777e1e10df5a125ebe2a4e97425f5`（已有日程时不显示误导性“无后续”）、`8bce41414347f8bf0c59271dad53d242c8d2e4d5`（使用真实 resident-daily 来源）、`8b6748ad5f51533e1fe2a5a2303b59782674ab29`（Worker 测试初始化）、`cc7aa0075da8292654c4ebcec62b568dc69fbb22`（改期/撤销仍保留来源）。**代码提交不等于 Android CI/APK 或真机成功**；索引交给现有自动 Refresh code index 工作流并核对生成提交。后续仍需 P0-A 的跨日有效决定复杂恢复，以及 P0-B 非工具消息送达和结果感知后的目标进展证据。
+
+
+## 2026-10-28 P0-A：主动作成功而附加步骤未完成（源码与回归提交，CI/真机另验）
+
+- **根因**：居民到点 execute 忽略 `executeWakeSteps` 的 completedCount，主动作成功后即写 finished，导致副步骤失败或尚待完成时失去 WorkManager 与重启恢复机会。
+- **修复**：execute 只有主动作与所有附加步骤完成才写 finished；否则保留 needs_recovery，沿既有 WorkManager、OrderedCharacterActions 和 ToolRouter 的原 requestId 做最多两次自动恢复，不重发已完成主动作。预算耗尽后在原居民日程卡允许主人**最多一次明确授权的已保存决定续接**，不再请求模型；校验人物、原 dueAt、状态及已完成主动作的真实回执，改期/撤销或证据失效不恢复。失败仍保留原工具拒绝回执。
+- **回归**：主动态成功而旧副动作失败、自动预算耗尽、人工恢复不重复发布；已完成主动作只补执行缺失的副动态；日程改期后旧恢复确认失效。**源码提交不代表 CI、APK 或真机通过**。

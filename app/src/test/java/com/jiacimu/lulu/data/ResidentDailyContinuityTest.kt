@@ -1646,4 +1646,110 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun completedPrimaryCannotHideFailedSideStepOrReplayItForever() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "副步失败居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val primary = "主动态只发一次-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院观察",
+            "我想分享真实见闻", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", primary))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        // A legacy saved choice can contain a step rejected by the live
+        // executor. Primary success must not falsely finish that choice.
+        val choice = JSONObject().put("choice", "execute").put("reason", "想分享")
+            .put("args", JSONObject().put("text", primary))
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", ""))))
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertEquals("completed", RoleDayScheduleStore.plans(app, actor)
+            .single { it.id == plan.id }.status)
+        assertEquals("needs_recovery", p.getString("due-phase:$key", ""))
+        assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        val snapshot = ResidentDailyDecision.savedDueRecovery(app, plan)
+        assertNotNull(snapshot)
+        assertFalse(ResidentDailyDecision.resumeSavedDueDecision(app, snapshot!!) { now })
+        assertNull(ResidentDailyDecision.savedDueRecovery(app, plan))
+        assertFalse(ResidentDailyDecision.resumeSavedDueDecision(app, snapshot) { now })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == primary
+        })
+    }
+
+    @Test(timeout = 60_000) fun savedDueManualReplayOnlyRunsMissingSideActionAndRejectsStaleVersion() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "续接居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val primary = "已完成的主动态-${UUID.randomUUID()}"
+        val extra = "待续接的副动态-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "记录生活",
+            "记录真实见闻", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", primary))
+        val receipt = JSONObject(ToolRouter.execute(app, actor, "publish_moment",
+            JSONObject().put("text", primary).put("planId", plan.id),
+            requestId = "resident-plan-${plan.id}-${plan.dueAt.epochSecond}",
+            autonomousLifeTurn = true, expectedPlanDueAt = plan.dueAt))
+        assertTrue(receipt.optBoolean("success"))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val choice = JSONObject().put("choice", "execute").put("reason", "继续")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", extra))))
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "needs_recovery")
+            .putInt("due-recoveries:$key", 2).commit())
+        val snapshot = ResidentDailyDecision.savedDueRecovery(app, plan)
+        assertNotNull(snapshot)
+        assertTrue(ResidentDailyDecision.resumeSavedDueDecision(app, snapshot!!) { now })
+        assertEquals("finished", p.getString("due-phase:$key", ""))
+        assertNull(ResidentDailyDecision.savedDueRecovery(app, plan))
+        assertFalse(ResidentDailyDecision.resumeSavedDueDecision(app, snapshot) { now })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == primary
+        })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == extra
+        })
+        val old = RoleDayScheduleStore.arrange(app, actor, "另一个行程",
+            "晚点分享其他内容", now.minusSeconds(90), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "不该发"))
+        val oldKey = "execute:${old.id}:${old.dueAt}"
+        assertTrue(p.edit().putBoolean(oldKey, true)
+            .putString("due-decision:$oldKey", JSONObject()
+                .put("choice", "cancel").put("reason", "放下").toString())
+            .putString("due-phase:$oldKey", "needs_recovery")
+            .putInt("due-recoveries:$oldKey", 2).commit())
+        val stale = ResidentDailyDecision.savedDueRecovery(app, old)
+        assertNotNull(stale)
+        RoleDayScheduleStore.reschedule(app, actor, old.id, now.plusSeconds(900),
+            "主人改期", now)
+        assertFalse(ResidentDailyDecision.resumeSavedDueDecision(app, stale!!) { now })
+        assertEquals("planned", RoleDayScheduleStore.plans(app, actor)
+            .single { it.id == old.id }.status)
+    }
+
 }

@@ -105,6 +105,54 @@ internal object ResidentDailyDecision {
         return DueRecovery(live.id, live.characterId, live.dueAt, phase, p.getInt("due-manual-retry:$key", 0))
     }
 
+
+    /** Explicitly replay a durable choice, never buy a new model response. */
+    data class SavedDueRecovery(val planId: String, val characterId: String,
+        val dueAt: Instant, val phase: String, val recoveries: Int)
+
+    fun savedDueRecovery(context: Context, plan: RoleDayPlan): SavedDueRecovery? {
+        val live = RoleDayScheduleStore.plans(context, plan.characterId)
+            .firstOrNull { it.id == plan.id && it.dueAt == plan.dueAt } ?: return null
+        val p = prefs(context)
+        val key = dueAttemptKey(live)
+        val raw = p.getString("due-decision:$key", null) ?: return null
+        val choice = runCatching { JSONObject(raw).optString("choice") }.getOrNull()
+            ?: return null
+        if (choice !in setOf("execute", "reschedule", "cancel", "wait")) return null
+        if (live.status !in setOf("planned", "due", "completed") ||
+            (live.status == "completed" && (live.repeat != "once" ||
+                choice != "execute" || live.resultEvidenceId.isBlank() ||
+                SharedExperienceTimeline.eventsByIds(live.characterId,
+                    listOf(live.resultEvidenceId)).none { it.id == live.resultEvidenceId })))
+            return null
+        val phase = p.getString("due-phase:$key", "").orEmpty()
+        val recoveries = p.getInt("due-recoveries:$key", 0)
+        if (phase !in setOf("decided", "needs_recovery") ||
+            recoveries < MAX_SAVED_DECISION_RECOVERIES ||
+            p.getInt("due-manual-resume:$key", 0) > 0) return null
+        return SavedDueRecovery(live.id, live.characterId, live.dueAt, phase, recoveries)
+    }
+
+    suspend fun resumeSavedDueDecision(context: Context, expected: SavedDueRecovery,
+        clock: () -> Instant = Instant::now): Boolean {
+        val key = "execute:${expected.planId}:${expected.dueAt}"
+        return dueRequests.withLock(key) {
+            val now = clock()
+            val plan = RoleDayScheduleStore.plans(context, expected.characterId)
+                .firstOrNull { it.id == expected.planId } ?: return@withLock false
+            if (now.isBefore(plan.dueAt) || savedDueRecovery(context, plan) != expected ||
+                ResidentCharacterBridge.nativeResident(plan.characterId) == null)
+                return@withLock false
+            val p = prefs(context)
+            // Consume the single manual grant BEFORE any side effect. A crash
+            // cannot create an unbounded replay loop.
+            check(p.edit().putInt("due-manual-resume:$key", 1)
+                .putInt("due-recoveries:$key", MAX_SAVED_DECISION_RECOVERIES - 1)
+                .commit()) { "已保存决定的人工恢复授权未持久化" }
+            runDuePlanLocked(context, plan, now)
+        }
+    }
+
     suspend fun retryDueDecision(context: Context, expected: DueRecovery,
         clock: () -> Instant = Instant::now): Boolean {
         val key = "execute:${expected.planId}:${expected.dueAt}"
@@ -941,10 +989,11 @@ internal object ResidentDailyDecision {
             }
             else -> false
         }
-        if (wanted == "execute") {
+        val sideStepsComplete = if (wanted == "execute") {
+            val total = choice.optJSONArray("steps")?.length() ?: 0
             executeWakeSteps(app, plan.characterId, choice, turnId,
-                initialCompleted = originalHandled, causeEvidenceId = decisionEvidenceId)
-        }
+                initialCompleted = originalHandled, causeEvidenceId = decisionEvidenceId) == total
+        } else true
         if (wanted == "wait" && originalHandled) {
             // The original plan is still due after its independent side steps,
             // so a crash before rescheduling can resume the saved decision with
@@ -982,13 +1031,14 @@ internal object ResidentDailyDecision {
             superseded -> "superseded"
             wanted == "wait" && originalHandled -> "waiting"
             wanted == "wait" -> "needs_recovery"
-            originalHandled -> "finished"
+            originalHandled && sideStepsComplete -> "finished"
             else -> "needs_recovery"
         }
         check(p.edit().putString(phaseKey, phase).commit()) {
             "居民到点回执的执行阶段尚未保存"
         }
-        return originalHandled
+        // A successful primary cannot hide unfinished independent steps.
+        return originalHandled && sideStepsComplete
     }
 
     /** Optional leisure choices are bounded by real public locations. */

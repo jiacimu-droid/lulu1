@@ -51,13 +51,38 @@ internal fun ResidentPlanRecoveryControl(plan: com.jiacimu.lulu.data.RoleDayPlan
     val scope = rememberCoroutineScope()
     var refresh by remember(plan.id, plan.dueAt) { mutableIntStateOf(0) }
     val recovery = remember(plan.id, plan.dueAt, refresh) { ResidentDailyDecision.dueRecovery(context, plan) }
+    val savedRecovery = remember(plan.id, plan.dueAt, refresh) {
+        ResidentDailyDecision.savedDueRecovery(context, plan)
+    }
+    var confirmingSaved by remember(plan.id, plan.dueAt) { mutableStateOf(false) }
     var confirming by remember(plan.id, plan.dueAt) { mutableStateOf(false) }
     var busy by remember(plan.id) { mutableStateOf(false) }
     var result by remember(plan.id) { mutableStateOf("") }
     if (recovery != null) TextButton(onClick = { confirming = true }, enabled = !busy) {
         Text(if (busy) "正在处理" else "恢复这项活动的决定")
     }
+    if (savedRecovery != null) TextButton(
+        onClick = { confirmingSaved = true }, enabled = !busy,
+    ) { Text(if (busy) "正在处理" else "续接已保存的行动") }
     if (result.isNotBlank()) Text(result, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (confirmingSaved && savedRecovery != null) LuluAlertDialog(
+        onDismissRequest = { confirmingSaved = false },
+        title = { Text("续接未完成的行动？") },
+        text = { Text("不重新请求模型，只续接角色已保存的决定。已完成动作沿原请求 ID 去重；失败步骤仍可能无法执行。每项旧决定最多人工续接一次。") },
+        confirmButton = { TextButton(onClick = {
+            confirmingSaved = false; busy = true
+            scope.launch {
+                result = try {
+                    if (ResidentDailyDecision.resumeSavedDueDecision(context, savedRecovery))
+                        "已续接保存的行动"
+                    else "行动仍未完成，或日程已改变；请查看执行回执"
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { "续接未完成，请查看执行回执" }
+                finally { busy = false; refresh++; onUpdated() }
+            }
+        }) { Text("续接一次") } },
+        dismissButton = { TextButton(onClick = { confirmingSaved = false }) { Text("取消") } },
+    )
     if (confirming && recovery != null) LuluAlertDialog(
         onDismissRequest = { confirming = false },
         title = { Text("重新考虑这项活动？") },
