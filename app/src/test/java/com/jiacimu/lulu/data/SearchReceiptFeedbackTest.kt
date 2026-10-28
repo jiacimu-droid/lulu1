@@ -50,6 +50,24 @@ class SearchReceiptFeedbackTest {
             JSONArray().put(JSONObject().put("tool", "go_offline"))))
     }
 
+    @Test fun completedScreenObservationReturnsToCharacterButPermissionRequestDoesNot() {
+        val observed = JSONObject().put("success", true).put("status", "observed")
+            .put("summary", "真实看到的屏幕内容：阅读器正在显示一篇文章")
+            .put("evidenceId", "screen-real-observation")
+        val result = SearchReceiptFeedback.from("capture_screen", JSONObject(), observed)
+        assertNotNull(result)
+        assertEquals("observe", result!!.operation)
+        assertEquals("screen-real-observation", result.evidenceId)
+        assertTrue(result.details.contains("阅读器"))
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "capture_screen", null))
+        val pending = JSONObject().put("success", true).put("status", "pending")
+            .put("summary", "尚未获得画面")
+        assertNull(SearchReceiptFeedback.from("capture_screen", JSONObject(), pending))
+        val refused = JSONObject().put("success", false).put("status", "waiting_user")
+            .put("error", "未授权")
+        assertNull(SearchReceiptFeedback.from("capture_screen", JSONObject(), refused))
+    }
+
     @Test fun webSearchAndReadPreserveRealExecutorEvidence() {
         val args = JSONObject().put("op", "search_read").put("query", "第五人格活动")
         val actual = JSONObject().put("success", true)
