@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:54:32.606072+00:00",
-  "commit": "bca12967d5377a4d5e85e38820a4b466935bd4d4",
+  "generatedAt": "2026-10-28T08:59:21.274759+00:00",
+  "commit": "e7b39a16391b7a752dc336b08cd8dea12420ed18",
   "branch": "main",
-  "sourceFingerprint": "e6a3e24fdd46bb4e51d19c4e317f75ffb181c6ed7c2c313220d5a0d044075070",
+  "sourceFingerprint": "b5c10f0ad28c8609763093acedcf75e373aa0dc95acea9473d060da6ebdc88f1",
   "summary": {
     "files": 1020,
-    "lines": 204069,
-    "symbols": 2972
+    "lines": 204142,
+    "symbols": 2973
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6379,7 +6379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1174
+        "line": 1247
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10764,10 +10764,16 @@
         "line": 185
       }
     ],
+    "reject": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 249
+      }
+    ],
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 762
+        "line": 835
       }
     ],
     "plan": [
@@ -27255,8 +27261,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1225,
-      "sha256": "3b6af43e849cf3cbf0007d569348bdd74e437c9b9ed0d2401dfd282a30290689",
+      "lines": 1298,
+      "sha256": "c7de3a25fc9948d12bc538c6bcb30c3cf61c91b39e796ee5df7f72381fda12d9",
       "symbols": [
         {
           "name": "planForApp",
@@ -27271,12 +27277,16 @@
           "line": 185
         },
         {
+          "name": "reject",
+          "line": 249
+        },
+        {
           "name": "allowedLeisureLocation",
-          "line": 762
+          "line": 835
         },
         {
           "name": "schedule",
-          "line": 1174
+          "line": 1247
         }
       ]
     },
