@@ -132,13 +132,13 @@ internal object DigitalWorldActivityStateStore {
             RealityWorldWindowRuntime.executeActivity(characterId, activityId, now)
         } else when (activityId) {
             "watch_tv", "watch_tv_from_sofa", "change_channel" -> error("电视尚未接入节目源，不能记录观看了节目")
-            "browse_games", "choose_arcade" -> "${name}查看了游戏馆中的记忆配对入口；尚未开始对局。"
+            "browse_games", "choose_arcade" -> "${name}查看了游戏馆的方块小岛、迷雾摸金及保留的经典游戏；尚未开始对局。"
             "check_scoreboard" -> {
                 val records = LuluGames.store.state.value.records.filter { it.characterId == characterId }.takeLast(5)
                 if (records.isEmpty()) "${name}查看了自己的游戏记录，目前还没有已完成的对局。"
                 else "${name}查看了自己的游戏记录：" + records.joinToString("；") { "${it.title}，${it.score} 分，${it.createdAt}" }
             }
-            "watch_game" -> error("没有可核验的现场游戏过程；可以自己玩游戏馆中的记忆配对")
+            "watch_game" -> error("没有可核验的现场游戏过程；可以去游戏馆开启真实的玩法")
             "play_table_game" -> error("请通过游戏馆的真实游戏开始对局")
             "read_at_desk", "quiet_read", "window_read", "reading_notes" -> error("阅读需要指定阅读 App 中的真实书目与正文")
             "order_drink", "order_snack" -> {
