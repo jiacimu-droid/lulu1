@@ -287,10 +287,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
 
         if (!completed && navigationTarget != null) {
             DeepSeaNavigationPanel(
-                destination = if (gateReady) "归航门" else targetEcho?.title.orEmpty(),
+                destination = if (gateReady) "归航门" else revealedTarget?.title.orEmpty(),
                 delta = navigationTarget - player,
                 distance = player.distanceTo(navigationTarget),
-                navigating = navigationRoute.isNotEmpty(),
+                routeDistance = navigationDistance,
+                navigating = navigationDistance != null,
                 onNavigate = {
                     val route = worldFollowPath(player, navigationTarget, DEEP_SEA_WORLD_BOUNDS, obstacles, 36f)
                     if (route.isEmpty()) notice = "目标方向被礁石挡住了，试着绕到开阔水域"
@@ -299,7 +300,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                         notice = if (gateReady) "归航航线已标出，跟随荧光轨迹前进" else "下一枚晶体的航线已标出"
                     }
                 },
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 116.dp, end = 11.dp),
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 110.dp, end = 11.dp),
             )
         }
 
@@ -472,6 +473,7 @@ private fun DeepSeaNavigationPanel(
     destination: String,
     delta: WorldVector,
     distance: Float,
+    routeDistance: Float?,
     navigating: Boolean,
     onNavigate: () -> Unit,
     modifier: Modifier = Modifier,
@@ -494,8 +496,9 @@ private fun DeepSeaNavigationPanel(
                     tint = Color(0xFF9BFFE9),
                     modifier = Modifier.size(26.dp).graphicsLayer { rotationZ = heading })
                 Column {
-                    Text("直线 ${distance.roundToInt()} 刻度", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    Text(if (navigating) "正在跟随荧光航线" else "点导航绘制避障路线",
+                    Text("直线 ${distance.roundToInt()} 世界单位", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text(routeDistance?.let { "避障航线约 ${it.roundToInt()} 世界单位" }
+                        ?: if (navigating) "正在沿航线前进" else "导航可绘制避障航线",
                         color = Color(0xFF9DBEB8), fontSize = 9.sp)
                 }
             }
@@ -536,7 +539,7 @@ private fun DeepSeaHud(
                 Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
                     Text("回声海沟 · ${depth}m", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Black)
-                    Text(companionName?.let { "$it 正在跟随潜航" } ?: "单人自由潜航", color = Color(0xFF93BFB8), fontSize = 8.5.sp)
+                    Text(companionName?.let { "与 $it 共同探测海沟" } ?: "单人自由潜航", color = Color(0xFF93BFB8), fontSize = 8.5.sp)
                 }
                 Text("$collected / $total", color = Color(0xFFAFFFF0), fontSize = 19.sp, fontWeight = FontWeight.Black)
             }
@@ -545,9 +548,9 @@ private fun DeepSeaHud(
                 Spacer(Modifier.width(5.dp))
                 Text(
                     when {
-                        gateReady -> "归航门已开启 · 直线距离 ${distance?.roundToInt() ?: 0} 刻度"
+                        gateReady -> "归航门已开启 · 直线 ${distance?.roundToInt() ?: 0} 世界单位"
                         distance == null -> "搜索回声晶体"
-                        else -> "最近回声 · 直线距离 ${distance.roundToInt()} 刻度"
+                        else -> "最近回声 · 直线 ${distance.roundToInt()} 世界单位"
                     },
                     color = Color(0xFFC7DCD7),
                     fontSize = 8.5.sp,
