@@ -1008,7 +1008,10 @@ class CompanionModelGateway(
                 // A few OpenAI-compatible relays reject the stream flag even though their normal
                 // chat endpoint works. Only retry those immediate protocol rejections; never turn a
                 // timeout, rate limit or server failure into a second expensive generation.
-                if (error.status !in setOf(400, 422)) throw error
+                // Only an explicit stream-option incompatibility can justify
+                // resending without stream. Provider content rejection is NOT
+                // a protocol negotiation failure; repeating it just bills again.
+                if (!shouldRetryWithoutStreaming(error)) throw error
                 body.remove("stream")
                 onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             }
@@ -1255,13 +1258,30 @@ private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().co
 private fun elapsedMillis(startedAtNanos: Long): Long =
     ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
 
-private class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
+internal class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
 
-/** Only an explicit HTTP rejection proves that no model reply was generated.
- * Timeouts, 429 and 5xx may have consumed a provider request and are NEVER
- * eligible for automatic replay. Do not classify by localized error strings. */
-internal fun isDefinitelyRejectedModelRequest(error: Throwable): Boolean =
+/** A content/parameter/auth rejection is terminal for the identical payload.
+ * Reconsider only after the context, permissions or model settings change.
+ * Never classify a provider timeout or an ambiguous 5xx as safe to replay. */
+internal fun isNonRetryableModelFailure(error: Throwable): Boolean =
     error is ModelHttpException && error.status in setOf(400, 401, 402, 403, 404, 413, 422)
+
+/** A very narrow, provider-stated protocol negotiation case. A bare 400/422
+ * or `prohibited_content` does not permit a second request for the same input. */
+internal fun shouldRetryWithoutStreaming(error: Throwable): Boolean {
+    if (error !is ModelHttpException || error.status !in setOf(400, 422)) return false
+    val message = error.message.orEmpty().lowercase()
+    if ("prohibited_content" in message || "safety" in message ||
+        "policy" in message || "content" in message) return false
+    return ("stream" in message || "流式" in message) &&
+        listOf("not support", "unsupported", "not allowed", "unknown parameter",
+            "unrecognized", "invalid", "不支持", "未知参数", "无效参数", "不允许").any(message::contains)
+}
+
+/** Existing callers also use this predicate to distinguish a definite HTTP
+ * rejection from a request whose completion status is unknown. */
+internal fun isDefinitelyRejectedModelRequest(error: Throwable): Boolean =
+    isNonRetryableModelFailure(error)
 
 private const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 90_000
 
