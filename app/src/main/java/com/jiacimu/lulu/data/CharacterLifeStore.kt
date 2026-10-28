@@ -106,7 +106,7 @@ object CharacterLifeStore {
             }
             val userAgreement = root.optJSONObject("relationshipAgreements")
                 ?.optJSONObject("user")
-            if (userAgreement?.optString("title") == "闺蜜" &&
+            if (userAgreement != null && userAgreement.optString("title") == "闺蜜" &&
                 userAgreement.optString("details") == CharacterProfileSchema.xingHeV1Friendship) {
                 userAgreement.put("title", "最好的闺蜜")
                     .put("details", CharacterProfileSchema.xingHeFriendship)
