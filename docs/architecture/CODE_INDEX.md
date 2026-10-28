@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`adde045c73e3a97922b0b1a4e14b539262f69af1`
+- 基准提交：`4e72cbedc92dbf5c5b28f51a01d32446e18e81a5`
 - 分支：`main`
 - 已索引文件：1011
-- 已索引代码/文本行：201763
+- 已索引代码/文本行：201762
 - 已发现符号：2942
 
 | 文件 | 行数 | 符号数 |
@@ -514,7 +514,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 751 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 750 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 773 | 22 |
