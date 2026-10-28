@@ -115,4 +115,23 @@ class AutonomousEncounterPrivacyTest {
         assertTrue(DigitalWorldLifeEventStore.socialOpportunityKinds("unknown", true).isEmpty())
     }
 
+    @Test fun earlierDecisionCannotUseLaterAnswerAsItsPsychologicalEvidence() {
+        val first = meeting("causal", listOf("a", "b"), "甲先提出邀请")
+        val both = first.copy(turns = first.turns + first.turns.first().copy(
+            id = "b-answer", speakerId = "b", dialogue = "乙后来婉拒"))
+        assertEquals("meeting-causal-autonomous-turn-causal-turn-viewer-a",
+            AutonomousSocialRuntime.reactionEvidenceFor(both, "a"))
+        assertEquals("meeting-causal-autonomous-turn-b-answer-viewer-b",
+            AutonomousSocialRuntime.reactionEvidenceFor(both, "b"))
+        val quiet = both.copy(turns = emptyList())
+        assertEquals("meeting-causal-autonomous-start-viewer-a",
+            AutonomousSocialRuntime.reactionEvidenceFor(quiet, "a"))
+        assertEquals("meeting-causal-autonomous-start-viewer-b",
+            AutonomousSocialRuntime.reactionEvidenceFor(quiet, "b"))
+        try {
+            AutonomousSocialRuntime.reactionEvidenceFor(both, "outsider")
+            fail("Absent characters cannot own an encounter reaction")
+        } catch (_: IllegalArgumentException) { }
+    }
+
 }

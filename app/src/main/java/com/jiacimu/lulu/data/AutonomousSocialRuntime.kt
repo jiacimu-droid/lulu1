@@ -200,10 +200,14 @@ internal object AutonomousSocialRuntime {
         // after the referenced meeting has actually been committed.
         participantIds.forEach { id ->
             val reaction = generated.privateReactions[id] ?: return@forEach
-            val ownEvidence = "meeting-${session.id}-autonomous-summary-viewer-$id"
+            val savedSession = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
+                ?: return@forEach
+            val ownEvidence = reactionEvidenceFor(savedSession, id)
+            val observed = SharedExperienceTimeline.eventsByIds(id, listOf(ownEvidence)).firstOrNull()
+                ?: return@forEach
             runCatching {
                 CharacterInnerLifeStore.observe(
-                    id, ownEvidence, summary, reaction.optJSONObject("innerLife"),
+                    id, ownEvidence, observed.content, reaction.optJSONObject("innerLife"),
                     participantIds.filterNot { it == id }.toSet(), finishedAt)
                 CharacterInnerLifeStore.recordInnerVoice(
                     id, ownEvidence, reaction.optString("innerThought"), finishedAt)
@@ -280,6 +284,17 @@ internal object AutonomousSocialRuntime {
                 title = "", seed = "", category = "encounter",
             )
         }
+    }
+
+    /** Each choice saw only its own and earlier public turns. Later answers
+     * stay unacknowledged for the original personal perception loop to digest. */
+    internal fun reactionEvidenceFor(session: MeetingSession, viewerId: String): String {
+        val index = session.participantIds.indexOf(viewerId)
+        require(index >= 0) { "Reaction owner was not present" }
+        val visibleSpeakers = session.participantIds.take(index + 1).toSet()
+        val lastSeen = session.turns.lastOrNull { it.speakerId in visibleSpeakers }
+        return if (lastSeen == null) "meeting-${session.id}-autonomous-start-viewer-$viewerId"
+        else "meeting-${session.id}-autonomous-turn-${lastSeen.id}-viewer-$viewerId"
     }
 
     /** Only actually recorded, viewer-owned evidence enters that viewer's novel. */
