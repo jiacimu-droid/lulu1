@@ -26,9 +26,15 @@ internal object CharacterPerceptionContext {
         // Historical passive phone-page traces remain in the durable archive,
         // but they are no longer psychological stimuli. A mere page switch is
         // not a message, permission, social interaction or evidence of mood.
-        val sensed = (direct + observed.filterNot {
-            it.source == "owner-phone-inspection"
-        }.map(::stimulus))
+        // Ingress must enforce role ownership, not just trust its adapter.
+        // Mixed/group event batches are possible; only events actually saved
+        // for this person may become this person's experience or be claimed
+        // in the per-person stimulus ledger. A co-witness has their OWN row.
+        if (characterId.isBlank()) return CharacterPerceptionInput(emptyList(), null)
+        val ownedObserved = observed.filter {
+            it.characterId == characterId && it.source != "owner-phone-inspection"
+        }
+        val sensed = (direct + ownedObserved.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
             // Edited evidence may be present in both the direct input and the
             // authoritative timeline; only the latest revision is the new fact.
