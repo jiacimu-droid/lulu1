@@ -212,7 +212,9 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 } else {
                     if (timeline.isEmpty()) item { Text("还没有匹配的原始记录", color = LuluColors.Muted) }
                     items(timeline.take(count), key = { it.id }) { event ->
-                        CharacterOriginalEventCard(event, timeline, timelineRevision, mindRevision,
+                        // Search filters which cards are visible, NOT which later
+                        // receipts count as evidence for the opened event.
+                        CharacterOriginalEventCard(event, timelineState.second, timelineRevision, mindRevision,
                             onDelete = { deletingEvent = event })
                     }
                 }
