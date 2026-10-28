@@ -24,7 +24,8 @@ internal object Live2DVisualActionBus {
     /** Milliseconds from the start of audible TTS, not from API request time. */
     data class Beat(val atMs: Int, val expression: String? = null,
         val head: Head? = null, val body: Body? = null, val face: Face? = null,
-        val durationMs: Int? = null)
+        val durationMs: Int? = null,
+        val anchor: String? = null, val segmentIndex: Int = 0)
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
     internal val faceChannels = linkedMapOf(
@@ -140,10 +141,15 @@ internal object Live2DVisualActionBus {
             可用 head=$headFields（-25至25），body=$bodyFields（-10至10）；face=$faceFields。
             face 每项-1至1；eyeSmile、squint、cheekPuff、pout、eyeOpen 为0至1，eyeOpen=1正常睁眼；
             gazeX/Y是视线，smile是嘴角，eyeSmile是笑眼，browX/Y/Angle/Form是眉形；不用嘴巴开合假装发声。
-            自己想演绎更具体的先后变化时才写 beats，例如
+            你还可以自主决定一句话的哪一个位置做动作。推荐在 beats 每拍填 anchor，必须逐字取自本轮 text 的某个分句开头（紧接逗号、句号等标点之后），例如
+            {"action":"reply","text":"你回来了！我刚才还想着你呢。不过我可没一直等你。","live2d":{"beats":[{"anchor":"你回来了","performance":{"feeling":"happy","movement":"lean","intensity":0.4}},{"anchor":"不过我可没一直等你","performance":{"feeling":"playful","movement":"glance","intensity":0.35}}]}}。
+            这会在对应原话开始实际发声时表演；不必每一句都有动作。只有明确选择了文字锚点才会为对齐短暂拆分语音，最多增加3个TTS片段，不额外调用语言模型。
+            anchor 不可改写台词、不可重复出现；若最终口语文本不含它或无法按分句边界对齐，动作会跳过，不能冒充精准同步。
+            每拍 performance 可选上方真实 feeling/movement/intensity/side，系统只把你选择的意图转成已有骨骼参数，不能根据文本擅自猜表情。
+            自己想演绎更具体的先后变化时也可写数值 beats，例如
             {"beats":[{"atMs":0,"face":{"smile":0.2}},
             {"atMs":700,"head":{"roll":4},"body":{"roll":1},"face":{"smile":0.5,"eyeSmile":0.3},"durationMs":900}]}。
-            beats 的 atMs 从本轮真实音频播放开始计时，durationMs 可选，表示本拍参数保持多久再平滑还原；显式 beats 优先。
+            无 anchor 的 beats.atMs 从本轮第一段真实发声开始计时；有 anchor 时 atMs 是从该分句实际出声起算的偏移，省略则为0。durationMs 为本拍保持时间，随后平滑还原；显式 beats 优先。
             沉默时所选小动作直接执行，不必硬配台词；文字 gesture 或括号描述本身不能驱动模型。
             正在发完整词句时不能同时吐舌或用口部动作阻碍发声；播放执行器会等真实PCM停顿或语音结束才执行这类表情。
             没有PCM不能猜停顿。笑眼、脸红和轻微姿态可以伴随语气，但应与实际要说的话一致。
@@ -283,8 +289,9 @@ internal object Live2DVisualActionBus {
         val beats = buildList {
             if (beatsJson != null) for (i in 0 until minOf(beatsJson.length(), 16)) {
                 val item = beatsJson.optJSONObject(i) ?: continue
-                if (!item.has("atMs")) continue
-                val atMs = item.optInt("atMs", -1)
+                val anchor = item.optString("anchor").trim().takeIf { it.isNotEmpty() && it.length <= 60 }
+                if (!item.has("atMs") && anchor == null) continue
+                val atMs = item.optInt("atMs", 0)
                 if (atMs !in 0..30_000) continue
                 val name = item.optString("expression").trim()
                     .takeIf(String::isNotBlank)
@@ -323,7 +330,7 @@ internal object Live2DVisualActionBus {
                 val durationMs = if (item.has("durationMs")) item.optInt("durationMs", -1)
                     .takeIf { it in 1..30_000 } else null
                 if (name != null || beatHead != null || beatBody != null || beatFace != null) {
-                    add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs))
+                    add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs, anchor))
                 }
             }
         }.sortedBy(Beat::atMs)
@@ -336,5 +343,25 @@ internal object Live2DVisualActionBus {
             beats = beats,
         ))
         return true
+    }
+
+    /** Bind only exact phrase anchors to actual queued TTS starts, fenced by
+     * the issuing visual decision. Never infer timestamps for missing quotes. */
+    @Synchronized
+    fun bindSpeechAnchors(characterId: String, callId: String, expectedSequence: Long,
+        segmentForAnchor: Map<String, Int>): Long {
+        val cue = mutableCues.value[characterId] ?: return 0L
+        if (visibleStages[characterId] != callId || cue.callId != callId ||
+            cue.sequence != expectedSequence) return 0L
+        if (cue.beats.none { it.anchor != null }) return expectedSequence
+        val aligned = cue.beats.mapNotNull { beat ->
+            val index = beat.anchor?.let(segmentForAnchor::get)
+            if (beat.anchor != null && index == null) null
+            else beat.copy(segmentIndex = index ?: 0)
+        }
+        sequence++
+        mutableCues.value = mutableCues.value +
+            (characterId to cue.copy(beats = aligned, sequence = sequence))
+        return sequence
     }
 }
