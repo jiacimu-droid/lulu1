@@ -327,10 +327,10 @@ private fun CharacterOriginalEventCard(event: SharedTimelineEvent,
     val context = LocalContext.current
     var expanded by rememberSaveable(event.id) { mutableStateOf(false) }
     val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
-    val trace = remember(event.id, event.revision, expanded, timelineRevision, mindRevision, timeline) {
-        if (expanded) CharacterCausalTrace.inspect(context, event.characterId, event, timeline)
-        else emptyList()
-    }
+    // No timeline-wide key comparison or database read for collapsed cards.
+    val trace = if (expanded) remember(event.id, event.revision, timelineRevision, mindRevision, timeline) {
+        CharacterCausalTrace.inspect(context, event.characterId, event, timeline)
+    } else emptyList()
     val effects = remember(event.id, developmentRevision, expanded) {
         if (expanded) CharacterRecordProjection.influences(event.characterId, listOf(event.id)) else emptyList()
     }
