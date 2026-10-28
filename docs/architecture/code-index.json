@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:57:17.179156+00:00",
-  "commit": "35a542bc62ae22b2bf282c159421b73666f3fa75",
+  "generatedAt": "2026-10-28T09:57:35.945780+00:00",
+  "commit": "0e091bee5b12a0a941eb56a4be1c0b7f74f4a136",
   "branch": "main",
-  "sourceFingerprint": "c2dd6a009daa1ccc1dc1e0df1586962ace903f84dde1f5052f55cf0f5471873c",
+  "sourceFingerprint": "38804b6a121d43811dd2e5f24edee8f0ee0f099f7c095ab025464fd07633deed",
   "summary": {
     "files": 1028,
     "lines": 206536,
@@ -17524,7 +17524,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
       "lines": 365,
-      "sha256": "f64d664202cc2b2e0e6ff5c87c53d0200b46c5adc9cc13e76dceebf0121d366f",
+      "sha256": "ee5f7d7454bef03d89412fd875710e09ae58ceeed7f1e8c67d1da7d1421d26ff",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
