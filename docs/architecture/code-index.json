@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:12:45.635474+00:00",
-  "commit": "24876b62a1b9702ab9cf15a3e8ea1daceb787764",
+  "generatedAt": "2026-10-28T16:13:06.196554+00:00",
+  "commit": "40488119d34fd8cb7d51b80a488a6fa119b6b59d",
   "branch": "main",
-  "sourceFingerprint": "1bcd74b15716d9e16dc268605be4acc0e5e21deceaff3da2e8530c8c086effe4",
+  "sourceFingerprint": "da6516aa5519070cbd04b4f568e1866f79acb886ec4a4882e71f66ebd458b1bf",
   "summary": {
     "files": 1053,
-    "lines": 214704,
+    "lines": 214710,
     "symbols": 3080
   },
   "symbolIndex": {
@@ -33407,8 +33407,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 125,
-      "sha256": "b3439bcbbd121e671917ab45be4d8351ab99177dc6e3b994eb8064b14f3c3752",
+      "lines": 131,
+      "sha256": "06a18550528428d7edce6e65cb008627edf5873784f439251152d89b91f208ec",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
