@@ -207,7 +207,6 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val nearbyRelic = deepSeaNearbyRelic(player, survey.revealedRelics, survey.salvagedRelics, obstacles)
     val nearbyCreature = deepSeaNearbyCreature(player, survey.observedCreatures, obstacles)
     val optionalRelic = deepSeaOptionalTarget(player, survey.revealedRelics, survey.salvagedRelics)
-    val activeSalvage = focusSalvage && optionalRelic != null
     val localCurrent = deepSeaCurrentAt(player)
     val gateReady = map.echoes.all { it.id in collected }
     val nearGate = deepSeaCanReturn(map, player, collected, obstacles)
@@ -215,11 +214,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         .filterNot { it.id in collected }
         .filter { it.id in scanned || player.distanceTo(it.position) <= 260f }
         .minByOrNull { player.distanceTo(it.position) }
-    val navigationTarget = when {
-        activeSalvage -> optionalRelic?.position
-        gateReady -> map.gate
-        else -> revealedTarget?.position
-    }
+    val primaryTarget = if (gateReady) map.gate else revealedTarget?.position
+    // Keep a newly discovered relic navigable even when the next main echo is still unknown.
+    val activeSalvage = optionalRelic != null && (focusSalvage || primaryTarget == null)
+    val navigationTarget = if (activeSalvage) optionalRelic?.position else primaryTarget
     val navigationDistance = navigationTarget?.let { destination ->
         navigationRoute.takeIf { it.lastOrNull() == destination }?.let { deepSeaRouteDistance(player, it) }
     }
@@ -323,6 +321,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             total = map.echoes.size,
             distance = navigationTarget?.let { player.distanceTo(it) },
             gateReady = gateReady,
+            navigatingSalvage = activeSalvage,
             relics = survey.salvagedRelics.size,
             totalRelics = deepSeaRelics.size,
             wildlife = survey.observedCreatures.size,
@@ -345,7 +344,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 routeDistance = navigationDistance,
                 navigating = navigationDistance != null,
                 alternateLabel = when {
-                    optionalRelic == null -> null
+                    optionalRelic == null || primaryTarget == null -> null
                     activeSalvage -> if (gateReady) "返回归航" else "返回回声"
                     else -> "寻找遗物"
                 },
@@ -655,6 +654,7 @@ private fun DeepSeaHud(
     total: Int,
     distance: Float?,
     gateReady: Boolean,
+    navigatingSalvage: Boolean,
     relics: Int,
     totalRelics: Int,
     wildlife: Int,
@@ -688,8 +688,9 @@ private fun DeepSeaHud(
                 Spacer(Modifier.width(5.dp))
                 Text(
                     when {
+                        navigatingSalvage -> "隐藏遗物 · 直线 ${distance?.roundToInt() ?: 0} 世界单位"
                         gateReady -> "归航门已开启 · 直线 ${distance?.roundToInt() ?: 0} 世界单位"
-                        distance == null -> "搜索回声晶体"
+                        distance == null -> "扫描未知海域，发现回声"
                         else -> "最近回声 · 直线 ${distance.roundToInt()} 世界单位"
                     },
                     color = Color(0xFFC7DCD7),
