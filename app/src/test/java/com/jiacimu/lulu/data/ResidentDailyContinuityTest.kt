@@ -2328,4 +2328,61 @@ class ResidentDailyContinuityTest {
             assertEquals(3, server.requestCount)
         } finally { server.shutdown() }
     }
+    @Test fun pastResidentRequestsRemainReadOnlyAfterMidnightAndAcrossPlanChanges() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val zone = java.time.ZoneId.systemDefault()
+        val day = java.time.LocalDate.now(zone).minusDays(1)
+        val past = day.atTime(12, 0).atZone(zone).toInstant()
+        val now = day.plusDays(1).atTime(12, 0).atZone(zone).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "跨日追溯居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = past.minusSeconds(3600)))
+        val other = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "另一位居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = past.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "昨天想分享的事情",
+            "昨天的独立想法", past.minusSeconds(120), past.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "绝不能跨日自动发布"))
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        val date = ResidentDailyDecision.date(past)
+        val oldDueKey = "execute:${plan.id}:${plan.dueAt}"
+        assertTrue(p.edit()
+            .putString("attempt:${native.id}", date)
+            .putString("phase:${native.id}:$date", "uncertain")
+            .putString("last-error:${native.id}:$date", "网关 502，是否计费未知")
+            .putString("phase:${other.id}:$date", "invalid_output")
+            .putString("invalid:${other.id}:$date", "malformed")
+            .putString("due-phase:$oldDueKey", "partial_side_steps")
+            .putString("due-decision:$oldDueKey",
+                JSONObject().put("choice", "execute").put("steps", JSONArray()).toString())
+            .commit())
+        val history = ResidentDailyDecision.historicalAttempts(app, native.id, now)
+        assertEquals(2, history.size)
+        assertTrue(history.any { it.scope == "每日规划" &&
+            it.phase == "uncertain" && !it.savedDecision &&
+            it.error.contains("502") })
+        assertTrue(history.any { it.scope == "到点复议" &&
+            it.phase == "partial_side_steps" && it.savedDecision })
+        assertFalse(history.any { it.malformedAnswerSaved })
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+        assertNull(ResidentDailyDecision.dayRecovery(app, native.id, now))
+        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        // Changing today's plan cannot turn yesterday's unknown model response
+        // into a paid retry or resurrect the old appointment.
+        RoleDayScheduleStore.reschedule(app, actor, plan.id,
+            now.plusSeconds(3600), "用户已重新安排", now)
+        val later = ResidentDailyDecision.historicalAttempts(app, native.id, now)
+        assertEquals(2, later.size)
+        assertEquals(0, p.getInt("due-manual-resume:$oldDueKey", 0))
+        assertEquals(0, p.getInt("manual-retry:${native.id}:$date", 0))
+        assertTrue(ResidentDailyDecision.historicalAttempts(app, other.id, now)
+            .none { it.scope == "到点复议" })
+    }
+
 }

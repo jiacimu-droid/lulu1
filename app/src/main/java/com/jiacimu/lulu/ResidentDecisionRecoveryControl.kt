@@ -20,6 +20,11 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
     val hasPartialActions = remember(nativeId, refresh) {
         ResidentDailyDecision.hasPartialDayActions(context, nativeId)
     }
+
+    val scheduleRevision by com.jiacimu.lulu.data.RoleDayScheduleStore.changes.collectAsState()
+    val history = remember(nativeId, refresh, scheduleRevision) {
+        ResidentDailyDecision.historicalAttempts(context, nativeId)
+    }
     var confirmingSaved by remember(nativeId) { mutableStateOf(false) }
     var confirming by remember(nativeId) { mutableStateOf(false) }
     var busy by remember(nativeId) { mutableStateOf(false) }
@@ -36,6 +41,22 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
     if (savedRecovery != null) {
         TextButton(onClick = { confirmingSaved = true }, enabled = !busy) {
             Text(if (busy) "正在处理" else "续接今日已保存的行动")
+        }
+    }
+    if (history.isNotEmpty()) {
+        Text("历史未完成请求（仅供核对，不会自动补发）",
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        history.forEach { item ->
+            val time = item.occurredAt.atZone(java.time.ZoneId.systemDefault())
+                .format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+            val basis = when {
+                item.savedDecision -> "原决定已保存"
+                item.malformedAnswerSaved -> "无效原文已保存"
+                else -> "没有已确认的模型决定"
+            }
+            Text("$time · ${item.scope} · ${item.label} · $basis" +
+                item.error.takeIf(String::isNotBlank)?.let { "；${it.take(90)}" }.orEmpty(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
     if (result.isNotBlank()) Text(result, color = MaterialTheme.colorScheme.onSurfaceVariant)

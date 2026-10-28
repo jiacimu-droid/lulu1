@@ -340,3 +340,10 @@
 - [x] **源码修复**：RoleDayPlan 增加可选 `lastMutationRequestId`，仅由程序把原 due 决定稳定 key 与取消/改期/等待的日程变更在**同一次日程持久化**写入；普通用户再次改期/取消会清空旧标记。ResidentDailyDecision 的既有居民行程卡恢复入口同时识别原有完整 marker 和“日程已变、phase 仍为 decided”的确切原决定。仍须验证本人原始首版证据、原 choice、日程状态/版本、未用过的人工授权；只续接独立 steps，绝不复活旧活动、重买模型或盲目补发。人工授权与 partial phase 在执行前一起持久化，进程再次中断不谎称 finished。
 - [x] **回归源码**：ResidentDailyContinuityTest 用 MockWebServer 覆盖 cancel/reschedule/wait 三类真实模型决定→成功动态+被拒私信→模拟主日程已提交但 phase/marker 丢失→恢复只执行原 requestId，已发动态恰好一次、旧主动作零次、模型请求不增加；另核对后续用户改期、撤回原决定后旧恢复资格失效。
 - [ ] **尚待实证**：GitHub Android JVM 测试、APK 构建、索引生成工作流、真实设备进程死亡注入与重启/后台调度；代码提交或 Robolectric 测试编写不能冒充通过。旧版本没有日程内 mutationRequestId 且恰好死在该间隙时，仍无法安全倒推出原决定，保守不自动恢复。
+
+## 2026-10-29 P0-A：跨日未知结果与独立行动历史只读核对（源码待 CI/真机）
+
+- [x] **根因**：原居民行程卡只用当天 `attempt:<resident>` 与当前日程版本寻找恢复按钮；日期推进后，昨日的 `uncertain`、结构补正中断及 `partial_side_steps` 虽仍保留在 SharedPreferences，但从原入口完全不可见。用户无法分辨「角色没选择」还是「模型请求结果未知」，可能误把昨天的选择当作今天要自动补做。
+- [x] **修复**：在 `ResidentDailyDecision.historicalAttempts` 只读投影原始每日 `phase:<resident>:<date>` 与本人仍持有的 `due-phase:execute:<planId>:<dueAt>`；按原阶段区分模型结果未知、无效原文、已保存决定及独立动作未完，保留原错误类别。现有 `ResidentDecisionRecoveryControl` 居民卡展示最近六条历史，明确只供核对、不授权补发；只显示确有本人日程归属的到点请求，避免跨角色数据泄漏。只限制屏幕展示数，不删除原历史，不创建状态中心、模型调用、自动补发或跨日重试权限。
+- [x] **回归已编写**：`ResidentDailyContinuityTest.pastResidentRequestsRemainReadOnlyAfterMidnightAndAcrossPlanChanges` 覆盖跨午夜请求未知、已保存到点决定、另一居民无效答案隔离、当前日不获得旧日恢复资格、后续改期不复活旧活动/授权。提交与 CI 结果以实际 main SHA 和工作流为准。
+- [ ] **待验**：Android JVM/phone APK、真机居民行程卡跨日展示、进程重启、外部供应商未知计费结果仍需核对；历史快照只是原状态与错误的可见性，无法从本机推断供应商是否已经收费或远端消息是否送达。P0-B 应进一步关联原请求 ID 的独立工具回执与本人后续感知。

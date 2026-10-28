@@ -65,6 +65,80 @@ internal object ResidentDailyDecision {
         return DayRecovery(day, phase, p.getInt("manual-retry:$nativeId:$day", 0))
     }
 
+
+    /** Read-only history of unfinished resident requests. A new local day
+     * must not erase the explanation for yesterday's unknown-charge request.
+     * This projection never changes a claim, schedules work or replays a tool. */
+    data class HistoricalAttempt(
+        val scope: String, val occurredAt: Instant, val phase: String,
+        val savedDecision: Boolean, val malformedAnswerSaved: Boolean,
+        val error: String,
+    ) {
+        val label: String get() = when (phase) {
+            "uncertain", "requesting" -> "请求结果未知"
+            "repair_requesting" -> "结构补正结果未知"
+            "invalid_output" -> "结构化决定无效"
+            "definite_rejected" -> "接口明确拒绝"
+            "decided" -> "决定已保存，后续未确认"
+            "needs_recovery" -> "执行尚未完成"
+            "partial_side_steps", "waiting_partial" -> "独立行动未全部完成"
+            else -> "未完成：$phase"
+        }
+    }
+
+    /** Look up original durable phase keys, not the mutable attempt:<resident>
+     * pointer, which necessarily advances on the next day. A removed plan
+     * cannot be attributed to a resident from its old key alone, so only
+     * currently owned plan IDs may be included. No historical item is offered
+     * as permission to retry a paid request or deliver an old message. */
+    fun historicalAttempts(context: Context, nativeId: String,
+        now: Instant = Instant.now(), maxResults: Int = 6): List<HistoricalAttempt> {
+        if (nativeId.isBlank() || maxResults <= 0) return emptyList()
+        val p = prefs(context)
+        val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
+        val unresolved = setOf("requesting", "uncertain", "repair_requesting",
+            "invalid_output", "definite_rejected", "decided", "needs_recovery",
+            "partial_side_steps", "waiting_partial")
+        val keys = p.all.keys
+        val dailyPrefix = "phase:$nativeId:"
+        val daily = keys.asSequence().filter { it.startsWith(dailyPrefix) }
+            .mapNotNull { phaseKey ->
+                val day = runCatching { LocalDate.parse(phaseKey.removePrefix(dailyPrefix)) }
+                    .getOrNull() ?: return@mapNotNull null
+                if (!day.isBefore(today)) return@mapNotNull null
+                val phase = p.getString(phaseKey, "").orEmpty()
+                if (phase !in unresolved) return@mapNotNull null
+                val suffix = "$nativeId:$day"
+                HistoricalAttempt("每日规划",
+                    day.atStartOfDay(ZoneId.systemDefault()).toInstant(), phase,
+                    p.contains("decision:$suffix"),
+                    !p.getString("invalid:$suffix", "").isNullOrBlank(),
+                    p.getString("last-error:$suffix", "").orEmpty().take(160))
+            }
+        val actor = ResidentCharacterBridge.characterId(nativeId)
+        val ownedPlans = RoleDayScheduleStore.plans(context, actor).map { it.id }.toSet()
+        val duePrefix = "due-phase:execute:"
+        val due = keys.asSequence().filter { it.startsWith(duePrefix) }
+            .mapNotNull { phaseKey ->
+                val body = phaseKey.removePrefix(duePrefix)
+                val planId = ownedPlans.firstOrNull { body.startsWith("$it:") }
+                    ?: return@mapNotNull null
+                val dueAt = runCatching { Instant.parse(body.removePrefix("$planId:")) }
+                    .getOrNull() ?: return@mapNotNull null
+                if (!dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(today))
+                    return@mapNotNull null
+                val phase = p.getString(phaseKey, "").orEmpty()
+                if (phase !in unresolved) return@mapNotNull null
+                val key = "execute:$planId:$dueAt"
+                HistoricalAttempt("到点复议", dueAt, phase,
+                    p.contains("due-decision:$key"),
+                    !p.getString("due-invalid:$key", "").isNullOrBlank(),
+                    p.getString("due-last-error:$key", "").orEmpty().take(160))
+            }
+        return (daily + due).sortedByDescending { it.occurredAt }
+            .take(maxResults).toList()
+    }
+
     /** Explicit owner action only. Old unknown requests are never auto-bought.
      * Same lock as the ordinary daily worker, so an in-flight response wins
      * before this exact displayed recovery snapshot is compared again. */
