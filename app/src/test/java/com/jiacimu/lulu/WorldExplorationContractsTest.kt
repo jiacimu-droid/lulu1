@@ -93,6 +93,54 @@ class WorldExplorationContractsTest {
         }
     }
 
+    @Test fun fullDeepSeaTripReachesFiveRealPickupsAndThenTheGateOnTheCollisionEngine() {
+        val map = buildDeepSeaMap()
+        val obstacles = map.reefs.map { it.obstacle }
+        var position = map.start
+        val picked = mutableSetOf<String>()
+        val destinations = map.echoes.map { it.position } + map.gate
+        destinations.forEachIndexed { index, destination ->
+            val route = worldFollowPath(position, destination, DEEP_SEA_WORLD_BOUNDS,
+                obstacles, DEEP_SEA_PLAYER_RADIUS).toMutableList()
+            assertTrue("No safe route to stop $index", route.isNotEmpty())
+            var frames = 0
+            while (route.isNotEmpty() && frames++ < 5_000) {
+                val to = route.first() - position
+                if (to.length <= 6f) {
+                    route.removeAt(0)
+                } else {
+                    val moved = moveInWorld(position, to, (to.length * 5f).coerceAtMost(300f),
+                        .02f, DEEP_SEA_PLAYER_RADIUS, DEEP_SEA_WORLD_BOUNDS, obstacles)
+                    assertFalse("Autopilot cut into a reef at stop $index", moved.collided)
+                    position = moved.position
+                }
+            }
+            assertTrue("Autopilot did not reach stop $index", route.isEmpty())
+            assertTrue(position.distanceTo(destination) <= 6.1f)
+            if (index < map.echoes.size) {
+                assertEquals(map.echoes[index].id,
+                    deepSeaNearbyEcho(map, position, picked, obstacles)?.id)
+                picked += map.echoes[index].id
+            }
+        }
+        assertEquals(5, picked.size)
+        assertTrue(deepSeaCanReturn(map, position, picked, obstacles))
+        assertEquals(picked.size, picked.toSet().size)
+    }
+
+    @Test fun companionEnhancesSonarWithoutGrantingCollectedEchoes() {
+        val map = buildDeepSeaMap()
+        val position = WorldVector(1_120f, 800f)
+        val base = deepSeaSonarFind(map, position, emptySet())
+        val enhanced = deepSeaSonarFind(map, position, emptySet(), DEEP_SEA_SONAR_RADIUS + 140f)
+        assertFalse(base.contains("echo-home"))
+        assertTrue(enhanced.contains("echo-home"))
+        assertFalse(deepSeaSonarFind(map, position, setOf("echo-home"), 760f).contains("echo-home"))
+        val site = deepSeaSites.first()
+        assertEquals(deepSeaSiteStory(site, 1_000_000L), deepSeaSiteStory(site, 1_000_000L))
+        assertNotEquals(deepSeaSiteStory(site, 1_000_000L), deepSeaSiteStory(site, 1_001_000L))
+    }
+
     @Test fun collectingAndReturningRequirePhysicalApproachNotMerelySonarOrMapProgress() {
         val map = buildDeepSeaMap()
         val obstacles = map.reefs.map { it.obstacle }
