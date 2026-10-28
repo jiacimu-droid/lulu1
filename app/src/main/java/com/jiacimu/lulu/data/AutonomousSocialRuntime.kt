@@ -196,7 +196,7 @@ internal object AutonomousSocialRuntime {
         // after the referenced meeting has actually been committed.
         participantIds.forEach { id ->
             val reaction = generated.privateReactions[id] ?: return@forEach
-            val ownEvidence = "meeting-\${session.id}-autonomous-summary-viewer-$id"
+            val ownEvidence = "meeting-${session.id}-autonomous-summary-viewer-$id"
             runCatching {
                 CharacterInnerLifeStore.observe(
                     id, ownEvidence, summary, reaction.optJSONObject("innerLife"),
@@ -336,7 +336,7 @@ internal object AutonomousSocialRuntime {
                 val name = characters.getValue(turn.speakerId).displayName
                 name + "：" + turn.segments.joinToString("；") { segment ->
                     if (segment.type == MeetingSegmentType.DIALOGUE)
-                        "“\${segment.text}”" else segment.text
+                        "“${segment.text}”" else segment.text
                 }
             }
             val residentModel = if (speakerId.startsWith("resident:"))
@@ -350,12 +350,12 @@ internal object AutonomousSocialRuntime {
                     if (worldTick == null) {
                         appendLine("本轮没有新环境事件；不得创造天气、事故、道具或故障。")
                     } else {
-                        appendLine("本轮已发生且亲眼见到的世界事件：\${worldTick.summary}")
-                        appendLine("incidentId=\${worldTick.incidentId}；status=\${worldTick.status}；stage=\${worldTick.stage}")
+                        appendLine("本轮已发生且亲眼见到的世界事件：${worldTick.summary}")
+                        appendLine("incidentId=${worldTick.incidentId}；status=${worldTick.status}；stage=${worldTick.stage}")
                     }
                     appendLine("确实在场的其他人（不包含他们的私人档案）：")
-                    peers.forEach { id -> appendLine("- $id：\${characters.getValue(id).displayName}") }
-                    appendLine("已有共同亲历的公开会面：\${sharedPast.ifBlank { "暂无" }}")
+                    peers.forEach { id -> appendLine("- $id：${characters.getValue(id).displayName}") }
+                    appendLine("已有共同亲历的公开会面：${sharedPast.ifBlank { "暂无" }}")
                     appendLine("双方共同可见的现有关系事实：$socialHistory")
                     appendLine("你本人对对方的主观看法（对方未必知道）：")
                     appendLine(CharacterSocialRelationship.perspectivesFor(speakerId, peers))
@@ -365,7 +365,7 @@ internal object AutonomousSocialRuntime {
                     appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
                 },
                 instruction = """
-                    你是\${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
+                    你是${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
                     自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
                     只返回 JSON：
                     {"choice":"engage|quiet","reason":"当下真正想做或不做的理由","segments":[{"type":"dialogue|action","text":"只有本人确实说出的话或做出的轻微可见动作","speechText":""}],"innerThought":"自己未说出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"实际依据"},"social":{"targetId":"当前确实在场的ID","interpretation":"自己的具体初印象或新理解","reason":"自己已经见到或听到的证据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"thoughts":[{"thought":"只属于自己的想法"}],"motives":[{"op":"start","aim":"真正想以后去做的事","why":"这次实际经历的触发原因","reason":"具体依据"}]}}
@@ -379,10 +379,10 @@ internal object AutonomousSocialRuntime {
                     私人想法只回传到本人心理系统，不能当作公开事实，不能越权知晓其他人私聊、记忆或日记。
                     你可以对其他人的实际行为形成个人评价、挂心或未来意愿，但没有证据就留空。
                     不必每次生成所有 innerLife 字段；本轮的公开事实记录完毕后，才能保存本人的反应。
-                    \${com.jiacimu.lulu.VoicePerformance.direction}
+                    ${com.jiacimu.lulu.VoicePerformance.direction}
                 """.trimIndent(),
                 source = "数字世界·人物独立相遇",
-                title = "\${characters.getValue(speakerId).displayName}在$location",
+                title = "${characters.getValue(speakerId).displayName}在$location",
                 maxTokens = 1050,
                 contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                 connectionOverride = residentModel,
@@ -405,9 +405,9 @@ internal object AutonomousSocialRuntime {
         // The summary is grounded in these very public proposals, not invented
         // by a separate narrator. The outer caller commits the same turns.
         val summary = buildString {
-            append("\${participantIds.joinToString("、") { characters.getValue(it).displayName }}在$location相遇。")
+            append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在$location相遇。")
             turns.forEach { turn ->
-                append("\n\${characters.getValue(turn.speakerId).displayName}：")
+                append("\n${characters.getValue(turn.speakerId).displayName}：")
                 append(turn.segments.joinToString("；") { it.text })
             }
         }.take(2400)
