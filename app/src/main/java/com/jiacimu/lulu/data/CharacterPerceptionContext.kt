@@ -240,16 +240,30 @@ internal object CharacterPerceptionContext {
             .take(if (searchReceipt) 3_600 else 700)
     }
 
+    /** A meeting is witnessed by the people who actually attended it.
+     * The owner's presence is implicit only in owner-facing meetings, never
+     * in autonomous or native-resident exchanges. Neither person's private
+     * opinion is copied into the other's memory.
+     */
+    internal fun meetingSocialIds(event: SharedTimelineEvent, meeting: MeetingSession?): Set<String> {
+        if (event.source != "meeting" || meeting == null ||
+            event.characterId !in meeting.participantIds) return emptySet()
+        val otherParticipants = meeting.participantIds.filterTo(linkedSetOf()) {
+            it.isNotBlank() && it != event.characterId && it != "system"
+        }
+        val withoutOwner = event.id.contains("-autonomous-") || event.id.contains("-resident-")
+        return if (withoutOwner) otherParticipants else otherParticipants + "user"
+    }
+
     fun stimulus(event: SharedTimelineEvent): PerceptionStimulus = PerceptionStimulus(
         event.id, "[${event.occurredAt}] ${visibleEvidence(event)}",
         ResidentSocialMailbox.witnessedMessage(event)?.let { message ->
             setOf(if (event.characterId == message.toId) message.fromId else message.toId)
-        } ?: if ((event.source == "meeting" && !event.id.contains("-resident-")) || event.id.startsWith("world-touch-") ||
+        } ?: if (event.source == "meeting") meetingSocialIds(
+            event, DigitalWorldStore.state.value.meetings.firstOrNull { it.id == event.sessionId })
+        else if (event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
             event.source == InteractionSignalBridge.SOURCE) setOf("user")
-        else if (event.source == "meeting") DigitalWorldStore.state.value.meetings
-            .firstOrNull { it.id == event.sessionId }?.turns.orEmpty().mapNotNull { it.speakerId }
-            .filter { it.startsWith("resident:") }.toSet()
         else emptySet(),
         event.revision,
     )
