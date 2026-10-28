@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:45:40.870683+00:00",
-  "commit": "d1fc9faa31fa759003ca97ee3537ec0d395184f3",
+  "generatedAt": "2026-10-28T07:46:05.154193+00:00",
+  "commit": "3a1d84ca98837ba6b6f7c4a7d8bbd4cb6cd987a5",
   "branch": "main",
-  "sourceFingerprint": "86c698fbf544668f77e3f2021bdec5525434e00043fe404874e4f2fdb2e26ec1",
+  "sourceFingerprint": "656f9ed8400b99d4523e2a702daa0e086b268a0c01a3baf5c1418497c6cc3b78",
   "summary": {
     "files": 1013,
-    "lines": 202368,
-    "symbols": 2944
+    "lines": 202412,
+    "symbols": 2946
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1569,7 +1569,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 593
+        "line": 637
       }
     ],
     "takeFinal": [
@@ -5311,11 +5311,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 178
+        "line": 222
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 198
+        "line": 242
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -8393,7 +8393,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 219
+        "line": 263
       }
     ],
     "ImportantEventBridge": [
@@ -14433,7 +14433,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 390
+        "line": 434
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -14950,10 +14950,24 @@
         "line": 12
       }
     ],
+    "observed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 21
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 42
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+        "line": 49
+      }
+    ],
     "outcome": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 260
+        "line": 304
       }
     ],
     "CharacterPhoneCoverTest": [
@@ -16270,12 +16284,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
         "line": 18
-      }
-    ],
-    "observed": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
-        "line": 49
       }
     ],
     "WakeActionPlannerTest": [
@@ -32859,36 +32867,44 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 643,
-      "sha256": "074fe13a30a45fbd88800b207b1d886775514e218f20bd603fd5ed57be4accf8",
+      "lines": 687,
+      "sha256": "06f3b26b48c1152d0022cd0fd0b3de406441b8b8f949f582170d71e816fe681d",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
           "line": 12
         },
         {
-          "name": "receipt",
-          "line": 178
+          "name": "observed",
+          "line": 21
+        },
+        {
+          "name": "observed",
+          "line": 42
         },
         {
           "name": "receipt",
-          "line": 198
+          "line": 222
+        },
+        {
+          "name": "receipt",
+          "line": 242
         },
         {
           "name": "search",
-          "line": 219
+          "line": 263
         },
         {
           "name": "outcome",
-          "line": 260
+          "line": 304
         },
         {
           "name": "event",
-          "line": 390
+          "line": 434
         },
         {
           "name": "commit",
-          "line": 593
+          "line": 637
         }
       ]
     },
