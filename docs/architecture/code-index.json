@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:14:22.620480+00:00",
-  "commit": "3b2165c3fa032b53c0ec34a7955a8dca8ea184c9",
+  "generatedAt": "2026-10-28T06:14:42.113278+00:00",
+  "commit": "00d609439f68423ed046151be270584de713ec73",
   "branch": "main",
-  "sourceFingerprint": "1e8e803c161010d19bd12b4911eea99ee9607531ce7ac60bfa2e7e4d141b546c",
+  "sourceFingerprint": "c07be9574990e1ad36d1ecb209ceb77f98b2326f5d680526466d6cf01559f64f",
   "summary": {
-    "files": 1004,
-    "lines": 199829,
-    "symbols": 2936
+    "files": 1005,
+    "lines": 199993,
+    "symbols": 2937
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14732,6 +14732,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
         "line": 647
+      }
+    ],
+    "CharacterKnowledgeIsolationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt",
+        "line": 26
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -32502,6 +32508,17 @@
         {
           "name": "feeling",
           "line": 647
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt",
+      "lines": 164,
+      "sha256": "1a5fc667d6935cf114fa58d9a3d2f59cb0e4b3fffce7817b03fb2cdc9f73993f",
+      "symbols": [
+        {
+          "name": "CharacterKnowledgeIsolationTest",
+          "line": 26
         }
       ]
     },
