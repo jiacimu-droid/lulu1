@@ -1592,10 +1592,13 @@ internal object LuluVoiceCallSession {
                     mutableState.update { it.copy(generatedTranscript = "", playingTranscript = "") }
                 }
             }
-            fun enqueueSpoken(parts: List<String>) {
-                parts.forEach { part ->
+            // The published cue belongs to this model reply only. A preceding
+            // call turn's unplayed visual choice cannot follow new TTS.
+            var visualSequenceForReply = 0L
+            fun enqueueSpoken(parts: List<String>, visualSequence: Long = 0L) {
+                parts.forEachIndexed { segmentIndex, part ->
                     val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
-                    if (speech.isBlank()) return@forEach
+                    if (speech.isBlank()) return@forEachIndexed
                     val plainSpeech = VoicePerformance.plain(speech)
                     mediaSpeechResume?.cancel()
                     appContext?.let {
@@ -1618,7 +1621,8 @@ internal object LuluVoiceCallSession {
                         onStarted = {
                             if (sameReply()) {
                                 Live2DSpeechTimeline.started(
-                                    latest.characterId, latest.callExperienceId, voiceMessageId)
+                                    latest.characterId, latest.callExperienceId, voiceMessageId,
+                                    segmentIndex, visualSequence)
                                 promiseTaskId?.let { com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceStarted(it, latest.callExperienceId) }
                                 // Retain all audible segments, not only the last bubble.
                                 // STT echo for an earlier sentence can arrive during
@@ -1833,8 +1837,11 @@ internal object LuluVoiceCallSession {
                 onLive2DAction = { visualAction ->
                     if (sameReply()) {
                         appContext?.let { context ->
-                            Live2DVisualActionBus.publish(
-                                context, latest.characterId, latest.callExperienceId, visualAction)
+                            if (Live2DVisualActionBus.publish(
+                                    context, latest.characterId, latest.callExperienceId, visualAction)) {
+                                visualSequenceForReply = Live2DVisualActionBus.cues.value[latest.characterId]
+                                    ?.takeIf { it.callId == latest.callExperienceId }?.sequence ?: 0L
+                            }
                         }
                     }
                 },
@@ -1936,7 +1943,26 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
-                enqueueSpoken(remaining)
+                val authoredAnchors = Live2DVisualActionBus.cues.value[latest.characterId]
+                    ?.takeIf { it.callId == latest.callExperienceId &&
+                        it.sequence == visualSequenceForReply && visualSequenceForReply != 0L }
+                    ?.beats.orEmpty().mapNotNull { it.anchor }.distinct()
+                // Only an explicit model choice pays for more than one TTS
+                // segment. The actual onStarted callbacks, not character-count
+                // estimates, anchor the selected movement to audible speech.
+                val anchorPlan = if (!mutableState.value.sleepMode &&
+                    remaining.size == 1 && remaining.first() == text &&
+                    authoredAnchors.isNotEmpty())
+                    Live2DSpeechAnchorPlan.build(text, authoredAnchors)
+                else null
+                val segments = anchorPlan?.parts?.takeIf { it.isNotEmpty() } ?: remaining
+                val synchronizedSequence = if (visualSequenceForReply != 0L &&
+                    authoredAnchors.isNotEmpty())
+                    Live2DVisualActionBus.bindSpeechAnchors(
+                        latest.characterId, latest.callExperienceId,
+                        visualSequenceForReply, anchorPlan?.segmentForAnchor.orEmpty())
+                else visualSequenceForReply
+                enqueueSpoken(segments, synchronizedSequence)
                 // During a new call's opening, do not reopen the microphone while
                 // the first sentence is still synthesizing. Speaking becomes true
                 // only when real PCM is audible, not when TTS request begins.
