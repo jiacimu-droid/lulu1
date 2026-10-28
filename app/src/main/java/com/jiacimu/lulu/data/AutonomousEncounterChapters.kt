@@ -87,7 +87,7 @@ internal object AutonomousEncounterChapters {
         worldTick: DigitalWorldLifeTick?,
         at: Instant,
     ) {
-        if (meeting.endedAt == null || meeting.turns.isEmpty()) return
+        if (meeting.endedAt == null || (meeting.turns.isEmpty() && worldTick == null)) return
         val ids = meeting.participantIds.distinct().take(AutonomousEncounterScript.MAX_PARTICIPANTS)
         if (ids.isEmpty()) return
         // The final model sees ONLY the common, witnessed conversation and
@@ -98,6 +98,12 @@ internal object AutonomousEncounterChapters {
                 "$id=${characters.getValue(id).displayName}"
             }}")
             worldTick?.let { appendLine("公开现场事件：${it.summary}；状态=${it.status}") }
+            appendLine("【人物已设定的外在气质与说话风格，仅供文学表现，不是新事件或任何人讲过的话】")
+            ids.forEach { id ->
+                appendLine("${characters.getValue(id).displayName}：${characters.getValue(id).persona.take(350)}")
+            }
+            appendLine("【当事人共同可见的现有关系事实】")
+            appendLine(CharacterSocialRelationship.contextForGroup(ids).ifBlank { "尚无全部见证者共同确认的既往互动" })
             appendLine("以下为同一场会面已保存的原始时间线，不能添加未记载的事或台词：")
             meeting.turns.forEachIndexed { i, turn ->
                 appendLine("${i + 1}. ${turn.speakerName}（${turn.speakerId}）")
@@ -125,7 +131,9 @@ internal object AutonomousEncounterChapters {
                     输出一个 JSON 对象：
                     {"chapters":[{"characterId":"真实参与者ID","title":"鲜活具体的篇名","scene":"有起承转合的300至550字短篇"}]}
                     chapters 必须包含名单里的每人各一篇，不能重复 ID，不要 JSON 外说明。
-                    同一场戏可有很多真实对话轮次：要根据时间线交错写出趣味、节奏、态度、细微波折，
+                    同一场戏可以有很多真实对话轮次，也可以在意外小事后出现格外尴尬的沉默：
+                    关系生疏的人可能无从接话，熟悉的人可能自然打趣，甚至关系紧张的人可能更难堪。
+                    只依据真实角色外在设定和已证实的行为写出趣味、节奏、态度、细微波折，
                     而不是把事实压缩成一段风景或一句寒暄。人物可以不同意、冷淡、尴尬、说笑，
                     不强制亲密或煽情。每篇自然围绕自己可见的行为选择组织，不要求同一开头。
                     绝不能加入未记载的台词、动作、意外、物品、活动完成、关系变化或未来事件；
@@ -197,7 +205,7 @@ class AutonomousEncounterChaptersWorker(
             val meeting = DigitalWorldStore.state.value.meetings.firstOrNull {
                 it.id == meetingId && it.endedAt != null
             } ?: return Result.success()
-            if (meeting.turns.isEmpty()) return Result.success()
+            // A verified incident with no dialogue can still be a meaningful quiet scene.
             val characters = meeting.participantIds.associateWith {
                 MigratedDomainStores.characters.get(it)
             }
