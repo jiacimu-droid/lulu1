@@ -83,15 +83,84 @@ class CharacterSocialActionOpportunitiesTest {
             character.characterId, voice, "因为她还记得那个笑话，我想珍藏这句话",
         )
         assertNotNull(receipt)
+        val entryId = CharacterMessageFavorites.entryId(character.characterId, voice.id)
         assertTrue(LuluRepositories.lexicon.snapshot(character.characterId)
-            .any { it.id == "message-${voice.id}" && it.content.contains(voice.content) })
+            .any { it.id == entryId && it.content.contains(voice.content) })
         assertFalse(CharacterSocialActionOpportunities.prompt(character.characterId)
             .contains("messageId=${voice.id}"))
         val receipts = MigratedDomainStores.chat.messages(conversation.id).value
             .filter { it.sender == LuluChatMessage.Sender.System &&
                 it.content.contains("收藏了一条消息") }
         assertEquals(1, receipts.size)
-        assertTrue(receipts.single().content.contains("[收藏记录|message-${voice.id}]"))
+        assertTrue(receipts.single().content.contains("[收藏记录|$entryId]"))
+    }
+
+    @Test fun twoIndependentLifeArchivesCanFavoriteTheSameWitnessedMessage() = kotlinx.coroutines.runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
+        val a = MigratedDomainStores.characters.create(
+            "收藏互不串线甲-" + java.util.UUID.randomUUID(), "细腻")
+        val b = MigratedDomainStores.characters.create(
+            "收藏互不串线乙-" + java.util.UUID.randomUUID(), "独立")
+        val aChat = MigratedDomainStores.chat.ensureConversation(a.characterId, a.displayName)
+        MigratedDomainStores.chat.ensureConversation(b.characterId, b.displayName)
+        val message = MigratedDomainStores.chat.sendUserMessage(aChat.id, "大家都听见的这句话")
+        // The same delivered group message is independently recorded for B;
+        // its original message ID is shared, but its personal evidence ID is not.
+        SharedExperienceTimeline.record(
+            "${message.id}:group:${b.characterId}", b.characterId, "群聊",
+            "用户", message.content, message.createdAt, false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val aReceipt = CharacterMessageFavorites.favoriteExplicit(a.characterId,
+            message, "我在意这句话的温柔")
+        val bReceipt = CharacterMessageFavorites.favoriteExplicit(b.characterId,
+            message, "我在意这句话的勇气")
+        assertNotNull(aReceipt)
+        assertNotNull(bReceipt)
+        assertNotEquals(aReceipt, bReceipt)
+        val aEntry = CharacterMessageFavorites.entryId(a.characterId, message.id)
+        val bEntry = CharacterMessageFavorites.entryId(b.characterId, message.id)
+        assertNotEquals(aEntry, bEntry)
+        assertEquals(1, LuluRepositories.lexicon.snapshot(a.characterId)
+            .count { it.section == com.jiacimu.lulu.core.LexiconSection.Favorite && it.id == aEntry })
+        assertEquals(1, LuluRepositories.lexicon.snapshot(b.characterId)
+            .count { it.section == com.jiacimu.lulu.core.LexiconSection.Favorite && it.id == bEntry })
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(aReceipt!!)).size)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(b.characterId, listOf(bReceipt!!)).size)
+        assertTrue(SharedExperienceTimeline.eventsByIds(a.characterId, listOf(bReceipt)).isEmpty())
+        // Deleting one person's saved keepsake and its evidence cannot erase
+        // the other character's entry, timeline or reason.
+        LuluRepositories.lexicon.delete(aEntry)
+        assertTrue(SharedExperienceTimeline.eventsByIds(a.characterId, listOf(aReceipt)).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(b.characterId, listOf(bReceipt)).size)
+        assertTrue(LuluRepositories.lexicon.snapshot(b.characterId).any { it.id == bEntry })
+        // Re-favoriting must use new evidence rather than the deleted tombstone.
+        val fresh = CharacterMessageFavorites.favoriteExplicit(a.characterId,
+            message, "重看以后我有了新的理解")
+        assertNotNull(fresh)
+        assertNotEquals(aReceipt, fresh)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(a.characterId, listOf(fresh!!)).size)
+    }
+
+    @Test fun unwitnessedForeignPrivateMessageCannotEnterPersonalFavoriteArchive() = kotlinx.coroutines.runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
+        val a = MigratedDomainStores.characters.create(
+            "收藏私聊甲-" + java.util.UUID.randomUUID(), "安静")
+        val b = MigratedDomainStores.characters.create(
+            "收藏私聊乙-" + java.util.UUID.randomUUID(), "谨慎")
+        val privateChat = MigratedDomainStores.chat.ensureConversation(a.characterId, a.displayName)
+        val secret = MigratedDomainStores.chat.sendUserMessage(privateChat.id, "这句话只告诉甲")
+        assertNull(CharacterMessageFavorites.favoriteExplicit(b.characterId, secret, "偷存"))
+        assertFalse(LuluRepositories.lexicon.snapshot(b.characterId).any {
+            it.section == com.jiacimu.lulu.core.LexiconSection.Favorite &&
+                it.content.contains("这句话只告诉甲") })
+        assertTrue(SharedExperienceTimeline.all(b.characterId).none {
+            it.channel == "收藏" && it.content.contains("这句话只告诉甲") })
     }
 
     @Test fun onlyRealUnfinishedPhoneFavoriteWishBecomesAConcern() {

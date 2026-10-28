@@ -11,6 +11,7 @@ object CharacterRecordReset {
     suspend fun clearAll(characterId: String, now: Instant = Instant.now()) {
         val cleanId = characterId.trim()
         if (cleanId.isBlank()) return
+        CharacterMessageFavorites.clearPending(cleanId)
 
         MigratedDomainStores.chat.conversations.value
             .filter { it.characterId == cleanId && it.groupChat == null }

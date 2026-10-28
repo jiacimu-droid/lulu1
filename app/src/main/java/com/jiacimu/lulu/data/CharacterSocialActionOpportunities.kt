@@ -27,6 +27,7 @@ internal object CharacterSocialActionOpportunities {
                         it.status == LuluChatMessage.Status.Sent &&
                         it.content.isNotBlank() &&
                         "message-${it.id}" !in favoriteIds &&
+                        CharacterMessageFavorites.entryId(characterId, it.id) !in favoriteIds &&
                         SharedExperienceTimeline.eventsByIds(characterId,
                             listOf(it.id, "${it.id}:group:$characterId")).any { e ->
                             e.evidenceKind == EventEvidenceKind.UserStatement

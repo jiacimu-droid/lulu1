@@ -31,17 +31,45 @@ object CharacterMessageFavorites {
     private val acceptedAt = mutableMapOf<String, Instant>()
     private val favoriteQuietWindow: Duration = Duration.ofMinutes(20)
 
+    // A real group message can be witnessed and saved by several characters.
+    // Both the lexicon entry and each newly created timeline receipt must belong
+    // to the individual, rather than competing for one app-global message ID.
+    internal fun entryId(characterId: String, messageId: String): String =
+        "message-$messageId:role:$characterId"
+
+    internal fun hasFavorite(characterId: String, messageId: String): Boolean {
+        val scopedId = entryId(characterId, messageId)
+        val legacyId = "message-$messageId" // Existing entries remain readable after upgrade.
+        return LuluRepositories.lexicon.snapshot(characterId).any {
+            it.section == LexiconSection.Favorite && it.id in setOf(scopedId, legacyId)
+        }
+    }
+
+    private fun witnessedUserMessage(characterId: String, message: LuluChatMessage): Boolean =
+        characterId.isNotBlank() && message.sender == LuluChatMessage.Sender.User &&
+            message.content.isNotBlank() &&
+            SharedExperienceTimeline.eventsByIds(characterId,
+                listOf(message.id, "${message.id}:group:$characterId")
+            ).any { it.evidenceKind == EventEvidenceKind.UserStatement }
+
+    /** A reset revokes in-flight favorite drafts belonging only to this person. */
+    internal fun clearPending(characterId: String) = synchronized(lock) {
+        pendingEntryIds.removeAll { it.endsWith(":role:$characterId") }
+        acceptedAt.remove(characterId)
+    }
+
+    private fun receiptId(entryId: String): String =
+        "lexicon-favorite-$entryId:${java.util.UUID.randomUUID()}"
+
     /** A model voluntarily selects the exact user quote and explains why.
      * Persistence and source validation are completed before success is returned.
      * This path reuses the existing lexicon entry; no duplicate personality store.
      */
     suspend fun favoriteExplicit(characterId: String, message: LuluChatMessage,
                                  reason: String): String? {
-        if (characterId.isBlank() || message.sender != LuluChatMessage.Sender.User ||
-            reason.isBlank()) return null
-        val id = "message-${message.id}"
-        val existing = LuluRepositories.lexicon.snapshot(characterId)
-        if (existing.any { it.section == LexiconSection.Favorite && it.id == id }) return null
+        if (reason.isBlank() || !witnessedUserMessage(characterId, message)) return null
+        val id = entryId(characterId, message.id)
+        if (hasFavorite(characterId, message.id)) return null
         val now = Instant.now()
         val character = MigratedDomainStores.characters.get(characterId)
         val title = "收藏 · ${message.createdAt.atZone(ZoneId.systemDefault()).format(titleTime)}"
@@ -49,7 +77,11 @@ object CharacterMessageFavorites {
         LuluRepositories.lexicon.save(LexiconEntry(id = id, characterId = characterId,
             section = LexiconSection.Favorite, title = title, content = content,
             createdAt = now, updatedAt = now))
-        val evidenceId = "lexicon-favorite-$id"
+        // A re-favorite after explicitly deleting an old favorite is a NEW
+        // experience, not a resurrection of the old tombstoned evidence ID.
+        if (LuluRepositories.lexicon.snapshot(characterId).none {
+                it.id == id && it.section == LexiconSection.Favorite }) return null
+        val evidenceId = receiptId(id)
         SharedExperienceTimeline.record(eventId = evidenceId,
             characterId = characterId, channel = "收藏", speaker = character.displayName,
             content = "收藏了用户真实发出的消息：${message.content.take(600)}；原因：${reason.take(180)}",
@@ -66,13 +98,14 @@ object CharacterMessageFavorites {
         conversationId: String,
         message: LuluChatMessage,
     ) {
-        if (characterId.isBlank() || message.sender != LuluChatMessage.Sender.User || message.content.isBlank()) return
-        val entryId = "message-${message.id}"
+        if (!witnessedUserMessage(characterId, message)) return
+        val entryId = entryId(characterId, message.id)
         val actionNow = Instant.now()
         val accepted = synchronized(lock) {
             val existing = LuluRepositories.lexicon.snapshot(characterId)
                 .filter { it.section == LexiconSection.Favorite }
-            if (existing.any { it.id == entryId } || entryId in pendingEntryIds) {
+            if (existing.any { it.id == entryId || it.id == "message-${message.id}" } ||
+                entryId in pendingEntryIds) {
                 false
             } else {
                 val latestPersistedAt = existing.maxByOrNull(LexiconEntry::updatedAt)?.updatedAt
@@ -97,6 +130,13 @@ object CharacterMessageFavorites {
         scope.launch {
             try {
                 val reason = generateFavoriteReason(character, conversationId, messageText)
+                // Another character's conversation, a deleted source, or a
+                // reset while the model was working must never create a
+                // personal archive item after the fact.
+                val stillPending = synchronized(lock) { entryId in pendingEntryIds }
+                if (!stillPending || !witnessedUserMessage(characterId, message) ||
+                    !DigitalLifeProfileStore.allowsTimestamp(characterId, actionNow) ||
+                    hasFavorite(characterId, message.id)) return@launch
                 val storedContent = buildString {
                     append(messageText)
                     append("\n\n收藏理由：")
@@ -113,8 +153,10 @@ object CharacterMessageFavorites {
                         updatedAt = actionNow,
                     ),
                 )
+                if (LuluRepositories.lexicon.snapshot(characterId).none {
+                        it.id == entryId && it.section == LexiconSection.Favorite }) return@launch
                 SharedExperienceTimeline.record(
-                    eventId = "lexicon-favorite-$entryId",
+                    eventId = receiptId(entryId),
                     characterId = characterId,
                     channel = "收藏",
                     speaker = character.displayName,

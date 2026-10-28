@@ -122,7 +122,10 @@ class InMemoryLexiconRepository : LexiconRepository {
         mutate { current -> current.filterNot { entry -> entry.id == id } }
         when (deleted?.section) {
             LexiconSection.Diary -> SharedExperienceTimeline.deleteEvent("lexicon-diary-$id")
-            LexiconSection.Favorite -> SharedExperienceTimeline.deleteEvent("lexicon-favorite-$id")
+            // Keep the legacy fixed ID and all newer, one-action-per-receipt IDs
+            // in the SAME owner's lifetime. Never delete another person's event.
+            LexiconSection.Favorite -> SharedExperienceTimeline.deleteEventsByIdPrefix(
+                deleted.characterId, "lexicon-favorite-$id")
             else -> Unit
         }
     }
