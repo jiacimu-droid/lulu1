@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:15:34.679706+00:00",
-  "commit": "54c6860f8e66bd2d564a672765d7ae05ff32747c",
+  "generatedAt": "2026-10-28T06:19:24.837058+00:00",
+  "commit": "aa64058c18c83c129158c364f8d6c1bedb944245",
   "branch": "main",
-  "sourceFingerprint": "1cfdfb7cf477742243e144e818fc58e01df6e3302eb32d4879e9abce18a5269d",
+  "sourceFingerprint": "e48bd15f2af8e612d8e90be675fdf8387a6687276f35bad7ac260e520613d719",
   "summary": {
-    "files": 1005,
-    "lines": 200024,
+    "files": 1011,
+    "lines": 201275,
     "symbols": 2938
   },
   "symbolIndex": {
@@ -16716,6 +16716,42 @@
       "path": "app/src/main/assets/live2d/wolf-motions/33_recoil_look_back.motion3.json",
       "lines": 164,
       "sha256": "570acd9d81274b69a3e4112529ab0920e64d70b9aa4335b1f446a96302da34c2",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/34_attentive_ear_tilt.motion3.json",
+      "lines": 235,
+      "sha256": "15ac9daa4236ad214f768311263ba14ba7b457644d4ab6685d1461537da01dec",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/35_bright_ear_bounce.motion3.json",
+      "lines": 220,
+      "sha256": "14ff722f687bf4cc0cd64df1c0da13dc4881c905a0eed4f27f79ae676561adeb",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/36_shy_glance_return.motion3.json",
+      "lines": 192,
+      "sha256": "8b4661892f095deea6a45eeb03f394bea19c2e2d1ea12062a0e16faaa3e1055a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/37_gentle_sad_recovery.motion3.json",
+      "lines": 192,
+      "sha256": "711b2e6f70c6428d722e67657e84ef52c7e9e0a35261410245dad2fbdba13f97",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/38_curious_double_take.motion3.json",
+      "lines": 220,
+      "sha256": "2619c117067f0ae2cee934e777d6813d55502fec1408f6a87dc25d97a8b87e6c",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/39_sleepy_nestle.motion3.json",
+      "lines": 192,
+      "sha256": "601dc2aad7ca2b0020fde3349eefcb3bc2ae270d1ed6cb71a78bab8a3579d98f",
       "symbols": []
     },
     {

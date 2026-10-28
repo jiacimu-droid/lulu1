@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`54c6860f8e66bd2d564a672765d7ae05ff32747c`
+- 基准提交：`aa64058c18c83c129158c364f8d6c1bedb944245`
 - 分支：`main`
-- 已索引文件：1005
-- 已索引代码/文本行：200024
+- 已索引文件：1011
+- 已索引代码/文本行：201275
 - 已发现符号：2938
 
 | 文件 | 行数 | 符号数 |
@@ -46,6 +46,12 @@
 | `app/src/main/assets/live2d/wolf-motions/31_hesitant_turn.motion3.json` | 164 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/32_relaxed_exhale.motion3.json` | 164 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/33_recoil_look_back.motion3.json` | 164 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/34_attentive_ear_tilt.motion3.json` | 235 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/35_bright_ear_bounce.motion3.json` | 220 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/36_shy_glance_return.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/37_gentle_sad_recovery.motion3.json` | 192 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/38_curious_double_take.motion3.json` | 220 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/39_sleepy_nestle.motion3.json` | 192 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
