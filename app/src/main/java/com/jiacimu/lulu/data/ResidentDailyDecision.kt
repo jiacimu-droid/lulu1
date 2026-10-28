@@ -387,6 +387,12 @@ internal object ResidentDailyDecision {
         return next.toInstant()
     }
 
+    /** A running KEEP worker cannot enqueue itself under the same name.
+     * Recovery generation is already bounded by MAX_SAVED_DECISION_RECOVERIES. */
+    internal fun catchupWorkName(now: Instant, savedRecovery: Int?): String =
+        "${WORK_FIXED}-catchup-${date(now)}" +
+            (savedRecovery?.let { "-saved-$it" }.orEmpty())
+
     private val residentAgendaActions = setOf(
         "send_character_message", "send_friend_request", "respond_friend_request",
         "send_group_message", "publish_moment", "digital_world_action", "play_solo_game",
@@ -1604,8 +1610,7 @@ internal object ResidentDailyDecision {
                 // recovery while that very Worker is running. Distinct bounded
                 // saved-decision generations make both permitted replays
                 // reachable without a new paid model request or an endless loop.
-                val recoverySuffix = savedRecovery?.let { "-saved-$it" }.orEmpty()
-                manager.enqueueUniqueWork("${WORK_FIXED}-catchup-${date(now)}$recoverySuffix",
+                manager.enqueueUniqueWork(catchupWorkName(now, savedRecovery),
                     ExistingWorkPolicy.KEEP,
                     OneTimeWorkRequestBuilder<ResidentDailyDecisionWorker>()
                         .setConstraints(network)
