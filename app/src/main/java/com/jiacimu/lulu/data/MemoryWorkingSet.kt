@@ -20,7 +20,7 @@ internal object MemoryWorkingSet {
                 add(MemoryPromptCandidate("recall-use-guidance", "回忆与当前对话：", guidance, 900))
             }
             val episodeHints = NarrativeEvidenceChain.annotations(
-                context.recentEvents + context.sourceEvents)
+                context.ownedRecentEvents + context.ownedSourceEvents)
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
                 val content = event.evidenceContent.trim()
                 // A 1,200-character preview used to hide useful details even
@@ -41,10 +41,10 @@ internal object MemoryWorkingSet {
             // A recalled event may also be inside the recent window. Keep the
             // newest original once, rather than charging for the same event twice.
             val deliveredEventIds = mutableSetOf<String>()
-            context.recentEvents.asReversed().forEach { event ->
+            context.ownedRecentEvents.asReversed().forEach { event ->
                 if (deliveredEventIds.add(event.id)) evidence(event, true)
             }
-            context.sourceEvents.forEach { event ->
+            context.ownedSourceEvents.forEach { event ->
                 if (deliveredEventIds.add(event.id)) evidence(event, false)
             }
             auxiliary.forEachIndexed { group, (label, text) ->
@@ -53,14 +53,15 @@ internal object MemoryWorkingSet {
                     add(MemoryPromptCandidate("state:$group:$index", label, line, 900 - group * 35))
                 }
             }
-            context.memories.forEach { memory ->
+            context.ownedMemories.forEach { memory ->
                 add(MemoryPromptCandidate("memory:${memory.id}", SUMMARY,
                     "- [${memory.occurredAt ?: memory.createdAt}] [${CharacterAssociativeRecall.memoryLane(memory).label}] memoryId=${memory.id} ${memory.content}" +
                         if (memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（当时的情绪印象，不代表此刻状态）" else "",
                     650, payload = memory.content, sources = memory.sourceIds().toSet(),
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
-            lexicon.forEachIndexed { index, entry ->
+            lexicon.filter { it.characterId == context.characterId && context.characterId.isNotBlank() }
+                .forEachIndexed { index, entry ->
                 if (entry.section == LexiconSection.Concern) {
                     add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
                         "- [旧版关心笔记/仅供历史参考，非当前挂心、非用户现状、非行动指令] ${entry.title}：${entry.content}",
@@ -83,7 +84,7 @@ internal object MemoryWorkingSet {
             mapOf(RECENT to budget.recentCharacters, EVIDENCE to budget.evidenceCharacters,
                 SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters))
         MemoryInspectionStore.recordInjection(context.characterId, context.inspectionId,
-            context.coreMemories.map { "core:${it.id}" } + result.selected, result.omitted,
+            context.ownedCoreMemories.map { "core:${it.id}" } + result.selected, result.omitted,
             extraNotes = listOf("统一记忆工作集：弹性 ${result.usedCharacters} 字符；常驻核心/责任 ${result.protectedCharacters} 字符；预算 ${result.budget} 字符。") +
                 if (result.protectedCharacters > result.budget) listOf("核心与未结责任超过预算，完整保留；请在记忆页整理，未静默截断。") else emptyList())
         return result
