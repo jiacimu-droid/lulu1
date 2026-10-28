@@ -124,7 +124,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 previousFrame = frame
                 if (viewport == IntSize.Zero) return@withFrameNanos
 
-                if (navigationRoute.firstOrNull()?.let { player.distanceTo(it) <= 18f } == true) {
+                if (navigationRoute.firstOrNull()?.let { player.distanceTo(it) <= 6f } == true) {
                     navigationRoute = navigationRoute.drop(1)
                 }
                 val waypoint = navigationRoute.firstOrNull()
@@ -133,7 +133,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 if (manual && navigationRoute.isNotEmpty()) navigationRoute = emptyList()
                 val direction = if (manual) joystick.normalized() else toWaypoint.normalized()
                 val speed = if (manual) 300f else (toWaypoint.length * 5f).coerceAtMost(300f)
-                swimVelocity = swimVelocity.lerp(direction * speed, (dt * 7.5f).coerceIn(0f, 1f))
+                // Manual steering keeps inertia; autopilot follows exact safe segments without cutting corners.
+                swimVelocity = if (manual || waypoint == null)
+                    swimVelocity.lerp(direction * speed, (dt * 7.5f).coerceIn(0f, 1f))
+                else direction * speed
                 if (swimVelocity.length > 1f) {
                     val moved = moveInWorld(player, swimVelocity, swimVelocity.length, dt,
                         DEEP_SEA_PLAYER_RADIUS, DEEP_SEA_WORLD_BOUNDS, obstacles)
@@ -144,7 +147,8 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                         val now = System.currentTimeMillis()
                         if (now - lastBump > 650L) {
                             GameSoundEffects.play(GameSoundEffect.Bump)
-                            notice = "前方是礁体，试着绕开它"
+                            notice = if (companion == null) "前方是礁体，试着绕开它"
+                                else "${companion.displayName}：前面有礁石，向侧边绕行"
                             lastBump = now
                         }
                     }
@@ -165,10 +169,18 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                             DEEP_SEA_WORLD_BOUNDS, obstacles, 23f)
                         nextCompanionRouteAt = .75f
                     }
+                    // A companion can locate actual nearby echoes but cannot collect for the player.
+                    val companionClues = deepSeaSonarFind(map, companionPosition, collected, 290f) - scanned
+                    if (companionClues.isNotEmpty()) {
+                        scanned = scanned + companionClues
+                        companionAssists++
+                        notice = "${companion.displayName}发现附近的回声线索，已标入声呐"
+                        GameSoundEffects.play(GameSoundEffect.Interact)
+                    }
                     val follow = companionRoute.firstOrNull()
                     if (follow != null) {
                         val gap = companionPosition.distanceTo(follow)
-                        if (gap < 17f) companionRoute = companionRoute.drop(1)
+                        if (gap < 6f) companionRoute = companionRoute.drop(1)
                         else companionPosition = moveInWorld(companionPosition, follow - companionPosition,
                             (gap * 5f).coerceAtMost(230f), dt, 23f,
                             DEEP_SEA_WORLD_BOUNDS, obstacles).position
