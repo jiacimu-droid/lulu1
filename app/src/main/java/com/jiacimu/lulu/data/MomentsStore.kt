@@ -338,7 +338,7 @@ object MomentsStore {
         val presence = CompanionPresenceStore.current(character.characterId)
 
         val nativeConnection = if (character.characterId.startsWith("resident:"))
-            runCatching { ScopedModelSelections.resolveConnection(ResidentDailyDecision.SCOPE) }
+            runCatching { ScopedModelSelections.residentSocialConnection() }
                 .getOrNull() else null
         if (character.characterId.startsWith("resident:") && nativeConnection == null) return
         val raw = LuluAiServices.gateway.generate(
