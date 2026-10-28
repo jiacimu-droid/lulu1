@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c94e857bbe4b23350fa7d05b6740316d28734777`
+- 基准提交：`5518d7620db267d04bd309280461ab5be47ff155`
 - 分支：`main`
 - 已索引文件：1025
-- 已索引代码/文本行：205962
+- 已索引代码/文本行：205964
 - 已发现符号：2994
 
 | 文件 | 行数 | 符号数 |
@@ -622,7 +622,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 585 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 587 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 736 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 492 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
