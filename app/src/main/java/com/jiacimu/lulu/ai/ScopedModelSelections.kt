@@ -113,7 +113,8 @@ object ScopedModelSelections {
         val id = selectedArchiveId(WORLD_SOCIAL)
         return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
         else if (characterId.startsWith("resident:")) residentSocialConnection()
-        else null
+        else LuluAiServices.connectionStore.resolveConnection(
+            selectedCharacterChatArchiveId(characterId))
     }
 
     /** A public adviser sees only shared scene facts, never private character data. */
@@ -131,7 +132,8 @@ object ScopedModelSelections {
         val id = selectedArchiveId(WORLD_LIFE)
         return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
         else if (characterId.startsWith("resident:")) residentSocialConnection()
-        else null
+        else LuluAiServices.connectionStore.resolveConnection(
+            selectedCharacterChatArchiveId(characterId))
     }
 
     fun resolveConnection(scope: String): ModelConnection {
