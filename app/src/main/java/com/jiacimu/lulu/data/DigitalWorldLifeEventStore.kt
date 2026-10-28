@@ -163,6 +163,13 @@ internal object DigitalWorldLifeEventStore {
      * This records a short physical occurrence, NEVER a photo asset, an
      * accepted invitation, or the participants' emotions/decisions.
      */
+    internal fun allowedSharedSceneMoment(
+        participantIds: List<String>, meetingFinished: Boolean,
+        kind: String, actorId: String, otherId: String,
+    ): Boolean = !meetingFinished && participantIds.distinct().size in 2..4 &&
+        actorId in participantIds && otherId in participantIds && actorId != otherId &&
+        kind in setOf("social_stumble", "social_frame_crossing")
+
     internal fun stageSharedSceneMoment(
         context: Context,
         meeting: MeetingSession,
@@ -172,15 +179,13 @@ internal object DigitalWorldLifeEventStore {
         now: Instant,
     ): DigitalWorldLifeTick? {
         initialize(context)
-        if (meeting.endedAt != null || meeting.participantIds.distinct().size !in 2..4 ||
-            actorId !in meeting.participantIds || otherId !in meeting.participantIds ||
-            actorId == otherId) return null
+        if (!allowedSharedSceneMoment(meeting.participantIds, meeting.endedAt != null,
+                kind, actorId, otherId)) return null
         val location = DigitalWorldStore.locationOf(actorId)
         if (meeting.participantIds.any { id ->
                 !DigitalLifeProfileStore.isEnabled(id) ||
                     DigitalWorldStore.locationOf(id) != location
             }) return null
-        if (kind !in setOf("social_stumble", "social_frame_crossing")) return null
         // The photo-framing beat uses the digital phone already owned by each
         // life; it does not claim a real image was captured or transferred.
         val person = MigratedDomainStores.characters.get(actorId).displayName
