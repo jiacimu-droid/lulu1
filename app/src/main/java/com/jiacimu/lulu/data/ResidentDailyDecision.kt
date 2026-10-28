@@ -83,10 +83,19 @@ internal object ResidentDailyDecision {
                 "last-error:$nativeId:${expected.day}")) {
             p.getString(key, null)?.let { archive.put(key, it) }
         }
-        check(p.edit().putString("manual-retry-history:$nativeId:${expected.day}:${expected.revision}", archive.toString())
+        // A received but malformed first answer is already paid for. An
+        // explicitly authorized recovery should correct THAT answer, not buy
+        // another initial daily decision. The repair claim remains locked
+        // against ordinary workers if this attempt is interrupted again.
+        val repairOnly = p.getString("invalid:$nativeId:${expected.day}", "").orEmpty().isNotBlank() &&
+            p.getString("invalid-reason:$nativeId:${expected.day}", "").orEmpty().isNotBlank()
+        val editor = p.edit()
+            .putString("manual-retry-history:$nativeId:${expected.day}:${expected.revision}", archive.toString())
             .putInt("manual-retry:$nativeId:${expected.day}", expected.revision + 1)
-            .remove("attempt:$nativeId").commit()) { "原请求恢复依据未保存，未重新请求" }
-        runOnceLocked(context, native, now)
+        if (repairOnly) editor.putString(dayPhaseKey(nativeId, expected.day), "repair_requesting")
+        else editor.remove("attempt:$nativeId")
+        check(editor.commit()) { "原请求恢复依据未保存，未重新请求" }
+        runOnceLocked(context, native, now, resumeInvalidOnly = repairOnly)
     }
 
     /** A saved daily decision may have succeeded in arranging the day while
@@ -222,11 +231,14 @@ internal object ResidentDailyDecision {
                 .put("authorizedAt", now.toString()).put("revision", expected.revision)
             for (field in listOf("due-invalid:$key", "due-invalid-reason:$key", "due-last-error:$key"))
                 p.getString(field, null)?.let { archive.put(field, it) }
-            check(p.edit().putString("due-manual-history:$key:${expected.revision}", archive.toString())
-                .putInt("due-manual-retry:$key", expected.revision + 1).remove(key).commit()) {
-                "原到期请求恢复依据未保存，未重新请求"
-            }
-            runDuePlanLocked(context, plan, now)
+            val repairOnly = p.getString("due-invalid:$key", "").orEmpty().isNotBlank() &&
+                p.getString("due-invalid-reason:$key", "").orEmpty().isNotBlank()
+            val editor = p.edit().putString("due-manual-history:$key:${expected.revision}", archive.toString())
+                .putInt("due-manual-retry:$key", expected.revision + 1)
+            if (repairOnly) editor.putString("due-phase:$key", "repair_requesting")
+            else editor.remove(key)
+            check(editor.commit()) { "原到期请求恢复依据未保存，未重新请求" }
+            runDuePlanLocked(context, plan, now, resumeInvalidOnly = repairOnly)
         }
     }
 
@@ -853,7 +865,8 @@ internal object ResidentDailyDecision {
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean =
         dueRequests.withLock(dueAttemptKey(plan)) { runDuePlanLocked(context, plan, at) }
 
-    private suspend fun runDuePlanLocked(context: Context, plan: RoleDayPlan, at: Instant): Boolean {
+    private suspend fun runDuePlanLocked(context: Context, plan: RoleDayPlan, at: Instant,
+        resumeInvalidOnly: Boolean = false): Boolean {
         val app = context.applicationContext
         appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
@@ -889,6 +902,11 @@ internal object ResidentDailyDecision {
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
                 "居民到点决定恢复计数未保存"
             }
+        } else if (resumeInvalidOnly) {
+            // Only an explicit owner recovery may enter this path. Keep the
+            // original request claim and repair the persisted malformed reply.
+            if (p.getString("due-invalid:$key", "").isNullOrBlank() ||
+                p.getString("due-invalid-reason:$key", "").isNullOrBlank()) return false
         } else {
             // A crash/timeout before receiving an answer is uncertain: never
             // silently buy a second model request for this appointment.
@@ -904,7 +922,7 @@ internal object ResidentDailyDecision {
             "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
             "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
             "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。" else ""
-        val responseResult = if (savedChoice == null) LuluAiServices.gateway.generate(
+        val responseResult = if (savedChoice == null && !resumeInvalidOnly) LuluAiServices.gateway.generate(
             characterId = plan.characterId,
             facts = dueFacts,
             instruction = """
@@ -935,20 +953,23 @@ internal object ResidentDailyDecision {
         } else null
         val response = responseResult?.getOrNull()
         val firstChoice = response?.text?.let(ModelStructuredOutput::objectOrNull)
-        val firstError = if (savedChoice == null && response != null)
-            dueContractError(firstChoice, now, plan.id) else null
+        val originalInvalid = if (resumeInvalidOnly) p.getString("due-invalid:$key", null) else response?.text
+        val firstError = if (resumeInvalidOnly) p.getString("due-invalid-reason:$key", null)
+            else if (savedChoice == null && response != null)
+                dueContractError(firstChoice, now, plan.id) else null
         val repaired = if (firstError != null) {
-            // First response was received. Persist the exact invalid answer
-            // BEFORE the one optional correction request. If the correction
-            // is interrupted, the original claim prevents blind re-billing.
-            check(p.edit().putString("due-invalid:$key", response!!.text.take(8_000))
-                .putString("due-invalid-reason:$key", firstError)
-                .putString(phaseKey, "repair_requesting").commit()) {
-                "原始无效决定未保存，禁止补正请求"
+            // The original malformed reply is already durable on an authorized
+            // recovery. Do not overwrite its provenance or buy the first turn.
+            if (!resumeInvalidOnly) {
+                check(p.edit().putString("due-invalid:$key", checkNotNull(originalInvalid).take(8_000))
+                    .putString("due-invalid-reason:$key", firstError)
+                    .putString(phaseKey, "repair_requesting").commit()) {
+                    "原始无效决定未保存，禁止补正请求"
+                }
             }
             LuluAiServices.gateway.generate(
                 characterId = plan.characterId,
-                facts = dueFacts + "\n【上一条原始决定（未执行）】" + response.text.take(4_000) +
+                facts = dueFacts + "\n【上一条原始决定（未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
                 instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。steps 中每项须有合法 tool、args 对象，requiresPreviousSuccess 若有须为布尔值；普通附加动作不能传 planId；reschedule_personal_activity/cancel_personal_activity 管理步骤须有 planId、expectedDueAt 和 reason，改期另须 dueAt。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
                 source = "原住民个人日程到点·结构补正",
@@ -963,14 +984,15 @@ internal object ResidentDailyDecision {
         } else null
         val choice = savedChoice ?: if (firstError == null) firstChoice
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
-        val remainingError = if (savedChoice == null && response != null)
+        val remainingError = if (savedChoice == null && (response != null || resumeInvalidOnly))
             dueContractError(choice, now, plan.id) else null
         if (choice == null || remainingError != null) {
             val rejected = response == null && responseResult?.exceptionOrNull()
                 ?.let(::isDefinitelyRejectedModelRequest) == true
             val failurePhase = when {
                 rejected -> "definite_rejected"
-                response == null || (firstError != null && repaired == null) -> "uncertain"
+                (response == null && !resumeInvalidOnly) ||
+                    (firstError != null && repaired == null) -> "uncertain"
                 else -> "invalid_output"
             }
             val failure = p.edit().putString(phaseKey, failurePhase)
@@ -1322,7 +1344,7 @@ internal object ResidentDailyDecision {
     }
 
     private suspend fun runOnceLocked(context: Context, native: DigitalWorldResident,
-        now: Instant): Boolean {
+        now: Instant, resumeInvalidOnly: Boolean = false): Boolean {
         val app = context.applicationContext
         appContext = app
         ResidentCharacterBridge.sync(app, now)
@@ -1349,6 +1371,10 @@ internal object ResidentDailyDecision {
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
                 "原住民有效决定的恢复次数未保存"
             }
+        } else if (resumeInvalidOnly) {
+            if (p.getString("invalid:${native.id}:$today", "").isNullOrBlank() ||
+                p.getString("invalid-reason:${native.id}:$today", "").isNullOrBlank() ||
+                p.getString("attempt:${native.id}", "") != today) return false
         } else {
             if (!claimDayRequest(app, native.id, now,
                     connectionFingerprint(checkNotNull(selected)))) return false
@@ -1356,7 +1382,7 @@ internal object ResidentDailyDecision {
         val pending = ResidentSocialMailbox.pendingIncoming(id)
         val unread = CharacterPhoneInbox.unreadMoments(id)
         val dailyFacts = if (savedDecision == null) decisionFacts(native, now, pending, unread) else ""
-        val replyResult = if (savedDecision == null) LuluAiServices.gateway.generate(
+        val replyResult = if (savedDecision == null && !resumeInvalidOnly) LuluAiServices.gateway.generate(
             characterId = id,
             facts = dailyFacts,
             instruction = """
@@ -1402,17 +1428,20 @@ internal object ResidentDailyDecision {
         } else null
         val reply = replyResult?.getOrNull()
         val firstPlan = reply?.text?.let(ModelStructuredOutput::objectOrNull)
-        val firstError = if (savedDecision == null && reply != null)
-            dayContractError(firstPlan, now) else null
+        val originalInvalid = if (resumeInvalidOnly) p.getString("invalid:${native.id}:$today", null) else reply?.text
+        val firstError = if (resumeInvalidOnly) p.getString("invalid-reason:${native.id}:$today", null)
+            else if (savedDecision == null && reply != null) dayContractError(firstPlan, now) else null
         val repaired = if (firstError != null) {
-            check(p.edit().putString("invalid:${native.id}:$today", reply!!.text.take(8_000))
-                .putString("invalid-reason:${native.id}:$today", firstError)
-                .putString(phaseKey, "repair_requesting").commit()) {
-                "原始无效每日决定未保存，禁止补正请求"
+            if (!resumeInvalidOnly) {
+                check(p.edit().putString("invalid:${native.id}:$today", checkNotNull(originalInvalid).take(8_000))
+                    .putString("invalid-reason:${native.id}:$today", firstError)
+                    .putString(phaseKey, "repair_requesting").commit()) {
+                    "原始无效每日决定未保存，禁止补正请求"
+                }
             }
             LuluAiServices.gateway.generate(
                 characterId = id,
-                facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + reply.text.take(4_000) +
+                facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
                 instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
@@ -1427,7 +1456,7 @@ internal object ResidentDailyDecision {
         } else null
         val json = savedDecision ?: if (firstError == null) firstPlan
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
-        val remainingError = if (savedDecision == null && reply != null)
+        val remainingError = if (savedDecision == null && (reply != null || resumeInvalidOnly))
             dayContractError(json, now) else null
         if (json == null || remainingError != null) {
             // Only a provider's explicit rejection is provably non-generated.
@@ -1436,7 +1465,8 @@ internal object ResidentDailyDecision {
                 ?.let(::isDefinitelyRejectedModelRequest) == true
             val failurePhase = when {
                 rejected -> "definite_rejected"
-                reply == null || (firstError != null && repaired == null) -> "uncertain"
+                (reply == null && !resumeInvalidOnly) ||
+                    (firstError != null && repaired == null) -> "uncertain"
                 else -> "invalid_output"
             }
             val failure = p.edit().putString(phaseKey, failurePhase)
