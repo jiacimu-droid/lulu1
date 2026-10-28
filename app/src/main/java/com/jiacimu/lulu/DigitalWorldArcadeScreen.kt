@@ -30,10 +30,13 @@ internal fun DigitalWorldArcadeScreen(
     var errorText by remember { mutableStateOf("") }
     val memoryMatch = gameId == "memory_match"
     val deepSea = gameId == "deep_sea_journey"
-    val soloAllowed = deepSea || gameId == "yacht_dice"
+    val soloAllowed = deepSea || gameId in setOf("yacht_dice", "block_island", "relic_escape")
     val gameTitle = when (gameId) {
         "memory_match" -> "记忆配对"
         "yacht_dice" -> "快艇骰子"
+        "block_island" -> "方块小岛"
+        "relic_escape" -> "迷雾摸金"
+        "turtle_soup" -> "海龟汤"
         else -> "深海回声"
     }
     val partner = residents.firstOrNull { it.characterId == partnerId }
@@ -54,7 +57,7 @@ internal fun DigitalWorldArcadeScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(gameTitle, style = MaterialTheme.typography.headlineMedium)
-            Text("一起玩", style = MaterialTheme.typography.titleMedium)
+            Text("选择同伴", style = MaterialTheme.typography.titleMedium)
             if (soloAllowed) {
                 FilterChip(selected = partnerId.isBlank(), onClick = { partnerId = "" }, label = { Text("自己玩") })
             }
