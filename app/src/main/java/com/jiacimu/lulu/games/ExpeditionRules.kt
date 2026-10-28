@@ -117,7 +117,7 @@ internal object ExpeditionRules {
         tiles[3 * w + 3] = if (mode == ExpeditionMode.HOMESTEAD) 7 else 0
         val mobs = mutableListOf<ExpeditionMob>()
         if (mode == ExpeditionMode.RELIC_RUN) {
-            val chests = listOf(9 to 3, 15 to 4, 4 to 11, 10 to 12, 15 to 12)
+            val chests = listOf(9 to 3, 15 to 4, 4 to 11, 10 to 12, 14 to 11)
             chests.forEach { (x, y) -> tiles[y * w + x] = 5 }
             tiles[12 * w + (w - 3)] = 6
             mobs += listOf(ExpeditionMob(1, 8, 5), ExpeditionMob(2, 12, 10), ExpeditionMob(3, 6, 12))
@@ -149,7 +149,7 @@ internal object ExpeditionRules {
         when (action) {
             "move" -> {
                 if (abs(tx - s.x) + abs(ty - s.y) != 1) return s.copy(notice = "每次只能移动一格")
-                if (target in listOf(1, 2, 3, 8) || mob != null) return s.copy(notice = "前方无法通行，采集、战斗或绕路")
+                if (target in listOf(1, 2, 3, 5, 8) || mob != null) return s.copy(notice = "前方无法通行，采集、战斗或绕路")
                 next = s.copy(x = tx, y = ty)
                 message = "移动到 ($tx,$ty)"
             }
@@ -186,7 +186,7 @@ internal object ExpeditionRules {
                     return s.copy(notice = "这块地放不下房子，换个宽敞的地方")
                 var changed = s
                 cells.forEach { (x,y) ->
-                    changed = changed.changeTile(x,y, if (x == cx - 1 && y == cy) 4 else if (x==cx || y==cy) 4 else 3)
+                    changed = changed.changeTile(x,y, if ((x == cx - 1 && y == cy) || (x == cx && y == cy)) 4 else 3)
                 }
                 next = changed.copy(wood=s.wood-6,stone=s.stone-2)
                 message = "盖好一间带门的小屋"
@@ -284,9 +284,8 @@ internal object ExpeditionRules {
                 mob.copy(x=mob.x+dx,y=mob.y+dy)}
                 .filter{it.x in 1 until state.width-1 && it.y in 1 until state.height-1 &&
                     state.cell(it.x,it.y) in listOf(0,4,7) &&
-                    state.x!=it.x || state.y!=it.y}
-            moves.filter{it.x!=state.x || it.y!=state.y}
-                .minByOrNull{dist(it.x,it.y,nearest.first,nearest.second)} ?: mob
+                    (state.x!=it.x || state.y!=it.y)}
+            moves.minByOrNull{dist(it.x,it.y,nearest.first,nearest.second)} ?: mob
         }
         val hp=(state.hp-damage).coerceAtLeast(0)
         if(damage>0) logs+="受到怪物攻击，生命 -$damage"
