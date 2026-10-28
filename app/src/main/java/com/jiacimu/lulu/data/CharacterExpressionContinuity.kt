@@ -20,10 +20,20 @@ internal object CharacterExpressionContinuity {
     )
 
     /** Cues are options, never keywords that automatically mandate a reaction. */
-    fun guide(): String = buildString {
+    fun guide(characterId: String? = null): String = buildString {
         appendLine("【自然社交的表达手段】")
         appendLine("可以独立选择：普通文字、短促语气词、停顿或标点、表情/emoji、颜文字、已入库的图片表情，或者这次什么都不发。")
-        appendLine("颜文字示例（不是强制模板）：${kaomoji.joinToString("、") { "${it.first} ${it.second}" }}。")
+        // A giant list of cute strings in every model turn is a powerful
+        // few-shot style exemplar, even when marked optional. Follow this
+        // character's persisted expression choice instead of turning every
+        // friend into an anime mascot. No output is censored after generation.
+        val expressive = characterId == null ||
+            CharacterExpressionPreferences.selected(characterId, "kaomoji") == "expressive"
+        if (expressive) {
+            appendLine("颜文字示例（不是强制模板）：${kaomoji.joinToString("、") { "${it.first} ${it.second}" }}。")
+        } else {
+            appendLine("自然聊天不用把语气演成颜文字接龙；已有真实个人习惯或确实有笑点时，仍可自己选一枚贴切的表情。")
+        }
         appendLine("有个人习惯才能稳定形成独特语气；接梗要和实际话题有关，可以自己先开玩笑，也可以不接。允许只发一句‘哈哈’或一个颜文字，不必解释为什么用了它。")
         appendLine("一张图片表情本身就是社交行为，不是一定要搭配解释或敬语；发送前看准确画面描述、自己的感觉、双方熟悉度和最近是否刚发过同一张。")
         appendLine("不要人为安排每三句一个表情，也不要总在同一个语境复制同一套颜文字或固定口头禅；亲昵不等于永远讨好。说够就停：先给核心一句，再决定要不要补一句细节；不要把原因、感受、建议、总结都讲完。")
