@@ -56,4 +56,19 @@ class PromptInputAuditTest {
         assertTrue(audit.coverageMatches)
         assertFalse(audit.breakdown.any { it.label.contains("银行卡") || it.label.contains("地址") })
     }
+    @Test fun taskProtocolStillSplitsWhenAvatarVisionRuleFollowsIt() {
+        val task = "【一次决策的动作协议】\n选择动作并等待实际回执。"
+        val rule = "固定人物设定\n本次任务：" + task +
+            "\n【新头像的真实视觉输入】\n看到新头像才可以描述。"
+        val sections = listOf("任务规则/工具协议" to rule)
+        val audit = PromptInputAudit.inspect(sections, rule, "用户新消息",
+            emptyList(), listOf("data:image/jpeg;base64,AAAA"), task)
+        assertTrue(audit.coverageMatches)
+        assertTrue(audit.breakdown.any { it.label.contains("本轮任务指令 / 【一次决策的动作协议】") })
+        assertTrue(audit.breakdown.any { it.label == "附加视觉观察规则" })
+        assertTrue(audit.breakdown.any { it.label == "基础身份与通用规则" })
+        assertEquals(rule.length + "用户新消息".length, audit.textCharacters)
+    }
+
+
 }
