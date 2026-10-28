@@ -449,6 +449,53 @@ class ResidentDailyContinuityTest {
         }
     }
 
+    @Test(timeout = 60_000) fun editedOldDecisionDoesNotFalselyExplainReplayedResidentAction() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "修订决定居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val post = "旧决定原本要发布的内容-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院日记",
+            "这是我之前的真实选择", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment", activityArgs = JSONObject().put("text", post))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val choice = JSONObject().put("choice", "execute").put("reason", "想分享")
+            .put("args", JSONObject().put("text", post)).put("steps", JSONArray())
+        val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            android.content.Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        val decisionId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+        SharedExperienceTimeline.record(decisionId, actor, "原住民·到点自主决定",
+            native.name, "原来真实保存的决定", now.minusSeconds(30),
+            triggerExtraction = false, source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record(decisionId, actor, "原住民·到点自主决定",
+            native.name, "后来修改过的文字，不是当时模型所选", now.minusSeconds(20),
+            triggerExtraction = false, source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertEquals(2L, SharedExperienceTimeline.eventsByIds(actor, listOf(decisionId))
+            .single().revision)
+        assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+        val receiptId = "tool-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}"
+        val receipt = SharedExperienceTimeline.eventsByIds(actor, listOf(receiptId)).single()
+        assertEquals("", JSONObject(receipt.content).optString("causeEvidenceId"))
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == post
+        })
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == post
+        })
+    }
+
     @Test(timeout = 60_000) fun completedResidentPrimaryResumesDependentSideStepWithoutReposting() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
