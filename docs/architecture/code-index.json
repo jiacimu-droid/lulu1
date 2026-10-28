@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T22:56:07.211749+00:00",
-  "commit": "cce43bdc2447456adeb0c0738d6af0c7bdcd8f0d",
+  "generatedAt": "2026-10-28T23:56:57.793644+00:00",
+  "commit": "5427e1bfe45dbc54ef6e2dc60e1e7682e6c87dd7",
   "branch": "main",
-  "sourceFingerprint": "f7c3054cc8083d2c881b9757c8bb3e2a2562222e39c548c23cdcbd086881ece5",
+  "sourceFingerprint": "1ffaefbf31a36d1eca84b6d13f1bfab3c65708092a8bacdf69154637135204ef",
   "summary": {
     "files": 1054,
-    "lines": 216122,
+    "lines": 216242,
     "symbols": 3093
   },
   "symbolIndex": {
@@ -423,7 +423,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1814
+        "line": 1852
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3143,7 +3143,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 70
+        "line": 72
       }
     ],
     "inspectImportedModel": [
@@ -5059,7 +5059,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1572
+        "line": 1610
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -6163,37 +6163,37 @@
     "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 364
+        "line": 379
       }
     ],
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 398
+        "line": 413
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 877
+        "line": 915
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1040
+        "line": 1078
       }
     ],
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1638
+        "line": 1676
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1690
+        "line": 1728
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -22384,12 +22384,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 357,
-      "sha256": "f5c9c79f0903869a48d4a1181b24de191f2df3405140a7c4111f3e4520fca219",
+      "lines": 377,
+      "sha256": "6c232004f22af2258dd4bbcd6d72e7e2012b70ec139d735b2622a29a7e3ced61",
       "symbols": [
         {
           "name": "inspect",
-          "line": 70
+          "line": 72
         }
       ]
     },
@@ -22924,8 +22924,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1983,
-      "sha256": "048b182cff146d17e91bdfa8b989301a044d38ed74f6344f29ff39ffb36b8795",
+      "lines": 2021,
+      "sha256": "202340813174f4977b2866fbaa71774a82e2715672652cd02954a61dc69dd626",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -22933,35 +22933,35 @@
         },
         {
           "name": "needsPostOnlineReflection",
-          "line": 364
+          "line": 379
         },
         {
           "name": "backedBy",
-          "line": 398
+          "line": 413
         },
         {
           "name": "interactionContext",
-          "line": 877
+          "line": 915
         },
         {
           "name": "groundingContext",
-          "line": 1040
+          "line": 1078
         },
         {
           "name": "normalize",
-          "line": 1572
+          "line": 1610
         },
         {
           "name": "axis",
-          "line": 1638
+          "line": 1676
         },
         {
           "name": "compactContext",
-          "line": 1690
+          "line": 1728
         },
         {
           "name": "context",
-          "line": 1814
+          "line": 1852
         }
       ]
     },
@@ -33887,8 +33887,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 402,
-      "sha256": "c2ca4c443f0ed250b46a7e896b1e157c8c64187caf801489487ae75e88fdaafc",
+      "lines": 464,
+      "sha256": "65d3ff4d2675c70ef8ece77a621f3b6cb36d2b857f99251e089bc70661b3dd28",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
