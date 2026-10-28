@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:34:16.015070+00:00",
-  "commit": "31f4f2d9653cf73ede645bbf18017e66ddb569b2",
+  "generatedAt": "2026-10-28T04:39:52.343949+00:00",
+  "commit": "b0f72066948bf8181402dcd940d62347849292fe",
   "branch": "main",
-  "sourceFingerprint": "9bc1d6efb001a5f401dad25895570a67ab91cab0454239b68e96c1c2ab085be0",
+  "sourceFingerprint": "292122123dbb884d5351537e415600e2463a10f1b31be9fb66ea5c1345c2e6df",
   "summary": {
     "files": 993,
-    "lines": 197648,
+    "lines": 197765,
     "symbols": 2918
   },
   "symbolIndex": {
@@ -1023,7 +1023,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 410
+        "line": 415
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -5515,7 +5515,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 600
+        "line": 605
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -6213,7 +6213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 921
+        "line": 933
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10595,7 +10595,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 516
+        "line": 528
       }
     ],
     "plan": [
@@ -10697,19 +10697,19 @@
     "removeLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 421
+        "line": 426
       }
     ],
     "mergeMatchingDailyCallPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 440
+        "line": 445
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 459
+        "line": 464
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -10719,31 +10719,31 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 507
+        "line": 512
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 522
+        "line": 527
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 562
+        "line": 567
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 576
+        "line": 581
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 607
+        "line": 612
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -15967,7 +15967,7 @@
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 483
+        "line": 583
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -26741,8 +26741,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 971,
-      "sha256": "af48ae05f655149e7b511e1de7c600e1d8a4dce9e71c6cf4e0f95af73d433995",
+      "lines": 983,
+      "sha256": "af8f1ff1d30028de5f4d7211ab1350e4039a55e829ec3fb768fa1ee0794b58a9",
       "symbols": [
         {
           "name": "planForApp",
@@ -26758,11 +26758,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 516
+          "line": 528
         },
         {
           "name": "schedule",
-          "line": 921
+          "line": 933
         }
       ]
     },
@@ -26814,8 +26814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 713,
-      "sha256": "301b7f5b0576c91d1b8cc480e58805fe5a98526b3b1da4f887755bbe10a0435d",
+      "lines": 718,
+      "sha256": "8f9df7308150720a4603ebc0a9bd1b3e1d92c2234c2804200288dfc4aa3705e8",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -26863,43 +26863,43 @@
         },
         {
           "name": "remove",
-          "line": 410
+          "line": 415
         },
         {
           "name": "removeLinkedCommitmentPlans",
-          "line": 421
+          "line": 426
         },
         {
           "name": "mergeMatchingDailyCallPlans",
-          "line": 440
+          "line": 445
         },
         {
           "name": "reschedule",
-          "line": 459
+          "line": 464
         },
         {
           "name": "canBegin",
-          "line": 507
+          "line": 512
         },
         {
           "name": "completeFromReceipt",
-          "line": 522
+          "line": 527
         },
         {
           "name": "markDue",
-          "line": 562
+          "line": 567
         },
         {
           "name": "dueContext",
-          "line": 576
+          "line": 581
         },
         {
           "name": "clearCharacter",
-          "line": 600
+          "line": 605
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 607
+          "line": 612
         }
       ]
     },
@@ -34012,8 +34012,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 734,
-      "sha256": "159509fe7de0c4e3d8158c089e13feff6b354e5ebe3eafe022eb2aa19147568f",
+      "lines": 834,
+      "sha256": "6a807d37a8ef546925d054c064169b7e37d9d1e13034069e8c547efdc75f0d88",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34025,7 +34025,7 @@
         },
         {
           "name": "item",
-          "line": 483
+          "line": 583
         }
       ]
     },
