@@ -943,6 +943,9 @@ class ResidentDailyContinuityTest {
         assertTrue(ResidentDailyDecision.dayContractError(
             JSONObject(valid.toString()).put("post", JSONArray()), at)
             .orEmpty().contains("post"))
+        assertTrue(ResidentDailyDecision.dayContractError(
+            JSONObject(valid.toString()).put("message", JSONObject.NULL), at)
+            .orEmpty().contains("message"))
         assertNull(ResidentDailyDecision.dayContractError(
             JSONObject(valid.toString()).put("messageTo", "resident:friend")
                 .put("message", "有空聊聊吗"), at))
