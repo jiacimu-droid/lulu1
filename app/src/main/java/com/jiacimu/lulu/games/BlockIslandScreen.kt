@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +45,7 @@ import kotlin.random.Random
 @Composable
 internal fun BlockIslandScreen(store: LuluGameStore) {
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     val game by store.state.collectAsState()
     val preferences = remember(context) {
         context.getSharedPreferences("lulu_block_island_v2", 0)
@@ -67,13 +70,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var showRecipes by remember { mutableStateOf(true) }
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }
-    val scenery = rememberInfiniteTransition(label = "island-weather")
-    val atmosphere by scenery.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(5400, easing = LinearEasing), RepeatMode.Restart),
-        label = "island-breeze",
-    )
     LaunchedEffect(impact) {
         if (impact != null) {
             impactProgress.snapTo(0f)
@@ -91,6 +87,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         val result = BlockIslandRules.act(island, action, x, y)
         if (result.world.turns > island.world.turns) {
             impact = BlockIslandImpact(x, y, action, result.world.turns)
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
         save(result)
     }
@@ -162,7 +159,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
                 BlockIslandCanvas(
                     island = island, target = target, zoomed = zoomed, night = night,
-                    phase = atmosphere, impact = impact, impactProgress = impactProgress.value,
+                    impact = impact, impactProgress = impactProgress.value,
                     onSelect = { x, y ->
                         target = x to y
                         navigateTo = null
@@ -413,13 +410,19 @@ private fun BlockIslandCanvas(
     target: Pair<Int, Int>,
     zoomed: Boolean,
     night: Boolean,
-    phase: Float,
     impact: BlockIslandImpact?,
     impactProgress: Float,
     onSelect: (Int, Int) -> Unit,
     onNavigate: (Int, Int) -> Unit,
 ) {
     val w = island.world
+    // Only the Canvas recomposes for breeze/water/fire; controls & saved state stay stable.
+    val scenery = rememberInfiniteTransition(label = "island-weather")
+    val phase by scenery.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(5400, easing = LinearEasing), RepeatMode.Restart),
+        label = "island-breeze",
+    )
     val cols = if (zoomed) 14 else 22
     val rows = if (zoomed) 11 else 16
     val left = (w.x - cols / 2).coerceIn(0, (w.width - cols).coerceAtLeast(0))
