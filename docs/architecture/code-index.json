@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:54:38.406784+00:00",
-  "commit": "d405b1886473ee769e328d0c712a7022ae8fdfd6",
+  "generatedAt": "2026-10-28T14:57:24.943992+00:00",
+  "commit": "7840da4a61dab52ee20a375a1b72be1bab43a773",
   "branch": "main",
-  "sourceFingerprint": "8fee7de9be7a0c17d560d2b82ce6356397614555c89dc08ede7d55c5c5eff643",
+  "sourceFingerprint": "82069b40518bf54e437a84e23cad90bcf4593a1e2a103128790d014cb827045a",
   "summary": {
     "files": 1053,
-    "lines": 214478,
+    "lines": 214481,
     "symbols": 3078
   },
   "symbolIndex": {
@@ -35811,8 +35811,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1949,
-      "sha256": "7a3952538a7583c78c49b428fbc820fcfe5d140343d5b3e9cb0f36b3593d7f75",
+      "lines": 1952,
+      "sha256": "de99400769474a44f80af53b775f85c308710a9273d885d098d1d40eb9afbb16",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
