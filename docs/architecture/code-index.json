@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:36:32.945461+00:00",
-  "commit": "ecd3cd4752dddffb53f0611a3b86141fedbc8651",
+  "generatedAt": "2026-10-28T14:36:52.546931+00:00",
+  "commit": "783b9ab43e80b574bd2ea2e7f1408133c7a9beb7",
   "branch": "main",
-  "sourceFingerprint": "c1901e0cb6af34c988f600103a7727373e51cc716c93ae10fdf040b850990af6",
+  "sourceFingerprint": "b0d0efb4b924875f27cd9bc73f341d53ba7d3b92c71c02e781aa66132e7b0c2c",
   "summary": {
-    "files": 1052,
-    "lines": 214214,
-    "symbols": 3073
+    "files": 1053,
+    "lines": 214262,
+    "symbols": 3074
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16660,6 +16660,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
         "line": 12
+      }
+    ],
+    "PromptRuleAssemblyPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt",
+        "line": 5
       }
     ],
     "ReadingChatReceiptFormatterTest": [
@@ -35581,8 +35587,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 66,
-      "sha256": "5bfe15dcb035c19d21cc7bc0c6dadb7a5a96300b07a85a283450c9b3087bbb1a",
+      "lines": 78,
+      "sha256": "8c5478f79dbff46bc5873f1315b5a487cc83aa2f126cb5c883092c4d89b83f53",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
@@ -35632,6 +35638,17 @@
         {
           "name": "PromptContextRegressionTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt",
+      "lines": 36,
+      "sha256": "9945c35b0b27512a5789a6fb274200b4ec554d043d418c0ceeffee522ac74bc9",
+      "symbols": [
+        {
+          "name": "PromptRuleAssemblyPolicyTest",
+          "line": 5
         }
       ]
     },
