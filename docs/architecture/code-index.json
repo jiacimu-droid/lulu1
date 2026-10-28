@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T15:57:40.258081+00:00",
-  "commit": "b7d50ed60c256bc0e693de825c77708a01e0c792",
+  "generatedAt": "2026-10-28T16:12:45.635474+00:00",
+  "commit": "24876b62a1b9702ab9cf15a3e8ea1daceb787764",
   "branch": "main",
-  "sourceFingerprint": "ac1d9fd7c4e4f6481aaa140ce6f80edb560b0d2e6dd95b44aab85fff07711cef",
+  "sourceFingerprint": "1bcd74b15716d9e16dc268605be4acc0e5e21deceaff3da2e8530c8c086effe4",
   "summary": {
     "files": 1053,
-    "lines": 214688,
+    "lines": 214704,
     "symbols": 3080
   },
   "symbolIndex": {
@@ -4679,25 +4679,25 @@
     "shouldCompactBeforeSend": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 32
+        "line": 43
       }
     ],
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 91
+        "line": 101
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 102
+        "line": 112
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 112
+        "line": 122
       }
     ],
     "ScopedModelSelections": [
@@ -10489,7 +10489,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2849
+        "line": 2855
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -21539,8 +21539,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 116,
-      "sha256": "2f8fbaf9540e45db0df189d2c6e8ad96b07a8185953d3fda9feb3e04aea103b6",
+      "lines": 126,
+      "sha256": "51aa1be13b33228af665c9f4c047d86aae3cdac02b298b074c44751af2aea6fd",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -21556,19 +21556,19 @@
         },
         {
           "name": "shouldCompactBeforeSend",
-          "line": 32
+          "line": 43
         },
         {
           "name": "compactHistory",
-          "line": 91
+          "line": 101
         },
         {
           "name": "compactSections",
-          "line": 102
+          "line": 112
         },
         {
           "name": "savesEnough",
-          "line": 112
+          "line": 122
         }
       ]
     },
@@ -27533,8 +27533,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2916,
-      "sha256": "3d3ae54df1050f68b2723b17a562d7e45fd710150be7c549d7d6bb2c9d9bc277",
+      "lines": 2922,
+      "sha256": "ed3d2b180bccc577cbb16ba9002a783b539526790adb1669c1298b251c57afdf",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -27566,7 +27566,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2849
+          "line": 2855
         }
       ]
     },
