@@ -52,13 +52,15 @@ class BundledJiangDuImportTest {
         assertEquals(CharacterProfileSchema.xingHeIdentity,
             CharacterIdentityStore.identities.value["lulu"])
         val state = CharacterLifeStore.state("lulu")
-        assertEquals(3, state.getInt("xingHeProfileVersion"))
+        assertEquals(4, state.getInt("xingHeProfileVersion"))
         assertTrue(state.has("xingHeMigrationBackupV1"))
         assertFalse(state.has("jiangDuPresetVersion"))
         assertEquals("最好的闺蜜", state.getJSONObject("relationshipAgreements")
             .getJSONObject("user").getString("title"))
         assertEquals(CharacterProfileSchema.xingHeProfile.getValue("speechHabits"),
             state.getJSONObject("profile").getString("speechHabits"))
+        assertEquals("natural",
+            state.getJSONObject("expressionPreferences").getString("kaomoji"))
 
         CharacterLifeStore.setProfile("lulu", "speechHabits", "我自己改过的说话方式")
         CharacterLifeStore.initialize(context)
@@ -101,8 +103,10 @@ class BundledJiangDuImportTest {
                 displayName = "星禾", persona = CharacterProfileSchema.xingHeV2Persona))
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state("lulu")
-            assertEquals(3, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
             assertTrue(upgraded.has("xingHeV2UpgradeBackup"))
+            assertTrue(upgraded.has("xingHeV3ExpressionBackup"))
+            assertEquals("natural", upgraded.getJSONObject("expressionPreferences").getString("kaomoji"))
             assertEquals(CharacterProfileSchema.xingHePersona,
                 MigratedDomainStores.characters.get("lulu").persona)
             assertEquals(CharacterProfileSchema.xingHeProfile.getValue("perception"),
@@ -152,10 +156,44 @@ class BundledJiangDuImportTest {
             assertEquals("用户自己重写的朋友约定",
                 upgraded.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
             assertEquals("", upgraded.getJSONObject("profile").getString("perception"))
-            assertEquals(3, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
         } finally {
             save.invoke(CharacterLifeStore, "lulu", previousState)
             MigratedDomainStores.characters.update(previousRole)
+        }
+    }
+
+    @Test fun v3ExistingUserStyleChoiceSurvivesTheNaturalExpressionUpgrade() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val original = JSONObject(CharacterLifeStore.state("lulu").toString())
+        val backupRole = MigratedDomainStores.characters.get("lulu")
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            val prior = JSONObject(original.toString())
+            prior.put("xingHeProfileVersion", 3)
+            prior.remove("xingHeV3ExpressionBackup")
+            prior.put("expressionPreferences", JSONObject()
+                .put("kaomoji", "expressive").put("stickers", "restrained"))
+            save.invoke(CharacterLifeStore, "lulu", prior)
+            CharacterLifeStore.initialize(context)
+            val migrated = CharacterLifeStore.state("lulu")
+            assertEquals(4, migrated.getInt("xingHeProfileVersion"))
+            assertEquals("expressive", migrated.getJSONObject("expressionPreferences").getString("kaomoji"))
+            assertEquals("restrained", migrated.getJSONObject("expressionPreferences").getString("stickers"))
+            assertEquals("星禾", MigratedDomainStores.characters.get("lulu").displayName)
+            val actualGuide = CharacterExpressionContinuity.guide("lulu")
+            assertTrue(actualGuide.contains("颜文字示例"))
+            CharacterLifeStore.initialize(context)
+            assertEquals("expressive", CharacterExpressionPreferences.selected("lulu", "kaomoji"))
+            // The user changing it later takes effect immediately, without a new model call.
+            CharacterLifeStore.setExpressionPreference("lulu", "kaomoji", "natural")
+            assertFalse(CharacterExpressionContinuity.guide("lulu").contains("颜文字示例"))
+        } finally {
+            save.invoke(CharacterLifeStore, "lulu", original)
+            MigratedDomainStores.characters.update(backupRole)
         }
     }
 
@@ -185,7 +223,7 @@ class BundledJiangDuImportTest {
 
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state("lulu")
-            assertEquals(3, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
             assertEquals(CharacterProfileSchema.xingHePersona,
                 MigratedDomainStores.characters.get("lulu").persona)
             assertEquals(CharacterProfileSchema.xingHeProfile.getValue("care"),
