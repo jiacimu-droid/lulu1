@@ -270,7 +270,8 @@ object RoleDayScheduleStore {
     fun restorePending(context: Context, now: Instant = Instant.now()) {
         all(context).filter { plan ->
             (plan.status == "planned" && plan.dueAt.isAfter(now)) ||
-                (plan.status == "due" && plan.characterId.startsWith("resident:") &&
+                (plan.status in setOf("due", "completed") &&
+                    plan.characterId.startsWith("resident:") &&
                     ResidentDailyDecision.hasSavedDueToResume(context, plan))
         }.forEach { plan ->
                 runCatching { scheduleWake(context, plan, now, replace = false) }
@@ -557,8 +558,14 @@ object RoleDayScheduleStore {
                 persist(context, previous)
                 throw failure
             }
-        } else WorkManager.getInstance(context.applicationContext)
-            .cancelUniqueWork("role-own-plan-$planId")
+        } else if (!(plan.characterId.startsWith("resident:") &&
+                ResidentDailyDecision.hasSavedDueToResume(context, follow))) {
+            // A resident's already-saved execute decision may still have side
+            // steps after this primary receipt. Cancelling the unique work here
+            // cancels its own Worker before those receipts can be committed.
+            WorkManager.getInstance(context.applicationContext)
+                .cancelUniqueWork("role-own-plan-$planId")
+        }
         refreshAutonomousWake(context)
         return true
     }
@@ -618,7 +625,11 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         if (role.isBlank() || planId.isBlank()) return Result.failure()
         val current = RoleDayScheduleStore.plans(applicationContext, role).firstOrNull { it.id == planId }
             ?: return Result.success()
-        if (current.status !in setOf("planned", "due")) return Result.success()
+        fun canResume(p: RoleDayPlan): Boolean =
+            p.status in setOf("planned", "due") ||
+                (role.startsWith("resident:") && p.status == "completed" &&
+                    ResidentDailyDecision.hasSavedDueToResume(applicationContext, p))
+        if (!canResume(current)) return Result.success()
         // A cold WorkManager process has not loaded CommitmentTaskStore yet.
         // Read the durable alarm authority BEFORE deciding to wake the role.
         if (runCatching {
@@ -627,7 +638,7 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             }.isFailure) return Result.retry()
         val latest = RoleDayScheduleStore.plans(applicationContext, role)
             .firstOrNull { it.id == planId } ?: return Result.success()
-        if (latest.status !in setOf("planned", "due")) return Result.success()
+        if (!canResume(latest)) return Result.success()
         val covered = CommitmentTaskStore.snapshot(role).any {
             isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(latest, it)
         }
@@ -636,8 +647,9 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             return Result.success()
         }
         if (Instant.now().isBefore(latest.dueAt)) return Result.retry()
-        val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
-            ?: return Result.success()
+        val plan = if (latest.status == "completed") latest
+            else RoleDayScheduleStore.markDue(applicationContext, role, planId)
+                ?: return Result.success()
         if (role.startsWith("resident:")) {
             // A native resident has no ordinary user-facing private chat. Route its
             // appointment directly to the resident's inexpensive model decision,

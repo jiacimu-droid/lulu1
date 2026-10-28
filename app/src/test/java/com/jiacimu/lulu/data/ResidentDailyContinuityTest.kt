@@ -345,6 +345,63 @@ class ResidentDailyContinuityTest {
         }
     }
 
+    @Test(timeout = 60_000) fun completedResidentPrimaryResumesDependentSideStepWithoutReposting() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "已执行续接居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val primary = "已经发布的主活动-${UUID.randomUUID()}"
+        val dependent = "主活动成功后的独立分享-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院见闻", "我想分享这件事",
+            now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment", activityArgs = JSONObject().put("text", primary))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val choice = JSONObject().put("choice", "execute")
+            .put("reason", "先分享见闻，再告诉朋友后续")
+            .put("args", JSONObject().put("text", primary))
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", true)
+                .put("args", JSONObject().put("text", dependent))))
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            android.content.Context.MODE_PRIVATE)
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        // Simulate process death after the primary ToolRouter receipt has
+        // settled the calendar, but before OrderedCharacterActions runs.
+        val primaryReceipt = JSONObject(ToolRouter.execute(app, actor, "publish_moment",
+            JSONObject().put("text", primary).put("planId", plan.id),
+            requestId = "resident-plan-${plan.id}-${plan.dueAt.epochSecond}",
+            autonomousLifeTurn = true))
+        assertTrue(primaryReceipt.toString(), primaryReceipt.optBoolean("success"))
+        val completed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+        assertEquals("completed", completed.status)
+        assertTrue(completed.resultEvidenceId.isNotBlank())
+        assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, completed))
+        // Restoration must see the finished primary as a pending continuation.
+        RoleDayScheduleStore.restorePending(app, now)
+        ScopedModelSelections.initialize(app)
+        ScopedModelSelections.clear(ResidentDailyDecision.SCOPE)
+        assertTrue(ResidentDailyDecision.runDuePlan(app, completed, now))
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == primary
+        })
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == dependent
+        })
+        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, completed))
+        assertFalse(ResidentDailyDecision.runDuePlan(app, completed, now))
+        assertEquals(1, MomentsStore.posts.value.count {
+            it.authorCharacterId == actor && it.content == dependent
+        })
+    }
+
     @Test(timeout = 60_000) fun invalidRescheduleStillRunsIndependentStepsAndReplaysIdempotently() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
@@ -447,6 +504,9 @@ class ResidentDailyContinuityTest {
                 "resume-only-${UUID.randomUUID()}", server.url("/").toString(), "test")
             val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
             ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            // A persisted decision must not depend on the original archive
+            // still being selected after an app restart or settings change.
+            ScopedModelSelections.clear(ResidentDailyDecision.SCOPE)
             assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
             assertTrue(ResidentDailyDecision.runOnce(app, native, now))
             assertEquals(0, server.requestCount)

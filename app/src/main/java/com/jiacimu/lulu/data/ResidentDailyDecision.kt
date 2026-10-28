@@ -65,8 +65,15 @@ internal object ResidentDailyDecision {
     internal fun hasSavedDueToResume(context: Context, plan: RoleDayPlan): Boolean {
         val p = prefs(context)
         val key = dueAttemptKey(plan)
-        return p.contains("due-decision:$key") &&
-            p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery") &&
+        val raw = p.getString("due-decision:$key", null) ?: return false
+        // A completed primary can still have unprocessed independent steps.
+        // Only a settled one-shot execute choice is eligible; cancelled,
+        // rescheduled and unrelated completed plans never regain authority.
+        if (plan.status == "completed" && (plan.repeat != "once" ||
+                plan.resultEvidenceId.isBlank() ||
+                runCatching { JSONObject(raw).optString("choice") }.getOrNull() != "execute"))
+            return false
+        return p.getString("due-phase:$key", "") in setOf("decided", "needs_recovery") &&
             p.getInt("due-recoveries:$key", 0) < MAX_SAVED_DECISION_RECOVERIES
     }
 
@@ -308,12 +315,12 @@ internal object ResidentDailyDecision {
         val app = context.applicationContext
         appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
-        if (plan.status !in setOf("due", "planned") || at.isBefore(plan.dueAt)) return false
+        val resumeCompleted = plan.status == "completed" && plan.repeat == "once" &&
+            hasSavedDueToResume(app, plan)
+        if ((plan.status !in setOf("due", "planned") && !resumeCompleted) ||
+            at.isBefore(plan.dueAt)) return false
         initializeBackgroundRuntime(app)
         ResidentSocialMailbox.initialize(app)
-        val selected = runCatching {
-            ScopedModelSelections.resolveConnection(SCOPE)
-        }.getOrNull() ?: return false
         val key = dueAttemptKey(plan)
         val p = prefs(app)
         val decisionKey = "due-decision:$key"
@@ -322,6 +329,13 @@ internal object ResidentDailyDecision {
         val savedChoice = p.getString(decisionKey, null)?.let {
             runCatching { JSONObject(it) }.getOrNull()
         }
+        if (resumeCompleted && savedChoice?.optString("choice") != "execute") return false
+        // Replaying a durable choice does not need the old model archive or
+        // another chargeable request; only a fresh choice resolves a connection.
+        val selected = if (savedChoice == null) {
+            runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
+                ?: return false
+        } else null
         if (savedChoice != null) {
             if (!hasSavedDueToResume(app, plan)) return false
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
@@ -431,7 +445,14 @@ internal object ResidentDailyDecision {
                 initialCompleted = false)
         }
         var originalHandled = when (wanted) {
-            "execute" -> {
+            "execute" -> if (resumeCompleted) {
+                // The primary has a settled receipt already. Never call the
+                // original tool again merely to resume dependent side actions.
+                RoleDayScheduleStore.plans(app, plan.characterId).any {
+                    it.id == plan.id && it.dueAt == plan.dueAt &&
+                        it.status == "completed" && it.resultEvidenceId.isNotBlank()
+                }
+            } else {
                 // When the model explicitly chooses to execute but leaves args
                 // unchanged, reuse its own saved proposal; live ToolRouter still
                 // rechecks location, recipient, authority and evidence.
@@ -699,10 +720,7 @@ internal object ResidentDailyDecision {
         CharacterPhoneInbox.initialize(app)
         CharacterInnerLifeStore.initialize(app)
         val id = ResidentCharacterBridge.characterId(native.id)
-        val selected = runCatching {
-            ScopedModelSelections.initialize(app)
-            ScopedModelSelections.resolveConnection(SCOPE)
-        }.getOrNull() ?: return false
+        ScopedModelSelections.initialize(app)
         val today = date(now)
         val p = prefs(app)
         val decisionKey = dayDecisionKey(native.id, today)
@@ -711,6 +729,10 @@ internal object ResidentDailyDecision {
         val savedDecision = p.getString(decisionKey, null)?.let {
             runCatching { JSONObject(it) }.getOrNull()
         }
+        val selected = if (savedDecision == null) {
+            runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
+                ?: return false
+        } else null
         if (savedDecision != null) {
             if (p.getString(phaseKey, "") == "finished" ||
                 p.getInt(recoveriesKey, 0) >= MAX_SAVED_DECISION_RECOVERIES) return false
