@@ -8,13 +8,24 @@ internal const val DEEP_SEA_PICKUP_RADIUS = 86f
 internal const val DEEP_SEA_RETURN_RADIUS = 88f
 internal const val DEEP_SEA_SONAR_RADIUS = 620f
 
-internal data class DeepSeaSite(val id: String, val name: String, val position: WorldVector, val discovery: String)
+internal data class DeepSeaSite(
+    val id: String,
+    val name: String,
+    val position: WorldVector,
+    val discovery: String,
+    val alternateDiscovery: String,
+)
+
+// The same dive sees the same event after restore; a new dive can reveal another detail.
+internal fun deepSeaSiteStory(site: DeepSeaSite, runStartedAt: Long): String =
+    if (((runStartedAt / 1_000L) + site.id.hashCode().toLong()) and 1L == 0L)
+        site.discovery else site.alternateDiscovery
 
 internal val deepSeaSites = listOf(
-    DeepSeaSite("kelp-garden", "荧光珊瑚林", WorldVector(685f, 1_135f), "珊瑚间有一群透明小鱼，顺着潜航器的灯光游成了星河。"),
-    DeepSeaSite("wreck-log", "沉船航海日志", WorldVector(1_195f, 865f), "你在沉船外舷找到了刻着旧航线的铜牌，记下了一段失落航程。"),
-    DeepSeaSite("hidden-cave", "海沟秘洞", WorldVector(1_255f, 1_170f), "礁壁背后藏着一处安静的洞口，岩层中闪着蓝色微光。"),
-    DeepSeaSite("whale-song", "鲸歌回廊", WorldVector(730f, 700f), "远处鲸鸣穿过岩壁，海水像琴弦一样轻轻震动。"),
+    DeepSeaSite("kelp-garden", "荧光珊瑚林", WorldVector(685f, 1_135f), "珊瑚间有一群透明小鱼，顺着潜航器的灯光游成了星河。", "一只发光的海兔躲进珊瑚枝间，又悄悄探出了头。"),
+    DeepSeaSite("wreck-log", "沉船航海日志", WorldVector(1_195f, 865f), "你在沉船外舷找到了刻着旧航线的铜牌，记下了一段失落航程。", "沉船舷窗里透出蓝色反光，一本旧日志正随着水流轻轻翻页。"),
+    DeepSeaSite("hidden-cave", "海沟秘洞", WorldVector(1_255f, 1_170f), "礁壁背后藏着一处安静的洞口，岩层中闪着蓝色微光。", "秘洞深处飘出细小的光点，海流将它们卷成了旋涡。"),
+    DeepSeaSite("whale-song", "鲸歌回廊", WorldVector(730f, 700f), "远处鲸鸣穿过岩壁，海水像琴弦一样轻轻震动。", "鲸群的低鸣让声呐短暂重叠，随后化成一段柔和的旋律。"),
 )
 
 /** Verify a clear approach for the vessel's collision body, not just the item sprite. */
