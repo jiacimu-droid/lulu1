@@ -191,7 +191,10 @@ class ResidentDailyContinuityTest {
                 "resident-reschedule-${UUID.randomUUID()}", server.url("/").toString(), "test")
             val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
             ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
-            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            // The primary reschedule succeeded, but its first dependent side
+            // action was intentionally skipped. The overall multi-step turn is
+            // partial even though the independent action still ran.
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
             val changed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
             assertEquals("planned", changed.status)
             assertEquals(next, changed.dueAt)
@@ -1676,7 +1679,7 @@ class ResidentDailyContinuityTest {
         assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
         assertEquals("completed", RoleDayScheduleStore.plans(app, actor)
             .single { it.id == plan.id }.status)
-        assertEquals("needs_recovery", p.getString("due-phase:$key", ""))
+        assertEquals("partial_side_steps", p.getString("due-phase:$key", ""))
         assertTrue(ResidentDailyDecision.hasSavedDueToResume(app, plan))
         assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
         assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
