@@ -7,6 +7,9 @@ data class UnifiedMemoryRequest(
     val currentInput: String = "",
     val sceneContext: String = "",
     val recentContext: String = "",
+    // Evidence that the caller is already sending to the model. It is used
+    // ONLY for exact source de-duplication; not for semantic memory retrieval.
+    val alreadyPresentedEvidence: String = "",
     val taskIntent: String = "",
     val actionContext: String = "",
 ) {
@@ -135,7 +138,9 @@ object UnifiedMemoryOrchestrator {
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
         val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
-        val seenInChat = request.recentContext.replace(Regex("\\s+"), " ")
+        val seenInChat = listOf(request.recentContext, request.alreadyPresentedEvidence)
+            .filter(String::isNotBlank).joinToString("\n")
+            .replace(Regex("\\s+"), " ")
         val promptRecentEvents = recentEvents.filterNot { event ->
             val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
             text.length >= 36 && seenInChat.contains(text)
