@@ -545,6 +545,7 @@ internal object AutonomousSocialRuntime {
             }
         val summary = buildString {
             append("${participantIds.joinToString("、") { characters.getValue(it).displayName }}在${location}相遇。")
+            directedMoment?.let { append("\n现场确实发生的小插曲：${it.summary}") }
             if (turns.isEmpty() && privateReactions.isNotEmpty())
                 append("本次没有公开发言或动作；个人感受由各自保存，不代表彼此知道。")
             turns.forEach { turn ->
@@ -577,24 +578,32 @@ internal object AutonomousSocialRuntime {
                 if (tick != null) appendLine("现场真实事件：${tick.summary}；状态=${tick.status}")
                 else appendLine("没有新环境事件。")
                 appendLine("在场人物的公开名称：")
-                participants.forEach { id -> appendLine("$id：${characters.getValue(id).displayName}") }
+                participants.forEach { id ->
+                    appendLine("$id：${characters.getValue(id).displayName}")
+                    appendLine("稳定性格设定（只供导演理解，不是公开事实）：${characters.getValue(id).persona.take(380)}")
+                }
+                if (participants.size == 2) {
+                    appendLine("两人已有真实来往：${CharacterSocialRelationship.snapshot(participants[0], participants[1]).shortContext()}")
+                }
                 appendLine("所有人曾共同见到的公开事实：${sharedPast.ifBlank { "暂无" }}")
                 appendLine("共同可核验关系：$publicRelations")
             },
             instruction = """
-                你是场景创意顾问，不是任何人物，也不是世界执行器。
-                根据现有地点、公开关系与已发生的真实事件，提出一到两个可能有趣的交流切入点。
-                可以是不同兴趣的碰撞、轻微误会的解释、自然打趣、分享旧话题、活动邀约。
-                不强制制造冲突、浪漫或高潮；普通的有趣小事同样值得记录。
-                只返回 JSON：{"angle":"一个可选切入角度","options":["一个现有事实支持的机会"],"phases":[{"phase":1,"direction":"开场"},{"phase":2,"direction":"推进"},{"phase":3,"direction":"差异与试探"},{"phase":4,"direction":"转向"},{"phase":5,"direction":"收束"}]}。
-                phases 只是分阶段的公开机会，不是发生结果，不能安排人物台词或强迫人物按剧情行事。
-                不得新建物件、事故、天气、比赛结果，不得替任何人物写台词、替他们接受邀请、
-                设定他们的私人愿望或宣布关系变化。
-                这些只供本人各自决策时参考，不算现场事实，不写入时间线。
+                你是生活小剧场导演，必须尊重人物既有性格和真实关系，而非机械安排寒暄。
+                陌生、尴尬、亲密、互相戒备或熟络的人，其停顿、玩笑、试探和边界完全不同。
+                有趣来自两个人真实性格的碰撞，也可以来自尴尬的安静；不必每次搞笑、跌倒或恋爱。
+                可以导演安排一个真实的小插曲，让角色各自面对此事决定如何感受、接话或行动。
+                只返回 JSON：{"angle":"符合关系与性格的戏剧看点","options":["可选择的互动机会"],"moment":{"kind":"none|social_stumble|social_frame_crossing","actorId":"真实在场者ID","otherId":"另一在场者ID"},"phases":[{"phase":1,"direction":"开场"},{"phase":2,"direction":"推进"},{"phase":3,"direction":"不同反应"},{"phase":4,"direction":"转向"},{"phase":5,"direction":"余味"}]}。
+                moment=none 则不追加现场事件；人物自己的相处无需事故也可能精彩。
+                social_stumble：actorId 在 otherId 面前踉跄一步，未受伤。
+                social_frame_crossing：actorId 用现有数字手机准备取景时 otherId 意外入镜；未真正拍照、保存或分享，不自动加好友。
+                只能指定当前真实在场的人，事件经过世界系统验证、存档才算发生。
+                phases 只给节奏方向，不代替人物发言、强迫情绪或宣布活动结果。
+                本次已有未解决事件时先围绕它，不要额外安排无关的事故。
             """.trimIndent(),
             source = "数字世界·公开场景创意",
             title = "相遇时的互动可能性",
-            maxTokens = 360,
+            maxTokens = 690,
             contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
             connectionOverride = sceneConnection,
         ).getOrNull()?.text.orEmpty()
