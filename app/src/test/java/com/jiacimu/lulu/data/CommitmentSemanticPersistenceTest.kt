@@ -229,6 +229,31 @@ class CommitmentSemanticPersistenceTest {
         assertTrue(receipt.contains("NeedsClarification"))
     }
 
+    @Test fun recoveredRoutineSupervisionRemainsUndatedAndEligibleForOwnersNextPlan() = runBlocking {
+        val evidence = "routine-supervision-user"
+        val draft = parseCommitmentTaskDrafts(
+            """[{"action":"create","goal":"持续监督学习、睡觉、起床、按时吃饭",
+                "promiseKind":"long_term_supervision",
+                "completionCondition":"从实际观察与反馈跟进进度"}]"""
+        ).single()
+        assertFalse(draft.needsClarification)
+        val changed = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:routine:$role", listOf(evidence), listOf(draft))
+        assertEquals(1, changed.size)
+        val task = CommitmentTaskStore.active(role).single()
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, task.status)
+        assertNull(task.dueAt)
+        assertNull(task.linkedAlarmId)
+        assertNull("No failure receipt should claim a missing native wake alarm",
+            wakeScheduleReceipt(task))
+        assertTrue("The existing character planner can now choose a real next step",
+            RoleDayScheduleStore.undatedCommitmentsToPlan(context, role).any { it.id == task.id })
+        assertEquals(1, CommitmentTaskStore.snapshot(role).count { it.id == task.id })
+        val repeated = CommitmentDecisionRuntime.applyModelRecovery(
+            context, role, "chat:routine:$role", listOf(evidence), listOf(draft))
+        assertTrue(repeated.isEmpty())
+    }
+
     @Test fun modelChosenOngoingResponsibilityIsVisibleWithoutInventingAnAlarm() = runBlocking {
         // The executor does not parse these words: it receives a typed model decision.
         val changes = JSONArray("""[{"action":"create","goal":"关注备考进展，低落时一起调整","promiseKind":"long_term_supervision","needsClarification":false,"completionCondition":"根据真实进展持续跟进"}]""")
