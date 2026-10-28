@@ -47,32 +47,45 @@ object CharacterLifeStore {
 
     @Synchronized private fun ensureBundledJiangDu() {
         val preferences = prefs ?: return
-        if (preferences.getBoolean(BUNDLED_JIANG_DU_IMPORTED, false)) return
-        // The import is also invoked from background/test startup paths: bind
-        // the authoritative stores before any persistent character creation.
+        val alreadyImported = preferences.getBoolean(BUNDLED_JIANG_DU_IMPORTED, false)
+        // Bind the authoritative stores BEFORE checking the import marker.
+        // A migrated contact may still exist after an interrupted or partial
+        // life-profile write. The marker describes the contact import, not
+        // the integrity of its separate immutable life-form record.
         appContext?.let { context ->
             MigratedDomainStores.characters.initialize(context)
             DigitalLifeProfileStore.initialize(context)
             CharacterIdentityStore.initialize(context)
         }
         val characters = MigratedDomainStores.characters
-        // A bundled ID allows interrupted imports to resume without creating duplicates.
-        if (BUNDLED_JIANG_DU_ID !in characters.settings.value) {
+        val existing = characters.settings.value[BUNDLED_JIANG_DU_ID]
+        // An owner-deleted bundled contact must NEVER be recreated on startup.
+        // Only an as-yet-unimported installation may create the contact.
+        if (existing == null) {
+            if (alreadyImported) return
             characters.update(CharacterSettings(
                 characterId = BUNDLED_JIANG_DU_ID,
                 displayName = "江渡",
                 persona = CharacterProfileSchema.jiangDuV24Persona,
             ))
         }
+        // A still-existing bundled contact retains its own life-form,
+        // identity and authored edits. Reconcile only MISSING records.
+        // In particular, never change an already resolved REAL_WORLD form.
         if (!DigitalLifeProfileStore.isResolved(BUNDLED_JIANG_DU_ID)) {
-            DigitalLifeProfileStore.registerNewLife(BUNDLED_JIANG_DU_ID, "江渡", "主人")
+            DigitalLifeProfileStore.registerNewLife(BUNDLED_JIANG_DU_ID,
+                existing?.displayName ?: "江渡", "主人")
         }
         if (CharacterIdentityStore.identities.value[BUNDLED_JIANG_DU_ID].isNullOrBlank()) {
             CharacterIdentityStore.set(BUNDLED_JIANG_DU_ID, CharacterProfileSchema.jiangDuIdentity)
         }
-        applyJiangDuPreset(BUNDLED_JIANG_DU_ID)
-        // Marker last: next launch can safely retry any unfinished step.
-        preferences.edit().putBoolean(BUNDLED_JIANG_DU_IMPORTED, true).commit()
+        if (!alreadyImported) {
+            applyJiangDuPreset(BUNDLED_JIANG_DU_ID)
+            // Marker last: next launch can safely retry any unfinished step.
+            check(preferences.edit().putBoolean(BUNDLED_JIANG_DU_IMPORTED, true).commit()) {
+                "内置角色导入状态未能保存"
+            }
+        }
     }
 
     /**
