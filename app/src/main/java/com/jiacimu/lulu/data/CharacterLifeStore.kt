@@ -89,7 +89,33 @@ object CharacterLifeStore {
         val characters = MigratedDomainStores.characters
         val character = characters.settings.value[characterId] ?: return
         val root = state(characterId)
-        if (root.optInt("xingHeProfileVersion") >= 1) return
+        val profileVersion = root.optInt("xingHeProfileVersion")
+        if (profileVersion >= 2) return
+        if (profileVersion == 1) {
+            // Only advance the authored v1 defaults. A user-edited value,
+            // including an intentionally empty one, remains authoritative.
+            if (character.displayName != "星禾") return
+            if (character.persona == CharacterProfileSchema.xingHeV1Persona) {
+                characters.update(character.copy(persona = CharacterProfileSchema.xingHePersona))
+            }
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            CharacterProfileSchema.xingHeV1UpdatedFields.forEach { (key, previous) ->
+                if (profile.optString(key) == previous) {
+                    profile.put(key, CharacterProfileSchema.xingHeProfile.getValue(key))
+                }
+            }
+            val userAgreement = root.optJSONObject("relationshipAgreements")
+                ?.optJSONObject("user")
+            if (userAgreement?.optString("title") == "闺蜜" &&
+                userAgreement.optString("details") == CharacterProfileSchema.xingHeV1Friendship) {
+                userAgreement.put("title", "最好的闺蜜")
+                    .put("details", CharacterProfileSchema.xingHeFriendship)
+                    .put("updatedAt", Instant.now().toString())
+            }
+            root.put("profile", profile).put("xingHeProfileVersion", 2)
+            save(characterId, root)
+            return
+        }
         // Do not hijack a legacy slot that the owner has already renamed to
         // another person, nor convert a user-marked real-world identity.
         if (character.displayName !in setOf("露露", "星禾") ||
@@ -120,12 +146,12 @@ object CharacterLifeStore {
         }
         val agreements = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         agreements.put("user", JSONObject()
-            .put("title", "闺蜜")
+            .put("title", "最好的闺蜜")
             .put("details", CharacterProfileSchema.xingHeFriendship)
             .put("updatedAt", Instant.now().toString()))
         root.put("profile", profile)
             .put("relationshipAgreements", agreements)
-            .put("xingHeProfileVersion", 1)
+            .put("xingHeProfileVersion", 2)
         // Legacy butler nicknames and Jiang Du version flags cannot continue
         // overriding the explicitly changed character identity.
         root.remove("socialNames")
