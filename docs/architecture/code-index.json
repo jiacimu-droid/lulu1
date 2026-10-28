@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:53:59.314160+00:00",
-  "commit": "821da1589862189bcc875df037847b6ada574b68",
+  "generatedAt": "2026-10-28T11:54:17.447035+00:00",
+  "commit": "88baa3e8131efad52338bd2ae4db32bdc637865d",
   "branch": "main",
-  "sourceFingerprint": "99d6441e03ccdd46c92f430470da224169b6e6fa52e10b8e1b5044aec8d08ae1",
+  "sourceFingerprint": "af3f14db7a7429e768263275eab6c3097ac285a4530740286c9e1549bcfbf714",
   "summary": {
     "files": 1039,
-    "lines": 211561,
+    "lines": 211606,
     "symbols": 3051
   },
   "symbolIndex": {
@@ -3591,15 +3591,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1442
+        "line": 1451
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1494
+        "line": 1503
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1541
+        "line": 1550
       }
     ],
     "todoId": [
@@ -16631,7 +16631,7 @@
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1220
+        "line": 1229
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -33421,8 +33421,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 224,
-      "sha256": "3d9d81e9d193d8b0d60b0c6283d643c04c28f9951632ef466670864a6054384f",
+      "lines": 260,
+      "sha256": "b129a0b9b5460780916db6d00843d8b59be20cec6dff5cbe91252c073fa9a4c5",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -35458,8 +35458,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1641,
-      "sha256": "37f8ddbf8666013b2eccf25695f1c413bd59f0fedbdf9d52c6a41bfa0d4f177f",
+      "lines": 1650,
+      "sha256": "9afce7065397bb646904b1c34b8a2ee6b98367042e8c4afcbadaa347ecea7e64",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -35487,19 +35487,19 @@
         },
         {
           "name": "invalid",
-          "line": 1220
+          "line": 1229
         },
         {
           "name": "select",
-          "line": 1442
+          "line": 1451
         },
         {
           "name": "select",
-          "line": 1494
+          "line": 1503
         },
         {
           "name": "select",
-          "line": 1541
+          "line": 1550
         }
       ]
     },
