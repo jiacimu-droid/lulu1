@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1404e451a5fc9c5409e957dc32266c43bae9eb81`
+- 基准提交：`8bce41414347f8bf0c59271dad53d242c8d2e4d5`
 - 分支：`main`
 - 已索引文件：1039
-- 已索引代码/文本行：211606
-- 已发现符号：3051
+- 已索引代码/文本行：211610
+- 已发现符号：3052
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -834,7 +834,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 260 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 264 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 87 | 1 |
