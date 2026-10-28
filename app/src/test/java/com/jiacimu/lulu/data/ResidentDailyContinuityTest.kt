@@ -1754,4 +1754,106 @@ class ResidentDailyContinuityTest {
             .single { it.id == old.id }.status)
     }
 
+
+    @Test(timeout = 60_000) fun legacySavedWaitAfterMissedReviewRechecksSoonWithoutBuyingAgain() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "断电后复议居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(300_000)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "等回复后重新考虑",
+            "朋友可能会改变安排", now.minusSeconds(172_800), now.minusSeconds(260_000),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "不能自动执行的原计划"))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        val choice = JSONObject().put("choice", "wait").put("reason", "想再等等")
+            .put("steps", JSONArray())
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        val before = Instant.now()
+        assertTrue(ResidentDailyDecision.runDuePlan(app, plan, before))
+        val after = Instant.now()
+        val changed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+        val originalReview = ResidentDailyDecision.waitReviewAt(choice, plan.dueAt)
+        assertEquals(originalReview.toString(), p.getString("due-wait-review-at:$key", ""))
+        assertTrue(changed.dueAt.isAfter(before.plusSeconds(60)))
+        assertTrue(changed.dueAt.isBefore(after.plusSeconds(120)))
+        assertEquals("waiting", p.getString("due-phase:$key", ""))
+        assertFalse(changed.status == "completed")
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, after))
+    }
+
+    @Test(timeout = 60_000) fun expiredExplicitWaitClockIsRecoveredNotTreatedAsInvalidNewDecision() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "过期时刻复议居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(30_000)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "稍后确认",
+            "等候消息", now.minusSeconds(7_200), now.minusSeconds(20_000),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "原计划不能执行"))
+        val review = now.minusSeconds(3_600)
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        val choice = JSONObject().put("choice", "wait")
+            .put("reviewAt", review.toString()).put("reason", "稍后再想")
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", choice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+        val changed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+        assertTrue(changed.dueAt.isAfter(now.plusSeconds(60)))
+        assertTrue(changed.dueAt.isBefore(Instant.now().plusSeconds(120)))
+        assertEquals(review.toString(), p.getString("due-wait-review-at:$key", ""))
+        assertEquals("waiting", p.getString("due-phase:$key", ""))
+    }
+
+    @Test(timeout = 60_000) fun cancelledOrWaitingPrimaryCannotHideFailedIndependentStep() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "独立步骤失败居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        for (kind in listOf("cancel", "wait")) {
+            val plan = RoleDayScheduleStore.arrange(app, actor, "本轮需要复议$kind",
+                "自己选择稍后处理$kind", now.minusSeconds(120), now.minusSeconds(600),
+                activityAction = "publish_moment",
+                activityArgs = JSONObject().put("text", "原计划不应执行$kind"))
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val choice = JSONObject().put("choice", kind).put("reason", "自己决定")
+                .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", ""))))
+            if (kind == "wait") choice.put("reviewAt", now.plusSeconds(900).toString())
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            assertTrue(p.edit().putBoolean(key, true)
+                .putString("due-decision:$key", choice.toString())
+                .putString("due-phase:$key", "decided").commit())
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val changed = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+            assertEquals(if (kind == "cancel") "cancelled" else "planned", changed.status)
+            assertEquals(if (kind == "cancel") "partial_side_steps" else "waiting_partial",
+                p.getString("due-phase:$key", ""))
+            assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        }
+    }
+
 }

@@ -910,12 +910,30 @@ internal object ResidentDailyDecision {
             return false
         }
         val wanted = choice.optString("choice")
+        // A wait's review time is resolved ONCE when the original answer is
+        // accepted. Replaying the same saved decision after a process death
+        // must not move a missing reviewAt to tomorrow again. Old releases
+        // have no stored review clock: derive it from the original due slot,
+        // not the current replay time, and preserve that recovered value.
+        val waitClockKey = "due-wait-review-at:$key"
+        val chosenReviewAt = if (wanted == "wait") {
+            if (savedChoice == null) waitReviewAt(choice, now)
+            else p.getString(waitClockKey, null)?.let {
+                runCatching { Instant.parse(it) }.getOrNull()
+            } ?: waitReviewAt(choice, plan.dueAt)
+        } else null
         // Persist the exact model-selected choice before any original or side
         // action. Replays recover the same request IDs, not a fresh decision.
         if (savedChoice == null) {
-            check(p.edit().putString(decisionKey, choice.toString())
-                .putString(phaseKey, "decided").commit()) {
+            val editor = p.edit().putString(decisionKey, choice.toString())
+                .putString(phaseKey, "decided")
+            if (chosenReviewAt != null) editor.putString(waitClockKey, chosenReviewAt.toString())
+            check(editor.commit()) {
                 "居民到点模型决定尚未保存，禁止开始执行"
+            }
+        } else if (chosenReviewAt != null && !p.contains(waitClockKey)) {
+            check(p.edit().putString(waitClockKey, chosenReviewAt.toString()).commit()) {
+                "旧版等待复议的原定时刻未保存，禁止继续改期"
             }
         }
         val turnId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
@@ -925,10 +943,11 @@ internal object ResidentDailyDecision {
         // original due slot still exists, so an interruption can replay them
         // using the same per-step request IDs. Moving/cancelling the slot first
         // would make the remaining side steps unreachable on process death.
-        if (wanted in setOf("reschedule", "cancel", "wait")) {
+        val sideTotal = choice.optJSONArray("steps")?.length() ?: 0
+        val preMutationSideComplete = if (wanted in setOf("reschedule", "cancel", "wait")) {
             executeWakeSteps(app, plan.characterId, choice, turnId,
-                initialCompleted = false, causeEvidenceId = decisionEvidenceId)
-        }
+                initialCompleted = false, causeEvidenceId = decisionEvidenceId) == sideTotal
+        } else true
         var originalHandled = when (wanted) {
             "execute" -> if (resumeCompleted) {
                 // The primary has a settled receipt already. Never call the
@@ -980,32 +999,38 @@ internal object ResidentDailyDecision {
                 choice.optString("reason"), Instant.now(), retainRunningWake = true,
                 expectedDueAt = plan.dueAt)
             "wait" -> {
-                if (waitReviewAt(choice, now) == null) {
+                if (chosenReviewAt == null) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "数字世界居民日程", title = "${native.name}的等待复议时间无效",
-                        message = "planId=${plan.id}；明确给出的 reviewAt 不是有效未来时刻；原活动未完成")
+                        message = "planId=${plan.id}；原定复议时刻无法恢复；原活动未完成")
                     false
                 } else true // only a valid intent; persist the new wake AFTER independent steps
             }
             else -> false
         }
         val sideStepsComplete = if (wanted == "execute") {
-            val total = choice.optJSONArray("steps")?.length() ?: 0
             executeWakeSteps(app, plan.characterId, choice, turnId,
-                initialCompleted = originalHandled, causeEvidenceId = decisionEvidenceId) == total
-        } else true
+                initialCompleted = originalHandled, causeEvidenceId = decisionEvidenceId) == sideTotal
+        } else preMutationSideComplete
         if (wanted == "wait" && originalHandled) {
             // The original plan is still due after its independent side steps,
             // so a crash before rescheduling can resume the saved decision with
             // identical idempotent action request IDs.
-            val reviewAt = checkNotNull(waitReviewAt(choice, now))
+            val reviewAt = checkNotNull(chosenReviewAt)
             originalHandled = runCatching {
                 val condition = choice.optString("waitCondition").trim()
                 val reason = choice.optString("reason").trim()
+                // A phone may have been off beyond the ORIGINAL review time.
+                // Wake for a new model decision soon; never execute the old
+                // activity or buy another answer for this saved choice.
+                val schedulingNow = Instant.now()
+                val catchUp = !reviewAt.isAfter(schedulingNow.plusSeconds(90))
+                val nextWake = if (catchUp) schedulingNow.plusSeconds(90) else reviewAt
                 RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
-                    reviewAt, ("等待复议：" + reason +
-                        if (condition.isNotBlank()) "；条件：" + condition else ""),
-                    Instant.now(), appendToCurrentWork = true, expectedDueAt = plan.dueAt)
+                    nextWake, ("等待复议：" + reason +
+                        if (condition.isNotBlank()) "；条件：" + condition else "" +
+                        if (catchUp) "；原定复议=${reviewAt}，中断后尽快复议" else ""),
+                    schedulingNow, appendToCurrentWork = true, expectedDueAt = plan.dueAt)
             }.onFailure { error ->
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "${native.name}的等待复议没有排期",
@@ -1029,15 +1054,21 @@ internal object ResidentDailyDecision {
             latestSlot.status !in setOf("planned", "due"))
         val phase = when {
             superseded -> "superseded"
-            wanted == "wait" && originalHandled -> "waiting"
+            wanted == "wait" && originalHandled && sideStepsComplete -> "waiting"
+            wanted == "wait" && originalHandled -> "waiting_partial"
             wanted == "wait" -> "needs_recovery"
             originalHandled && sideStepsComplete -> "finished"
+            originalHandled -> "partial_side_steps"
             else -> "needs_recovery"
         }
         check(p.edit().putString(phaseKey, phase).commit()) {
             "居民到点回执的执行阶段尚未保存"
         }
-        // A successful primary cannot hide unfinished independent steps.
+        // An already-applied cancel/reschedule/wait must not be undone just
+        // because an independent optional step failed. Its own ToolRouter
+        // receipt remains the authority; the old appointment is NOT replayed
+        // after its dueAt version changes. Never call that partial success
+        // "finished", nor blindly retry a possibly delivered message.
         return originalHandled && sideStepsComplete
     }
 
