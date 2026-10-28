@@ -278,6 +278,18 @@ private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
         } + listOf("结算" to summary)
         return captions.mapIndexed { index, (label, value) -> ReplayStep("$id-$index", index + 1, label, value) }
     }
+    if (type == LuluGameType.BlockIsland || type == LuluGameType.RelicEscape) {
+        val events = runCatching { JSONObject(detailsJson).optJSONArray("events") }.getOrNull()
+        val readable = if (events == null) emptyList() else
+            (0 until events.length()).mapNotNull { index ->
+                events.optString(index).takeIf(String::isNotBlank)
+            }
+        val caption = (readable + summary).mapIndexed { index, description ->
+            ReplayStep("$id-$index", index + 1,
+                if (index == readable.size) "本次结算" else "行动 ${index + 1}", description)
+        }
+        return caption.ifEmpty { listOf(ReplayStep("$id-summary",1,"本次冒险",summary)) }
+    }
     val raw = mutableListOf<Pair<String, String>>()
     raw += "开局" to "${title} · ${createdAt.atZone(ZoneId.systemDefault()).format(ReplayDateFormatter)}"
     raw += "本局摘要" to summary
@@ -486,6 +498,8 @@ private fun gameReplayIcon(type: LuluGameType) = when (type) {
     LuluGameType.MemoryMatch -> Icons.Outlined.Extension
     LuluGameType.DeepSeaJourney -> Icons.Outlined.Waves
     LuluGameType.MoodGuess -> Icons.Outlined.Mood
+    LuluGameType.BlockIsland -> Icons.Outlined.Forest
+    LuluGameType.RelicEscape -> Icons.Outlined.Explore
 }
 
 private val ReplayDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
