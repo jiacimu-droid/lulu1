@@ -181,12 +181,13 @@ class WorldExplorationContractsTest {
             assertTrue(old.scanned.isEmpty())
             assertTrue(old.visited.isEmpty())
             progress.save(old.position, old.collected, old.completed, old.score,
-                setOf("echo-whale"), setOf("whale-song"), 1)
+                setOf("echo-whale"), setOf("whale-song"), 1, "role-a")
             val recovered = progress.load(buildDeepSeaMap().start)
             assertEquals(old.collected, recovered.collected)
             assertEquals(setOf("echo-whale"), recovered.scanned)
             assertEquals(setOf("whale-song"), recovered.visited)
             assertEquals(1, recovered.companionAssists)
+            assertEquals("role-a", recovered.sessionCompanionId)
         } finally {
             prefs.edit().clear().commit()
         }
