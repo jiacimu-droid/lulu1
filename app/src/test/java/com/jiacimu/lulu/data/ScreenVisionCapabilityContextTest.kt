@@ -43,6 +43,32 @@ class ScreenVisionCapabilityContextTest {
         }
     }
 
+    @Test fun authorizedRoleSeesDirectCaptureActionWithoutRepeatedPermissionLanguage() {
+        val prefs = LuluScreenAwareness.preferences(context)
+        val before = prefs.all.toMap()
+        try {
+            prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true)
+                .putBoolean(LuluScreenAwareness.AUTONOMOUS, true).commit()
+            val screen = CapabilityRegistry.screenVisionContext(context, role)
+            assertTrue(screen.contains("角色自主观察授权=true"))
+            assertTrue(screen.contains("action=tool,tool=capture_screen,args={}"))
+            assertTrue(screen.contains("无须逐次申请"))
+            assertFalse(screen.contains("两次至少间隔5分钟"))
+            assertFalse(screen.contains("危险"))
+            assertTrue(CapabilityRegistry.allows(context, role,
+                CapabilityRegistry.find("capture_screen")!!, userRequested = false))
+        } finally {
+            val edit = prefs.edit().clear()
+            before.forEach { (key, value) -> when (value) {
+                is Boolean -> edit.putBoolean(key, value)
+                is String -> edit.putString(key, value)
+                is Long -> edit.putLong(key, value)
+                is Int -> edit.putInt(key, value)
+            } }
+            edit.commit()
+        }
+    }
+
     @Test fun userRequestedViewingWorksWhenAutonomousViewingIsOff() {
         val p = LuluScreenAwareness.preferences(context)
         val oldConsent = p.getBoolean(LuluScreenAwareness.CONSENT, false)
