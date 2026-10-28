@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:27:16.450378+00:00",
-  "commit": "cea6d0cd55af436502a94c126d76a88a3f3cf11b",
+  "generatedAt": "2026-10-28T14:27:35.672229+00:00",
+  "commit": "5e564121f67faf8221cd39663acc433fa7704bf3",
   "branch": "main",
-  "sourceFingerprint": "269114a9fe360f5fee4575138ee8f6f646f410abecca54fd1c3da16df8ff7c9b",
+  "sourceFingerprint": "7a17a09b2b21f38f7dc2dd0807e8cd13e70e71ac3a75db01900c252a00f1f285",
   "summary": {
     "files": 1048,
-    "lines": 213964,
+    "lines": 213868,
     "symbols": 3067
   },
   "symbolIndex": {
@@ -18954,8 +18954,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt",
-      "lines": 128,
-      "sha256": "fbacd6b1f34add462657ed2c57ea9105b6676b2239d4203f4f6090c9fd6c24aa",
+      "lines": 32,
+      "sha256": "21acc60a17305fae784532f3c8b528178bebefa32b406e75aa84417cf0579fbb",
       "symbols": []
     },
     {
