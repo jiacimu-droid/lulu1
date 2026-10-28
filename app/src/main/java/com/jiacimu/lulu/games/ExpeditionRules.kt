@@ -271,12 +271,16 @@ internal object ExpeditionRules {
         }
         state=state.copy(friends=movedFriends)
         var damage=0
+        val friendHits=mutableMapOf<String,Int>()
         val mobs=state.mobs.map { mob ->
             if(mob.hp<=0)return@map mob
             val targets=listOf(state.x to state.y)+movedFriends.filter{it.hp>0}.map{it.x to it.y}
             val nearest=targets.minByOrNull{(x,y)->dist(x,y,mob.x,mob.y)} ?: return@map mob
             if(dist(mob.x,mob.y,nearest.first,nearest.second)<=1){
-                if(nearest.first==state.x && nearest.second==state.y)damage++
+                if(nearest.first==state.x && nearest.second==state.y) damage++
+                else movedFriends.firstOrNull { it.hp>0 && it.x==nearest.first && it.y==nearest.second }?.let {
+                    friendHits[it.id]=(friendHits[it.id] ?: 0)+1
+                }
                 return@map mob
             }
             if(dist(mob.x,mob.y,nearest.first,nearest.second)>5)return@map mob
@@ -289,7 +293,10 @@ internal object ExpeditionRules {
         }
         val hp=(state.hp-damage).coerceAtLeast(0)
         if(damage>0) logs+="受到怪物攻击，生命 -$damage"
-        state=state.copy(mobs=mobs,hp=hp,events=(state.events+logs).takeLast(120),
+        if(friendHits.isNotEmpty()) logs+="队友遭受了怪物攻击"
+        state=state.copy(mobs=mobs,hp=hp,
+            friends=movedFriends.map { it.copy(hp=(it.hp-(friendHits[it.id] ?: 0)).coerceAtLeast(0)) },
+            events=(state.events+logs).takeLast(120),
             notice=if(logs.isEmpty())state.notice else state.notice+" · "+logs.take(2).joinToString(" · "))
         if(hp==0){
             state= if(state.mode==ExpeditionMode.RELIC_RUN)
