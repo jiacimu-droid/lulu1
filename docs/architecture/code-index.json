@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:34:45.591141+00:00",
-  "commit": "35da7199ed29aeb68ab7d82682c8de9e5b812d27",
+  "generatedAt": "2026-10-28T14:36:13.518870+00:00",
+  "commit": "a4e599054077c9e350495212e2e7bf54cce4b5c3",
   "branch": "main",
-  "sourceFingerprint": "4f71adccaabacf055beaebca9083ab1ea62288741cb6ff17c1fed60c17130e01",
+  "sourceFingerprint": "c1901e0cb6af34c988f600103a7727373e51cc716c93ae10fdf040b850990af6",
   "summary": {
-    "files": 1051,
-    "lines": 214198,
-    "symbols": 3071
+    "files": 1052,
+    "lines": 214214,
+    "symbols": 3073
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9786,6 +9786,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
         "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt",
+        "line": 12
       }
     ],
     "evidence": [
@@ -10696,6 +10700,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
         "line": 10
+      }
+    ],
+    "Rule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt",
+        "line": 11
       }
     ],
     "Preview": [
@@ -27312,8 +27322,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 170,
-      "sha256": "4680dcfd4512e2d96cbe0c0b9f8539580ff7196fdd8cf28d98f3c63261cb2120",
+      "lines": 155,
+      "sha256": "7e7f97bb4ba063d5573140317163315bb5d89e6f71421a6174a929daf0f7c27c",
       "symbols": []
     },
     {
@@ -27691,6 +27701,21 @@
         {
           "name": "renderWithTrace",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt",
+      "lines": 31,
+      "sha256": "057f3f43b6489626fcfb495b9f7df33ecbb0b105cae2a45e3f2a7894af8d4961",
+      "symbols": [
+        {
+          "name": "Rule",
+          "line": 11
+        },
+        {
+          "name": "assemble",
+          "line": 12
         }
       ]
     },
