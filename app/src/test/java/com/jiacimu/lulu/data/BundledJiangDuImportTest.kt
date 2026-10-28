@@ -80,8 +80,9 @@ class BundledJiangDuImportTest {
         CharacterLifeStore.initialize(context)
         val previousRole = MigratedDomainStores.characters.get("lulu")
         val previousState = JSONObject(CharacterLifeStore.state("lulu").toString())
-        val other = MigratedDomainStores.characters.create("另一位闺蜜", "自己的角色设定")
-        val otherBefore = JSONObject(CharacterLifeStore.state(other.characterId).toString())
+        val otherId = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val otherBefore = JSONObject(CharacterLifeStore.state(otherId).toString())
+        val otherPersona = MigratedDomainStores.characters.get(otherId).persona
         val save = CharacterLifeStore.javaClass.getDeclaredMethod(
             "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
         try {
@@ -112,10 +113,10 @@ class BundledJiangDuImportTest {
                 upgraded.getJSONObject("profile").getString("speechHabits"))
             assertEquals(CharacterProfileSchema.xingHeFriendship,
                 upgraded.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
-            assertEquals("自己的角色设定",
-                MigratedDomainStores.characters.get(other.characterId).persona)
+            assertEquals(otherPersona,
+                MigratedDomainStores.characters.get(otherId).persona)
             assertEquals(otherBefore.toString(),
-                CharacterLifeStore.state(other.characterId).toString())
+                CharacterLifeStore.state(otherId).toString())
             CharacterLifeStore.setProfile("lulu", "perception", "只按本人亲自编辑的理解方式")
             CharacterLifeStore.initialize(context)
             assertEquals("只按本人亲自编辑的理解方式",
