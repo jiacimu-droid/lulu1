@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:24:23.635068+00:00",
-  "commit": "44c897d6f71a9495521ddd288ff56a7460ff5e99",
+  "generatedAt": "2026-10-28T09:24:41.135813+00:00",
+  "commit": "36dcce542737ff4437c131f2dd138c62b5698d43",
   "branch": "main",
-  "sourceFingerprint": "f0e2bb5a38c3b5c4e6dbcb3d2fde820eaa082cd5db3a766f85ab409e13e2fe23",
+  "sourceFingerprint": "77c4f6fe9c1a62a89e0f62ad4a334c65abd1a0aa96eb0f279f270271391cf712",
   "summary": {
     "files": 1021,
-    "lines": 204801,
+    "lines": 204817,
     "symbols": 2978
   },
   "symbolIndex": {
@@ -32401,8 +32401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 122,
-      "sha256": "41fabfaaf18261a889f189ff421cb7ea3df4c38f23c5b59bcd7935d812201275",
+      "lines": 138,
+      "sha256": "2fb448f502c9f1b0634411ae64e09ec93bdb9af31279ed2e098718f913d538f8",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",

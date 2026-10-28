@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`44c897d6f71a9495521ddd288ff56a7460ff5e99`
+- 基准提交：`36dcce542737ff4437c131f2dd138c62b5698d43`
 - 分支：`main`
 - 已索引文件：1021
-- 已索引代码/文本行：204801
+- 已索引代码/文本行：204817
 - 已发现符号：2978
 
 | 文件 | 行数 | 符号数 |
@@ -796,7 +796,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 106 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 245 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 122 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 138 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 74 | 1 |
