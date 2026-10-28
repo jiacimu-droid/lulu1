@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:57:00.779281+00:00",
-  "commit": "f923d8f19817a34420f30d75ba485af148fb0015",
+  "generatedAt": "2026-10-28T13:59:23.774560+00:00",
+  "commit": "769ec01693c68f6442b4f28aa1c2fee0bd9ea1a7",
   "branch": "main",
-  "sourceFingerprint": "29bd3a124cdf83709f4ad73645c9fbde0571086914b053a3756f6c4e8bc74308",
+  "sourceFingerprint": "44c202a0949d27928c099bd9f1207c99af25cf7bde8dfbb42cf6158625da2f66",
   "summary": {
     "files": 1047,
-    "lines": 213298,
+    "lines": 213431,
     "symbols": 3056
   },
   "symbolIndex": {
@@ -6439,7 +6439,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1473
+        "line": 1504
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10903,7 +10903,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1045
+        "line": 1076
       }
     ],
     "plan": [
@@ -27776,8 +27776,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1524,
-      "sha256": "32084192650271a5f698d1af7338c5cf66c83dc107c4242a417408a50b678424",
+      "lines": 1555,
+      "sha256": "1c36087941cfaf2b433fc39baef25aa54b4804549a6cc38c6b024892b0ed251b",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -27821,11 +27821,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1045
+          "line": 1076
         },
         {
           "name": "schedule",
-          "line": 1473
+          "line": 1504
         }
       ]
     },
@@ -35556,8 +35556,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1758,
-      "sha256": "af1e3ce3141a90e59b14bddd718e40f9e0eb958daaa93cbb81b461efafb67898",
+      "lines": 1860,
+      "sha256": "24c11e8f929ab4be08c0911377fa9816aab35f0cafb60f484cc3f2b0deb139a6",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
