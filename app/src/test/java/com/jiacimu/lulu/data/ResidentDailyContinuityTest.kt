@@ -41,6 +41,33 @@ class ResidentDailyContinuityTest {
             "2026-10-28T07:30:00Z"), now, zone))
     }
 
+
+    @Test fun delayedResidentReviewCannotOverwriteNewerUserReschedule() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val role = "resident:stale-review-${UUID.randomUUID()}"
+        // This guard is the same persistence authority used by residents.
+        val original = RoleDayScheduleStore.arrange(app, role, "整理庭院里的花草",
+            "想记录今天的变化", now.plusSeconds(600), now,
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "花草记录"))
+        val newer = RoleDayScheduleStore.reschedule(app, role, original.id,
+            now.plusSeconds(900), "后来决定晚一点", now)
+        try {
+            runCatching {
+                RoleDayScheduleStore.reschedule(app, role, original.id,
+                    now.plusSeconds(1200), "迟到的旧等待决定", now,
+                    expectedDueAt = original.dueAt)
+            }.onSuccess { fail("旧等待结果不应覆盖新日程") }
+            val stillNew = RoleDayScheduleStore.plans(app, role).single { it.id == original.id }
+            assertEquals(newer.dueAt, stillNew.dueAt)
+            assertEquals(newer.rescheduleCount, stillNew.rescheduleCount)
+        } finally {
+            RoleDayScheduleStore.remove(app, role, original.id)
+        }
+    }
+
     @Test(timeout = 60_000) fun waitReplansOneUnfinishedAppointmentAndNextTurnMakesNewDecision() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)

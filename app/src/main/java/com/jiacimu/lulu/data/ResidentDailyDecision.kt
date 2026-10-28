@@ -352,7 +352,7 @@ internal object ResidentDailyDecision {
                 "居民到点模型决定尚未保存，禁止开始执行"
             }
         }
-        val originalHandled = when (wanted) {
+        var originalHandled = when (wanted) {
             "execute" -> {
                 // When the model explicitly chooses to execute but leaves args
                 // unchanged, reuse its own saved proposal; live ToolRouter still
@@ -393,34 +393,37 @@ internal object ResidentDailyDecision {
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
                 choice.optString("reason"), Instant.now())
             "wait" -> {
-                val reviewAt = waitReviewAt(choice, now)
-                if (reviewAt == null) {
+                if (waitReviewAt(choice, now) == null) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "数字世界居民日程", title = "${native.name}的等待复议时间无效",
                         message = "planId=${plan.id}；明确给出的 reviewAt 不是有效未来时刻；原活动未完成")
                     false
-                } else runCatching {
-                    // The one original plan stays unresolved. A new dueAt
-                    // identifies the next model REVIEW, never automatic action.
-                    // APPEND_OR_REPLACE keeps the running due worker alive
-                    // until it can finish saving this same model decision.
-                    val condition = choice.optString("waitCondition").trim()
-                    val reason = choice.optString("reason").trim()
-                    RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
-                        reviewAt, ("等待复议：" + reason +
-                            if (condition.isNotBlank()) "；条件：" + condition else ""),
-                        Instant.now(), appendToCurrentWork = true)
-                }.onFailure { error ->
-                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                        source = "数字世界居民日程", title = "${native.name}的等待复议没有排期",
-                        message = "planId=${plan.id}；${error.message.orEmpty().take(180)}")
-                }.isSuccess
+                } else true // only a valid intent; persist the new wake AFTER independent steps
             }
             else -> false
         }
         executeWakeSteps(app, plan.characterId, choice,
             "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
             initialCompleted = wanted == "execute" && originalHandled)
+        if (wanted == "wait" && originalHandled) {
+            // Commit independently selected actions first. If this process dies
+            // before scheduling review, the still-due original plan can resume
+            // the saved decision with identical idempotent action request IDs.
+            // Rescheduling first would make these actions unreachable on crash.
+            val reviewAt = checkNotNull(waitReviewAt(choice, now))
+            originalHandled = runCatching {
+                val condition = choice.optString("waitCondition").trim()
+                val reason = choice.optString("reason").trim()
+                RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
+                    reviewAt, ("等待复议：" + reason +
+                        if (condition.isNotBlank()) "；条件：" + condition else ""),
+                    Instant.now(), appendToCurrentWork = true, expectedDueAt = plan.dueAt)
+            }.onFailure { error ->
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界居民日程", title = "${native.name}的等待复议没有排期",
+                    message = "planId=${plan.id}；${error.message.orEmpty().take(180)}")
+            }.isSuccess
+        }
         check(CharacterPhoneInbox.acknowledgeObserved(plan.characterId, unread)) {
             "手机动态已参与感知但未读状态未保存"
         }

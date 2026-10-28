@@ -458,11 +458,15 @@ object RoleDayScheduleStore {
     @Synchronized
     fun reschedule(context: Context, characterId: String, planId: String,
         dueAt: Instant, reason: String, now: Instant = Instant.now(),
-        appendToCurrentWork: Boolean = false): RoleDayPlan {
+        appendToCurrentWork: Boolean = false,
+        expectedDueAt: Instant? = null): RoleDayPlan {
         require(dueAt.isAfter(now.plusSeconds(60))) { "改期必须是未来时间" }
         val previous = all(context)
         val original = previous.firstOrNull { it.characterId == characterId && it.id == planId &&
             it.status in setOf("planned", "due") } ?: error("没有可改期的本人日程")
+        require(expectedDueAt == null || original.dueAt == expectedDueAt) {
+            "原日程已被其他决定修改，禁止旧模型结果覆盖新时间"
+        }
         val revised = original.copy(dueAt = dueAt, status = "planned",
             resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1)
         persist(context, previous.map { if (it.id == planId) revised else it })

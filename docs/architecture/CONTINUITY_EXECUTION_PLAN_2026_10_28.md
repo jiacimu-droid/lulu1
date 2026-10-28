@@ -60,3 +60,5 @@
 - `ResidentDailyDecision` 的 `wait` 以前只写入 `due-phase=waiting`，但 `hasSavedDueToResume` 只接受 decided/needs_recovery；到期 Worker 因此永久停止，没有新复议机会。现保留原计划 ID，按本人明确 `reviewAt` 或旧选择缺省时既有下个每日规划时段，通过 `RoleDayScheduleStore.reschedule` 安排下一次**重新决策**；原动作不自动执行。条件和原理由写入同一计划结果摘要，下一轮模型可看见，原 steps 仍由既有幂等 ID 约束。
 - 原 `RoleDayScheduleStore.reschedule` 用 WorkManager `REPLACE` 可能取消正在执行自身的到期 Worker；居民 `wait` 的复议排期改走 `APPEND_OR_REPLACE`，让当前 worker 结束后再唤醒新排期，其他普通改期仍保留原有 `REPLACE` 语义。
 - 新增复议时间/旧选择兼容、真正再决策、独立动作不重复的 Robolectric + MockWebServer 回归。**新代码尚需本次 CI / APK / 真机验证**。P0-A 的网络未知结果、无效结构补正、等待条件变化主动提前复议仍未全面完成，下一轮继续。
+
+- 后续加固（第二次提交）：等待的本轮独立副动作先按稳定 requestId 执行，再移动原日程到复议时间；在副动作后、排期前被杀进程时，旧计划仍可用已保存决定恢复副动作回执。复议排期增加旧 `dueAt` 版本比较，避免等待模型回包覆盖用户/其他入口刚改过的日程。新增迟到旧决定与新改期冲突的回归。
