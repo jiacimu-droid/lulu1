@@ -318,8 +318,8 @@ for (let i = 0; i < 65; i++) {
   seconds += .016
   rig.update(core, { deltaMs: 16, touchReflex: cheekContact, speaking: false, seconds })
 }
-assert.ok(Math.abs(valuesById.get('ParamBodyAngleX')) > 2,
-  'touch must animate the actual torso parameter even without an AI motion')
+assert.ok(Math.abs(valuesById.get('ParamBodyAngleX')) > .7,
+  'touch must animate the real torso joint without a full-body lunge')
 assert.ok(Math.abs(valuesById.get('ParamAngleX2')) > 1,
   'touch must not suppress secondary head follow-through')
 assert.ok(Math.abs(valuesById.get('body_gensui_x')) > 1,
