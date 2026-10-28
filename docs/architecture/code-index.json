@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:37:51.454525+00:00",
-  "commit": "f1e99c12cc0955e37960edd0ac10d3599368b77e",
+  "generatedAt": "2026-10-28T16:38:39.595981+00:00",
+  "commit": "e05f09c15b4995e0ff22e05d60329c843616554b",
   "branch": "main",
-  "sourceFingerprint": "02f1219bbc18140de2d2431f576e904aae778b034795d6e3bed47d0b089e9055",
+  "sourceFingerprint": "f3f83f30143e2632d2679143710a158adc8e63dd8d2b89c5986220a4706ce779",
   "summary": {
     "files": 1053,
-    "lines": 214793,
+    "lines": 214806,
     "symbols": 3081
   },
   "symbolIndex": {
@@ -693,7 +693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1331
+        "line": 1339
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4359,7 +4359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 124
+        "line": 127
       }
     ],
     "restore": [
@@ -4569,31 +4569,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 678
+        "line": 686
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 684
+        "line": 692
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1147
+        "line": 1155
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1159
+        "line": 1167
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1321
+        "line": 1329
       }
     ],
     "configured": [
@@ -11473,31 +11473,31 @@
     "retrievalQuery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 13
+        "line": 16
       }
     ],
     "legacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 22
+        "line": 25
       }
     ],
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 28
+        "line": 31
       }
     ],
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 103
+        "line": 106
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 122
+        "line": 125
       }
     ],
     "Attachment": [
@@ -21325,8 +21325,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1339,
-      "sha256": "6162928b67e195d9d1a7964c758d7ed14f9f66d74cc244be7589b69a4bdc6edf",
+      "lines": 1347,
+      "sha256": "87d498d82e37b4e8b68185e7f6e4c8d2df9fb820b24dd647e71be51656b832bc",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -21418,27 +21418,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 678
+          "line": 686
         },
         {
           "name": "positionedBooks",
-          "line": 684
+          "line": 692
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1147
+          "line": 1155
         },
         {
           "name": "consumeEvent",
-          "line": 1159
+          "line": 1167
         },
         {
           "name": "LuluAiServices",
-          "line": 1321
+          "line": 1329
         },
         {
           "name": "initialize",
-          "line": 1331
+          "line": 1339
         }
       ]
     },
@@ -28528,8 +28528,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 296,
-      "sha256": "63a1cdc749bfab6ea7afa87942fb23ac96ccbf4f190a61821fbcb69e1a87824e",
+      "lines": 301,
+      "sha256": "17bb34834da744569585f246ed3672a2b585456ca7219eab11dc47f1c82e0311",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -28537,27 +28537,27 @@
         },
         {
           "name": "retrievalQuery",
-          "line": 13
+          "line": 16
         },
         {
           "name": "legacy",
-          "line": 22
+          "line": 25
         },
         {
           "name": "UnifiedMemoryContext",
-          "line": 28
+          "line": 31
         },
         {
           "name": "compactPromptSection",
-          "line": 103
+          "line": 106
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 122
+          "line": 125
         },
         {
           "name": "empty",
-          "line": 124
+          "line": 127
         }
       ]
     },
