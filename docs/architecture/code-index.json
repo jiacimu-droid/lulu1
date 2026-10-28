@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:02:37.780268+00:00",
-  "commit": "0bb62b33421932fcfb6884c3e3a52b5edf5065d2",
+  "generatedAt": "2026-10-28T09:07:07.409601+00:00",
+  "commit": "cebc3b3c9baaccb7c8c4c047efd67e9546cc096f",
   "branch": "main",
-  "sourceFingerprint": "d224b3ce33dfa2316c805377156b7901040d3a7f767a6d54ac7375f4870f3938",
+  "sourceFingerprint": "21ada8dd94b14d875eee14682ef620b2987b271f27689f27da1eca94d8ac24c9",
   "summary": {
     "files": 1020,
-    "lines": 204286,
+    "lines": 204351,
     "symbols": 2975
   },
   "symbolIndex": {
@@ -5665,7 +5665,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 201
+        "line": 264
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -7849,7 +7849,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 178
+        "line": 241
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -8015,25 +8015,25 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 160
+        "line": 223
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 210
+        "line": 273
       }
     ],
     "canHandle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 224
+        "line": 287
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 232
+        "line": 295
       }
     ],
     "witnessed": [
@@ -24378,8 +24378,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 715,
-      "sha256": "3cb52ba885d6960d83431246fdb7da54749315f40e62e5123e9e52f9f4e8bc62",
+      "lines": 780,
+      "sha256": "82c0a286a63d4907501926f806ddfc2339e5c7cf4f78ff1eb2bff7bcc9326703",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -24399,27 +24399,27 @@
         },
         {
           "name": "recordWitness",
-          "line": 160
+          "line": 223
         },
         {
           "name": "contextFor",
-          "line": 178
+          "line": 241
         },
         {
           "name": "clearCharacter",
-          "line": 201
+          "line": 264
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 210
+          "line": 273
         },
         {
           "name": "canHandle",
-          "line": 224
+          "line": 287
         },
         {
           "name": "handle",
-          "line": 232
+          "line": 295
         }
       ]
     },
