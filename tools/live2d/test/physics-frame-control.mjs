@@ -42,8 +42,11 @@ for (const fps of [15, 30, 60, 120]) {
     values.fa_l_1 = physicsInput * .2
     internal.emit('beforeModelUpdate')
     if (frame === fps - 1) {
-      assert.ok(physicsInput < -15, `physics receives full neck pose at ${fps}fps`)
-      assert.ok(values.ParamAngleZ2 < -4 && values.body_gensui_z < -2,
+      // A fingertip stroke now deliberately avoids the old whole-body
+      // 17-degree tilt. Still verify a real head/torso pose enters Physics3
+      // before the frame is drawn, even on a 15fps phone.
+      assert.ok(physicsInput < -5, `physics receives localized neck pose at ${fps}fps`)
+      assert.ok(values.ParamAngleZ2 < -1.3 && values.body_gensui_z < -.4,
         'head and torso secondary outputs survive the final draw stage')
       assert.equal(values.fa_l_1, physicsInput * .2, 'hair is owned by physics')
     }
