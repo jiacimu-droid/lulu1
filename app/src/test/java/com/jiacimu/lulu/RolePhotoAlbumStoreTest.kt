@@ -2,11 +2,12 @@ package com.jiacimu.lulu
 
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.test.core.app.ApplicationProvider
+import android.content.Context
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import java.util.UUID
@@ -15,7 +16,7 @@ import java.util.UUID
 @Config(manifest = Config.NONE, sdk = [28])
 class RolePhotoAlbumStoreTest {
     @Test fun savedPhotoSurvivesSourceDeletionAndNeverAppearsInAnotherCharactersAlbum() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication() as Context
         val first = "album-a-" + UUID.randomUUID()
         val second = "album-b-" + UUID.randomUUID()
         val original = File(context.filesDir, "album-src-${UUID.randomUUID()}.png")
@@ -41,7 +42,7 @@ class RolePhotoAlbumStoreTest {
     }
 
     @Test fun arbitraryExternalFileIsNeverCopiedIntoRoleAlbum() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication() as Context
         assertThrows(IllegalArgumentException::class.java) {
             RolePhotoAlbumStore.saveUri(context, "role-${UUID.randomUUID()}",
                 Uri.fromFile(File("/sdcard/Download/private.png")).toString(), "外部文件")
