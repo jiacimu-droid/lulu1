@@ -128,3 +128,11 @@
 - `CharacterExpressionContinuity.guide(characterId)` 的长颜文字范例只在**该人自己选了偏多**时展示；普通/少用模式只有表达方式的中性说明，避免每次前台决策/后台自主决策都拿到“萌系台词范本”。两个已有入口 `LuluDeviceToolBridge` 与 `ProactivePerceptionRuntime` 已传本人 ID，网关现有 `CharacterSpeechIdentity` 仍保证同一人设与关系。没有新增 API、第二套记忆、人格中心或消息后自动改写。
 - 回归增补 `BundledJiangDuImportTest` v3→v4、用户手动选「多用／少用」保护、重启后幂等，以及 `CharacterExpressionContinuityTest` 对同角色/其他角色的范例门控。单测、APK、模拟用户发「诡秘」/澄清、角色自己是不是自然表达，都须以实际 CI/真机结果区分。
 - 新增源码提交：`9d2d17ce`、`9276baf8`、`a46ca8e1`、`ec980268`、`737ba71a`、`efcf1c3a`。
+
+## 2026-10-28 追加：星禾说话站位错成「主人／讨好／主动哄睡」
+
+- 用户进一步明确：问题不是只嫌颜文字、同音词或二次元梗，而是**当前星禾以取悦主人/恋人式照顾者身份说话**。她是独立、有主见的平等闺蜜；用户没有要求她哄睡/照顾，她不能把别的角色的习惯或主仆互动当成自己的默认任务。
+- 查到额外**共享提示词串线**：`CharacterRuntime.personalityRuntimeContext` 将对所有角色提供的用户习惯标作「主人的习惯」、`CharacterDecisionProtocol.recordOwnership` 将中性日程事实写作「对主人实际承担」。虽同一网关已有「不得默认主人」说明，实际冲突文本会给平等友情提供错误行为先验。现在只把这些共享的**事实归属用词**修为中性「用户／对方」，不修改江渡等角色的自定义主人/恋爱关系。
+- 新增 `PeerRelationshipContext`：从原 `CharacterSocialRelationship.agreement(characterId, "user")` 的**当前可编辑**「闺蜜」约定投射平等朋友事实、情绪/独立自主边界、不能无请求把普通调侃解释为哄睡/恋爱服务；朋友如确实提出邀请或有真实特定约定，角色仍可自主选择是否答应，不用程序一律禁止。通过既有 `CompanionModelGateway` 的 Full 与 CharacterAndScenario 真实通道投送到角色决策、简化表达、电话与自主动作，无新增 API 调用和第二存储。其他角色/其他当前关系约定直接返回空，不用万能「闺蜜模板」，用户编辑关系后立即变化。
+- 增加 `PeerRelationshipContextTest` 检验关系事实、修改时的即时失效与其他角色隔离，并扩充 `ConversationExpressionGatewayTest` 的 MockWebServer 检验两阶段真实模型请求都收到独立友情边界。此前同轮的星禾风格 v3/v4 安全迁移、颜文字范例门控仍然有效；用户的实际消息、收藏、原始记忆及江渡关系不变。
+- 源码提交 `dfd98d78`、`0b153729`、`f83f9f05`、`f33d70ee`、`06342f23`、`f89e21a9`。仍须依据最终 main CI/Android APK 状态及实际星禾多轮聊天验收；模型语义生成不是确定性程序规则，源码测试通过也不等于能保证每一条语气完美。
