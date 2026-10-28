@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:20:34.501049+00:00",
-  "commit": "28fdf73f413056b63f9fde494c8a5c88cf2a3466",
+  "generatedAt": "2026-10-28T08:21:10.929283+00:00",
+  "commit": "f4ebf1473c6f699801cd5f521434c8fd95104f22",
   "branch": "main",
-  "sourceFingerprint": "a643cc82f57e0cc3dc1c248ac9d8e42aeec9098535d45a8a8617c2ecc7f70943",
+  "sourceFingerprint": "4cdd2db90584423f18cde9e1cc055b169c6d0ee671d2410a8e9235abf6e8a5db",
   "summary": {
     "files": 1013,
-    "lines": 203121,
+    "lines": 203171,
     "symbols": 2953
   },
   "symbolIndex": {
@@ -19284,8 +19284,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt",
-      "lines": 114,
-      "sha256": "53f4e25667e8880bfe78d6438813afea99698bae44f347b3b57a6cb628accca6",
+      "lines": 164,
+      "sha256": "23742199bc13ef543f9e93aba758e94108075b0248656a0c87fa6a1edc099d17",
       "symbols": []
     },
     {
