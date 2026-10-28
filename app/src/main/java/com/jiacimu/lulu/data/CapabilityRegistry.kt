@@ -101,7 +101,7 @@ object CapabilityRegistry {
             appendLine("read_screen 只能读无障碍文字，capture_screen 才会真实获取一帧屏幕并调用已配置的视觉模型。")
             appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
             if (permittedAutonomous) {
-                appendLine("角色已获准自主识图：action=tool,tool=capture_screen,args={}；直接读取当前一帧，无须逐次申请、无固定五分钟间隔。工具完成后由原有回执进入下一轮感知，再据实际画面更新判断；未获取成功不得声称看到。")
+                appendLine("角色已获准自主识图：action=tool,tool=capture_screen,args={}；直接读取当前一帧，无须逐次申请、无固定五分钟间隔。工具完成后由原有回执进入下一轮感知，再据实际画面更新判断；未获取成功不得声称看到。如果这张截图确实值得留在自己的手机相册，可以在执行前自己选择 args={\"saveToAlbum\":true}，只有实际捕获并识图成功的画面才会保存，回执含 albumSaved 与 photoId；不选则截图照常只用于当次识图，不长期留存。")
             } else if (permittedOnDemand) {
                 appendLine("按需识图已授权，但自主识图尚未开启；主人本轮明确要求时可用 action=tool,tool=capture_screen,args={}。需要自主查看时请主人打开『权限与能力→角色屏幕视觉→自主观察』。")
             } else {
