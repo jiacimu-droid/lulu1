@@ -243,6 +243,13 @@ object ProactivePerceptionRuntime {
                     if (motiveReviewId.isNotBlank() &&
                         CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) continue
                     val policy = ProactivePerceptionPolicyStore.get(characterId)
+                    if (trigger.startsWith("数字社交真实通知") &&
+                        isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
+                        // Keep the exact unobserved notification for the next
+                        // natural wake; a QQ application is not an emergency
+                        // warranting an involuntary late-night model call.
+                        continue
+                    }
                     if (trigger.startsWith("数字人物新私信")) {
                         ResidentSocialMailbox.initialize(appContext)
                         if (ResidentSocialMailbox.pendingIncoming(characterId).isEmpty() ||

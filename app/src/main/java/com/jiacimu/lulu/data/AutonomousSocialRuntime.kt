@@ -214,7 +214,7 @@ internal object AutonomousSocialRuntime {
                         for (index in 0 until minOf(3, socialSteps.length()))
                             put(socialSteps.opt(index))
                     }
-                    OrderedCharacterActions.execute(
+                    val result = OrderedCharacterActions.execute(
                         context, id, bounded,
                         requestId = "encounter-social:$ownEvidence",
                         autonomousLifeTurn = true,
@@ -223,6 +223,21 @@ internal object AutonomousSocialRuntime {
                             "create_group_chat", "send_group_message",
                             "plan_personal_activity",
                         ),
+                    )
+                    // Failed, malformed or forbidden scene steps used to be
+                    // only local report strings. Persist one role-owned decision
+                    // summary as well as the executor's per-tool receipts, so
+                    // subsequent personal reflection can distinguish intention,
+                    // partial delivery and genuine completion.
+                    CharacterInnerLifeStore.recordDecision(
+                        characterId = id, decisionId = "encounter-social:$ownEvidence",
+                        selectedAction = "social_steps",
+                        reason = reaction.optString("reason").take(200),
+                        chosenMotiveId = "", alternatives = null,
+                        outcome = result.notes.joinToString("；").take(230)
+                            .ifBlank { "未产生可执行的社交回执" },
+                        succeeded = result.completedCount == bounded.length(),
+                        now = finishedAt, causalEvidenceId = ownEvidence,
                     )
                 }
                 // A role's explicit personal activity uses the same existing

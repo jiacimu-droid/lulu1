@@ -28,6 +28,39 @@ import java.time.Instant
 class CharacterSocialNetworkTest {
 
     @Test
+    fun acceptedQQFriendIsAnActualRelationshipEvenBeforeFirstMessageOrFormalMeeting() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(app)
+        MigratedDomainStores.initialize(app)
+        DigitalWorldStore.initialize(app)
+        ResidentSocialMailbox.initialize(app)
+        MomentFriendAccess.initialize(app)
+        val unique = java.util.UUID.randomUUID().toString().take(8)
+        val a = MigratedDomainStores.characters.create("新朋友甲-$unique").characterId
+        val b = MigratedDomainStores.characters.create("新朋友乙-$unique").characterId
+        try {
+            val unknown = CharacterSocialRelationship.snapshot(a, b)
+            assertFalse(unknown.knowsEachOther)
+            assertFalse(unknown.hasConfirmedFriendship)
+            assertTrue(MomentFriendAccess.setFriends(a, b, true))
+            val linked = CharacterSocialRelationship.snapshot(a, b)
+            assertTrue(linked.knowsEachOther)
+            assertTrue(linked.hasConfirmedFriendship)
+            assertEquals("双方已确认QQ好友", linked.stage)
+            assertTrue(linked.shortContext().contains("QQ好友已确认"))
+            assertEquals(0, linked.sharedMeetingCount)
+            // Reverse observation uses the same actual friendship authority,
+            // not an invented shared private attitude.
+            assertTrue(CharacterSocialRelationship.snapshot(b, a).knowsEachOther)
+            assertNull(CharacterSocialRelationship.perspective(a, b))
+            assertNull(CharacterSocialRelationship.perspective(b, a))
+        } finally {
+            MomentFriendAccess.setFriends(a, b, false)
+        }
+        assertFalse(CharacterSocialRelationship.snapshot(a, b).hasConfirmedFriendship)
+    }
+
+    @Test
     fun encounterOnlySeesFullySharedPriorMeetingsNeverPrivateLife() {
         val a = "scene-a"
         val b = "scene-b"

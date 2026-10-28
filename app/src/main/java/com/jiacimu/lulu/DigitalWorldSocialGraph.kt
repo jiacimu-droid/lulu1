@@ -49,7 +49,7 @@ internal fun DigitalWorldSocialGraphDialog(
     var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
     // Read the existing evidence-backed bonds and genuine encounters; no extra
     // social score or fabricated "friendship" database is introduced.
-    val nodes = remember(focusId, settings, world.meetings, revision, relationData, timelineRevision) {
+    val nodes = remember(focusId, settings, world.meetings, revision, relationData, timelineRevision, friendsRevision) {
         if (focusId.isBlank()) emptyList() else buildList {
             val known = participants.filter { it.characterId != focusId }
             add(RelationshipNode("user", "你", true, "用户"))

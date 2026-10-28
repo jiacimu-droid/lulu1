@@ -10,13 +10,16 @@ data class CharacterSocialRelationshipSnapshot(
     val lastMetAt: Instant?,
     val stage: String,
     val hasDirectContact: Boolean = false,
+    val hasConfirmedFriendship: Boolean = false,
 ) {
     val knowsEachOther: Boolean
-        get() = commonGroupNames.isNotEmpty() || sharedMeetingCount > 0 || hasDirectContact
+        get() = hasConfirmedFriendship || commonGroupNames.isNotEmpty() ||
+            sharedMeetingCount > 0 || hasDirectContact
 
     fun shortContext(): String = buildString {
         append(stage)
         val sources = buildList {
+            if (hasConfirmedFriendship) add("QQ好友已确认")
             if (commonGroupNames.isNotEmpty()) {
                 add("共同群聊：${commonGroupNames.take(3).joinToString("、")}")
             }
@@ -126,8 +129,13 @@ object CharacterSocialRelationship {
         val meetingCount = meetings.size
         val lastMetAt = meetings.lastOrNull()?.let { it.endedAt ?: it.startedAt }
         val directContact = second in ResidentSocialMailbox.contactsOf(first)
+        // The confirmed QQ link is the single durable friendship authority.
+        // Someone can accept a request after physical co-presence, before either
+        // person has posted to a group or exchanged their first private message.
+        val confirmedFriendship = MomentFriendAccess.areFriends(first, second)
 
         val stage = when {
+            confirmedFriendship -> "双方已确认QQ好友"
             meetingCount > 0 && commonGroups.isNotEmpty() -> "共同群聊认识且真实见过面"
             meetingCount > 0 -> "真实见过面"
             commonGroups.isNotEmpty() -> "共同群聊认识"
@@ -142,6 +150,7 @@ object CharacterSocialRelationship {
             lastMetAt = lastMetAt,
             stage = stage,
             hasDirectContact = directContact,
+            hasConfirmedFriendship = confirmedFriendship,
         )
     }
 
