@@ -97,8 +97,8 @@ class Live2DConversationPerformanceTest {
                 .put("performance", JSONObject().put("feeling", "playful")
                     .put("movement", "glance").put("intensity", .3))))
         val expanded = Live2DConversationPerformance.expand(choice)
-        assertFalse(choice.getJSONArray("beats").getJSONObject(0).has("head"),
-            "the source decision must not be rewritten")
+        assertFalse("the source decision must not be rewritten",
+            choice.getJSONArray("beats").getJSONObject(0).has("head"))
         val beats = expanded.getJSONArray("beats")
         assertEquals(6, beats.length())
         assertEquals("你回来啦", beats.getJSONObject(0).getString("anchor"))
