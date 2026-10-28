@@ -1101,7 +1101,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + reply.text.take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
