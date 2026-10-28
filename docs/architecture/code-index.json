@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:20:07.985731+00:00",
-  "commit": "8f0ab0098c0723c5d14742b7f9ecaa7c588a544d",
+  "generatedAt": "2026-10-28T08:20:34.501049+00:00",
+  "commit": "28fdf73f413056b63f9fde494c8a5c88cf2a3466",
   "branch": "main",
-  "sourceFingerprint": "76eb69f6070b09d2fa22b6ffdf126b0fc4c51bfa227001becf75e76baf452524",
+  "sourceFingerprint": "a643cc82f57e0cc3dc1c248ac9d8e42aeec9098535d45a8a8617c2ecc7f70943",
   "summary": {
     "files": 1013,
-    "lines": 203081,
-    "symbols": 2949
+    "lines": 203121,
+    "symbols": 2953
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -693,7 +693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 61
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -3511,7 +3511,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 88
+        "line": 93
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
@@ -3939,7 +3939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 103
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
@@ -4369,7 +4369,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 66
+        "line": 70
       }
     ],
     "clearSleepArchive": [
@@ -4385,7 +4385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 97
+        "line": 136
       }
     ],
     "archiveLabel": [
@@ -4549,19 +4549,43 @@
     "selectedCharacterChatArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 32
+        "line": 36
       }
     ],
     "selectCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 39
+        "line": 43
       }
     ],
     "clearCharacterChatArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 51
+        "line": 55
+      }
+    ],
+    "residentSocialConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 105
+      }
+    ],
+    "worldSocialConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 112
+      }
+    ],
+    "worldSceneConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 120
+      }
+    ],
+    "worldLifeConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 130
       }
     ],
     "VisionModelService": [
@@ -20710,8 +20734,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 123,
-      "sha256": "6d613e3e68e6c8f112c453286d11a606f9d0f099143ae776656712871c2bf23c",
+      "lines": 163,
+      "sha256": "7787cdd4c652a00ad346cf1943bb4dd805f6f5494b0e60a0e5dfce94c616010a",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -20719,35 +20743,51 @@
         },
         {
           "name": "selectedCharacterChatArchiveId",
-          "line": 32
+          "line": 36
         },
         {
           "name": "selectCharacterChatArchive",
-          "line": 39
+          "line": 43
         },
         {
           "name": "clearCharacterChatArchive",
-          "line": 51
+          "line": 55
         },
         {
           "name": "initialize",
-          "line": 61
+          "line": 65
         },
         {
           "name": "selectedArchiveId",
-          "line": 66
+          "line": 70
         },
         {
           "name": "select",
-          "line": 88
+          "line": 93
+        },
+        {
+          "name": "residentSocialConnection",
+          "line": 105
+        },
+        {
+          "name": "worldSocialConnection",
+          "line": 112
+        },
+        {
+          "name": "worldSceneConnection",
+          "line": 120
+        },
+        {
+          "name": "worldLifeConnection",
+          "line": 130
         },
         {
           "name": "resolveConnection",
-          "line": 97
+          "line": 136
         },
         {
           "name": "clear",
-          "line": 103
+          "line": 142
         }
       ]
     },
