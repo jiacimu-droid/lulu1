@@ -54,11 +54,24 @@ internal object RelicEscapeWorld {
             }
             RelicChest(index,x,y,tier)
         }
+        // Only populate connected walkable cells, otherwise enemies/side objectives can
+        // spawn in sealed-off pockets and become impossible to reach.
+        val reachable=mutableSetOf(2 to 2)
+        val frontier=java.util.ArrayDeque<Pair<Int,Int>>()
+        frontier.add(2 to 2)
+        while(frontier.isNotEmpty()) {
+            val (cx,cy)=frontier.removeFirst()
+            for((nx,ny) in listOf(cx+1 to cy,cx-1 to cy,cx to cy+1,cx to cy-1)) {
+                if(nx !in 1 until w-1 || ny !in 1 until h-1 ||
+                    cells[ny*w+nx]==1 || !reachable.add(nx to ny))continue
+                frontier.add(nx to ny)
+            }
+        }
         val occupied=(chestPositions+exit+(2 to 2)).toMutableSet()
         val mobs=mutableListOf<RelicMob>()
         for(index in 0 until (2+level.coerceIn(1,5))) {
             val candidates=(1 until w-1).flatMap{x->(1 until h-1).map{y->x to y}}
-                .filter{(x,y)->cells[y*w+x]!=1 && x to y !in occupied &&
+                .filter{(x,y)->x to y in reachable && x to y !in occupied &&
                     abs(x-2)+abs(y-2)>4}
             if(candidates.isEmpty())break
             val (x,y)=candidates[rng.nextInt(candidates.size)]
@@ -68,7 +81,7 @@ internal object RelicEscapeWorld {
         }
         // Optional danger rooms and one-use traps are world entities, not narrative rewards.
         val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
-            .filter{(x,y)->cells[y*w+x]==0 && x to y !in occupied &&
+            .filter{(x,y)->cells[y*w+x]==0 && x to y in reachable && x to y !in occupied &&
                 abs(x-2)+abs(y-2)>=5}
             .shuffled(rng)
         val sites=mutableListOf<RelicSite>()
