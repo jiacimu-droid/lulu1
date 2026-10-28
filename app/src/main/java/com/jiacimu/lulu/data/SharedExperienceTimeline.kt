@@ -226,6 +226,9 @@ object SharedExperienceTimeline {
         }
         if (previous != null) {
             withdrawDependentPersonalReceipts(eventId)
+            // An edit re-offers the event: drop the old revision's seen checkpoint,
+            // otherwise the previous revision's claim keeps the new revision hidden.
+            PerceptionStimulusLedger.invalidate(eventId)
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLearningLedger.invalidateEvidence(eventId)
             CharacterLearningAgenda.invalidateEvidence(eventId)
