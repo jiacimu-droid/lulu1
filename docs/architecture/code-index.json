@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:26:13.969233+00:00",
-  "commit": "2c489408c5913095653511df34687e97eccc08d7",
+  "generatedAt": "2026-10-28T11:26:36.607068+00:00",
+  "commit": "0bd6e224c860ef5c326328f21200d76077a08123",
   "branch": "main",
-  "sourceFingerprint": "fe87367b65e2fec0a7e174e71f1fe46ba8bbf9d64b195157997253871540dc89",
+  "sourceFingerprint": "8e902e3e1d6c11fa71a097e2cc25213f44c257d08f72af1cd4f5e16593f5d9fc",
   "summary": {
     "files": 1039,
-    "lines": 210915,
+    "lines": 210956,
     "symbols": 3048
   },
   "symbolIndex": {
@@ -34177,8 +34177,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
-      "lines": 42,
-      "sha256": "973352e1baa70a4bd64aa1f79dfeb55d761d94e03cd773ec2628a650465f1626",
+      "lines": 83,
+      "sha256": "8d24bfa275f5fe5a6321f420c8267ad10b7a1f6ca26b2304edced4b0df021359",
       "symbols": [
         {
           "name": "CommitmentDecisionProtocolTest",
