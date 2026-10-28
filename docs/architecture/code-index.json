@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:42:47.495688+00:00",
-  "commit": "61954d2bb12f328b916823806e2e127e8ed138fa",
+  "generatedAt": "2026-10-28T09:43:01.820769+00:00",
+  "commit": "1b1f5165b97eac1d3cee605b6843fff42b59c01d",
   "branch": "main",
-  "sourceFingerprint": "37b280fe2cdcd32a9f0d0d28a8b32b12165839fbf0cb346c832a9a810daeac84",
+  "sourceFingerprint": "0dcbda86f2df8e5b1af235c83cda17ad0cc7528ac2a3b737316b6af6941fe3fb",
   "summary": {
     "files": 1025,
-    "lines": 205981,
+    "lines": 205988,
     "symbols": 2996
   },
   "symbolIndex": {
@@ -6391,7 +6391,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1376
+        "line": 1380
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10781,43 +10781,43 @@
     "DueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 91
+        "line": 93
       }
     ],
     "dueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 93
+        "line": 95
       }
     ],
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 254
+        "line": 258
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 263
+        "line": 267
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 266
+        "line": 270
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 330
+        "line": 334
       }
     ],
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 956
+        "line": 960
       }
     ],
     "plan": [
@@ -27391,8 +27391,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1427,
-      "sha256": "574230b9db7da32d180a868af8b26ac302fe62a9c33b50265dd39d70e0330893",
+      "lines": 1431,
+      "sha256": "a63dac1189ec23675cfb348985d971fff67256c5869a4142ccb83d8077939ef1",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -27404,35 +27404,35 @@
         },
         {
           "name": "DueRecovery",
-          "line": 91
-        },
-        {
-          "name": "dueRecovery",
           "line": 93
         },
         {
+          "name": "dueRecovery",
+          "line": 95
+        },
+        {
           "name": "planForApp",
-          "line": 254
+          "line": 258
         },
         {
           "name": "attemptedToday",
-          "line": 263
+          "line": 267
         },
         {
           "name": "planFor",
-          "line": 266
+          "line": 270
         },
         {
           "name": "reject",
-          "line": 330
+          "line": 334
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 956
+          "line": 960
         },
         {
           "name": "schedule",
-          "line": 1376
+          "line": 1380
         }
       ]
     },
@@ -29349,8 +29349,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt",
-      "lines": 265,
-      "sha256": "91f5062e46c89223ed09c085e07c9434646d6ef5db83a0326e84438fc4154b30",
+      "lines": 267,
+      "sha256": "f3d4803e2cf2cae33f96e2166e7324f98341a2c936eeb24c471c04b36e020fd4",
       "symbols": []
     },
     {
@@ -34978,8 +34978,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt",
-      "lines": 77,
-      "sha256": "c265fc632a9e3867546f4775ee1a51c94f9b61e73bc200c6f1ab861b4bd4e8e6",
+      "lines": 78,
+      "sha256": "3b047b3c42f578af392241f654987954d3d382be136a004bcbc2feacdda15812",
       "symbols": [
         {
           "name": "ResidentPlanRevisionTest",
