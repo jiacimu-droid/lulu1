@@ -604,7 +604,7 @@ private fun DeepSeaCompletion(
     }
 }
 
-private data class DeepSeaRestoredState(
+internal data class DeepSeaRestoredState(
     val position: WorldVector,
     val collected: Set<String>,
     val completed: Boolean,
@@ -616,7 +616,7 @@ private data class DeepSeaRestoredState(
     val companionAssists: Int,
 )
 
-private class DeepSeaJourneyProgress(context: Context) {
+internal class DeepSeaJourneyProgress(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("lulu_deep_sea_journey_v1", Context.MODE_PRIVATE)
 
     fun load(fallback: WorldVector): DeepSeaRestoredState {
