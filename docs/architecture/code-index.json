@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:33:28.794850+00:00",
-  "commit": "153073a58e6de999c0cf2217812af9ffbd7120a4",
+  "generatedAt": "2026-10-28T14:34:03.334288+00:00",
+  "commit": "3ca447fc77f4fcc3e62d4501fe5e5f7d38023519",
   "branch": "main",
-  "sourceFingerprint": "5b4759cab1731d8e7541d2dd2ef7fb068a50cab6c37ce5085226f4f36b8bf5f9",
+  "sourceFingerprint": "23aaee5e6033d7cd340d08a4be315e57bfa63b869d03c391a667bc9f5a0fd378",
   "summary": {
-    "files": 1050,
-    "lines": 214133,
-    "symbols": 3070
+    "files": 1051,
+    "lines": 214184,
+    "symbols": 3071
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14713,6 +14713,12 @@
     "RolePhoneBrowserHistoryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt",
+        "line": 16
+      }
+    ],
+    "RolePhotoAlbumStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
         "line": 16
       }
     ],
@@ -32922,6 +32928,17 @@
       "symbols": [
         {
           "name": "RolePhoneBrowserHistoryTest",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt",
+      "lines": 51,
+      "sha256": "fda4021d13ecd1a6909842f77eab5be9a8321b87675f8af4f8601fee51ef0ec3",
+      "symbols": [
+        {
+          "name": "RolePhotoAlbumStoreTest",
           "line": 16
         }
       ]
