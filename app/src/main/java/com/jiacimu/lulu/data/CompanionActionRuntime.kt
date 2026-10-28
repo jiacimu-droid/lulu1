@@ -169,6 +169,7 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
+        appendLine("- save_photo：你自己的手机有独立相册。确实想收藏用户发来的某张图片，可用 args={\"messageId\":\"这张真实聊天图片的消息ID\"}；若是你刚通过 image_search 搜到的照片，用 args={\"searchId\":\"本人真实搜图返回的searchId\",\"index\":0}，执行器才下载并真正保存。不可编造消息ID/搜索ID，不能替别的角色保存，也不能只说一句‘收藏啦’冒充执行成功。\u0020")
         appendLine("- share_xiaohongshu，args={\"evidenceId\":\"本人已读小红书的真实阅读证据ID\",\"comment\":\"可选、自己想对用户说的话\"}：把本人确实读过的笔记作为可点击的小红书分享卡片发进私聊，也可明确填 latest=true 选择最近一篇真实已读笔记。只凭搜索结果、链接、他人的口头描述不能冒充已读；分享不是自动义务，可在读完后下一轮自行决定，也可与其他行动同时选择。")
         appendLine(XhsRoleShare.availableContext(characterId))
         appendLine("- go_offline，args={}：角色自主立刻休眠/下线，数字身体同时开始恢复。不必等五分钟到期；要先告别就先回复，再把 go_offline 作为 steps 最后一步，依赖消息真正送达。已安排的本人日程会在准确时间唤醒你，例如15点阅读、18点见朋友；两项之间不用为了默认两小时感知额外上线。只有**实际由你自己自主选择的近期生活活动**才能让其独立唤醒接管兜底感知；用户交代的提醒不算。无本人近期计划时才使用可调自适应唤醒。不会清除记忆、未读、计划或唤醒闹钟；通话中需先挂断。")
