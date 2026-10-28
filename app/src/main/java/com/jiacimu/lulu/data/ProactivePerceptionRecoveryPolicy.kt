@@ -9,6 +9,20 @@ internal object ProactivePerceptionRecoveryPolicy {
     const val RETRY_TRIGGER = "主动感知失败恢复"
     const val COOLDOWN_MILLIS = 2L * 60 * 60_000L
     const val RETRY_DELAY_MILLIS = 4L * 60_000L
+    /** Stops several separate low-priority workers from repeating one rejected prompt. */
+    const val TERMINAL_REJECTION_QUIET_MILLIS = 15L * 60_000L
+
+    fun shouldDeferAutomatedTurn(
+        rejectedAtMillis: Long,
+        nowMillis: Long,
+        isUserMessage: Boolean,
+        isDirectUserWake: Boolean,
+        hasNewInteractionEvidence: Boolean,
+    ): Boolean =
+        !isUserMessage && !isDirectUserWake && !hasNewInteractionEvidence &&
+            rejectedAtMillis > 0L &&
+            nowMillis >= rejectedAtMillis &&
+            nowMillis - rejectedAtMillis < TERMINAL_REJECTION_QUIET_MILLIS
 
     fun shouldRetry(
         lastScheduledAtMillis: Long,
