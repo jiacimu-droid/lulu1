@@ -27,6 +27,24 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
     return true
   }
 
+  // Model-authored cues can target a spoken fragment rather than guessing
+  // absolute TTS milliseconds. The Android caller supplies actual segment
+  // start offsets once playback is prepared; no extra model request needed.
+  function scheduleSegments(cues, segments) {
+    if (!Array.isArray(cues) || !Array.isArray(segments)) return false
+    const beats = cues.flatMap(cue => {
+      if (!cue || !Number.isInteger(cue.segmentIndex)) return []
+      const segment = segments[cue.segmentIndex]
+      if (!segment || !Number.isFinite(segment.startMs) || segment.startMs < 0) return []
+      const offset = cue.offsetMs == null ? 0 : cue.offsetMs
+      if (!Number.isFinite(offset) || offset < 0) return []
+      const atMs = segment.startMs + offset
+      if (Number.isFinite(segment.durationMs) && offset > segment.durationMs) return []
+      return [{ ...cue, atMs }]
+    })
+    return schedule(beats)
+  }
+
   function startSpeech() {
     if (speaking) return // duplicate PCM/status callback
     speaking = true
@@ -83,5 +101,5 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
       remaining: current ? current.beats.length - current.index : 0 }
   }
 
-  return { schedule, startSpeech, stopSpeech, clearScore, tick, reset, state }
+  return { schedule, scheduleSegments, startSpeech, stopSpeech, clearScore, tick, reset, state }
 }
