@@ -530,7 +530,15 @@ class CompanionModelGateway(
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
             val recallQuery = "$facts\n$instruction"
-            val request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction)
+            val originalRequest = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction)
+            // The autonomous gateway receives one already-assembled scene.
+            // The recall subsystem otherwise sees only its shorter search query
+            // and may re-inject timeline evidence that the same scene already
+            // carries. Keep scene text out of retrievalQuery(), but use it for
+            // source-exact de-duplication. No original event is deleted.
+            val request = if (source == "后台主动感知" && facts.isNotBlank())
+                originalRequest.copy(alreadyPresentedEvidence = facts)
+            else originalRequest
             val dialogueRequest = conversation.isNotEmpty() && contextMode in setOf(
                 CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario,
             )
