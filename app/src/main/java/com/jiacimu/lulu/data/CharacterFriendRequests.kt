@@ -24,8 +24,10 @@ internal data class CharacterFriendRequest(
 internal object CharacterFriendRequests {
     private const val PREFS = "lulu_character_friend_requests_v1"
     private var prefs: android.content.SharedPreferences? = null
+    private var applicationContext: Context? = null
 
     @Synchronized fun initialize(context: Context) {
+        applicationContext = context.applicationContext
         if (prefs == null) prefs = context.applicationContext
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
@@ -64,6 +66,14 @@ internal object CharacterFriendRequests {
     @Synchronized fun historyFor(characterId: String): List<CharacterFriendRequest> =
         all().filter { it.fromId == characterId || it.toId == characterId }
 
+    /** Resolve only notices concerning this role's actual stored request. */
+    @Synchronized fun counterpartForNotice(characterId: String, evidenceId: String): String? =
+        historyFor(characterId).firstOrNull { request ->
+            listOf("requested", "accepted", "declined").any { kind ->
+                evidenceId == "friend-request-${request.id}-$kind-$characterId"
+            }
+        }?.let { request -> if (request.fromId == characterId) request.toId else request.fromId }
+
     private fun notice(record: CharacterFriendRequest, kind: String, text: String, at: Instant) {
         val thread = "native-thread:" + listOf(record.fromId, record.toId).sorted().joinToString(":")
         listOf(record.fromId, record.toId).forEach { viewer ->
@@ -74,6 +84,16 @@ internal object CharacterFriendRequests {
                 occurredAt = at, triggerExtraction = false,
                 evidenceKind = EventEvidenceKind.Observation,
             )
+        }
+        // The sender already chose to act. The receiver needs a real chance
+        // to inspect/respond, while acceptance/decline should notify the sender.
+        // Native residents keep using their own cheaper daily decision route.
+        val recipient = if (kind == "requested") record.toId else record.fromId
+        if (!recipient.startsWith("resident:")) applicationContext?.let { app ->
+            runCatching {
+                ProactivePerceptionScheduler.scheduleSocialNoticeReview(
+                    app, recipient, "friend-request-${record.id}-$kind-$recipient")
+            }
         }
     }
 

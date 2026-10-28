@@ -154,7 +154,7 @@ internal object CharacterPerceptionContext {
             (event.evidenceKind == EventEvidenceKind.Observation &&
                 (event.source in setOf("digital-world", "digital-environment", "meeting",
                     InteractionSignalBridge.SOURCE, "xiaohongshu-webview", "xiaohongshu-mcp",
-                    "group-membership") ||
+                    "group-membership", "phone:friend") ||
                     ResidentSocialMailbox.witnessedMessage(event)?.toId == event.characterId ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
             (event.evidenceKind == EventEvidenceKind.ToolResult &&
@@ -255,12 +255,32 @@ internal object CharacterPerceptionContext {
         return if (withoutOwner) otherParticipants else otherParticipants + "user"
     }
 
+    /** A private social opinion must cite an actual, still-owned interaction.
+     * In a combined perception frame the synthetic envelope ID is NOT that
+     * source; choose the witnessed event with the named counterpart instead.
+     */ 
+    internal fun witnessedSocialSource(
+        characterId: String, fresh: List<PerceptionStimulus>, targetId: String,
+    ): PerceptionStimulus? {
+        if (characterId.isBlank() || targetId.isBlank() || characterId == targetId) return null
+        return fresh.asReversed().firstOrNull { cue ->
+            if (targetId !in cue.socialIds) return@firstOrNull false
+            val real = SharedExperienceTimeline.eventsByIds(characterId, listOf(cue.evidenceId))
+                .singleOrNull() ?: return@firstOrNull false
+            targetId in stimulus(real).socialIds ||
+                (targetId == "user" && real.evidenceKind == EventEvidenceKind.UserStatement)
+        }
+    }
+
     fun stimulus(event: SharedTimelineEvent): PerceptionStimulus = PerceptionStimulus(
         event.id, "[${event.occurredAt}] ${visibleEvidence(event)}",
         ResidentSocialMailbox.witnessedMessage(event)?.let { message ->
             setOf(if (event.characterId == message.toId) message.fromId else message.toId)
         } ?: if (event.source == "meeting") meetingSocialIds(
             event, DigitalWorldStore.state.value.meetings.firstOrNull { it.id == event.sessionId })
+        else if (event.source == "phone:friend")
+            CharacterFriendRequests.counterpartForNotice(event.characterId, event.id)
+                ?.let(::setOf) ?: emptySet()
         else if (event.id.startsWith("world-touch-") ||
             event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
             event.source == InteractionSignalBridge.SOURCE) setOf("user")

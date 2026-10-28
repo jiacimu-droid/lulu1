@@ -1718,12 +1718,31 @@ object ProactivePerceptionRuntime {
             characterId, emotionalAnchor, decision.afterglow, now,
             evidenceId = stimulus?.evidenceId.orEmpty(),
         )
-        if (freshStimulus && stimulus != null) CharacterInnerLifeStore.observe(
-            characterId, stimulus.evidenceId,
-            stimulus.description,
-            CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, decision.afterglow, emotionalAnchor),
-            stimulus.socialIds, now,
-        )
+        if (freshStimulus && stimulus != null) {
+            val socialProposal = canonicalInnerLife?.optJSONObject("social")
+            val target = socialProposal?.optString("targetId")?.trim().orEmpty()
+            val ownedSocialSource = CharacterPerceptionContext.witnessedSocialSource(
+                characterId, newlyObserved, target)
+            // Multi-source perception has a synthetic ID. Never hang a bond
+            // on that envelope or on an unrelated person's/private event.
+            val separateSocial = target.isNotBlank() &&
+                ownedSocialSource?.evidenceId != stimulus.evidenceId
+            val mainProposal = if (separateSocial) canonicalInnerLife?.let {
+                JSONObject(it.toString()).apply { remove("social") }
+            } else canonicalInnerLife
+            CharacterInnerLifeStore.observe(
+                characterId, stimulus.evidenceId, stimulus.description,
+                CharacterInnerLifeStore.withAfterglow(mainProposal, decision.afterglow, emotionalAnchor),
+                stimulus.socialIds, now,
+            )
+            if (separateSocial && ownedSocialSource != null && socialProposal != null) {
+                CharacterInnerLifeStore.observe(
+                    characterId, ownedSocialSource.evidenceId, ownedSocialSource.description,
+                    JSONObject().put("social", JSONObject(socialProposal.toString())),
+                    ownedSocialSource.socialIds, now,
+                )
+            }
+        }
         // Reconsidering a real, previously recorded conflict is not a new world
         // event. Anchor introspection to the original witnessed reply so deleting
         // that reply invalidates the derived self-correction too.

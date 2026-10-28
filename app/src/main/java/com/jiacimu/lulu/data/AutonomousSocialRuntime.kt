@@ -204,9 +204,28 @@ internal object AutonomousSocialRuntime {
                     participantIds.filterNot { it == id }.toSet(), finishedAt)
                 CharacterInnerLifeStore.recordInnerVoice(
                     id, ownEvidence, reaction.optString("innerThought"), finishedAt)
-                // A role's explicit decision can enter the EXISTING action
-                // executor after the real meeting, never through prose or a
-                // script that decides for them. The queue keeps an actual receipt.
+                // Execute this role's OWN social decisions after the shared
+                // meeting facts exist. Friend requests, messages and group
+                // invitations use the SAME ToolRouter receipts as other scenes.
+                val socialSteps = reaction.optJSONArray("steps")
+                if (socialSteps != null && socialSteps.length() > 0) {
+                    val bounded = JSONArray().apply {
+                        for (index in 0 until minOf(3, socialSteps.length()))
+                            put(socialSteps.opt(index))
+                    }
+                    OrderedCharacterActions.execute(
+                        context, id, bounded,
+                        requestId = "encounter-social:$ownEvidence",
+                        autonomousLifeTurn = true,
+                        sceneAllowedTools = setOf(
+                            "send_friend_request", "send_character_message",
+                            "create_group_chat", "send_group_message",
+                            "plan_personal_activity",
+                        ),
+                    )
+                }
+                // A role's explicit personal activity uses the same existing
+                // executor; it never treats a merely spoken invite as consent.
                 val decided = reaction.optJSONObject("appraisal")?.optJSONObject("ownActivity")
                 if (decided != null && decided.optString("stage") == "decided") {
                     val queued = CharacterSelfActivityRuntime.offer(
@@ -393,13 +412,14 @@ internal object AutonomousSocialRuntime {
                     你是${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
                     自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
                     只返回 JSON：
-                    {"choice":"engage|quiet","reason":"当下真正想做或不做的理由","segments":[{"type":"dialogue|action","text":"只有本人确实说出的话或做出的轻微可见动作","speechText":""}],"innerThought":"自己未说出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"实际依据"},"social":{"targetId":"当前确实在场的ID","interpretation":"自己的具体初印象或新理解","reason":"自己已经见到或听到的证据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"thoughts":[{"thought":"只属于自己的想法"}],"motives":[{"op":"start","aim":"真正想以后去做的事","why":"这次实际经历的触发原因","reason":"具体依据"}]}}
+                    {"choice":"engage|quiet","reason":"当下真正想做或不做的理由","segments":[{"type":"dialogue|action","text":"只有本人确实说出的话或做出的轻微可见动作","speechText":""}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"实际认识的人ID","greeting":"自己想说的申请语","text":"自己想发送的私信","groupName":"真实群名","memberIds":["已确认的好友ID"],"title":"未来的活动","intent":"个人动机","dueAt":"含时区的ISO8601日期时间","activityAction":"具体执行器"},"requiresPreviousSuccess":false}],"innerThought":"自己未说出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"实际依据"},"social":{"targetId":"当前确实在场的ID","interpretation":"自己的具体初印象或新理解","reason":"自己已经见到或听到的证据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"thoughts":[{"thought":"只属于自己的想法"}],"motives":[{"op":"start","aim":"真正想以后去做的事","why":"这次实际经历的触发原因","reason":"具体依据"}]}}
                     choice=quiet 时 segments 为空；若想开口或做动作，choice=engage，reason 不为空。
                     允许说话、小玩笑、观念不同、邀请、婉拒、主动帮忙、关心、紧张和不喜欢；
                     不要求每轮发生大事，更不强制每个人成为朋友。根据真实关系和个人性格自然选择。
                     如果已经有人说话，优先决定是否要回应这句真正说出口的话，不要机械重新寒暄。
                     仅可记录本人公开发言和微动作；不能替对方表演、宣布对方心意、替对方接受邀请。
                     提出一起玩、下次见、加好友可以是口头愿望，不等于完成游戏、预约或建立好友关系。
+                    如果真的决定立即加对方好友、给已认识的人发QQ私信、与已确认好友组群或安排以后主动联系，可在 steps 填真实工具及最少必要 args；没有决定就省略 steps。send_friend_request 的 targetCharacterId 必须是本次真实认识的人；send_character_message 只能给可联系的熟人；建群的 memberIds 只能来自本人已经确认的好友，不能自动拉陌生人或主人。每步需要独立成功回执；申请发出不等于对方接受，邀约说出口不等于对方答应。最多三步，不能替他人执行。
                     任何地点移动、物品出现、咖啡消费、比赛结果和世界事件完成，都必须有真实执行器回执。
                     私人想法只回传到本人心理系统，不能当作公开事实，不能越权知晓其他人私聊、记忆或日记。
                     你可以对其他人的实际行为形成个人评价、挂心或未来意愿，但没有证据就留空。

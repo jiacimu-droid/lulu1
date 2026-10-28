@@ -10,6 +10,52 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun meetingAndFriendNoticeObservationEnterNormalPerception() {
+        val now = Instant.now()
+        val actualMeeting = SharedTimelineEvent("meeting-social-now", "one-role",
+            "数字世界见面", "共同经历", "刚刚在咖啡馆真实相遇", now.minusSeconds(10),
+            source = "meeting", evidenceKind = EventEvidenceKind.Observation)
+        val friendNotice = actualMeeting.copy(id = "friend-request-notice",
+            source = "phone:friend", content = "收到了一个真实QQ好友申请")
+        val legacy = actualMeeting.copy(id = "meeting-old-legacy",
+            evidenceKind = EventEvidenceKind.Legacy)
+        assertEquals(listOf(actualMeeting.id, friendNotice.id),
+            CharacterPerceptionContext.selectRecent(
+                listOf(legacy, actualMeeting, friendNotice), now).map { it.id })
+    }
+
+    @Test fun socialSourceMustBeVerifiedUnderItsOwnRoleRatherThanSyntheticEnvelope() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        val actor = "owner-social-" + java.util.UUID.randomUUID()
+        val other = "foreign-social-" + java.util.UUID.randomUUID()
+        val own = "user-social-" + java.util.UUID.randomUUID()
+        val foreign = "private-social-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        try {
+            SharedExperienceTimeline.record(own, actor, "私聊", "用户", "用户当面说了自己的想法",
+                now, source = "message", evidenceKind = EventEvidenceKind.UserStatement,
+                triggerExtraction = false)
+            SharedExperienceTimeline.record(foreign, other, "私聊", "用户", "B 的独立私聊",
+                now, source = "message", evidenceKind = EventEvidenceKind.UserStatement,
+                triggerExtraction = false)
+            val cues = listOf(
+                PerceptionStimulus(own, "A 的真实消息", setOf("user")),
+                PerceptionStimulus(foreign, "B 的真实消息", setOf("user")))
+            val combined = PerceptionStimulusResolver.combine(cues)!!
+            assertTrue(combined.evidenceId.startsWith("perception-sources:"))
+            assertEquals(own, CharacterPerceptionContext.witnessedSocialSource(
+                actor, cues, "user")?.evidenceId)
+            assertNull(CharacterPerceptionContext.witnessedSocialSource(
+                actor, listOf(cues[1]), "user"))
+            assertNull(CharacterPerceptionContext.witnessedSocialSource(
+                actor, listOf(combined), "user"))
+        } finally {
+            SharedExperienceTimeline.deleteEvent(own)
+            SharedExperienceTimeline.deleteEvent(foreign)
+        }
+    }
+
     @Test fun autonomousMeetingAllowsOnlyActualParticipantImpressions() {
         val at = Instant.parse("2026-10-28T07:00:00Z")
         val meeting = MeetingSession(

@@ -822,7 +822,7 @@ object DigitalWorldStore {
             sessionId = session.id,
             source = "meeting",
             evidenceKind = if (speaker == MigratedDomainStores.characters.get(viewerCharacterId).displayName)
-                EventEvidenceKind.CharacterStatement else EventEvidenceKind.Legacy,
+                EventEvidenceKind.CharacterStatement else EventEvidenceKind.Observation,
             characterId = viewerCharacterId,
             channel = channel,
             speaker = speaker,

@@ -574,6 +574,30 @@ object ProactivePerceptionScheduler {
         prefs.edit().putLong("last:$characterId", now).apply()
     }
 
+    /** A committed QQ friend notice enters the recipient's existing decision
+     * loop; a pending application is never automatic consent. Multiple notices
+     * coalesce, and all unhandled events remain in that role's own timeline.
+     */
+    fun scheduleSocialNoticeReview(context: Context, characterId: String, evidenceId: String) {
+        if (characterId.isBlank() || evidenceId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val witnessed = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .singleOrNull() ?: return
+        if (witnessed.source != "phone:friend" ||
+            witnessed.evidenceKind != EventEvidenceKind.Observation) return
+        val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(12_000L, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "数字社交真实通知：按本人收到的好友申请或结果，自主决定回应、继续来往或安静；不得替对方同意。")
+                .putString("characterId", characterId)
+                .putString("interactionEvidenceId", evidenceId)
+                .putBoolean("force", true).build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-social-notice-$characterId", ExistingWorkPolicy.REPLACE, work)
+    }
+
     /**
      * A genuine undecided personal idea gets one later autonomous reconsideration,
      * not a forced action. All resulting choices still go through the ordinary
