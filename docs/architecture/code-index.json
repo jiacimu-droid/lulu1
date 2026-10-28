@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:34:03.334288+00:00",
-  "commit": "3ca447fc77f4fcc3e62d4501fe5e5f7d38023519",
+  "generatedAt": "2026-10-28T14:34:45.591141+00:00",
+  "commit": "35da7199ed29aeb68ab7d82682c8de9e5b812d27",
   "branch": "main",
-  "sourceFingerprint": "23aaee5e6033d7cd340d08a4be315e57bfa63b869d03c391a667bc9f5a0fd378",
+  "sourceFingerprint": "4f71adccaabacf055beaebca9083ab1ea62288741cb6ff17c1fed60c17130e01",
   "summary": {
     "files": 1051,
-    "lines": 214184,
+    "lines": 214198,
     "symbols": 3071
   },
   "symbolIndex": {
@@ -2375,49 +2375,49 @@
     "requestOpen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "requestClose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 76
+        "line": 78
       }
     ],
     "openInService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 83
+        "line": 85
       }
     ],
     "attachPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 120
+        "line": 122
       }
     ],
     "detachPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 125
+        "line": 127
       }
     ],
     "setSharing": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "captureNow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 177
+        "line": 180
       }
     ],
     "closeInService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-        "line": 241
+        "line": 253
       }
     ],
     "setVideoMode": [
@@ -19239,8 +19239,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
-      "lines": 265,
-      "sha256": "ed6fc97dfa40fd8c75e41071f527dc750bc88ab9ba5e6d1d7e1ce6413c351f8d",
+      "lines": 279,
+      "sha256": "336b09e76ab23c930dbd1d8f475f38793eec83050c8148bcd5033bf9f4b415a7",
       "symbols": [
         {
           "name": "ViewState",
@@ -19248,35 +19248,35 @@
         },
         {
           "name": "requestOpen",
-          "line": 61
+          "line": 63
         },
         {
           "name": "requestClose",
-          "line": 76
+          "line": 78
         },
         {
           "name": "openInService",
-          "line": 83
+          "line": 85
         },
         {
           "name": "attachPreview",
-          "line": 120
+          "line": 122
         },
         {
           "name": "detachPreview",
-          "line": 125
+          "line": 127
         },
         {
           "name": "setSharing",
-          "line": 147
+          "line": 149
         },
         {
           "name": "captureNow",
-          "line": 177
+          "line": 180
         },
         {
           "name": "closeInService",
-          "line": 241
+          "line": 253
         }
       ]
     },
