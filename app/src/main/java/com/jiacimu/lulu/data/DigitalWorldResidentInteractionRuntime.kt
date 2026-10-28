@@ -43,7 +43,9 @@ internal object DigitalWorldResidentInteractionRuntime {
             // A protagonist meeting a resident retains the original identity model.
             ScopedModelSelections.initialize(context)
             val actorConnection = if (characterId.startsWith("resident:"))
-                ScopedModelSelections.residentSocialConnection() else null
+                ScopedModelSelections.residentSocialConnection()
+            else LuluAiServices.connectionStore.resolveConnection(
+                ScopedModelSelections.selectedCharacterChatArchiveId(characterId))
             // The native's own answer always uses the resident social model,
             // regardless of whether the person addressing them is a resident
             // or a protagonist with an expensive character-chat archive.
