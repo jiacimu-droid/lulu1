@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:24:59.607381+00:00",
-  "commit": "e0aae686fa3066fb87e059b7ea9afd361ba09fc3",
+  "generatedAt": "2026-10-28T10:25:58.702853+00:00",
+  "commit": "6998251f7898a247e2f29b105007310b46e96803",
   "branch": "main",
-  "sourceFingerprint": "798fde4ac0a977b4fc6ae09e41878f61616270bbdc16c3206721f00ceb3f86eb",
+  "sourceFingerprint": "9468f1c05e8b73e2a3300d8400570a994ee077fbab86f402880cf48205b463ef",
   "summary": {
     "files": 1037,
-    "lines": 209123,
+    "lines": 209125,
     "symbols": 3044
   },
   "symbolIndex": {
@@ -6899,7 +6899,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 347
+        "line": 349
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -30117,7 +30117,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
       "lines": 337,
-      "sha256": "bd6644a2ecbf81945c7e72b6ccc357d27120e22640221611ae76962783ae98d0",
+      "sha256": "9472bf980c090e0503a45a2df9ece2d392faf2215970ae6b85b476d9a3dfad0c",
       "symbols": [
         {
           "name": "json",
@@ -30203,8 +30203,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 418,
-      "sha256": "5a756f1bb4b8a654414ab111f5e37a68d6340f88c6c17eea6f08503773f4a168",
+      "lines": 420,
+      "sha256": "3cc69a357159885c728f12b7890fbc82aada020487d4c3efccc9b6ead8fe5bbb",
       "symbols": [
         {
           "name": "change",
@@ -30216,7 +30216,7 @@
         },
         {
           "name": "at",
-          "line": 347
+          "line": 349
         }
       ]
     },
@@ -36004,7 +36004,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
       "lines": 98,
-      "sha256": "8aeea25995a36a635166e5c4d3a98fae7dc0b8267ffc1fd656ac93adb06819ee",
+      "sha256": "c62e6fde0c86939610bb383e12ff3423a10ef1aadfcc5c4d9cc7157f7efa0408",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
