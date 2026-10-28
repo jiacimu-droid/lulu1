@@ -195,7 +195,10 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val nearbySite = deepSeaNearbySite(player, visited, obstacles)
     val gateReady = map.echoes.all { it.id in collected }
     val nearGate = deepSeaCanReturn(map, player, collected, obstacles)
-    val revealedTarget = targetEcho?.takeIf { it.id in scanned || player.distanceTo(it.position) <= 260f }
+    val revealedTarget = map.echoes.asSequence()
+        .filterNot { it.id in collected }
+        .filter { it.id in scanned || player.distanceTo(it.position) <= 260f }
+        .minByOrNull { player.distanceTo(it.position) }
     val navigationTarget = if (gateReady) map.gate else revealedTarget?.position
     val navigationDistance = navigationTarget?.let { destination ->
         navigationRoute.takeIf { it.lastOrNull() == destination }?.let { deepSeaRouteDistance(player, it) }
@@ -319,14 +322,20 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         if (!completed) {
             Button(
                 onClick = {
-                    val newlyFound = deepSeaSonarFind(map, player, collected) - scanned
+                    val baseSignals = deepSeaSonarFind(map, player, collected)
+                    val companionSignals = if (companion == null) emptySet() else
+                        deepSeaSonarFind(map, companionPosition, collected, DEEP_SEA_SONAR_RADIUS + 140f) - baseSignals
+                    val assistedSignals = companionSignals - scanned
+                    val newlyFound = (baseSignals + companionSignals) - scanned
                     scanned = scanned + newlyFound
                     sonarPulse = 1f
                     GameSoundEffects.play(GameSoundEffect.Interact)
-                    if (companion != null && newlyFound.isNotEmpty()) companionAssists++
+                    if (assistedSignals.isNotEmpty()) companionAssists++
                     notice = when {
+                        assistedSignals.isNotEmpty() && companion != null ->
+                            "${companion.displayName}增强了声呐，额外发现 ${assistedSignals.size} 处回声"
                         newlyFound.isNotEmpty() && companion != null ->
-                            "${companion.displayName}协助定位：发现 ${newlyFound.size} 处新的回声信号"
+                            "你和 ${companion.displayName}扫描到 ${newlyFound.size} 处回声信号"
                         newlyFound.isNotEmpty() -> "声呐定位到 ${newlyFound.size} 处新回声，选择导航前往"
                         else -> "附近暂无新回声，继续探索未测绘水域"
                     }
