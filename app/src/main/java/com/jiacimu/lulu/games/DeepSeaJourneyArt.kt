@@ -47,7 +47,9 @@ internal fun buildDeepSeaMap(): DeepSeaMap = DeepSeaMap(
         DeepSeaReef("wreck", DeepSeaReefKind.Wreck, WorldRectangle(1_280f, 785f, 1_720f, 1_040f)),
         DeepSeaReef("ridge-east", DeepSeaReefKind.Rock, WorldRectangle(1_690f, 100f, 2_080f, 430f)),
         DeepSeaReef("coral-east", DeepSeaReefKind.Coral, WorldRectangle(1_775f, 925f, 2_060f, 1_245f)),
-        DeepSeaReef("spire", DeepSeaReefKind.Rock, WorldRectangle(1_105f, 1_040f, 1_260f, 1_295f)),
+        // Leave a traversable corridor beside the wreck for the 36px body
+        // and the follower route grid; the old 20px gap sealed the return area.
+        DeepSeaReef("spire", DeepSeaReefKind.Rock, WorldRectangle(995f, 1_040f, 1_150f, 1_295f)),
     ),
     echoes = listOf(
         DeepSeaEcho("echo-aurora", WorldVector(555f, 260f), "极光回声"),

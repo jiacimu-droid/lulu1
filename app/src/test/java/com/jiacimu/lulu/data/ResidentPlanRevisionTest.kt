@@ -57,6 +57,7 @@ class ResidentPlanRevisionTest {
         assertEquals(0, ResidentDailyDecision.executeWakeSteps(app, "other-$role",
             decision, "foreign-$role"))
         RoleDayScheduleStore.remove(app, role, plan.id)
+        Unit
     }
 
     @Test fun managementRequiresOriginalVersionAndCannotReplaceCurrentPrimaryChoice() {

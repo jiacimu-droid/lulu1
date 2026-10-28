@@ -74,6 +74,8 @@ internal object ResidentDailyDecision {
         if (date(now) != expected.day || dayRecovery(context, nativeId, now) != expected) return@withLock false
         val native = DigitalWorldExpansionStore.residents().firstOrNull { it.id == nativeId }
             ?: return@withLock false
+        ScopedModelSelections.initialize(context.applicationContext)
+        if (runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.isFailure) return@withLock false
         val p = prefs(context)
         val archive = JSONObject().put("day", expected.day).put("phase", expected.phase)
             .put("revision", expected.revision).put("authorizedAt", now.toString())
@@ -112,6 +114,8 @@ internal object ResidentDailyDecision {
                 .firstOrNull { it.id == expected.planId } ?: return@withLock false
             if (now.isBefore(plan.dueAt) || dueRecovery(context, plan) != expected ||
                 ResidentCharacterBridge.nativeResident(plan.characterId) == null) return@withLock false
+            ScopedModelSelections.initialize(context.applicationContext)
+            if (runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.isFailure) return@withLock false
             val p = prefs(context)
             val archive = JSONObject().put("phase", expected.phase).put("dueAt", expected.dueAt.toString())
                 .put("authorizedAt", now.toString()).put("revision", expected.revision)
