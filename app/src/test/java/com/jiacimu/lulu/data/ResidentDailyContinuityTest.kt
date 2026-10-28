@@ -1903,6 +1903,7 @@ class ResidentDailyContinuityTest {
             }
             assertFalse(ResidentDailyDecision.runOnce(app, native, now))
             assertEquals("partial_side_steps", prefs.getString(phaseKey, ""))
+            assertTrue(ResidentDailyDecision.hasPartialDayActions(app, native.id, now))
             assertTrue(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
             assertEquals(1, server.requestCount)
             assertEquals(1, posts(firstPost))
