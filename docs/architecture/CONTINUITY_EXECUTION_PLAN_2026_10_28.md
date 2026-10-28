@@ -120,3 +120,11 @@
 - 修复到点请求的原 claim/phase 非原子竞争；每日请求同样用同步原子占位。已有保存决定只续接原请求 ID，不因更换模型重新决策；`RoleDayScheduleStore.restorePending` 可在重启时恢复**确定拒绝且配置已变**的到期居民计划，日计划沿原 catch-up 检查恢复。没有引入周期性额外付费模型调用。
 - 回归增加 MockWebServer HTTP 401 到点拒绝→同配置不重试→更换连接后本人取消原活动并独立发动态恰好一次；HTTP 413 每日规划恢复；HTTP 502 结果未知即使更换配置也不重发。**仅为源码与测试提交，CI/APK/真机需要独立核实**。
 - 仍未完成：同一连接配置内凭证变更后的即时唤醒（需应用恢复调度）、无效补正的显式人工恢复、wait 条件变化提前复议，以及跨日旧请求的可见处理；不能把本轮归为完整 P0-A。
+
+## 2026-10-28 续修：星禾的日常说话**语气**与颜文字范例注入（v4，待真机）
+
+- 用户指出重点不仅是「闺蜜／诡秘」同音误判，而是截图里持续的拟声「呜哇」、华丽/可爱颜文字、被撩暧昧和抽象数字秘密，整体不像平等熟悉的闺蜜。最新源码确定另一可复现根因：`CharacterExpressionPreferences.selected(..., "kaomoji")` 对所有尚未显式设置的角色默认 `expressive`，模型提示为「偏多，主动考虑」，与此同时 `CharacterExpressionContinuity.guide()` 在每次文字私聊决策中直接灌入十几种颜文字的完整范例列表；被当成语言模仿素材后，即使写「非强制」也容易强化表演式卖萌。旧 `CharacterLifeStore` v3 标记还令修改默认预设无法自动落到已有用户数据。
+- **已改源码**：星禾个人角色 `lulu` 的 v3→v4 一次迁移只在 `expressionPreferences.kaomoji` 缺失时设置 `natural`，已有个人选择「多用／少用」均原样保留；迁移先备份旧 expressionPreferences、保留其他字段，v1/v2 历史版本和首次转换同步到 v4。其他角色仍完全使用自己原有的偏好与历史。角色仍可主动用语气、表情、颜文字，不在输出后做关键词屏蔽，也不硬限制字数/气泡。
+- `CharacterExpressionContinuity.guide(characterId)` 的长颜文字范例只在**该人自己选了偏多**时展示；普通/少用模式只有表达方式的中性说明，避免每次前台决策/后台自主决策都拿到“萌系台词范本”。两个已有入口 `LuluDeviceToolBridge` 与 `ProactivePerceptionRuntime` 已传本人 ID，网关现有 `CharacterSpeechIdentity` 仍保证同一人设与关系。没有新增 API、第二套记忆、人格中心或消息后自动改写。
+- 回归增补 `BundledJiangDuImportTest` v3→v4、用户手动选「多用／少用」保护、重启后幂等，以及 `CharacterExpressionContinuityTest` 对同角色/其他角色的范例门控。单测、APK、模拟用户发「诡秘」/澄清、角色自己是不是自然表达，都须以实际 CI/真机结果区分。
+- 新增源码提交：`9d2d17ce`、`9276baf8`、`a46ca8e1`、`ec980268`、`737ba71a`、`efcf1c3a`。
