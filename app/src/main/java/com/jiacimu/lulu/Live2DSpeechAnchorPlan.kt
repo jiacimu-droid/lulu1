@@ -3,7 +3,8 @@ package com.jiacimu.lulu
 /**
  * Exact-text visual beats are boundaries in the audible speech queue, not
  * guesses at word timestamps. Ordinary replies keep their original TTS shape.
- * At most three additional boundaries are permitted in one visual turn.
+ * At most fifteen additional boundaries are permitted in one visual turn.
+ * Every boundary comes from an exact phrase chosen by the same role model.
  */
 internal object Live2DSpeechAnchorPlan {
     data class Plan(val parts: List<String>, val segmentForAnchor: Map<String, Int>)
@@ -54,6 +55,15 @@ internal object Live2DSpeechAnchorPlan {
             if (matching.size == 1) anchor to matching.single() else null
         }.toMap()
 
+    /** Normal phone replies are already streamed into sentence-sized TTS
+     * chunks. Align the same decision's anchors to the original reply, but
+     * never match audio that has been rewritten or is only partly present. */
+    fun fromQueuedParts(speech: String, queued: List<String>, anchors: List<String>): Plan? {
+        if (anchors.isEmpty() || queued.isEmpty() || queued.joinToString("") != speech)
+            return null
+        return build(speech, anchors)
+    }
+
     fun build(speech: String, anchors: List<String>): Plan {
         if (speech.isBlank()) return Plan(emptyList(), emptyMap())
         val distinct = anchors.distinct()
@@ -74,7 +84,7 @@ internal object Live2DSpeechAnchorPlan {
                 fallbackPosition(speech, anchor)?.let { position -> anchor to position }
             }
         }.sortedBy { it.second }
-        val boundaries = (listOf(0) + found.map { it.second }.filter { it > 0 }.distinct().take(3))
+        val boundaries = (listOf(0) + found.map { it.second }.filter { it > 0 }.distinct().take(15))
             .sorted()
         val parts = boundaries.indices.map { index ->
             speech.substring(boundaries[index],

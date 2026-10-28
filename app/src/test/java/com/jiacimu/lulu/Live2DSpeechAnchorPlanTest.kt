@@ -29,10 +29,25 @@ class Live2DSpeechAnchorPlanTest {
         val text = "甲。乙。丙。丁。戊。己。"
         assertEquals(listOf(text), Live2DSpeechAnchorPlan.build(text, emptyList()).parts)
         val plan = Live2DSpeechAnchorPlan.build(text, listOf("乙", "丙", "丁", "戊", "己"))
-        assertEquals(4, plan.parts.size)
-        assertNull(plan.segmentForAnchor["戊"])
-        assertNull(plan.segmentForAnchor["己"])
+        assertEquals(6, plan.parts.size)
+        assertEquals(4, plan.segmentForAnchor["戊"])
+        assertEquals(5, plan.segmentForAnchor["己"])
         assertEquals(text, plan.parts.joinToString(""))
+    }
+
+    @Test fun normalCallStreamingStillSynchronizesSentenceMotions() {
+        val text = "你回来啦！我还在想你呢。不过我没有一直等。"
+        val streamed = CallReplyStream().finishForSpeech(text, wholeTurn = false)
+        assertTrue("Normal calls split the audio before model actions bind", streamed.size > 1)
+        val plan = Live2DSpeechAnchorPlan.fromQueuedParts(
+            text, streamed, listOf("你回来啦", "我还在想你", "不过我没有"))
+        assertNotNull(plan)
+        assertEquals(3, plan!!.parts.size)
+        assertEquals(0, plan.segmentForAnchor["你回来啦"])
+        assertEquals(1, plan.segmentForAnchor["我还在想你"])
+        assertEquals(2, plan.segmentForAnchor["不过我没有"])
+        assertNull(Live2DSpeechAnchorPlan.fromQueuedParts(
+            text, listOf("other utterance"), listOf("你回来啦")))
     }
 
     @Test fun punctuationDriftBetweenAnchorAndSpeechStillBinds() {

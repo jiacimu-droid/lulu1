@@ -1971,10 +1971,13 @@ internal object LuluVoiceCallSession {
                 // Only an explicit model choice pays for more than one TTS
                 // segment. The actual onStarted callbacks, not character-count
                 // estimates, anchor the selected movement to audible speech.
-                val anchorPlan = if (!mutableState.value.sleepMode &&
-                    remaining.size == 1 && remaining.first() == text &&
-                    authoredAnchors.isNotEmpty())
-                    Live2DSpeechAnchorPlan.build(text, authoredAnchors)
+                // Normal TTS already splits a multi-sentence reply into
+                // chunks. The old single-chunk condition dropped the role's
+                // authored Motion3 anchors on most ordinary phone turns.
+                // Keep uninterrupted bedtime narration unchanged.
+                val anchorPlan = if (!mutableState.value.sleepMode)
+                    Live2DSpeechAnchorPlan.fromQueuedParts(
+                        text, remaining, authoredAnchors)
                 else null
                 val segments = anchorPlan?.parts?.takeIf { it.isNotEmpty() } ?: remaining
                 // Split/bedtime/streamed TTS can already be segmented before

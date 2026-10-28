@@ -113,7 +113,7 @@ internal object Live2DConversationPerformance {
             // Compile only the chosen moments; no text/keyword emotion mapping.
             var expandedAny = false
             val compiled = JSONArray()
-            for (i in 0 until minOf(authored.length(), 8)) {
+            for (i in 0 until minOf(authored.length(), 16)) {
                 val item = authored.optJSONObject(i) ?: continue
                 // A role-authored Motion3 already contains the artist's
                 // complete body choreography. Never lay semantic parameter
