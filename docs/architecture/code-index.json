@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:29:14.275204+00:00",
-  "commit": "78f495cb366915c1c065917168d0547b98945e64",
+  "generatedAt": "2026-10-28T07:29:31.868649+00:00",
+  "commit": "e025542dfbebf06296b7ee1fa94d01828b8d24d1",
   "branch": "main",
-  "sourceFingerprint": "004b309fe05cadb117ba5db4701b9ad0a0eb05be7ebf42e3907dd256e7f77a77",
+  "sourceFingerprint": "d4f9bf2ef9aeebe45e7e9a36b7cf5d1e63ec02c236a2b1f8ed1b382c628fc9a8",
   "summary": {
     "files": 1013,
     "lines": 202157,
@@ -17675,7 +17675,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
       "lines": 415,
-      "sha256": "8895c51876ecdc8460e67ba521422370023e5edb31f7a45b5ba4155ebf9e9bf5",
+      "sha256": "e824b0a2db4c1071da58bd61680b16a8e490153282649a50a0c24cfd5dfa5e7b",
       "symbols": [
         {
           "name": "ledgerText",
@@ -30604,7 +30604,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2060,
-      "sha256": "7922df507aaba8bb4535ebd12f8576795db971a650190f257e5dacc4a9ea6331",
+      "sha256": "b5543c49ddd7224194949c3c577c516c6a966eb23bda01f1da04d6cd3a033662",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
