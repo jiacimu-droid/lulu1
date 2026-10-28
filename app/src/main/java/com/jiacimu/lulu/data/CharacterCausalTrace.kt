@@ -174,7 +174,45 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("日程未排入 · 执行器拒绝",
                 rejected.content.take(260), rejected.id)
         }
-        if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty() && rejectedAgenda.isEmpty()) {
+        // A saved resident agenda is a decision to schedule, NOT a tool
+        // execution. Link by the durable source ID/revision recorded at save
+        // time; time/title matching would invent causality after edits.
+        val linkedPlans = if (current.source == "resident-daily") {
+            RoleDayScheduleStore.plans(context, characterId)
+                .filter { it.originEvidenceId == current.id }
+                .sortedBy { it.createdAt }
+                .takeLast(12)
+        } else emptyList()
+        linkedPlans.forEach { plan ->
+            val oldRevision = plan.originEvidenceRevision
+            val stale = oldRevision == 0L || oldRevision != current.revision
+            val actualReceipt = plan.resultEvidenceId.takeIf(String::isNotBlank)?.let { id ->
+                SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()
+            }
+            val status = when {
+                stale -> "旧版本的日程"
+                plan.status == "completed" && actualReceipt == null -> "日程状态待核对"
+                plan.status == "completed" -> "日程执行有回执"
+                plan.status == "cancelled" -> "日程已取消"
+                plan.status == "planned" || plan.status == "due" -> "已排入日程，尚非执行"
+                else -> "日程状态未知"
+            }
+            val version = when {
+                oldRevision == 0L -> "旧记录未保存来源版本，不能确认当前文字就是当时的决定"
+                stale -> "安排依据版本 $oldRevision，当前版本 ${current.revision}，不能用新内容解释旧安排"
+                else -> "安排依据版本 $oldRevision"
+            }
+            val outcome = when {
+                plan.status == "completed" && actualReceipt == null ->
+                    "状态曾记为完成，但原执行证据已撤回或不可见"
+                plan.status == "completed" -> "原执行证据仍可查，不等于本人目标已达成"
+                else -> "原活动没有在此处被证明执行成功"
+            }
+            rows += CharacterCausalTraceLine("个人日程 · $status",
+                "时间=${plan.dueAt}；活动=${plan.title.take(75)}；动作=${plan.activityAction}；$version；$outcome".take(260),
+                actualReceipt?.id.orEmpty())
+        }
+        if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty() && rejectedAgenda.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
         } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
