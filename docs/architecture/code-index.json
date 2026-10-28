@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:41:11.464530+00:00",
-  "commit": "5c84f66d1e1d59a454fb24520ece15b1fe251123",
+  "generatedAt": "2026-10-28T04:41:30.016305+00:00",
+  "commit": "d5a9a083a0afb97760e732d9a49a1bd7acd0d8e4",
   "branch": "main",
-  "sourceFingerprint": "1505756136673713080f97d5556d0847f09f114bafd79793d366e2410c7339be",
+  "sourceFingerprint": "75aca3ebfdb52b7d7669a53eb682101a621f0fb043ba26faa62be908d0cc9c42",
   "summary": {
     "files": 994,
-    "lines": 197856,
+    "lines": 197882,
     "symbols": 2921
   },
   "symbolIndex": {
@@ -2707,25 +2707,25 @@
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1595
+        "line": 1598
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1998
+        "line": 2024
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2153
+        "line": 2179
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2293
+        "line": 2319
       }
     ],
     "returnToList": [
@@ -18580,8 +18580,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2385,
-      "sha256": "725701c1e1702b3c50bbbd8e2bc5fd113368d5f4e4da4b874a0804cc9a86a3e3",
+      "lines": 2411,
+      "sha256": "2d4e0f83947aa132383f7891e5692cfbc63698fdaf64925e1c39abb80b05320a",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -18661,19 +18661,19 @@
         },
         {
           "name": "enqueueSpoken",
-          "line": 1595
+          "line": 1598
         },
         {
           "name": "sameSession",
-          "line": 1998
+          "line": 2024
         },
         {
           "name": "retryListening",
-          "line": 2153
+          "line": 2179
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2293
+          "line": 2319
         }
       ]
     },
