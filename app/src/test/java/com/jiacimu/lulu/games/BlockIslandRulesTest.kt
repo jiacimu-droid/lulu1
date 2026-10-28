@@ -101,6 +101,21 @@ class BlockIslandRulesTest {
         assertTrue(solo.world.friends.isEmpty())
     }
 
+    @Test fun nonLethalSwordAndFistAttacksReportActualDamage() {
+        val initial = BlockIslandRules.newWorld(613, emptyList())
+        val withMob = initial.copy(world = initial.world.copy(
+            mobs = listOf(ExpeditionMob(200, 5, 5, 9)),
+        ))
+        val fists = BlockIslandRules.act(withMob, "fight", 5, 5)
+        assertTrue(fists.world.events.any { it == "攻击怪物，造成2点伤害" })
+        assertEquals(7, fists.world.mobs.single { it.id == 200 }.hp)
+
+        val sword = BlockIslandRules.act(withMob.copy(tools = setOf("sword")), "fight", 5, 5)
+        assertTrue(sword.world.events.any { it == "攻击怪物，造成4点伤害" })
+        assertEquals(5, sword.world.mobs.single { it.id == 200 }.hp)
+        assertEquals(withMob.world.turns + 1, sword.world.turns)
+    }
+
     @Test fun enemyOccupationNeverAllowsAPathThroughEnemy() {
         val base = BlockIslandRules.newWorld(72, emptyList())
             .let { it.copy(world = it.world.copy(mobs = listOf(ExpeditionMob(12, 6, 5, 4)))) }
