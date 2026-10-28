@@ -29,9 +29,10 @@ class ExpeditionRulesTest {
         assertEquals(2,gathered.wood)
         assertEquals(0,gathered.cell(3,5))
         val friend=ExpeditionFriend("role-a",4,4)
-        val shared=base.copy(friends=listOf(friend),mobs=emptyList(),tiles=nearby)
+        val sharedTiles=nearby.toMutableList().also{it[base.index(5,4)]=1}
+        val shared=base.copy(friends=listOf(friend),mobs=emptyList(),tiles=sharedTiles)
         val cooperated=ExpeditionRules.act(shared,"move",3,3)
-        assertEquals(0,cooperated.cell(3,5))
+        assertEquals(0,cooperated.cell(5,4))
         assertTrue(cooperated.wood>=1)
         assertTrue(cooperated.events.any{it.contains("role-a")})
     }
