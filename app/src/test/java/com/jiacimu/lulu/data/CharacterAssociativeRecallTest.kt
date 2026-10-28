@@ -58,6 +58,20 @@ class CharacterAssociativeRecallTest {
         assertEquals(events.size, seen.size)
     }
 
+    @Test fun autonomousEpisodeProjectionCanFindACrossDayOutcomeWithoutAnotherModelCall() {
+        val seed = SharedTimelineEvent("promise", "role", "私聊", "角色", "会看看",
+            now.minusSeconds(3 * 86_400), taskId = "task-123",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val result = SharedTimelineEvent("receipt", "role", "工具回执", "执行器", "权限不足",
+            now.minusSeconds(86_400), taskId = "task-123",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        val recalled = NarrativeEvidenceChain.expand(listOf(seed), listOf(seed, result,
+            result.copy(id = "other-role", characterId = "other"),
+            result.copy(id = "future", occurredAt = now.plusSeconds(60))), 8, now)
+        assertEquals(listOf("promise", "receipt"), recalled.map { it.id })
+        assertTrue(NarrativeEvidenceChain.annotations(recalled)["receipt"].orEmpty().contains("同任务事件链"))
+    }
+
     @Test fun onePersonaProvidesSeveralIndependentThoughtPerspectives() {
         val facets = org.json.JSONObject()
             .put("interests", "对AI前沿和具身智能充满好奇")

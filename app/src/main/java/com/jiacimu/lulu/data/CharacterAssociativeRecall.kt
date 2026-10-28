@@ -199,13 +199,25 @@ internal object CharacterAssociativeRecall {
             .sortedByDescending { it.at }.take(3)
         val personalQuestions = CharacterCuriosityRuntime.pendingDecisionCues(characterId)
         val events = SharedExperienceTimeline.recentEvents(characterId, 160)
-            .filter { !it.occurredAt.isAfter(now) && DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) }
+            .filter { !it.occurredAt.isAfter(now) &&
+                DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) &&
+                LuluRepositories.memory.allowsRawRecall(it) }
         val recentUser = events.lastOrNull { it.evidenceKind == EventEvidenceKind.UserStatement }
         val localHour = now.atZone(ZoneId.systemDefault()).hour
         val nightWithRecentSpeech = localHour in 1..5 && recentUser?.let {
             Duration.between(it.occurredAt, now).toMinutes() in 0..15
         } == true
         val olderEpisodes = variedExperiences(characterId, events, now, cadenceSeconds)
+        // This is the same episode projection used by normal conversation.
+        // It reads only the existing bounded recent window on autonomous
+        // pulses; never scan the full multi-year timeline each time.
+        val episodeEvidence = NarrativeEvidenceChain.expand(
+            olderEpisodes.map { it.second }, events, limit = 16, now = now)
+        val episodeHints = NarrativeEvidenceChain.annotations(episodeEvidence)
+        val seedIds = olderEpisodes.mapTo(mutableSetOf()) { it.second.id }
+        val continuations = episodeEvidence.filter {
+            it.id !in seedIds && it.occurredAt.isBefore(now.minus(Duration.ofMinutes(20)))
+        }.sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }).take(5)
         if (memories.isEmpty() && ownerKnowledge.isEmpty() && selfKnowledge.isEmpty() &&
             knownMethods.isEmpty() && motives.isEmpty() && unfinishedThoughts.isEmpty() &&
             olderEpisodes.isEmpty() && feedbackTrace.isEmpty() &&
@@ -246,8 +258,18 @@ internal object CharacterAssociativeRecall {
                 appendLine("来自不同生活方向的旧经历（不是新消息；对比只是联想素材，不代表谁改变了主意）：")
                 olderEpisodes.forEach { (lane, event) ->
                     appendLine("- [" + lane.label + "；eventId=" + event.id + "；" +
-                        event.occurredAt + "] " + event.channel + "：" +
+                        event.occurredAt + "] " + event.channel +
+                        episodeHints[event.id].orEmpty() + "：" +
                         event.evidenceContent.replace("\n", " ").take(175))
+                }
+            }
+            if (continuations.isNotEmpty()) {
+                appendLine("有同一任务/会话 ID 的前后记录（关联不证明执行成功、态度变化或目标达成）：")
+                continuations.forEach { event ->
+                    appendLine("- [eventId=" + event.id + "@" + event.revision + "；" +
+                        event.evidenceKind + "；" + event.occurredAt + "] " +
+                        event.channel + episodeHints[event.id].orEmpty() + "：" +
+                        event.evidenceContent.replace("\\n", " ").take(180))
                 }
             }
             if (unfinishedThoughts.isNotEmpty()) {

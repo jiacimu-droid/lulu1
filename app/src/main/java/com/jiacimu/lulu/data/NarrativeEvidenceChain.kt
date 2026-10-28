@@ -28,7 +28,11 @@ internal object NarrativeEvidenceChain {
         }
         if (validSeeds.isEmpty()) return emptyList()
         val chosen = linkedMapOf<String, SharedTimelineEvent>()
-        validSeeds.take(limit).forEach { chosen[it.id] = it }
+        // Keep room for linked outcomes when a query saturates the input
+        // budget; give unspent room back to ranked raw hits at the end.
+        val reserve = if (validSeeds.size >= limit && limit >= 4)
+            minOf(4, limit / 4) else 0
+        validSeeds.take(limit - reserve).forEach { chosen[it.id] = it }
         if (chosen.size >= limit) return chosen.values.toList()
         val ordered = compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }
         val taskGroups = current.values.asSequence().filter { it.taskId.isNotBlank() }
@@ -73,6 +77,7 @@ internal object NarrativeEvidenceChain {
                 }
             }
         }
+        validSeeds.forEach(::add)
         return chosen.values.toList()
     }
 

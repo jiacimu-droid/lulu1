@@ -63,6 +63,18 @@ class MemoryEvidenceSelectionTest {
             listOf(seed), listOf(seed, later.copy(occurredAt = java.time.Instant.now().plusSeconds(86_400)))).map { it.id })
     }
 
+    @Test fun saturatedRecallBudgetCanStillCarryRealTaskOutcome() {
+        val seed = event("top").copy(taskId = "task")
+        val hits = listOf(seed) + (1..9).map { event("hit-$it", seconds = it.toLong(),
+            session = "unrelated-$it") }
+        val receipt = event("receipt", seconds = 86_400)
+            .copy(taskId = "task", evidenceKind = EventEvidenceKind.ToolResult)
+        val found = MemoryEvidenceSelection.expand(hits, hits + receipt, 10)
+        assertEquals(10, found.size)
+        assertEquals("top", found.first().id)
+        assertTrue(found.any { it.id == "receipt" })
+    }
+
     @Test fun manyEventsBoundOnlyTheSelectedPromptAndNeverTruncateTheTimeline() {
         val seed = event("seed").copy(taskId = "five-year-task")
         val archive = (0 until 1500).map { n ->
