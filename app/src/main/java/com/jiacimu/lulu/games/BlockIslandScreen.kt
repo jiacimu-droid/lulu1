@@ -135,18 +135,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
-                Text("种树采矿 · 自由盖房 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
+                Text("砍树挖矿 · 建房搭桥 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
             }
             Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF2F6063)) {
                 Text(if (night) "☾ 夜晚" else "☀ 白天", modifier = Modifier.padding(10.dp),
                     color = Color(0xFFEBFBEC), fontSize = 12.sp)
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             IslandStat("❤", "${world.hp}/12", Color(0xFFFFBFC0), Modifier.weight(1f))
             IslandStat("木", "${world.wood}", Color(0xFFBEEAB4), Modifier.weight(1f))
             IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
             IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
+            IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
         }
         Surface(shape = RoundedCornerShape(18.dp), color = Color(0xFF142D33),
             border = BorderStroke(1.dp, Color(0xFF75A39D).copy(alpha = .45f))) {
@@ -198,6 +199,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 IslandAction("采集资源", enabled = nearTarget && selectedCell in listOf(1, 2),
                     Modifier.fillMaxWidth()) { perform("gather") }
+                if (selectedCell == 8) IslandAction("水边钓鱼", enabled = nearTarget && "rod" in island.tools,
+                    Modifier.fillMaxWidth()) { perform("fish") }
                 IslandAction("攻击野怪", enabled = nearTarget && isMobSelected,
                     Modifier.fillMaxWidth()) { perform("fight") }
                 val downed = world.friends.any { it.hp <= 0 && it.x == target.first && it.y == target.second }
@@ -205,6 +208,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Modifier.fillMaxWidth()) { perform("revive") }
                 IslandAction("吃野果 · 回血", enabled = island.fruit > 0 && world.hp < 12,
                     Modifier.fillMaxWidth()) { perform("eat", world.x, world.y) }
+                if (island.fish > 0) IslandAction("篝火烤鱼 · +5❤",
+                    enabled = world.hp < 12, Modifier.fillMaxWidth()) {
+                    perform("eat_fish", world.x, world.y)
+                }
             }
         }
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -218,6 +225,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandBuildChip("⚒ 工作台", "4木2石", nearTarget) { perform("workbench") }
             IslandBuildChip("♨ 篝火", "2木1石", nearTarget) { perform("campfire") }
             IslandBuildChip("▱ 木床", "3木1石", nearTarget) { perform("bed") }
+            IslandBuildChip("▦ 木桥", "3木", nearTarget) { perform("bridge") }
             IslandBuildChip("↶ 拆除", "退部分材料", nearTarget) { perform("remove") }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -239,8 +247,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             Modifier.weight(1f)) { perform("craft_pickaxe", world.x, world.y) }
                         IslandAction(if ("sword" in island.tools) "✓ 石剑" else "制作石剑", enabled = "sword" !in island.tools,
                             Modifier.weight(1f)) { perform("craft_sword", world.x, world.y) }
+                        IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = "rod" !in island.tools,
+                            Modifier.weight(1f)) { perform("craft_rod", world.x, world.y) }
                     }
-                    Text("木斧 2木1石 · 石镐 2木2石 · 石剑 1木3石",
+                    Text("木斧 2木1石 · 石镐 2木2石 · 石剑 1木3石 · 鱼竿 2木1石",
                         color = Color(0xFFB8D0C9), fontSize = 11.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("篝火或木床旁可以恢复体力", modifier = Modifier.weight(1f),
@@ -390,7 +400,7 @@ private fun IslandBuildChip(label: String, cost: String, enabled: Boolean, onCli
 
 private fun islandCellTitle(tile: Int, structure: String?): String =
     when (structure) {
-        "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"
+        "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"; "bridge" -> "木桥"
         else -> when (tile) {
             0 -> "草地"; 1 -> "树木"; 2 -> "石矿"; 3 -> "木墙"
             4 -> "地板"; 7 -> "营地"; 8 -> "水域"; else -> "空地"
