@@ -15,14 +15,15 @@ const PALM_IMPACT = Object.freeze({
 // exactly zero, so the on-screen character appeared glued in place.
 // These are modest upper-body angles, not fabricated arm/shoulder motions.
 const BODY_FOLLOW = Object.freeze({
-  hair: [1.4, 3.8, 2.8], forehead: [1, 3.2, 2.2],
-  'beast-ear': [2.6, -1.6, 3.2], ear: [2.6, -1.8, 3.4],
-  eye: [1.5, -2.5, 1.8], nose: [1.2, -3.2, 1.8],
-  cheek: [4.5, 1.2, -4.2], mouth: [2, -3.2, 2.2],
-  neck: [2.8, -3.2, 4.4], throat: [1.4, -2.5, 2.2],
-  collarbone: [2, -2.2, 3], chest: [1.6, -2.2, 3.2],
-  arm: [3.2, -1, 4], hand: [2.6, -1, 3.6],
-  body: [2.5, -2.4, 3.5],
+  // Small local joint rotations, never a screen-space pull to the finger.
+  hair: [.8, 1.6, 1.2], forehead: [.7, 1.4, 1.1],
+  'beast-ear': [1.2, -.6, 1.5], ear: [1.3, -.7, 1.6],
+  eye: [.7, -1.4, 1], nose: [.6, -1.6, 1],
+  cheek: [1.8, .5, -1.8], mouth: [1, -1.6, 1.1],
+  neck: [1.3, -1.5, 1.6], throat: [.7, -1.1, 1],
+  collarbone: [.8, -1.1, 1.3], chest: [.7, -.5, .7],
+  arm: [.8, -.35, .65], hand: [.6, -.25, .5],
+  body: [1.1, -1.4, 1.5],
 })
 
 /** All axes are optional actuators, validated against the imported rig.
@@ -76,7 +77,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     const recoil = impactEnvelope(elapsedMs)
     const swipe = direction || (family === 'cheek' && side !== 0 ? side : -side || -1)
     const stationary = direction === 0
-    const contactGain = stationary ? .58 : 1
+    const contactGain = stationary && headHit ? .58 : 1
     const headHit = ['hair', 'forehead', 'beast-ear', 'ear', 'eye',
       'nose', 'cheek', 'mouth'].includes(family)
     const faceHit = ['forehead', 'eye', 'nose', 'cheek', 'mouth'].includes(family)
@@ -85,7 +86,10 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     // A cheek swipe bends the HEAD around the neck; touching the chest or
     // arm never throws the whole face/body sideways. Stationary taps register
     // a much smaller local jolt than a lateral finger sweep.
-    response.impactMotion = headHit
+    // Body strikes also need the fast impact actuator. Only the face
+    // classification decides whether to tilt the neck like a cheek strike.
+    response.impactMotion = true
+    response.impactBody = !headHit
     response.impactFace = faceHit
     if (headHit) {
       response.yaw = swipe * yaw * .17 * scale * recoil * contactGain
@@ -100,14 +104,20 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
         roll: swipe * torso * .16 * scale * recoil * follow * contactGain,
       }
     } else {
-      // Upper-body contact is a small local flinch, not a slap to the face.
+      // Contact compresses the torso first, then the chin follows it down.
+      // No XY translation of the avatar or face-slap roll on chest/arms.
+      const central = family === 'chest' || family === 'collarbone' ||
+        family === 'body'
+      const lag = .16 + .84 * Math.min(1,
+        Math.max(0, elapsedMs - 35) / 175)
+      const strength = (.55 + .57 * force) * recoil * lag * contactGain
       response.yaw = 0
       response.roll = 0
-      response.pitch = 0
+      response.pitch = (central ? 2.1 : 1.2) * strength
       response.body = {
-        yaw: 0,
-        pitch: Math.min(2.2, torso * .17 * scale) * recoil * contactGain,
-        roll: swipe * Math.min(1.7, torso * .11 * scale) * recoil * contactGain,
+        yaw: swipe * (central ? 1.2 : 1) * strength,
+        pitch: -(central ? 7.7 : 5.1) * strength,
+        roll: swipe * (central ? 3.4 : 2.5) * strength,
       }
     }
     const startled = elapsedMs < 220
@@ -118,6 +128,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
           browForm: .22, smile: -.44, pout: .34 + force * .24,
           gazeX: -swipe * .35 * Math.max(0, 1 - (elapsedMs - 220) / 1600),
           gazeY: -.16 }
+    if (!headHit && !startled) response.face.gazeY = -.46
     if (family === 'eye') closeEyesTogether(elapsedMs < 200 ? .18 : .52)
     if (family === 'cheek' || family === 'mouth') {
       response.face.cheekPuff = startled ? .04 : Math.min(.32, force * .22)
@@ -220,10 +231,13 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       response.face = { eyeOpen: kiss ? .65 : .85, smile: kiss ? .16 : .06, gazeY: -.4 }
       break
     case 'arm': case 'hand':
-      response.yaw = side * (kiss ? 9 : 5)
-      response.body.yaw = side * (family === 'hand' ? 3 : 6)
-      response.body.roll = side * (kiss ? 4 : 2)
-      response.face = { gazeX: side * .3, gazeY: -.15, smile: kiss ? .3 : .14,
+      // Look at the touched arm instead of lunging toward its screen X.
+      response.yaw = side * (kiss ? 5.2 : stroking ? 2.6 : 1.2)
+      response.pitch = kiss ? -3.2 : -1.5
+      response.roll = -side * (kiss ? 2 : .8)
+      response.body.yaw = side * (kiss ? 2.2 : stroking ? 1.1 : .3)
+      response.body.roll = -side * (kiss ? 1.6 : .65)
+      response.face = { gazeX: side * .3, gazeY: -.25, smile: kiss ? .3 : .14,
         eyeOpen: kiss ? .72 : .92 }
       break
     default:
@@ -258,14 +272,17 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   // full-body motion: imported rigs with no torso parameters simply skip it.
   const [followYaw, followPitch, followRoll] = BODY_FOLLOW[family] || BODY_FOLLOW.body
   const followSide = side || direction || (variation === 1 ? -1 : 1)
-  const followStrength = kiss ? 1.15 : stroking ? 1 : .75
+  const followStrength = kiss ? .92 : stroking ? .68 : .32
   response.body.yaw += followSide * followYaw * followStrength
   response.body.pitch += followPitch * followStrength
   response.body.roll += followSide * followRoll * followStrength
-  response.yaw *= scale
-  response.pitch *= scale
-  response.roll *= scale
-  for (const key of Object.keys(response.body)) response.body[key] *= scale
+  // Tap, directional stroking and kissing must not share the same body pose.
+  const motionStrength = kiss ? .95 : stroking ? .78 : .38
+  response.yaw *= scale * motionStrength
+  response.pitch *= scale * motionStrength
+  response.roll *= scale * motionStrength
+  for (const key of Object.keys(response.body))
+    response.body[key] *= scale * motionStrength
   // A stationary hand remains in contact (including the growing real
   // caress/shyness evidence), but the neck and torso no longer hold the
   // full last-swipe pose indefinitely. Keep eye and mouth expressions owned
@@ -358,34 +375,10 @@ export function touchCompanionOverlayFor(primary, names = [], metadata = {}, ges
 }
 
 /**
- * Deterministic touch-to-motion wiring for the wolf pack: a completed
- * touch plays one catalog clip, never a model decision. The map is keyed
- * by touch family (side suffix stripped) and gesture kind. Side only
- * picks between the mirrored tilt pair; hair follows the stroke
- * direction because it has no side. Anything unmapped returns null.
+ * Touch uses its local physical reflex; do not auto-play a whole-body
+ * Motion3 on release. The authored clips are still available to the
+ * character for deliberate speech/emotion choreography.
  */
-export function touchMotionFor(region, gesture) {
-  const family = touchFamily(String(region || ''))
-  const side = String(region || '').endsWith('-left') ? -1
-    : String(region || '').endsWith('-right') ? 1 : 0
-  const kind = String(gesture || '')
-  if (kind === 'tap') {
-    if (family === 'chest') return 17
-    if (family === 'nose') return 23
-    return null
-  }
-  if (kind.startsWith('stroke')) {
-    if (family === 'beast-ear') return side < 0 ? 1 : 2
-    if (family === 'hair') return kind === 'stroke-right' ? 2 : 1
-    if (family === 'forehead') return 26
-    if (family === 'cheek') return 28
-    return null
-  }
-  if (/^slap(-left|-right)?$/.test(kind)) {
-    // A baked slap Motion3 drives the entire body independently of the
-    // contact location, then stacks with local recoil. Procedural neck
-    // physics now owns all impacts; preserve the gesture, not the old clip.
-    return null
-  }
+export function touchMotionFor(_region, _gesture) {
   return null
 }
