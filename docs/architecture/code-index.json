@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:25:00.054832+00:00",
-  "commit": "2b0541f94345fedc3f65a670f8cf82f2b1d1f312",
+  "generatedAt": "2026-10-28T09:27:45.728115+00:00",
+  "commit": "e90efcfbc24ae971664fcc7702ff473eea1c9ed8",
   "branch": "main",
-  "sourceFingerprint": "77c4f6fe9c1a62a89e0f62ad4a334c65abd1a0aa96eb0f279f270271391cf712",
+  "sourceFingerprint": "76f7ddf0073e8cbed7ccf47ae9ccedde0ef45434b8b106442a2bf24723cbb81d",
   "summary": {
     "files": 1021,
-    "lines": 204817,
+    "lines": 204818,
     "symbols": 2978
   },
   "symbolIndex": {
@@ -29115,7 +29115,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
       "lines": 482,
-      "sha256": "2fc753a94b9057c4cace6b2fa182b0460d5c8eac384f475bca06fcf3855620c3",
+      "sha256": "d16a5121af34f99ef0aa0f2b500ebdf3f26204bf87882302ebde58c77049e79d",
       "symbols": [
         {
           "name": "reset",
@@ -29510,8 +29510,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 735,
-      "sha256": "12437c5e4075c8d32b00354ab8cb4e5fdaee7eac94dd1dfa6f2e20a15293bcd9",
+      "lines": 736,
+      "sha256": "2146e41d6d58ac2bd9254317d28c3dfb08d27bd28fccac07671a0cb0ba64042e",
       "symbols": [
         {
           "name": "Home",
