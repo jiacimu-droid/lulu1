@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`9578747c77a4631bb149d47c6329b05c52b351c1`
+- 基准提交：`cea6d0cd55af436502a94c126d76a88a3f3cf11b`
 - 分支：`main`
 - 已索引文件：1048
-- 已索引代码/文本行：213909
+- 已索引代码/文本行：213964
 - 已发现符号：3067
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 230 | 0 |
-| `app/src/main/AndroidManifest.xml` | 183 | 0 |
+| `app/src/main/AndroidManifest.xml` | 184 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -191,7 +191,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 820 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2432 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2486 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |

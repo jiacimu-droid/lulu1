@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:26:48.049612+00:00",
-  "commit": "9578747c77a4631bb149d47c6329b05c52b351c1",
+  "generatedAt": "2026-10-28T14:27:16.450378+00:00",
+  "commit": "cea6d0cd55af436502a94c126d76a88a3f3cf11b",
   "branch": "main",
-  "sourceFingerprint": "8d3c210fd2d0236f9d0774c9a513261deeaef2fe59c691b8b798e96653ebc622",
+  "sourceFingerprint": "269114a9fe360f5fee4575138ee8f6f646f410abecca54fd1c3da16df8ff7c9b",
   "summary": {
     "files": 1048,
-    "lines": 213909,
+    "lines": 213964,
     "symbols": 3067
   },
   "symbolIndex": {
@@ -17194,8 +17194,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 183,
-      "sha256": "b632ebc91fe5a3a680b532d306397aec6146c3902634e9bd9d0de189af1a5f6b",
+      "lines": 184,
+      "sha256": "a3f69c419b9be8952ee3dfa8aea2b1b01eaa3c0bc12e77143e3bbb57de84c79b",
       "symbols": []
     },
     {
@@ -19541,8 +19541,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2432,
-      "sha256": "d04d6fcf0b47ffb9c0e1f920222b43293e39c359b98af2d2908f18cce50840d6",
+      "lines": 2486,
+      "sha256": "29f65ac3b82003174624c03dcdda270c366efff2a60438b9ceff456b5182c88b",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
