@@ -15,9 +15,10 @@ class TokenConsolePresentationTest {
             TokenBreakdownItem("本轮完整输入 / user", 400, 223),
         )
         val grouped = TokenConsolePresentation.groups(parts)
-        assertEquals(4, grouped.size)
-        assertEquals(listOf("人物与固定规则", "长期记忆与状态",
-            "近期历史与召回", "本轮感知与消息"), grouped.map { it.title })
+        assertEquals(6, grouped.size)
+        assertEquals(listOf("身份、人设与表达", "核心记忆与长期目标",
+            "近期证据与回忆", "真实聊天与历史",
+            "本轮新消息与回执", "其他背景材料"), grouped.map { it.title })
         assertEquals(parts.sumOf { it.chars.toLong() }, grouped.sumOf { it.chars })
         assertEquals(parts.sumOf { it.estimatedTokens.toLong() }, grouped.sumOf { it.estimatedTokens })
         assertEquals(parts.toSet(), grouped.flatMap { it.items }.toSet())
