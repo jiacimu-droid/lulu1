@@ -27,7 +27,7 @@ internal fun OptionalModelRolesSettings() {
     val roles = listOf(
         Triple(ScopedModelSelections.RESIDENT_DAILY, "居民日常决策", "未选择（需要配置低价模型）"),
         Triple(ScopedModelSelections.RESIDENT_SOCIAL, "居民聊天与社交", "跟随居民日常模型"),
-        Triple(ScopedModelSelections.WORLD_SOCIAL, "数字世界·人物相遇", "角色各用自己的聊天模型，居民用居民社交模型"),
+        Triple(ScopedModelSelections.WORLD_SOCIAL, "数字世界·人物相遇", "默认跟随居民低价模型，未配置时普通角色沿用自己的聊天模型"),
         Triple(ScopedModelSelections.WORLD_SCENE, "数字世界·场景创意", "优先跟随世界社交／居民模型"),
         Triple(ScopedModelSelections.WORLD_LIFE, "生活小剧场·文学正文", "角色用自己的聊天模型，居民用居民社交模型"),
         Triple(ScopedModelSelections.MEETING, "数字世界·与主人见面", "跟随公共聊天模型"),
