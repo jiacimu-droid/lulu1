@@ -1935,7 +1935,10 @@ class ResidentDailyContinuityTest {
             assertNotNull(snapshot)
             assertNull(ResidentDailyDecision.savedDayRecovery(
                 app, native.id, now.plusSeconds(172_800)))
-            assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot!!) { now })
+            assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot!!) {
+                now.plusSeconds(172_800)
+            })
+            assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot) { now })
             assertEquals("partial_side_steps", prefs.getString(phaseKey, ""))
             assertNull(ResidentDailyDecision.savedDayRecovery(app, native.id, now))
             assertFalse(ResidentDailyDecision.resumeSavedDayDecision(app, snapshot) { now })
