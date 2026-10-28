@@ -117,6 +117,15 @@ android {
         unitTests.isIncludeAndroidResources = true
         unitTests.all {
             it.testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            // Robolectric downloads instrumented Android SDK jars at test
+            // runtime, outside Gradle's normal repository resolution. The
+            // default repo1.maven.org endpoint returned 404 for five valid
+            // i7 artifacts in CI; use Maven Central's canonical endpoint.
+            // Keep all SDK variants and assertions enabled, never mask the
+            // failure by skipping tests or changing the tested Android API.
+            it.systemProperty("robolectric.dependency.repo.url",
+                "https://repo.maven.apache.org/maven2")
+            it.systemProperty("robolectric.dependency.repo.id", "mavenCentral")
         }
     }
 
