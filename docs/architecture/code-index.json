@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:16:16.649574+00:00",
-  "commit": "ef1a9bfc96f59c3967f2b146e8f43e060cce7a09",
+  "generatedAt": "2026-10-28T10:16:45.891563+00:00",
+  "commit": "f55e80a3639b3094af3a0726edc45f852641ea6e",
   "branch": "main",
-  "sourceFingerprint": "2e31916a7687f54862d8bb00913d38c5c85ad69c19fba89600e19bdb8aa95587",
+  "sourceFingerprint": "2fa94267bc01a2b18b74cfd99e3142838f892297e97454ee2430b3ed6ac4ffd5",
   "summary": {
-    "files": 1031,
-    "lines": 207539,
-    "symbols": 3014
+    "files": 1032,
+    "lines": 207741,
+    "symbols": 3015
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 569
+        "line": 638
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 583
+        "line": 656
       }
     ],
     "Plan": [
@@ -11825,7 +11825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 552
+        "line": 618
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12315,7 +12315,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 579
+        "line": 652
       }
     ],
     "index": [
@@ -16776,6 +16776,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt",
         "line": 5
+      }
+    ],
+    "BlockIslandRulesTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
+        "line": 12
       }
     ],
     "ExpeditionRulesTest": [
@@ -29532,24 +29538,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 588,
-      "sha256": "e957f84406c1e9644d336d28b759862e6bfcea37541b7ac4bb6416bdfde2efa4",
+      "lines": 661,
+      "sha256": "85c960c939e4d0f0534c13e6e4f442ce06a75d3620683bd3e56282271c46aa95",
       "symbols": [
         {
           "name": "load",
-          "line": 552
+          "line": 618
         },
         {
           "name": "save",
-          "line": 569
+          "line": 638
         },
         {
           "name": "markRecorded",
-          "line": 579
+          "line": 652
         },
         {
           "name": "reset",
-          "line": 583
+          "line": 656
         }
       ]
     },
@@ -35686,6 +35692,17 @@
         {
           "name": "XhsSharedLinkResolverTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
+      "lines": 129,
+      "sha256": "414cd1ac007243864c39c56dc48375da799b785ae5dd07f6930e86bc1f7db5b5",
+      "symbols": [
+        {
+          "name": "BlockIslandRulesTest",
+          "line": 12
         }
       ]
     },
