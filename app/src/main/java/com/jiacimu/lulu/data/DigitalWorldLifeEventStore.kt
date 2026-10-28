@@ -158,6 +158,69 @@ internal object DigitalWorldLifeEventStore {
         return result
     }
 
+    /** Director-curated *actual* tiny world incident, not literary prose.
+     * A model may choose only an allowed kind and verified in-room people.
+     * This records a short physical occurrence, NEVER a photo asset, an
+     * accepted invitation, or the participants' emotions/decisions.
+     */
+    internal fun stageSharedSceneMoment(
+        context: Context,
+        meeting: MeetingSession,
+        kind: String,
+        actorId: String,
+        otherId: String,
+        now: Instant,
+    ): DigitalWorldLifeTick? {
+        initialize(context)
+        if (meeting.endedAt != null || meeting.participantIds.distinct().size !in 2..4 ||
+            actorId !in meeting.participantIds || otherId !in meeting.participantIds ||
+            actorId == otherId) return null
+        val location = DigitalWorldStore.locationOf(actorId)
+        if (meeting.participantIds.any { id ->
+                !DigitalLifeProfileStore.isEnabled(id) ||
+                    DigitalWorldStore.locationOf(id) != location
+            }) return null
+        if (kind !in setOf("social_stumble", "social_frame_crossing")) return null
+        // The photo-framing beat uses the digital phone already owned by each
+        // life; it does not claim a real image was captured or transferred.
+        val person = MigratedDomainStores.characters.get(actorId).displayName
+        val companion = MigratedDomainStores.characters.get(otherId).displayName
+        val summary = when (kind) {
+            "social_stumble" ->
+                "${person}在和${companion}同场时脚下一滑，踉跄了一步才站稳，没摔伤也没碰坏物品。旁边的人确实看见了这一幕；谁觉得尴尬、想扶人或开玩笑，要由各自决定。"
+            "social_frame_crossing" ->
+                "${person}拿起自己的数字手机准备取景时，${companion}恰好从画面边缘经过。两人同在场，构图被打断了一瞬；没有实际拍下、保存或分享照片，也没有自动形成好友关系。"
+            else -> return null
+        }
+        val tick = synchronized(lock) {
+            val id = "scene-${meeting.id}-$kind"
+            if (incidents.any { it.id == id }) return@synchronized null
+            val lastKindAt = incidents.asSequence()
+                .filter { it.kind == kind && it.locationCode == location }
+                .maxOfOrNull { it.createdAt.epochSecond } ?: -1L
+            if (DigitalWorldEventRules.coolingDown(
+                    now.epochSecond, lastKindAt,
+                    DigitalWorldEventRules.kindLocationCooldownSeconds(kind))) {
+                return@synchronized null
+            }
+            val record = Incident(
+                id = id, kind = kind, locationCode = location,
+                anchorItemId = "", anchorItemName = "",
+                status = STATUS_RESOLVED, stage = 0, summary = summary,
+                lastActorCharacterId = actorId, createdAt = now, updatedAt = now,
+            )
+            incidents = (incidents + record).sortedBy(Incident::updatedAt)
+                .let { all -> all.filter { it.status == STATUS_ACTIVE } +
+                    all.filter { it.status != STATUS_ACTIVE }.takeLast(MAX_INCIDENTS) }
+            persistLocked()
+            record.toTick(now)
+        } ?: return null
+        meeting.participantIds.distinct().forEach { id ->
+            recordWitness(id, tick, now)
+        }
+        return tick
+    }
+
     fun recordWitness(characterId: String, tick: DigitalWorldLifeTick, now: Instant = tick.occurredAt) {
         if (characterId.isBlank()) return
         val evidenceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
@@ -449,6 +512,8 @@ internal object DigitalWorldLifeEventStore {
         "check_own_phone" -> "查看自己的手机"
         "digital_sneeze" -> "打喷嚏"
         "chair_stumble" -> "碰到家具"
+        "social_stumble" -> "当众踉跄一下"
+        "social_frame_crossing" -> "手机取景时意外入镜"
         "footstep_pause" -> "停下来发呆"
         "arcade_social_challenge" -> "游戏厅挑战提示"
         "cafe_social_choice" -> "咖啡角菜单话题"
