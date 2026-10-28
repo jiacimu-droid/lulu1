@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:29:13.618012+00:00",
-  "commit": "200eb03b7fda3941f56b745426f08e64d280a30e",
+  "generatedAt": "2026-10-28T14:29:32.745646+00:00",
+  "commit": "2643b29788c7aeb074452c083e8796ae3e5db861",
   "branch": "main",
-  "sourceFingerprint": "7a476543d7608271e030dbf39ccfa77233bc45ed75976b8ea50b4056df884d87",
+  "sourceFingerprint": "733a0f3535ec961fbc78d9135b14a6a38c44fa1f0a2530431d63ec57265d09d2",
   "summary": {
     "files": 1049,
     "lines": 214027,
@@ -19234,7 +19234,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt",
       "lines": 265,
-      "sha256": "f6159c6484bddb227c64a193e57eb997dc5fb56a2bf20e3dfb742d6a1ac8252e",
+      "sha256": "ed6fc97dfa40fd8c75e41071f527dc750bc88ab9ba5e6d1d7e1ce6413c351f8d",
       "symbols": [
         {
           "name": "ViewState",
