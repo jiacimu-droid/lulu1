@@ -23,11 +23,14 @@ internal object CharacterCausalTrace {
     private fun receiptStatus(payload: JSONObject): String {
         val result = objectValue(payload.opt("result"))
         val status = payload.optString("status").lowercase()
+        val innerStatus = result?.optString("status")?.lowercase().orEmpty()
         return when {
             payload.optString("stage") == "rejected" && status == "waiting_user" -> "等待主人授权"
             payload.optString("stage") == "rejected" -> "执行前被拒绝"
             status in setOf("waiting_user", "waiting_permission", "denied") -> "等待授权或确认"
-            status in setOf("running", "pending", "requested", "requested_unverified") -> "结果尚未证实"
+            status in setOf("running", "pending", "requested", "requested_unverified") ||
+                innerStatus in setOf("running", "pending", "requested", "requested_unverified") ->
+                "结果尚未证实"
             status in setOf("failed", "error", "cancelled") || result?.optBoolean("success") == false ->
                 "执行失败"
             status in setOf("succeeded", "verified", "observed") && result?.optBoolean("success") == true ->
