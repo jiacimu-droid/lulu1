@@ -171,6 +171,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         Text("选中身边的空地，再选择建筑。拆除会返还部分材料。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            IslandBuildChip("♣ 种树", "1木", nearTarget) { perform("plant") }
             IslandBuildChip("▤ 地板", "1木", nearTarget) { perform("floor") }
             IslandBuildChip("▥ 木墙", "2木", nearTarget) { perform("wall") }
             IslandBuildChip("▣ 木门", "2木", nearTarget) { perform("door") }
