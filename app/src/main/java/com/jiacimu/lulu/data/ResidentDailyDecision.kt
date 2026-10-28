@@ -358,6 +358,10 @@ internal object ResidentDailyDecision {
         val phase = "due-phase:$key"
         if (!p.getBoolean(key, false)) return p.edit()
             .putBoolean(key, true).putString(phase, "requesting").commit()
+        // A malformed first reply has already been received and paid for.
+        // Even after a model change, the ordinary worker must not buy a new
+        // first decision instead of resuming that reply's correction.
+        if (!p.getString("due-invalid:$key", "").isNullOrBlank()) return false
         if (!canRetryRejected(p, phase, "due-rejected-retries:$key",
                 "due-rejected-fingerprint:$key", fingerprint)) return false
         return p.edit().putInt("due-rejected-retries:$key",
@@ -377,6 +381,7 @@ internal object ResidentDailyDecision {
             .putString("attempt:$nativeId", today)
             .putString(phase, "requesting")
             .putInt(retries, 0).remove(rejectedFingerprint).commit()
+        if (!p.getString("invalid:$nativeId:$today", "").isNullOrBlank()) return false
         if (!canRetryRejected(p, phase, retries, rejectedFingerprint, fingerprint)) return false
         return p.edit().putInt(retries, p.getInt(retries, 0) + 1)
             .putString(phase, "requesting").commit()
@@ -388,7 +393,8 @@ internal object ResidentDailyDecision {
         if (plan.status !in setOf("planned", "due")) return false
         val p = prefs(context)
         val key = dueAttemptKey(plan)
-        if (!p.getBoolean(key, false) || p.contains("due-decision:$key")) return false
+        if (!p.getBoolean(key, false) || p.contains("due-decision:$key") ||
+            !p.getString("due-invalid:$key", "").isNullOrBlank()) return false
         val selected = runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
             ?: return false
         return canRetryRejected(p, "due-phase:$key", "due-rejected-retries:$key",
@@ -400,7 +406,8 @@ internal object ResidentDailyDecision {
         val p = prefs(context)
         val today = date(at)
         if (p.getString("attempt:$nativeId", "") != today ||
-            p.contains(dayDecisionKey(nativeId, today))) return false
+            p.contains(dayDecisionKey(nativeId, today)) ||
+            !p.getString("invalid:$nativeId:$today", "").isNullOrBlank()) return false
         val selected = runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
             ?: return false
         return canRetryRejected(p, dayPhaseKey(nativeId, today),
@@ -1036,7 +1043,7 @@ internal object ResidentDailyDecision {
         val firstError = if (resumeInvalidOnly) p.getString("due-invalid-reason:$key", null)
             else if (savedChoice == null && response != null)
                 dueContractError(firstChoice, now, plan.id) else null
-        val repaired = if (firstError != null) {
+        val repairResult = if (firstError != null) {
             // The original malformed reply is already durable on an authorized
             // recovery. Do not overwrite its provenance or buy the first turn.
             if (!resumeInvalidOnly) {
@@ -1059,15 +1066,20 @@ internal object ResidentDailyDecision {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "${native.name}到点决定补正失败",
                     message = error.message.orEmpty().take(180))
-            }.getOrNull()
+            }
         } else null
+        val repaired = repairResult?.getOrNull()
         val choice = savedChoice ?: if (firstError == null) firstChoice
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
         val remainingError = if (savedChoice == null && (response != null || resumeInvalidOnly))
             dueContractError(choice, now, plan.id) else null
         if (choice == null || remainingError != null) {
-            val rejected = response == null && responseResult?.exceptionOrNull()
-                ?.let(::isDefinitelyRejectedModelRequest) == true
+            // A correction request can also be definitively rejected. Do not
+            // collapse its 4xx into an unknown-charge timeout, or hide the
+            // actual provider error behind the first JSON validation error.
+            val failedRequest = if (firstError != null) repairResult?.exceptionOrNull()
+                else responseResult?.exceptionOrNull()
+            val rejected = failedRequest?.let(::isDefinitelyRejectedModelRequest) == true
             val failurePhase = when {
                 rejected -> "definite_rejected"
                 (response == null && !resumeInvalidOnly) ||
@@ -1075,8 +1087,8 @@ internal object ResidentDailyDecision {
                 else -> "invalid_output"
             }
             val failure = p.edit().putString(phaseKey, failurePhase)
-                .putString("due-last-error:$key", (remainingError ?: firstError
-                    ?: responseResult?.exceptionOrNull()?.message.orEmpty()).take(180))
+                .putString("due-last-error:$key", (failedRequest?.message
+                    ?: remainingError ?: firstError ?: "").take(180))
             if (rejected) failure.putString("due-rejected-fingerprint:$key",
                 connectionFingerprint(checkNotNull(selected)))
             check(failure.commit()) { "居民到点决定失败状态未保存" }
@@ -1532,7 +1544,7 @@ internal object ResidentDailyDecision {
         val originalInvalid = if (resumeInvalidOnly) p.getString("invalid:${native.id}:$today", null) else reply?.text
         val firstError = if (resumeInvalidOnly) p.getString("invalid-reason:${native.id}:$today", null)
             else if (savedDecision == null && reply != null) dayContractError(firstPlan, now) else null
-        val repaired = if (firstError != null) {
+        val repairResult = if (firstError != null) {
             if (!resumeInvalidOnly) {
                 check(p.edit().putString("invalid:${native.id}:$today", checkNotNull(originalInvalid).take(8_000))
                     .putString("invalid-reason:${native.id}:$today", firstError)
@@ -1553,8 +1565,9 @@ internal object ResidentDailyDecision {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "数字世界居民日程", title = "${native.name}日计划补正失败",
                     message = error.message.orEmpty().take(180))
-            }.getOrNull()
+            }
         } else null
+        val repaired = repairResult?.getOrNull()
         val json = savedDecision ?: if (firstError == null) firstPlan
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
         val remainingError = if (savedDecision == null && (reply != null || resumeInvalidOnly))
@@ -1562,8 +1575,9 @@ internal object ResidentDailyDecision {
         if (json == null || remainingError != null) {
             // Only a provider's explicit rejection is provably non-generated.
             // A timeout or a failed correction may already have been charged.
-            val rejected = reply == null && replyResult?.exceptionOrNull()
-                ?.let(::isDefinitelyRejectedModelRequest) == true
+            val failedRequest = if (firstError != null) repairResult?.exceptionOrNull()
+                else replyResult?.exceptionOrNull()
+            val rejected = failedRequest?.let(::isDefinitelyRejectedModelRequest) == true
             val failurePhase = when {
                 rejected -> "definite_rejected"
                 (reply == null && !resumeInvalidOnly) ||
@@ -1571,8 +1585,8 @@ internal object ResidentDailyDecision {
                 else -> "invalid_output"
             }
             val failure = p.edit().putString(phaseKey, failurePhase)
-                .putString("last-error:${native.id}:$today", (remainingError ?: firstError
-                    ?: replyResult?.exceptionOrNull()?.message.orEmpty()).take(180))
+                .putString("last-error:${native.id}:$today", (failedRequest?.message
+                    ?: remainingError ?: firstError ?: "").take(180))
             if (rejected) failure.putString("rejected-fingerprint:${native.id}:$today",
                 connectionFingerprint(checkNotNull(selected)))
             check(failure.commit()) { "居民每日决定失败状态未保存" }
