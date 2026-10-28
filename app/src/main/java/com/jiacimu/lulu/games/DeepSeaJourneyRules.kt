@@ -54,8 +54,8 @@ internal fun deepSeaCanReturn(
     player.distanceTo(map.gate) <= DEEP_SEA_RETURN_RADIUS &&
     deepSeaClearApproach(player, map.gate, obstacles)
 
-internal fun deepSeaSonarFind(map: DeepSeaMap, player: WorldVector, collected: Set<String>): Set<String> =
-    map.echoes.filter { it.id !in collected && player.distanceTo(it.position) <= DEEP_SEA_SONAR_RADIUS }
+internal fun deepSeaSonarFind(map: DeepSeaMap, player: WorldVector, collected: Set<String>, radius: Float = DEEP_SEA_SONAR_RADIUS): Set<String> =
+    map.echoes.filter { it.id !in collected && player.distanceTo(it.position) <= radius }
         .mapTo(mutableSetOf()) { it.id }
 
 internal fun deepSeaRouteDistance(from: WorldVector, path: List<WorldVector>): Float? =
