@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:04:44.774159+00:00",
-  "commit": "167bfb5630242df4044e8ad542df32ce1d59ce53",
+  "generatedAt": "2026-10-28T07:05:34.282550+00:00",
+  "commit": "ef8e7c41b260bc0f58f0cd8a9f9b41b6990195cb",
   "branch": "main",
-  "sourceFingerprint": "71d890eb2db81283344f850a8410f2895f7e52066b3f5bdbd3d8ce0282f218ef",
+  "sourceFingerprint": "7d2821c85266414432b5612a46477f4628cea79290749011d0d8dda984bacb75",
   "summary": {
     "files": 1012,
-    "lines": 201914,
+    "lines": 201933,
     "symbols": 2943
   },
   "symbolIndex": {
@@ -4199,7 +4199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 112
+        "line": 124
       }
     ],
     "restore": [
@@ -9521,7 +9521,7 @@
     "evidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 24
+        "line": 31
       }
     ],
     "LuluChatMessage": [
@@ -11123,13 +11123,13 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 91
+        "line": 103
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 110
+        "line": 122
       }
     ],
     "Attachment": [
@@ -25834,8 +25834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 93,
-      "sha256": "2de4da2b1ab8d25ddf5149827e04d1ecab20e933548c55482fb2a44ddec32e12",
+      "lines": 100,
+      "sha256": "dcced13d9922a2394d3a4bce24f59482ec6200aaae9afe2d848897d072b26c4a",
       "symbols": [
         {
           "name": "assemble",
@@ -25843,7 +25843,7 @@
         },
         {
           "name": "evidence",
-          "line": 24
+          "line": 31
         }
       ]
     },
@@ -27459,8 +27459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 284,
-      "sha256": "012cf5908c17416c3e8d5524141e41a35c5d0859bd002327fd6b49289ff2dcac",
+      "lines": 296,
+      "sha256": "63a1cdc749bfab6ea7afa87942fb23ac96ccbf4f190a61821fbcb69e1a87824e",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -27480,15 +27480,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 91
+          "line": 103
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 110
+          "line": 122
         },
         {
           "name": "empty",
-          "line": 112
+          "line": 124
         }
       ]
     },

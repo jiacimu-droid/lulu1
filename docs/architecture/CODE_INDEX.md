@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`167bfb5630242df4044e8ad542df32ce1d59ce53`
+- 基准提交：`ef8e7c41b260bc0f58f0cd8a9f9b41b6990195cb`
 - 分支：`main`
 - 已索引文件：1012
-- 已索引代码/文本行：201914
+- 已索引代码/文本行：201933
 - 已发现符号：2943
 
 | 文件 | 行数 | 符号数 |
@@ -474,7 +474,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 199 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 93 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 100 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1119 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
@@ -525,7 +525,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 425 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 100 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 284 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 296 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
