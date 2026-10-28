@@ -136,3 +136,13 @@
 - 新增 `PeerRelationshipContext`：从原 `CharacterSocialRelationship.agreement(characterId, "user")` 的**当前可编辑**「闺蜜」约定投射平等朋友事实、情绪/独立自主边界、不能无请求把普通调侃解释为哄睡/恋爱服务；朋友如确实提出邀请或有真实特定约定，角色仍可自主选择是否答应，不用程序一律禁止。通过既有 `CompanionModelGateway` 的 Full 与 CharacterAndScenario 真实通道投送到角色决策、简化表达、电话与自主动作，无新增 API 调用和第二存储。其他角色/其他当前关系约定直接返回空，不用万能「闺蜜模板」，用户编辑关系后立即变化。
 - 增加 `PeerRelationshipContextTest` 检验关系事实、修改时的即时失效与其他角色隔离，并扩充 `ConversationExpressionGatewayTest` 的 MockWebServer 检验两阶段真实模型请求都收到独立友情边界。此前同轮的星禾风格 v3/v4 安全迁移、颜文字范例门控仍然有效；用户的实际消息、收藏、原始记忆及江渡关系不变。
 - 源码提交 `dfd98d78`、`0b153729`、`f83f9f05`、`f33d70ee`、`06342f23`、`f89e21a9`。仍须依据最终 main CI/Android APK 状态及实际星禾多轮聊天验收；模型语义生成不是确定性程序规则，源码测试通过也不等于能保证每一条语气完美。
+
+## 2026-10-28：每个角色单独形成对用户的认知（真实跨角色信息隔离）
+
+- 新的明确需求：星禾从与用户相处中形成某项偏好，并不代表江渡及其他角色知道它。不能把「同一个应用账户」误读为「所有角色共享同一个大脑」，也不能把「共享事实入口」和「各人的个性、主观判断和记忆」混为一谈。
+- 核对正式代码：`SharedExperienceTimeline.all(characterId)` / `eventsByIds(characterId,...)` 已按角色 ID 限制；`CharacterDevelopmentStore.active(characterId)` 仅取该角色成长记录并验证此角色自己的来源版本；`CharacterRuntime.personalityRuntimeContext(characterId)` 与 `CharacterAssociativeRecall` 已是本人视角。群聊真实在场成员各自拥有同一群消息副本是**合法共同经历**，不能误改成群友都不知道群聊内容。保持上述既有隔离，不建重复记忆系统。
+- **查到实际全局泄漏**：原 `CompanionModelGateway` 的 Full 模型请求无条件调用 `UserProfileContext.promptSection()`，其曾把账户 `preferred_name`（「希望角色称呼」）、`bio`、出生日期与位置等直接放入所有角色模型的输入。账户在设置页保存这些字段不证明每个角色曾听说、记住或形成同一偏好。现在 `UserProfileContext.promptSection` 仅保留 Android 用户设备事实归属和**账号资料不等于角色已知**的边界；具体个人资料仍完整留在原 SharedPreferences/用户 UI 中，只有某个角色通过现有本人交流、可见事件及明确共享来源取得的内容才在其提示词中出现。原始数据不删除，不改变用户名的 UI 显示入口。
+- **查到可复现的统计串线**：`UserRoutinePatterns.detect(events)` 接受事件列表却仅按 source 分组；三名角色各有不同日子的同类型活动时，会被混算成同一「三日重复习惯」。现改为先 `characterId` 后 `source` 分组，角色同一活动的实际日数、来源和学习门槛保持，混合多人列表不再合并出伪习惯。入口 `UserRoutinePatterns.recent(characterId)` 原本就按角色读取，继续保持。
+- 成长类型中原先通用「主人的偏好／习惯」显示改为中性的「用户的偏好／习惯」；既有 `CharacterDevelopmentRuntime` 当前角色的独立反思输入更明确「不要把其他角色得知的用户偏好据为己有」。这只是事实归属语言和提示词，不影响角色实际称呼权及有自己人设的角色的私有口吻。
+- **回归** `CharacterKnowledgeIsolationTest`：角色 A 私聊原话 → A 自己的 `UserPreference` → A 自己的自主上下文、三日活动观察；角色 B 的时间线、成长、日常习惯及真实 MockWebServer Full/lean 请求均不能包含 A 的学习结果；账户 global `preferred_name` / `bio` 不应出现在任何人私聊模型上下文；源记录撤回则 A 自己的成长事实失效。`UserRoutinePatternsTest` 另验证混合三人、跨多日相同 activity 不产生共享习惯。
+- 源码/测试提交：`71c039a3`、`fb9662d8`、`4bd8e2fd`、`00d60943`、`d9268a01`、`b363a312`。代码索引自动工作流与 APK CI 以最新 main 实际运行状态为准，不把 queued/cancelled 当 success；真机需实际验收 A/B 私聊已知信息差异、群聊共同现场以及撤回原话后 A 的更新。
