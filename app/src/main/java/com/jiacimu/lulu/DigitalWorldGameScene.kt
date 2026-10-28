@@ -1286,6 +1286,9 @@ private fun buildInteractionChoices(
         val allowed = DigitalWorldActivityCatalog.locationOptions(sceneCode).filter { it.first in target.anchor.activityIds }
         val games = if (sceneCode == com.jiacimu.lulu.data.DigitalWorldPublicPlaces.GAME_HALL && "choose_arcade" in target.anchor.activityIds) {
             listOf(
+                DigitalInteractionChoice("方块小岛", "采集建房与伙伴合作打怪", gameId = "block_island"),
+                DigitalInteractionChoice("迷雾摸金", "搜索宝箱，带走战利品", gameId = "relic_escape"),
+                DigitalInteractionChoice("海龟汤", "和伙伴一起推理解谜", gameId = "turtle_soup"),
                 DigitalInteractionChoice("记忆配对", "开始真实对局", gameId = "memory_match"),
                 DigitalInteractionChoice("快艇骰子", "与在场角色投骰子", gameId = "yacht_dice"),
                 DigitalInteractionChoice("深海回声", "开始潜航探索", gameId = "deep_sea_journey"),
