@@ -161,6 +161,35 @@ class WorldExplorationContractsTest {
         assertNull(deepSeaNearbyCreature(turtle.position, setOf(turtle.id), obstacles))
     }
 
+    @Test fun newSeaActivitiesKeepAutopilotReachableAcrossTidalZones() {
+        val map = buildDeepSeaMap()
+        val obstacles = map.reefs.map { it.obstacle }
+        var vessel = map.start
+        val stops = map.echoes.map { it.position } +
+            deepSeaRelics.map { it.position } + deepSeaCreatures.map { it.position } + map.gate
+        stops.forEachIndexed { stopIndex, destination ->
+            val route = worldFollowPath(vessel, destination, DEEP_SEA_WORLD_BOUNDS,
+                obstacles, DEEP_SEA_PLAYER_RADIUS).toMutableList()
+            assertTrue("No route to optional stop $stopIndex", route.isNotEmpty())
+            var frames = 0
+            while (route.isNotEmpty() && frames++ < 10_000) {
+                val delta = route.first() - vessel
+                if (delta.length <= 6f) {
+                    route.removeAt(0)
+                } else {
+                    val vesselSpeed = (delta.length * 5f).coerceAtMost(300f) *
+                        (deepSeaCurrentAt(vessel)?.speedFactor ?: 1f)
+                    val moved = moveInWorld(vessel, delta, vesselSpeed, .02f,
+                        DEEP_SEA_PLAYER_RADIUS, DEEP_SEA_WORLD_BOUNDS, obstacles)
+                    assertFalse("Vessel hit reef during tidal navigation at stop $stopIndex", moved.collided)
+                    vessel = moved.position
+                }
+            }
+            assertTrue("Vessel failed to reach optional stop $stopIndex", route.isEmpty())
+            assertTrue(vessel.distanceTo(destination) <= 6.1f)
+        }
+    }
+
     @Test fun submersibleTurnsSmoothlyAcrossTheHeadingSeam() {
         assertEquals(-180f, deepSeaSmoothHeading(179f, -179f, .5f), .01f)
         assertEquals(-179f, deepSeaSmoothHeading(179f, -179f, 1f), .01f)
