@@ -1588,16 +1588,30 @@ internal object ResidentDailyDecision {
         // If the app first opens after planning time, seed today's missing agendas once.
         // Claim() still owns each citizen's paid daily opportunity.
         if (now.atZone(ZoneId.systemDefault()).toLocalTime() >= DAILY_PLANNING_TIME &&
-            runCatching { ScopedModelSelections.selectedArchiveId(SCOPE) }.getOrNull() != null &&
-            DigitalWorldExpansionStore.residents().any {
+            runCatching { ScopedModelSelections.selectedArchiveId(SCOPE) }.getOrNull() != null) {
+            val residents = DigitalWorldExpansionStore.residents()
+            val savedRecovery = residents.asSequence().filter {
+                hasSavedDayToResume(app, it.id, now)
+            }.map {
+                prefs(app).getInt(dayRecoveriesKey(it.id, date(now)), 0)
+            }.minOrNull()
+            val needsCatchup = savedRecovery != null || residents.any {
                 prefs(app).getString("attempt:${it.id}", "") != date(now) ||
-                    hasSavedDayToResume(app, it.id, now) ||
                     hasSafeDayRequestToRetry(app, it.id, now)
-            }) {
-            manager.enqueueUniqueWork("${WORK_FIXED}-catchup-${date(now)}",
-                ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequestBuilder<ResidentDailyDecisionWorker>()
-                    .setConstraints(network).build())
+            }
+            if (needsCatchup) {
+                // KEEP on a single daily catch-up name cannot enqueue the next
+                // recovery while that very Worker is running. Distinct bounded
+                // saved-decision generations make both permitted replays
+                // reachable without a new paid model request or an endless loop.
+                val recoverySuffix = savedRecovery?.let { "-saved-$it" }.orEmpty()
+                manager.enqueueUniqueWork("${WORK_FIXED}-catchup-${date(now)}$recoverySuffix",
+                    ExistingWorkPolicy.KEEP,
+                    OneTimeWorkRequestBuilder<ResidentDailyDecisionWorker>()
+                        .setConstraints(network)
+                        .setInitialDelay(if (savedRecovery != null) 120L else 0L,
+                            TimeUnit.SECONDS).build())
+            }
         }
     }
 }
