@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T12:42:55.435099+00:00",
-  "commit": "b604cdd437a7b22cbb9df29b05c5955573d76243",
+  "generatedAt": "2026-10-28T13:01:08.051887+00:00",
+  "commit": "78c0af0865c45cc51e2ef3afd0761c4a5bee7ae9",
   "branch": "main",
-  "sourceFingerprint": "f0e0c8fac3e08d61217846ba6a10ed3ea67518e27e57a37c1ecef4de952ef2f9",
+  "sourceFingerprint": "dce877a986a9bc9e76a1cb72476db2237bf4cdbe2833cf24d6467c6278ef55bc",
   "summary": {
     "files": 1047,
-    "lines": 212827,
-    "symbols": 3052
+    "lines": 213008,
+    "symbols": 3054
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6427,7 +6427,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1423
+        "line": 1473
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10848,28 +10848,40 @@
         "line": 95
       }
     ],
+    "SavedDueRecovery": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 110
+      }
+    ],
+    "savedDueRecovery": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 112
+      }
+    ],
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 258
+        "line": 306
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 267
+        "line": 315
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 270
+        "line": 318
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 334
+        "line": 382
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -10879,7 +10891,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 995
+        "line": 1045
       }
     ],
     "plan": [
@@ -20338,8 +20350,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
-      "lines": 79,
-      "sha256": "1efe8bdd246e64839fd57ad54410121afdd8752b223e9d330096dbe6ee663958",
+      "lines": 104,
+      "sha256": "cc6a0d63940cce62af07d4f30696b99c8265c85e7fa2e4ac61f6d6f1f1d27f8a",
       "symbols": []
     },
     {
@@ -27744,8 +27756,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1474,
-      "sha256": "0292ab0cb54decd38880fd2fd07167e0b7719a5ad13704a98bd467306d1998f9",
+      "lines": 1524,
+      "sha256": "32084192650271a5f698d1af7338c5cf66c83dc107c4242a417408a50b678424",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -27764,28 +27776,36 @@
           "line": 95
         },
         {
+          "name": "SavedDueRecovery",
+          "line": 110
+        },
+        {
+          "name": "savedDueRecovery",
+          "line": 112
+        },
+        {
           "name": "planForApp",
-          "line": 258
+          "line": 306
         },
         {
           "name": "attemptedToday",
-          "line": 267
+          "line": 315
         },
         {
           "name": "planFor",
-          "line": 270
+          "line": 318
         },
         {
           "name": "reject",
-          "line": 334
+          "line": 382
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 995
+          "line": 1045
         },
         {
           "name": "schedule",
-          "line": 1423
+          "line": 1473
         }
       ]
     },
@@ -35516,8 +35536,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1650,
-      "sha256": "9afce7065397bb646904b1c34b8a2ee6b98367042e8c4afcbadaa347ecea7e64",
+      "lines": 1756,
+      "sha256": "08aee7504898f20e21f7f699fabb8810ff94b34d1408fc07b7a6e1c84d46a165",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
