@@ -87,8 +87,8 @@ assert.equal(isWolfRig({}, (_core, id) => id === 'ParamMouthOpenY'), false)
 const hairTilt = enhanceWolfTouch(
   touchReflexFor('hair', 'stroke-left', 0, { force: .7 }, 300),
   'hair', 'stroke-left', { force: .7 }, 300)
-assert.ok(hairTilt.roll < -12 && Math.abs(hairTilt.yaw) > 5 && Math.abs(hairTilt.body.roll) > 4,
-  'wolf soft touch coordinates neck and torso like the authored tilt')
+assert.ok(hairTilt.roll < -5 && Math.abs(hairTilt.yaw) > 2 && Math.abs(hairTilt.body.roll) < 2,
+  'wolf hair stroke stays expressive without pulling the whole torso')
 const hardImpact = enhanceWolfTouch(
   touchReflexFor('cheek-right', 'slap-left', 0, { force: 1 }, 240),
   'cheek-right', 'slap-left', { force: 1 }, 240)
@@ -175,12 +175,21 @@ for (const region of TOUCH_REGIONS) {
   }
 }
 assert.notEqual(touchFamily('beast-ear-left'), touchFamily('ear-left'))
-// Every real touch region must cause at least one observable torso-axis
-// request on rigs with body rotation, not only a face expression.
+// Every region retains coordinated body articulation, but touching an arm
+// must not move the entire avatar sideways.
 for (const region of TOUCH_REGIONS) {
   const reflex = touchReflexFor(region, 'stroke-right', 1, { force: .65 }, 300)
-  assert.ok(Object.values(reflex.body).some(value => Math.abs(value) >= 1),
-    region + ' should have a visible coordinated body response')
+  assert.ok(Object.values(reflex.body).some(value => Math.abs(value) >= .15),
+    region + ' should retain a subtle body response')
+}
+for (const region of ['arm-left', 'arm-right', 'hand-left', 'hand-right']) {
+  const tap = touchReflexFor(region, 'tap', 1, { force: .65 }, 100)
+  const stroke = touchReflexFor(region, 'stroke-right', 1, { force: .65 }, 100)
+  assert.ok(Math.abs(tap.yaw) < 1.5 && Math.abs(tap.body.roll) < 1,
+    region + ' tap must not pull the entire model toward the finger')
+  assert.ok(Math.abs(stroke.body.roll) < 2 && Math.abs(stroke.yaw) < 3,
+    region + ' stroke must remain a local glance, not a full-body lean')
+  assert.notDeepEqual(tap, stroke, region + ' tap and stroke are distinct')
 }
 const headLeft = touchReflexFor('cheek-left', 'stroke-right')
 const headRight = touchReflexFor('cheek-right', 'stroke-right')
@@ -220,8 +229,10 @@ assert.ok(Math.abs(cheekSwipe.roll) > Math.abs(cheekTap.roll) * 1.5)
 const chestSlap = touchReflexFor('chest', 'slap-right', 0, { force: .9 }, 120)
 assert.equal(chestSlap.roll, 0, 'chest hit cannot rotate the face')
 assert.equal(chestSlap.yaw, 0)
-assert.equal(chestSlap.impactMotion, false, 'chest never triggers facial full-tilt')
-assert.ok(Math.abs(chestSlap.body.roll) < 2)
+assert.equal(chestSlap.impactMotion, true, 'chest uses the fast torso impact actuator')
+assert.equal(chestSlap.impactFace, false, 'chest hit is not a face strike')
+assert.ok(chestSlap.body.pitch < -4 && Math.abs(chestSlap.body.roll) > 2,
+  'chest slap recoils visibly at the torso without moving the sprite')
 const leftEyeTap = touchReflexFor('eye-left', 'tap', 0, { force: .25 }, 300)
 const rightEyeTap = touchReflexFor('eye-right', 'tap', 0, { force: .25 }, 300)
 assert.equal(leftEyeTap.face.eyeOpen, rightEyeTap.face.eyeOpen)
@@ -586,20 +597,11 @@ runtime.end()
 const ended = runtime.snapshot().shyness
 time += 5000
 assert.ok(runtime.snapshot().shyness < ended)
-assert.equal(touchMotionFor('beast-ear-left', 'stroke-left'), 1)
-assert.equal(touchMotionFor('beast-ear-right', 'stroke-right'), 2)
-assert.equal(touchMotionFor('hair', 'stroke-left'), 1)
-assert.equal(touchMotionFor('hair', 'stroke-right'), 2)
-assert.equal(touchMotionFor('cheek-left', 'slap'), null)
-assert.equal(touchMotionFor('cheek-right', 'slap-left'), null)
-assert.equal(touchMotionFor('chest', 'tap'), 17)
-assert.equal(touchMotionFor('nose', 'tap'), 23)
-assert.equal(touchMotionFor('forehead', 'stroke-up'), 26)
-assert.equal(touchMotionFor('cheek-right', 'stroke-down'), 28)
-assert.equal(touchMotionFor('mouth', 'tap'), null)
-assert.equal(touchMotionFor('chest', 'hold'), null)
-assert.equal(touchMotionFor('chest', 'kiss'), null)
-assert.equal(touchMotionFor('nose', 'stroke-left'), null)
+// Completed touch may not auto-play a second full-body Motion3.
+for (const region of TOUCH_REGIONS)
+  for (const gesture of ['tap', 'hold', 'stroke-left', 'stroke-right', 'kiss', 'slap-right'])
+    assert.equal(touchMotionFor(region, gesture), null,
+      region + '/' + gesture + ' is owned by the local tactile actuator')
 // A genuine slow caress has a distinct moving and stationary phase. The
 // renderer must keep its last real direction and body part without freezing
 // the head at a large angle when Android stops sending MOVE callbacks.
