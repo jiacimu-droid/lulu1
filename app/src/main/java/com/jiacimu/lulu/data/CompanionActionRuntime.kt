@@ -782,15 +782,17 @@ internal object CompanionActionRuntime {
             "reschedule_personal_activity" -> {
                 val due = java.time.Instant.parse(args.getString("dueAt").trim())
                 val plan = RoleDayScheduleStore.reschedule(context, characterId,
-                    args.optString("planId"), due, args.optString("reason"), now)
+                    args.optString("planId"), due, args.optString("reason"), now,
+                    expectedDueAt = args.optString("expectedDueAt").takeIf(String::isNotBlank)?.let(Instant::parse))
                 CompanionActionResult(true, "已将「${plan.title}」改期至 ${plan.dueAt}；原安排仍属于本人",
                     evidenceId = "own-plan-${plan.id}")
             }
             "cancel_personal_activity" -> {
                 val reason = args.optString("reason").trim()
-                require(reason.length >= 3) { "主动取消日程需要自己的理由" }
+                require(reason.isNotBlank()) { "主动取消日程需要自己的理由" }
                 val id = args.optString("planId")
-                require(RoleDayScheduleStore.cancel(context, characterId, id, reason, now)) {
+                require(RoleDayScheduleStore.cancel(context, characterId, id, reason, now,
+                    expectedDueAt = args.optString("expectedDueAt").takeIf(String::isNotBlank)?.let(Instant::parse))) {
                     "未找到可取消的本人日程"
                 }
                 CompanionActionResult(true, "本人已决定取消这项安排：${reason.take(100)}",

@@ -385,7 +385,8 @@ internal object ResidentDailyDecision {
 
     internal val wakeTools = setOf("like_moment", "comment_moment", "send_friend_request",
         "respond_friend_request", "send_character_message", "publish_moment",
-        "send_group_message", "create_group_chat", "play_solo_game", "digital_world_action")
+        "send_group_message", "create_group_chat", "play_solo_game", "digital_world_action",
+        "reschedule_personal_activity", "cancel_personal_activity")
 
     /** Project the executable resident catalogue into BOTH regular and due decisions. */
     internal fun wakeToolContext(catalog: String): String = catalog.lineSequence().filter { line ->
@@ -409,7 +410,10 @@ internal object ResidentDailyDecision {
             }
             val step = AutonomousActionWireProtocol.normalizeStep(row)
             val args = step.optJSONObject("args") ?: JSONObject()
-            args.remove("planId")
+            // Ordinary side actions must not claim the current due activity.
+            // Explicit management tools need their independently chosen target ID.
+            if (step.optString("tool") !in setOf("reschedule_personal_activity", "cancel_personal_activity"))
+                args.remove("planId")
             args.remove("_replyEvidenceIds")
             step.put("args", args)
             steps.put(step)
@@ -449,8 +453,20 @@ internal object ResidentDailyDecision {
             if (row.has("requiresPreviousSuccess") &&
                 row.opt("requiresPreviousSuccess") !is Boolean)
                 return "steps[${index}].requiresPreviousSuccess 必须是布尔值"
-            if (row.optJSONObject("args")?.has("planId") == true)
+            val managesPlan = normalized.optString("tool") in
+                setOf("reschedule_personal_activity", "cancel_personal_activity")
+            if (!managesPlan && row.optJSONObject("args")?.has("planId") == true)
                 return "steps[${index}] 不能代替原活动传入 planId"
+            if (managesPlan) {
+                val args = row.getJSONObject("args")
+                if (args.optString("planId").isBlank() || args.optString("reason").isBlank())
+                    return "steps[$index] 的日程管理须有 planId 和本人 reason"
+                if (runCatching { Instant.parse(args.optString("expectedDueAt")) }.isFailure)
+                    return "steps[$index].expectedDueAt 须为本人上下文中的原时间版本"
+                if (normalized.optString("tool") == "reschedule_personal_activity" &&
+                    runCatching { Instant.parse(args.optString("dueAt")) }.isFailure)
+                    return "steps[$index].dueAt 须为新的 ISO8601 时间"
+            }
             val args = normalized.optJSONObject("args") ?: JSONObject()
             val tool = normalized.optString("tool")
             // The model's explicit choice must not be silently converted into
@@ -543,7 +559,7 @@ internal object ResidentDailyDecision {
         return null
     }
 
-    internal fun dueContractError(choice: JSONObject?, now: Instant): String? {
+    internal fun dueContractError(choice: JSONObject?, now: Instant, protectedPlanId: String = ""): String? {
         if (choice == null) return "没有可解析的 JSON 对象"
         val action = choice.optString("choice")
         if (action !in setOf("execute", "reschedule", "cancel", "wait"))
@@ -551,6 +567,14 @@ internal object ResidentDailyDecision {
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
             return "steps 不是数组"
         residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
+        val side = choice.optJSONArray("steps")
+        for (i in 0 until (side?.length() ?: 0)) {
+            val step = side?.optJSONObject(i) ?: continue
+            if (protectedPlanId.isNotBlank() && step.optString("tool") in
+                setOf("reschedule_personal_activity", "cancel_personal_activity") &&
+                step.optJSONObject("args")?.optString("planId") == protectedPlanId)
+                return "当前到期计划须用主 choice 改期/取消/等待，不能通过 steps 修改同一计划"
+        }
         if (action == "execute" && choice.has("args") && choice.optJSONObject("args") == null)
             return "执行参数 args 不是对象"
         if (action == "reschedule") {
@@ -642,6 +666,7 @@ internal object ResidentDailyDecision {
             facts = dueFacts,
             instruction = """
                 你是${native.name}。此刻你从休眠中醒来，先感知自己的地点、身体、到期活动和手机里的未读动态、聊天消息、好友申请，再选择行为。
+                当前到期计划只能通过主 choice 执行/改期/取消/等待，steps 的日程管理只可针对其他本人计划，不能改同一 planId。
                 你本人预先安排的一项真实生活活动已经到点，它是当前优先要复议的原计划；看手机不等于完成、撤销或放弃它。
                 根据本人意愿可以执行、改期、取消或等待，也可以在同一次决定额外选多个真实生活行动，形成独立回执。
                 如果执行，只能选原定合法工具=${plan.activityAction}；从预选参数和当前事实给出真正可执行的 args。
@@ -668,7 +693,7 @@ internal object ResidentDailyDecision {
         val response = responseResult?.getOrNull()
         val firstChoice = response?.text?.let(ModelStructuredOutput::objectOrNull)
         val firstError = if (savedChoice == null && response != null)
-            dueContractError(firstChoice, now) else null
+            dueContractError(firstChoice, now, plan.id) else null
         val repaired = if (firstError != null) {
             // First response was received. Persist the exact invalid answer
             // BEFORE the one optional correction request. If the correction
@@ -682,7 +707,7 @@ internal object ResidentDailyDecision {
                 characterId = plan.characterId,
                 facts = dueFacts + "\n【上一条原始决定（未执行）】" + response.text.take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。steps 中每项须有合法 tool、args 对象，requiresPreviousSuccess 若有须为布尔值；附加动作不能传 planId。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
+                instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。steps 中每项须有合法 tool、args 对象，requiresPreviousSuccess 若有须为布尔值；普通附加动作不能传 planId；reschedule_personal_activity/cancel_personal_activity 管理步骤须有 planId、expectedDueAt 和 reason，改期另须 dueAt。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
                 source = "原住民个人日程到点·结构补正",
                 title = "${native.name} · 到点决定补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
@@ -696,7 +721,7 @@ internal object ResidentDailyDecision {
         val choice = savedChoice ?: if (firstError == null) firstChoice
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
         val remainingError = if (savedChoice == null && response != null)
-            dueContractError(choice, now) else null
+            dueContractError(choice, now, plan.id) else null
         if (choice == null || remainingError != null) {
             val rejected = response == null && responseResult?.exceptionOrNull()
                 ?.let(::isDefinitelyRejectedModelRequest) == true
@@ -998,6 +1023,9 @@ internal object ResidentDailyDecision {
         ))
         return listOf(facts,
             appContext?.let { RoleDayScheduleStore.plannedContext(it, id, at) }.orEmpty(),
+            "已有日程仍属于自己。结合本轮真实来信或现场事实，自己判断之前等待的条件是否有变化；程序不会替你认定对方已接受。" +
+                "如果自己决定提前复议或改期，可在 steps 用 reschedule_personal_activity，args={planId,expectedDueAt:上文原时间版本,dueAt:本人新选的未来ISO时间,reason}；新时间须在当前时间60秒之后，到时仍由自己决定是否执行。" +
+                "确实放下可用 cancel_personal_activity，args={planId,expectedDueAt,reason}。没有变化可保留原安排。普通社交/活动步骤仍不得携带 planId。",
             CharacterRuntime.personalityRuntimeContext(id, compact = true,
                 query = facts, includeActiveCommitments = false),
             // CharacterAndScenario delivers core memories through its central
@@ -1071,7 +1099,7 @@ internal object ResidentDailyDecision {
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
                  "messageTo":"上文列出的确实认识的角色ID，否则为空",
                  "message":"给这位角色真正想说的私信，否则为空",
-                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|play_solo_game|digital_world_action","args":{}}],
+                 "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
                  "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。

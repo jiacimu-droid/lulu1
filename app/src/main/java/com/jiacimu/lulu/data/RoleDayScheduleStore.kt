@@ -222,7 +222,9 @@ object RoleDayScheduleStore {
                 "对象=${plan.targetCharacterId.ifBlank { plan.targetResidentId }}，地点=${plan.locationCode}，" +
                 "关联意愿=${plan.motiveId.ifBlank { "无" }}，关联挂心=${plan.concernId.ifBlank { "无" }}，" +
                 "关联约定=${plan.commitmentTaskId.ifBlank { "无" }}，" +
-                "预选参数=${plan.activityArgs.take(360)}。"
+                "预选参数=${plan.activityArgs.take(360)}；" +
+                "上次等待/改期的本人记录=${plan.resultSummary.ifBlank { "无" }}；" +
+                "原时间版本 expectedDueAt=${plan.dueAt}。"
         }
 
     /** Already persisted personal commitments outrank a generic periodic sleep timer.
