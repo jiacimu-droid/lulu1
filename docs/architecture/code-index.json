@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:40:36.973836+00:00",
-  "commit": "40c3451155972af8f8b2d59811b662f7fdd27a19",
+  "generatedAt": "2026-10-28T10:40:55.689720+00:00",
+  "commit": "e68883113c5d570d29de1d32d9937520365510e3",
   "branch": "main",
-  "sourceFingerprint": "906ec8627c7cf481990e306cce66cfcf554be49882f05249115a5eab02c810d8",
+  "sourceFingerprint": "627cdfed3981d2b32ead37f14acd7a8e4a7381beacba516f86d2f22655a80272",
   "summary": {
     "files": 1039,
-    "lines": 210607,
+    "lines": 210629,
     "symbols": 3048
   },
   "symbolIndex": {
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 935
+        "line": 950
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 958
+        "line": 973
       }
     ],
     "Plan": [
@@ -11841,7 +11841,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 909
+        "line": 924
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12359,7 +12359,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 954
+        "line": 969
       }
     ],
     "index": [
@@ -29715,31 +29715,31 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 963,
-      "sha256": "4a694764f954001ba0481233c14eedcdf512c56b18902e8b8c9b496305c480ff",
+      "lines": 978,
+      "sha256": "66541a900e1e00e19a51294128b896e16d61118b5489b330633c2e03c2434ae1",
       "symbols": [
         {
           "name": "load",
-          "line": 909
+          "line": 924
         },
         {
           "name": "save",
-          "line": 935
+          "line": 950
         },
         {
           "name": "markRecorded",
-          "line": 954
+          "line": 969
         },
         {
           "name": "reset",
-          "line": 958
+          "line": 973
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt",
-      "lines": 150,
-      "sha256": "f23c21c7fe3165e6a4ab0f5905da5ca6c1c7926df7b86378de8c0e7055b67973",
+      "lines": 157,
+      "sha256": "22e3b3d6af9011c2dec54a4bb907001296ca8b3dc0510ef5fa4fa76e3958ebfd",
       "symbols": []
     },
     {
