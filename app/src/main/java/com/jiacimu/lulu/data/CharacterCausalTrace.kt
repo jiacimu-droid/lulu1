@@ -31,7 +31,9 @@ internal object CharacterCausalTrace {
             .filter { it.optString("causalEvidenceId") == evidenceId }
         val archived = CharacterInnerLifeStore.decisionsForEvidence(characterId, evidenceId)
         return (archived + fromMind)
-            .distinctBy { it.optString("id").ifBlank { id -> it.toString() } }
+            .distinctBy { decision ->
+                decision.optString("id").ifBlank { decision.toString() }
+            }
             .sortedBy { it.optString("at") }
             .takeLast(6)
     }
@@ -91,22 +93,40 @@ internal object CharacterCausalTrace {
         }.sortedBy { it.first.occurredAt }
         val rows = mutableListOf<CharacterCausalTraceLine>()
         val thoughts = mind.optJSONArray("thoughts")
-        val selectedThoughts = (0 until (thoughts?.length() ?: 0))
+        val fromMind = (0 until (thoughts?.length() ?: 0))
             .mapNotNull { index -> thoughts?.optJSONObject(index) }.filter {
                 it.optString("evidenceId") == current.id ||
                     (0 until (it.optJSONArray("stimuli")?.length() ?: 0)).any { index ->
                         it.optJSONArray("stimuli")?.optString(index) == current.id
                     }
             }
-        selectedThoughts.takeLast(4).forEach { thought ->
+        // The 200-entry screen snapshot cannot cover years of impulses.
+        // Read only this exact source from the existing role-owned archive.
+        val selectedThoughts = (CharacterInnerLifeStore.thoughtsForEvidence(
+            characterId, current.id) + fromMind)
+            .distinctBy { thought ->
+                thought.optString("thought") to thought.optString("at")
+            }.sortedBy { it.optString("at") }.takeLast(4)
+        selectedThoughts.forEach { thought ->
             val state = when (thought.optString("status")) {
                 "resolved" -> "已由本人放下"
                 "discarded" -> "本人已舍弃"
                 "evolved" -> "已发展为其他想法"
                 else -> "仍被保留，未必决定执行"
             }
-            rows += CharacterCausalTraceLine("本人想法 · $state",
-                thought.optString("thought").take(190))
+            val version = thought.optJSONObject("stimulusRevisions")
+                ?.optLong(current.id, 0L)?.takeIf { it > 0L }
+                ?: if (thought.optString("evidenceId") == current.id)
+                    thought.optLong("evidenceRevision", 0L) else 0L
+            val provenance = when {
+                version == 0L -> " · 来源版本未证实"
+                version != current.revision -> " · 历史版本 $version"
+                else -> ""
+            }
+            val warning = if (version > 0L && version != current.revision)
+                "来源已编辑，不能用当前文字解释旧想法；" else ""
+            rows += CharacterCausalTraceLine("本人想法 · $state$provenance",
+                (warning + thought.optString("thought")).take(230))
         }
         val relatedDecisions = decisionsForSource(characterId, current.id, mind)
         relatedDecisions.forEach { decision ->

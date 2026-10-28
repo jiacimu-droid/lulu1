@@ -398,4 +398,66 @@ class CharacterCausalTraceTest {
             .any { it.evidenceId == replyId && it.title.contains("搜索结果后的实际反馈") })
     }
 
+
+    @Test fun archivedThoughtCanExplainOldUnsharedImpulseWithoutInventingDelivery() {
+        val originalId = "trace-archived-impulse"
+        source(a, originalId, "看到好看的花，想分享")
+        CharacterInnerLifeStore.observe(a, originalId, "看到好看的花，想分享",
+            JSONObject().put("thoughts", JSONArray().put(
+                JSONObject().put("thought", "想发一条花的动态，但还没决定"))), now = at)
+        repeat(90) { index ->
+            CharacterInnerLifeStore.observe(a, "trace-impulse-filler-$index",
+                "其他独立刺激 $index", JSONObject().put("thoughts", JSONArray().put(
+                    JSONObject().put("thought", "其他想法 $index"))),
+                now = at.plusSeconds(index + 1L))
+        }
+        assertTrue((0 until (CharacterInnerLifeStore.snapshot(a)
+            .optJSONArray("thoughts")?.length() ?: 0)).none { index ->
+            CharacterInnerLifeStore.snapshot(a).optJSONArray("thoughts")
+                ?.optJSONObject(index)?.optString("thought") == "想发一条花的动态，但还没决定"
+        })
+        assertEquals(1, CharacterInnerLifeStore.thoughtsForEvidence(a, originalId).size)
+        assertTrue(CharacterInnerLifeStore.thoughtsForEvidence(b, originalId).isEmpty())
+        val original = CharacterCausalTrace.inspect(context, a, event(a, originalId),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(original.any { it.title.contains("本人想法") &&
+            it.detail.contains("想发一条花的动态") })
+        assertFalse(original.any { it.title.contains("执行器确认成功") })
+        assertTrue(original.any { it.detail.contains("没有精确关联的决定或执行回执") })
+        source(a, originalId, "编辑后决定不分享")
+        val edited = CharacterCausalTrace.inspect(context, a, event(a, originalId),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(edited.any { it.title.contains("本人想法") &&
+            it.title.contains("历史版本 1") &&
+            it.detail.contains("不能用当前文字解释旧想法") })
+        assertTrue(CharacterInnerLifeStore.forgetExactThought(a, "想发一条花的动态，但还没决定"))
+        assertTrue(CharacterInnerLifeStore.thoughtsForEvidence(a, originalId).isEmpty())
+        assertFalse(CharacterCausalTrace.inspect(context, a, event(a, originalId),
+            SharedExperienceTimeline.all(a), JSONObject()).any { it.title.contains("本人想法") })
+    }
+
+    @Test fun repeatedThoughtKeepsEachActualStimulusVersionWithoutClaimingAnAction() {
+        source(a, "trace-thought-first", "第一次看到花")
+        source(a, "trace-thought-second", "第二次看到花")
+        val proposal = JSONObject().put("thoughts", JSONArray().put(
+            JSONObject().put("thought", "可能想分享一张照片")))
+        CharacterInnerLifeStore.observe(a, "trace-thought-first", "第一次看到花", proposal, now = at)
+        CharacterInnerLifeStore.observe(a, "trace-thought-second", "第二次看到花",
+            proposal, now = at.plusSeconds(10))
+        val linked = CharacterInnerLifeStore.thoughtsForEvidence(a, "trace-thought-second")
+        assertEquals(1, linked.size)
+        assertEquals(1L, linked.single().optJSONObject("stimulusRevisions")
+            ?.optLong("trace-thought-second"))
+        val before = CharacterCausalTrace.inspect(context, a, event(a, "trace-thought-second"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(before.any { it.title.contains("本人想法") &&
+            !it.title.contains("来源版本未证实") })
+        source(a, "trace-thought-second", "后来修改了这次记录")
+        val after = CharacterCausalTrace.inspect(context, a, event(a, "trace-thought-second"),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(after.any { it.title.contains("本人想法") &&
+            it.title.contains("历史版本 1") })
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, "trace-thought-first"),
+            SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
+    }
 }

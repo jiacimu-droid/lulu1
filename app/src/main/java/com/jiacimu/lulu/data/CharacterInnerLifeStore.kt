@@ -57,6 +57,21 @@ object CharacterInnerLifeStore {
         }
     }
 
+    /** Exact lookup across the existing hot and cold thought history.
+     * A thought is an impulse, never proof that its suggested action ran.
+     * A repeated impulse may have several genuine stimulus IDs. */
+    @Synchronized fun thoughtsForEvidence(characterId: String, evidenceId: String,
+        limit: Int = 4): List<JSONObject> {
+        if (characterId.isBlank() || evidenceId.isBlank()) return emptyList()
+        return CharacterInnerHistoryArchive.matching(prefs, characterId,
+            snapshot(characterId), "thoughts", limit) { thought ->
+            thought.optString("evidenceId") == evidenceId ||
+                (0 until (thought.optJSONArray("stimuli")?.length() ?: 0)).any { index ->
+                    thought.optJSONArray("stimuli")?.optString(index) == evidenceId
+                }
+        }
+    }
+
     /**
      * Explicitly withdraw ONE character's subjective interpretation of ONE
      * person. The original conversation, verified encounters, relationship
@@ -567,6 +582,10 @@ object CharacterInnerLifeStore {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank() ||
             evidenceText.isBlank() || proposal == null) return
         val root = snapshot(characterId)
+        // The exact version observed is provenance, not an interpretation of
+        // what the person meant. Legacy/synthetic sources remain unverified.
+        val observedRevision = SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(evidenceId)).firstOrNull()?.revision ?: 0L
         val userJustConfirmedSettlement = SharedExperienceTimeline.eventsByIds(
             characterId, listOf(evidenceId)).any {
                 it.evidenceKind == EventEvidenceKind.UserStatement &&
@@ -649,6 +668,17 @@ object CharacterInnerLifeStore {
                     } else {
                         existing.put("stimuli", stimuli)
                     }
+                    val revisions = existing.optJSONObject("stimulusRevisions") ?: JSONObject()
+                    if (observedRevision > 0L) revisions.put(evidenceId, observedRevision)
+                    val retainedStimuli = existing.optJSONArray("stimuli") ?: JSONArray()
+                    val retainedRevisions = JSONObject()
+                    for (stimulusIndex in 0 until retainedStimuli.length()) {
+                        val stimulusId = retainedStimuli.optString(stimulusIndex)
+                        if (revisions.has(stimulusId)) {
+                            retainedRevisions.put(stimulusId, revisions.optLong(stimulusId))
+                        }
+                    }
+                    existing.put("stimulusRevisions", retainedRevisions)
                     existing.put("lastSeenAt", now.toString())
                     continue
                 }
@@ -657,6 +687,10 @@ object CharacterInnerLifeStore {
                     .put("impulse", item.optString("impulse").trim().take(120))
                     .put("hesitation", item.optString("hesitation").trim().take(120))
                     .put("evidenceId", evidenceId).put("at", now.toString())
+                    .put("evidenceRevision", observedRevision)
+                    .put("stimulusRevisions", JSONObject().apply {
+                        if (observedRevision > 0L) put(evidenceId, observedRevision)
+                    })
                     .put("status", "held")
                     .put("mentions", 1)
                     .put("stimuli", JSONArray().put(evidenceId))
@@ -690,6 +724,10 @@ object CharacterInnerLifeStore {
                                 .put("impulse", update.optString("impulse").trim().take(120))
                                 .put("hesitation", update.optString("hesitation").trim().take(120))
                                 .put("evidenceId", evidenceId).put("at", now.toString())
+                                .put("evidenceRevision", observedRevision)
+                                .put("stimulusRevisions", JSONObject().apply {
+                                    if (observedRevision > 0L) put(evidenceId, observedRevision)
+                                })
                                 .put("status", "held")
                                 .put("mentions", 1)
                                 .put("stimuli", JSONArray().put(evidenceId))

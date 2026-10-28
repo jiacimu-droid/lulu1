@@ -371,3 +371,11 @@
 - [x] **修复**：复用同一人物私有 SharedPreferences 的 CharacterInnerHistoryArchive 分页，将 decisions 作为 60 条热窗口 + 全量冷页保存；旧回放 ID 同时核验冷页，避免再次追加相同决定。新增按本人精确 causalEvidenceId 的倒序分页查询，仅在展开原事件因果卡时按需读取，模型普通提示词仍只读取热窗口。新决定同时记录真实来源修订版本，编辑后的文字不能冒充旧决定的原始依据；旧版无版本的决定明确标为来源未证实。
 - [x] **生命周期**：忘记单条决定、清除私人心理和删除来源证据时同步处理已归档的 decisions；不动其他人物的原始选择、外部 ToolRouter 回执或长期时间线。
 - [x] **回归已编写**：270+ 决定跨页、旧事件按精确 ID 找回、冷页重复 ID 不重放、跨人物隔离、单条撤回、原证据失效、清空心理后不复活。以上为源码和测试，Android JVM/APK/真机仍须按对应提交的 CI 结果核对；原有历史在本次修复前已被 60 条裁掉的部分无法无中生有恢复。
+
+## 2026-10-29 P0-B：长期心念来源诊断与上一轮编译失败修复（待 CI/真机）
+
+- [x] **真实 CI 根因**：上一轮 cce43bdc 的 Android 构建 #40783655315 实际失败在 `CharacterCausalTrace.kt:34`：Kotlin `String.ifBlank` 的 fallback lambda 不接受参数，旧写法 `{ id -> ... }` 造成 `compileDebugKotlin` 编译错误。已改成无参 fallback，并明确外层 decision 变量，避免作用域误判；此前的 APK/单测不能视为通过。
+- [x] **因果断点**：`CharacterCausalTrace.inspect` 只读 200 条心理快照中的 thoughts，早期“想分享”虽在 `CharacterInnerHistoryArchive` 归档，展开原始事件时仍可能误报没有心念。现由 `CharacterInnerLifeStore.thoughtsForEvidence` 按本人、精确证据 ID（包括真实重复刺激）分页查原归档；不新建心理 Store、模型调用或动作。
+- [x] **来源修订**：新观察的 thoughts 保存当时 `evidenceRevision` 与逐刺激 `stimulusRevisions`；原事件编辑后诊断显示历史版本而不把新文字当旧想法的原因。旧数据缺版本仍可只读查看，但明确“来源版本未证实”。单次删除心念仍使用现有 `forgetExactThought`，归档不复活。
+- [x] **回归源码**：`CharacterCausalTraceTest` 新增 90 次后冷页心念召回、没有执行回执不冒充已发动态、编辑后的版本隔离、本人删除后不复活、重复心念多刺激来源、跨人物隔离。仍需 CI JVM、APK、真实设备及更大规模历史数据实测；归档修复前已丢的旧心念无法恢复。
+- [ ] **待核验**：本次 Android CI 与原索引自动工作流的最终结果；旧版 thoughts 的第二刺激无修订水位，只能标为来源未证实。心念不是工具请求，不能仅凭文字认定模型已经选择发布或已发送。
