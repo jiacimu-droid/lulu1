@@ -416,15 +416,18 @@ async function verifyVisibleFrame(loaded, sequence) {
   }
   throw new Error(priorError || '模型虽然载入，但未能产生可见的视频画面')
 }
-function applyPerformanceBeat(beat) {
+function applyPerformanceBeat(beat, lateMs = 0) {
+  const remainingMs = Number.isFinite(beat.durationMs) && beat.durationMs > 0
+    ? Math.max(0, beat.durationMs - Math.max(0, lateMs)) : null
+  if (remainingMs === 0) return
   if (beat.expression) startSpeechExpression(beat.expression)
   if (beat.head) head(beat.head, true)
   if (beat.body) body(beat.body, true)
   if (beat.face) face(beat.face, true)
   // A short score controls its leases instead of leaving every partial pose
   // latched for the old 3-6.5 second default.
-  if (Number.isFinite(beat.durationMs) && beat.durationMs > 0) {
-    const until = Date.now() + Math.min(30000, beat.durationMs)
+  if (remainingMs !== null) {
+    const until = Date.now() + Math.min(30000, remainingMs)
     if (beat.head) headRequestEndAt = until
     if (beat.body) bodyRequestEndAt = until
     if (beat.face) faceRequestEndAt = until
@@ -452,8 +455,8 @@ function applyFinalParameters(core, deltaMs) {
   const timeNow = Date.now()
   // Score and physics are separate. A low rendering FPS cannot slow the
   // audio timeline; a failed TTS must never leave queued facial actions.
-  performanceRuntime.tick(beat => {
-    applyPerformanceBeat(beat)
+  performanceRuntime.tick((beat, lateMs) => {
+    applyPerformanceBeat(beat, lateMs)
   })
   // Mouth-occupying gestures are deferred to a CONFIRMED audio pause or
   // utterance completion, not blindly triggered at a model-chosen millisecond.

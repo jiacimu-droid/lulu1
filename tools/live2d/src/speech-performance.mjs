@@ -60,7 +60,13 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
     while (current && current.index < current.beats.length &&
         current.beats[current.index].atMs <= elapsed) {
       const beat = current.beats[current.index++]
-      onBeat(beat)
+      // Dropped render frames cannot replay gestures that have already ended
+      // on the actual speech clock. Nor may a late beat receive its original
+      // full lease, which would leave a pose hanging after the spoken phrase.
+      const lateMs = Math.max(0, elapsed - beat.atMs)
+      if (Number.isFinite(beat.durationMs) && beat.durationMs > 0 &&
+          lateMs >= beat.durationMs) continue
+      onBeat(beat, lateMs)
       fired++
     }
     if (current && current.index >= current.beats.length) current = null

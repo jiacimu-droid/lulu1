@@ -10,7 +10,10 @@ export function createSpeechMouthRuntime({ has, write }) {
   function update(core, { deltaMs = 16, speaking = false, pcmAvailable = false,
     level = 0, elapsedMs = 0, seed = 0, blocked = false,
     jawOverride = null, poutOverride = null, wolf = false } = {}) {
-    const dt = Math.min(50, Math.max(0, deltaMs))
+    // The previous 50ms/frame cap slowed lip attack and release on 15Hz
+    // native video mirrors. Exact exponential smoothing already remains
+    // stable for long frames; use the full real elapsed render time.
+    const dt = Number.isFinite(deltaMs) ? Math.max(0, deltaMs) : 0
     const profile = wolf ? WOLF_MOUTH : null
     const beat = Math.pow(Math.sin(Math.max(0, elapsedMs) * .0105 + seed), 2)
     const fallback = (profile?.fallbackBase ?? .24) +

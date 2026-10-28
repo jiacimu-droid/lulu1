@@ -213,4 +213,56 @@ handoffValues.set('ParamBodyAngleX', -3)
 handoff.update({}, { deltaMs: 16, seconds: 4, authoredMotion: true })
 assert.ok(!handoffWrites.includes('ParamAngleX') && !handoffWrites.includes('ParamBodyAngleX'),
   'fully released authored motion must regain ownership')
+
+// Audio-clock recovery: a 500ms dropped video frame must not resurrect a
+// 100ms pose or extend the next beat's lease beyond its spoken time.
+bridge.clearSpeechMoment()
+bridge.perform({ beats: [
+  { atMs: 0, head: { roll: 22 }, durationMs: 100 },
+  { atMs: 400, head: { roll: 5 }, durationMs: 600 },
+] }, true)
+clock += 500
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1,
+  'only the still-live score beat may play after a dropped render frame')
+assert.equal(bridge.headRequest.roll, 5)
+assert.equal(bridge.headRequestEndAt, clock + 500,
+  'the live beat keeps only its remaining audio-clock lease')
+bridge.clearSpeechMoment()
+bridge.perform({ beats: [
+  { atMs: 0, head: { roll: 20 }, durationMs: 90 },
+] }, true)
+clock += 200
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+assert.equal(bridge.headRequest, null,
+  'an expired score cannot restart a head gesture after a long frame')
+
+// Speaking mouth has the same wall-clock cadence on a 15Hz native mirror and
+// a 120Hz GPU display. The old 50ms cap discarded a quarter of each 15Hz
+// frame and made both the first syllable and the release visibly late.
+function sampleMouth(fps) {
+  const frame = 1000 / fps
+  const values = new Map()
+  const mouth = createSpeechMouthRuntime({
+    has: () => true, write: (_core, id, value) => values.set(id, value),
+  })
+  const samples = new Map()
+  for (let i = 1; i <= Math.round(1200 / frame); i++) {
+    mouth.update({}, {
+      deltaMs: frame, speaking: i <= Math.round(400 / frame),
+      pcmAvailable: true, level: .8,
+    })
+    const ms = Math.round(i * frame)
+    if ([200, 400, 600, 1200].includes(ms))
+      samples.set(ms, values.get('ParamMouthOpenY') ?? 0)
+  }
+  return samples
+}
+const mouthCurves = [15, 30, 60, 120].map(sampleMouth)
+for (const ms of [200, 400, 600, 1200]) {
+  const values = mouthCurves.map(curve => curve.get(ms))
+  assert.ok(values.every(Number.isFinite), 'all frame rates must sample the mouth')
+  assert.ok(Math.max(...values) - Math.min(...values) < .003,
+    'lip opening/release must not drift across video frame rates at ' + ms + 'ms')
+}
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')
