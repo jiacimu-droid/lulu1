@@ -708,11 +708,21 @@ object ProactivePerceptionRuntime {
             DigitalWorldActivityCatalog.optionsFor(item).takeIf(List<Pair<String, String>>::isNotEmpty)
                 ?.let { item.id to it }
         } else emptyList()
+        // Past matches belong to this character only. Supply actual history for their
+        // own choice of pastime; never force rotation or invent a preference.
+        com.jiacimu.lulu.games.LuluGames.initialize(appContext)
+        val recentSoloGames = com.jiacimu.lulu.games.LuluGames.store.state.value.records
+            .asSequence()
+            .filter { it.characterId == characterId && !it.playedWithCharacter }
+            .take(4)
+            .map { it.title to it.score }
+            .toList()
         val affordances = AutonomousAffordanceContext.render(
             digital = digital,
             location = currentLocation,
             books = readingBooks.map { AutonomousAffordanceContext.Book(it.id, it.title) },
             groups = availableGroups.map { it.id to it.groupChat?.name.orEmpty() },
+            recentSoloGames = recentSoloGames,
             locationActivities = activityChoices,
             publicPlaces = if (digital) DigitalWorldPublicPlaces.all.map { it.code to it.label } else emptyList(),
             currentItems = itemChoices,
