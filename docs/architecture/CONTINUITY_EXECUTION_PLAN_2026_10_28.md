@@ -175,3 +175,10 @@
 - A/B 混合真实观察、已读 ledger、两角色共见群聊、compact/full 记忆/日记、空 owner、相同 task/session ID 均已加源码回归，但 CI 和真实手机体验须分别核实。
 - 主要提交：48cf4132, 120314e0, 14faf543, 008697ac, ef8e7c41, 719d4e3d；测试：fb879f73, cba7a636, 02fd2613。
 - 风险仍存：尚未逐一核验所有一千余处外部入口、备份/恢复、迁移与已拼成纯文本的辅助上下文；本轮不能宣称项目所有数据绝对零串线。下一轮应以现有真实运行路径的归属证据继续审查而不是再新增共享人物状态中心。
+
+### 2026-10-28：角色感知最后一层原始归属防护（A/B 直接感知与输出）
+
+- 在既有 `CharacterPerceptionContext.integrate(characterId,observed,direct)` 已对 `observed` 做属主过滤后，进一步复现**同一外国原始事件被重新包装成 `direct=PerceptionStimulus`** 的漏洞：上层可能只传包装的私聊事件，`observed` 列表为空/未含外国角色行；旧实现仍将 B 私聊读进 A 情绪/思考并可能在 A 的已读 ledger 盖戳。现在先用 `SharedExperienceTimeline.foreignEvidenceIds(characterId, ids)` 针对 canonical SQLite 主键批量只读校验 `direct`：若证据确实存在且归属 B，A 不得当作自己观察；未知于时间线的真实**合成当前通话** stimulus 仍按旧流程保留。不改内容、不新建共享观察中心或模型轮次。
+- `CharacterPerceptionContext.render(characterId,events)` 改为**强制接收当前人物 ID**，在最后序列化为 LLM 提示词前再次去除其他人物的观察。已接入 `LuluDeviceToolBridge`（私聊/电话）、`ProactivePerceptionRuntime`（自主感知）、`DigitalWorldMeetingGenerationV2`（本人会面模型）；不允许调用旧的无角色 render 形式。群聊中实际目击的共同事件已有各自的原始事实行，仍能独立呈现。
+- 新增 `CharacterPerceptionContextTest`：只以 direct 传入 B 私聊、observed 混合、真实 A 消息与无需持久化的电话事件，验证 A 模型感知/ledger 不能留下 B 的私聊，B 自己仍能收到；最终序列化 mixed events 给 A/B 时只能出现所属事件。
+- 提交 `5537b3f8`、`1616d1a6`、`fd6b4b10`、`05eb332c`、`ba4b39c0`、`78f495cb`、`67016293`、`e025542d`、`183fdef2`。**索引 / CI / APK / 真机分别核对，不因提交就称绝对零串线**。剩余专项风险：未遍历全部历史备份恢复、第三方输入以及被提前拼成不可溯源字符串的旧上下文；后续须继续按真实入口审计，而不是全局禁用合法社交。
