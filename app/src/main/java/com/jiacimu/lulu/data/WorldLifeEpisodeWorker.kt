@@ -121,9 +121,8 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
             val factsOnly = payload.build()
             val input = runCatching { payload.putByteArray("experiencedContextGzip", snapshot).build() }
                 .getOrElse {
-                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                        source = "生活小剧场", title = "心理快照超出任务载荷",
-                        message = "原始事件任务保留；当时心理不作补造")
+                    android.util.Log.w("WorldLifeEpisodeWorker",
+                        "Psychology snapshot exceeds WorkManager payload; factual task preserved")
                     factsOnly
                 }
             val request = OneTimeWorkRequestBuilder<WorldLifeEpisodeWorker>()
