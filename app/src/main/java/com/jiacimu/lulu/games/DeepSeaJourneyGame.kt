@@ -545,6 +545,9 @@ private data class DeepSeaRestoredState(
     val score: Int,
     val startedAt: Long,
     val recorded: Boolean,
+    val scanned: Set<String>,
+    val visited: Set<String>,
+    val companionAssists: Int,
 )
 
 private class DeepSeaJourneyProgress(context: Context) {
@@ -564,14 +567,21 @@ private class DeepSeaJourneyProgress(context: Context) {
             score = prefs.getInt("score", 0),
             startedAt = startedAt,
             recorded = prefs.getBoolean("recorded", false),
+            scanned = prefs.getStringSet("scanned", emptySet()).orEmpty().toSet(),
+            visited = prefs.getStringSet("visited", emptySet()).orEmpty().toSet(),
+            companionAssists = prefs.getInt("companion_assists", 0).coerceAtLeast(0),
         )
     }
 
-    fun save(position: WorldVector, collected: Set<String>, completed: Boolean, score: Int) {
+    fun save(position: WorldVector, collected: Set<String>, completed: Boolean, score: Int,
+        scanned: Set<String>, visited: Set<String>, companionAssists: Int) {
         prefs.edit()
             .putFloat("x", position.x)
             .putFloat("y", position.y)
             .putStringSet("collected", collected.toSet())
+            .putStringSet("scanned", scanned.toSet())
+            .putStringSet("visited", visited.toSet())
+            .putInt("companion_assists", companionAssists)
             .putBoolean("completed", completed)
             .putInt("score", score)
             .apply()
