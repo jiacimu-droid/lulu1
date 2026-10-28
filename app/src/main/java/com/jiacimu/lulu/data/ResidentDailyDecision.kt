@@ -357,6 +357,79 @@ internal object ResidentDailyDecision {
 
     /** Only validate new model responses: previously saved choices keep their
      * original request IDs and must never trigger another charge on replay. */
+    /** Validate only the documented wire shape, never the resident's wishes.
+     * Previously a malformed nested step or agenda row was silently skipped
+     * AFTER the outer decision had been accepted and marked finished. Those
+     * missing actions had neither a repair opportunity nor an execution receipt.
+     * The bounded same-resident correction path can now fix them before ANY
+     * effects. Real-world permissions remain the live executor's authority. */
+    private fun residentStepsContractError(steps: JSONArray?): String? {
+        if (steps == null) return null
+        for (index in 0 until steps.length()) {
+            val row = steps.optJSONObject(index)
+                ?: return "steps[${index}] 必须是动作对象"
+            val normalized = AutonomousActionWireProtocol.normalizeStep(row)
+            if (normalized.optString("tool") !in wakeTools)
+                return "steps[${index}] 必须选择当前居民可用的工具"
+            if (row.optJSONObject("args") == null)
+                return "steps[${index}].args 必须是对象（无参数请填写 {}）"
+            if (row.has("requiresPreviousSuccess") &&
+                row.opt("requiresPreviousSuccess") !is Boolean)
+                return "steps[${index}].requiresPreviousSuccess 必须是布尔值"
+            if (row.optJSONObject("args")?.has("planId") == true)
+                return "steps[${index}] 不能代替原活动传入 planId"
+        }
+        return null
+    }
+
+    private fun agendaContractError(agenda: JSONArray?, at: Instant): String? {
+        if (agenda == null) return null
+        if (agenda.length() > MAX_AGENDA_ITEMS)
+            return "agenda 最多包含 ${MAX_AGENDA_ITEMS} 项，不能悄悄截断本人选择"
+        for (index in 0 until agenda.length()) {
+            val row = agenda.optJSONObject(index)
+                ?: return "agenda[${index}] 必须是日程对象"
+            if (agendaTime(at, row.optString("at")) == null)
+                return "agenda[${index}].at 必须是今天当地有效的未来 HH:mm 时刻"
+            if (row.optString("title").trim().length < 2 ||
+                row.optString("intent").trim().length < 3)
+                return "agenda[${index}] 必须包含具体 title 和本人 intent"
+            val action = CapabilityRegistry.scheduledActionName(row.optString("activityAction"))
+            if (action !in residentAgendaActions)
+                return "agenda[${index}].activityAction 不是允许的居民日程工具"
+            val args = row.optJSONObject("activityArgs")
+                ?: return "agenda[${index}].activityArgs 必须是对象"
+            if (action in setOf("send_character_message", "send_friend_request") &&
+                row.optString("targetCharacterId").trim().isBlank() &&
+                args.optString("targetCharacterId").trim().isBlank())
+                return "agenda[${index}] 必须明确填写目标角色 ID"
+            if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
+                args.optString("text").trim().isBlank())
+                return "agenda[${index}] 发消息或动态必须提供本人写好的 text"
+            if (action == "send_group_message" && args.optString("groupId").isBlank())
+                return "agenda[${index}] 群消息必须指定 groupId"
+            if (action == "respond_friend_request" && args.optString("requestId").isBlank())
+                return "agenda[${index}] 回应好友申请必须指定 requestId"
+            if (action == "digital_world_action") {
+                val worldAction = args.optString("worldAction")
+                if (worldAction.isBlank())
+                    return "agenda[${index}] 数字世界行动必须填写 worldAction"
+                if (worldAction == "visit_public_place" &&
+                    row.optString("locationCode").isBlank() &&
+                    args.optString("locationCode").isBlank() &&
+                    args.optString("location").isBlank())
+                    return "agenda[${index}] 前往公共地点必须填写 locationCode"
+                if (worldAction == "build_home_item" &&
+                    (args.optString("name").isBlank() || args.optString("appearance").isBlank()))
+                    return "agenda[${index}] 家具计划必须填写 name 和 appearance"
+                if (worldAction in setOf("move_home_item", "remove_home_item") &&
+                    args.optString("itemId").isBlank())
+                    return "agenda[${index}] 移动或删除家具必须填写 itemId"
+            }
+        }
+        return null
+    }
+
     internal fun dueContractError(choice: JSONObject?, now: Instant): String? {
         if (choice == null) return "没有可解析的 JSON 对象"
         val action = choice.optString("choice")
@@ -364,6 +437,7 @@ internal object ResidentDailyDecision {
             return "choice 不是 execute/reschedule/cancel/wait"
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
             return "steps 不是数组"
+        residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
         if (action == "execute" && choice.has("args") && choice.optJSONObject("args") == null)
             return "执行参数 args 不是对象"
         if (action == "reschedule") {
@@ -378,7 +452,7 @@ internal object ResidentDailyDecision {
         return null
     }
 
-    internal fun dayContractError(choice: JSONObject?): String? {
+    internal fun dayContractError(choice: JSONObject?, at: Instant = Instant.now()): String? {
         if (choice == null) return "没有可解析的 JSON 对象"
         if (allowedLeisureLocation(choice.optString("lunch")) == null ||
             allowedLeisureLocation(choice.optString("evening")) == null)
@@ -387,6 +461,8 @@ internal object ResidentDailyDecision {
             return "agenda 不是数组"
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
             return "steps 不是数组"
+        agendaContractError(choice.optJSONArray("agenda"), at)?.let { return it }
+        residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
         return null
     }
 
@@ -449,7 +525,7 @@ internal object ResidentDailyDecision {
                 行动后由工具留下独立真实回执，禁止自行宣告结果或替另一人说话。
                 一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
                 最近真见过面但还未加好友的人，可考虑 send_friend_request；已有待处理申请就不要重复发，别人有权拒绝。也可用 digital_world_action 的 go_home/build_home_item 在家布置自己的家具，选择应来自本人此刻兴趣且必须满足世界实际位置与物品容量。
-                原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action","args":{}}]。
+                原计划用 choice=execute|reschedule|cancel|wait，追加步骤用 steps=[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|play_solo_game|digital_world_action","args":{}}]，每项必须有真实 tool 和 args 对象。
                 如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
                 每步可填写 requiresPreviousSuccess=true|false；true 仅在前一步有实际成功回执后才执行，false 为独立行动。首个附加步骤若选true，需原计划本轮已执行成功；改期、取消、等待不算原活动执行成功。每步可带原有 motiveId/concernId/experienceId，分别关联真实结果。
                 不能在附加步骤传 planId 或冒充执行原计划；对方未同意好友前不许称已添加成功。
@@ -482,7 +558,7 @@ internal object ResidentDailyDecision {
                 characterId = plan.characterId,
                 facts = dueFacts + "\n【上一条原始决定（未执行）】" + response.text.take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
+                instruction = "请你本人根据同一到期日程和真实事实补正刚才的结构错误。保留你真正的选择与独立 steps；不要因为格式错误就擅自取消活动。steps 中每项须有合法 tool、args 对象，requiresPreviousSuccess 若有须为布尔值；附加动作不能传 planId。只输出符合原先 choice、args、dueAt、reason、waitCondition、reviewAt、steps 契约的 JSON 对象，不要附解释。",
                 source = "原住民个人日程到点·结构补正",
                 title = "${native.name} · 到点决定补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
@@ -856,7 +932,7 @@ internal object ResidentDailyDecision {
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
-                agenda 中每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs。
+                agenda 最多${MAX_AGENDA_ITEMS}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
                 可用：send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
@@ -890,7 +966,7 @@ internal object ResidentDailyDecision {
         val reply = replyResult?.getOrNull()
         val firstPlan = reply?.text?.let(ModelStructuredOutput::objectOrNull)
         val firstError = if (savedDecision == null && reply != null)
-            dayContractError(firstPlan) else null
+            dayContractError(firstPlan, now) else null
         val repaired = if (firstError != null) {
             check(p.edit().putString("invalid:${native.id}:$today", reply!!.text.take(8_000))
                 .putString("invalid-reason:${native.id}:$today", firstError)
@@ -901,7 +977,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + reply.text.take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard，agenda 和 steps 如填写须为数组。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
@@ -915,7 +991,7 @@ internal object ResidentDailyDecision {
         val json = savedDecision ?: if (firstError == null) firstPlan
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
         val remainingError = if (savedDecision == null && reply != null)
-            dayContractError(json) else null
+            dayContractError(json, now) else null
         if (json == null || remainingError != null) {
             // Only a provider's explicit rejection is provably non-generated.
             // A timeout or a failed correction may already have been charged.
