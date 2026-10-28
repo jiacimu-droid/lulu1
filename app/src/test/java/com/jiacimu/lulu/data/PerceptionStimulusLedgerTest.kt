@@ -69,6 +69,26 @@ class PerceptionStimulusLedgerTest {
         PerceptionStimulusLedger.clear(role)
     }
 
+    @Test fun diagnosticPeekNeverMigratesOrClaimsLegacyCheckpoint() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "peek-no-write-person"
+        val eventId = "peek-legacy-event"
+        PerceptionStimulusLedger.initialize(context)
+        PerceptionStimulusLedger.clear(role)
+        val prefs = context.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
+        prefs.edit().remove("migration_expires_at")
+            .putString("seen:$role", eventId.hashCode().toString()).commit()
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, role, eventId))
+        assertFalse(prefs.contains("migration_expires_at"))
+        // No invisible claim: the ordinary intake may still claim the exact event.
+        assertTrue(PerceptionStimulusLedger.claim(context, role,
+            PerceptionStimulus(eventId, "可见事件", revision = 2L)))
+        assertTrue(PerceptionStimulusLedger.peekSeen(context, role, eventId, 2L))
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, "another-person", eventId, 2L))
+        PerceptionStimulusLedger.clear(role)
+        prefs.edit().remove("migration_expires_at").commit()
+    }
+
     @Test fun javaHashCollisionsAndSourceRevisionsRemainDistinct() {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "perception-exact-id-and-revision"
