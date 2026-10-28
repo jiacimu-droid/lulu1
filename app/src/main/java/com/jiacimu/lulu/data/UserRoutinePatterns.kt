@@ -50,8 +50,13 @@ internal object UserRoutinePatterns {
         return events.asSequence().filter(::isStart)
             .filter { !it.occurredAt.isBefore(threshold) && !it.occurredAt.isAfter(now) }
             .distinctBy { it.id }
-            .groupBy { it.source }
-            .flatMap { (source, sourceEvents) ->
+            // "Same activity" is not "same person's observation". This
+            // projection also accepts caller-supplied evidence, so partition
+            // by character before counting days, even if a future caller
+            // passes a mixed group/chat history.
+            .groupBy { it.characterId to it.source }
+            .flatMap { (_, sourceEvents) ->
+                val source = sourceEvents.first().source
                 val unclaimed = sourceEvents.sortedByDescending { it.occurredAt }.toMutableList()
                 val found = mutableListOf<Pattern>()
                 var attempts = 0
