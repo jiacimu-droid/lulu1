@@ -357,6 +357,45 @@ assert.ok(faceValues.get('ParamEyeLOpen') > .95 && faceValues.get('ParamEyeROpen
 // Execute the actual stage entry point with a renderer-only test surface:
 // held caresses grow before release, independent of MOVE sampling frequency.
 const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
+// Exercise the real stage Motion3 gate, not only a mocked dispatcher. A
+// character-selected motion can still be loading asynchronously when touch
+// arrives; that short interval must never let a contact steal its priority.
+{
+  const clipSource = source.slice(
+    source.indexOf('function maybePlayTactileMotion('),
+    source.indexOf('\nfunction cancelTactileMotion()'))
+  const starts = []
+  let managerFinished = true
+  const loadedModel = { internalModel: {
+    motionManager: { isFinished: () => managerFinished },
+  } }
+  const ctx = {
+    model: loadedModel, wolfRigActive: true,
+    tactileMotionIndices: new Set([1, 2]),
+    authoredMotion: { model: loadedModel, source: 'character', started: false },
+    touchMotionFor,
+    motion: (...args) => starts.push(args),
+  }
+  vm.createContext(ctx)
+  vm.runInContext(clipSource, ctx)
+  const play = () => ctx.maybePlayTactileMotion(
+    'cheek-left', 'stroke-left', { force: .9 }, false, false)
+  assert.equal(play(), false, 'pending character motion prevents touch preemption')
+  assert.equal(starts.length, 0)
+  ctx.authoredMotion.started = true
+  managerFinished = false
+  assert.equal(play(), false, 'active character Motion3 retains priority')
+  managerFinished = true
+  assert.equal(play(), true, 'a finished character motion releases its slot')
+  assert.deepEqual(starts, [['LuluWolf', 1, true, 'touch']])
+  assert.equal(ctx.maybePlayTactileMotion('cheek-left', 'stroke-left',
+    { force: .9 }, true, true), false, 'the same finger stroke cannot replay')
+  ctx.tactileMotionIndices.clear()
+  assert.equal(play(), false, 'uninstalled Motion3 always falls back to local reflex')
+  ctx.tactileMotionIndices.add(1)
+  ctx.wolfRigActive = false
+  assert.equal(play(), false, 'other imported models must not receive wolf clips')
+}
 const touchSource = source.slice(source.indexOf('function tickTactileContact(tactileNow)'), source.indexOf('\nfunction setPaused(value)'))
 let stageTime = 1000
 const stageResponse = createTouchResponseRuntime({ now: () => stageTime })
