@@ -324,8 +324,9 @@ private fun CharacterOriginalEventCard(event: SharedTimelineEvent,
     val context = LocalContext.current
     var expanded by rememberSaveable(event.id) { mutableStateOf(false) }
     val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
+    val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
-    val trace = remember(event.id, event.revision, expanded, timelineRevision, timeline) {
+    val trace = remember(event.id, event.revision, expanded, timelineRevision, mindRevision, timeline) {
         if (expanded) CharacterCausalTrace.inspect(context, event.characterId, event, timeline)
         else emptyList()
     }
