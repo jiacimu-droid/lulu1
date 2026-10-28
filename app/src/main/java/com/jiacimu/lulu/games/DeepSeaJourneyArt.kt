@@ -68,6 +68,7 @@ internal fun DrawScope.drawDeepSeaWorld(
     collected: Set<String>,
     player: WorldVector,
     companion: WorldVector?,
+    visited: Set<String> = emptySet(),
 ) {
     drawRect(
         Brush.verticalGradient(
@@ -97,7 +98,7 @@ internal fun DrawScope.drawDeepSeaWorld(
         )
     }
 
-    repeat(45) { index ->
+    repeat(68) { index ->
         val seed = (index * 1_103_515_245L + 97L) and Long.MAX_VALUE
         val baseX = (seed % 2_150L).toFloat()
         val baseY = ((seed / 53L) % 1_340L).toFloat()
@@ -106,7 +107,7 @@ internal fun DrawScope.drawDeepSeaWorld(
         drawCircle(Color(0xFFB4F3E9).copy(alpha = .16f + (index % 3) * .05f), 3f + index % 5, Offset(x, y), style = Stroke(1.5f))
     }
 
-    repeat(8) { school ->
+    repeat(12) { school ->
         val baseX = ((school * 317f + phase * 180f * (if (school % 2 == 0) 1 else -1)) % 2_400f) - 120f
         val baseY = 180f + school * 118f
         repeat(5) { fish ->
@@ -115,6 +116,16 @@ internal fun DrawScope.drawDeepSeaWorld(
     }
 
     map.reefs.sortedBy { it.bounds.bottom }.forEach { drawDeepSeaReef(it, phase) }
+    deepSeaSites.forEach { site ->
+        val center = site.position.toOffset()
+        val seen = site.id in visited
+        val glow = if (seen) Color(0xFF6F9C9A) else Color(0xFFBCE9DA)
+        drawCircle(Brush.radialGradient(listOf(glow.copy(alpha = if (seen) .1f else .30f), Color.Transparent),
+            center = center, radius = 105f), 105f, center)
+        drawCircle(glow.copy(alpha = if (seen) .35f else .75f), 14f + sin(phase * 6.28f) * 3f,
+            center, style = Stroke(3f))
+        drawCircle(glow.copy(alpha = .65f), 4f, center)
+    }
     map.echoes.filterNot { it.id in collected }.forEachIndexed { index, echo ->
         drawEchoCrystal(echo.position, phase, index)
     }
