@@ -13,6 +13,15 @@ class PromptRuleAssemblyPolicyTest {
         assertEquals("Identity and receipts\n\nVoice rules", text)
     }
 
+    @Test fun twoDifferentRuleOwnersWithIdenticalTextStillRenderOnce() {
+        val result = PromptRuleAssemblyPolicy.assemble(listOf(
+            PromptRuleAssemblyPolicy.Rule("source-a", "Shared action-and-receipt contract"),
+            PromptRuleAssemblyPolicy.Rule("source-b", "Shared action-and-receipt contract"),
+            PromptRuleAssemblyPolicy.Rule("source-c", "Unique world constraint"),
+        ))
+        assertEquals("Shared action-and-receipt contract\n\nUnique world constraint", result)
+    }
+
     @Test fun conflictingRuleVersionsCannotSilentlyOverwriteEachOther() {
         val failure = runCatching {
             PromptRuleAssemblyPolicy.assemble(listOf(
