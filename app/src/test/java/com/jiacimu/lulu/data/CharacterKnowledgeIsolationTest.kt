@@ -140,6 +140,7 @@ class CharacterKnowledgeIsolationTest {
                 ).getOrThrow()
                 val wire = server.takeRequest(10, TimeUnit.SECONDS)!!
                     .body.readUtf8()
+                assertTrue(wire.contains("其他角色私聊里知道的事不自动等于你知道"))
                 assertFalse(wire.contains(privateBio))
                 assertFalse(wire.contains(globalAddress))
                 if (role == a.characterId) {
