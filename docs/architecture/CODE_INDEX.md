@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f09a29b912a8a23227e2cddb885f2fa5ce1bceb3`
+- 基准提交：`9cdc6d183e70b869038d9c0f6ed4a65073632f68`
 - 分支：`main`
 - 已索引文件：1021
-- 已索引代码/文本行：204929
+- 已索引代码/文本行：204930
 - 已发现符号：2978
 
 | 文件 | 行数 | 符号数 |
@@ -108,7 +108,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 338 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 92 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 93 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldAtlas.kt` | 140 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
