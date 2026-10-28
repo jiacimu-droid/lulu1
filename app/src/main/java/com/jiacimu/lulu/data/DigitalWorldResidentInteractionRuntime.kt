@@ -54,6 +54,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                 instruction = """你自己决定这次相处先说什么。只替你本人说话，不能替居民下判断或编造居民回应。
                     互动=$normalized；返回 JSON {"text":"你亲自说出口的具体话","reason":"你为什么想这么说","innerLife":{}}。
                     ${episodeStep?.let { "本次确实要交给对方的原文必须完整包含在台词中：${it.contribution}" }.orEmpty()}
+                    【相处后的个人印象】你只知道上文真实已见、已听的情况，不知道对方下一句还没说的话。若已有具体依据，可以在 innerLife.social 中填 {"targetId":"$nativeId","interpretation":"我自己的初印象或新看法","reason":"确实见到的行为或听过的话"}；也允许没有判断而省略。只是想再接触可记在 innerLife.thoughts；只有真想持续做的事才用 innerLife.motives，不能说申请好友已发出。
                     自然、独立、有理由，可以简短；没有真实执行回执不声称做完另一件事。
                 """.trimIndent(),
                 source = "数字世界居民交流", title = "与${resident.name}说话", maxTokens = 1300,
@@ -75,6 +76,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     "对方私聊、内心、未向你说过的记忆一概未知。你可以有不同立场，也可以拒绝。",
                 instruction = """你是${resident.name}本人，用自己的身份、记忆与性格决定怎么回答。不是旁白，也不是替另一角色续写。
                     返回 JSON {"text":"你真正说出口的答复","reason":"此刻你自己愿意这样回应的理由","innerLife":{}}。
+                    【相处后的个人印象】你刚实际听到对方说话，可以在 innerLife.social 中填 {"targetId":"$characterId","interpretation":"我自己的初印象或新看法","reason":"我亲耳听到或亲眼见到的依据"}。可以好奇、谨慎、无感或不喜欢，拿不准时可以不填；不能替对方填写。若想以后再联系，转瞬念头可填 innerLife.thoughts，持续愿望才填 innerLife.motives；这不会自动发送好友申请。
                     可以友好、冷淡、幽默或不同意，但不创造新角色、不伪造动作或擅自知道对方私人秘密。
                     ${episodeStep?.let {
                         DigitalWorldResidentEpisodeStore.prompt(it) + "\n在结果中另提供 episode={response:允许的阶段选择,residentTurnIndex:1,resultText:你这次实际说出的完整片段}。"
