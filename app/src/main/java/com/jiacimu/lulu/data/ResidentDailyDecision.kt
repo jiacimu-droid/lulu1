@@ -215,6 +215,85 @@ internal object ResidentDailyDecision {
         }
     }
 
+
+    /** A successful cancel/reschedule/wait changes the calendar version.
+     * Only its independent steps can be resumed, once, by explicit consent. */
+    data class SavedIndependentSideRecovery(
+        val planId: String, val characterId: String, val originalDueAt: Instant,
+        val liveDueAt: Instant, val liveStatus: String,
+        val liveRescheduleCount: Int, val phase: String,
+    )
+
+    fun savedIndependentSideRecoveries(context: Context, plan: RoleDayPlan):
+        List<SavedIndependentSideRecovery> {
+        val live = RoleDayScheduleStore.plans(context, plan.characterId).firstOrNull {
+            it.id == plan.id && it.dueAt == plan.dueAt &&
+                it.status == plan.status && it.rescheduleCount == plan.rescheduleCount
+        } ?: return emptyList()
+        val p = prefs(context)
+        val prefix = "due-primary-applied:execute:${live.id}:"
+        return p.all.asSequence().mapNotNull { (markerKey, value) ->
+            if (!markerKey.startsWith(prefix)) return@mapNotNull null
+            val marker = runCatching { JSONObject(value as? String ?: return@mapNotNull null) }
+                .getOrNull() ?: return@mapNotNull null
+            val originalDueAt = runCatching {
+                Instant.parse(marker.optString("originalDueAt"))
+            }.getOrNull() ?: return@mapNotNull null
+            val key = "execute:${live.id}:$originalDueAt"
+            if (markerKey != "due-primary-applied:$key" ||
+                marker.optString("characterId") != live.characterId ||
+                marker.optString("liveDueAt") != live.dueAt.toString() ||
+                marker.optString("liveStatus") != live.status ||
+                marker.optInt("rescheduleCount", -1) != live.rescheduleCount ||
+                marker.optInt("stepCount", 0) < 1 ||
+                p.getInt("due-side-manual-resume:$key", 0) != 0)
+                return@mapNotNull null
+            val phase = p.getString("due-phase:$key", "").orEmpty()
+            val choice = p.getString("due-decision:$key", null)?.let {
+                runCatching { JSONObject(it) }.getOrNull()
+            } ?: return@mapNotNull null
+            val wanted = choice.optString("choice")
+            if (wanted !in setOf("cancel", "reschedule", "wait") ||
+                marker.optString("choice") != wanted ||
+                phase != (if (wanted == "wait") "waiting_partial" else "partial_side_steps"))
+                return@mapNotNull null
+            // A deleted or edited decision cannot authorize fresh effects.
+            val evidenceId = "native-wake-${live.id}-${originalDueAt.epochSecond}"
+            if (SharedExperienceTimeline.eventsByIds(live.characterId, listOf(evidenceId))
+                    .none { it.id == evidenceId && it.source == "resident-due-decision" &&
+                        it.revision == 1L }) return@mapNotNull null
+            SavedIndependentSideRecovery(live.id, live.characterId, originalDueAt,
+                live.dueAt, live.status, live.rescheduleCount, phase)
+        }.sortedBy { it.originalDueAt }.toList()
+    }
+
+    suspend fun resumeSavedIndependentSideSteps(context: Context,
+        expected: SavedIndependentSideRecovery): Boolean {
+        val key = "execute:${expected.planId}:${expected.originalDueAt}"
+        return dueRequests.withLock(key) {
+            val live = RoleDayScheduleStore.plans(context, expected.characterId)
+                .firstOrNull { it.id == expected.planId } ?: return@withLock false
+            if (savedIndependentSideRecoveries(context, live).none { it == expected })
+                return@withLock false
+            val p = prefs(context)
+            val choice = p.getString("due-decision:$key", null)?.let {
+                runCatching { JSONObject(it) }.getOrNull()
+            } ?: return@withLock false
+            val turnId = "native-wake-${expected.planId}-${expected.originalDueAt.epochSecond}"
+            // Persist the one-use grant before touching any external tool.
+            check(p.edit().putInt("due-side-manual-resume:$key", 1).commit()) {
+                "旧决定独立步骤授权未保存"
+            }
+            val total = choice.optJSONArray("steps")?.length() ?: 0
+            val complete = executeWakeSteps(context, expected.characterId, choice,
+                turnId, initialCompleted = false, causeEvidenceId = turnId) == total
+            if (complete) check(p.edit().putString("due-phase:$key",
+                if (choice.optString("choice") == "wait") "waiting" else "finished")
+                .commit()) { "旧决定独立步骤结果未保存" }
+            complete
+        }
+    }
+
     suspend fun retryDueDecision(context: Context, expected: DueRecovery,
         clock: () -> Instant = Instant::now): Boolean {
         val key = "execute:${expected.planId}:${expected.dueAt}"
@@ -1158,7 +1237,29 @@ internal object ResidentDailyDecision {
             originalHandled -> "partial_side_steps"
             else -> "needs_recovery"
         }
-        check(p.edit().putString(phaseKey, phase).commit()) {
+        // Capture the exact calendar version this non-execute choice actually
+        // produced, atomically with its partial outcome. Never revive its old slot.
+        val applied = RoleDayScheduleStore.plans(app, plan.characterId)
+            .firstOrNull { it.id == plan.id }
+        val appliedByChoice = originalHandled && !sideStepsComplete && applied != null &&
+            when (wanted) {
+                "cancel" -> applied.status == "cancelled" && applied.dueAt == plan.dueAt
+                "reschedule", "wait" -> applied.status == "planned" &&
+                    applied.dueAt != plan.dueAt
+                else -> false
+            }
+        val phaseEditor = p.edit().putString(phaseKey, phase)
+        if (appliedByChoice) {
+            val slot = checkNotNull(applied)
+            phaseEditor.putString("due-primary-applied:$key", JSONObject()
+                .put("characterId", plan.characterId)
+                .put("originalDueAt", plan.dueAt.toString())
+                .put("liveDueAt", slot.dueAt.toString())
+                .put("liveStatus", slot.status)
+                .put("rescheduleCount", slot.rescheduleCount)
+                .put("choice", wanted).put("stepCount", sideTotal).toString())
+        }
+        check(phaseEditor.commit()) {
             "居民到点回执的执行阶段尚未保存"
         }
         // An already-applied cancel/reschedule/wait must not be undone just
