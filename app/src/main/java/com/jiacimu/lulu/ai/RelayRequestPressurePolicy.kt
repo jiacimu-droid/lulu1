@@ -30,8 +30,18 @@ internal object RelayRequestPressurePolicy {
             .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
     }
 
+    /**
+     * The background wake can carry a 90-second decision, long structured
+     * action protocol and an image in the same request. Two measured requests
+     * around 360 KB reached the read timeout while the old 440 KB gate was
+     * never entered. Apply the existing evidence-preserving projection BEFORE
+     * sending large background turns, not only after a relay rejects them.
+     *
+     * SavesEnough is checked separately by the caller. Ordinary short turns
+     * are left unchanged, as are other model entry points.
+     */
     fun shouldCompactBeforeSend(source: String, payloadBytes: Int): Boolean =
-        canRecover(source) && payloadBytes > 440_000
+        canRecover(source) && payloadBytes > 280_000
 
     /**
      * These aren't local-memory quotas. A relay failure may justify omitting
