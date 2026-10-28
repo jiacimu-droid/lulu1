@@ -198,6 +198,42 @@ class CharacterCausalTraceTest {
             it.detail.contains("不证明由当前事件直接触发") })
     }
 
+    @Test fun residentScheduleHasExactDecisionProvenanceWithoutClaimingExecution() {
+        val sourceId = "trace-scheduled-daily-a"
+        source(a, sourceId, "本人今天安排明天分享花草")
+        source(b, "trace-scheduled-daily-b", "B的独立安排")
+        val now = Instant.now()
+        val plan = RoleDayScheduleStore.arrange(context, a, "整理花草观察",
+            "想等整理好再分享", now.plusSeconds(7200), now,
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "观察笔记"),
+            originEvidenceId = sourceId, originEvidenceRevision = 1L)
+        try {
+            val stored = RoleDayScheduleStore.plans(context, a).single { it.id == plan.id }
+            assertEquals(sourceId, stored.originEvidenceId)
+            assertEquals(1L, stored.originEvidenceRevision)
+            val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+                SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
+            assertTrue(lines.any { it.title.contains("已排入日程") &&
+                it.detail.contains("原活动没有在此处被证明执行成功") })
+            assertFalse(lines.any { it.title.contains("执行器确认成功") })
+            assertFalse(CharacterCausalTrace.inspect(context, b, event(b, "trace-scheduled-daily-b"),
+                SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
+                .any { it.title.contains("已排入日程") })
+            source(a, sourceId, "后来修改了当天计划的文字")
+            val edited = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+                SharedExperienceTimeline.all(a), JSONObject())
+            assertTrue(edited.any { it.title.contains("旧版本的日程") &&
+                it.detail.contains("不能用新内容解释旧安排") })
+            SharedExperienceTimeline.deleteEvent(sourceId)
+            assertTrue(CharacterCausalTrace.inspect(context, a,
+                event(b, "trace-scheduled-daily-b"), SharedExperienceTimeline.all(a),
+                JSONObject()).isEmpty())
+        } finally {
+            RoleDayScheduleStore.remove(context, a, plan.id)
+        }
+    }
+
     @Test fun originalResultDeletionAndSourceWithdrawalNeverReviveOldEvidence() {
         source(a, "trace-origin")
         SharedExperienceTimeline.record("trace-native", a, "独自阅读", "角色", "真正读到的材料",
