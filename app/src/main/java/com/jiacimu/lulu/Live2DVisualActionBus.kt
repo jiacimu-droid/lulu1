@@ -25,7 +25,8 @@ internal object Live2DVisualActionBus {
     data class Beat(val atMs: Int, val expression: String? = null,
         val head: Head? = null, val body: Body? = null, val face: Face? = null,
         val durationMs: Int? = null,
-        val anchor: String? = null, val segmentIndex: Int = 0)
+        val anchor: String? = null, val segmentIndex: Int = 0,
+        val motion: Pair<String, Int>? = null)
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
     internal val faceChannels = linkedMapOf(
@@ -95,67 +96,36 @@ internal object Live2DVisualActionBus {
     fun capabilityNote(context: Context, characterId: String, callId: String): String {
         if (visibleStages[characterId] != callId || callId.isBlank()) return ""
         val controls = Live2DAssets.controls(context, characterId)
-        val supported = availableParameters[characterId].orEmpty()
-        if (controls.expressions.isEmpty() && controls.motions.isEmpty() && supported.isEmpty()) return ""
+        if (controls.expressions.isEmpty() && controls.motions.isEmpty()) return ""
         val expressions = controls.expressions.take(20).joinToString("、").ifBlank { "无" }
         val motions = controls.motions.joinToString("、") { (group, index) ->
             Live2DMotionCatalog.describe(group, index) ?: "$group#$index"
         }.ifBlank { "无" }
-        val headFields = listOfNotNull(
-            "yaw".takeIf { "ParamAngleX" in supported }?.let { "yaw=左右转头" },
-            "pitch".takeIf { "ParamAngleY" in supported }?.let { "pitch=抬头低头" },
-            "roll".takeIf { "ParamAngleZ" in supported }?.let { "roll=歪头" },
-        ).joinToString("、")
-        val bodyFields = listOfNotNull(
-            "yaw".takeIf { "ParamBodyAngleX" in supported }?.let { "yaw=身体左右转" },
-            "pitch".takeIf { "ParamBodyAngleY" in supported }?.let { "pitch=身体前后" },
-            "roll".takeIf { "ParamBodyAngleZ" in supported }?.let { "roll=身体侧倾" },
-        ).joinToString("、")
-        val faceFields = faceChannels.entries.filter { (_, ids) ->
-            ids.all { it in supported }
-        }.joinToString("、") { (key, _) -> key }
         return """
-            【当前可视电话：已确认显示的 Live2D 身体】
-            这是普通聊天也能自主使用的身体能力，无需等用户要求“做个表情”。
-            在这同一次决定里，结合本人此刻感受、关系、这句话的意思与语气，选择要说的话与愿意显露的神态/小动作；
-            它们是同一个人的一次表达，不另起人格、不增加模型调用。也允许不动或安静地只用神态回应。
-            你可以在正常说话的同时主动使用这个真实数字身体，不必等用户点动作按钮，也不需要第二次模型调用。自然聊天可有点头、转头、歪头、笑眼、好奇探头、害羞低头等反应；由你根据本人的真实感受选择，没有想动时可以静止。
-            视频通话不是只让眼睛和耳朵微动：当你确实想点头、歪头、探身、侧看、轻轻后仰时，在 performance.movement 里选对应动作；当前皮套若有匹配的真实 Motion3，系统优先播放完整动作，同时保留脸部神态和语音口型。不要只把动作写在台词里。
-            这不是要求你不断晃头：想专注听对方说话可以安静凝视，想表达时自然做一次完整动作，不要重复机械摇摆。
-            【必须选择结构化可执行动作】只在文字中写“我歪歪头/笑了/跳起来”，身体是不会动的；同一次 reply JSON 要明确填写 live2d 才能播放：
-            {"action":"reply","text":"自己真正要说的话","live2d":{"performance":{"feeling":"thinking","movement":"glance","intensity":0.35,"side":"left"}}}。
-            若更想用这套皮套已有的完整动作，可以同时选择真实 motion，例如 {"live2d":{"motion":{"group":"LuluWolf","index":3},"performance":{"feeling":"curious"}}}；group/index 必须来自下方当前皮套目录。
-            feeling 与 movement 可单独选，也可组合；intensity 为0至1，省略为0.45；side=left|right。
-            ${Live2DConversationPerformance.capabilityNote(supported)}
-            这些名字是你主动选择的视觉意图，不是系统根据台词关键词判情绪。不要为了填字段强迫自己笑、害羞、点头；
-            普通交谈的神态也可以只有轻微嘴角、眉眼、视线和身体变化，不需要每轮换整张表情或循环摆动。
-            当这句话本人确实带着笑意说，选 smile/happy/amused；确实委屈、含泪时可选 aggrieved/tearful。
-            程序会将选定的眉眼、嘴角、头颈与身体组合并随整段语音保留；PCM 嘴巴开合独立控制，不会抹掉嘴角笑意。
-            不从说话文本关键词自动推断情绪，也不强制每句都做动作。
-            程序会把所选意图编成短暂的起势、变化、收敛，只操作下方确认存在的参数，随真实语音开始执行并平滑恢复。
-            思考不必伴随点头，笑意不必伴随亲密；组合、强弱、是否显露由本人决定，例子不是固定人设或聊天脚本。
-
-            需要精确控制时，仍可同时填写 expression、motion、head、body、face 或 beats；显式数值优先于 performance。
-            真实表情/外观 expression 原名=$expressions；真实预制 motion（group#index=名字·适合时；配表情与神态为默认搭配）=$motions。选 motion 时若不另外指定表情/神态，默认带目录里的配表情与神态；想换就明确写 expression/face。
-            若明确答应展示模型已有表情（如星星眼），须在 live2d.expression 选择对应真实名字，不能只口头答应；没有资源不能虚构。
-            若真的兴奋想呈现特殊眼睛，只选真实存在的星星眼；本皮套不再使用爱心眼，原来配爱心眼的动作仍能播放，程序只替换眼睛效果。流泪、吐舌等强表情仅按本人当下需要明确选择；轻微笑意或羞赧不会自动升级成它们。
-            兽耳、耳机、麦克风是外观开关，不当情绪用；没有预制手部动作不能声称已经挥手或捂嘴。
-            可用 head=$headFields（-25至25），body=$bodyFields（-10至10）；face=$faceFields。
-            face 每项-1至1；eyeSmile、squint、cheekPuff、pout、eyeOpen 为0至1，eyeOpen=1正常睁眼；
-            gazeX/Y是视线，smile是嘴角，eyeSmile是笑眼，browX/Y/Angle/Form是眉形；不用嘴巴开合假装发声。
-            你还可以自主决定一句话的哪一个位置做动作。推荐在 beats 每拍填 anchor，必须逐字取自本轮 text 的某个分句开头（紧接逗号、句号等标点之后），例如
-            {"action":"reply","text":"你回来了！我刚才还想着你呢。不过我可没一直等你。","live2d":{"beats":[{"anchor":"你回来了","performance":{"feeling":"happy","movement":"lean","intensity":0.4}},{"anchor":"不过我可没一直等你","performance":{"feeling":"playful","movement":"glance","intensity":0.35}}]}}。
-            这会在对应原话开始实际发声时表演；不必每一句都有动作。只有明确选择了文字锚点才会为对齐短暂拆分语音，最多增加3个TTS片段，不额外调用语言模型。
-            anchor 不可改写台词、不可重复出现；若最终口语文本不含它或无法按分句边界对齐，动作会跳过，不能冒充精准同步。
-            每拍 performance 可选上方真实 feeling/movement/intensity/side，系统只把你选择的意图转成已有骨骼参数，不能根据文本擅自猜表情。
-            自己想演绎更具体的先后变化时也可写数值 beats，例如
-            {"beats":[{"atMs":0,"face":{"smile":0.2}},
-            {"atMs":700,"head":{"roll":4},"body":{"roll":1},"face":{"smile":0.5,"eyeSmile":0.3},"durationMs":900}]}。
-            无 anchor 的 beats.atMs 从本轮第一段真实发声开始计时；有 anchor 时 atMs 是从该分句实际出声起算的偏移，省略则为0。durationMs 为本拍保持时间，随后平滑还原；显式 beats 优先。
-            沉默时所选小动作直接执行，不必硬配台词；文字 gesture 或括号描述本身不能驱动模型。
-            正在发完整词句时不能同时吐舌或用口部动作阻碍发声；播放执行器会等真实PCM停顿或语音结束才执行这类表情。
-            没有PCM不能猜停顿。笑眼、脸红和轻微姿态可以伴随语气，但应与实际要说的话一致。
-            视频关闭或身体未就绪时不会执行，不能把选择或描述当作已成功展示。没有身体意图时可省略 live2d。
+            【当前 Live2D 视频通话：同一次回复里由你亲自选择动作】
+            你的角色可以自己决定说什么、什么时候做出什么神态或动作；也可以不动。
+            最重要的是使用真正存在的 Motion3 动作，不要自己编造头部/身体角度或指望文字描述让角色动起来。
+            真实动作目录（group#index=动作描述）：
+            $motions
+            真实表情资源：$expressions
+            结合你的性格、当下心情和这句话的语气，从上面的动作目录自主选择最合适的动作。不是按关键词机械匹配，也不需要每句话都做。
+            同一次正常回复即可填写 live2d，不会额外调用语言模型：
+            {"action":"reply","text":"你回来了！我刚才还想着你呢。不过我可没一直等你。",
+             "live2d":{"beats":[
+               {"anchor":"你回来了","motion":{"group":"LuluWolf","index":17}},
+               {"anchor":"不过我可没一直等你","motion":{"group":"LuluWolf","index":6}}
+             ]}}
+            上面仅说明格式；必须自行从真实目录选动作，示例不是固定搭配。
+            beats 中每项 motion.group 与 motion.index 必须与目录完全一致（索引从0开始）。同一句最多挑两三段重要时刻，不要每个分句都摆动作。
+            anchor 必须逐字来自这次 text 的分句开头（如句首、逗号后、句号后），并且只出现一次；程序会等对应 TTS 片段真正开始发声才播放 Motion。
+            若希望在整句话开始时做一个动作，可直接用 {"live2d":{"motion":{"group":"LuluWolf","index":3}}}；等实际发声后播放。
+            不要为普通 Motion 使用 head/body/face 数值或 performance.movement；原生 Motion 包含自己完整的身体协调、节奏与回弹，唇形随真实声音独立变化。
+            如果你想用这个模型真实提供的表情资源，可单独选择 expression，也可配合一个 motion；没有的资源不能虚构。
+            beats 允许 {"anchor":"原话分句","motion":{"group":"真实组名","index":真实序号},"expression":"真实表情名"}。
+            没有匹配锚点或无效组名/序号时，执行器跳过该动作，不凭台词猜动作，也不补造替代动作。
+            没有 Motion 或不想动时可以不填写 live2d，保持自然。
+            老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
+            当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
         """.trimIndent()
     }
 
@@ -225,8 +195,9 @@ internal object Live2DVisualActionBus {
             val index = item.optInt("index", -1)
             (group to index).takeIf { it in controls.motions }
         }
-        val motion = explicitMotion ?: Live2DConversationPerformance.selectedMotion(
-            chosen.optJSONObject("performance"), controls.motions)
+        // The role chooses an exact authored motion. Do not turn its semantic
+        // performance description into a different hard-coded clip.
+        val motion = explicitMotion
         // The character explicitly chose a tearful PERFORMANCE. If this
         // imported model offers a real tear exp3, combine it with the same
         // chosen face/body pose; never fabricate tears or choose dark-face.
@@ -300,7 +271,7 @@ internal object Live2DVisualActionBus {
                 if (!item.has("atMs") && anchor == null) continue
                 val atMs = item.optInt("atMs", 0)
                 if (atMs !in 0..30_000) continue
-                val name = item.optString("expression").trim()
+                var name = item.optString("expression").trim()
                     .takeIf(String::isNotBlank)
                     ?.let { resolveExpression(it, controls.expressions) }
                 val beatHeadJson = item.optJSONObject("head")
@@ -333,11 +304,39 @@ internal object Live2DVisualActionBus {
                             if (key in positiveFaceChannels) 0.0 else -1.0, 1.0).toFloat()
                     }
                 }
-                val beatFace = beatFaceValues.takeIf { it.isNotEmpty() }?.let(::Face)
+                var beatFace = beatFaceValues.takeIf { it.isNotEmpty() }?.let(::Face)
+                val beatMotion = item.optJSONObject("motion")?.let { selection ->
+                    (selection.optString("group") to selection.optInt("index", -1))
+                        .takeIf { it in controls.motions }
+                }
+                // In the existing motion catalog, some complete original clips
+                // come with an authored expression/face pairing. A timed clip
+                // must behave like its top-level equivalent, unless the model
+                // explicitly chose a different valid face.
+                val catalogBeat = beatMotion?.takeIf { it.first == "LuluWolf" }
+                    ?.let { Live2DMotionCatalog.entries[it.second] }
+                if (catalogBeat != null) {
+                    if (name == null && catalogBeat.expression != null) {
+                        name = resolveExpression(catalogBeat.expression, controls.expressions)
+                    }
+                    if (beatFace == null && catalogBeat.face.isNotEmpty()) {
+                        val catalogValues = mutableMapOf<String, Float>()
+                        for ((key, ids) in faceChannels) {
+                            val value = catalogBeat.face[key] ?: continue
+                            if (ids.all { it in allowed }) catalogValues[key] = value.coerceIn(
+                                if (key in positiveFaceChannels) 0f else -1f, 1f)
+                        }
+                        beatFace = catalogValues.takeIf { it.isNotEmpty() }?.let(::Face)
+                    }
+                }
                 val durationMs = if (item.has("durationMs")) item.optInt("durationMs", -1)
                     .takeIf { it in 1..30_000 } else null
-                if (name != null || beatHead != null || beatBody != null || beatFace != null) {
-                    add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs, anchor))
+                if (name != null || beatHead != null || beatBody != null ||
+                    beatFace != null || beatMotion != null) {
+                    // Model-selected Motion3 is a first-class timed beat, not
+                    // a parameter approximation. Keep the complete clip intact.
+                    add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs,
+                        anchor, motion = beatMotion))
                 }
             }
         }.sortedBy(Beat::atMs)

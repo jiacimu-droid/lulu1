@@ -457,6 +457,8 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                         .put("segmentIndex", beat.segmentIndex)
                     beat.durationMs?.let { item.put("durationMs", it) }
                     beat.expression?.let { item.put("expression", it) }
+                    beat.motion?.let { item.put("motion", JSONObject()
+                        .put("group", it.first).put("index", it.second)) }
                     beat.head?.let { item.put("head", angles(it.yaw, it.pitch, it.roll)) }
                     beat.body?.let { item.put("body", angles(it.yaw, it.pitch, it.roll)) }
                     beat.face?.let { item.put("face", faceValues(it)) }

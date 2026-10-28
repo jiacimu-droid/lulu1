@@ -13,7 +13,7 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
     const allowed = Array.isArray(beats) ? beats.filter(beat =>
       beat && Number.isFinite(beat.atMs) && beat.atMs >= 0 &&
       beat.atMs <= 30000 &&
-      (beat.expression || beat.head || beat.body || beat.face))
+      (beat.motion || beat.expression || beat.head || beat.body || beat.face))
       .slice(0, 16).sort((a, b) => a.atMs - b.atMs) : []
     if (!allowed.length) return false
     // A later decision supersedes every unplayed beat of the former decision.

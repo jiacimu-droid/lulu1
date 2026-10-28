@@ -251,18 +251,45 @@ class Live2DVisualActionBusTest {
             assertEquals("LuluWolf" to 0, nod?.motion)
             assertEquals(null, nod?.expression)
             assertEquals(null, nod?.face)
-            // Natural phone speech may select a movement without writing a
-            // Motion3 ID. It must resolve to an actual imported authored clip,
-            // while keeping the model-selected facial performance.
+            // Legacy parameter performances remain for old decisions, but
+            // never silently pick a Motion3 instead of the role.
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("performance",JSONObject().put("feeling","happy")
                     .put("movement","lean").put("intensity",0.5))))
             val talking = Live2DVisualActionBus.cues.value[role]
-            assertEquals("LuluWolf" to 3,talking?.motion)
+            assertEquals(null,talking?.motion)
             assertTrue(talking?.beats?.any { it.head != null || it.face != null } == true)
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("performance",JSONObject().put("feeling","happy"))))
             assertEquals(null,Live2DVisualActionBus.cues.value[role]?.motion)
+            // New path: the role selects exact authored Motion3 files AND
+            // their phrase anchors; independent head/body params are optional.
+            val authored = org.json.JSONArray()
+                .put(JSONObject().put("anchor","你回来了").put("motion",
+                    JSONObject().put("group","LuluWolf").put("index",17)))
+                .put(JSONObject().put("anchor","不过我可没一直等你").put("motion",
+                    JSONObject().put("group","LuluWolf").put("index",6)))
+                .put(JSONObject().put("anchor","不存在的资源").put("motion",
+                    JSONObject().put("group","WrongGroup").put("index",17)))
+            assertTrue(Live2DVisualActionBus.publish(context,role,call,
+                JSONObject().put("beats",authored)))
+            val motionCue=Live2DVisualActionBus.cues.value[role]!!
+            assertEquals(2,motionCue.beats.size)
+            assertEquals("LuluWolf" to 17,motionCue.beats.first().motion)
+            assertEquals("LuluWolf" to 6,motionCue.beats.last().motion)
+            assertEquals(null,motionCue.motion)
+            val afterBinding=Live2DVisualActionBus.bindSpeechAnchors(role,call,
+                motionCue.sequence,mapOf("你回来了" to 0,"不过我可没一直等你" to 2))
+            assertTrue(afterBinding>motionCue.sequence)
+            assertEquals(listOf(0,2),Live2DVisualActionBus.cues.value[role]!!
+                .beats.map { it.segmentIndex })
+            // An invalid anchor must never slide a motion to an unrelated
+            // fragment or make up an estimated timestamp.
+            val unbound=Live2DVisualActionBus.cues.value[role]!!
+            val next=Live2DVisualActionBus.bindSpeechAnchors(role,call,
+                unbound.sequence,mapOf("你回来了" to 0))
+            assertTrue(next>0L)
+            assertEquals(1,Live2DVisualActionBus.cues.value[role]!!.beats.size)
         } finally {
             settings.parentFile?.deleteRecursively()
             prefs.edit().remove("model:$role").commit()

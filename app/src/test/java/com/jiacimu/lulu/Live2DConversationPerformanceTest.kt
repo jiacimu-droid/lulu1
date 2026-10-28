@@ -120,22 +120,18 @@ class Live2DConversationPerformanceTest {
         assertTrue(Live2DConversationPerformance.capabilityNote(emptySet()).contains("movement：无"))
     }
 
-    @Test fun authoredMovementMapsToActualModelMotionOnlyWhenAvailable() {
-        val available = listOf("LuluWolf" to 0, "LuluWolf" to 1,
-            "LuluWolf" to 2, "LuluWolf" to 3, "LuluWolf" to 8)
-        fun select(movement: String, side: String = "right") =
-            Live2DConversationPerformance.selectedMotion(
-                JSONObject().put("movement",movement).put("side",side),available)
-        assertEquals("LuluWolf" to 0,select("nod"))
-        assertEquals("LuluWolf" to 8,select("shake"))
-        assertEquals("LuluWolf" to 1,select("tilt","left"))
-        assertEquals("LuluWolf" to 2,select("tilt","right"))
-        assertEquals("LuluWolf" to 3,select("lean"))
-        assertNull(select("turn")) // This archive does not ship turn clips.
-        assertNull(select("unknown"))
-        assertNull(Live2DConversationPerformance.selectedMotion(
-            JSONObject().put("movement","nod"),listOf("Other" to 0)))
-        assertNull(Live2DConversationPerformance.selectedMotion(
-            JSONObject().put("feeling","happy"),available)) // No inferred nod.
+    @Test fun modelChosenClipIsNotReplacedByParametricLegacyPerformance() {
+        val authored = JSONObject().put("beats",org.json.JSONArray()
+            .put(JSONObject().put("anchor","你回来啦")
+                .put("motion",JSONObject().put("group","LuluWolf").put("index",19))
+                .put("performance",JSONObject().put("feeling","happy").put("intensity",.5))))
+        val expanded=Live2DConversationPerformance.expand(authored)
+        val beats=expanded.getJSONArray("beats")
+        assertEquals(3,beats.length())
+        assertEquals(19,beats.getJSONObject(0).getJSONObject("motion").getInt("index"))
+        assertFalse(beats.getJSONObject(1).has("motion"))
+        assertFalse(beats.getJSONObject(2).has("motion"))
+        assertEquals(19,authored.getJSONArray("beats").getJSONObject(0)
+            .getJSONObject("motion").getInt("index"))
     }
 }

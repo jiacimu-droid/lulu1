@@ -293,4 +293,44 @@ bridge.onPlaybackEvent('playing', 1, 123)
 assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0,
   'cancelled turn may not resurrect the former phrase')
 
+// A model-selected original Motion3 at an exact spoken segment is not
+// synthesized from face/head angles, and cannot fire on an earlier segment.
+bridge.onPlaybackEvent('interrupted')
+const beforeMotion = motions.length
+bridge.perform({ visualSequence: 987, beats: [
+  { segmentIndex: 0, atMs: 0, motion: { group: 'LuluWolf', index: 17 } },
+  { segmentIndex: 2, atMs: 0, motion: { group: 'LuluWolf', index: 6 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 986)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+assert.equal(motions.length, beforeMotion,
+  'old audio sequence may not trigger current model-authored motions')
+bridge.onPlaybackEvent('finished', 0, 986)
+bridge.onPlaybackEvent('playing', 0, 987)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+await Promise.resolve()
+assert.equal(motions.length, beforeMotion + 1)
+assert.equal(motions.at(-1)[0], 'LuluWolf')
+assert.equal(motions.at(-1)[1], 17)
+bridge.onPlaybackEvent('playing', 0, 987)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+assert.equal(motions.length, beforeMotion + 1,
+  'duplicate TTS callback must not repeat the same motion')
+bridge.onPlaybackEvent('finished', 0, 987)
+bridge.onPlaybackEvent('playing', 1, 987)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+assert.equal(motions.length, beforeMotion + 1,
+  'unselected TTS clause must not play another movement')
+bridge.onPlaybackEvent('finished', 1, 987)
+bridge.onPlaybackEvent('playing', 2, 987)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+await Promise.resolve()
+assert.equal(motions.length, beforeMotion + 2)
+assert.equal(motions.at(-1)[1], 6)
+bridge.onPlaybackEvent('interrupted', 2, 987)
+bridge.onPlaybackEvent('playing', 2, 987)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+assert.equal(motions.length, beforeMotion + 2,
+  'interrupted turn must not replay an old Motion3')
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')

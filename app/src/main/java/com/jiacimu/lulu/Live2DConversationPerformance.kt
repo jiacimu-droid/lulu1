@@ -105,32 +105,6 @@ internal object Live2DConversationPerformance {
         return "可选神态 feeling：${options(feelings)}；可选小动作 movement：${options(movements)}。"
     }
 
-    /**
-     * A character choosing a real movement should use its authored Motion3
-     * when this imported rig actually has the clip. The semantic choice is
-     * already made in the phone reply; this is only physical execution.
-     * Other rigs keep the validated head/body parameter choreography.
-     */
-    fun selectedMotion(performance: JSONObject?, available: List<Pair<String, Int>>):
-        Pair<String, Int>? {
-        if (performance == null) return null
-        val side = performance.optString("side").lowercase(java.util.Locale.ROOT)
-        val left = side == "left" || side == "左"
-        val index = when (performance.optString("movement")
-            .lowercase(java.util.Locale.ROOT)) {
-            "nod" -> 0
-            "shake" -> 8
-            "tilt" -> if (left) 1 else 2
-            "glance" -> if (left) 10 else 11
-            "look_down" -> 12
-            "turn" -> if (left) 5 else 6
-            "lean" -> 3
-            "withdraw" -> 4
-            else -> return null
-        }
-        return ("LuluWolf" to index).takeIf { it in available }
-    }
-
     /** Explicit beats win; explicit numeric channels override generated values. */
     fun expand(request: JSONObject): JSONObject {
         val authored = request.optJSONArray("beats")
@@ -153,6 +127,10 @@ internal object Live2DConversationPerformance {
                     for (field in listOf("expression", "head", "body", "face", "durationMs")) {
                         if (item.has(field)) beat.put(field, item.get(field))
                     }
+                    // Explicit model-authored Motion3 remains the primary action.
+                    // A per-beat legacy parameter performance must not discard
+                    // it or restart the clip on every generated micro-pose.
+                    if (j == 0 && item.has("motion")) beat.put("motion", item.get("motion"))
                     compiled.put(beat)
                 }
             }

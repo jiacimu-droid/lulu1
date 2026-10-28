@@ -422,6 +422,9 @@ function applyPerformanceBeat(beat, lateMs = 0) {
   const remainingMs = Number.isFinite(beat.durationMs) && beat.durationMs > 0
     ? Math.max(0, beat.durationMs - Math.max(0, lateMs)) : null
   if (remainingMs === 0) return
+  // A motion beat is the role's actual authored Motion3, not a synthetic
+  // parameter pose. The imported model/asset list was validated on Android.
+  if (beat.motion) motion(beat.motion.group, beat.motion.index, true)
   if (beat.expression) startSpeechExpression(beat.expression)
   if (beat.head) head(beat.head, true)
   if (beat.body) body(beat.body, true)
