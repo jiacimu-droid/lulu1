@@ -267,22 +267,16 @@ internal object AutonomousSocialRuntime {
             }
         }
 
-        // A literary chapter must see the committed public exchange, not just
-        // the summary. Each viewer's evidence IDs belong to that viewer alone.
-        // Silence is a real encounter, but does not require a paid literary chapter.
+        // One isolated literary call produces each witnessed POV from the
+        // SAME public scene. Never enqueue N independent prose requests.
+        // Silence may be meaningful, but buys no automatic chapter.
         if (generated.turns.isEmpty()) return@withLock
-        WorldLifeEpisodeStore.initialize(context)
         val committedSession = DigitalWorldStore.state.value.meetings
             .firstOrNull { it.id == session.id } ?: return@withLock
-        participantIds.forEach { id ->
-            val summaryId = "meeting-${session.id}-autonomous-summary-viewer-$id"
-            WorldLifeEpisodeWorker.enqueue(
-                context = context, characterId = id, location = currentLocation,
-                evidenceId = summaryId,
-                sourceEvidenceIds = witnessedEpisodeSources(committedSession, id, worldTick, now),
-                title = "", seed = "", category = "encounter",
-            )
-        }
+        AutonomousEncounterChapters.composeAndRecord(
+            context = context, meeting = committedSession, characters = characters,
+            locationCode = currentLocation, worldTick = worldTick, at = finishedAt,
+        )
     }
 
     /** Each choice saw only its own and earlier public turns. Later answers
