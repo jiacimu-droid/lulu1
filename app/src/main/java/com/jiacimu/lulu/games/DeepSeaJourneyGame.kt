@@ -63,9 +63,17 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var player by remember { mutableStateOf(safeRestoredPosition) }
     var camera by remember { mutableStateOf(WorldVector.Zero) }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
+    var swimVelocity by remember { mutableStateOf(WorldVector.Zero) }
+    var companionRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
     var navigationRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
     var collected by remember { mutableStateOf(restored.collected.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
+    var scanned by remember { mutableStateOf(restored.scanned.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
+    var visited by remember { mutableStateOf(restored.visited.intersect(deepSeaSites.map(DeepSeaSite::id).toSet())) }
+    var companionAssists by remember { mutableIntStateOf(restored.companionAssists) }
+    var sonarPulse by remember { mutableFloatStateOf(0f) }
+    var pickupPulse by remember { mutableFloatStateOf(0f) }
+    var lastPickupPosition by remember { mutableStateOf<WorldVector?>(null) }
     var companionPosition by remember { mutableStateOf(map.start + WorldVector(-90f, 55f)) }
     var notice by remember { mutableStateOf("寻找五枚回声晶体，珊瑚和沉船都是真实障碍") }
     var completed by remember { mutableStateOf(restored.completed) }
@@ -88,13 +96,16 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val latestCollected by rememberUpdatedState(collected)
     val latestCompleted by rememberUpdatedState(completed)
     val latestScore by rememberUpdatedState(score)
+    val latestScanned by rememberUpdatedState(scanned)
+    val latestVisited by rememberUpdatedState(visited)
+    val latestAssists by rememberUpdatedState(companionAssists)
     DisposableEffect(progress) {
-        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore) }
+        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists) }
     }
     LaunchedEffect(progress) {
         while (isActive) {
             delay(1_500)
-            progress.save(player, collected, completed, score)
+            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
         }
     }
     LaunchedEffect(notice) {
@@ -106,63 +117,77 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     LaunchedEffect(viewport, completed) {
         var previousFrame = withFrameNanos { it }
         var lastBump = 0L
+        var nextCompanionRouteAt = 0f
         while (isActive && !completed) {
             withFrameNanos { frame ->
                 val dt = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
-                val automatic = navigationRoute.firstOrNull()?.let { target ->
-                    val delta = target - player
-                    if (delta.length < 22f) {
-                        navigationRoute = navigationRoute.drop(1)
-                        WorldVector.Zero
-                    } else delta.normalized()
-                } ?: WorldVector.Zero
-                val direction = if (joystick.length > .08f) joystick else automatic
-                if (direction.length > .04f) {
-                    if (joystick.length > .08f) navigationRoute = emptyList()
-                    val moved = moveInWorld(
-                        player,
-                        direction,
-                        speed = 300f,
-                        deltaSeconds = dt,
-                        radius = 36f,
-                        bounds = DEEP_SEA_WORLD_BOUNDS,
-                        obstacles = obstacles,
-                    )
+                if (viewport == IntSize.Zero) return@withFrameNanos
+
+                if (navigationRoute.firstOrNull()?.let { player.distanceTo(it) <= 18f } == true) {
+                    navigationRoute = navigationRoute.drop(1)
+                }
+                val waypoint = navigationRoute.firstOrNull()
+                val toWaypoint = waypoint?.minus(player) ?: WorldVector.Zero
+                val manual = joystick.length > .08f
+                if (manual && navigationRoute.isNotEmpty()) navigationRoute = emptyList()
+                val direction = if (manual) joystick.normalized() else toWaypoint.normalized()
+                val speed = if (manual) 300f else (toWaypoint.length * 5f).coerceAtMost(300f)
+                swimVelocity = swimVelocity.lerp(direction * speed, (dt * 7.5f).coerceIn(0f, 1f))
+                if (swimVelocity.length > 1f) {
+                    val moved = moveInWorld(player, swimVelocity, swimVelocity.length, dt,
+                        DEEP_SEA_PLAYER_RADIUS, DEEP_SEA_WORLD_BOUNDS, obstacles)
                     player = moved.position
                     if (moved.collided) {
+                        swimVelocity = WorldVector.Zero
                         navigationRoute = emptyList()
                         val now = System.currentTimeMillis()
-                        if (now - lastBump > 400L) {
+                        if (now - lastBump > 650L) {
                             GameSoundEffects.play(GameSoundEffect.Bump)
-                            notice = "洋流被礁体挡住了，沿边缘绕行"
+                            notice = "前方是礁体，试着绕开它"
                             lastBump = now
                         }
                     }
                 }
+                sonarPulse = (sonarPulse - dt * .95f).coerceAtLeast(0f)
+                pickupPulse = (pickupPulse - dt * 1.65f).coerceAtLeast(0f)
                 camera = camera.lerp(
-                    worldCameraTarget(
-                        player,
-                        viewportWorldWidth,
-                        viewportWorldHeight,
-                        DEEP_SEA_WORLD_WIDTH,
-                        DEEP_SEA_WORLD_HEIGHT,
-                    ),
-                    dt * 4.8f,
+                    worldCameraTarget(player, viewportWorldWidth, viewportWorldHeight,
+                        DEEP_SEA_WORLD_WIDTH, DEEP_SEA_WORLD_HEIGHT),
+                    (dt * 4.8f).coerceIn(0f, 1f),
                 )
-                companionPosition = companionPosition.lerp(
-                    player + WorldVector(if (direction.x < -.05f) 92f else -92f, 58f),
-                    dt * 2.3f,
-                )
+                if (companion != null) {
+                    nextCompanionRouteAt -= dt
+                    if (nextCompanionRouteAt <= 0f) {
+                        val intended = player + WorldVector(-75f, 68f)
+                        val safeGoal = if (obstacles.none { circleIntersects(intended, 23f, it.bounds) }) intended else player
+                        companionRoute = worldFollowPath(companionPosition, safeGoal,
+                            DEEP_SEA_WORLD_BOUNDS, obstacles, 23f)
+                        nextCompanionRouteAt = .75f
+                    }
+                    val follow = companionRoute.firstOrNull()
+                    if (follow != null) {
+                        val gap = companionPosition.distanceTo(follow)
+                        if (gap < 17f) companionRoute = companionRoute.drop(1)
+                        else companionPosition = moveInWorld(companionPosition, follow - companionPosition,
+                            (gap * 5f).coerceAtMost(230f), dt, 23f,
+                            DEEP_SEA_WORLD_BOUNDS, obstacles).position
+                    }
+                }
             }
         }
     }
 
     val targetEcho = deepSeaClosestEcho(map, player, collected)
-    val nearbyEcho = targetEcho?.takeIf { player.distanceTo(it.position) < 122f }
-    val gateReady = collected.size == map.echoes.size
-    val nearGate = gateReady && player.distanceTo(map.gate) < 145f
-    val navigationTarget = if (gateReady) map.gate else targetEcho?.position
+    val nearbyEcho = deepSeaNearbyEcho(map, player, collected, obstacles)
+    val nearbySite = deepSeaNearbySite(player, visited, obstacles)
+    val gateReady = map.echoes.all { it.id in collected }
+    val nearGate = deepSeaCanReturn(map, player, collected, obstacles)
+    val revealedTarget = targetEcho?.takeIf { it.id in scanned || player.distanceTo(it.position) <= 260f }
+    val navigationTarget = if (gateReady) map.gate else revealedTarget?.position
+    val navigationDistance = navigationTarget?.let { destination ->
+        navigationRoute.takeIf { it.lastOrNull() == destination }?.let { deepSeaRouteDistance(player, it) }
+    }
 
     Box(
         Modifier
