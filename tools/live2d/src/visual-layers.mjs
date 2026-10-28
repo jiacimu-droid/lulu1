@@ -69,7 +69,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, touchMotionActive = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -92,6 +92,11 @@ export function createVisualLayerRuntime({ has, read, write }) {
     } : null
     // Authored motion files can contain head/torso movement as well as arms.
     // Sample their real pose instead of overwriting it with our resting pose.
+    const scriptedTouch = authoredMotion && touchMotionActive
+    // An authored tactile clip is the single owner of the main joints.
+    // Its real timeline is preserved; only small force/direction offsets are
+    // composed onto that curve, rather than replacing it with a static pose.
+    const jointTouch = scriptedTouch ? null : touchReflex
     const authoredHead = authoredMotion ? Object.fromEntries(MAIN_HEAD.map(([id, axis]) =>
       [axis, read(core, id) ?? 0])) : null
     const authoredBody = authoredMotion ? Object.fromEntries(Object.entries(BODY_BINDINGS).map(([axis, id]) =>
@@ -103,16 +108,16 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // Soft stroking gets a gentle spring; a palm hit needs a sharp visible
     // attack at the neck, then a long recovery. A single slow spring for both
     // formerly swallowed the entire 200ms impact peak.
-    const reflexPose = touchSpring.step(touchReflex, deltaMs, !touchReflex,
-      touchReflex?.impactMotion ? 780 : null)
-    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex,
-      touchReflex?.impactMotion ? 230 : null)
+    const reflexPose = touchSpring.step(jointTouch, deltaMs, !jointTouch,
+      jointTouch?.impactMotion ? 780 : null)
+    const bodyReflex = touchBodySpring.step(jointTouch?.body, deltaMs, !jointTouch,
+      jointTouch?.impactMotion ? 230 : null)
     // A motion and a physical reflex are not two independent additive neck
     // rotations. Otherwise a 25-degree turn + 30-degree slap gets clamped at
     // the rig limit and looks like a frozen or jerking head. Real impact
     // immediately owns the posture; soft touches temporarily take most of
     // that channel. Yield to the selected motion gradually after release.
-    const touchGoal = touchReflex?.impactMotion ? 1 : touchReflex ? .72 : 0
+    const touchGoal = jointTouch?.impactMotion ? 1 : jointTouch ? .72 : 0
     const touchTimeConstant = touchGoal > touchDominance ? 36 : 290
     const touchBlend = 1 - Math.exp(-Math.max(0, deltaMs) / touchTimeConstant)
     touchDominance += (touchGoal - touchDominance) * touchBlend
@@ -120,22 +125,37 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // The original Motion3 still updates underneath a short touch or voice cue.
     // Don't hand it control in one frame when that override expires.
     if (authoredMotion) {
-      headHandoff = head || touchReflex ? 1 : Math.max(0, headHandoff - deltaMs / 1050)
-      bodyHandoff = body || touchReflex ? 1 : Math.max(0, bodyHandoff - deltaMs / 1050)
+      headHandoff = head || jointTouch ? 1 : Math.max(0, headHandoff - deltaMs / 1050)
+      bodyHandoff = body || jointTouch ? 1 : Math.max(0, bodyHandoff - deltaMs / 1050)
     } else {
       headHandoff = 0
       bodyHandoff = 0
     }
     const eased = t => t * t * (3 - 2 * t)
-    const headMix = !authoredMotion || head || touchReflex ? 1 : eased(headHandoff)
-    const bodyMix = !authoredMotion || body || touchReflex ? 1 : eased(bodyHandoff)
+    const headMix = !authoredMotion || head || jointTouch ? 1 : eased(headHandoff)
+    const bodyMix = !authoredMotion || body || jointTouch ? 1 : eased(bodyHandoff)
+    // Lower than a full second motion: enough for touch strength to be felt
+    // while the matched Motion3 handles its own lead/lag and recovery.
+    const detailGain = touchReflex?.impactMotion ? .19 : .13
     for (const [id, axis] of MAIN_HEAD) {
-      if (!has(core, id) || (authoredMotion && !head && !touchReflex && headHandoff === 0)) continue
+      if (!has(core, id)) continue
+      if (scriptedTouch) {
+        if (touchReflex) write(core, id, (authoredHead?.[axis] ?? 0) +
+          (Number(touchReflex[axis]) || 0) * detailGain)
+        continue
+      }
+      if (authoredMotion && !head && !jointTouch && headHandoff === 0) continue
       const desired = headPose[axis] * (1 - touchDominance) + (reflexPose[axis] || 0)
       write(core, id, (authoredHead?.[axis] ?? 0) * (1 - headMix) + desired * headMix)
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-      if (!has(core, id) || (authoredMotion && !body && !touchReflex && bodyHandoff === 0)) continue
+      if (!has(core, id)) continue
+      if (scriptedTouch) {
+        if (touchReflex) write(core, id, (authoredBody?.[axis] ?? 0) +
+          (Number(touchReflex.body?.[axis]) || 0) * detailGain)
+        continue
+      }
+      if (authoredMotion && !body && !jointTouch && bodyHandoff === 0) continue
       const desired = bodyPose[axis] * (1 - touchDominance) + bodyReflex[axis]
       write(core, id, (authoredBody?.[axis] ?? 0) * (1 - bodyMix) + desired * bodyMix)
     }
