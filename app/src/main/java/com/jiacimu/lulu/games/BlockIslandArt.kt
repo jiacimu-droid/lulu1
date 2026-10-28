@@ -98,11 +98,18 @@ internal object BlockIslandArt {
             .forEach { mob ->
                 drawSlime(center(mob.x, mob.y), tile, mob.hp, phase, mob.id)
             }
+        val companionOutfits = listOf(
+            Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
+        )
+        val companionHair = listOf(
+            Color(0xFF3F627F), Color(0xFF594D4B), Color(0xFF574D73), Color(0xFF6F5D46),
+        )
         w.friends.filter { it.x in left until left + cols && it.y in top until top + rows }
-            .forEachIndexed { i, friend ->
+            .forEach { friend ->
+                val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
                 if (friend.hp > 0) drawPerson(
                     center(friend.x, friend.y), tile,
-                    Color(0xFF71BBD0), Color(0xFF3F627F), phase + i * .13f, false,
+                    companionOutfits[look], companionHair[look], phase + look * .13f, false,
                 ) else drawFallen(center(friend.x, friend.y), tile)
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
