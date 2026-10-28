@@ -110,15 +110,22 @@ internal object RelayRequestPressurePolicy {
         return retained.asReversed()
     }
 
-    fun compactSections(sections: List<Pair<String, String>>): String =
+    /** Keep section provenance alongside the exact reduced text. Diagnostics
+     * must never collapse a trimmed request into an anonymous system blob.
+     * Static contracts, core memories and ongoing responsibilities stay intact.
+     */
+    fun compactSectionPairs(sections: List<Pair<String, String>>): List<Pair<String, String>> =
         sections.mapNotNull { (label, content) ->
             if (content.isBlank()) return@mapNotNull null
             val selected = if (label in protected) content
                 else excerptWholeLines(content, limit(label),
                     mostRecentFirst = label == "本轮背景依据" ||
                         label.contains("时间线") || label.contains("原始依据"))
-            selected.takeIf(String::isNotBlank)
-        }.joinToString("\n\n")
+            selected.takeIf(String::isNotBlank)?.let { label to it }
+        }
+
+    fun compactSections(sections: List<Pair<String, String>>): String =
+        compactSectionPairs(sections).joinToString("\n\n") { it.second }
 
     fun savesEnough(originalBytes: Int, compactBytes: Int): Boolean =
         compactBytes < originalBytes - 4_096
