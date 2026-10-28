@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:20:13.417667+00:00",
-  "commit": "8cbaacff61eb6d37a9d793d6ecec02c5689f3873",
+  "generatedAt": "2026-10-28T06:20:29.428145+00:00",
+  "commit": "1cb6d9318f97239d36d61f95a5008c7ef7805e21",
   "branch": "main",
-  "sourceFingerprint": "e19ca3fd91b5f92ab1b45c4114a746b20da73360a46201a381f289ec4bd60179",
+  "sourceFingerprint": "656355693666038c91d0d0780ff9758402f02b64c6283a4c98663ccdc5aeebe3",
   "summary": {
     "files": 1011,
-    "lines": 201290,
+    "lines": 201291,
     "symbols": 2938
   },
   "symbolIndex": {
@@ -32555,8 +32555,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt",
-      "lines": 164,
-      "sha256": "1a5fc667d6935cf114fa58d9a3d2f59cb0e4b3fffce7817b03fb2cdc9f73993f",
+      "lines": 165,
+      "sha256": "26f6cf0dce808d9b8f674385e91e9b37c659024eab1f3d067bcbce08eb3c6dea",
       "symbols": [
         {
           "name": "CharacterKnowledgeIsolationTest",
