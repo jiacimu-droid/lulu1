@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9b1c348a599184dd72d826aa510b779983d0d7a0`
+- 基准提交：`bb33daea0e1e657f0f330f0c52f8bd746062e62e`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：203356
+- 已索引代码/文本行：203359
 - 已发现符号：2958
 
 | 文件 | 行数 | 符号数 |
@@ -285,7 +285,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 116 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 177 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 180 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 375 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 164 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |

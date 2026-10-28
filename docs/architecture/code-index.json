@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:27:41.164670+00:00",
-  "commit": "9b1c348a599184dd72d826aa510b779983d0d7a0",
+  "generatedAt": "2026-10-28T08:28:33.961698+00:00",
+  "commit": "bb33daea0e1e657f0f330f0c52f8bd746062e62e",
   "branch": "main",
-  "sourceFingerprint": "9633db79d354bc874e0e87b470f432ceb43220376658018c8dcd6be88edb4e10",
+  "sourceFingerprint": "b16c4d42e5d35a121c30617f1521ffae775309fd9e1ee66bb7d0fd2a6e78cea8",
   "summary": {
     "files": 1013,
-    "lines": 203356,
+    "lines": 203359,
     "symbols": 2958
   },
   "symbolIndex": {
@@ -3939,7 +3939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 156
+        "line": 159
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
@@ -4385,7 +4385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 150
+        "line": 153
       }
     ],
     "archiveLabel": [
@@ -4579,37 +4579,37 @@
     "worldSceneArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 116
+        "line": 119
       }
     ],
     "worldLifeArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 123
+        "line": 126
       }
     ],
     "residentSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 129
+        "line": 132
       }
     ],
     "worldSocialConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 135
+        "line": 138
       }
     ],
     "worldSceneConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 141
+        "line": 144
       }
     ],
     "worldLifeConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 144
+        "line": 147
       }
     ],
     "VisionModelService": [
@@ -19315,7 +19315,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt",
       "lines": 169,
-      "sha256": "85bb0009e7560f17a2d96ed1972d8724e58fd28455684e9f956d460605038b87",
+      "sha256": "1edab2be67cdece9d2fd3973cfc93078d0b2b601a07cff66e0f2bf8e11f0e685",
       "symbols": []
     },
     {
@@ -20764,8 +20764,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 177,
-      "sha256": "fe8ea7c6d7f81f2b541f492abfb0fd8b0db611fdb200e7cb5ca255c92f3cd22a",
+      "lines": 180,
+      "sha256": "e05a0dc44c903937563a43c6434773bad7841c35a4dbd555a4a57c0b740aa74c",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -20805,35 +20805,35 @@
         },
         {
           "name": "worldSceneArchiveId",
-          "line": 116
+          "line": 119
         },
         {
           "name": "worldLifeArchiveId",
-          "line": 123
+          "line": 126
         },
         {
           "name": "residentSocialConnection",
-          "line": 129
+          "line": 132
         },
         {
           "name": "worldSocialConnection",
-          "line": 135
+          "line": 138
         },
         {
           "name": "worldSceneConnection",
-          "line": 141
-        },
-        {
-          "name": "worldLifeConnection",
           "line": 144
         },
         {
+          "name": "worldLifeConnection",
+          "line": 147
+        },
+        {
           "name": "resolveConnection",
-          "line": 150
+          "line": 153
         },
         {
           "name": "clear",
-          "line": 156
+          "line": 159
         }
       ]
     },
@@ -32051,7 +32051,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt",
       "lines": 97,
-      "sha256": "a10c16fc4be127f4652764d6d1f9cd604907eb503da767e3a05b5c61a7991084",
+      "sha256": "c6d6a9001e871c06250e334845a1c285ba41f83da079e856ac799238b0e4a1ac",
       "symbols": [
         {
           "name": "CharacterChatModelSelectionTest",
