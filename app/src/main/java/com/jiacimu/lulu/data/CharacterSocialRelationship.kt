@@ -346,29 +346,42 @@ object CharacterSocialRelationship {
 
     fun contextForGroup(participantIds: List<String>): String {
         val ids = participantIds.map(String::trim).filter(String::isNotBlank).distinct()
-        if (ids.size < 2) return "暂无角色间社会关系历史。"
-        val lines = buildList {
-            for (firstIndex in 0 until ids.lastIndex) {
-                for (secondIndex in firstIndex + 1 until ids.size) {
-                    val first = ids[firstIndex]
-                    val second = ids[secondIndex]
-                    val relation = snapshot(first, second)
-                    val firstName = runCatching { MigratedDomainStores.characters.get(first).displayName }.getOrDefault(first)
-                    val secondName = runCatching { MigratedDomainStores.characters.get(second).displayName }.getOrDefault(second)
-                    add("- $firstName ↔ $secondName：${relation.shortContext()}")
-                    perspective(first, second)?.let { view ->
-                        add("  $firstName 对 $secondName 的看法：${view.impression}；根据=${view.reason}；来源=${evidenceBoundary(first, view.evidenceId)}")
+        if (ids.size < 2) return ""
+        val shared = buildList {
+            for (i in 0 until ids.lastIndex) {
+                for (j in i + 1 until ids.size) {
+                    val first = ids[i]
+                    val second = ids[j]
+                    // Never pull a third-party private DM or either person's
+                    // subjective bond into a collective model context.
+                    val otherViewers = ids.filter { it != first && it != second }
+                    val facts = if (otherViewers.isEmpty()) {
+                        val own = snapshot(first, second)
+                        if (own.knowsEachOther) own else null
+                    } else {
+                        val visible = otherViewers.map { witnessedNetworkSnapshot(it, first, second) }
+                        if (visible.all { it.knowsEachOther })
+                            visible.minByOrNull { it.sharedMeetingCount + it.commonGroupNames.size }
+                        else null
                     }
-                    perspective(second, first)?.let { view ->
-                        add("  $secondName 对 $firstName 的看法：${view.impression}；根据=${view.reason}；来源=${evidenceBoundary(second, view.evidenceId)}")
+                    if (facts != null) {
+                        val firstName = networkDisplayName(first)
+                        val secondName = networkDisplayName(second)
+                        add("- $firstName ↔ $secondName：真实共同可见的交集（" +
+                            when {
+                                facts.commonGroupNames.isNotEmpty() -> "共同群聊"
+                                facts.sharedMeetingCount > 0 -> "亲眼参与的会面"
+                                else -> "双方直接来往"
+                            } + "）")
                     }
                 }
             }
         }
+        if (shared.isEmpty()) return ""
         return buildString {
-            appendLine("【角色间已有社会关系｜共同群聊与真实见面只是事实，不是好感度或升级条】")
-            lines.forEach(::appendLine)
-            append("见面次数没有自动升级阈值。是否变熟、亲近、疏远、喜欢、厌烦或维持原样，只能从实际相处内容、时间跨度、双方人设、记住彼此什么以及之后各自是否还想来往中自然形成。")
+            appendLine("【全部现场参与者可共同核对的关系事实】")
+            shared.take(8).forEach(::appendLine)
+            append("这里不包含任何人的私信正文、私密关系评价、内心想法或未在场经历；各人是否亲近只能由自己的经验决定。")
         }
     }
 }

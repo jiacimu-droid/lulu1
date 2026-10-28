@@ -49,6 +49,44 @@ class CharacterSocialNetworkTest {
     }
 
     @Test
+    fun groupSceneDoesNotExposePairPrivateImpressionsOrPrivateLetters() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        MigratedDomainStores.initialize(app)
+        DigitalWorldStore.initialize(app)
+        ResidentSocialMailbox.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
+        val a = MigratedDomainStores.characters.create("私交甲").characterId
+        val b = MigratedDomainStores.characters.create("私交乙").characterId
+        val c = MigratedDomainStores.characters.create("第三个朋友").characterId
+        MigratedDomainStores.chat.createGroupConversation("双人群", listOf(a,b),
+            ownerIncluded = false)
+        assertTrue(CharacterSocialRelationship.snapshot(a,b).knowsEachOther)
+        assertEquals("", CharacterSocialRelationship.contextForGroup(listOf(a,b,c)))
+        val letter = ResidentSocialMailbox.send(a,b,"私下只告诉乙的秘密")
+        assertFalse(CharacterSocialRelationship.contextForGroup(listOf(a,b,c))
+            .contains("私下只告诉乙的秘密"))
+
+        CharacterInnerLifeStore.observe(a, "personal-bond-test", "我当时私下生气",
+            JSONObject().put("social",JSONObject()
+                .put("targetId",b)
+                .put("interpretation","只属于甲的私人心理印象")
+                .put("reason","甲自己的判断")),setOf(b))
+        assertFalse(CharacterSocialRelationship.contextForGroup(listOf(a,b,c))
+            .contains("只属于甲的私人心理印象"))
+        val trio = MigratedDomainStores.chat.createGroupConversation(
+            "三人群", listOf(a,b,c), ownerIncluded = false)
+        val visible = CharacterSocialRelationship.contextForGroup(listOf(a,b,c))
+        assertTrue(visible.contains("共同群聊"))
+        assertFalse(visible.contains("私下只告诉乙的秘密"))
+        assertFalse(visible.contains("只属于甲的私人心理印象"))
+        assertTrue(ResidentSocialMailbox.inbox(a).any { it.id == letter.id })
+        assertTrue(ResidentSocialMailbox.inbox(b).any { it.id == letter.id })
+        assertTrue(ResidentSocialMailbox.inbox(c).isEmpty())
+    }
+
+    @Test
     fun thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed() {
         val app = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(app)

@@ -204,6 +204,45 @@ internal object AutonomousSocialRuntime {
         }
     }
 
+    /**
+     * Shared-scene facts are an intersection of the participants' witness sets,
+     * never a union of their separate timelines or subjective records.
+     * A meeting is eligible only if every viewer really attended, it ended,
+     * and the recorded conversation had at least one committed turn.
+     *
+     * This pure projection is used by the existing SINGLE encounter call.
+     */
+    internal fun witnessedSharedEncounterContext(
+        participants: List<String>,
+        meetings: List<MeetingSession>,
+    ): String {
+        val everyone = participants.map(String::trim).filter(String::isNotBlank).distinct()
+        if (everyone.size < 2) return ""
+        val shared = meetings.asSequence()
+            .filter { meeting ->
+                meeting.reality == MeetingReality.DIGITAL_WORLD &&
+                    meeting.endedAt != null &&
+                    meeting.turns.isNotEmpty() &&
+                    everyone.all(meeting.participantIds::contains)
+            }.sortedBy { it.endedAt }.takeLast(3).toList()
+        if (shared.isEmpty()) return ""
+        return buildString {
+            appendLine("【所有在场人物确实共同见证过的会面｜仅已说出口的话与现场动作】")
+            shared.forEach { meeting ->
+                appendLine("- 共同会面 id=${meeting.id}，地点=${meeting.location}，结束=${meeting.endedAt}")
+                meeting.turns.takeLast(6).forEach { turn ->
+                    val spoken = turn.dialogue.trim()
+                    val visible = turn.sceneText.trim()
+                    if (spoken.isNotBlank() || visible.isNotBlank()) {
+                        appendLine("  ${turn.speakerName}：${spoken.take(160)}" +
+                            if (visible.isBlank()) "" else "；现场=${visible.take(120)}")
+                    }
+                }
+            }
+            appendLine("这些只证明所有人当时在场并听到/看到这些内容，不代表他们形成相同理解。")
+        }.trim()
+    }
+
     private suspend fun generateEncounter(
         session: MeetingSession,
         participantIds: List<String>,
@@ -246,20 +285,12 @@ internal object AutonomousSocialRuntime {
             }
         }.trim()
 
-        val recentLife = buildString {
-            participantIds.forEach { id ->
-                val character = characters.getValue(id)
-                appendLine("【${character.displayName}最近自己的生活】")
-                val recent = SharedExperienceTimeline.all(id).takeLast(8)
-                if (recent.isEmpty()) {
-                    appendLine("- 暂无额外记录")
-                } else {
-                    recent.forEach { event ->
-                        appendLine("- [${event.occurredAt}] ${event.channel}｜${event.speaker}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}")
-                    }
-                }
-            }
-        }.trim()
+        // A group-scene generator is NOT any participant's private mind.
+        // Its previous context contains only words spoken at actual meetings
+        // attended by ALL participants. No person's private conversations,
+        // diaries, memories, emotions or account relationship assumptions.
+        val sharedPast = witnessedSharedEncounterContext(
+            participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
         val anchorId = participantIds.first()
@@ -280,13 +311,11 @@ internal object AutonomousSocialRuntime {
                 appendLine("参与角色与准确 ID：")
                 participantIds.forEach { id ->
                     val character = characters.getValue(id)
-                    appendLine("- id=$id")
-                    appendLine(CharacterRuntime.definition(id).promptSection())
-                    appendLine("此角色的私密持续状态（不可转成同伴已知信息）：")
-                    appendLine(CharacterInnerLifeStore.compactContext(id, now))
+                    appendLine("- id=$id；对外可见的称呼=${character.displayName}")
                 }
+                appendLine("下面只涉及所有参与者共同见证的真实交集。没有列出的个人记忆、未说出口的想法和用户私人关系对其他在场人物并不可见。")
                 appendLine(socialHistory)
-                appendLine(recentLife)
+                appendLine(sharedPast)
             },
             instruction = """
                 你是露露机数字世界的一次小型生活场景调度器。角色因为各自真实移动恰好到了同一个地方，请生成他们自己的一小段相处，而不是替主人写剧情。
@@ -303,7 +332,7 @@ internal object AutonomousSocialRuntime {
                 发声单独放speechText：dialogue保留text完全相同的原话，只加入英文音频标签；action只放实际事件的音效标签，不念正文。不重复同一动作音效。
                 ${com.jiacimu.lulu.VoicePerformance.direction}
                 6. action 只写该 speaker 自己的动作、神态和当下可直接感知的环境，不能替另一个角色决定动作或心理；dialogue 只放真正说出口的话，不加引号。
-                7. 如果最近生活里出现阅读、日记、群聊、世界活动等经历，可以在人设合适时自然成为话题；不要机械复述，也不要每次都提。
+                7. 只能把上面给出的共同亲历会面与当前可见环境当作双方可聊的往事。任何一方的私聊、日记、未说出口的想法、对用户的喜好或其他人在不在场时的经历，均不得成为共同话题。共享历史之外可以闲聊眼前事物，不要凭空编造双方都知道的过去。
                 8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
                 9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
                 10. 每个 turn 可选 innerThought（这个 speaker 未说出的念头）与 innerLife={"emotion":{"feeling":"感受","cause":"本轮亲历依据","otherFeeling":"并存感受","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"愿望","why":"缘由","reason":"变化依据"}],"social":{"targetId":"现场其他真实角色ID","interpretation":"主观看法","reason":"亲历依据"}}。只更新发言角色本人，只依据此前实际相处；不把后续尚未发生的发言、他人的私人想法或私聊写成已知事实。没有变化可省略，不能统一成相同情绪。
@@ -312,6 +341,10 @@ internal object AutonomousSocialRuntime {
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
             maxTokens = 2_400,
+            // Crucial: the previous Full call inherited anchorId's private
+            // memory, bonds and profile into a MULTI-character scene.
+            // This shared narrator receives only the explicit public scene.
+            contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
         ).getOrNull()?.text.orEmpty()
 
         return parseEncounter(result, participantIds)
