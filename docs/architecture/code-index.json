@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:21:42.729429+00:00",
-  "commit": "29ffcced597a528089ab676949e5797d08f650cd",
+  "generatedAt": "2026-10-28T10:22:03.536642+00:00",
+  "commit": "3e4823e9261ce488b99ad6adaecd65875ba35b2e",
   "branch": "main",
-  "sourceFingerprint": "0b55292aea2fdb0de45fd3f98c91b3bc69a11e274bb5240d19a0370f41a54d4e",
+  "sourceFingerprint": "0064e59bc78ab8bcb29c41decc1c802c53335b7469a0462f342e0e4715f6140c",
   "summary": {
     "files": 1037,
-    "lines": 209013,
+    "lines": 209028,
     "symbols": 3044
   },
   "symbolIndex": {
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 662
+        "line": 677
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 680
+        "line": 695
       }
     ],
     "Plan": [
@@ -11845,7 +11845,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 642
+        "line": 657
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12343,7 +12343,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 676
+        "line": 691
       }
     ],
     "index": [
@@ -29682,24 +29682,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 685,
-      "sha256": "ea1e1e59642759887fb2adf81666f2eaddd86f658c67e10e8e014de7b2df8845",
+      "lines": 700,
+      "sha256": "a00b5e311e9b53c3ec110b4023cad47763b6345241cad634aef042cdab8282fd",
       "symbols": [
         {
           "name": "load",
-          "line": 642
+          "line": 657
         },
         {
           "name": "save",
-          "line": 662
+          "line": 677
         },
         {
           "name": "markRecorded",
-          "line": 676
+          "line": 691
         },
         {
           "name": "reset",
-          "line": 680
+          "line": 695
         }
       ]
     },
