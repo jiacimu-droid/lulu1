@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T03:45:34.574396+00:00",
-  "commit": "225c4d168029173a1e24c97d7da9c3793cde0616",
+  "generatedAt": "2026-10-28T04:00:50.188794+00:00",
+  "commit": "4e963d701e1f37a5f05b8f61e557b5f72fcd1d11",
   "branch": "main",
-  "sourceFingerprint": "cd512e30621888f9ed651c45ebcf0c909853fc2138c629bcd5afbfe9e9f42503",
+  "sourceFingerprint": "d364035f60bf9846be9b3a4ea44385bdef8388609ca09bd99e86b5b06a3fdf20",
   "summary": {
     "files": 993,
-    "lines": 197198,
+    "lines": 197442,
     "symbols": 2918
   },
   "symbolIndex": {
@@ -6213,7 +6213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 823
+        "line": 921
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10595,7 +10595,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 448
+        "line": 516
       }
     ],
     "plan": [
@@ -15961,13 +15961,13 @@
     "modelAnswer": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 95
+        "line": 122
       }
     ],
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 456
+        "line": 483
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -26741,8 +26741,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 873,
-      "sha256": "b4a11cd4b72a09c0e9eff9f57e6d97d99b8d9b00df2a6cff12dadf39b8dc2361",
+      "lines": 971,
+      "sha256": "af48ae05f655149e7b511e1de7c600e1d8a4dce9e71c6cf4e0f95af73d433995",
       "symbols": [
         {
           "name": "planForApp",
@@ -26758,11 +26758,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 448
+          "line": 516
         },
         {
           "name": "schedule",
-          "line": 823
+          "line": 921
         }
       ]
     },
@@ -34012,8 +34012,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 588,
-      "sha256": "f9138a330a8786f9720c6eede01b27d518ff20b0c14c907f12d69e4117f160df",
+      "lines": 734,
+      "sha256": "159509fe7de0c4e3d8158c089e13feff6b354e5ebe3eafe022eb2aa19147568f",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34021,11 +34021,11 @@
         },
         {
           "name": "modelAnswer",
-          "line": 95
+          "line": 122
         },
         {
           "name": "item",
-          "line": 456
+          "line": 483
         }
       ]
     },
