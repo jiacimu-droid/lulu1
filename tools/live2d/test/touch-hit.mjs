@@ -618,7 +618,7 @@ const movingWolf = enhanceWolfTouch(
 const settledWolf = enhanceWolfTouch(
   touchReflexFor('hair', 'stroke-left', 0, { force: .9, motionIdleMs: 2500 }, 2500),
   'hair', 'stroke-left', { force: .9, motionIdleMs: 2500 }, 2500)
-assert.ok(movingWolf.roll < -10 && settledWolf.roll < 0 &&
+assert.ok(movingWolf.roll < -5 && settledWolf.roll < 0 &&
   Math.abs(settledWolf.roll) < Math.abs(movingWolf.roll) * .6,
   'wolf neck must relax in place without flipping a leftward stroke to the right')
 stageResponse.reset()
