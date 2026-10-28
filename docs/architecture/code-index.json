@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:20:46.354280+00:00",
-  "commit": "cf6b75cda07e0fc7d0424baf1a3dd1c2f1ae457c",
+  "generatedAt": "2026-10-28T06:26:50.082555+00:00",
+  "commit": "1e5adef1f1f81abf5e352fe4bb893acaaa7390a9",
   "branch": "main",
-  "sourceFingerprint": "656355693666038c91d0d0780ff9758402f02b64c6283a4c98663ccdc5aeebe3",
+  "sourceFingerprint": "b35d9d0ae2321ebdd8e7f076c8a4b2804c50ccefb514ad91e826b8eeb92c69a4",
   "summary": {
     "files": 1011,
-    "lines": 201291,
-    "symbols": 2938
+    "lines": 201378,
+    "symbols": 2939
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6693,13 +6693,13 @@
     "networkContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 277
+        "line": 320
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 303
+        "line": 346
       }
     ],
     "collect": [
@@ -14998,16 +14998,22 @@
         "line": 38
       }
     ],
-    "networkContextIsSilentWithoutConnections": [
+    "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
         "line": 52
       }
     ],
+    "networkContextIsSilentWithoutConnections": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
+        "line": 97
+      }
+    ],
     "compactContextStaysSilentWhenContactsAreUnconnected": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 61
+        "line": 106
       }
     ],
     "CharacterThoughtActionHandoffTest": [
@@ -21535,8 +21541,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 119,
-      "sha256": "c00772207b6987a0f2d6e80f06682e51e85b611f1be2b3a62a93595bd2d816ca",
+      "lines": 118,
+      "sha256": "af4baeac6bcfd14f2516c2e7d8819d1ff3ab4896cb45eeb64025f26d271bb21b",
       "symbols": [
         {
           "name": "render",
@@ -22605,8 +22611,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 332,
-      "sha256": "57696619489fae1f14056dead6a33356ae3fdd88eaeb931a01a6029420ecd891",
+      "lines": 375,
+      "sha256": "4024bb4cd80e6cc8584d41888cfb6b469c6b3455f0f7d172e2d9d47e670cea52",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -22658,11 +22664,11 @@
         },
         {
           "name": "networkContext",
-          "line": 277
+          "line": 320
         },
         {
           "name": "contextForGroup",
-          "line": 303
+          "line": 346
         }
       ]
     },
@@ -32902,8 +32908,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-      "lines": 80,
-      "sha256": "0e908673edf54d11bcdcdf830412cec521d0adb2c895473880bbf3dec060944f",
+      "lines": 125,
+      "sha256": "ba86ffa136c8c423c982b531dad208c2fbea16ced0d909424567e6460de9f8e4",
       "symbols": [
         {
           "name": "CharacterSocialNetworkTest",
@@ -32918,12 +32924,16 @@
           "line": 38
         },
         {
-          "name": "networkContextIsSilentWithoutConnections",
+          "name": "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed",
           "line": 52
         },
         {
+          "name": "networkContextIsSilentWithoutConnections",
+          "line": 97
+        },
+        {
           "name": "compactContextStaysSilentWhenContactsAreUnconnected",
-          "line": 61
+          "line": 106
         }
       ]
     },

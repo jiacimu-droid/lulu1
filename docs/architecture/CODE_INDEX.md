@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cf6b75cda07e0fc7d0424baf1a3dd1c2f1ae457c`
+- 基准提交：`1e5adef1f1f81abf5e352fe4bb893acaaa7390a9`
 - 分支：`main`
 - 已索引文件：1011
-- 已索引代码/文本行：201291
-- 已发现符号：2938
+- 已索引代码/文本行：201378
+- 已发现符号：2939
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -320,7 +320,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 247 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 301 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 119 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 118 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 153 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 116 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
@@ -361,7 +361,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 175 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 379 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 82 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 332 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 375 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 341 | 7 |
@@ -855,7 +855,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 135 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 80 | 5 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 125 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 294 | 1 |
