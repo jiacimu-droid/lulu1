@@ -394,12 +394,12 @@ vm.runInContext(touchSource, bridge)
     clips.push(choice.index)
     return true
   }
-  bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand' })
+  bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand', force: .9 })
   assert.equal(clips.length, 0)
   for (let i = 0; i < 24; i++)
-    bridge.touch(.33, .235, 'stroke-left', { phase: 'move', mode: 'hand' })
+    bridge.touch(.33, .235, 'stroke-left', { phase: 'move', mode: 'hand', force: .9 })
   assert.deepEqual(clips, [1])
-  bridge.touch(.33, .235, 'stroke-left', { phase: 'complete', mode: 'hand' })
+  bridge.touch(.33, .235, 'stroke-left', { phase: 'complete', mode: 'hand', force: .9 })
   assert.deepEqual(clips, [1], 'release must not replay a clip used during the stroke')
   bridge.wolfRigActive = false
   bridge.tactileMotionIndices = new Set()
@@ -632,13 +632,15 @@ for (const region of TOUCH_REGIONS)
     assert.ok(Number.isInteger(selected.index) && selected.index >= 0)
     assert.ok(selected.index < 40)
   }
-assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-left'), { group: 'LuluWolf', index: 1 })
-assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-right'), { group: 'LuluWolf', index: 2 })
+assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-left', { force: .85 }), { group: 'LuluWolf', index: 1 })
+assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-right', { force: .85 }), { group: 'LuluWolf', index: 2 })
 assert.deepEqual(touchMotionFor('cheek-right', 'slap-left', { force: .9 }),
   { group: 'LuluWolf', index: 33 })
 assert.deepEqual(touchMotionFor('cheek-right', 'slap-right', { force: .9 }),
   { group: 'LuluWolf', index: 9 })
 assert.equal(touchMotionFor('cheek-right', 'slap-right', { force: .15 }), null)
+assert.equal(touchMotionFor('beast-ear-left', 'stroke-right', { force: .35 }), null,
+  'light strokes remain local without a pronounced full-neck/body tilt')
 assert.equal(touchMotionFor('arm-left', 'tap', { force: 1 }), null)
 assert.equal(touchMotionFor('arm-right', 'stroke-right', { force: 1 }), null)
 assert.equal(touchMotionFor('chest', 'slap-right', { force: 1 }), null)
