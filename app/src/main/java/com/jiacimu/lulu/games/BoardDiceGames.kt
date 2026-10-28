@@ -41,7 +41,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val scope = rememberCoroutineScope()
     val opponentIds = remember(state.selectedCharacterIds, state.selectedCharacterId) {
-        state.selectedCharacterIds.take(3).ifEmpty { listOf(state.selectedCharacterId) }
+        state.selectedCharacterIds.take(3)
     }
     val players = remember(opponentIds, characters) {
         listOf(YachtPlayer("user", "你")) + opponentIds.distinct().take(3).map { id ->
