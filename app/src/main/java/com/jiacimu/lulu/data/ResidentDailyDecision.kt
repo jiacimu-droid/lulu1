@@ -44,6 +44,87 @@ internal object ResidentDailyDecision {
     private const val WORK_FIXED = "lulu-resident-daily-at-local-time-v2"
     /** Shared local planning hour. WorkManager is durable but Android may defer its exact delivery. */
     internal val DAILY_PLANNING_TIME: LocalTime = LocalTime.of(8, 0)
+    private val dayRequests = KeyedWorkMutex()
+
+    data class DayRecovery(val day: String, val phase: String, val revision: Int) {
+        val label: String get() = when (phase) {
+            "uncertain", "requesting" -> "请求结果未知"
+            "repair_requesting" -> "结构补正中断或仍在进行"
+            "invalid_output" -> "返回内容未能形成有效决定"
+            "definite_rejected" -> "请求已被接口拒绝"
+            else -> phase
+        }
+    }
+
+    fun dayRecovery(context: Context, nativeId: String, now: Instant = Instant.now()): DayRecovery? {
+        val p = prefs(context)
+        val day = date(now)
+        if (p.getString("attempt:$nativeId", "") != day || p.contains(dayDecisionKey(nativeId, day))) return null
+        val phase = p.getString(dayPhaseKey(nativeId, day), "").orEmpty()
+        if (phase !in setOf("uncertain", "requesting", "repair_requesting", "invalid_output", "definite_rejected")) return null
+        return DayRecovery(day, phase, p.getInt("manual-retry:$nativeId:$day", 0))
+    }
+
+    /** Explicit owner action only. Old unknown requests are never auto-bought.
+     * Same lock as the ordinary daily worker, so an in-flight response wins
+     * before this exact displayed recovery snapshot is compared again. */
+    suspend fun retryDayDecision(context: Context, nativeId: String, expected: DayRecovery,
+        clock: () -> Instant = Instant::now): Boolean = dayRequests.withLock("$nativeId:${expected.day}") {
+        val now = clock() // Re-read after the lock: confirmation may have crossed midnight.
+        if (date(now) != expected.day || dayRecovery(context, nativeId, now) != expected) return@withLock false
+        val native = DigitalWorldExpansionStore.residents().firstOrNull { it.id == nativeId }
+            ?: return@withLock false
+        val p = prefs(context)
+        val archive = JSONObject().put("day", expected.day).put("phase", expected.phase)
+            .put("revision", expected.revision).put("authorizedAt", now.toString())
+        for (key in listOf("invalid:$nativeId:${expected.day}", "invalid-reason:$nativeId:${expected.day}",
+                "last-error:$nativeId:${expected.day}")) {
+            p.getString(key, null)?.let { archive.put(key, it) }
+        }
+        check(p.edit().putString("manual-retry-history:$nativeId:${expected.day}:${expected.revision}", archive.toString())
+            .putInt("manual-retry:$nativeId:${expected.day}", expected.revision + 1)
+            .remove("attempt:$nativeId").commit()) { "原请求恢复依据未保存，未重新请求" }
+        runOnceLocked(context, native, now)
+    }
+
+    private val dueRequests = KeyedWorkMutex()
+    data class DueRecovery(val planId: String, val characterId: String, val dueAt: Instant,
+        val phase: String, val revision: Int)
+
+    fun dueRecovery(context: Context, plan: RoleDayPlan): DueRecovery? {
+        val live = RoleDayScheduleStore.plans(context, plan.characterId).firstOrNull {
+            it.id == plan.id && it.dueAt == plan.dueAt && it.status in setOf("planned", "due")
+        } ?: return null
+        val p = prefs(context)
+        val key = dueAttemptKey(live)
+        if (!p.getBoolean(key, false) || p.contains("due-decision:$key")) return null
+        val phase = p.getString("due-phase:$key", "").orEmpty()
+        if (phase !in setOf("uncertain", "requesting", "repair_requesting", "invalid_output", "definite_rejected")) return null
+        return DueRecovery(live.id, live.characterId, live.dueAt, phase, p.getInt("due-manual-retry:$key", 0))
+    }
+
+    suspend fun retryDueDecision(context: Context, expected: DueRecovery,
+        clock: () -> Instant = Instant::now): Boolean {
+        val key = "execute:${expected.planId}:${expected.dueAt}"
+        return dueRequests.withLock(key) {
+            val now = clock()
+            val plan = RoleDayScheduleStore.plans(context, expected.characterId)
+                .firstOrNull { it.id == expected.planId } ?: return@withLock false
+            if (now.isBefore(plan.dueAt) || dueRecovery(context, plan) != expected ||
+                ResidentCharacterBridge.nativeResident(plan.characterId) == null) return@withLock false
+            val p = prefs(context)
+            val archive = JSONObject().put("phase", expected.phase).put("dueAt", expected.dueAt.toString())
+                .put("authorizedAt", now.toString()).put("revision", expected.revision)
+            for (field in listOf("due-invalid:$key", "due-invalid-reason:$key", "due-last-error:$key"))
+                p.getString(field, null)?.let { archive.put(field, it) }
+            check(p.edit().putString("due-manual-history:$key:${expected.revision}", archive.toString())
+                .putInt("due-manual-retry:$key", expected.revision + 1).remove(key).commit()) {
+                "原到期请求恢复依据未保存，未重新请求"
+            }
+            runDuePlanLocked(context, plan, now)
+        }
+    }
+
     private const val MAX_AGENDA_ITEMS = 8
     private const val MAX_MESSAGE = 500
     private const val MAX_SAVED_DECISION_RECOVERIES = 2
@@ -617,7 +698,10 @@ internal object ResidentDailyDecision {
 
     /** Each due item receives one role decision on the normal path.
      * Only a confirmed malformed reply permits one same-role correction. */
-    suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean {
+    suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean =
+        dueRequests.withLock(dueAttemptKey(plan)) { runDuePlanLocked(context, plan, at) }
+
+    private suspend fun runDuePlanLocked(context: Context, plan: RoleDayPlan, at: Instant): Boolean {
         val app = context.applicationContext
         appContext = app
         val native = ResidentCharacterBridge.nativeResident(plan.characterId) ?: return false
@@ -1038,7 +1122,12 @@ internal object ResidentDailyDecision {
     /** Called by the scheduled worker; each citizen chooses using exactly one
      * invocation, from the shared inexpensive model archive selected in settings. */
     suspend fun runOnce(context: Context, native: DigitalWorldResident,
-        now: Instant = Instant.now()): Boolean {
+        now: Instant = Instant.now()): Boolean = dayRequests.withLock("${native.id}:${date(now)}") {
+        runOnceLocked(context, native, now)
+    }
+
+    private suspend fun runOnceLocked(context: Context, native: DigitalWorldResident,
+        now: Instant): Boolean {
         val app = context.applicationContext
         appContext = app
         ResidentCharacterBridge.sync(app, now)

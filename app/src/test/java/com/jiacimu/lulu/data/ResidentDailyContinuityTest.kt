@@ -1448,4 +1448,80 @@ class ResidentDailyContinuityTest {
             alternate.shutdown()
         }
     }
+
+    @Test(timeout = 60_000) fun explicitUnknownDailyRetryBuysOneNewDecisionAndPreservesOldFailure() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "恢复规划${UUID.randomUUID()}", identity = "庭院访客",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD, createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        val day = ResidentDailyDecision.date(now)
+        p.edit().putString("attempt:${native.id}", day)
+            .putString("phase:${native.id}:$day", "uncertain")
+            .putString("last-error:${native.id}:$day", "旧请求超时，收费未知").commit()
+        val expected = ResidentDailyDecision.dayRecovery(app, native.id, now)!!
+        val answer = JSONObject().put("lunch", "home").put("evening", "home")
+            .put("agenda", JSONArray()).put("steps", JSONArray())
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(JSONObject().put("choices", JSONArray().put(
+            JSONObject().put("message", JSONObject().put("content", answer.toString())))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "manual-daily-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(1, server.requestCount)
+            assertFalse(ResidentDailyDecision.retryDayDecision(app, native.id, expected) { now })
+            assertEquals(1, server.requestCount)
+            assertNull(ResidentDailyDecision.dayRecovery(app, native.id, now))
+            assertTrue(p.getString("manual-retry-history:${native.id}:$day:0", "")!!.contains("旧请求超时"))
+        } finally { server.shutdown() }
+    }
+
+
+    @Test(timeout = 60_000) fun explicitOverdueRetryReconsidersNowAndRejectsOldConfirmation() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "恢复活动${UUID.randomUUID()}", identity = "庭院访客",
+            homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD, createdAt = now.minusSeconds(172800)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "昨天想做的活动", "自己的打算",
+            now.minusSeconds(86400), now.minusSeconds(172800), activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "旧动态不能自动补发"))
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        p.edit().putBoolean(key, true).putString("due-phase:$key", "uncertain")
+            .putString("due-last-error:$key", "昨天的请求结果未知").commit()
+        val expected = ResidentDailyDecision.dueRecovery(app, plan)!!
+        val answer = JSONObject().put("choice", "cancel").put("reason", "现在已经不想做")
+            .put("steps", JSONArray())
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(JSONObject().put("choices", JSONArray().put(
+            JSONObject().put("message", JSONObject().put("content", answer.toString())))).toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "manual-due-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(1, server.requestCount)
+            assertEquals("cancelled", RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertFalse(ResidentDailyDecision.retryDueDecision(app, expected) { now })
+            assertEquals(1, server.requestCount)
+            assertFalse(MomentsStore.posts.value.any { it.authorCharacterId == actor && it.content == "旧动态不能自动补发" })
+            assertTrue(p.getString("due-manual-history:$key:0", "")!!.contains("昨天的请求结果未知"))
+        } finally { server.shutdown() }
+    }
+
 }

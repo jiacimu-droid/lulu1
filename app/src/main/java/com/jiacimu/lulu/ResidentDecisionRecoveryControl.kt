@@ -1,0 +1,78 @@
+package com.jiacimu.lulu
+
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import com.jiacimu.lulu.data.ResidentDailyDecision
+import com.jiacimu.lulu.design.LuluAlertDialog
+import kotlinx.coroutines.launch
+
+/** Recovery is attached to the existing resident schedule, not another task system. */
+@Composable
+internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var refresh by remember(nativeId) { mutableIntStateOf(0) }
+    val recovery = remember(nativeId, refresh) { ResidentDailyDecision.dayRecovery(context, nativeId) }
+    var confirming by remember(nativeId) { mutableStateOf(false) }
+    var busy by remember(nativeId) { mutableStateOf(false) }
+    var result by remember(nativeId) { mutableStateOf("") }
+    if (recovery != null) {
+        Text(recovery.label, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        TextButton(onClick = { confirming = true }, enabled = !busy) {
+            Text(if (busy) "正在处理" else "重新请求今日规划")
+        }
+    }
+    if (result.isNotBlank()) Text(result, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (confirming && recovery != null) LuluAlertDialog(
+        onDismissRequest = { confirming = false },
+        title = { Text("重新请求今日规划？") },
+        text = { Text("上次请求可能已经计费。重新请求可能再次计费；将按当前情况重新规划，不补做昨天的活动。") },
+        confirmButton = { TextButton(onClick = {
+            confirming = false
+            busy = true
+            scope.launch {
+                result = try {
+                    if (ResidentDailyDecision.retryDayDecision(context, nativeId, recovery))
+                        "今日规划已恢复"
+                    else "状态已变化或请求仍未完成，请查看请求记录"
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { "恢复未完成，请查看请求记录" }
+                finally { busy = false; refresh++; onUpdated() }
+            }
+        }) { Text("重新请求") } },
+        dismissButton = { TextButton(onClick = { confirming = false }) { Text("取消") } },
+    )
+}
+
+@Composable
+internal fun ResidentPlanRecoveryControl(plan: com.jiacimu.lulu.data.RoleDayPlan, onUpdated: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var refresh by remember(plan.id, plan.dueAt) { mutableIntStateOf(0) }
+    val recovery = remember(plan.id, plan.dueAt, refresh) { ResidentDailyDecision.dueRecovery(context, plan) }
+    var confirming by remember(plan.id, plan.dueAt) { mutableStateOf(false) }
+    var busy by remember(plan.id) { mutableStateOf(false) }
+    var result by remember(plan.id) { mutableStateOf("") }
+    if (recovery != null) TextButton(onClick = { confirming = true }, enabled = !busy) {
+        Text(if (busy) "正在处理" else "恢复这项活动的决定")
+    }
+    if (result.isNotBlank()) Text(result, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    if (confirming && recovery != null) LuluAlertDialog(
+        onDismissRequest = { confirming = false },
+        title = { Text("重新考虑这项活动？") },
+        text = { Text("上次模型请求可能已经计费，再次请求可能重复计费。角色将按现在的情况重新决定，不会直接补做旧活动。") },
+        confirmButton = { TextButton(onClick = {
+            confirming = false; busy = true
+            scope.launch {
+                result = try {
+                    if (ResidentDailyDecision.retryDueDecision(context, recovery)) "已处理这项活动的决定"
+                    else "状态已变化或请求仍未完成，请查看请求记录"
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { "恢复未完成，请查看请求记录" }
+                finally { busy = false; refresh++; onUpdated() }
+            }
+        }) { Text("重新请求") } },
+        dismissButton = { TextButton(onClick = { confirming = false }) { Text("取消") } },
+    )
+}

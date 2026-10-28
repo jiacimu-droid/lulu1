@@ -370,11 +370,16 @@ fun CharacterSettingsScreenV2(
                     Text("固定职责 · ${nativeResident.identity}")
                     Text("当前活动 · ${nativeResident.dutyActivity.ifBlank { "自由活动" }}")
                     Text("所在地点 · ${nativeResident.currentLocationCode}")
-                    val today = ResidentDailyDecision.planFor(context, nativeResident.id, Instant.now())
+                    var recoveryRevision by remember(nativeResident.id) { mutableIntStateOf(0) }
+                    val today = remember(nativeResident.id, recoveryRevision, residentScheduleRevision) {
+                        ResidentDailyDecision.planFor(context, nativeResident.id, Instant.now())
+                    }
                     val todayDate = java.time.LocalDate.now()
                     val agenda = remember(characterId, residentScheduleRevision, todayDate) {
                         RoleDayScheduleStore.plans(context, characterId).filter {
-                            it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == todayDate
+                            it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == todayDate ||
+                                (it.status in setOf("planned", "due") &&
+                                    it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate))
                         }
                     }
                     Text("每日规划 · 08:00", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -389,7 +394,8 @@ fun CharacterSettingsScreenV2(
                             else "今日尚未到规划时间",
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("今天的个人行程", fontWeight = FontWeight.SemiBold)
+                    ResidentDecisionRecoveryControl(nativeResident.id) { recoveryRevision++ }
+                    Text("个人行程", fontWeight = FontWeight.SemiBold)
                     if (agenda.isEmpty()) {
                         Text("暂无已确认的自主行程", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else agenda.forEach { item ->
@@ -405,6 +411,9 @@ fun CharacterSettingsScreenV2(
                             Text(whenLocal, fontWeight = FontWeight.Medium)
                             Column(Modifier.weight(1f)) {
                                 Text(item.title, fontSize = 14.sp)
+                                if (item.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate))
+                                    Text("较早安排 · 待本人重新考虑", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                                ResidentPlanRecoveryControl(item) { recoveryRevision++ }
                                 Text("${item.intent.take(110)} · $statusLabel",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                             }
