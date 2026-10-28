@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:47:46.798760+00:00",
-  "commit": "27676afe27e4599538d289ab8f088c7b58b1e4ba",
+  "generatedAt": "2026-10-28T09:49:59.919703+00:00",
+  "commit": "c9738a166fc6d3b8bf527cc3e0d4db00227d81ec",
   "branch": "main",
-  "sourceFingerprint": "24b334f076cb25aab75b22b948f15d65670291fa94f4db58c0e9573249c26c4a",
+  "sourceFingerprint": "d2c84825d797b294b57bb44af182192f1b5786b26c2e0beb03f092dfaf05ade3",
   "summary": {
     "files": 1026,
-    "lines": 206094,
+    "lines": 206099,
     "symbols": 2997
   },
   "symbolIndex": {
@@ -16695,7 +16695,7 @@
     "ExpeditionRulesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt",
-        "line": 7
+        "line": 12
       }
     ],
     "MiniTheaterLibraryTest": [
@@ -35503,12 +35503,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt",
-      "lines": 83,
-      "sha256": "3f96fcf1125611bac344419d65a067bfe13c4cb5e605523fa7c279b3c6c3eb8b",
+      "lines": 88,
+      "sha256": "e2843a812f1247ff1200c67520b872dbd19a7a8c3924e3ff41d8553c88156e54",
       "symbols": [
         {
           "name": "ExpeditionRulesTest",
-          "line": 7
+          "line": 12
         }
       ]
     },
