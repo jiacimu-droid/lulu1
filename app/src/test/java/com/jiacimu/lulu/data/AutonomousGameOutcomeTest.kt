@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.games.LuluGameStore
+import com.jiacimu.lulu.games.parseMemoryReplay
+import com.jiacimu.lulu.games.parseYachtReplay
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -20,6 +22,7 @@ class AutonomousGameOutcomeTest {
         val first = games.playAutonomousGame("actual-solo-target", "memory_match", now, targetScore = 900)!!
         val data = JSONObject(first.detailsJson)
         val turns = data.getJSONArray("turns")
+        assertEquals(turns.length(), parseMemoryReplay(first.detailsJson)?.turns?.size)
         assertEquals(6, (0 until turns.length()).count { turns.getJSONObject(it).getBoolean("matched") })
         assertEquals((1200 - (turns.length() - 6).coerceAtLeast(0) * 60).coerceAtLeast(120), first.score)
         assertEquals(900, data.getInt("targetScore"))
@@ -42,6 +45,7 @@ class AutonomousGameOutcomeTest {
         val turns = details.getJSONArray("turns")
         assertEquals("yacht_dice", details.getString("game"))
         assertEquals(13, turns.length())
+        assertEquals(13, parseYachtReplay(played.detailsJson)?.size)
         val categories = mutableSetOf<String>()
         var subtotal = 0
         for (index in 0 until turns.length()) {
@@ -60,5 +64,20 @@ class AutonomousGameOutcomeTest {
         assertEquals(subtotal, played.score)
         assertEquals(played.detailsJson, games.state.value.records.first { it.id == played.recordId }.detailsJson)
         assertTrue(runCatching { games.playAutonomousGame("solo-yacht-record", "yacht_dice", now, 900) }.isFailure)
+    }
+
+    @Test fun replayParsersRejectIncompleteOrFabricatedData() {
+        assertNull(parseMemoryReplay("{}"))
+        assertNull(parseYachtReplay("{}"))
+        val badCards = JSONObject()
+            .put("game", "memory_match")
+            .put("cards", org.json.JSONArray(listOf("🌙")))
+            .put("turns", org.json.JSONArray().put(JSONObject()
+                .put("first", 0).put("second", 1)
+                .put("firstValue", "🌙").put("secondValue", "🌙").put("matched", true)))
+        assertNull(parseMemoryReplay(badCards.toString()))
+        val badDice = JSONObject().put("game", "yacht_dice")
+            .put("turns", org.json.JSONArray().put(JSONObject().put("rolls", org.json.JSONArray())))
+        assertNull(parseYachtReplay(badDice.toString()))
     }
 }
