@@ -224,7 +224,7 @@ internal object AutonomousSocialRuntime {
                     meeting.endedAt != null &&
                     meeting.turns.isNotEmpty() &&
                     everyone.all(meeting.participantIds::contains)
-            }.sortedBy { it.endedAt }.takeLast(3).toList()
+            }.sortedBy { it.endedAt }.toList().takeLast(3)
         if (shared.isEmpty()) return ""
         return buildString {
             appendLine("【所有在场人物确实共同见证过的会面｜仅已说出口的话与现场动作】")
