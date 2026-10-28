@@ -380,6 +380,30 @@ const bridge = {
 }
 vm.createContext(bridge)
 vm.runInContext(touchSource, bridge)
+// Real stage timing: one authored clip on the first verified MOVE, not
+// once per touch sample or again at finger release.
+{
+  const clips = []
+  bridge.wolfRigActive = true
+  bridge.tactileMotionIndices = new Set([1, 2, 9, 33])
+  bridge.maybePlayTactileMotion = (region, gesture, state, completed, alreadyPlayed) => {
+    if (alreadyPlayed) return false
+    const choice = touchMotionFor(region, gesture, state)
+    if (!choice || !bridge.tactileMotionIndices.has(choice.index) ||
+        (!completed && !gesture.startsWith('stroke'))) return false
+    clips.push(choice.index)
+    return true
+  }
+  bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand' })
+  assert.equal(clips.length, 0)
+  for (let i = 0; i < 24; i++)
+    bridge.touch(.33, .235, 'stroke-left', { phase: 'move', mode: 'hand' })
+  assert.deepEqual(clips, [1])
+  bridge.touch(.33, .235, 'stroke-left', { phase: 'complete', mode: 'hand' })
+  assert.deepEqual(clips, [1], 'release must not replay a clip used during the stroke')
+  bridge.wolfRigActive = false
+  bridge.tactileMotionIndices = new Set()
+}
 bridge.touch(.5, .04, 'down', { phase: 'move', mode: 'hand' })
 for (let i = 0; i < 100; i++) bridge.touch(.5, .04, 'stroke-right', { phase: 'move', mode: 'hand' })
 assert.equal(stageResponse.snapshot().shyness, 0)
@@ -597,11 +621,55 @@ runtime.end()
 const ended = runtime.snapshot().shyness
 time += 5000
 assert.ok(runtime.snapshot().shyness < ended)
-// Completed touch may not auto-play a second full-body Motion3.
+// The selected tactile clips must be actual bundled Motion3 files, not guessed
+// numbers. Every unpaired or unsafe contact remains on the local actuator.
 for (const region of TOUCH_REGIONS)
-  for (const gesture of ['tap', 'hold', 'stroke-left', 'stroke-right', 'kiss', 'slap-right'])
-    assert.equal(touchMotionFor(region, gesture), null,
-      region + '/' + gesture + ' is owned by the local tactile actuator')
+  for (const gesture of ['tap', 'hold', 'stroke-left', 'stroke-right', 'kiss', 'slap-right']) {
+    const selected = touchMotionFor(region, gesture, { force: .85 })
+    if (!selected) continue
+    assert.equal(selected.group, 'LuluWolf')
+    assert.ok(Number.isInteger(selected.index) && selected.index >= 0)
+    assert.ok(selected.index < 40)
+  }
+assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-left'), { group: 'LuluWolf', index: 1 })
+assert.deepEqual(touchMotionFor('beast-ear-left', 'stroke-right'), { group: 'LuluWolf', index: 2 })
+assert.deepEqual(touchMotionFor('cheek-right', 'slap-left', { force: .9 }),
+  { group: 'LuluWolf', index: 33 })
+assert.deepEqual(touchMotionFor('cheek-right', 'slap-right', { force: .9 }),
+  { group: 'LuluWolf', index: 9 })
+assert.equal(touchMotionFor('cheek-right', 'slap-right', { force: .15 }), null)
+assert.equal(touchMotionFor('arm-left', 'tap', { force: 1 }), null)
+assert.equal(touchMotionFor('arm-right', 'stroke-right', { force: 1 }), null)
+assert.equal(touchMotionFor('chest', 'slap-right', { force: 1 }), null)
+assert.equal(touchMotionFor('hand-left', 'kiss', { force: 1 }), null)
+assert.equal(touchMotionFor('beast-ear-left', 'tap', { force: .25 }), null)
+assert.equal(touchMotionFor('beast-ear-left', 'tap', { force: .8 }).index, 35)
+// Genuine Motion3 control: preserve time-varying authored head + torso joints,
+// while local touch adds only a small signed detail and still owns its face.
+{
+  const v = new Map([
+    ['ParamAngleX', 0], ['ParamAngleY', 0], ['ParamAngleZ', -13],
+    ['ParamBodyAngleX', 0], ['ParamBodyAngleY', 0], ['ParamBodyAngleZ', -5],
+    ['ParamBrowLY', 0], ['ParamBrowRY', 0],
+  ])
+  const layer = createVisualLayerRuntime({
+    has: (_core, id) => v.has(id),
+    read: (_core, id) => v.get(id),
+    write: (_core, id, value) => v.set(id, value),
+  })
+  const contact = { yaw: 3, pitch: 1, roll: -5,
+    body: { yaw: 2, pitch: 0, roll: -3 },
+    face: { browY: .5 },
+  }
+  layer.update({}, { deltaMs: 16, seconds: .7, authoredMotion: true,
+    touchMotionActive: true, touchReflex: contact, speaking: false })
+  assert.ok(v.get('ParamAngleZ') < -13 && v.get('ParamAngleZ') > -14,
+    'tactile motion must keep authored -13° neck timeline rather than overwrite it')
+  assert.ok(v.get('ParamBodyAngleZ') < -5 && v.get('ParamBodyAngleZ') > -6,
+    'author motion owns torso timeline, local recoil adds only a tiny complement')
+  assert.ok(v.get('ParamBrowLY') > 0 && v.get('ParamBrowRY') > 0,
+    'tactile face remains active while author controls motion')
+}
 // A genuine slow caress has a distinct moving and stationary phase. The
 // renderer must keep its last real direction and body part without freezing
 // the head at a large angle when Android stops sending MOVE callbacks.
