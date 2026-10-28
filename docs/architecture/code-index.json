@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:28:48.773018+00:00",
-  "commit": "bb0f9d56ca7cc4933c1ce606d1bdd5884c8121e9",
+  "generatedAt": "2026-10-28T08:42:13.450645+00:00",
+  "commit": "407298ead96bc8680dff85871a53b514672354db",
   "branch": "main",
-  "sourceFingerprint": "b16c4d42e5d35a121c30617f1521ffae775309fd9e1ee66bb7d0fd2a6e78cea8",
+  "sourceFingerprint": "3379dab11db954393b9ce6e663315115916c8986a26b9c7b059ccf6add999d96",
   "summary": {
-    "files": 1013,
-    "lines": 203359,
-    "symbols": 2958
+    "files": 1014,
+    "lines": 203441,
+    "symbols": 2960
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -431,7 +431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 998
+        "line": 1000
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -16424,6 +16424,18 @@
         "line": 16
       }
     ],
+    "WorldLifeEpisodeTemporalContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt",
+        "line": 14
+      }
+    ],
+    "mood": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt",
+        "line": 21
+      }
+    ],
     "XhsAutonomousReadingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
@@ -21106,8 +21118,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 852,
-      "sha256": "26ee9a684fab6bcd0fe7d8285574fb5f0124f31694076cf02215b5cef38ca463",
+      "lines": 858,
+      "sha256": "910671a64892cc9da577bdbabb0dd405f51d69ccce26a537ea114bb7404759b4",
       "symbols": []
     },
     {
@@ -22152,8 +22164,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1045,
-      "sha256": "88dea8de6c5bf6e0645bbf46cf79dd09600787844e86085ae9630b10cacc4937",
+      "lines": 1049,
+      "sha256": "0dc24ac11f3d7bd4f905196baf91a08b650202344f6fa7a2900ba31785328337",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -22189,7 +22201,7 @@
         },
         {
           "name": "context",
-          "line": 998
+          "line": 1000
         }
       ]
     },
@@ -24384,8 +24396,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 230,
-      "sha256": "d4d91a1db73b3902ac881dc51afc99f5a04001bf95f0f30c887c026a8190f757",
+      "lines": 232,
+      "sha256": "eb8509dd38b9b8d5646af7964acea019968550ef1987b50dac5427379597cc52",
       "symbols": []
     },
     {
@@ -27952,8 +27964,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
-      "lines": 306,
-      "sha256": "5015888e65c6f5979d2c8ed7074b0aa0565cf6801af00196dbd92af1a48b69c7",
+      "lines": 311,
+      "sha256": "159fa956f70db2c89b131fc11dd4e6220e13bc7dedd64e5cda989767e9f96e7c",
       "symbols": []
     },
     {
@@ -27989,8 +28001,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-      "lines": 114,
-      "sha256": "c1930aac3d827986b61299aa65211b2ac817aa18cbb2ca1d82aa7b73c53aed85",
+      "lines": 139,
+      "sha256": "f232603dd3b59c1f355992ca3ec40ad00a917241ffad8a872cf4ab136156d283",
       "symbols": [
         {
           "name": "WorldLifeEpisodeWorker",
@@ -34939,6 +34951,21 @@
         {
           "name": "WorldLifeEpisodeStoreTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt",
+      "lines": 40,
+      "sha256": "17a66c781d1eaf684ddea400f34771e3aebfcf6029acda1bb10d54e52d8f0eb0",
+      "symbols": [
+        {
+          "name": "WorldLifeEpisodeTemporalContextTest",
+          "line": 14
+        },
+        {
+          "name": "mood",
+          "line": 21
         }
       ]
     },
