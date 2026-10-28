@@ -335,17 +335,34 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
 
         if (!completed && navigationTarget != null) {
             DeepSeaNavigationPanel(
-                destination = if (gateReady) "归航门" else revealedTarget?.title.orEmpty(),
+                destination = when {
+                    activeSalvage -> "遗物 · ${optionalRelic?.name.orEmpty()}"
+                    gateReady -> "归航门"
+                    else -> revealedTarget?.title.orEmpty()
+                },
                 delta = navigationTarget - player,
                 distance = player.distanceTo(navigationTarget),
                 routeDistance = navigationDistance,
                 navigating = navigationDistance != null,
+                alternateLabel = when {
+                    optionalRelic == null -> null
+                    activeSalvage -> if (gateReady) "返回归航" else "返回回声"
+                    else -> "寻找遗物"
+                },
+                onSwitch = {
+                    focusSalvage = !activeSalvage
+                    navigationRoute = emptyList()
+                },
                 onNavigate = {
                     val route = worldFollowPath(player, navigationTarget, DEEP_SEA_WORLD_BOUNDS, obstacles, 36f)
                     if (route.isEmpty()) notice = "目标方向被礁石挡住了，试着绕到开阔水域"
                     else {
                         navigationRoute = route
-                        notice = if (gateReady) "归航航线已标出，跟随荧光轨迹前进" else "下一枚晶体的航线已标出"
+                        notice = when {
+                            activeSalvage -> "遗物航线已标出，靠近后可以打捞"
+                            gateReady -> "归航航线已标出，跟随荧光轨迹前进"
+                            else -> "下一枚晶体的航线已标出"
+                        }
                     }
                 },
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 110.dp, end = 11.dp),
@@ -536,6 +553,8 @@ private fun DeepSeaNavigationPanel(
     distance: Float,
     routeDistance: Float?,
     navigating: Boolean,
+    alternateLabel: String?,
+    onSwitch: () -> Unit,
     onNavigate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -563,6 +582,14 @@ private fun DeepSeaNavigationPanel(
                         color = Color(0xFF9DBEB8), fontSize = 9.sp)
                 }
             }
+            if (alternateLabel != null) {
+                TextButton(onClick = onSwitch, modifier = Modifier.fillMaxWidth().height(28.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    Icon(Icons.Outlined.SwapHoriz, null, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(alternateLabel, color = Color(0xFFBBECDE), fontSize = 10.sp)
+                }
+            }
             Button(onClick = onNavigate, modifier = Modifier.fillMaxWidth().height(35.dp),
                 contentPadding = PaddingValues(horizontal = 8.dp),
                 shape = RoundedCornerShape(11.dp),
@@ -581,6 +608,11 @@ private fun DeepSeaHud(
     total: Int,
     distance: Float?,
     gateReady: Boolean,
+    relics: Int,
+    totalRelics: Int,
+    wildlife: Int,
+    totalWildlife: Int,
+    current: String?,
     companionName: String?,
     depth: Int,
     modifier: Modifier = Modifier,
@@ -619,7 +651,13 @@ private fun DeepSeaHud(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(if (gateReady) "可以返航" else "声呐在线", color = Color(0xFF9EFFE9), fontSize = 8.sp)
+                Text(current ?: if (gateReady) "可以返航" else "声呐在线",
+                    color = if (current == null) Color(0xFF9EFFE9) else Color(0xFFE9C789), fontSize = 8.sp)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("遗物 $relics/$totalRelics", color = Color(0xFFFFD8A2), fontSize = 9.sp)
+                Text("生物 $wildlife/$totalWildlife", color = Color(0xFFB7E4FA), fontSize = 9.sp)
+                Text(if (gateReady) "主线完成 · 可自由探索" else "探索中", color = Color(0xFF91B6B4), fontSize = 9.sp)
             }
         }
     }
