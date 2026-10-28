@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:27:41.747779+00:00",
-  "commit": "05eb332c502f7ad01b4ecf1c6242fbd26b787ec4",
+  "generatedAt": "2026-10-28T07:29:14.275204+00:00",
+  "commit": "78f495cb366915c1c065917168d0547b98945e64",
   "branch": "main",
-  "sourceFingerprint": "2400fd4a9c03c20f698425d855c7b536cad04f6a43e3f800349f0223a97fb025",
+  "sourceFingerprint": "004b309fe05cadb117ba5db4701b9ad0a0eb05be7ebf42e3907dd256e7f77a77",
   "summary": {
     "files": 1013,
-    "lines": 202150,
+    "lines": 202157,
     "symbols": 2944
   },
   "symbolIndex": {
@@ -22365,8 +22365,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 265,
-      "sha256": "a80d9cb2ef285589da716548a2d567b904167d2ae84d96f713b5b8e838b4a12c",
+      "lines": 272,
+      "sha256": "c785097755f09b15e71bbb12fee57bb49018443bf845e7456ce7a223d4297355",
       "symbols": [
         {
           "name": "integrate",
@@ -26540,7 +26540,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2855,
-      "sha256": "27db17b7239cd2d8de51651384474e65677a89c99c5d04cbe21f9c504a3a5805",
+      "sha256": "262c84e03dbf7000902631e1455d71ecd2698e9a361ce6352ccf21418ecefd8d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
