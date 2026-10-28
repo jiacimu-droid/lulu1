@@ -166,6 +166,10 @@ fun QqStyleChatDetailScreen(
     val windowedRuns = remember(displayRuns, runWindow) { displayRuns.takeLast(runWindow) }
     val windowStart = displayRuns.size - windowedRuns.size
     val loadMoreVisible = windowedRuns.size < displayRuns.size
+    // Both the group announcement and the history button are real LazyColumn
+    // items. They must participate in scroll indexes rather than float above text.
+    val chatListHeaderCount = (if (groupChat?.announcement.isNullOrBlank()) 0 else 1) +
+        (if (loadMoreVisible) 1 else 0)
     var pendingWindowRestore by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     // After the window grows, keep the run the user was reading at the
     // same viewport position instead of jumping to the top or bottom.
@@ -173,9 +177,8 @@ fun QqStyleChatDetailScreen(
         val restore = pendingWindowRestore ?: return@LaunchedEffect
         pendingWindowRestore = null
         val newStart = displayRuns.size - windowedRuns.size
-        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-        val lazyIndex = (restore.first - newStart + announcementOffset)
-            .coerceIn(announcementOffset, announcementOffset + windowedRuns.size - 1)
+        val lazyIndex = (restore.first - newStart + chatListHeaderCount)
+            .coerceIn(chatListHeaderCount, chatListHeaderCount + windowedRuns.size - 1)
         listState.scrollToItem(lazyIndex, restore.second)
     }
     val showJumpToLatest by remember(listState) {
@@ -223,8 +226,7 @@ fun QqStyleChatDetailScreen(
         var first = true
         var settleJob: kotlinx.coroutines.Job? = null
         snapshotFlow { listState.layoutInfo.viewportSize }.collect {
-            val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            val target = windowedRuns.lastIndex + announcementOffset
+            val target = windowedRuns.lastIndex + chatListHeaderCount
             if (first) {
                 first = false
                 listState.scrollToItem(target)
@@ -573,8 +575,7 @@ fun QqStyleChatDetailScreen(
             ?.let { it >= layout.totalItemsCount - 3 } ?: initial
         if (ChatScrollFollowPolicy.shouldFollow(initial, appended,
                 keyboardVisible, preferences.autoScrollChat, nearEnd)) {
-            val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            listState.scrollToItem(windowedRuns.lastIndex + announcementOffset)
+            listState.scrollToItem(windowedRuns.lastIndex + chatListHeaderCount)
         }
         hasPositionedChat = true
         previousVisibleCount = count
@@ -811,6 +812,25 @@ fun QqStyleChatDetailScreen(
                     }
                 }
             }
+            if (loadMoreVisible) {
+                item(key = "older-chat-history", contentType = "history-paging") {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        FilledTonalButton(
+                            onClick = {
+                                val firstRun = listState.layoutInfo.visibleItemsInfo
+                                    .firstOrNull { it.index >= chatListHeaderCount }
+                                pendingWindowRestore = firstRun?.let {
+                                    (it.index - chatListHeaderCount + windowStart) to it.offset
+                                }
+                                runWindow += 120
+                            },
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        ) {
+                            Text("加载更早的消息", fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
             itemsIndexed(windowedRuns,
                 key = { _, item -> item.key },
                 contentType = { _, run ->
@@ -887,31 +907,13 @@ fun QqStyleChatDetailScreen(
                 }
             }
             } // LazyColumn content ends before the overlay composable.
-            if (loadMoreVisible) {
-                FilledTonalButton(
-                    onClick = {
-                        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-                        val firstRun = listState.layoutInfo.visibleItemsInfo
-                            .firstOrNull { it.index >= announcementOffset }
-                        pendingWindowRestore = firstRun?.let {
-                            (it.index - announcementOffset + windowStart) to it.offset
-                        }
-                        runWindow += 120
-                    },
-                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                ) {
-                    Text("加载更早的消息", fontSize = 12.sp)
-                }
-            }
             if (hasPositionedChat && showJumpToLatest && windowedRuns.isNotEmpty()) {
                 FilledTonalIconButton(
                     onClick = {
-                        val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
                         scope.launch {
                             // Snap directly even with years of chat history;
                             // animating thousands of lazy rows is expensive.
-                            listState.scrollToItem(windowedRuns.lastIndex + announcementOffset)
+                            listState.scrollToItem(windowedRuns.lastIndex + chatListHeaderCount)
                         }
                     },
                     modifier = Modifier.align(Alignment.BottomEnd)
