@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T15:14:01.545118+00:00",
-  "commit": "1ec9b88216d44eaceb4a3c80c9d8790691a8cb8c",
+  "generatedAt": "2026-10-28T15:23:30.487654+00:00",
+  "commit": "d4a417d7b2baca58d08603698697c1eae62ead8f",
   "branch": "main",
-  "sourceFingerprint": "3c12db22150f0d972ee47e89a3249b1b4089bb19095c131aeade40f278ea3f0f",
+  "sourceFingerprint": "f00b121d5e96cab379098608cd5c897ae6ca44d22ebbd033e8ac5550016bdaa8",
   "summary": {
     "files": 1053,
-    "lines": 214566,
+    "lines": 214579,
     "symbols": 3080
   },
   "symbolIndex": {
@@ -6535,7 +6535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1576
+        "line": 1589
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10999,25 +10999,25 @@
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 359
+        "line": 366
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 368
+        "line": 375
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 371
+        "line": 378
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 441
+        "line": 448
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11027,7 +11027,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1138
+        "line": 1151
       }
     ],
     "plan": [
@@ -28017,8 +28017,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1640,
-      "sha256": "6df8855ce34bc8635e884ce515a5e29e1e51b642681aecbb78c11407eccef57b",
+      "lines": 1653,
+      "sha256": "a22d1b320fa1ad9399c1fa5ec68ed618412939d5f4090a1a6cf495eeb4b96fcc",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -28058,27 +28058,27 @@
         },
         {
           "name": "planForApp",
-          "line": 359
+          "line": 366
         },
         {
           "name": "attemptedToday",
-          "line": 368
+          "line": 375
         },
         {
           "name": "planFor",
-          "line": 371
+          "line": 378
         },
         {
           "name": "reject",
-          "line": 441
+          "line": 448
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1138
+          "line": 1151
         },
         {
           "name": "schedule",
-          "line": 1576
+          "line": 1589
         }
       ]
     },
