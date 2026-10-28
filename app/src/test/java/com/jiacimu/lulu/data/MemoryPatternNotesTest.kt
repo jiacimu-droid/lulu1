@@ -177,6 +177,39 @@ class MemoryPatternNotesTest {
     }
 
     @Test
+    fun bedtimeMinuteValuesAreNotMergedOrConvertedToHourClock() {
+        val hour1 = entry("b1", "睡眠", "入睡时间", "bedtime", 23.5,
+            "时", daysAgo(1))
+        val hour2 = entry("b2", "睡眠", "入睡时间", "bedtime", 23.75,
+            "时", daysAgo(2))
+        val minute = entry("b3", "睡眠", "入睡时间", "bedtime", 1410.0,
+            "分钟", daysAgo(3))
+        val hourNote = MemoryPatternNotes.build(listOf(hour1),
+            listOf(hour1, hour2, minute), "lulu", now)
+        assertTrue(hourNote.contains("共有2次"))
+        assertTrue(hourNote.contains("23:30"))
+        assertFalse(hourNote.contains("1410"))
+        val minuteNote = MemoryPatternNotes.build(listOf(minute),
+            listOf(hour1, hour2, minute), "lulu", now)
+        assertTrue(minuteNote.contains("1410分钟"))
+        assertFalse(minuteNote.contains("11:00"))
+    }
+
+    @Test
+    fun multiEventSummaryDoesNotPretendToBeASingleOccurrence() {
+        val individual = entry("single", "睡眠", "睡眠时长", "sleep_hours",
+            7.0, "小时", daysAgo(1))
+            .copy(source = "timeline-events:one")
+        val duplicate = individual.copy(id = "duplicate")
+        val summary = entry("batch", "睡眠", "睡眠时长", "sleep_hours",
+            7.0, "小时", daysAgo(2))
+            .copy(source = "timeline-batch:one|two|three")
+        val unique = MemoryPatternNotes.dedupeSameEvidence(
+            listOf(individual, duplicate, summary))
+        assertEquals(listOf("single"), unique.map { it.id })
+    }
+
+    @Test
     fun noteIsAtMostOneLine() {
         val sleep = entry("m1", "睡眠", "睡眠时长", "sleep_hours", 7.0, "小时", daysAgo(1))
         val run = entry("m2", "跑步", "跑步距离", "run_km", 5.0, "公里", daysAgo(1))

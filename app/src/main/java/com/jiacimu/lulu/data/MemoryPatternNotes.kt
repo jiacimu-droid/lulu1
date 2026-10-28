@@ -93,23 +93,32 @@ object MemoryPatternNotes {
         return result.take(300)
     }
 
+    private fun clockHourUnit(unit: String): Boolean =
+        unit.trim().lowercase() in setOf("时", "点", "小时", "h", "hour", "hours", "clock24")
+
     private fun keyOf(entry: MemoryEntry): GroupKey = GroupKey(
         entry.subject, entry.slot, entry.measureKind,
-        // Even the same 'kind' cannot compare hours with minutes or km with m.
-        // Keep original units rather than guessing conversions of user statements.
-        if (entry.measureKind == "bedtime") "clock24" else entry.measureUnit.trim(),
+        // A clock-time value is in HOURS only when the actual source unit
+        // says so. Minute-based or unknown bedtime measurements must not
+        // merge into clock24 statistics or be silently formatted as hours.
+        if (entry.measureKind == "bedtime" && clockHourUnit(entry.measureUnit))
+            "clock24" else entry.measureUnit.trim(),
     )
 
     private fun eventTime(entry: MemoryEntry): Instant = entry.occurredAt ?: entry.createdAt
 
-    /** Multiple extractions of the same single source event count only once.
-     * Multi-source summaries do not assert a single occurrence: preserve each
-     * memory ID instead of collapsing unrelated real events into one. */
+    /** Count a single witnessed event at most once even if extracted repeatedly.
+     * A multi-source batch can summarize several days or multiple statements;
+     * it is useful narrative memory, but NOT one independently observed
+     * occurrence. Leave it available to regular recall, not frequency counts. */
     internal fun dedupeSameEvidence(entries: List<MemoryEntry>): List<MemoryEntry> =
-        entries.sortedByDescending(::eventTime).distinctBy { entry ->
-            val sourceId = entry.sourceIds().singleOrNull()
-            if (sourceId != null) "event:$sourceId" else "memory:${entry.id}"
-        }
+        entries.asSequence()
+            .filter { it.sourceIds().size <= 1 }
+            .sortedByDescending(::eventTime)
+            .distinctBy { entry ->
+                val sourceId = entry.sourceIds().singleOrNull()
+                if (sourceId != null) "event:$sourceId" else "memory:${entry.id}"
+            }.toList()
 
     private fun valuesOf(entries: List<MemoryEntry>): String =
         entries.take(5).joinToString("、", transform = ::formatValue)
@@ -120,7 +129,7 @@ object MemoryPatternNotes {
     }
 
     private fun formatNumberValue(value: Double, measureKind: String, unit: String): String {
-        if (measureKind == "bedtime") {
+        if (measureKind == "bedtime" && clockHourUnit(unit)) {
             val minutes = (value * 60).toInt().mod(24 * 60)
             return "%02d:%02d".format(minutes / 60, minutes % 60)
         }
@@ -140,7 +149,8 @@ object MemoryPatternNotes {
         // kilometres, temperature, kilograms). Only known units have a valid
         // meaningful scale; leave all other interpretation to the character.
         val deviates = when {
-            kind == "bedtime" -> circularHours(latestValue, median) > 1.5
+            kind == "bedtime" && unit == "clock24" ->
+                circularHours(latestValue, median) > 1.5
             kind == "sleep_hours" && unit in setOf("小时", "h", "hour", "hours") ->
                 abs(latestValue - median) > 1.0
             else -> false
