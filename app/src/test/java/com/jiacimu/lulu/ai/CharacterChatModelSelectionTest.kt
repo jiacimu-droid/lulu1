@@ -71,7 +71,7 @@ class CharacterChatModelSelectionTest {
         val library = ModelLibraryState(archives = listOf(cheap, premium), chatArchiveId = premium.id)
         try {
             val blank = prefs.edit()
-            keys.forEach(blank::remove)
+            keys.forEach { blank.remove(it) }
             blank.putString("archive_resident_daily", cheap.id).commit()
             assertEquals(cheap.id, ScopedModelSelections.residentSocialArchiveId(library))
             assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("resident:b", library))
