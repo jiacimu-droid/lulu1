@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8a96c2e78b53989bf4754f256a04d1b214a26bbb`
+- 基准提交：`b4470c47595949639fe203f1581dd8ef65c23931`
 - 分支：`main`
-- 已索引文件：1047
-- 已索引代码/文本行：213641
-- 已发现符号：3058
+- 已索引文件：1048
+- 已索引代码/文本行：213906
+- 已发现符号：3067
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -173,6 +173,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 265 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 159 | 3 |
