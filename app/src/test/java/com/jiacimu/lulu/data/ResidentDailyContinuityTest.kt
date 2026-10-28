@@ -26,6 +26,78 @@ class ResidentDailyContinuityTest {
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
     }
 
+
+    @Test fun waitingReviewTimeUsesResidentsClockAndRejectsInvalidExplicitTimes() {
+        val now = Instant.parse("2026-10-28T07:59:45Z")
+        val zone = java.time.ZoneId.of("UTC")
+        assertEquals(Instant.parse("2026-10-29T08:00:00Z"),
+            ResidentDailyDecision.waitReviewAt(JSONObject().put("choice", "wait"), now, zone))
+        assertEquals(Instant.parse("2026-10-28T09:00:00Z"),
+            ResidentDailyDecision.waitReviewAt(JSONObject().put("reviewAt",
+                "2026-10-28T17:00:00+08:00"), now, zone))
+        assertNull(ResidentDailyDecision.waitReviewAt(JSONObject().put("reviewAt",
+            "not-a-time"), now, zone))
+        assertNull(ResidentDailyDecision.waitReviewAt(JSONObject().put("reviewAt",
+            "2026-10-28T07:30:00Z"), now, zone))
+    }
+
+    @Test(timeout = 60_000) fun waitReplansOneUnfinishedAppointmentAndNextTurnMakesNewDecision() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "等待复议居民${UUID.randomUUID().toString().take(6)}",
+            identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val text = "等待时自己想发的消息-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "等朋友到来后分享",
+            "先看朋友是否有空", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "原计划不应自动发"))
+        val review = now.plusSeconds(240)
+        val first = JSONObject().put("choice", "wait")
+            .put("reason", "想等朋友回复").put("waitCondition", "对方确认可见面")
+            .put("reviewAt", review.toString()).put("steps", JSONArray()
+                .put(JSONObject().put("tool", "publish_moment")
+                    .put("args", JSONObject().put("text", text))))
+        val second = JSONObject().put("choice", "cancel")
+            .put("reason", "今天不打扰了").put("steps", JSONArray())
+        fun modelAnswer(json: JSONObject) = MockResponse().setBody(
+            JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", json.toString())))).toString())
+        val server = MockWebServer()
+        server.enqueue(modelAnswer(first))
+        server.enqueue(modelAnswer(second))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "wait-recheck-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val awaiting = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+            assertEquals("planned", awaiting.status)
+            assertEquals(review, awaiting.dueAt)
+            assertEquals(1, awaiting.rescheduleCount)
+            assertTrue(awaiting.resultSummary.contains("对方确认可见面"))
+            assertFalse(awaiting.status == "completed")
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == text })
+            assertEquals(1, server.requestCount)
+            // A new due-time version is a NEW model choice, not a replay of
+            // the old 'wait' response or its already performed side action.
+            assertTrue(ResidentDailyDecision.runDuePlan(app, awaiting, review.plusSeconds(1)))
+            assertEquals("cancelled",
+                RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
+            assertEquals(2, server.requestCount)
+            assertEquals(1, MomentsStore.posts.value.count {
+                it.authorCharacterId == actor && it.content == text })
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun cancelledDuringDecisionKeepsIndependentStepsAndRejectsDependentOnes() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)

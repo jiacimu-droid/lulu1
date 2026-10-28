@@ -49,6 +49,19 @@ internal object ResidentDailyDecision {
     private fun dayRecoveriesKey(nativeId: String, day: String) = "recoveries:$nativeId:$day"
 
     private fun dueAttemptKey(plan: RoleDayPlan) = "execute:${plan.id}:${plan.dueAt}"
+
+    /** A wait is a decision to RECONSIDER, not permission to run the original
+     * action later. Explicit review times belong to the resident's model.
+     * Older saved choices may omit one: revisit on the existing next daily
+     * planning slot instead of letting a due item disappear permanently.
+     * An invalid explicitly requested time must never be silently replaced. */
+    internal fun waitReviewAt(choice: JSONObject, now: Instant,
+        zone: ZoneId = ZoneId.systemDefault()): Instant? {
+        val specified = choice.optString("reviewAt").trim()
+        if (specified.isEmpty()) return nextPlanningTime(now.plusSeconds(61), zone)
+        return runCatching { java.time.OffsetDateTime.parse(specified).toInstant() }
+            .getOrNull()?.takeIf { it.isAfter(now.plusSeconds(60)) }
+    }
     internal fun hasSavedDueToResume(context: Context, plan: RoleDayPlan): Boolean {
         val p = prefs(context)
         val key = dueAttemptKey(plan)
@@ -293,7 +306,8 @@ internal object ResidentDailyDecision {
             characterId = plan.characterId,
             facts = decisionFacts(native, now, pending, unread) + "\n" +
                 "【确实已到期的个人日程】planId=${plan.id}；原想法=${plan.title}；动机=${plan.intent}；" +
-                "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}。" +
+                "时间=${plan.dueAt}；预选工具=${plan.activityAction}；预选参数=${proposedArgs}；" +
+                "之前复议/等待记录=${plan.resultSummary.take(180)}。" +
                 "这是当初的计划，并不是已执行。原定见面对象/联系人可能已经离开或不再可联系，请重新查证。",
             instruction = """
                 你是${native.name}。此刻你从休眠中醒来，先感知自己的地点、身体、到期活动和手机里的未读动态、聊天消息、好友申请，再选择行为。
@@ -308,8 +322,9 @@ internal object ResidentDailyDecision {
                 如对手机的真实postId点赞评论，必须提供 postId，评论还要 text；添加真实认识的人需 targetCharacterId，同意申请需实际收到的 requestId 和 decision=accept|decline。
                 每步可填写 requiresPreviousSuccess=true|false；true 仅在前一步有实际成功回执后才执行，false 为独立行动。首个附加步骤若选true，需原计划本轮已执行成功；改期、取消、等待不算原活动执行成功。每步可带原有 motiveId/concernId/experienceId，分别关联真实结果。
                 不能在附加步骤传 planId 或冒充执行原计划；对方未同意好友前不许称已添加成功。
-                只输出JSON：{"choice":"execute|reschedule|cancel|wait","args":{},"dueAt":"改期时新的ISO8601时间","reason":"本人理由","steps":[]}。
-                "wait"只是让原日程保持未完成；原计划是否完成由其真实工具回执单独核验。
+                若选 wait，请按自己实际想等的条件选择可选 waitCondition（等待什么）和 reviewAt（明确复议时刻，含时区的ISO8601）；它只表示稍后再想一想，不能自动执行原活动。若暂时没有自己的复议时间，reviewAt 留空，系统会在既有下一次每日规划时段让你重新考虑；不是替你答应原活动。
+                只输出JSON：{"choice":"execute|reschedule|cancel|wait","args":{},"dueAt":"改期时新的ISO8601时间","reason":"本人理由","waitCondition":"等待条件或空","reviewAt":"等待复议时的含时区ISO8601时间或空","steps":[]}。
+                "wait"不会标记原活动完成，之前真实执行的独立 steps 在复议时不能重新发送；原计划是否完成由其真实工具回执单独核验。
             """.trimIndent(),
             source = "原住民个人日程到点", title = "${native.name} · ${plan.title.take(48)}",
             connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
@@ -377,7 +392,30 @@ internal object ResidentDailyDecision {
             }
             "cancel" -> RoleDayScheduleStore.cancel(app, plan.characterId, plan.id,
                 choice.optString("reason"), Instant.now())
-            "wait" -> true // still due, never count as performed
+            "wait" -> {
+                val reviewAt = waitReviewAt(choice, now)
+                if (reviewAt == null) {
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字世界居民日程", title = "${native.name}的等待复议时间无效",
+                        message = "planId=${plan.id}；明确给出的 reviewAt 不是有效未来时刻；原活动未完成")
+                    false
+                } else runCatching {
+                    // The one original plan stays unresolved. A new dueAt
+                    // identifies the next model REVIEW, never automatic action.
+                    // APPEND_OR_REPLACE keeps the running due worker alive
+                    // until it can finish saving this same model decision.
+                    val condition = choice.optString("waitCondition").trim()
+                    val reason = choice.optString("reason").trim()
+                    RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
+                        reviewAt, ("等待复议：" + reason +
+                            if (condition.isNotBlank()) "；条件：" + condition else ""),
+                        Instant.now(), appendToCurrentWork = true)
+                }.onFailure { error ->
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字世界居民日程", title = "${native.name}的等待复议没有排期",
+                        message = "planId=${plan.id}；${error.message.orEmpty().take(180)}")
+                }.isSuccess
+            }
             else -> false
         }
         executeWakeSteps(app, plan.characterId, choice,
@@ -392,7 +430,8 @@ internal object ResidentDailyDecision {
         // Waiting isn't an accomplished activity. Keep its state distinct;
         // failed effects remain visible and eligible for bounded replay.
         val phase = when {
-            wanted == "wait" -> "waiting"
+            wanted == "wait" && originalHandled -> "waiting"
+            wanted == "wait" -> "needs_recovery"
             originalHandled -> "finished"
             else -> "needs_recovery"
         }

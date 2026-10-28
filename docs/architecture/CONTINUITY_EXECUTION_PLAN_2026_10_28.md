@@ -54,3 +54,9 @@
 每轮必须：①核对最新 main 和上次真实完成 SHA、读 AGENTS 与代码索引；②选择一个未完成架构闭环，明确复现与根因；③修改**真实代码并提交 main**（无需新分支/PR/Issue）及根因级自动测试；④代码变更运行原有索引生成，等待自动索引提交结果；⑤核验 Android CI/构建（运行中不得报成功）并给出真机验收动作；⑥更新本清单的完成/待做状态。不得只“看了一下 APK”“写一份计划”，也不得以未验证的任务宣称完成。若不可修改代码或环境阻断，明确报告阻断原因，下一轮优先继续原闭环，避免重复开发。
 
 统一边界：事实时间线、人物/记忆/动机唯一权威；模型判断语义和意愿，程序只核验事实、权限、版本、时序、幂等和可恢复性。不增加常态付费模型轮次，不用定时强迫发朋友圈、搜索或说话。
+
+## 2026-10-28 续修记录：居民等待复议（开发待 CI 验证）
+
+- `ResidentDailyDecision` 的 `wait` 以前只写入 `due-phase=waiting`，但 `hasSavedDueToResume` 只接受 decided/needs_recovery；到期 Worker 因此永久停止，没有新复议机会。现保留原计划 ID，按本人明确 `reviewAt` 或旧选择缺省时既有下个每日规划时段，通过 `RoleDayScheduleStore.reschedule` 安排下一次**重新决策**；原动作不自动执行。条件和原理由写入同一计划结果摘要，下一轮模型可看见，原 steps 仍由既有幂等 ID 约束。
+- 原 `RoleDayScheduleStore.reschedule` 用 WorkManager `REPLACE` 可能取消正在执行自身的到期 Worker；居民 `wait` 的复议排期改走 `APPEND_OR_REPLACE`，让当前 worker 结束后再唤醒新排期，其他普通改期仍保留原有 `REPLACE` 语义。
+- 新增复议时间/旧选择兼容、真正再决策、独立动作不重复的 Robolectric + MockWebServer 回归。**新代码尚需本次 CI / APK / 真机验证**。P0-A 的网络未知结果、无效结构补正、等待条件变化主动提前复议仍未全面完成，下一轮继续。

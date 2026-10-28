@@ -249,7 +249,7 @@ object RoleDayScheduleStore {
     }
 
     private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant,
-        replace: Boolean = true) {
+        replace: Boolean = true, appendToCurrentWork: Boolean = false) {
         val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
         val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
             .setInputData(Data.Builder().putString("roleId", plan.characterId)
@@ -258,7 +258,11 @@ object RoleDayScheduleStore {
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
             "role-own-plan-${plan.id}",
-            if (replace) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP, request)
+            when {
+                appendToCurrentWork -> ExistingWorkPolicy.APPEND_OR_REPLACE
+                replace -> ExistingWorkPolicy.REPLACE
+                else -> ExistingWorkPolicy.KEEP
+            }, request)
     }
 
     /** Restore future self-appointed wakeups, but do not replay potentially
@@ -453,7 +457,8 @@ object RoleDayScheduleStore {
 
     @Synchronized
     fun reschedule(context: Context, characterId: String, planId: String,
-        dueAt: Instant, reason: String, now: Instant = Instant.now()): RoleDayPlan {
+        dueAt: Instant, reason: String, now: Instant = Instant.now(),
+        appendToCurrentWork: Boolean = false): RoleDayPlan {
         require(dueAt.isAfter(now.plusSeconds(60))) { "改期必须是未来时间" }
         val previous = all(context)
         val original = previous.firstOrNull { it.characterId == characterId && it.id == planId &&
@@ -462,7 +467,7 @@ object RoleDayScheduleStore {
             resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1)
         persist(context, previous.map { if (it.id == planId) revised else it })
         try {
-            scheduleWake(context, revised, now)
+            scheduleWake(context, revised, now, appendToCurrentWork = appendToCurrentWork)
         } catch (failure: Exception) {
             persist(context, previous)
             runCatching { scheduleWake(context, original, now) }
