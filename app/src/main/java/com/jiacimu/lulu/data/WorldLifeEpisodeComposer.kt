@@ -161,14 +161,20 @@ internal object WorldLifeEpisodeComposer {
             .joinToString("\n") { e ->
                 "${e.occurredAt} · ${e.speaker}（${e.channel}，证据=${e.id}）：${e.content.take(850)}"
             }.take(6_600)
-        val encounteredResidents = verifiedEvents.filter { it.sessionId.isNotBlank() }
+        // Every actual meeting participant can have a separate subjective bond.
+        // Do not treat only native residents as socially meaningful characters.
+        val encounteredPeople = verifiedEvents.asSequence()
+            .filter { it.sessionId.isNotBlank() }
             .mapNotNull { source ->
                 DigitalWorldStore.state.value.meetings
                     .firstOrNull { it.id == source.sessionId }
-                    ?.turns?.mapNotNull { it.speakerId?.takeIf { id -> id.startsWith("resident:") } }
-            }.flatten().distinct()
-        val actualSocialContext = if (encounteredResidents.isEmpty()) "" else
-            CharacterSocialRelationship.perspectivesFor(characterId, encounteredResidents)
+                    ?.takeIf { characterId in it.participantIds }
+            }
+            .flatMap { it.participantIds.asSequence() }
+            .filter { it != characterId }
+            .distinct().toList()
+        val actualSocialContext = if (encounteredPeople.isEmpty()) "" else
+            CharacterSocialRelationship.perspectivesFor(characterId, encounteredPeople)
         val sceneScope = if (category == "encounter")
             "这是已真实发生的居民交往，不是独处。可写人物之间的已确认台词、动作反应及本人对这段相处的感受，不得新编对方后续行为、对方心声或未发生的关系结果。"
         else if (category == "incident")
@@ -207,9 +213,9 @@ internal object WorldLifeEpisodeComposer {
                         写第三人称、约300至650汉字的完整生活小说片段。字数不是质量指标：读者要看见具体场面和人物内在变化，而非抽象议论文、抒情工作报告、道德总结或千篇一律的安慰。
                         开始就进入可感知的地点/时间与一个具体动作；结合角色真实计划、已有关系与生活经历，表现本人此刻的期待、犹豫或兴趣。
                         有真实阻力、犹豫、期待落空或意外发现时，借细节、停顿、动作与反应写出张力；若本次并无冲突，就写角色正在享受、观察或探索的具体趣味，不要凭空强迫转折。可以幽默、懊恼、轻快、执拗、好奇、怅惘或安宁，不能每篇都沉郁反思、想念主人。
-                        根据原始事实展现真正发生的交流、进展、行动选择或人物当时的反应。允许这次经历没有剧烈变化；不要为了故事好看虚构突发事件、强制转念或关系升温。结尾落在真实后果、一个微妙的新理解或仍未解决的个人疑问。不要宣布「生活仍然继续」「没必要特别」「真正重要的是」等空泛感悟，不点评自己的写作任务。
+                        根据原始事实展现真正发生的交流、进展、行动选择或人物当时的反应。相遇故事尤其要展现已经发生的具体玩笑、邀请与回应、意见分歧、笨拙动作或微妙变化，而不是把整个过程简写成坐下、喝咖啡、离开；只能从本角色自身视角解释。允许这次经历没有剧烈变化；不要为了故事好看虚构突发事件、强制转念或关系升温。结尾落在真实后果、一个微妙的新理解或仍未解决的个人疑问。不要宣布「生活仍然继续」「没必要特别」「真正重要的是」等空泛感悟，不点评自己的写作任务。
                         可细写呼吸、脚步、听觉、光线、手部动作与已存在物件，允许主观回想、想象和不可靠的个人猜测；但心理猜测应以人物视角呈现，不当成第三方真实事件。
-                        【不可越过的世界事实边界】只有已提供的事件证据与世界状态才是客观发生的。只有已保存的NPC本人真实台词可被引用、转述或展开表情动作；不得写出NPC未记录的新台词、动作、邀约、物品、关系确认、另一地点的到访或用户的新行为。情绪、动作描写是文学呈现，不是新增事实；不能把想象的互动写入时间线。
+                        【不可越过的世界事实边界】只有已提供的事件证据与世界状态才是客观发生的。只有已保存的在场人物真实台词可被引用或转述；不得写出NPC未记录的新台词、动作、邀约、物品、关系确认、另一地点的到访或用户的新行为。情绪、动作描写是文学呈现，不是新增事实；不能把想象的互动写入时间线。
                         写人物之间的相处时，别替居民宣布心理或把他们写成陪衬；人物之间有各自的目的和界限。已证实的冲突、玩笑、尴尬和细微反应可以有小说笔触。
                         如上一次有主观未解心事，可自然发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
                         小说叙述适合文学细节；私聊的即时接话仍是简短活人的语言，两种风格不能互相污染。
