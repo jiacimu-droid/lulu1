@@ -418,9 +418,7 @@ internal object AutonomousSocialRuntime {
                 continue // Never silently route an unconfigured resident through an expensive model.
             }
             val roleModel = selectedModel.getOrNull()
-            val response = LuluAiServices.gateway.generate(
-                characterId = speakerId,
-                facts = buildString {
+            val sceneFacts = buildString {
                     appendLine("【你本人在数字世界的真实相遇；主人不在现场】")
                     appendLine("当前时间=$now；$authority")
                     appendLine(DigitalWorldEnvironment.snapshot(now).context())
@@ -444,14 +442,14 @@ internal object AutonomousSocialRuntime {
                     appendLine(previous.ifBlank { "当前无人说话" })
                     appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
                     appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
-                },
-                instruction = """
+                }
+            val sceneInstruction = """
                     你是${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
                     自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
                     只返回 JSON：
                     {"choice":"engage|quiet","reason":"本人为何参与","beats":[{"phase":1,"segments":[{"type":"dialogue|action","text":"开场阶段本人真正愿意说的台词或可见小动作"}]},{"phase":2,"segments":[{"type":"dialogue|action","text":"第二阶段本人想说或做的事"}]}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"已认识对象ID","text":"本人真实想发送的内容"},"requiresPreviousSuccess":false}],"innerThought":"本人未出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"已有依据"},"social":{"targetId":"在场人物ID","interpretation":"个人理解","reason":"已有证据"},"motives":[{"op":"start","aim":"未来想做的事","why":"缘由","reason":"依据"}]}}
                     这是一场完整的生活戏而不是一句话。你仅调用一次模型，却可以在 beats 中提出阶段1到5的数段自己的公开言语/动作；没有想说的阶段可省略，不能强凑。允许开场、推进、不同看法、转向及余味。
-                    phase 只能是1至5且每个编号最多一次；各段是你自己愿意实施的动作，不是替其他人写剧本。
+                    phase 只能是1至5整数且每个编号最多一次；每阶段 segments 为1至8项，每项 text 为1至900字符；各段是你自己愿意实施的动作，不是替其他人写剧本。
                     你看得见前面参与者已经提议的公开阶段台词，可在相同阶段对这些真实台词作回应，也可打趣、婉拒或安静。你并不知道后续尚未选择的人会说什么，不能提前声称他们答应或替他们表态。
                     未来阶段只写即使他人没有按预想发言也能独立成立的本人行为，不得演出尚未执行的共同活动和结果。
                     choice=quiet 时 beats 为空；若想开口或做动作，choice=engage，reason 不为空。
@@ -469,14 +467,47 @@ internal object AutonomousSocialRuntime {
                     你只能替自己决定后续行动，不能让对方也执行；必须经已有执行器验证成功后才算做过，邀请别人不等于别人同意。
                     不必每次生成所有 innerLife 字段；本轮的公开事实记录完毕后，才能保存本人的反应。
                     ${com.jiacimu.lulu.VoicePerformance.direction}
-                """.trimIndent(),
-                source = "数字世界·人物独立相遇",
-                title = "${characters.getValue(speakerId).displayName}在$location",
+                """.trimIndent()
+            val raw = LuluAiServices.gateway.generate(
+                characterId = speakerId, facts = sceneFacts, instruction = sceneInstruction,
+                source = "数字世界·人物独立相遇", title = "${characters.getValue(speakerId).displayName}在$location",
                 maxTokens = 2100,
                 contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                 connectionOverride = roleModel,
             ).getOrNull()?.text.orEmpty()
-            val decision = ModelStructuredOutput.objectOrNull(response) ?: continue
+            // No automatic retry of an empty/unknown network response: it may
+            // already have been charged. Only actual returned contract violations
+            // get one same-role correction with the exact original scene.
+            val outcome = if (raw.isBlank()) AutonomousEncounterDecision.Outcome(
+                null, raw, null, "模型未返回决定，未视为本人选择安静")
+            else AutonomousEncounterDecision.resolve(raw) { error ->
+                LuluAiServices.gateway.generate(
+                    characterId = speakerId, facts = sceneFacts,
+                    instruction = sceneInstruction + "\n【仅补正本次结构错误】$error\n" +
+                        "保留你自己的真实意愿；不要因格式错误改成安静。原输出：\n$raw",
+                    source = "数字世界·相遇结构补正",
+                    title = "${characters.getValue(speakerId).displayName}的相遇决定补正",
+                    maxTokens = 2100,
+                    contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                    connectionOverride = roleModel,
+                ).getOrNull()?.text.orEmpty()
+            }
+            val decision = outcome.decision
+            if (decision == null) {
+                val evidence = "meeting-${session.id}-autonomous-start-viewer-$speakerId"
+                CharacterInnerLifeStore.recordDecision(
+                    characterId = speakerId, decisionId = "encounter-invalid:${session.id}:$speakerId",
+                    selectedAction = ModelStructuredOutput.objectOrNull(raw)?.optString("choice").orEmpty()
+                        .ifBlank { "invalid_output" },
+                    reason = ModelStructuredOutput.objectOrNull(raw)?.optString("reason").orEmpty(),
+                    chosenMotiveId = "", alternatives = null,
+                    outcome = "未执行：${outcome.error}；未替人物选择沉默", succeeded = false,
+                    now = now, causalEvidenceId = evidence)
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界·相遇结构补正", title = "本人决定未能执行",
+                    message = outcome.error.orEmpty())
+                continue
+            }
             if (decision.optString("choice") == "quiet") {
                 privateReactions[speakerId] = decision
                 continue
@@ -826,9 +857,7 @@ internal object AutonomousSocialRuntime {
                 val reason = item.optString("reason").trim().take(240)
                 val appraisal = item.optJSONObject("appraisal")
                 val innerLife = item.optJSONObject("innerLife")
-                if (segments.isNotEmpty() && CharacterBehaviorMotivation.resolve(
-                        "group_reply", reason, appraisal, innerLife,
-                    ) != null) add(GeneratedTurn(speakerId, segments,
+                if (segments.isNotEmpty() && reason.isNotBlank()) add(GeneratedTurn(speakerId, segments,
                     innerLife, item.optString("innerThought").trim().take(1_200),
                     appraisal, reason))
             }
