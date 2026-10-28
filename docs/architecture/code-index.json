@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:34:37.590317+00:00",
-  "commit": "8358a113a44b4fb746b4298007c8d480b3aa9434",
+  "generatedAt": "2026-10-28T10:34:57.269909+00:00",
+  "commit": "2d5d55f7e87a2ab1546ac764a9d5df228d89473e",
   "branch": "main",
-  "sourceFingerprint": "75a2d09027f02046595d437de0b46ef67d630c8a1507098d353b71d18067ac88",
+  "sourceFingerprint": "a7a7d4ed268363d90840e941b0bcbb9caac862f52825fc5f5f7e95559e831ce7",
   "summary": {
     "files": 1038,
-    "lines": 209835,
+    "lines": 209836,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -36006,8 +36006,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
-      "lines": 214,
-      "sha256": "ffdd2a5cc613201b328723a29510520de9f3059d14b1ade9c66c211266a13cd1",
+      "lines": 215,
+      "sha256": "26e0205ffe82d2734aa64c3fac579c74352e58bb34de12cbd59cf206bbf8cf93",
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
