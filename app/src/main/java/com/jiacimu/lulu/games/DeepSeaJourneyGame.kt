@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,6 +42,8 @@ import kotlinx.coroutines.isActive
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.roundToInt
 
 @Composable
 internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
@@ -60,7 +63,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var player by remember { mutableStateOf(safeRestoredPosition) }
     var camera by remember { mutableStateOf(WorldVector.Zero) }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
-    var tapTarget by remember { mutableStateOf<WorldVector?>(null) }
+    var navigationRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
     var collected by remember { mutableStateOf(restored.collected.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
     var companionPosition by remember { mutableStateOf(map.start + WorldVector(-90f, 55f)) }
@@ -107,16 +110,16 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
             withFrameNanos { frame ->
                 val dt = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
-                val automatic = tapTarget?.let { target ->
+                val automatic = navigationRoute.firstOrNull()?.let { target ->
                     val delta = target - player
-                    if (delta.length < 24f) {
-                        tapTarget = null
+                    if (delta.length < 22f) {
+                        navigationRoute = navigationRoute.drop(1)
                         WorldVector.Zero
                     } else delta.normalized()
                 } ?: WorldVector.Zero
                 val direction = if (joystick.length > .08f) joystick else automatic
                 if (direction.length > .04f) {
-                    if (joystick.length > .08f) tapTarget = null
+                    if (joystick.length > .08f) navigationRoute = emptyList()
                     val moved = moveInWorld(
                         player,
                         direction,
@@ -128,7 +131,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     )
                     player = moved.position
                     if (moved.collided) {
-                        tapTarget = null
+                        navigationRoute = emptyList()
                         val now = System.currentTimeMillis()
                         if (now - lastBump > 400L) {
                             GameSoundEffects.play(GameSoundEffect.Bump)
@@ -155,13 +158,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         }
     }
 
-    val nearbyEcho = map.echoes
-        .filterNot { it.id in collected }
-        .minByOrNull { player.distanceTo(it.position) }
-        ?.takeIf { player.distanceTo(it.position) < 122f }
+    val targetEcho = deepSeaClosestEcho(map, player, collected)
+    val nearbyEcho = targetEcho?.takeIf { player.distanceTo(it.position) < 122f }
     val gateReady = collected.size == map.echoes.size
     val nearGate = gateReady && player.distanceTo(map.gate) < 145f
-    val targetEcho = map.echoes.firstOrNull { it.id !in collected }
+    val navigationTarget = if (gateReady) map.gate else targetEcho?.position
 
     Box(
         Modifier
@@ -174,8 +175,13 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 .matchParentSize()
                 .pointerInput(viewport) {
                     detectTapGestures { tap ->
-                        tapTarget = WorldVector(tap.x / scale + camera.x, tap.y / scale + camera.y)
-                        GameSoundEffects.play(GameSoundEffect.Move)
+                        val tapped = WorldVector(tap.x / scale + camera.x, tap.y / scale + camera.y)
+                        val route = worldFollowPath(player, tapped, DEEP_SEA_WORLD_BOUNDS, obstacles, 36f)
+                        if (route.isEmpty()) notice = "礁石阻断了这条航线，试试旁边的水域"
+                        else {
+                            navigationRoute = route
+                            GameSoundEffects.play(GameSoundEffect.Move)
+                        }
                     }
                 },
         ) {
@@ -190,6 +196,19 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     player = player,
                     companion = companion?.let { companionPosition },
                 )
+                if (navigationRoute.isNotEmpty()) {
+                    (listOf(player) + navigationRoute).zipWithNext().forEach { (start, finish) ->
+                        drawLine(Color(0xFF91FFE6).copy(alpha = .60f),
+                            start = Offset(start.x, start.y),
+                            end = Offset(finish.x, finish.y),
+                            strokeWidth = 5f, cap = StrokeCap.Round)
+                    }
+                    navigationRoute.lastOrNull()?.let { goal ->
+                        drawCircle(Color(0xFFADFFEF).copy(alpha = .55f), radius = 30f,
+                            center = Offset(goal.x, goal.y),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(4f))
+                    }
+                }
             }
             val playerScreen = Offset((player.x - camera.x) * scale, (player.y - camera.y) * scale)
             drawCircle(
@@ -219,11 +238,30 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
         DeepSeaHud(
             collected = collected.size,
             total = map.echoes.size,
-            distance = targetEcho?.let { player.distanceTo(it.position) },
+            distance = navigationTarget?.let { player.distanceTo(it) },
+            gateReady = gateReady,
             companionName = companion?.displayName,
             depth = 38 + (player.y / DEEP_SEA_WORLD_HEIGHT * 212f).toInt(),
             modifier = Modifier.align(Alignment.TopCenter).padding(11.dp),
         )
+
+        if (!completed && navigationTarget != null) {
+            DeepSeaNavigationPanel(
+                destination = if (gateReady) "归航门" else targetEcho?.title.orEmpty(),
+                delta = navigationTarget - player,
+                distance = player.distanceTo(navigationTarget),
+                navigating = navigationRoute.isNotEmpty(),
+                onNavigate = {
+                    val route = worldFollowPath(player, navigationTarget, DEEP_SEA_WORLD_BOUNDS, obstacles, 36f)
+                    if (route.isEmpty()) notice = "目标方向被礁石挡住了，试着绕到开阔水域"
+                    else {
+                        navigationRoute = route
+                        notice = if (gateReady) "归航航线已标出，跟随荧光轨迹前进" else "下一枚晶体的航线已标出"
+                    }
+                },
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 116.dp, end = 11.dp),
+            )
+        }
 
         AnimatedVisibility(
             visible = notice.isNotBlank(),
@@ -255,15 +293,17 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 label = when {
                     nearGate -> "归航"
                     nearbyEcho != null -> "共鸣"
-                    else -> "靠近"
+                    gateReady -> "找归航门"
+                    else -> "找晶体"
                 },
                 enabled = nearbyEcho != null || nearGate,
                 onClick = {
                     when {
                         nearbyEcho != null -> {
                             collected = collected + nearbyEcho.id
+                            navigationRoute = emptyList()
                             GameSoundEffects.play(if (collected.size == map.echoes.size) GameSoundEffect.Objective else GameSoundEffect.Collect)
-                            notice = if (collected.size == map.echoes.size) "五枚回声已经连成归航路线" else "获得：${nearbyEcho.title}"
+                            notice = if (collected.size == map.echoes.size) "晶体集齐！右上方「导航前往」可带你找归航门" else "获得：${nearbyEcho.title}"
                             progress.save(player, collected, completed, score)
                         }
                         nearGate -> {
@@ -301,7 +341,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 22.dp, bottom = 30.dp),
                 accent = Color(0xFF9FFFF0),
             )
-            val nearbyLabel = nearbyEcho?.title ?: if (nearGate) "回声门已开启" else null
+            val nearbyLabel = nearbyEcho?.title ?: if (nearGate) "已到达归航门，点击归航" else null
             if (nearbyLabel != null) {
                 Surface(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 116.dp),
@@ -320,6 +360,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                     progress.reset()
                     player = map.start
                     camera = WorldVector.Zero
+                    navigationRoute = emptyList()
                     collected = emptySet()
                     completed = false
                     score = 0
@@ -333,11 +374,61 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     }
 }
 
+/** Choose the nearest actual remaining echo; map order is not spatial order. */
+internal fun deepSeaClosestEcho(map: DeepSeaMap, player: WorldVector, collected: Set<String>): DeepSeaEcho? =
+    map.echoes.asSequence().filterNot { it.id in collected }
+        .minByOrNull { player.distanceTo(it.position) }
+
+@Composable
+private fun DeepSeaNavigationPanel(
+    destination: String,
+    delta: WorldVector,
+    distance: Float,
+    navigating: Boolean,
+    onNavigate: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val heading = atan2(delta.y, delta.x) * 180f / Math.PI.toFloat()
+    Surface(
+        modifier = modifier.widthIn(max = 210.dp),
+        color = Color(0xE80A2837),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, Color(0xFF8FECD8).copy(alpha = .34f)),
+        shadowElevation = 12.dp,
+    ) {
+        Column(
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Text("声呐指引 · $destination", color = Color(0xFFE1FFF8), fontSize = 11.sp, fontWeight = FontWeight.Black)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Outlined.ArrowForward, contentDescription = "目标方向",
+                    tint = Color(0xFF9BFFE9),
+                    modifier = Modifier.size(26.dp).graphicsLayer { rotationZ = heading })
+                Column {
+                    Text("直线 ${distance.roundToInt()} 刻度", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(if (navigating) "正在跟随荧光航线" else "点导航绘制避障路线",
+                        color = Color(0xFF9DBEB8), fontSize = 9.sp)
+                }
+            }
+            Button(onClick = onNavigate, modifier = Modifier.fillMaxWidth().height(35.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                shape = RoundedCornerShape(11.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAAFFE8), contentColor = Color(0xFF08252D))) {
+                Icon(Icons.Outlined.Navigation, contentDescription = null, modifier = Modifier.size(15.dp))
+                Spacer(Modifier.width(5.dp))
+                Text(if (navigating) "重新导航" else "导航前往", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
 @Composable
 private fun DeepSeaHud(
     collected: Int,
     total: Int,
     distance: Float?,
+    gateReady: Boolean,
     companionName: String?,
     depth: Int,
     modifier: Modifier = Modifier,
@@ -366,9 +457,9 @@ private fun DeepSeaHud(
                 Spacer(Modifier.width(5.dp))
                 Text(
                     when {
-                        collected >= total -> "归航门已开启，前往东南侧信标"
+                        gateReady -> "归航门已开启 · 直线距离 ${distance?.roundToInt() ?: 0} 刻度"
                         distance == null -> "搜索回声晶体"
-                        else -> "下一枚回声约 ${distance.toInt()}m"
+                        else -> "最近回声 · 直线距离 ${distance.roundToInt()} 刻度"
                     },
                     color = Color(0xFFC7DCD7),
                     fontSize = 8.5.sp,
@@ -376,7 +467,7 @@ private fun DeepSeaHud(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text("氧气 100%", color = Color(0xFF9EFFE9), fontSize = 8.sp)
+                Text(if (gateReady) "可以返航" else "声呐在线", color = Color(0xFF9EFFE9), fontSize = 8.sp)
             }
         }
     }
