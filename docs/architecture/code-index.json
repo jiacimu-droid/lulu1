@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:53:21.957579+00:00",
-  "commit": "ad824d922a33f95be5738765439145e29f3a0efe",
+  "generatedAt": "2026-10-28T14:54:19.034883+00:00",
+  "commit": "c5e4b5043d5aa72d4187dabeddbcf0da150b5b9d",
   "branch": "main",
-  "sourceFingerprint": "bd7ad23ca27bde6aca2830b94eaf8a92c2cac42f4e5794a793e2eebc294788b6",
+  "sourceFingerprint": "8fee7de9be7a0c17d560d2b82ce6356397614555c89dc08ede7d55c5c5eff643",
   "summary": {
     "files": 1053,
-    "lines": 214449,
+    "lines": 214478,
     "symbols": 3078
   },
   "symbolIndex": {
@@ -6523,7 +6523,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1570
+        "line": 1576
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11005,7 +11005,7 @@
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 435
+        "line": 441
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11015,7 +11015,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1132
+        "line": 1138
       }
     ],
     "plan": [
@@ -16791,7 +16791,7 @@
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1901
+        "line": 1911
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -27997,8 +27997,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 1621,
-      "sha256": "6feb55f4e2f67f2485ab7abfe16aec92c5d2844fa504eaab5a456ca8894a6444",
+      "lines": 1640,
+      "sha256": "6df8855ce34bc8635e884ce515a5e29e1e51b642681aecbb78c11407eccef57b",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -28050,15 +28050,15 @@
         },
         {
           "name": "reject",
-          "line": 435
+          "line": 441
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1132
+          "line": 1138
         },
         {
           "name": "schedule",
-          "line": 1570
+          "line": 1576
         }
       ]
     },
@@ -35811,8 +35811,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1939,
-      "sha256": "8adbaae314cefa3838e99ed8f1a58c32becb122c333ff499eb6ce97e1875f5b0",
+      "lines": 1949,
+      "sha256": "7a3952538a7583c78c49b428fbc820fcfe5d140343d5b3e9cb0f36b3593d7f75",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -35856,7 +35856,7 @@
         },
         {
           "name": "posts",
-          "line": 1901
+          "line": 1911
         }
       ]
     },
