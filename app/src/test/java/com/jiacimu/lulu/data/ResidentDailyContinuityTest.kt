@@ -302,6 +302,96 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+
+    @Test fun oldResidentWakeVersionCannotCancelOrClaimNewAppointment() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val role = "resident:version-${UUID.randomUUID()}"
+        val old = RoleDayScheduleStore.arrange(app, role, "分享庭院观察",
+            "自己想留下今天的见闻", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "原计划"))
+        try {
+            val args = JSONObject().put("planId", old.id).put("text", "原计划")
+            assertTrue(RoleDayScheduleStore.canBegin(app, role, old.id,
+                "publish_moment", args, now, expectedDueAt = old.dueAt))
+            assertFalse(RoleDayScheduleStore.canBegin(app, role, old.id,
+                "publish_moment", args, now, expectedDueAt = old.dueAt.plusSeconds(1)))
+            val newer = RoleDayScheduleStore.reschedule(app, role, old.id,
+                now.plusSeconds(900), "后来改期", now)
+            assertFalse(RoleDayScheduleStore.cancel(app, role, old.id,
+                "旧决定迟到", now, expectedDueAt = old.dueAt))
+            assertNull(RoleDayScheduleStore.markDue(app, role, old.id,
+                expectedDueAt = old.dueAt))
+            val current = RoleDayScheduleStore.plans(app, role).single { it.id == old.id }
+            assertEquals("planned", current.status)
+            assertEquals(newer.dueAt, current.dueAt)
+        } finally { RoleDayScheduleStore.remove(app, role, old.id) }
+    }
+
+    @Test(timeout = 60_000) fun lateResidentCancelAndExecuteCannotOverwriteRescheduledPlan() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        for (choice in listOf("cancel", "execute")) {
+            val now = Instant.now()
+            val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+                name = "迟到决策居民${UUID.randomUUID().toString().take(5)}",
+                identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                createdAt = now.minusSeconds(3600)))
+            ResidentCharacterBridge.sync(app, now)
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            val primary = "旧主动作禁止发布-${UUID.randomUUID()}"
+            val independent = "独立分享仅一次-${UUID.randomUUID()}"
+            val plan = RoleDayScheduleStore.arrange(app, actor, "分享庭院见闻",
+                "自己想分享观察", now.minusSeconds(120), now.minusSeconds(600),
+                activityAction = "publish_moment",
+                activityArgs = JSONObject().put("text", primary))
+            val next = now.plusSeconds(900)
+            val decision = JSONObject().put("choice", choice).put("reason", "旧决定")
+                .put("args", JSONObject().put("text", primary))
+                .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                    .put("requiresPreviousSuccess", false)
+                    .put("args", JSONObject().put("text", independent))))
+            val server = MockWebServer()
+            server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+                override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): MockResponse {
+                    RoleDayScheduleStore.reschedule(app, actor, plan.id, next,
+                        "模型思考期间主人已改期", now)
+                    return answer(decision.toString())
+                }
+            }
+            server.start()
+            try {
+                val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                    "late-${choice}-${UUID.randomUUID()}", server.url("/").toString(), "test")
+                val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+                ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+                assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+                val current = RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }
+                assertEquals("planned", current.status)
+                assertEquals(next, current.dueAt)
+                assertFalse(MomentsStore.posts.value.any {
+                    it.authorCharacterId == actor && it.content == primary })
+                assertEquals(1, MomentsStore.posts.value.count {
+                    it.authorCharacterId == actor && it.content == independent })
+                val key = "execute:${plan.id}:${plan.dueAt}"
+                val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+                    android.content.Context.MODE_PRIVATE)
+                assertEquals("superseded", prefs.getString("due-phase:$key", ""))
+                assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+                if (choice == "execute") assertTrue(
+                    SharedExperienceTimeline.eventsByIds(actor, listOf(
+                        "tool-rejected-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}"))
+                        .isNotEmpty())
+                assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+                assertEquals(1, server.requestCount)
+                assertEquals(1, MomentsStore.posts.value.count {
+                    it.authorCharacterId == actor && it.content == independent })
+            } finally { server.shutdown() }
+        }
+    }
+
     @Test(timeout = 60_000) fun savedDueDecisionReplaysReceiptWithoutAnotherModelCall() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
