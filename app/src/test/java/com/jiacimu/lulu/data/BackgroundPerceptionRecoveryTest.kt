@@ -85,6 +85,18 @@ class BackgroundPerceptionRecoveryTest {
         assertFalse(attempts().contains(role))
     }
 
+    @Test fun cooldownOnlyAppliesToRepeatedPassiveWakes() {
+        val now = System.currentTimeMillis()
+        fun quiet(chat: Boolean, direct: Boolean, event: Boolean, at: Long = now - 1000L) =
+            ProactivePerceptionRecoveryPolicy.shouldDeferAutomatedTurn(at, now, chat, direct, event)
+        assertTrue(quiet(false, false, false))
+        assertFalse(quiet(true, false, false))
+        assertFalse(quiet(false, true, false))
+        assertFalse(quiet(false, false, true))
+        assertFalse(quiet(false, false, false,
+            now - ProactivePerceptionRecoveryPolicy.TERMINAL_REJECTION_QUIET_MILLIS - 1L))
+    }
+
     @Test fun nativeWakeSurvivesUiAbsenceAndRearmsAfterRegistrationWasRemoved() {
         val manager = context.getSystemService(AlarmManager::class.java)
         val shadow = shadowOf(manager)
