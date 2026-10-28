@@ -49,7 +49,9 @@ internal object AutonomousSocialRuntime {
             }
             .map { it.key }
             .distinct()
-            .take(4)
+            // Keep a spontaneous encounter small: each role now chooses its OWN
+            // turn with its own model, so pulling in a whole venue is costly.
+            .take(2)
             .toList()
         if (coLocatedIds.isEmpty()) {
             // Routine walking already has its own one-call narrative. A
@@ -215,24 +217,30 @@ internal object AutonomousSocialRuntime {
         // the summary. Each viewer's evidence IDs belong to that viewer alone.
         WorldLifeEpisodeStore.initialize(context)
         val committedSession = DigitalWorldStore.state.value.meetings
-            .firstOrNull { it.id == session.id }
+            .firstOrNull { it.id == session.id } ?: return@withLock
         participantIds.forEach { id ->
             val summaryId = "meeting-${session.id}-autonomous-summary-viewer-$id"
-            val sources = buildList {
-                add("meeting-${session.id}-autonomous-start-viewer-$id")
-                worldTick?.let { add("world-fact-${it.incidentId}-$id-${now.toEpochMilli()}") }
-                committedSession?.turns?.forEach { turn ->
-                    add("meeting-${session.id}-autonomous-turn-${turn.id}-viewer-$id")
-                }
-                add(summaryId)
-            }.distinct().takeLast(16)
             WorldLifeEpisodeWorker.enqueue(
                 context = context, characterId = id, location = currentLocation,
-                evidenceId = summaryId, sourceEvidenceIds = sources,
+                evidenceId = summaryId,
+                sourceEvidenceIds = witnessedEpisodeSources(committedSession, id, worldTick, now),
                 title = "", seed = "", category = "encounter",
             )
         }
     }
+
+    /** Only actually recorded, viewer-owned evidence enters that viewer's novel. */
+    internal fun witnessedEpisodeSources(
+        session: MeetingSession, viewerId: String,
+        tick: DigitalWorldLifeTick?, at: Instant,
+    ): List<String> = buildList {
+        add("meeting-${session.id}-autonomous-start-viewer-$viewerId")
+        tick?.let { add("world-fact-${it.incidentId}-$viewerId-${at.toEpochMilli()}") }
+        session.turns.forEach { turn ->
+            add("meeting-${session.id}-autonomous-turn-${turn.id}-viewer-$viewerId")
+        }
+        add("meeting-${session.id}-autonomous-summary-viewer-$viewerId")
+    }.distinct().takeLast(16)
 
     /**
      * Shared-scene facts are an intersection of the participants' witness sets,
@@ -240,7 +248,7 @@ internal object AutonomousSocialRuntime {
      * A meeting is eligible only if every viewer really attended, it ended,
      * and the recorded conversation had at least one committed turn.
      *
-     * This pure projection is used by the existing SINGLE encounter call.
+     * This pure projection supplies only public facts to each role-owned encounter turn.
      */
     internal fun witnessedSharedEncounterContext(
         participants: List<String>,
