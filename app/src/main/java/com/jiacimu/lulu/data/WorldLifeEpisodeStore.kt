@@ -98,7 +98,11 @@ internal object WorldLifeEpisodeStore {
         val source = expectedSource ?: SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return null
         if (source.characterId != characterId || source.id != evidenceId) return null
-        val links = (listOf(evidenceId) + sourceEvidenceIds).distinct().take(16)
+        // A four-person scene can contain up to 20 authored turns plus a
+        // beginning, an environment event and a summary. Keep all its proofs.
+        val maxLinkedSources = if (category == "encounter") 32 else 16
+        val links = (listOf(evidenceId) + sourceEvidenceIds).distinct()
+            .take(maxLinkedSources)
         val currentSources = SharedExperienceTimeline.eventsByIds(characterId, links)
         if (currentSources.size != links.size || currentSources.any { it.characterId != characterId } ||
             currentSources.firstOrNull { it.id == evidenceId } != source) return null
