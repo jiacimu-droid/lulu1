@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T06:19:39.300830+00:00",
-  "commit": "2dbdc3857fa877f09e5a0532ec45e2577793f231",
+  "generatedAt": "2026-10-28T06:19:58.611887+00:00",
+  "commit": "c120faad10df6389e6beaab488953af758f1490d",
   "branch": "main",
-  "sourceFingerprint": "e48bd15f2af8e612d8e90be675fdf8387a6687276f35bad7ac260e520613d719",
+  "sourceFingerprint": "f8eab744ca8c37b9e2ca10aa77b2ea9041b1b3945598cfd733b7e9dc86da0a52",
   "summary": {
     "files": 1011,
-    "lines": 201275,
+    "lines": 201289,
     "symbols": 2938
   },
   "symbolIndex": {
@@ -1919,7 +1919,7 @@
     "Entry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 25
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -1929,7 +1929,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 152
+        "line": 166
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -18133,16 +18133,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 164,
-      "sha256": "68edaebb6bb60eeb0192a67e5b2df657d5b7a4cab22cb8d4a7023e7625d918e5",
+      "lines": 178,
+      "sha256": "51dcaeacda9e9496739461250b84e6a4062059019a55e0037f2bf6eadafd1933",
       "symbols": [
         {
           "name": "Entry",
-          "line": 25
+          "line": 26
         },
         {
           "name": "describe",
-          "line": 152
+          "line": 166
         }
       ]
     },
@@ -31294,7 +31294,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
       "lines": 55,
-      "sha256": "4e7a476f4d54c4de11250de462f13ee0f95456de557d414ff0a0818061351cf9",
+      "sha256": "d09e3fb3d0050c54e61426b9a8a14ae6b78976c6f062eb3c4ef28775550e517d",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
