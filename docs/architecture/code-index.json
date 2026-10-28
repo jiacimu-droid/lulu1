@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:36:33.660946+00:00",
-  "commit": "781f7177ba8f6be62891d4a5fa5baae70d2e8507",
+  "generatedAt": "2026-10-28T10:37:07.299069+00:00",
+  "commit": "daa2f62864a61516f4b8b6c7e9d288ded0e33099",
   "branch": "main",
-  "sourceFingerprint": "38fa773c9842ce3a5e96eb2931433c1632c5dd122a8fa1880e9e7a45072d50bf",
+  "sourceFingerprint": "8877e2fd340595b9465c220e033f841430168f01dcd7a2366b2a69a1d19433c5",
   "summary": {
     "files": 1038,
-    "lines": 209975,
+    "lines": 210027,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -32891,8 +32891,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt",
-      "lines": 211,
-      "sha256": "c109bd02d228c4b26bace4d5f06965e78284b6ebddbc0cf59791a481692e8ec4",
+      "lines": 263,
+      "sha256": "a47e396d49fbdb9f2ccbcfd63894c47ef63ddf85f08d2f2099a8b5e782759b61",
       "symbols": [
         {
           "name": "WorldExplorationContractsTest",
