@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:27:55.451696+00:00",
-  "commit": "fa513ae8cf2de784d45fc1a3464ef3a72f5e5d31",
+  "generatedAt": "2026-10-28T14:28:24.026500+00:00",
+  "commit": "7b86b6e3cc52823d7bcd26c120204127f83e08ed",
   "branch": "main",
-  "sourceFingerprint": "7a17a09b2b21f38f7dc2dd0807e8cd13e70e71ac3a75db01900c252a00f1f285",
+  "sourceFingerprint": "7cdbed95688b06b7bf69c3c31f78d2fe0dee6ae5fff68d202fc61efb52cbf8b5",
   "summary": {
-    "files": 1048,
-    "lines": 213868,
-    "symbols": 3067
+    "files": 1049,
+    "lines": 214048,
+    "symbols": 3070
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3598,6 +3598,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
         "line": 446
+      }
+    ],
+    "saveChatMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+        "line": 126
+      }
+    ],
+    "saveSearchResult": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+        "line": 142
+      }
+    ],
+    "saveCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+        "line": 149
       }
     ],
     "ScheduleFeatureScreen": [
@@ -20496,6 +20514,25 @@
       "lines": 151,
       "sha256": "4587ef3caef5eec93a03b78ca7f44ca9dfa23ec74ba5a019c3a4da3eee37cd06",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt",
+      "lines": 180,
+      "sha256": "a39b4ee002e6f861dc0ed25504d1c03e9dfe3cb1c567131556d217411d8e8932",
+      "symbols": [
+        {
+          "name": "saveChatMessage",
+          "line": 126
+        },
+        {
+          "name": "saveSearchResult",
+          "line": 142
+        },
+        {
+          "name": "saveCapture",
+          "line": 149
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt",
