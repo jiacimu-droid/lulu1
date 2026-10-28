@@ -1810,6 +1810,7 @@ class ResidentDailyContinuityTest {
         val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
         val choice = JSONObject().put("choice", "wait")
             .put("reviewAt", review.toString()).put("reason", "稍后再想")
+            .put("waitCondition", "等朋友回复")
         assertTrue(p.edit().putBoolean(key, true)
             .putString("due-decision:$key", choice.toString())
             .putString("due-phase:$key", "decided").commit())
@@ -1819,6 +1820,8 @@ class ResidentDailyContinuityTest {
         assertTrue(changed.dueAt.isBefore(Instant.now().plusSeconds(120)))
         assertEquals(review.toString(), p.getString("due-wait-review-at:$key", ""))
         assertEquals("waiting", p.getString("due-phase:$key", ""))
+        assertTrue(changed.resultSummary.contains("等朋友回复"))
+        assertTrue(changed.resultSummary.contains("中断后尽快复议"))
     }
 
     @Test(timeout = 60_000) fun cancelledOrWaitingPrimaryCannotHideFailedIndependentStep() = runBlocking {

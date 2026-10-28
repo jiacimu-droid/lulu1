@@ -1028,8 +1028,8 @@ internal object ResidentDailyDecision {
                 val nextWake = if (catchUp) schedulingNow.plusSeconds(90) else reviewAt
                 RoleDayScheduleStore.reschedule(app, plan.characterId, plan.id,
                     nextWake, ("等待复议：" + reason +
-                        if (condition.isNotBlank()) "；条件：" + condition else "" +
-                        if (catchUp) "；原定复议=${reviewAt}，中断后尽快复议" else ""),
+                        (if (condition.isNotBlank()) "；条件：" + condition else "") +
+                        (if (catchUp) "；原定复议=${reviewAt}，中断后尽快复议" else "")),
                     schedulingNow, appendToCurrentWork = true, expectedDueAt = plan.dueAt)
             }.onFailure { error ->
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
