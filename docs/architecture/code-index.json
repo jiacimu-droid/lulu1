@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T16:36:07.780855+00:00",
-  "commit": "1ae0d05174ba7de913045ddbd9fb4c65bdbc88c2",
+  "generatedAt": "2026-10-28T16:37:03.639942+00:00",
+  "commit": "63e7f412c9547b0d2cf66e1550176ed1b211d191",
   "branch": "main",
-  "sourceFingerprint": "59edf0ccf08b4fcf766e35b8e3e71673635adbf5414fa8e7e36ced5dcbfca1a3",
+  "sourceFingerprint": "fbe1927e4bbdce6db0a3a52dd4b3e0b6d729884eba6f00362bcb3ee1ed2e9ebb",
   "summary": {
     "files": 1053,
-    "lines": 214751,
+    "lines": 214793,
     "symbols": 3081
   },
   "symbolIndex": {
@@ -11407,19 +11407,19 @@
     "groups": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 45
+        "line": 86
       }
     ],
     "allocateReportedInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 61
+        "line": 102
       }
     ],
     "calibratedEstimate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 81
+        "line": 122
       }
     ],
     "completed": [
@@ -28463,20 +28463,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-      "lines": 101,
-      "sha256": "29afaf6511df70d673895b8dda1ed558d5df2dcd11fde24300a2b5de50216647",
+      "lines": 142,
+      "sha256": "853bf131ea34a04a6e3cf4cc296f2149907de4ea86808cf9e4f69811568d1946",
       "symbols": [
         {
           "name": "groups",
-          "line": 45
+          "line": 86
         },
         {
           "name": "allocateReportedInput",
-          "line": 61
+          "line": 102
         },
         {
           "name": "calibratedEstimate",
-          "line": 81
+          "line": 122
         }
       ]
     },
@@ -36078,8 +36078,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
-      "lines": 75,
-      "sha256": "8dcb3452791aa63a6b67b66876694b42a1bcda579c73efd5a38129480a7b94f4",
+      "lines": 76,
+      "sha256": "9f77ab673374914c874c5d02fb6df7fd7490b45b86881a4bca8e4ce98d622007",
       "symbols": [
         {
           "name": "TokenConsolePresentationTest",
