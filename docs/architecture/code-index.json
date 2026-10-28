@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:57:54.600548+00:00",
-  "commit": "674e5ad23f82c7438df354f9c910e411d733491d",
+  "generatedAt": "2026-10-28T07:58:21.066807+00:00",
+  "commit": "968f24b923fff5eac0c673a32b3656accc52909f",
   "branch": "main",
-  "sourceFingerprint": "dab4edb6237e8cd94f3370061544c7320a9b2aeaf1e1fcb8b1d229de727d9163",
+  "sourceFingerprint": "766eca92502b0345b3453971072b0b302403e42a82e3953d9f9260c8fc323c0c",
   "summary": {
     "files": 1013,
-    "lines": 202520,
-    "symbols": 2946
+    "lines": 202658,
+    "symbols": 2947
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3543,15 +3543,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1010
+        "line": 1148
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1062
+        "line": 1200
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1109
+        "line": 1247
       }
     ],
     "todoId": [
@@ -16118,6 +16118,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 733
+      }
+    ],
+    "decision": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 919
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -34388,8 +34394,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 1133,
-      "sha256": "ed951ad7d059b8e0540df6fe85cae8473ce1f9e832d8b8901e40e899292f7510",
+      "lines": 1271,
+      "sha256": "a53ce8dbf191564833e96485caffbec0842e3453582864cf0b628d83adac2cea",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -34404,16 +34410,20 @@
           "line": 733
         },
         {
-          "name": "select",
-          "line": 1010
+          "name": "decision",
+          "line": 919
         },
         {
           "name": "select",
-          "line": 1062
+          "line": 1148
         },
         {
           "name": "select",
-          "line": 1109
+          "line": 1200
+        },
+        {
+          "name": "select",
+          "line": 1247
         }
       ]
     },
