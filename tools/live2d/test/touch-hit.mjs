@@ -403,6 +403,7 @@ vm.runInContext(touchSource, bridge)
   assert.deepEqual(clips, [1], 'release must not replay a clip used during the stroke')
   bridge.wolfRigActive = false
   bridge.tactileMotionIndices = new Set()
+  stageResponse.reset()
 }
 bridge.touch(.5, .04, 'down', { phase: 'move', mode: 'hand' })
 for (let i = 0; i < 100; i++) bridge.touch(.5, .04, 'stroke-right', { phase: 'move', mode: 'hand' })
