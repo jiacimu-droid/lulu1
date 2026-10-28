@@ -163,6 +163,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Modifier.fillMaxWidth()) { perform("gather") }
                 IslandAction("攻击野怪", enabled = nearTarget && isMobSelected,
                     Modifier.fillMaxWidth()) { perform("fight") }
+                val downed = world.friends.any { it.hp <= 0 && it.x == target.first && it.y == target.second }
+                if (downed) IslandAction("救援队友 · 2果", enabled = nearTarget && island.fruit >= 2,
+                    Modifier.fillMaxWidth()) { perform("revive") }
                 IslandAction("吃野果 · 回血", enabled = island.fruit > 0 && world.hp < 12,
                     Modifier.fillMaxWidth()) { perform("eat", world.x, world.y) }
             }
@@ -177,6 +180,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandBuildChip("▣ 木门", "2木", nearTarget) { perform("door") }
             IslandBuildChip("⚒ 工作台", "4木2石", nearTarget) { perform("workbench") }
             IslandBuildChip("♨ 篝火", "2木1石", nearTarget) { perform("campfire") }
+            IslandBuildChip("▱ 木床", "3木1石", nearTarget) { perform("bed") }
             IslandBuildChip("↶ 拆除", "退部分材料", nearTarget) { perform("remove") }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -202,10 +206,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Text("木斧 2木1石 · 石镐 2木2石 · 石剑 1木3石",
                         color = Color(0xFFB8D0C9), fontSize = 11.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("篝火旁可以恢复体力", modifier = Modifier.weight(1f),
+                        Text("篝火或木床旁可以恢复体力", modifier = Modifier.weight(1f),
                             color = Color(0xFFB8D0C9), fontSize = 11.sp)
                         TextButton(onClick = { perform("rest", world.x, world.y) }) {
-                            Text("篝火休息", color = Color(0xFFBCE9CB), fontSize = 12.sp)
+                            Text("就地休息", color = Color(0xFFBCE9CB), fontSize = 12.sp)
                         }
                     }
                 }
@@ -244,7 +248,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onClick = {
                 val details = island.toJson()
-                store.recordExternalGame(
+                val recordId = store.recordExternalGame(
                     type = LuluGameType.BlockIsland,
                     title = "方块小岛",
                     score = world.wood + world.stone + island.tools.size * 10 +
@@ -256,6 +260,20 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     characterIdOverride = world.friends.firstOrNull()?.id.orEmpty(),
                     playedWithCharacterOverride = world.friends.isNotEmpty(),
                 )
+                // The generic recorder handles the primary companion. Each other participant
+                // gets only the firsthand game events explicitly attributed to that identity.
+                world.friends.drop(1).forEach { friend ->
+                    val ownActions = world.events.filter { it.contains("队友[${friend.id}]") }
+                    com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                        eventId = "block-island-participant-$recordId-${friend.id}",
+                        characterId = friend.id,
+                        channel = "共同游戏《方块小岛》",
+                        speaker = "游戏记录",
+                        content = "实际参与方块小岛探索；本人的行动记录：" +
+                            if (ownActions.isEmpty()) "本轮没有独立操作" else ownActions.takeLast(12).joinToString("；"),
+                        occurredAt = java.time.Instant.now(),
+                    )
+                }
                 save(island.copy(world = world.copy(notice = "本次旅程已记入游戏记录，家园会继续保留")))
             }, modifier = Modifier.weight(1f)) { Text("记录旅程", color = Color(0xFFE8F8EB)) }
             OutlinedButton(onClick = { confirmReset = true }, modifier = Modifier.weight(1f)) {
@@ -335,7 +353,7 @@ private fun IslandBuildChip(label: String, cost: String, enabled: Boolean, onCli
 
 private fun islandCellTitle(tile: Int, structure: String?): String =
     when (structure) {
-        "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"
+        "door" -> "木门"; "workbench" -> "工作台"; "campfire" -> "篝火"; "bed" -> "木床"
         else -> when (tile) {
             0 -> "草地"; 1 -> "树木"; 2 -> "石矿"; 3 -> "木墙"
             4 -> "地板"; 7 -> "营地"; 8 -> "水域"; else -> "空地"
@@ -425,6 +443,19 @@ private fun BlockIslandCanvas(
                         drawRect(Color(0xFFD5B479),
                             topLeft = pos + Offset(tileSize * .08f, tileSize * .26f),
                             size = Size(tileSize * .84f, tileSize * .18f))
+                    }
+                    "bed" -> {
+                        drawRoundRect(Color(0xFF715244),
+                            topLeft = pos + Offset(tileSize * .12f, tileSize * .13f),
+                            size = Size(tileSize * .76f, tileSize * .77f),
+                            cornerRadius = CornerRadius(3f))
+                        drawRoundRect(Color(0xFFE6CFAC),
+                            topLeft = pos + Offset(tileSize * .20f, tileSize * .20f),
+                            size = Size(tileSize * .60f, tileSize * .54f),
+                            cornerRadius = CornerRadius(3f))
+                        drawRect(Color(0xFFB4D9CD),
+                            topLeft = pos + Offset(tileSize * .21f, tileSize * .20f),
+                            size = Size(tileSize * .58f, tileSize * .18f))
                     }
                     "campfire" -> {
                         drawCircle(Color(0xFFFFD58D).copy(alpha = .25f),
