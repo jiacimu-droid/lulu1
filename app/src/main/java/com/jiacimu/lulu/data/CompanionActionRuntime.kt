@@ -1439,9 +1439,12 @@ internal object OrderedCharacterActions {
                 userEvidenceIds.isNotEmpty()) {
                 args.put("_replyEvidenceIds", org.json.JSONArray(userEvidenceIds.toList()))
             }
+            // Resolve once: the same stable step request must own both the
+            // real ToolRouter effect and its later feedback provenance.
+            val stepRequestId = requestIdForStep(index)
             val result = runCatching {
                 JSONObject(ToolRouter.execute(context, characterId, name, args,
-                    requestId = requestIdForStep(index),
+                    requestId = stepRequestId,
                     intentionId = intentionId, goalReviewMode = goalReviewMode,
                     userRequested = if (name == "capture_screen") explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
@@ -1458,7 +1461,7 @@ internal object OrderedCharacterActions {
             }
             SearchReceiptFeedback.from(name, args, result)?.let { feedback ->
                 searchReceipts += feedback.copy(receiptEvidenceId =
-                    SearchReceiptFeedback.recordedReceiptId(characterId, requestIdForStep(index)))
+                    SearchReceiptFeedback.recordedReceiptId(characterId, stepRequestId))
             }
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
