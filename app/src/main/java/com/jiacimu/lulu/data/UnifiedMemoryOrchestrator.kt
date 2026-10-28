@@ -39,11 +39,24 @@ data class UnifiedMemoryContext(
     /** A learned understanding is part of this person's memory, not a second biography. */
     val understandingContext: String = "",
 ) {
-    val coreMemorySection: String get() = CoreMemoryDelivery.render(coreMemories)
+    // A context object is also passed between scenes and low-budget renderers.
+    // Never trust the incoming lists as already scoped: even if an adapter
+    // accidentally supplies a mixed chat/group batch, the final prompt
+    // must contain only records owned by the current character.
+    internal val ownedMemories: List<MemoryEntry>
+        get() = if (characterId.isBlank()) emptyList() else memories.filter { it.characterId == characterId }
+    internal val ownedCoreMemories: List<MemoryEntry>
+        get() = if (characterId.isBlank()) emptyList() else coreMemories.filter { it.characterId == characterId }
+    internal val ownedSourceEvents: List<SharedTimelineEvent>
+        get() = if (characterId.isBlank()) emptyList() else sourceEvents.filter { it.characterId == characterId }
+    internal val ownedRecentEvents: List<SharedTimelineEvent>
+        get() = if (characterId.isBlank()) emptyList() else recentEvents.filter { it.characterId == characterId }
+
+    val coreMemorySection: String get() = CoreMemoryDelivery.render(ownedCoreMemories)
 
     /** Retrieval supplies evidence, not a new conversational obligation. Shared
      * by compact decisions and the full gateway; no separate memory judge call. */
-    val recallUseGuidance: String get() = if (memories.isEmpty() && sourceEvents.isEmpty() &&
+    val recallUseGuidance: String get() = if (ownedMemories.isEmpty() && ownedSourceEvents.isEmpty() &&
         understandingContext.isBlank()) "" else
         "【回忆的使用分寸】先看旧事与当前话题、对象和最新原话是否相关，区分当时感受与现在状态、明确偏好与推测。" +
         "可自然带出、只影响自己的理解、需要时核实，或这次不提；召回不等于对方想重谈，也不要求每轮展示记得多少。" +
@@ -51,12 +64,12 @@ data class UnifiedMemoryContext(
 
     private fun evidenceRendered(budget: Int = evidenceCharacterBudget): RenderedMemorySection {
         val header = "召回记忆对应的原始时间线证据：\n事实、措辞和时间以这些原始记录为准；摘要只用于检索。\n"
-        val rendered = MemoryEvidenceSelection.render(sourceEvents, (budget - header.length).coerceAtLeast(0))
+        val rendered = MemoryEvidenceSelection.render(ownedSourceEvents, (budget - header.length).coerceAtLeast(0))
         return if (rendered.text.isBlank()) rendered else rendered.copy(text = header + rendered.text)
     }
 
     private fun recentRendered(budget: Int = recentCharacterBudget): RenderedMemorySection =
-        MemoryEvidenceSelection.render(recentEvents.asReversed(), budget)
+        MemoryEvidenceSelection.render(ownedRecentEvents.asReversed(), budget)
 
     val sourceEvidence: String get() = evidenceRendered().text
     val recentTimeline: String get() = listOf(activeTaskContext, recentRendered().text)
@@ -67,27 +80,27 @@ data class UnifiedMemoryContext(
         val evidence = evidenceRendered(evidenceBudget)
         val recent = recentRendered(recentBudget)
         val omitted = linkedMapOf<String, String>()
-        memories.filterNot { it.id in summary.ids }.forEach { omitted[it.id] = "摘要上下文字数预算" }
-        sourceEvents.filterNot { it.id in evidence.ids }.forEach { omitted["event:${it.id}"] = "原始证据上下文字数预算" }
-        recentEvents.filterNot { it.id in recent.ids }.forEach { omitted["recent:${it.id}"] = "近期原始窗口字数预算" }
+        ownedMemories.filterNot { it.id in summary.ids }.forEach { omitted[it.id] = "摘要上下文字数预算" }
+        ownedSourceEvents.filterNot { it.id in evidence.ids }.forEach { omitted["event:${it.id}"] = "原始证据上下文字数预算" }
+        ownedRecentEvents.filterNot { it.id in recent.ids }.forEach { omitted["recent:${it.id}"] = "近期原始窗口字数预算" }
         MemoryInspectionStore.recordInjection(characterId, inspectionId,
-            coreMemories.map { "core:${it.id}" } + summary.ids.map { "memory:$it" } +
+            ownedCoreMemories.map { "core:${it.id}" } + summary.ids.map { "memory:$it" } +
                 evidence.ids.map { "event:$it" } + recent.ids.map { "recent:$it" }, omitted,
             summary.truncatedIds + evidence.truncatedIds + recent.truncatedIds)
     }
 
     fun compactPromptSection(characterBudget: Int = 4_800): String {
-        if (coreMemories.isEmpty() && memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty() && activeTaskContext.isBlank() && understandingContext.isBlank()) return ""
+        if (ownedCoreMemories.isEmpty() && ownedMemories.isEmpty() && ownedSourceEvents.isEmpty() && ownedRecentEvents.isEmpty() && activeTaskContext.isBlank() && understandingContext.isBlank()) return ""
         val safeBudget = characterBudget.coerceAtLeast(900)
         val knowledgeBudget = if (understandingContext.isBlank()) 0 else (safeBudget * 0.25).toInt()
         val remainingBudget = safeBudget - knowledgeBudget
         val recentBudget = (remainingBudget * 0.42).toInt()
         val evidenceBudget = (remainingBudget * 0.36).toInt()
         val summaryBudget = (remainingBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
-        val summary = PromptMemoryRenderer.renderWithTrace(memories, summaryBudget)
+        val summary = PromptMemoryRenderer.renderWithTrace(ownedMemories, summaryBudget)
         recordActualPrompt(summary, evidenceBudget, recentBudget)
         // 同类记录统计只给事实（次数、日期、数值），怎么说由模型自己决定；本轮没有可量同类记录时为空。
-        val patternNote = MemoryPatternNotes.build(memories, LuluRepositories.memory.snapshot(characterId), characterId)
+        val patternNote = MemoryPatternNotes.build(ownedMemories, LuluRepositories.memory.snapshot(characterId), characterId)
         return listOf(coreMemorySection, activeTaskContext, recallUseGuidance,
             recentRendered(recentBudget).text.takeIf(String::isNotBlank)?.let { "这个角色最近亲历的原始时间线：\n$it" }.orEmpty(),
             evidenceRendered(evidenceBudget).text, summary.text, patternNote, understandingContext.take(knowledgeBudget),
