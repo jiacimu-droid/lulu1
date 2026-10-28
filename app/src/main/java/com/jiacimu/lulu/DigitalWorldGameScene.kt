@@ -1287,6 +1287,7 @@ private fun buildInteractionChoices(
         val games = if (sceneCode == com.jiacimu.lulu.data.DigitalWorldPublicPlaces.GAME_HALL && "choose_arcade" in target.anchor.activityIds) {
             listOf(
                 DigitalInteractionChoice("记忆配对", "开始真实对局", gameId = "memory_match"),
+                DigitalInteractionChoice("快艇骰子", "与在场角色投骰子", gameId = "yacht_dice"),
                 DigitalInteractionChoice("深海回声", "开始潜航探索", gameId = "deep_sea_journey"),
             )
         } else emptyList()
