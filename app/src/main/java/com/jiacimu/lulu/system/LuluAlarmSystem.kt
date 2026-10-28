@@ -61,6 +61,9 @@ object LuluAlarmSystem {
         commitmentTaskId: String? = null,
     ): Result<LuluAlarm> = runCatching {
         val appContext = context ?: error("闹钟系统尚未初始化")
+        // Missing ownership must never silently become another character's
+        // alarm. In particular, legacy "lulu" is a real independent role.
+        require(characterId.isNotBlank()) { "闹钟缺少明确的角色归属，已拒绝创建" }
         list(appContext).firstOrNull { it.id == id }?.let { existing ->
             require(existing.characterId == characterId && existing.triggerAt == triggerAt && existing.label == label.trim()) { "闹钟执行ID冲突" }
             return@runCatching existing
@@ -68,8 +71,8 @@ object LuluAlarmSystem {
         require(triggerAt.isAfter(Instant.now().plusSeconds(5))) { "闹钟时间必须晚于当前时间" }
         val alarm = LuluAlarm(
             id = id,
-            characterId = characterId.ifBlank { "lulu" },
-            characterName = characterName.ifBlank { "露露" },
+            characterId = characterId,
+            characterName = characterName.ifBlank { characterId },
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
             silentCallback = silentCallback,
@@ -179,11 +182,16 @@ object LuluAlarmSystem {
                 for (index in 0 until array.length()) {
                     val item = array.optJSONObject(index) ?: continue
                     val trigger = runCatching { Instant.parse(item.optString("triggerAt")) }.getOrNull() ?: continue
+                    // Old ownerless backups cannot be attributed to a
+                    // fabricated default character. Leave bytes in the
+                    // original store for inspection; never deliver to "lulu".
+                    val ownerId = item.optString("characterId").trim().takeIf(String::isNotBlank)
+                        ?: continue
                     add(
                         LuluAlarm(
                             id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
-                            characterId = item.optString("characterId").ifBlank { "lulu" },
-                            characterName = item.optString("characterName").ifBlank { "露露" },
+                            characterId = ownerId,
+                            characterName = item.optString("characterName").ifBlank { ownerId },
                             triggerAt = trigger,
                             label = item.optString("label").ifBlank { "该起床啦" },
                             createdAt = runCatching { Instant.parse(item.optString("createdAt")) }.getOrDefault(Instant.now()),
