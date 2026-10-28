@@ -418,8 +418,10 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             null,
         )
     }
-    LaunchedEffect(stage, callId, playbackEvent.revision) {
-        if (callId.isNotBlank() && playbackEvent.callId == callId &&
+    LaunchedEffect(stage, callId, playbackEvent.revision, rendererReady.value) {
+        // WebView can finish loading after the first audio callback. Replay
+        // only the CURRENT event when ready, not an already-ended older turn.
+        if (rendererReady.value && callId.isNotBlank() && playbackEvent.callId == callId &&
             playbackEvent.characterId == characterId) {
             val phase = playbackEvent.phase.name.lowercase(java.util.Locale.ROOT)
             stage.evaluateJavascript(
