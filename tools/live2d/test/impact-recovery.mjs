@@ -70,6 +70,24 @@ for (const gesture of ['stroke-left', 'stroke-right', 'kiss']) {
 }
 console.log('Live2D impact: force levels, direction, coordinated recoil/recovery, gaze and bounds passed at 15–120fps')
 
+// Non-face impacts used to enter the soft actuator and barely moved the
+// chest. Verify force levels and a visible delayed upper-body recoil.
+for (const force of [.25, .55, .9]) {
+  const r = touchReflexFor('chest', 'slap-right', 0, { force }, 230)
+  assert.equal(r.impactMotion, true)
+  assert.equal(r.impactFace, false)
+  assert.equal(r.yaw, 0)
+  assert.equal(r.roll, 0)
+  assert.ok(r.body.pitch < -3, 'chest must recede at the torso')
+}
+const chestLight = touchReflexFor('chest', 'slap-right', 0, { force: .25 }, 230)
+const chestHeavy = touchReflexFor('chest', 'slap-right', 0, { force: .9 }, 230)
+assert.ok(chestHeavy.body.pitch < chestLight.body.pitch - 2,
+  'chest recoil must reflect actual impact force')
+const chestStationary = touchReflexFor('chest', 'slap', 0, { force: .9 }, 230)
+assert.ok(Math.abs(chestStationary.body.pitch) > 5,
+  'stationary palm impact on chest cannot be attenuated into a frozen pose')
+
 for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
   const base = touchReflexFor(region, 'slap-right', 0, { force: .9 }, 200)
   const wolf = enhanceWolfTouch(base, region, 'slap-right', { force: .9 }, 200)
