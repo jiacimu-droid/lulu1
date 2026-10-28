@@ -23,6 +23,7 @@ internal object AutonomousSocialRuntime {
         previousLocation: String,
         now: Instant = Instant.now(),
     ) = encounterMutex.withLock {
+        ScopedModelSelections.initialize(context.applicationContext)
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return@withLock
         val currentLocation = DigitalWorldStore.locationOf(characterId)
         if (currentLocation == previousLocation) return@withLock
@@ -364,13 +365,13 @@ internal object AutonomousSocialRuntime {
             participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
-        // Each person gets one chance to act in their OWN context and model.
-        // Two-person encounters allow an optional final reply from the initiator.
-        // All proposals stay provisional until every public turn is persisted.
+        // Scene suggestions are optional; each speaker's own model still decides.
+        // The third encounter API call is now an isolated creative adviser.
+        val sceneIdea = suggestEncounterPossibilities(
+            participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
         val turns = mutableListOf<GeneratedTurn>()
         val privateReactions = mutableMapOf<String, JSONObject>()
-        val speakingOrder = if (participantIds.size == 2)
-            participantIds + participantIds.first() else participantIds
+        val speakingOrder = participantIds
         for (speakerId in speakingOrder) {
             val peers = participantIds.filterNot { it == speakerId }
             val previous = turns.joinToString("\n") { turn ->
@@ -380,8 +381,7 @@ internal object AutonomousSocialRuntime {
                         "“${segment.text}”" else segment.text
                 }
             }
-            val residentModel = if (speakerId.startsWith("resident:"))
-                ScopedModelSelections.resolveConnection(ResidentDailyDecision.SCOPE) else null
+            val roleModel = ScopedModelSelections.worldSocialConnection(speakerId)
             val response = LuluAiServices.gateway.generate(
                 characterId = speakerId,
                 facts = buildString {
@@ -403,6 +403,7 @@ internal object AutonomousSocialRuntime {
                     appendLine("双方共同可见的现有关系事实：$socialHistory")
                     appendLine("你本人对对方的主观看法（对方未必知道）：")
                     appendLine(CharacterSocialRelationship.perspectivesFor(speakerId, peers))
+                    if (sceneIdea.isNotBlank()) appendLine("【可忽略的创意提议，并非已发生事实】$sceneIdea")
                     appendLine("本次对话中其他人已经选择的公开话语与动作（仍待正式提交）：")
                     appendLine(previous.ifBlank { "当前无人说话" })
                     appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
@@ -433,7 +434,7 @@ internal object AutonomousSocialRuntime {
                 title = "${characters.getValue(speakerId).displayName}在$location",
                 maxTokens = 1050,
                 contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
-                connectionOverride = residentModel,
+                connectionOverride = roleModel,
             ).getOrNull()?.text.orEmpty()
             val decision = ModelStructuredOutput.objectOrNull(response) ?: continue
             if (decision.optString("choice") == "quiet") {
@@ -463,6 +464,53 @@ internal object AutonomousSocialRuntime {
             }
         }.take(2400)
         return GeneratedEncounter(turns, summary, privateReactions)
+    }
+
+    /** An isolated public-world adviser: suggestions, never authored actions. */
+    private suspend fun suggestEncounterPossibilities(
+        participants: List<String>,
+        characters: Map<String, CharacterSettings>,
+        locationFacts: String,
+        sharedPast: String,
+        publicRelations: String,
+        tick: DigitalWorldLifeTick?,
+        at: Instant,
+    ): String {
+        val suggestion = LuluAiServices.gateway.generate(
+            characterId = participants.first(),
+            facts = buildString {
+                appendLine("【已确认场景】$locationFacts")
+                appendLine("时间：$at；${DigitalWorldEnvironment.snapshot(at).context()}")
+                if (tick != null) appendLine("现场真实事件：${tick.summary}；状态=${tick.status}")
+                else appendLine("没有新环境事件。")
+                appendLine("在场人物的公开名称：")
+                participants.forEach { id -> appendLine("$id：${characters.getValue(id).displayName}") }
+                appendLine("所有人曾共同见到的公开事实：${sharedPast.ifBlank { "暂无" }}")
+                appendLine("共同可核验关系：$publicRelations")
+            },
+            instruction = """
+                你是场景创意顾问，不是任何人物，也不是世界执行器。
+                根据现有地点、公开关系与已发生的真实事件，提出一到两个可能有趣的交流切入点。
+                可以是不同兴趣的碰撞、轻微误会的解释、自然打趣、分享旧话题、活动邀约。
+                不强制制造冲突、浪漫或高潮；普通的有趣小事同样值得记录。
+                只返回 JSON：{"angle":"一个可选切入角度","options":["一项符合现有事实的互动建议","另一项可选建议"]}。
+                不得新建物件、事故、天气、比赛结果，不得替任何人物写台词、替他们接受邀请、
+                设定他们的私人愿望或宣布关系变化。
+                这些只供本人各自决策时参考，不算现场事实，不写入时间线。
+            """.trimIndent(),
+            source = "数字世界·公开场景创意",
+            title = "相遇时的互动可能性",
+            maxTokens = 360,
+            contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
+            connectionOverride = ScopedModelSelections.worldSceneConnection(),
+        ).getOrNull()?.text.orEmpty()
+        val json = ModelStructuredOutput.objectOrNull(suggestion) ?: return ""
+        val angle = json.optString("angle").trim().take(180)
+        val options = json.optJSONArray("options")
+        val ideas = (0 until minOf(2, options?.length() ?: 0)).mapNotNull { index ->
+            options?.optString(index)?.trim()?.take(130)?.takeIf(String::isNotBlank)
+        }
+        return (listOf(angle) + ideas).filter(String::isNotBlank).joinToString("；").take(430)
     }
 
     private suspend fun generateSoloIncidentReaction(
