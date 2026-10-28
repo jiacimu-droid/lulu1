@@ -77,9 +77,9 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
     const recoil = impactEnvelope(elapsedMs)
     const swipe = direction || (family === 'cheek' && side !== 0 ? side : -side || -1)
     const stationary = direction === 0
-    const contactGain = stationary && headHit ? .58 : 1
     const headHit = ['hair', 'forehead', 'beast-ear', 'ear', 'eye',
       'nose', 'cheek', 'mouth'].includes(family)
+    const contactGain = stationary && headHit ? .58 : 1
     const faceHit = ['forehead', 'eye', 'nose', 'cheek', 'mouth'].includes(family)
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
     const follow = .15 + .85 * Math.min(1, Math.max(0, elapsedMs - 100) / 380)
