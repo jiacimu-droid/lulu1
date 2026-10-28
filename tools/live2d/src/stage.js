@@ -1413,8 +1413,9 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   tactileContact = { region, kind, ordinal: touchSequence, state: visualState,
     start: contactStart, pressed: !completed, downPoint,
     lastPoint: { x, y }, lastMovementAt, motionPlayed: priorMotionPlayed }
-  if (!starting) tactileContact.motionPlayed = maybePlayTactileMotion(
-    region, kind, state, completed, priorMotionPlayed) || priorMotionPlayed
+  if (!starting && wolfRigActive && tactileMotionIndices.size)
+    tactileContact.motionPlayed = maybePlayTactileMotion(
+      region, kind, state, completed, priorMotionPlayed) || priorMotionPlayed
   const baseTouch = !completed && isImpact(kind) ? null :
     touchReflexFor(region, kind, touchSequence, visualState)
   touchReflex = wolfRigActive && baseTouch
