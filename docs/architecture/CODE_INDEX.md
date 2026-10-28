@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0efee4a5f23424a1c81d33d8a1464d23923cf912`
+- 基准提交：`9befde0e11dbd45fc980def23d3c3886c85dfb4c`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：203257
+- 已索引代码/文本行：203292
 - 已发现符号：2957
 
 | 文件 | 行数 | 符号数 |
@@ -779,7 +779,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 97 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 97 | 1 |
