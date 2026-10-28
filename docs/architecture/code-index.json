@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:25:22.544683+00:00",
-  "commit": "bf64cff6c4060e36c2b852dca75891eefbdbde44",
+  "generatedAt": "2026-10-28T08:25:57.316424+00:00",
+  "commit": "f04c4837326b332fc2190f6862b462265a248aa6",
   "branch": "main",
-  "sourceFingerprint": "2e2420c43ce6139709487dd64866a8adcc8173cf40c5bc57e4c007c45165ba22",
+  "sourceFingerprint": "c762d202ce31e4bba8f66b236bc13f4fd22e6c318384e9400aee40565f4ec249",
   "summary": {
     "files": 1013,
-    "lines": 203240,
+    "lines": 203245,
     "symbols": 2953
   },
   "symbolIndex": {
@@ -18725,7 +18725,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
       "lines": 337,
-      "sha256": "8e2e1a876e09deddc11087ac06eee2c630c0fa2ae07f97af9380e295274f91d6",
+      "sha256": "e50ba6ce277aa9d179f9e51ceb539700ffb4a6573afe7b46e10b91ef9bf0cbdb",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
@@ -19284,8 +19284,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt",
-      "lines": 164,
-      "sha256": "23742199bc13ef543f9e93aba758e94108075b0248656a0c87fa6a1edc099d17",
+      "lines": 169,
+      "sha256": "85bb0009e7560f17a2d96ed1972d8724e58fd28455684e9f956d460605038b87",
       "symbols": []
     },
     {

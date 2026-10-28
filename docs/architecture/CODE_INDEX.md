@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bf64cff6c4060e36c2b852dca75891eefbdbde44`
+- 基准提交：`f04c4837326b332fc2190f6862b462265a248aa6`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：203240
+- 已索引代码/文本行：203245
 - 已发现符号：2953
 
 | 文件 | 行数 | 符号数 |
@@ -207,7 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 308 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 164 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 169 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 412 | 1 |
