@@ -194,7 +194,8 @@ class BlockIslandRulesTest {
         assertEquals(0, cooked.fish)
         val restored = BlockIslandState.fromJson(cooked.toJson())!!
         assertEquals(0, restored.fish)
-        assertEquals(1, BlockIslandState.fromJson(caughtOrMissed.toJson())!!.lastFishTurn.takeIf { it >= 0 }?.let { 1 })
+        assertEquals(caughtOrMissed.lastFishTurn,
+            BlockIslandState.fromJson(caughtOrMissed.toJson())!!.lastFishTurn)
     }
 
     @Test fun olderIslandSaveMigratesWithoutDeletingBuildingsOrHistory() {
