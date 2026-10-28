@@ -19,11 +19,16 @@ internal object NarrativeEvidenceChain {
         now: Instant = Instant.now(),
     ): List<SharedTimelineEvent> {
         if (limit <= 0) return emptyList()
+        val owner = seeds.firstOrNull()?.characterId?.takeIf(String::isNotBlank)
+            ?: return emptyList()
+        // Episode evidence can span sessions and days, never two different
+        // people's biographies. The projection must not trust mixed callers.
         val current = live.asSequence()
-            .filter { !it.occurredAt.isAfter(now) }
+            .filter { it.characterId == owner && !it.occurredAt.isAfter(now) }
             .distinctBy { it.id }
             .associateBy { it.id }
-        val validSeeds = seeds.distinctBy { it.id }.mapNotNull { seed ->
+        val validSeeds = seeds.filter { it.characterId == owner }
+            .distinctBy { it.id }.mapNotNull { seed ->
             current[seed.id]?.takeIf { it == seed }
         }
         if (validSeeds.isEmpty()) return emptyList()
@@ -88,7 +93,9 @@ internal object NarrativeEvidenceChain {
      */
     fun annotations(events: List<SharedTimelineEvent>): Map<String, String> {
         val ordered = compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }
-        val distinct = events.distinctBy { it.id }.sortedWith(ordered)
+        // Annotation indexes are per owner as well; duplicate event IDs in
+        // broken/legacy mixed batches must not make one role's facts win.
+        val distinct = events.distinctBy { it.characterId to it.id }.sortedWith(ordered)
         val result = mutableMapOf<String, String>()
         val byTask = distinct.filter { it.taskId.isNotBlank() }
             .groupBy { it.characterId to it.taskId }
