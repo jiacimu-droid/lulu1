@@ -427,9 +427,23 @@ class ResidentDailyContinuityTest {
             assertEquals(0, server.requestCount)
             assertEquals("completed", RoleDayScheduleStore.plans(app, actor).single { it.id == plan.id }.status)
             assertEquals(1, MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == post })
+            val decisionId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+            val source = SharedExperienceTimeline.eventsByIds(actor, listOf(decisionId)).single()
+            assertEquals("resident-due-decision", source.source)
+            assertTrue(source.content.contains("尚未执行"))
+            val actionId = "tool-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}"
+            val action = SharedExperienceTimeline.eventsByIds(actor, listOf(actionId)).single()
+            assertEquals(decisionId, JSONObject(action.content).optString("causeEvidenceId"))
+            assertEquals(source.revision, JSONObject(action.content).optLong("causeEvidenceRevision"))
+            val trace = CharacterCausalTrace.inspect(app, actor, source,
+                SharedExperienceTimeline.all(actor), JSONObject())
+            assertTrue(trace.any { it.evidenceId == actionId &&
+                it.title.contains("执行器确认成功") })
             assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
             assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
             assertEquals(1, MomentsStore.posts.value.count { it.authorCharacterId == actor && it.content == post })
+            assertEquals(source.revision, SharedExperienceTimeline.eventsByIds(actor,
+                listOf(decisionId)).single().revision)
         } finally {
             server.shutdown()
         }
@@ -485,6 +499,12 @@ class ResidentDailyContinuityTest {
         assertEquals(1, MomentsStore.posts.value.count {
             it.authorCharacterId == actor && it.content == dependent
         })
+        val decisionId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+        val dependentReceiptId = "tool-$actor-${decisionId}-extra-0"
+        val dependentReceipt = SharedExperienceTimeline.eventsByIds(actor,
+            listOf(dependentReceiptId)).single()
+        assertEquals(decisionId, JSONObject(dependentReceipt.content).optString("causeEvidenceId"))
+        assertEquals(1L, JSONObject(dependentReceipt.content).optLong("causeEvidenceRevision"))
         assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, completed))
         assertFalse(ResidentDailyDecision.runDuePlan(app, completed, now))
         assertEquals(1, MomentsStore.posts.value.count {
@@ -844,6 +864,19 @@ class ResidentDailyContinuityTest {
             val receipts = SharedExperienceTimeline.all(id).filter { it.source == "tool-router" }
             assertTrue(receipts.any { JSONObject(it.content).optString("tool") == "publish_moment" })
             assertTrue(receipts.any { JSONObject(it.content).optString("tool") == "send_character_message" })
+            val decisionId = "native-daily-${native.id}-${ResidentDailyDecision.date(now)}"
+            val decisionSource = SharedExperienceTimeline.eventsByIds(id, listOf(decisionId)).single()
+            assertEquals("resident-daily", decisionSource.source)
+            assertTrue(receipts.filter { JSONObject(it.content).optString("tool") in
+                setOf("publish_moment", "send_character_message") }.all {
+                val body = JSONObject(it.content)
+                body.optString("causeEvidenceId") == decisionId &&
+                    body.optLong("causeEvidenceRevision") == decisionSource.revision
+            })
+            val trace = CharacterCausalTrace.inspect(app, id, decisionSource,
+                SharedExperienceTimeline.all(id), JSONObject())
+            assertTrue(trace.any { it.title.contains("publish_moment") })
+            assertTrue(trace.any { it.title.contains("send_character_message") })
             assertTrue(ResidentSocialMailbox.inbox(peer.characterId).any {
                 it.fromId == id && it.content == "好呀，我们下次接着聊。" })
             // The daily plan's prose is an intention, not an executor receipt.
