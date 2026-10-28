@@ -150,7 +150,7 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
 }
 
 @Composable
-private fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
+internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
     val memoryReplay = remember(record.id, record.detailsJson) { parseMemoryReplay(record.detailsJson) }
     val yachtReplay = remember(record.id, record.detailsJson) { parseYachtReplay(record.detailsJson) }
     val steps = remember(record.id, record.detailsJson, record.characterReply) { record.toReplaySteps() }
