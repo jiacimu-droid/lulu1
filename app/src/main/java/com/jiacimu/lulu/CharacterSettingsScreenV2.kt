@@ -405,8 +405,10 @@ fun CharacterSettingsScreenV2(
                     } else agenda.forEach { item ->
                         val whenLocal = item.dueAt.atZone(ZoneId.systemDefault())
                             .format(DateTimeFormatter.ofPattern("HH:mm"))
+                        val pendingSavedSteps = item.status == "completed" &&
+                            ResidentDailyDecision.savedDueRecovery(context, item) != null
                         val statusLabel = when (item.status) {
-                            "completed" -> "已完成"
+                            "completed" -> if (pendingSavedSteps) "主活动已完成 · 附加行动待续接" else "已完成"
                             "cancelled" -> "已取消"
                             "due" -> "待执行"
                             else -> "已安排"
@@ -416,7 +418,9 @@ fun CharacterSettingsScreenV2(
                             Column(Modifier.weight(1f)) {
                                 Text(item.title, fontSize = 14.sp)
                                 if (item.dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(todayDate))
-                                    Text("较早安排 · 待本人重新考虑", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                                    Text(if (pendingSavedSteps) "较早安排 · 仅续接原决定的未完成步骤"
+                                        else "较早安排 · 待本人重新考虑",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                                 ResidentPlanRecoveryControl(item) { recoveryRevision++ }
                                 Text("${item.intent.take(110)} · $statusLabel",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
