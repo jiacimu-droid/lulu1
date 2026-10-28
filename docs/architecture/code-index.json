@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:42:34.876378+00:00",
-  "commit": "cc30430a903d675073172e2e3a9c8712bc88e8eb",
+  "generatedAt": "2026-10-28T07:43:27.570107+00:00",
+  "commit": "0c8d6721145fbdbcb03da50ccfd1ce800795b2f9",
   "branch": "main",
-  "sourceFingerprint": "4085e736a43fcf153927677cfd09e000fa76c4b2d185564e676e23b1b8188e4f",
+  "sourceFingerprint": "33d7e646e299e477e2bf91f09d017a9810e776b0843d5010d9882444428a019d",
   "summary": {
     "files": 1013,
-    "lines": 202241,
+    "lines": 202357,
     "symbols": 2944
   },
   "symbolIndex": {
@@ -801,7 +801,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 269
+        "line": 272
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -5269,11 +5269,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 135
+        "line": 138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 411
+        "line": 414
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -6143,7 +6143,7 @@
     "favorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
-        "line": 63
+        "line": 95
       }
     ],
     "visibleConversation": [
@@ -6627,7 +6627,7 @@
     "concern": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -8429,43 +8429,43 @@
     "invalidateSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 146
+        "line": 149
       }
     ],
     "WorldBookImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 231
+        "line": 234
       }
     ],
     "WorldBookDeletedBatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 235
+        "line": 238
       }
     ],
     "groupWorldBookEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 239
+        "line": 242
       }
     ],
     "WorldBookFolder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 262
+        "line": 265
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 263
+        "line": 266
       }
     ],
     "observeFolders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 280
+        "line": 283
       }
     ],
     "callEndDescription": [
@@ -22110,8 +22110,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
-      "lines": 191,
-      "sha256": "88715d99da0209189dde9c6d88a530734547759f27fbb70bd6f7fd90fa70c886",
+      "lines": 233,
+      "sha256": "385a648f400b3f60e16dac30b4ec2d4d46277035ab322a815f2f9945968aad26",
       "symbols": [
         {
           "name": "CharacterMessageFavorites",
@@ -22119,7 +22119,7 @@
         },
         {
           "name": "favorite",
-          "line": 63
+          "line": 95
         }
       ]
     },
@@ -22503,8 +22503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 55,
-      "sha256": "17c495611c6a6995e08ba0b68f5709d0acd082a213cf05ba96906c56e392a768",
+      "lines": 56,
+      "sha256": "0c54d5507efb64d28c224e4cf6491b84e131d5bbd693d4f9afd1eefbe67cfcc4",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -22626,8 +22626,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
-      "lines": 82,
-      "sha256": "9181d8a2b1d4386203ba46b7896802b347a71ec1159a6d406c11f647ef0c3144",
+      "lines": 83,
+      "sha256": "680ba9bf1fb44adae63e33ae4e47737ef05e5c622cf99b92508213df0e0e120a",
       "symbols": [
         {
           "name": "prompt",
@@ -22635,7 +22635,7 @@
         },
         {
           "name": "concern",
-          "line": 63
+          "line": 64
         }
       ]
     },
@@ -24654,8 +24654,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 557,
-      "sha256": "1a9e0d5c6a3e16cbdc7980d8a0eb4eebff4eecf88ea9a9398b5e85c0e2b441b0",
+      "lines": 560,
+      "sha256": "62f9afc8f8392e16c1f8b4b9878a3a843802018bf32806d28f01d557e2192b61",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -24675,43 +24675,43 @@
         },
         {
           "name": "snapshot",
-          "line": 135
+          "line": 138
         },
         {
           "name": "invalidateSource",
-          "line": 146
+          "line": 149
         },
         {
           "name": "WorldBookImportResult",
-          "line": 231
+          "line": 234
         },
         {
           "name": "WorldBookDeletedBatch",
-          "line": 235
+          "line": 238
         },
         {
           "name": "groupWorldBookEntries",
-          "line": 239
+          "line": 242
         },
         {
           "name": "WorldBookFolder",
-          "line": 262
+          "line": 265
         },
         {
           "name": "InMemoryWorldBookRepository",
-          "line": 263
+          "line": 266
         },
         {
           "name": "initialize",
-          "line": 269
+          "line": 272
         },
         {
           "name": "observeFolders",
-          "line": 280
+          "line": 283
         },
         {
           "name": "snapshot",
-          "line": 411
+          "line": 414
         }
       ]
     },
@@ -32949,8 +32949,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
-      "lines": 135,
-      "sha256": "ad1a88f021698004b3e3e496c0b44aa9d165ed8120ce24d34a86b7763e894a06",
+      "lines": 204,
+      "sha256": "86108f8ffd38249ea58cd166c47f4c3c750e85c9447a06923527e51188734a43",
       "symbols": [
         {
           "name": "CharacterSocialActionOpportunitiesTest",
