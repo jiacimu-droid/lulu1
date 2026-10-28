@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:17:11.731606+00:00",
-  "commit": "65d81d62f0d84c990262d24d30c081bb78fefacf",
+  "generatedAt": "2026-10-28T10:18:00.814547+00:00",
+  "commit": "5c5b2ca37fe86673b2a01dd8bd7eb382ec4b4ace",
   "branch": "main",
-  "sourceFingerprint": "2593c71000031c14d315f77857708edcfaba0335bff5da42a25a72ba52e3a571",
+  "sourceFingerprint": "e7ca08d668861b90df4cbaf3f96f091f5a596970f0e7ff4056b2c0fdf1b3daa0",
   "summary": {
     "files": 1032,
-    "lines": 207745,
+    "lines": 207815,
     "symbols": 3015
   },
   "symbolIndex": {
@@ -29539,7 +29539,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
       "lines": 664,
-      "sha256": "cc4137d8df84b3471b3c45a994c1f15751c78a7b59eabab8acc98097573aec95",
+      "sha256": "6261e3799a07aabf7cf610df7ff5132d05ac971645bd7e3f478799f7b18823b9",
       "symbols": [
         {
           "name": "load",
@@ -32582,8 +32582,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt",
-      "lines": 92,
-      "sha256": "c4891dbdb73cca27b818781c74024b31c6d155c756de298b6b6e2f887a9e6d93",
+      "lines": 162,
+      "sha256": "37e6817e2d4a1e4bcb92838064939dd96d35dad586c3ba893c946cab63386a0d",
       "symbols": [
         {
           "name": "WorldExplorationContractsTest",
