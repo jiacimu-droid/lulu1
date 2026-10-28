@@ -401,7 +401,7 @@ export function touchMotionFor(region, gesture, state = {}) {
     if (['cheek', 'mouth', 'ear', 'beast-ear', 'neck'].includes(family)) index = 36
     else if (['forehead', 'hair'].includes(family)) index = 32
   } else if (stroke) {
-    if (['ear', 'beast-ear', 'cheek'].includes(family)) {
+    if (['ear', 'beast-ear', 'cheek'].includes(family) && force >= .65) {
       // Mirrored neck tilt: a right-to-left stroke cannot send the
       // character in the opposite direction.
       index = (travel || side || -1) < 0 ? 1 : 2
