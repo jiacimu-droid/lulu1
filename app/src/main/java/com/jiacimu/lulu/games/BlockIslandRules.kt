@@ -84,6 +84,8 @@ internal object BlockIslandRules {
         for (y in 2 until WORLD_HEIGHT - 1) tiles[y * WORLD_WIDTH + 5] = 0
         for (x in 2 until WORLD_WIDTH - 1) tiles[(WORLD_HEIGHT - 4) * WORLD_WIDTH + x] = 0
         tiles[4 * WORLD_WIDTH + 4] = 7
+        tiles[10 * WORLD_WIDTH + 13] = 0
+        tiles[17 * WORLD_WIDTH + 23] = 0
         val mobs = listOf(
             ExpeditionMob(1, 13, 10, 4),
             ExpeditionMob(2, 23, 17, 4),
@@ -160,6 +162,7 @@ internal object BlockIslandRules {
             }
             "wall", "floor", "door", "workbench", "campfire" -> {
                 if (!near() || (tx == w.x && ty == w.y) ||
+                    action == "floor" && cell == 4 ||
                     w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } || mob != null ||
                     (cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
                     index in s.structures) return reject("这里无法放置，靠近空地后再试")
@@ -182,6 +185,15 @@ internal object BlockIslandRules {
                     else s.structures
                 next = s.copy(world = updated, structures = added)
                 message = "建造成功：${actionName(action)}"
+            }
+            "plant" -> {
+                if (!near() || cell != 0 || index in s.structures ||
+                    (tx == w.x && ty == w.y) ||
+                    w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } ||
+                    mob != null) return reject("在身边的空草地种树")
+                if (w.wood < 1) return reject("种植树苗需要1木材")
+                next = s.copy(world = w.setTile(tx, ty, 1).copy(wood = w.wood - 1))
+                message = "种下一棵树，未来可以再次采集木材"
             }
             "remove" -> {
                 if (!near() || cell == 7 || cell !in setOf(3, 4) && index !in s.structures)
@@ -381,7 +393,8 @@ internal object BlockIslandRules {
     fun nextStep(s: BlockIslandState, fromX: Int, fromY: Int, toX: Int, toY: Int): Pair<Int, Int>? {
         val w = s.world
         if (!w.inBounds(fromX, fromY) || !w.inBounds(toX, toY)) return null
-        val targetOpen = isWalkable(s, toX, toY)
+        val targetOpen = isWalkable(s, toX, toY) &&
+            w.mobs.none { it.hp > 0 && it.x == toX && it.y == toY }
         val ends = if (targetOpen) setOf(w.index(toX, toY)) else
             neighbors(toX, toY).filter { (x, y) -> isWalkable(s, x, y) }
                 .map { (x, y) -> w.index(x, y) }.toSet()
