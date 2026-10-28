@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cc0f498881c98c4ffb81e215c680bd23cfceb2c1`
+- 基准提交：`3298924da25401a17b5fb05dc1ef5be125d920ba`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：202413
+- 已索引代码/文本行：202444
 - 已发现符号：2946
 
 | 文件 | 行数 | 符号数 |
@@ -126,7 +126,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 364 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt` | 187 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 202 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 314 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 316 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
@@ -427,7 +427,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 60 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 223 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1190 | 36 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 364 | 19 |
@@ -447,7 +447,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1120 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1125 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 540 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
@@ -910,7 +910,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 96 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 118 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 171 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 63 | 1 |
