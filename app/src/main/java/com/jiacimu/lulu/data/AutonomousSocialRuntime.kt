@@ -163,17 +163,14 @@ internal object AutonomousSocialRuntime {
                     triggerExtraction = false,
                 )
             }
-            val sourceId = "meeting-${session.id}-autonomous-turn-${turn.id}-viewer-${draft.speakerId}"
-            CharacterInnerLifeStore.observe(draft.speakerId, sourceId, body, draft.innerLife,
-                participantIds.filterNot { it == draft.speakerId }.toSet(), turnTime)
-            CharacterInnerLifeStore.recordInnerVoice(draft.speakerId, sourceId, draft.innerThought, turnTime)
-            CharacterInnerLifeStore.recordCausalTransition(
-                characterId = draft.speakerId, evidenceId = sourceId,
-                appraisal = draft.appraisal, innerLife = draft.innerLife,
-                innerThoughtBasis = null, selectedAction = "group_reply",
-                innerThought = draft.innerThought, reason = draft.decisionReason,
-                now = turnTime,
-            )
+            // A neutral, isolated group-scene model may record what every
+            // participant SAID/DID in a jointly witnessed scene, but is not
+            // authorized to write anyone's private emotions, subjective
+            // motives, causal appraisals, or silent thoughts. Each participant
+            // receives its OWN eventId/revision above and may interpret the
+            // scene on its next ordinary perception in its own role context.
+            // This also prevents the shared narrator from cloning one
+            // character's emotional state into several personal minds.
         }
 
         val finishedAt = now.plusMillis((generated.turns.size + 2L) * 900L)
@@ -335,7 +332,7 @@ internal object AutonomousSocialRuntime {
                 7. 只能把上面给出的共同亲历会面与当前可见环境当作双方可聊的往事。任何一方的私聊、日记、未说出口的想法、对用户的喜好或其他人在不在场时的经历，均不得成为共同话题。共享历史之外可以闲聊眼前事物，不要凭空编造双方都知道的过去。
                 8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
                 9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
-                10. 每个 turn 可选 innerThought（这个 speaker 未说出的念头）与 innerLife={"emotion":{"feeling":"感受","cause":"本轮亲历依据","otherFeeling":"并存感受","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"愿望","why":"缘由","reason":"变化依据"}],"social":{"targetId":"现场其他真实角色ID","interpretation":"主观看法","reason":"亲历依据"}}。只更新发言角色本人，只依据此前实际相处；不把后续尚未发生的发言、他人的私人想法或私聊写成已知事实。没有变化可省略，不能统一成相同情绪。
+                10. 你只是此次共同场景的公开行动和台词编排器，不是任何人的私人内心。不要输出 innerThought、innerLife、appraisal、私人好感判断、个人偏好或内心独白；真正的感受、日记、愿望和对彼此的主观看法，待他们各自收到已发生的现场事件后，由本人常规角色决策形成。
                 ${CharacterDecisionProtocol.runtimePrinciples}
             """.trimIndent(),
             source = "角色自主相遇",
