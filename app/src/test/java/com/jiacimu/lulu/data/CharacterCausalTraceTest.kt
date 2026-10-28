@@ -123,10 +123,19 @@ class CharacterCausalTraceTest {
         receipt(a, "trace-pending", "trace-state-source", "web_search", "pending", true, "云端处理中")
         receipt(a, "trace-failed", "trace-state-source", "web_search", "failed", false, "网络不可用")
         receipt(a, "trace-waiting", "trace-state-source", "capture_screen", "waiting_user", false, "需要授权")
+        SharedExperienceTimeline.record("trace-inner-pending", a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "cloud_task").put("status", "succeeded")
+                .put("causeEvidenceId", "trace-state-source")
+                .put("result", JSONObject().put("success", true).put("status", "pending")
+                    .put("summary", "任务已经提交，但结果尚未生成").toString()).toString(),
+            at.plusSeconds(12), triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
         val mind = JSONObject()
         val lines = CharacterCausalTrace.inspect(context, a, event(a, "trace-state-source"),
             SharedExperienceTimeline.all(a), mind)
         assertTrue(lines.any { it.title.contains("结果尚未证实") })
+        assertTrue(lines.any { it.evidenceId == "trace-inner-pending" &&
+            it.title.contains("结果尚未证实") })
         assertTrue(lines.any { it.title.contains("执行失败") })
         assertTrue(lines.any { it.title.contains("等待授权") })
         assertFalse(lines.any { it.title.contains("执行器确认成功") })
