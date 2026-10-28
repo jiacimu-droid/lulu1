@@ -10,6 +10,50 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun autonomousMeetingAllowsOnlyActualParticipantImpressions() {
+        val at = Instant.parse("2026-10-28T07:00:00Z")
+        val meeting = MeetingSession(
+            id = "autonomous-social-test",
+            participantIds = listOf("role-a", "role-b"),
+            reality = MeetingReality.DIGITAL_WORLD,
+            location = "云眠原", startedAt = at, endedAt = at.plusSeconds(60),
+        )
+        fun observed(viewer: String, id: String, session: String): SharedTimelineEvent =
+            SharedTimelineEvent(id, viewer, "数字世界见面", "数字世界",
+                "真实在场的交谈", at, sessionId = session,
+                source = "meeting", evidenceKind = EventEvidenceKind.Observation)
+
+        val a = observed("role-a", "meeting-autonomous-social-test-autonomous-turn-viewer-role-a", meeting.id)
+        val b = observed("role-b", "meeting-autonomous-social-test-autonomous-turn-viewer-role-b", meeting.id)
+        assertEquals(setOf("role-b"), CharacterPerceptionContext.meetingSocialIds(a, meeting))
+        assertEquals(setOf("role-a"), CharacterPerceptionContext.meetingSocialIds(b, meeting))
+        assertFalse("user" in CharacterPerceptionContext.meetingSocialIds(a, meeting))
+        assertEquals(emptySet<String>(), CharacterPerceptionContext.meetingSocialIds(
+            observed("stranger", a.id, meeting.id), meeting))
+        assertEquals(emptySet<String>(), CharacterPerceptionContext.meetingSocialIds(a, null))
+    }
+
+    @Test fun nativeResidentMeetingIsTwoIndependentLivesWhileOwnerMeetingStillIncludesUser() {
+        val at = Instant.parse("2026-10-28T07:00:00Z")
+        val native = MeetingSession(
+            "native-social-test", listOf("role-a", "resident:neighbour"),
+            MeetingReality.DIGITAL_WORLD, "庭院", at, endedAt = at.plusSeconds(5),
+        )
+        fun observed(viewer: String, source: String, id: String): SharedTimelineEvent =
+            SharedTimelineEvent(id, viewer, "数字世界见面", "居民",
+                "双方亲自交谈", at, sessionId = source,
+                source = "meeting", evidenceKind = EventEvidenceKind.Observation)
+
+        assertEquals(setOf("resident:neighbour"), CharacterPerceptionContext.meetingSocialIds(
+            observed("role-a", native.id, "meeting-native-social-test-resident-turn-viewer-role-a"), native))
+        assertEquals(setOf("role-a"), CharacterPerceptionContext.meetingSocialIds(
+            observed("resident:neighbour", native.id,
+                "meeting-native-social-test-resident-turn-viewer-resident:neighbour"), native))
+        val ownerMeeting = native.copy(id = "owner-social-test", participantIds = listOf("role-a"))
+        assertEquals(setOf("user"), CharacterPerceptionContext.meetingSocialIds(
+            observed("role-a", ownerMeeting.id, "meeting-owner-social-test-turn-viewer-role-a"), ownerMeeting))
+    }
+
     @Test fun finalPromptSerializerNeverShowsForeignCharacterExperienceEvenWhenCallerMixedIt() {
         val now = Instant.now()
         val a = SharedTimelineEvent("a-observed", "role-a", "数字世界事件",
