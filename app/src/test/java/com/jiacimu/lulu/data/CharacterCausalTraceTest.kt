@@ -200,7 +200,11 @@ class CharacterCausalTraceTest {
 
     @Test fun residentScheduleHasExactDecisionProvenanceWithoutClaimingExecution() {
         val sourceId = "trace-scheduled-daily-a"
-        source(a, sourceId, "本人今天安排明天分享花草")
+        fun dailyDecision(content: String) = SharedExperienceTimeline.record(
+            sourceId, a, "原住民·每日自我安排", "角色", content, at,
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        dailyDecision("本人今天安排明天分享花草")
         source(b, "trace-scheduled-daily-b", "B的独立安排")
         val now = Instant.now()
         val plan = RoleDayScheduleStore.arrange(context, a, "整理花草观察",
@@ -220,7 +224,7 @@ class CharacterCausalTraceTest {
             assertFalse(CharacterCausalTrace.inspect(context, b, event(b, "trace-scheduled-daily-b"),
                 SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
                 .any { it.title.contains("已排入日程") })
-            source(a, sourceId, "后来修改了当天计划的文字")
+            dailyDecision("后来修改了当天计划的文字")
             val edited = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
                 SharedExperienceTimeline.all(a), JSONObject())
             assertTrue(edited.any { it.title.contains("旧版本的日程") &&
