@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:30:39.051210+00:00",
-  "commit": "0efbc9832a59043d3f85fb93ccdcdd4155f1c33c",
+  "generatedAt": "2026-10-28T10:31:17.916253+00:00",
+  "commit": "7092b7f92f1e7691a9f8c63d2eb9e8f15c75168b",
   "branch": "main",
-  "sourceFingerprint": "6c42fb05ed0f76d32d70978a9b5bf0de0e1f8bf223fc03bd6c88c1af6ad0f122",
+  "sourceFingerprint": "f61f9fceb59c4532ce721c951e372ad4e314c4619790e0f93e1d945e21b750c2",
   "summary": {
     "files": 1038,
-    "lines": 209563,
+    "lines": 209515,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -1371,7 +1371,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 61
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -12245,7 +12245,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 66
+        "line": 89
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12256,10 +12256,10 @@
         "line": 99
       }
     ],
-    "centre": [
+    "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 388
+        "line": 422
       }
     ],
     "saveTurn": [
@@ -29565,20 +29565,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 498,
-      "sha256": "7564d7d8ce04a84d2df01288d990908b7bcc91e60325a9e8337c08aaef820356",
+      "lines": 450,
+      "sha256": "bb4385d7b6e56c7db7f90f57c9261e60a6d195a72eedb867c9ac25b406133c64",
       "symbols": [
         {
           "name": "save",
-          "line": 61
+          "line": 84
         },
         {
           "name": "perform",
-          "line": 66
+          "line": 89
         },
         {
-          "name": "centre",
-          "line": 388
+          "name": "targetFor",
+          "line": 422
         }
       ]
     },
