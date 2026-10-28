@@ -77,7 +77,7 @@ class CharacterChatModelSelectionTest {
             assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("resident:b", library))
             assertEquals(cheap.id, ScopedModelSelections.worldSceneArchiveId(library))
             assertEquals(cheap.id, ScopedModelSelections.worldLifeArchiveId("resident:b", library))
-            assertEquals(premium.id, ScopedModelSelections.worldSocialArchiveId("character:a", library))
+            assertEquals(cheap.id, ScopedModelSelections.worldSocialArchiveId("character:a", library))
             assertEquals(premium.id, ScopedModelSelections.worldLifeArchiveId("character:a", library))
             prefs.edit().putString("archive_world_social_character", cheap.id)
                 .putString("archive_world_social_scene", premium.id)
