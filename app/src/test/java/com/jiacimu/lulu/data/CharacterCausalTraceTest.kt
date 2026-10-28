@@ -118,6 +118,41 @@ class CharacterCausalTraceTest {
         assertTrue(withdrawn.any { it.detail.contains("原始依据已撤回") })
     }
 
+    @Test fun characterChosenDecisionIsValidCausalEvidenceButAnotherPersonsDecisionIsNot() = runBlocking {
+        val own = "trace-role-choice-a"
+        val foreign = "trace-role-choice-b"
+        SharedExperienceTimeline.record(own, a, "原住民·到点自主决定", "角色",
+            "本人选择发布动态；尚未执行", at, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record(foreign, b, "原住民·到点自主决定", "角色",
+            "B自己选择的私人行动", at, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val ownId = "trace-own-choice-request"
+        val foreignId = "trace-foreign-choice-request"
+        ToolRouter.execute(context, a, "nonexistent_trace_capability", JSONObject(),
+            requestId = ownId, causeEvidenceId = own, reason = "模型选择后的尝试")
+        ToolRouter.execute(context, a, "nonexistent_trace_capability", JSONObject(),
+            requestId = foreignId, causeEvidenceId = foreign, reason = "不能借用B的决定")
+        val ownReceipt = event(a, "tool-rejected-$a-$ownId")
+        val otherReceipt = event(a, "tool-rejected-$a-$foreignId")
+        assertEquals(own, JSONObject(ownReceipt.content).optString("causeEvidenceId"))
+        assertEquals(1L, JSONObject(ownReceipt.content).optLong("causeEvidenceRevision"))
+        assertEquals("", JSONObject(otherReceipt.content).optString("causeEvidenceId"))
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, own),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(lines.any { it.evidenceId == ownReceipt.id &&
+            it.title.contains("执行前被拒绝") })
+        assertFalse(lines.any { it.evidenceId == otherReceipt.id })
+        SharedExperienceTimeline.deleteEvent(own)
+        assertTrue(CharacterCausalTrace.inspect(context, a, event(a, foreign),
+            SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
+        assertTrue(CharacterCausalTrace.inspect(context, a, ownReceipt,
+            SharedExperienceTimeline.all(a), JSONObject())
+            .any { it.detail.contains("原始依据已撤回") })
+    }
+
     @Test fun pendingFailureAndNativeResultAreNotMisreportedAsCompletedGoals() {
         source(a, "trace-state-source")
         receipt(a, "trace-pending", "trace-state-source", "web_search", "pending", true, "云端处理中")
