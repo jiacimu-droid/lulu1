@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T14:38:51.528281+00:00",
-  "commit": "9bb189e1f0f3537a59358fc80d54f52c41c27fbd",
+  "generatedAt": "2026-10-28T14:39:54.389413+00:00",
+  "commit": "a913df037416712958b577059a336e5850da046e",
   "branch": "main",
-  "sourceFingerprint": "b03d2180099ea5f5ec9ceed388d5666a4b186f43d6812d6762fcbd68d362c556",
+  "sourceFingerprint": "2f7f4f38870df4d3a373c87f222e0f2b46b3ddb66f1ef43c22c93f585da253cb",
   "summary": {
     "files": 1053,
-    "lines": 214266,
+    "lines": 214280,
     "symbols": 3074
   },
   "symbolIndex": {
@@ -27712,8 +27712,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt",
-      "lines": 31,
-      "sha256": "057f3f43b6489626fcfb495b9f7df33ecbb0b105cae2a45e3f2a7894af8d4961",
+      "lines": 36,
+      "sha256": "425b3619a109f3eb31e95c114a7bb870be2805603cbb0be52c21cd354a0952e3",
       "symbols": [
         {
           "name": "Rule",
@@ -35643,8 +35643,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt",
-      "lines": 36,
-      "sha256": "9945c35b0b27512a5789a6fb274200b4ec554d043d418c0ceeffee522ac74bc9",
+      "lines": 45,
+      "sha256": "52f64ca553046f73d12ccb7f557f83c124ed4126011de3b7c293a3ac1ba253cd",
       "symbols": [
         {
           "name": "PromptRuleAssemblyPolicyTest",

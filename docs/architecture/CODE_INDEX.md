@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9bb189e1f0f3537a59358fc80d54f52c41c27fbd`
+- 基准提交：`a913df037416712958b577059a336e5850da046e`
 - 分支：`main`
 - 已索引文件：1053
-- 已索引代码/文本行：214266
+- 已索引代码/文本行：214280
 - 已发现符号：3074
 
 | 文件 | 行数 | 符号数 |
@@ -517,7 +517,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 40 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt` | 31 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
@@ -975,7 +975,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 94 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 107 | 1 |
