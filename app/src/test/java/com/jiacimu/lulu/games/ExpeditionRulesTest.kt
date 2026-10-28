@@ -2,8 +2,13 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Contract tests for both actual playable maps, combat and persistent results. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ExpeditionRulesTest {
     @Test fun sandboxMapIsDeterministicAndBuildingsActuallyChangePersistentTiles() {
         val original = ExpeditionRules.start(ExpeditionMode.HOMESTEAD, 20261028, emptyList())
