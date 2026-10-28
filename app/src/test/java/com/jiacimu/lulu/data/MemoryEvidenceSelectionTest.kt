@@ -20,6 +20,25 @@ class MemoryEvidenceSelectionTest {
         assertEquals(setOf("before", "hit", "after"), result.map { it.id }.toSet())
     }
 
+    @Test fun mixedOwnerSeedsAndReusedTaskIdsNeverJoinTwoAutobiographies() {
+        val own = event("same-source", role = "A").copy(taskId = "shared-task")
+        val other = event("other-source", role = "B").copy(taskId = "shared-task",
+            sessionId = own.sessionId)
+        val ownResult = event("my-receipt", seconds = 12, role = "A")
+            .copy(taskId = "shared-task", evidenceKind = EventEvidenceKind.ToolResult)
+        val otherResult = event("their-receipt", seconds = 16, role = "B")
+            .copy(taskId = "shared-task", evidenceKind = EventEvidenceKind.ToolResult)
+        val events = listOf(own, other, ownResult, otherResult)
+        val onlyMine = NarrativeEvidenceChain.expand(listOf(own, other), events)
+        assertEquals(setOf("same-source", "my-receipt"), onlyMine.map { it.id }.toSet())
+        assertTrue(onlyMine.all { it.characterId == "A" })
+        val theirOwn = NarrativeEvidenceChain.expand(listOf(other, own), events)
+        assertEquals(setOf("other-source", "their-receipt"), theirOwn.map { it.id }.toSet())
+        assertTrue(theirOwn.all { it.characterId == "B" })
+        assertEquals(emptyList<SharedTimelineEvent>(),
+            NarrativeEvidenceChain.expand(emptyList(), events))
+    }
+
     @Test fun crossSceneTaskStoryReturnsPromisesAndRealReceiptsAcrossDays() {
         val start = at.minusSeconds(4 * 86_400)
         val intent = SharedTimelineEvent("promise", "role", "私聊", "角色", "我会看看",
