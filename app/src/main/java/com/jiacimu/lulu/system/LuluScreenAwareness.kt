@@ -213,7 +213,7 @@ object LuluScreenAwareness {
      * remain mandatory; autonomy does not mean hidden continuous recording. */
     suspend fun capture(context: Context, userRequested: Boolean,
         characterId: String = "", requestId: String = "", approved: Boolean = false,
-        sessionId: String = ""): String {
+        sessionId: String = "", saveToAlbum: Boolean = false): String {
         if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
         fun studySessionValid(): Boolean = sessionId.isBlank() ||
             LuluStudyWatch.canObserve(context, characterId, sessionId)
@@ -259,8 +259,22 @@ object LuluScreenAwareness {
                     context, bitmap, studyWatch = sessionId.isNotBlank()).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
-                return describedCapture(context, userRequested, characterId, sessionId,
+                val evidence = describedCapture(context, userRequested, characterId, sessionId,
                     fresh.packageName, capturedAt, description)
+                // Only an authorized, successfully analyzed frame may be retained.
+                // Ordinary screenshots remain ephemeral unless the role opted in.
+                if (saveToAlbum && characterId.isNotBlank() &&
+                    runCatching { JSONObject(evidence).optBoolean("success") }.getOrDefault(false)) {
+                    val photo = runCatching {
+                        com.jiacimu.lulu.RolePhotoAlbumStore.saveCapture(
+                            context, characterId, bitmap, description)
+                    }
+                    return JSONObject(evidence).put("albumSaved", photo.isSuccess)
+                        .put("albumPhotoId", photo.getOrNull()?.id.orEmpty())
+                        .put("albumError", photo.exceptionOrNull()?.message.orEmpty().take(100))
+                        .toString()
+                }
+                return evidence
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
