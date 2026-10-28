@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2ca243925888db0f24dc1ba9ff3f9d414ad04db1`
+- 基准提交：`64231c9471fd68c6ad4543361aeca642e5576a07`
 - 分支：`main`
 - 已索引文件：1037
-- 已索引代码/文本行：209002
+- 已索引代码/文本行：209013
 - 已发现符号：3044
 
 | 文件 | 行数 | 符号数 |
@@ -611,7 +611,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt` | 278 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 685 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt` | 65 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt` | 76 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt` | 313 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt` | 421 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 843 | 3 |
