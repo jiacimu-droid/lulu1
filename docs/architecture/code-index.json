@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:23:26.473245+00:00",
-  "commit": "7736a01af1d21eabfb353bea529ce4492bbea202",
+  "generatedAt": "2026-10-28T08:23:47.408114+00:00",
+  "commit": "d5574ab28072571c9e11145e5b8e5d529f34513b",
   "branch": "main",
-  "sourceFingerprint": "2480756c6fe7973032b58bccdf4b46325e1af3b8d3007b465f074783792fbe37",
+  "sourceFingerprint": "9536f6074e1577f5bd3ba292a5922f6d495c4384ee2a544ef87b8af0cc753e1a",
   "summary": {
     "files": 1013,
-    "lines": 203227,
+    "lines": 203229,
     "symbols": 2953
   },
   "symbolIndex": {
@@ -3939,7 +3939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 142
+        "line": 144
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
@@ -4385,7 +4385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 136
+        "line": 138
       }
     ],
     "archiveLabel": [
@@ -4579,13 +4579,13 @@
     "worldSceneConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "worldLifeConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 130
+        "line": 131
       }
     ],
     "VisionModelService": [
@@ -20734,8 +20734,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 163,
-      "sha256": "7787cdd4c652a00ad346cf1943bb4dd805f6f5494b0e60a0e5dfce94c616010a",
+      "lines": 165,
+      "sha256": "709a1ac54404ec45c1cfd449edefa74a2f913668bc0cbbe9756ffd3e0a29b7d0",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -20775,19 +20775,19 @@
         },
         {
           "name": "worldSceneConnection",
-          "line": 120
+          "line": 121
         },
         {
           "name": "worldLifeConnection",
-          "line": 130
+          "line": 131
         },
         {
           "name": "resolveConnection",
-          "line": 136
+          "line": 138
         },
         {
           "name": "clear",
-          "line": 142
+          "line": 144
         }
       ]
     },
