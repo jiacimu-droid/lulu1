@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T07:06:19.034138+00:00",
-  "commit": "cba7a636edf850476a300c2ddf1a13aac701e33c",
+  "generatedAt": "2026-10-28T07:07:18.543747+00:00",
+  "commit": "719d4e3dba501c8978ae6644c157002c58e5278e",
   "branch": "main",
-  "sourceFingerprint": "514c4555e42526af78e1c97e36f0962807440f226c6225d8eb30f5cbea029730",
+  "sourceFingerprint": "edabce90c6a654562f61255e7455d244bcf7c572a4799f6f4e299ecd1e1a4a4e",
   "summary": {
     "files": 1013,
-    "lines": 202026,
+    "lines": 202033,
     "symbols": 2944
   },
   "symbolIndex": {
@@ -6175,7 +6175,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 44
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -9935,7 +9935,7 @@
     "annotations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 89
+        "line": 94
       }
     ],
     "Batch": [
@@ -26222,8 +26222,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-      "lines": 123,
-      "sha256": "cddeed91b41e612d2d6f332bbf630cd932386bcaa9833963de4ea8bf8732665c",
+      "lines": 130,
+      "sha256": "dbedd695bfbd2d8950276c5845b31f377ae0f508829ab697182c4926b5597a9e",
       "symbols": [
         {
           "name": "expand",
@@ -26231,11 +26231,11 @@
         },
         {
           "name": "add",
-          "line": 44
+          "line": 49
         },
         {
           "name": "annotations",
-          "line": 89
+          "line": 94
         }
       ]
     },

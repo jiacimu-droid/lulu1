@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cba7a636edf850476a300c2ddf1a13aac701e33c`
+- 基准提交：`719d4e3dba501c8978ae6644c157002c58e5278e`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：202026
+- 已索引代码/文本行：202033
 - 已发现符号：2944
 
 | 文件 | 行数 | 符号数 |
@@ -480,7 +480,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1058 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 123 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PeerRelationshipContext.kt` | 23 | 1 |
