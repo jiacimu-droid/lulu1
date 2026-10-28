@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:48:18.534206+00:00",
-  "commit": "2c0d4ffc433af8cc09f1a3738ea2500f40e839fd",
+  "generatedAt": "2026-10-28T08:49:22.278027+00:00",
+  "commit": "c9de7a99fd583104146b66a31709edcbc3db5f05",
   "branch": "main",
-  "sourceFingerprint": "cd03fa1cbc8639ccf7cd5571e1cc5de22c3d95b77f8ba9352efe891cbf5c5430",
+  "sourceFingerprint": "b84c6f5a8c9a5cc5dd053aba846207be7a8731705d36aa72f83db45b4177b949",
   "summary": {
     "files": 1018,
-    "lines": 203807,
-    "symbols": 2966
+    "lines": 203897,
+    "symbols": 2968
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -964,6 +964,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
         "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4919,7 +4923,13 @@
     "parseChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 19
+        "line": 61
+      }
+    ],
+    "AutonomousEncounterChaptersWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
+        "line": 189
       }
     ],
     "approvedBeats": [
@@ -21130,12 +21140,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 143,
-      "sha256": "f680bd135796a36a511e81b9c034b9b3a78f63913d39e76d8553f4bd2eb76c46",
+      "lines": 233,
+      "sha256": "b0c33cdc975ceafdbfd7a363c590c29e184fa2585f53eb2dfd0f94a511358f10",
       "symbols": [
         {
+          "name": "enqueue",
+          "line": 31
+        },
+        {
           "name": "parseChapters",
-          "line": 19
+          "line": 61
+        },
+        {
+          "name": "AutonomousEncounterChaptersWorker",
+          "line": 189
         }
       ]
     },
@@ -21183,7 +21201,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 883,
-      "sha256": "7642c97f00e1cf9ad0f299e33a7a4b9b688f454019e4c4afa8ac0200057d166c",
+      "sha256": "70c4ebaea3202cbc2e1701a6f8829c739edffeeed9c844575d783e0e100d8207",
       "symbols": []
     },
     {
