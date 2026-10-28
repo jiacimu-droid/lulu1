@@ -1,4 +1,4 @@
-import { impactEnvelope } from './touch-reflex.mjs'
+import { impactEnvelope, touchRestScale } from './touch-reflex.mjs'
 
 /**
  * Dedicated 小狼 rig profile. The signature is taken from the user's
@@ -31,6 +31,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   const pose = { ...base, body: { ...base.body },
     face: { ...base.face }, parameters: { ...base.parameters } }
   const force = clamp01(state.force ?? .55)
+  const rest = touchRestScale(gesture, state.motionIdleMs)
   const right = /-right$/.test(gesture)
   const left = /-left$/.test(gesture)
   const side = region.endsWith('-left') ? -1 :
@@ -67,7 +68,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
       (/^stroke/.test(gesture) || gesture === 'hold')) {
     // Most motion is in neck Z, rather than yawing the entire chin across
     // the image. The torso's subtle follow is already owned by touch-reflex.
-    pose.roll = travel * (10 + force * 4)
+    pose.roll = travel * (10 + force * 4) * rest
     pose.yaw *= .24
     pose.body.roll *= .55
     if (family === 'ear' || family === 'beast-ear')
@@ -76,7 +77,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
     pose.face.cheekPuff = Math.max(pose.face.cheekPuff ?? 0, .3 + force * .32)
     pose.face.pout = Math.max(pose.face.pout ?? 0, .13)
     pose.face.mouthX = (side || travel) * (4.5 + 3 * force)
-    pose.roll += (side || travel) * 2.5
+    pose.roll += (side || travel) * 2.5 * rest
   } else if (family === 'nose' && gesture !== 'kiss') {
     pose.face.cheekPuff = Math.max(.12, pose.face.cheekPuff ?? 0)
     pose.face.browLeftY = .23

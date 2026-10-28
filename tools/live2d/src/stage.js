@@ -1186,10 +1186,18 @@ function tickTactileContact(tactileNow) {
     const poseKind = tactileContact.pressed && tactileContact.kind === 'tap' &&
       tactileNow - tactileContact.start > 520 ? 'hold' : tactileContact.kind
     const elapsed = tactileNow - tactileContact.start
+    // Android can stop sending MOVE while a finger is still pressed. A
+    // remembered stroke is a direction, not evidence of ongoing movement:
+    // gradually settle the pose without changing the real contact or its
+    // eventual timeline gesture. A new verified MOVE wakes the local pose.
+    const visualState = tactileContact.pressed
+      ? { ...tactileContact.state, motionIdleMs: Math.max(0,
+          tactileNow - (tactileContact.lastMovementAt ?? tactileContact.start)) }
+      : tactileContact.state
     const base = touchReflexFor(tactileContact.region, poseKind,
-      tactileContact.ordinal, tactileContact.state, elapsed)
+      tactileContact.ordinal, visualState, elapsed)
     touchReflex = wolfRigActive
-      ? enhanceWolfTouch(base, tactileContact.region, poseKind, tactileContact.state, elapsed)
+      ? enhanceWolfTouch(base, tactileContact.region, poseKind, visualState, elapsed)
       : base
   } else { touchReflex = null; tactileContact = null }
 }
@@ -1321,8 +1329,15 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   // hold in slap mode must not consume the visible recoil before the slap.
   const contactStart = isImpact(kind) && completed ? now
     : starting || !tactileContact ? now : tactileContact.start
+  const previousPoint = tactileContact?.lastPoint
+  const physicallyMoved = options.phase === 'move' && !starting &&
+    options.mode === 'hand' && previousPoint &&
+    Math.hypot(x - previousPoint.x, y - previousPoint.y) >= .5
+  const lastMovementAt = physicallyMoved || starting || !tactileContact
+    ? now : tactileContact.lastMovementAt
   tactileContact = { region, kind, ordinal: touchSequence, state,
-    start: contactStart, pressed: !completed, downPoint }
+    start: contactStart, pressed: !completed, downPoint,
+    lastPoint: { x, y }, lastMovementAt }
   const baseTouch = !completed && isImpact(kind) ? null :
     touchReflexFor(region, kind, touchSequence, state)
   touchReflex = wolfRigActive && baseTouch

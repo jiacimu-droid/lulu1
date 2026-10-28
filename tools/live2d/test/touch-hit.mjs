@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion,
   TOUCH_REGIONS, TOUCH_ZONE_DEFAULTS, touchZoneArea } from '../src/touch-hit.mjs'
-import { touchReflexFor, touchExpressionFor, touchExpressionWeight,
+import { touchReflexFor, touchRestScale, touchExpressionFor, touchExpressionWeight,
   touchExpressionCategory, touchCompanionOverlayFor, touchMotionFor } from '../src/touch-reflex.mjs'
 import { createTouchResponseRuntime, touchFamily, isImpact } from '../src/touch-response.mjs'
 import { createTouchExpressionLayer } from '../src/touch-expression-layer.mjs'
@@ -600,4 +600,45 @@ assert.equal(touchMotionFor('mouth', 'tap'), null)
 assert.equal(touchMotionFor('chest', 'hold'), null)
 assert.equal(touchMotionFor('chest', 'kiss'), null)
 assert.equal(touchMotionFor('nose', 'stroke-left'), null)
+// A genuine slow caress has a distinct moving and stationary phase. The
+// renderer must keep its last real direction and body part without freezing
+// the head at a large angle when Android stops sending MOVE callbacks.
+assert.equal(touchRestScale('slap-right', 5000), 1)
+assert.equal(touchRestScale('kiss', 5000), 1)
+assert.equal(touchRestScale('tap', 5000), 1)
+assert.equal(touchRestScale('stroke-left', 200), 1)
+assert.ok(touchRestScale('stroke-left', 2500) > .5 &&
+  touchRestScale('stroke-left', 2500) < .6)
+assert.equal(touchRestScale('stroke-left', NaN), 1)
+const movingWolf = enhanceWolfTouch(
+  touchReflexFor('hair', 'stroke-left', 0, { force: .9, motionIdleMs: 0 }, 500),
+  'hair', 'stroke-left', { force: .9, motionIdleMs: 0 }, 500)
+const settledWolf = enhanceWolfTouch(
+  touchReflexFor('hair', 'stroke-left', 0, { force: .9, motionIdleMs: 2500 }, 2500),
+  'hair', 'stroke-left', { force: .9, motionIdleMs: 2500 }, 2500)
+assert.ok(movingWolf.roll < -10 && settledWolf.roll < 0 &&
+  Math.abs(settledWolf.roll) < Math.abs(movingWolf.roll) * .6,
+  'wolf neck must relax in place without flipping a leftward stroke to the right')
+stageResponse.reset()
+bridge.actualAvatarPixel = () => true
+bridge.calibrationVisible = false
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'hand', force: .9 })
+stageTime += 100
+bridge.touch(.34, .235, 'stroke-left', { phase: 'move', mode: 'hand', force: .9 })
+bridge.tickTactileContact(stageTime)
+const movingPose = bridge.touchReflex
+stageTime += 2500
+bridge.tickTactileContact(stageTime)
+const restingPose = bridge.touchReflex
+assert.equal(bridge.tactileContact.kind, 'stroke-left')
+assert.equal(bridge.tactileContact.region, 'cheek-left')
+assert.ok(Math.abs(restingPose.roll) < Math.abs(movingPose.roll) * .6,
+  'the actual stage relaxes a stationary held stroke without changing its gesture')
+stageTime += 100
+bridge.touch(.36, .235, 'stroke-left', { phase: 'move', mode: 'hand', force: .9 })
+bridge.tickTactileContact(stageTime)
+assert.ok(Math.abs(bridge.touchReflex.roll) > Math.abs(restingPose.roll) * 1.7,
+  'a fresh verified MOVE immediately restores the directional caress')
+assert.equal(bridge.touch(.36, .235, 'stroke-left',
+  { phase: 'complete', mode: 'hand', force: .9 }).gesture, 'stroke-left')
 console.log(`Live2D precise calibration, progression, layered release and ${cases} contact cases passed`)

@@ -42,6 +42,19 @@ export function impactEnvelope(elapsedMs) {
   return 0
 }
 
+/**
+ * A long still touch should settle into a comfortable held pose, not freeze
+ * forever in the last swipe direction at full neck rotation. Direction and
+ * body-part ownership stay with the real gesture; only its visual amplitude
+ * relaxes. Fresh physical movement restores the full response immediately.
+ */
+export function touchRestScale(gesture, idleMs = 0) {
+  if (gesture !== 'hold' && !String(gesture).startsWith('stroke')) return 1
+  const idle = Number.isFinite(idleMs) ? Math.max(0, idleMs) : 0
+  const t = Math.min(1, Math.max(0, (idle - 420) / 1500))
+  return 1 - .48 * t * t * (3 - 2 * t)
+}
+
 export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsedMs = 0) {
   const family = touchFamily(region)
   const side = region.endsWith('-left') ? -1 : region.endsWith('-right') ? 1 : 0
@@ -253,6 +266,19 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   response.pitch *= scale
   response.roll *= scale
   for (const key of Object.keys(response.body)) response.body[key] *= scale
+  // A stationary hand remains in contact (including the growing real
+  // caress/shyness evidence), but the neck and torso no longer hold the
+  // full last-swipe pose indefinitely. Keep eye and mouth expressions owned
+  // by the selected contact, not by an invented emotion.
+  const rest = touchRestScale(gesture, state.motionIdleMs)
+  if (rest < 1) {
+    response.yaw *= rest
+    response.pitch *= rest
+    response.roll *= rest
+    for (const key of Object.keys(response.body)) response.body[key] *= rest
+    for (const key of Object.keys(response.parameters))
+      response.parameters[key] *= rest
+  }
   return response
 }
 
