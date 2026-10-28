@@ -11,12 +11,14 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.CancellationException
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import java.util.concurrent.TimeUnit
 
 /** Literary work follows an already committed fact; it never holds the live reply lock. */
 class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         initializeBackgroundRuntime(applicationContext)
+        ScopedModelSelections.initialize(applicationContext)
         val role = inputData.getString("characterId") ?: return Result.failure()
         val location = inputData.getString("location") ?: return Result.failure()
         return writers.withLock(role) {
