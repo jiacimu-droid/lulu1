@@ -151,6 +151,8 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
 
 @Composable
 private fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
+    val memoryReplay = remember(record.id, record.detailsJson) { parseMemoryReplay(record.detailsJson) }
+    val yachtReplay = remember(record.id, record.detailsJson) { parseYachtReplay(record.detailsJson) }
     val steps = remember(record.id, record.detailsJson, record.characterReply) { record.toReplaySteps() }
     var visibleSteps by remember(record.id) { mutableIntStateOf(1.coerceAtMost(steps.size)) }
     var playing by remember(record.id) { mutableStateOf(false) }
@@ -176,13 +178,21 @@ private fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
             Text("${record.score}分", fontWeight = FontWeight.Bold)
         }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(vertical = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            items(steps.take(visibleSteps), key = ReplayStep::id) { step ->
-                ReplayStepCard(step)
+        when {
+            memoryReplay != null -> Box(Modifier.weight(1f)) {
+                MemoryMatchReplayScene(memoryReplay, visibleSteps, record.score)
+            }
+            yachtReplay != null -> Box(Modifier.weight(1f)) {
+                YachtReplayScene(yachtReplay, visibleSteps, record.score)
+            }
+            else -> LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                items(steps.take(visibleSteps), key = ReplayStep::id) { step ->
+                    ReplayStepCard(step)
+                }
             }
         }
 
@@ -256,6 +266,18 @@ private data class ReplayStep(
 )
 
 private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
+    parseMemoryReplay(detailsJson)?.let { replay ->
+        val captions = replay.turns.mapIndexed { index, turn ->
+            "第${index + 1}轮" to "翻开第${turn.first + 1}张和第${turn.second + 1}张：${turn.firstValue} / ${turn.secondValue}，${if (turn.matched) "配对成功" else "未配对"}"
+        } + listOf("结算" to summary)
+        return captions.mapIndexed { index, (label, value) -> ReplayStep("$id-$index", index + 1, label, value) }
+    }
+    parseYachtReplay(detailsJson)?.let { replay ->
+        val captions = replay.mapIndexed { index, turn ->
+            "第${index + 1}轮 · ${turn.category}" to "三掷结束：${turn.rolls.lastOrNull()?.joinToString("、").orEmpty()}；本轮${turn.points}分，累计${turn.total}分"
+        } + listOf("结算" to summary)
+        return captions.mapIndexed { index, (label, value) -> ReplayStep("$id-$index", index + 1, label, value) }
+    }
     val raw = mutableListOf<Pair<String, String>>()
     raw += "开局" to "${title} · ${createdAt.atZone(ZoneId.systemDefault()).format(ReplayDateFormatter)}"
     raw += "本局摘要" to summary
@@ -270,6 +292,147 @@ private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
     return raw
         .filter { (_, value) -> value.isNotBlank() }
         .mapIndexed { index, (label, value) -> ReplayStep("$id-$index", index + 1, label, value) }
+}
+
+/** Rebuild the original face-down board for each move; never expose a hidden card early. */
+internal data class MemoryReplayTurn(
+    val first: Int,
+    val second: Int,
+    val firstValue: String,
+    val secondValue: String,
+    val matched: Boolean,
+)
+internal data class MemoryReplayMatch(val cards: List<String>, val turns: List<MemoryReplayTurn>)
+
+internal fun parseMemoryReplay(json: String): MemoryReplayMatch? = runCatching {
+    val details = JSONObject(json)
+    if (details.optString("game") != "memory_match") return@runCatching null
+    val cardsRaw = details.optJSONArray("cards") ?: return@runCatching null
+    val turnsRaw = details.optJSONArray("turns") ?: return@runCatching null
+    if (cardsRaw.length() != 12 || turnsRaw.length() == 0) return@runCatching null
+    val cards = (0 until cardsRaw.length()).map { cardsRaw.optString(it) }
+    if (cards.any(String::isBlank)) return@runCatching null
+    val turns = (0 until turnsRaw.length()).map { index ->
+        val item = turnsRaw.getJSONObject(index)
+        MemoryReplayTurn(
+            first = item.getInt("first"),
+            second = item.getInt("second"),
+            firstValue = item.getString("firstValue"),
+            secondValue = item.getString("secondValue"),
+            matched = item.getBoolean("matched"),
+        )
+    }
+    if (turns.any {
+        it.first !in cards.indices || it.second !in cards.indices || it.first == it.second ||
+            cards[it.first] != it.firstValue || cards[it.second] != it.secondValue ||
+            (it.firstValue == it.secondValue) != it.matched
+    }) return@runCatching null
+    MemoryReplayMatch(cards, turns)
+}.getOrNull()
+
+internal data class YachtReplayTurn(
+    val rolls: List<List<Int>>,
+    val category: String,
+    val points: Int,
+    val total: Int,
+)
+internal fun parseYachtReplay(json: String): List<YachtReplayTurn>? = runCatching {
+    val details = JSONObject(json)
+    if (details.optString("game") != "yacht_dice") return@runCatching null
+    val raw = details.optJSONArray("turns") ?: return@runCatching null
+    if (raw.length() != 13) return@runCatching null
+    val turns = (0 until raw.length()).map { index ->
+        val item = raw.getJSONObject(index)
+        val throws = item.getJSONArray("rolls")
+        val rolls = (0 until throws.length()).map { r ->
+            val dice = throws.getJSONArray(r)
+            (0 until dice.length()).map { dice.getInt(it) }
+        }
+        YachtReplayTurn(rolls, item.getString("categoryLabel"), item.getInt("points"), item.getInt("total"))
+    }
+    if (turns.any { it.rolls.size != 3 || it.rolls.any { dice -> dice.size != 5 || dice.any { value -> value !in 1..6 } } }) return@runCatching null
+    turns
+}.getOrNull()
+
+@Composable
+private fun MemoryMatchReplayScene(replay: MemoryReplayMatch, step: Int, score: Int) {
+    val index = (step - 1).coerceAtLeast(0)
+    val turn = replay.turns.getOrNull(index)
+    val revealed = replay.turns.take(if (turn == null) replay.turns.size else index + 1)
+        .filter { it.matched }
+        .flatMap { listOf(it.first, it.second) }.toSet()
+    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            if (turn == null) "完成配对 · $score 分"
+            else "第${index + 1}轮 · ${if (turn.matched) "配对成功！" else "没配上，先记住位置"}",
+            style = MaterialTheme.typography.titleMedium,
+        )
+        repeat(3) { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(4) { col ->
+                    val cell = row * 4 + col
+                    val faceUp = cell in revealed || turn?.first == cell || turn?.second == cell
+                    Surface(
+                        modifier = Modifier.weight(1f).aspectRatio(0.85f),
+                        shape = RoundedCornerShape(14.dp),
+                        color = when {
+                            cell in revealed -> LuluColors.CardStrong
+                            faceUp -> LuluColors.Card
+                            else -> GameDesign.ink
+                        },
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                if (faceUp) replay.cards[cell] else "✦",
+                                fontSize = if (faceUp) 27.sp else 23.sp,
+                                color = if (faceUp) GameDesign.ink else Color.White,
+                            )
+                            Text("${cell + 1}", modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
+                                fontSize = 10.sp, color = if (faceUp) LuluColors.Muted else Color.LightGray)
+                        }
+                    }
+                }
+            }
+        }
+        Text(
+            if (turn == null) "6对全部找齐 · 这一局已结束"
+            else "翻开 ${turn.first + 1} 号 ${turn.firstValue} 和 ${turn.second + 1} 号 ${turn.secondValue} · ${if (turn.matched) "保留翻开" else "下一轮盖回"}",
+            color = LuluColors.Muted,
+        )
+    }
+}
+
+@Composable
+private fun YachtReplayScene(rounds: List<YachtReplayTurn>, step: Int, score: Int) {
+    val index = (step - 1).coerceAtLeast(0)
+    val round = rounds.getOrNull(index)
+    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (round == null) {
+            Text("13轮结束 · 总分 $score", style = MaterialTheme.typography.titleLarge)
+            Text("从第一轮开始回看每次投掷与计分结果。", color = LuluColors.Muted)
+        } else {
+            Text("第${index + 1}轮 · ${round.category}", style = MaterialTheme.typography.titleMedium)
+            round.rolls.forEachIndexed { rollIndex, dice ->
+                Text("第${rollIndex + 1}掷", color = LuluColors.Muted, fontSize = 12.sp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    dice.forEach { pip ->
+                        Surface(
+                            modifier = Modifier.weight(1f).aspectRatio(1f),
+                            color = LuluColors.Card,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(pip.toString(), fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+            Text("选了${round.category} · 本轮 +${round.points} 分 · 累计 ${round.total} 分", fontWeight = FontWeight.SemiBold)
+        }
+    }
 }
 
 private fun flattenReplayJson(value: Any?, path: String, output: MutableList<Pair<String, String>>) {
