@@ -66,14 +66,14 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
             val dueAt = item.optString("dueAt").trim().takeIf(String::isNotBlank)
                 ?.let { Instant.parse(it) }
             val proposedRoute = item.optString("deliveryAction").trim()
-            val isWake = Regex("叫醒|叫我|喊我|起床|醒来|wake|睡醒", RegexOption.IGNORE_CASE)
-                .containsMatchIn(goal + " " + item.optString("completionCondition"))
-            // An omitted or quiet delivery method is unresolved for a real
-            // wake-up, not permission to invent a private-message alarm.
-            // Only a clock-bound wake promise requires an audible delivery choice.
-            // An untimed long-term responsibility that also mentions "起床" is
-            // not a failed phone alarm; it remains an ongoing responsibility.
-            val wakeMethodMissing = action == "create" && dueAt != null && isWake &&
+            // Wake delivery validation is only relevant to a concrete timed alarm.
+            // A general long-term supervision goal may include "起床" without
+            // promising a particular audible callback. Its future individual
+            // actions are chosen by the character, not fabricated here.
+            val timedWake = dueAt != null &&
+                Regex("叫醒|叫我|喊我|起床|醒来|wake|睡醒", RegexOption.IGNORE_CASE)
+                    .containsMatchIn(goal + " " + item.optString("completionCondition"))
+            val wakeMethodMissing = action == "create" && timedWake &&
                 proposedRoute !in setOf("start_call", "alarm_only")
             val proof = item.optJSONArray("completionEvidenceIds")?.let { values ->
                 buildList { for (i in 0 until values.length()) values.optString(i).trim().takeIf(String::isNotBlank)?.let(::add) }
@@ -95,7 +95,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     steps = steps,
                     deliveryAction = proposedRoute.takeIf {
                         it in setOf("start_call", "alarm_only", "send_private_message")
-                    } ?: if (action == "create" && !isWake) "send_private_message" else "",
+                    } ?: if (action == "create" && !timedWake) "send_private_message" else "",
                     promiseKind = item.optString("promiseKind").trim().takeIf(String::isNotBlank),
                     repeat = item.optString("repeat").takeIf { it in setOf("once", "daily") },
                     permanent = item.optBoolean("permanent", false),
