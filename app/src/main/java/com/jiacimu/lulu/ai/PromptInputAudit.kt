@@ -22,6 +22,9 @@ internal object PromptInputAudit {
     }
 
     private val heading = Regex("(?m)(?=^[ \\t]*【[^\\n】]{2,48}】)")
+    // The lookahead above marks boundaries but matches an EMPTY string.
+    // Extract the actual heading separately; only allowlisted titles reach logs.
+    private val headingTitle = Regex("^[ \\t]*(【[^\\n】]{2,48}】)")
     // Headings are also text supplied to the model. Do not put arbitrary user-
     // supplied heading text into the local performance log.
     private val publicHeadings = setOf(
@@ -84,7 +87,7 @@ internal object PromptInputAudit {
         val boundaries = listOf(0) + starts + content.length
         return boundaries.zipWithNext().mapIndexed { index, (start, end) ->
             val piece = content.substring(start, end)
-            val headingText = heading.find(piece)?.value?.trim()
+            val headingText = headingTitle.find(piece)?.groupValues?.get(1)
             val title = if (headingText != null && headingText in publicHeadings) headingText
                 else if (index == 0 && headingText == null) "开头/说明"
                 else "第" + (index + 1) + "块（标题不记录）"
