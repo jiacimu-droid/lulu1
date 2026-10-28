@@ -59,8 +59,8 @@
 
 - **根因（真实源码）**：原 `dayContractError` 只验证 lunch/evening 和 agenda/steps 顶层数组类型；`saveAgenda` 对 agenda 内的无效时间、缺 activityArgs、缺文本、缺目标或不完整家具参数直接 `continue`，甚至对超过8项直接截断。模型可能明确安排了活动，系统却保存「finished」且没有日程或失败回执；`dueContractError` 也未检查 steps 内 args 类型和依赖字段，`AutonomousActionWireProtocol.normalizeStep` 会将非对象 args 默认为 `{}`，造成决定与执行参数不一致。
 - **改动**：在现有 `ResidentDailyDecision` 的每日/到点 **同一首次结构验证入口** 增加共享嵌套 steps schema 校验和 agenda 行校验，明确报告哪一行的时间、action、参数对象、目标/正文或必需字段不合法。仅新模型回复走已有**最多一次本人补正**，补正前不产生任何日程/工具副作用；补正后保存真实选择，再沿原 `RoleDayScheduleStore` / `OrderedCharacterActions` / `ToolRouter` 幂等回执执行。提示词明示最多8项与必要字段；旧版已保存决定不被重新验证、不重复购买请求。世界权限/对象实际存在性仍由执行器决定，不让程序替人物猜意愿。
-- **测试**：`ResidentDailyContinuityTest` 新增日程嵌套参数错误→MockWebServer 同角色补正→保存一项未执行日程、到点附加动作 args 错误→补正→独立动态恰好一次、结构纯验证（数组上限/依赖布尔/正确格式）；既有超时未知不重买、改期版本防护、恢复和撤回回归仍须通过完整 Android CI。
-- **提交**：源码 `674e5ad23f82c7438df354f9c910e411d733491d`，测试 `968f24b923fff5eac0c673a32b3656accc52909f`。本段记录不等于 CI、APK 或真机通过。索引由仓库既有 Refresh code index 工作流生成，需核对最终 HEAD 与结果。
+- **测试**：`ResidentDailyContinuityTest` 新增日程嵌套参数错误→MockWebServer 同角色补正→保存一项未执行日程、到点附加动作 args 错误→补正→独立动态恰好一次、结构纯验证（数组上限/依赖布尔/正确格式、缺正文/收件人），以及**连续两次嵌套无效**不安排日程、不第三次收费。既有超时未知不重买、改期版本防护、恢复和撤回回归仍须通过完整 Android CI。
+- **提交**：基础源码 `674e5ad23f82c7438df354f9c910e411d733491d`，测试 `968f24b923fff5eac0c673a32b3656accc52909f`；二次无效回归 `2cd27b7f`，附加步骤必需参数加固 `c7b0d61e`，字段测试 `bd0fba36`。本段记录不等于 CI、APK 或真机通过。索引由仓库既有 Refresh code index 工作流生成，需核对最终 HEAD 与结果。
 - **仍未完成**：无效结构补正中断的显式恢复入口、结果未知的人工判断、wait 条件变化提前复议、合法但因真实权限/资源变化被拒绝的日程候选的独立可见回执、跨日未完旧决定的处理；本轮未新增付费常态模型调用。
 
 ## 2026-10-28 续修记录：居民等待复议（开发待 CI 验证）
