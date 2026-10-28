@@ -165,3 +165,13 @@
 - 模型的旧选择与独立步骤仍有原始记录、稳定 requestId 和独立回执；不能因为用户撤销原计划就把模型同轮明确选的独立分享自动抹去。旧版本主动作未生效时记录 superseded，停止对已改期/取消的旧选择反复恢复；原计划未改变但执行失败继续 needs_recovery。不增加正常 LLM 轮次。
 - 回归在 ResidentDailyContinuityTest 覆盖原版本的 canBegin/markDue/cancel 门禁，以及 MockWebServer 在模型响应前真实改期，分别返回 cancel 和 execute：新日程保留、旧主动作不发、独立动态仅一次、原请求不重新收费。当前仅为源码和测试提交，Android JVM / APK / 真机结果以随后 CI 和设备验证为准。
 - 剩余风险：外部动作已经进入 ToolRouter 后，用户并发改期不能撤销已经发生的副作用，须按原始回执和幂等证据追踪；老版本没有 dueAt 的排队 Worker 无法推断过去版本。P0-A 的补正中断显式恢复与等待条件变化提前复议仍待处理。
+
+## 2026-10-28 追加：完整人物人生档案隔离（源码待 CI/真机）
+
+- 新要求：每位角色的人格、记忆、私有经历、理解、感情、关系网络、日记、成长、习惯、行动回执和感知已读属于本人，不能因其他角色或 App 共享账户而合并；群聊/共同事件仅能由各自实际目击并独立入账。
+- 已存在的单人 stores 和事件主循环保留，不删除/改写任何人的持久原始历史。追查证实感知 integrate 上层传入混合 observed 时缺事件属主校验，以及 compact/full 记忆渲染在最终模型输入端没有防御传入混合角色记忆/日记/事件列表。
+- 改动：CharacterPerceptionContext.integrate 仅接纳 characterId 匹配的实际 observed；UnifiedMemoryContext compact 与 MemoryWorkingSet full 只显示所属人物的 core/memory/recent/evidence/lexicon。历史调用缺 owner 时，仅在单属主无歧义时沿用；混合属主 fail closed。以上只控制本轮展示，不删除记忆。
+- NarrativeEvidenceChain.expand 对混合 seeds/live 按首名人物边界过滤，仅用本人 task/session ID 查续章，不合并其他人物同名任务。
+- A/B 混合真实观察、已读 ledger、两角色共见群聊、compact/full 记忆/日记、空 owner、相同 task/session ID 均已加源码回归，但 CI 和真实手机体验须分别核实。
+- 主要提交：48cf4132, 120314e0, 14faf543, 008697ac, ef8e7c41, 719d4e3d；测试：fb879f73, cba7a636, 02fd2613。
+- 风险仍存：尚未逐一核验所有一千余处外部入口、备份/恢复、迁移与已拼成纯文本的辅助上下文；本轮不能宣称项目所有数据绝对零串线。下一轮应以现有真实运行路径的归属证据继续审查而不是再新增共享人物状态中心。
