@@ -89,6 +89,49 @@ internal object ResidentDailyDecision {
         runOnceLocked(context, native, now)
     }
 
+    /** A saved daily decision may have succeeded in arranging the day while
+     * one or more independent immediate actions did not complete. Only the
+     * ORIGINAL saved choice may be replayed; never buy a second decision here.
+     * A snapshot is bound to the local date and recovery counter so a stale
+     * confirmation cannot resume another day's resident or an in-flight turn. */
+    data class SavedDayRecovery(val nativeId: String, val day: String,
+        val phase: String, val recoveries: Int)
+
+    fun savedDayRecovery(context: Context, nativeId: String,
+        now: Instant = Instant.now()): SavedDayRecovery? {
+        val p = prefs(context)
+        val day = date(now)
+        if (p.getString("attempt:$nativeId", "") != day ||
+            !p.contains(dayDecisionKey(nativeId, day)) ||
+            p.getString(dayPhaseKey(nativeId, day), "") != "partial_side_steps" ||
+            p.getInt(dayRecoveriesKey(nativeId, day), 0) < MAX_SAVED_DECISION_RECOVERIES ||
+            p.getInt("saved-day-manual-resume:$nativeId:$day", 0) > 0) return null
+        return SavedDayRecovery(nativeId, day, "partial_side_steps",
+            p.getInt(dayRecoveriesKey(nativeId, day), 0))
+    }
+
+    /** One explicit owner grant after bounded automatic recovery. Consume it
+     * durably before replay, retaining every existing ToolRouter request ID.
+     * An unknown-charge model request is never reissued by this route. */
+    suspend fun resumeSavedDayDecision(context: Context, expected: SavedDayRecovery,
+        clock: () -> Instant = Instant::now): Boolean =
+        dayRequests.withLock("${expected.nativeId}:${expected.day}") {
+            val now = clock()
+            if (date(now) != expected.day ||
+                savedDayRecovery(context, expected.nativeId, now) != expected)
+                return@withLock false
+            val native = DigitalWorldExpansionStore.residents()
+                .firstOrNull { it.id == expected.nativeId } ?: return@withLock false
+            val p = prefs(context)
+            check(p.edit()
+                .putInt("saved-day-manual-resume:${expected.nativeId}:${expected.day}", 1)
+                .putInt(dayRecoveriesKey(expected.nativeId, expected.day),
+                    MAX_SAVED_DECISION_RECOVERIES - 1).commit()) {
+                "每日已保存决定的人工续接授权未持久化"
+            }
+            runOnceLocked(context, native, now)
+        }
+
     private val dueRequests = KeyedWorkMutex()
     data class DueRecovery(val planId: String, val characterId: String, val dueAt: Instant,
         val phase: String, val revision: Int)
@@ -1441,29 +1484,39 @@ internal object ResidentDailyDecision {
             selectedAction = "plan_day", innerThought = plan.optString("thought"),
             reason = "本人作出的当天安排；尚未执行的活动不能算亲历", now = now)
         val post = json.optString("post").trim().take(MAX_MESSAGE)
-        if (post.isNotBlank()) {
+        val postComplete = if (post.isNotBlank()) {
             MomentsStore.initialize(app)
-            ToolRouter.execute(app, id, "publish_moment", JSONObject().put("text", post),
-                requestId = "$eventId-post", causeEvidenceId = decisionEvidenceId)
-        }
+            ToolExecutionStatus.completed(JSONObject(ToolRouter.execute(app, id,
+                "publish_moment", JSONObject().put("text", post),
+                requestId = "$eventId-post", causeEvidenceId = decisionEvidenceId)))
+        } else true
         val messageTo = json.optString("messageTo").trim()
         val message = json.optString("message").trim().take(MAX_MESSAGE)
-        if (message.isNotBlank() && messageTo.isNotBlank()) {
-            ToolRouter.execute(app, id, "send_character_message",
+        val messageComplete = if (message.isNotBlank() && messageTo.isNotBlank()) {
+            ToolExecutionStatus.completed(JSONObject(ToolRouter.execute(app, id,
+                "send_character_message",
                 JSONObject().put("targetCharacterId", messageTo).put("text", message),
-                requestId = "$eventId-message", causeEvidenceId = decisionEvidenceId)
-        }
-        executeWakeSteps(app, id, json, eventId, causeEvidenceId = decisionEvidenceId)
+                requestId = "$eventId-message", causeEvidenceId = decisionEvidenceId)))
+        } else true
+        val sideTotal = json.optJSONArray("steps")?.length() ?: 0
+        val sideComplete = executeWakeSteps(app, id, json, eventId,
+            causeEvidenceId = decisionEvidenceId) == sideTotal
         check(CharacterPhoneInbox.acknowledgeObserved(id, unread)) {
             "已感知的手机未读动态尚未记录"
         }
         pending.lastOrNull()?.let { check(ResidentSocialMailbox.acknowledgeIncoming(id, it.id)) {
             "居民来信处理进度没有保存"
         } }
-        check(p.edit().putString(phaseKey, "finished").commit()) {
+        // Saving the calendar is not the same as completing the immediate
+        // independent actions. Never call a denied message or an unfinished
+        // step 'finished'. Recovery uses the same durable decision and exact
+        // ToolRouter IDs; settled posts are returned, not published again.
+        val allComplete = postComplete && messageComplete && sideComplete
+        check(p.edit().putString(phaseKey,
+            if (allComplete) "finished" else "partial_side_steps").commit()) {
             "原住民本次决定的完成状态没有保存"
         }
-        return true
+        return allComplete
     }
 
     suspend fun tick(context: Context, now: Instant = Instant.now()): Int {
