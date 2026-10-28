@@ -132,10 +132,16 @@ internal object CharacterCausalTrace {
                         "这项行动引用本事件的旧版本 $originalRevision，不能视为对当前版本的回应",
                         event.id)
                 directCause && originalRevision == 0L ->
-                    rows += receiptLine(context, characterId, event, body).copy(
-                        title = "旧回执 · 来源版本未证实",
-                        detail = "旧记录未保存来源版本，不能断定是当前文字触发；" +
-                            receiptLine(context, characterId, event, body).detail)
+                    rows += receiptLine(context, characterId, event, body).let { line ->
+                        line.copy(
+                            // Preserve the actual pending/failed/permission
+                            // status even when the old cause revision is
+                            // unknown; provenance uncertainty is not the
+                            // same thing as an unknown execution outcome.
+                            title = "旧回执 · 来源版本未证实 · ${line.title}",
+                            detail = "旧记录未保存来源版本，不能断定是当前文字触发；" +
+                                line.detail)
+                    }
                 directCause -> {
                     rows += receiptLine(context, characterId, event, body)
                     rows += receiptContinuation(context, characterId, event, body, mind)
