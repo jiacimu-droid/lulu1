@@ -456,7 +456,8 @@ internal object ResidentDailyDecision {
                     activityAction = action, activityArgs = params,
                     targetCharacterId = if (action == "send_character_message") target else "",
                     targetResidentId = targetResident, locationCode = location,
-                    selfInitiated = true)
+                    selfInitiated = true, originEvidenceId = decisionId,
+                    originEvidenceRevision = 1L)
             }.onFailure { error ->
                 reject(index, row, "排程持久化或资源检查失败：${error.message.orEmpty().take(140)}")
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
