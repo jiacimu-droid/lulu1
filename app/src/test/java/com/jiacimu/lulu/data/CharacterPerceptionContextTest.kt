@@ -10,6 +10,63 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun directOnlyForeignEvidenceNeverEntersAnotherCharactersThoughtOrSeenLedger() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        PerceptionStimulusLedger.initialize(app)
+        val a = "friend-a-" + java.util.UUID.randomUUID()
+        val b = "friend-b-" + java.util.UUID.randomUUID()
+        val bEventId = "private-b-" + java.util.UUID.randomUUID()
+        val aEventId = "private-a-" + java.util.UUID.randomUUID()
+        val syntheticId = "live-call-" + java.util.UUID.randomUUID()
+        try {
+            SharedExperienceTimeline.record(bEventId, b, "私聊", "用户",
+                "我只对 B 说过这件秘密", Instant.now().minusSeconds(25),
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            SharedExperienceTimeline.record(aEventId, a, "私聊", "用户",
+                "我向 A 说的话", Instant.now().minusSeconds(15),
+                triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            assertEquals(setOf(bEventId), SharedExperienceTimeline.foreignEvidenceIds(
+                a, listOf(aEventId, bEventId, syntheticId)))
+            // This deliberately bypasses the safe observed = eventsByIds(a)
+            // adapter to cover cross-role misrouting by a future group source.
+            val wrapped = CharacterPerceptionContext.integrate(app, a,
+                observed = emptyList(),
+                direct = listOf(
+                    PerceptionStimulus(bEventId, "B 的私聊：我只对 B 说过这件秘密"),
+                    PerceptionStimulus(aEventId, "A 的真实原话"),
+                    PerceptionStimulus(syntheticId, "当前 A 电话实际接通"),
+                ),
+                deferAcknowledgement = true,
+            )
+            assertEquals(listOf(aEventId, syntheticId),
+                wrapped.freshStimuli.map { it.evidenceId })
+            assertFalse(wrapped.combined?.description.orEmpty().contains("B 的私聊"))
+            CharacterPerceptionContext.acknowledge(app, a, wrapped)
+            assertFalse(PerceptionStimulusLedger.hasSeen(app, a, bEventId))
+            assertTrue(PerceptionStimulusLedger.hasSeen(app, a, aEventId))
+            assertTrue(PerceptionStimulusLedger.hasSeen(app, a, syntheticId))
+            val onlyForeign = CharacterPerceptionContext.integrate(app, a,
+                observed = listOfNotNull(SharedExperienceTimeline.eventsByIds(b, listOf(bEventId)).firstOrNull()),
+                direct = listOf(PerceptionStimulus(bEventId, "私信内容绕过 observed")), 
+                deferAcknowledgement = true)
+            assertTrue(onlyForeign.freshStimuli.isEmpty())
+            assertNull(onlyForeign.combined)
+            val own = CharacterPerceptionContext.integrate(app, b,
+                observed = emptyList(),
+                direct = listOf(PerceptionStimulus(bEventId, "B 确实读到的本人私信")),
+                deferAcknowledgement = true)
+            assertEquals(listOf(bEventId), own.freshStimuli.map { it.evidenceId })
+        } finally {
+            SharedExperienceTimeline.deleteEvent(aEventId)
+            SharedExperienceTimeline.deleteEvent(bEventId)
+            PerceptionStimulusLedger.clear(a)
+            PerceptionStimulusLedger.clear(b)
+        }
+    }
+
     @Test fun mixedWorldAndPrivateEventsCannotEnterAnotherCharactersPerceptionOrLedger() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(context)
