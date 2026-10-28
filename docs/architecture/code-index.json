@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T13:01:58.612493+00:00",
-  "commit": "c89ed9191a8b4ff89d155871ee5a2f494ff7a618",
+  "generatedAt": "2026-10-28T13:03:40.962592+00:00",
+  "commit": "25fd7dd65c55f979ef5c7ce1771099978f1bba82",
   "branch": "main",
-  "sourceFingerprint": "3432a35e4870eb408ab97680c98a576262c9ac1b0e4d9ea64139d59972a321fb",
+  "sourceFingerprint": "9e0dd6e05723906b55fe84b5935e6d3ca9c5de3e069afd04a831eec5bdf6b226",
   "summary": {
     "files": 1047,
-    "lines": 213014,
+    "lines": 213018,
     "symbols": 3054
   },
   "symbolIndex": {
@@ -17866,8 +17866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 620,
-      "sha256": "18c230d68e0fdaf3eb6e12593c9dcca45e026cfbc72fed1019cce505784cd59c",
+      "lines": 624,
+      "sha256": "0cd2ce2ebea14a4ada4f55f6e8ae8736b9cc97a0d3445faf95268f1f27371e4f",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
