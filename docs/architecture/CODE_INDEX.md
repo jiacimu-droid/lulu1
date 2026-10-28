@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`719d4e3dba501c8978ae6644c157002c58e5278e`
+- 基准提交：`02fd26133072faab256eca8f0e0500074ce79e0e`
 - 分支：`main`
 - 已索引文件：1013
-- 已索引代码/文本行：202033
+- 已索引代码/文本行：202052
 - 已发现符号：2944
 
 | 文件 | 行数 | 符号数 |
@@ -912,7 +912,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 96 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 171 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 135 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 152 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
