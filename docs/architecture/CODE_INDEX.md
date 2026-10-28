@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`582b12d163253aea45ed0a384dce317702946745`
+- 基准提交：`e3b42e59a784b01144244bf3d6d5b9fd9cd1e979`
 - 分支：`main`
 - 已索引文件：1021
-- 已索引代码/文本行：204527
+- 已索引代码/文本行：204528
 - 已发现符号：2976
 
 | 文件 | 行数 | 符号数 |
@@ -514,7 +514,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 576 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1337 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1338 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 235 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 752 | 22 |
