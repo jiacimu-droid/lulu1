@@ -574,8 +574,8 @@ internal object ResidentDailyDecision {
         // Otherwise the original message is silently skipped after the daily
         // decision is marked finished, with no bounded correction opportunity.
         for (field in listOf("post", "message", "messageTo")) {
-            if (choice.has(field) && choice.opt(field) != JSONObject.NULL &&
-                choice.opt(field) !is String) return "$field 必须是字符串"
+            if (choice.has(field) && choice.opt(field) !is String)
+                return "$field 必须是字符串（不用 JSON null；不发送时留空字符串）"
         }
         val message = choice.optString("message").trim()
         val messageTo = choice.optString("messageTo").trim()
