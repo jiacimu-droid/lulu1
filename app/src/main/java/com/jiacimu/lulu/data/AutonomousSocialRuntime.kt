@@ -166,12 +166,11 @@ internal object AutonomousSocialRuntime {
                     triggerExtraction = false,
                 )
             }
-            // A neutral, isolated group-scene model may record what every
-            // participant SAID/DID in a jointly witnessed scene, but is not
-            // authorized to write anyone's private emotions, subjective
-            // motives, causal appraisals, or silent thoughts. Each participant
-            // receives its OWN eventId/revision above and may interpret the
-            // scene on its next ordinary perception in its own role context.
+            // The speaker independently authored this public turn. Every
+            // witness keeps the same spoken facts under an OWN evidence ID,
+            // but nobody receives another role's private feelings or motives.
+            // The owner's private reaction is committed only after the
+            // meeting is actually saved below.
             // This also prevents the shared narrator from cloning one
             // character's emotional state into several personal minds.
         }
