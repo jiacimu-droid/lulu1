@@ -589,7 +589,8 @@ internal object LuluVoiceCallSession {
         }
         mutableState.update { it.copy(provider = provider, errorMessage = "") }
         val library = LuluAiServices.connectionStore.library.value
-        val archiveId = library.archiveIdFor(ModelUsage.VoiceCall)
+        val archiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+            .selectedCharacterChatArchiveId(current.characterId, library)
         // A scheduled wake already has an authored, persisted first line.
         // It must still be audible if the chat-model archive was unselected
         // while the phone was asleep. Later free conversation can request a model.
@@ -1531,9 +1532,15 @@ internal object LuluVoiceCallSession {
             // sleep call never needs hanging up and redialling to change
             // models. Leaving sleep mode returns to the call model by the
             // same condition, with no redial and no lost call context.
-            val archiveId = library.archiveIdFor(
-                if (mutableState.value.sleepMode) ModelUsage.Sleep else ModelUsage.VoiceCall,
-            ) ?: if (autonomousSilence) library.archiveIdFor(ModelUsage.Chat) else null
+            // A configured sleep archive still owns sleep-mode turns.
+            // Otherwise the SAME character's chat selection also owns calls.
+            val sleepArchiveId = library.sleepArchiveId?.takeIf { id ->
+                library.archives.any { it.id == id && !it.model.startsWith("jev-") }
+            }
+            val archiveId = if (mutableState.value.sleepMode && sleepArchiveId != null)
+                sleepArchiveId
+            else com.jiacimu.lulu.ai.ScopedModelSelections
+                .selectedCharacterChatArchiveId(latest.characterId, library)
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null && !(opening && latest.incomingReason.isNotBlank())) {
                 replyIsSilence = false

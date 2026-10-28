@@ -174,7 +174,9 @@ object LuluDeviceToolBridge {
         // each model decision, and the next character sees only persisted turns.
         // Do not hand the whole group to GroupEnsembleReplyEngine's cached ensemble.
 
-        val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
+        val selectedArchive = archiveId ?: com.jiacimu.lulu.ai.ScopedModelSelections
+            .selectedCharacterChatArchiveId(characterId)
+        val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(selectedArchive) }
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
         // Factual integrity only. If the model wrongly puts its own missed

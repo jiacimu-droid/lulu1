@@ -506,6 +506,10 @@ class CompanionModelGateway(
             val promptStartedAt = System.nanoTime()
             val requestedArchiveId = if (source.startsWith("末世求生")) {
                 ScopedModelSelections.selectedArchiveId(ScopedModelSelections.APOCALYPSE)
+            } else if (connectionOverride == null &&
+                contextMode != CompanionContextMode.Isolated &&
+                usage in setOf(ModelUsage.Chat, ModelUsage.VoiceCall)) {
+                ScopedModelSelections.selectedCharacterChatArchiveId(characterId, connectionStore.library.value)
             } else {
                 usage?.let(connectionStore::selectedArchiveId)
             }

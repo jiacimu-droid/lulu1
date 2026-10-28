@@ -339,15 +339,22 @@ internal suspend fun runGroupReplies(
             if (group.allowCharacterConversation) appendLine("[你无需替其他成员指定下一位发言者。程序会让其他真实在场者各自独立判断是否接话；你只负责自己的内容，沉默可直接选择 action=silent。]")
             append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
         }
-        var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, activeLabel,
-            archiveId, sceneContext,
+        // Resolve per participant, not once for the group: A changing their
+        // model cannot silently switch B's model on the next group reply.
+        val memberArchive = com.jiacimu.lulu.ai.ScopedModelSelections
+            .selectedCharacterChatArchiveId(member.characterId) ?: archiveId
+        val memberLabel = com.jiacimu.lulu.ai.LuluAiServices.connectionStore.library.value.archives
+            .firstOrNull { it.id == memberArchive }
+            ?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel) ?: activeLabel
+        var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, memberLabel,
+            memberArchive, sceneContext,
             turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
             userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         if (result.getOrNull()?.text.isNullOrBlank() &&
             result.getOrNull()?.disposition != "silent" && currentCoroutineContext().isActive) {
             result = LuluDeviceToolBridge.respond(member.characterId, history,
                 "$prompt\n[如果你确实该接话，直接自然发言；不要替别人说话。]",
-                activeLabel, archiveId, sceneContext,
+                memberLabel, memberArchive, sceneContext,
                 turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
                 userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         }

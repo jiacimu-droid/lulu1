@@ -168,7 +168,8 @@ fun LuluVoiceCallScreen(
             LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
     }
 
-    val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
+    val voiceArchiveId = com.jiacimu.lulu.ai.ScopedModelSelections
+        .selectedCharacterChatArchiveId(currentCharacterId, library)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     // Only messages belonging to this *connected* call may appear as call
     // captions. List position alone leaked old chat after a cold screen restore.
