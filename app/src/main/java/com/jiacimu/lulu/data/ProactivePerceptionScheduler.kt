@@ -381,9 +381,16 @@ object ProactivePerceptionScheduler {
                         if (error is kotlinx.coroutines.CancellationException) throw error
                         perceptionFailed = true
                         if (OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
-                            // Scheduling failure is visible, but must not crash
-                            // the UI just because a background retry was denied.
-                            runCatching { scheduleFailedMessageRetry(app, characterId, revision) }
+                            // A provider-confirmed HTTP 400/403/422 cannot be
+                            // repaired by replaying the same unread prompt 2s
+                            // later. Leave actual user messages unread; the next
+                            // new bubble can re-arm their durable window.
+                            if (com.jiacimu.lulu.ai.isNonRetryableModelFailure(error)) {
+                                OnlineChatBatchStore.unmarkEnqueued(app, characterId, revision)
+                                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                                    "服务商已明确拒绝本轮输入；不自动重复发送，等待新消息或配置改变",
+                                    Instant.now())
+                            } else runCatching { scheduleFailedMessageRetry(app, characterId, revision) }
                                 .onFailure { retryError ->
                                     CompanionPresenceStore.recordPerceptionAttempt(
                                         characterId,
@@ -973,7 +980,16 @@ class ProactivePerceptionWorker(
         Result.success()
     }.getOrElse {
         if (it is kotlinx.coroutines.CancellationException) throw it
-        if (runAttemptCount < 2) Result.retry() else Result.failure()
+        if (com.jiacimu.lulu.ai.isNonRetryableModelFailure(it)) {
+            // Preserve the unsent user turn, but do not retry the identical
+            // provider-rejected payload via WorkManager.
+            if (characterId != null) {
+                inputData.getLong("onlineRevision", -1L).takeIf { it >= 0L }?.let { revision ->
+                    OnlineChatBatchStore.unmarkEnqueued(applicationContext, characterId, revision)
+                }
+            }
+            Result.failure()
+        } else if (runAttemptCount < 2) Result.retry() else Result.failure()
     }.also {
         // Even a transient transport error must leave the next native/WorkManager wake intact.
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
