@@ -1863,6 +1863,16 @@ class ResidentDailyContinuityTest {
     }
 
 
+    @Test fun residentDailyCatchupUsesDistinctBoundedWorkerNamesForSavedReplays() {
+        val now = Instant.parse("2026-10-28T10:00:00Z")
+        val initial = ResidentDailyDecision.catchupWorkName(now, null)
+        val first = ResidentDailyDecision.catchupWorkName(now, 0)
+        val second = ResidentDailyDecision.catchupWorkName(now, 1)
+        assertNotEquals(initial, first)
+        assertNotEquals(first, second)
+        assertEquals(first, ResidentDailyDecision.catchupWorkName(now, 0))
+    }
+
     @Test(timeout = 60_000) fun dailyImmediateActionFailureKeepsSavedChoiceAndNeverRepeatsSuccessfulPosts() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
