@@ -908,7 +908,7 @@ class ResidentDailyContinuityTest {
             activityArgs = JSONObject().put("text", originalText))
         val rejectedServer = MockWebServer()
         rejectedServer.enqueue(MockResponse().setResponseCode(401)
-            .setBody("{\\"error\\":{\\"message\\":\\"unauthorized\\"}}"))
+            .setBody("""{"error":{"message":"unauthorized"}}"""))
         rejectedServer.start()
         val repairedServer = MockWebServer()
         repairedServer.enqueue(answer(JSONObject().put("choice", "cancel")
