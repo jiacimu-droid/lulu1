@@ -33,12 +33,19 @@ internal object AutonomousPerceptionAttempts {
             record.put("stage", "action").toString()).commit()) { "动作执行边界未保存" }
     }
 
-    @Synchronized fun finish(context: Context, attempt: Attempt?, failed: Boolean) {
+    @Synchronized fun finish(
+        context: Context, attempt: Attempt?, failed: Boolean,
+        retryable: Boolean = true,
+    ) {
         if (attempt == null) return
         active.remove(attempt.id)
         val record = read(context, attempt.characterId) ?: return
         if (record.optString("id") != attempt.id) return
-        if (failed) recover(context, record) else clear(context, attempt.characterId)
+        // Provider-confirmed 400/403 content or parameter rejections cannot
+        // succeed by replaying identical context four minutes later. Retain
+        // the ordinary performance error record, not another scheduled call.
+        if (failed && retryable) recover(context, record)
+        else clear(context, attempt.characterId)
     }
 
     @Synchronized fun recoverInterrupted(
