@@ -39,6 +39,47 @@ class BundledJiangDuImportTest {
         assertEquals(1, MigratedDomainStores.characters.settings.value.keys.count { it == id })
     }
 
+    @Test fun existingBundledContactRepairsMissingDigitalLifeWithoutResettingItsIdentity() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val original = MigratedDomainStores.characters.settings.value[id]!!
+        val originalLife = DigitalLifeProfileStore.get(id)
+        val originalIdentity = CharacterIdentityStore.identities.value[id]
+        val custom = original.copy(persona = "主人亲自修改过的人设，不允许被内置模板覆盖")
+        try {
+            MigratedDomainStores.characters.update(custom)
+            // Simulate an interrupted/partial cross-store write: the one-time
+            // contact import marker and contact survive, but life-form is lost.
+            DigitalLifeProfileStore.remove(id)
+            assertEquals(CharacterLifeForm.UNRESOLVED, DigitalLifeProfileStore.lifeForm(id))
+            CharacterLifeStore.initialize(context)
+            assertEquals(CharacterLifeForm.DIGITAL, DigitalLifeProfileStore.lifeForm(id))
+            assertEquals(custom, MigratedDomainStores.characters.settings.value[id])
+            assertEquals(originalIdentity, CharacterIdentityStore.identities.value[id])
+            val repairedBirth = DigitalLifeProfileStore.birthAt(id)
+            CharacterLifeStore.initialize(context)
+            assertEquals(repairedBirth, DigitalLifeProfileStore.birthAt(id))
+
+            // Deleting the contact is an owner's choice, not an interrupted
+            // import. Reinitialization must not silently resurrect it.
+            assertTrue(MigratedDomainStores.characters.delete(id))
+            CharacterLifeStore.initialize(context)
+            assertFalse(MigratedDomainStores.characters.settings.value.containsKey(id))
+        } finally {
+            MigratedDomainStores.characters.update(original)
+            // Leave the test fixture with its original birth timestamp.
+            DigitalLifeProfileStore.remove(id)
+            DigitalLifeProfileStore.registerNewLife(id, original.displayName,
+                originalLife.creatorName, originalLife.bornAt ?: java.time.Instant.now())
+            CharacterLifeStore.initialize(context)
+        }
+    }
+
     @Test fun legacyLuluBecomesXingHeWithoutInheritingJiangDuOrLosingEdits() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
