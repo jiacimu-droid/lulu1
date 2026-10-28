@@ -234,8 +234,8 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition.take(220)}")
             if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.readableLastResult().take(260)}")
             when (task.status) {
-                CommitmentTaskStatus.NeedsClarification -> append("；下一步=自然向用户问清缺失时间/条件，禁止猜测")
-                CommitmentTaskStatus.WaitingForFeedback -> append("；下一步=等待明确反馈，不得自行宣称已完成")
+                CommitmentTaskStatus.NeedsClarification -> append("；下一步=由本人区分用户必须确认的条件与自己可以制定的监督步骤；必要时自然询问，也可自主安排不依赖该条件的后续行动；不能编造用户决定")
+                CommitmentTaskStatus.WaitingForFeedback -> append("；下一步=仍可自主选择可执行的跟进步骤或以后具体时间；按真实结果核验，不得把沉默当作完成")
                 CommitmentTaskStatus.Blocked -> append("；下一步=说明受阻事实或等待可执行条件，不得假装执行成功")
                 else -> Unit
             }

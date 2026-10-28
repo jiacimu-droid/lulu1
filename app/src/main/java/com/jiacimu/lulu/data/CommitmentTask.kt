@@ -58,6 +58,15 @@ internal fun CommitmentTask.readableLastResult(): String = lastActionResult
 internal fun CommitmentTask.isOutcomeReview(): Boolean =
     followUpKind == "verification" && attemptCount > 0
 
+/** An undated responsibility still needs a model-owned next-step review.
+ * NeedsClarification is not permission to assume the missing user condition,
+ * but it must not disappear from the character's planning opportunities. */
+internal fun CommitmentTask.needsUndatedActionReview(): Boolean =
+    dueAt == null && status in setOf(
+        CommitmentTaskStatus.NeedsClarification,
+        CommitmentTaskStatus.WaitingForFeedback,
+    )
+
 internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
     CommitmentTaskStatus.NeedsClarification,
     CommitmentTaskStatus.Scheduled,

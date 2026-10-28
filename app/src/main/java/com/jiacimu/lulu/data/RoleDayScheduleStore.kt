@@ -167,8 +167,7 @@ object RoleDayScheduleStore {
             .filter { it.status in setOf("planned", "due") }
             .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
         return CommitmentTaskStore.active(characterId).filter { task ->
-            task.dueAt == null && task.status == CommitmentTaskStatus.WaitingForFeedback &&
-                task.id !in linked
+            task.needsUndatedActionReview() && task.id !in linked
         }
     }
 
@@ -206,12 +205,12 @@ object RoleDayScheduleStore {
             appendLine("若真想稍后读书、社交、探索或游戏，由本人根据真实动机、时间与有效能力自己选择未来时刻，通过 plan_personal_activity 保存；已有 motiveId 可关联。")
             appendLine("同轮 steps 可以安排多件独立活动，也可以安静独处；已有近期个人日程会到点唤醒，不必另开定时打卡。")
             if (tasks.isNotEmpty()) {
-                appendLine("【已接受但尚未选择下一次行动时间的主人约定｜不是本人独处日程】")
+                appendLine("【仍未安排下一步的主人责任｜需要本人主动复议，不是已设置的闹钟】")
                 appendLine("现在本地时间=${now.atZone(java.time.ZoneId.systemDefault())}；这类约定没有实际系统闹钟，不可假称已安排。")
                 tasks.take(6).forEach {
-                    appendLine("- commitmentTaskId=${it.id}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
+                    appendLine("- commitmentTaskId=${it.id}；状态=${it.status}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
                 }
-                appendLine("如果自己确实想在适当时刻履约，参考对方的现实安排，自己选择未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真正的 activityAction。用户已指定时间并有唯一闹钟的任务不得重复建表；尚无日期则不能替用户虚构过去的提醒。")
+                appendLine("你可以自己选下一步，不要把待确认一律理解为只能等用户：先判断确实缺少用户必须决定的条件，还是缺少你自己可决定的执行办法。前者选择合适时机询问或安排一次确认，绝不代用户编造答案；后者可自己选择未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真实 activityAction，也可现在直接使用有权限的工具。已经有关联待执行计划就不重复建立；工具执行仍要观察真实结果，不能假称目标已完成。")
             }
             appendLine("现在可以执行、留到日后、改变心意或者暂时什么都不做；只有程序的实际工具和回执证明完成，不得用想象中的行动填日记或制造假经历。")
         }.trim()
@@ -318,8 +317,7 @@ object RoleDayScheduleStore {
         val linkedCommitment = commitmentTaskId.trim()
         if (linkedCommitment.isNotBlank()) {
             require(CommitmentTaskStore.active(characterId).any {
-                it.id == linkedCommitment && it.dueAt == null &&
-                    it.status == CommitmentTaskStatus.WaitingForFeedback
+                it.id == linkedCommitment && it.needsUndatedActionReview()
             }) { "只能关联本人已接受、没有定时器的持续约定" }
         }
         val linkedId = motiveId.trim()
@@ -538,7 +536,7 @@ object RoleDayScheduleStore {
         if (!canComplete(plan, characterId, action, "pending-action", now, args)) return false
         if (plan.commitmentTaskId.isNotBlank() && CommitmentTaskStore.active(characterId).none {
                 it.id == plan.commitmentTaskId &&
-                    it.status == CommitmentTaskStatus.WaitingForFeedback
+                    it.needsUndatedActionReview()
             }) return false
         return plan.motiveId.isBlank() || CharacterMotiveProgress.resolveMotiveId(
             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
@@ -557,7 +555,7 @@ object RoleDayScheduleStore {
         val plan = previous.firstOrNull { it.id == planId &&
             canComplete(it, characterId, action, evidenceId, now, args) &&
                 (it.commitmentTaskId.isBlank() || CommitmentTaskStore.active(characterId).any { task ->
-                    task.id == it.commitmentTaskId && task.status == CommitmentTaskStatus.WaitingForFeedback
+                    task.id == it.commitmentTaskId && task.needsUndatedActionReview()
                 }) &&
                 (it.motiveId.isBlank() || CharacterMotiveProgress.resolveMotiveId(
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),

@@ -266,6 +266,37 @@ class RoleDayScheduleStoreTest {
         }
     }
 
+    @Test fun undatedUnclearSupervisionIsNotLostBeforeItsOwnerPlansARealFollowUp() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "undated-clarification-follow-through-test"
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role,
+            goal = "监督学习、起床、吃饭和日常",
+            status = CommitmentTaskStatus.NeedsClarification,
+            dueAt = null,
+            lastActionResult = "缺少必要条件，需要后续自然确认",
+        ))
+        try {
+            assertTrue(task.needsUndatedActionReview())
+            val pending = RoleDayScheduleStore.undatedCommitmentsToPlan(context, role)
+            assertTrue(pending.any { it.id == task.id })
+            val cue = RoleDayScheduleStore.planningOpportunityContext(context, role)
+            assertTrue(cue.contains("commitmentTaskId=${task.id}"))
+            assertTrue(cue.contains("状态=NeedsClarification"))
+            assertTrue(cue.contains("自己选下一步"))
+            assertNull(task.dueAt)
+            assertNull(task.linkedAlarmId)
+            assertEquals(CommitmentTaskStatus.NeedsClarification,
+                CommitmentTaskStore.snapshot(role).first { it.id == task.id }.status)
+            assertFalse(task.copy(dueAt = Instant.now().plusSeconds(600)).needsUndatedActionReview())
+            assertFalse(task.copy(status = CommitmentTaskStatus.Completed).needsUndatedActionReview())
+            assertFalse(task.copy(status = CommitmentTaskStatus.Cancelled).needsUndatedActionReview())
+        } finally {
+            CommitmentTaskStore.remove(task.id)
+        }
+    }
+
     @Test fun chosenAppointmentLinksAcceptedResponsibilityWithoutInventingAnOutcome() {
         val actual = plan.copy(
             activityAction = "send_private_message",

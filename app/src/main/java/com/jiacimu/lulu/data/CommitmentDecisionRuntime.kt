@@ -82,9 +82,8 @@ internal object CommitmentDecisionRuntime {
     private fun scheduleUndatedFollowThroughIfNeeded(
         context: Context, characterId: String, changed: List<CommitmentTask>,
     ) {
-        if (changed.any {
-                it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback
-            } && RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
+        if (changed.any { it.needsUndatedActionReview() } &&
+            RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
             // Save the accepted responsibility first; ask its owner to choose
             // an actual next action through the existing unified decision loop.
             // This never manufactures a clock time or promises an already-run tool.
