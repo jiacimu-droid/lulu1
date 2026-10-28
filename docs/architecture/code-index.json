@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:43:45.970056+00:00",
-  "commit": "f4bcec31b0f2097ec1ad81b9739f8334f2470641",
+  "generatedAt": "2026-10-28T08:44:37.785085+00:00",
+  "commit": "e40a5e1abc247dd087732d1793ea922c281f287b",
   "branch": "main",
-  "sourceFingerprint": "f80c0b02cdc5faec1a2155c3df45d762a67ac0287462d99727c16080dfd0d5b3",
+  "sourceFingerprint": "39926befaa9c56aae22edceb032d15a04d88256e049430c91ac67fcb8fdc2b6e",
   "summary": {
     "files": 1015,
-    "lines": 203527,
+    "lines": 203537,
     "symbols": 2963
   },
   "symbolIndex": {
@@ -16449,7 +16449,7 @@
     "mood": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt",
-        "line": 21
+        "line": 23
       }
     ],
     "XhsAutonomousReadingTest": [
@@ -32097,8 +32097,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt",
-      "lines": 97,
-      "sha256": "c6d6a9001e871c06250e334845a1c285ba41f83da079e856ac799238b0e4a1ac",
+      "lines": 105,
+      "sha256": "de87a46407c74b91e68dc55fbd69f95ec2c577ec4d5de8e5421dcbfa0d7bd209",
       "symbols": [
         {
           "name": "CharacterChatModelSelectionTest",
@@ -34991,8 +34991,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt",
-      "lines": 40,
-      "sha256": "17a66c781d1eaf684ddea400f34771e3aebfcf6029acda1bb10d54e52d8f0eb0",
+      "lines": 42,
+      "sha256": "24d3e4bb721ff16ee48e0c9d40d1e744c5dce2b65b86db607b89bcdc823102ef",
       "symbols": [
         {
           "name": "WorldLifeEpisodeTemporalContextTest",
@@ -35000,7 +35000,7 @@
         },
         {
           "name": "mood",
-          "line": 21
+          "line": 23
         }
       ]
     },

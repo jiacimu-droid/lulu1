@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f4bcec31b0f2097ec1ad81b9739f8334f2470641`
+- 基准提交：`e40a5e1abc247dd087732d1793ea922c281f287b`
 - 分支：`main`
 - 已索引文件：1015
-- 已索引代码/文本行：203527
+- 已索引代码/文本行：203537
 - 已发现符号：2963
 
 | 文件 | 行数 | 符号数 |
@@ -780,7 +780,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 97 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 97 | 1 |
@@ -986,7 +986,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 214 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt` | 40 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt` | 42 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
