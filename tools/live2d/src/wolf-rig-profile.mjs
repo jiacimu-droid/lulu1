@@ -67,13 +67,15 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   } else if ((family === 'hair' || family === 'forehead' ||
       family === 'ear' || family === 'beast-ear') &&
       (/^stroke/.test(gesture) || gesture === 'hold')) {
-    // Match the authored tilt pair's coordinated peak (Z 17.1, X 8.1,
-    // torso Z 6.5), scaled by selected force. Physics adds the real follow.
-    const strength = .55 + .6 * force
-    pose.roll = travel * 17.1 * strength * rest
-    pose.yaw = travel * 8.1 * strength * rest
-    pose.body.roll = travel * 6.5 * strength * rest
-    pose.body.yaw = travel * 3 * strength * rest
+    // A fingertip caress must not reuse the 17-degree authored whole-body
+    // tilt: it made the avatar appear to fly toward the contact point.
+    // The ear still moves the actual head joints to excite native ear physics.
+    const strength = .55 + .55 * force
+    const onEar = family === 'ear' || family === 'beast-ear'
+    pose.roll = travel * (onEar ? 10.4 : 6.9) * strength * rest
+    pose.yaw = travel * (onEar ? 4.4 : 2.9) * strength * rest
+    pose.body.roll = travel * (onEar ? 2.5 : 1.7) * strength * rest
+    pose.body.yaw = travel * (onEar ? 1.2 : .8) * strength * rest
     if (family === 'ear' || family === 'beast-ear')
       pose.face[side < 0 ? 'browLeftY' : 'browRightY'] = .22 + .13 * force
   } else if (family === 'cheek' && gesture !== 'kiss') {
