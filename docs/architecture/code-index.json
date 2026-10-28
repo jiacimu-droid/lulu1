@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T17:40:46.433513+00:00",
-  "commit": "0860ffc44df0db48d1cdf3de603a1b99aae1af1a",
+  "generatedAt": "2026-10-28T17:43:18.979762+00:00",
+  "commit": "d023695f04ac41c305516457480241b11e50be23",
   "branch": "main",
-  "sourceFingerprint": "bc1dbc975228761ea3fdbc7cd7d0c3e90aa8aac9c7c2456dd76abbce89bc59fd",
+  "sourceFingerprint": "1cdd513487a9b308ff9c6f57aaa50de6620ec72667cb1510ff5c48bedf9d7951",
   "summary": {
     "files": 1053,
-    "lines": 215253,
+    "lines": 215289,
     "symbols": 3087
   },
   "symbolIndex": {
@@ -211,7 +211,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 249
+        "line": 256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -1019,7 +1019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 344
+        "line": 349
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -5807,7 +5807,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 385
+        "line": 390
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7371,19 +7371,19 @@
     "reconcileAfterRestart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 69
+        "line": 76
       }
     ],
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 192
+        "line": 199
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 378
+        "line": 383
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -24202,8 +24202,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 99,
-      "sha256": "f1b0818c8ea73556ae518f32071e5cd6e489a43ee83c0d95c387710384a0f376",
+      "lines": 112,
+      "sha256": "8a4a946a71b9e78e87796bf196f8d6cae5fcad7eb034096e362bd69c8c96f3e4",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -24213,8 +24213,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 375,
-      "sha256": "bf26c482d3300e8d3cb4566671aba22433de4ba112737e1625cca8c903997589",
+      "lines": 369,
+      "sha256": "c014a50bef2a4bfc717f4257172861d4ac4c0de827083cdf62a53a03416014b8",
       "symbols": []
     },
     {
@@ -24259,8 +24259,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 398,
-      "sha256": "ac1a3ed30083d0e4d85f51f61fe56facfd17975e5d16957f0df35ebd67706564",
+      "lines": 403,
+      "sha256": "000db3548ae06809872eec0640f2e9e52dc1e1edd41310dfb1fbc23848a6c37e",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -24288,27 +24288,27 @@
         },
         {
           "name": "reconcileAfterRestart",
-          "line": 69
+          "line": 76
         },
         {
           "name": "claimAlarmExecution",
-          "line": 192
+          "line": 199
         },
         {
           "name": "cancel",
-          "line": 249
+          "line": 256
         },
         {
           "name": "remove",
-          "line": 344
+          "line": 349
         },
         {
           "name": "removeBySourceEvent",
-          "line": 378
+          "line": 383
         },
         {
           "name": "clearCharacter",
-          "line": 385
+          "line": 390
         }
       ]
     },
@@ -36026,8 +36026,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 365,
-      "sha256": "0732569b85e62ea8e7eb808845882bc8ae4525b9e49a2a9e12bf99599d7bbcc5",
+      "lines": 389,
+      "sha256": "5b7ca8fe26be381b02081f3ea50a1b66753638c8393e5b45d2ae8064e5a177d1",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
