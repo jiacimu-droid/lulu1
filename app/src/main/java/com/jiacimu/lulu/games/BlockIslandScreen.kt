@@ -11,6 +11,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -58,6 +65,22 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var zoomed by remember { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
+    var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
+    val impactProgress = remember { Animatable(1f) }
+    val scenery = rememberInfiniteTransition(label = "island-weather")
+    val atmosphere by scenery.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(5400, easing = LinearEasing), RepeatMode.Restart),
+        label = "island-breeze",
+    )
+    LaunchedEffect(impact) {
+        if (impact != null) {
+            impactProgress.snapTo(0f)
+            impactProgress.animateTo(1f, tween(550))
+            impact = null
+        }
+    }
 
     fun save(next: BlockIslandState) {
         island = next
@@ -65,7 +88,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     fun perform(action: String, x: Int = target.first, y: Int = target.second) {
         navigateTo = null
-        save(BlockIslandRules.act(island, action, x, y))
+        val result = BlockIslandRules.act(island, action, x, y)
+        if (result.world.turns > island.world.turns) {
+            impact = BlockIslandImpact(x, y, action, result.world.turns)
+        }
+        save(result)
     }
 
     LaunchedEffect(game.selectedCharacterIds) {
@@ -125,17 +152,25 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             border = BorderStroke(1.dp, Color(0xFF75A39D).copy(alpha = .45f))) {
             Column(Modifier.padding(7.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Text("我的小岛 · 第${world.turns}步", color = Color(0xFFE1F8EB),
+                    Text("森林营地  ·  第${world.turns}步", color = Color(0xFFE1F8EB),
                         fontWeight = FontWeight.SemiBold, fontSize = 11.sp, modifier = Modifier.weight(1f))
                     TextButton(onClick = { zoomed = !zoomed }) {
                         Text(if (zoomed) "缩小地图" else "放大地图", fontSize = 11.sp,
                             color = Color(0xFFA8E7C7))
                     }
                 }
-                BlockIslandCanvas(island, target, zoomed, night) { x, y ->
-                    target = x to y
-                    navigateTo = null
-                }
+                BlockIslandCanvas(
+                    island = island, target = target, zoomed = zoomed, night = night,
+                    phase = atmosphere, impact = impact, impactProgress = impactProgress.value,
+                    onSelect = { x, y ->
+                        target = x to y
+                        navigateTo = null
+                    },
+                    onNavigate = { x, y ->
+                        target = x to y
+                        navigateTo = x to y
+                    },
+                )
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(top = 7.dp)) {
                     Text("(${target.first}, ${target.second}) · ${islandCellTitle(selectedCell, selectedStructure)}${if (isMobSelected) " · 野怪" else ""}",
@@ -145,6 +180,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
             }
         }
+        Text("轻触选格 · 双击目的地自动前往", color = Color(0xFF9EC9B3),
+            fontSize = 10.sp)
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
             Text(world.notice, modifier = Modifier.fillMaxWidth().padding(11.dp),
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
@@ -366,132 +403,47 @@ private fun BlockIslandCanvas(
     target: Pair<Int, Int>,
     zoomed: Boolean,
     night: Boolean,
+    phase: Float,
+    impact: BlockIslandImpact?,
+    impactProgress: Float,
     onSelect: (Int, Int) -> Unit,
+    onNavigate: (Int, Int) -> Unit,
 ) {
     val w = island.world
     val cols = if (zoomed) 14 else 22
     val rows = if (zoomed) 11 else 16
     val left = (w.x - cols / 2).coerceIn(0, (w.width - cols).coerceAtLeast(0))
     val top = (w.y - rows / 2).coerceIn(0, (w.height - rows).coerceAtLeast(0))
+    val latestSelect by rememberUpdatedState(onSelect)
+    val latestNavigate by rememberUpdatedState(onNavigate)
     Canvas(
         Modifier.fillMaxWidth().aspectRatio(cols.toFloat() / rows)
-            .pointerInput(left, top, cols, rows, onSelect) {
-                detectTapGestures { tap ->
-                    val tileSize = size.width / cols
-                    val x = left + (tap.x / tileSize).toInt()
-                    val y = top + (tap.y / tileSize).toInt()
-                    if (w.inBounds(x, y) && x < left + cols && y < top + rows) onSelect(x, y)
+            .pointerInput(left, top, cols, rows) {
+                fun targetFor(tap: Offset): Pair<Int, Int>? {
+                    val tile = kotlin.math.min(size.width / cols.toFloat(), size.height / rows.toFloat())
+                    val padX = (size.width - tile * cols) / 2f
+                    val padY = (size.height - tile * rows) / 2f
+                    val tx = left + ((tap.x - padX) / tile).toInt()
+                    val ty = top + ((tap.y - padY) / tile).toInt()
+                    return (tx to ty).takeIf {
+                        tap.x >= padX && tap.x < padX + cols * tile &&
+                            tap.y >= padY && tap.y < padY + rows * tile &&
+                            w.inBounds(tx, ty) && tx in left until left + cols &&
+                            ty in top until top + rows
+                    }
                 }
+                detectTapGestures(
+                    onTap = { point -> targetFor(point)?.let { (x, y) -> latestSelect(x, y) } },
+                    onDoubleTap = { point -> targetFor(point)?.let { (x, y) -> latestNavigate(x, y) } },
+                )
             },
     ) {
-        val tileSize = size.width / cols
-        fun centre(x: Int, y: Int) = Offset(
-            (x - left + .5f) * tileSize, (y - top + .5f) * tileSize,
-        )
-        for (y in top until (top + rows).coerceAtMost(w.height)) {
-            for (x in left until (left + cols).coerceAtMost(w.width)) {
-                val cell = w.cell(x, y)
-                val pos = Offset((x - left) * tileSize, (y - top) * tileSize)
-                val grass = if ((x + y) % 3 == 0) Color(0xFF63916A) else Color(0xFF53835D)
-                val base = when (cell) {
-                    1 -> Color(0xFF447A53)
-                    2 -> Color(0xFF767E77)
-                    3 -> Color(0xFF785D4A)
-                    4 -> Color(0xFFBD9D73)
-                    7 -> Color(0xFFE3C38A)
-                    8 -> Color(0xFF397A93)
-                    else -> grass
-                }
-                drawRect(base, topLeft = pos, size = Size(tileSize + .5f, tileSize + .5f))
-                drawRect(Color.Black.copy(alpha = .08f), topLeft = pos,
-                    size = Size(tileSize, tileSize), style = Stroke(.7f))
-                when (cell) {
-                    1 -> {
-                        drawCircle(Color(0xFF205C40), tileSize * .33f, centre(x, y))
-                        drawCircle(Color(0xFF9CD28B), tileSize * .15f,
-                            centre(x, y) + Offset(-tileSize * .09f, -tileSize * .11f))
-                    }
-                    2 -> {
-                        drawRoundRect(Color(0xFFCFD6C8),
-                            topLeft = pos + Offset(tileSize * .13f, tileSize * .23f),
-                            size = Size(tileSize * .72f, tileSize * .59f),
-                            cornerRadius = CornerRadius(tileSize * .14f))
-                        drawCircle(Color(0xFF828F99), tileSize * .13f, centre(x, y))
-                    }
-                    3 -> {
-                        drawRect(Color(0xFFDCBB90), topLeft = pos + Offset(2f, 2f),
-                            size = Size(tileSize - 4f, tileSize - 4f))
-                        drawRect(Color(0xFF987554), topLeft = pos + Offset(3f, tileSize * .48f),
-                            size = Size(tileSize - 6f, tileSize * .08f))
-                    }
-                    7 -> drawCircle(Color(0xFFFFE2A2), tileSize * .36f, centre(x, y))
-                }
-                when (island.structures[w.index(x, y)]) {
-                    "door" -> {
-                        drawRoundRect(Color(0xFF754F42),
-                            topLeft = pos + Offset(tileSize * .25f, tileSize * .14f),
-                            size = Size(tileSize * .50f, tileSize * .75f),
-                            cornerRadius = CornerRadius(3f))
-                        drawCircle(Color(0xFFF9E29A), tileSize * .04f,
-                            centre(x, y) + Offset(tileSize * .13f, 0f))
-                    }
-                    "workbench" -> {
-                        drawRoundRect(Color(0xFF694833),
-                            topLeft = pos + Offset(tileSize * .12f, tileSize * .20f),
-                            size = Size(tileSize * .76f, tileSize * .64f),
-                            cornerRadius = CornerRadius(3f))
-                        drawRect(Color(0xFFD5B479),
-                            topLeft = pos + Offset(tileSize * .08f, tileSize * .26f),
-                            size = Size(tileSize * .84f, tileSize * .18f))
-                    }
-                    "bed" -> {
-                        drawRoundRect(Color(0xFF715244),
-                            topLeft = pos + Offset(tileSize * .12f, tileSize * .13f),
-                            size = Size(tileSize * .76f, tileSize * .77f),
-                            cornerRadius = CornerRadius(3f))
-                        drawRoundRect(Color(0xFFE6CFAC),
-                            topLeft = pos + Offset(tileSize * .20f, tileSize * .20f),
-                            size = Size(tileSize * .60f, tileSize * .54f),
-                            cornerRadius = CornerRadius(3f))
-                        drawRect(Color(0xFFB4D9CD),
-                            topLeft = pos + Offset(tileSize * .21f, tileSize * .20f),
-                            size = Size(tileSize * .58f, tileSize * .18f))
-                    }
-                    "campfire" -> {
-                        drawCircle(Color(0xFFFFD58D).copy(alpha = .25f),
-                            tileSize * .53f, centre(x, y))
-                        drawCircle(Color(0xFFFF9F52), tileSize * .27f, centre(x, y))
-                        drawCircle(Color(0xFFFFEA99), tileSize * .15f,
-                            centre(x, y) + Offset(0f, -tileSize * .11f))
-                    }
-                }
-                if (night) drawRect(Color(0xFF15214B).copy(alpha = .29f),
-                    topLeft = pos, size = Size(tileSize, tileSize))
-                if (x == target.first && y == target.second) drawRect(Color(0xFFFFECAC),
-                    topLeft = pos + Offset(1f, 1f),
-                    size = Size(tileSize - 2f, tileSize - 2f), style = Stroke(2.5f))
-            }
+        with(BlockIslandArt) {
+            paint(
+                island = island, selected = target, left = left, top = top,
+                cols = cols, rows = rows, night = night, phase = phase,
+                impact = impact, impactProgress = impactProgress,
+            )
         }
-        w.mobs.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
-            .forEach { mob ->
-                drawCircle(Color(0xFF493048), tileSize * .39f, centre(mob.x, mob.y))
-                drawCircle(Color(0xFFFF9BA1), tileSize * .09f,
-                    centre(mob.x, mob.y) + Offset(-tileSize * .12f, -tileSize * .05f))
-                drawCircle(Color(0xFFFF9BA1), tileSize * .09f,
-                    centre(mob.x, mob.y) + Offset(tileSize * .12f, -tileSize * .05f))
-            }
-        w.friends.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
-            .forEach { friend ->
-                drawCircle(Color(0xFF8BD7ED), tileSize * .37f, centre(friend.x, friend.y))
-                drawCircle(Color(0xFF36576F), tileSize * .17f,
-                    centre(friend.x, friend.y) + Offset(0f, tileSize * .09f))
-            }
-        drawCircle(Color(0xFF1D403D).copy(alpha = .45f),
-            tileSize * .46f, centre(w.x, w.y) + Offset(2f, 3f))
-        drawCircle(Color(0xFFFFE9C8), tileSize * .39f, centre(w.x, w.y))
-        drawCircle(Color(0xFF658B82), tileSize * .19f,
-            centre(w.x, w.y) + Offset(0f, tileSize * .1f))
-        drawCircle(Color.White, tileSize * .07f,
-            centre(w.x, w.y) + Offset(tileSize * .12f, -tileSize * .10f))
     }
 }
