@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T04:39:52.343949+00:00",
-  "commit": "b0f72066948bf8181402dcd940d62347849292fe",
+  "generatedAt": "2026-10-28T04:40:48.303623+00:00",
+  "commit": "519fdc4c474f0657a0b02f6a974fd85209566680",
   "branch": "main",
-  "sourceFingerprint": "292122123dbb884d5351537e415600e2463a10f1b31be9fb66ea5c1345c2e6df",
+  "sourceFingerprint": "e795062a0b78e6e8e18c07f9c76c9ae4380d21cae3714b141b0b9541ee89ec93",
   "summary": {
-    "files": 993,
-    "lines": 197765,
-    "symbols": 2918
+    "files": 994,
+    "lines": 197802,
+    "symbols": 2920
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1986,6 +1986,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
         "line": 467
+      }
+    ],
+    "Plan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
+        "line": 9
+      }
+    ],
+    "build": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
+        "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
+        "line": 25
       }
     ],
     "Phase": [
@@ -9370,12 +9386,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
         "line": 18
-      }
-    ],
-    "build": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
-        "line": 25
       }
     ],
     "report": [
@@ -18027,6 +18037,21 @@
       "lines": 128,
       "sha256": "fbacd6b1f34add462657ed2c57ea9105b6676b2239d4203f4f6090c9fd6c24aa",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
+      "lines": 37,
+      "sha256": "03859aa8100433a6073344d46abcaad246ac413666c7887f7db2db4e0ccb46fc",
+      "symbols": [
+        {
+          "name": "Plan",
+          "line": 9
+        },
+        {
+          "name": "build",
+          "line": 10
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
