@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:35:57.274816+00:00",
-  "commit": "ab387c1d53bd4990fd406122b7b3dfec47e37356",
+  "generatedAt": "2026-10-28T10:36:18.230418+00:00",
+  "commit": "422c7e5a6b100a84a538ea27e921c01a479e6cd5",
   "branch": "main",
-  "sourceFingerprint": "c4048ac42348bf8af4826b2c6e745cc5dca129259a886d4d06ba06b696a09276",
+  "sourceFingerprint": "38fa773c9842ce3a5e96eb2931433c1632c5dd122a8fa1880e9e7a45072d50bf",
   "summary": {
     "files": 1038,
-    "lines": 209916,
+    "lines": 209975,
     "symbols": 3046
   },
   "symbolIndex": {
@@ -1379,7 +1379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 762
+        "line": 814
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2009,7 +2009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 785
+        "line": 837
       }
     ],
     "Plan": [
@@ -11845,7 +11845,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 736
+        "line": 788
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12359,7 +12359,7 @@
     "markRecorded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 781
+        "line": 833
       }
     ],
     "index": [
@@ -29495,8 +29495,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 367,
-      "sha256": "367db11c9041ddc901155972c8f1ace04c7ec371a14c3ffebf77824d1647927c",
+      "lines": 374,
+      "sha256": "aedaaf031ece69edea8c38852627748254e5429aa5e2dd80209dd7089ca89be3",
       "symbols": [
         {
           "name": "origin",
@@ -29707,24 +29707,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 790,
-      "sha256": "c57e29acaea84b980a33b1ab0193e68dbda0f4ec177c4437126b839a4777366e",
+      "lines": 842,
+      "sha256": "c8f151da671ff61a91ee905f0b1fd58eab3478a37ae3c4362481d3918ac63ed0",
       "symbols": [
         {
           "name": "load",
-          "line": 736
+          "line": 788
         },
         {
           "name": "save",
-          "line": 762
+          "line": 814
         },
         {
           "name": "markRecorded",
-          "line": 781
+          "line": 833
         },
         {
           "name": "reset",
-          "line": 785
+          "line": 837
         }
       ]
     },

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ab387c1d53bd4990fd406122b7b3dfec47e37356`
+- 基准提交：`422c7e5a6b100a84a538ea27e921c01a479e6cd5`
 - 分支：`main`
 - 已索引文件：1038
-- 已索引代码/文本行：209916
+- 已索引代码/文本行：209975
 - 已发现符号：3046
 
 | 文件 | 行数 | 符号数 |
@@ -604,14 +604,14 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 367 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 374 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 508 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 466 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 482 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 680 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt` | 425 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 790 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 842 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt` | 150 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt` | 313 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt` | 421 | 2 |
