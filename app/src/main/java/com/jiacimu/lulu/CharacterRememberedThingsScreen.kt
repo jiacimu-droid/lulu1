@@ -58,6 +58,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val knowledgeRevision by CharacterLearningLedger.revisions.collectAsState()
     val ownerRevision by CharacterDevelopmentStore.revisions.collectAsState()
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val ownerFacts = remember(characterId, ownerRevision, timelineRevision) {
         CharacterDevelopmentStore.active(characterId)
             .filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.VerifiedMethod) }
@@ -211,7 +212,8 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 } else {
                     if (timeline.isEmpty()) item { Text("还没有匹配的原始记录", color = LuluColors.Muted) }
                     items(timeline.take(count), key = { it.id }) { event ->
-                        CharacterOriginalEventCard(event, timeline, onDelete = { deletingEvent = event })
+                        CharacterOriginalEventCard(event, timeline, timelineRevision, mindRevision,
+                            onDelete = { deletingEvent = event })
                     }
                 }
                 val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
@@ -320,12 +322,11 @@ internal fun CharacterEvidenceDetails(characterId: String, evidenceIds: Collecti
 
 @Composable
 private fun CharacterOriginalEventCard(event: SharedTimelineEvent,
-    timeline: List<SharedTimelineEvent>, onDelete: () -> Unit) {
+    timeline: List<SharedTimelineEvent>, timelineRevision: Long, mindRevision: Long,
+    onDelete: () -> Unit) {
     val context = LocalContext.current
     var expanded by rememberSaveable(event.id) { mutableStateOf(false) }
     val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
-    val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
-    val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
     val trace = remember(event.id, event.revision, expanded, timelineRevision, mindRevision, timeline) {
         if (expanded) CharacterCausalTrace.inspect(context, event.characterId, event, timeline)
         else emptyList()
