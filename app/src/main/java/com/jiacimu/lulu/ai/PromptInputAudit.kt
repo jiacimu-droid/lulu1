@@ -96,11 +96,17 @@ internal object PromptInputAudit {
         if (content.isBlank()) return emptyList()
         if (label == "任务规则/工具协议" && instruction != null) {
             val suffix = "本次任务：" + instruction
-            if (content.endsWith(suffix)) {
-                val common = content.dropLast(suffix.length)
+            // An attached new-avatar photo adds authored observation guidance
+            // AFTER the task instruction. endsWith() then failed to split
+            // the enormous action contract, mislabelling it as generic rules.
+            val instructionAt = content.lastIndexOf(suffix)
+            if (instructionAt >= 0) {
+                val common = content.substring(0, instructionAt)
+                val trailing = content.substring(instructionAt + suffix.length)
                 return listOf("基础身份与通用规则" to common).filter { it.second.isNotEmpty() } +
                     listOf("本轮任务指令 / 前缀" to "本次任务：") +
-                    splitHeadings("本轮任务指令", instruction)
+                    splitHeadings("本轮任务指令", instruction) +
+                    listOf("附加视觉观察规则" to trailing).filter { it.second.isNotEmpty() }
             }
         }
         if (label in setOf(
