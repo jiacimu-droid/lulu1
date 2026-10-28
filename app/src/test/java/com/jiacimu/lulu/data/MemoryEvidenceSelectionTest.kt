@@ -93,7 +93,7 @@ class MemoryEvidenceSelectionTest {
     @Test fun narrativeMetadataNeverEvictsOriginalEvidenceWhenBudgetIsSmall() {
         val first = event("first").copy(taskId = "same-task")
         val next = event("next", 5).copy(taskId = "same-task")
-        val small = MemoryEvidenceSelection.render(listOf(first, next), characterBudget = 115)
+        val small = MemoryEvidenceSelection.render(listOf(first, next), characterBudget = 96)
         assertEquals(listOf("first"), small.ids)
         assertTrue(small.text.contains("原始内容first"))
         assertFalse(small.text.contains("同任务事件链"))
