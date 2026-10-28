@@ -94,3 +94,5 @@
 - 本轮在原 RoleDayScheduleStore/ResidentDailyDecision 上恢复：有同一原 dueAt、已保存 execute 选择和真实完成 evidenceId 的单次居民计划允许仅续接独立步骤；跳过已完成主动作的再次调用，复用 OrderedCharacterActions 原步骤 requestId 和 ToolRouter 幂等回执。主动作落盘时保留正在运行的居民 Worker；若进程中断，原 restorePending 可安排同一已保存决定的有限恢复。撤销、改期、重复日程和没有真实完成证据的 completed 状态不借此重新授权。原有两次恢复预算仍生效。
 - 同时修复 runOnce/runDuePlan 在读取已保存选择之前强制解析模型连接的问题：已有决定的离线续接不再依赖旧模型存档，只有新的付费决策需要连接；不额外发起 LLM 请求。
 - 增加真实 ToolRouter 主动态完成→日程 completed→重启恢复附加动态恰好一次、模型存档清除仍可恢复的 Robolectric 回归。**本段为源码变更记录，CI、APK、真机状态以随后工作流结果为准。**
+
+- **本轮完整构建验收（2026-10-28）**：单测写法纠正提交 `c7768e20e46b5d4ca90dd794df7e346a827346e0`；同期居民副动作修复提交 `3675eee68e5d17939fdabdeb6e6841fd87dc377d` 后的合并主分支 CI [#40634865886](https://github.com/jiacimu-droid/lulu1/actions/runs/40634865886) **completed/success**：Live2D 语音动作 JS 测试、Android JVM `testDebugUnitTest`、`assemblePhone` 和发布均通过；[Lulu v6106 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6106/Lulu-arm64.apk) 真实已发布（28,326,592 字节）。被新 HEAD 取消的 #40634647057 不作为成功证据；**真实 Android 视频多句动作与 PCM 口型仍待手动真机验收**。
