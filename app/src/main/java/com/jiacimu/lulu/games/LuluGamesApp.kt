@@ -38,6 +38,8 @@ import java.time.format.DateTimeFormatter
 private sealed interface GameRoute {
     data object Home : GameRoute
     data object DeepSea : GameRoute
+    data object BlockIsland : GameRoute
+    data object RelicEscape : GameRoute
     data object PerfectMan : GameRoute
     data object Roleplay : GameRoute
     data object TurtleSoup : GameRoute
@@ -97,7 +99,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         return
     }
 
-    val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch)
+    val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
 
     Scaffold(
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
@@ -146,6 +148,8 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
+                GameRoute.BlockIsland -> ExpeditionScreen(store, ExpeditionMode.HOMESTEAD)
+                GameRoute.RelicEscape -> ExpeditionScreen(store, ExpeditionMode.RELIC_RUN)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
@@ -166,6 +170,8 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
 private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
     GameRoute.DeepSea -> "深海回声"
+    GameRoute.BlockIsland -> "方块小岛"
+    GameRoute.RelicEscape -> "迷雾摸金"
     GameRoute.PerfectMan -> "满分男"
     GameRoute.Roleplay -> "跑团"
     GameRoute.TurtleSoup -> "海龟汤"
@@ -179,12 +185,10 @@ private fun GameRoute.title(): String = when (this) {
 
 private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
     "deep_sea", "deep_sea_journey" -> GameRoute.DeepSea
-    "perfect_man" -> GameRoute.PerfectMan
-    "roleplay" -> GameRoute.Roleplay
+    "block_island" -> GameRoute.BlockIsland
+    "relic_escape" -> GameRoute.RelicEscape
     "turtle_soup" -> GameRoute.TurtleSoup
-    "rapport_quiz" -> GameRoute.RapportQuiz
     "yacht_dice" -> GameRoute.YachtDice
-    "gomoku" -> GameRoute.Gomoku
     "memory_match" -> GameRoute.MemoryMatch
     else -> GameRoute.Home
 }
@@ -204,15 +208,13 @@ private fun GameHome(
         accent = Color(0xFF66D7CC),
     )
     val featured = listOf(
-        GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4, Color(0xFF655F84)),
-        GameLauncher("memory_match", "记忆配对", "保留完整翻牌与角色对局，用立体翻转和舞台光效重做。", Icons.Outlined.GridView, GameRoute.MemoryMatch, accent = Color(0xFF75658C)),
+        GameLauncher("block_island", "方块小岛", "采集木石、搭房子、建基地；和角色一起打怪，家园退出后仍存在。", Icons.Outlined.Forest, GameRoute.BlockIsland, 0, 3, Color(0xFF8ED6A6)),
+        GameLauncher("relic_escape", "迷雾摸金", "组队搜宝箱、对抗怪物，带战利品回撤离门；失败会失去本局宝物。", Icons.Outlined.Explore, GameRoute.RelicEscape, 0, 3, Color(0xFFF1C785)),
     )
     val classics = listOf(
-        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan, accent = Color(0xFF876B7A)),
-        GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
-        GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3, Color(0xFF8A675E)),
-        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，可以自己玩，也可以四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
-        GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku, accent = Color(0xFF6D6E72)),
+        GameLauncher("memory_match", "记忆配对", "翻牌找出相同图案，保留真实对局与回放。", Icons.Outlined.GridView, GameRoute.MemoryMatch, 1, 1, Color(0xFF75658C)),
+        GameLauncher("turtle_soup", "海龟汤", "提问、推理，和角色一起破解谜题。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
+        GameLauncher("yacht_dice", "快艇骰子", "五颗骰子掷三次，可单人也可多人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
     )
     var showClassics by remember { mutableStateOf(false) }
 
@@ -225,8 +227,8 @@ private fun GameHome(
         item { DeepSeaFeaturedEntry(deepSea, onOpen) }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("主舞台", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
-                Text("完整进度、角色参与和可回放结算", color = Color(0xFF8E99AA), fontSize = 10.sp)
+                Text("合作探索", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("持久世界 · 共同战斗 · 实际战利品", color = Color(0xFF8E99AA), fontSize = 10.sp)
             }
         }
         items(featured, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
@@ -241,7 +243,7 @@ private fun GameHome(
                 Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.SportsEsports, null, tint = Color(0xFFB9C3D5), modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(9.dp))
-                    Text("轻量经典 · ${classics.size}", color = Color(0xFFDCE2EE), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("保留的小游戏 · ${classics.size}", color = Color(0xFFDCE2EE), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                     Icon(if (showClassics) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null, tint = Color(0xFF9CA7BA))
                 }
             }
@@ -282,14 +284,14 @@ private fun GameHallHero() {
                     border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
                 ) {
                     Text(
-                        "3 个主舞台 · 5 款轻量经典",
+                        "2 座新世界 · 4 款保留游戏",
                         color = Color(0xFFD9DFED),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
                     )
                 }
-                Text("从小游戏，进入游戏世界", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                Text("一起探索，才是真正的游戏", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(
                     "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。",
                     color = Color(0xFFBBC4D8),
@@ -350,7 +352,7 @@ private fun DeepSeaFeaturedEntry(launcher: GameLauncher, onOpen: (GameRoute) -> 
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(color = Color(0xFF9AFFF0).copy(alpha = .15f), shape = RoundedCornerShape(99.dp), border = BorderStroke(1.dp, Color(0xFF9AFFF0).copy(alpha = .28f))) {
-                        Text("NEW · 沉浸主舞台", color = Color(0xFFB9FFF2), fontSize = 9.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                        Text("深海探索 · 继续游玩", color = Color(0xFFB9FFF2), fontSize = 9.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
                     }
                     Spacer(Modifier.weight(1f))
                     Surface(shape = CircleShape, color = Color.White.copy(alpha = .10f), modifier = Modifier.size(38.dp)) {
@@ -481,6 +483,7 @@ private fun GameParticipantPickerScreen(
 
 private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
     GameRoute.DeepSea -> 0 to 1
+    GameRoute.BlockIsland, GameRoute.RelicEscape -> 0 to 3
     GameRoute.Roleplay -> 1 to 4
     GameRoute.TurtleSoup, GameRoute.RapportQuiz -> 1 to 3
     GameRoute.YachtDice -> 0 to 3
