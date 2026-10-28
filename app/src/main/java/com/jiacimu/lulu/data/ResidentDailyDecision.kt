@@ -484,7 +484,8 @@ internal object ResidentDailyDecision {
      * are never allowed to inherit the due activity's planId.
      */
     internal suspend fun executeWakeSteps(context: Context, role: String,
-        decision: JSONObject, turnId: String, initialCompleted: Boolean = true): Int {
+        decision: JSONObject, turnId: String, initialCompleted: Boolean = true,
+        causeEvidenceId: String = ""): Int {
         val original = decision.optJSONArray("steps") ?: return 0
         val steps = JSONArray()
         for (i in 0 until original.length()) {
@@ -505,6 +506,7 @@ internal object ResidentDailyDecision {
         }
         val report = OrderedCharacterActions.execute(context, role, steps,
             requestId = turnId, initialCompleted = initialCompleted,
+            causeEvidenceId = causeEvidenceId,
             autonomousLifeTurn = true, sceneAllowedTools = wakeTools,
             // Existing releases used these IDs; replay must recover the same
             // receipts instead of performing a second post/message/like.
@@ -700,6 +702,31 @@ internal object ResidentDailyDecision {
         return null
     }
 
+    /** An accepted due-time choice is a real character decision, NOT a completed
+     * activity. Give it a stable personal timeline source before any side effect.
+     * Recovery never rewrites its original timestamp/revision; deletion remains
+     * tombstoned, so withdrawn evidence cannot silently reappear. */
+    private fun dueDecisionEvidence(plan: RoleDayPlan, choice: JSONObject, at: Instant): String {
+        val id = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+        val existing = SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(id)).firstOrNull()
+        if (existing != null) return id
+        val tools = choice.optJSONArray("steps")
+        val selected = (0 until (tools?.length() ?: 0))
+            .mapNotNull { tools?.optJSONObject(it)?.optString("tool")?.takeIf(String::isNotBlank) }
+        SharedExperienceTimeline.record(
+            eventId = id, characterId = plan.characterId,
+            channel = "原住民·到点自主决定", speaker = "角色",
+            source = "resident-due-decision", evidenceKind = EventEvidenceKind.CharacterStatement,
+            taskId = plan.id, occurredAt = at, triggerExtraction = false,
+            content = "原计划：${plan.title.take(100)}；本人选择：${choice.optString("choice")}；" +
+                "本人理由：${choice.optString("reason").take(180)}；" +
+                "独立步骤：${selected.joinToString("、").take(250).ifBlank { "无" }}。" +
+                "这是本人已保存的决定，不能证明活动或附加动作已经执行。",
+        )
+        return SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(id))
+            .firstOrNull()?.id.orEmpty()
+    }
+
     /** Each due item receives one role decision on the normal path.
      * Only a confirmed malformed reply permits one same-role correction. */
     suspend fun runDuePlan(context: Context, plan: RoleDayPlan, at: Instant = Instant.now()): Boolean =
@@ -836,15 +863,16 @@ internal object ResidentDailyDecision {
                 "居民到点模型决定尚未保存，禁止开始执行"
             }
         }
+        val turnId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+        val decisionEvidenceId = dueDecisionEvidence(plan, choice, at)
         // Reschedule, cancel and wait are NOT successes of the original
         // activity. Perform independently selected side actions while the
         // original due slot still exists, so an interruption can replay them
         // using the same per-step request IDs. Moving/cancelling the slot first
         // would make the remaining side steps unreachable on process death.
         if (wanted in setOf("reschedule", "cancel", "wait")) {
-            executeWakeSteps(app, plan.characterId, choice,
-                "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
-                initialCompleted = false)
+            executeWakeSteps(app, plan.characterId, choice, turnId,
+                initialCompleted = false, causeEvidenceId = decisionEvidenceId)
         }
         var originalHandled = when (wanted) {
             "execute" -> if (resumeCompleted) {
@@ -866,7 +894,8 @@ internal object ResidentDailyDecision {
                 // rejection. A failed primary must not discard independent steps.
                 val receipt = JSONObject(ToolRouter.execute(app, plan.characterId,
                     plan.activityAction, args, requestId = "resident-plan-${plan.id}-${plan.dueAt.epochSecond}",
-                    autonomousLifeTurn = true, expectedPlanDueAt = plan.dueAt))
+                    autonomousLifeTurn = true, expectedPlanDueAt = plan.dueAt,
+                    causeEvidenceId = decisionEvidenceId))
                 receipt.optBoolean("success") &&
                     RoleDayScheduleStore.plans(app, plan.characterId).any {
                         it.id == plan.id && it.status == "completed"
@@ -906,9 +935,8 @@ internal object ResidentDailyDecision {
             else -> false
         }
         if (wanted == "execute") {
-            executeWakeSteps(app, plan.characterId, choice,
-                "native-wake-${plan.id}-${plan.dueAt.epochSecond}",
-                initialCompleted = originalHandled)
+            executeWakeSteps(app, plan.characterId, choice, turnId,
+                initialCompleted = originalHandled, causeEvidenceId = decisionEvidenceId)
         }
         if (wanted == "wait" && originalHandled) {
             // The original plan is still due after its independent side steps,
@@ -1278,13 +1306,20 @@ internal object ResidentDailyDecision {
         }
         val agenda = saveAgenda(app, native, json, now)
         val eventId = "native-daily-${native.id}-${date(now)}"
-        SharedExperienceTimeline.record(
-            eventId = eventId, characterId = id, channel = "原住民·每日自我安排",
-            speaker = native.name, source = "resident-daily", occurredAt = now,
-            evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
-            content = "本人选定的当天安排：午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。" +
-                "已排入真实日程的自主活动=${agenda.joinToString("；") { "${it.dueAt} ${it.title}" }}。计划均尚未执行。",
-        )
+        // A replay can occur minutes after the first save. Do not rewrite
+        // the same decision event with a newer occurredAt: that would bump
+        // its revision and sever the already persisted tool provenance.
+        if (SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).isEmpty()) {
+            SharedExperienceTimeline.record(
+                eventId = eventId, characterId = id, channel = "原住民·每日自我安排",
+                speaker = native.name, source = "resident-daily", occurredAt = now,
+                evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
+                content = "本人选定的当天安排：午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。" +
+                    "已排入真实日程的自主活动=${agenda.joinToString("；") { "${it.dueAt} ${it.title}" }}。计划均尚未执行。",
+            )
+        }
+        val decisionEvidenceId = SharedExperienceTimeline.eventsByIds(id, listOf(eventId))
+            .firstOrNull()?.id.orEmpty()
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
         val known = ResidentSocialMailbox.visibleContacts(id).toSet()
@@ -1317,16 +1352,16 @@ internal object ResidentDailyDecision {
         if (post.isNotBlank()) {
             MomentsStore.initialize(app)
             ToolRouter.execute(app, id, "publish_moment", JSONObject().put("text", post),
-                requestId = "$eventId-post")
+                requestId = "$eventId-post", causeEvidenceId = decisionEvidenceId)
         }
         val messageTo = json.optString("messageTo").trim()
         val message = json.optString("message").trim().take(MAX_MESSAGE)
         if (message.isNotBlank() && messageTo.isNotBlank()) {
             ToolRouter.execute(app, id, "send_character_message",
                 JSONObject().put("targetCharacterId", messageTo).put("text", message),
-                requestId = "$eventId-message")
+                requestId = "$eventId-message", causeEvidenceId = decisionEvidenceId)
         }
-        executeWakeSteps(app, id, json, "native-daily-${native.id}-${date(now)}")
+        executeWakeSteps(app, id, json, eventId, causeEvidenceId = decisionEvidenceId)
         check(CharacterPhoneInbox.acknowledgeObserved(id, unread)) {
             "已感知的手机未读动态尚未记录"
         }
