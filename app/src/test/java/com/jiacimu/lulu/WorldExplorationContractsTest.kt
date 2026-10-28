@@ -128,6 +128,51 @@ class WorldExplorationContractsTest {
         assertEquals(picked.size, picked.toSet().size)
     }
 
+    @Test fun optionalSalvageAndSeaLifeAreAllPhysicallyReachable() {
+        val map = buildDeepSeaMap()
+        val obstacles = map.reefs.map { it.obstacle }
+        (deepSeaRelics.map { it.position } + deepSeaCreatures.map { it.position }).forEach { destination ->
+            val route = worldFollowPath(map.start, destination, DEEP_SEA_WORLD_BOUNDS,
+                obstacles, DEEP_SEA_PLAYER_RADIUS)
+            assertTrue("Optional discovery is unreachable: $destination", route.isNotEmpty())
+            assertEquals(destination, route.last())
+            (listOf(map.start) + route).zipWithNext().forEach { (a, b) ->
+                (0..50).forEach { step ->
+                    assertFalse(obstacles.any {
+                        circleIntersects(a.lerp(b, step / 50f), DEEP_SEA_PLAYER_RADIUS, it.bounds)
+                    })
+                }
+            }
+        }
+    }
+
+    @Test fun hiddenRelicsNeedDiscoveryOrRealApproachAndNeverDuplicate() {
+        val obstacles = buildDeepSeaMap().reefs.map { it.obstacle }
+        val relic = deepSeaRelics.first()
+        assertNull(deepSeaNearbyRelic(buildDeepSeaMap().start, emptySet(), emptySet(), obstacles))
+        assertTrue(deepSeaRevealRelics(relic.position, emptySet()).contains(relic.id))
+        assertEquals(relic.id, deepSeaNearbyRelic(relic.position, emptySet(), emptySet(), obstacles)?.id)
+        assertNull(deepSeaNearbyRelic(relic.position, setOf(relic.id), setOf(relic.id), obstacles))
+        assertFalse(deepSeaRevealRelics(relic.position, setOf(relic.id)).contains(relic.id))
+        assertEquals(relic.id, deepSeaOptionalTarget(relic.position, setOf(relic.id), emptySet())?.id)
+        assertNull(deepSeaOptionalTarget(relic.position, setOf(relic.id), setOf(relic.id)))
+        val turtle = deepSeaCreatures.first()
+        assertEquals(turtle.id, deepSeaNearbyCreature(turtle.position, emptySet(), obstacles)?.id)
+        assertNull(deepSeaNearbyCreature(turtle.position, setOf(turtle.id), obstacles))
+    }
+
+    @Test fun currentsChangeMovementSpeedWithoutAddingUnreachableReefs() {
+        val slow = deepSeaCurrents.first()
+        val fast = deepSeaCurrents.last()
+        assertEquals(.72f, deepSeaCurrentAt(slow.center)!!.speedFactor, .001f)
+        assertEquals(1.22f, deepSeaCurrentAt(fast.center)!!.speedFactor, .001f)
+        assertNull(deepSeaCurrentAt(buildDeepSeaMap().start))
+        assertEquals(120 * deepSeaRelics.size + 45 * deepSeaCreatures.size + 30 * deepSeaSites.size,
+            deepSeaExplorationBonus(deepSeaRelics.map { it.id }.toSet(),
+                deepSeaCreatures.map { it.id }.toSet(), deepSeaSites.map { it.id }.toSet()))
+        assertEquals(0, deepSeaExplorationBonus(setOf("made-up"), emptySet(), emptySet()))
+    }
+
     @Test fun companionEnhancesSonarWithoutGrantingCollectedEchoes() {
         val map = buildDeepSeaMap()
         val position = WorldVector(1_120f, 800f)
@@ -180,14 +225,21 @@ class WorldExplorationContractsTest {
             assertEquals(setOf("echo-whale", "echo-city"), old.collected)
             assertTrue(old.scanned.isEmpty())
             assertTrue(old.visited.isEmpty())
+            assertTrue(old.survey.revealedRelics.isEmpty())
+            assertTrue(old.survey.salvagedRelics.isEmpty())
+            assertTrue(old.survey.observedCreatures.isEmpty())
             progress.save(old.position, old.collected, old.completed, old.score,
-                setOf("echo-whale"), setOf("whale-song"), 1, "role-a")
+                setOf("echo-whale"), setOf("whale-song"), 1, "role-a",
+                DeepSeaSurvey(setOf("relic-pearl"), setOf("relic-pearl"), setOf("creature-turtle")))
             val recovered = progress.load(buildDeepSeaMap().start)
             assertEquals(old.collected, recovered.collected)
             assertEquals(setOf("echo-whale"), recovered.scanned)
             assertEquals(setOf("whale-song"), recovered.visited)
             assertEquals(1, recovered.companionAssists)
             assertEquals("role-a", recovered.sessionCompanionId)
+            assertEquals(setOf("relic-pearl"), recovered.survey.revealedRelics)
+            assertEquals(setOf("relic-pearl"), recovered.survey.salvagedRelics)
+            assertEquals(setOf("creature-turtle"), recovered.survey.observedCreatures)
         } finally {
             prefs.edit().clear().commit()
         }
