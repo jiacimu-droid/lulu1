@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fc1b167274eabc0875e31e7425c4fa5450085594`
+- 基准提交：`ed2629d2a261f831c055c51a2f30a618d8915dc6`
 - 分支：`main`
-- 已索引文件：1018
-- 已索引代码/文本行：203897
-- 已发现符号：2968
+- 已索引文件：1020
+- 已索引代码/文本行：204070
+- 已发现符号：2972
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -294,10 +294,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 102 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 233 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 70 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 883 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 912 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 125 | 8 |
@@ -798,6 +799,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt` | 138 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 36 | 1 |

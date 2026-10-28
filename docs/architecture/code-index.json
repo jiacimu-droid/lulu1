@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:49:40.490233+00:00",
-  "commit": "fc1b167274eabc0875e31e7425c4fa5450085594",
+  "generatedAt": "2026-10-28T08:50:49.348945+00:00",
+  "commit": "ed2629d2a261f831c055c51a2f30a618d8915dc6",
   "branch": "main",
-  "sourceFingerprint": "b84c6f5a8c9a5cc5dd053aba846207be7a8731705d36aa72f83db45b4177b949",
+  "sourceFingerprint": "882004ca917e99ddf551409428850f2ea4556de594d944cc69f02ba9c51cc912",
   "summary": {
-    "files": 1018,
-    "lines": 203897,
-    "symbols": 2968
+    "files": 1020,
+    "lines": 204070,
+    "symbols": 2972
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4930,6 +4930,28 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
         "line": 189
+      }
+    ],
+    "Outcome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
+        "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
+        "line": 105
+      }
+    ],
+    "contractError": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
+        "line": 18
+      }
+    ],
+    "segments": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
+        "line": 24
       }
     ],
     "approvedBeats": [
@@ -11092,12 +11114,6 @@
         "line": 94
       }
     ],
-    "Outcome": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
-        "line": 105
-      }
-    ],
     "State": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -14560,6 +14576,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt",
         "line": 13
+      }
+    ],
+    "AutonomousEncounterDecisionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt",
+        "line": 14
       }
     ],
     "AutonomousEncounterPrivacyTest": [
@@ -21158,6 +21180,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
+      "lines": 70,
+      "sha256": "aab449c400ad370438ad2177dc1865fc6fe197145f2f7a5daf5924e9e9af95cf",
+      "symbols": [
+        {
+          "name": "Outcome",
+          "line": 8
+        },
+        {
+          "name": "contractError",
+          "line": 18
+        },
+        {
+          "name": "segments",
+          "line": 24
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
       "lines": 52,
       "sha256": "bdc911fb74be863229e4606d2699a6ecda2a0fb103a6561622d713e25c4b4bba",
@@ -21200,8 +21241,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 883,
-      "sha256": "70c4ebaea3202cbc2e1701a6f8829c739edffeeed9c844575d783e0e100d8207",
+      "lines": 912,
+      "sha256": "22999567558b5ddc41793e9c7867a7612186fdc25786c64c2d5b2cd061cc5103",
       "symbols": []
     },
     {
@@ -32342,6 +32383,17 @@
         {
           "name": "AutonomousEncounterChaptersTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt",
+      "lines": 74,
+      "sha256": "f10b0bc21960f2f16e76c3b193c7ae31f82c3a12381a6ccce36dc397de484f82",
+      "symbols": [
+        {
+          "name": "AutonomousEncounterDecisionTest",
+          "line": 14
         }
       ]
     },
