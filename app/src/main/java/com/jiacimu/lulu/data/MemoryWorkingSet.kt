@@ -12,6 +12,13 @@ internal object MemoryWorkingSet {
     fun assemble(context: UnifiedMemoryContext, lexicon: List<LexiconEntry>,
                  auxiliary: List<Pair<String, String>>, budget: PromptContextBudget,
                  coreSection: String): MemoryWorkingSelection {
+        // Old callers may supply only a single-role lexicon with an empty
+        // UnifiedMemoryContext. Preserve that path, but never merge diary
+        // entries from two characters when no owner was selected.
+        val lexiconOwners = lexicon.map { it.characterId }.filter(String::isNotBlank).distinct()
+        val owner = context.effectiveOwner.ifBlank {
+            lexiconOwners.singleOrNull().orEmpty()
+        }
         val candidates = buildList {
             // Full-mode gateways render this working set rather than the
             // standalone memorySection. Deliver the SAME recall guidance here,
@@ -60,7 +67,7 @@ internal object MemoryWorkingSet {
                     650, payload = memory.content, sources = memory.sourceIds().toSet(),
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
-            lexicon.filter { it.characterId == context.characterId && context.characterId.isNotBlank() }
+            lexicon.filter { owner.isNotBlank() && it.characterId == owner }
                 .forEachIndexed { index, entry ->
                 if (entry.section == LexiconSection.Concern) {
                     add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
