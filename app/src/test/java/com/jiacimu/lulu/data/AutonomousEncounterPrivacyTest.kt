@@ -98,4 +98,21 @@ class AutonomousEncounterPrivacyTest {
         assertTrue(a.none { it.contains("person-b") })
     }
 
+
+    @Test fun socialWorldOpportunitiesRequireRealCoLocatedPeople() {
+        val places = listOf(
+            DigitalWorldPublicPlaces.CAFE,
+            DigitalWorldPublicPlaces.GAME_HALL,
+            DigitalWorldPublicPlaces.COURTYARD,
+            DigitalWorldStore.CLOUD_MEADOW,
+        )
+        places.forEach { place ->
+            val alone = DigitalWorldLifeEventStore.socialOpportunityKinds(place, false)
+            val together = DigitalWorldLifeEventStore.socialOpportunityKinds(place, true)
+            assertTrue("No social world moment when alone at $place", alone.isEmpty())
+            assertTrue("Social moment available with witnesses at $place", together.isNotEmpty())
+        }
+        assertTrue(DigitalWorldLifeEventStore.socialOpportunityKinds("unknown", true).isEmpty())
+    }
+
 }
