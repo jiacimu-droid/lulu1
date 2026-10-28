@@ -211,7 +211,7 @@ private fun GameHome(
         GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan, accent = Color(0xFF876B7A)),
         GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
         GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3, Color(0xFF8A675E)),
-        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，支持最多四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 1, 3, Color(0xFF667653)),
+        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，可以自己玩，也可以四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
         GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku, accent = Color(0xFF6D6E72)),
     )
     var showClassics by remember { mutableStateOf(false) }
@@ -432,7 +432,7 @@ private fun GameParticipantPickerScreen(
                     Text(route.title(), color = if (dark) Color.White else GameDesign.ink, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(
                         when {
-                            limits.first == 0 -> "可以独自进入，也可以邀请 1 位角色同行"
+                            limits.first == 0 -> "可以单人游玩，也可以邀请最多 ${limits.second} 位角色同行"
                             limits.first == limits.second -> "请选择 ${limits.first} 位角色"
                             else -> "请选择 ${limits.first}—${limits.second} 位角色；加上你共可 ${limits.first + 1}—${limits.second + 1} 人游玩"
                         },
@@ -482,7 +482,8 @@ private fun GameParticipantPickerScreen(
 private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
     GameRoute.DeepSea -> 0 to 1
     GameRoute.Roleplay -> 1 to 4
-    GameRoute.TurtleSoup, GameRoute.RapportQuiz, GameRoute.YachtDice -> 1 to 3
+    GameRoute.TurtleSoup, GameRoute.RapportQuiz -> 1 to 3
+    GameRoute.YachtDice -> 0 to 3
     GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
     else -> 1 to 1
 }
@@ -720,7 +721,7 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
                 Text(launcher.subtitle, color = GameDesign.muted, fontSize = 12.sp, lineHeight = 17.sp)
                 Text(
                     when {
-                        launcher.minCharacters == 0 -> "可单人 · 可邀请 1 位角色"
+                        launcher.minCharacters == 0 -> "可单人 · 最多邀请 ${launcher.maxCharacters} 位角色"
                         launcher.maxCharacters > 1 -> "最多 " + (launcher.maxCharacters + 1) + " 人"
                         else -> "双人游戏"
                     },
