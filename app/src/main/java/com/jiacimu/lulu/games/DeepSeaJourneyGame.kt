@@ -62,6 +62,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
 
     var player by remember { mutableStateOf(safeRestoredPosition) }
     var camera by remember { mutableStateOf(WorldVector.Zero) }
+    var cameraInitialized by remember { mutableStateOf(false) }
     var joystick by remember { mutableStateOf(WorldVector.Zero) }
     var swimVelocity by remember { mutableStateOf(WorldVector.Zero) }
     var companionRoute by remember { mutableStateOf(emptyList<WorldVector>()) }
@@ -123,6 +124,11 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                 val dt = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
                 if (viewport == IntSize.Zero) return@withFrameNanos
+                if (!cameraInitialized) {
+                    camera = worldCameraTarget(player, viewportWorldWidth, viewportWorldHeight,
+                        DEEP_SEA_WORLD_WIDTH, DEEP_SEA_WORLD_HEIGHT)
+                    cameraInitialized = true
+                }
 
                 if (navigationRoute.firstOrNull()?.let { player.distanceTo(it) <= 6f } == true) {
                     navigationRoute = navigationRoute.drop(1)
