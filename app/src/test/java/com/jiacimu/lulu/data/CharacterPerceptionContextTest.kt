@@ -10,6 +10,59 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun mixedWorldAndPrivateEventsCannotEnterAnotherCharactersPerceptionOrLedger() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(context)
+        PerceptionStimulusLedger.initialize(context)
+        val a = "role-a-" + java.util.UUID.randomUUID()
+        val b = "role-b-" + java.util.UUID.randomUUID()
+        val now = Instant.now()
+        val aId = "private-a-" + java.util.UUID.randomUUID()
+        val bId = "private-b-" + java.util.UUID.randomUUID()
+        val sharedA = "group-a-" + java.util.UUID.randomUUID()
+        val sharedB = "group-b-" + java.util.UUID.randomUUID()
+        try {
+            SharedExperienceTimeline.record(aId, a, "数字世界事件", "观察者",
+                "A 独处时得到的私人消息", now.minusSeconds(60),
+                triggerExtraction = false, source = "digital-world",
+                evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record(bId, b, "数字世界事件", "观察者",
+                "B 在自己场景里看到的事实", now.minusSeconds(30),
+                triggerExtraction = false, source = "digital-world",
+                evidenceKind = EventEvidenceKind.Observation)
+            val mixed = SharedExperienceTimeline.eventsByIds(a, listOf(aId)) +
+                SharedExperienceTimeline.eventsByIds(b, listOf(bId))
+            val sensed = CharacterPerceptionContext.integrate(context, a, mixed,
+                deferAcknowledgement = true)
+            assertEquals(listOf(aId), sensed.freshStimuli.map { it.evidenceId })
+            assertFalse(sensed.combined?.description.orEmpty().contains("B 在自己场景里"))
+            CharacterPerceptionContext.acknowledge(context, a, sensed)
+            assertTrue(PerceptionStimulusLedger.hasSeen(context, a, aId, 1L))
+            assertFalse(PerceptionStimulusLedger.hasSeen(context, a, bId, 1L))
+            val other = CharacterPerceptionContext.integrate(context, b, mixed,
+                deferAcknowledgement = true)
+            assertEquals(listOf(bId), other.freshStimuli.map { it.evidenceId })
+            assertFalse(other.combined?.description.orEmpty().contains("A 独处时"))
+            // Truly shared group words should be witnessed independently.
+            SharedExperienceTimeline.record(sharedA, a, "群聊", "共同朋友",
+                "群里公开约好明天见面", now, triggerExtraction = false,
+                source = "group-membership", evidenceKind = EventEvidenceKind.Observation)
+            SharedExperienceTimeline.record(sharedB, b, "群聊", "共同朋友",
+                "群里公开约好明天见面", now, triggerExtraction = false,
+                source = "group-membership", evidenceKind = EventEvidenceKind.Observation)
+            val shared = SharedExperienceTimeline.eventsByIds(a, listOf(sharedA)) +
+                SharedExperienceTimeline.eventsByIds(b, listOf(sharedB))
+            assertEquals(listOf(sharedA), CharacterPerceptionContext.integrate(
+                context, a, shared, deferAcknowledgement = true).freshStimuli.map { it.evidenceId })
+            assertEquals(listOf(sharedB), CharacterPerceptionContext.integrate(
+                context, b, shared, deferAcknowledgement = true).freshStimuli.map { it.evidenceId })
+        } finally {
+            listOf(aId,bId,sharedA,sharedB).forEach(SharedExperienceTimeline::deleteEvent)
+            PerceptionStimulusLedger.clear(a)
+            PerceptionStimulusLedger.clear(b)
+        }
+    }
+
     @Test fun previouslySavedPhonePageVisitsStayArchivedButNeverWakeTheRole() {
         val app = org.robolectric.RuntimeEnvironment.getApplication()
         SharedExperienceTimeline.initialize(app)
