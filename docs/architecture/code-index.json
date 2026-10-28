@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T12:13:32.846339+00:00",
-  "commit": "e98e72f8d11ca13ad7dd2ae381756557a3a062e4",
+  "generatedAt": "2026-10-28T12:23:12.596343+00:00",
+  "commit": "7e7f09e68fa1c27dd09f83b7da2b8fc603cc3da7",
   "branch": "main",
-  "sourceFingerprint": "b53b334f11997149772e97a7011f3bebe0455492663655466172a22cba1afc6f",
+  "sourceFingerprint": "43805327776424d210401c4418fc0b3f87ffb35841a95098751b8ae6a09b4ff8",
   "summary": {
-    "files": 1039,
-    "lines": 211636,
+    "files": 1047,
+    "lines": 212827,
     "symbols": 3052
   },
   "symbolIndex": {
@@ -1951,7 +1951,7 @@
     "Entry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 26
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -1961,7 +1961,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 166
+        "line": 229
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -2033,7 +2033,7 @@
     "build": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
-        "line": 10
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
@@ -17361,6 +17361,54 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/live2d/wolf-motions/40_pout_sulk.motion3.json",
+      "lines": 149,
+      "sha256": "758e6b2d30b03b968ba232f043a37e7593cb6456a1ee68c680e6adce73756b13",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/41_worried_lean.motion3.json",
+      "lines": 142,
+      "sha256": "0df134e7298dc5170e6c27e09aa0df66ee384f9f5c58a4e7c9ec327e2429901b",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/42_coquettish_sway.motion3.json",
+      "lines": 120,
+      "sha256": "2fc150dbb419bf90148009431e66650abae19333f4c5e739fffc306846dded44",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/43_annoyed_turn_away.motion3.json",
+      "lines": 135,
+      "sha256": "8201346a5c3ea5786f305ca481a7511ce0ba04b2843808bc7e8fffc73ce5d3ce",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/44_zoning_out.motion3.json",
+      "lines": 135,
+      "sha256": "7ac7e9bcf177e309f66df8927d8598b95e5bbb02782f598d42bc5cea64f58cde",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/45_nervous_fidget.motion3.json",
+      "lines": 127,
+      "sha256": "da05c987ce1a89d2537eabe7af20c7fb963ec9eefbb5f17cfaf1d9da804dccbf",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/46_resigned_sigh.motion3.json",
+      "lines": 142,
+      "sha256": "30593b2376be4a1685fb5323546cde46b0502f735a18109ce634dd39f84011ba",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/47_confused_double_tilt.motion3.json",
+      "lines": 120,
+      "sha256": "7deb67abb88b15d3374fde7c366355061e739cb0ce7166094e8f214dc19f515b",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/stickers/animals.json",
       "lines": 1,
       "sha256": "27d1c0b2f0decd7a4344f2e2aeb9904168acdaa100a6b7e3e8e803a3a737bfc2",
@@ -18747,16 +18795,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 178,
-      "sha256": "51dcaeacda9e9496739461250b84e6a4062059019a55e0037f2bf6eadafd1933",
+      "lines": 241,
+      "sha256": "935af73683196a0a5c5615fa11e8a2c2c4695494ea8a59b2c529c1b3ad81dc51",
       "symbols": [
         {
           "name": "Entry",
-          "line": 26
+          "line": 30
         },
         {
           "name": "describe",
-          "line": 166
+          "line": 229
         }
       ]
     },
@@ -18810,8 +18858,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
-      "lines": 37,
-      "sha256": "03859aa8100433a6073344d46abcaad246ac413666c7887f7db2db4e0ccb46fc",
+      "lines": 76,
+      "sha256": "75aacfe17da9bdd98f69f1a98d6cced54d2d9d35bdf7f1d37c531cf2accd2fd7",
       "symbols": [
         {
           "name": "Plan",
@@ -18819,7 +18867,7 @@
         },
         {
           "name": "build",
-          "line": 10
+          "line": 42
         }
       ]
     },
@@ -32361,8 +32409,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 55,
-      "sha256": "d09e3fb3d0050c54e61426b9a8a14ae6b78976c6f062eb3c4ef28775550e517d",
+      "lines": 58,
+      "sha256": "2ef39f704b66ce84ba58d10ab865a6cfa5ae3d20c4f54a385f21f4be80fac518",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
@@ -32394,8 +32442,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt",
-      "lines": 42,
-      "sha256": "9fed119034fcab048470212c4a41b29b869087c9d500dc057a3680dada84cf12",
+      "lines": 58,
+      "sha256": "cd8f35c01b55c2a5b541119dd836fbc4684ce7a1d01f6a072059a6f1479db7d5",
       "symbols": [
         {
           "name": "Live2DSpeechAnchorPlanTest",
