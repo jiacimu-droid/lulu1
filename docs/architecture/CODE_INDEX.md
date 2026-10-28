@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`33f150d6e803354a78d7566642cc17068e6a448a`
+- 基准提交：`3d89341b9da2f8a3344447a9e59895a8b4240982`
 - 分支：`main`
 - 已索引文件：993
-- 已索引代码/文本行：197591
+- 已索引代码/文本行：197648
 - 已发现符号：2918
 
 | 文件 | 行数 | 符号数 |
@@ -785,7 +785,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 105 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 104 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 75 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 132 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 112 | 1 |
