@@ -983,9 +983,10 @@ class ProactivePerceptionWorker(
         if (com.jiacimu.lulu.ai.isNonRetryableModelFailure(it)) {
             // Preserve the unsent user turn, but do not retry the identical
             // provider-rejected payload via WorkManager.
-            if (characterId != null) {
+            val failedRole = inputData.getString("characterId").orEmpty()
+            if (failedRole.isNotBlank()) {
                 inputData.getLong("onlineRevision", -1L).takeIf { it >= 0L }?.let { revision ->
-                    OnlineChatBatchStore.unmarkEnqueued(applicationContext, characterId, revision)
+                    OnlineChatBatchStore.unmarkEnqueued(applicationContext, failedRole, revision)
                 }
             }
             Result.failure()
