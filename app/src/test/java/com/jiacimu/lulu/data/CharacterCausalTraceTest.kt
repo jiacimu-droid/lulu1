@@ -146,10 +146,13 @@ class CharacterCausalTraceTest {
         val present = CharacterCausalTrace.inspect(context, a, event(a, "trace-receipt"),
             SharedExperienceTimeline.all(a), JSONObject())
         assertTrue(present.any { it.title == "原生结果记录" && it.evidenceId == "trace-native" })
+        val oldReceipt = event(a, "trace-receipt")
         SharedExperienceTimeline.deleteEvent("trace-native")
-        val missing = CharacterCausalTrace.inspect(context, a, event(a, "trace-receipt"),
-            SharedExperienceTimeline.all(a), JSONObject())
-        assertTrue(missing.any { it.detail.contains("不存在或已撤回") })
+        // The authoritative timeline retracts tool receipts that only
+        // summarized this deleted native effect; the diagnostic cannot revive it.
+        assertTrue(SharedExperienceTimeline.eventsByIds(a, listOf("trace-receipt")).isEmpty())
+        assertTrue(CharacterCausalTrace.inspect(context, a, oldReceipt,
+            SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
         val original = event(a, "trace-origin")
         SharedExperienceTimeline.deleteEvent("trace-origin")
         assertTrue(CharacterCausalTrace.inspect(context, a, original,
