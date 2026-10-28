@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:58:52.515083+00:00",
-  "commit": "9d2d17ce463a36af99f5ec202a7cc46c285fd5d1",
+  "generatedAt": "2026-10-28T05:59:14.200022+00:00",
+  "commit": "ec980268c2e31dfeac111af7bb095446da44d73d",
   "branch": "main",
-  "sourceFingerprint": "bb34439cf8294ba40cda023e5cc3ebe8547752c70bf292e93cfb22baa4d85800",
+  "sourceFingerprint": "717278c917be036c78a1483d95cd325116327faee384e4635f8abe15c4b87258",
   "summary": {
     "files": 1002,
-    "lines": 199684,
+    "lines": 199694,
     "symbols": 2934
   },
   "symbolIndex": {
@@ -407,7 +407,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 69
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
@@ -1877,7 +1877,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 51
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -4099,7 +4099,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 62
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -5683,13 +5683,13 @@
     "classifyDelivery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 41
+        "line": 51
       }
     ],
     "classifyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 47
+        "line": 57
       }
     ],
     "isExpressionOnly": [
@@ -21554,8 +21554,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-      "lines": 82,
-      "sha256": "b231b8049da65cc1c3dd8f4df0303903ae1177818cec2767543a2e17b37864c8",
+      "lines": 92,
+      "sha256": "6922d02118bec5b90f20f9a460e4ab485969f2ffb5966d7ca1d1fbae2102d228",
       "symbols": [
         {
           "name": "guide",
@@ -21563,23 +21563,23 @@
         },
         {
           "name": "classifyDelivery",
-          "line": 41
-        },
-        {
-          "name": "classifyText",
-          "line": 47
-        },
-        {
-          "name": "record",
           "line": 51
         },
         {
+          "name": "classifyText",
+          "line": 57
+        },
+        {
+          "name": "record",
+          "line": 61
+        },
+        {
           "name": "recent",
-          "line": 62
+          "line": 72
         },
         {
           "name": "context",
-          "line": 69
+          "line": 79
         }
       ]
     },
@@ -26435,7 +26435,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2854,
-      "sha256": "94044e5b50e98ecf91feaf0a51569b092c13d6169c7f6e7d8fc3afe7825efa43",
+      "sha256": "ba93ffa45beed9976a05b66f3ed6bb1719a23eb637a8f150c42c5e0129956ba3",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -30499,7 +30499,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2060,
-      "sha256": "8ec15e6ccd7d9b5efdec11c19aedcc51e94a1cefd5d080d2586363ea511bb47a",
+      "sha256": "7922df507aaba8bb4535ebd12f8576795db971a650190f257e5dacc4a9ea6331",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
