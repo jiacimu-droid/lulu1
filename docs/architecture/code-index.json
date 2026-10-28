@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T09:09:54.612182+00:00",
-  "commit": "9de9ce43b651b79ef7af08e64adbf82deca858b3",
+  "generatedAt": "2026-10-28T09:10:28.623097+00:00",
+  "commit": "52891a362515fa1ef19e10ffe7d85acc0ad546c4",
   "branch": "main",
-  "sourceFingerprint": "4f22461bab0e06cb847b7ee5dc4fc87aa0b7d880a3f7e58e5b9f05418815f59c",
+  "sourceFingerprint": "eef817f82ea6316bc4bc8c6533c406b1bcd20d30f14ff5301772f3a272e42d79",
   "summary": {
     "files": 1020,
-    "lines": 204406,
+    "lines": 204415,
     "symbols": 2975
   },
   "symbolIndex": {
@@ -4933,7 +4933,7 @@
     "AutonomousEncounterChaptersWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 189
+        "line": 197
       }
     ],
     "Outcome": [
@@ -21178,8 +21178,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 233,
-      "sha256": "b0c33cdc975ceafdbfd7a363c590c29e184fa2585f53eb2dfd0f94a511358f10",
+      "lines": 241,
+      "sha256": "b6a8bb4468de0bd2a3f37bac9f14ecc24e2590941a8192e02414de2b2ef396a8",
       "symbols": [
         {
           "name": "enqueue",
@@ -21191,7 +21191,7 @@
         },
         {
           "name": "AutonomousEncounterChaptersWorker",
-          "line": 189
+          "line": 197
         }
       ]
     },
@@ -21257,8 +21257,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 941,
-      "sha256": "c96ecc0a90a3376ae674244fcbc33aa784ab0e31ecc90f0b68acb4171c1f4876",
+      "lines": 942,
+      "sha256": "9cbb6ceb9044de1148d12fe2d0347ce2c8314d4c7a1686b6a48eb72b902a6e87",
       "symbols": []
     },
     {
