@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:13:37.176178+00:00",
-  "commit": "4b6e431f7e275759237c0efb08ca84691060bd2e",
+  "generatedAt": "2026-10-28T10:14:26.511865+00:00",
+  "commit": "94b6a465fc4a8bcfc76af9ef68aa4f1d56b98407",
   "branch": "main",
-  "sourceFingerprint": "d533afd37a2f34d1b0caa68dee72df6f7e29293b9e8f3fc2c477cff5355ed600",
+  "sourceFingerprint": "7a834c39529a21be40cd66f2232a2438234c5d19b85c617948b37fdc4c3f962f",
   "summary": {
-    "files": 1029,
-    "lines": 206959,
+    "files": 1030,
+    "lines": 207024,
     "symbols": 3011
   },
   "symbolIndex": {
@@ -29519,6 +29519,12 @@
           "line": 558
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt",
+      "lines": 65,
+      "sha256": "6621bbf1fce8b1ae9602126d2083640a0f0ac370dd37c7070a6e2bd73b88e15b",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
