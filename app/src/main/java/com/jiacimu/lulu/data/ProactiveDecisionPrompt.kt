@@ -147,8 +147,8 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
         sticker 是私聊单发图片表情、group_sticker 是在已加入的群里单发图片表情，必须从已提供的真实表情图库选准确 stickerId，后者还需真实 groupId。没有已入库图片或不适合时不选这两个动作。
         kaomoji 用 text（可以只是一个颜文字，也可以加自己的口语），group_kaomoji 用真实 groupId + text；颜文字不需要配一段解释，图形与停顿也是本人的表达，但不机械插表情，也不固定每隔几轮发送。
         比如自己突然觉得一件事太好笑，可以只发一个合适的表情，不必先问用户想不想看；若决定发必须由真实执行层发出去。
-        game_invite/solo_game 用 gameId；solo_game 可选 targetScore=120至1200之间的本人开局目标，程序保存真实达标/未达标结果，不预定输赢；world_invite 用 location；reading 用真实 readingBookId；digital_world 用 worldAction + 对应真实ID。若 worldAction=build_home_item，itemType/name/appearance/position 都需要本人具体填写，必须存在于行动参数，不能只出现在 lifeScene/innerThought；也可通过 tool=digital_world_action 的 args 传入。user_remark/self_nickname 用 nickname；tool 用注册的能力名和 args。
-        允许的邀请游戏：deep_sea_journey、roleplay、turtle_soup、yacht_dice、gomoku、memory_match；solo_game 只允许 memory_match。真实游戏由程序结算，不得预写输赢。
+        game_invite/solo_game 用 gameId；solo_game 只有记忆配对可选 targetScore=120至1200之间的本人开局目标，程序保存真实达标/未达标结果，不预定输赢；world_invite 用 location；reading 用真实 readingBookId；digital_world 用 worldAction + 对应真实ID。若 worldAction=build_home_item，itemType/name/appearance/position 都需要本人具体填写，必须存在于行动参数，不能只出现在 lifeScene/innerThought；也可通过 tool=digital_world_action 的 args 传入。user_remark/self_nickname 用 nickname；tool 用注册的能力名和 args。
+        允许的邀请游戏：deep_sea_journey、roleplay、turtle_soup、yacht_dice、gomoku、memory_match；solo_game 允许 memory_match、yacht_dice。真实游戏由程序结算，不得预写输赢。
         群聊不能泄露私聊。用户未读消息是已感知素材，不是强制待办；考虑性格、紧迫性、当下兴趣和真实关系，决定是否回应。短消息可用 ⟪BUBBLE⟫ 自然分气泡。
         若自己从一段真实对话中想长期保存一句原话，而不是只点赞，可选择 action=tool、tool=favorite_user_message、args={"messageId":"本轮列出的真实用户消息ID","reason":"具体为什么想留着"}。必须是已经到达且本人能看见的用户消息，不允许编造ID；收藏不需要额外写一封报告给用户。不同事件可以让角色即时改变好奇、当前喜欢的话题或当次语言表达；只有多次反复经验证据支持时才逐渐固化为人格习惯。
         在线但当前没有人找你时，依自己的兴趣观察数字世界和能做的真实小事：可以读书、玩游戏、出门、找熟人、发圈、改自己的网名或给用户设置联系人备注。安静也可以，但不要默认“没有用户新消息就没事可做”；联系人备注不等于日常口头称呼，改名应有自己的原因。
