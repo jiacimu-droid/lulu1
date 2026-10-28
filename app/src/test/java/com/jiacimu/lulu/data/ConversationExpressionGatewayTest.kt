@@ -78,6 +78,55 @@ class ConversationExpressionGatewayTest {
     }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun bestFriendIdentitySurvivesPrivatePlannerAndLeanRendererWithoutSharingOtherRolesStyle() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val server = MockWebServer()
+        repeat(3) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"收到。"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val history = listOf(
+                ModelConversationMessage(ModelConversationMessage.Role.USER, "归蜜～"),
+                ModelConversationMessage(ModelConversationMessage.Role.ASSISTANT, "你在说哪部小说吗？"),
+                ModelConversationMessage(ModelConversationMessage.Role.USER, "不是啦，是在叫你呢"),
+            )
+            for (source in listOf("聊天工具规划", "聊天表达渲染")) {
+                LuluAiServices.gateway.generate("lulu",
+                    "这一轮由本人判断前后语境，保留当前关系",
+                    "用本人身份延续这段熟人聊天", source, "test",
+                    connectionOverride = connection,
+                    contextMode = if (source == "聊天表达渲染")
+                        CompanionContextMode.CharacterAndScenario else CompanionContextMode.Full,
+                    memoryRequest = UnifiedMemoryRequest(
+                        currentInput = history.last().content, sceneContext = "私聊"),
+                    conversation = history).getOrThrow()
+                val system = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                    .getJSONArray("messages").getJSONObject(0).getString("content")
+                assertTrue(system.contains("最好的闺蜜"))
+                assertTrue(system.contains("同音字"))
+                assertTrue(system.contains("不把普通闺蜜聊天演成二次元剧情"))
+                assertTrue(system.contains("星禾"))
+            }
+            LuluAiServices.gateway.generate(CharacterLifeStore.BUNDLED_JIANG_DU_ID,
+                "另一个人物的聊天", "保持自己的人格", "聊天表达渲染", "test",
+                connectionOverride = connection,
+                contextMode = CompanionContextMode.CharacterAndScenario,
+                memoryRequest = UnifiedMemoryRequest(currentInput = "你好", sceneContext = "私聊"),
+            ).getOrThrow()
+            val anotherSystem = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                .getJSONArray("messages").getJSONObject(0).getString("content")
+            assertFalse(anotherSystem.contains("不把普通闺蜜聊天演成二次元剧情"))
+            assertFalse(anotherSystem.contains(CharacterProfileSchema.xingHeFriendship))
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun renderAndRepairKeepTheSameVoiceWithoutReceivingASecondPlannerContract() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
