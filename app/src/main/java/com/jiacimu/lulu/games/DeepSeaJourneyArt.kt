@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -72,6 +73,8 @@ internal fun DrawScope.drawDeepSeaWorld(
     revealedRelics: Set<String> = emptySet(),
     salvagedRelics: Set<String> = emptySet(),
     observedCreatures: Set<String> = emptySet(),
+    playerHeading: Float = 0f,
+    companionHeading: Float = 0f,
 ) {
     drawRect(
         Brush.verticalGradient(
@@ -221,8 +224,8 @@ internal fun DrawScope.drawDeepSeaWorld(
         map.gate.toOffset(),
     )
 
-    companion?.let { drawDeepSeaDiver(it, phase, companion = true) }
-    drawDeepSeaDiver(player, phase, companion = false)
+    companion?.let { drawDeepSeaSubmersible(it, phase, companion = true, heading = companionHeading) }
+    drawDeepSeaSubmersible(player, phase, companion = false, heading = playerHeading)
 
     drawRect(
         Brush.verticalGradient(
@@ -317,20 +320,49 @@ private fun DrawScope.drawEchoCrystal(position: WorldVector, phase: Float, index
     drawPath(crystal, Color.White.copy(alpha = .75f), style = Stroke(3f))
 }
 
-private fun DrawScope.drawDeepSeaDiver(position: WorldVector, phase: Float, companion: Boolean) {
-    val body = if (companion) Color(0xFFB88972) else Color(0xFFE1B866)
-    val direction = if (companion) -1f else 1f
-    drawOval(Color.Black.copy(alpha = .28f), Offset(position.x - 46f, position.y + 35f), Size(92f, 26f))
-    drawRoundRect(body, Offset(position.x - 39f, position.y - 30f), Size(78f, 64f), CornerRadius(25f))
-    drawCircle(Color(0xFFBDEAE3), 27f, Offset(position.x + direction * 34f, position.y - 3f))
-    drawCircle(Color.White.copy(alpha = .55f), 27f, Offset(position.x + direction * 34f, position.y - 3f), style = Stroke(4f))
-    drawRoundRect(Color(0xFF223A42), Offset(position.x - direction * 51f - 12f, position.y - 22f), Size(24f, 47f), CornerRadius(8f))
-    drawLine(body.copy(alpha = .95f), Offset(position.x - 21f, position.y + 25f), Offset(position.x - 55f, position.y + 49f + sin(phase * 12f) * 8f), 11f, StrokeCap.Round)
-    drawLine(body.copy(alpha = .95f), Offset(position.x + 6f, position.y + 28f), Offset(position.x - 22f, position.y + 61f - sin(phase * 12f) * 8f), 11f, StrokeCap.Round)
-    drawCircle(Color(0xFFC7FFF2).copy(alpha = .35f), 8f, Offset(position.x - direction * 62f, position.y - 41f - phase * 20f))
-    drawCircle(Color(0xFFC7FFF2).copy(alpha = .25f), 5f, Offset(position.x - direction * 75f, position.y - 70f - phase * 30f))
+private fun DrawScope.drawDeepSeaSubmersible(position: WorldVector, phase: Float, companion: Boolean, heading: Float) {
+    val center = position.toOffset()
+    val paint = if (companion) Color(0xFFBF8E89) else Color(0xFFE8BF79)
+    rotate(degrees = heading, pivot = center) {
+        val lamp = Path().apply {
+            moveTo(position.x + 37f, position.y - 12f)
+            lineTo(position.x + 295f, position.y - 94f)
+            lineTo(position.x + 295f, position.y + 94f)
+            lineTo(position.x + 37f, position.y + 12f)
+            close()
+        }
+        drawPath(lamp, Brush.horizontalGradient(
+            listOf(Color(0xFFB4FFF1).copy(alpha = .18f), Color.Transparent),
+            startX = position.x + 37f, endX = position.x + 295f))
+        // Rear fin and spinning propeller remain distinct from the glass cockpit.
+        drawOval(Color.Black.copy(alpha = .23f), Offset(position.x - 50f, position.y + 29f), Size(105f, 19f))
+        drawRoundRect(Color(0xFF244354), Offset(position.x - 57f, position.y - 13f),
+            Size(20f, 28f), CornerRadius(7f))
+        drawLine(Color(0xFF96D9C7).copy(alpha = .8f), Offset(position.x - 63f, position.y - 19f),
+            Offset(position.x - 63f, position.y + 19f), 5f, StrokeCap.Round)
+        drawRoundRect(paint, Offset(position.x - 45f, position.y - 27f), Size(99f, 54f), CornerRadius(26f))
+        drawRoundRect(Brush.verticalGradient(listOf(Color.White.copy(alpha = .22f), Color.Transparent)),
+            Offset(position.x - 40f, position.y - 24f), Size(87f, 24f), CornerRadius(20f))
+        drawRoundRect(Color(0xFF2C5866), Offset(position.x - 17f, position.y - 36f),
+            Size(40f, 12f), CornerRadius(5f))
+        drawCircle(Color(0xFF7EBDC5), 23f, Offset(position.x + 13f, position.y - 1f))
+        drawCircle(Color(0xFF1D5368), 18f, Offset(position.x + 13f, position.y - 1f))
+        drawCircle(Brush.radialGradient(listOf(Color(0xFFD9FFF8).copy(alpha = .85f),
+            Color(0xFF5FB7BD).copy(alpha = .50f))),
+            12f, Offset(position.x + 8f, position.y - 7f))
+        drawCircle(Color.White.copy(alpha = .78f), 4f, Offset(position.x + 5f, position.y - 11f))
+        drawRoundRect(Color(0xFF33566B), Offset(position.x - 23f, position.y + 24f),
+            Size(35f, 10f), CornerRadius(5f))
+        drawCircle(Color(0xFFFFEEB4), 8f, Offset(position.x + 53f, position.y))
+        // Continuous small trail reads as movement without fast particle strobing.
+        repeat(3) { bubble ->
+            val drift = (phase * 115f + bubble * 37f) % 110f
+            drawCircle(Color(0xFFB2F9E8).copy(alpha = .30f - bubble * .065f),
+                4f + bubble * 2f, Offset(position.x - 70f - drift, position.y - 15f - bubble * 10f),
+                style = Stroke(2f))
+        }
+    }
 }
-
 
 private fun DrawScope.drawDeepSeaRelic(relic: DeepSeaRelic, phase: Float) {
     val p = relic.position.toOffset()
