@@ -90,7 +90,38 @@ object CharacterLifeStore {
         val character = characters.settings.value[characterId] ?: return
         val root = state(characterId)
         val profileVersion = root.optInt("xingHeProfileVersion")
-        if (profileVersion >= 2) return
+        if (profileVersion >= 3) return
+        if (profileVersion == 2) {
+            // This is a narrow friendship-language upgrade, not a reset.
+            // A renamed contact or user-edited profile/persona is authoritative.
+            if (character.displayName != "星禾") return
+            if (!root.has("xingHeV2UpgradeBackup")) {
+                root.put("xingHeV2UpgradeBackup", JSONObject()
+                    .put("persona", character.persona)
+                    .put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString()))
+                    .put("userRelationship", JSONObject((root.optJSONObject("relationshipAgreements")
+                        ?.optJSONObject("user") ?: JSONObject()).toString())))
+                save(characterId, root)
+            }
+            if (character.persona == CharacterProfileSchema.xingHeV2Persona) {
+                characters.update(character.copy(persona = CharacterProfileSchema.xingHePersona))
+            }
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            CharacterProfileSchema.xingHeV2UpdatedFields.forEach { (key, previous) ->
+                if (profile.has(key) && profile.optString(key) == previous) {
+                    profile.put(key, CharacterProfileSchema.xingHeProfile.getValue(key))
+                }
+            }
+            val userAgreement = root.optJSONObject("relationshipAgreements")?.optJSONObject("user")
+            if (userAgreement != null && userAgreement.optString("details") ==
+                CharacterProfileSchema.xingHeV2Friendship) {
+                userAgreement.put("details", CharacterProfileSchema.xingHeFriendship)
+                    .put("updatedAt", Instant.now().toString())
+            }
+            root.put("profile", profile).put("xingHeProfileVersion", 3)
+            save(characterId, root)
+            return
+        }
         if (profileVersion == 1) {
             // Only advance the authored v1 defaults. A user-edited value,
             // including an intentionally empty one, remains authoritative.
@@ -114,6 +145,9 @@ object CharacterLifeStore {
             }
             root.put("profile", profile).put("xingHeProfileVersion", 2)
             save(characterId, root)
+            // Run the exact-match v2 -> v3 upgrade in this same launch, not
+            // only after another app restart. Both upgrades protect edits.
+            migrateLegacyLuluToXingHe()
             return
         }
         // Do not hijack a legacy slot that the owner has already renamed to
@@ -151,7 +185,7 @@ object CharacterLifeStore {
             .put("updatedAt", Instant.now().toString()))
         root.put("profile", profile)
             .put("relationshipAgreements", agreements)
-            .put("xingHeProfileVersion", 2)
+            .put("xingHeProfileVersion", 3)
         // Legacy butler nicknames and Jiang Du version flags cannot continue
         // overriding the explicitly changed character identity.
         root.remove("socialNames")
