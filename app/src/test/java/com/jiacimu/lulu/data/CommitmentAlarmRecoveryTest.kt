@@ -183,7 +183,11 @@ class CommitmentAlarmRecoveryTest {
         assertEquals("person-a", own.characterId)
         assertEquals("person-a", own.characterName)
         assertFalse(LuluAlarmSystem.list().any { it.characterId == "lulu" })
+        assertTrue(context.getSharedPreferences("lulu_alarm_store", Context.MODE_PRIVATE)
+            .getString("alarms_v1", "").orEmpty().contains("不能误投给星禾"))
         LuluAlarmSystem.cancel(own.id)
+        assertTrue(context.getSharedPreferences("lulu_alarm_store", Context.MODE_PRIVATE)
+            .getString("alarms_v1", "").orEmpty().contains("不能误投给星禾"))
     }
 
     @Test fun futureAlarmAndSilentReviewSurviveRegistrationRestore() {
