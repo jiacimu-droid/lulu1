@@ -134,6 +134,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     var showRoleFavorites by rememberSaveable { mutableStateOf(false) }
     var showRoleCalendar by rememberSaveable { mutableStateOf(false) }
     var showRoleBrowser by rememberSaveable { mutableStateOf(false) }
+    var showRoleAlbum by rememberSaveable { mutableStateOf(false) }
     var selectedThreadKey by rememberSaveable { mutableStateOf<String?>(null) }
     var rolesExpanded by remember { mutableStateOf(false) }
     var pinRevision by remember { mutableIntStateOf(0) }
@@ -194,6 +195,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
     fun goBack() {
         when {
             showRoleCalendar -> showRoleCalendar = false
+            showRoleAlbum -> showRoleAlbum = false
             showRoleBrowser -> showRoleBrowser = false
             showRoleFavorites -> showRoleFavorites = false
             selectedThreadKey != null -> selectedThreadKey = null
@@ -230,7 +232,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser) {
+            if (selectedThread != null && !showRoleFavorites && !showRoleBrowser && !showRoleAlbum) {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -257,6 +259,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     title = when {
                         showRoleFavorites -> "我的收藏"
                         showRoleBrowser -> "浏览器"
+                        showRoleAlbum -> "相册"
                         else -> when (phoneTab) {
                             1 -> "好友"
                             2 -> "朋友圈"
@@ -266,7 +269,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     },
                     onBack = ::goBack,
                     actions = {
-                        if (!showRoleFavorites && !showRoleBrowser) Box {
+                        if (!showRoleFavorites && !showRoleBrowser && !showRoleAlbum) Box {
                             TextButton(onClick = { rolesExpanded = true },
                                 enabled = roleOptions.isNotEmpty()) {
                                 Text(names[actualRole] ?: "选择手机", maxLines = 1)
@@ -315,7 +318,9 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            if (showRoleBrowser) {
+            if (showRoleAlbum) {
+                RolePhoneAlbum(actualRole)
+            } else if (showRoleBrowser) {
                 RolePhoneBrowserHistory(actualRole)
             } else if (showRoleFavorites) {
                 RolePhoneFavorites(actualRole)
@@ -514,6 +519,7 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
                     onFavorites = { showRoleFavorites = true },
                     onCalendar = { showRoleCalendar = true },
                     onBrowser = { showRoleBrowser = true },
+                    onAlbum = { showRoleAlbum = true },
                 )
             }
         }
@@ -648,6 +654,7 @@ internal fun rolePhoneCoverPalette(preset: String): List<Color> = when (preset) 
 private fun RolePhoneMyPage(
     roleId: String, roleName: String, roleAvatarUri: String?,
     onFavorites: () -> Unit, onCalendar: () -> Unit, onBrowser: () -> Unit,
+    onAlbum: () -> Unit,
 ) {
     val lifeStates by CharacterLifeStore.states.collectAsState()
     val life = remember(roleId, lifeStates) { CharacterLifeStore.state(roleId) }
@@ -695,6 +702,9 @@ private fun RolePhoneMyPage(
         }
         item("browser") {
             RolePhoneMyLink(Icons.Outlined.TravelExplore, "浏览器", onBrowser)
+        }
+        item("album") {
+            RolePhoneMyLink(Icons.Outlined.PhotoLibrary, "相册", onAlbum)
         }
         item("remark") {
             ChatHubV2Card {
