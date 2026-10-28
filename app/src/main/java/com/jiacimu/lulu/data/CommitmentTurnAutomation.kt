@@ -198,15 +198,20 @@ object CommitmentTurnAutomation {
         characterId: String,
         task: CommitmentTask?,
     ) {
-        if (task == null) return
+        // This UI receipt is only for a concrete timed wake-up. A generic
+        // undated duty to supervise studying, bedtime and morning routines
+        // must never be reported as a failed native wake alarm.
+        if (task == null || task.dueAt == null || !task.isWakeResponsibility()) return
         val content = when (task.status) {
             CommitmentTaskStatus.Scheduled ->
                 if (!task.linkedAlarmId.isNullOrBlank()) {
                     "${if (task.deliveryAction == "start_call") "角色来电" else "本机响铃"}已登记 · ${task.goal}。可在「日程·约定」查看执行状态。" +
                         if (task.lastActionResult.contains("非精确")) " 手机未授予精确闹钟权限，可能延迟。" else ""
                 } else "叫醒尚未真正登记到手机，请检查日程任务状态。"
-            CommitmentTaskStatus.Blocked, CommitmentTaskStatus.NeedsClarification ->
-                "叫醒约定未能安排成功：${task.lastActionResult.take(110)}。请检查日程和手机权限。"
+            CommitmentTaskStatus.NeedsClarification ->
+                "叫醒还未登记：${task.lastActionResult.take(110)}。请先明确叫醒方式或时间。"
+            CommitmentTaskStatus.Blocked ->
+                "叫醒登记失败：${task.lastActionResult.take(110)}。请查看日程和相关权限。"
             else -> return
         }
         val failedId = "wake-choice-failed:${userMessage.id}:$characterId"
