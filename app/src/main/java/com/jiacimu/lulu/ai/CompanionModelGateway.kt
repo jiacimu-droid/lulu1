@@ -807,9 +807,14 @@ class CompanionModelGateway(
             // new role identity, no fake reply or action is introduced.
             val originalBytes = RelayRequestPressurePolicy.payloadBytes(
                 systemPrompt, userPrompt, dialogueHistory, imagesForThisTurn)
+            val largestSections = systemSections.asSequence()
+                .map { (label, content) -> label to content.length }
+                .filter { it.second > 0 }.sortedByDescending { it.second }
+                .take(3).joinToString(",") { (label, count) -> "$label:$count" }
             failedRequestShape =
                 "systemChars=${systemPrompt.length};currentChars=${userPrompt.length};" +
-                "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size}"
+                "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size};" +
+                "largestSections=$largestSections"
             val reducedSystem = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactSections(systemSections) else ""
             val reducedHistory = if (RelayRequestPressurePolicy.canRecover(source))
@@ -1249,11 +1254,16 @@ class CompanionModelGateway(
         if (status == 413) return ModelHttpException(status,
             "模型请求失败（413）：中转服务拒收过大的请求体，可能是图像数据或上下文过多；" +
                 "阅读原始记录未删除。请检查本次请求的实际发送字节数与中转限制。")
-        val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
-            .getOrNull()
-            .orEmpty()
-            .ifBlank { raw.take(500) }
-        return ModelHttpException(status, "模型请求失败（$status）：$message")
+        val providerError = runCatching { JSONObject(raw).optJSONObject("error") }.getOrNull()
+        val message = providerError?.optString("message").orEmpty().ifBlank { raw.take(500) }
+        // Preserve a machine-readable provider error code when available.
+        // A generic HTTP 400 is not enough to decide whether the input was
+        // blocked or the request schema was invalid.
+        val providerCode = providerError?.optString("code").orEmpty()
+            .takeIf { it.length <= 50 && it.matches(Regex("[A-Za-z0-9_]+")) }.orEmpty()
+        val codeNote = providerCode.takeIf { it.isNotBlank() && !message.contains(it, true) }
+            ?.let { "；providerCode=$it" }.orEmpty()
+        return ModelHttpException(status, "模型请求失败（$status）：$message$codeNote", providerCode)
     }
 }
 
@@ -1268,7 +1278,11 @@ private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().co
 private fun elapsedMillis(startedAtNanos: Long): Long =
     ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
 
-internal class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
+internal class ModelHttpException(
+    val status: Int,
+    message: String,
+    val providerCode: String = "",
+) : IllegalStateException(message)
 
 /** A content/parameter/auth rejection is terminal for the identical payload.
  * Reconsider only after the context, permissions or model settings change.
@@ -1281,6 +1295,8 @@ internal fun isNonRetryableModelFailure(error: Throwable): Boolean =
 internal fun shouldRetryWithoutStreaming(error: Throwable): Boolean {
     if (error !is ModelHttpException || error.status !in setOf(400, 422)) return false
     val message = error.message.orEmpty().lowercase()
+    if (error.providerCode in setOf("prohibited_content", "safety", "blocklist", "jailbreak",
+            "content_blocked", "invalid_request", "invalid_argument")) return false
     if ("prohibited_content" in message || "safety" in message ||
         "policy" in message || "content" in message) return false
     return ("stream" in message || "流式" in message) &&
