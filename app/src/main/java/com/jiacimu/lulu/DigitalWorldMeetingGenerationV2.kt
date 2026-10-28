@@ -210,7 +210,7 @@ internal suspend fun meetingGenerateReplyV2(
             appendLine(sceneBefore.promptSection())
             val observedInteractions = com.jiacimu.lulu.data.CharacterPerceptionContext.recent(characterId)
             if (observedInteractions.isNotEmpty()) {
-                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedInteractions))
+                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(characterId, observedInteractions))
             }
             if (session.reality == MeetingReality.DIGITAL_WORLD) {
                 WorldFirstExplorationMemory.promptSectionIfAvailable("digital-world", limit = 10)
