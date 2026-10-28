@@ -306,7 +306,7 @@ internal object BlockIslandRules {
                     }),
                     fruit = s.fruit + if (dead) 1 else 0,
                 )
-                message = if (dead) "击退怪物，得到野果 +1" else "攻击怪物，造成$damage点伤害"
+                message = if (dead) "击退怪物，得到野果 +1" else "攻击怪物，造成${damage}点伤害"
             }
             else -> return reject("未知操作")
         }
