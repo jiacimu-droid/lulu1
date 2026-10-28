@@ -269,7 +269,7 @@ internal object CharacterAssociativeRecall {
                     appendLine("- [eventId=" + event.id + "@" + event.revision + "；" +
                         event.evidenceKind + "；" + event.occurredAt + "] " +
                         event.channel + episodeHints[event.id].orEmpty() + "：" +
-                        event.evidenceContent.replace("\\n", " ").take(180))
+                        event.evidenceContent.replace("\n", " ").take(180))
                 }
             }
             if (unfinishedThoughts.isNotEmpty()) {
