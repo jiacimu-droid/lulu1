@@ -185,11 +185,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         }
                         Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)) {
                             Row(horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                                RelicCommand("向目标一步",Modifier.weight(1f)) {
+                                RelicCommand("向目标一步",Modifier.weight(1f),enabled=visible) {
                                     val step=RelicEscapeRules.path(run,hero.x,hero.y,sx,sy)
                                     if(step!=null)action("move",step.first,step.second)
                                 }
-                                RelicCommand("潜行一步",Modifier.weight(1f)) {
+                                RelicCommand("潜行一步",Modifier.weight(1f),enabled=visible) {
                                     val step=RelicEscapeRules.path(run,hero.x,hero.y,sx,sy)
                                     if(step!=null)action("sneak",step.first,step.second)
                                 }
@@ -319,9 +319,11 @@ private fun relicDirection(dx:Int,dy:Int):String=
         run.lost.forEach{Text("遗失 · "+it.tier.label+" "+it.name+" · "+it.value,color=relicRed)}
         if(run.secured.isEmpty() && run.lost.isEmpty())Text("本局没有带出宝物",color=relicMuted)
         Text("成员战况",color=Color.White,fontWeight=FontWeight.Bold)
-        Text("玩家 · 生命"+run.hero.hp+" · 救援"+run.hero.rescues+"次",color=relicMuted)
+        Text("玩家 · 生命"+run.hero.hp+" · 救援"+run.hero.rescues+"次 · 受伤"+
+            run.events.count{it.who=="player" && it.action=="hurt"}+"次",color=relicMuted)
         run.allies.forEach{ally->
-            Text(ally.id+" · 生命"+ally.hp+" · 救援"+ally.rescues+" · 倒地"+ally.downs+" · "+
+            Text(ally.id+" · 生命"+ally.hp+" · 救援"+ally.rescues+" · 倒地"+ally.downs+
+                " · 受伤"+run.events.count{it.who==ally.id && it.action=="hurt"}+"次 · "+
                 if(run.events.any{it.who==ally.id && it.action=="escape"})"撤离" else "未撤离",
                 color=relicMuted,fontSize=12.sp)
         }

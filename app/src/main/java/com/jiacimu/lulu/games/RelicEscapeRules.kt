@@ -243,7 +243,7 @@ internal object RelicEscapeRules {
                             .log(a.id,"open","队友 "+a.id+" 搜到 "+loot.name)
                     } else {
                         val target=if(s.hero.hp<=0) s.hero.x to s.hero.y else if(s.phase==RelicPhase.EXTRACT) s.exitX to s.exitY
-                            else s.chests.filter{!it.opened && a.load<CAPACITY}
+                            else s.chests.filter{!it.opened && a.load<CAPACITY && distance(a.x,a.y,it.x,it.y)<=4}
                                 .minByOrNull{distance(a.x,a.y,it.x,it.y)}?.let{it.x to it.y}
                                 ?: (s.hero.x to s.hero.y)
                         val step=path(s,a.x,a.y,target.first,target.second)

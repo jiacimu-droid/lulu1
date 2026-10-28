@@ -1,7 +1,7 @@
 package com.jiacimu.lulu.games
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
     private fun cleared():RelicEscapeLedger {
-        val context=ApplicationProvider.getApplicationContext<Context>()
+        val context=RuntimeEnvironment.getApplication()
         context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE).edit().clear().commit()
         return RelicEscapeLedger(context)
     }
@@ -84,7 +84,7 @@ class RelicEscapeRulesTest {
         val failed=ledger.perform("abandon")
         assertEquals(RelicPhase.FAILURE,failed.run?.phase)
         assertEquals(1,failed.awarded.size)
-        val reopened=RelicEscapeLedger(ApplicationProvider.getApplicationContext<Context>())
+        val reopened=RelicEscapeLedger(RuntimeEnvironment.getApplication())
         assertEquals(failed,reopened.read())
         val again=reopened.perform("abandon")
         assertEquals(failed.awarded,again.awarded)
