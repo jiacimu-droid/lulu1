@@ -607,6 +607,16 @@ class ResidentDailyContinuityTest {
         p.edit().putString("attempt:${native.id}", day)
             .putString("decision:${native.id}:$day", decision.toString())
             .putString("phase:${native.id}:$day", "decided").commit()
+        // Simulate a crash after the model choice was recorded but before
+        // all of its effects were committed. Recovery must not rewrite the
+        // source event with a newer timestamp and invalidate old receipts.
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val sourceId = "native-daily-${native.id}-$day"
+        SharedExperienceTimeline.record(sourceId, actor, "原住民·每日自我安排",
+            native.name, "本人原先已保存的选择；尚未执行", now.minusSeconds(100),
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val originalSource = SharedExperienceTimeline.eventsByIds(actor, listOf(sourceId)).single()
         val server = MockWebServer()
         server.start()
         try {
@@ -621,6 +631,10 @@ class ResidentDailyContinuityTest {
             assertTrue(ResidentDailyDecision.runOnce(app, native, now))
             assertEquals(0, server.requestCount)
             assertEquals("home", ResidentDailyDecision.planFor(app, native.id, now)?.optString("lunch"))
+            val after = SharedExperienceTimeline.eventsByIds(actor, listOf(sourceId)).single()
+            assertEquals(originalSource.revision, after.revision)
+            assertEquals(originalSource.occurredAt, after.occurredAt)
+            assertEquals(originalSource.content, after.content)
             assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
             assertFalse(ResidentDailyDecision.runOnce(app, native, now))
         } finally {
