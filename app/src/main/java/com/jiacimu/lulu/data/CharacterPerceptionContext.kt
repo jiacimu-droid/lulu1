@@ -34,7 +34,16 @@ internal object CharacterPerceptionContext {
         val ownedObserved = observed.filter {
             it.characterId == characterId && it.source != "owner-phone-inspection"
         }
-        val sensed = (direct + ownedObserved.map(::stimulus))
+        // A mixed cross-role handoff can supply the same event both as an
+        // observed row and as a pre-rendered direct stimulus. Filtering only
+        // observed rows would let that foreign row back in through direct.
+        // Synthetic direct inputs (e.g. a live call without a saved event)
+        // remain valid; a known foreign row must never become my experience.
+        val foreignIds = observed.asSequence()
+            .filter { it.characterId != characterId }
+            .mapTo(hashSetOf()) { it.id }
+        val ownedDirect = direct.filterNot { it.evidenceId in foreignIds }
+        val sensed = (ownedDirect + ownedObserved.map(::stimulus))
             .filter { it.evidenceId.isNotBlank() }
             // Edited evidence may be present in both the direct input and the
             // authoritative timeline; only the latest revision is the new fact.
@@ -42,7 +51,7 @@ internal object CharacterPerceptionContext {
                 versions.maxByOrNull { it.revision }
             }
         val fresh = sensed.filter { stimulus ->
-            if (!claimDirect && direct.any { it.evidenceId == stimulus.evidenceId }) true
+            if (!claimDirect && ownedDirect.any { it.evidenceId == stimulus.evidenceId }) true
             else if (deferAcknowledgement)
                 !PerceptionStimulusLedger.hasSeen(context, characterId, stimulus.evidenceId, stimulus.revision)
             else PerceptionStimulusLedger.claim(context, characterId, stimulus)
