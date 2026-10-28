@@ -146,7 +146,7 @@ class CharacterCausalTraceTest {
             it.title.contains("执行前被拒绝") })
         assertFalse(lines.any { it.evidenceId == otherReceipt.id })
         SharedExperienceTimeline.deleteEvent(own)
-        assertTrue(CharacterCausalTrace.inspect(context, a, event(a, foreign),
+        assertTrue(CharacterCausalTrace.inspect(context, a, event(b, foreign),
             SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
         assertTrue(CharacterCausalTrace.inspect(context, a, ownReceipt,
             SharedExperienceTimeline.all(a), JSONObject())
