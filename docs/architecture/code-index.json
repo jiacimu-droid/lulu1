@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:57:27.440811+00:00",
-  "commit": "fcfcf1e33d8cb280a93e7371b4a6c9a78a892d02",
+  "generatedAt": "2026-10-28T05:57:47.073892+00:00",
+  "commit": "fd109df315f78c4497cd28da7b704fdae45f4b7c",
   "branch": "main",
-  "sourceFingerprint": "5f103a794127ff2ec71d745a1fba7f76e016a6f250da55155faef86060895894",
+  "sourceFingerprint": "37a47af1d36e04e62174f29b99a92f0e78137383d98c73a679742ce688593efd",
   "summary": {
     "files": 1002,
     "lines": 199661,
@@ -34208,7 +34208,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
       "lines": 1043,
-      "sha256": "301d6de5ef25e74be2d482fd2b0352830a1989b6bbf001a0ac6a64388229bad2",
+      "sha256": "e8601144233838e9d8860b4115fc34e06d6328ab6c1c6af0627da405528d9149",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
