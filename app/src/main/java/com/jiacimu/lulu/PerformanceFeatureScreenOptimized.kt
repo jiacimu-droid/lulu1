@@ -152,14 +152,14 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 val allocations = com.jiacimu.lulu.data.TokenConsolePresentation
                     .allocateReportedInput(record, groups)
                 if (allocations != null) {
-                    FastMetric("四大类合计（参考归属）", allocations.sum().toString() + " tok")
+                    FastMetric("文本分组参考合计", allocations.sum().toString() + " tok")
                     Text(
                         "已与接口输入总量对账；下面的各类数值按发送文本字符占比分摊，" +
                             "不是服务商逐类实测。不能凭这个比例确定每段实际分词成本。",
                         color = FastPerformanceMuted, fontSize = 11.sp,
                     )
                 } else {
-                    Text("本条无法按文本完整分摊实测 Token（旧记录、图片或字符核对失败）。",
+                    Text("本条含图片、旧记录或字符核对不完整，不能把接口实测 Token 按文本比例拆分。",
                         color = FastPerformanceMuted, fontSize = 11.sp)
                 }
                 FastMetric("原始字符公式（仅作参考）", totalEstimate.toString() + " tok")
@@ -195,8 +195,8 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                     FastMetric("归类明细项数", record.breakdown.size.toString())
                     val groupChars = groups.sumOf { it.chars }
                     val groupEstimated = groups.sumOf { it.estimatedTokens }
-                    FastMetric("四类原文字符核对", "$groupChars / ${record.textCharacters}")
-                    FastMetric("四类粗估核对", "$groupEstimated / $totalEstimate")
+                    FastMetric("文本分组字符核对", "$groupChars / ${record.textCharacters}")
+                    FastMetric("文本分组粗估核对", "$groupEstimated / $totalEstimate")
                     Text("核对的是客户端实际发送的文字，服务商可能计入消息结构或中转额外输入；" +
                         "只有供应商逐段返回 Token 才能给出严格真实分项。",
                         color = FastPerformanceMuted, fontSize = 11.sp)
@@ -223,12 +223,12 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                         if (record.requestBodyBytes > 0L) FastMetric("JSON封装/转义/媒体差额",
                             (record.requestBodyBytes - record.textUtf8Bytes -
                                 record.imageDataUrlBytes).toString() + " 字节")
-                        if (record.reducedRequest) Text("本次统计的是 Relay 精简重试实际发送的版本。",
+                        if (record.reducedRequest) Text("本次统计的是实际发送的临时精简上下文；原始记录未删除。",
                             color = FastPerformanceMuted, fontSize = 11.sp)
                     } else Text("旧版记录未保存完整请求审计，不能反推遗漏的请求细节。",
                         color = FastPerformanceMuted, fontSize = 11.sp)
                     Text(
-                        "服务商只提供整次真实 Token；分项为字符粗估。无图片且覆盖完整时，" +
+                        "服务商只提供整次真实 Token，图片的 Token 不等于图片 DataURL 字节；分项为字符粗估。无图片且覆盖完整时，" +
                             "大类可按字符比例分摊实测总量供定位；字节不等于 Token，差额不能直接视为漏统计。",
                         color = FastPerformanceMuted, fontSize = 11.sp,
                     )
