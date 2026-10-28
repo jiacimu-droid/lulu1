@@ -1352,6 +1352,9 @@ internal object OrderedCharacterActions {
         intentionId: String = "",
         initialCompleted: Boolean = true,
         userEvidenceIds: Set<String> = emptySet(),
+        // A model-owned resident decision may be the causal source even when
+        // no fresh user message exists. It is provenance, never tool permission.
+        causeEvidenceId: String = "",
         userText: String = "",
         explicitScreenRequest: Boolean = false,
         autonomousLifeTurn: Boolean = false,
@@ -1427,7 +1430,8 @@ internal object OrderedCharacterActions {
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
                     learningApplication = normalized.optJSONObject("learningApplication"),
-                    causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty(),
+                    causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty()
+                        .ifBlank { causeEvidenceId },
                     reason = normalized.optString("reason"), curiosity = normalized.optJSONObject("curiosity"),
                     motiveId = normalized.optString("motiveId"), concernId = normalized.optString("concernId"),
                     experienceId = normalized.optString("experienceId"),
