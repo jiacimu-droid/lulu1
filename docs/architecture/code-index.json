@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T11:56:01.235990+00:00",
-  "commit": "c8716183015f17ae74869dcd67e0fd63b4b25be4",
+  "generatedAt": "2026-10-28T11:57:00.592893+00:00",
+  "commit": "47b164d7f366c19ef80a1caf35f32a58319aa074",
   "branch": "main",
-  "sourceFingerprint": "17c3c2d1d199a9f5a1855f4ae2caf588fec74a1738bbdf2ad6c44dd9b3146638",
+  "sourceFingerprint": "18793adce0d75537af2ffa98101d6e824f7e5f406b08a3c9daf598fac394ac47",
   "summary": {
     "files": 1039,
-    "lines": 211621,
+    "lines": 211631,
     "symbols": 3052
   },
   "symbolIndex": {
@@ -1819,7 +1819,7 @@
     "choice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 140
+        "line": 147
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -1829,7 +1829,7 @@
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 167
+        "line": 174
       }
     ],
     "Sample": [
@@ -2201,7 +2201,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 210
+        "line": 213
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2215,25 +2215,25 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 221
+        "line": 224
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 278
+        "line": 281
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 288
+        "line": 291
       }
     ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 357
+        "line": 360
       }
     ],
     "Model": [
@@ -18616,8 +18616,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-      "lines": 190,
-      "sha256": "f9fcdfdd3fc90718f5190119e6d81f62c0e914bd1cba36f67d9002e13a998940",
+      "lines": 197,
+      "sha256": "9c404ba20d2691e341259614d54b1ee6e4ecd32213cf22fd8f2d2dac5c7c9dfe",
       "symbols": [
         {
           "name": "capabilityNote",
@@ -18637,11 +18637,11 @@
         },
         {
           "name": "choice",
-          "line": 140
+          "line": 147
         },
         {
           "name": "part",
-          "line": 167
+          "line": 174
         }
       ]
     },
@@ -18890,8 +18890,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 374,
-      "sha256": "8fc8e1a654b318d2d077dd3c94b87e8ee2ce608823e29dece6ebe9caf6a8ea8c",
+      "lines": 377,
+      "sha256": "591bf1ed87ec211925b7fb4fdefdff5310acc091fb13983dea3c51743cf4adc0",
       "symbols": [
         {
           "name": "Head",
@@ -18943,23 +18943,23 @@
         },
         {
           "name": "bounded",
-          "line": 210
+          "line": 213
         },
         {
           "name": "boundedBody",
-          "line": 221
+          "line": 224
         },
         {
           "name": "headNumber",
-          "line": 278
+          "line": 281
         },
         {
           "name": "bodyNumber",
-          "line": 288
+          "line": 291
         },
         {
           "name": "bindSpeechAnchors",
-          "line": 357
+          "line": 360
         }
       ]
     },
@@ -32296,7 +32296,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt",
       "lines": 138,
-      "sha256": "d965d79c9205ca0f9024f4aa5cfff948d9a5063137862ce38c82583f6b4b504d",
+      "sha256": "75982dbbb34ed3b476caa6abad14f61fc6002b1a5a1430654258279fa6dacb22",
       "symbols": [
         {
           "name": "Live2DConversationPerformanceTest",
