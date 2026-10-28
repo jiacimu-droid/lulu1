@@ -381,7 +381,14 @@ internal object AutonomousSocialRuntime {
                         "“${segment.text}”" else segment.text
                 }
             }
-            val roleModel = ScopedModelSelections.worldSocialConnection(speakerId)
+            val selectedModel = runCatching { ScopedModelSelections.worldSocialConnection(speakerId) }
+            if (selectedModel.isFailure) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界·人物相遇", title = "角色模型配置不可用",
+                    message = selectedModel.exceptionOrNull()?.message.orEmpty().take(160))
+                continue // Never silently route an unconfigured resident through an expensive model.
+            }
+            val roleModel = selectedModel.getOrNull()
             val response = LuluAiServices.gateway.generate(
                 characterId = speakerId,
                 facts = buildString {
@@ -476,6 +483,8 @@ internal object AutonomousSocialRuntime {
         tick: DigitalWorldLifeTick?,
         at: Instant,
     ): String {
+        val sceneConnection = runCatching { ScopedModelSelections.worldSceneConnection() }
+            .getOrNull() ?: return ""
         val suggestion = LuluAiServices.gateway.generate(
             characterId = participants.first(),
             facts = buildString {
@@ -502,7 +511,7 @@ internal object AutonomousSocialRuntime {
             title = "相遇时的互动可能性",
             maxTokens = 360,
             contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
-            connectionOverride = ScopedModelSelections.worldSceneConnection(),
+            connectionOverride = sceneConnection,
         ).getOrNull()?.text.orEmpty()
         val json = ModelStructuredOutput.objectOrNull(suggestion) ?: return ""
         val angle = json.optString("angle").trim().take(180)
