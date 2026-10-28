@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:26:32.544850+00:00",
-  "commit": "50d19cc43c4fa19ae3f4ea9511ef50030b27761b",
+  "generatedAt": "2026-10-28T05:27:17.007041+00:00",
+  "commit": "39cf1648aacd12d13e2933417bd9a9a06debd996",
   "branch": "main",
-  "sourceFingerprint": "5429d160dc7c29abe50536466f6afd76a47fa9c61b05fa296248ffa1ad9ff449",
+  "sourceFingerprint": "1a8447a21ac29af5fed3eb978fb498b73338fc75740836e6668d57b2b5c6d971",
   "summary": {
     "files": 1002,
     "lines": 199231,
@@ -33572,7 +33572,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
       "lines": 135,
-      "sha256": "3e5de367d1a008bf911a20e842cb7237e57625ebdf3e15542dc28f87c2604695",
+      "sha256": "82eb2dc79ac365efda91e9a3d86e4d924d5e8cf202b029e7058ee57dfd2501b3",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",
