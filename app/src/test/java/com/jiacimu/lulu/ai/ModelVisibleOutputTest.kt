@@ -17,6 +17,52 @@ import org.robolectric.annotation.Config
 class ModelVisibleOutputTest {
     private val privateText = "PRIVATE_ANALYSIS_MUST_NEVER_BECOME_SPEECH"
 
+    @Test fun prohibitedContent400DoesNotResendTheSameStreamingPrompt() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(400)
+            .setBody("""{"error":{"code":"prohibited_content","message":"AI Studio refused: prohibited_content"}}"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "rejection-test", "source snapshot", "decide once",
+                "后台主动感知", "test", contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            )
+            assertTrue(response.isFailure)
+            assertTrue(isNonRetryableModelFailure(response.exceptionOrNull()!!))
+            assertEquals("Content rejection must make only ONE HTTP request", 1, server.requestCount)
+            assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+        } finally { server.shutdown() }
+    }
+
+    @Test fun explicitUnsupportedStreamOptionMayFallbackOnceToNonStreaming() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(400)
+            .setBody("""{"error":{"message":"stream option is not supported by this relay"}}"""))
+        server.enqueue(MockResponse().setResponseCode(200)
+            .setBody("""{"choices":[{"message":{"content":"确实收到。"}}]}"""))
+        server.start()
+        try {
+            val response = gateway.generate(
+                "stream-compat-test", "", "reply once", "stream protocol test", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            ).getOrThrow()
+            assertEquals("确实收到。", response.text)
+            assertEquals(2, server.requestCount)
+            assertTrue(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+            assertFalse(server.takeRequest().body.readUtf8().contains("\"stream\":true"))
+        } finally { server.shutdown() }
+    }
+
     @Test fun jsonReasoningFieldsCannotSubstituteForMissingContent() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
