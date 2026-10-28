@@ -69,12 +69,16 @@ object ToolRouter {
                 // timeline ID: later authorization must not overwrite this
                 // rejection or turn it into an executed action.
                 val result = failure(message, status)
+                val cause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
+                    ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
                 val evidenceId = "tool-rejected-$characterId-$requestId"
                 if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isEmpty()) {
                     val receipt = JSONObject().put("characterId", characterId)
                         .put("requestId", requestId).put("tool", name)
                         .put("status", status).put("stage", "rejected")
                         .put("result", result).put("reason", reason.take(220))
+                        .put("causeEvidenceId", cause?.id.orEmpty())
+                        .put("causeEvidenceRevision", cause?.revision ?: 0L)
                     SharedExperienceTimeline.record(evidenceId, characterId,
                         "工具请求未执行", "执行器", receipt.toString(),
                         source = "tool-router", taskId = requestId,
@@ -154,13 +158,15 @@ object ToolRouter {
                 return@withLock rejected("这项日程已取消、未到期或所选工具与原计划不符")
             val goalReceiptId = "tool-$characterId-$requestId"
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
+            val verifiedCause = CharacterActionEvidence.resolve(characterId, causeEvidenceId)
+                ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
                 .put("intentionId", intentionId).put("learningApplication", learningApplication)
                 .put("motiveId", motiveId).put("concernId", concernId).put("experienceId", experienceId)
-                .put("causeEvidenceId", CharacterActionEvidence.resolve(characterId, causeEvidenceId)
-                    ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }?.id.orEmpty())
+                .put("causeEvidenceId", verifiedCause?.id.orEmpty())
+                .put("causeEvidenceRevision", verifiedCause?.revision ?: 0L)
                 .put("reason", reason)
                 .put("curiosity", curiosity?.let { JSONObject(it.toString()).apply {
                     if (optString("sourceEvidenceId").isBlank()) put("sourceEvidenceId", causeEvidenceId)
