@@ -480,8 +480,9 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     /**
-     * User-facing delete: if the same semantic memory leaked into several roles, one deletion clears
-     * every equivalent copy and tombstones each affected role so batch extraction cannot recreate it.
+     * Legacy method name: deleting a memory can retire semantically equivalent
+     * copies ONLY inside its owning character's life. Similar content in another
+     * role belongs to that person's independent history, even if the text matches.
      */
     suspend fun deleteEverywhereEquivalent(id: String): Int {
         val target = state.value.entries.firstOrNull { entry -> entry.id == id } ?: return 0
@@ -489,11 +490,15 @@ class LocalMemoryRepository : MemoryRepository {
         var removed = 0
         var removedEntries = emptyList<MemoryEntry>()
         mutate { current ->
-            val victims = current.entries.filter { entry -> entry.memoryIdentityKey() == targetKey }
+            val victims = current.entries.filter { entry ->
+                entry.characterId == target.characterId && entry.memoryIdentityKey() == targetKey
+            }
             removedEntries = victims
             removed = victims.size
             current.copy(
-                entries = current.entries.filterNot { entry -> entry.memoryIdentityKey() == targetKey },
+                entries = current.entries.filterNot { entry ->
+                    entry.characterId == target.characterId && entry.memoryIdentityKey() == targetKey
+                },
                 deletedMemoryKeys = current.deletedMemoryKeys + victims.map(MemoryEntry::scopedMemoryKey),
                 deletedMemoryIds = current.deletedMemoryIds + victims.groupBy(MemoryEntry::characterId).mapValues { (role, entries) ->
                     current.deletedMemoryIds[role].orEmpty() + entries.map { it.id }
@@ -507,7 +512,7 @@ class LocalMemoryRepository : MemoryRepository {
             CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
             MemoryValidityStore.removeMemory(it.id)
         }
-        refreshDebug(if (removed > 1) "已删除 $removed 个角色中的同内容记忆" else "记忆已删除")
+        refreshDebug(if (removed > 1) "已删除本角色 $removed 条同内容记忆" else "记忆已删除")
         return removed
     }
 

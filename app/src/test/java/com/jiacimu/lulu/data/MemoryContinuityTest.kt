@@ -54,6 +54,28 @@ class MemoryContinuityTest {
         assertFalse(restored.allowsRawRecall(SharedExperienceTimeline.all("role").single()))
     }
 
+    @Test fun deletingAnEquivalentMemoryNeverDeletesAnotherCharactersPersonalHistory() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val repository = LocalMemoryRepository().apply { initialize(context) }
+        val suffix = java.util.UUID.randomUUID().toString()
+        val roleA = "archive-a-$suffix"
+        val roleB = "archive-b-$suffix"
+        val sentence = "两个人亲历相同的雨天仍各自保存属于自己的记忆"
+        val a = memory("memory-a-$suffix", sentence).copy(characterId = roleA)
+        val b = memory("memory-b-$suffix", sentence).copy(characterId = roleB)
+        repository.save(a)
+        repository.save(b)
+        assertEquals(1, repository.snapshot(roleA).size)
+        assertEquals(1, repository.snapshot(roleB).size)
+        assertEquals(1, repository.deleteEverywhereEquivalent(a.id))
+        assertTrue(repository.snapshot(roleA).isEmpty())
+        assertEquals(listOf(b.id), repository.snapshot(roleB).map(MemoryEntry::id))
+        val reloaded = LocalMemoryRepository().apply { initialize(context) }
+        assertEquals(listOf(b.id), reloaded.snapshot(roleB).map(MemoryEntry::id))
+        assertEquals(1, reloaded.snapshot(roleB).size)
+    }
+
     @Test fun oppositePreferencesAreNeverMergedByTextSimilarity() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         val repository = LocalMemoryRepository().apply { initialize(context) }
