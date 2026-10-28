@@ -501,7 +501,7 @@ object LuluDeviceToolBridge {
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
                 if (!sceneContext.contains("电话"))
-                    appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
+                    appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide(characterId))
                 if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext,
                     cues = userText,
                     recentConversation = history,
