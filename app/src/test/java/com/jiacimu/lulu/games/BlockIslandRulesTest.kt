@@ -112,6 +112,44 @@ class BlockIslandRulesTest {
         assertEquals(base.world.turns, attackAtRange.world.turns)
     }
 
+
+    @Test fun bedsRestoreHealthAndKeepARealRestCooldown() {
+        val initial = BlockIslandRules.newWorld(5, emptyList())
+            .let { it.copy(world = it.world.copy(wood = 4, stone = 2, hp = 4, mobs = emptyList())) }
+        val bed = BlockIslandRules.act(initial, "bed", 5, 5)
+        assertEquals("bed", bed.structures[bed.world.index(5, 5)])
+        assertFalse(BlockIslandRules.isWalkable(bed, 5, 5))
+        val rested = BlockIslandRules.act(bed, "rest")
+        assertEquals(8, rested.world.hp)
+        val refused = BlockIslandRules.act(rested, "rest")
+        assertEquals(rested.world.hp, refused.world.hp)
+        assertEquals(rested.world.turns, refused.world.turns)
+        assertEquals(rested.structures, BlockIslandState.fromJson(rested.toJson())!!.structures)
+    }
+
+    @Test fun fallenCompanionNeedsTwoFruitsAndActuallyGetsRescued() {
+        val initial = BlockIslandRules.newWorld(19, listOf("friend"))
+            .let { it.copy(world = it.world.copy(mobs = emptyList(), friends =
+                listOf(ExpeditionFriend("friend", 5, 5, 0))), fruit = 2) }
+        val revived = BlockIslandRules.act(initial, "revive", 5, 5)
+        assertEquals(0, revived.fruit)
+        assertEquals(4, revived.world.friends.single().hp)
+        assertTrue(revived.world.events.any { it.contains("救起了队友[friend]") })
+        val repeat = BlockIslandRules.act(revived, "revive", 5, 5)
+        assertEquals(revived.world.friends.single().hp, repeat.world.friends.single().hp)
+        val lacking = BlockIslandRules.act(initial.copy(fruit = 1), "revive", 5, 5)
+        assertEquals(0, lacking.world.friends.single().hp)
+    }
+
+    @Test fun longWorldAddsResourcesWithoutDestroyingBuildings() {
+        val initial = BlockIslandRules.newWorld(42, emptyList())
+            .let { it.copy(world = it.world.copy(turns = 27, mobs = emptyList(), wood = 4, stone = 2)) }
+        val workshop = BlockIslandRules.act(initial, "workbench", 5, 5)
+        assertEquals("workbench", workshop.structures[workshop.world.index(5, 5)])
+        assertEquals(0, workshop.world.cell(5, 5))
+        assertTrue(workshop.world.events.any { it.contains("新的") })
+    }
+
     @Test fun olderIslandSaveMigratesWithoutDeletingBuildingsOrHistory() {
         val old = ExpeditionRules.start(ExpeditionMode.HOMESTEAD, 315, listOf("oldRole"))
             .copy(wood = 7, stone = 4, turns = 19, events = listOf("旧小屋完成"))
