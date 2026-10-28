@@ -101,39 +101,51 @@ object ScopedModelSelections {
         mutableRevision.value++
     }
 
-    /** Resident replies must not inherit a protagonist's chat model. */
+    /** Resolved role choice IDs are read-only, testable and share one policy
+     * across UI, resident calls, encounter adviser and literary workers. */
+    fun residentSocialArchiveId(
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
+    ): String? = selectedArchiveId(RESIDENT_SOCIAL, library)
+        ?: selectedArchiveId(RESIDENT_DAILY, library)
+
+    fun worldSocialArchiveId(characterId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
+    ): String? = selectedArchiveId(WORLD_SOCIAL, library)
+        ?: if (characterId.startsWith("resident:")) residentSocialArchiveId(library)
+            else selectedCharacterChatArchiveId(characterId, library)
+
+    fun worldSceneArchiveId(
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
+    ): String? = selectedArchiveId(WORLD_SCENE, library)
+        ?: selectedArchiveId(WORLD_SOCIAL, library)
+        ?: residentSocialArchiveId(library)
+        ?: library.archiveIdFor(ModelUsage.Chat)
+
+    fun worldLifeArchiveId(characterId: String,
+        library: ModelLibraryState = LuluAiServices.connectionStore.library.value,
+    ): String? = selectedArchiveId(WORLD_LIFE, library)
+        ?: if (characterId.startsWith("resident:")) residentSocialArchiveId(library)
+            else selectedCharacterChatArchiveId(characterId, library)
+
     fun residentSocialConnection(): ModelConnection {
-        val id = selectedArchiveId(RESIDENT_SOCIAL) ?: selectedArchiveId(RESIDENT_DAILY)
+        val archiveId = residentSocialArchiveId()
             ?: error("请先在 API 设置中选择居民模型")
-        return LuluAiServices.connectionStore.resolveConnection(id)
+        return LuluAiServices.connectionStore.resolveConnection(archiveId)
     }
 
-    /** An optional world-wide cheap model, without merging any characters' contexts. */
     fun worldSocialConnection(characterId: String): ModelConnection? {
-        val id = selectedArchiveId(WORLD_SOCIAL)
-        return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
-        else if (characterId.startsWith("resident:")) residentSocialConnection()
-        else LuluAiServices.connectionStore.resolveConnection(
-            selectedCharacterChatArchiveId(characterId))
+        if (characterId.startsWith("resident:") && worldSocialArchiveId(characterId) == null)
+            error("请先在 API 设置中选择居民社交模型")
+        return LuluAiServices.connectionStore.resolveConnection(worldSocialArchiveId(characterId))
     }
 
-    /** A public adviser sees only shared scene facts, never private character data. */
-    fun worldSceneConnection(): ModelConnection {
-        val id = selectedArchiveId(WORLD_SCENE)
-            ?: selectedArchiveId(WORLD_SOCIAL)
-            ?: selectedArchiveId(RESIDENT_SOCIAL)
-            ?: selectedArchiveId(RESIDENT_DAILY)
-            ?: LuluAiServices.connectionStore.selectedArchiveId(ModelUsage.Chat)
-        return LuluAiServices.connectionStore.resolveConnection(id)
-    }
+    fun worldSceneConnection(): ModelConnection =
+        LuluAiServices.connectionStore.resolveConnection(worldSceneArchiveId())
 
-    /** A literary writer never becomes an authority on actual world state. */
     fun worldLifeConnection(characterId: String): ModelConnection? {
-        val id = selectedArchiveId(WORLD_LIFE)
-        return if (id != null) LuluAiServices.connectionStore.resolveConnection(id)
-        else if (characterId.startsWith("resident:")) residentSocialConnection()
-        else LuluAiServices.connectionStore.resolveConnection(
-            selectedCharacterChatArchiveId(characterId))
+        if (characterId.startsWith("resident:") && worldLifeArchiveId(characterId) == null)
+            error("请先在 API 设置中选择居民模型")
+        return LuluAiServices.connectionStore.resolveConnection(worldLifeArchiveId(characterId))
     }
 
     fun resolveConnection(scope: String): ModelConnection {
