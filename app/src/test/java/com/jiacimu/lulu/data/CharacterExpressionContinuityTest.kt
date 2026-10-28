@@ -45,6 +45,25 @@ class CharacterExpressionContinuityTest {
         assertNull(CharacterExpressionContinuity.classifyText("今天不想发表情"))
     }
 
+    @Test fun naturalPreferenceOmitsFewShotCuteScriptButLeavesTextAndEmojiAvailable() {
+        val baseline = CharacterExpressionContinuity.guide()
+        assertTrue(baseline.contains("颜文字示例"))
+        val naturalRole = "lulu"
+        // The bundled friend is initialized with her personally selected
+        // default in CharacterLifeStore. This guide is read at both planner
+        // and autonomous decision entry points, not after text generation.
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        assertEquals("natural", CharacterExpressionPreferences.selected(naturalRole, "kaomoji"))
+        val guide = CharacterExpressionContinuity.guide(naturalRole)
+        assertFalse(guide.contains("颜文字示例"))
+        assertTrue(guide.contains("普通文字"))
+        assertTrue(guide.contains("仍可自己选一枚"))
+        val other = MigratedDomainStores.characters.create("另一个角色", "喜欢热闹")
+        assertTrue(CharacterExpressionContinuity.guide(other.characterId).contains("颜文字示例"))
+    }
+
     @Test fun historyMustNotOutliveThreeDays() {
         val history = CharacterExpressionContinuity.record(null, "old", "颜文字", "很久以前的表情", at)
         assertEquals("", CharacterExpressionContinuity.context(history, at.plusSeconds(4L * 86400)))
