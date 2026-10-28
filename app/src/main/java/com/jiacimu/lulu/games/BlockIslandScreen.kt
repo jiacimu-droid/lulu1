@@ -65,7 +65,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val world = island.world
     var target by remember { mutableStateOf(world.x to world.y) }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    var zoomed by remember { mutableStateOf(false) }
+    var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
@@ -334,6 +334,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             onDismissRequest = { confirmReset = false },
             title = { Text("重新生成小岛？") },
             text = { Text("将清除当前家园、工具和背包，但不会删除已经保存的游戏历史。") },
+            containerColor = Color(0xFF1A3439),
+            titleContentColor = Color(0xFFEDF8EF),
+            textContentColor = Color(0xFFBDD5CC),
             confirmButton = {
                 TextButton(onClick = {
                     save(BlockIslandRules.newWorld(Random.nextInt(), game.selectedCharacterIds))
