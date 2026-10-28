@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T05:49:26.860061+00:00",
-  "commit": "ae29e7803afad36433efb6cc3ca72ef86ec3ce74",
+  "generatedAt": "2026-10-28T05:49:49.863766+00:00",
+  "commit": "169dfd4f227cca34771c3120022bb9ab7f899017",
   "branch": "main",
-  "sourceFingerprint": "8dfd2fddf68f8f4139f5cb86d3dce41074123b65cadae49fd884a09d76141b04",
+  "sourceFingerprint": "52f5ba8457b1e68de8052ac7eb14db43835c576e11447bb4b5c2dcb5cabaf818",
   "summary": {
     "files": 1002,
-    "lines": 199239,
+    "lines": 199273,
     "symbols": 2931
   },
   "symbolIndex": {
@@ -431,7 +431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 928
+        "line": 962
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1101,7 +1101,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 161
+        "line": 195
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -5911,7 +5911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 890
+        "line": 924
       }
     ],
     "cue": [
@@ -6049,31 +6049,31 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 171
+        "line": 205
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 172
+        "line": 206
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 174
+        "line": 208
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 350
+        "line": 384
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 862
+        "line": 896
       }
     ],
     "current": [
@@ -21934,8 +21934,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 975,
-      "sha256": "e6e5f4b96c2912167726b619f4e8c0d5f3d50781fd5fe93adf0a61f63b6b0306",
+      "lines": 1009,
+      "sha256": "6df6b6e1ebd795f43a25e53e5a49f2b414b935f92b69ec4818be66e9effeb562",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -21943,35 +21943,35 @@
         },
         {
           "name": "state",
-          "line": 161
+          "line": 195
         },
         {
           "name": "bodyStorageReady",
-          "line": 171
+          "line": 205
         },
         {
           "name": "bodyState",
-          "line": 172
+          "line": 206
         },
         {
           "name": "lastBodyChange",
-          "line": 174
+          "line": 208
         },
         {
           "name": "afterglowContext",
-          "line": 350
+          "line": 384
         },
         {
           "name": "profileContext",
-          "line": 862
+          "line": 896
         },
         {
           "name": "compactContext",
-          "line": 890
+          "line": 924
         },
         {
           "name": "context",
-          "line": 928
+          "line": 962
         }
       ]
     },
