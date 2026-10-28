@@ -52,10 +52,12 @@ internal object CharacterSelfActivityRuntime {
                 else Proposal("read_book", JSONObject().put("readingBookId", id), "读一本真正可读的书")
             }
             "solo_game" -> {
-                if (input.optString("gameId") != "memory_match") null
-                else Proposal("play_solo_game", JSONObject().put("gameId", "memory_match").apply {
-                    if (input.has("targetScore")) put("targetScore", input.optInt("targetScore"))
-                }, "独自玩一局记忆配对")
+                val gameId = input.optString("gameId").trim().lowercase()
+                val gameTitle = com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId)
+                if (gameTitle == null || (gameId != "memory_match" && input.has("targetScore"))) null
+                else Proposal("play_solo_game", JSONObject().put("gameId", gameId).apply {
+                    if (gameId == "memory_match" && input.has("targetScore")) put("targetScore", input.optInt("targetScore"))
+                }, "独自玩一局$gameTitle")
             }
             "digital_world" -> {
                 if (!digitalLife) return null
