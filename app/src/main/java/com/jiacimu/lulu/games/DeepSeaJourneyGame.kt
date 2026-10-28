@@ -49,12 +49,13 @@ import kotlin.math.roundToInt
 internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val context = LocalContext.current
     val state by store.state.collectAsState()
-    val companion = if (state.playWithCharacter) {
-        state.selectedCharacterIds.firstOrNull()?.let(MigratedDomainStores.characters::get)
-    } else null
     val map = remember { buildDeepSeaMap() }
     val progress = remember(context) { DeepSeaJourneyProgress(context) }
     val restored = remember(progress) { progress.load(map.start) }
+    val selectedCompanionId = if (state.playWithCharacter) state.selectedCharacterIds.firstOrNull().orEmpty() else ""
+    // Lock one character to the actual dive so a later lobby selection cannot inherit somebody else's memories.
+    val sessionCompanionId = remember(progress) { restored.sessionCompanionId.ifBlank { selectedCompanionId } }
+    val companion = sessionCompanionId.takeIf(String::isNotBlank)?.let(MigratedDomainStores.characters::get)
     val obstacles = remember(map) { map.reefs.map(DeepSeaReef::obstacle) }
     val safeRestoredPosition = remember(restored.position, obstacles) {
         if (obstacles.none { circleIntersects(restored.position, 38f, it.bounds) }) restored.position else map.start
@@ -71,7 +72,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     var collected by remember { mutableStateOf(restored.collected.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
     var scanned by remember { mutableStateOf(restored.scanned.intersect(map.echoes.map(DeepSeaEcho::id).toSet())) }
     var visited by remember { mutableStateOf(restored.visited.intersect(deepSeaSites.map(DeepSeaSite::id).toSet())) }
-    var companionAssists by remember { mutableIntStateOf(restored.companionAssists) }
+    var companionAssists by remember { mutableIntStateOf(if (restored.sessionCompanionId == sessionCompanionId) restored.companionAssists else 0) }
     var sonarPulse by remember { mutableFloatStateOf(0f) }
     var pickupPulse by remember { mutableFloatStateOf(0f) }
     var lastPickupPosition by remember { mutableStateOf<WorldVector?>(null) }
@@ -101,12 +102,12 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
     val latestVisited by rememberUpdatedState(visited)
     val latestAssists by rememberUpdatedState(companionAssists)
     DisposableEffect(progress) {
-        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists) }
+        onDispose { progress.save(latestPlayer, latestCollected, latestCompleted, latestScore, latestScanned, latestVisited, latestAssists, sessionCompanionId) }
     }
     LaunchedEffect(progress) {
         while (isActive) {
             delay(1_500)
-            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
         }
     }
     LaunchedEffect(notice) {
@@ -350,7 +351,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                         newlyFound.isNotEmpty() -> "声呐定位到 ${newlyFound.size} 处新回声，选择导航前往"
                         else -> "附近暂无新回声，继续探索未测绘水域"
                     }
-                    progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+                    progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
                 },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 22.dp).height(38.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -409,13 +410,13 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                             navigationRoute = emptyList()
                             GameSoundEffects.play(if (collected.size == map.echoes.size) GameSoundEffect.Objective else GameSoundEffect.Collect)
                             notice = if (collected.size == map.echoes.size) "晶体集齐！右上方「导航前往」可带你找归航门" else "获得：${nearbyEcho.title}"
-                            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
                         }
                         nearbySite != null -> {
                             visited = visited + nearbySite.id
                             GameSoundEffects.play(GameSoundEffect.Collect)
                             notice = "${nearbySite.name}：${deepSeaSiteStory(nearbySite, runStartedAt)}"
-                            progress.save(player, collected, completed, score, scanned, visited, companionAssists)
+                            progress.save(player, collected, completed, score, scanned, visited, companionAssists, sessionCompanionId)
                         }
                         nearGate -> {
                             val elapsedSeconds = ((System.currentTimeMillis() - runStartedAt) / 1_000L).coerceAtLeast(1L)
@@ -440,6 +441,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                         .put("elapsed_seconds", elapsedSeconds)
                                         .put("sites_visited", JSONArray(visited.sorted()))
                                         .put("sonar_assists", if (companion == null) 0 else companionAssists)
+                                        .put("session_companion_id", sessionCompanionId)
                                         .put("solo", companion == null)
                                         .toString(),
                                     characterIdOverride = companion?.characterId.orEmpty(),
@@ -448,7 +450,7 @@ internal fun DeepSeaJourneyScreen(store: LuluGameStore) {
                                 progress.markRecorded()
                                 recorded = true
                             }
-                            progress.save(player, collected, true, score, scanned, visited, companionAssists)
+                            progress.save(player, collected, true, score, scanned, visited, companionAssists, sessionCompanionId)
                         }
                     }
                 },
@@ -660,6 +662,7 @@ internal data class DeepSeaRestoredState(
     val scanned: Set<String>,
     val visited: Set<String>,
     val companionAssists: Int,
+    val sessionCompanionId: String,
 )
 
 internal class DeepSeaJourneyProgress(context: Context) {
@@ -682,11 +685,12 @@ internal class DeepSeaJourneyProgress(context: Context) {
             scanned = prefs.getStringSet("scanned", emptySet()).orEmpty().toSet(),
             visited = prefs.getStringSet("visited", emptySet()).orEmpty().toSet(),
             companionAssists = prefs.getInt("companion_assists", 0).coerceAtLeast(0),
+            sessionCompanionId = prefs.getString("session_companion_id", "").orEmpty(),
         )
     }
 
     fun save(position: WorldVector, collected: Set<String>, completed: Boolean, score: Int,
-        scanned: Set<String>, visited: Set<String>, companionAssists: Int) {
+        scanned: Set<String>, visited: Set<String>, companionAssists: Int, sessionCompanionId: String) {
         prefs.edit()
             .putFloat("x", position.x)
             .putFloat("y", position.y)
@@ -694,6 +698,7 @@ internal class DeepSeaJourneyProgress(context: Context) {
             .putStringSet("scanned", scanned.toSet())
             .putStringSet("visited", visited.toSet())
             .putInt("companion_assists", companionAssists)
+            .putString("session_companion_id", sessionCompanionId)
             .putBoolean("completed", completed)
             .putInt("score", score)
             .apply()
