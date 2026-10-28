@@ -159,7 +159,7 @@ internal object CharacterCausalTrace {
     private fun receiptLine(context: Context, characterId: String,
         event: SharedTimelineEvent, body: JSONObject): CharacterCausalTraceLine {
         val status = receiptStatus(body)
-        val checkpoint = PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)
+        val checkpoint = PerceptionStimulusLedger.peekSeen(context, characterId, event.id, event.revision)
         val perception = if (checkpoint) "本人感知检查点已记录（不等于目标达成）"
             else "尚无本人感知检查点（可能待处理，不能据此断言未理解）"
         val task = body.optString("requestId").ifBlank { event.taskId }
