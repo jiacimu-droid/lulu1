@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T08:22:48.867115+00:00",
-  "commit": "302cf26cd26ebfc02f0e65e3869194cb57364122",
+  "generatedAt": "2026-10-28T08:23:09.586451+00:00",
+  "commit": "be41900f1189171e594690826af0d157f2f0ea90",
   "branch": "main",
-  "sourceFingerprint": "ca798fa3c13075c5589a62f3bf3e67f3dac28d7c59c8bf9ea4aeadc699a4ad59",
+  "sourceFingerprint": "2480756c6fe7973032b58bccdf4b46325e1af3b8d3007b465f074783792fbe37",
   "summary": {
     "files": 1013,
-    "lines": 203225,
+    "lines": 203227,
     "symbols": 2953
   },
   "symbolIndex": {
@@ -11397,7 +11397,7 @@
     "WorldLifeEpisodeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "fromToolText": [
@@ -26206,7 +26206,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
       "lines": 1058,
-      "sha256": "c78e2f12e8329257c9af5b4d8757b5c33e546e4dc939e944560fbdf4def55903",
+      "sha256": "b34dac3fcbd2e58dbc79cb7148ebbea253cbe149b103965d1145dd440968e16e",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -27943,12 +27943,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-      "lines": 112,
-      "sha256": "6fb386a0b6648c9e8bfd7dec4130985a9ffe8740f97333a62b40d578665c62d9",
+      "lines": 114,
+      "sha256": "c1930aac3d827986b61299aa65211b2ac817aa18cbb2ca1d82aa7b73c53aed85",
       "symbols": [
         {
           "name": "WorldLifeEpisodeWorker",
-          "line": 17
+          "line": 18
         }
       ]
     },
