@@ -157,3 +157,11 @@
 - **回归**：`CharacterSocialNetworkTest` 新增私密双人群/私信不可见、加入三人共同群可见关系、退出后不再暴露、多人场景禁止带走私人相处评价；`ResidentPhoneWakeIntegrationTest` 验证越权帖子/伪造帖子不可注入模型与回执；`CharacterSocialNetworkTest` 全员共同在场会面交集，未结束/部分缺席的会面不进入；`CharacterKnowledgeIsolationTest` 使用真实 MockWebServer 验证 Isolated 场景网关不会从主导角色额外召回私人话题与人设。
 - 主要源码提交 `1e5adef1`、`e58b7e36`、`6c98f7d2`；中间编译约束校正 `ae0501eb`；测试 `a7db33a3`、`1088b44d`。 补充 `80e03acb`：原多人场景共用模型不仅看见别人的内心，还把该模型编出的 `innerThought/innerLife/appraisal/decisionReason` 当成每个角色自身的私密心理写入 `CharacterInnerLifeStore`；现多人场景仅记录各参与者实际当场对外说/做的事实，每个人是否在意、怎样理解、后续动机一律留给自己的正常感知与单人模型回合决定，共用场景不再替人物提交内心。**CI / APK 状态必须单独核对最新 main；没有真实通过前不可宣称绝对无污染或已经真机通过。**
 - 后续留意：单次中立生成仍可能为人物选出不合其本人风格的台词，因为完全不读取其私有主观状态；这项隐私优先策略不能被误认为已实现完全自主、各角色分别用自身大脑决定每一句。若未来要求每人同时保留私有上下文决策且不让他人模型看到，就需要在现有多方场景框架中安排各人独立的语义生成，并明确模型调用成本。不要偷偷增加常态调用。
+
+## 2026-10-28 续修：居民旧唤醒和迟到模型回包的日程版本防护（待 CI / 真机）
+
+- 根因：原到点复议的 wait/reschedule 已有 expectedDueAt，但 cancel 不核对版本；模型思考时主人或另一入口改期后，迟到的 cancel 可把新时刻的同一计划取消。execute 只向 ToolRouter 传 planId，旧唤醒 Worker 也只携带 planId，不能区分同一计划的不同 dueAt 版本。
+- 修改 RoleDayScheduleStore、ResidentDailyDecision、ToolRouter：取消在同步持久化事务内比较原 dueAt；居民主动作携带内部 expectedPlanDueAt，在原 ToolRouter 事实/权限门禁中拒绝旧版本；新 Worker 输入带 dueAt，冷启动初始化前后均核对，markDue 也拒绝旧版本。已安装的旧 Worker 没有版本字段，保持兼容并继续受原时刻/请求幂等门禁保护。
+- 模型的旧选择与独立步骤仍有原始记录、稳定 requestId 和独立回执；不能因为用户撤销原计划就把模型同轮明确选的独立分享自动抹去。旧版本主动作未生效时记录 superseded，停止对已改期/取消的旧选择反复恢复；原计划未改变但执行失败继续 needs_recovery。不增加正常 LLM 轮次。
+- 回归在 ResidentDailyContinuityTest 覆盖原版本的 canBegin/markDue/cancel 门禁，以及 MockWebServer 在模型响应前真实改期，分别返回 cancel 和 execute：新日程保留、旧主动作不发、独立动态仅一次、原请求不重新收费。当前仅为源码和测试提交，Android JVM / APK / 真机结果以随后 CI 和设备验证为准。
+- 剩余风险：外部动作已经进入 ToolRouter 后，用户并发改期不能撤销已经发生的副作用，须按原始回执和幂等证据追踪；老版本没有 dueAt 的排队 Worker 无法推断过去版本。P0-A 的补正中断显式恢复与等待条件变化提前复议仍待处理。
