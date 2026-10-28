@@ -46,6 +46,17 @@ object CharacterInnerLifeStore {
         return root
     }
 
+    /** Exact, role-owned historical decision lookup for expanded evidence cards.
+     * The archived pages are never injected into the model's regular prompt. */
+    @Synchronized fun decisionsForEvidence(characterId: String, evidenceId: String,
+        limit: Int = 6): List<JSONObject> {
+        if (characterId.isBlank() || evidenceId.isBlank()) return emptyList()
+        return CharacterInnerHistoryArchive.matching(prefs, characterId,
+            snapshot(characterId), "decisions", limit) {
+            it.optString("causalEvidenceId") == evidenceId
+        }
+    }
+
     /**
      * Explicitly withdraw ONE character's subjective interpretation of ONE
      * person. The original conversation, verified encounters, relationship
@@ -226,7 +237,9 @@ object CharacterInnerLifeStore {
         val root = snapshot(characterId)
         listOf("thoughts", "emotion", "emotionHistory", "openConcerns", "decisions")
             .forEach(root::remove)
-        save(characterId, root) { field, _ -> field in setOf("thoughts", "emotionHistory") }
+        save(characterId, root) { field, _ ->
+            field in setOf("thoughts", "emotionHistory", "decisions")
+        }
     }
 
     @Synchronized internal fun characterIds(): Set<String> =
@@ -506,9 +519,13 @@ object CharacterInnerLifeStore {
                     }
                 }
             }
-            val removeArchive: (String, JSONObject) -> Boolean = { _, entry ->
+            val removeArchive: (String, JSONObject) -> Boolean = { field, entry ->
                 backedBy(entry.optString("evidenceId")) ||
-                    backedBy(entry.optString("closureEvidenceId"))
+                    backedBy(entry.optString("closureEvidenceId")) ||
+                    (field == "decisions" && (
+                        backedBy(entry.optString("causalEvidenceId")) ||
+                        backedBy(entry.optString("signature")) ||
+                        backedBy(entry.optString("id"))))
             }
             if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
                 save(characterId, root, removeArchive)
@@ -1397,15 +1414,20 @@ object CharacterInnerLifeStore {
     @Synchronized fun forgetDecision(characterId: String, decisionId: String): Boolean {
         if (prefs == null || decisionId.isBlank()) return false
         val root = snapshot(characterId)
-        val prior = root.optJSONArray("decisions") ?: return false
+        val prior = root.optJSONArray("decisions") ?: JSONArray()
         val kept = JSONArray()
         for (i in 0 until prior.length()) {
             val item = prior.optJSONObject(i) ?: continue
             if (item.optString("id") != decisionId) kept.put(item)
         }
-        if (prior.length() == kept.length()) return false
+        val archived = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+            field == "decisions" && item.optString("id") == decisionId
+        }
+        if (prior.length() == kept.length() && !archived) return false
         root.put("decisions", kept)
-        save(characterId, root)
+        save(characterId, root) { field, item ->
+            field == "decisions" && item.optString("id") == decisionId
+        }
         return true
     }
 
@@ -1449,7 +1471,10 @@ object CharacterInnerLifeStore {
         if (selectedAction == "silent" && reason.isBlank()) return
         val root = snapshot(characterId)
         val past = root.optJSONArray("decisions") ?: JSONArray()
-        if ((0 until past.length()).any { past.optJSONObject(it)?.optString("id") == decisionId }) return
+        if ((0 until past.length()).any { past.optJSONObject(it)?.optString("id") == decisionId } ||
+            CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+                field == "decisions" && item.optString("id") == decisionId
+            }) return
         val skipped = JSONArray()
         if (alternatives != null) {
             for (i in 0 until minOf(3, alternatives.length())) {
@@ -1461,8 +1486,14 @@ object CharacterInnerLifeStore {
                 }
             }
         }
+        // Preserve every decision: the existing archive pages rotate the hot
+        // 60-item window without deleting old source-linked choices.
         val updated = JSONArray()
-        for (i in maxOf(0, past.length() - 59) until past.length()) updated.put(past.opt(i))
+        for (i in 0 until past.length()) updated.put(past.opt(i))
+        val sourceRevision = causalEvidenceId.takeIf(String::isNotBlank)?.let { source ->
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(source))
+                .firstOrNull()?.revision
+        } ?: 0L
         updated.put(JSONObject()
             .put("id", decisionId).put("at", now.toString())
             .put("selected", selectedAction.take(90))
@@ -1470,6 +1501,7 @@ object CharacterInnerLifeStore {
             .put("reason", reason.trim().take(240))
             .put("motiveId", chosenMotiveId.take(80))
             .put("causalEvidenceId", causalEvidenceId.trim().take(220))
+            .put("causalEvidenceRevision", sourceRevision)
             // These are IDs actually OFFERED by the common read-only working
             // set, not claims that the model understood or rejected each one.
             // Do not copy private topic text or create another attention store.

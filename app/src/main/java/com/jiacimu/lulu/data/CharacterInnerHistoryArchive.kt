@@ -17,6 +17,7 @@ internal object CharacterInnerHistoryArchive {
     private val limits = linkedMapOf(
         "innerVoices" to 12, "thoughts" to 32, "causalTransitions" to 96,
         "emotionHistory" to 20, "closedConcerns" to 20,
+        "decisions" to 60,
     )
     fun isArchiveKey(key: String) = key.startsWith(PREFIX)
     fun fields(): Set<String> = limits.keys
@@ -89,6 +90,29 @@ internal object CharacterInnerHistoryArchive {
             }
         }
         return JSONArray().apply { result.forEach(::put) }
+    }
+
+    /** Read only the latest matching historical entries, not an arbitrary last-N
+     * window. This is used on demand by expanded causal cards; ordinary model
+     * prompts still read only the small hot snapshot. */
+    fun matching(store: SharedPreferences?, role: String, root: JSONObject,
+        field: String, limit: Int, predicate: (JSONObject) -> Boolean): List<JSONObject> {
+        if (field !in limits || limit <= 0) return emptyList()
+        val matches = ArrayDeque<JSONObject>()
+        rows(root.optJSONArray(field)).asReversed().forEach { entry ->
+            if (matches.size < limit && predicate(entry)) matches.addFirst(entry)
+        }
+        if (store != null && matches.size < limit) {
+            val count = root.optJSONObject(META)?.optInt(field, 0) ?: 0
+            for (page in count - 1 downTo 0) {
+                for (entry in read(store, role, field, page).asReversed()) {
+                    if (matches.size >= limit) break
+                    if (predicate(entry)) matches.addFirst(entry)
+                }
+                if (matches.size >= limit) break
+            }
+        }
+        return matches.toList()
     }
 
     fun hasOlder(store: SharedPreferences?, role: String, root: JSONObject, limit: Int): Boolean {

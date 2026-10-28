@@ -20,6 +20,22 @@ internal object CharacterCausalTrace {
         else -> null
     }
 
+    /** The ordinary 200-entry mind window is only a UI working set. An old
+     * event can have a genuine decision thousands of turns earlier; retrieve
+     * that exact source from the existing private history archive on demand. */
+    private fun decisionsForSource(characterId: String, evidenceId: String,
+        mind: JSONObject): List<JSONObject> {
+        val recent = mind.optJSONArray("decisions")
+        val fromMind = (0 until (recent?.length() ?: 0))
+            .mapNotNull { recent?.optJSONObject(it) }
+            .filter { it.optString("causalEvidenceId") == evidenceId }
+        val archived = CharacterInnerLifeStore.decisionsForEvidence(characterId, evidenceId)
+        return (archived + fromMind)
+            .distinctBy { it.optString("id").ifBlank { id -> it.toString() } }
+            .sortedBy { it.optString("at") }
+            .takeLast(6)
+    }
+
     private fun receiptStatus(payload: JSONObject): String {
         val result = objectValue(payload.opt("result"))
         val status = payload.optString("status").lowercase()
@@ -92,17 +108,23 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("本人想法 · $state",
                 thought.optString("thought").take(190))
         }
-        val decisions = mind.optJSONArray("decisions")
-        val relatedDecisions = (0 until (decisions?.length() ?: 0))
-            .mapNotNull { index -> decisions?.optJSONObject(index) }.filter {
-                it.optString("causalEvidenceId") == current.id
-            }
-        relatedDecisions.takeLast(6).forEach { decision ->
+        val relatedDecisions = decisionsForSource(characterId, current.id, mind)
+        relatedDecisions.forEach { decision ->
             val choice = decision.optString("selected")
+            val revision = decision.optLong("causalEvidenceRevision", 0L)
+            val versionLabel = when {
+                revision == 0L -> " · 旧记录来源版本未证实"
+                revision != current.revision -> " · 历史版本 $revision"
+                else -> ""
+            }
+            val detail = listOf(decision.optString("reason"), decision.optString("outcome"))
+                .filter(String::isNotBlank).joinToString("；")
             rows += CharacterCausalTraceLine(
-                if (choice == "silent") "本人选择安静" else "本人选择 · ${CharacterRecordProjection.actionLabel(choice)}",
-                listOf(decision.optString("reason"), decision.optString("outcome"))
-                    .filter(String::isNotBlank).joinToString("；").take(240),
+                (if (choice == "silent") "本人选择安静" else
+                    "本人选择 · ${CharacterRecordProjection.actionLabel(choice)}") + versionLabel,
+                (if (revision > 0L && revision != current.revision)
+                    "当前来源版本为 ${current.revision}，不能用新文字解释旧选择；" else "") +
+                    detail.take(210),
             )
         }
         if (payload != null) {
@@ -277,17 +299,26 @@ internal object CharacterCausalTrace {
                 else "真实记录：${native.channel}；不等于目标已完成",
                 native?.id.orEmpty())
         }
-        val causes = setOfNotNull(receipt.id, native?.id)
-        val decisions = mind.optJSONArray("decisions")
-        val followUps = (0 until (decisions?.length() ?: 0))
-            .mapNotNull { index -> decisions?.optJSONObject(index) }
-            .filter { it.optString("causalEvidenceId") in causes }
-        followUps.takeLast(3).forEach { decision ->
+        val causes = listOf(receipt, native).filterNotNull().distinctBy { it.id }
+        val followUps = causes.flatMap { source ->
+            decisionsForSource(characterId, source.id, mind).map { source to it }
+        }.distinctBy { (_, decision) ->
+            decision.optString("id").ifBlank { decision.toString() }
+        }.sortedBy { (_, decision) -> decision.optString("at") }.takeLast(3)
+        followUps.forEach { (source, decision) ->
+            val revision = decision.optLong("causalEvidenceRevision", 0L)
+            val version = when {
+                revision == 0L -> " · 旧记录来源版本未证实"
+                revision != source.revision -> " · 历史版本 $revision"
+                else -> ""
+            }
             rows += CharacterCausalTraceLine("回执后的本人选择 · " +
-                CharacterRecordProjection.actionLabel(decision.optString("selected")),
-                listOf(decision.optString("reason"), decision.optString("outcome"))
-                    .filter(String::isNotBlank).joinToString("；").take(240),
-                receipt.id)
+                CharacterRecordProjection.actionLabel(decision.optString("selected")) + version,
+                (if (revision > 0L && revision != source.revision)
+                    "来源已编辑，不能用当前结果解释旧选择；" else "") +
+                    listOf(decision.optString("reason"), decision.optString("outcome"))
+                        .filter(String::isNotBlank).joinToString("；").take(210),
+                source.id)
         }
         if (followUps.isEmpty() &&
             PerceptionStimulusLedger.peekSeen(context, characterId, receipt.id, receipt.revision)) {
