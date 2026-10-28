@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
@@ -190,6 +191,26 @@ internal object AutonomousSocialRuntime {
         }
         DigitalWorldStore.endMeeting(session.id, finishedAt)
 
+        // Real shared evidence may trigger different PRIVATE meanings. Store
+        // each actor's own model proposal only under their own characterId,
+        // after the referenced meeting has actually been committed.
+        participantIds.forEach { id ->
+            val reaction = generated.privateReactions[id] ?: return@forEach
+            val ownEvidence = "meeting-\${session.id}-autonomous-summary-viewer-$id"
+            runCatching {
+                CharacterInnerLifeStore.observe(
+                    id, ownEvidence, summary, reaction.optJSONObject("innerLife"),
+                    participantIds.filterNot { it == id }.toSet(), finishedAt)
+                CharacterInnerLifeStore.recordInnerVoice(
+                    id, ownEvidence, reaction.optString("innerThought"), finishedAt)
+            }.onFailure { error ->
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "数字世界·相遇心理",
+                    title = "个人相遇反应保存失败",
+                    message = error.message.orEmpty().take(130))
+            }
+        }
+
         // A literary chapter must see the committed public exchange, not just
         // the summary. Each viewer's evidence IDs belong to that viewer alone.
         WorldLifeEpisodeStore.initialize(context)
@@ -302,61 +323,95 @@ internal object AutonomousSocialRuntime {
             participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
-        val anchorId = participantIds.first()
-        val result = LuluAiServices.gateway.generate(
-            characterId = anchorId,
-            facts = buildString {
-                appendLine("【这是一场角色与角色自己的生活，主人不在现场】")
-                appendLine("真实时间：$now")
-                appendLine(authority)
-                appendLine(DigitalWorldEnvironment.snapshot(now).context())
-                if (worldTick != null) {
-                    appendLine("【本轮程序权威环境事件｜所有参与者亲眼经历】")
-                    appendLine(worldTick.summary)
-                    appendLine("incidentId=${worldTick.incidentId}；status=${worldTick.status}；stage=${worldTick.stage}；anchorItemId=${worldTick.anchorItemId}")
-                } else {
-                    appendLine("【本轮程序环境事件】无；不得自行添加蟑螂、声响、光影、天气、小生物、故障或其他插曲。")
+        // Each person gets one chance to act in their OWN context and model.
+        // Two-person encounters allow an optional final reply from the initiator.
+        // All proposals stay provisional until every public turn is persisted.
+        val turns = mutableListOf<GeneratedTurn>()
+        val privateReactions = mutableMapOf<String, JSONObject>()
+        val speakingOrder = if (participantIds.size == 2)
+            participantIds + participantIds.first() else participantIds
+        for (speakerId in speakingOrder) {
+            val peers = participantIds.filterNot { it == speakerId }
+            val previous = turns.joinToString("\n") { turn ->
+                val name = characters.getValue(turn.speakerId).displayName
+                name + "：" + turn.segments.joinToString("；") { segment ->
+                    if (segment.type == MeetingSegmentType.DIALOGUE)
+                        "“\${segment.text}”" else segment.text
                 }
-                appendLine("参与角色与准确 ID：")
-                participantIds.forEach { id ->
-                    val character = characters.getValue(id)
-                    appendLine("- id=$id；对外可见的称呼=${character.displayName}")
-                }
-                appendLine("下面只涉及所有参与者共同见证的真实交集。没有列出的个人记忆、未说出口的想法和用户私人关系对其他在场人物并不可见。")
-                appendLine(socialHistory)
-                appendLine(sharedPast)
-            },
-            instruction = """
-                你是露露机数字世界的一次小型生活场景调度器。角色因为各自真实移动恰好到了同一个地方，请生成他们自己的一小段相处，而不是替主人写剧情。
-                只返回 JSON：
-                {"turns":[{"speakerId":"准确角色ID","reason":"这个角色此刻为什么想说话或做这件事，简单的一句话即可","segments":[{"type":"action|dialogue","text":"内容","speechText":"音频轨，可为空"}]}],"summary":"一句客观、可记忆的共同经历摘要"}
-
-                规则：
-                0. 每个 speaker 的 turn 必须先有本人的简短 reason：例如‘认出熟人，想打声招呼’‘觉得话题好玩，想插一句’‘有点累想坐坐’。它是当下的想法，不是事后写的行为总结。没有主动说话或行动意愿就不要替这个角色生成 turn。
-                1. 主人不在现场，绝不能让主人说话、行动、被看见或被默认参与；也不要让角色突然对主人隔空汇报。
-                2. 只能使用上面列出的准确 speakerId。每个人保持自己的性格、关系和说话方式，不要写成同一种客服腔。
-                3. 这是生活中的一个小片段，不是强制剧情事件。通常 2—8 个 turn 即可；可以打招呼、坐一会儿、聊最近的真实记录、一起看看某样已有物品，也可以有自然的安静和停顿。只有上面明确给出【本轮程序权威环境事件】时才能让角色现场反应，不能自行触发任何环境插曲。
-                4. 必须尊重“角色间已有社会关系”里的真实历史：共同群聊已经意味着认识；见面次数越多可以越自然熟悉，但不能仅凭次数强行升级成喜欢、恋爱、亲密或敌意。第一次见面与经常来往的相处方式应有自然区别。
-                5. 不要为了“产生关系”强行亲密、吵架、告白或制造戏剧冲突。关系应从重复相处、共同经历、记住彼此的小事中慢慢长出来。
-                发声单独放speechText：dialogue保留text完全相同的原话，只加入英文音频标签；action只放实际事件的音效标签，不念正文。不重复同一动作音效。
-                ${com.jiacimu.lulu.VoicePerformance.direction}
-                6. action 只写该 speaker 自己的动作、神态和当下可直接感知的环境，不能替另一个角色决定动作或心理；dialogue 只放真正说出口的话，不加引号。
-                7. 只能把上面给出的共同亲历会面与当前可见环境当作双方可聊的往事。任何一方的私聊、日记、未说出口的想法、对用户的喜好或其他人在不在场时的经历，均不得成为共同话题。共享历史之外可以闲聊眼前事物，不要凭空编造双方都知道的过去。
-                8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
-                9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
-                10. 你只是此次共同场景的公开行动和台词编排器，不是任何人的私人内心。不要输出 innerThought、innerLife、appraisal、私人好感判断、个人偏好或内心独白；真正的感受、日记、愿望和对彼此的主观看法，待他们各自收到已发生的现场事件后，由本人常规角色决策形成。
-                ${CharacterDecisionProtocol.runtimePrinciples}
-            """.trimIndent(),
-            source = "角色自主相遇",
-            title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
-            maxTokens = 2_400,
-            // Crucial: the previous Full call inherited anchorId's private
-            // memory, bonds and profile into a MULTI-character scene.
-            // This shared narrator receives only the explicit public scene.
-            contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
-        ).getOrNull()?.text.orEmpty()
-
-        return parseEncounter(result, participantIds)
+            }
+            val residentModel = if (speakerId.startsWith("resident:"))
+                ScopedModelSelections.resolveConnection(ResidentDailyDecision.SCOPE) else null
+            val response = LuluAiServices.gateway.generate(
+                characterId = speakerId,
+                facts = buildString {
+                    appendLine("【你本人在数字世界的真实相遇；主人不在现场】")
+                    appendLine("当前时间=$now；$authority")
+                    appendLine(DigitalWorldEnvironment.snapshot(now).context())
+                    if (worldTick == null) {
+                        appendLine("本轮没有新环境事件；不得创造天气、事故、道具或故障。")
+                    } else {
+                        appendLine("本轮已发生且亲眼见到的世界事件：\${worldTick.summary}")
+                        appendLine("incidentId=\${worldTick.incidentId}；status=\${worldTick.status}；stage=\${worldTick.stage}")
+                    }
+                    appendLine("确实在场的其他人（不包含他们的私人档案）：")
+                    peers.forEach { id -> appendLine("- $id：\${characters.getValue(id).displayName}") }
+                    appendLine("已有共同亲历的公开会面：\${sharedPast.ifBlank { "暂无" }}")
+                    appendLine("双方共同可见的现有关系事实：$socialHistory")
+                    appendLine("你本人对对方的主观看法（对方未必知道）：")
+                    appendLine(CharacterSocialRelationship.perspectivesFor(speakerId, peers))
+                    appendLine("本次对话中其他人已经选择的公开话语与动作（仍待正式提交）：")
+                    appendLine(previous.ifBlank { "当前无人说话" })
+                    appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
+                    appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
+                },
+                instruction = """
+                    你是\${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
+                    自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
+                    只返回 JSON：
+                    {"choice":"engage|quiet","reason":"当下真正想做或不做的理由","segments":[{"type":"dialogue|action","text":"只有本人确实说出的话或做出的轻微可见动作","speechText":""}],"innerThought":"自己未说出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"实际依据"},"social":{"targetId":"当前确实在场的ID","interpretation":"自己的具体初印象或新理解","reason":"自己已经见到或听到的证据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"thoughts":[{"thought":"只属于自己的想法"}],"motives":[{"op":"start","aim":"真正想以后去做的事","why":"这次实际经历的触发原因","reason":"具体依据"}]}}
+                    choice=quiet 时 segments 为空；若想开口或做动作，choice=engage，reason 不为空。
+                    允许说话、小玩笑、观念不同、邀请、婉拒、主动帮忙、关心、紧张和不喜欢；
+                    不要求每轮发生大事，更不强制每个人成为朋友。根据真实关系和个人性格自然选择。
+                    如果已经有人说话，优先决定是否要回应这句真正说出口的话，不要机械重新寒暄。
+                    仅可记录本人公开发言和微动作；不能替对方表演、宣布对方心意、替对方接受邀请。
+                    提出一起玩、下次见、加好友可以是口头愿望，不等于完成游戏、预约或建立好友关系。
+                    任何地点移动、物品出现、咖啡消费、比赛结果和世界事件完成，都必须有真实执行器回执。
+                    私人想法只回传到本人心理系统，不能当作公开事实，不能越权知晓其他人私聊、记忆或日记。
+                    你可以对其他人的实际行为形成个人评价、挂心或未来意愿，但没有证据就留空。
+                    不必每次生成所有 innerLife 字段；本轮的公开事实记录完毕后，才能保存本人的反应。
+                    \${com.jiacimu.lulu.VoicePerformance.direction}
+                """.trimIndent(),
+                source = "数字世界·人物独立相遇",
+                title = "\${characters.getValue(speakerId).displayName}在$location",
+                maxTokens = 1050,
+                contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                connectionOverride = residentModel,
+            ).getOrNull()?.text.orEmpty()
+            val decision = ModelStructuredOutput.objectOrNull(response) ?: continue
+            if (decision.optJSONObject("innerLife") != null ||
+                decision.optString("innerThought").isNotBlank()) {
+                privateReactions[speakerId] = decision
+            }
+            if (decision.optString("choice") != "engage") continue
+            // Never trust a generated speakerId: the caller, not a model, owns
+            // this turn and the only permitted personal timeline.
+            val owned = JSONObject(decision.toString()).put("speakerId", speakerId)
+            val turn = parseEncounter(
+                JSONObject().put("turns", JSONArray().put(owned)).toString(),
+                listOf(speakerId),
+            ).turns.firstOrNull() ?: continue
+            turns.add(turn)
+        }
+        // The summary is grounded in these very public proposals, not invented
+        // by a separate narrator. The outer caller commits the same turns.
+        val summary = buildString {
+            append("\${participantIds.joinToString("、") { characters.getValue(it).displayName }}在$location相遇。")
+            turns.forEach { turn ->
+                append("\n\${characters.getValue(turn.speakerId).displayName}：")
+                append(turn.segments.joinToString("；") { it.text })
+            }
+        }.take(2400)
+        return GeneratedEncounter(turns, summary, privateReactions)
     }
 
     private suspend fun generateSoloIncidentReaction(
@@ -668,5 +723,6 @@ internal object AutonomousSocialRuntime {
     private data class GeneratedEncounter(
         val turns: List<GeneratedTurn>,
         val summary: String,
+        val privateReactions: Map<String, JSONObject> = emptyMap(),
     )
 }
