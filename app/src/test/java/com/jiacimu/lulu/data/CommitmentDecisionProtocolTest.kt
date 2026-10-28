@@ -30,6 +30,47 @@ class CommitmentDecisionProtocolTest {
             """[{"action":"create","goal":"叫醒","dueAt":"明天九点"}]"""), emptyList()) }.isFailure)
     }
 
+    @Test fun mixedRoutineSupervisionIsNotManufacturedIntoAFailedWakeAlarm() {
+        val draft = parseCommitmentTaskDrafts(
+            """[{"action":"create","goal":"督促学习、睡觉、起床、按时吃饭",
+               "promiseKind":"long_term_supervision","completionCondition":"根据真实生活进展持续跟进"}]"""
+        ).single()
+        assertNull(draft.dueAt)
+        assertFalse("An undated responsibility has no missing wake alarm route", draft.needsClarification)
+        assertEquals("send_private_message", draft.deliveryAction)
+
+        val ongoing = CommitmentTask(
+            characterId = "role",
+            goal = draft.goal,
+            status = CommitmentTaskStatus.WaitingForFeedback,
+        )
+        assertNull("A general responsibility is not a failed call",
+            wakeScheduleReceipt(ongoing))
+        assertNull(wakeScheduleReceipt(ongoing.copy(
+            status = CommitmentTaskStatus.NeedsClarification,
+            lastActionResult = "缺少必要条件，需要后续自然确认",
+        )))
+    }
+
+    @Test fun explicitTimedWakeStillRequiresARealDeliveryChannel() {
+        val dueAt = Instant.now().plusSeconds(90 * 60L)
+        val draft = parseCommitmentTaskDrafts(
+            """[{"action":"create","goal":"九十分钟后叫醒我起床",
+               "dueAt":"$dueAt","deliveryAction":"send_private_message"}]"""
+        ).single()
+        assertEquals(dueAt, draft.dueAt)
+        assertTrue("An actual timed wake cannot be quietly texted", draft.needsClarification)
+        val pending = CommitmentTask(
+            characterId = "role", goal = draft.goal, dueAt = draft.dueAt,
+            status = CommitmentTaskStatus.NeedsClarification,
+            lastActionResult = "未选出有声闹钟",
+        )
+        assertTrue(wakeScheduleReceipt(pending)?.contains("未选出有声闹钟") == true)
+        assertNull(wakeScheduleReceipt(pending.copy(
+            goal = "今晚监督睡觉", status = CommitmentTaskStatus.WaitingForFeedback,
+        )))
+    }
+
     @Test fun ongoingResponsibilityDoesNotRequireClockGuessingAndEmptyMeansNoTask() {
         val changes = JSONArray("""[{"action":"create","goal":"留意这个进展","promiseKind":"long_term_supervision","needsClarification":false}]""")
         val draft = CommitmentDecisionProtocol.drafts(changes, emptyList()).single()
