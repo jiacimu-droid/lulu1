@@ -301,7 +301,7 @@ internal object AutonomousSocialRuntime {
             add("meeting-${session.id}-autonomous-turn-${turn.id}-viewer-$viewerId")
         }
         add("meeting-${session.id}-autonomous-summary-viewer-$viewerId")
-    }.distinct().takeLast(16)
+    }.distinct().takeLast(32)
 
     /**
      * Shared-scene facts are an intersection of the participants' witness sets,
@@ -392,8 +392,8 @@ internal object AutonomousSocialRuntime {
             participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
-        // Scene suggestions are optional; each speaker's own model still decides.
-        // The third encounter API call is now an isolated creative adviser.
+        // One optional public scene adviser + one private decision per role.
+        // A single final literary pass later supplies the shared chapters.
         val sceneIdea = suggestEncounterPossibilities(
             participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
         val proposals = linkedMapOf<String, List<AutonomousEncounterScript.Beat>>()
@@ -454,7 +454,7 @@ internal object AutonomousSocialRuntime {
                     phase 只能是1至5且每个编号最多一次；各段是你自己愿意实施的动作，不是替其他人写剧本。
                     你看得见前面参与者已经提议的公开阶段台词，可在相同阶段对这些真实台词作回应，也可打趣、婉拒或安静。你并不知道后续尚未选择的人会说什么，不能提前声称他们答应或替他们表态。
                     未来阶段只写即使他人没有按预想发言也能独立成立的本人行为，不得演出尚未执行的共同活动和结果。
-                    choice=quiet 时 segments 为空；若想开口或做动作，choice=engage，reason 不为空。
+                    choice=quiet 时 beats 为空；若想开口或做动作，choice=engage，reason 不为空。
                     允许说话、小玩笑、观念不同、邀请、婉拒、主动帮忙、关心、紧张和不喜欢；
                     不要求每轮发生大事，更不强制每个人成为朋友。根据真实关系和个人性格自然选择。
                     如果已经有人说话，优先决定是否要回应这句真正说出口的话，不要机械重新寒暄。
