@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`752533b3dcffbe0acecc653429ca2a8dba5c7c03`
+- 基准提交：`8c2e2f35262b9a92a65d222ff019c3037b68ce44`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：223879
-- 已发现符号：3180
+- 已索引代码/文本行：223883
+- 已发现符号：3181
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -499,9 +499,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1158 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 107 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1125 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1128 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |

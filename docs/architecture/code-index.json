@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:20:20.914891+00:00",
-  "commit": "752533b3dcffbe0acecc653429ca2a8dba5c7c03",
+  "generatedAt": "2026-10-29T16:20:47.956734+00:00",
+  "commit": "8c2e2f35262b9a92a65d222ff019c3037b68ce44",
   "branch": "main",
-  "sourceFingerprint": "67d2a8a30a975ec63af70f7e48e21b884e3a4f774352bbe8125f1169716f3eaf",
+  "sourceFingerprint": "8b17b62705ab465682b035c6d02661872aafdc62143ca648d5ce2337f9a49339",
   "summary": {
     "files": 1086,
-    "lines": 223879,
-    "symbols": 3180
+    "lines": 223883,
+    "symbols": 3181
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10355,19 +10355,19 @@
     "audienceContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 83
+        "line": 84
       }
     ],
     "canView": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 95
+        "line": 96
       }
     ],
     "visiblePosts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "reconcile": [
@@ -10488,6 +10488,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
         "line": 829
+      }
+    ],
+    "refreshOwnerUnreadVisibility": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
+        "line": 966
       }
     ],
     "annotations": [
@@ -27808,8 +27814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-      "lines": 106,
-      "sha256": "27ad5f7eedccc84b8d0eaf24d664faa619131d4d9a5041ca004c0c7c4389c64c",
+      "lines": 107,
+      "sha256": "7f6f79125e1e63a48fdc52985e31c3d10ea20beb089ce0a864f72848e8b1bed0",
       "symbols": [
         {
           "name": "MomentFriendAccess",
@@ -27817,15 +27823,15 @@
         },
         {
           "name": "audienceContext",
-          "line": 83
+          "line": 84
         },
         {
           "name": "canView",
-          "line": 95
+          "line": 96
         },
         {
           "name": "visiblePosts",
-          "line": 103
+          "line": 104
         }
       ]
     },
@@ -27850,8 +27856,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1125,
-      "sha256": "85bee01e9d1a74a4439ba14bb7097d5414729b4860fed81a0ab35ac376439e87",
+      "lines": 1128,
+      "sha256": "3abe9e5a381d5a79c365118f65aa06358616b5e69e1c31fa746c1b29acf03a63",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -27928,6 +27934,10 @@
         {
           "name": "clearCharacterData",
           "line": 829
+        },
+        {
+          "name": "refreshOwnerUnreadVisibility",
+          "line": 966
         }
       ]
     },
