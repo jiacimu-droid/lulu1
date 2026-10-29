@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T08:12:53.662942+00:00",
-  "commit": "c10614b920658cb94a4061a0cd7bb61d76e07d9c",
+  "generatedAt": "2026-10-29T08:26:25.893623+00:00",
+  "commit": "5431c09e1f1e59e441c8e6df9bc532f6580fd0fa",
   "branch": "main",
-  "sourceFingerprint": "7aa5d860c0af739d58c9ea809f21c9f5a133207ae0e894240aaf931272490040",
+  "sourceFingerprint": "b3058eedd60d2a24c9f9ec70a50cbca519b8079aa68124a3414cd0f8e27e5df8",
   "summary": {
     "files": 1062,
-    "lines": 218027,
+    "lines": 218156,
     "symbols": 3116
   },
   "symbolIndex": {
@@ -6547,7 +6547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 56
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
@@ -7124,12 +7124,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
         "line": 24
-      }
-    ],
-    "same": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-        "line": 72
       }
     ],
     "candidates": [
@@ -15898,6 +15892,12 @@
         "line": 13
       }
     ],
+    "linked": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
+        "line": 136
+      }
+    ],
     "CharacterTopicCandidatesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt",
@@ -16613,7 +16613,7 @@
     "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 147
+        "line": 173
       }
     ],
     "OnlineContinuationPolicyTest": [
@@ -24059,8 +24059,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt",
-      "lines": 116,
-      "sha256": "e52f0bc7579953e2590d30a786932bc238657b0c65eee99d78d14932584581a1",
+      "lines": 131,
+      "sha256": "f7284db8027a144c6d5383bacc7d8fc2f5eab4a37b8680899160e5308740c5a0",
       "symbols": [
         {
           "name": "hasIndependentRegisteredStep",
@@ -24072,11 +24072,7 @@
         },
         {
           "name": "add",
-          "line": 56
-        },
-        {
-          "name": "same",
-          "line": 72
+          "line": 51
         }
       ]
     },
@@ -34333,8 +34329,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 307,
-      "sha256": "7e41c2b1e15a33343ebf46feecaadc955f84a618eb22fba5c1af8a0653b946b9",
+      "lines": 329,
+      "sha256": "4244acc49da4e20adf3714f877d1fbe3bdf43ca1ac51af3e171f7ce082e48c2a",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
@@ -34842,12 +34838,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt",
-      "lines": 266,
-      "sha256": "9edbd517c33acf451fe73d40e0a817ee5f0efddcabbecea5a6f50b48fdbbca92",
+      "lines": 332,
+      "sha256": "9ca33e4c6d84246513e66b67591b96602c2fab334b87b6a52cf8ddc5472b10cc",
       "symbols": [
         {
           "name": "CharacterThoughtActionHandoffTest",
           "line": 13
+        },
+        {
+          "name": "linked",
+          "line": 136
         }
       ]
     },
@@ -35802,8 +35802,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 905,
-      "sha256": "7303b22cbfcf76cf2ad6b67d4fef6e8cc0e91667b0e8243b11b65ea2a6f6b9c3",
+      "lines": 931,
+      "sha256": "96d90b97680f0b1facfec8b097c870b5803bf7bc24a3db27765ddde4d595d83a",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -35811,7 +35811,7 @@
         },
         {
           "name": "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision",
-          "line": 147
+          "line": 173
         }
       ]
     },
