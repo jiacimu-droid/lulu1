@@ -82,6 +82,7 @@ internal object ResidentDailyDecision {
             "decided" -> "决定已保存，后续未确认"
             "needs_recovery" -> "执行尚未完成"
             "partial_side_steps", "waiting_partial" -> "独立行动未全部完成"
+            "finished_with_agenda_rejections" -> "本人已决定，但部分日程未能排入"
             else -> "未完成：$phase"
         }
     }
@@ -98,7 +99,7 @@ internal object ResidentDailyDecision {
         val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
         val unresolved = setOf("requesting", "uncertain", "repair_requesting",
             "invalid_output", "definite_rejected", "decided", "needs_recovery",
-            "partial_side_steps", "waiting_partial")
+            "partial_side_steps", "waiting_partial", "finished_with_agenda_rejections")
         val keys = p.all.keys
         val dailyPrefix = "phase:$nativeId:"
         val daily = keys.asSequence().filter { it.startsWith(dailyPrefix) }
@@ -559,7 +560,7 @@ internal object ResidentDailyDecision {
         val p = prefs(context)
         val day = date(at)
         return p.contains(dayDecisionKey(nativeId, day)) &&
-            p.getString(dayPhaseKey(nativeId, day), "") != "finished" &&
+            p.getString(dayPhaseKey(nativeId, day), "") in setOf("decided", "partial_side_steps") &&
             p.getInt(dayRecoveriesKey(nativeId, day), 0) < MAX_SAVED_DECISION_RECOVERIES
     }
 
@@ -640,7 +641,7 @@ internal object ResidentDailyDecision {
      * This does not automatically reinterpret the resident's intent or buy
      * another model response. */
     internal suspend fun saveAgenda(context: Context, native: DigitalWorldResident, proposal: JSONObject,
-        at: Instant): List<RoleDayPlan> {
+        at: Instant, decisionAt: Instant = at): List<RoleDayPlan> {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
         val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
@@ -677,7 +678,9 @@ internal object ResidentDailyDecision {
                 reject(index, row, "预选动作不是居民可排程的真实工具")
                 continue
             }
-            val dueAt = agendaTime(at, row.optString("at"))
+            // A recovered decision keeps the time at which its HH:mm was chosen.
+            // Never reinterpret a saved 09:00 slot relative to a 10:00 replay.
+            val dueAt = agendaTime(decisionAt, row.optString("at"))
             if (dueAt == null) {
                 reject(index, row, "预选时间无效或已经过去")
                 continue
@@ -690,6 +693,26 @@ internal object ResidentDailyDecision {
             }
             // Keep target/location in the persisted tool arguments, not only in plan metadata.
             val params = agendaArgs(action, row)
+            // The original calendar row is authoritative even if the resident
+            // has since lost contact permission, the slot passed or the owner
+            // cancelled it. Replaying the saved decision must not resurrect it
+            // or invent a new rejection for an already recorded plan.
+            val previouslyArranged = RoleDayScheduleStore.plans(context, actor).firstOrNull {
+                it.originEvidenceId == decisionId && it.originEvidenceRevision == 1L &&
+                    it.dueAt == dueAt && it.activityAction == action &&
+                    it.title == title && it.intent == intent &&
+                    it.activityArgs == params.toString()
+            }
+            if (previouslyArranged != null) {
+                saved += previouslyArranged
+                continue
+            }
+            // If the process died before this row was saved and its original
+            // time has passed, do not quietly schedule a late external action.
+            if (!dueAt.isAfter(at.plusSeconds(60))) {
+                reject(index, row, "原决定的活动时刻已过去，未补发或擅自改期")
+                continue
+            }
             val target = params.optString("targetCharacterId").trim()
             if (action in setOf("send_character_message", "send_friend_request") &&
                 (target !in known || target == actor)) {
@@ -1584,7 +1607,7 @@ internal object ResidentDailyDecision {
                 ?: return false
         } else null
         if (savedDecision != null) {
-            if (p.getString(phaseKey, "") == "finished" ||
+            if (p.getString(phaseKey, "") in setOf("finished", "finished_with_agenda_rejections") ||
                 p.getInt(recoveriesKey, 0) >= MAX_SAVED_DECISION_RECOVERIES) return false
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
                 "原住民有效决定的恢复次数未保存"
@@ -1701,6 +1724,7 @@ internal object ResidentDailyDecision {
         // inbox or messaging side effects. Replays retain original request IDs.
         if (savedDecision == null) {
             check(p.edit().putString(decisionKey, json.toString())
+                .putString("decision-at:${native.id}:$today", now.toString())
                 .putString(phaseKey, "decided").commit()) {
                 "原住民有效模型决定尚未持久化，不能开始副作用"
             }
@@ -1717,7 +1741,10 @@ internal object ResidentDailyDecision {
         check(prefs(app).edit().putString("plan:${native.id}", plan.toString()).commit()) {
             "原住民日程没有保存"
         }
-        val agenda = saveAgenda(app, native, json, now)
+        val decisionAt = p.getString("decision-at:${native.id}:$today", null)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: now
+        val agenda = saveAgenda(app, native, json, now, decisionAt)
+        val agendaRejected = (json.optJSONArray("agenda")?.length() ?: 0) - agenda.size
         val eventId = "native-daily-${native.id}-${date(now)}"
         // A replay can occur minutes after the first save. Do not rewrite
         // the same decision event with a newer occurredAt: that would bump
@@ -1790,9 +1817,22 @@ internal object ResidentDailyDecision {
         // independent actions. Never call a denied message or an unfinished
         // step 'finished'. Recovery uses the same durable decision and exact
         // ToolRouter IDs; settled posts are returned, not published again.
-        val allComplete = postComplete && messageComplete && sideComplete
-        check(p.edit().putString(phaseKey,
-            if (allComplete) "finished" else "partial_side_steps").commit()) {
+        val immediateComplete = postComplete && messageComplete && sideComplete
+        val allComplete = immediateComplete && agendaRejected == 0
+        // Live authority may reject a structurally valid agenda (contact
+        // revoked, occupied resource, or an expired slot after a crash).
+        // That is NOT a fully completed daily decision. It is a settled,
+        // inspectable rejection, not permission to buy another model reply
+        // or blindly reissue an expired scheduled action.
+        val finalPhase = when {
+            !immediateComplete -> "partial_side_steps"
+            agendaRejected > 0 -> "finished_with_agenda_rejections"
+            else -> "finished"
+        }
+        val phaseEdit = p.edit().putString(phaseKey, finalPhase)
+        if (agendaRejected > 0) phaseEdit.putString("last-error:${native.id}:$today",
+            "有$agendaRejected 项本人选择的日程未排入；原始事件中保留了每项拒绝原因")
+        check(phaseEdit.commit()) {
             "原住民本次决定的完成状态没有保存"
         }
         return allComplete
