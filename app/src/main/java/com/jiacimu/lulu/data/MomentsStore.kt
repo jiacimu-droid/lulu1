@@ -962,6 +962,9 @@ object MomentsStore {
         }
     }.ifBlank { "[朋友圈图片]" }
 
+    /** Friendship changes must update badge visibility without marking activities as read. */
+    fun refreshOwnerUnreadVisibility() = refreshUnreadCount()
+
     @Synchronized
     private fun refreshUnreadCount() {
         val store = prefs ?: return
