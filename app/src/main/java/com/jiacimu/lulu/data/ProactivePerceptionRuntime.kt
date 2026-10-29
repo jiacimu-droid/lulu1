@@ -2055,6 +2055,7 @@ object ProactivePerceptionRuntime {
         val executionDecisionId = "perception:$shadowRequestId"
         val choseOnlySteps = decision.action == Action.SILENT &&
             (decision.sideActions?.length() ?: 0) > 0
+        val recordedChoice = if (choseOnlySteps) "steps" else decision.action.name.lowercase()
         CharacterInnerLifeStore.recordDecision(
             characterId = characterId,
             decisionId = executionDecisionId,
@@ -2282,10 +2283,10 @@ object ProactivePerceptionRuntime {
         }
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
-            if ((decision.action != Action.SILENT || choseStepsWithoutPrimary) && !execution.success) {
+            if ((decision.action != Action.SILENT || choseOnlySteps) && !execution.success) {
                 "动作失败 · $recordedChoice · ${execution.summary.take(120)}"
             } else {
-                "感知成功 · ${if (choseStepsWithoutPrimary) recordedChoice else effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
+                "感知成功 · ${if (choseOnlySteps) recordedChoice else effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
             },
             now,
         )
