@@ -127,6 +127,80 @@ class QqReplySourceWatermarkTest {
         })
     }
 
+    @Test fun finalCommitGuardRejectsEditedSourceAndNewUserCorrection() {
+        val store = InMemoryLuluChatStore().also { it.initialize(RuntimeEnvironment.getApplication()) }
+        val role = MigratedDomainStores.characters.create("提交水位角色").characterId
+        val conversation = store.ensureConversation(role, "提交门禁")
+        val original = store.sendUserMessage(conversation.id, "原来的意思")
+        val first = captureReplySourceWatermark(conversation.id, role, setOf(original.id), store)!!
+        assertTrue(store.editMessage(original.id, "已经纠正"))
+        val rejected = store.appendCharacterMessageIfSourceCurrent(
+            conversation.id, "不能发送的旧回复", role, null, "old-batch",
+            false, "", sourceStillCurrent = { isReplySourceWatermarkCurrent(first, store) },
+        )
+        assertNull(rejected)
+        assertEquals(0, store.messages(conversation.id).value.count {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        })
+        val corrected = captureReplySourceWatermark(conversation.id, role, setOf(original.id), store)!!
+        store.sendUserMessage(conversation.id, "再补充一句")
+        assertNull(store.appendCharacterMessageIfSourceCurrent(
+            conversation.id, "同样不应发送", role, null, "old-batch-2",
+            false, "", sourceStillCurrent = { isReplySourceWatermarkCurrent(corrected, store) },
+        ))
+    }
+
+    @Test fun concurrentCorrectionCannotSlipBetweenFinalValidationAndPersistedBubble() {
+        val store = InMemoryLuluChatStore().also { it.initialize(RuntimeEnvironment.getApplication()) }
+        val role = MigratedDomainStores.characters.create("并发提交水位角色").characterId
+        val conversation = store.ensureConversation(role, "原子提交")
+        val original = store.sendUserMessage(conversation.id, "原问题")
+        val watermark = captureReplySourceWatermark(conversation.id, role, setOf(original.id), store)!!
+        val guardEntered = java.util.concurrent.CountDownLatch(1)
+        val releaseGuard = java.util.concurrent.CountDownLatch(1)
+        val editStarted = java.util.concurrent.CountDownLatch(1)
+        val editFinished = java.util.concurrent.CountDownLatch(1)
+        val sent = java.util.concurrent.atomic.AtomicReference<com.jiacimu.lulu.data.LuluChatMessage?>()
+        val errors = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+        val sender = Thread {
+            try {
+                sent.set(store.appendCharacterMessageIfSourceCurrent(
+                    conversation.id, "真正送达的第一句", role, null, "concurrent-batch",
+                    false, "", sourceStillCurrent = {
+                        guardEntered.countDown()
+                        check(releaseGuard.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                        isReplySourceWatermarkCurrent(watermark, store)
+                    },
+                ))
+            } catch (error: Throwable) { errors.set(error) }
+        }
+        val editor = Thread {
+            try {
+                editStarted.countDown()
+                check(store.editMessage(original.id, "我改主意了"))
+            } catch (error: Throwable) { errors.set(error) }
+            finally { editFinished.countDown() }
+        }
+        sender.start()
+        try {
+            assertTrue(guardEntered.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            editor.start()
+            assertTrue(editStarted.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            // The editor cannot commit while the final check owns the store lock.
+            assertEquals(1L, editFinished.count)
+        } finally { releaseGuard.countDown() }
+        sender.join(5_000)
+        editor.join(5_000)
+        assertFalse(sender.isAlive)
+        assertFalse(editor.isAlive)
+        assertNull(errors.get())
+        assertNotNull(sent.get())
+        assertEquals(1, store.messages(conversation.id).value.count {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        })
+        assertFalse(isReplySourceWatermarkCurrent(watermark, store))
+    }
+
     @Test fun correctionBetweenTwoBubblesKeepsFirstReceiptButStopsSecond() = runBlocking {
         val role = MigratedDomainStores.characters.create("气泡中途纠正角色").characterId
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "气泡中断")

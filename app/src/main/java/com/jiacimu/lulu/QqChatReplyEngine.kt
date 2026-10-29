@@ -265,11 +265,18 @@ internal suspend fun appendRoleReplyWithPacing(
         val visibleBubble = sanitizePersistedChatText(bubble)
         if (visibleBubble.isBlank()) return@forEachIndexed
         val sendVoiceNote = plannedBubbles[index].voiceNote && decodeQqChatImage(visibleBubble) == null
-        val created = MigratedDomainStores.chat.appendCharacterMessage(
+        // Revalidate while holding the chat store's own mutation lock. The
+        // earlier pacing check is only an optimization: a user correction can
+        // otherwise land in the gap before the actual persisted send.
+        val created = MigratedDomainStores.chat.appendCharacterMessageIfSourceCurrent(
             conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
             voiceNote = sendVoiceNote,
             voiceSpeechText = if (sendVoiceNote) plannedBubbles[index].speechText else "",
-        )
+            sourceStillCurrent = { watermark == null || isReplySourceWatermarkCurrent(watermark) },
+        ) ?: run {
+            stale = true
+            return@forEachIndexed
+        }
         // Only actual delivered bubbles influence the character's future
         // expression style. A mere planner selection is not a real message.
         if (presentation.recallBubbleNumber != index + 1) {

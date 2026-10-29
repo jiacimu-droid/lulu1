@@ -506,6 +506,34 @@ class InMemoryLuluChatStore : LuluChatStore {
         return created
     }
 
+    /**
+     * Commit the final reply-source check and the chat message under the SAME
+     * conversation-store lock. Checking in the pacing coroutine alone leaves
+     * a race where an edit/new user turn can commit between check and append.
+     * The predicate must be read-only; it inspects the existing chat/timeline
+     * evidence and must not request a model or execute a tool.
+     *
+     * Every user-message mutation uses this store lock. An edit that wins
+     * first invalidates the predicate; an edit that arrives later waits until
+     * this message has really been committed. No new delivery state is stored.
+     */
+    internal fun appendCharacterMessageIfSourceCurrent(
+        conversationId: String,
+        content: String,
+        authorCharacterId: String,
+        replyToMessageId: String?,
+        replyBatchId: String,
+        voiceNote: Boolean,
+        voiceSpeechText: String,
+        sourceStillCurrent: () -> Boolean,
+    ): LuluChatMessage? = synchronized(lock) {
+        if (!sourceStillCurrent()) return@synchronized null
+        appendCharacterMessage(
+            conversationId, content, authorCharacterId, replyToMessageId,
+            replyBatchId, voiceNote, voiceSpeechText,
+        )
+    }
+
     internal fun appendSystemReceipt(conversationId: String, eventId: String, content: String): LuluChatMessage = synchronized(lock) {
         messageStates[conversationId]?.value?.firstOrNull { it.id == eventId }?.let { return@synchronized it }
         val message = LuluChatMessage(id = eventId, conversationId = conversationId,

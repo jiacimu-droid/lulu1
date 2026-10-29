@@ -466,3 +466,10 @@
 - Android 完整工作流 [Lulu APK #40833765696](https://github.com/jiacimu-droid/lulu1/actions/runs/40833765696) completed/success：Live2D JS/打包、Android JVM 测试、phone APK 构建、APK 字节码核验及正式发布均成功。不能把这项 CI 成功表述成已完成 Android 真机体验。
 - 已发布 [Lulu v6605 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6605/Lulu-arm64.apk)，构建来源为上述源码 SHA，产物 28,732,888 字节。
 - 真机仍待验：同一段三句话连续动作、重复句首/声音标签、插话取消未播动作、触摸后交还、15/30FPS、真实首音与跨 TTS 片段的音色连续性；词级时间戳、任意动作关键帧保持与动画曲线逐采样重定时没有在本轮实现。
+
+## 2026-10-29 P1：来源水位校验与聊天落库的原子提交（源码已提交，CI/真机待验）
+
+- [x] **根因**：群聊/私聊的逐气泡发送器在打字延迟后验证用户原话 revision，但从 `isReplySourceWatermarkCurrent` 返回到 `appendCharacterMessage` 实际落库之间没有共同锁。用户可能恰在此间编辑、撤回或补发纠正，旧回复仍被保存；单纯再加一次检查不能消除竞态。
+- [x] **唯一权威层修复**：在现有 `InMemoryLuluChatStore` 的同一消息锁内完成最后的只读水位核验与真实消息提交，逐气泡发送器改走 `appendCharacterMessageIfSourceCurrent`；同一会话的用户发送/编辑/删除/群成员变更均使用该锁。先完成纠正则旧气泡不落库；先完成发送则该气泡保留真实历史，后续气泡继续重新校验。模型、语义、消息 ID、原时间线、ToolRouter 与独立回执均不另建中心。
+- [x] **根因回归源码**：旧消息修订、新用户纠正时提交门禁拒绝；两线程以锁内栅栏重现“验证和写入之间试图编辑”的并发，核对编辑只能在已落库气泡之后完成且旧水位随即失效；原有群聊逐气泡中断、来源撤回及角色隔离回归继续保留。
+- [ ] **待验证**：新 main 的 Android JVM/phone APK/索引生成与真机打字延迟中编辑、撤回、第二气泡前纠正；底层消息持久化仍有可见会话使用异步 SharedPreferences.apply 的既有耐久性差异，进程强杀与长会话持久化应另测。本轮未新增常态 LLM 请求、后台重试或影子状态。
