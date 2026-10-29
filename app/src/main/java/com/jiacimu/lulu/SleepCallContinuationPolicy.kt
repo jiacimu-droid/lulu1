@@ -20,6 +20,11 @@ internal object SleepCallContinuationPolicy {
         else -> 2_000L
     }
 
+    /** A verified microphone turn waits for bedtime narration instead of
+     * resetting its active TTS queue. Ordinary chat retains barge-in. */
+    fun shouldDeferUserWords(sleepMode: Boolean, audibleSpeech: Boolean, text: String): Boolean =
+        sleepMode && audibleSpeech && text.isNotBlank()
+
     /** Errors are retried conservatively; they never shorten the 30-minute
      * call deadline. Long stories get the same bounded retry protection. */
     fun nextPauseAfterFailureMillis(
