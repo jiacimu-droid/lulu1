@@ -1151,7 +1151,8 @@ object LuluDeviceToolBridge {
             phoneSideAllCompleted = true
             var previousStepCompleted = true
             for (i in 0 until phoneSteps.length()) {
-                val effect = phoneSteps.optJSONObject(i) ?: run {
+                val effect = phoneSteps.optJSONObject(i)
+                if (effect == null) {
                     phoneSideAllCompleted = false
                     notes += "第${i + 1}步未执行：动作结构无效"
                     previousStepCompleted = false
