@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3b53b598cabba3cc8d960d0b0d64fc69279781b2`
+- 基准提交：`752533b3dcffbe0acecc653429ca2a8dba5c7c03`
 - 分支：`main`
-- 已索引文件：1081
-- 已索引代码/文本行：223374
-- 已发现符号：3172
+- 已索引文件：1086
+- 已索引代码/文本行：223879
+- 已发现符号：3180
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -622,9 +622,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 387 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 424 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 522 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 546 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 501 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -639,24 +639,28 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 62 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 237 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 298 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 97 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 245 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 285 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 863 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 506 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 269 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 140 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 112 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 284 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 420 | 21 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 459 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 498 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 107 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 59 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
@@ -1059,8 +1063,9 @@
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 264 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 161 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
