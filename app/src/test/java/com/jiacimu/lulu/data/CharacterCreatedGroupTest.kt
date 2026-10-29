@@ -73,7 +73,7 @@ class CharacterCreatedGroupTest {
             .single { it.sessionId == created.id && it.source == "group-membership" }
         assertTrue(initial.content.contains("周末一起聊天"))
         assertTrue(initial.content.contains("群成员"))
-        assertTrue(initial.content.contains("邀请"))
+        assertTrue(initial.content.contains("拉进了群聊"))
         val leaving = membership.copy(members = membership.members.filterNot { it.characterId == b })
         assertTrue(MigratedDomainStores.chat.updateGroupConversation(created.id, leaving))
         val returnGroup = membership.copy(members = membership.members)
