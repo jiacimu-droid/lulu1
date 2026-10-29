@@ -1150,6 +1150,7 @@ class CompanionModelGateway(
             var outputTokens = 0
             var cachedTokens = 0
             var finishReason: String? = null
+            var streamFinished = false
             var lastCallbackLength = 0
             var lastCallbackNanos = System.nanoTime()
 
@@ -1167,7 +1168,11 @@ class CompanionModelGateway(
 
             fun consumeEvent(rawEvent: String): Boolean {
                 val payload = rawEvent.trim()
-                if (payload.isBlank() || payload == "[DONE]") return true
+                if (payload.isBlank()) return true
+                if (payload == "[DONE]") {
+                    streamFinished = true
+                    return true
+                }
                 val chunk = runCatching { JSONObject(payload) }.getOrNull() ?: return false
                 when (chunk.optString("type")) {
                     "error" -> error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "Claude流式请求失败" })
@@ -1176,6 +1181,7 @@ class CompanionModelGateway(
                         cachedTokens = it.optInt("cache_read_input_tokens", cachedTokens)
                     }
                     "content_block_delta" -> chunk.optJSONObject("delta")?.takeIf { it.optString("type") == "text_delta" }?.let { content.append(it.optString("text")) }
+                    "message_stop" -> streamFinished = true
                     "message_delta" -> {
                         chunk.optJSONObject("usage")?.let { outputTokens = it.optInt("output_tokens", outputTokens) }
                         chunk.optJSONObject("delta")?.optString("stop_reason")?.takeIf(String::isNotBlank)?.let { finishReason = it }
@@ -1205,7 +1211,7 @@ class CompanionModelGateway(
 
             connection.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
                 val eventData = StringBuilder()
-                while (true) {
+                while (!streamFinished) {
                     val line = reader.readLine() ?: break
                     when {
                         line.isBlank() -> {
