@@ -247,4 +247,93 @@ class CharacterCuriosityRuntimeTest {
         assertEquals("", CharacterCuriosityRuntime.briefContext(id))
         CharacterCuriosityRuntime.clear(id)
     }
+
+    @Test fun delayedVerifiedResultCannotReopenAnExplicitlyDroppedInterestButNewInquiryCan() {
+        begin()
+        realRead("first-completed", at)
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "先前读完一章", "first-completed", at)
+        val threadId = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads")
+            .getJSONObject(0).getString("threadId")
+        val selected = proposal().put("threadId", threadId)
+        CharacterCuriosityRuntime.releaseInterest(id,
+            JSONObject(selected.toString()).put("status", "dropped"), at.plusSeconds(60))
+
+        // The original action's callback arrives after the character has chosen to stop.
+        realRead("late-completed", at.plusSeconds(120))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal("旧任务迟到的后续问题").put("threadId", threadId),
+            "reading", true, "确实完成但已不想继续", "late-completed", at.plusSeconds(120))
+        val closed = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", closed.getString("status"))
+        assertEquals("故事后面如何发展", closed.getString("question"))
+        assertEquals(2, closed.getJSONArray("steps").length())
+        assertEquals("确实完成但已不想继续",
+            closed.getJSONArray("steps").getJSONObject(1).getString("receipt"))
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.recordOutcome(id, selected, "reading", true,
+            "同一回执重放", "late-completed", at.plusSeconds(180))
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0).getJSONArray("steps").length())
+
+        // A later, separately observed question is a new choice, not a stale callback.
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+            proposal("新的线索值得重新研究").put("threadId", threadId),
+            "source-observation", "后来真的发现新线索", at.plusSeconds(240)))
+        realRead("new-completed", at.plusSeconds(300))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal("新的线索值得重新研究").put("threadId", threadId),
+            "reading", true, "重新探索的实际结果", "new-completed", at.plusSeconds(300))
+        val resumed = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        assertEquals("exploring", resumed.getString("status"))
+        assertEquals("新的线索值得重新研究", resumed.getString("question"))
+        assertEquals(3, resumed.getJSONArray("steps").length())
+        assertFalse(resumed.has("releasedAt"))
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("重新探索的实际结果"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun settlingPendingQuestionBeforeFirstReceiptStillSurvivesLateResult() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1",
+            "观察后决定进一步了解", at.plusSeconds(10)))
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        CharacterCuriosityRuntime.settleInterest(id,
+            proposal().put("threadId", threadId).put("status", "satisfied"), at.plusSeconds(20))
+        assertEquals(0, CharacterCuriosityRuntime.visibleQuestions(id).size)
+        val closedBeforeResult = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", closedBeforeResult.getString("status"))
+        assertEquals(0, closedBeforeResult.optJSONArray("steps")?.length() ?: 0)
+
+        realRead("pending-late-result", at.plusSeconds(30))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal().put("threadId", threadId),
+            "reading", true, "迟到但真实的阅读", "pending-late-result", at.plusSeconds(30))
+        val closedAfterResult = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", closedAfterResult.getString("status"))
+        assertEquals(1, closedAfterResult.getJSONArray("steps").length())
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun withdrawingOnePendingClosureDoesNotEraseOtherIndependentClosure() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1",
+            "第一条真实观察", at.plusSeconds(10)))
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal("另一条独立疑问"),
+            "source-observation", "第二条真实观察", at.plusSeconds(10)))
+        CharacterCuriosityRuntime.releaseInterest(id,
+            proposal().put("status", "dropped"), at.plusSeconds(20))
+        CharacterCuriosityRuntime.settleInterest(id,
+            proposal("另一条独立疑问").put("status", "satisfied"), at.plusSeconds(20))
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").length())
+        CharacterCuriosityRuntime.invalidateEvidence("source-1")
+        val remaining = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads")
+        assertEquals(1, remaining.length())
+        assertEquals("另一条独立疑问", remaining.getJSONObject(0).getString("question"))
+        assertEquals("satisfied", remaining.getJSONObject(0).getString("status"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
 }
