@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.ArrayDeque
 
@@ -30,6 +31,8 @@ internal class LuluCallSpeechQueue(
         val onStarted: (() -> Unit)?,
         val onEnded: (() -> Unit)?,
         val onProgress: ((Long) -> Unit)?,
+        val retryOnFailure: Boolean,
+        val retriesRemaining: Int,
     )
 
     private val appContext = context.applicationContext
@@ -52,10 +55,12 @@ internal class LuluCallSpeechQueue(
         onStarted: (() -> Unit)? = null,
         onEnded: (() -> Unit)? = null,
         onProgress: ((Long) -> Unit)? = null,
+        retryOnFailure: Boolean = false,
     ) {
         val speech = VoicePerformance.forPlayback(appContext, text)
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded, onProgress))
+        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded,
+            onProgress, retryOnFailure, if (retryOnFailure) 1 else 0))
         if (!active) playNext()
     }
 
@@ -126,12 +131,28 @@ internal class LuluCallSpeechQueue(
                 val succeeded = engine.lastPlaybackSucceeded
                 val failure = engine.lastError
                 request.speakerId?.let { AvatarController.playback(it, false) }
-                if (succeeded) request.onDelivered?.invoke()
-                request.onEnded?.invoke()
                 active = false
                 activeRequest = null
                 engine.onPlaybackState = null
                 engine.onPlaybackPosition = null
+                if (!succeeded && SleepCallContinuationPolicy.shouldRetryFailedAudio(
+                        request.retryOnFailure, request.retriesRemaining)) {
+                    // Retry the identical bedtime paragraph, not a new model turn.
+                    // Keep later segments queued behind this request, and fence
+                    // the delayed retry against new speech or a call hangup.
+                    pending.addFirst(request.copy(retriesRemaining = request.retriesRemaining - 1))
+                    val retryGeneration = generation
+                    scope.launch {
+                        delay(2_000L)
+                        if (retryGeneration == generation && !active) playNext()
+                    }
+                    return@launch
+                }
+                if (succeeded) request.onDelivered?.invoke()
+                request.onEnded?.invoke()
+                // When the last retry fails, do not silently skip the broken
+                // bedtime segment and play its sequel as though it was heard.
+                if (!succeeded && request.retryOnFailure) pending.clear()
                 if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
                 playNext()
             }
