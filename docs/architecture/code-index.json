@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:26:30.389903+00:00",
-  "commit": "6eb8d39f800e081b51d8d0036efb0a15caa638df",
+  "generatedAt": "2026-10-29T12:30:18.329841+00:00",
+  "commit": "c516a45094cbc53cfc13b497c5cac3df9f34647b",
   "branch": "main",
-  "sourceFingerprint": "86d57ebf73effb57339c59b21592656e0fe300e6a61a18f91711f7d7427744cc",
+  "sourceFingerprint": "61859070fb2fce1def9cc6a4d9fa3f5eeaf67ebd1ad77854916c5164fada2c34",
   "summary": {
     "files": 1068,
-    "lines": 220301,
+    "lines": 220330,
     "symbols": 3140
   },
   "symbolIndex": {
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 412
+        "line": 422
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5179,7 +5179,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 309
+        "line": 315
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -6227,7 +6227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 408
+        "line": 418
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7157,25 +7157,25 @@
     "voiceOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 206
+        "line": 212
       }
     ],
     "equivalent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 207
+        "line": 213
       }
     ],
     "supportingDeletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 209
+        "line": 215
       }
     ],
     "Seen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 305
+        "line": 311
       }
     ],
     "hasIndependentRegisteredStep": [
@@ -24191,8 +24191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 433,
-      "sha256": "3cb5d47d92371b9eec2207c137d2293db520cd1ce9e7693ce4cd54ac753e7e18",
+      "lines": 443,
+      "sha256": "40f30a3e1fec74d0ad91a70d7c037d6f720d01ecdac521f0709b3ec0c5b240ab",
       "symbols": [
         {
           "name": "entries",
@@ -24204,31 +24204,31 @@
         },
         {
           "name": "voiceOf",
-          "line": 206
+          "line": 212
         },
         {
           "name": "equivalent",
-          "line": 207
+          "line": 213
         },
         {
           "name": "supportingDeletion",
-          "line": 209
+          "line": 215
         },
         {
           "name": "Seen",
-          "line": 305
+          "line": 311
         },
         {
           "name": "normalize",
-          "line": 309
+          "line": 315
         },
         {
           "name": "delete",
-          "line": 408
+          "line": 418
         },
         {
           "name": "remove",
-          "line": 412
+          "line": 422
         }
       ]
     },
@@ -34964,8 +34964,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 559,
-      "sha256": "c364f4a29e44dfb6f74a44da10ef54b17ff20d2a63ee7a586771cbb9674f96c8",
+      "lines": 578,
+      "sha256": "14377205a1f7781c0b91b7a13997416879b5afa20724944c0633d27541a6c34a",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
