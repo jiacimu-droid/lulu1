@@ -117,4 +117,58 @@ class GroupTimelineDeletionTest {
         assertTrue(SharedExperienceTimeline.eventsByIds("outbound_member_a",
             listOf("outbound_tool_receipt")).isEmpty())
     }
+
+    @Test fun removingRawPresenceEventAlsoRemovesVisibleHeartVoiceAndSameTurnMindHistory() {
+        CompanionPresenceStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val owner = "raw_presence_owner"
+        val source = "raw_presence_source"
+        val initial = Instant.parse("2026-10-30T01:00:00Z")
+        SharedExperienceTimeline.record(source, owner, "私聊", "主人", "这句话依然存在",
+            occurredAt = initial, triggerExtraction = false)
+        CharacterInnerLifeStore.recordInnerVoice(owner, source, "旧的心理内容", initial.plusSeconds(1))
+        CharacterInnerLifeStore.recordCausalTransition(owner, source,
+            JSONObject().put("meaning", "旧消息让我联想到一件事"), null, null,
+            "reply", "旧的心理内容", "正在回应", initial.plusSeconds(1))
+        CompanionPresenceStore.update(owner, "正在思考", null, "旧的心理内容", "好奇",
+            "聊天", initial.plusSeconds(2), provenanceId = source)
+        val eventId = "presence-$source-$owner"
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(owner, listOf(eventId)).size)
+        assertTrue(CompanionPresenceStore.histories.value[owner].orEmpty()
+            .any { it.innerThought == "旧的心理内容" })
+        assertTrue(CharacterInnerLifeStore.historySnapshot(owner).optJSONArray("causalTransitions")!!
+            .length() > 0)
+
+        // Raw timeline UI calls deleteEvent directly; original chat remains.
+        SharedExperienceTimeline.deleteEvent(eventId)
+
+        assertTrue(SharedExperienceTimeline.eventsByIds(owner, listOf(eventId)).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(owner, listOf(source)).size)
+        assertFalse(CompanionPresenceStore.histories.value[owner].orEmpty()
+            .any { it.innerThought == "旧的心理内容" })
+        assertFalse(CharacterInnerLifeStore.historySnapshot(owner).optJSONArray("innerVoices")
+            ?.let { rows -> (0 until rows.length()).any { rows.optJSONObject(it)?.optString("thought") == "旧的心理内容" } }
+            ?: false)
+        assertFalse(CharacterInnerLifeStore.historySnapshot(owner).optJSONArray("causalTransitions")
+            ?.let { rows -> (0 until rows.length()).any { rows.optJSONObject(it)?.optString("innerThought") == "旧的心理内容" } }
+            ?: false)
+    }
+
+    @Test fun rawPresenceDeletionDoesNotEraseLaterDifferentMindTurnOfSameConversation() {
+        CompanionPresenceStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val owner = "raw_presence_two_turns"
+        val source = "raw_presence_two_turns_source"
+        val initial = Instant.parse("2026-10-30T02:00:00Z")
+        SharedExperienceTimeline.record(source, owner, "私聊", "主人", "同一条仍然存在的消息",
+            occurredAt = initial, triggerExtraction = false)
+        CompanionPresenceStore.update(owner, "先想一件事", null, "最初的想法", null,
+            "聊天", initial.plusSeconds(1), provenanceId = source)
+        CompanionPresenceStore.update(owner, "后来又有新认识", null, "后来独立想到的东西", null,
+            "聊天", initial.plusSeconds(120), provenanceId = source)
+        SharedExperienceTimeline.deleteEvent("presence-$source-$owner")
+        // Exact event ID is stable for the same provenance, so this deletion
+        // withdraws both projections under that event; it does not delete the source.
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(owner, listOf(source)).size)
+    }
 }
