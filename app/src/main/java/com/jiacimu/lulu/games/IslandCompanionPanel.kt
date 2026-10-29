@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -9,6 +11,7 @@ import androidx.compose.material.icons.outlined.VolumeOff
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,26 +36,33 @@ internal fun IslandCompanionPanel(
     onPing: (Pair<Int, Int>) -> Unit,
 ) {
     val speaker = rememberIslandCompanionVoice()
-    var voice by remember { mutableStateOf(false) }
-    var lastSpoken by remember { mutableStateOf("") }
+    var voice by rememberSaveable { mutableStateOf(false) }
+    var pendingUserSpeech by remember { mutableStateOf(emptyList<String>()) }
+    var typedMessage by rememberSaveable { mutableStateOf("") }
+    var showTextChat by rememberSaveable { mutableStateOf(false) }
     var speechIndex by remember { mutableIntStateOf(0) }
     var lastRequestedSpeech by remember { mutableIntStateOf(0) }
     var lastRequestedTurn by remember(island.world.seed) { mutableIntStateOf(-1) }
     var thinking by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
-    var dialogue by remember(island.world.seed) { mutableStateOf(emptyList<String>()) }
-    val microphone = rememberGameSpeechInput { heard ->
-        dialogue = (dialogue + ("你： " + heard)).takeLast(6)
-        lastSpoken = heard
+    var dialogue by rememberSaveable(island.world.seed) { mutableStateOf(emptyList<String>()) }
+    fun submitPlayerMessage(raw: String) {
+        val message = raw.trim()
+        if (message.isBlank()) return
+        // Preserve every player message that arrives while the model is busy;
+        // the conflated wake signal does not mean conflated conversation content.
+        pendingUserSpeech = pendingUserSpeech + message
+        dialogue = (dialogue + ("你： " + message)).takeLast(6)
         speechIndex += 1
     }
+    val microphone = rememberGameSpeechInput { heard -> submitPlayerMessage(heard) }
     val currentIsland by rememberUpdatedState(island)
     val currentSave by rememberUpdatedState(onSave)
     val currentPing by rememberUpdatedState(onPing)
     val members = island.world.friends.map { it.id }
     val latestNavigating by rememberUpdatedState(navigating)
     val latestSpeechIndex by rememberUpdatedState(speechIndex)
-    val latestSpoken by rememberUpdatedState(lastSpoken)
+    val latestPendingUserSpeech by rememberUpdatedState(pendingUserSpeech)
     val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
 
@@ -68,7 +78,9 @@ internal fun IslandCompanionPanel(
         val expectedTurn = currentIsland.world.turns
         val currentSpeech = latestSpeechIndex
         if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == currentSpeech) continue
-        val heard = if (lastRequestedSpeech != currentSpeech) latestSpoken else ""
+        val heard = if (lastRequestedSpeech != currentSpeech)
+            latestPendingUserSpeech.joinToString("\n") else ""
+        if (heard.isNotBlank()) pendingUserSpeech = emptyList()
         val allActed = members.all { id ->
             currentIsland.world.events.any {
                 it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
@@ -178,6 +190,37 @@ internal fun IslandCompanionPanel(
                         Icon(Icons.Outlined.Mic, null, modifier = Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("说一句", fontSize = 11.sp)
+                    }
+                }
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    listOf("一起探路", "小心怪物", "我们分头找资源").forEach { ping ->
+                        AssistChip(onClick = { submitPlayerMessage(ping) },
+                            label = { Text(ping, fontSize = 11.sp) })
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { showTextChat = !showTextChat }) {
+                        Text(if (showTextChat) "收起文字聊天" else "打字跟队友说",
+                            color = Color(0xFFAEF0D7), fontSize = 12.sp)
+                    }
+                }
+                if (showTextChat) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = typedMessage,
+                            onValueChange = { typedMessage = it },
+                            modifier = Modifier.weight(1f),
+                            maxLines = 2,
+                            placeholder = { Text("跟队友说句话…", fontSize = 12.sp) },
+                        )
+                        Button(onClick = {
+                            submitPlayerMessage(typedMessage)
+                            typedMessage = ""
+                        }, enabled = typedMessage.isNotBlank()) {
+                            Text("发送", fontSize = 12.sp)
+                        }
                     }
                 }
                 if (thinking) {
