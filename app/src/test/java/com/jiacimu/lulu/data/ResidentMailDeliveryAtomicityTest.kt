@@ -55,10 +55,10 @@ class ResidentMailDeliveryAtomicityTest {
         MemoryTestEnvironment.release()
     }
 
-    private fun person(digital: Boolean = true): String {
+    private fun person(digital: Boolean = true, bornAt: Instant = Instant.now().minusSeconds(60)): String {
         val role = MigratedDomainStores.characters.create("邮件归属-${UUID.randomUUID()}")
         if (digital) DigitalLifeProfileStore.registerNewLife(role.characterId,
-            role.displayName, "数字生命", Instant.now().minusSeconds(60))
+            role.displayName, "数字生命", bornAt)
         roles += role.characterId
         return role.characterId
     }
@@ -154,19 +154,19 @@ class ResidentMailDeliveryAtomicityTest {
     }
 
     @Test fun busyConversationKeepsOldTopicAndReadCursorAcrossAppendAndReload() {
-        val quiet = person()
-        val busy = person()
-        val receiver = person()
-        val outsider = person()
+        val base = Instant.now().minusSeconds(3600)
+        val quiet = person(bornAt = base.minusSeconds(60))
+        val busy = person(bornAt = base.minusSeconds(60))
+        val receiver = person(bornAt = base.minusSeconds(60))
+        val outsider = person(bornAt = base.minusSeconds(60))
         assertTrue(MomentFriendAccess.setFriends(busy, receiver, true))
-        val base = Instant.parse("2026-10-28T12:00:00Z")
         val oldTopic = ResidentDirectMessage("quiet-${UUID.randomUUID()}", quiet, receiver,
             "上次约好继续讨论的旧话题", base, "character")
         val cursor = ResidentDirectMessage("cursor-${UUID.randomUUID()}", busy, receiver,
             "本人已经考虑过这封信", base.plusSeconds(1), "character")
         val seed = listOf(oldTopic, cursor) + (1..203).map { n ->
             ResidentDirectMessage("later-${UUID.randomUUID()}", busy, receiver,
-                "后来的来信$n", base.plusSeconds(n + 1L), "character")
+                "后来的来信$n", base.plusMillis(n + 1000L), "character")
         }
         restoreMailbox(seed)
         recordDelivered(oldTopic)
@@ -191,19 +191,19 @@ class ResidentMailDeliveryAtomicityTest {
     }
 
     @Test fun globalTrafficCannotEvictQuietPeersHistoryOrLoseItOnNextPersistenceFailure() {
-        val sender = person()
-        val receiver = person()
+        val base = Instant.now().minusSeconds(3600)
+        val sender = person(bornAt = base.minusSeconds(60))
+        val receiver = person(bornAt = base.minusSeconds(60))
         assertTrue(MomentFriendAccess.setFriends(sender, receiver, true))
-        val base = Instant.parse("2026-10-28T12:00:00Z")
         val quiet = ResidentDirectMessage("quiet-${UUID.randomUUID()}", sender, receiver,
             "很早但仍有价值的那封信", base, "character")
         val seed = buildList {
             add(quiet)
             repeat(7) { pair ->
-                val a = person()
-                val b = person()
+                val a = person(bornAt = base.minusSeconds(60))
+                val b = person(bornAt = base.minusSeconds(60))
                 repeat(180) { n -> add(ResidentDirectMessage(UUID.randomUUID().toString(), a, b,
-                    "别的真实人物的通信$pair/$n", base.plusSeconds(size.toLong()), "character")) }
+                    "别的真实人物的通信$pair/$n", base.plusMillis(size.toLong()), "character")) }
             }
         }
         restoreMailbox(seed)
@@ -245,11 +245,17 @@ class ResidentMailDeliveryAtomicityTest {
     }
 
     private fun recordDelivered(mail: ResidentDirectMessage) {
-        for (viewer in listOf(mail.fromId, mail.toId)) SharedExperienceTimeline.record(
-            eventId = ResidentSocialMailbox.evidenceId(mail, viewer), characterId = viewer,
-            channel = "数字人物私信", source = "character-message", speaker = mail.fromId,
-            content = mail.content, occurredAt = mail.createdAt, triggerExtraction = false,
-            evidenceKind = EventEvidenceKind.Observation)
+        for (viewer in listOf(mail.fromId, mail.toId)) {
+            assertTrue("Fixture mail must be after this participant's actual birth",
+                DigitalLifeProfileStore.allowsTimestamp(viewer, mail.createdAt))
+            SharedExperienceTimeline.record(
+                eventId = ResidentSocialMailbox.evidenceId(mail, viewer), characterId = viewer,
+                channel = "数字人物私信", source = "character-message", speaker = mail.fromId,
+                content = mail.content, occurredAt = mail.createdAt, triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.Observation)
+            assertEquals(mail.content, SharedExperienceTimeline.eventsByIds(viewer,
+                listOf(ResidentSocialMailbox.evidenceId(mail, viewer))).single().content)
+        }
     }
 
     @Test fun failedPersistenceDoesNotInventDeliveryOrReciprocalAcquaintance() {

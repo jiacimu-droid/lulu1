@@ -140,3 +140,12 @@
 - **实际源码修复**：只在原ResidentSocialMailbox去掉无平台/测量依据的持久历史条数裁剪，原成功send原子锁、commit、双方各自时间线与唤醒流程不变。全部已保存信件沿同一messages权威追加，inbox/pendingIncoming的有限上下文窗口仍保留，不把全部历史塞入模型。没有新Store、额外收费思考、固定行为配额或额外互相唤醒。旧版本已经剪掉的原邮箱元数据不能凭空恢复，原时间线原文仍可另行检索；本轮不编造恢复。
 - **根因回归**：在原ResidentMailDeliveryAtomicityTest新增两条真实原schema恢复→send→commit→initialize重载链。第一条跨200封边界，逐ID/顺序核验全部保存，旧话题双方可见、第三人不可见、已读游标不倒退、只真实新信待处理，原时间线撤回仍阻止邮箱成为第二召回旁路。第二条超过1200封、多人物通信，验证安静联系人最早来信保留、重载一致，下一次commit失败不丢已存历史/不伪送达。原并发发送、持久化失败和首次联系权限回归保留。移除旧ResidentSocialMailboxTrimTest：其三项断言要求永久删除第201/1201封，正是本次被纠正的错误持久化契约，由上述真实读写回归替代，不隐藏运行失败。
 - **验证与边界**：已运行现有scripts/generate_code_index.py及git diff --check；正式索引由既有workflow按提交生成。此环境无Android SDK/Gradle，新增测试源码不等于JVM通过，须继续核对对应CI/APK。保留全部历史会增加现有SharedPreferences序列化和内存成本；多年规模、分页与存储压测及真机后台/强杀仍待验，不能用静默删除历史解决性能问题。本轮只改邮箱、同专项回归和本进度，不改群聊、公共ToolRouter、主决策或统一存储。
+
+
+## 2026-10-30 06时复核 · S2 历史私信回归的生命时间数据修正
+
+- **本轮先验旧链**：完整大纲与必读规则已复核，AGENTS、统一人物契约、成长框架和10-28计划与此前完整阅读版本逐字相同；读取当前CODE_INDEX及基础/内驱/Live2D最新进度。7d2e3257仍不重复修改：原索引success、APK取消。S1/S4既有自动基础与真机待验、S3完整邀约成功/拒绝/改期待验、群体自然度可选增强的分类不变；本轮优先完成上次S2真实存储链的未通过回归，不制造新功能。
+- **实际CI证据**：包含7a335136私信历史保存修复的最新[APK#40953735874](https://github.com/jiacimu-droid/lulu1/actions/runs/40953735874)、job123729056247 completed/failure；2064项JVM中3失败。两项是本专项新增ResidentMailDeliveryAtomicityTest在181/217行回看旧信失败；另一项为内驱CharacterCuriosityRuntimeTest.delayedVerifiedResultCannotReopenAnExplicitlyDroppedInterestButNewInquiryCan，expected4/actual3，未越界改其源码或断言。前台nullable构建阻断已由基础专项修复，本轮已实际执行JVM，不能再把这次失败报成未编译。
+- **根因定位**：新增两条fixture把信件固定在2026-10-28，person却将数字生命诞生时间设为当前时刻前60秒。正式SharedExperienceTimeline.record按DigitalLifeProfileStore.allowsTimestamp拒绝“诞生前经历”，故邮箱JSON全部保存的断言已经通过，但旧信双方的真实来源从未写入；historyForInspection正确排除不存在的证据。不是应该放宽的生产访问门禁，也不是7a335136重新剪掉了历史。
+- **修正**：仅为这两条历史恢复回归显式创建早于首封信的生命时间，并以当前时钟前一小时作为来信基线，后继邮件使用毫秒顺序，保证所有信都早于实际新send。recordDelivered先断言每个参与者出生有效，再核对真实时间线确实保存对应正文；不删掉重载、全部ID顺序、人物隔离、撤回、游标及写入失败断言。原其他三项回归的默认出生数据不变。正式邮箱保留全部历史的源码与模型窗口限制均未改。
+- **验证边界**：已运行原索引生成器及差异检查；新JVM结果仍须本次既有CI确认，不能将测试修正或排队当通过。即使社交5项通过，内驱失败未消除前也不能声称整套JVM/APK发布成功。真机、跨天自然旧话题续接及多年SharedPreferences规模仍待验。
