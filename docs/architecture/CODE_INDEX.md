@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4d6b6dba41168a210e14f6633da624f91f515fcc`
+- 基准提交：`744f78762025dcac75888f73f3a4b62c27398be7`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：224759
+- 已索引代码/文本行：224783
 - 已发现符号：3190
 
 | 文件 | 行数 | 符号数 |
@@ -540,13 +540,13 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 821 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 838 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 861 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 269 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 495 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 496 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 302 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
