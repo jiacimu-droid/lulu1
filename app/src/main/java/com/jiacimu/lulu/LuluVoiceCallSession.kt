@@ -213,6 +213,12 @@ internal object LuluVoiceCallSession {
     // Only the next call-model turn receives a scheduled wake event, not fake
     // user speech. Clearing this on interruption prevents stale wake prompts.
     private var pendingScheduledWakeReason: String? = null
+    // Completed cloud STT can arrive during an audible bedtime paragraph.
+    // Preserve the user's words until the current spoken paragraph finishes.
+    private data class DeferredBedtimeVoiceTurn(
+        val callId: String, val text: String, val acousticNote: String?,
+    )
+    private var deferredBedtimeVoiceTurn: DeferredBedtimeVoiceTurn? = null
     private var wakeCueJob: Job? = null
     // Text typed in the private chat during a call is the same conversation,
     // not a second online-chat request or an invented microphone transcript.
@@ -760,6 +766,15 @@ internal object LuluVoiceCallSession {
         return true
     }
 
+    private fun scheduleSleepRetry() {
+        // A recoverable model/TTS failure is not an early bedtime hangup.
+        // Bound repeated API retries without extending the absolute deadline.
+        sleepFailures = (sleepFailures + 1).coerceAtMost(8)
+        sleepContinuationJob?.cancel()
+        sleepContinuationJob = null
+        scheduleSleepContinuation()
+    }
+
     private fun scheduleSleepContinuation() {
         // Noisy VAD must never reset the bedtime deadline.
         if (sleepContinuationJob?.isActive == true) return
@@ -767,7 +782,9 @@ internal object LuluVoiceCallSession {
         if (!call.sleepMode) return
         val sessionId = call.callExperienceId
         sleepContinuationJob = scope.launch {
-            delay(SleepCallContinuationPolicy.nextPauseMillis(sleepSilenceMillis(), mutableState.value.sleepFocus == SleepGuidanceFocus.Story))
+            delay(SleepCallContinuationPolicy.nextPauseAfterFailureMillis(
+                sleepSilenceMillis(), mutableState.value.sleepFocus == SleepGuidanceFocus.Story,
+                sleepFailures))
             while (mutableState.value.connected &&
                 mutableState.value.callExperienceId == sessionId &&
                 mutableState.value.sleepMode) {
@@ -842,6 +859,7 @@ internal object LuluVoiceCallSession {
         externalResults.clear()
         externalResultSeen.clear()
         sleepFailures = 0
+        deferredBedtimeVoiceTurn = null
         replyIsSilence = false
         silenceAudioPending = false
         subtitleRevealJob?.cancel()
@@ -1042,6 +1060,15 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 if (!busy && current.connected) {
+                    val deferred = deferredBedtimeVoiceTurn
+                    if (deferred != null && current.sleepMode &&
+                        deferred.callId == current.callExperienceId &&
+                        speechQueue?.hasPendingAudio != true) {
+                        deferredBedtimeVoiceTurn = null
+                        handleUserSpeech(deferred.text, allowWhileMuted = true,
+                            acousticNote = deferred.acousticNote)
+                        return@busyChanged
+                    }
                     mediaSpeechResume?.cancel()
                     mediaSpeechResume = scope.launch {
                         delay(600L)
@@ -1081,10 +1108,7 @@ internal object LuluVoiceCallSession {
                     com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceFailed(it, mutableState.value.callExperienceId, error)
                 }
                 mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") }
-                if (mutableState.value.sleepMode && ++sleepFailures >= 3) {
-                    // Failed bedtime narration must release the paid STT capture.
-                    endSleepCallOnSilence()
-                }
+                if (mutableState.value.sleepMode) scheduleSleepRetry()
             } },
         )
         audioManager = context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -1107,6 +1131,9 @@ internal object LuluVoiceCallSession {
      */
     private fun interruptSystemReplyForSpeech(confirmedCloudSpeech: Boolean = false) {
         val state = mutableState.value
+        // Bedtime speech already audible cannot be preempted by late VAD/STT.
+        // Verified user words are handled after the spoken turn finishes.
+        if (state.sleepMode && state.speaking) return
         if (confirmedCloudSpeech) {
             if (!PhoneBargeInPolicy.shouldSupersedeUnplayedReply(
                     state.thinking, state.speaking, speechQueue?.hasPendingAudio == true)) return
@@ -1435,6 +1462,19 @@ internal object LuluVoiceCallSession {
         acousticNote: String? = null,
     ) {
         val current = mutableState.value
+        if (current.connected && current.sleepMode && current.speaking &&
+            spoken.isNotBlank() && !opening && !autonomousSleep &&
+            !autonomousSilence && !alreadyPersisted) {
+            val previous = deferredBedtimeVoiceTurn
+                ?.takeIf { it.callId == current.callExperienceId }
+            deferredBedtimeVoiceTurn = DeferredBedtimeVoiceTurn(
+                current.callExperienceId,
+                if (previous == null) spoken else PhoneTranscriptAssembler.combine(previous.text, spoken),
+                acousticNote ?: previous?.acousticNote,
+            )
+            mutableState.update { it.copy(statusMessage = "已听到你的话，讲完当前这段就回应") }
+            return
+        }
         if (!current.connected || (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
             (autonomousSleep && (!current.sleepMode || confirmedSpeechInProgress() || current.thinking ||
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
@@ -1842,7 +1882,9 @@ internal object LuluVoiceCallSession {
                     // A bedtime continuation is still a real character decision:
                     // it may end the call after a spoken farewell, before the
                     // separate thirty-minute billing safety deadline.
-                    if (sameReply() && !wakeOpening)
+                    // Silent bedtime continuation cannot override its 30m timer.
+                    if (sameReply() && !wakeOpening &&
+                        !(autonomousSleep && mutableState.value.sleepMode))
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
                 onLive2DAction = { visualAction ->
@@ -1900,9 +1942,8 @@ internal object LuluVoiceCallSession {
                     }
                     mutableState.update { it.copy(thinking = false, opening = false, statusMessage = "刚才没有听清回复，再说一句吧") }
                     scheduleListening(300)
-                    if (autonomousSleep && ++sleepFailures >= 3) {
-                        endSleepCallOnSilence()
-                    } else scheduleSleepContinuation()
+                    if (autonomousSleep) scheduleSleepRetry()
+                    else scheduleSleepContinuation()
                     return@onSuccess
                 }
                 // Apply the role model’s decision BEFORE the first TTS enqueue, so
@@ -1940,9 +1981,8 @@ internal object LuluVoiceCallSession {
                         statusMessage = "回复未完整生成，可以继续说话",
                         errorMessage = "回复没生成完整，继续说话或重试即可") }
                     scheduleListening(300)
-                    if (autonomousSleep && ++sleepFailures >= 3) {
-                        endSleepCallOnSilence()
-                    } else scheduleSleepContinuation()
+                    if (autonomousSleep) scheduleSleepRetry()
+                    else scheduleSleepContinuation()
                     return@onSuccess
                 }
                 // A character who explicitly says "那我挂了" has committed to
@@ -2039,9 +2079,8 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 scheduleListening(500)
-                if (autonomousSleep && ++sleepFailures >= 3) {
-                    endSleepCallOnSilence()
-                } else scheduleSleepContinuation()
+                if (autonomousSleep) scheduleSleepRetry()
+                else scheduleSleepContinuation()
             }
         }
     }
