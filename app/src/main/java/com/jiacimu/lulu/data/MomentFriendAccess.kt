@@ -69,6 +69,7 @@ object MomentFriendAccess {
             ?.putStringSet(OWNER_REMOVED, blocked)?.commit() == true
         if (ok) {
             changed.value += 1
+            MomentsStore.refreshOwnerUnreadVisibility()
             if (!friend) {
                 if (a != OWNER) MomentsStore.scrubHiddenTimeline(a)
                 if (b != OWNER) MomentsStore.scrubHiddenTimeline(b)
