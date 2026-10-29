@@ -61,7 +61,7 @@ import pathlib, sys
 p = pathlib.Path(sys.argv[1])
 s = p.read_text()
 marker = "// LULU_LOGIN_V2_CHECK"
-if marker in s:
+if marker in s or "// LULU_LOGIN_PAGE_STATE_V3" in s:
     print("登录兼容补丁已经存在")
     sys.exit(0)
 checks = [
@@ -140,6 +140,74 @@ print("已补充浏览器账号状态和新会话 Cookie 检测（扫码确认�
 PY
 }
 
+
+# Upgrade either the original source or our V2 login patch without resetting cookies.
+repair_login_deadline_source() {
+  local login="$ROOT/source/xiaohongshu/login.go"
+  [[ -f "$login" ]] || { echo "缺少上游登录源码：$login" >&2; return 1; }
+  python3 - "$login" <<'PY'
+import pathlib, shutil, sys
+p = pathlib.Path(sys.argv[1])
+s = p.read_text()
+marker = "// LULU_LOGIN_PAGE_STATE_V3"
+if marker in s:
+    print("登录页面状态等待修复已存在")
+    sys.exit(0)
+start_marker = "func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {"
+end_marker = "// CurrentUser 当前登录用户的基础信息。"
+if s.count(start_marker) != 1 or s.count(end_marker) != 1 or '"github.com/pkg/errors"' not in s:
+    raise SystemExit("登录源码接口与已核对的 v2.5.0 不一致，未覆盖原文件")
+start, end = s.index(start_marker), s.index(end_marker)
+if start >= end:
+    raise SystemExit("登录源码区段顺序异常，未覆盖原文件")
+replacement = '''// LULU_LOGIN_PAGE_STATE_V3: probe real state, not completion of every page resource.
+// 90s leaves room for browser startup/current-user lookup inside Android's 120s call.
+func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {
+    checkCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
+    defer cancel()
+    pp := a.page.Context(checkCtx)
+    if err := pp.Navigate("https://www.xiaohongshu.com/explore"); err != nil {
+        return false, errors.Wrap(err, "小红书登录检查：打开页面失败（登录状态未证实）")
+    }
+    ticker := time.NewTicker(750 * time.Millisecond)
+    defer ticker.Stop()
+    var lastErr error
+    for {
+        state, err := pp.Timeout(3*time.Second).Eval(`() => {
+            const state = window.__INITIAL_STATE__;
+            const user = state && state.user;
+            const ref = user && user.userInfo;
+            const info = ref && (ref.value !== undefined ? ref.value : (ref._value !== undefined ? ref._value : ref));
+            if ((info && info.guest !== true && (info.userId || info.user_id)) ||
+                document.querySelector('.main-container .user .link-wrapper .channel')) return 'logged_in';
+            if ((info && info.guest === true) || document.querySelector('.login-container .qrcode-img')) return 'logged_out';
+            return 'loading';
+        }`)
+        if err == nil {
+            switch state.Value.String() {
+            case "logged_in": return true, nil
+            case "logged_out": return false, nil
+            }
+        } else { lastErr = err }
+        select {
+        case <-checkCtx.Done():
+            if lastErr != nil {
+                return false, errors.Wrapf(checkCtx.Err(), "小红书登录检查：未取得账号状态（登录未证实）；页面检测错误: %v", lastErr)
+            }
+            return false, errors.Wrap(checkCtx.Err(), "小红书登录检查：未取得账号状态（登录未证实；页面可能加载缓慢或要求验证）")
+        case <-ticker.C:
+        }
+    }
+}
+
+'''
+backup = p.with_name("login.go.before-lulu-state-v3")
+if not backup.exists():
+    shutil.copy2(p, backup)
+p.write_text(s[:start] + replacement + s[end:])
+print("已修复登录检查：等真实账号状态，不再等待整页加载；旧源码已备份，Cookie 未改动")
+PY
+}
 
 # Replace full-page network-idle waiting with actual search payload readiness.
 # This is intentionally restricted to the pinned v2.5.0 source layout.
@@ -246,6 +314,7 @@ override = """func EnsureBrowser() (string, error) {
 p.write_text(source.replace(needle, override, 1))
 PY
   repair_login_source
+  repair_login_deadline_source
   repair_search_source
   (cd "$sourceDir"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$APP" .)
   chmod 700 "$APP"
@@ -341,6 +410,7 @@ repair_login() {
     cp "$ROOT/source/xiaohongshu/login.go" "$ROOT/source/xiaohongshu/login.go.before-lulu"
   fi
   repair_login_source
+  repair_login_deadline_source
   local candidate="${APP}.next.${BASHPID}"
   if ! (cd "$ROOT/source"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$candidate" .); then
     rm -f "$candidate"
@@ -379,7 +449,7 @@ reuse_runtime_settings() {
 
 case "$ACTION" in
   install) install_xhs ;;
-  repair-login) repair_login ;;
+  repair-login) reuse_runtime_settings; repair_login ;;
   repair-search) repair_search ;;
   start) start_xhs ;;
   restart) reuse_runtime_settings; stop_xhs; start_xhs ;;

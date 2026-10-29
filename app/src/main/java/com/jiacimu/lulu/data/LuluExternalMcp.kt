@@ -488,14 +488,17 @@ internal object LuluExternalMcp {
                 .put("params", JSONObject().put("name", name).put("arguments", arguments)),
                 timeoutMillis = toolTimeout).first
             val rpcError = reply.optJSONObject("error")
-            if (rpcError != null) error("MCP 调用失败：${rpcError.optString("message")}")
+            if (rpcError != null) error(if (service == "xiaohongshu")
+                XhsMcpLoginStatus.failureMessage(name, rpcError.optString("message"))
+                else "MCP 调用失败：${rpcError.optString("message")}")
             val result = reply.optJSONObject("result") ?: error("MCP 没有工具执行结果")
             if (result.optBoolean("isError")) {
                 val messages = result.optJSONArray("content")
                 val detail = (0 until (messages?.length() ?: 0)).mapNotNull {
                     messages?.optJSONObject(it)?.optString("text")
                 }.joinToString("; ").take(260)
-                error("MCP 工具执行失败：$detail")
+                error(if (service == "xiaohongshu") XhsMcpLoginStatus.failureMessage(name, detail)
+                    else "MCP 工具执行失败：$detail")
             }
             result
         }

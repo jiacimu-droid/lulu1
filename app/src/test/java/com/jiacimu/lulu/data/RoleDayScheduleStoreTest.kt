@@ -191,6 +191,27 @@ class RoleDayScheduleStoreTest {
                 .put("worldAction", "interact_resident").put("itemId", "cafe-worker")))
     }
 
+    @Test fun agreedResidentActivityCannotBeCompletedByAnArrivalGreetingOrAnotherEpisode() {
+        val selected = org.json.JSONObject().put("worldAction", "interact_resident")
+            .put("activityId", "continue_episode").put("incidentId", "actual-shared-writing")
+            .put("itemId", "cafe-worker")
+        val appointment = plan.copy(activityAction = "digital_world_action",
+            targetResidentId = "cafe-worker", activityArgs = selected.toString())
+        fun completed(args: org.json.JSONObject) = RoleDayScheduleStore.canComplete(
+            appointment, "role-a", "digital_world_action", "verified-activity", after, args)
+        assertFalse(completed(org.json.JSONObject().put("worldAction", "visit_public_place")))
+        assertFalse(completed(org.json.JSONObject().put("worldAction", "interact_resident")
+            .put("itemId", "cafe-worker").put("activityId", "greet")))
+        assertFalse(completed(org.json.JSONObject(selected.toString()).put("incidentId", "another-episode")))
+        assertTrue(completed(org.json.JSONObject(selected.toString()).put("text", "本次真实交出的新文字")))
+        assertFalse(RoleDayScheduleStore.canComplete(appointment, "role-b", "digital_world_action",
+            "other-persons-result", after, selected))
+        // Empty legacy activityArgs retains the original target-only contract.
+        assertTrue(RoleDayScheduleStore.canComplete(appointment.copy(activityArgs = "{}"),
+            "role-a", "digital_world_action", "legacy-real-encounter", after,
+            org.json.JSONObject().put("worldAction", "interact_resident").put("itemId", "cafe-worker")))
+    }
+
     @Test fun futureDailyRemindersKeepOriginalSlotAndSkipMissedDays() {
         val dayLater = RoleDayScheduleStore.nextDailyDue(due, due.plusSeconds(120))
         assertEquals(due.plusSeconds(86400), dayLater)

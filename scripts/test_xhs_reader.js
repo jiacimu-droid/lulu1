@@ -656,3 +656,88 @@ test('without a native bridge, note taps retain ordinary browser navigation', ()
   delete b.sandbox.luluXhsNavigation;
   assert.equal(b.click(`https://www.xiaohongshu.com/explore/${id}?xsec_token=actual`).prevented, false);
 });
+
+// Run the exact embedded production upgrade, not a second implementation of it.
+function patchLoginFixture(source, functionName) {
+  const os = require('node:os');
+  const cp = require('node:child_process');
+  const shell = fs.readFileSync('tools/xhs-xpzouying/arm64-proot.sh', 'utf8');
+  const start = shell.indexOf(`${functionName}() {`);
+  assert.ok(start >= 0);
+  const block = shell.slice(start).match(/<<'PY'\n([\s\S]*?)\nPY/)[1];
+  const dir = fs.mkdtempSync(require('node:path').join(os.tmpdir(), 'lulu-login-test-'));
+  const file = require('node:path').join(dir, 'login.go');
+  try {
+    fs.writeFileSync(file, source);
+    const applied = cp.spawnSync('python3', ['-', file], {input: block, encoding: 'utf8'});
+    return {status: applied.status, output: applied.stdout + applied.stderr,
+      source: fs.readFileSync(file, 'utf8')};
+  } finally { fs.rmSync(dir, {recursive: true, force: true}); }
+}
+const loginFixture = `package xiaohongshu
+import (
+ "context"
+ "encoding/json"
+ "github.com/pkg/errors"
+)
+func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {
+ return false, nil
+}
+// CurrentUser 当前登录用户的基础信息。
+type CurrentUser struct {}
+func (a *LoginAction) Login(ctx context.Context) error {
+ if exists, _, _ := pp.Has(".main-container .user .link-wrapper .channel"); exists { return nil }
+ return nil
+}
+func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error) {
+ if exists, _, _ := pp.Has(".main-container .user .link-wrapper .channel"); exists { return "", true, nil }
+ return "", false, nil
+}
+func (a *LoginAction) WaitForLogin(ctx context.Context) bool { return false }
+`;
+test('login repair upgrades original and installed V2 sources idempotently', () => {
+  const v2 = patchLoginFixture(loginFixture, 'repair_login_source');
+  assert.equal(v2.status, 0, v2.output);
+  assert.ok(v2.source.includes('LULU_LOGIN_V2_CHECK'));
+  for (const original of [loginFixture, v2.source]) {
+    const v3 = patchLoginFixture(original, 'repair_login_deadline_source');
+    assert.equal(v3.status, 0, v3.output);
+    const check = v3.source.slice(v3.source.indexOf('func (a *LoginAction) CheckLoginStatus'),
+      v3.source.indexOf('// CurrentUser'));
+    assert.equal(check.includes('MustWaitLoad'), false);
+    assert.equal(check.includes('MustNavigate'), false);
+    assert.ok(check.includes('context.WithTimeout(ctx, 90*time.Second)'));
+    assert.ok(check.includes('defer cancel()'));
+    assert.ok(check.includes('case <-checkCtx.Done():'));
+    assert.ok(check.includes('errors.Wrap(checkCtx.Err()'));
+    const again = patchLoginFixture(v3.source, 'repair_login_deadline_source');
+    assert.equal(again.status, 0, again.output);
+    assert.equal(again.source, v3.source);
+    const compatibility = patchLoginFixture(v3.source, 'repair_login_source');
+    assert.equal(compatibility.status, 0, compatibility.output);
+    assert.equal(compatibility.source, v3.source);
+  }
+});
+test('login upgrade fails closed for unknown source layouts', () => {
+  const input = loginFixture.replace('// CurrentUser 当前登录用户的基础信息。', '// unknown interface');
+  const result = patchLoginFixture(input, 'repair_login_deadline_source');
+  assert.notEqual(result.status, 0);
+  assert.equal(result.source, input);
+});
+test('actual patched login probe distinguishes pending hydration from real account state', () => {
+  const fixed = patchLoginFixture(loginFixture, 'repair_login_deadline_source');
+  assert.equal(fixed.status, 0, fixed.output);
+  const probe = fixed.source.match(/\.Eval\(`([\s\S]*?)`\)/)[1];
+  function state(data, selectors = []) {
+    return vm.runInNewContext(`(${probe})()`, {window: {__INITIAL_STATE__: data},
+      document: {querySelector: s => selectors.includes(s) ? {} : null}});
+  }
+  assert.equal(state(undefined), 'loading');
+  assert.equal(state({user: {userInfo: {value: {}}}}), 'loading');
+  assert.equal(state({user: {userInfo: {value: {userId: 'actual-account'}}}}), 'logged_in');
+  assert.equal(state({user: {userInfo: {_value: {user_id: 'actual-account'}}}}), 'logged_in');
+  assert.equal(state({user: {userInfo: {guest: true, userId: 'guest'}}}), 'logged_out');
+  assert.equal(state({}, ['.login-container .qrcode-img']), 'logged_out');
+  // A web_session string by itself is not browser authentication evidence.
+  assert.equal(state({web_session: 'old-cookie'}), 'loading');
+});

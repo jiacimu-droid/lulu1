@@ -8,6 +8,16 @@ internal data class XhsMcpLoginStatus(
     val detail: String = "",
 ) {
     companion object {
+        fun failureMessage(tool: String, detail: String): String {
+            val technical = detail.lowercase(java.util.Locale.ROOT)
+            if (tool == "check_login_status" &&
+                ("context deadline exceeded" in technical || "deadlineexceeded" in technical)) {
+                return "MCP 服务端登录检查超时，登录状态未证实；请更新服务端登录检测后重试。" +
+                    "这不是已退出登录的证明。详情：" + detail.take(180)
+            }
+            return "MCP 工具执行失败：" + detail.take(260)
+        }
+
         fun fromToolText(raw: String): XhsMcpLoginStatus {
             val text = raw.trim().take(600)
             val json = runCatching { org.json.JSONObject(text) }.getOrNull()

@@ -77,6 +77,23 @@ bash /tmp/lulu-xhs-repair.sh restart
 
 重启后先点击「检查登录」，再点击「搜索并读帖」，必须实际拿到笔记正文才能认定成功。若仍超时，查看 `~/.local/share/lulu-xhs/log/xhs.log` 中新增的「正在打开搜索页 / 页面已导航，等待真实笔记 / 已取得搜索数据」阶段；如果网页触发人机验证、网络不稳定或页面结构已变，该补丁无法保证搜到结果，需要按新错误继续排查。
 
+## 2026-10-29：检查登录时报 context deadline exceeded
+
+若错误明确来自 `check_login_status`，先区分服务端超时与账号退出：原 v2.5.0 和本项目 V2 登录补丁仍在 30 秒预算内等待整页 `MustWaitLoad()`，动态页面资源迟迟不结束时，会在读取账号状态前失败。Android 登录工具请求已有 120 秒预算，继续增加手机等待时间不能解除服务端的这段等待。
+
+在**原先运行 MCP 的 Ubuntu/proot shell** 内执行：
+
+```sh
+curl -fL https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-xpzouying/arm64-proot.sh -o /tmp/lulu-xhs-repair.sh
+bash /tmp/lulu-xhs-repair.sh repair-login
+```
+
+V3 检查在导航后等待真实账号或明确访客/二维码状态，页面还在加载时不会冒充已退出；仍未取得状态则明确报错。检查总预算为 90 秒，给手机原有 120 秒调用留下浏览器启动与账号读取时间；取消、导航和状态读取失败均保留真实错误。
+
+修复可升级原版和已装 V2 的源码，重复运行不会重复打补丁；保留 Cookie、Token、浏览器及正在运行实例的 DISPLAY 配置。Go 编译成功才替换程序，运行中的旧服务会重启。没有运行实例时，按原有 DISPLAY/浏览器配置执行 `start`。不要通过清除 Cookie 或重装源码来处理这条超时报错。
+
+随后在露露机点「检查登录」，再实际「搜索并读帖」。本仓库补丁与自动回归不等于你的服务已更新，也不等于真机登录验收；验证页、网络故障和网站变更仍可能需要读取服务日志继续定位。
+
 ## 关键排错（按真实执行阶段区分）
 
 | 症状 | 应检查 |

@@ -34,7 +34,8 @@ data class RoleDayPlan(
     val targetCharacterId: String = "",
     val targetResidentId: String = "",
     val locationCode: String = "",
-    /** Planned tool arguments are a suggestion, not permission to execute without a new decision. */
+    /** Requires a fresh decision. Explicit world activity/object IDs identify the planned outcome;
+     * wording and other nonidentity arguments remain suggestions. */
     val activityArgs: String = "",
     /** Accepted long-term promise that motivated this specific time slot. */
     val commitmentTaskId: String = "",
@@ -546,6 +547,7 @@ object RoleDayScheduleStore {
                 (plan.activityAction == action && canSchedule(action))) &&
             (plan.activityAction.isBlank() || plan.activityAction == action) &&
             plan.status in setOf("due", "planned") && !plan.dueAt.isAfter(now) &&
+            matchesChosenWorldActivity(plan, action, args) &&
             (plan.targetCharacterId.isBlank() || when (action) {
                 "send_character_message", "digital_world_action" ->
                     args?.optString("targetCharacterId") == plan.targetCharacterId
@@ -558,6 +560,16 @@ object RoleDayScheduleStore {
                 args?.optString("worldAction") != "visit_public_place" ||
                 (args?.optString("locationCode").orEmpty()
                     .ifBlank { args?.optString("location").orEmpty() } == plan.locationCode))
+
+    /** Compare only explicit structured activity identities, never infer a goal from its title.
+     * A scheduled discussion/continuation cannot be completed by greeting the same person. */
+    private fun matchesChosenWorldActivity(plan: RoleDayPlan, action: String, args: JSONObject?): Boolean {
+        if (action != "digital_world_action" || plan.activityArgs.isBlank()) return true
+        val selected = runCatching { JSONObject(plan.activityArgs) }.getOrNull() ?: return false
+        return listOf("worldAction", "activityId", "incidentId", "itemId", "targetCharacterId")
+            .all { key -> !selected.has(key) || selected.optString(key).isBlank() ||
+                args?.optString(key) == selected.optString(key) }
+    }
 
     /** Do not perform an action for a revoked wish, wrong target or old appointment. */
     fun canBegin(context: Context, characterId: String, planId: String, action: String,
@@ -656,6 +668,10 @@ object RoleDayScheduleStore {
                     "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}；" +
                     "上次选定的参数：${it.activityArgs.ifBlank { "{}" }.take(1200)}。" +
                     "重新核实场景与用户意愿，可按原参数执行，也可适当调整；不自动调用。" +
+                    (if (it.activityAction == "digital_world_action")
+                        "原参数明确给出的 worldAction/activityId/incidentId/itemId/targetCharacterId 标识本项活动，" +
+                            "不能用打招呼或另一件事的回执完成它。若决定换活动，取消原项并另行安排；" +
+                            "文字内容等非身份参数可由本人调整。出发、到场等准备动作不附本项 planId。" else "") +
                     "想做就执行真实工具并把 planId 放入同一次最终动作 args；只有成功回执才算完成。" +
                     "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +

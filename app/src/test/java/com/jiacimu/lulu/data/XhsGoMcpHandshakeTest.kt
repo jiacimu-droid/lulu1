@@ -100,4 +100,31 @@ class XhsGoMcpHandshakeTest {
             server.shutdown()
         }
     }
+    @Test fun serverLoginDeadlineIsDistinctFromLogoutAndDoesNotAutomaticallyRetry() = runBlocking {
+        for (rpcError in listOf(false, true)) {
+            val server = MockWebServer()
+            server.start()
+            try {
+                val app = RuntimeEnvironment.getApplication()
+                LuluExternalMcp.save(app, "xiaohongshu", server.url("/mcp").toString(), "test-token")
+                server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                    .setBody(result(1, JSONObject().put("protocolVersion", "2025-03-26"))))
+                server.enqueue(MockResponse().setResponseCode(202))
+                val detail = "工具 check_login_status 执行时发生内部错误: context deadline exceeded"
+                val failure = if (rpcError) JSONObject().put("jsonrpc", "2.0").put("id", 2)
+                    .put("error", JSONObject().put("code", -32603).put("message", detail)).toString()
+                else result(2, JSONObject().put("isError", true).put("content", JSONArray()
+                    .put(JSONObject().put("type", "text").put("text", detail))))
+                server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(failure))
+                val error = runCatching { LuluExternalMcp.check(app, "xiaohongshu") }.exceptionOrNull()
+                assertNotNull(error)
+                val message = error!!.message.orEmpty()
+                assertTrue(message, message.contains("服务端登录检查超时"))
+                assertTrue(message, message.contains("登录状态未证实"))
+                assertFalse(message.contains("请获取二维码"))
+                assertEquals(3, server.requestCount)
+            } finally { server.shutdown() }
+        }
+    }
+
 }
