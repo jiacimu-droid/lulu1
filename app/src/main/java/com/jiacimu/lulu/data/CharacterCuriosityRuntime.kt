@@ -327,7 +327,7 @@ internal object CharacterCuriosityRuntime {
         // callback must not consume it or rewrite an already exploring thread.
         // The real tool receipt stays in SharedExperienceTimeline even when it
         // cannot be attributed to this newer subjective inquiry.
-        val inquiryAt = runCatching { Instant.parse(current.optString("at")) }.getOrNull()
+        val latestInquiryAt = runCatching { Instant.parse(current.optString("at")) }.getOrNull()
         val olderOrigin = if (origin.isNotBlank() &&
             current.optString("observedId").isNotBlank() &&
             origin != current.optString("observedId")) {
@@ -336,8 +336,8 @@ internal object CharacterCuriosityRuntime {
         } else null
         if (closed == null && selected != null &&
             ((selectedQuestion != null && !freshOwnedInquiry) ||
-                (selectedQuestion == null && inquiryAt != null &&
-                    olderOrigin?.isBefore(inquiryAt) == true))) return
+                (selectedQuestion == null && latestInquiryAt != null &&
+                    olderOrigin?.isBefore(latestInquiryAt) == true))) return
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
