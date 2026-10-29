@@ -153,6 +153,105 @@ class ResidentMailDeliveryAtomicityTest {
         }
     }
 
+    @Test fun busyConversationKeepsOldTopicAndReadCursorAcrossAppendAndReload() {
+        val quiet = person()
+        val busy = person()
+        val receiver = person()
+        val outsider = person()
+        assertTrue(MomentFriendAccess.setFriends(busy, receiver, true))
+        val base = Instant.parse("2026-10-28T12:00:00Z")
+        val oldTopic = ResidentDirectMessage("quiet-${UUID.randomUUID()}", quiet, receiver,
+            "上次约好继续讨论的旧话题", base, "character")
+        val cursor = ResidentDirectMessage("cursor-${UUID.randomUUID()}", busy, receiver,
+            "本人已经考虑过这封信", base.plusSeconds(1), "character")
+        val seed = listOf(oldTopic, cursor) + (1..203).map { n ->
+            ResidentDirectMessage("later-${UUID.randomUUID()}", busy, receiver,
+                "后来的来信$n", base.plusSeconds(n + 1L), "character")
+        }
+        restoreMailbox(seed)
+        recordDelivered(oldTopic)
+        recordDelivered(cursor)
+        assertTrue(ResidentSocialMailbox.acknowledgeIncoming(receiver, cursor.id))
+        val next = ResidentSocialMailbox.send(busy, receiver, "这次真正送达的新消息")
+        val stored = JSONArray(actualPrefs.getString("messages", "[]"))
+        assertEquals(seed.map { it.id } + next.id,
+            (0 until stored.length()).map { stored.getJSONObject(it).getString("id") })
+        reloadMailbox()
+        assertEquals(listOf(next.id), ResidentSocialMailbox.pendingIncoming(receiver, 1000).map { it.id })
+        assertTrue(ResidentSocialMailbox.historyForInspection(receiver).any { it.id == oldTopic.id })
+        assertTrue(ResidentSocialMailbox.historyForInspection(quiet).any { it.id == oldTopic.id })
+        assertTrue(ResidentSocialMailbox.historyForInspection(outsider).isEmpty())
+        assertTrue(ResidentSocialMailbox.acknowledgeIncoming(receiver, next.id))
+        assertTrue(ResidentSocialMailbox.acknowledgeIncoming(receiver, cursor.id))
+        assertTrue(ResidentSocialMailbox.pendingIncoming(receiver, 1000).isEmpty())
+        // Withdrawal still prevents the saved letter becoming a second recall path.
+        SharedExperienceTimeline.deleteEvent(ResidentSocialMailbox.evidenceId(oldTopic, receiver))
+        assertFalse(ResidentSocialMailbox.historyForInspection(receiver).any { it.id == oldTopic.id })
+        assertTrue(ResidentSocialMailbox.historyForInspection(quiet).any { it.id == oldTopic.id })
+    }
+
+    @Test fun globalTrafficCannotEvictQuietPeersHistoryOrLoseItOnNextPersistenceFailure() {
+        val sender = person()
+        val receiver = person()
+        assertTrue(MomentFriendAccess.setFriends(sender, receiver, true))
+        val base = Instant.parse("2026-10-28T12:00:00Z")
+        val quiet = ResidentDirectMessage("quiet-${UUID.randomUUID()}", sender, receiver,
+            "很早但仍有价值的那封信", base, "character")
+        val seed = buildList {
+            add(quiet)
+            repeat(7) { pair ->
+                val a = person()
+                val b = person()
+                repeat(180) { n -> add(ResidentDirectMessage(UUID.randomUUID().toString(), a, b,
+                    "别的真实人物的通信$pair/$n", base.plusSeconds(size.toLong()), "character")) }
+            }
+        }
+        restoreMailbox(seed)
+        recordDelivered(quiet)
+        val next = ResidentSocialMailbox.send(sender, receiver, "不该冲掉别人的旧信")
+        reloadMailbox()
+        val stored = actualPrefs.getString("messages", "[]")
+        val rows = JSONArray(stored)
+        assertEquals(seed.map { it.id } + next.id,
+            (0 until rows.length()).map { rows.getJSONObject(it).getString("id") })
+        assertTrue(ResidentSocialMailbox.historyForInspection(receiver).any { it.id == quiet.id })
+        interceptCommit { false }
+        try {
+            assertTrue(runCatching { ResidentSocialMailbox.send(sender, receiver, "这次写入失败") }.isFailure)
+            assertEquals(stored, actualPrefs.getString("messages", "[]"))
+        } finally {
+            field("prefs").set(ResidentSocialMailbox, actualPrefs)
+        }
+        reloadMailbox()
+        assertTrue(ResidentSocialMailbox.historyForInspection(receiver).any { it.id == quiet.id })
+        assertEquals(1262, JSONArray(actualPrefs.getString("messages", "[]")).length())
+    }
+
+    /** Existing-schema restore: exercise the real next send/commit/reload at the
+     * old 200/1200 boundaries without 1200 independent wake jobs or model calls. */
+    private fun restoreMailbox(seed: List<ResidentDirectMessage>) {
+        val rows = JSONArray()
+        seed.forEach { mail -> rows.put(org.json.JSONObject().put("id", mail.id)
+            .put("fromId", mail.fromId).put("toId", mail.toId).put("content", mail.content)
+            .put("createdAt", mail.createdAt.toString()).put("author", mail.author)) }
+        assertTrue(actualPrefs.edit().putString("messages", rows.toString()).commit())
+        reloadMailbox()
+    }
+
+    private fun reloadMailbox() {
+        field("prefs").set(ResidentSocialMailbox, null)
+        ResidentSocialMailbox.initialize(app)
+        field("appContext").set(ResidentSocialMailbox, null)
+    }
+
+    private fun recordDelivered(mail: ResidentDirectMessage) {
+        for (viewer in listOf(mail.fromId, mail.toId)) SharedExperienceTimeline.record(
+            eventId = ResidentSocialMailbox.evidenceId(mail, viewer), characterId = viewer,
+            channel = "数字人物私信", source = "character-message", speaker = mail.fromId,
+            content = mail.content, occurredAt = mail.createdAt, triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.Observation)
+    }
+
     @Test fun failedPersistenceDoesNotInventDeliveryOrReciprocalAcquaintance() {
         val sender = person()
         val receiver = person()

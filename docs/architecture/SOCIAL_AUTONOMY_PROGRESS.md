@@ -131,3 +131,12 @@
 - 源码与四项集成回归已提交main：[3b53b598](https://github.com/jiacimu-droid/lulu1/commit/3b53b598cabba3cc8d960d0b0d64fc69279781b2)。对应原[索引#40910393155](https://github.com/jiacimu-droid/lulu1/actions/runs/40910393155) completed/success，实际索引提交5c2315b的基准为此SHA。本提交[APK#40910393113](https://github.com/jiacimu-droid/lulu1/actions/runs/40910393113)在分配job前被后续main取消，不能声明测试执行过。
 - 继续核对包含本提交的ce5b7458：[APK#40910786872](https://github.com/jiacimu-droid/lulu1/actions/runs/40910786872)、job123578015677。Live2D步骤成功，Android步骤16:22:52 UTC启动，16:23:25被新main取消；日志尚未出现testDebugUnitTest执行完成，故本轮新增JVM/phone/发布均仍未确认。不把排队、编译或取消当通过，也不反复重跑干扰其他窗口。
 - 并发窗口后续7bd2ad75/8c2e2f35为现有提醒增加好友权限刷新及锁序处理，已逐处重新读取，保留本次commitUserCommentReply及全部回归；未覆盖同文件新改动。真机及自然社交仍待验。
+
+
+## 2026-10-30 02时轮次 · S2 私信旧话题历史与已读游标不再被新聊天挤掉
+
+- **最新基线/分类**：完整大纲已读；AGENTS、CODE_INDEX及四项独立进度已核对。统一人物契约、成长框架和10-28连续性计划与此前完整阅读版本逐字相同。7d2e3257索引#40839986477 success、APK#40839986524 cancelled，本人在场候选不重复开发。上轮3b53b598由后续b189e4fc包含（比较仅增加好友权限刷新，原回复提交与集成回归均保留），对应[APK#40922493197](https://github.com/jiacimu-droid/lulu1/actions/runs/40922493197) completed/success、job123619179575 success，补足上轮尚缺的JVM/phone/发布证据；真机仍未验。最新群聊共同认识、递归接话、删除时间线与心声由另一窗口持续修改，本轮不覆盖。S1/S4已有自动基础，S3完整自然邀约成功/拒绝/改期及双方到场为已有待验，更多群体自然度为后续增强。
+- **本轮真实缺口**：ResidentSocialMailbox.send 在每次成功发送前调用trimForStorage，按每对200封及总1200封静默剪掉唯一邮箱存档。historyForInspection、latestByContact和witnessedMessage都依赖此存档，故原始时间线仍在却失去旧话题的通信身份与手机回看。一个繁忙联系人把considered-incoming游标所指消息挤掉时，unconsidered找不到游标而从头算，其他安静联系人已读的旧信还可能重新变成待处理，诱发重复考虑和不必要回复。
+- **实际源码修复**：只在原ResidentSocialMailbox去掉无平台/测量依据的持久历史条数裁剪，原成功send原子锁、commit、双方各自时间线与唤醒流程不变。全部已保存信件沿同一messages权威追加，inbox/pendingIncoming的有限上下文窗口仍保留，不把全部历史塞入模型。没有新Store、额外收费思考、固定行为配额或额外互相唤醒。旧版本已经剪掉的原邮箱元数据不能凭空恢复，原时间线原文仍可另行检索；本轮不编造恢复。
+- **根因回归**：在原ResidentMailDeliveryAtomicityTest新增两条真实原schema恢复→send→commit→initialize重载链。第一条跨200封边界，逐ID/顺序核验全部保存，旧话题双方可见、第三人不可见、已读游标不倒退、只真实新信待处理，原时间线撤回仍阻止邮箱成为第二召回旁路。第二条超过1200封、多人物通信，验证安静联系人最早来信保留、重载一致，下一次commit失败不丢已存历史/不伪送达。原并发发送、持久化失败和首次联系权限回归保留。移除旧ResidentSocialMailboxTrimTest：其三项断言要求永久删除第201/1201封，正是本次被纠正的错误持久化契约，由上述真实读写回归替代，不隐藏运行失败。
+- **验证与边界**：已运行现有scripts/generate_code_index.py及git diff --check；正式索引由既有workflow按提交生成。此环境无Android SDK/Gradle，新增测试源码不等于JVM通过，须继续核对对应CI/APK。保留全部历史会增加现有SharedPreferences序列化和内存成本；多年规模、分页与存储压测及真机后台/强杀仍待验，不能用静默删除历史解决性能问题。本轮只改邮箱、同专项回归和本进度，不改群聊、公共ToolRouter、主决策或统一存储。
