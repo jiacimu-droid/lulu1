@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:18:42.759174+00:00",
-  "commit": "308d2e5f9b44ffb018027b49e4b8789c196f2d96",
+  "generatedAt": "2026-10-29T16:19:34.013740+00:00",
+  "commit": "3b53b598cabba3cc8d960d0b0d64fc69279781b2",
   "branch": "main",
-  "sourceFingerprint": "ab2be39681a8b4df38537cf4f581c917d05d01fb89f88d777482d8725e705f06",
+  "sourceFingerprint": "2bd1d2221d72a20d148cea0f8b99c5bafcc6b16939ad154daa2e4135807160d3",
   "summary": {
     "files": 1081,
-    "lines": 223244,
+    "lines": 223374,
     "symbols": 3172
   },
   "symbolIndex": {
@@ -6271,7 +6271,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 786
+        "line": 809
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -10475,7 +10475,7 @@
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 806
+        "line": 829
       }
     ],
     "annotations": [
@@ -27810,8 +27810,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1102,
-      "sha256": "b8ffd227fe23ef4a01e1f33c80162e5e8bcc01a147b0b59d8f774e68bd664b53",
+      "lines": 1125,
+      "sha256": "85bee01e9d1a74a4439ba14bb7097d5414729b4860fed81a0ab35ac376439e87",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -27883,11 +27883,11 @@
         },
         {
           "name": "delete",
-          "line": 786
+          "line": 809
         },
         {
           "name": "clearCharacterData",
-          "line": 806
+          "line": 829
         }
       ]
     },
@@ -36297,8 +36297,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 202,
-      "sha256": "69d21639700ecb19257c103f736750d2d04601ceae2b537522f9205f51855f71",
+      "lines": 309,
+      "sha256": "c5b7183891a287c5f055e945556e7a864536aa6737d6bdba45336fa57a6faf52",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
