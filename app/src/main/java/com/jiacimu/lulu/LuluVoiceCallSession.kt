@@ -1807,7 +1807,7 @@ internal object LuluVoiceCallSession {
                         latest.characterId, latest.callExperienceId)) {
                     "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。说话的每个片段须按已提供的动作契约选择真实 Motion3；安静时可以不动，不要反复口头宣布视频已开启。$cameraVisibilityRule"
                 } else {
-                    "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示。$cameraVisibilityRule 等身体实际可用时再选择可执行动作。"
+                    "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示。$cameraVisibilityRule 如果本轮提供了已导入模型的动作目录，仍应为实际说出的每个片段自主选择 Motion3，后台可先排队；只可依据播放器真实回执判断是否做出来。"
                 }
             } else {
                 if (InteractionSignalBridge.hasRenderedVideo(
