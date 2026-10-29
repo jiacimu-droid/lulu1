@@ -50,7 +50,12 @@ internal object IslandActorPlay {
     }
 
     fun parse(raw: String): IslandActorChoice? = runCatching {
-        val j = JSONObject(raw.trim())
+        // Common JSON code fences are presentation, not additional semantic decisions.
+        val input = raw.trim()
+        val fence = 96.toChar().toString().repeat(3)
+        val json = if (input.startsWith(fence))
+            input.substringAfter('\n').substringBeforeLast(fence).trim() else input
+        val j = JSONObject(json)
         if (!j.has("speech") || j.get("speech") !is String) return@runCatching null
         val action = j.getString("actionId")
         if (action.isBlank()) return@runCatching null

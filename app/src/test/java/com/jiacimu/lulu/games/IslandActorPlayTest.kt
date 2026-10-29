@@ -53,5 +53,8 @@ class IslandActorPlayTest {
         assertNull(IslandActorPlay.parse("""{"actionId":"none"}"""))
         assertEquals(IslandActorChoice("none",""),
             IslandActorPlay.parse("""{"actionId":"none","speech":""}"""))
+        val fence = 96.toChar().toString().repeat(3)
+        assertEquals(IslandActorChoice("none",""),
+            IslandActorPlay.parse(fence+"json\n"+"""{"actionId":"none","speech":""}"""+"\n"+fence))
     }
 }
