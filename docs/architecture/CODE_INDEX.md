@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`78689f95f59ec695c731b3177603384901128919`
+- 基准提交：`e86b4a50714922ec957a1a19410c51561ec13a03`
 - 分支：`main`
 - 已索引文件：1066
-- 已索引代码/文本行：219153
+- 已索引代码/文本行：219220
 - 已发现符号：3130
 
 | 文件 | 行数 | 符号数 |
@@ -330,7 +330,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 217 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt` | 480 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt` | 547 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 137 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
