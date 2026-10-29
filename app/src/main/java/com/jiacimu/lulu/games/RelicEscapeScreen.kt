@@ -49,6 +49,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var kits by remember{mutableIntStateOf(1)}
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
     var confirmAbandon by remember{mutableStateOf(false)}
+    var showGuide by remember(run?.id){mutableStateOf(true)}
+    var showAdvanced by remember(run?.id){mutableStateOf(false)}
+    var showBag by remember(run?.id){mutableStateOf(false)}
     var error by remember{mutableStateOf("")}
 
     fun change(block:()->RelicSnapshot) {
@@ -168,6 +171,25 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     "   ⚒ 拆解工具 "+run.tools+"     ·     "+run.sites.count{!it.spent && it.kind=="altar"}+" 处未知秘藏",
                     color=relicMuted,fontSize=11.sp)
             }
+            Surface(color = Color(0xFF192738), shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, relicGold.copy(alpha = .21f))) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("先找宝物，再返回撤离门", modifier = Modifier.weight(1f),
+                            color = relicGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = { showGuide = !showGuide }) {
+                            Text(if (showGuide) "收起指引" else "怎么玩", color = relicGold, fontSize = 11.sp)
+                        }
+                    }
+                    if (showGuide) {
+                        Text("① 轻点地图选择目标  ② 点下方主按钮执行",
+                            color = Color.White, fontSize = 12.sp, lineHeight = 19.sp)
+                        Text("开箱拿宝物 → 找绿色撤离门 → 守住三回合。每次行动都会推进时间，怪物会反击。",
+                            color = relicMuted, fontSize = 11.sp, lineHeight = 17.sp)
+                    }
+                }
+            }
             RelicEscapeWorldMap(run,selected){x,y->selected=x to y}
             RelicPanel {
                 val sx=selected.first;val sy=selected.second
@@ -186,6 +208,36 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     else->"遗迹通路"
                 },fontSize=12.sp,color=relicMuted)
                 Text(run.notice,color=Color.White,fontSize=12.sp)
+                val quick = relicQuickAction(run, selected)
+                Button(
+                    onClick = { quick?.let { action(it.action, it.x, it.y, it.id) } },
+                    enabled = quick != null,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = relicGold, contentColor = relicInk,
+                        disabledContainerColor = Color(0xFF465262),
+                        disabledContentColor = Color(0xFFB4BECA),
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Text(quick?.label ?: when {
+                        !visible -> "迷雾未探明 · 先探索附近"
+                        selected == (hero.x to hero.y) -> "轻点地图选择宝箱、怪物或出口"
+                        else -> "目标暂不可行动 · 换个目标"
+                    }, fontSize = 13.sp, fontWeight = FontWeight.Black)
+                }
+                if (quick != null) {
+                    Text(quick.hint, color = relicMuted, fontSize = 11.sp, lineHeight = 16.sp)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("更多操作", color = relicGold, fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { showAdvanced = !showAdvanced }) {
+                        Text(if (showAdvanced) "收起操作" else "方向 / 潜行 / 道具",
+                            color = relicGold, fontSize = 12.sp)
+                    }
+                }
+                if (showAdvanced) {
                 if(run.phase!=RelicPhase.DOWNED) {
                     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                         Column(horizontalAlignment=Alignment.CenterHorizontally) {
@@ -253,6 +305,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         action("disarm",sx,sy)
                     }
                 }
+                }
                 val latestTreasure=run.events.lastOrNull{it.action=="invoke" || it.action=="open"}
                 if(latestTreasure!=null && run.turns-latestTreasure.turn<=1) {
                     Surface(shape=RoundedCornerShape(12.dp),
@@ -269,7 +322,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
             }
             RelicPanel {
-                Text("背包 · 仅撤离成功后入库",color=Color.White,fontWeight=FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("战利品 · ${hero.bag.size} 件 · ${hero.load}/${RelicEscapeRules.CAPACITY} 格",
+                        modifier = Modifier.weight(1f), color = Color.White, fontWeight = FontWeight.Bold)
+                    TextButton(onClick = { showBag = !showBag }) {
+                        Text(if (showBag) "收起背包" else "打开背包", color = relicGold)
+                    }
+                }
+                Text("只有成功撤离后，宝物才会进入永久仓库。",
+                    color = relicMuted, fontSize = 11.sp)
+                if (showBag) {
                 if(hero.bag.isEmpty())Text("背包空空的",color=relicMuted)
                 hero.bag.forEach{item->
                     Row(verticalAlignment=Alignment.CenterVertically) {
@@ -286,6 +348,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                             TextButton(onClick={action("pickup",id=drop.loot.id)}){Text("拾取")}
                         }
                     }
+                }
             }
             if(run.allies.isNotEmpty())RelicPanel {
                 Text("同行伙伴 · 现场实际状态",color=Color.White,fontWeight=FontWeight.Bold)
