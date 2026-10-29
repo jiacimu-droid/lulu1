@@ -2047,6 +2047,49 @@ object ProactivePerceptionRuntime {
         }
         // GROUP_MESSAGE / GROUP_KAOMOJI and all other actions are not
         // evaluated in step 1 (private-message gate scope only).
+        // Persist the role's actual model selection before entering the tool
+        // executor. Previously this happened only AFTER all primary/side
+        // effects, so a process death left a real tool receipt with no
+        // decision explaining why it was requested.
+        currentCoroutineContext().ensureActive()
+        val executionDecisionId = "perception:$shadowRequestId"
+        val choseOnlySteps = decision.action == Action.SILENT &&
+            (decision.sideActions?.length() ?: 0) > 0
+        CharacterInnerLifeStore.recordDecision(
+            characterId = characterId,
+            decisionId = executionDecisionId,
+            selectedAction = if (choseOnlySteps) "steps" else decision.action.name.lowercase(),
+            reason = decision.actionBasis()?.reason.orEmpty().ifBlank {
+                if (decision.action == Action.SILENT)
+                    "未提供具体的沉默理由；是否执行附加步骤须查独立回执"
+                else "本次模型未说明选择这项行动的原因"
+            },
+            chosenMotiveId = resolvedMotiveId,
+            alternatives = decision.alternatives,
+            outcome = "模型已选择；尚未取得本轮执行总结",
+            succeeded = false,
+            now = now,
+            causalEvidenceId = causalEvidenceId,
+            attentionOffered = unfinishedChoices.map { "${it.kind}:${it.id}" },
+            actionSignature = if (choseOnlySteps)
+                AutonomousActionTrace.selectedStepsSignature(decision.sideActions)
+                else AutonomousActionTrace.signature(
+                    action = decision.action.name.lowercase(),
+                    worldAction = decision.worldAction,
+                    destination = decision.location,
+                    itemId = decision.itemId,
+                    activityId = decision.activityId,
+                    readingBookId = decision.readingBookId,
+                    gameId = decision.gameId,
+                    groupId = decision.groupId,
+                    tool = decision.tool,
+                    text = decision.text,
+                ),
+            executionRequestId = shadowRequestId,
+            executionStepCount = decision.sideActions?.length() ?: 0,
+            executionHasPrimary = decision.action != Action.SILENT,
+            executionState = "pending",
+        )
         val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
             performAction(
                 appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,
@@ -2058,15 +2101,7 @@ object ProactivePerceptionRuntime {
                 replyConversationIds = onlineUnread.conversationIds,
                 userText = onlineUnread.text,
                 acceptedOnlineRevision = onlineRevision,
-                requestId = when {
-                    // A new user message is a NEW decision. Never reuse the older
-                    // call-end/world-event request key while the user is waiting.
-                    messageStimulus != null ->
-                        "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}-$executionVariant"
-                    salientInteraction != null ->
-                        "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
-                    else -> "proactive-${now.toEpochMilli()}"
-                },
+                requestId = shadowRequestId,
             )
         }
         currentCoroutineContext().ensureActive()
@@ -2222,46 +2257,13 @@ object ProactivePerceptionRuntime {
         // No spoken primary action is not the same as "did nothing".
         // One decision can intentionally stay silent while selecting steps;
         // the existing ToolRouter receipts alone determine their outcomes.
-        val choseStepsWithoutPrimary = decision.action == Action.SILENT &&
-            (decision.sideActions?.length() ?: 0) > 0
-        val recordedSteps = choseStepsWithoutPrimary || (!execution.primarySuccess && execution.stepsCompleted)
-        val recordedChoice = if (recordedSteps) "steps"
-            else decision.action.name.lowercase()
-        CharacterInnerLifeStore.recordDecision(
-            characterId = characterId,
-            decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
-            selectedAction = recordedChoice,
-            // A blank model reason must remain visible as a missing reason,
-            // rather than disappearing from the audit as if no call happened.
-            reason = decision.actionBasis()?.reason.orEmpty().ifBlank {
-                if (decision.action == Action.SILENT)
-                    "未提供具体的沉默理由；本次没有执行外部行动"
-                else "本次模型未说明选择这项行动的原因"
-            },
-            chosenMotiveId = resolvedMotiveId,
-            alternatives = decision.alternatives,
-            outcome = execution.summary,
-            succeeded = execution.success,
-            now = now,
-            causalEvidenceId = causalEvidenceId,
-            // Snapshot only the cues supplied to this model decision; a model
-            // choosing silence does not prove it considered/rejected each cue.
-            // The ordinary decisions history already owns these facts.
-            attentionOffered = unfinishedChoices.map { "${it.kind}:${it.id}" },
-            actionSignature = if (recordedSteps)
-                AutonomousActionTrace.selectedStepsSignature(decision.sideActions)
-                else AutonomousActionTrace.signature(
-                action = decision.action.name.lowercase(),
-                worldAction = decision.worldAction,
-                destination = decision.location,
-                itemId = decision.itemId,
-                activityId = decision.activityId,
-                readingBookId = decision.readingBookId,
-                gameId = decision.gameId,
-                groupId = decision.groupId,
-                tool = decision.tool,
-                text = decision.text,
-            ),
+        // Only the real executor's summary finalizes this previously durable
+        // choice. Source edits/retractions or a late old turn cannot overwrite
+        // a newer interpretation. The independent ToolRouter receipts remain
+        // authoritative for each side effect.
+        CharacterInnerLifeStore.completeDecision(
+            characterId, executionDecisionId, shadowRequestId,
+            execution.summary, execution.success,
         )
         // Per-experience sharing progress is projected exactly once by
         // ToolRouter from that action's own native receipt, as for side steps.
