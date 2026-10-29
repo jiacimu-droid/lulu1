@@ -392,6 +392,22 @@ class CharacterRecordArchitectureTest {
         assertEquals(full.take(180), projected.single { it.key == "later-world" }.detail)
     }
 
+    @Test fun separateNearbyCausalThoughtsWithSameOpeningDoNotMergeBySemanticSimilarity() {
+        val sharedOpening = (1..3).joinToString("") {
+            "刚才听说那个古堡摸金很有趣，我想先弄清楚为什么会有蓝宝石项链和甜章这种奖励。"
+        }
+        val firstThought = "${sharedOpening}\n我决定先去外面散个步。"
+        val secondThought = "${sharedOpening}\n后来想起约好一起看书，所以改成先去书桌。"
+        val earlier = CharacterStateHistoryRow("first-thought", now, "当时的感想与取舍",
+            firstThought, evidenceIds = listOf("same-real-event"))
+        val later = CharacterStateHistoryRow("new-thought", now.plusSeconds(35),
+            "当时的感想与取舍", secondThought, evidenceIds = listOf("same-real-event"))
+        val rows = CharacterStateHistory.compactRepeatedMoments(listOf(earlier, later))
+        assertEquals(2, rows.size)
+        assertEquals(setOf(firstThought, secondThought),
+            rows.map { CharacterStateHistory.display(it).voice }.toSet())
+    }
+
     @Test fun multilineHistoryDedupeUsesEntireAuthoredVoiceNotSharedOpening() {
         val opening = "刚才玩古堡摸金让我有点好奇。我想知道它有哪些玩法，又担心问太多会打扰到她。"
         val firstEnding = "现在决定去水边吹吹风，等她回来再问一遍那个宝箱是怎么开的。"
