@@ -484,3 +484,13 @@
 - [x] **回归源码**：`ResidentDailyContinuityTest` 增加原 08:05 计划 09:00、10:05 重放只复用原计划 ID、主人取消后不复活；结构合法但当前不允许联系的日程被拒，不能标 `finished`、不能再次收费，原角色拒绝事件与次日历史状态可查询。
 - [x] **main 提交**：`72ba6bdb0978c178e2ace4b560b41318334ad956`（源码）、`21e1d56dfe55cfe3a88498e6cd110164bbb5f3c9`（回归），`6797e6290ad760c8ca57dc263f03f79c1152f774`（补充强杀后未入库且过期的计划不得补排）；索引遵循现有 code-index 自动工作流，不手工伪造。
 - [ ] **待验**：本次 HEAD 对应 Android JVM 全套、APK、自动索引最终结果及真实设备强杀/过时计划/撤权后恢复。无法恢复旧版本从未保存的原始决定时刻；对已过期且原本没有成功入库的计划，只记录失败并交给下一次本人模型轮次决定，不擅自补执行。
+
+
+## 2026-10-30 P4：删除居民日程后的原到点请求历史归属（源码已提交，真机待验）
+
+- [x] **根因**：旧到点请求虽然仍保留 `due-phase:execute:<planId>:<dueAt>`、错误和模型决定，但 `historicalAttempts` 只通过当前存在的本人日程反查属主；用户删除日程后，原请求的未知计费/失败历史从本人界面消失。旧请求 ID 本身不能证明归属。
+- [x] **根因修复**：在原 `ResidentDailyDecision.claimDueRequest` 的 claim/phase 同一持久提交中保存本人 `characterId`、原 `planId` 和 `dueAt`；只读历史校验来源元数据与请求 ID 一致后恢复已删除计划的原请求。没有元数据的旧请求仍只能凭存在的本人日程确认，不猜测、不新建状态中心、不恢复已删除计划或重复购买模型决定。
+- [x] **回归源码**：真实 MockWebServer 502 未知结果→删除原日程→隔日历史仍归本人→另一居民不可见→只读查询不修改状态、旧动作不重发；旧版无来源元数据的删除情形保持保守。源码 `c26a9df50423c371e6b3ebf779f0963e06328205`，回归 `ce57e3eb750a27bd04e4ad3d94c81f686ed3b4f7`。
+- [x] **索引**：原 Refresh code index [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) completed/success；生成物已进入 main，未手工修改。
+- [ ] **Android JVM/APK 与真机**：本轮回归提交的 Lulu APK [#40968872681](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872681) 被并发提交取消；源码提交的 [#40968831378](https://github.com/jiacimu-droid/lulu1/actions/runs/40968831378) 最后核实时仍在运行且未进入 Android 测试。需要等待包含本轮代码的后继 main 构建完整通过，并真机验证 502/强杀/删除日程/跨人隔离。长期数据规模与旧版已删计划无归属的历史仍是明确边界。
+- **协作**：本轮仅基础连续性源码/回归及本专项进度，不修改社交、内驱或 Live2D 专项；详细记录见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
