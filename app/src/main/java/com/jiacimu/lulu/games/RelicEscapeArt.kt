@@ -49,7 +49,7 @@ internal fun RelicEscapeWorldMap(
             (if(fullscreen)Modifier.fillMaxSize()else Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h))
                 .pointerInput(run.id,onSelect) {
                     detectTapGestures { tap->
-                        val t=if(fullscreen)maxOf(size.width/(if(size.width>size.height)20f else 12f),size.height/run.h)
+                        val t=if(fullscreen)maxOf(size.width.toFloat()/(if(size.width>size.height)20f else 12f),size.height.toFloat()/run.h.toFloat())
                             else min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
                         val ox=if(fullscreen)(size.width/2f-(run.hero.x+.5f)*t)
                             .coerceIn((size.width-run.w*t).coerceAtMost(0f),0f) else 0f
