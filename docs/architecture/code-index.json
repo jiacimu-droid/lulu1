@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T23:56:57.793644+00:00",
-  "commit": "5427e1bfe45dbc54ef6e2dc60e1e7682e6c87dd7",
+  "generatedAt": "2026-10-29T00:57:11.983206+00:00",
+  "commit": "a7a66e2599f2e0f498ea056ad81411dd46b447df",
   "branch": "main",
-  "sourceFingerprint": "1ffaefbf31a36d1eca84b6d13f1bfab3c65708092a8bacdf69154637135204ef",
+  "sourceFingerprint": "c78d0b2b753ca8f2c74bed39c7e84ac8d53b0a782042f2f7c388e1ee7e9db063",
   "summary": {
     "files": 1054,
-    "lines": 216242,
+    "lines": 216294,
     "symbols": 3093
   },
   "symbolIndex": {
@@ -423,7 +423,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1852
+        "line": 1866
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -1841,7 +1841,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1138
+        "line": 1141
       }
     ],
     "part": [
@@ -3699,15 +3699,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1454
+        "line": 1457
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1506
+        "line": 1509
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1553
+        "line": 1556
       }
     ],
     "todoId": [
@@ -4107,7 +4107,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-        "line": 131
+        "line": 138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -5059,7 +5059,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1610
+        "line": 1624
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -6135,13 +6135,13 @@
     "tail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-        "line": 76
+        "line": 83
       }
     ],
     "matching": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-        "line": 98
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -6151,7 +6151,7 @@
     "hasOlder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-        "line": 117
+        "line": 124
       }
     ],
     "CharacterInnerLifeStore": [
@@ -6163,37 +6163,37 @@
     "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 379
+        "line": 380
       }
     ],
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 413
+        "line": 417
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 915
+        "line": 929
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1078
+        "line": 1092
       }
     ],
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1676
+        "line": 1690
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1728
+        "line": 1742
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -16843,37 +16843,37 @@
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1178
+        "line": 1181
       }
     ],
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1232
+        "line": 1235
       }
     ],
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2011
+        "line": 2014
       }
     ],
     "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2053
+        "line": 2056
       }
     ],
     "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2113
+        "line": 2116
       }
     ],
     "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2178
+        "line": 2181
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -22885,8 +22885,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-      "lines": 142,
-      "sha256": "6176f91937253e4023f73e9f433cdb16bb8bd448656dac49b8c7869df8fd3f95",
+      "lines": 149,
+      "sha256": "17e34b2df0f5960e62b06cd6dd4fd59726025e3150b5675b56cf2c6ffe1ef133",
       "symbols": [
         {
           "name": "isArchiveKey",
@@ -22906,26 +22906,26 @@
         },
         {
           "name": "tail",
-          "line": 76
+          "line": 83
         },
         {
           "name": "matching",
-          "line": 98
+          "line": 105
         },
         {
           "name": "hasOlder",
-          "line": 117
+          "line": 124
         },
         {
           "name": "clear",
-          "line": 131
+          "line": 138
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2021,
-      "sha256": "202340813174f4977b2866fbaa71774a82e2715672652cd02954a61dc69dd626",
+      "lines": 2035,
+      "sha256": "d3774f4f844ec4cd72491b8b643778a77da5bb2acaa7f1b626349e384d111371",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -22933,35 +22933,35 @@
         },
         {
           "name": "needsPostOnlineReflection",
-          "line": 379
+          "line": 380
         },
         {
           "name": "backedBy",
-          "line": 413
+          "line": 417
         },
         {
           "name": "interactionContext",
-          "line": 915
+          "line": 929
         },
         {
           "name": "groundingContext",
-          "line": 1078
+          "line": 1092
         },
         {
           "name": "normalize",
-          "line": 1610
+          "line": 1624
         },
         {
           "name": "axis",
-          "line": 1676
+          "line": 1690
         },
         {
           "name": "compactContext",
-          "line": 1728
+          "line": 1742
         },
         {
           "name": "context",
-          "line": 1852
+          "line": 1866
         }
       ]
     },
@@ -28368,7 +28368,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
       "lines": 802,
-      "sha256": "7adc765b67bf3a4c950872fdd67d54c4b5dd2af612b444007c833ba90d005b38",
+      "sha256": "b2fb78e82f27824bf09bd13d41d9fc9801c3595377a864eb78144aa866abf3a5",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -33887,8 +33887,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 464,
-      "sha256": "65d3ff4d2675c70ef8ece77a621f3b6cb36d2b857f99251e089bc70661b3dd28",
+      "lines": 492,
+      "sha256": "8cd89dc73efe5b2757e2e36e6868d9e61b718ebed9a453d7959447b7dae9b8f1",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -35950,8 +35950,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2391,
-      "sha256": "8313418c8f40dd8e8f7b0701c4d2fe3702162da23bdcc61b4f6b617e349617a6",
+      "lines": 2394,
+      "sha256": "127cf6aaf8b6164540a03311e5743711956bbb5ada76898146da6214c2d8af7e",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -35971,43 +35971,43 @@
         },
         {
           "name": "choice",
-          "line": 1138
+          "line": 1141
         },
         {
           "name": "decision",
-          "line": 1178
+          "line": 1181
         },
         {
           "name": "invalid",
-          "line": 1232
+          "line": 1235
         },
         {
           "name": "select",
-          "line": 1454
+          "line": 1457
         },
         {
           "name": "select",
-          "line": 1506
+          "line": 1509
         },
         {
           "name": "select",
-          "line": 1553
+          "line": 1556
         },
         {
           "name": "posts",
-          "line": 2011
+          "line": 2014
         },
         {
           "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
-          "line": 2053
+          "line": 2056
         },
         {
           "name": "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance",
-          "line": 2113
+          "line": 2116
         },
         {
           "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
-          "line": 2178
+          "line": 2181
         }
       ]
     },

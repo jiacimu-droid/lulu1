@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5427e1bfe45dbc54ef6e2dc60e1e7682e6c87dd7`
+- 基准提交：`a7a66e2599f2e0f498ea056ad81411dd46b447df`
 - 分支：`main`
 - 已索引文件：1054
-- 已索引代码/文本行：216242
+- 已索引代码/文本行：216294
 - 已发现符号：3093
 
 | 文件 | 行数 | 符号数 |
@@ -347,8 +347,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 202 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 142 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2021 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 149 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2035 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
@@ -847,7 +847,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 464 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 492 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 87 | 1 |
@@ -988,7 +988,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 115 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2391 | 14 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2394 | 14 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 348 | 1 |
