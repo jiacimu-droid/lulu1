@@ -20,6 +20,8 @@ internal class LuluCallSpeechQueue(
     private val scope: CoroutineScope,
     private val onSpeakerChanged: (String?) -> Unit = {},
     private val onBusyChanged: (Boolean) -> Unit = {},
+    /** Fired only when the final queued utterance finishes naturally, never on stop(). */
+    private val onDrained: () -> Unit = {},
     private val onError: (String) -> Unit = {},
 ) {
     private data class Request(
@@ -109,6 +111,9 @@ internal class LuluCallSpeechQueue(
         val request = pending.pollFirst()
         if (request == null) {
             notifySafely({ onSpeakerChanged(null) }, { onBusyChanged(false) })
+            // The busy callback may re-enter the call/session. A forced stop
+            // is not a completed narration and must not drain deferred words.
+            if (!active && pending.isEmpty()) notifySafely { onDrained() }
             return
         }
 
