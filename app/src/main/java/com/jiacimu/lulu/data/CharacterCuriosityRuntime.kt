@@ -416,6 +416,41 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
+    /**
+     * A late model decision about an older question must not close a newer
+     * inquiry merely because both carry the same stable threadId. The source
+     * event is an executor-owned fact; the wording is used only as an inquiry
+     * revision guard, never to infer whether the character wants to stop.
+     *
+     * Old direct callers without a source keep their existing contract.
+     * The normal rememberVerified path always attaches a verified source.
+     */
+    private fun closureTargetsCurrentInquiry(
+        characterId: String, proposal: JSONObject?,
+        pending: JSONObject?, explored: JSONObject?,
+    ): Boolean {
+        val sourceId = proposal?.optString("sourceEvidenceId").orEmpty().trim()
+        if (sourceId.isBlank()) return true
+        val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(sourceId))
+            .firstOrNull() ?: return false
+        if (!CharacterExplorationContinuity.canGroundQuestion(source)) return false
+        val current = pending ?: explored ?: return false
+        val lastReceiptId = if (pending == null && explored != null)
+            lastRealStep(characterId, explored)?.optString("evidenceId").orEmpty()
+            else ""
+        val sameQuestion = normalized(current.optString("question")) ==
+            normalized(proposal?.optString("question").orEmpty())
+        val sameOwnedSource = sourceId == current.optString("observedId") ||
+            sourceId == lastReceiptId
+        if (sameQuestion && sameOwnedSource) return true
+        val inquiryAt = runCatching { Instant.parse(current.optString("at")) }.getOrNull()
+            ?: return false
+        // A later real observation/result can legitimately make the person
+        // reconsider an older question. An earlier source cannot decide the
+        // fate of a newly revised question, even with the same threadId.
+        return source.occurredAt.isAfter(inquiryAt)
+    }
+
     /** The character may lose interest without inventing a completed exploration. */
     @Synchronized fun releaseInterest(
         characterId: String, proposal: JSONObject?, now: Instant = Instant.now(),
@@ -435,6 +470,7 @@ internal object CharacterCuriosityRuntime {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
         if (matchQuestion == null && matchThread == null) return
+        if (!closureTargetsCurrentInquiry(characterId, proposal, matchQuestion, matchThread)) return
         if (matchQuestion == null && matchThread?.optString("status") == "dropped") return
         if (matchThread != null) {
             matchThread.put("status", "dropped")
@@ -476,6 +512,7 @@ internal object CharacterCuriosityRuntime {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
         if (matchQuestion == null && matchThread == null) return
+        if (!closureTargetsCurrentInquiry(characterId, proposal, matchQuestion, matchThread)) return
         if (matchQuestion == null && matchThread?.optString("status") == "satisfied") return
         if (matchThread != null) {
             matchThread.put("status", "satisfied")
