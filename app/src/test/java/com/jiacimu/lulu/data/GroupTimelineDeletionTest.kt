@@ -11,6 +11,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.time.Instant
+import org.json.JSONObject
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -46,5 +47,74 @@ class GroupTimelineDeletionTest {
         assertEquals(3, SharedExperienceTimeline.all("two").size)
         assertEquals(setOf("other:group:two", "call-b", "group-joined-${b.id}-two-1"),
             SharedExperienceTimeline.all("two").map { it.id }.toSet())
+    }
+
+    @Test fun clearingGroupWithdrawsLinkedPresenceWithoutTouchingAnotherGroup() {
+        CompanionPresenceStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val groupA = group("presence_group_a", listOf("presence_owner_a", "presence_owner_b"))
+        val groupB = group("presence_group_b", listOf("presence_owner_a", "presence_owner_b"))
+        val messageA = LuluChatMessage(id = "presence_user_message_a", conversationId = groupA.id,
+            sender = LuluChatMessage.Sender.User, content = "A 群的新话题")
+        val messageB = messageA.copy(id = "presence_user_message_b",
+            conversationId = groupB.id, content = "B 群的新话题")
+        SharedExperienceTimeline.recordConversationMessage(groupA, messageA, false)
+        SharedExperienceTimeline.recordConversationMessage(groupB, messageB, false)
+        val sourceA = "${messageA.id}:group:presence_owner_a"
+        val sourceB = "${messageB.id}:group:presence_owner_a"
+        CompanionPresenceStore.update("presence_owner_a", "正在聊A群", null, "A群的想法", "开心",
+            "聊天", messageA.createdAt.plusMillis(100), provenanceId = sourceA)
+        CompanionPresenceStore.update("presence_owner_a", "正在聊B群", null, "B群的想法", "轻松",
+            "聊天", messageB.createdAt.plusMillis(500), provenanceId = sourceB)
+        assertTrue(SharedExperienceTimeline.all("presence_owner_a").any {
+            it.id == "presence-$sourceA-presence_owner_a" && it.sessionId == groupA.id
+        })
+        SharedExperienceTimeline.deleteConversationMessage(groupA, messageA.id)
+        assertFalse(SharedExperienceTimeline.all("presence_owner_a").any {
+            it.id == "presence-$sourceA-presence_owner_a"
+        })
+        assertTrue(SharedExperienceTimeline.all("presence_owner_a").any {
+            it.id == "presence-$sourceB-presence_owner_a"
+        })
+        assertEquals("B群的想法", CompanionPresenceStore.current("presence_owner_a")?.innerThought)
+    }
+
+    @Test fun clearGroupRetractsLegacyOutboundReceiptsOnlyForItsOwnConversation() {
+        val groupA = group("legacy_outbound_a", listOf("legacy_group_one", "legacy_group_two"))
+        val groupB = group("legacy_outbound_b", listOf("legacy_group_one", "legacy_group_two"))
+        fun receipt(id: String, conversationId: String) {
+            SharedExperienceTimeline.record(id, "legacy_group_one", "实际工具执行", "执行器",
+                JSONObject().put("tool", "send_group_message")
+                    .put("result", JSONObject().put("success", true)
+                        .put("conversationId", conversationId).put("evidenceId", id + "_message")
+                        .toString()).toString(),
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult,
+                triggerExtraction = false)
+        }
+        receipt("legacy_receipt_a", groupA.id)
+        receipt("legacy_receipt_b", groupB.id)
+        SharedExperienceTimeline.deleteConversationData(groupA, emptyList())
+        assertTrue(SharedExperienceTimeline.eventsByIds("legacy_group_one",
+            listOf("legacy_receipt_a")).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds("legacy_group_one",
+            listOf("legacy_receipt_b")).size)
+    }
+
+    @Test fun removingOneDeliveredGroupBubbleRetractsItsExactToolReceipt() {
+        val groupA = group("outbound_single_a", listOf("outbound_member_a", "outbound_member_b"))
+        val message = LuluChatMessage(id = "outbound_message_a", conversationId = groupA.id,
+            sender = LuluChatMessage.Sender.Character, content = "我已经发在群里啦",
+            authorCharacterId = "outbound_member_a")
+        SharedExperienceTimeline.recordConversationMessage(groupA, message, false)
+        SharedExperienceTimeline.record("outbound_tool_receipt", "outbound_member_a",
+            "实际工具执行", "执行器",
+            JSONObject().put("tool", "send_group_message").put("result",
+                JSONObject().put("success", true).put("evidenceId", message.id + ":group:outbound_member_a")
+                    .put("conversationId", groupA.id).toString()).toString(),
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult,
+            triggerExtraction = false)
+        SharedExperienceTimeline.deleteConversationMessage(groupA, message.id)
+        assertTrue(SharedExperienceTimeline.eventsByIds("outbound_member_a",
+            listOf("outbound_tool_receipt")).isEmpty())
     }
 }
