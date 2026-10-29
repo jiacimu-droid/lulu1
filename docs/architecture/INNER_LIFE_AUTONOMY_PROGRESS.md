@@ -36,3 +36,11 @@
 - **源码修复**：在原 CharacterCuriosityRuntime 只读 activeThreads 投影先过滤无效证据、再去重；若末项回执已失效，回退到 lastRealStep 的实际问题、下一步和时刻；briefContext/promptSection 统一使用经核验的真实回执。保留完整原 threads/steps 供回溯，不改模型意愿、真实执行、授权、持久化 schema、调度或收费次数。CharacterUnfinishedActionContext 继续复用同一个 activeThreads 投影。
 - **回归源码**：CharacterExplorationContinuityTest 新增同一线程两次实际搜索后最新回执 revision 失配，验证重启后仅旧有效成果进入私聊/电话精简上下文与自主决策提示、历史两步仍保留、另一人物不借用；另测同问题两条线程中失效旧记录不会挡住另一条有效记录。该测试需要 Android JVM 实际跑通，写入源码不等于通过。
 - **提交/CI**：源码与回归 [4000157](https://github.com/jiacimu-droid/lulu1/commit/4000157f1a90017a94889600578da8f708ef403f)。原索引生成工作流 [#40853357228](https://github.com/jiacimu-droid/lulu1/actions/runs/40853357228) 已 success，自动索引提交 [cd66ca8](https://github.com/jiacimu-droid/lulu1/commit/cd66ca889f)，CODE_INDEX 基准指向 4000157；[Lulu APK #40853357502](https://github.com/jiacimu-droid/lulu1/actions/runs/40853357502) 最后核对为 in_progress（build 刚启动），尚未验证 Android JVM/assemblePhone/Release。当前工具容器无 Android Gradle 工程与 SDK，不能本地宣称测试成功；真机和跨日多次唤醒仍待验。只读回退不改变真实执行结果，也不恢复早已永久丢失的历史。
+
+## 2026-10-29 D2/T3：已结束兴趣不被迟到工具回执重新激活
+
+- **分类**：历史 T2 回执交接已有 CI 成功记录，不等于本轮验通；旧兴趣跨窗口修订与最新有效回执回退已有源码/回归但真机跨天待验；本轮真实缺口是「本人已 dropped/satisfied，晚到的成功工具结果又把状态设为 exploring」；长期历史规模与三次跨天自主选择属可选增强/待实测。
+- **根因**：ToolRouter、ProactivePerceptionRuntime、CharacterConversationAgency 把真实执行回执交给 CharacterCuriosityRuntime.recordOutcome；该入口无条件覆盖 thread.status，且首次回执前结束的 pending question 只从 questions 删除，丢失关闭状态。旧动作迟到不是本人重新选择继续。
+- **实现**：仍使用原 CharacterCuriosityRuntime questions/threads。已关闭的兴趣接收真实回执时只追加经过证据核验的步骤，不改 dropped/satisfied、结束理由、原问题与下一步；只有关闭之后由本人明确产生、以真实观察为来源的同 threadId 新 inquiry 才能重新探索。首次回执前结束的 pending question 在原 threads 留无步骤终态；撤回其来源只移除对应终态，不误删其他独立问题。重复 evidenceId 幂等，不新增 Store、模型轮次、定时器或公共 ToolRouter 改动。
+- **回归源码**：CharacterCuriosityRuntimeTest 新增「已探索→放下→晚到真实结果→保留终态及真实步骤→重放幂等→真实新问题恢复」「pending→满意→首个回执迟到仍满意」「撤回一个无步骤终态不删除其他终态」三组。测试写入源码不等于 JVM 已通过。
+- **main 提交**：[7a8aabb](https://github.com/jiacimu-droid/lulu1/commit/7a8aabbe27246a1714af29b8568dc93e6a650fc0)、[6d8653b](https://github.com/jiacimu-droid/lulu1/commit/6d8653b61a56cfd01c02c7cdd05734cef6521012)。原索引生成已自动触发；并发推送令本次 [索引 #40859572420](https://github.com/jiacimu-droid/lulu1/actions/runs/40859572420) 与 [APK #40859572497](https://github.com/jiacimu-droid/lulu1/actions/runs/40859572497) cancelled，不能算测试或 APK 通过；需核对包含这两个提交的后续 main CI。真机、强杀恢复与三次跨天唤醒仍未验。
