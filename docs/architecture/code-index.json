@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:54:22.550144+00:00",
-  "commit": "b544af10e87cfec27eefbc15e12a1809b49d5b82",
+  "generatedAt": "2026-10-29T14:54:49.278917+00:00",
+  "commit": "083a6af70211c7913ae6a66a9a19f30adf33682a",
   "branch": "main",
-  "sourceFingerprint": "7b5beac41e72598b2874d42b2dd00ed4c982a941906f7ed8413f6380118faf71",
+  "sourceFingerprint": "ad672643bed5671dc60e890feb5fd9b88377db68d77cb832055a5b106334b406",
   "summary": {
     "files": 1073,
-    "lines": 221936,
+    "lines": 222057,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -34465,8 +34465,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 830,
-      "sha256": "c59b4a90dfce66634a1fbe890276367088ebd141a55b3aac1c8d82ec8850aefe",
+      "lines": 951,
+      "sha256": "cfaf9f01749fda9740b0d192a09f3e9a82bda426071762c90a5f7f60cf1a8f87",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
