@@ -1304,6 +1304,10 @@ object ProactivePerceptionRuntime {
         if (onlineExpiryAtMillis > 0L) {
             val onlineIssue = OnlineContinuationPolicy.contractIssue(
                 parsed.onlineChoice, parsed.onlineChoiceReason)
+                ?: if (parsed.onlineChoice == "sleep")
+                    CompanionSleepHandoff.proposalIssue(appContext, characterId,
+                        parsed.onlineNextChecks, Instant.now())
+                else null
             if (onlineIssue != null) {
                 val correction = LuluAiServices.gateway.generate(
                     characterId = characterId,
@@ -1311,6 +1315,11 @@ object ProactivePerceptionRuntime {
                         appendLine("同一轮在线决定的结构错误：" + onlineIssue)
                         appendLine("原在线选择：" + parsed.onlineChoice.ifBlank { "未填写" })
                         appendLine("原在线理由：" + parsed.onlineChoiceReason.ifBlank { "未填写" })
+                        appendLine("当前缺少后续安排的本人责任：" +
+                            CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now())
+                                .joinToString("；") { task ->
+                                    "taskId=${task.id}；目标=${task.goal.take(110)}；状态=${task.status}"
+                                })
                         appendLine("原行动已经选择：" + parsed.action.name.lowercase())
                         appendLine("原始情境：" + trigger.take(160))
                         appendLine("此前真实经历：" + recentLifeContext.takeLast(900))
@@ -1321,21 +1330,31 @@ object ProactivePerceptionRuntime {
                         继续在线或休眠应由你本人决定。若你已经选过 continue/sleep，
                         保留真正想要的选择并补充本人理由；若原选择缺失，由你自己重新考虑。
                         理由可以很短，不需要迎合程序、不必假装想睡。不要编造事实或凑理由。
-                        只输出完整 JSON：{"onlineDecision":{"choice":"continue|sleep","reason":"真实理由"}}。
+                        如果选择休眠，请为事实里尚未交接的各项责任亲自决定未来复查时间（带时区偏移的ISO格式）；
+                        用 nextChecks 数组填写 taskId、at、reason，一项责任一条。已有后续闹钟不再安排。
+                        这只安排静默复查，不强制用户回应或自动重拨；若仍想继续在线，可选 continue。
+                        只输出完整 JSON：{"onlineDecision":{"choice":"continue|sleep","reason":"真实理由","nextChecks":[{"taskId":"原责任ID","at":"ISO时间","reason":"复查理由"}]}}。
                     """.trimIndent(),
                     source = "同次在线决定·字段补正",
                     title = character.displayName + "补正在线决定",
-                    maxTokens = 300,
+                    maxTokens = 750,
                     connectionOverride = connection,
                 ).getOrNull()?.text
                     ?.let { ModelStructuredOutput.objectOrNull(it) }
                     ?.optJSONObject("onlineDecision")
                 val proposedChoice = correction?.optString("choice")?.trim()?.lowercase().orEmpty()
                 val proposedReason = correction?.optString("reason")?.trim().orEmpty()
-                if (OnlineContinuationPolicy.contractIssue(proposedChoice, proposedReason) == null) {
+                val proposedChecks = correction?.optJSONArray("nextChecks")
+                val correctedIssue = OnlineContinuationPolicy.contractIssue(proposedChoice, proposedReason)
+                    ?: if (proposedChoice == "sleep")
+                        CompanionSleepHandoff.proposalIssue(appContext, characterId,
+                            proposedChecks, Instant.now())
+                    else null
+                if (correctedIssue == null) {
                     parsed = parsed.copy(
                         onlineChoice = proposedChoice,
                         onlineChoiceReason = proposedReason.take(220),
+                        onlineNextChecks = proposedChecks,
                     )
                 } else {
                     CompanionPresenceStore.recordPerceptionAttempt(
@@ -1683,7 +1702,9 @@ object ProactivePerceptionRuntime {
                     "use_location", "use_home_item",
                 ) && recentlyFinishedSoloScene &&
                 recentAutonomousActions.takeLast(3).count { it == "DIGITAL_WORLD" } >= 2
-            val sleepHandoff = if (decision.onlineChoice == "sleep")
+            val sleepHandoff = if (decision.onlineChoice == "sleep" &&
+                CompanionOnlineStore.states.value[characterId]
+                    ?.onlineUntil?.toEpochMilli() == onlineExpiryAtMillis)
                 CompanionSleepHandoff.ensure(appContext, characterId,
                     decision.onlineNextChecks, Instant.now())
             else CompanionSleepHandoff.Result(true)
