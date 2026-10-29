@@ -1822,7 +1822,12 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)
     }
   }).catch(error => {
-    if (authoredMotion === chosen) authoredMotion = null
+    // An older Cubism load may reject after another sentence or touch has
+    // taken the motion slot. Its error is not a failure of the current
+    // character choice and must not emit a misleading renderer receipt.
+    if (revision !== motionRevision || target !== model ||
+        authoredMotion !== chosen) return
+    authoredMotion = null
     if (source === 'character') notify('motion-failed', JSON.stringify({
       sequence: chosen.visualSequence, group, index,
       segmentId: chosen.segmentId, source }))
