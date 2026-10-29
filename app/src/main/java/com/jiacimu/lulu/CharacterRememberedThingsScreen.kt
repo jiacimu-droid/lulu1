@@ -50,6 +50,15 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var editingNote by remember { mutableStateOf<LexiconEntry?>(null) }
     var deletingEvent by remember { mutableStateOf<SharedTimelineEvent?>(null) }
+    var selectingEvents by remember(characterId) { mutableStateOf(false) }
+    var selectedEventIds by remember(characterId) { mutableStateOf<Set<String>>(emptySet()) }
+    var confirmBatchDelete by remember { mutableStateOf(false) }
+    var batchDeleting by remember { mutableStateOf(false) }
+    LaunchedEffect(characterId, area) {
+        selectingEvents = false
+        selectedEventIds = emptySet()
+        confirmBatchDelete = false
+    }
     var count by rememberSaveable(characterId, area, search) { mutableIntStateOf(40) }
     val memories by repository.observeMemories(characterId).collectAsState(initial = emptyList())
     val validityRevision by MemoryValidityStore.revisions.collectAsState()
@@ -135,6 +144,38 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
+            if (area == 2) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    TextButton(onClick = {
+                        selectingEvents = !selectingEvents
+                        selectedEventIds = emptySet()
+                    }, enabled = !batchDeleting) {
+                        Icon(if (selectingEvents) Icons.Outlined.Close else Icons.Outlined.Checklist,
+                            null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text(if (selectingEvents) "取消多选" else "多选删除")
+                    }
+                    if (selectingEvents) {
+                        val filteredIds = timeline.map { it.id }.toSet()
+                        TextButton(onClick = {
+                            selectedEventIds = if (filteredIds.isNotEmpty() &&
+                                filteredIds.all { it in selectedEventIds }) emptySet() else filteredIds
+                        }, enabled = !batchDeleting && filteredIds.isNotEmpty()) {
+                            Text(if (filteredIds.isNotEmpty() && filteredIds.all { it in selectedEventIds })
+                                "取消全选" else "全选筛选结果")
+                        }
+                        Spacer(Modifier.weight(1f))
+                        TextButton(onClick = { confirmBatchDelete = true },
+                            enabled = !batchDeleting && selectedEventIds.isNotEmpty()) {
+                            Text("删除 ${selectedEventIds.size} 条",
+                                color = if (selectedEventIds.isNotEmpty()) MaterialTheme.colorScheme.error
+                                    else LuluColors.Muted)
+                        }
+                    }
+                }
+            }
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (area == 3) {
@@ -214,8 +255,23 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                     items(timeline.take(count), key = { it.id }) { event ->
                         // Search filters which cards are visible, NOT which later
                         // receipts count as evidence for the opened event.
-                        CharacterOriginalEventCard(event, timelineState.second, timelineRevision, mindRevision,
-                            onDelete = { deletingEvent = event })
+                        Row(verticalAlignment = Alignment.Top) {
+                            if (selectingEvents) {
+                                Checkbox(
+                                    checked = event.id in selectedEventIds,
+                                    onCheckedChange = { checked ->
+                                        selectedEventIds = if (checked) selectedEventIds + event.id
+                                            else selectedEventIds - event.id
+                                    },
+                                    enabled = !batchDeleting,
+                                    modifier = Modifier.padding(top = 10.dp),
+                                )
+                            }
+                            Box(Modifier.weight(1f)) {
+                                CharacterOriginalEventCard(event, timelineState.second, timelineRevision, mindRevision,
+                                    onDelete = { deletingEvent = event })
+                            }
+                        }
                     }
                 }
                 val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
@@ -236,6 +292,45 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         LexiconEditorDialogV2(note, isNew = false, onDismiss = { editingNote = null },
             onSave = { scope.launch { LuluRepositories.lexicon.save(it) }; editingNote = null },
             onDelete = { scope.launch { LuluRepositories.lexicon.delete(note.id) }; editingNote = null })
+    }
+    if (confirmBatchDelete) {
+        AlertDialog(
+            onDismissRequest = { if (!batchDeleting) confirmBatchDelete = false },
+            title = { Text("删除选中的原始记录？") },
+            text = { Text("将删除所选 ${selectedEventIds.size} 条记录，并撤回依赖这些证据的记忆、学习理解和人物变化。其他角色与未选记录不受影响。") },
+            confirmButton = {
+                TextButton(enabled = !batchDeleting, onClick = {
+                    val owner = characterId
+                    val ids = selectedEventIds.toList()
+                    batchDeleting = true
+                    scope.launch {
+                        val result = runCatching {
+                            withContext(Dispatchers.IO) {
+                                var removed = 0
+                                ids.forEach { id ->
+                                    if (SharedExperienceTimeline.eventsByIds(owner, listOf(id)).isNotEmpty()) {
+                                        SharedExperienceTimeline.deleteEvent(id)
+                                        removed++
+                                    }
+                                }
+                                removed
+                            }
+                        }
+                        batchDeleting = false
+                        confirmBatchDelete = false
+                        selectedEventIds = emptySet()
+                        selectingEvents = false
+                        notices.showSnackbar(result.fold(
+                            onSuccess = { "已删除 ${it} 条原始记录" },
+                            onFailure = { "批量删除中断，请检查剩余记录后重试：${it.message.orEmpty().take(90)}" },
+                        ))
+                    }
+                }) { Text(if (batchDeleting) "正在删除" else "确认删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(enabled = !batchDeleting, onClick = { confirmBatchDelete = false }) { Text("取消") }
+            },
+        )
     }
     deletingEvent?.let { event ->
         AlertDialog(onDismissRequest = { deletingEvent = null }, title = { Text("删除这条原始记录？") },
