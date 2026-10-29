@@ -102,6 +102,44 @@ object CharacterInnerLifeStore {
 
     /** Target one thought only: do not erase unrelated motives, commitments,
      * messages or the source observation that prompted it. */
+    /**
+     * A user may delete a raw "presence" timeline event while retaining its
+     * originating chat bubble. Remove only the private projections authored in
+     * that SAME moment, not all later reflections on the same message.
+     * Includes the cold archive; filtering a UI card alone would leave recall dirty.
+     */
+    @Synchronized fun forgetPresenceMomentProjections(
+        characterId: String, evidenceId: String, at: Instant,
+    ): Boolean {
+        if (characterId.isBlank() || evidenceId.isBlank() || prefs == null) return false
+        val root = snapshot(characterId)
+        fun matches(field: String, entry: JSONObject): Boolean {
+            if (field !in setOf("causalTransitions", "innerVoices", "thoughts")) return false
+            if (entry.optString("evidenceId") != evidenceId) return false
+            val stamped = when (field) {
+                "innerVoices" -> entry.optString("occurredAt")
+                else -> entry.optString("at")
+            }
+            val recordedAt = runCatching { Instant.parse(stamped) }.getOrNull() ?: return false
+            val gap = kotlin.math.abs(Duration.between(recordedAt, at).toMillis())
+            return gap <= 30_000L
+        }
+        var changed = false
+        listOf("causalTransitions", "innerVoices", "thoughts").forEach { field ->
+            val rows = root.optJSONArray(field) ?: return@forEach
+            val remaining = JSONArray()
+            for (i in 0 until rows.length()) {
+                val item = rows.optJSONObject(i) ?: continue
+                if (matches(field, item)) changed = true else remaining.put(item)
+            }
+            if (changed) root.put(field, remaining)
+        }
+        val archive = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, ::matches)
+        if (!changed && !archive) return false
+        save(characterId, root, ::matches)
+        return true
+    }
+
     @Synchronized fun forgetExactThought(characterId: String, thought: String): Boolean {
         val target = thought.trim()
         if (target.isBlank() || prefs == null) return false
