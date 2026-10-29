@@ -456,6 +456,23 @@ object CompanionPresenceStore {
         affected.forEach { (characterId, at) -> deleteMoment(characterId, at) }
     }
 
+    /** Reverse deletion: a user deleting the raw timeline's "此刻" event
+     * must remove the matching UI snapshot and the same-turn mental history.
+     * Match its exact native event ID; never guess by channel text or time alone. */
+    @Synchronized
+    fun forgetTimelineMoment(eventId: String, characterId: String) {
+        if (eventId.isBlank() || characterId.isBlank()) return
+        val moments = mutableHistories.value[characterId].orEmpty() +
+            listOfNotNull(mutableStates.value[characterId])
+        moments.distinctBy(CompanionPresenceState::updatedAt)
+            .filter { moment ->
+                val nativeId = moment.provenanceId.takeIf(String::isNotBlank)
+                    ?.let { "presence-$it-$characterId" }
+                    ?: "presence-$characterId-${moment.updatedAt.toEpochMilli()}"
+                nativeId == eventId
+            }.forEach { deleteMoment(characterId, it.updatedAt) }
+    }
+
     /** Delete one real presence record, its private snapshot and its derived
      * timeline entry; never remove the user's original chat message. */
     @Synchronized
@@ -476,6 +493,10 @@ object CompanionPresenceStore {
                 ?.let { "presence-$it-$characterId" }
                 ?: "presence-$characterId-${moment.updatedAt.toEpochMilli()}"
             SharedExperienceTimeline.deleteEvent(eventId)
+            if (moment.provenanceId.isNotBlank()) {
+                CharacterInnerLifeStore.forgetPresenceMomentProjections(
+                    characterId, moment.provenanceId, moment.updatedAt)
+            }
             CharacterInnerLifeStore.forgetExactThought(characterId, moment.innerThought)
         }
         return true
