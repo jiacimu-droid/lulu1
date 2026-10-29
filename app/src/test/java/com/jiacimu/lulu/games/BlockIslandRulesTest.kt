@@ -116,6 +116,40 @@ class BlockIslandRulesTest {
         assertEquals(withMob.world.turns + 1, sword.world.turns)
     }
 
+    @Test fun playerCannotStandOnTeammateAndAutoPathDetoursAroundThem() {
+        val base = BlockIslandRules.newWorld(113, listOf("friend"))
+        val withFriendBlocking = base.copy(world = base.world.copy(
+            mobs = emptyList(),
+            friends = listOf(ExpeditionFriend("friend", 5, 5)),
+        ))
+        val refused = BlockIslandRules.act(withFriendBlocking, "move", 5, 5)
+        assertEquals(withFriendBlocking.world.turns, refused.world.turns)
+        assertEquals(withFriendBlocking.world.x to withFriendBlocking.world.y,
+            refused.world.x to refused.world.y)
+        assertEquals(withFriendBlocking.world.friends, refused.world.friends)
+        var exploring = withFriendBlocking
+        var moves = 0
+        while (exploring.world.x to exploring.world.y != (6 to 5) && moves < 10) {
+            val step = BlockIslandRules.nextStep(exploring, exploring.world.x, exploring.world.y, 6, 5)
+            assertNotNull("A valid detour should exist", step)
+            assertNotEquals("Never plan a step through a teammate", 5 to 5, step)
+            exploring = exploring.copy(world = exploring.world.copy(x = step!!.first, y = step.second))
+            moves++
+        }
+        assertEquals(6 to 5, exploring.world.x to exploring.world.y)
+        assertTrue(moves >= 4)
+    }
+
+    @Test fun downedAllyRemainsPassableForRescueRangeButNeverOverlaps() {
+        val base = BlockIslandRules.newWorld(113, listOf("friend"))
+        val occupied = base.copy(world = base.world.copy(
+            mobs = emptyList(),
+            friends = listOf(ExpeditionFriend("friend", 5, 5, hp = 0)),
+        ))
+        assertNull(BlockIslandRules.nextStep(occupied, 4, 5, 5, 5))
+        assertEquals(occupied.world.turns, BlockIslandRules.act(occupied, "move", 5, 5).world.turns)
+    }
+
     @Test fun enemyOccupationNeverAllowsAPathThroughEnemy() {
         val base = BlockIslandRules.newWorld(72, emptyList())
             .let { it.copy(world = it.world.copy(mobs = listOf(ExpeditionMob(12, 6, 5, 4)))) }

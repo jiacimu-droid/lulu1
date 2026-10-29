@@ -43,8 +43,8 @@ internal object IslandActorPlay {
             if (w.cell(x, y) in setOf(1, 2))
                 result += IslandActorOption("gather:$x:$y",
                     "采集($x,$y)的" + if (w.cell(x,y)==1) "树" else "矿", "gather", x, y)
-            val occupied = w.friends.any { it.hp>0 && it.x==x && it.y==y } ||
-                w.x==x && w.y==y
+            val occupied = w.friends.any { it.x == x && it.y == y } ||
+                w.x == x && w.y == y
             if (BlockIslandRules.isWalkable(s,x,y) && !occupied)
                 result += IslandActorOption("move:$x:$y", "走到($x,$y)", "move", x, y)
             if (w.cell(x,y)==0 && !occupied && w.index(x,y) !in s.structures) {
@@ -80,7 +80,7 @@ internal object IslandActorPlay {
         for ((target, feature, _) in destinations.take(16)) {
             val step = BlockIslandRules.nextStep(s, a.x, a.y, target.first, target.second)
                 ?: continue
-            if (w.friends.any { it.hp > 0 && it.id != a.id &&
+            if (w.friends.any { it.id != a.id &&
                     it.x == step.first && it.y == step.second } ||
                 w.x == step.first && w.y == step.second) continue
             result += IslandActorOption(
@@ -130,7 +130,7 @@ internal object IslandActorPlay {
                 val self = w.friends.first { it.id == id }
                 val step = BlockIslandRules.nextStep(s, self.x, self.y, a.x, a.y)
                     ?: return null
-                if (w.friends.any { it.hp > 0 && it.id != id &&
+                if (w.friends.any { it.id != id &&
                         it.x == step.first && it.y == step.second } ||
                     w.x == step.first && w.y == step.second) return null
                 next = w.copy(friends = w.friends.map {

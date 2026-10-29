@@ -98,6 +98,22 @@ class IslandActorPlayTest {
         }
     }
 
+    @Test fun teammateIndependentMovementAvoidsPlayerAndOtherTeammateTiles() {
+        val base = world()
+        val actor = base.world.friends.first()
+        val other = base.world.friends[1]
+        val obstacle = (actor.x + 1) to actor.y
+        val situated = base.copy(world = base.world.copy(
+            x = obstacle.first, y = obstacle.second,
+            friends = listOf(actor, other.copy(x = actor.x, y = actor.y + 1)),
+        ))
+        val actions = IslandActorPlay.options(situated, actor.id)
+        assertFalse(actions.any { it.kind == "move" &&
+            (it.x to it.y == obstacle || it.x to it.y == (actor.x to actor.y + 1)) })
+        assertNull(IslandActorPlay.apply(situated, actor.id, situated.world.turns,
+            IslandActorChoice("move:${obstacle.first}:${obstacle.second}", "")))
+    }
+
     @Test fun companionCanChooseToAidWoundedPlayerWithRealFruitCost() {
         val s = world()
         val actor = s.world.friends.first()

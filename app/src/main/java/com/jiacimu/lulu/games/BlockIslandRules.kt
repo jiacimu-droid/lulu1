@@ -153,8 +153,9 @@ internal object BlockIslandRules {
         val message: String
         when (action) {
             "move" -> {
-                if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) || mob != null)
-                    return reject("这格不能走，可以先清除资源或绕路")
+                if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) ||
+                    mob != null || w.friends.any { it.x == tx && it.y == ty })
+                    return reject("这格不能走，队友所在的位置也需要绕开")
                 next = s.copy(world = w.copy(x = tx, y = ty))
                 message = "走到了 ($tx,$ty)"
             }
@@ -470,11 +471,20 @@ internal object BlockIslandRules {
     fun nextStep(s: BlockIslandState, fromX: Int, fromY: Int, toX: Int, toY: Int): Pair<Int, Int>? {
         val w = s.world
         if (!w.inBounds(fromX, fromY) || !w.inBounds(toX, toY)) return null
-        val targetOpen = isWalkable(s, toX, toY) &&
-            w.mobs.none { it.hp > 0 && it.x == toX && it.y == toY }
+        // The same occupancy contract applies to the player, friends and monsters.
+        // The mover's own starting tile is exempt; everyone else's tile is blocked,
+        // including downed friends so the rescuer stops adjacent instead of overlapping.
+        fun occupiedByOther(x: Int, y: Int): Boolean {
+            if (x == fromX && y == fromY) return false
+            return (w.x == x && w.y == y) ||
+                w.friends.any { it.x == x && it.y == y } ||
+                w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
+        }
+        val targetOpen = isWalkable(s, toX, toY) && !occupiedByOther(toX, toY)
         val ends = if (targetOpen) setOf(w.index(toX, toY)) else
-            neighbors(toX, toY).filter { (x, y) -> isWalkable(s, x, y) }
-                .map { (x, y) -> w.index(x, y) }.toSet()
+            neighbors(toX, toY).filter { (x, y) ->
+                isWalkable(s, x, y) && !occupiedByOther(x, y)
+            }.map { (x, y) -> w.index(x, y) }.toSet()
         val start = w.index(fromX, fromY)
         val seen = IntArray(w.width * w.height) { -1 }
         val queue = java.util.ArrayDeque<Int>()
@@ -487,8 +497,7 @@ internal object BlockIslandRules {
             neighbors(at % w.width, at / w.width).forEach { (x, y) ->
                 if (!isWalkable(s, x, y)) return@forEach
                 val next = w.index(x, y)
-                if (seen[next] != -1 ||
-                    w.mobs.any { it.hp > 0 && it.x == x && it.y == y }) return@forEach
+                if (seen[next] != -1 || occupiedByOther(x, y)) return@forEach
                 seen[next] = at
                 queue.add(next)
             }
