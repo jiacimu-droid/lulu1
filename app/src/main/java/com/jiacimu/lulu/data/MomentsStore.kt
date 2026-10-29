@@ -856,6 +856,10 @@ object MomentsStore {
                 SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
             }
         } else {
+            // Tool-authored replies use the actor's public action evidence even
+            // when their parent is a directed user comment. Parent shape alone
+            // cannot identify which writer produced the saved reply.
+            SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-${comment.characterId}")
             SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-${comment.characterId}")
         }
     }

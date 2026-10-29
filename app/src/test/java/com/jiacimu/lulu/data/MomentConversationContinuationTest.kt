@@ -130,4 +130,43 @@ class MomentConversationContinuationTest {
         assertEquals(2, live(original.id).comments.size)
         assertTrue(live(original.id).comments.all { it.replyToCommentId == null })
     }
+
+    @Test fun deletingPostRetractsToolReplyEvenWhenItsParentWasADirectedUserReply() = runBlocking {
+        for (clearAccount in listOf(false, true)) {
+        val actor = role()
+        val outsider = role()
+        assertTrue(MomentFriendAccess.setFriends(actor, outsider, true))
+        val original = post(outsider)
+        val independent = post(outsider)
+        val untouched = MomentsStore.commentAsCharacter(independent.id, outsider, "别的帖子的真实评论")!!
+        val untouchedEvidence = "moment-public-comment-${untouched.id}-$outsider"
+        val opening = MomentsStore.commentAsCharacter(original.id, actor, "先前自己的评论")!!
+        val directedId = UUID.randomUUID().toString()
+        // Load an existing user-directed reply through the real persisted schema,
+        // without invoking the separate paid automatic user-reply route.
+        val prefs = app.getSharedPreferences("lulu_moments", Context.MODE_PRIVATE)
+        val posts = org.json.JSONArray(prefs.getString("posts_v1", "[]"))
+        for (i in 0 until posts.length()) {
+            val row = posts.getJSONObject(i)
+            if (row.getString("id") == original.id) row.getJSONArray("comments").put(
+                JSONObject().put("id", directedId).put("characterId", "__user__")
+                    .put("content", "你刚才那句话是什么意思？")
+                    .put("createdAt", java.time.Instant.now().toString())
+                    .put("replyToCommentId", opening.id).put("replyToCharacterId", actor))
+        }
+        assertTrue(prefs.edit().putString("posts_v1", posts.toString()).commit())
+        MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(MomentsStore, null)
+        MomentsStore.initialize(app)
+        val result = speak(actor, original.id, "我是在说故事里的那个人。", directedId)
+        assertTrue(result.toString(), result.optBoolean("success"))
+        val evidence = result.getString("evidenceId")
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(evidence)).isNotEmpty())
+        assertTrue(SharedExperienceTimeline.eventsByIds(outsider, listOf(evidence)).isEmpty())
+        if (clearAccount) MomentsStore.clearCharacterData(actor) else MomentsStore.delete(original.id)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(evidence)).isEmpty())
+        assertTrue(SharedExperienceTimeline.eventsByIds(outsider, listOf(untouchedEvidence)).isNotEmpty())
+        assertTrue(live(independent.id).comments.contains(untouched))
+        }
+    }
 }
