@@ -447,21 +447,40 @@ internal suspend fun runGroupReplies(
     val pendingMessages = before.drop(lastCharacter + 1).filter { it.sender == LuluChatMessage.Sender.User || (it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[戳一戳]")) }
     val pendingIds = pendingMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
     val pendingUserIds = pendingMessages.filter { it.sender == LuluChatMessage.Sender.User }.mapTo(mutableSetOf(), LuluChatMessage::id)
+    val isGroupPhone = sceneContext.contains("电话")
     val random = Random(System.nanoTime())
-    val remaining = members.filterNot { c -> mentioned.any { it.characterId == c.characterId } }.shuffled(random).sortedBy { it.characterId == lastSpeaker }
+    val remaining = members.filterNot { c -> mentioned.any { it.characterId == c.characterId } }
+        .shuffled(random).sortedBy { it.characterId == lastSpeaker }
+    // Text groups get ONE room-only scheduling decision; the selected characters
+    // each independently choose their own real words or silence. The coordinator
+    // is deliberately not a shared narrator or a source of private knowledge.
+    val speakingOrder = if (isGroupPhone) emptyList() else
+        GroupChatTurnPlanner.choose(group, members, before, characterNames)
     val first = (mentioned.shuffled(random) + remaining).first()
-    val queue = mutableListOf(first)
-    // Each other member gets at most one independent chance to decide after
-    // observing the turns that have ACTUALLY been persisted. A silent choice
-    // never fabricates their speech or forces the next member to respond.
-    val yetToConsider = (mentioned + remaining).distinctBy { it.characterId }
-        .filterNot { it.characterId == first.characterId }.toMutableList()
-    val replyLimit = group.maxAutoReplies.coerceIn(1, 8)
+    val queue = (if (isGroupPhone) listOf(first) else
+        speakingOrder.mapNotNull { id -> members.firstOrNull { it.characterId == id } }).toMutableList()
+    // Phone retains the existing live-conversation continuation policy.
+    // Text group turns have a finite, model-proposed opportunity list, not
+    // an automatic A->B->A sequence that consumes the owner's turn.
+    val yetToConsider = if (isGroupPhone)
+        (mentioned + remaining).distinctBy { it.characterId }
+            .filterNot { it.characterId == first.characterId }.toMutableList()
+        else mutableListOf()
+    val replyLimit = if (isGroupPhone) group.maxAutoReplies.coerceIn(1, 8) else queue.size
     var index = 0
 
     while (index < replyLimit && queue.isNotEmpty()) {
         val member = queue.removeAt(0)
         if (!currentCoroutineContext().isActive) return
+        // The owner has already spoken again while a planning/previous role
+        // request was running. Yield before starting another paid role turn.
+        if (pendingUserIds.isNotEmpty() &&
+            MigratedDomainStores.chat.messages(conversationId).value.lastOrNull {
+                it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
+            }?.id !in pendingUserIds) {
+            onSpeakerChange(null)
+            return
+        }
         onSpeakerChange(member.characterId)
         val character = MigratedDomainStores.characters.get(member.characterId)
         val label = member.groupNickname.ifBlank { character.displayName }
@@ -564,7 +583,7 @@ internal suspend fun runGroupReplies(
                 onSpeakerChange(null)
                 return
             }
-            if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
+            if (isGroupPhone && group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
                 flow.nextSpeakerName?.let { requested ->
                     members.firstOrNull { candidate ->
                         candidate.characterId != member.characterId && listOf(candidate.groupNickname, characterNames[candidate.characterId].orEmpty())
@@ -580,7 +599,7 @@ internal suspend fun runGroupReplies(
         // The old ensemble sent all members' turns in one LLM response.
         // Here even if A did not nominate B, B gets to independently choose
         // reply or silence with A's real persisted turn as fresh context.
-        if (group.allowCharacterConversation && queue.isEmpty() && index + 1 < replyLimit &&
+        if (isGroupPhone && group.allowCharacterConversation && queue.isEmpty() && index + 1 < replyLimit &&
             yetToConsider.isNotEmpty()) {
             queue.add(yetToConsider.removeAt(0))
         }
