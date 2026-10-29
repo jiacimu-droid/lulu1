@@ -616,4 +616,46 @@ class CharacterCausalTraceTest {
         assertTrue(CharacterCausalTrace.inspect(context, b, event(a, "trace-thought-first"),
             SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
     }
+
+    @Test fun phoneLegacyStepIdsTraceActualReceiptsWithoutInventingNewRequests() {
+        val sourceId = "trace-phone-step-source"
+        val base = "reply-side-$sourceId"
+        source(a, sourceId)
+        CharacterInnerLifeStore.recordDecision(a, "trace-phone-step-choice", "steps",
+            "通话中选择两项独立动作", "", null, "执行尚未确认", false, at,
+            causalEvidenceId = sourceId, executionRequestId = base,
+            executionStepCount = 2, executionHasPrimary = false,
+            executionStepRequestIds = listOf("$base-0", "$base-1"),
+            executionState = "pending")
+        fun actualStep(role: String, stepId: String, success: Boolean) {
+            val id = "tool-$role-$stepId"
+            SharedExperienceTimeline.record(id, role, "实际工具执行", "执行器",
+                JSONObject().put("tool", "control_volume").put("requestId", stepId)
+                    .put("causeEvidenceId", sourceId).put("causeEvidenceRevision", 1L)
+                    .put("status", if (success) "succeeded" else "failed")
+                    .put("result", JSONObject().put("success", success)
+                        .put("summary", if (success) "音量调整成功" else "音量调整失败").toString())
+                    .toString(), at.plusSeconds(10), triggerExtraction = false,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult, taskId = stepId)
+        }
+        actualStep(a, "$base-0", true)
+        actualStep(a, "$base-1", false)
+        actualStep(b, "$base-0", true)
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b))
+        assertTrue(lines.any { it.title.contains("本人选择对应的第1步") &&
+            it.detail.contains("音量调整成功") })
+        assertTrue(lines.any { it.title.contains("本人选择对应的第2步") &&
+            it.detail.contains("音量调整失败") })
+        assertFalse(lines.any { it.detail.contains("$base:step:0") ||
+            it.detail.contains("tool-$b-") })
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, sourceId),
+            SharedExperienceTimeline.all(a)).isEmpty())
+        source(a, sourceId, "用户修改了通话要求")
+        assertFalse(CharacterInnerLifeStore.completeDecision(a, "trace-phone-step-choice",
+            base, "迟到的成功", true))
+        SharedExperienceTimeline.deleteEvent(sourceId)
+        assertTrue(CharacterInnerLifeStore.decisionsForEvidence(a, sourceId).isEmpty())
+    }
+
 }

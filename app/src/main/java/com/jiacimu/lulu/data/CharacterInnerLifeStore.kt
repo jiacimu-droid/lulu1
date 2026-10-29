@@ -1531,6 +1531,9 @@ object CharacterInnerLifeStore {
         executionStepCount: Int = 0,
         executionHasPrimary: Boolean = true,
         executionState: String = "reported",
+        // Some scene adapters have stable legacy step IDs that do not use
+        // "$executionRequestId:step:N". Save those exact executor identities.
+        executionStepRequestIds: List<String> = emptyList(),
     ) {
         if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
         if (selectedAction == "silent" && reason.isBlank()) return
@@ -1570,6 +1573,9 @@ object CharacterInnerLifeStore {
             .put("executionRequestId", executionRequestId.trim().take(180))
             .put("executionStepCount", executionStepCount.coerceIn(0, 24))
             .put("executionHasPrimary", executionHasPrimary)
+            .put("executionStepRequestIds", JSONArray().apply {
+                executionStepRequestIds.take(24).forEach { put(it.trim().take(180)) }
+            })
             .put("executionState", executionState)
             // These are IDs actually OFFERED by the common read-only working
             // set, not claims that the model understood or rejected each one.

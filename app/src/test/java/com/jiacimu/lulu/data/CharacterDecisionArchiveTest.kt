@@ -101,7 +101,8 @@ class CharacterDecisionArchiveTest {
             "tool", "本人想先查证", "", null, "尚无执行结果", false, at,
             causalEvidenceId = "archive-pending-source",
             executionRequestId = "archive-request-1",
-            executionStepCount = 2, executionState = "pending")
+            executionStepCount = 2, executionState = "pending",
+            executionStepRequestIds = listOf("phone-legacy-0", "phone-legacy-1"))
         repeat(85) { index ->
             choice(a, "archive-other-pending-$index", "archive-pending-source", index + 1)
         }
@@ -114,6 +115,10 @@ class CharacterDecisionArchiveTest {
         assertEquals("reported", finished.optString("executionState"))
         assertEquals("archive-request-1", finished.optString("executionRequestId"))
         assertEquals(2, finished.optInt("executionStepCount"))
+        assertEquals("phone-legacy-0", finished.optJSONArray("executionStepRequestIds")
+            ?.optString(0))
+        assertEquals("phone-legacy-1", finished.optJSONArray("executionStepRequestIds")
+            ?.optString(1))
         assertEquals("两步中仅一步成功", finished.optString("outcome"))
         assertFalse(finished.optBoolean("succeeded"))
         assertFalse(CharacterInnerLifeStore.completeDecision(a,

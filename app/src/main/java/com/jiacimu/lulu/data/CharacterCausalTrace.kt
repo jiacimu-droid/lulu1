@@ -280,9 +280,18 @@ internal object CharacterCausalTrace {
         val requestId = decision.optString("executionRequestId")
         if (requestId.isBlank()) return emptyList() // Legacy decision: unknown lineage.
         val steps = decision.optInt("executionStepCount", 0).coerceIn(0, 24)
+        // Older decisions use the OrderedCharacterActions convention. Phone
+        // side effects retain their original stable "reply-side-...-N" IDs:
+        // never invent a new ID when an explicit list was saved.
+        val explicitStepIds = decision.optJSONArray("executionStepRequestIds")
+            ?.takeIf { it.length() > 0 }
         val ids = buildList {
             if (decision.optBoolean("executionHasPrimary", true)) add("主动作" to requestId)
-            repeat(steps) { index -> add("第${index + 1}步" to "$requestId:step:$index") }
+            repeat(steps) { index ->
+                val stepId = if (explicitStepIds == null) "$requestId:step:$index"
+                    else explicitStepIds.optString(index).trim()
+                if (stepId.isNotBlank()) add("第${index + 1}步" to stepId)
+            }
         }
         if (ids.isEmpty()) return emptyList() // Genuine silence with no external action.
         val evidenceIds = ids.flatMap { (_, id) ->

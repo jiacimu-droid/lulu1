@@ -1107,29 +1107,67 @@ object LuluDeviceToolBridge {
                 voiceFingerprint = privateDelta.fingerprint,
             )
         }
-        // Persist this role's appraisal/motives BEFORE executing the chosen phone steps.
-        // A new concern must exist before its own real receipt can be projected onto it.
-        val sideDeviceReceipt = if (!rewriting && plannedSideActions != null &&
-            sceneContext.contains("电话") &&
-            (plan.action == "reply" || plan.action == CharacterDecisionProtocol.SILENT)) {
+        // Persist the model's phone-step choice BEFORE any real side effect.
+        // These pre-existing phone request IDs differ from the ordered executor's
+        // ":step:N" convention. Store the exact IDs rather than changing them
+        // and accidentally repeating a previously delivered effect on upgrade.
+        val phoneSteps = plannedSideActions
+        val phoneSideInputKey = userEvidenceIds.lastOrNull()
+            ?: silenceObservationId.takeIf(String::isNotBlank)
+            ?: "current-" + now.toEpochMilli()
+        val phoneSideRequestBase = "reply-side-$phoneSideInputKey"
+        val trackPhoneSideSteps = !rewriting && phoneSteps != null &&
+            phoneSteps.length() > 0 && sceneContext.contains("电话") &&
+            (plan.action == "reply" || plan.action == CharacterDecisionProtocol.SILENT)
+        val phoneSideDecisionId = "phone-steps:$phoneSideRequestBase:" +
+            phoneSteps?.toString().orEmpty().hashCode().toUInt().toString(16)
+        if (trackPhoneSideSteps && phoneSteps != null) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
+                characterId = characterId,
+                decisionId = phoneSideDecisionId,
+                selectedAction = "steps",
+                reason = plan.reason,
+                chosenMotiveId = plan.motiveId,
+                alternatives = plan.alternatives,
+                outcome = "通话独立步骤尚无执行总结",
+                succeeded = false,
+                now = now,
+                causalEvidenceId = groundingEvidenceId,
+                actionSignature = "phone-steps:" +
+                    phoneSteps.toString().hashCode().toUInt().toString(16),
+                executionRequestId = phoneSideRequestBase,
+                executionStepCount = phoneSteps.length(),
+                executionHasPrimary = false,
+                executionState = "pending",
+                executionStepRequestIds = (0 until phoneSteps.length())
+                    .map { "$phoneSideRequestBase-$it" },
+            )
+        }
+        var phoneSideAllCompleted = false
+        val sideDeviceReceipt = if (trackPhoneSideSteps && phoneSteps != null) {
             val notes = mutableListOf<String>()
             var verifiedWakeAudio = false
             var raisedVolumeThisTurn = false
-            val inputKey = userEvidenceIds.lastOrNull()
-                ?: silenceObservationId.takeIf(String::isNotBlank)
-                ?: "current-" + now.toEpochMilli()
+            phoneSideAllCompleted = true
             var previousStepCompleted = true
-            for (i in 0 until plannedSideActions.length()) {
-                val effect = plannedSideActions.optJSONObject(i) ?: continue
+            for (i in 0 until phoneSteps.length()) {
+                val effect = phoneSteps.optJSONObject(i) ?: run {
+                    phoneSideAllCompleted = false
+                    notes += "第${i + 1}步未执行：动作结构无效"
+                    previousStepCompleted = false
+                    continue
+                }
                 val tool = effect.optString("tool").trim()
                 if (!com.jiacimu.lulu.data.CapabilityRegistry.canChoose(tool) ||
                     (tool == "ring_in_call_wake" && !sceneContext.contains("电话"))) {
                     notes += "第${i + 1}步未执行：工具不可用"
+                    phoneSideAllCompleted = false
                     previousStepCompleted = false
                     continue
                 }
                 if (effect.optBoolean("requiresPreviousSuccess", false) && !previousStepCompleted) {
                     notes += "第${i + 1}步未执行：上一步尚未完成"
+                    phoneSideAllCompleted = false
                     continue
                 }
                 val effectArgs = effect.optJSONObject("args") ?: JSONObject()
@@ -1138,6 +1176,7 @@ object LuluDeviceToolBridge {
                     effectArgs.optInt("deltaPercent") > 0) {
                     if (raisedVolumeThisTurn) {
                         notes += "同一轮重复增大音量已跳过；需等待新的感知与真实反馈"
+                        phoneSideAllCompleted = false
                         continue
                     }
                     raisedVolumeThisTurn = true
@@ -1146,7 +1185,7 @@ object LuluDeviceToolBridge {
                     JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
                         appContext, characterId, tool,
                         effectArgs,
-                        requestId = "reply-side-" + inputKey + "-" + i,
+                        requestId = "$phoneSideRequestBase-$i",
                         userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
                             .isExplicitUserToolRequest(userText, tool),
                         intentionId = plan.intentionId,
@@ -1163,6 +1202,7 @@ object LuluDeviceToolBridge {
                 }
                 previousStepCompleted =
                     com.jiacimu.lulu.data.ToolExecutionStatus.completed(result)
+                if (!previousStepCompleted) phoneSideAllCompleted = false
                 val command = result.optString("command")
                     .ifBlank { effectArgs.optString("command") }
                 if (result.optBoolean("success") &&
@@ -1184,17 +1224,36 @@ object LuluDeviceToolBridge {
             val details = notes.joinToString("；").take(420)
             if (verifiedWakeAudio) "wake_audio_confirmed=1；$details" else details
         } else ""
+        if (trackPhoneSideSteps) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.completeDecision(
+                characterId, phoneSideDecisionId, phoneSideRequestBase,
+                sideDeviceReceipt.ifBlank { "独立步骤未产生可核实结果" },
+                phoneSideAllCompleted,
+            )
+        }
         if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat || sceneContext.contains("电话")) && !rewriting) {
+            val silentDecisionId = if (callSilence) "$silenceObservationId:silent"
+                else "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}"
+            val chatSilentRequestId = "chat-silent-${userEvidenceIds.lastOrNull() ?: now.toEpochMilli()}"
+            val chatSilentHasSteps = !sceneContext.contains("电话") &&
+                plannedSideActions != null && plannedSideActions.length() > 0
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
-                decisionId = if (callSilence) "$silenceObservationId:silent" else "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}",
+                decisionId = silentDecisionId,
                 selectedAction = CharacterDecisionProtocol.SILENT,
                 reason = plan.reason,
                 chosenMotiveId = plan.motiveId,
                 alternatives = plan.alternatives,
-                outcome = if (sideDeviceReceipt.isNotBlank()) "本轮安静执行手机动作：$sideDeviceReceipt" else "自愿保持安静，没有执行额外动作",
+                outcome = if (chatSilentHasSteps) "独立步骤尚无执行总结"
+                    else if (sideDeviceReceipt.isNotBlank()) "本轮安静执行手机动作：$sideDeviceReceipt"
+                    else "自愿保持安静，没有执行额外动作",
                 succeeded = false,
                 now = now,
+                causalEvidenceId = groundingEvidenceId,
+                executionRequestId = if (chatSilentHasSteps) chatSilentRequestId else "",
+                executionStepCount = if (chatSilentHasSteps) plannedSideActions?.length() ?: 0 else 0,
+                executionHasPrimary = false,
+                executionState = if (chatSilentHasSteps) "pending" else "reported",
             )
             savePresence(
                 characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默",
@@ -1209,12 +1268,19 @@ object LuluDeviceToolBridge {
                 } }
             }
             if (!sceneContext.contains("电话") && !rewriting && plannedSideActions != null) {
-                com.jiacimu.lulu.data.OrderedCharacterActions.execute(
+                val stepReport = com.jiacimu.lulu.data.OrderedCharacterActions.execute(
                     appContext, characterId, plannedSideActions,
-                    requestId = "chat-silent-${userEvidenceIds.lastOrNull() ?: now.toEpochMilli()}",
+                    requestId = chatSilentRequestId,
                     intentionId = plan.intentionId, userText = userText,
                     userEvidenceIds = userEvidenceIds.toSet(),
                 )
+                if (chatSilentHasSteps) {
+                    com.jiacimu.lulu.data.CharacterInnerLifeStore.completeDecision(
+                        characterId, silentDecisionId, chatSilentRequestId,
+                        stepReport.notes.joinToString("；").ifBlank { "独立步骤未产生可核实结果" },
+                        stepReport.completedCount == plannedSideActions.length(),
+                    )
+                }
             }
             return Result.success(plannedReply.copy(text = "",
                 disposition = CharacterDecisionProtocol.SILENT,
@@ -1494,6 +1560,22 @@ object LuluDeviceToolBridge {
         val explicitUserToolRequest = com.jiacimu.lulu.data.CharacterInitiativeRuntime
             .isExplicitUserToolRequest(userText, plan.tool)
         val requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}"
+        val toolDecisionId = "chat-tool:$requestId:${plan.tool}:" +
+            plan.args.toString().hashCode().toUInt().toString(16)
+        // A precomputed XHS read has already executed on its own request ID;
+        // do not invent a second execution receipt for that legacy path.
+        val trackToolChoice = !(plan.tool == "read_xiaohongshu" && directXhsResult != null)
+        if (trackToolChoice) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
+                characterId = characterId, decisionId = toolDecisionId,
+                selectedAction = plan.tool, reason = plan.reason,
+                chosenMotiveId = plan.motiveId, alternatives = plan.alternatives,
+                outcome = "工具执行尚未确认", succeeded = false, now = now,
+                causalEvidenceId = groundingEvidenceId,
+                executionRequestId = requestId,
+                executionHasPrimary = true, executionState = "pending",
+            )
+        }
         val toolResult = if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
             directXhsResult // The same real receipt: no second navigation/search.
         } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
@@ -1507,6 +1589,11 @@ object LuluDeviceToolBridge {
         val actionReceipt = "tool-$characterId-$requestId"
         val executedSuccess = actual?.optBoolean("success") == true
         val executedSummary = actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) }
+        if (trackToolChoice) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.completeDecision(
+                characterId, toolDecisionId, requestId, executedSummary, executedSuccess,
+            )
+        }
         // Ordinary actions are now projected once by ToolRouter from the
         // persisted executor receipt, including crash-replay recovery. A
         // pre-computed XHS read may predate this request; keep its existing

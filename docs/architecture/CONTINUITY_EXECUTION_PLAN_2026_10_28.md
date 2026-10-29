@@ -425,3 +425,11 @@
 - [x] **只读诊断**：原 `CharacterCausalTrace` 沿选择记录的 `executionRequestId` 精确查询本人主动作与 `:step:N` 原工具/拒绝回执；结果成功、执行前拒绝、running/结果未知、持久请求已保存但回执缺失、尚无任何执行请求分别显示。旧记录缺精确 ID 不猜测；来源历史版本、回执时序缺失不冒充当前执行。仅查看详情不会重试或触发感知。
 - [x] **回归已编写**：`CharacterDecisionArchiveTest` 覆盖 85 条后冷页 pending→reported、旧结果二次写入拒绝、角色隔离、来源编辑/撤回后不允许迟到回包完成；`CharacterCausalTraceTest` 覆盖同一真实决定的主请求被拒、独立第1步有成功回执、第2步持久 running、本人选择结果回写、另一人物隔离、只读诊断不消费 running。原 ToolRouter 重放和动态恰好一次回归继续保留。
 - [ ] **仍待实证**：Android JVM 全套、phone APK、既有索引工作流、真机后台进程死亡注入和在线私聊/静默感知的真实多步执行。模型返回后、选择持久化前的极短中断尚无决定证据；旧版决定没有 executionRequestId 不能反推原请求；UI 当前只读展示，不会替人物自动补做。完整的前台/电话入口预提交一致性仍是 P1 待办。
+
+
+## 2026-10-29 P1/P0-B：电话与前台决定预提交、真实步骤 ID 追溯（源码/回归待 CI 与真机验收）
+
+- [x] **根因**：后台自主感知已在执行前保存本人选择，但电话 `LuluDeviceToolBridge` 的逐步手机动作只保存心理状态，真实工具调用前没有可追溯的本人步骤选择；前台 silent+steps 虽记录“自愿保持安静”，却在工具执行前写成 reported，导致进程中断后误以为决定已总结。电话现有请求 ID 为 `reply-side-<source>-<index>`，而 P0-B 诊断只假定 `:step:<index>`，无法精确核对真实电话回执。前台单工具动作同样在执行前缺少选择记录。
+- [x] **源码**：在原 `LuluDeviceToolBridge` 电话 sideActions 逐步执行之前保存本人步骤选择及全部既有稳定请求 ID，完成后补写真实执行总结；不改旧 ID、不重放副作用。前台 silent+steps 改为 pending→实际 OrderedCharacterActions 回执后 reported；单工具选择也在原 ToolRouter 前持久化，完成后回写，不把后续表达成功当作工具成功。唯一 `CharacterInnerLifeStore.recordDecision` 增加可选 `executionStepRequestIds`，原 `CharacterCausalTrace` 优先按该列表读取本人真实回执，旧数据仍沿 `:step:N` 兼容；没有额外 LLM 或第二套状态中心。
+- [x] **回归源码**：`CharacterCausalTraceTest` 验证电话旧 ID 两步成功/失败、跨角色隔离、编辑/撤回与迟到完成拒绝；`CharacterDecisionArchiveTest` 验证冷页 pending→reported 后原请求 ID 列表不丢失。原有 ToolRouter 重放及前台有序动作测试保留。
+- [ ] **未验收**：最新 main 对应 JVM 全套、APK、代码索引生成及真实电话/前台私聊/群聊、多步中途强杀、改写来源后的迟到回执；模型返回至首次持久化的间隙仍需单独处理。电话动作仍沿现有音频场景的执行分支，未改为新的强制执行器；旧记录缺精确步骤 ID 不猜测补链。
