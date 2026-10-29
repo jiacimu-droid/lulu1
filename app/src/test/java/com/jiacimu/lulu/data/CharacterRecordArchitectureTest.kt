@@ -502,6 +502,25 @@ class CharacterRecordArchitectureTest {
         assertEquals(3, rows.count { CharacterStateHistory.display(it).voice.isNotBlank() })
     }
 
+    @Test fun standaloneStructuredIdeaDoesNotBecomeAFakeHeartVoice() {
+        val content = "想再看看古堡游戏里的那条蓝宝石项链是怎么得到的。"
+        val idea = CharacterStateHistoryRow("private-idea", now, "当时的念头",
+            content, deletionKind = "thought", deletionKey = content,
+            evidenceIds = listOf("idea-evidence"))
+        val projection = CharacterStateHistory.display(idea)
+        assertEquals("", projection.voice)
+        assertEquals(listOf("想法" to content), projection.otherThoughts)
+        // A real, independently authored inner voice about this subject
+        // must not be consumed by the idea's text-matching deduplicator.
+        val actualVoice = CharacterStateHistoryRow("causal-voice", now.plusSeconds(20),
+            "当时的感想与取舍", content + " 后来想到她最近很忙，决定先安静等她回来。",
+            evidenceIds = listOf("distinct-voice"))
+        val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(actualVoice, idea))
+        assertEquals(2, rows.size)
+        assertEquals(1, rows.count { CharacterStateHistory.display(it).voice.isNotBlank() })
+        assertEquals(1, rows.count { CharacterStateHistory.display(it).otherThoughts.isNotEmpty() })
+    }
+
     @Test fun shortHumanReactionsAreNotSilencedByTextOnlyDeduplication() {
         val first = CharacterStateHistoryRow("first", now, "这一刻", "好开心")
         val next = CharacterStateHistoryRow("next", now.plusSeconds(80), "这一刻", "好开心")
