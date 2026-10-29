@@ -15,7 +15,10 @@ data class ProactiveIncomingCall(
     val createdAt: Instant,
     val expiresAt: Instant,
     val commitmentTaskId: String? = null,
+    /** Explicit character choice. Existing saved invitations remain voice calls. */
+    val mediaMode: String = "voice",
 ) {
+    init { require(mediaMode == "voice" || mediaMode == "video") }
     fun active(now: Instant = Instant.now()): Boolean = expiresAt.isAfter(now)
 }
 
@@ -48,7 +51,9 @@ object ProactiveIncomingCallStore {
         reason: String,
         now: Instant = Instant.now(),
         commitmentTaskId: String? = null,
+        mediaMode: String = "voice",
     ): ProactiveIncomingCall {
+        require(mediaMode == "voice" || mediaMode == "video") { "来电类型必须是 voice 或 video" }
         initialize(context)
         reconcileExpired(now)
         commitmentTaskId?.let(resolvedTaskCalls::remove)
@@ -59,6 +64,7 @@ object ProactiveIncomingCallStore {
             createdAt = now,
             expiresAt = now.plus(lifetime),
             commitmentTaskId = commitmentTaskId,
+            mediaMode = mediaMode,
         )
         check(prefs?.edit()?.putString(KEY_PENDING, encode(call))?.commit() == true) { "来电状态未能保存" }
         mutablePending.value = call
@@ -111,6 +117,7 @@ object ProactiveIncomingCallStore {
         .put("createdAt", call.createdAt.toEpochMilli())
         .put("expiresAt", call.expiresAt.toEpochMilli())
         .put("commitmentTaskId", call.commitmentTaskId ?: JSONObject.NULL)
+        .put("mediaMode", call.mediaMode)
         .toString()
 
     private fun decode(raw: String?): ProactiveIncomingCall? = runCatching {
@@ -126,6 +133,7 @@ object ProactiveIncomingCallStore {
             expiresAt = Instant.ofEpochMilli(json.optLong("expiresAt")),
             commitmentTaskId = if (json.isNull("commitmentTaskId")) null
                 else json.optString("commitmentTaskId").takeIf(String::isNotBlank),
+            mediaMode = json.optString("mediaMode", "voice").takeIf { it == "video" } ?: "voice",
         )
     }.getOrNull()
 }
