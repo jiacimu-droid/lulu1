@@ -205,6 +205,32 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun clearedCurrentVoiceCannotRecreateRecentHistoryAfterAnotherAction() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "presence-heart-returning-text"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-29T10:37:00Z")
+        val voice = "好家伙，原来古堡摸金是这么玩的。我想再问问她下午是不是要一起去玩这款游戏。"
+        CompanionPresenceStore.update(role, "发完消息", "", voice, "好奇",
+            "聊天", start, innerThoughtFingerprint = "first-thought")
+        // Some ordinary no-new-thought awareness ticks intentionally clear the
+        // active heart voice. They must not erase the authored history.
+        CompanionPresenceStore.update(role, "休息片刻", "", "", "平静",
+            "在线持续感知", start.plusSeconds(120))
+        CompanionPresenceStore.update(role, "走到水边", "在水边停下来", voice, "好奇",
+            "在线持续感知", start.plusSeconds(8 * 60),
+            innerThoughtFingerprint = "different-status-and-world-action")
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(3, history.size)
+        assertEquals(1, history.count { it.innerThought == voice })
+        assertEquals("", history.first().innerThought)
+        assertEquals("走到水边", history.first().statusText)
+        assertEquals("在水边停下来", history.first().gesture)
+        assertEquals(voice, CompanionPresenceStore.current(role)!!.innerThought)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun changedFingerprintWithGenuinelyNewThoughtStillCreatesNewHeartVoice() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
