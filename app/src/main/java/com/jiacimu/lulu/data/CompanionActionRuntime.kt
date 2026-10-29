@@ -344,9 +344,10 @@ internal object CompanionActionRuntime {
         }.orEmpty()
         val result = when (normalizedAction) {
             "go_offline" -> {
-                val success = CompanionOnlineStore.goOfflineByChoice(characterId, now)
+                val success = CompanionOnlineStore.goOfflineByChoice(characterId, now,
+                    args.optJSONArray("nextChecks"))
                 CompanionActionResult(success, if (success) "角色自主休眠成功，在线状态已关闭"
-                    else "当前还在通话或角色状态未就绪，不能执行下线")
+                    else "休眠未执行：仍有责任缺少实际后续安排，或当前正在通话；可用 nextChecks 为未交接任务安排下一次核查")
             }
             "learn_topic" -> AutonomousLearningRuntime.execute(context, characterId, args)
             "web_search" -> {
