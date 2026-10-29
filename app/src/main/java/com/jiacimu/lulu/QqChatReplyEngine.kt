@@ -461,7 +461,8 @@ internal suspend fun runGroupReplies(
                     interactionReceipt = reply.interactionReceipt,
                     sourceWatermark = sourceWatermark,
                 )
-                if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) {
+                if ((shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) &&
+                    (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
                     if (!phonePerformance && shown.isNotBlank() && reply.deferredActions != null &&
                         currentCoroutineContext().isActive &&
                         (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
@@ -473,6 +474,13 @@ internal suspend fun runGroupReplies(
                     }
                     afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)
                 }
+            }
+            // A correction during paced delivery also cancels the remaining
+            // ensemble. The next speaker must not regenerate against the
+            // original pendingText after the user has replaced that turn.
+            if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
+                onSpeakerChange(null)
+                return
             }
             if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
                 flow.nextSpeakerName?.let { requested ->
