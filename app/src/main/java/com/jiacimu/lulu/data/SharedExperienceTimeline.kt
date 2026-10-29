@@ -358,6 +358,12 @@ object SharedExperienceTimeline {
     fun deleteEvent(eventId: String) {
         if (eventId.isBlank()) return
         val database = helper?.writableDatabase ?: return
+        val presenceOwner = database.query("timeline_events",
+            arrayOf("character_id", "source"), "id = ?", arrayOf(eventId),
+            null, null, null, "1").use { cursor ->
+            if (cursor.moveToFirst() && cursor.getString(1) == "presence") cursor.getString(0)
+            else ""
+        }
         database.beginTransaction()
         try {
             database.delete("timeline_events", "id = ?", arrayOf(eventId))
@@ -375,6 +381,10 @@ object SharedExperienceTimeline {
             database.endTransaction()
         }
         withdrawDependentPersonalReceipts(eventId)
+        // Reverse cascade for a manually deleted raw "此刻" record. The presence
+        // store knows the exact native snapshot ID and can withdraw its hot/cold
+        // private projections without erasing the originating chat message.
+        if (presenceOwner.isNotBlank()) CompanionPresenceStore.forgetTimelineMoment(eventId, presenceOwner)
         CompanionPresenceStore.forgetEvidence(eventId)
         CharacterRelationshipPreferences.invalidate()
         // Deletion invalidates every downstream owner immediately: retry job, executable promise
