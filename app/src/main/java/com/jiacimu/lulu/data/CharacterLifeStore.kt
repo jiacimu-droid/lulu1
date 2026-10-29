@@ -103,7 +103,39 @@ object CharacterLifeStore {
         val character = characters.settings.value[characterId] ?: return
         val root = state(characterId)
         val profileVersion = root.optInt("xingHeProfileVersion")
-        if (profileVersion >= 4) return
+        if (profileVersion >= 5) return
+        if (profileVersion == 4) {
+            // Only Xing He's own unchanged shipped defaults get the new, warmer
+            // best-friend balance. Never reset edited profile fields, persona,
+            // relationship wording or deliberately empty fields.
+            if (character.displayName != "星禾") return
+            if (!root.has("xingHeV4WarmthBackup")) {
+                root.put("xingHeV4WarmthBackup", JSONObject()
+                    .put("persona", character.persona)
+                    .put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString()))
+                    .put("userRelationship", JSONObject((root.optJSONObject("relationshipAgreements")
+                        ?.optJSONObject("user") ?: JSONObject()).toString())))
+                save(characterId, root)
+            }
+            if (character.persona == CharacterProfileSchema.xingHeV4Persona) {
+                characters.update(character.copy(persona = CharacterProfileSchema.xingHePersona))
+            }
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            CharacterProfileSchema.xingHeV4ToneFields.forEach { (key, oldDefault) ->
+                if (profile.has(key) && profile.optString(key) == oldDefault) {
+                    profile.put(key, CharacterProfileSchema.xingHeProfile.getValue(key))
+                }
+            }
+            val userAgreement = root.optJSONObject("relationshipAgreements")?.optJSONObject("user")
+            if (userAgreement != null &&
+                userAgreement.optString("details") == CharacterProfileSchema.xingHeV4Friendship) {
+                userAgreement.put("details", CharacterProfileSchema.xingHeFriendship)
+                    .put("updatedAt", Instant.now().toString())
+            }
+            root.put("profile", profile).put("xingHeProfileVersion", 5)
+            save(characterId, root)
+            return
+        }
         if (profileVersion == 3) {
             // Per-person expression controls were never set on the original
             // Xing He default. Explicitly choose an ordinary chat baseline
@@ -119,6 +151,7 @@ object CharacterLifeStore {
             root.put("expressionPreferences", expression)
                 .put("xingHeProfileVersion", 4)
             save(characterId, root)
+            migrateLegacyLuluToXingHe()
             return
         }
         if (profileVersion == 2) {
@@ -216,7 +249,7 @@ object CharacterLifeStore {
             .put("updatedAt", Instant.now().toString()))
         root.put("profile", profile)
             .put("relationshipAgreements", agreements)
-            .put("xingHeProfileVersion", 4)
+            .put("xingHeProfileVersion", 5)
         // Legacy butler nicknames and Jiang Du version flags cannot continue
         // overriding the explicitly changed character identity.
         root.remove("socialNames")
