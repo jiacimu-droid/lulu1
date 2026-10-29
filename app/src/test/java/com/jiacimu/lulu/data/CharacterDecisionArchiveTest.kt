@@ -95,6 +95,52 @@ class CharacterDecisionArchiveTest {
             .decisionsForEvidence(b, "archive-delete-source-b").single().optString("id"))
     }
 
+    @Test fun pendingChoiceCanFinishInColdArchiveWithoutRewritingItsSelection() {
+        source(a, "archive-pending-source")
+        CharacterInnerLifeStore.recordDecision(a, "archive-pending-choice",
+            "tool", "本人想先查证", "", null, "尚无执行结果", false, at,
+            causalEvidenceId = "archive-pending-source",
+            executionRequestId = "archive-request-1",
+            executionStepCount = 2, executionState = "pending")
+        repeat(85) { index ->
+            choice(a, "archive-other-pending-$index", "archive-pending-source", index + 1)
+        }
+        assertTrue(CharacterInnerLifeStore.completeDecision(a,
+            "archive-pending-choice", "archive-request-1", "两步中仅一步成功", false))
+        val finished = CharacterInnerLifeStore.decisionsForEvidence(a, "archive-pending-source", 120)
+            .single { it.optString("id") == "archive-pending-choice" }
+        assertEquals("tool", finished.optString("selected"))
+        assertEquals("本人想先查证", finished.optString("reason"))
+        assertEquals("reported", finished.optString("executionState"))
+        assertEquals("archive-request-1", finished.optString("executionRequestId"))
+        assertEquals(2, finished.optInt("executionStepCount"))
+        assertEquals("两步中仅一步成功", finished.optString("outcome"))
+        assertFalse(finished.optBoolean("succeeded"))
+        assertFalse(CharacterInnerLifeStore.completeDecision(a,
+            "archive-pending-choice", "archive-request-1", "迟到的假成功", true))
+        assertTrue(CharacterInnerLifeStore.decisionsForEvidence(b, "archive-pending-source").isEmpty())
+    }
+
+    @Test fun editedOrWithdrawnSourceCannotBeFinalizedByLateExecution() {
+        source(a, "archive-stale-source")
+        CharacterInnerLifeStore.recordDecision(a, "archive-stale-choice",
+            "publish_moment", "想分享", "", null, "等待执行", false, at,
+            causalEvidenceId = "archive-stale-source",
+            executionRequestId = "archive-stale-request", executionState = "pending")
+        SharedExperienceTimeline.record("archive-stale-source", a, "私聊", "用户",
+            "我改主意了，不要发", at.plusSeconds(5), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertFalse(CharacterInnerLifeStore.completeDecision(a,
+            "archive-stale-choice", "archive-stale-request", "已发出", true))
+        val old = CharacterInnerLifeStore.decisionsForEvidence(a, "archive-stale-source")
+            .firstOrNull { it.optString("id") == "archive-stale-choice" }
+        assertEquals("pending", old?.optString("executionState"))
+        SharedExperienceTimeline.deleteEvent("archive-stale-source")
+        assertFalse(CharacterInnerLifeStore.completeDecision(a,
+            "archive-stale-choice", "archive-stale-request", "已发出", true))
+        assertTrue(CharacterInnerLifeStore.decisionsForEvidence(a, "archive-stale-source").isEmpty())
+    }
+
     @Test fun clearingOnePersonsPrivateThoughtsAlsoClearsArchivedDecisions() {
         source(a, "archive-clear-source")
         repeat(85) { index -> choice(a, "archive-clear-$index", "archive-clear-source", index) }
