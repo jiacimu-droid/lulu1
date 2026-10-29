@@ -172,7 +172,7 @@ internal object Live2DVisualActionBus {
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
         """.trimIndent() + recentMotionReceipts[characterId]
             ?.filter { it.callId == callId }
-            ?.takeIf(List<MotionReceipt>::isNotEmpty)
+            ?.takeIf { it.isNotEmpty() }
             ?.joinToString(separator = "；", prefix = "\n【最近真实身体执行回执】", postfix =
                 "。仅表示 Cubism 播放器的启动结果，不证明主人看见全部动作。") { receipt ->
                 val title = Live2DMotionCatalog.describe(receipt.motion.first, receipt.motion.second)
