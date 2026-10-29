@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:26:42.802529+00:00",
-  "commit": "317febc4daca49bfe6b713b60e0f61bdfa22d8e6",
+  "generatedAt": "2026-10-29T14:28:12.999104+00:00",
+  "commit": "3b859eec5500d4c35059047b31c454b2df0c6a75",
   "branch": "main",
-  "sourceFingerprint": "70a726f9da67026d9775e561ecc18d471618e55aebdb3a2330ae93afba8bdf7c",
+  "sourceFingerprint": "463831ce0ba11e6f01cc9a88ce8a4dc31f51913b402bdaacd02f7bbbfa1857d1",
   "summary": {
     "files": 1068,
-    "lines": 221109,
+    "lines": 221126,
     "symbols": 3143
   },
   "symbolIndex": {
@@ -8353,11 +8353,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 105
+        "line": 122
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 119
+        "line": 136
       }
     ],
     "recordWitness": [
@@ -24792,7 +24792,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1595,
-      "sha256": "d40bea5ad5c56eaee8f3e42f9b206e796b822a9eebfd536b47ebb5b815b86419",
+      "sha256": "af62e7586a6e2b8b198a27e1a72d307ad631e2f52a67faac244e1754f2d7c83f",
       "symbols": [
         {
           "name": "asJson",
@@ -32519,7 +32519,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2168,
-      "sha256": "48491b03491236ee1261f82a7c6244e4f052133ab956c1fd0cdc9cbc311c2a1a",
+      "sha256": "2fd5eb36347a87072b3dc4c5c0351eee1e4b18110e77c37d734d3cd004041bb7",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -34177,8 +34177,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-      "lines": 129,
-      "sha256": "f38ec8a96138b935eeb94f3c7585901a50c8537771c21e54c8e81809f3a37c1e",
+      "lines": 146,
+      "sha256": "4246bda716e2b7a2d807ae9479cb32db37fdc42c17a3eee364fb5ed3f64bca6d",
       "symbols": [
         {
           "name": "AutonomyCallAndReceiptTest",
@@ -34186,11 +34186,11 @@
         },
         {
           "name": "tick",
-          "line": 105
+          "line": 122
         },
         {
           "name": "tick",
-          "line": 119
+          "line": 136
         }
       ]
     },
