@@ -65,10 +65,20 @@ internal object Live2DVisualActionBus {
     private val visibleStages = mutableMapOf<String, String>()
     private val availableParameters = mutableMapOf<String, Set<String>>()
     private var sequence = 0L
+    // An ephemeral renderer receipt for the SAME role and phone session.
+    // A planned Cue is not proof that Cubism started an authored motion.
+    private data class MotionReceipt(
+        val callId: String, val sequence: Long, val motion: Pair<String, Int>,
+        val segmentId: String, val started: Boolean,
+    )
+    private val lastMotionReceipts = mutableMapOf<String, MotionReceipt>()
 
     @Synchronized
     fun stageReady(characterId: String, callId: String) {
-        if (characterId.isNotBlank() && callId.isNotBlank()) visibleStages[characterId] = callId
+        if (characterId.isNotBlank() && callId.isNotBlank()) {
+            if (visibleStages[characterId] != callId) lastMotionReceipts.remove(characterId)
+            visibleStages[characterId] = callId
+        }
     }
 
     @Synchronized
@@ -77,9 +87,37 @@ internal object Live2DVisualActionBus {
             visibleStages.remove(characterId)
             availableParameters.remove(characterId)
         }
+        if (lastMotionReceipts[characterId]?.callId == callId)
+            lastMotionReceipts.remove(characterId)
         if (mutableCues.value[characterId]?.callId == callId) {
             mutableCues.value = mutableCues.value - characterId
         }
+    }
+
+    /**
+     * Accept only the current Cubism player's acknowledgement for a motion
+     * selected by this character in this exact, still visible call and score.
+     * Manual preview, old WebViews, cancelled scores and unselected clips are not facts.
+     */
+    @Synchronized
+    fun recordMotionOutcome(characterId: String, callId: String, phase: String, detail: String): Boolean {
+        if (phase != "motion-started" && phase != "motion-failed") return false
+        if (visibleStages[characterId] != callId || callId.isBlank()) return false
+        val cue = mutableCues.value[characterId]?.takeIf { it.callId == callId } ?: return false
+        val event = runCatching { JSONObject(detail) }.getOrNull() ?: return false
+        if (event.optString("source") != "character" ||
+            event.optLong("sequence") != cue.sequence || cue.sequence <= 0L) return false
+        val selected = event.optString("group") to event.optInt("index", -1)
+        val segmentId = event.optString("segmentId")
+        val authorized = if (segmentId.isNotBlank()) {
+            cue.beats.any { it.segmentId == segmentId && it.motion == selected }
+        } else {
+            cue.motion == selected || cue.beats.any { it.segmentId == null && it.motion == selected }
+        }
+        if (!authorized) return false
+        lastMotionReceipts[characterId] = MotionReceipt(
+            callId, cue.sequence, selected, segmentId, phase == "motion-started")
+        return true
     }
 
     /** True only while this call actually has a visible, ready character body. */
@@ -128,7 +166,15 @@ internal object Live2DVisualActionBus {
             选择 silent 安静陪伴时可以省略 live2d；选择 reply 开口时每个片段须有可执行 Motion3。模型不存在的动作不能编造，程序不会按台词替你猜动作。
             老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
-        """.trimIndent()
+        """.trimIndent() + lastMotionReceipts[characterId]
+            ?.takeIf { it.callId == callId }
+            ?.let { receipt ->
+                val title = Live2DMotionCatalog.describe(receipt.motion.first, receipt.motion.second)
+                    ?: "${receipt.motion.first}#${receipt.motion.second}"
+                val outcome = if (receipt.started) "Cubism 播放器确认已启动" else "Cubism 播放器拒绝/失败"
+                "\n【上次真实身体执行回执】${title}（${receipt.motion.first}#${receipt.motion.second}）：" +
+                    "${outcome}。这不证明主人看见了全部动作；后续回答可区分你选择过的动作与实际启动的动作。"
+            }.orEmpty()
     }
 
     /**
