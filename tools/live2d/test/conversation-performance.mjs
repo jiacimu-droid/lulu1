@@ -383,7 +383,7 @@ assert.equal(motions.length, beforeNextVoice,
 assert.equal(bridge.pendingSpeechParts.motion.index, 35)
 assert.equal(bridge.pendingExpressionName.name, 'star')
 bridge.onPlaybackEvent('interrupted', 0, 2100, 'old')
-assert.equal(bridge.scoreVisualSequence, 2101,
+assert.equal(vm.runInContext('scoreVisualSequence', bridge), 2101,
   'old interrupted callback must preserve the next selected score')
 assert.equal(bridge.pendingSpeechParts.motion.index, 35,
   'old interruption cannot discard the next Motion3')
@@ -391,15 +391,15 @@ bridge.onPlaybackEvent('playing', 0, 2101, 'new')
 await Promise.resolve()
 assert.equal(motions.length, beforeNextVoice + 1,
   'queued Motion3 begins at the next real TTS fragment')
-assert.equal(bridge.audioVisualSequence, 2101)
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 2101)
 bridge.onPlaybackEvent('finished', 0, 2100, 'old')
-assert.equal(bridge.audioVisualSequence, 2101,
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 2101,
   'late old finish must not stop the new audible segment')
 assert.equal(bridge.playing, true)
 assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
 assert.equal(bridge.faceRequest.smile, .3)
 bridge.onPlaybackEvent('playing', 0, 2100, 'old')
-assert.equal(bridge.audioVisualSequence, 2101,
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 2101,
   'late old start must not rewind the next sentence')
 bridge.onPlaybackEvent('finished', 0, 2101, 'wrong-id')
 assert.equal(bridge.playing, true,
@@ -417,7 +417,7 @@ bridge.perform({ visualSequence: 2111,
 const beforeFinishedHandoff = motions.length
 bridge.onPlaybackEvent('finished', 0, 2110, 'prior')
 assert.equal(bridge.pendingSpeechParts.motion.index, 36)
-assert.equal(bridge.scoreVisualSequence, 2111)
+assert.equal(vm.runInContext('scoreVisualSequence', bridge), 2111)
 bridge.onPlaybackEvent('playing', 0, 2111, 'later')
 await Promise.resolve()
 assert.equal(motions.length, beforeFinishedHandoff + 1)
