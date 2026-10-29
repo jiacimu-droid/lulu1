@@ -95,3 +95,8 @@
 - **回归源码**：`CharacterExplorationContinuityTest` 两条测试覆盖旧工具失败晚到→新 inquiry 与新失败不被污染→真实新工具成功清除当前失败→本人明确结案后迟到失败不能复活；另覆盖结案前真实失败仍保存在原 Store、重启后不再出现在自主决策提示。原执行事实仍由时间线保留，回归文件提交不能代替 JVM 实跑。
 - **提交**：源码 [af32d94](https://github.com/jiacimu-droid/lulu1/commit/af32d94f66991dcc95ed11ab61291fba6d5fece9)，回归 [410c3ef](https://github.com/jiacimu-droid/lulu1/commit/410c3efc11d5ea80f9e382c78fca1a7a45ed3447)。仅修改本专项运行时、对应测试和本专项进度；不碰基础/社交/Live2D 的公共文件，不新建 Store、调度或模型轮次。
 - **验证分层**：源码提交后原 [Refresh code index #40907424813](https://github.com/jiacimu-droid/lulu1/actions/runs/40907424813) completed/success，自动索引提交 `45bf6bb`；回归提交后原 [Refresh code index #40907490706](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490706) 最初为 queued。源码单独 [APK #40907424998](https://github.com/jiacimu-droid/lulu1/actions/runs/40907424998) 因后续回归提交被取消；包含回归的 [APK #40907490830](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490830) 最初为 pending。执行环境无 Android SDK/Gradle，**不能宣布本轮 JVM、APK、Release 或真机通过**；须按最终 run 状态继续核对。真实设备的强杀、权限变化和三次跨天唤醒仍未验。
+
+### T2/T3 本轮索引复核
+
+- 回归提交 `410c3ef` 对应原 [Refresh code index #40907490706](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490706) **completed/success**，自动索引提交 [9f8226d](https://github.com/jiacimu-droid/lulu1/commit/9f8226d377b8)；实际 `CODE_INDEX.md` 基准为 `410c3efc11d5ea80f9e382c78fca1a7a45ed3447`，已覆盖源码和回归。无需手工重写索引。
+- [Lulu APK #40907490830](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490830) 复核时仍 **pending**，尚无 Android JVM/phone/Release 通过证据。旧 [#40903765474](https://github.com/jiacimu-droid/lulu1/actions/runs/40903765474) 的成功仅作修改前基线。真机与跨日验收仍待。
