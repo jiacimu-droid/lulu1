@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:24:47.445141+00:00",
-  "commit": "3636f6cbc60702e0d0c40f24dc6bd16febb9200d",
+  "generatedAt": "2026-10-29T16:25:04.647303+00:00",
+  "commit": "d33c1257ad1198ee2a3cc4356983702289d18c73",
   "branch": "main",
-  "sourceFingerprint": "9b43a3fd62e9a34900148abda0da2e08e381402a088efefc3a5a11effdcfacad",
+  "sourceFingerprint": "4d7bde8b2b6d922860ccaf9bd2ce91fa19d28bcc6c25063a674dd17e879d9137",
   "summary": {
     "files": 1086,
-    "lines": 224011,
-    "symbols": 3185
+    "lines": 224032,
+    "symbols": 3186
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7814,10 +7814,16 @@
         "line": 821
       }
     ],
+    "proposalIssue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
+        "line": 839
+      }
+    ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 840
+        "line": 860
       }
     ],
     "repeatsConfirmedAction": [
@@ -25083,8 +25089,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 897,
-      "sha256": "55dc482dc5d0b399de80c65c9805507577ed24e6b2262d911cc09e65464fe4f4",
+      "lines": 918,
+      "sha256": "c2aeb8d8e6716f06e7e2e887a3d8e73e6878537519736b68ec92c5e51a3605db",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -25167,8 +25173,12 @@
           "line": 821
         },
         {
+          "name": "proposalIssue",
+          "line": 839
+        },
+        {
           "name": "ensure",
-          "line": 840
+          "line": 860
         }
       ]
     },
