@@ -1668,6 +1668,7 @@ internal object LuluVoiceCallSession {
                         speakerId = latest.characterId,
                         voiceId = CharacterVoicePreferenceStore.callVoiceId(latest.characterId, mutableState.value.sleepMode),
                         messageId = voiceMessageId,
+                        retryOnFailure = mutableState.value.sleepMode,
                         onStarted = {
                             if (sameReply()) {
                                 Live2DSpeechTimeline.started(
