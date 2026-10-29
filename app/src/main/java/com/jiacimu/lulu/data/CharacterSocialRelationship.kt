@@ -35,7 +35,7 @@ data class CharacterSocialRelationshipSnapshot(
 
 /**
  * Social acquaintance is derived from real history instead of a hidden affection score or a
- * numeric familiarity ladder. A common group already means the characters know each other;
+ * numeric familiarity ladder. A shared roster alone never means the characters know each other;
  * completed meetings are factual shared experience, but the count never auto-upgrades intimacy.
  */
 data class SocialPerspective(
@@ -98,6 +98,31 @@ object CharacterSocialRelationship {
     }
 
 
+    /** A room roster only tells a person who is listed, not who they know.
+     * A shared group becomes a real two-person social encounter only after
+     * both have actually spoken AND each witnessed the other's delivered
+     * group message in the existing character-owned timeline. */
+    private fun witnessedGroupExchange(
+        conversation: LuluConversation, first: String, second: String,
+    ): Boolean {
+        val members = conversation.groupChat?.members?.map(LuluGroupMember::characterId).orEmpty()
+        if (first !in members || second !in members) return false
+        val messages = MigratedDomainStores.chat.messages(conversation.id).value
+        fun latestFrom(author: String): LuluChatMessage? = messages.lastOrNull {
+            it.sender == LuluChatMessage.Sender.Character &&
+                it.status == LuluChatMessage.Status.Sent &&
+                it.authorCharacterId == author
+        }
+        val firstMessage = latestFrom(first) ?: return false
+        val secondMessage = latestFrom(second) ?: return false
+        val witnessed = listOf(firstMessage, secondMessage)
+        return listOf(first, second).all { viewer ->
+            val ids = witnessed.map { "${it.id}:group:$viewer" }
+            SharedExperienceTimeline.eventsByIds(viewer, ids).map { it.id }.toSet()
+                .containsAll(ids)
+        }
+    }
+
     fun snapshot(firstCharacterId: String, secondCharacterId: String): CharacterSocialRelationshipSnapshot {
         val first = firstCharacterId.trim()
         val second = secondCharacterId.trim()
@@ -107,12 +132,8 @@ object CharacterSocialRelationship {
 
         val commonGroups = MigratedDomainStores.chat.conversations.value
             .asSequence()
-            .mapNotNull { it.groupChat }
-            .filter { group ->
-                val ids = group.members.map(LuluGroupMember::characterId)
-                first in ids && second in ids
-            }
-            .map { it.name.trim().ifBlank { "共同群聊" } }
+            .filter { witnessedGroupExchange(it, first, second) }
+            .map { it.groupChat!!.name.trim().ifBlank { "共同群聊" } }
             .distinct()
             .toList()
 
@@ -290,12 +311,21 @@ object CharacterSocialRelationship {
         if (viewerId.isBlank() || firstId.isBlank() || secondId.isBlank() ||
             viewerId == firstId || viewerId == secondId || firstId == secondId) return blank
         val groups = MigratedDomainStores.chat.conversations.value.asSequence()
-            .mapNotNull { it.groupChat }
-            .filter { group ->
-                val memberIds = group.members.map(LuluGroupMember::characterId)
-                viewerId in memberIds && firstId in memberIds && secondId in memberIds
+            .filter { conversation ->
+                val members = conversation.groupChat?.members?.map(LuluGroupMember::characterId).orEmpty()
+                viewerId in members && witnessedGroupExchange(conversation, firstId, secondId)
+                    // The viewer must have been present at both sends, not
+                    // merely join the same room after the exchange.
+                    && listOf(firstId, secondId).all { speaker ->
+                        MigratedDomainStores.chat.messages(conversation.id).value.any { message ->
+                            message.sender == LuluChatMessage.Sender.Character &&
+                                message.authorCharacterId == speaker &&
+                                SharedExperienceTimeline.eventsByIds(viewerId,
+                                    listOf("${message.id}:group:$viewerId")).isNotEmpty()
+                        }
+                    }
             }
-            .map { it.name.trim().ifBlank { "共同群聊" } }.distinct().toList()
+            .map { it.groupChat!!.name.trim().ifBlank { "共同群聊" } }.distinct().toList()
         val meetings = DigitalWorldStore.state.value.meetings.asSequence()
             .filter { event ->
                 event.endedAt != null && event.turns.isNotEmpty() &&
