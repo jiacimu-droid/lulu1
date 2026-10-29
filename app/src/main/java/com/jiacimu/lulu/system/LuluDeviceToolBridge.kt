@@ -1241,7 +1241,7 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
                 decisionId = silentDecisionId,
-                selectedAction = CharacterDecisionProtocol.SILENT,
+                selectedAction = if (chatSilentHasSteps) "steps" else CharacterDecisionProtocol.SILENT,
                 reason = plan.reason,
                 chosenMotiveId = plan.motiveId,
                 alternatives = plan.alternatives,
