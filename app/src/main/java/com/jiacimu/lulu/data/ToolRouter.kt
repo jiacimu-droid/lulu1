@@ -340,6 +340,7 @@ object ToolRouter {
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId,
+                    sessionId = if (name == "send_group_message") parsed.optString("conversationId") else "",
                     evidenceKind = EventEvidenceKind.ToolResult,
                     // Failures must inform the next perception, not increase
                     // the gauge for pleasant/share-worthy lived experiences.
