@@ -835,6 +835,26 @@ internal object CompanionSleepHandoff {
         }
     }
 
+    /** Validate a same-role handoff proposal without writing any new alarm. */
+    fun proposalIssue(context: Context, characterId: String,
+                      checks: JSONArray?, now: Instant): String? {
+        val outstanding = uncovered(context, characterId, now)
+        if (outstanding.isEmpty()) return null
+        if (checks == null) return "还有未安排后续复查的承诺，缺少 onlineDecision.nextChecks"
+        val found = mutableSetOf<String>()
+        for (index in 0 until checks.length()) {
+            val item = checks.optJSONObject(index) ?: return "nextChecks 中有无效对象"
+            val taskId = item.optString("taskId").trim()
+            val at = runCatching { Instant.parse(item.optString("at").trim()) }.getOrNull()
+            if (!found.add(taskId) || at == null || !at.isAfter(now.plusSeconds(60)) ||
+                item.optString("reason").isBlank())
+                return "nextChecks 的角色任务ID、未来时间或理由不完整"
+        }
+        if (found != outstanding.map(CommitmentTask::id).toSet())
+            return "nextChecks 未覆盖所有尚未交接的本人责任或包含不属于本人的任务"
+        return null
+    }
+
     /** All-or-nothing scheduling. A failed alarm never becomes a fake next step. */
     @Synchronized
     fun ensure(context: Context, characterId: String, checks: JSONArray?,
@@ -843,6 +863,7 @@ internal object CompanionSleepHandoff {
         com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
         val outstanding = uncovered(context, characterId, now)
         if (outstanding.isEmpty()) return Result(true)
+        proposalIssue(context, characterId, checks, now)?.let { return Result(false, it) }
         if (checks == null) return Result(false,
             "仍有${outstanding.size}项责任没有真正保存的后续时间；请先选定复查任务")
         val selected = mutableMapOf<String, Pair<Instant, String>>()
