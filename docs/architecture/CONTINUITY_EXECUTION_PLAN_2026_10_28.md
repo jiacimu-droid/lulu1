@@ -417,3 +417,11 @@
 - [x] **统一执行层修复**：保留 ToolRouter 的唯一执行与幂等中心，不加收费模型调用。新请求将 `expectedPlanDueAt` 与原有已验证 `causeEvidenceId/causeEvidenceRevision` 一起持久保存；重放先比较当初请求的来源 ID、日程时间版本与原有参数/目标指纹，不一致返回 `waiting_user`，不重建旧回执也不执行新副作用。仅当原请求是 `running` 且工具声明 `retrySafe` 时，进一步要求原证据仍存在且 revision 未变；已完成的旧结果仍可在原请求身份下恢复，不因后来编辑/撤权/停用而改写历史。旧版未存新增时间版本字段的记录继续按旧身份回放，不能推断它具有新的精确日程版本证据。
 - [x] **根因级回归源码**：`CharacterUnfinishedActionContextTest` 新增同一工具/参数/请求 ID 被不同来源或无来源重放时拒绝、正确原来源可恢复一次历史回执；另以真实 publish_moment 验证已发布动态在另一输入重放时不会再次发布、旧请求仅恢复原回执；原来源修订/撤回后 `retrySafe running` 不执行；改期后的 `expectedPlanDueAt` 不得借用旧已完成结果，旧时刻仍可只读恢复。既有撤销权限后旧结果重放、退役工具历史、相同参数幂等回归继续保留。
 - [ ] **分层验收**：本轮新 main 的 Android JVM 全套、APK、原有 code-index workflow 与真机私聊/电话/居民跨入口重复请求、改期和进程中断分别核对；源码/测试提交不等于真机通过。历史记录未持久化来源字段的旧版请求无法补造精确来源；未知远端结果仍不得盲目重发。
+
+## 2026-10-29 P0-B：自主选择先持久化，再执行多步动作并独立核对请求（源码已提交，CI/真机待验）
+
+- [x] **真实根因**：`ProactivePerceptionRuntime` 原来在 `performAction` 完成所有主动作、副步骤及搜索反馈之后才调用 `CharacterInnerLifeStore.recordDecision`。若进程在 ToolRouter 已保存某项请求/回执之后死亡，独立动作可能真实发生，但人物的“本人选择”记录根本不存在；只看心理记录会误以为没有选择。即使最终正常保存，旧决定仅有模型动作签名而无原 ToolRouter 请求 ID，诊断只能按来源事件粗略并列回执，无法区分同一次决定的主动作和第 N 个步骤。
+- [x] **源码接线**：在现有自主模型返回且执行前，按原 `shadowRequestId` 稳定身份将真实选择、理由、来源 revision、主动作存在性和有序步骤数量存入本人原 `CharacterInnerLifeStore.decisions`，初始 `executionState=pending`；随后仍由唯一 `ToolRouter` 与 `OrderedCharacterActions` 执行。执行器返回后只补写同一决定的 `reported` 状态与结果，不改写原选项；迟到回包遇来源编辑/撤回不能完成旧版本。冷归档中待完成的决定也能在原页原地原子更新，避免 60 条热窗口挤走后永远停留 pending。无新 Store、强制模型调用或副作用补偿。
+- [x] **只读诊断**：原 `CharacterCausalTrace` 沿选择记录的 `executionRequestId` 精确查询本人主动作与 `:step:N` 原工具/拒绝回执；结果成功、执行前拒绝、running/结果未知、持久请求已保存但回执缺失、尚无任何执行请求分别显示。旧记录缺精确 ID 不猜测；来源历史版本、回执时序缺失不冒充当前执行。仅查看详情不会重试或触发感知。
+- [x] **回归已编写**：`CharacterDecisionArchiveTest` 覆盖 85 条后冷页 pending→reported、旧结果二次写入拒绝、角色隔离、来源编辑/撤回后不允许迟到回包完成；`CharacterCausalTraceTest` 覆盖同一真实决定的主请求被拒、独立第1步有成功回执、第2步持久 running、本人选择结果回写、另一人物隔离、只读诊断不消费 running。原 ToolRouter 重放和动态恰好一次回归继续保留。
+- [ ] **仍待实证**：Android JVM 全套、phone APK、既有索引工作流、真机后台进程死亡注入和在线私聊/静默感知的真实多步执行。模型返回后、选择持久化前的极短中断尚无决定证据；旧版决定没有 executionRequestId 不能反推原请求；UI 当前只读展示，不会替人物自动补做。完整的前台/电话入口预提交一致性仍是 P1 待办。
