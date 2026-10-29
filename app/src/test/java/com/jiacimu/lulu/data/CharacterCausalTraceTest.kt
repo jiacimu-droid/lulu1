@@ -54,11 +54,12 @@ class CharacterCausalTraceTest {
     }
 
     private fun receipt(role: String, id: String, cause: String, tool: String, status: String,
-        success: Boolean, summary: String, revision: Long = 1L, native: String = "") {
+        success: Boolean, summary: String, revision: Long = 1L, native: String = "",
+        requestId: String = id) {
         val result = JSONObject().put("success", success).put("summary", summary)
         if (native.isNotBlank()) result.put("evidenceId", native)
         SharedExperienceTimeline.record(id, role, "实际工具执行", "执行器",
-            JSONObject().put("tool", tool).put("requestId", id)
+            JSONObject().put("tool", tool).put("requestId", requestId)
                 .put("causeEvidenceId", cause).put("causeEvidenceRevision", revision)
                 .put("status", status).put("result", result.toString()).toString(),
             at.plusSeconds(10), triggerExtraction = false,
@@ -526,6 +527,60 @@ class CharacterCausalTraceTest {
             .any { it.evidenceId == replyId && it.title.contains("搜索结果后的实际反馈") })
     }
 
+
+    @Test fun archivedSearchChoiceLinksActualStepAndReplyWithoutRecentEventWindow() {
+        val origin = "trace-old-window-origin"
+        val rootRequest = "trace-old-window-request"
+        val stepRequest = "$rootRequest:step:0"
+        val searchId = "tool-$a-$stepRequest"
+        val replyId = "tool-$a-$rootRequest:verified-search-feedback"
+        source(a, origin, "帮我查资料，之后告诉我")
+        CharacterInnerLifeStore.recordDecision(a, "trace-old-window-decision", "tool",
+            "先搜索再给出有依据的答复", "", null, "准备执行", false, at,
+            causalEvidenceId = origin, executionRequestId = rootRequest,
+            executionStepCount = 1, executionHasPrimary = false)
+        receipt(a, searchId, origin, "web_search", "succeeded", true,
+            "检索完成", requestId = stepRequest)
+        SharedExperienceTimeline.record(replyId, a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "send_private_message")
+                .put("requestId", "$rootRequest:verified-search-feedback")
+                .put("causeEvidenceId", searchId).put("causeEvidenceRevision", 1L)
+                .put("status", "succeeded")
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "实际答复已送达").toString()).toString(),
+            at.plusSeconds(30), triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        // A years-old source card may only have its own row in the UI window.
+        // Exact request IDs, not an unbounded timeline scan, must recover
+        // the original step and the independently delivered final answer.
+        val originLines = CharacterCausalTrace.inspect(context, a, event(a, origin),
+            listOf(event(a, origin)))
+        assertTrue(originLines.any { it.evidenceId == searchId &&
+            it.title.contains("执行器确认成功") })
+        assertTrue(originLines.any { it.evidenceId == replyId &&
+            it.title.contains("搜索结果后的实际反馈") &&
+            it.title.contains("执行器确认成功") })
+        val resultLines = CharacterCausalTrace.inspect(context, a, event(a, searchId),
+            listOf(event(a, searchId)), JSONObject())
+        assertEquals(1, resultLines.count { it.evidenceId == replyId &&
+            it.title.contains("搜索结果后的实际反馈") })
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, origin),
+            listOf(event(a, origin))).isEmpty())
+
+        // The same ID with a newer result revision must not borrow the old
+        // delivered answer; withdrawing it must never resurrect the receipt.
+        receipt(a, searchId, origin, "web_search", "succeeded", true,
+            "重新检索后的资料", requestId = stepRequest)
+        assertFalse(CharacterCausalTrace.inspect(context, a, event(a, searchId),
+            listOf(event(a, searchId)), JSONObject()).any {
+            it.evidenceId == replyId && it.title.contains("搜索结果后的实际反馈")
+        })
+        SharedExperienceTimeline.deleteEvent(replyId)
+        assertFalse(CharacterCausalTrace.inspect(context, a, event(a, origin),
+            listOf(event(a, origin))).any {
+            it.evidenceId == replyId && it.title.contains("搜索结果后的实际反馈")
+        })
+    }
 
     @Test fun archivedThoughtCanExplainOldUnsharedImpulseWithoutInventingDelivery() {
         val originalId = "trace-archived-impulse"
