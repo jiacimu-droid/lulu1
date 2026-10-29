@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:21:17.514757+00:00",
-  "commit": "8fca4ac29fae3e66b46939761facac240a1aaacc",
+  "generatedAt": "2026-10-29T14:22:18.774237+00:00",
+  "commit": "74da1fd15e25eb8036580dc6cbaeccf17f7a49b4",
   "branch": "main",
-  "sourceFingerprint": "ba92d416061647dfd2bdebeeae75c651f9eb80db721e78bc7e4409051cf021cb",
+  "sourceFingerprint": "c4dee9cc6b473ce2565f44e09760a279a8d3a996df54ee88776bd531490d3934",
   "summary": {
     "files": 1068,
-    "lines": 220714,
+    "lines": 220847,
     "symbols": 3141
   },
   "symbolIndex": {
@@ -1967,7 +1967,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 523
+        "line": 656
       }
     ],
     "record": [
@@ -4187,7 +4187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 635
+        "line": 768
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt",
@@ -12593,7 +12593,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 273
+        "line": 282
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -12663,43 +12663,43 @@
     "nextRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 47
+        "line": 56
       }
     ],
     "generateCharacterDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 60
+        "line": 69
       }
     ],
     "submitUserGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 84
+        "line": 93
       }
     ],
     "submitDescriptionForCharacterGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 120
+        "line": 129
       }
     ],
     "finishAdventure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 313
+        "line": 322
       }
     ],
     "ask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 435
+        "line": 445
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 462
+        "line": 472
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -12709,13 +12709,13 @@
     "answer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 551
+        "line": 684
       }
     ],
     "next": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 560
+        "line": 693
       }
     ],
     "partyFor": [
@@ -30516,56 +30516,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 680,
-      "sha256": "c96ecdaace0f49c7f4483848d5406460c7c0a79a5acbfe0a680f5f4bf54dea72",
+      "lines": 813,
+      "sha256": "e197572557987fa758f6e75b7b85e9bd95d8083c3277fd90b863220e6967de54",
       "symbols": [
         {
           "name": "nextRound",
-          "line": 47
+          "line": 56
         },
         {
           "name": "generateCharacterDescription",
-          "line": 60
+          "line": 69
         },
         {
           "name": "submitUserGuess",
-          "line": 84
+          "line": 93
         },
         {
           "name": "submitDescriptionForCharacterGuess",
-          "line": 120
+          "line": 129
         },
         {
           "name": "act",
-          "line": 273
+          "line": 282
         },
         {
           "name": "finishAdventure",
-          "line": 313
+          "line": 322
         },
         {
           "name": "ask",
-          "line": 435
+          "line": 445
         },
         {
           "name": "reveal",
-          "line": 462
+          "line": 472
         },
         {
           "name": "prepare",
-          "line": 523
+          "line": 656
         },
         {
           "name": "answer",
-          "line": 551
+          "line": 684
         },
         {
           "name": "next",
-          "line": 560
+          "line": 693
         },
         {
           "name": "play",
-          "line": 635
+          "line": 768
         }
       ]
     },
