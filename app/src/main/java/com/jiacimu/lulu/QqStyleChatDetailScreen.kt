@@ -359,8 +359,15 @@ fun QqStyleChatDetailScreen(
                 reason = CompanionOnlineReason.PrivateWake,
                 trigger = "用户在私聊呼唤上线",
             )
-        } else {
-            CompanionOnlineStore.wakeGroup(currentConversation)
+        } else if (!sentNewMessage) {
+            // A new group message already schedules one coordinated turn at
+            // persistence time. Waking all peers again would launch duplicate
+            // model calls, including during the owner's unfinished sentence.
+            val current = MigratedDomainStores.chat.messages(conversationId).value
+            val pending = current.takeLastWhile { it.sender != LuluChatMessage.Sender.Character }
+                .any { it.sender == LuluChatMessage.Sender.User }
+            if (pending) GroupChatRoundCoordinator.schedule(conversationId)
+            else CompanionOnlineStore.wakeGroup(currentConversation)
         }
         return true
     }
