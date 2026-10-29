@@ -1635,8 +1635,15 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     return
   }
   const target = model
+  // Continue only while the SAME authored clip is pending or genuinely active.
+  // At low FPS the previous clip may have ended before the render loop clears
+  // authoredMotion; skipping here would leave the next spoken part motionless.
+  // A touch clip is never a substitute for this character's spoken choice.
   if (options.transition === 'continue' && authoredMotion?.model === target &&
-      authoredMotion.group === group && authoredMotion.index === index) return
+      authoredMotion.source === source && authoredMotion.group === group &&
+      authoredMotion.index === index &&
+      (!authoredMotion.started ||
+        target.internalModel?.motionManager?.isFinished?.() !== true)) return
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source }
   authoredMotion = chosen
@@ -1650,7 +1657,10 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       const manager = target.internalModel?.motionManager
       // A resource load may finish after cancellation. Stop only that stale
       // motion, never an already-started motion from a newer decision.
-      if (!authoredMotion?.started && manager?.state?.currentGroup === group &&
+      // An older async load can resolve while a newer clip with the SAME
+      // group/index is pending. Never stop the new character decision just
+      // because its resource identity matches the superseded one.
+      if (!authoredMotion && manager?.state?.currentGroup === group &&
           manager?.state?.currentIndex === index) manager.stopAllMotions?.()
       return
     }
