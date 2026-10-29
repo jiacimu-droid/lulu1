@@ -76,7 +76,7 @@ class Live2DDialoguePlanTest {
             val cue = Live2DVisualActionBus.cues.value.getValue(role)
             // The role cannot claim the visual cue was performed before Cubism reports it.
             assertFalse(Live2DVisualActionBus.capabilityNote(context, role, call)
-                .contains("上次真实身体执行回执"))
+                .contains("真实身体执行回执"))
             fun event(sequence: Long, index: Int, segmentId: String, source: String = "character") =
                 JSONObject().put("sequence", sequence).put("group", "Gesture")
                     .put("index", index).put("segmentId", segmentId)
@@ -92,11 +92,11 @@ class Live2DDialoguePlanTest {
             assertTrue(Live2DVisualActionBus.recordMotionOutcome(role, call,
                 "motion-started", event(cue.sequence, 0, "s1")))
             assertTrue(Live2DVisualActionBus.capabilityNote(context, role, call)
-                .contains("Cubism 播放器确认已启动"))
+                .contains("（Gesture#0）：已启动"))
             assertTrue(Live2DVisualActionBus.recordMotionOutcome(role, call,
                 "motion-failed", event(cue.sequence, 1, "s3")))
             assertTrue(Live2DVisualActionBus.capabilityNote(context, role, call)
-                .contains("Cubism 播放器拒绝/失败"))
+                .contains("（Gesture#1）：被播放器拒绝/失败"))
             val parts = Live2DDialoguePlan.queuedParts(cue.speechParts, Live2DDialoguePlan.spokenText(envelope())!!)!!
             assertEquals(listOf("s1", "s2", "s3"), cue.beats.map { it.segmentId })
             assertEquals(listOf(0, 1, 2), cue.beats.map { it.segmentIndex })
