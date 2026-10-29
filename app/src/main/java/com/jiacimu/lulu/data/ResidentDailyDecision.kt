@@ -663,7 +663,8 @@ internal object ResidentDailyDecision {
      * This does not automatically reinterpret the resident's intent or buy
      * another model response. */
     internal suspend fun saveAgenda(context: Context, native: DigitalWorldResident, proposal: JSONObject,
-        at: Instant, decisionAt: Instant = at): List<RoleDayPlan> {
+        at: Instant, decisionAt: Instant = at,
+        sourceEvidence: SharedTimelineEvent? = null): List<RoleDayPlan> {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
         val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
@@ -677,7 +678,8 @@ internal object ResidentDailyDecision {
             if (SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(rejectedId)) return
             val title = row?.optString("title").orEmpty().trim().take(95)
             val action = row?.optString("activityAction").orEmpty().trim().take(80)
-            SharedExperienceTimeline.record(
+            val recordRejection = {
+                SharedExperienceTimeline.record(
                 eventId = rejectedId,
                 characterId = actor,
                 channel = "原住民·每日自我安排",
@@ -688,9 +690,16 @@ internal object ResidentDailyDecision {
                 source = "resident-agenda-rejected",
                 evidenceKind = EventEvidenceKind.Observation,
                 taskId = decisionId,
-            )
+                )
+            }
+            if (sourceEvidence == null) recordRejection()
+            else SharedExperienceTimeline.commitIfEvidenceUnchanged(actor,
+                listOf(sourceEvidence), recordRejection)
         }
         for (index in 0 until agenda.length()) {
+            // Source edits and withdrawals are serialized with each calendar write.
+            if (sourceEvidence != null && !SharedExperienceTimeline.commitIfEvidenceUnchanged(
+                    actor, listOf(sourceEvidence)) {}) break
             // A live permission/resource rejection is a settled fact for the
             // original choice. If a later replay finds permission restored,
             // only a NEW resident decision may schedule that previously
@@ -751,11 +760,16 @@ internal object ResidentDailyDecision {
             if (alreadyRequested) {
                 if (previouslyArranged != null &&
                     previouslyArranged.status in setOf("planned", "due")) {
-                    RoleDayScheduleStore.cancel(
-                        context, actor, previouslyArranged.id,
-                        "双方已成为好友或已有真实好友申请，原定申请不再执行", at,
-                        expectedDueAt = previouslyArranged.dueAt,
-                    )
+                    val cancelStaleRequest = {
+                        RoleDayScheduleStore.cancel(
+                            context, actor, previouslyArranged.id,
+                            "双方已成为好友或已有真实好友申请，原定申请不再执行", at,
+                            expectedDueAt = previouslyArranged.dueAt,
+                        )
+                    }
+                    if (sourceEvidence == null) cancelStaleRequest()
+                    else SharedExperienceTimeline.commitIfEvidenceUnchanged(actor,
+                        listOf(sourceEvidence), cancelStaleRequest)
                 } else if (previouslyArranged == null) {
                     reject(index, row, "双方已经是好友或已有待处理好友申请")
                 }
@@ -838,12 +852,19 @@ internal object ResidentDailyDecision {
             val targetResident = if (action == "digital_world_action" &&
                 worldAction == "interact_resident") params.optString("itemId") else ""
             val result = runCatching {
-                RoleDayScheduleStore.arrange(context, actor, title, intent, dueAt, at,
-                    activityAction = action, activityArgs = params,
-                    targetCharacterId = if (action == "send_character_message") target else "",
-                    targetResidentId = targetResident, locationCode = location,
-                    selfInitiated = true, originEvidenceId = decisionId,
-                    originEvidenceRevision = 1L)
+                var arranged: RoleDayPlan? = null
+                val arrangeOnce = {
+                    arranged = RoleDayScheduleStore.arrange(context, actor, title, intent, dueAt, at,
+                        activityAction = action, activityArgs = params,
+                        targetCharacterId = if (action == "send_character_message") target else "",
+                        targetResidentId = targetResident, locationCode = location,
+                        selfInitiated = true, originEvidenceId = decisionId,
+                        originEvidenceRevision = 1L)
+                }
+                if (sourceEvidence == null) arrangeOnce()
+                else SharedExperienceTimeline.commitIfEvidenceUnchanged(actor,
+                    listOf(sourceEvidence), arrangeOnce)
+                arranged
             }.onFailure { error ->
                 reject(index, row, "排程持久化或资源检查失败：${error.message.orEmpty().take(140)}")
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -1795,6 +1816,31 @@ internal object ResidentDailyDecision {
         }
         val lunch = allowedLeisureLocation(json.optString("lunch")) ?: "cafe"
         val evening = allowedLeisureLocation(json.optString("evening")) ?: "home"
+        val decisionAt = p.getString("decision-at:${native.id}:$today", null)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: now
+        // The source MUST exist before any calendar mutation. In older builds
+        // agenda rows could be saved first, leaving an unowned side effect if
+        // the process died or the owner withdrew the decision in between.
+        val decisionSource = synchronized(SharedExperienceTimeline) {
+            val previous = SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).firstOrNull()
+            if (previous == null && !SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(eventId)) {
+                SharedExperienceTimeline.record(
+                    eventId = eventId, characterId = id, channel = "原住民·每日自我安排",
+                    speaker = native.name, source = "resident-daily", occurredAt = decisionAt,
+                    evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
+                    content = "本人选定的当天安排：午休=$lunch；晚间=$evening；" +
+                        "晚间想做：${json.optString("eveningActivity").take(95)}；" +
+                        "待排程活动=${json.optJSONArray("agenda")?.length() ?: 0}项。" +
+                        "这是已保存的本人选择，实际排程与执行以独立回执为准。"
+                )
+            }
+            SharedExperienceTimeline.eventsByIds(id, listOf(eventId))
+                .firstOrNull { it.source == "resident-daily" && it.revision == 1L }
+        }
+        if (decisionSource == null) {
+            markSourceUnavailable(p, phaseKey, "last-error:${native.id}:$today")
+            return false
+        }
         val plan = JSONObject()
             .put("date", date(now))
             .put("lunch", lunch)
@@ -1805,29 +1851,16 @@ internal object ResidentDailyDecision {
         check(prefs(app).edit().putString("plan:${native.id}", plan.toString()).commit()) {
             "原住民日程没有保存"
         }
-        val decisionAt = p.getString("decision-at:${native.id}:$today", null)
-            ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: now
-        val agenda = saveAgenda(app, native, json, now, decisionAt)
-        val agendaRejected = (json.optJSONArray("agenda")?.length() ?: 0) - agenda.size
-        // A replay can occur minutes after the first save. Do not rewrite
-        // the same decision event with a newer occurredAt: that would bump
-        // its revision and sever the already persisted tool provenance.
-        if (SharedExperienceTimeline.eventsByIds(id, listOf(eventId)).isEmpty()) {
-            SharedExperienceTimeline.record(
-                eventId = eventId, characterId = id, channel = "原住民·每日自我安排",
-                speaker = native.name, source = "resident-daily", occurredAt = now,
-                evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
-                content = "本人选定的当天安排：午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。" +
-                    "已排入真实日程的自主活动=${agenda.joinToString("；") { "${it.dueAt} ${it.title}" }}。计划均尚未执行。",
-            )
-        }
-        val decisionEvidenceId = SharedExperienceTimeline.eventsByIds(id, listOf(eventId))
-            .firstOrNull { it.source == "resident-daily" && it.revision == 1L }
-            ?.id.orEmpty()
-        if (decisionEvidenceId.isBlank()) {
+        val agenda = saveAgenda(app, native, json, now, decisionAt, decisionSource)
+        // The owner can edit or withdraw the source while the agenda is being
+        // saved. Stop all remaining actions rather than silently treating
+        // skipped rows as ordinary scheduling rejections.
+        if (!SharedExperienceTimeline.commitIfEvidenceUnchanged(id, listOf(decisionSource)) {}) {
             markSourceUnavailable(p, phaseKey, "last-error:${native.id}:$today")
             return false
         }
+        val agendaRejected = (json.optJSONArray("agenda")?.length() ?: 0) - agenda.size
+        val decisionEvidenceId = decisionSource.id
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
         val known = ResidentSocialMailbox.visibleContacts(id).toSet()
