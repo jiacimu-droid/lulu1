@@ -66,3 +66,13 @@
 - **main 提交**：`b544af10e87cfec27eefbc15e12a1809b49d5b82`（源码），`083a6af70211c7913ae6a66a9a19f30adf33682a`（回归）；代码索引由原有自动工作流生成，已观察到索引提交 `aa57f6f2d8e4af44c34cadea45e4e681e37685f7`。自动提交本身不证明索引工作流或 Android 测试成功。
 - **验收分层**：GitHub 提交已核实；回归提交对应的原有 [Refresh code index #40896181069](https://github.com/jiacimu-droid/lulu1/actions/runs/40896181069) 为 **completed/success**，自动索引提交为 `aa57f6f2d8e4af44c34cadea45e4e681e37685f7`。同一回归提交对应的 [Lulu APK #40896181806](https://github.com/jiacimu-droid/lulu1/actions/runs/40896181806) 查询时为 **pending**（build job 已 in_progress），不能宣称 JVM 测试或 APK 通过；前一源码提交的 APK #40896116366 已取消，不算成功。真机强杀恢复、真实工具/居民权限变化、跨日历史规模性能均**未验**。此变更只读，不触发模型/工具，不修改其他专项或公共 ToolRouter。
 
+
+
+## 2026-10-30 · P4 构建阻断：前台可见性未知时群聊协调器 Kotlin 类型错误
+
+- **基线与归属**：重新读取 10-29 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、旧连续性计划及各专项近期 main 提交。原前台群聊单协调器、后台消息投递和 UserInteractionPresence 三态证据均已存在；不重复创建群聊路由或替角色决定回复。
+- **真实构建证据**：Lulu APK [#40948163462](https://github.com/jiacimu-droid/lulu1/actions/runs/40948163462) 的 build job `123709185127` 已 completed/failure，`Test and build phone APK` 在 `CompanionOnlineStore.kt:410:26` 因 `Boolean?` 传给 `Boolean` 的 Kotlin 编译错误失败；其 Live2D stage 构建已成功，但 Android JVM/APK 未能继续。源头是 `UserInteractionPresence.appVisible` 按设计可为 null（冷启动/尚无真实生命周期证据），而 `shouldCoordinateGroupTurn` 错误要求非空布尔值。
+- **根因修复**：仅将现有群聊协调器传输判定入口 `shouldCoordinateGroupTurn` 的 `appVisible` 形参改为 `Boolean?`，仅 `== true` 才走前台群聊协调；`false/null` 均保留现有后台交付分支。未把未知当作用户已读、前台在线或角色意愿；没有改公共 ToolRouter、人物模型或其他专项状态。源码 main 提交 `51509c2cb8a73fa9ee8e3ed903b72a85d72b3754`。
+- **回归源码**：`GroupChatTurnPlannerTest.onlyOwnerGroupInputUsesForegroundCoordinator` 保留真实前台、后台、非用户、非群聊、群通话用例，并补冷启动 `appVisible=null` 时不得启动前台协调。回归 main 提交 `283f823591b27752d367a1723cbb736b775f1920`。测试文件提交不等于已运行通过。
+- **验证分层**：已核实旧构建的真实 Kotlin 编译错误与本次源码类型修正；新提交对应 Android JVM、assemblePhone、APK 发布、代码索引自动生成的最终结果仍需核对，未取得完成结论不得记成功。真机冷启动群聊、前后台切换与真实群通话仍待验。现有 `Refresh code index` 工作流负责生成索引，禁止手工伪造；此次修改了 `app/` 文件。
+- **设备验收**：强杀应用后直接由后台消息/通知唤醒，确认未知可见性不会触发前台群聊轮次；打开应用后本人发一条群消息应只有一个前台协调器；切到后台、群通话中发送消息应沿原分支，不出现双重自动回复。观察真实发送回执与日志，不以 UI 上出现气泡替代完整执行证据。
