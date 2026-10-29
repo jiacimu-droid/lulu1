@@ -78,3 +78,12 @@
 - 并行提交 [6eb8d39f](https://github.com/jiacimu-droid/lulu1/commit/6eb8d39f800e081b51d8d0036efb0a15caa638df) 改同一个 MomentsStore.mutate 为同步 commit 成功后才发布 StateFlow。已重新读取并确认本轮回复字段、目标核验及原工具入口保留；没有用本地旧文件覆盖它。该改动补强前文提及的 apply 耐久性边界，但跨 Store 强杀恢复仍需设备验证。
 - 包含双方改动的 [APK #40873243256](https://github.com/jiacimu-droid/lulu1/actions/runs/40873243256) 又在 debug 编译期间 cancelled。最新核对到 main 的 [c516a450 APK #40873792513](https://github.com/jiacimu-droid/lulu1/actions/runs/40873792513) in_progress，索引 #40873792608 success；该提交仅增加其他专项测试，定向回复与修正后的重载回归仍在 main。
 - 当前结论：源码接通，首轮 1966 项 JVM 中 1965 通过、1 项新重载回归失败后已修测试隔离；修正后完整 JVM/APK 尚无通过证据。无新 APK 可宣称发布，真机与跨天自然互动未验。下一轮先追包含 f2b04208 和 6eb8d39f 的最新 completed CI，若重载仍失败继续定位真实 backing file，不删除断言或反复重建回复功能。
+
+## 2026-10-29 续验：S4 重载失败已通过后续完整 JVM 阶段
+
+- 重读最新 main、社交及其他三项进度；AGENTS、统一人物契约、成长框架、10-28 连续性计划与上一轮逐字相同，沿用已完整阅读的约束。现有代码索引基准 3ac0c806；不重复本人在场候选、好友申请接线或定向回复源码。
+- 已下载核对包含 cb10e513、f2b04208 和 6eb8d39f 的后续实际 job 日志：c516a450 的 [#40873792513](https://github.com/jiacimu-droid/lulu1/actions/runs/40873792513) 在北京时间20:35执行 testDebugUnitTest，20:36进入 compilePhoneKotlin；d1bec4ac 的 [#40874727954](https://github.com/jiacimu-droid/lulu1/actions/runs/40874727954) 在20:43执行单测、20:44进入phone编译；d761bea0 的 [#40875897832](https://github.com/jiacimu-droid/lulu1/actions/runs/40875897832) 在20:50执行单测、20:52进入phone编译。三轮均没有 testDebugUnitTest FAILED，均在 phone 编译之后被新 main 取消。既有工作流单 worker、未开启 --continue，因此这证明修正后的完整 JVM 阶段通过，不能把取消的整轮报为 APK 成功。
+- S4 本轮的三项回归（完整回复/重载/原请求幂等/旧快照红点/独立证据；无效引用及撤权；无固定顶层评论配额）仍保留且已随上述 suite 执行。此前“修正后 JVM 尚无通过证据”的记录由本节补足；真实人物自主选择、真机、多日社交仍未验。
+- 当前 [3ac0c806 APK #40877079954](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079954) 最后核对仍在 Test and build phone APK；索引 #40877079824 success。最新实际 release 仍为 v6609（c10614b9），不把它当作包含本轮社交改动的安装包。未取得新APK，不提供虚假下载地址。
+- 截图的 check_login_status/context deadline exceeded 再核对仍对应已有 V3 服务端修复：arm64-proot.sh 在 repair-login 路径升级原/V2 源码、保留Cookie/Token、复用运行实例DISPLAY并成功编译后重启。手机端原120秒预算和网页账号状态等待已有，不能以再次改手机超时替代更新实际服务。重新运行脚本67项回归、bash语法检查及差异检查均通过；真实手机服务升级/Go编译/登录与搜索正文仍须现场验。
+- 本轮完成上轮未确认的自动回归验收并提供服务器升级步骤，不制造重复源码变更。S1/S2既有回归基础、S3完整邀请/拒绝/改期待验、S4自动回复链通过与真机体验未验继续分开记录；无新增模型请求、定时任务、PR或Issue。
