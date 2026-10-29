@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T04:55:44.777971+00:00",
-  "commit": "9c7335cab6e586439d59bd512c1a892e0c9ee403",
+  "generatedAt": "2026-10-29T04:56:01.889407+00:00",
+  "commit": "694604ae5e5f7ed12f73775f0d5c957e4488df2d",
   "branch": "main",
-  "sourceFingerprint": "82b6b9344f080bec96d659eef147d9812d18977b5ee3d18fb208bbae2631b14c",
+  "sourceFingerprint": "11bd099b96a90b93af602db86772b94ec18dd89697857dce21076d9ef1ec79c6",
   "summary": {
     "files": 1054,
-    "lines": 216775,
+    "lines": 216871,
     "symbols": 3097
   },
   "symbolIndex": {
@@ -15303,7 +15303,7 @@
     "dailyDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 205
+        "line": 255
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -33923,8 +33923,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 570,
-      "sha256": "0e455b40fc59d97430b348c54d0d0885190ef209c9b107e4533446503a19c839",
+      "lines": 620,
+      "sha256": "4e0d37bc559f69a9a1190f2ef7dccc142b67c9338bc2c85995279f44d63bbede",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -33932,7 +33932,7 @@
         },
         {
           "name": "dailyDecision",
-          "line": 205
+          "line": 255
         }
       ]
     },
@@ -34008,8 +34008,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionArchiveTest.kt",
-      "lines": 107,
-      "sha256": "66582c6d0f646a5cf9faf2fd38265435d2d18430f691286ed8bb0dad76e72373",
+      "lines": 153,
+      "sha256": "d192f37d300824cf001268756b9337ba92eabeb5605529afdf04e4fef70cf4a9",
       "symbols": [
         {
           "name": "CharacterDecisionArchiveTest",
