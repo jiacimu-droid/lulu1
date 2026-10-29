@@ -786,6 +786,14 @@ object ProactivePerceptionRuntime {
                     OnlineContinuationPolicy.affectCue(characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
                     appendLine("考虑当前多条挂心、心情、正在做的事、是否真的还想沟通或继续独处；")
+                    val unassigned = CompanionSleepHandoff.uncovered(appContext, characterId, now)
+                    if (unassigned.isNotEmpty()) {
+                        appendLine("【休眠前尚无真实后续安排的本人责任｜如果选择休眠必须安排这些任务】")
+                        unassigned.forEach { task ->
+                            appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; status=${task.status}; condition=${task.completionCondition.take(120)}; last=${task.readableLastResult().take(110)}")
+                        }
+                        appendLine("若确实想休眠，对上述每条给出 nextChecks 的复查时间及理由。时间由你决定，不能让提醒送达等同目标完成。")
+                    }
                     appendLine("【目标与行为严格区分】做出了道歉、安慰、叫醒、发消息等动作，只证明动作发生，并不证明和好、开心、醒来等最终目标已经达到。")
                     appendLine("判断是否已经收到明确且可信的目标结果证据；如果没有，保留目标，选择等待新的信号、五分钟后有理由地再次复盘、改变行动方法，或暂停。")
                     appendLine("没有回复不能证明用户仍在睡、仍在生气或不喜欢你；也不能用同一句话连续刷屏强迫回应。")
