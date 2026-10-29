@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T11:20:01.587195+00:00",
-  "commit": "be1e5fc6c7d77038840c6d02d687e923f33b540d",
+  "generatedAt": "2026-10-29T11:21:13.375396+00:00",
+  "commit": "34e7aafe01be0321fba7c480a7244ef06cf1299e",
   "branch": "main",
-  "sourceFingerprint": "d210383d5339a4203e4bfd435b72e7e808aa7007eb9db747d4a42093a0b06724",
+  "sourceFingerprint": "765e60b945c87372333494383b9d165193abed2ecaa37dd3c20a6976ef2fa4b0",
   "summary": {
     "files": 1067,
-    "lines": 219665,
+    "lines": 219679,
     "symbols": 3134
   },
   "symbolIndex": {
@@ -5941,7 +5941,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 457
+        "line": 471
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -7807,13 +7807,13 @@
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 403
+        "line": 417
       }
     ],
     "deleteMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 434
+        "line": 448
       }
     ],
     "planningGuidance": [
@@ -24886,8 +24886,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 589,
-      "sha256": "1f64bd945e47eeb1d6690ef4afe64491c80a6c6fb8e0e78d42eb4eba044ff86c",
+      "lines": 603,
+      "sha256": "4e2ba9310cafb913e1b06fd653d27cb421f287d002762a8a5a55d9da223a9b4b",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -24955,15 +24955,15 @@
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 403
+          "line": 417
         },
         {
           "name": "deleteMoment",
-          "line": 434
+          "line": 448
         },
         {
           "name": "clearCharacter",
-          "line": 457
+          "line": 471
         }
       ]
     },
