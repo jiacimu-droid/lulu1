@@ -48,3 +48,11 @@
 ### 同轮追加：新问题出现后，旧回执也不能抢走新问题
 
 - 继续审查发现：仅凭「新 inquiry 的时间晚于 dropped/satisfied」就允许重开仍不够；同一 threadId 的旧工具回执可能恰好在新 inquiry 写入后返回，错误地借新问题解锁，并清掉新 pending 与失败反馈。修复提交 [199b45a](https://github.com/jiacimu-droid/lulu1/commit/199b45ae76560e1a3290a752540ca1e3678f2330)：重开必须同时满足本次动作明确引用新 inquiry 的 sourceEvidenceId、本人该观察仍存在且 revision 有效、观察时间晚于原关闭时间；不符合时真实结果仍归档但不消耗新问题或失败反馈。新增回归 [4f2d3b1](https://github.com/jiacimu-droid/lulu1/commit/4f2d3b1ac98eb49faeec0d6f8494689fb48cabec) 模拟「已放下→新问题保存→旧动作迟到→新问题仍待办→真正引用新来源的动作完成才重开」。此处只做事实/来源校验，不以程序推测本人语义；仍须等对应后续 CI/JVM/APK 和真机验收。
+
+## 2026-10-29 D2/T2：工具前置的“已满意”不能抢先结案（真实 CI 阻断）
+
+- **基线与分类**：原 nextAction/steps→OrderedCharacterActions→ToolRouter→CharacterCuriosityRuntime 回执链已有实现；社交专项核对的 main APK #40863097204 已运行 1950 项 JVM 测试、仅 1 项失败，失败是 `CharacterExplorationContinuityTest.eachOrderedToolCarriesItsQuestionAndAnUnseenResultCannotMarkItSatisfied`（预期 exploring，实际 satisfied），因此不是仅待真机的主观问题，而是当前可复现的自动测试阻断。其他 D1/D2/T1/T3 目标仍需真机跨日验收。
+- **根因**：角色在执行前的 `steps[].curiosity.status=satisfied` 被 `recordOutcome` 直接带到已成功工具回执的 thread.status；工具成功只能证明动作发生，不能提前证明本人已读懂、分享或满意。这个旧字段还会让尚未看见结果的兴趣退出后续召回，阻断本人对结果的重新决定。
+- **源码修复**：原 `CharacterCuriosityRuntime.recordOutcome` 在真实工具结果到达时只记录 verified step、保持 `exploring`（已由本人关闭的旧线程仍保留关闭状态）；只有后续本人在原模型轮次对真实结果作出 `satisfied/dropped` 的明确选择，才由既有 `CharacterExplorationContinuity.remember → settleInterest/releaseInterest` 结案。真实回执、来源版本、人物归属、独立动作幂等均沿旧链，不新增 Store、模型调用或定时器。
+- **回归**：保留此前失败的真实 `OrderedCharacterActions.execute` 断言，并补「同一真实回执进入下一轮本人明确 satisfied→结案→原动作重放不得复活」；覆盖先行动、后看结果、再选择、重放的完整链。提交源码与回归不等于 JVM 已通过。
+- **验证边界**：本次直接提交 main 并交原 `Refresh code index` 生成 `CODE_INDEX.md` / `code-index.json`，不得手工伪造。须核对本提交对应 JVM/assemblePhone/APK/Release；真实手机、杀进程与三次跨天唤醒未验。其他专项源码、公共 ToolRouter/主网关/统一存储均未修改。

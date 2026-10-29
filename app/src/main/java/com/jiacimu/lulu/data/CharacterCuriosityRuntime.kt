@@ -326,7 +326,11 @@ internal object CharacterCuriosityRuntime {
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
         for (i in 0 until steps.length()) kept.put(steps.opt(i))
-        val status = if (proposal?.optString("status") == "satisfied") "satisfied" else "exploring"
+        // This choice was authored BEFORE the tool returned. A successful
+        // execution proves only that a real step occurred, not that the
+        // character has now understood, shared, or settled the question.
+        // A later model decision grounded in the receipt can call settleInterest.
+        val status = "exploring"
         kept.put(JSONObject().put("evidenceId", evidenceId)
             .put("sourceEvidenceId", proposal?.optString("sourceEvidenceId").orEmpty().take(180))
             .put("revision", verified.revision)

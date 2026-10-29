@@ -169,6 +169,21 @@ class CharacterExplorationContinuityTest {
         OrderedCharacterActions.execute(context, role, step, "research-step", userEvidenceIds = setOf("input"))
         assertEquals(1, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
             .getJSONObject(0).getJSONArray("steps").length())
+        // The actual result is now visible to the same character. Only this
+        // subsequent authored decision may mark the interest satisfied.
+        val explored = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").getJSONObject(0)
+        val receiptId = explored.getJSONArray("steps").getJSONObject(0).getString("evidenceId")
+        CharacterExplorationContinuity.remember(context, role,
+            question("媒体控制的实际条件", receiptId)
+                .put("threadId", explored.getString("threadId")).put("status", "satisfied"),
+            null, listOf(receiptId), Instant.now().plusSeconds(10))
+        assertEquals("satisfied", CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("threads").getJSONObject(0).getString("status"))
+        assertTrue(CharacterCuriosityRuntime.activeThreads(role).isEmpty())
+        // Replaying the original step cannot undo the later closure.
+        OrderedCharacterActions.execute(context, role, step, "research-step", userEvidenceIds = setOf("input"))
+        assertEquals("satisfied", CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("threads").getJSONObject(0).getString("status"))
     }
 
     @Test fun nextActionResultContinuesTheAuthoredQuestionAcrossReplay() = runBlocking {
