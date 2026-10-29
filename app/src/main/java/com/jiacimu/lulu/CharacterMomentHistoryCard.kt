@@ -68,7 +68,7 @@ internal fun CharacterMomentHistoryCard(characterId: String, row: CharacterState
         // A standalone action receipt may lack any saved private speech.
         // Show only the factual action label here. Full reasons, proof and
         // outcomes remain behind the existing "关联事件" audit link.
-        if (row.moment == null && moment.voice.isBlank() && ideas.isEmpty()) {
+        if (moment.voice.isBlank() && ideas.isEmpty() && row.decisions.isNotEmpty()) {
             row.decisions.distinctBy { it.id }.forEach { decision ->
                 MomentFactLine("行动", decision.action)
             }
