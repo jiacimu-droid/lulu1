@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:01:10.869452+00:00",
-  "commit": "acac6528f329f1c7b79eb4378e01b2172540f14a",
+  "generatedAt": "2026-10-29T15:01:48.558755+00:00",
+  "commit": "bdc8f88e041c907f45a14b36e6f5130592c62648",
   "branch": "main",
-  "sourceFingerprint": "4d891eac295e1ada86edad30a7c0ba9f0ebd9de5bc7f60a34503f0ae3f210e17",
+  "sourceFingerprint": "967bb4bb649d1eb707d292b2c29da93293bf4f1f2fd6bce453cb4e62eaf426d9",
   "summary": {
     "files": 1073,
-    "lines": 222126,
+    "lines": 222131,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -1377,7 +1377,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 83
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -12649,7 +12649,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 88
+        "line": 89
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12663,7 +12663,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 480
+        "line": 485
       }
     ],
     "saveTurn": [
@@ -30526,20 +30526,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 508,
-      "sha256": "ea496833230177285851a50c94852c5279fb8a9772eb638676ec1e05dcab2aae",
+      "lines": 513,
+      "sha256": "278e845f4f3f89aafb7007db22c16d28de5f9ddaa864d7a05872ce3ba747f888",
       "symbols": [
         {
           "name": "save",
-          "line": 83
+          "line": 84
         },
         {
           "name": "perform",
-          "line": 88
+          "line": 89
         },
         {
           "name": "targetFor",
-          "line": 480
+          "line": 485
         }
       ]
     },
