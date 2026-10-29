@@ -14,6 +14,29 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun groupPeerBubbleDoesNotOpenAnotherImmediateOnlineReplyButUserTurnDoes() {
+        // Member A's actual group message remains witnessed by B, but never
+        // becomes a synthetic NEW user request to B (which would ping-pong).
+        val groupId = "peer-react-group"
+        val peerMessage = LuluChatMessage(conversationId = groupId,
+            sender = LuluChatMessage.Sender.Character, content = "我想喝水",
+            authorCharacterId = "role-a")
+        val ownerMessage = LuluChatMessage(conversationId = groupId,
+            sender = LuluChatMessage.Sender.User, content = "你们在聊什么？")
+        assertFalse(CompanionOnlineStore.startsImmediateChatReply(peerMessage))
+        assertTrue(CompanionOnlineStore.startsImmediateChatReply(ownerMessage))
+        assertFalse(CompanionOnlineStore.startsImmediateChatReply(
+            peerMessage.copy(sender = LuluChatMessage.Sender.System)))
+        assertFalse(CompanionOnlineStore.startsImmediateChatReply(
+            ownerMessage.copy(status = LuluChatMessage.Status.Failed)))
+        assertFalse(CompanionOnlineStore.startsImmediateChatReply(
+            ownerMessage.copy(id = "voice-test-group-turn")))
+        // Other members keep their own ability to speak when an actual person
+        // initiates a new round; no per-role personality is imposed here.
+        val privateMessage = ownerMessage.copy(conversationId = "private-role")
+        assertTrue(CompanionOnlineStore.startsImmediateChatReply(privateMessage))
+    }
+
     @Test fun unfinishedSleepResponsibilityMustHaveDurableOwnFollowUpBeforeOffline() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
