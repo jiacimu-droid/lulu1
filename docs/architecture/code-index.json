@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:57:26.332848+00:00",
-  "commit": "ca0251214f2553ebbd7d3c506df6abcd41fe19ef",
+  "generatedAt": "2026-10-29T18:57:47.113107+00:00",
+  "commit": "42795b626e5c5e8c410f0dcaea15be35c497f867",
   "branch": "main",
-  "sourceFingerprint": "01f0bc2168b3db0a12ab40f9b59da909363f35a0b04ada5e70a869b8887749d8",
+  "sourceFingerprint": "7f319b9ac46ab3699321157e91b0f1161e455f303199fd5420a79b6751c4cc2f",
   "summary": {
     "files": 1091,
-    "lines": 226250,
-    "symbols": 3202
+    "lines": 226326,
+    "symbols": 3204
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15972,6 +15972,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 170
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 2733
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17432,6 +17436,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 2628
+      }
+    ],
+    "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 2710
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -37132,8 +37142,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2709,
-      "sha256": "9cbf5dd92f5b2ac0aea50723d10d86f767a2a0890ffc15993afd30e1e1a80158",
+      "lines": 2785,
+      "sha256": "a77389417245378c60d3040c3455af6a79946c8e8319d72d55bad9367db9f918",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -37210,6 +37220,14 @@
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
           "line": 2628
+        },
+        {
+          "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
+          "line": 2710
+        },
+        {
+          "name": "proposal",
+          "line": 2733
         }
       ]
     },
