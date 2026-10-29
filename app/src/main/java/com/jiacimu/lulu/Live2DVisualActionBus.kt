@@ -71,12 +71,12 @@ internal object Live2DVisualActionBus {
         val callId: String, val sequence: Long, val motion: Pair<String, Int>,
         val segmentId: String, val started: Boolean,
     )
-    private val lastMotionReceipts = mutableMapOf<String, MotionReceipt>()
+    private val recentMotionReceipts = mutableMapOf<String, MutableList<MotionReceipt>>()
 
     @Synchronized
     fun stageReady(characterId: String, callId: String) {
         if (characterId.isNotBlank() && callId.isNotBlank()) {
-            if (visibleStages[characterId] != callId) lastMotionReceipts.remove(characterId)
+            if (visibleStages[characterId] != callId) recentMotionReceipts.remove(characterId)
             visibleStages[characterId] = callId
         }
     }
@@ -87,8 +87,8 @@ internal object Live2DVisualActionBus {
             visibleStages.remove(characterId)
             availableParameters.remove(characterId)
         }
-        if (lastMotionReceipts[characterId]?.callId == callId)
-            lastMotionReceipts.remove(characterId)
+        if (recentMotionReceipts[characterId]?.any { it.callId == callId } == true)
+            recentMotionReceipts.remove(characterId)
         if (mutableCues.value[characterId]?.callId == callId) {
             mutableCues.value = mutableCues.value - characterId
         }
@@ -115,8 +115,12 @@ internal object Live2DVisualActionBus {
             cue.motion == selected || cue.beats.any { it.segmentId == null && it.motion == selected }
         }
         if (!authorized) return false
-        lastMotionReceipts[characterId] = MotionReceipt(
-            callId, cue.sequence, selected, segmentId, phase == "motion-started")
+        val recent = recentMotionReceipts.getOrPut(characterId) { mutableListOf() }
+        recent.removeAll { it.callId == callId && it.sequence == cue.sequence &&
+            it.segmentId == segmentId && it.motion == selected }
+        recent.add(MotionReceipt(callId, cue.sequence, selected, segmentId,
+            phase == "motion-started"))
+        if (recent.size > 5) recent.removeAt(0)
         return true
     }
 
@@ -166,14 +170,15 @@ internal object Live2DVisualActionBus {
             选择 silent 安静陪伴时可以省略 live2d；选择 reply 开口时每个片段须有可执行 Motion3。模型不存在的动作不能编造，程序不会按台词替你猜动作。
             老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
-        """.trimIndent() + lastMotionReceipts[characterId]
-            ?.takeIf { it.callId == callId }
-            ?.let { receipt ->
+        """.trimIndent() + recentMotionReceipts[characterId]
+            ?.filter { it.callId == callId }
+            ?.takeIf(List<MotionReceipt>::isNotEmpty)
+            ?.joinToString(separator = "；", prefix = "\n【最近真实身体执行回执】", postfix =
+                "。仅表示 Cubism 播放器的启动结果，不证明主人看见全部动作。") { receipt ->
                 val title = Live2DMotionCatalog.describe(receipt.motion.first, receipt.motion.second)
                     ?: "${receipt.motion.first}#${receipt.motion.second}"
-                val outcome = if (receipt.started) "Cubism 播放器确认已启动" else "Cubism 播放器拒绝/失败"
-                "\n【上次真实身体执行回执】${title}（${receipt.motion.first}#${receipt.motion.second}）：" +
-                    "${outcome}。这不证明主人看见了全部动作；后续回答可区分你选择过的动作与实际启动的动作。"
+                val outcome = if (receipt.started) "已启动" else "被播放器拒绝/失败"
+                "${title}（${receipt.motion.first}#${receipt.motion.second}）：${outcome}"
             }.orEmpty()
     }
 
