@@ -50,32 +50,38 @@ object MomentFriendAccess {
         allowed(a, b, prefs?.getStringSet(LINKS, emptySet()).orEmpty(),
             prefs?.getStringSet(OWNER_REMOVED, emptySet()).orEmpty(), ownerCompanions())
 
-    @Synchronized fun setFriends(a: String, b: String, friend: Boolean): Boolean {
-        if (prefs == null || a.isBlank() || b.isBlank() || a == b ||
-            (a != OWNER && a !in MigratedDomainStores.characters.settings.value) ||
-            (b != OWNER && b !in MigratedDomainStores.characters.settings.value)) return false
-        val links = prefs?.getStringSet(LINKS, emptySet()).orEmpty().toMutableSet()
-        val blocked = prefs?.getStringSet(OWNER_REMOVED, emptySet()).orEmpty().toMutableSet()
-        if (friend) links += pair(a, b) else links -= pair(a, b)
-        val companion = when {
-            a == OWNER && b in ownerCompanions() -> b
-            b == OWNER && a in ownerCompanions() -> a
-            else -> null
-        }
-        if (companion != null) {
-            if (friend) blocked -= companion else blocked += companion
-        }
-        val ok = prefs?.edit()?.putStringSet(LINKS, links)
-            ?.putStringSet(OWNER_REMOVED, blocked)?.commit() == true
-        if (ok) {
-            changed.value += 1
-            MomentsStore.refreshOwnerUnreadVisibility()
-            if (!friend) {
-                if (a != OWNER) MomentsStore.scrubHiddenTimeline(a)
-                if (b != OWNER) MomentsStore.scrubHiddenTimeline(b)
+    fun setFriends(a: String, b: String, friend: Boolean): Boolean {
+        val committed = synchronized(this) {
+            if (prefs == null || a.isBlank() || b.isBlank() || a == b ||
+                (a != OWNER && a !in MigratedDomainStores.characters.settings.value) ||
+                (b != OWNER && b !in MigratedDomainStores.characters.settings.value)) {
+                return@synchronized false
             }
+            val links = prefs?.getStringSet(LINKS, emptySet()).orEmpty().toMutableSet()
+            val blocked = prefs?.getStringSet(OWNER_REMOVED, emptySet()).orEmpty().toMutableSet()
+            if (friend) links += pair(a, b) else links -= pair(a, b)
+            val companion = when {
+                a == OWNER && b in ownerCompanions() -> b
+                b == OWNER && a in ownerCompanions() -> a
+                else -> null
+            }
+            if (companion != null) {
+                if (friend) blocked -= companion else blocked += companion
+            }
+            val saved = prefs?.edit()?.putStringSet(LINKS, links)
+                ?.putStringSet(OWNER_REMOVED, blocked)?.commit() == true
+            if (saved) changed.value += 1
+            saved
         }
-        return ok
+        if (!committed) return false
+        // Never acquire MomentsStore while holding the friendship monitor:
+        // Moments mutation checks visibility in the reverse lock order.
+        MomentsStore.refreshOwnerUnreadVisibility()
+        if (!friend) {
+            if (a != OWNER) MomentsStore.scrubHiddenTimeline(a)
+            if (b != OWNER) MomentsStore.scrubHiddenTimeline(b)
+        }
+        return true
     }
 
     /** Facts for the role to weigh when deciding if it wants to share.
