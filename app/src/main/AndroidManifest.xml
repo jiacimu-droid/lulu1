@@ -50,6 +50,8 @@
             android:exported="true"
             android:showWhenLocked="false"
             android:turnScreenOn="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
