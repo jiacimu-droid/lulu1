@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:28:32.323266+00:00",
-  "commit": "ad3cfcf30c2eddfa3cdbf5fe3f462f5736dbd4ae",
+  "generatedAt": "2026-10-29T14:30:22.004628+00:00",
+  "commit": "e54bc4f1ba8a3b0fe9c6ba619e53defcd31d2f28",
   "branch": "main",
-  "sourceFingerprint": "463831ce0ba11e6f01cc9a88ce8a4dc31f51913b402bdaacd02f7bbbfa1857d1",
+  "sourceFingerprint": "c03a5548ab4aafb35831d85862315ccc1748c46b26e1c3939b04128c0400c905",
   "summary": {
     "files": 1068,
-    "lines": 221126,
+    "lines": 221131,
     "symbols": 3143
   },
   "symbolIndex": {
@@ -1813,7 +1813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 137
+        "line": 141
       }
     ],
     "supported": [
@@ -2309,19 +2309,19 @@
     "isStageVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 125
+        "line": 129
       }
     ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 130
+        "line": 134
       }
     ],
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 189
+        "line": 194
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2339,7 +2339,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 233
+        "line": 238
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -2349,7 +2349,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 264
+        "line": 269
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2363,31 +2363,31 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 275
+        "line": 280
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 332
+        "line": 337
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 342
+        "line": 347
       }
     ],
     "publishLivenessFloor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 427
+        "line": 432
       }
     ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 444
+        "line": 449
       }
     ],
     "Model": [
@@ -19572,8 +19572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 461,
-      "sha256": "13ef794f9176b08d3d0ba87c7f924d6960d924e5015ff38f02e85b6da5e495d6",
+      "lines": 466,
+      "sha256": "3d87ae7baa7bf6eb92ce1870da2d5704aef6b9f9a556a621b8a24e6e1d6ded59",
       "symbols": [
         {
           "name": "Head",
@@ -19609,47 +19609,47 @@
         },
         {
           "name": "isStageVisible",
-          "line": 125
+          "line": 129
         },
         {
           "name": "stageParameters",
-          "line": 130
+          "line": 134
         },
         {
           "name": "capabilityNote",
-          "line": 137
+          "line": 141
         },
         {
           "name": "normalized",
-          "line": 189
+          "line": 194
         },
         {
           "name": "publish",
-          "line": 233
+          "line": 238
         },
         {
           "name": "bounded",
-          "line": 264
+          "line": 269
         },
         {
           "name": "boundedBody",
-          "line": 275
+          "line": 280
         },
         {
           "name": "headNumber",
-          "line": 332
+          "line": 337
         },
         {
           "name": "bodyNumber",
-          "line": 342
+          "line": 347
         },
         {
           "name": "publishLivenessFloor",
-          "line": 427
+          "line": 432
         },
         {
           "name": "bindSpeechAnchors",
-          "line": 444
+          "line": 449
         }
       ]
     },
