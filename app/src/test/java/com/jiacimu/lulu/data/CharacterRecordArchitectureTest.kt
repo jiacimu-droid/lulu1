@@ -392,6 +392,26 @@ class CharacterRecordArchitectureTest {
         assertEquals(full.take(180), projected.single { it.key == "later-world" }.detail)
     }
 
+    @Test fun longCausalHeartVoiceSurvivesShorterPresenceSnapshotOfSameEvidence() {
+        val full = (1..6).joinToString("") {
+            "刚才和她聊起那个古堡摸金游戏，我越想越好奇，忍不住回想她提到的蓝宝石项链。"
+        }
+        val evidence = "full-heart-source"
+        SharedExperienceTimeline.record(evidence, role, "真实对话", "用户",
+            "我们聊过古堡摸金的玩法", now, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val short = CompanionPresenceState(role, innerThought = full.take(140),
+            updatedAt = now.plusSeconds(9), provenanceId = evidence)
+        val mind = JSONObject().put("causalTransitions", JSONArray().put(JSONObject()
+            .put("evidenceId", evidence).put("at", now.toString())
+            .put("innerThought", full).put("selectedAction", "message")))
+        val rows = CharacterStateHistory.entries(role, listOf(short),
+            now.plusSeconds(90), mind, emptyList())
+        assertEquals(1, rows.size)
+        assertEquals(full, CharacterStateHistory.display(rows.single()).voice)
+        assertTrue(rows.single().evidenceIds.contains(evidence))
+    }
+
     @Test fun separateNearbyCausalThoughtsWithSameOpeningDoNotMergeBySemanticSimilarity() {
         val sharedOpening = (1..3).joinToString("") {
             "刚才听说那个古堡摸金很有趣，我想先弄清楚为什么会有蓝宝石项链和甜章这种奖励。"
