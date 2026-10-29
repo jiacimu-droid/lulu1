@@ -648,10 +648,15 @@ internal object ResidentDailyDecision {
         val saved = mutableListOf<RoleDayPlan>()
         val decisionId = "native-daily-${native.id}-${date(at)}"
         fun reject(index: Int, row: JSONObject?, reason: String) {
+            val rejectedId = "$decisionId-agenda-rejected-$index"
+            // The first settled rejection owns this row's outcome. Replaying
+            // the same paid choice cannot rewrite its timestamp/revision or
+            // convert a withdrawn receipt into permission to schedule it.
+            if (SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(rejectedId)) return
             val title = row?.optString("title").orEmpty().trim().take(95)
             val action = row?.optString("activityAction").orEmpty().trim().take(80)
             SharedExperienceTimeline.record(
-                eventId = "$decisionId-agenda-rejected-$index",
+                eventId = rejectedId,
                 characterId = actor,
                 channel = "原住民·每日自我安排",
                 speaker = "日程执行器",
@@ -664,6 +669,13 @@ internal object ResidentDailyDecision {
             )
         }
         for (index in 0 until agenda.length()) {
+            // A live permission/resource rejection is a settled fact for the
+            // original choice. If a later replay finds permission restored,
+            // only a NEW resident decision may schedule that previously
+            // rejected action. Withdrawal hides the evidence, not the fact
+            // that the old request was already settled.
+            if (SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(
+                    "$decisionId-agenda-rejected-$index")) continue
             val row = agenda.optJSONObject(index)
             if (index >= MAX_AGENDA_ITEMS) {
                 reject(index, row, "超过本次每日规划的${MAX_AGENDA_ITEMS}项排程上限")
