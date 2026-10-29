@@ -364,6 +364,65 @@ bridge.onPlaybackEvent('playing', 0, 2002)
 assert.equal(motions.length, beforePremature + 1)
 bridge.onPlaybackEvent('interrupted', 0, 2002)
 
+// The new decision may be prepared while the OLD TTS fragment is still
+// audible. Its top-level Motion3 must wait for its own onStarted, and an old
+// interruption must not erase the queued next sentence.
+bridge.perform({ visualSequence: 2100, beats: [
+  { segmentIndex: 0, atMs: 0, head: { roll: 2 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 2100, 'old')
+bridge.perform({ visualSequence: 2101,
+  motion: { group: 'LuluWolf', index: 35 },
+  expression: 'star',
+  beats: [{ segmentIndex: 0, segmentId: 'new', atMs: 0,
+    face: { smile: .3 }, durationMs: 350 }],
+})
+const beforeNextVoice = motions.length
+assert.equal(motions.length, beforeNextVoice,
+  'a new authored motion is queued while the older voice is audible')
+assert.equal(bridge.pendingSpeechParts.motion.index, 35)
+assert.equal(bridge.pendingExpressionName.name, 'star')
+bridge.onPlaybackEvent('interrupted', 0, 2100, 'old')
+assert.equal(bridge.scoreVisualSequence, 2101,
+  'old interrupted callback must preserve the next selected score')
+assert.equal(bridge.pendingSpeechParts.motion.index, 35,
+  'old interruption cannot discard the next Motion3')
+bridge.onPlaybackEvent('playing', 0, 2101, 'new')
+await Promise.resolve()
+assert.equal(motions.length, beforeNextVoice + 1,
+  'queued Motion3 begins at the next real TTS fragment')
+assert.equal(bridge.audioVisualSequence, 2101)
+bridge.onPlaybackEvent('finished', 0, 2100, 'old')
+assert.equal(bridge.audioVisualSequence, 2101,
+  'late old finish must not stop the new audible segment')
+assert.equal(bridge.playing, true)
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+assert.equal(bridge.faceRequest.smile, .3)
+bridge.onPlaybackEvent('playing', 0, 2100, 'old')
+assert.equal(bridge.audioVisualSequence, 2101,
+  'late old start must not rewind the next sentence')
+bridge.onPlaybackEvent('finished', 0, 2101, 'wrong-id')
+assert.equal(bridge.playing, true,
+  'a mismatched segment ID cannot finish the active utterance')
+bridge.onPlaybackEvent('finished', 0, 2101, 'new')
+assert.equal(bridge.playing, false)
+
+// An ordinary completion before the next TTS start has the same ownership
+// rule as interruption: old mouth ends, next selected Motion3 remains queued.
+bridge.perform({ visualSequence: 2110 })
+bridge.onPlaybackEvent('playing', 0, 2110, 'prior')
+bridge.perform({ visualSequence: 2111,
+  motion: { group: 'LuluWolf', index: 36 },
+})
+const beforeFinishedHandoff = motions.length
+bridge.onPlaybackEvent('finished', 0, 2110, 'prior')
+assert.equal(bridge.pendingSpeechParts.motion.index, 36)
+assert.equal(bridge.scoreVisualSequence, 2111)
+bridge.onPlaybackEvent('playing', 0, 2111, 'later')
+await Promise.resolve()
+assert.equal(motions.length, beforeFinishedHandoff + 1)
+bridge.onPlaybackEvent('interrupted', 0, 2111, 'later')
+
 // Paired plans use immutable part IDs; repeated words cannot bind another
 // part's action. Continuing the SAME clip must not restart it each sentence.
 bridge.perform({ visualSequence: 3000, beats: [
