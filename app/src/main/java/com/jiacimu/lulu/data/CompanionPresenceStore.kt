@@ -357,7 +357,12 @@ object CompanionPresenceStore {
         val newHeartVoice = when {
             innerThought == null -> ""
             next.innerThought.isBlank() -> ""
-            hasCausalFingerprint -> if (causalFingerprintChanged) next.innerThought else ""
+            // A changed *cause* fingerprint is not a newly authored sentence.
+            // When the model repeats the same voice after another state/action
+            // update, keep that update but never manufacture a second heart-voice
+            // event solely because its appraisal/focus fingerprint changed.
+            hasCausalFingerprint -> if (causalFingerprintChanged && thoughtChanged)
+                next.innerThought else ""
             previous == null || thoughtChanged -> next.innerThought
             else -> ""
         }
