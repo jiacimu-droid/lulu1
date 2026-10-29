@@ -289,6 +289,8 @@ object CompanionOnlineStore {
     fun goOfflineByChoice(characterId: String, now: Instant = Instant.now(),
                           nextChecks: JSONArray? = null): Boolean {
         val context = appContext ?: return false
+        if (characterId.isBlank() || CompanionPresenceStore.isInCall(characterId) ||
+            mutableStates.value[characterId] == null) return false
         val handoff = CompanionSleepHandoff.ensure(context, characterId, nextChecks, now)
         if (!handoff.ok) {
             CompanionPresenceStore.recordPerceptionAttempt(characterId,
@@ -821,7 +823,7 @@ internal object CompanionSleepHandoff {
 
     fun uncovered(context: Context, characterId: String, now: Instant): List<CommitmentTask> {
         val linkedPlans = RoleDayScheduleStore.plans(context, characterId).asSequence()
-            .filter { it.status in setOf("planned", "due") }
+            .filter { it.status == "planned" && it.dueAt.isAfter(now) }
             .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
         return CommitmentTaskStore.active(characterId).filter { task ->
             val alarmDue = task.nextCheckAt ?: task.dueAt
@@ -894,6 +896,17 @@ internal object CompanionSleepHandoff {
             }
             created += scheduled
         }
+        // The owner may edit/cancel a promise while Android is registering alarms.
+        // Never install an old choice over the newer revision.
+        val fresh = CommitmentTaskStore.snapshot(characterId).associateBy(CommitmentTask::id)
+        if (outstanding.any { task ->
+                fresh[task.id]?.revision != task.revision ||
+                    fresh[task.id]?.status?.isActive() != true
+            }) {
+            created.forEach { com.jiacimu.lulu.system.LuluAlarmSystem.cancel(it.id) }
+            return Result(false, "后续安排保存前，原责任已经变化；请重新决策")
+        }
+        val committed = mutableListOf<Pair<CommitmentTask, com.jiacimu.lulu.system.LuluAlarm>>()
         outstanding.zip(created).forEach { (task, alarm) ->
             val updated = CommitmentTaskStore.update(task.id) { old ->
                 if (old.revision != task.revision || !old.status.isActive()) old
@@ -907,10 +920,20 @@ internal object CompanionSleepHandoff {
                 )
             }
             if (updated?.linkedAlarmId != alarm.id) {
-                com.jiacimu.lulu.system.LuluAlarmSystem.cancel(alarm.id)
-                // A concurrent cancellation is not permission to restore old promises.
+                created.forEach { com.jiacimu.lulu.system.LuluAlarmSystem.cancel(it.id) }
+                committed.forEach { (original, savedAlarm) ->
+                    CommitmentTaskStore.update(original.id) { current ->
+                        if (current.linkedAlarmId != savedAlarm.id) current
+                        else current.copy(
+                            status = original.status, linkedAlarmId = original.linkedAlarmId,
+                            nextCheckAt = original.nextCheckAt, followUpKind = original.followUpKind,
+                            lastActionResult = original.lastActionResult,
+                        )
+                    }
+                }
                 return Result(false, "保存时原责任已改变，休眠交接未完成")
             }
+            committed += task to alarm
         }
         return Result(true, "未完成责任已有实际持久复查闹钟")
     }
