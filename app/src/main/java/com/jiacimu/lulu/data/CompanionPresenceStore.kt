@@ -374,8 +374,9 @@ object CompanionPresenceStore {
         val repeatedRecentVoice = newHeartVoice.isNotBlank() &&
             mutableHistories.value[characterId].orEmpty().any { saved ->
                 saved.innerThought.isNotBlank() &&
-                    runCatching { Duration.between(saved.updatedAt, now).toMinutes() }
-                        .getOrNull() in 0L..15L &&
+                    runCatching {
+                        Duration.between(saved.updatedAt, now).toMinutes() in 0L..15L
+                    }.getOrDefault(false) &&
                     normalizedThought(saved.innerThought) == normalizedThought(newHeartVoice)
             }
         val uniqueHeartVoice = if (repeatedRecentVoice) "" else newHeartVoice
