@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:23:16.405428+00:00",
-  "commit": "32e9881cbd93314ef2d374eb75990378749cc3c5",
+  "generatedAt": "2026-10-29T14:23:36.013389+00:00",
+  "commit": "f726b9088e376e050ee1cc9fdc7ebfb0da844d54",
   "branch": "main",
-  "sourceFingerprint": "de1efb5601955fb619d5d84a80945a34defbe2cb8bf5fe83c1115a3f39bc5377",
+  "sourceFingerprint": "29dcab992583dc83a1ad18dc056bf918594b95d2c6aaed9e069373be40393bc7",
   "summary": {
     "files": 1068,
-    "lines": 220864,
+    "lines": 220875,
     "symbols": 3141
   },
   "symbolIndex": {
@@ -27867,7 +27867,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 155,
-      "sha256": "7e7f97bb4ba063d5573140317163315bb5d89e6f71421a6174a929daf0f7c27c",
+      "sha256": "674fcd559af275334e0285d03611df388a23b49ec51c0b5c782fdea83a146518",
       "symbols": []
     },
     {
@@ -30945,8 +30945,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 765,
-      "sha256": "d080088023941ce766f67012c11147d82680f51bae7a013bcda5c7c6a6b9dee5",
+      "lines": 776,
+      "sha256": "227824c480cb5459fbeae96d27fb968a307b6a86bfb7b29a73dfbda938079cd2",
       "symbols": [
         {
           "name": "Home",
