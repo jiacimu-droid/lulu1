@@ -375,6 +375,7 @@ object SharedExperienceTimeline {
             database.endTransaction()
         }
         withdrawDependentPersonalReceipts(eventId)
+        CompanionPresenceStore.forgetEvidence(eventId)
         CharacterRelationshipPreferences.invalidate()
         // Deletion invalidates every downstream owner immediately: retry job, executable promise
         // and derived memory/vector lifecycle. Late model responses are additionally checked by the
@@ -402,8 +403,13 @@ object SharedExperienceTimeline {
             buildList {
                 while (cursor.moveToNext()) {
                     val id = cursor.getString(0)
-                    if (id != eventId && CharacterPerceptionContext.outcomeEvidenceId("tool-router", cursor.getString(1)) == eventId)
-                        add(id)
+                    val raw = cursor.getString(1)
+                    // Outbound chat delivery is an actual tool result, but is not a
+                    // life-experience stimulus. It still depends on the exact bubble.
+                    val delivered = runCatching {
+                        JSONObject(JSONObject(raw).optString("result")).optString("evidenceId")
+                    }.getOrNull()
+                    if (id != eventId && delivered == eventId) add(id)
                 }
             }
         }
@@ -459,7 +465,24 @@ object SharedExperienceTimeline {
             arrayOf(conversation.id, escapedPrefix("group-joined-${conversation.id}-"),
                 escapedPrefix("group-removed-${conversation.id}-"), "group-joined-${conversation.id}"),
             null, null, null).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
-        ids.forEach(::deleteEvent)
+        // Earlier releases did not stamp the group session on tool-router receipts.
+        // Match their persisted result.conversationId exactly; never erase another
+        // group with the same display name or a private tool action.
+        val legacyToolIds = database.query("timeline_events", arrayOf("id", "content"),
+            "source = ? AND session_id = ?", arrayOf("tool-router", ""),
+            null, null, null).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    val execution = runCatching { JSONObject(cursor.getString(1)) }.getOrNull()
+                        ?: continue
+                    if (execution.optString("tool") != "send_group_message") continue
+                    val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull()
+                    if (result?.optString("conversationId") == conversation.id)
+                        add(cursor.getString(0))
+                }
+            }
+        }
+        (ids + legacyToolIds).distinct().forEach(::deleteEvent)
     }
 
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
