@@ -1887,15 +1887,18 @@ internal object LuluVoiceCallSession {
                     "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果将留在私聊，电话空下来时也会收到同一份回执。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onTimedHangup = { seconds ->
-                    if (sameReply()) setTimedHangup(seconds, userTurnReceivedAt)
+                    // Only a fresh user turn (or ordinary non-bedtime decision)
+                    // can schedule a shorter hangup. An automatic bedtime pulse
+                    // cannot reinterpret a wake reminder as a hangup timer.
+                    if (sameReply() && SleepCallContinuationPolicy.mayChangeHangupFromTurn(
+                            mutableState.value.sleepMode, autonomousSleep,
+                            autonomousSilence, wakeOpening))
+                        setTimedHangup(seconds, userTurnReceivedAt)
                 },
                 onCharacterHangup = ({
-                    // A bedtime continuation is still a real character decision:
-                    // it may end the call after a spoken farewell, before the
-                    // separate thirty-minute billing safety deadline.
-                    // Silent bedtime continuation cannot override its 30m timer.
-                    if (sameReply() && !wakeOpening &&
-                        !(autonomousSleep && mutableState.value.sleepMode))
+                    if (sameReply() && SleepCallContinuationPolicy.mayChangeHangupFromTurn(
+                            mutableState.value.sleepMode, autonomousSleep,
+                            autonomousSilence, wakeOpening))
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
                 onLive2DAction = { visualAction ->
@@ -2000,7 +2003,10 @@ internal object LuluVoiceCallSession {
                 // an action, even if the planner omitted the JSON endCall flag.
                 // The gate still requires successfully delivered TTS and idle
                 // audio; farewell jokes, quotes and ordinary goodbyes do nothing.
-                if (!autonomousSleep && !wakeOpening &&
+                if (!autonomousSleep &&
+                    SleepCallContinuationPolicy.mayChangeHangupFromTurn(
+                        mutableState.value.sleepMode, autonomousSleep,
+                        autonomousSilence, wakeOpening) &&
                     CallSpokenHangupPolicy.explicitlyEndsOwnCall(finalText.orEmpty())) {
                     autonomousHangup.request(latest.callExperienceId, generation)
                 }
