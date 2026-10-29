@@ -283,6 +283,16 @@ object SharedExperienceTimeline {
                 args, null, null, null, "1").use { it.moveToFirst() }
     }
 
+    /** Tombstones are the durable record of a user's already-completed delete.
+     * Used to reconcile old heart-voice snapshots on app restart, even when
+     * the raw timeline row was removed by an older APK version. */
+    internal fun isDeletedEvent(eventId: String): Boolean {
+        if (eventId.isBlank()) return false
+        val db = helper?.readableDatabase ?: return false
+        return db.query("deleted_timeline_events", arrayOf("event_id"), "event_id = ?",
+            arrayOf(eventId), null, null, null, "1").use { it.moveToFirst() }
+    }
+
     /** Read the durable children of one stable evidence ID without scanning
      * years of unrelated timeline pages. The original role/profile visibility
      * rules remain enforced by eventsByIds. */
