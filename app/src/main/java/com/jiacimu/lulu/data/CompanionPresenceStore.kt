@@ -442,6 +442,20 @@ object CompanionPresenceStore {
         persist()
     }
 
+    /** Withdraw only the presence moments explicitly based on a removed event.
+     * Never infer group ownership from a title, a keyword or a nearby timestamp. */
+    @Synchronized
+    fun forgetEvidence(evidenceId: String) {
+        if (evidenceId.isBlank()) return
+        val affected = mutableHistories.value.values.flatten()
+            .filter { it.provenanceId == evidenceId }
+            .map { it.characterId to it.updatedAt }
+            .toMutableSet()
+        mutableStates.value.values.filter { it.provenanceId == evidenceId }
+            .forEach { affected += it.characterId to it.updatedAt }
+        affected.forEach { (characterId, at) -> deleteMoment(characterId, at) }
+    }
+
     /** Delete one real presence record, its private snapshot and its derived
      * timeline entry; never remove the user's original chat message. */
     @Synchronized
@@ -489,6 +503,9 @@ object CompanionPresenceStore {
             state.innerThought.takeIf(String::isNotBlank)?.let { add("心声：$it") }
         }.joinToString("；")
         if (detail.isBlank()) return
+        val sourceSessionId = state.provenanceId.takeIf(String::isNotBlank)
+            ?.let { SharedExperienceTimeline.eventsByIds(state.characterId, listOf(it))
+                .firstOrNull()?.sessionId }.orEmpty()
         SharedExperienceTimeline.record(
             eventId = state.provenanceId.takeIf(String::isNotBlank)
                 ?.let { "presence-$it-${state.characterId}" }
@@ -499,6 +516,7 @@ object CompanionPresenceStore {
             content = detail,
             occurredAt = state.updatedAt,
             source = "presence",
+            sessionId = sourceSessionId,
             evidenceKind = EventEvidenceKind.Inference,
         )
     }
