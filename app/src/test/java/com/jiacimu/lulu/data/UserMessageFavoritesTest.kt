@@ -177,6 +177,52 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun newCausalFingerprintCannotRepublishSameHeartVoiceOnLaterWorldAction() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "presence-heart-action-duplicate"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-29T10:37:00Z")
+        val voice = "好家伙，刚才把那个古堡摸金游戏理解错了，等她忙完再问问到底怎么玩吧。"
+        CompanionPresenceStore.update(
+            role, "在聊天", "", voice, "好奇", "后台主动感知", start,
+            innerThoughtFingerprint = "thought-before-action",
+        )
+        CompanionPresenceStore.update(
+            role, "在水边吹风", "已经走到水边", voice, "好奇", "在线持续感知",
+            start.plusSeconds(8 * 60), innerThoughtFingerprint = "new-action-different-appraisal",
+            gestureVerified = true,
+        )
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(2, history.size)
+        // Different external action is still recorded with its own accurate status.
+        assertEquals("在水边吹风", history.first().statusText)
+        assertEquals("已经走到水边", history.first().gesture)
+        assertEquals("", history.first().innerThought)
+        assertEquals(voice, history.last().innerThought)
+        assertEquals(1, history.count { it.innerThought == voice })
+        assertEquals(voice, CompanionPresenceStore.current(role)!!.innerThought)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun changedFingerprintWithGenuinelyNewThoughtStillCreatesNewHeartVoice() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "presence-heart-new-authored"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-29T10:37:00Z")
+        val first = "刚才听她说古堡游戏，我还想弄清这个玩法究竟是什么。"
+        val second = "我走到了水边，突然想起上次读的小说还没看完，决定今晚继续读下去。"
+        CompanionPresenceStore.update(role, "准备探索", "", first, "好奇",
+            "后台主动感知", start, innerThoughtFingerprint = "prior-inquiry")
+        CompanionPresenceStore.update(role, "到了水边", "", second, "专注",
+            "在线持续感知", start.plusSeconds(8 * 60), innerThoughtFingerprint = "new-real-thought")
+        val voices = CompanionPresenceStore.histories.value[role].orEmpty()
+            .map { it.innerThought }.filter(String::isNotBlank)
+        assertEquals(listOf(second, first), voices)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun endingCallRepairsOnlyCurrentPresenceAndRejectsLateOngoingCallState() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
