@@ -2037,6 +2037,18 @@ internal object LuluVoiceCallSession {
                 val pairedCue = Live2DVisualActionBus.cues.value[latest.characterId]
                     ?.takeIf { it.callId == latest.callExperienceId &&
                         it.sequence == visualSequenceForReply }
+                if (LuluCallWindowController.videoRequested.value &&
+                    visualSequenceForReply == 0L && !mutableState.value.sleepMode &&
+                    appContext?.let { context ->
+                        Live2DAssets.controls(context, latest.characterId).motions.isNotEmpty()
+                    } == true) {
+                    // Do not silently present a stationary avatar as a completed
+                    // performance: distinguish a successfully spoken turn from
+                    // a missing/failed model-selected Motion3 plan.
+                    com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
+                        latest.characterId,
+                        "视频回复已经生成口语，但本轮没有发布有效 Motion3 计划；不能视为动作已执行")
+                }
                 val pairedParts = pairedCue?.speechParts?.let { Live2DDialoguePlan.queuedParts(it, text) }
                 if (!pairedCue?.speechParts.isNullOrEmpty() && pairedParts == null) {
                     val status = "台词已变化，本轮动作计划未执行"
