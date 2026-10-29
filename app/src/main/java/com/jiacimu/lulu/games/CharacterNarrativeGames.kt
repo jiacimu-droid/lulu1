@@ -1,14 +1,23 @@
 package com.jiacimu.lulu.games
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -432,6 +441,7 @@ internal fun TurtleSoupScreen(store: LuluGameStore) {
     var roleResponse by remember(caseIndex) { mutableStateOf(GameRoleResponse()) }
     var busy by remember { mutableStateOf(false) }
     var revealed by remember(caseIndex) { mutableStateOf(false) }
+    var confirmReveal by remember(caseIndex) { mutableStateOf(false) }
 
     fun ask() {
         val clean = question.trim()
@@ -479,20 +489,143 @@ internal fun TurtleSoupScreen(store: LuluGameStore) {
         saveGameAsSharedMemory(scope, store, recordId)
     }
 
-    GamePageList {
-        item { GameCard { Text(case.title, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text(case.surface) } }
-        item { GameRolePanel(character.displayName, roleResponse) }
-        items(history) { item -> GameCard { Text("你：${item.first}"); Text("${character.displayName}：${item.second}", color = GameDesign.muted) } }
+    val midnight = Color(0xFF101A2A)
+    val gold = Color(0xFFFFD7A5)
+    if (confirmReveal) {
+        AlertDialog(
+            onDismissRequest = { confirmReveal = false },
+            title = { Text("现在揭晓汤底？") },
+            text = { Text("揭晓会结束这一局，并保存真实提问次数。还可以继续询问主持人寻找真相。") },
+            confirmButton = {
+                TextButton(onClick = { confirmReveal = false; reveal() }) { Text("确认揭晓") }
+            },
+            dismissButton = { TextButton(onClick = { confirmReveal = false }) { Text("继续推理") } },
+        )
+    }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(
+            Brush.verticalGradient(listOf(Color(0xFF25334A), midnight, Color(0xFF080F1A))),
+        ),
+        contentPadding = PaddingValues(start = 15.dp, end = 15.dp, top = 16.dp, bottom = 48.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
         item {
-            GameCard {
-                if (!revealed) {
-                    OutlinedTextField(question, { question = it }, label = { Text("自由提问") }, modifier = Modifier.fillMaxWidth())
-                    Button(onClick = ::ask, enabled = question.isNotBlank() && !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "主持正在判断…" else "提问") }
-                    TextButton(onClick = ::reveal, modifier = Modifier.fillMaxWidth()) { Text("揭晓汤底") }
-                } else {
-                    Text("汤底", fontWeight = FontWeight.Bold)
-                    Text(case.truth)
-                    Button(onClick = { caseIndex = (caseIndex + 1) % turtleCases.size }, modifier = Modifier.fillMaxWidth()) { Text("下一碗汤") }
+            Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                Text("MYSTERY FILE  /  ${caseIndex + 1} · ${turtleCases.size}",
+                    color = gold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                Text("猜出隐藏的真相", fontSize = 26.sp,
+                    fontWeight = FontWeight.Black, color = Color.White)
+                Text("读题 → 向主持人提问 → 根据「是 / 否 / 无关」推理。想好了再揭晓汤底。",
+                    fontSize = 12.sp, lineHeight = 19.sp, color = Color(0xFFC3CFDF))
+            }
+        }
+        item {
+            Surface(color = Color(0xFF28394B), shape = RoundedCornerShape(28.dp),
+                border = BorderStroke(1.dp, gold.copy(alpha = .37f))) {
+                Column(Modifier.fillMaxWidth().padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("案 件  ·  0${caseIndex + 1}", color = gold, fontSize = 11.sp,
+                        fontWeight = FontWeight.Black)
+                    Text(case.title, color = Color.White, fontSize = 23.sp,
+                        fontWeight = FontWeight.Black)
+                    HorizontalDivider(color = Color.White.copy(alpha = .15f))
+                    Text(case.surface, color = Color(0xFFF5F7FB), fontSize = 17.sp,
+                        lineHeight = 27.sp)
+                    Text("线索来自题面，答案不在字面上。", color = Color(0xFF9DB0C4),
+                        fontSize = 11.sp)
+                }
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("推理记录", modifier = Modifier.weight(1f), color = Color.White,
+                    fontWeight = FontWeight.Black, fontSize = 18.sp)
+                Surface(color = gold.copy(alpha = .14f), shape = RoundedCornerShape(12.dp)) {
+                    Text("${history.size} 次提问", modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                        color = gold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+        if (history.isEmpty()) {
+            item {
+                Surface(color = Color.White.copy(alpha = .075f),
+                    shape = RoundedCornerShape(19.dp)) {
+                    Text("还没有线索。试着问：事情与时间、地点或人物身份有关吗？",
+                        modifier = Modifier.fillMaxWidth().padding(15.dp),
+                        color = Color(0xFFBEC9D7), fontSize = 13.sp, lineHeight = 20.sp)
+                }
+            }
+        }
+        items(history) { exchange ->
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Surface(modifier = Modifier.align(Alignment.End),
+                    color = Color(0xFF526B87), shape = RoundedCornerShape(17.dp)) {
+                    Text(exchange.first, color = Color.White, fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp))
+                }
+                Surface(modifier = Modifier.align(Alignment.Start),
+                    color = Color(0xFF25374B), shape = RoundedCornerShape(17.dp),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = .08f))) {
+                    Column(Modifier.padding(horizontal = 15.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(character.displayName + " · 主持人", color = gold, fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold)
+                        Text(exchange.second, color = Color.White, fontSize = 14.sp,
+                            lineHeight = 21.sp)
+                    }
+                }
+            }
+        }
+        if (roleResponse.loading) {
+            item { Text("${character.displayName}正在判断…", color = gold, fontSize = 12.sp) }
+        }
+        if (roleResponse.error.isNotBlank()) {
+            item { Text(roleResponse.error, color = Color(0xFFFFB5B5), fontSize = 12.sp) }
+        }
+        item {
+            Surface(color = Color(0xFF1D2E42), shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = .12f))) {
+                Column(Modifier.fillMaxWidth().padding(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(11.dp)) {
+                    if (!revealed) {
+                        Text("向主持人提问", color = Color.White,
+                            fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                        OutlinedTextField(
+                            value = question, onValueChange = { question = it },
+                            label = { Text("输入一个能回答是或否的问题") },
+                            modifier = Modifier.fillMaxWidth(), minLines = 2,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedBorderColor = gold,
+                                unfocusedBorderColor = Color(0xFF71849D),
+                                focusedLabelColor = gold,
+                                unfocusedLabelColor = Color(0xFFA8BACF),
+                            ),
+                        )
+                        Button(onClick = ::ask, enabled = question.isNotBlank() && !busy,
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = gold, contentColor = midnight),
+                            shape = RoundedCornerShape(15.dp)) {
+                            Text(if (busy) "主持人判断中…" else "提交问题", fontWeight = FontWeight.Bold)
+                        }
+                        TextButton(onClick = { confirmReveal = true }, enabled = !busy,
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text("我想看汤底 · 结束本局", color = Color(0xFFBBC9DA))
+                        }
+                    } else {
+                        Text("真相揭晓", color = gold, fontSize = 22.sp,
+                            fontWeight = FontWeight.Black)
+                        Text(case.truth, color = Color.White, fontSize = 16.sp, lineHeight = 25.sp)
+                        Text("本局共提问 ${history.size} 次，记录已保存。",
+                            color = Color(0xFFA5B8CD), fontSize = 12.sp)
+                        Button(onClick = { caseIndex = (caseIndex + 1) % turtleCases.size },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = gold, contentColor = midnight)) {
+                            Text("挑战下一碗汤", fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
         }
