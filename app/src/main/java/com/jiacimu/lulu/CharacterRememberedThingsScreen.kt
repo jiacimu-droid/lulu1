@@ -233,9 +233,15 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         CharacterRecordCard {
                             Text(record.kind.label, color = LuluColors.Muted, fontSize = 12.sp)
                             Text(record.content, fontSize = 16.sp, lineHeight = 24.sp)
-                            Text(if (record.kind == DevelopmentKind.UserImpression) "尚未得到主人确认"
-                                else if (record.maturity == DevelopmentMaturity.Established) "多次得到支持" else "主人曾经告诉我",
-                                color = LuluColors.Muted, fontSize = 11.sp)
+                            Text(when (record.kind) {
+                                DevelopmentKind.UserImpression -> "尚未得到主人确认"
+                                DevelopmentKind.UserFact -> "主人曾亲口告诉我"
+                                DevelopmentKind.UserPreference -> "主人表达过的偏好"
+                                DevelopmentKind.UserHabit -> "自述或跨日行为依据"
+                                DevelopmentKind.VerifiedMethod -> "有真实相处反馈"
+                                else -> if (record.maturity == DevelopmentMaturity.Established)
+                                    "多次得到支持" else "初步认识"
+                            }, color = LuluColors.Muted, fontSize = 11.sp)
                             TextButton(onClick = { expanded = !expanded }) {
                                 Text(if (expanded) "收起依据" else "查看来源")
                             }
