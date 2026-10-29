@@ -9,6 +9,7 @@ import com.jiacimu.lulu.data.MemoryTestEnvironment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import org.json.JSONArray
 import org.junit.After
@@ -119,5 +120,30 @@ class QqReplySourceWatermarkTest {
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.none {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         })
+    }
+
+    @Test fun correctionBetweenTwoBubblesKeepsFirstReceiptButStopsSecond() = runBlocking {
+        val role = MigratedDomainStores.characters.create("气泡中途纠正角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "气泡中断")
+        val first = MigratedDomainStores.chat.sendUserMessage(conversation.id, "最初的问题")
+        val captured = captureReplySourceWatermark(conversation.id, role, setOf(first.id))!!
+        val pending = async {
+            appendRoleReplyWithPacing(conversation.id, role, "气泡中途纠正角色",
+                parseCharacterReplyPresentation("第一句已送达。⟪BUBBLE⟫第二句不该再发。"),
+                actionableUserMessageIds = setOf(first.id),
+                sourceWatermark = captured)
+        }
+        withTimeout(8_000) {
+            while (MigratedDomainStores.chat.messages(conversation.id).value.none {
+                    it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+                }) delay(25)
+        }
+        MigratedDomainStores.chat.sendUserMessage(conversation.id, "停一下，我改问题了")
+        assertEquals("", pending.await())
+        val actual = MigratedDomainStores.chat.messages(conversation.id).value.filter {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        }
+        assertEquals(1, actual.size)
+        assertEquals("第一句已送达。", actual.single().content)
     }
 }
