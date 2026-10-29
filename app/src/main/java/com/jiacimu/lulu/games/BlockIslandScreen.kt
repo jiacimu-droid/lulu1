@@ -68,6 +68,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
+    var showHelp by remember { mutableStateOf(false) }
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }
     LaunchedEffect(impact) {
@@ -134,9 +135,23 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
                 Text("砍树挖矿 · 建房搭桥 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
             }
+            TextButton(onClick = { showHelp = !showHelp }) {
+                Text(if (showHelp) "收起指南" else "？怎么玩", color = Color(0xFFBCEBCC), fontWeight = FontWeight.Bold)
+            }
             Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF2F6063)) {
                 Text(if (night) "☾ 夜晚" else "☀ 白天", modifier = Modifier.padding(10.dp),
                     color = Color(0xFFEBFBEC), fontSize = 12.sp)
+            }
+        }
+        if (showHelp) {
+            Surface(color = Color(0xFF21474B), shape = RoundedCornerShape(17.dp),
+                border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .3f))) {
+                Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("在岛上活下去，慢慢建造自己的家", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("① 点地图上的树或石头，选中附近目标后点「采集」。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                    Text("② 远处的格子点「前往」；也可以双击地图自动寻路。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                    Text("③ 用采到的材料造墙、篝火和床；遇见野怪记得战斗或绕开。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -169,6 +184,22 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         navigateTo = x to y
                     },
                 )
+                if (nearTarget && isMobSelected) {
+                    IslandAction("⚔ 攻击选中的野怪", enabled = true, Modifier.fillMaxWidth()) {
+                        perform("fight")
+                    }
+                } else if (nearTarget && selectedCell in listOf(1, 2)) {
+                    IslandAction("✦ 采集选中的资源", enabled = true, Modifier.fillMaxWidth()) {
+                        perform("gather")
+                    }
+                } else if (target != (world.x to world.y) && !nearTarget) {
+                    IslandAction("➜ 自动前往选中的格子", enabled = true, Modifier.fillMaxWidth()) {
+                        navigateTo = target
+                    }
+                } else {
+                    Text("点选地图中的树、石头或空地，附近可直接操作",
+                        color = Color(0xFFB0D8C9), fontSize = 11.sp)
+                }
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(top = 7.dp)) {
                     Text("(${target.first}, ${target.second}) · ${islandCellTitle(selectedCell, selectedStructure)}${if (isMobSelected) " · 野怪" else ""}",
