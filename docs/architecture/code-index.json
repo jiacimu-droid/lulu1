@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:57:14.550972+00:00",
-  "commit": "fe74ba62f1837f0738f7258714d5e3ce32e962fc",
+  "generatedAt": "2026-10-29T16:01:38.771087+00:00",
+  "commit": "af32d94f66991dcc95ed11ab61291fba6d5fece9",
   "branch": "main",
-  "sourceFingerprint": "205ae33ef1f9ecfb87e57707ec49cef3adf7614ce8c663e61179a07f34e3c0e6",
+  "sourceFingerprint": "b24821500286dab2b5bc69c25bade12c4ae7c95aac614ee5b2d4a063b8c77d62",
   "summary": {
     "files": 1076,
-    "lines": 222706,
+    "lines": 222736,
     "symbols": 3160
   },
   "symbolIndex": {
@@ -5497,7 +5497,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 692
+        "line": 710
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -5795,7 +5795,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 556
+        "line": 574
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5805,7 +5805,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 657
+        "line": 675
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -22936,8 +22936,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 768,
-      "sha256": "1eb082d83a6e1d2593efc5d6526c30ebef65f922de8ee89782568a0be489aa86",
+      "lines": 798,
+      "sha256": "dc0a212978b86caa7fedb97852327d5f7187f5342678b29ca5a28021675c822b",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -22957,15 +22957,15 @@
         },
         {
           "name": "pendingDecisionCues",
-          "line": 556
+          "line": 574
         },
         {
           "name": "briefContext",
-          "line": 657
+          "line": 675
         },
         {
           "name": "promptSection",
-          "line": 692
+          "line": 710
         }
       ]
     },
