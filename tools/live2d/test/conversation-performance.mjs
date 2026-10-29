@@ -488,6 +488,7 @@ assert.equal(bridge.playing, false)
 // the next decision is already queued. setPaused must retain the cancelled
 // score identity BEFORE zeroing it, or late onStarted resurrects old Motion3.
 bridge.touchResponse = { end: () => {} }
+bridge.cancelTactileMotion = () => {}
 bridge.wolfImpactPresentation = { reset: () => {} }
 bridge.app = null
 bridge.perform({ visualSequence: 3200, beats: [
