@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
@@ -468,8 +469,12 @@ private fun BlockIslandCanvas(
         animationSpec = infiniteRepeatable(tween(5400, easing = LinearEasing), RepeatMode.Restart),
         label = "island-breeze",
     )
-    val cols = if (zoomed) 14 else 22
-    val rows = if (zoomed) 11 else 16
+    // In landscape a broad, shallower viewport keeps the world above the controls
+    // instead of creating a 600dp-tall square that needs several scroll gestures.
+    val config = LocalConfiguration.current
+    val landscape = config.screenWidthDp > config.screenHeightDp
+    val cols = if (landscape) { if (zoomed) 18 else 28 } else { if (zoomed) 14 else 22 }
+    val rows = if (landscape) { if (zoomed) 7 else 10 } else { if (zoomed) 11 else 16 }
     val left = (w.x - cols / 2).coerceIn(0, (w.width - cols).coerceAtLeast(0))
     val top = (w.y - rows / 2).coerceIn(0, (w.height - rows).coerceAtLeast(0))
     val latestSelect by rememberUpdatedState(onSelect)
