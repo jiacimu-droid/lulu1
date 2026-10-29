@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:29:38.917487+00:00",
-  "commit": "e1563c4ee9458deca947f0dafa0c1a62c01363c2",
+  "generatedAt": "2026-10-29T10:30:12.265358+00:00",
+  "commit": "a02d2719d673573533813aff2aca32b6ca18bb70",
   "branch": "main",
-  "sourceFingerprint": "13a21b930dcbc6f6500e33153d285e6ec911984b8abaf4241119d5aa3ebe887b",
+  "sourceFingerprint": "2e51f94acf42c9ab3396c442bb4265dbd5d2191783305d2dc5380e8bf25c7567",
   "summary": {
-    "files": 1063,
-    "lines": 218801,
-    "symbols": 3127
+    "files": 1064,
+    "lines": 218837,
+    "symbols": 3128
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -93,7 +93,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 67
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -973,7 +973,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 49
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
@@ -2587,7 +2587,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 85
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -14590,6 +14590,12 @@
         "line": 5
       }
     ],
+    "CallSpeechCallbackBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt",
+        "line": 5
+      }
+    ],
     "CallSpeechPcmLevelTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt",
@@ -19740,20 +19746,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 195,
-      "sha256": "f25ee9310a5ad08da505df5487715a1ebc2cf1a150299617b9682d73266e8701",
+      "lines": 203,
+      "sha256": "2c76a59bebdff4f1fdf4bb57353655c57931fdf3eae1f96d07f9914e238e576d",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 49
+          "line": 56
         },
         {
           "name": "stop",
-          "line": 67
+          "line": 74
         },
         {
           "name": "shutdown",
-          "line": 85
+          "line": 91
         }
       ]
     },
@@ -32850,6 +32856,17 @@
       "symbols": [
         {
           "name": "CallSilencePolicyTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt",
+      "lines": 28,
+      "sha256": "eda97d92389ceff5f6233b881ab5c562e352c60648ed04e805b124fa62b7cfb9",
+      "symbols": [
+        {
+          "name": "CallSpeechCallbackBoundaryTest",
           "line": 5
         }
       ]

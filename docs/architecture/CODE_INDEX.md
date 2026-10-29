@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e1563c4ee9458deca947f0dafa0c1a62c01363c2`
+- 基准提交：`a02d2719d673573533813aff2aca32b6ca18bb70`
 - 分支：`main`
-- 已索引文件：1063
-- 已索引代码/文本行：218801
-- 已发现符号：3127
+- 已索引文件：1064
+- 已索引代码/文本行：218837
+- 已发现符号：3128
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -181,7 +181,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 195 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 203 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 580 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |
@@ -738,6 +738,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 36 | 1 |
