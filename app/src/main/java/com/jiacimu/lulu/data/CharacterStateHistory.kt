@@ -378,7 +378,12 @@ internal object CharacterStateHistory {
             } else if (label in labels) {
                 readingLegacyIdea = false
                 continue
-            } else if (rawVoice.lines().any { it.trim() == line }) {
+            } else if (rawVoice.lines().any { it.trim() == line } ||
+                (rawVoice.isNotBlank() && line.length >= 24 && rawVoice.contains(line))) {
+                // In older rows a short presence excerpt and its full causal
+                // original were both appended to detail. The excerpt is not
+                // an independent A/B idea. Never duplicate it below the
+                // restored complete heart voice.
                 readingLegacyIdea = false
                 continue
             } else if (!line.contains('：') && row.moment != null) {
