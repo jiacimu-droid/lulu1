@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:39:39.267357+00:00",
-  "commit": "02de87147ce27a9c11aa7d45b3082732b1f1913e",
+  "generatedAt": "2026-10-29T15:57:14.550972+00:00",
+  "commit": "fe74ba62f1837f0738f7258714d5e3ce32e962fc",
   "branch": "main",
-  "sourceFingerprint": "ee221459c345195e44f74228e856a798b0806300819a3fbf4581bfc1b9e1bfd8",
+  "sourceFingerprint": "205ae33ef1f9ecfb87e57707ec49cef3adf7614ce8c663e61179a07f34e3c0e6",
   "summary": {
     "files": 1076,
-    "lines": 222647,
-    "symbols": 3159
+    "lines": 222706,
+    "symbols": 3160
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12649,13 +12649,19 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 470
+        "line": 471
+      }
+    ],
+    "occupiedByOther": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
+        "line": 477
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 506
+        "line": 515
       }
     ],
     "perform": [
@@ -30511,8 +30517,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 513,
-      "sha256": "d11ffc5737072a43177206426573f9a3ae0cabd1a3c047541751ed31e5526029",
+      "lines": 522,
+      "sha256": "b4a997d6c2a71bd8744a2969f329e6a27ddba28df7c86f8ef96ea75a6e056b31",
       "symbols": [
         {
           "name": "toJson",
@@ -30556,11 +30562,15 @@
         },
         {
           "name": "nextStep",
-          "line": 470
+          "line": 471
+        },
+        {
+          "name": "occupiedByOther",
+          "line": 477
         },
         {
           "name": "actionName",
-          "line": 506
+          "line": 515
         }
       ]
     },
@@ -30933,7 +30943,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
       "lines": 237,
-      "sha256": "9be5a5cf90eab1ae9499bf6e848a8c4ffb74435d2add7d038b474baf8b3f87ae",
+      "sha256": "9d16c82b9c5cf38b1ef3ff106f33a174001b447aca60dd06fba0f1f4041a5151",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -37311,8 +37321,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
-      "lines": 230,
-      "sha256": "b81e1c2edf8262aea9888ce3abd22797eb3fc2c13588d81f110c6cd78eb5ae10",
+      "lines": 264,
+      "sha256": "0be0ac4e8341d1181ef446f22199f3d761d70c73532c1ed9cfe03ebdeadbeff8",
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
@@ -37344,8 +37354,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
-      "lines": 145,
-      "sha256": "de1026d9524644f240cb274ee32d95de5ef42d1139262f8d0cb66f4fcd8c9eaf",
+      "lines": 161,
+      "sha256": "3026ff3bee31dbf3cc0705a4d20854bd9ffbda07123384b181175bf12fe9ca6c",
       "symbols": [
         {
           "name": "IslandActorPlayTest",
