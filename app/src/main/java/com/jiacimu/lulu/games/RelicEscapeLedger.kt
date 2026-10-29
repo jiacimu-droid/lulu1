@@ -72,13 +72,13 @@ internal class RelicEscapeLedger(context:Context) {
         return write(old.copy(vault=old.vault.filterNot{it.id==id},
             coins=old.coins+item.value))
     }
-    @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String=""):RelicSnapshot {
+    @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet()):RelicSnapshot {
         val old=read();val current=old.run?:return old
         val result=if(action=="abandon")RelicEscapeRules.abandon(current)
             else RelicEscapeRules.act(current,action,
                 if(action in setOf("move","sneak","open","attack","invoke","disarm","lure"))x else current.hero.x,
                 if(action in setOf("move","sneak","open","attack","invoke","disarm","lure"))y else current.hero.y,
-                itemId)
+                itemId,autonomousIds)
         if(result==current)return old
         val next=if(result.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && result.completedAtMs==0L)
             result.copy(completedAtMs=System.currentTimeMillis()) else result
@@ -90,6 +90,16 @@ internal class RelicEscapeLedger(context:Context) {
             coins=old.coins+if(terminal)award.sumOf{it.value}/4 else 0,
             successes=old.successes+if(terminal && next.phase==RelicPhase.SUCCESS)1 else 0,
             awarded=if(terminal)old.awarded+next.id else old.awarded))
+    }
+
+    /** A slow response may merge only into the same live run, never a new game/settlement. */
+    @Synchronized fun companion(runId:String,id:String,choice:IslandActorChoice):RelicSnapshot {
+        val old=read()
+        val current=old.run?:error("本局已经关闭")
+        check(current.id==runId) { "对局已经更换，旧行动未执行" }
+        val next=RelicActorPlay.apply(current,id,choice)
+            ?:error("局势已改变，伙伴选择的行动未执行")
+        return write(old.copy(run=next))
     }
 
     /** Called on app re-entry too. Stable timeline IDs make interrupted replay harmless. */

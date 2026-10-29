@@ -61,7 +61,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     fun action(type:String,x:Int=0,y:Int=0,id:String="") {
         val tier=run?.chests?.firstOrNull{it.x==x && it.y==y && !it.opened}?.tier
         val before=run?.turns
-        change{ledger.perform(type,x,y,id)}
+        change{ledger.perform(type,x,y,id,run?.allies?.map{it.id}?.toSet() ?: emptySet())}
         if(before!=snapshot.run?.turns) {
             val sound=when(type) {
                 "open"->when(tier){
@@ -83,6 +83,43 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         if(run!=null && run.id in snapshot.awarded)ledger.syncExperiences(snapshot,store)
     }
 
+    GameSceneDeck(
+        accent = relicGold,
+        notice = error.ifBlank { if(run?.phase == RelicPhase.SUCCESS)
+            "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
+            "本次探索结束 · 战利品遗失" else run?.notice.orEmpty() },
+        status = if (run == null) "暗影遗迹 · 营地" else
+            "❤ ${run.hero.hp}/10   ◇ ${run.value}   行囊 ${run.hero.load}/8   第${run.turns}回合",
+        scene = {
+            if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
+                RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true)
+            else RelicCampBackdrop()
+        },
+        companion = {
+            if (run != null && run.allies.isNotEmpty() && run.phase in
+                setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
+                RelicCompanionPanel(run) { id,choice ->
+                    var saved = false
+                    change { ledger.companion(run.id,id,choice).also { saved = true } }
+                    saved
+                }
+            }
+        },
+        actions = {
+            val quick = run?.let { relicQuickAction(it,selected) }
+            Button(onClick = {
+                if (run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
+                    change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits) }
+                } else quick?.let { action(it.action,it.x,it.y,it.id) }
+            },enabled = run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT) || quick != null,
+                modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor=relicGold,contentColor=relicInk)) {
+                Text(if(run == null) "进入遗迹" else if(run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT))
+                    "再次出发" else quick?.label ?: "点选地图目标",fontSize=12.sp,maxLines=1)
+            }
+            if(run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
+                TextButton(onClick={action("wait")}) { Text("等待",color=Color.White) }
+        },
+        tools = {
     Column(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(
         Color(0xFF241D29),Color(0xFF101A25),relicInk)))
         .verticalScroll(rememberScrollState())
@@ -190,7 +227,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
             }
-            RelicEscapeWorldMap(run,selected){x,y->selected=x to y}
             RelicPanel {
                 val sx=selected.first;val sy=selected.second
                 val visible=run.visible(sx,sy)
@@ -381,7 +417,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             }
         }
     }
+        },
+    )
     if(confirmAbandon)AlertDialog(onDismissRequest={confirmAbandon=false},
+        containerColor=relicInk,titleContentColor=Color.White,textContentColor=relicMuted,
         title={Text("放弃本局？")},
         text={Text("放弃将失去本局所有未撤离宝物和已消耗补给，永久仓库不会被扣除。")},
         confirmButton={TextButton(onClick={action("abandon");confirmAbandon=false}){Text("确认放弃")}},

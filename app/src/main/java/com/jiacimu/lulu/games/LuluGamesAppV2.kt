@@ -33,20 +33,8 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val state by store.state.collectAsState()
     var replayCenterVisible by remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize()) {
-        LuluGamesApp(onBack = onBack, initialGameId = initialGameId)
-        SmallFloatingActionButton(
-            onClick = { replayCenterVisible = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .navigationBarsPadding()
-                .padding(end = 18.dp, bottom = 78.dp),
-            containerColor = GameDesign.ink,
-            contentColor = Color.White,
-        ) {
-            Icon(Icons.Outlined.Replay, "游戏回放")
-        }
-    }
+    LuluGamesApp(onBack = onBack, initialGameId = initialGameId,
+        onReplayCenter = { replayCenterVisible = true })
 
     if (replayCenterVisible) {
         UniversalReplayCenter(

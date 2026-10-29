@@ -189,6 +189,14 @@ internal object IslandActorPlay {
         return s.copy(world=next, fruit=fruit)
     }
 
+    /** Keep the player's newer turn; only the same still-legal chosen operation is merged. */
+    fun applyLive(current: BlockIslandState, source: BlockIslandState, id: String,
+                  choice: IslandActorChoice): BlockIslandState? {
+        if (current.world.seed != source.world.seed || current.world.turns < source.world.turns ||
+            current.world.finished) return null
+        return apply(current,id,current.world.turns,choice)
+    }
+
     fun facts(s: BlockIslandState, id: String, heard: String): String {
         val w=s.world
         val a=w.friends.first { it.id==id }

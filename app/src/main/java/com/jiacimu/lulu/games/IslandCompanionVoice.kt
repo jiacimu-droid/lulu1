@@ -5,6 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.jiacimu.lulu.VoiceSynthesisPolicy
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.LuluSpeechEngine
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
@@ -19,8 +25,11 @@ import kotlinx.coroutines.launch
 internal class IslandCompanionVoice(
     context: Context,
     private val scope: CoroutineScope,
+    private val onError: (String) -> Unit = {},
 ) {
-    private val engine = LuluSpeechEngine(context.applicationContext)
+    private val appContext=context.applicationContext
+    private val engine = LuluSpeechEngine(appContext)
+    private var foreground=true
     private val pending = ArrayDeque<Pair<String, String>>()
     private var active = false
     private var enabled = false
@@ -38,20 +47,40 @@ internal class IslandCompanionVoice(
         }
     }
 
+    fun setForeground(value:Boolean) { foreground=value; if(!value)stop() }
+
+    fun stop() {
+        audioGeneration++
+        pending.clear()
+        active=false
+        engine.stop()
+    }
+
     fun enqueue(characterId: String, line: String) {
-        if (!enabled || disposed || characterId.isBlank() || line.isBlank()) return
+        if (!enabled || disposed || !foreground || characterId.isBlank() || line.isBlank()) return
         pending.addLast(characterId to line)
         if (!active) playNext()
     }
 
     private fun playNext() {
-        if (!enabled || disposed) {
+        if (!enabled || disposed || !foreground) {
             pending.clear()
             active = false
             return
         }
         val next = pending.removeFirstOrNull() ?: run {
             active = false
+            return
+        }
+        if (!VoiceSynthesisPolicy.meetingPlayable(appContext)) {
+            // Obey existing global/role voice controls before spending synthesis credits.
+            pending.clear()
+            active=false
+            return
+        }
+        if (!CharacterVoicePreferenceStore.isEnabled(next.first)) {
+            active=false
+            playNext()
             return
         }
         active = true
@@ -66,6 +95,7 @@ internal class IslandCompanionVoice(
                 // the scene scope and ignore late completions after the game closes.
                 scope.launch {
                     if (!disposed && expectedAudioGeneration == audioGeneration) {
+                        if(engine.lastError.isNotBlank())onError("伙伴语音："+engine.lastError)
                         active = false
                         playNext()
                     }
@@ -85,12 +115,20 @@ internal class IslandCompanionVoice(
 }
 
 @Composable
-internal fun rememberIslandCompanionVoice(): IslandCompanionVoice {
+internal fun rememberIslandCompanionVoice(onError: (String) -> Unit = {}): IslandCompanionVoice {
     val context = LocalContext.current.applicationContext
     val scope = rememberCoroutineScope()
-    val voice = remember(context) { IslandCompanionVoice(context, scope) }
-    DisposableEffect(voice) {
-        onDispose { voice.close() }
+    val owner=LocalLifecycleOwner.current
+    val latestError by rememberUpdatedState(onError)
+    val voice = remember(context) { IslandCompanionVoice(context, scope) { latestError(it) } }
+    DisposableEffect(voice,owner) {
+        voice.setForeground(owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+        val observer=LifecycleEventObserver { _,event ->
+            if(event==Lifecycle.Event.ON_STOP)voice.setForeground(false)
+            else if(event==Lifecycle.Event.ON_START)voice.setForeground(true)
+        }
+        owner.lifecycle.addObserver(observer)
+        onDispose { owner.lifecycle.removeObserver(observer);voice.close() }
     }
     return voice
 }

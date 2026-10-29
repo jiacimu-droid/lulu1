@@ -139,7 +139,7 @@ internal object RelicEscapeRules {
         val roll=abs((s.seed.toLong()*31+c.id*97)%1000).toInt()
         return RelicLoot(s.id+":chest:"+c.id,names[roll%names.size],c.tier,c.tier.base+roll%63)
     }
-    fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String=""):RelicRun {
+    fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet()):RelicRun {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return s.copy(notice="当前不能继续行动")
         if(s.phase==RelicPhase.DOWNED && action!="wait")return s.copy(notice="倒地了，等待同伴救援")
@@ -260,7 +260,7 @@ internal object RelicEscapeRules {
             else->return s.copy(notice="无效行动")
         }
         next=reveal(next.copy(turns=s.turns+1))
-        next=alliesTurn(next)
+        next=alliesTurn(next,autonomousIds)
         next=enemyTurn(next,noise)
         next=next.copy(flareTurns=(next.flareTurns-1).coerceAtLeast(0),
             lureTurns=(next.lureTurns-1).coerceAtLeast(0))
@@ -282,12 +282,12 @@ internal object RelicEscapeRules {
         }
         return next
     }
-    private fun alliesTurn(original:RelicRun):RelicRun {
+    private fun alliesTurn(original:RelicRun,autonomousIds:Set<String>):RelicRun {
         var s=original
         val done=mutableListOf<RelicActor>()
         for(friend in s.allies) {
             var a=friend
-            if(a.hp<=0){done+=a;continue}
+            if(a.hp<=0 || a.id in autonomousIds){done+=a;continue}
             val nearThreat=s.mobs.firstOrNull{it.hp>0 && near(a,it.x,it.y)}
             when {
                 s.hero.hp<=0 && a.kits>0 && near(a,s.hero.x,s.hero.y)->{

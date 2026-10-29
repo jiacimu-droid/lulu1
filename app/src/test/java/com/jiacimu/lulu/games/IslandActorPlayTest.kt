@@ -157,4 +157,17 @@ class IslandActorPlayTest {
         assertEquals(IslandActorChoice("none",""),
             IslandActorPlay.parse(fence+"json\n"+"""{"actionId":"none","speech":""}"""+"\n"+fence))
     }
+    @Test fun slowModelResultMergesIntoCurrentBoardWithoutRevertingPlayerProgress() {
+        val source=world()
+        val move=IslandActorPlay.options(source,"alice").first { it.kind=="move" }
+        val current=source.copy(world=source.world.copy(turns=source.world.turns+3,
+            wood=source.world.wood+7,stone=source.world.stone+4))
+        val next=IslandActorPlay.applyLive(current,source,"alice",IslandActorChoice(move.id,""))!!
+        assertEquals(current.world.turns,next.world.turns)
+        assertEquals(current.world.wood,next.world.wood)
+        assertEquals(current.world.stone,next.world.stone)
+        assertEquals(move.x,next.world.friends.first().x)
+        assertNull(IslandActorPlay.applyLive(current.copy(world=current.world.copy(seed=99)),
+            source,"alice",IslandActorChoice(move.id,"")))
+    }
 }

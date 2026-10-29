@@ -158,3 +158,10 @@
 - 研究参考：xpzouying/xiaohongshu-mcp 当前 `xiaohongshu/search.go` 的真实网页搜索/状态读取；imoonkey/openweb 的 `src/sites/xiaohongshu/DOC.md` 搜索→详情流程；Android `WebView.getSettings()` 的 UI 线程校验；ElevenLabs 官方音频标签文档的 `[whispers]`。
 - 链接：https://github.com/xpzouying/xiaohongshu-mcp/blob/main/xiaohongshu/search.go 、https://github.com/imoonkey/openweb/blob/main/src/sites/xiaohongshu/DOC.md 、https://github.com/aosp-mirror/platform_frameworks_base/blob/main/core/java/android/webkit/WebView.java 、https://elevenlabs.io/docs/help-center/product/core-capabilities/text-to-speech/how-do-audio-tags-work-with-eleven-v3-and-v4 。
 - 验证边界：网页夹具、线程约束的 Android 工具整链路回归和 APK 构建分别验证；不以模拟页面通过冒充用户手机登录会话的实网验证，也不承诺操作系统后台持续渲染网页。
+
+## 2026-10-30：合作游戏沉浸场景与营地原画
+
+- 标签：ORIGINAL。全屏游戏场景、伙伴自主选择与回执适配，以及小岛蘑菇、蝴蝶、萤火和云影均在本仓独立实现，没有复制外部游戏代码或素材。
+- `app/src/main/res/drawable-nodpi/game_relic_camp.webp`：使用内置 ImageGen 生成的原创遗迹营地插画，经本地 WebP 压缩供 APK 离线使用；没有新增图片服务或运行时联网下载。不把静态插画当作可行走地图，活动对局仍按真实 RelicRun 绘制。
+- 生成提示：production background illustration for a cozy cooperative Android exploration game; ancient ruins expedition camp; polished atmospheric 16:9 landscape; warm campfire, canvas tent, traveling supplies, ancient mossy stone arch, faint turquoise runes, winding path and blue mist, moonlit mountains, pine silhouettes, ferns and fireflies; painterly premium indie adventure art; deep teal/slate and amber firelight; no people, text, logos or watermark.
+- 伙伴沿用已有游戏模型、本人上下文及本人音色配置。云语音只在游戏语音开启且现有总开关、个人开关和音量允许时合成，按现有服务计费；后台、关闭语音和离开场景会停止排队播放。

@@ -10,6 +10,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -30,29 +32,41 @@ import kotlin.math.sin
 /** Local procedural art: no remote images, font downloads, or expensive per-frame textures. */
 @Composable
 internal fun RelicEscapeWorldMap(
-    run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit
+    run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false
 ) {
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
         .animateFloat(0f,1f,infiniteRepeatable(tween(3600),RepeatMode.Reverse),label="dust-drift").value
     Surface(
+        modifier=if(fullscreen)Modifier.fillMaxSize()else Modifier,
         shape=RoundedCornerShape(24.dp),
         color=Color(0xFF080D15),
         border=BorderStroke(1.dp,Color(0xFF586474)),
         shadowElevation=12.dp,
     ) {
         Canvas(
-            Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h)
+            (if(fullscreen)Modifier.fillMaxSize()else Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h))
                 .pointerInput(run.id,onSelect) {
                     detectTapGestures { tap->
-                        val t=min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
-                        val tx=(tap.x/t).toInt();val ty=(tap.y/t).toInt()
+                        val t=if(fullscreen)maxOf(size.width/(if(size.width>size.height)20f else 12f),size.height/run.h)
+                            else min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
+                        val ox=if(fullscreen)(size.width/2f-(run.hero.x+.5f)*t)
+                            .coerceIn((size.width-run.w*t).coerceAtMost(0f),0f) else 0f
+                        val oy=if(fullscreen)(size.height/2f-(run.hero.y+.5f)*t)
+                            .coerceIn((size.height-run.h*t).coerceAtMost(0f),0f) else 0f
+                        val tx=((tap.x-ox)/t).toInt();val ty=((tap.y-oy)/t).toInt()
                         if(run.bounds(tx,ty))onSelect(tx,ty)
                     }
                 }
         ) {
-            val t=min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
+            val t=if(fullscreen)maxOf(size.width/(if(size.width>size.height)20f else 12f),size.height/run.h)
+                else min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
+            val ox=if(fullscreen)(size.width/2f-(run.hero.x+.5f)*t)
+                .coerceIn((size.width-run.w*t).coerceAtMost(0f),0f) else 0f
+            val oy=if(fullscreen)(size.height/2f-(run.hero.y+.5f)*t)
+                .coerceIn((size.height-run.h*t).coerceAtMost(0f),0f) else 0f
+            translate(ox,oy) {
             fun cell(x:Int,y:Int)=Offset(x*t,y*t)
             fun center(x:Int,y:Int)=Offset((x+.5f)*t,(y+.5f)*t)
             val theme=when(run.level%3){
@@ -262,6 +276,7 @@ internal fun RelicEscapeWorldMap(
                 drawRect(Brush.radialGradient(listOf(Color.Transparent,
                     Color(0xFF9E3D4C).copy(alpha=.20f*shimmer)),center=hero,
                     radius=size.maxDimension*.72f))
+            }
             }
         }
     }

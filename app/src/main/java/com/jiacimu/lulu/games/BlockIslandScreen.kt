@@ -98,8 +98,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         save(result)
     }
 
-    LaunchedEffect(game.selectedCharacterIds) {
-        val wanted = game.selectedCharacterIds.distinct().take(3)
+    LaunchedEffect(game.selectedCharacterIds, game.playWithCharacter) {
+        val wanted = if (game.playWithCharacter) game.selectedCharacterIds.distinct().take(3) else emptyList()
         if (island.world.friends.map { it.id } != wanted) {
             save(with(BlockIslandRules) { island.withPartners(wanted) })
         }
@@ -128,7 +128,51 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val nearTarget = world.adjacent(target.first, target.second)
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
 
-    val boardContent: @Composable ColumnScope.() -> Unit = {
+    GameSceneDeck(
+        accent = Color(0xFFA9E5BD),
+        notice = world.notice,
+        status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
+            if (night) "☾ 夜晚" else "☀ 白天",
+        scene = {
+            BlockIslandCanvas(island, target, zoomed, night, impact, impactProgress.value,
+                onSelect = { x, y -> target = x to y; navigateTo = null },
+                onNavigate = { x, y -> target = x to y; navigateTo = x to y },
+                fullscreen = true, companionPing = companionPing)
+        },
+        companion = {
+            if (game.playWithCharacter && world.friends.isNotEmpty() &&
+                world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
+                IslandCompanionPanel(island, navigateTo != null, autonomousCompanions,
+                    { autonomousCompanions = it }, ::save, { companionPing = it })
+            }
+        },
+        actions = {
+            val action = when {
+                nearTarget && isMobSelected -> "fight"
+                nearTarget && selectedCell in listOf(1, 2) -> "gather"
+                nearTarget && selectedCell == 8 && "rod" in island.tools -> "fish"
+                else -> "move"
+            }
+            Button(onClick = {
+                if (action == "move") navigateTo = target else perform(action)
+            }, enabled = target != (world.x to world.y), modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA9D8B9),
+                    contentColor = Color(0xFF17342F))) {
+                Text(when(action) { "fight" -> "攻击"; "gather" -> "采集"; "fish" -> "钓鱼"; else -> "前往" } +
+                    " · " + islandCellTitle(selectedCell, selectedStructure), maxLines = 1, fontSize = 12.sp)
+            }
+            TextButton(onClick = { zoomed = !zoomed }) {
+                Text(if (zoomed) "远景" else "近景", color = Color.White)
+            }
+        },
+        tools = {
+    Column(
+        Modifier.fillMaxSize()
+            .background(Brush.verticalGradient(listOf(Color(0xFF123C43), Color(0xFF102931), Color(0xFF101C26))))
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
@@ -159,69 +203,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
             IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
             IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
-        }
-        Surface(shape = RoundedCornerShape(18.dp), color = Color(0xFF142D33),
-            border = BorderStroke(1.dp, Color(0xFF75A39D).copy(alpha = .45f))) {
-            Column(Modifier.padding(7.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Text("森林营地  ·  第${world.turns}步", color = Color(0xFFE1F8EB),
-                        fontWeight = FontWeight.SemiBold, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { zoomed = !zoomed }) {
-                        Text(if (zoomed) "缩小地图" else "放大地图", fontSize = 11.sp,
-                            color = Color(0xFFA8E7C7))
-                    }
-                }
-                BlockIslandCanvas(
-                    island = island, target = target, companionPing = companionPing,
-                    zoomed = zoomed, night = night,
-                    impact = impact, impactProgress = impactProgress.value,
-                    onSelect = { x, y ->
-                        target = x to y
-                        navigateTo = null
-                    },
-                    onNavigate = { x, y ->
-                        target = x to y
-                        navigateTo = x to y
-                    },
-                )
-                if (nearTarget && isMobSelected) {
-                    IslandAction("⚔ 攻击选中的野怪", enabled = true, Modifier.fillMaxWidth()) {
-                        perform("fight")
-                    }
-                } else if (nearTarget && selectedCell in listOf(1, 2)) {
-                    IslandAction("✦ 采集选中的资源", enabled = true, Modifier.fillMaxWidth()) {
-                        perform("gather")
-                    }
-                } else if (target != (world.x to world.y) && !nearTarget) {
-                    IslandAction("➜ 自动前往选中的格子", enabled = true, Modifier.fillMaxWidth()) {
-                        navigateTo = target
-                    }
-                } else {
-                    Text("点选地图中的树、石头或空地，附近可直接操作",
-                        color = Color(0xFFB0D8C9), fontSize = 11.sp)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(top = 7.dp)) {
-                    Text("(${target.first}, ${target.second}) · ${islandCellTitle(selectedCell, selectedStructure)}${if (isMobSelected) " · 野怪" else ""}",
-                        modifier = Modifier.weight(1f), color = Color(0xFFC4E3D5), fontSize = 11.sp)
-                    TextButton(onClick = { navigateTo = target },
-                        enabled = target != (world.x to world.y)) { Text("前往", color = Color(0xFFB2F0CF)) }
-                }
-            }
-        }
-        Text("轻触选格 · 双击目的地自动前往", color = Color(0xFF9EC9B3),
-            fontSize = 10.sp)
-    }
-    val controlsContent: @Composable ColumnScope.() -> Unit = {
-        if (game.playWithCharacter && world.friends.isNotEmpty() &&
-            world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
-            IslandCompanionPanel(
-                island = island, navigating = navigateTo != null,
-                autonomous = autonomousCompanions,
-                onAutonomousChange = { autonomousCompanions = it },
-                onSave = ::save,
-                onPing = { companionPing = it },
-            )
         }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
             Text(world.notice, modifier = Modifier.fillMaxWidth().padding(11.dp),
@@ -372,36 +353,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             fontSize = 10.sp, color = Color(0xFF9AC0BA))
     }
 
-    val dimensions = LocalConfiguration.current
-    val widePlay = dimensions.screenWidthDp > dimensions.screenHeightDp && dimensions.screenWidthDp >= 620
-    Box(Modifier.fillMaxSize().background(
-        Brush.verticalGradient(listOf(Color(0xFF123C43), Color(0xFF102931), Color(0xFF101C26))),
-    )) {
-        if (widePlay) {
-            Row(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 7.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Column(
-                    modifier = Modifier.weight(1.30f).fillMaxHeight().verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    content = boardContent,
-                )
-                Column(
-                    modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(9.dp),
-                    content = controlsContent,
-                )
-            }
-        } else {
-            Column(
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                boardContent()
-                controlsContent()
-            }
-        }
-    }
+        },
+    )
 
     if (confirmReset) {
         AlertDialog(
@@ -413,7 +366,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             textContentColor = Color(0xFFBDD5CC),
             confirmButton = {
                 TextButton(onClick = {
-                    save(BlockIslandRules.newWorld(Random.nextInt(), game.selectedCharacterIds))
+                    save(BlockIslandRules.newWorld(Random.nextInt(), if(game.playWithCharacter)game.selectedCharacterIds else emptyList()))
                     target = island.world.x to island.world.y
                     navigateTo = null
                     confirmReset = false
@@ -485,13 +438,14 @@ private fun islandCellTitle(tile: Int, structure: String?): String =
 private fun BlockIslandCanvas(
     island: BlockIslandState,
     target: Pair<Int, Int>,
-    companionPing: Pair<Int, Int>?,
     zoomed: Boolean,
     night: Boolean,
     impact: BlockIslandImpact?,
     impactProgress: Float,
     onSelect: (Int, Int) -> Unit,
     onNavigate: (Int, Int) -> Unit,
+    fullscreen: Boolean = false,
+    companionPing: Pair<Int, Int>? = null,
 ) {
     val w = island.world
     // Only the Canvas recomposes for breeze/water/fire; controls & saved state stay stable.
@@ -506,13 +460,15 @@ private fun BlockIslandCanvas(
     val config = LocalConfiguration.current
     val landscape = config.screenWidthDp > config.screenHeightDp
     val cols = if (landscape) { if (zoomed) 18 else 28 } else { if (zoomed) 14 else 22 }
-    val rows = if (landscape) { if (zoomed) 7 else 10 } else { if (zoomed) 11 else 16 }
+    val rows = if (fullscreen) (cols * ((config.screenHeightDp - 54).coerceAtLeast(160).toFloat() /
+        config.screenWidthDp.coerceAtLeast(1))).toInt().coerceIn(6, 32)
+        else if (landscape) { if (zoomed) 7 else 10 } else { if (zoomed) 11 else 16 }
     val left = (w.x - cols / 2).coerceIn(0, (w.width - cols).coerceAtLeast(0))
     val top = (w.y - rows / 2).coerceIn(0, (w.height - rows).coerceAtLeast(0))
     val latestSelect by rememberUpdatedState(onSelect)
     val latestNavigate by rememberUpdatedState(onNavigate)
     Canvas(
-        Modifier.fillMaxWidth().aspectRatio(cols.toFloat() / rows)
+        (if (fullscreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth().aspectRatio(cols.toFloat() / rows))
             .pointerInput(left, top, cols, rows) {
                 fun targetFor(tap: Offset): Pair<Int, Int>? {
                     val tile = kotlin.math.min(size.width / cols.toFloat(), size.height / rows.toFloat())
@@ -535,8 +491,7 @@ private fun BlockIslandCanvas(
     ) {
         with(BlockIslandArt) {
             paint(
-                island = island, selected = target, companionPing = companionPing,
-                left = left, top = top,
+                island = island, selected = target, companionPing = companionPing, left = left, top = top,
                 cols = cols, rows = rows, night = night, phase = phase,
                 impact = impact, impactProgress = impactProgress,
             )

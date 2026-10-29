@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.sin
@@ -140,6 +141,42 @@ internal object BlockIslandArt {
                 drawRect(cream, topLeft = c + Offset(dx * ring, dy * ring) -
                     Offset(tile * .05f, tile * .05f), size = Size(tile * .10f, tile * .10f))
             }
+        }
+        // Sparse foreground details are deterministic decorations, never collectible rewards.
+        // The same seed retains its scenery across sessions without storing a second world.
+        for (y in top until (top + rows).coerceAtMost(w.height)) {
+            for (x in left until (left + cols).coerceAtMost(w.width)) {
+                if (w.cell(x,y) != 0 || w.index(x,y) in island.structures) continue
+                val hash = ((x * 83492791) xor (y * 19349663) xor w.seed) and Int.MAX_VALUE
+                val p = origin(x,y)
+                if (hash % 29 == 0) {
+                    // A patch of amber mushrooms with shaded caps and cream stems.
+                    repeat(3) { i ->
+                        val m = p + Offset(tile*(.24f+i*.18f),tile*(.64f-i%2*.16f))
+                        drawRect(Color(0xFFE6D3AE),m,Size(tile*.04f,tile*.14f))
+                        drawOval(Color(0xFF76443E),m-Offset(tile*.08f,tile*.07f),Size(tile*.20f,tile*.12f))
+                        drawOval(Color(0xFFCF9770),m-Offset(tile*.07f,tile*.08f),Size(tile*.17f,tile*.08f))
+                    }
+                }
+                if (!night && hash % 41 == 0) {
+                    val b = p + Offset(tile*(.5f+.24f*sin(phase*6.28318f+x)),
+                        tile*(.3f+.15f*cos(phase*6.28318f+y)))
+                    val wing = tile*(.04f+.055f*kotlin.math.abs(sin(phase*18.84954f)))
+                    drawOval(Color(0xFFFFE6B4),b-Offset(wing,tile*.06f),Size(wing,tile*.12f))
+                    drawOval(Color(0xFFF3C69E),b,Size(wing,tile*.12f))
+                }
+                if (night && hash % 19 == 0) {
+                    val b = p+Offset(tile*.5f,tile*(.2f+.13f*sin(phase*6.28318f+x)))
+                    drawCircle(Brush.radialGradient(listOf(Color(0x6673E9BD),Color.Transparent),
+                        b,tile*.28f),tile*.28f,b)
+                    drawCircle(Color(0xFFD9F5B5),tile*.035f,b)
+                }
+            }
+        }
+        // Broad moving shadows read as clouds without introducing opaque foreground sprites.
+        if (!night) repeat(3) { i ->
+            val at = Offset(size.width*((phase*.25f+i*.42f)%1.4f-.2f),size.height*(.16f+i*.31f))
+            drawOval(Color(0xFF1C4354).copy(alpha=.055f),at,Size(tile*7f,tile*2.8f))
         }
         if (impact != null && impactProgress < 1f &&
             impact.x in left until left + cols && impact.y in top until top + rows) {

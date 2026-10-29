@@ -94,7 +94,7 @@ private data class GameLauncher(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false) {
+fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false, onReplayCenter: (() -> Unit)? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
     var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
@@ -183,7 +183,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                         tint = if (darkChrome) Color.White else GameDesign.ink,
                     )
                     if (route == GameRoute.Home) {
-                        IconButton(onClick = { route = GameRoute.Records }) {
+                        IconButton(onClick = { onReplayCenter?.invoke() ?: run { route = GameRoute.Records } }) {
                             Icon(Icons.Outlined.History, "游戏记录与回放", tint = Color.White)
                         }
                     }

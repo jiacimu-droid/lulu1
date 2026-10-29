@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.coroutineContext
 
 /**
  * This is a game scene adapter, not a separate character identity or action store.
@@ -36,8 +39,10 @@ internal fun IslandCompanionPanel(
     onSave: (BlockIslandState) -> Unit,
     onPing: (Pair<Int, Int>) -> Unit,
 ) {
-    val speaker = rememberIslandCompanionVoice()
-    var voice by rememberSaveable { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
+    var voice by rememberSaveable { mutableStateOf(prefs.getBoolean("voice",false)) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     var teamInbox by rememberSaveable(island.world.seed, stateSaver = islandTeamInboxSaver) {
         mutableStateOf(IslandTeamInbox())
     }
@@ -48,6 +53,7 @@ internal fun IslandCompanionPanel(
     var lastRequestedTurn by remember(island.world.seed) { mutableIntStateOf(-1) }
     var thinking by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
+    val speaker = rememberIslandCompanionVoice { error = it }
     var dialogue by rememberSaveable(island.world.seed) { mutableStateOf(emptyList<String>()) }
     fun submitPlayerMessage(raw: String) {
         val message = raw.trim()
@@ -100,27 +106,27 @@ internal fun IslandCompanionPanel(
         try {
             var workingState = currentIsland
             for (id in members) {
-                val snapshot = workingState
-                if (snapshot.world.turns != expectedTurn ||
-                    snapshot.world.friends.none { it.id == id }) break
+                val snapshot = currentIsland
+                if (snapshot.world.friends.none { it.id == id && it.hp > 0 }) continue
                 val heard = unreadSnapshot.forRole(id).joinToString("\n")
                 val alreadyCompleted = snapshot.world.events.any {
-                    it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
+                    it.startsWith(IslandActorPlay.eventPrefix(id, snapshot.world.turns))
                 }
                 if (alreadyCompleted && heard.isBlank()) continue
                 // Generate a real decision from this role's own identity, the actual current
                 // board, and its own earlier game events. The configured Game model is reused.
                 val result = runCatching { IslandActorPlay.decide(snapshot, id, heard) }
-                    .getOrElse { Result.failure(it) }
+                    .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
+                coroutineContext.ensureActive()
                 val choice = result.getOrNull()
                 if (choice == null) {
                     error = result.exceptionOrNull()?.message ?: "伙伴暂时无法作出决定"
                     continue
                 }
-                if (currentIsland.world.turns != expectedTurn) break
-                val latest = workingState
+                if (currentIsland.world.seed != snapshot.world.seed) break
+                val latest = currentIsland
                 val alreadyActed = latest.world.events.any {
-                    it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
+                    it.startsWith(IslandActorPlay.eventPrefix(id, latest.world.turns))
                 }
                 val selectedAction = IslandActorPlay.options(latest, id, !alreadyActed)
                     .firstOrNull { it.id == choice.actionId }
@@ -130,7 +136,7 @@ internal fun IslandCompanionPanel(
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
                 if (!alreadyActed) {
-                    val applied = IslandActorPlay.apply(latest, id, expectedTurn, choice)
+                    val applied = IslandActorPlay.applyLive(latest, snapshot, id, choice)
                     if (applied == null) {
                         error = "局势已经改变，行动未执行；消息仍待送达"
                         continue
@@ -167,47 +173,29 @@ internal fun IslandCompanionPanel(
         color = Color(0xFF19313B),
         border = BorderStroke(1.dp, Color(0xFF85BEB3).copy(alpha = .35f)),
     ) {
-        Column(Modifier.fillMaxWidth().padding(13.dp),
+        Column(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=5.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Surface(color = Color(0xFF66D3BD).copy(alpha = .22f),
-                            shape = RoundedCornerShape(10.dp)) {
-                            Text("TEAM", modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
-                                color = Color(0xFF9DFFE5), fontSize = 10.sp, fontWeight = FontWeight.Black)
-                        }
-                        Text("队伍频道", color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    }
-                    Text(if (autonomous) "每位伙伴自行选择行动，不再听固定跟随指令"
-                         else "已关闭模型自主行动，恢复原有队友模式",
-                        color = Color(0xFFAFD1C8), fontSize = 11.sp, lineHeight = 16.sp)
+                Text(if (thinking) "伙伴正在看局势…" else if (autonomous) "队伍频道" else "伙伴操作已暂停",
+                    color=Color.White,fontWeight=FontWeight.Bold,fontSize=12.sp,modifier=Modifier.weight(1f))
+                IconButton(onClick={ voice=!voice; prefs.edit().putBoolean("voice",voice).apply()
+                    speaker.setEnabled(voice) },modifier=Modifier.size(34.dp)) {
+                    Icon(if(voice)Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                        if(voice)"关闭伙伴语音" else "开启伙伴语音",tint=Color.White,modifier=Modifier.size(18.dp))
                 }
-                Switch(checked = autonomous, onCheckedChange = onAutonomousChange)
+                IconButton(onClick={speaker.stop();microphone()},modifier=Modifier.size(34.dp)) {
+                    Icon(Icons.Outlined.Mic,"跟伙伴说话",tint=Color.White,modifier=Modifier.size(18.dp))
+                }
+                TextButton(onClick={ expanded=!expanded },contentPadding=PaddingValues(4.dp)) {
+                    Text(if(expanded)"收起" else "聊天",color=Color(0xFFBDE4D5),fontSize=11.sp)
+                }
+            }
+            if(expanded) Row(verticalAlignment=Alignment.CenterVertically) {
+                Text("角色自主操作",color=Color.White,modifier=Modifier.weight(1f),fontSize=12.sp)
+                Switch(checked=autonomous,onCheckedChange=onAutonomousChange)
             }
             if (autonomous) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(
-                        onClick = {
-                            voice = !voice
-                            speaker.setEnabled(voice)
-                        },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Icon(if (voice) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, null,
-                            modifier = Modifier.size(17.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(if (voice) "伙伴语音已开" else "开启伙伴语音", fontSize = 11.sp)
-                    }
-                    OutlinedButton(onClick = microphone, enabled = !thinking) {
-                        Icon(Icons.Outlined.Mic, null, modifier = Modifier.size(17.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("说一句", fontSize = 11.sp)
-                    }
-                }
+                if(expanded) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     listOf("一起探路", "小心怪物", "我们分头找资源").forEach { ping ->
@@ -254,26 +242,25 @@ internal fun IslandCompanionPanel(
                         }
                     }
                 }
+                }
                 if (thinking) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                         color = Color(0xFFA3E5C5),
                     )
-                    Text("伙伴正在看地图，自己决定下一步…", color = Color(0xFFBDE4D5),
-                        fontSize = 11.sp)
                 }
                 if (error.isNotBlank())
                     Text(error + "（游戏仍可继续）", color = Color(0xFFFFC3BA),
                         fontSize = 11.sp, lineHeight = 17.sp)
-                if (teamInbox.messages.isNotEmpty()) {
+                if (expanded && teamInbox.messages.isNotEmpty()) {
                     Text(
                         "${teamInbox.messages.size} 条队伍消息待确认 · 模型失败时保留，下一次行动或发言会继续投递",
                         color = Color(0xFFEFD3A6), fontSize = 11.sp, lineHeight = 16.sp,
                     )
                 }
                 // New chat is immediate; saved factual world events still reappear after rotation.
-                val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(3)
-                    else island.world.events.filter { it.startsWith("队友[") }.takeLast(2)
+                val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(if(expanded)3 else 1)
+                    else island.world.events.filter { it.startsWith("队友[") }.takeLast(if(expanded)2 else 1)
                 teamFeed.forEach { line ->
                     Surface(
                         color = Color(0xFF254752), shape = RoundedCornerShape(13.dp),
@@ -283,7 +270,7 @@ internal fun IslandCompanionPanel(
                             color = Color(0xFFE7F9F0), fontSize = 12.sp, lineHeight = 18.sp)
                     }
                 }
-                Text("聊天选择游戏模型；朗读使用此人物已配置的语音服务。选择收费音色时会按次计费，关闭则不合成。",
+                if(expanded) Text("聊天选择游戏模型；朗读使用此人物已配置的语音服务。选择收费音色时会按次计费，关闭则不合成。",
                     color = Color(0xFF95BEB4), fontSize = 10.sp, lineHeight = 15.sp)
             }
         }
