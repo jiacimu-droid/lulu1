@@ -83,6 +83,7 @@ internal object ResidentDailyDecision {
             "needs_recovery" -> "执行尚未完成"
             "partial_side_steps", "waiting_partial" -> "独立行动未全部完成"
             "finished_with_agenda_rejections" -> "本人已决定，但部分日程未能排入"
+            "source_unavailable" -> "原决定来源已撤回或版本失效，后续未执行"
             else -> "未完成：$phase"
         }
     }
@@ -99,7 +100,8 @@ internal object ResidentDailyDecision {
         val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
         val unresolved = setOf("requesting", "uncertain", "repair_requesting",
             "invalid_output", "definite_rejected", "decided", "needs_recovery",
-            "partial_side_steps", "waiting_partial", "finished_with_agenda_rejections")
+            "partial_side_steps", "waiting_partial", "finished_with_agenda_rejections",
+            "source_unavailable")
         val keys = p.all.keys
         val dailyPrefix = "phase:$nativeId:"
         val daily = keys.asSequence().filter { it.startsWith(dailyPrefix) }
@@ -436,6 +438,26 @@ internal object ResidentDailyDecision {
     private fun dayRecoveriesKey(nativeId: String, day: String) = "recoveries:$nativeId:$day"
 
     private fun dueAttemptKey(plan: RoleDayPlan) = "execute:${plan.id}:${plan.dueAt}"
+
+    /** A persisted choice is only authority for its ORIGINAL source version.
+     * The first run may not have recorded its decision card yet; an edited,
+     * foreign or withdrawn card must never authorize a later replay. This
+     * checks the existing timeline/tombstone, not a second decision store. */
+    private fun originalSourceAvailable(characterId: String, eventId: String,
+        expectedSource: String): Boolean {
+        val current = SharedExperienceTimeline.eventsByIds(characterId, listOf(eventId))
+            .firstOrNull()
+        if (current != null) return current.source == expectedSource && current.revision == 1L
+        return !SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(eventId)
+    }
+
+    private fun markSourceUnavailable(p: android.content.SharedPreferences,
+        phaseKey: String, errorKey: String) {
+        check(p.edit().putString(phaseKey, "source_unavailable")
+            .putString(errorKey,
+                "原决定来源已编辑、撤回或无法核验；保留原选择与已有回执，未执行后续动作")
+            .commit()) { "居民来源失效状态未持久化" }
+    }
 
     /** Persist only a digest, never a credential, to detect an actual model
      * connection change after a definite HTTP rejection. */
@@ -1275,6 +1297,13 @@ internal object ResidentDailyDecision {
         }
         val turnId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
         val decisionEvidenceId = dueDecisionEvidence(plan, choice, at)
+        // A withdrawn/edited decision card cannot authorize remaining side
+        // effects after a crash. A blank cause must not become an unscoped
+        // ToolRouter request or a calendar mutation.
+        if (decisionEvidenceId.isBlank()) {
+            markSourceUnavailable(p, phaseKey, "due-last-error:$key")
+            return false
+        }
         // Reschedule, cancel and wait are NOT successes of the original
         // activity. Perform independently selected side actions while the
         // original due slot still exists, so an interruption can replay them
@@ -1628,12 +1657,21 @@ internal object ResidentDailyDecision {
         val savedDecision = p.getString(decisionKey, null)?.let {
             runCatching { JSONObject(it) }.getOrNull()
         }
+        val eventId = "native-daily-${native.id}-$today"
+        // An old paid choice may survive a user's withdrawal or edit of its
+        // visible source. Neither restoring the calendar nor sending its
+        // unsent post/message is permitted under that revoked version.
+        if (!originalSourceAvailable(id, eventId, "resident-daily")) {
+            markSourceUnavailable(p, phaseKey, "last-error:${native.id}:$today")
+            return false
+        }
         val selected = if (savedDecision == null) {
             runCatching { ScopedModelSelections.resolveConnection(SCOPE) }.getOrNull()
                 ?: return false
         } else null
         if (savedDecision != null) {
-            if (p.getString(phaseKey, "") in setOf("finished", "finished_with_agenda_rejections") ||
+            if (p.getString(phaseKey, "") in setOf("finished",
+                    "finished_with_agenda_rejections", "source_unavailable") ||
                 p.getInt(recoveriesKey, 0) >= MAX_SAVED_DECISION_RECOVERIES) return false
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
                 "原住民有效决定的恢复次数未保存"
@@ -1771,7 +1809,6 @@ internal object ResidentDailyDecision {
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: now
         val agenda = saveAgenda(app, native, json, now, decisionAt)
         val agendaRejected = (json.optJSONArray("agenda")?.length() ?: 0) - agenda.size
-        val eventId = "native-daily-${native.id}-${date(now)}"
         // A replay can occur minutes after the first save. Do not rewrite
         // the same decision event with a newer occurredAt: that would bump
         // its revision and sever the already persisted tool provenance.
@@ -1787,6 +1824,10 @@ internal object ResidentDailyDecision {
         val decisionEvidenceId = SharedExperienceTimeline.eventsByIds(id, listOf(eventId))
             .firstOrNull { it.source == "resident-daily" && it.revision == 1L }
             ?.id.orEmpty()
+        if (decisionEvidenceId.isBlank()) {
+            markSourceUnavailable(p, phaseKey, "last-error:${native.id}:$today")
+            return false
+        }
         // The same private thought and social perspective channel used by
         // protagonists. An unsupported stranger's bond is never invented.
         val known = ResidentSocialMailbox.visibleContacts(id).toSet()
