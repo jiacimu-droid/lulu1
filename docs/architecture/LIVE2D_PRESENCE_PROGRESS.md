@@ -114,3 +114,12 @@
 
 - [Lulu APK #40948163462](https://github.com/jiacimu-droid/lulu1/actions/runs/40948163462)（回归提交 `b0103e3`，job `123709185127`）实际 **completed/failure**：`Build bundled Live2D stage` **completed/success**，覆盖本轮真实 stage VM 测试；`Test and build phone APK` **completed/failure**，日志明确为 `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt:410:26` 的 Kotlin `Boolean?` 传给 `Boolean` 参数。Android JVM/assemblePhone/收集/Release 因编译阻断**未通过**，不能将 JS 成功写成整包成功。该文件不属于 Live2D 专项，本轮没有跨职责抢改公共 Store；需由基础执行专项处理并在后续包含本提交的 main 构建重新核验。
 - 真实手机上的视频隐藏、语音播放/结束、恢复嘴型及动作自然度仍未验；若新 CI 被后续 main 取消，也不能用取消状态证明通过。
+
+
+## 2026-10-30 06:50 · L1：旧 Motion3 异步加载失败不能冒充新一句的播放失败
+
+- **四类核对**：已有验通为原逐句 Motion3/首音版本门禁的既有 JS 回归，以及截至开工时最新 `0da72e45` 的 [Lulu APK #40965646539](https://github.com/jiacimu-droid/lulu1/actions/runs/40965646539) 完整 success（含 Live2D JS、Android 测试/构建、APK 收集和发布）；已有待验为连续五句、触摸与真实语音并发、模型校准复用、15/30 FPS 与真机音画/发热；本轮真实缺口是 Motion3 迟到的**拒绝**回执；可选增强为词级时间戳。v6605 已有逐句模型选择与真实 Motion3，不重复实现。
+- **根因**：`tools/live2d/src/stage.js` 的 Motion3 异步成功路径已校验 `motionRevision` 与模型归属，但 Promise `catch` 不校验，旧句/旧触摸的异步加载在新句已接管后拒绝，仍发送 `motion-failed` 和“播放失败”诊断。该消息不是当前句的真实播放结果，不能因旧加载失败判断新角色动作失败。
+- **正式修复**：在原 `motion()` 的异步失败路径核对修订号、当前模型实例和当前选中的动作对象。只有仍拥有播放槽位的真实失败才清除 `authoredMotion` 并发出原有 `motion-failed`；被新句、触摸或模型切换取代的迟到失败直接忽略。保留成功回执、真失败回执和原本的 Cubism 优先级；不增加模型调用、语义规则、Store 或轮询。
+- **根因回归**：原 `tools/live2d/test/touch-hit.mjs` 的真实 stage `motion()` VM，增加旧加载 reject→新句 Motion 仍 pending/可启动、旧失败无错误回执/诊断、当前加载 reject→仍有一次准确 `motion-failed` 的测试；继续保留同名 Motion continue、低帧率与触摸的既有断言。源码 [c29cd80](https://github.com/jiacimu-droid/lulu1/commit/c29cd80b10fac52b31567f5e37dcc217bd7a261b)，回归 [f34dde0](https://github.com/jiacimu-droid/lulu1/commit/f34dde0543251320c45e2dacceb3a6f8ecc49eb4)，均直接 main。只修改 `tools/live2d` 两个文件及本专项进度；`scripts/generate_code_index.py` 索引 `app/scripts/preview`，本轮无索引集合变化，不手写 `CODE_INDEX.md`。
+- **分层验收**：源码和回归已提交 main；对应新提交的 JS、Android JVM、assemblePhone、收集/Release 必须另查实际 CI。真机连续五句、真实异步加载失败及不同设备 FPS/温度仍未验，不能用测试源码替代设备证据。
