@@ -656,7 +656,10 @@ object LuluDeviceToolBridge {
             },
             // A complaint about unfulfilled responsibilities needs a checked complete response,
             // not an irreversible stream of premature accusations.
-            streamResponse = !separateExpression && onReplyStream != null && !disputeNeedsReview,
+            streamResponse = PhoneModelTransportPolicy.shouldStream(
+                sceneContext, separateExpression, disputeNeedsReview,
+                hasSafeStreamConsumer = onReplyStream != null,
+            ),
             onStreamText = if (separateExpression || disputeNeedsReview) null else onReplyStream,
             imageDataUrls = chatPhotos.urls,
             connectionOverride = connection,
@@ -1653,7 +1656,10 @@ object LuluDeviceToolBridge {
             source = "聊天工具结果",
             title = title,
             maxTokens = if (sceneContext.contains("电话")) 1_800 else 1_200,
-            streamResponse = onReplyStream != null && !disputeNeedsReview,
+            streamResponse = PhoneModelTransportPolicy.shouldStream(
+                sceneContext, separateExpression = false, disputeNeedsReview = disputeNeedsReview,
+                hasSafeStreamConsumer = onReplyStream != null,
+            ),
             onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
         )
