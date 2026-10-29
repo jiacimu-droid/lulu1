@@ -826,4 +826,125 @@ class CharacterCausalTraceTest {
         assertTrue(CharacterInnerLifeStore.decisionsForEvidence(a, sourceId).isEmpty())
     }
 
+
+    @Test fun residentSavedDailyDecisionRecoversRealActionsOutsideUiWindow() {
+        val nativeId = "trace-native-daily"
+        val day = "2026-10-28"
+        val sourceId = "native-daily-$nativeId-$day"
+        SharedExperienceTimeline.record(sourceId, a, "居民每日规划", "居民",
+            "选择发动态、发私信和一项独立动作", at,
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val saved = JSONObject().put("post", "今天有件新鲜事")
+            .put("messageTo", b).put("message", "要不要聊聊")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "like_moment")
+                .put("args", JSONObject().put("postId", "post-1"))))
+        assertTrue(context.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            Context.MODE_PRIVATE).edit()
+            .putString("decision:$nativeId:$day", saved.toString()).commit())
+        receipt(a, "tool-$a-$sourceId-post", sourceId,
+            "publish_moment", "succeeded", true, "本人动态已发出",
+            requestId = "$sourceId-post")
+        receipt(a, "tool-$a-$sourceId-message", sourceId,
+            "send_character_message", "failed", false, "收件人权限已变化",
+            requestId = "$sourceId-message")
+        receipt(b, "tool-$b-$sourceId-extra-0", sourceId,
+            "like_moment", "succeeded", true, "B的私有点赞",
+            requestId = "$sourceId-extra-0")
+        val short = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(short.any { it.title.contains("即时动态") &&
+            it.detail.contains("本人动态已发出") })
+        assertTrue(short.any { it.title.contains("即时私信") &&
+            it.detail.contains("收件人权限已变化") })
+        assertTrue(short.any { it.title.contains("独立步骤1") &&
+            it.title.contains("回执未找到") })
+        assertFalse(short.any { it.detail.contains("B的私有点赞") })
+        val full = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertEquals(1, full.count { it.evidenceId == "tool-$a-$sourceId-post" })
+        SharedExperienceTimeline.record(sourceId, a, "居民每日规划", "居民",
+            "后来修改了原计划的描述", at, triggerExtraction = false,
+            source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val edited = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(edited.any { it.title.contains("历史选择") })
+        SharedExperienceTimeline.deleteEvent(sourceId)
+        assertTrue(CharacterCausalTrace.inspect(context, a,
+            event(a, "tool-$a-$sourceId-post"),
+            listOf(event(a, "tool-$a-$sourceId-post")), JSONObject())
+            .none { it.title.contains("居民保存的") })
+    }
+
+    @Test fun residentSavedDueChoiceTracesMainAndIndependentReceiptsWithoutReplay() {
+        val planId = "trace-resident-due"
+        val sourceId = "native-wake-$planId-${at.epochSecond}"
+        val key = "execute:$planId:$at"
+        SharedExperienceTimeline.record(sourceId, a, "居民到点决定", "居民",
+            "决定执行并独立点赞", at, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement, taskId = planId)
+        val saved = JSONObject().put("choice", "execute")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "like_moment")
+                .put("args", JSONObject().put("postId", "post-2"))))
+        assertTrue(context.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            Context.MODE_PRIVATE).edit().putString("due-decision:$key", saved.toString()).commit())
+        val mainRequest = "resident-plan-$planId-${at.epochSecond}"
+        receipt(a, "tool-$a-$mainRequest", sourceId,
+            "digital_world_action", "succeeded", true, "实际去了公共地点",
+            requestId = mainRequest)
+        receipt(a, "tool-$a-$sourceId-extra-0", sourceId,
+            "like_moment", "failed", false, "点赞权限不足",
+            requestId = "$sourceId-extra-0")
+        val rows = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(rows.any { it.title.contains("原计划主动作") &&
+            it.detail.contains("实际去了公共地点") })
+        assertTrue(rows.any { it.title.contains("独立步骤1") &&
+            it.detail.contains("点赞权限不足") })
+        assertFalse(rows.any { it.detail.contains("原活动已达成") })
+        assertEquals(rows.size, CharacterCausalTrace.inspect(context, a,
+            event(a, sourceId), listOf(event(a, sourceId)), JSONObject()).size)
+        val withoutSaved = "native-wake-trace-unsaved-${at.epochSecond}"
+        SharedExperienceTimeline.record(withoutSaved, a, "居民到点决定", "居民",
+            "没有可恢复的模型决定", at, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement, taskId = "trace-unsaved")
+        assertFalse(CharacterCausalTrace.inspect(context, a, event(a, withoutSaved),
+            listOf(event(a, withoutSaved)), JSONObject())
+            .any { it.title.contains("居民保存的") })
+    }
+
+    @Test fun residentWaitOnlyClaimsDurableCalendarMutationNotCompletedActivity() {
+        val plan = RoleDayScheduleStore.arrange(context, a, "等待旧朋友的消息",
+            "希望稍后重新考虑原约定", at, now = at.minusSeconds(7200))
+        val sourceId = "native-wake-${plan.id}-${at.epochSecond}"
+        val key = "execute:${plan.id}:$at"
+        SharedExperienceTimeline.record(sourceId, a, "居民到点决定", "居民",
+            "本人决定等待复议", at, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement, taskId = plan.id)
+        assertTrue(context.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            Context.MODE_PRIVATE).edit().putString("due-decision:$key",
+            JSONObject().put("choice", "wait").put("steps", JSONArray()).toString()).commit())
+        val before = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(before.any { it.title.contains("等待复议") &&
+            it.title.contains("变更未证实") })
+        RoleDayScheduleStore.reschedule(context, a, plan.id, at.plusSeconds(3600),
+            "等待下一次复议", now = at.plusSeconds(1),
+            expectedDueAt = at, mutationRequestId = key)
+        val after = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(after.any { it.title.contains("等待复议") &&
+            it.title.contains("日程变更有持久证据") &&
+            it.detail.contains("不证明原活动执行") })
+        RoleDayScheduleStore.cancel(context, a, plan.id, "后来另行取消")
+        val superseded = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), JSONObject())
+        assertTrue(superseded.any { it.title.contains("等待复议") &&
+            it.title.contains("变更未证实") })
+    }
+
 }
