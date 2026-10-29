@@ -111,7 +111,9 @@ object CharacterLifeStore {
             if (!root.has("xingHeV5KnowledgeBackup")) {
                 root.put("xingHeV5KnowledgeBackup", JSONObject()
                     .put("identity", CharacterIdentityStore.identities.value[characterId].orEmpty())
-                    .put("social", root.optJSONObject("profile")?.optString("social").orEmpty()))
+                    .put("social", root.optJSONObject("profile")?.optString("social").orEmpty())
+                    .put("userRelationship", JSONObject((root.optJSONObject("relationshipAgreements")
+                        ?.optJSONObject("user") ?: JSONObject()).toString())))
                 save(characterId, root)
             }
             val savedIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
@@ -122,6 +124,12 @@ object CharacterLifeStore {
             if (profile.has("social") &&
                 profile.optString("social") == CharacterProfileSchema.xingHeV5Social) {
                 profile.put("social", CharacterProfileSchema.xingHeProfile.getValue("social"))
+            }
+            val agreement = root.optJSONObject("relationshipAgreements")?.optJSONObject("user")
+            if (agreement != null &&
+                agreement.optString("details") == CharacterProfileSchema.xingHeV5Friendship) {
+                agreement.put("details", CharacterProfileSchema.xingHeFriendship)
+                    .put("updatedAt", Instant.now().toString())
             }
             root.put("profile", profile).put("xingHeProfileVersion", 6)
             save(characterId, root)
