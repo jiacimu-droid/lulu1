@@ -417,7 +417,10 @@ internal fun Live2DFullscreenVideoCall(
                     // A dead WebView can still emit queued console messages after
                     // onRenderProcessGone. Never recreate it without user retry.
                     if (stageStatus == "fatal" && phase != "fatal") return@Live2DCallStage
-                    if (phase == "performance") {
+                    if (phase == "motion-started" || phase == "motion-failed") {
+                        Live2DVisualActionBus.recordMotionOutcome(
+                            characterId, state.callExperienceId, phase, detail)
+                    } else if (phase == "performance") {
                         // GPU render cadence and Android delivered cadence are
                         // separate measurements, not one misleading FPS.
                         if (detail.startsWith("WebGL")) rendererPerformance = detail
@@ -563,7 +566,7 @@ internal fun Live2DFullscreenVideoCall(
                                     stage.evaluateJavascript(
                                         "window.LuluLive2D && window.LuluLive2D.motion(" +
                                             JSONObject.quote(selected.first) + "," +
-                                            selected.second + ",true)", null)
+                                            selected.second + ",true,'manual')", null)
                                 } else onPreviewMotion(selected)
                             }) { Text(label, modifier = Modifier.fillMaxWidth()) }
                         }
