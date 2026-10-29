@@ -240,6 +240,7 @@ internal object LuluVoiceCallSession {
         // model turn. No new incoming-call UI or second connection is created.
         sleepContinuationJob?.cancel()
         clearSleepDeadline()
+        deferredBedtimeVoiceTurn = null
         replyJob?.cancel()
         wakeCueJob?.cancel()
         LuluCallRingtone.stopInCallWake()
@@ -709,6 +710,7 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         sleepFailures = 0
+        if (!enabled) deferredBedtimeVoiceTurn = null
         lastSleepUserReplyAtMillis = if (enabled)
             lastConfirmedUserSpeechMillis.takeIf { confirmedUserSpeechCount > 0 }
                 ?: SystemClock.elapsedRealtime()
@@ -1462,9 +1464,10 @@ internal object LuluVoiceCallSession {
         acousticNote: String? = null,
     ) {
         val current = mutableState.value
-        if (current.connected && current.sleepMode && current.speaking &&
-            spoken.isNotBlank() && !opening && !autonomousSleep &&
-            !autonomousSilence && !alreadyPersisted) {
+        if (current.connected && !opening && !autonomousSleep &&
+            !autonomousSilence && !alreadyPersisted &&
+            SleepCallContinuationPolicy.shouldDeferUserWords(
+                current.sleepMode, current.speaking, spoken)) {
             val previous = deferredBedtimeVoiceTurn
                 ?.takeIf { it.callId == current.callExperienceId }
             deferredBedtimeVoiceTurn = DeferredBedtimeVoiceTurn(
