@@ -1265,6 +1265,7 @@ object LuluDeviceToolBridge {
                 characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默",
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
+                provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
             )
             if (!rewriting && phoneCallId.isNotBlank()) {
                 // A silent visual reply is a REAL chosen action, not a speech
@@ -1510,6 +1511,7 @@ object LuluDeviceToolBridge {
                     characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
                     heartVoiceFingerprint = privateDelta.fingerprint,
                     momentChanged = privateDelta.meaningful,
+                    provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
@@ -1739,6 +1741,7 @@ object LuluDeviceToolBridge {
                     characterId, finalPlan, "聊天·工具",
                     heartVoiceFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
                     momentChanged = toolResultPrivateDelta?.meaningful == true,
+                    provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow, evidenceId = actionReceipt)
@@ -2100,6 +2103,7 @@ object LuluDeviceToolBridge {
         preserveQuietThought: Boolean = false,
         heartVoiceFingerprint: String = "",
         momentChanged: Boolean = true,
+        provenanceId: String = "",
     ) {
         CompanionPresenceStore.update(
             characterId = characterId,
@@ -2108,6 +2112,7 @@ object LuluDeviceToolBridge {
             innerThought = if (preserveQuietThought) plan.innerThought.takeIf(String::isNotBlank) else plan.innerThought,
             mood = plan.mood,
             source = source,
+            provenanceId = provenanceId,
             innerThoughtFingerprint = heartVoiceFingerprint,
             momentReflection = if (momentChanged || plan.appraisal?.optJSONObject("spontaneousBid") != null ||
                 plan.appraisal?.optJSONObject("ownActivity") != null ||
