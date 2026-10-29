@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:30:37.145845+00:00",
-  "commit": "893988f017931e9d230078bdd791caedac7404cd",
+  "generatedAt": "2026-10-29T12:37:13.369594+00:00",
+  "commit": "d1bec4aca4cdfebaafdf8800dbb8ed252058d8e1",
   "branch": "main",
-  "sourceFingerprint": "61859070fb2fce1def9cc6a4d9fa3f5eeaf67ebd1ad77854916c5164fada2c34",
+  "sourceFingerprint": "0b8503ecdf4a29292bdd6193d67a37aca721383b2cb724809cb7a1713a2131ce",
   "summary": {
     "files": 1068,
-    "lines": 220330,
+    "lines": 220418,
     "symbols": 3140
   },
   "symbolIndex": {
@@ -5465,7 +5465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 648
+        "line": 668
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -5773,7 +5773,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 613
+        "line": 633
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -22824,8 +22824,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 724,
-      "sha256": "6c900372f0512813ad3d4f3c79154cd6c94c1f0d04f0e45427d5162019d10cb4",
+      "lines": 744,
+      "sha256": "135cda56d2140ebcfd322ac10623f487e867c280c39f54fd412fc68da65f441c",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -22849,11 +22849,11 @@
         },
         {
           "name": "briefContext",
-          "line": 613
+          "line": 633
         },
         {
           "name": "promptSection",
-          "line": 648
+          "line": 668
         }
       ]
     },
@@ -34442,8 +34442,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 351,
-      "sha256": "38f23b928dcfb0f7d8945d83207ec5aa68fec7bbed6e2f3d9537cb7d2dc630bd",
+      "lines": 419,
+      "sha256": "a2a99defb4d59bb7ae22ad62d221484105c0d07ea410a37d2334043a31325acb",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
