@@ -29,3 +29,13 @@
 - **main 提交**：`de7203dab1b7df29c63ac0a843b5f4c98021072e`（源码），`370d3e77d8cff1e9db7314aae31b60bf9e98473a`（回归）。不改公共 `ToolRouter`，不抢社交/内驱/Live2D 专项，不额外购买模型轮次。
 - **验证层级**：截至 2026-10-29 19:54（北京时间）查询，源码提交的 Refresh code index [#40868840701](https://github.com/jiacimu-droid/lulu1/actions/runs/40868840701) completed/success；回归提交对应索引 [#40868883714](https://github.com/jiacimu-droid/lulu1/actions/runs/40868883714) in_progress，Lulu APK [#40868883613](https://github.com/jiacimu-droid/lulu1/actions/runs/40868883613) pending。测试源码提交不等于 JVM 通过；本次真机及多年数据故障注入未验证。早先源码提交的 APK #40868840523 cancelled，不能算通过。
 - **真机验收**：在一人原消息与真实工具结果卡中核对请求 ID、来源和版本；编辑原消息或通过故障注入重用旧请求 ID 后，详情应保留另一个真实回执，但不能写成当前选择的成功；恢复同源同版本的原回执可显示真实状态。断网/强杀后的未确认请求不得因查看详情而重复执行。
+
+
+## 2026-10-29 · P0-B/P4 居民历史日程拒绝在旧时间线详情中不再失联
+
+- **已核对基础**：居民日决定、逐项排程拒绝和撤回墓碑已经持久写入原 `SharedExperienceTimeline`；角色决定与 ToolRouter 的历史精确 ID 回溯已有实现，不能重建。主观判断仍由居民本人模型负责。
+- **真实根因**：`CharacterCausalTrace.inspect` 只从调用方传入的近期 `events` UI 窗口筛选 `resident-agenda-rejected`。日决定与拒绝事实均仍在 SQLite 时，只要旧拒绝离开页面窗口，原日决定详情就可能误报没有后续；用户无法判断是未选择还是确实被执行器拒绝。此前搜索工具回执已修复同类问题，但居民排程拒绝仍漏接。
+- **源码修复**：`SharedExperienceTimeline.eventsByIdPrefix` 使用原时间线主键的有界前缀范围只读查询，并复用 `eventsByIds` 的人物归属、历史可见性与撤回校验，不扫描全量历史、不新建 Store。居民决定卡按 `native-daily-...-agenda-rejected-` 原 ID 查询历史拒绝，核验本人 `characterId`、`source` 和原 `taskId`；展示真实拒绝、不误当执行成功。原决定文字后来编辑时标明旧拒绝不能证明针对当前版本；撤回的拒绝及撤回的源决定均不可见。UI 仅展示最近 12 项，但底层历史不截断；兼容旧数据第 8 项之后的拒绝。
+- **根因回归源码**：`CharacterCausalTraceTest.residentRejectedAgendaSurvivesShortUiWindowAndHonorsEditWithdrawalAndRole` 仅传入原日决定一条 UI 记录，验证第 1/13 项旧拒绝仍可找回；同前缀但其他 taskId、另一人物的拒绝不串入；源编辑显示历史来源风险；拒绝撤回后不复活；查看不产生感知检查点，源撤回后详情为空。
+- **main 源码与回归提交**：`3ac0c80664b903114c80f2693aafa479a4ffbc89`。代码索引交由现有 `Refresh code index` 工作流生成，不手工伪造。首次查询该提交对应索引 [#40877079824](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079824) 为 in_progress，Android JVM/APK [#40877079954](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079954) 为 pending；均不能算通过。真机旧时间线翻阅、撤回及多年数据量压力尚未验证。
+- **协作范围**：仅改本专项因果诊断及其回归、原权威时间线的最小只读索引查询；未触碰公共 ToolRouter、社交、内驱、Live2D 或并发总清单。没有新增常态模型调用、定时唤醒、自动重试或副作用。
