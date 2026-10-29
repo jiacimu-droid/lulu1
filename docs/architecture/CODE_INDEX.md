@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a4ccf4c91b8393743a3a18e80cc7d76a766cb7f6`
+- 基准提交：`762fd9c4029391440f3c577ec4b88fdbb01fe30c`
 - 分支：`main`
 - 已索引文件：1067
-- 已索引代码/文本行：219745
-- 已发现符号：3134
+- 已索引代码/文本行：219907
+- 已发现符号：3136
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -478,7 +478,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 568 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 571 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 613 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 50 | 0 |
@@ -536,7 +536,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 1969 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 244 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 805 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 821 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 816 | 22 |
@@ -568,7 +568,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 138 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 129 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 33 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 43 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 914 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt` | 70 | 2 |
@@ -1008,7 +1008,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt` | 75 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 389 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 410 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 100 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
@@ -1040,7 +1040,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpCompatibilityTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 104 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 131 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
@@ -1070,7 +1070,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 659 | 1 |
+| `scripts/test_xhs_reader.js` | 744 | 1 |
 | `scripts/verify_phone_apk_bytecode.py` | 51 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
