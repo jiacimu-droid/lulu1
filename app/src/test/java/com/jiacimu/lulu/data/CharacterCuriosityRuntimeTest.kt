@@ -280,14 +280,25 @@ class CharacterCuriosityRuntimeTest {
         assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
             proposal("新的线索值得重新研究").put("threadId", threadId),
             "source-observation", "后来真的发现新线索", at.plusSeconds(240)))
+        // An OLD action can also finish after that new inquiry was recorded.
+        // Its old source must not consume the new inquiry or reopen the thread.
+        realRead("stale-after-new-inquiry", at.plusSeconds(270))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "仍是旧动作的回执", "stale-after-new-inquiry", at.plusSeconds(270))
+        assertEquals("dropped", CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0).getString("status"))
+        assertEquals(1, CharacterCuriosityRuntime.visibleQuestions(id).size)
+
         realRead("new-completed", at.plusSeconds(300))
         CharacterCuriosityRuntime.recordOutcome(id,
-            proposal("新的线索值得重新研究").put("threadId", threadId),
+            proposal("新的线索值得重新研究").put("threadId", threadId)
+                .put("sourceEvidenceId", "source-observation"),
             "reading", true, "重新探索的实际结果", "new-completed", at.plusSeconds(300))
         val resumed = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
         assertEquals("exploring", resumed.getString("status"))
         assertEquals("新的线索值得重新研究", resumed.getString("question"))
-        assertEquals(3, resumed.getJSONArray("steps").length())
+        assertEquals(4, resumed.getJSONArray("steps").length())
         assertFalse(resumed.has("releasedAt"))
         assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("重新探索的实际结果"))
         CharacterCuriosityRuntime.clear(id)
