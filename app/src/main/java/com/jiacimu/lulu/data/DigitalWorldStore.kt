@@ -230,7 +230,8 @@ object DigitalWorldStore {
             .mapNotNull { conversation -> conversation.groupChat }
             .filter { group -> group.members.any { it.characterId == characterId } }
             .flatMap { group -> group.members.asSequence().map { it.characterId } }
-            .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) }
+            .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) &&
+                CharacterSocialRelationship.knowsEachOther(characterId, it) }
             .distinct()
             .toList()
         return buildString {
@@ -257,7 +258,7 @@ object DigitalWorldStore {
                 appendLine("当前位置可执行 activityId：${locationActivities.joinToString("/") { (id, label) -> "$id=$label" }}")
             }
             if (knownDigitalIds.isNotEmpty()) {
-                appendLine("已经通过共同群聊认识、可以串门的数字生命：")
+                appendLine("有可核验共同交流、会面或好友关系的数字生命（不是自动成为朋友）：")
                 knownDigitalIds.forEach { id ->
                     appendLine("- targetCharacterId=$id；${MigratedDomainStores.characters.get(id).displayName}")
                 }
