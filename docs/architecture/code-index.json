@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:07:35.952544+00:00",
-  "commit": "9af98c2d0f77640e0f3265d6082c5ed2e5a39a95",
+  "generatedAt": "2026-10-29T18:08:13.970208+00:00",
+  "commit": "152de9d2673b64db2b467d6947297701a5b8a97d",
   "branch": "main",
-  "sourceFingerprint": "ee0804a9ccaff1657621282188b44b2c32e9aaf18a09bf3d121414e222d4edbf",
+  "sourceFingerprint": "83aa2c3a4ded9ac1a802d8cf75ebab296c9673cb01f92c973ac0baacb3eff4fb",
   "summary": {
     "files": 1088,
-    "lines": 225746,
+    "lines": 225752,
     "symbols": 3202
   },
   "symbolIndex": {
@@ -13335,7 +13335,7 @@
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 106
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
@@ -17932,8 +17932,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 184,
-      "sha256": "a3f69c419b9be8952ee3dfa8aea2b1b01eaa3c0bc12e77143e3bbb57de84c79b",
+      "lines": 186,
+      "sha256": "d92313f005ca2edfa7f633bf4681c096100dc3150eac4ec35421ce0ce43f6f2b",
       "symbols": []
     },
     {
@@ -31498,8 +31498,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 863,
-      "sha256": "4c4881c2059fae2dfb5d5a904175ba945fe0a9f21d47dc73f9d6e7a6259cc8e1",
+      "lines": 867,
+      "sha256": "c438f6732e8afc021e53b861aeeb342e0da1ef208182aff6090008a278418ad1",
       "symbols": [
         {
           "name": "Home",
@@ -31559,7 +31559,7 @@
         },
         {
           "name": "stepBack",
-          "line": 106
+          "line": 105
         }
       ]
     },

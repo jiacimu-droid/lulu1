@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`9af98c2d0f77640e0f3265d6082c5ed2e5a39a95`
+- 基准提交：`152de9d2673b64db2b467d6947297701a5b8a97d`
 - 分支：`main`
 - 已索引文件：1088
-- 已索引代码/文本行：225746
+- 已索引代码/文本行：225752
 - 已发现符号：3202
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 230 | 0 |
-| `app/src/main/AndroidManifest.xml` | 184 | 0 |
+| `app/src/main/AndroidManifest.xml` | 186 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -653,7 +653,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 863 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 867 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
