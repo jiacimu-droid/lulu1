@@ -28,6 +28,18 @@ class Live2DVisualActionBusTest {
             false, false, "call-1", ""))
     }
 
+    @Test fun videoSpeechCanBePlannedBeforeTheFirstRenderedFrameButNeverForAnotherCall() {
+        // The first model decision is often made while Cubism is loading.
+        // Readiness must not be the permission gate for creating its Motion3 plan.
+        val eligible = Live2DVisualActionBus::isVideoPlanEligible
+        assertTrue(eligible(true, true, true, true, true))
+        assertFalse(eligible(false, true, true, true, true)) // ordinary voice
+        assertFalse(eligible(true, false, true, true, true)) // disconnected
+        assertFalse(eligible(true, true, false, true, true)) // another role
+        assertFalse(eligible(true, true, true, false, true)) // old call id
+        assertFalse(eligible(true, true, true, true, false)) // no imported model
+    }
+
     @Test fun starEyeAliasesOnlyResolveToRealModelExpressions() {
         val names = listOf("小狼-星星眼", "脸红", "吐舌", "笑眼")
         assertEquals("小狼-星星眼",
