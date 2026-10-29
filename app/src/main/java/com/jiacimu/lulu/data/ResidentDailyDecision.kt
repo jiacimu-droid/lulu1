@@ -715,6 +715,29 @@ internal object ResidentDailyDecision {
                     it.title == title && it.intent == intent &&
                     it.activityArgs == params.toString()
             }
+            // A real friend request made after the morning decision supersedes
+            // an unexecuted plan for the same pair. The original plan remains
+            // in durable history as cancelled, never as a newly sent request.
+            // A saved-day replay must not resurrect a stale application.
+            val alreadyRequested = action == "send_friend_request" &&
+                (MomentFriendAccess.areFriends(actor, target) ||
+                    CharacterFriendRequests.historyFor(actor).any { request ->
+                        request.status == "pending" &&
+                            setOf(request.fromId, request.toId) == setOf(actor, target)
+                    })
+            if (alreadyRequested) {
+                if (previouslyArranged != null &&
+                    previouslyArranged.status in setOf("planned", "due")) {
+                    RoleDayScheduleStore.cancel(
+                        context, actor, previouslyArranged.id,
+                        "双方已成为好友或已有真实好友申请，原定申请不再执行", at,
+                        expectedDueAt = previouslyArranged.dueAt,
+                    )
+                } else if (previouslyArranged == null) {
+                    reject(index, row, "双方已经是好友或已有待处理好友申请")
+                }
+                continue
+            }
             if (previouslyArranged != null) {
                 saved += previouslyArranged
                 continue
@@ -729,15 +752,6 @@ internal object ResidentDailyDecision {
             if (action in setOf("send_character_message", "send_friend_request") &&
                 (target !in known || target == actor)) {
                 reject(index, row, "当前没有对目标角色的真实联系权限")
-                continue
-            }
-            if (action == "send_friend_request" &&
-                (MomentFriendAccess.areFriends(actor, target) ||
-                    CharacterFriendRequests.historyFor(actor).any { request ->
-                        request.status == "pending" &&
-                            setOf(request.fromId, request.toId) == setOf(actor, target)
-                    })) {
-                reject(index, row, "双方已经是好友或已有待处理好友申请")
                 continue
             }
             if (action == "respond_friend_request" &&
