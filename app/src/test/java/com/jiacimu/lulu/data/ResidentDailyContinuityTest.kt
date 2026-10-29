@@ -2617,4 +2617,86 @@ class ResidentDailyContinuityTest {
             .none { it.scope == "到点复议" })
     }
 
+
+    @Test(timeout = 60_000)
+    fun withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "来源撤回恢复居民${UUID.randomUUID().toString().take(6)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            currentLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1",
+            android.content.Context.MODE_PRIVATE)
+
+        // A saved daily choice can be recovered after process death, but its
+        // original decision card was subsequently edited by the owner.
+        val day = ResidentDailyDecision.date(now)
+        val dailyId = "native-daily-${native.id}-$day"
+        val post = "旧决定尚未发出的动态-${UUID.randomUUID()}"
+        SharedExperienceTimeline.record(dailyId, actor, "原住民·每日自我安排",
+            native.name, "最初的日决定", now, triggerExtraction = false,
+            source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record(dailyId, actor, "原住民·每日自我安排",
+            native.name, "主人后来编辑的日决定", now, triggerExtraction = false,
+            source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertEquals(2L, SharedExperienceTimeline.eventsByIds(actor, listOf(dailyId))
+            .single().revision)
+        val dailyChoice = JSONObject().put("lunch", "home").put("evening", "home")
+            .put("post", post).put("agenda", JSONArray())
+            .put("steps", JSONArray())
+        assertTrue(p.edit().putString("attempt:${native.id}", day)
+            .putString("decision:${native.id}:$day", dailyChoice.toString())
+            .putString("phase:${native.id}:$day", "decided").commit())
+        assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+        assertEquals("source_unavailable",
+            p.getString("phase:${native.id}:$day", ""))
+        assertTrue(ResidentDailyDecision.historicalAttempts(app, native.id,
+            now.plusSeconds(86400)).any { it.phase == "source_unavailable" })
+        assertFalse(MomentsStore.posts.value.any {
+            it.authorCharacterId == actor && it.content == post })
+        assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+
+        // A due decision's source was withdrawn after its paid JSON was saved.
+        // Its primary and independent actions must not be sent with a blank
+        // causal evidence ID, nor may the old calendar be marked complete.
+        val primary = "撤回到点主动作-${UUID.randomUUID()}"
+        val independent = "撤回到点独立动作-${UUID.randomUUID()}"
+        val plan = RoleDayScheduleStore.arrange(app, actor, "分享院子见闻",
+            "想和朋友分享", now.minusSeconds(120), now.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", primary))
+        val key = "execute:${plan.id}:${plan.dueAt}"
+        val dueId = "native-wake-${plan.id}-${plan.dueAt.epochSecond}"
+        SharedExperienceTimeline.record(dueId, actor, "原住民·到点自主决定",
+            native.name, "原来决定分享", now, triggerExtraction = false,
+            source = "resident-due-decision",
+            evidenceKind = EventEvidenceKind.CharacterStatement, taskId = plan.id)
+        SharedExperienceTimeline.deleteEvent(dueId)
+        assertTrue(SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(dueId))
+        val dueChoice = JSONObject().put("choice", "execute")
+            .put("reason", "原来想分享").put("args", JSONObject().put("text", primary))
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", independent))))
+        assertTrue(p.edit().putBoolean(key, true)
+            .putString("due-decision:$key", dueChoice.toString())
+            .putString("due-phase:$key", "decided").commit())
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertEquals("source_unavailable", p.getString("due-phase:$key", ""))
+        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        assertFalse(MomentsStore.posts.value.any {
+            it.authorCharacterId == actor &&
+                it.content in setOf(primary, independent) })
+        assertTrue(RoleDayScheduleStore.plans(app, actor).any {
+            it.id == plan.id && it.status != "completed" })
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(dueId)).isEmpty())
+        RoleDayScheduleStore.remove(app, actor, plan.id)
+    }
 }
