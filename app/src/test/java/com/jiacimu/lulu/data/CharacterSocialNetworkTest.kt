@@ -130,8 +130,13 @@ class CharacterSocialNetworkTest {
         val a = MigratedDomainStores.characters.create("私交甲").characterId
         val b = MigratedDomainStores.characters.create("私交乙").characterId
         val c = MigratedDomainStores.characters.create("第三个朋友").characterId
-        MigratedDomainStores.chat.createGroupConversation("双人群", listOf(a,b),
+        val introGroup = MigratedDomainStores.chat.createGroupConversation("双人群", listOf(a,b),
             ownerIncluded = false)
+        assertFalse(CharacterSocialRelationship.snapshot(a,b).knowsEachOther)
+        // Being added to the room is only roster awareness, not an encounter.
+        MigratedDomainStores.chat.appendCharacterMessage(introGroup.id, "甲在群里先说话", a)
+        assertFalse(CharacterSocialRelationship.snapshot(a,b).knowsEachOther)
+        MigratedDomainStores.chat.appendCharacterMessage(introGroup.id, "乙真的接了话", b)
         assertTrue(CharacterSocialRelationship.snapshot(a,b).knowsEachOther)
         assertEquals("", CharacterSocialRelationship.contextForGroup(listOf(a,b,c)))
         val letter = ResidentSocialMailbox.send(a,b,"私下只告诉乙的秘密")
@@ -169,14 +174,21 @@ class CharacterSocialNetworkTest {
         val b = MigratedDomainStores.characters.create("乙方").characterId
 
         // A and B know each other, but their group isn't joined by viewer.
-        MigratedDomainStores.chat.createGroupConversation("两人私密群", listOf(a, b),
+        val privateGroup = MigratedDomainStores.chat.createGroupConversation("两人私密群", listOf(a, b),
             ownerIncluded = false)
+        assertFalse(CharacterSocialRelationship.snapshot(a, b).knowsEachOther)
+        MigratedDomainStores.chat.appendCharacterMessage(privateGroup.id, "甲和乙之间的一句话", a)
+        MigratedDomainStores.chat.appendCharacterMessage(privateGroup.id, "乙回甲的一句话", b)
         assertTrue(CharacterSocialRelationship.snapshot(a, b).knowsEachOther)
         assertEquals("", CharacterSocialRelationship.networkContext(viewer, listOf(a, b)))
 
         // An actual group with all three gives the viewer limited knowledge.
         val shared = MigratedDomainStores.chat.createGroupConversation(
             "三人共同群", listOf(a, b, viewer), ownerIncluded = false)
+        assertEquals("", CharacterSocialRelationship.networkContext(viewer, listOf(a, b)))
+        MigratedDomainStores.chat.appendCharacterMessage(shared.id, "甲向三人打招呼", a)
+        assertEquals("", CharacterSocialRelationship.networkContext(viewer, listOf(a, b)))
+        MigratedDomainStores.chat.appendCharacterMessage(shared.id, "乙回应了甲", b)
         val visible = CharacterSocialRelationship.networkContext(viewer, listOf(a, b))
         assertTrue(visible.contains("甲方"))
         assertTrue(visible.contains("乙方"))
