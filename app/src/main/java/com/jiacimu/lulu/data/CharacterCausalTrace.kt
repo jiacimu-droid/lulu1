@@ -129,6 +129,47 @@ internal object CharacterCausalTrace {
                 (warning + thought.optString("thought")).take(230))
         }
         val relatedDecisions = decisionsForSource(characterId, current.id, mind)
+        // The timeline card receives a bounded UI window. An older search
+        // receipt can fall outside it even though the original model choice
+        // preserved the exact ToolRouter request IDs. Recover ONLY those
+        // role-owned IDs, with the same source revision and decision time;
+        // never scan all history or infer a match from similar text.
+        val exactRequestIds = if (payload != null) emptyList() else relatedDecisions
+            .filter { it.optLong("causalEvidenceRevision", 0L) == current.revision }
+            .flatMap { decision ->
+                val base = decision.optString("executionRequestId").trim()
+                if (base.isBlank()) emptyList() else buildList {
+                    if (decision.optBoolean("executionHasPrimary", true)) add(base)
+                    val explicit = decision.optJSONArray("executionStepRequestIds")
+                        ?.takeIf { it.length() > 0 }
+                    repeat(decision.optInt("executionStepCount", 0).coerceIn(0, 24)) { index ->
+                        val stepId = if (explicit == null) "$base:step:$index"
+                            else explicit.optString(index).trim()
+                        if (stepId.isNotBlank()) add(stepId)
+                    }
+                }
+            }.distinct()
+        val exactReceipts = SharedExperienceTimeline.eventsByIds(characterId,
+            exactRequestIds.flatMap { id ->
+                listOf("tool-$characterId-$id", "tool-rejected-$characterId-$id")
+            }).mapNotNull { event ->
+            if (event.source != "tool-router" ||
+                event.evidenceKind != EventEvidenceKind.ToolResult) return@mapNotNull null
+            val body = objectValue(event.content) ?: return@mapNotNull null
+            val requestId = body.optString("requestId")
+            if (requestId !in exactRequestIds ||
+                body.optString("causeEvidenceId") != current.id ||
+                body.optLong("causeEvidenceRevision", 0L) != current.revision) return@mapNotNull null
+            val matchingDecision = relatedDecisions.any { decision ->
+                decision.optLong("causalEvidenceRevision", 0L) == current.revision &&
+                    runCatching { java.time.Instant.parse(decision.optString("at")) }
+                        .getOrNull()?.let { !event.occurredAt.isBefore(it) } == true
+            }
+            if (!matchingDecision) return@mapNotNull null
+            event to body
+        }
+        val linkedReceipts = (linked + exactReceipts).distinctBy { it.first.id }
+            .sortedBy { it.first.occurredAt }
         relatedDecisions.forEach { decision ->
             val choice = decision.optString("selected")
             val revision = decision.optLong("causalEvidenceRevision", 0L)
@@ -168,8 +209,11 @@ internal object CharacterCausalTrace {
             }
             rows += receiptLine(context, characterId, current, payload)
             rows += receiptContinuation(context, characterId, current, payload, mind)
+            // The direct result card must not depend on a recent-events window
+            // to locate the later verified reply's durable request ID.
+            rows += searchFeedbackLines(context, characterId, current, payload, events)
         }
-        linked.takeLast(12).forEach { (event, body) ->
+        linkedReceipts.takeLast(12).forEach { (event, body) ->
             val originalRevision = body.optLong("causeEvidenceRevision", 0L)
             val directCause = body.optString("causeEvidenceId") == current.id
             when {
@@ -261,9 +305,9 @@ internal object CharacterCausalTrace {
                 "时间=${plan.dueAt}；活动=${plan.title.take(75)}；动作=${plan.activityAction}；$version；$outcome".take(260),
                 actualReceipt?.id.orEmpty())
         }
-        if (payload == null && relatedDecisions.isEmpty() && linked.isEmpty() && rejectedAgenda.isEmpty() && linkedPlans.isEmpty()) {
+        if (payload == null && relatedDecisions.isEmpty() && linkedReceipts.isEmpty() && rejectedAgenda.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
-        } else if (payload == null && relatedDecisions.isNotEmpty() && linked.isEmpty() && linkedPlans.isEmpty()) {
+        } else if (payload == null && relatedDecisions.isNotEmpty() && linkedReceipts.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
         }
         return rows
@@ -355,7 +399,17 @@ internal object CharacterCausalTrace {
         receiptBody: JSONObject, events: List<SharedTimelineEvent>,
     ): List<CharacterCausalTraceLine> {
         if (receiptBody.optString("tool") !in SearchReceiptFeedback.resultTools) return emptyList()
-        val candidates = events.filter { event ->
+        val requestId = receiptBody.optString("requestId").trim()
+        // Verified feedback uses the original decision request ID, even when
+        // the search itself was an ordered :step:N action. Exact lookup is
+        // indexed by the existing timeline primary key and survives years of
+        // later events. A missing/legacy request ID still uses visible rows.
+        val rootRequestId = requestId.replace(Regex(":step:\\d+$"), "")
+        val exactFeedback = if (rootRequestId.isBlank()) emptyList() else
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(
+                "tool-$characterId-$rootRequestId:verified-search-feedback",
+                "tool-rejected-$characterId-$rootRequestId:verified-search-feedback"))
+        val candidates = (events + exactFeedback).distinctBy { it.id }.filter { event ->
             if (event.characterId != characterId || event.source != "tool-router" ||
                 event.evidenceKind != EventEvidenceKind.ToolResult ||
                 event.occurredAt.isBefore(receipt.occurredAt)) return@filter false
