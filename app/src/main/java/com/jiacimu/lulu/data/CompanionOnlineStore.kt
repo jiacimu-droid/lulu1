@@ -826,6 +826,9 @@ internal object CompanionSleepHandoff {
             .filter { it.status == "planned" && it.dueAt.isAfter(now) }
             .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
         return CommitmentTaskStore.active(characterId).filter { task ->
+            // An already-running executor owns its current action. Do not race
+            // it by registering an independent copy before its real receipt.
+            if (task.status == CommitmentTaskStatus.Running) return@filter false
             val alarmDue = task.nextCheckAt ?: task.dueAt
             val existingAlarm = task.linkedAlarmId != null &&
                 alarmDue?.isAfter(now) == true &&
