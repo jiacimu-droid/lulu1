@@ -25,6 +25,22 @@ class MomentsOwnerUnreadIntegrationTest {
         MomentsStore.initialize(context)
     }
 
+    @Test fun losingFeedPermissionImmediatelyRemovesInaccessibleUnreadPost() {
+        val character = MigratedDomainStores.characters
+            .create("好友红点-" + UUID.randomUUID()).characterId
+        val post = MomentsStore.publishCharacter(character, "今天拍了一张照片")!!
+        try {
+            assertTrue(MomentsStore.unreadCharacterPosts.value > 0)
+            assertTrue(MomentFriendAccess.setFriends(MomentFriendAccess.OWNER, character, false))
+            assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+            // Re-adding a friend grants visibility, but must not invent a new post.
+            assertTrue(MomentFriendAccess.setFriends(MomentFriendAccess.OWNER, character, true))
+            assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        } finally {
+            MomentsStore.delete(post.id)
+        }
+    }
+
     @Test fun ownerGetsCharacterPostThenSeparateCommentUnreadAcrossRestart() {
         val character = MigratedDomainStores.characters
             .create("动态通知测试-" + UUID.randomUUID()).characterId
