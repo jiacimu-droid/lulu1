@@ -524,6 +524,67 @@ class CharacterExplorationContinuityTest {
         assertNotNull(SharedExperienceTimeline.eventsByIds(role, listOf(first.id)).firstOrNull())
     }
 
+    @Test fun staleSatisfiedDecisionCannotCloseARewordedPendingInquiryOnTheSameObservation() {
+        val original = question("旧问题修订")
+        CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
+        val threadId = questions().getJSONObject(0).getString("threadId")
+        val revised = JSONObject(original.toString()).put("threadId", threadId)
+            .put("question", "同一份材料之后重新提出的不同问题")
+        CharacterExplorationContinuity.remember(context, role, revised, null,
+            listOf("input"), now.plusSeconds(10))
+        assertEquals("同一份材料之后重新提出的不同问题",
+            CharacterCuriosityRuntime.visibleQuestions(role).single().getString("question"))
+
+        // An earlier model response returns after the person has revised the
+        // question. Its source is real but belongs to the older inquiry.
+        CharacterExplorationContinuity.remember(context, role,
+            JSONObject(original.toString()).put("threadId", threadId)
+                .put("status", "satisfied"), null, listOf("input"), now.plusSeconds(20))
+        assertEquals(1, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role)
+            .optJSONArray("threads")?.length() ?: 0)
+
+        // The person's actual newer decision still closes that very question.
+        CharacterExplorationContinuity.remember(context, role,
+            JSONObject(revised.toString()).put("status", "satisfied"),
+            null, listOf("input"), now.plusSeconds(30))
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(0, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        val closed = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", closed.getString("status"))
+        assertEquals(revised.getString("question"), closed.getString("question"))
+    }
+
+    @Test fun staleDroppedDecisionCannotCloseANewSourceInquiryOnTheSameThread() {
+        val original = question("跨来源研究")
+        CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
+        val threadId = questions().getJSONObject(0).getString("threadId")
+        SharedExperienceTimeline.record("fresh-inquiry-source", role, "数字世界事件", "数字世界",
+            "本人发现了新的材料", now.plusSeconds(10), triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val revised = question("跨来源研究", "fresh-inquiry-source")
+            .put("threadId", threadId).put("question", "新材料出现后还值得继续吗")
+        CharacterExplorationContinuity.remember(context, role, revised, null,
+            listOf("fresh-inquiry-source"), now.plusSeconds(20))
+
+        CharacterExplorationContinuity.remember(context, role,
+            JSONObject(original.toString()).put("threadId", threadId)
+                .put("status", "dropped"), null, listOf("input"), now.plusSeconds(30))
+        assertEquals(revised.getString("question"),
+            CharacterCuriosityRuntime.visibleQuestions(role).single().getString("question"))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role)
+            .optJSONArray("threads")?.length() ?: 0)
+
+        CharacterExplorationContinuity.remember(context, role,
+            JSONObject(revised.toString()).put("status", "dropped"),
+            null, listOf("fresh-inquiry-source"), now.plusSeconds(40))
+        CharacterCuriosityRuntime.initialize(context)
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(role).isEmpty())
+        val closed = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", closed.getString("status"))
+        assertEquals(revised.getString("question"), closed.getString("question"))
+    }
+
     @Test fun existingFailureOfClosedThreadDoesNotLeakIntoLaterAutonomyPrompt() {
         val original = question("研究收尾")
         CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
