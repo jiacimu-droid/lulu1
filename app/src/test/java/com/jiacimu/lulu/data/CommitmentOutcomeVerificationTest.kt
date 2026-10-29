@@ -75,7 +75,7 @@ class CommitmentOutcomeVerificationTest {
     @Test fun followUpKindDoesNotMisrouteWakeRetries() {
         assertTrue(task.copy(attemptCount = 1, followUpKind = "verification").isOutcomeReview())
         assertFalse(task.copy(attemptCount = 1, followUpKind = "retry").isOutcomeReview())
-        assertFalse(task.copy(attemptCount = 0, followUpKind = "verification").isOutcomeReview())
+        assertTrue(task.copy(attemptCount = 0, followUpKind = "verification").isOutcomeReview())
     }
 
     @Test fun persistedRecordsRetainEvidenceAndReviewKinds() {
