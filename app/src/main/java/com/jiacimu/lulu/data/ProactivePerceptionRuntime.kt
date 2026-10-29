@@ -2252,6 +2252,24 @@ object ProactivePerceptionRuntime {
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = Instant.now(),
+                // Do not let independent online/group psychological snapshots
+                // become anonymous rows that survive clearing their source chat.
+                // Only verified group events can own this lifecycle.
+                provenanceId = sequenceOf(
+                    actionEvidenceId.takeIf {
+                        execution.primarySuccess && decision.action in setOf(
+                            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER)
+                    }.orEmpty(),
+                    causalEvidenceId,
+                ).mapNotNull { evidence ->
+                    SharedExperienceTimeline.eventsByIds(characterId, listOf(evidence))
+                        .firstOrNull()?.takeIf { original ->
+                            original.sessionId.isNotBlank() &&
+                                MigratedDomainStores.chat.conversations.value.any { conversation ->
+                                    conversation.id == original.sessionId && conversation.groupChat != null
+                                }
+                        }?.id
+                }.firstOrNull().orEmpty(),
                 innerThoughtFingerprint = privateDelta.fingerprint,
                 momentReflection = if ((hasMeaningfulInnerUpdate && privateDelta.meaningful) ||
                     decision.appraisal?.optJSONObject("spontaneousBid") != null ||
