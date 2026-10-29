@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T13:08:09.419908+00:00",
-  "commit": "e47eb17977e38dd750a2b2e58cdb172503adfabd",
+  "generatedAt": "2026-10-29T14:07:28.266423+00:00",
+  "commit": "2a070525f87fb98102171e7ae90976212b1ad2e3",
   "branch": "main",
-  "sourceFingerprint": "c07d51e1ad5338823e0b90580e065f9243e2484814c1a52e1cc18e4f7ed408b9",
+  "sourceFingerprint": "c7e2d6e30c3a90790895e68b5e0d307f47406a770269ffbb03750323e9af71ef",
   "summary": {
     "files": 1068,
-    "lines": 220532,
+    "lines": 220565,
     "symbols": 3141
   },
   "symbolIndex": {
@@ -6235,7 +6235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 778
+        "line": 782
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -10341,67 +10341,67 @@
     "markCharacterPostsSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 114
+        "line": 118
       }
     ],
     "publishUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 125
+        "line": 129
       }
     ],
     "publishCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 149
+        "line": 153
       }
     ],
     "requestCharactersReact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 180
+        "line": 184
       }
     ],
     "retryImageUnderstanding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 186
+        "line": 190
       }
     ],
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 504
+        "line": 508
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 513
+        "line": 517
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 561
+        "line": 565
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 581
+        "line": 585
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 605
+        "line": 609
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 799
+        "line": 803
       }
     ],
     "annotations": [
@@ -27623,8 +27623,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1092,
-      "sha256": "91c85e3ac1fc9de21a0fa467ea3268e3c6c2b4cef4fc022c49855cdeaeff03a5",
+      "lines": 1096,
+      "sha256": "81a8bcaea6ebc99a71e3cbae18bed2d1ef3d33df30135a8ade9212cbf3d675e3",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -27656,51 +27656,51 @@
         },
         {
           "name": "markCharacterPostsSeen",
-          "line": 114
+          "line": 118
         },
         {
           "name": "publishUser",
-          "line": 125
+          "line": 129
         },
         {
           "name": "publishCharacter",
-          "line": 149
+          "line": 153
         },
         {
           "name": "requestCharactersReact",
-          "line": 180
+          "line": 184
         },
         {
           "name": "retryImageUnderstanding",
-          "line": 186
+          "line": 190
         },
         {
           "name": "likeAsCharacter",
-          "line": 504
+          "line": 508
         },
         {
           "name": "commentAsCharacter",
-          "line": 513
+          "line": 517
         },
         {
           "name": "toggleUserLike",
-          "line": 561
+          "line": 565
         },
         {
           "name": "addUserComment",
-          "line": 581
+          "line": 585
         },
         {
           "name": "addUserReply",
-          "line": 605
+          "line": 609
         },
         {
           "name": "delete",
-          "line": 778
+          "line": 782
         },
         {
           "name": "clearCharacterData",
-          "line": 799
+          "line": 803
         }
       ]
     },
@@ -35989,8 +35989,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 173,
-      "sha256": "791c861408a783624cc90c0840a7ec78cf441be17200d2fbc2d7716eed99ede0",
+      "lines": 202,
+      "sha256": "69d21639700ecb19257c103f736750d2d04601ceae2b537522f9205f51855f71",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
