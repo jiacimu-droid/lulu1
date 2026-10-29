@@ -20,6 +20,23 @@ internal object SleepCallContinuationPolicy {
         else -> 2_000L
     }
 
+    /** Errors are retried conservatively; they never shorten the 30-minute
+     * call deadline. Long stories get the same bounded retry protection. */
+    fun nextPauseAfterFailureMillis(
+        sinceUserReplyMillis: Long,
+        story: Boolean = false,
+        consecutiveFailures: Int,
+    ): Long {
+        val cooldown = when {
+            consecutiveFailures <= 0 -> 0L
+            consecutiveFailures == 1 -> 10_000L
+            consecutiveFailures == 2 -> 20_000L
+            consecutiveFailures == 3 -> 40_000L
+            else -> 90_000L
+        }
+        return maxOf(nextPauseMillis(sinceUserReplyMillis, story), cooldown)
+    }
+
     /** A hard, monotonic timeout; recognition, TTS, wake plans or narration
      * errors may not keep the paid microphone connection open indefinitely.
      * Null means this is an ordinary phone call without a sleep deadline. */
