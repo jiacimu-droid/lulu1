@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:53:43.378674+00:00",
-  "commit": "5a11f48f83db0091bc0d903025090bacb0949b4a",
+  "generatedAt": "2026-10-29T14:54:22.550144+00:00",
+  "commit": "b544af10e87cfec27eefbc15e12a1809b49d5b82",
   "branch": "main",
-  "sourceFingerprint": "4ca732e9a82e98d8747cc680183a5332aa9e6a94511ccf76fda801c06bb1b227",
+  "sourceFingerprint": "7b5beac41e72598b2874d42b2dd00ed4c982a941906f7ed8413f6380118faf71",
   "summary": {
     "files": 1073,
-    "lines": 221818,
+    "lines": 221936,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -5649,13 +5649,13 @@
     "provenanceProblem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 369
+        "line": 486
       }
     ],
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 501
+        "line": 618
       }
     ],
     "snapshot": [
@@ -12663,7 +12663,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 479
+        "line": 480
       }
     ],
     "saveTurn": [
@@ -22826,8 +22826,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 569,
-      "sha256": "4d53ad0fd8777b40f46cbb4b4ab508227b746fd21911699b632d4c8ab2cb244b",
+      "lines": 686,
+      "sha256": "e0b6b30b3907db17f3386e5b488a0803178da19d615d398d23327a5acbe2d910",
       "symbols": [
         {
           "name": "inspect",
@@ -22835,11 +22835,11 @@
         },
         {
           "name": "provenanceProblem",
-          "line": 369
+          "line": 486
         },
         {
           "name": "unverifiedReason",
-          "line": 501
+          "line": 618
         }
       ]
     },
@@ -30526,8 +30526,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 507,
-      "sha256": "a864fedbae2cd028425cbc457f2cc4989a9d8c420e291730c407422b8f16c84e",
+      "lines": 508,
+      "sha256": "ea496833230177285851a50c94852c5279fb8a9772eb638676ec1e05dcab2aae",
       "symbols": [
         {
           "name": "save",
@@ -30539,7 +30539,7 @@
         },
         {
           "name": "targetFor",
-          "line": 479
+          "line": 480
         }
       ]
     },
