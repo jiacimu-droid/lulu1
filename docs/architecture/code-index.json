@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T04:56:53.764720+00:00",
-  "commit": "5cf710838d3d8fa86e148f34fa787963211b9942",
+  "generatedAt": "2026-10-29T05:58:30.910620+00:00",
+  "commit": "8c97a131a395002f0543799cff55e911d6cd4fdd",
   "branch": "main",
-  "sourceFingerprint": "dae7b891afccc15c5fb604cb2d0599e878eec10ab51ade721ab9bf40c06ad985",
+  "sourceFingerprint": "065e8c20388b0bf4dfa5f40027afdee0a8012cfac9312a5b9f736c1e9a39bb37",
   "summary": {
     "files": 1054,
-    "lines": 216872,
-    "symbols": 3097
+    "lines": 217022,
+    "symbols": 3098
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -423,7 +423,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1925
+        "line": 1931
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5059,7 +5059,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1683
+        "line": 1689
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -5461,7 +5461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1601
+        "line": 1607
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -5501,7 +5501,7 @@
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 403
+        "line": 412
       }
     ],
     "snapshot": [
@@ -6203,7 +6203,7 @@
     "completed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1611
+        "line": 1617
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
@@ -6213,13 +6213,13 @@
     "axis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1749
+        "line": 1755
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1801
+        "line": 1807
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -15306,6 +15306,12 @@
         "line": 255
       }
     ],
+    "actualStep": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 630
+      }
+    ],
     "CharacterContinuityGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
@@ -22404,8 +22410,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 471,
-      "sha256": "a756b563ae7fa53cf9dc72585e3a06b061195094b77ee1dbc77c225bf85b4e1d",
+      "lines": 480,
+      "sha256": "8ce9053e5e6bb798132726c4bc13d94873fffd687661d90962da085fe2e177aa",
       "symbols": [
         {
           "name": "inspect",
@@ -22413,7 +22419,7 @@
         },
         {
           "name": "unverifiedReason",
-          "line": 403
+          "line": 412
         }
       ]
     },
@@ -22952,8 +22958,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2094,
-      "sha256": "f1f3802587af3f7f76a7f1847066260e880d1c8f3825c480e138ce91361b92d9",
+      "lines": 2100,
+      "sha256": "1dda02e233b0ae5b2f2099f005b797d2a3ed8d3e02f9ca20d8ddfdf9835fb9da",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -22977,27 +22983,27 @@
         },
         {
           "name": "eligible",
-          "line": 1601
+          "line": 1607
         },
         {
           "name": "completed",
-          "line": 1611
+          "line": 1617
         },
         {
           "name": "normalize",
-          "line": 1683
+          "line": 1689
         },
         {
           "name": "axis",
-          "line": 1749
+          "line": 1755
         },
         {
           "name": "compactContext",
-          "line": 1801
+          "line": 1807
         },
         {
           "name": "context",
-          "line": 1925
+          "line": 1931
         }
       ]
     },
@@ -32124,8 +32130,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2060,
-      "sha256": "b5543c49ddd7224194949c3c577c516c6a966eb23bda01f1da04d6cd3a033662",
+      "lines": 2148,
+      "sha256": "93a89082cd4f4b9e3bbf55a4d43b50dc194f668b402bb3532983677a17899481",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -33923,8 +33929,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 620,
-      "sha256": "4e0d37bc559f69a9a1190f2ef7dccc142b67c9338bc2c85995279f44d63bbede",
+      "lines": 662,
+      "sha256": "d18a93778ef2b1cc95b52115b84aa631d490379ff968ff015f94ce042dde2b8b",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -33933,6 +33939,10 @@
         {
           "name": "dailyDecision",
           "line": 255
+        },
+        {
+          "name": "actualStep",
+          "line": 630
         }
       ]
     },
@@ -34008,8 +34018,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionArchiveTest.kt",
-      "lines": 153,
-      "sha256": "d192f37d300824cf001268756b9337ba92eabeb5605529afdf04e4fef70cf4a9",
+      "lines": 158,
+      "sha256": "27ba9656b7cf77698d7ee617a0b8399f0aa9a8a7ee67187af5c9b2c3ad860412",
       "symbols": [
         {
           "name": "CharacterDecisionArchiveTest",
