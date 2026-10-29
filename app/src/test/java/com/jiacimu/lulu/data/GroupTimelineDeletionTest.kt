@@ -171,4 +171,57 @@ class GroupTimelineDeletionTest {
         // withdraws both projections under that event; it does not delete the source.
         assertEquals(1, SharedExperienceTimeline.eventsByIds(owner, listOf(source)).size)
     }
+
+    @Test fun clearingActualGroupChatAlsoWithdrawsRoleMindAndTimeline() {
+        CompanionPresenceStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val one = "clear_real_group_one"
+        val two = "clear_real_group_two"
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "真正清空的群", listOf(one, two))
+        val msg = MigratedDomainStores.chat.sendUserMessage(group.id, "这段群聊应该完整删除")
+        val source = "${msg.id}:group:$one"
+        val momentAt = msg.createdAt.plusMillis(500)
+        CharacterInnerLifeStore.recordInnerVoice(one, source, "群聊里的旧心理", momentAt)
+        CompanionPresenceStore.update(one, "听着群聊", null, "群聊里的旧心理", "疑惑",
+            "聊天", momentAt, provenanceId = source)
+        assertTrue(SharedExperienceTimeline.eventsByIds(one,
+            listOf("presence-$source-$one", source)).isNotEmpty())
+
+        assertTrue(MigratedDomainStores.chat.clearConversationMessages(group.id))
+
+        assertTrue(MigratedDomainStores.chat.messages(group.id).value.isEmpty())
+        assertFalse(SharedExperienceTimeline.all(one).any { it.sessionId == group.id })
+        assertFalse(SharedExperienceTimeline.all(two).any { it.sessionId == group.id })
+        assertFalse(CompanionPresenceStore.histories.value[one].orEmpty()
+            .any { it.innerThought == "群聊里的旧心理" })
+        val voices = CharacterInnerLifeStore.historySnapshot(one).optJSONArray("innerVoices")
+        assertFalse((0 until (voices?.length() ?: 0)).any {
+            voices?.optJSONObject(it)?.optString("thought") == "群聊里的旧心理"
+        })
+        assertNotNull(MigratedDomainStores.chat.conversations.value
+            .firstOrNull { it.id == group.id })
+    }
+
+    @Test fun startupRepairWithdrawsOldHeartVoiceWithPreviouslyDeletedRawEvent() {
+        CompanionPresenceStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val role = "old_tombstone_owner"
+        val source = "old_tombstone_source"
+        val at = Instant.parse("2026-10-30T03:00:00Z")
+        SharedExperienceTimeline.record(source, role, "私聊", "主人", "原话保留",
+            occurredAt = at, triggerExtraction = false)
+        val originalEventId = "presence-$source-$role"
+        SharedExperienceTimeline.deleteEvent(originalEventId)
+        // Reproduce an old-APK orphan: the raw row has a tombstone but the
+        // companion's shared preferences still contain the same voice snapshot.
+        CompanionPresenceStore.update(role, "旧状态", null, "旧心理残留", null,
+            "聊天", at.plusSeconds(1), provenanceId = source)
+        assertTrue(CompanionPresenceStore.histories.value[role].orEmpty()
+            .any { it.innerThought == "旧心理残留" })
+        CompanionPresenceStore.reconcileTombstonedMoments()
+        assertFalse(CompanionPresenceStore.histories.value[role].orEmpty()
+            .any { it.innerThought == "旧心理残留" })
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(source)).size)
+    }
 }
