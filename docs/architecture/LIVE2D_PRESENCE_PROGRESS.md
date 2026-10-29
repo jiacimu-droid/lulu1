@@ -49,3 +49,11 @@
 - **修复**：`tools/live2d/src/stage.js` 在真实结束/打断时只记最小的已终止音频身份；完成片段不可重开，打断后的同一轮不可补播，旧轮迟到回调不可越过新轮。对带明确 `segmentId` 的逐句计划校验 `onStarted` 归属；同序号/索引但不同 ID 的迟到事件不能抢占当前语音。模型重新加载清空版本，隐藏时废弃的当前 score 标为终止；旧无版本语音继续原路径。不更改角色 Motion 选择、TTS 请求、Store 或人物主循环。
 - **回归**：在现有真实 stage VM 回归中新增错误片段 ID、同段迟到 start、结束后重开、打断后下一段迟到，以及新轮正常开声。仅触及 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 和本专项文档；未改变现有索引生成器覆盖的 `app/scripts/preview` 集合，不手工改索引。
 - **验证边界**：提交时为源码与回归待 CI；必须再查 Live2D JS 测试、Android 单测、assemblePhone、APK 收集/发布。真机 15/30 FPS、打断后重说、音画同步与触摸并发仍待独立验收。
+
+## 2026-10-29 19:53：隐藏视频后旧 TTS 开声复活（L1/L2，CI/真机待验）
+
+- **重新核对**：完整阅读 10-29 Library 大纲、AGENTS、CODE_INDEX、UNIFIED_CHARACTER_CONTRACT、COMPANION_GROWTH_FRAMEWORK、最新 10-28 连续性计划及本专项进度；核对最新 main、社交专项进度、既有 v6605 发布与现行 stage/TTS/Android 入口。已有逐句 Motion3、首音事件、迟到完成/打断门禁及 native 帧回压，均未重建。L3 真机流畅度与校准仍属已有待验；词级时间戳仍是可选增强。
+- **可复现根因**：`setPaused(true)` 在取消舞台 score 时先把 `scoreVisualSequence` 清为 0，随后才尝试把它记录到 `finalizedAudio`。因此隐藏时的取消墓碑分支永远不执行。真实 Android WebView 隐藏/显示时，迟到的 TTS `playing` 回调可以重新占用语音时钟，甚至使原本已丢弃的动作复活；新旧音频交接时同时需要覆盖当前 audible sequence 和已排队的新 score。
+- **实际源码**：`tools/live2d/src/stage.js` 在清零前读取 `Math.max(scoreVisualSequence, audioVisualSequence)`，为隐藏时已取消的整轮建立 terminal 标记；隐藏状态直接忽略后续 onStarted（包括未知新序号），不把后台事件伪装成可见舞台动作。恢复后旧序号仍被拒绝，真正新一轮角色决策和 TTS 首音可正常启动。只维护时序事实，不改角色选择、Store、ToolRouter、额外模型调用或物理/表情所有权。
+- **回归**：`tools/live2d/test/conversation-performance.mjs` 用真实 stage 函数模拟旧音频播放→新 score 排队→隐藏→旧/排队/未来回调迟到→显示→旧回调拒绝→新 score 真实首音恢复；断言 terminal 序号、零旧 Motion3 及新 Motion3 正常启动。实现提交 [2741e15](https://github.com/jiacimu-droid/lulu1/commit/2741e1554ffffe272f8dddacfab21bb9bcb85d29)、[0a775a2](https://github.com/jiacimu-droid/lulu1/commit/0a775a215977c3d81196b099d57b91aa98ea191e)，回归提交 [0002cd7](https://github.com/jiacimu-droid/lulu1/commit/0002cd72f003e08ee586f7f1dd4c66b3bfcdeff4)。
+- **分层验收**：提交时 [Lulu APK #40869070191](https://github.com/jiacimu-droid/lulu1/actions/runs/40869070191) 对应 `0002cd7` 仍为 pending，**不能声称 JS 测试、Android JVM、assemblePhone、收集或发布通过**。仅修改 `tools/live2d/` 和本进度文档；既有索引生成器只扫描 `app/scripts/preview`，此轮未改变被索引的文件，不手工制造 CODE_INDEX。真机隐藏/恢复、连续五句、触摸与语音并发、15/30FPS、实际首音延迟与发热仍待验。
