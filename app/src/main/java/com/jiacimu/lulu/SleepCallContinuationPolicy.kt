@@ -20,6 +20,12 @@ internal object SleepCallContinuationPolicy {
         else -> 2_000L
     }
 
+    /** An incomplete audio segment is not a delivered narration.
+     * One same-text retry prevents a brief provider error from jumping
+     * straight to a freshly generated story. Further failures back off. */
+    fun shouldRetryFailedAudio(enabled: Boolean, remainingAttempts: Int): Boolean =
+        enabled && remainingAttempts > 0
+
     /** A verified microphone turn waits for bedtime narration instead of
      * resetting its active TTS queue. Ordinary chat retains barge-in. */
     fun shouldDeferUserWords(sleepMode: Boolean, audibleSpeech: Boolean, text: String): Boolean =
