@@ -964,8 +964,16 @@ object MomentsStore {
                     observed else original.lastActivityAt.plusNanos(1))
             } else post
         }.sortedByDescending(MomentPost::createdAt)
+        // A displayed post/comment is a durable social action, not a
+        // best-effort cache write. An asynchronous apply() can leave memory
+        // ahead of disk: a process restart then drops replies that callers
+        // were already told succeeded. Persist the entire updated authority
+        // before publishing the new StateFlow, and surface write failure.
+        val store = checkNotNull(prefs) { "MomentsStore must be initialized before a social action" }
+        check(store.edit().putString(KEY_POSTS, encode(next).toString()).commit()) {
+            "Failed to durably persist Moments before publishing the action"
+        }
         mutablePosts.value = next
-        prefs?.edit()?.putString(KEY_POSTS, encode(next).toString())?.apply()
     }
 
     private fun encode(values: List<MomentPost>): JSONArray = JSONArray().apply {
