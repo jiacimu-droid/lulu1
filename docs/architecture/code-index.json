@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:36:55.597425+00:00",
-  "commit": "bc99d29d6c42c2aac2ff88c2bdb404cd76f17d01",
+  "generatedAt": "2026-10-29T15:38:52.559893+00:00",
+  "commit": "dbc58d754af6fe7aa4e6b1e0301f6aa6e9c1f647",
   "branch": "main",
-  "sourceFingerprint": "63237bbdb646d6d9c2b01919724fbd2ab109ccd6c71e9f30bf05ad0f8e100b6a",
+  "sourceFingerprint": "9de4929309f5364f907fd476b4430d366caa5bb68c66a2d04d93937face8080e",
   "summary": {
     "files": 1076,
-    "lines": 222569,
+    "lines": 222627,
     "symbols": 3159
   },
   "symbolIndex": {
@@ -3101,7 +3101,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 105
+        "line": 114
       }
     ],
     "userDeparted": [
@@ -7069,7 +7069,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 89
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -12859,7 +12859,7 @@
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 167
+        "line": 191
       }
     ],
     "submitPlayerMessage": [
@@ -30932,8 +30932,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 213,
-      "sha256": "10bae7045372cde95ef49bf8ab16bf968e6ceeefb222d094650dc390bdd5f387",
+      "lines": 237,
+      "sha256": "9be5a5cf90eab1ae9499bf6e848a8c4ffb74435d2add7d038b474baf8b3f87ae",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -30945,15 +30945,15 @@
         },
         {
           "name": "parse",
-          "line": 89
+          "line": 98
         },
         {
           "name": "apply",
-          "line": 105
+          "line": 114
         },
         {
           "name": "facts",
-          "line": 167
+          "line": 191
         }
       ]
     },
@@ -37344,8 +37344,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
-      "lines": 111,
-      "sha256": "e617c3a32fe696a062dc9368b2d3d64bb16d61ad358289fe9520b95bc2ff0b6b",
+      "lines": 145,
+      "sha256": "de1026d9524644f240cb274ee32d95de5ef42d1139262f8d0cb66f4fcd8c9eaf",
       "symbols": [
         {
           "name": "IslandActorPlayTest",
