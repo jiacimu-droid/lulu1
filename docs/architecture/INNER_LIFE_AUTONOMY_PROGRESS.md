@@ -109,3 +109,12 @@
 - **根因回归源码**：`CharacterCuriosityRuntimeTest` 新增「首次新问题→旧来源真实回执晚到→pending 与 threads 不受污染→新来源真实结果正常结转→重新绑定后保留」及「显式无效 threadId 失败不能变成自主重试线索→本人真实失败仍持久保存」两组。未将测试源码视为 JVM 已通过。
 - **main 提交**：源码 [fed16e8](https://github.com/jiacimu-droid/lulu1/commit/fed16e8a51db172b207034eeecf7b0548930ad9a)，回归 [9ccae8a](https://github.com/jiacimu-droid/lulu1/commit/9ccae8a185c371e6c6dec2b66a069b982394b5fa)。并行 main 仅使用原文件当前 blob SHA 更新，不覆盖社交/基础/Live2D 专项文件。
 - **验证边界**：原有 `Refresh code index` 自动生成 `CODE_INDEX.md` / `code-index.json`，不得手工伪造。需核对包含回归提交的 Android JVM、assemblePhone、APK/Release 真实完成结果；真机、权限变化、强杀与三次跨天自然唤醒仍待验。
+
+## 2026-10-30 D2/T3：旧模型结案决定不得关闭已修订的新问题
+
+- **核对分类**：原 ToolRouter→兴趣成果→后续本人决定已有实现，旧来源回执/失败归属也已有专项修复与回归；这些历史提交的源码接通不等于本次真机验通。已待验：真实模型跨三次自然唤醒的取舍、进程强杀、权限与长期规模。可选增强：多年兴趣规模性能测量。**本轮真实缺口**是同一 threadId 被本人修订后，旧模型的 `satisfied/dropped` 结案响应仍可关闭新问题。
+- **根因**：`CharacterExplorationContinuity.rememberVerified` 已核验结案响应引用的事件真实存在且属于本人，但 `CharacterCuriosityRuntime.releaseInterest/settleInterest` 只用稳定 threadId 匹配 pending/threads，未对照该响应所依据的来源与当前问法版本。旧响应晚到时可移除新 pending，或把尚未处理的新问题记为本人已满意/放下。工具结果的迟到门禁不覆盖这条纯主观结案路径。
+- **正式修复**：在原 `CharacterCuriosityRuntime` 为两种终态共用事实归属门禁：有显式 sourceEvidenceId 的结案先核对本人真实有效来源；与当前观察或最近有效回执相符且问题未被修订，或者确有晚于当前 inquiry 的新真实事件，才允许记录本人结案。旧来源+旧问法不得跨修订关闭；无来源的旧直接调用保留兼容（真实 `rememberVerified` 路径始终附核验来源）。这是来源/版本校验，不由程序推断角色是否该放下。保留原 Store、时间线、意愿选择与所有历史，不增加模型调用、调度或自动重试。
+- **回归源码**：`CharacterExplorationContinuityTest` 新增同一观察改问法后旧 `satisfied` 晚到不结案、新本人决定可结案，以及新观察改问题后旧 `dropped` 晚到不结案、新本人决定可结案；均覆盖原 `remember` 路由、重绑原 Store 后的持久状态。未声称 JVM 已实跑。
+- **main 提交**：源码 [c33c481](https://github.com/jiacimu-droid/lulu1/commit/c33c481d5647c4b3e3416339ad703360589f294c)，回归 [20ba12e](https://github.com/jiacimu-droid/lulu1/commit/20ba12e0b347214945857bae726617510af3a637)。原 [Refresh code index #40948059574](https://github.com/jiacimu-droid/lulu1/actions/runs/40948059574) **completed/success**，自动生成索引提交 `337042b`，实际 `CODE_INDEX.md` 基准为 `20ba12e`，未手工伪造索引。
+- **CI/设备边界**：本次 [Lulu APK #40948059461](https://github.com/jiacimu-droid/lulu1/actions/runs/40948059461) 初次核对仍 pending，JVM/assemblePhone/Release 未验；上次基线 [#40935673198](https://github.com/jiacimu-droid/lulu1/actions/runs/40935673198) 已 completed/failure，阻断是社交/在线公共 `CompanionOnlineStore.kt:410` 的 nullable Boolean 传给 Boolean，不能归为本轮兴趣逻辑测试失败。本轮不越界修改公共入口。真机、强杀恢复、三次跨日唤醒仍待实测；源事件在同一 ID 下发生历史修订而旧模型没有携带 source revision 的极端竞态仍需跨入口版本水位协议才能彻底覆盖。
