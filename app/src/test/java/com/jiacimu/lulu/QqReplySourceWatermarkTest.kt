@@ -34,6 +34,44 @@ class QqReplySourceWatermarkTest {
 
     @After fun cleanup() { MemoryTestEnvironment.release() }
 
+
+    @Test fun groupRosterDoesNotImplyPeerAcquaintance() {
+        val a = MigratedDomainStores.characters.create("陌生群成员甲").characterId
+        val b = MigratedDomainStores.characters.create("陌生群成员乙").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("刚拉进来的群", listOf(a, b))
+        val names = mapOf(a to "甲", b to "乙")
+        val initial = groupPeerEvidenceContext(a, group.groupChat!!.members,
+            MigratedDomainStores.chat.messages(group.id).value, names)
+        assertTrue(initial, initial.contains("只在本群成员名单看到姓名"))
+        assertTrue(initial, initial.contains("不自动说明彼此相识"))
+        assertFalse(initial.contains("已有真实交集"))
+
+        MigratedDomainStores.chat.appendCharacterMessage(group.id, "我先打声招呼", b)
+        val oneSided = groupPeerEvidenceContext(a, group.groupChat!!.members,
+            MigratedDomainStores.chat.messages(group.id).value, names)
+        assertTrue(oneSided, oneSided.contains("只曾在本群亲眼看到对方发言"))
+        assertFalse(oneSided.contains("已有真实交集"))
+
+        MigratedDomainStores.chat.appendCharacterMessage(group.id, "你好", a)
+        val exchanged = groupPeerEvidenceContext(a, group.groupChat!!.members,
+            MigratedDomainStores.chat.messages(group.id).value, names)
+        assertTrue(exchanged, exchanged.contains("已有真实交集：共同群聊认识"))
+        assertTrue(exchanged, exchanged.contains("认识不自动等于熟悉或亲密"))
+    }
+
+    @Test fun groupPeerKnowledgeLeavesExplicitRelationshipIntact() {
+        val unknown = com.jiacimu.lulu.data.CharacterSocialRelationshipSnapshot(
+            "a", "b", emptyList(), 0, null, "尚未认识")
+        val stranger = groupPeerEvidenceLine("乙", unknown, false)
+        assertTrue(stranger, stranger.contains("只在本群成员名单看到姓名"))
+        assertFalse(stranger.contains("朋友"))
+        val heard = groupPeerEvidenceLine("乙", unknown, true)
+        assertTrue(heard, heard.contains("只曾在本群亲眼看到对方发言"))
+        val explicit = groupPeerEvidenceLine("乙", unknown, false, "多年老友")
+        assertTrue(explicit, explicit.contains("本人的明确关系约定：多年老友"))
+        assertFalse(explicit.contains("尚无可核实的双方交往"))
+    }
+
     @Test fun privateReplyCannotTreatEditedThenRestoredTextAsOriginalVersion() {
         val store = InMemoryLuluChatStore().also { it.initialize(RuntimeEnvironment.getApplication()) }
         val role = MigratedDomainStores.characters.create("私聊水位角色").characterId
