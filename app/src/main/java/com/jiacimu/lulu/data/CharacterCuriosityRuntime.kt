@@ -322,6 +322,10 @@ internal object CharacterCuriosityRuntime {
             }
         val resumedAfterClosure = closed != null && closedAt != null &&
             inquiryAt != null && inquiryAt.isAfter(closedAt) && freshOwnedInquiry
+        // Even the FIRST tool result for a question needs source ownership.
+        // There is no explored thread yet for the later selected != null guard
+        // to catch a stale callback from a different observation.
+        if (selectedQuestion != null && origin.isNotBlank() && !freshOwnedInquiry) return
         val preserveClosure = closed != null && !resumedAfterClosure
         // A newer, still-pending question owns its own source. An old tool
         // callback must not consume it or rewrite an already exploring thread.
@@ -531,6 +535,10 @@ internal object CharacterCuriosityRuntime {
         val pending = entries(root.optJSONArray("questions"))
         val threads = entries(root.optJSONArray("threads"))
         val linked = matching(pending + threads, proposal)
+        // An explicit missing/foreign threadId is not a legacy unlinked
+        // failure. The executor keeps its actual failure receipt; do not
+        // turn it into a free-floating reason to retry this person's interest.
+        if (proposal?.optString("threadId")?.isNotBlank() == true && linked == null) return
         val selectedId = linked?.let(::identity).orEmpty()
         val currentQuestion = pending.firstOrNull { identity(it) == selectedId }
         val currentThread = threads.firstOrNull { identity(it) == selectedId }
