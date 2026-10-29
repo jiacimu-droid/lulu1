@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff5eaddd5641dc3d9362a35e41e3ffb49f911ccd`
+- 基准提交：`317febc4daca49bfe6b713b60e0f61bdfa22d8e6`
 - 分支：`main`
 - 已索引文件：1068
-- 已索引代码/文本行：221062
-- 已发现符号：3142
+- 已索引代码/文本行：221109
+- 已发现符号：3143
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -759,7 +759,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 138 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt` | 99 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt` | 122 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
@@ -841,7 +841,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 332 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 105 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 129 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 298 | 1 |

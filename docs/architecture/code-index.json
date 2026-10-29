@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:25:22.818366+00:00",
-  "commit": "ff5eaddd5641dc3d9362a35e41e3ffb49f911ccd",
+  "generatedAt": "2026-10-29T14:26:42.802529+00:00",
+  "commit": "317febc4daca49bfe6b713b60e0f61bdfa22d8e6",
   "branch": "main",
-  "sourceFingerprint": "c2f7d76f6a495bf3b0918904dc98cfde464bfc3ac64fa5505adb54d309e492c8",
+  "sourceFingerprint": "70a726f9da67026d9775e561ecc18d471618e55aebdb3a2330ae93afba8bdf7c",
   "summary": {
     "files": 1068,
-    "lines": 221062,
-    "symbols": 3142
+    "lines": 221109,
+    "symbols": 3143
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8353,11 +8353,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 81
+        "line": 105
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 95
+        "line": 119
       }
     ],
     "recordWitness": [
@@ -14786,6 +14786,44 @@
         "line": 16
       }
     ],
+    "event": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
+        "line": 80
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
+        "line": 77
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
+        "line": 117
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
+        "line": 82
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 480
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
+        "line": 136
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
+        "line": 88
+      }
+    ],
     "Live2DFineTouchTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt",
@@ -15288,40 +15326,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
         "line": 14
-      }
-    ],
-    "event": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-        "line": 77
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-        "line": 117
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt",
-        "line": 82
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 480
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 136
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt",
-        "line": 24
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-        "line": 17
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
-        "line": 88
       }
     ],
     "AutonomousActionWireProtocolTest": [
@@ -33203,12 +33207,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-      "lines": 99,
-      "sha256": "b7b52cca1946b9b8c53df2a4d71d95c8f148e7965eb07178b933255c4d5d6f8d",
+      "lines": 122,
+      "sha256": "9d42c0ac50939d92c7cfaa8381b46907b639364698452bf67f3c7eef016584e7",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
           "line": 16
+        },
+        {
+          "name": "event",
+          "line": 80
         }
       ]
     },
@@ -34169,8 +34177,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-      "lines": 105,
-      "sha256": "4526ed145a5e758ddba233a454fc95dcb76208dcc1660c708384157ba64ec5b2",
+      "lines": 129,
+      "sha256": "f38ec8a96138b935eeb94f3c7585901a50c8537771c21e54c8e81809f3a37c1e",
       "symbols": [
         {
           "name": "AutonomyCallAndReceiptTest",
@@ -34178,11 +34186,11 @@
         },
         {
           "name": "tick",
-          "line": 81
+          "line": 105
         },
         {
           "name": "tick",
-          "line": 95
+          "line": 119
         }
       ]
     },
