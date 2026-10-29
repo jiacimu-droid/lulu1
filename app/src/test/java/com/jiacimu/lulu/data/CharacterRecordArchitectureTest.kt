@@ -312,6 +312,53 @@ class CharacterRecordArchitectureTest {
         assertEquals(2, rows.size)
     }
 
+    @Test fun repeatedLongInnerVoiceFromTwoActionsIsDisplayedOnceButBothActionsSurvive() {
+        val voice = "好家伙，原来是古堡里摸金的小游戏。我刚想起她说的甜章和蓝宝石项链，打算等她忙完再问问下午是单排还是双排。"
+        val ideas = "想法：等她回来问问古堡玩法"
+        val first = CharacterStateHistoryRow("first-action", now, "发送消息",
+            "$" + "{voice}\\n$" + "{ideas}",
+            decisions = listOf(CharacterRecordProjection.DecisionMoment(
+                "send-id", now, "发送消息", "真实发出消息", "已送达", "event-a")),
+            evidenceIds = listOf("event-a"))
+        val laterAt = now.plusSeconds(7 * 60)
+        val second = CharacterStateHistoryRow("second-action", laterAt, "在数字世界活动",
+            "$" + "{voice}\\n$" + "{ideas}",
+            decisions = listOf(CharacterRecordProjection.DecisionMoment(
+                "world-id", laterAt, "在数字世界活动", "走到了水边", "已执行", "event-b")),
+            evidenceIds = listOf("event-b"))
+        val displayRows = CharacterStateHistory.suppressRepeatedNarration(listOf(second, first))
+        assertEquals(2, displayRows.size)
+        val firstRendered = CharacterStateHistory.display(displayRows.single { it.key == "first-action" })
+        val laterRendered = CharacterStateHistory.display(displayRows.single { it.key == "second-action" })
+        assertEquals(voice, firstRendered.voice)
+        assertEquals("", laterRendered.voice)
+        assertEquals(1, firstRendered.otherThoughts.size)
+        assertTrue(laterRendered.otherThoughts.isEmpty())
+        assertEquals(setOf("send-id", "world-id"), displayRows.flatMap { it.decisions }.map { it.id }.toSet())
+        assertEquals(2, displayRows.flatMap { it.evidenceIds }.distinct().size)
+        // The read model does not rewrite either raw psychological or action record.
+        assertTrue(displayRows.single { it.key == "second-action" }.detail.contains(voice))
+    }
+
+    @Test fun newVoiceAboutSameTopicAndLongAgoRepetitionRemainVisible() {
+        val firstVoice = "刚刚去古堡摸金，我想起她之前说过的那个游戏，等一会儿再跟她聊聊，看看有什么新的进展。"
+        val newVoice = "刚才又去了水边，突然想起另一件完全不同的事。虽然还在玩那个游戏，我现在却开始琢磨晚上的音乐。"
+        fun item(key: String, seconds: Long, text: String) =
+            CharacterStateHistoryRow(key, now.plusSeconds(seconds), "这一刻", text)
+        val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(
+            item("new", 180, newVoice), item("original", 0, firstVoice),
+            item("later-day", 3600, firstVoice),
+        ))
+        assertEquals(3, rows.count { CharacterStateHistory.display(it).voice.isNotBlank() })
+    }
+
+    @Test fun shortHumanReactionsAreNotSilencedByTextOnlyDeduplication() {
+        val first = CharacterStateHistoryRow("first", now, "这一刻", "好开心")
+        val next = CharacterStateHistoryRow("next", now.plusSeconds(80), "这一刻", "好开心")
+        val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(first, next))
+        assertEquals(2, rows.count { CharacterStateHistory.display(it).voice == "好开心" })
+    }
+
     @Test fun longInnerVoiceUsesNaturalParagraphsWithoutLosingItsWords() {
         val prose = (1..7).joinToString("") {
             "夜风吹来时，他忽然想到那个期待已久的测试结果，也想起刚刚在聊天里看到的消息。"
