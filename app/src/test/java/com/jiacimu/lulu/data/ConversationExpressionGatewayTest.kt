@@ -115,7 +115,7 @@ class ConversationExpressionGatewayTest {
                 assertTrue(system.contains("不代表她在要求哄睡"))
                 assertTrue(system.contains("过去请别的角色做过某事"))
                 assertFalse(system.contains("对主人实际承担的提醒"))
-                assertTrue(system.contains("不把普通闺蜜聊天演成二次元剧情"))
+                assertTrue(system.contains(CharacterProfileSchema.xingHeProfile.getValue("expression")))
                 assertTrue(system.contains("星禾"))
             }
             LuluAiServices.gateway.generate(CharacterLifeStore.BUNDLED_JIANG_DU_ID,
@@ -128,7 +128,7 @@ class ConversationExpressionGatewayTest {
                 .getJSONArray("messages").getJSONObject(0).getString("content")
             assertFalse(anotherSystem.contains("平等朋友"))
             assertFalse(anotherSystem.contains("不代表她在要求哄睡"))
-            assertFalse(anotherSystem.contains("不把普通闺蜜聊天演成二次元剧情"))
+            assertFalse(anotherSystem.contains(CharacterProfileSchema.xingHeProfile.getValue("expression")))
             assertFalse(anotherSystem.contains(CharacterProfileSchema.xingHeFriendship))
             assertEquals(3, server.requestCount)
         } finally { server.shutdown() }
