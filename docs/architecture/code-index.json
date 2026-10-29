@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:36:19.478710+00:00",
-  "commit": "7cc5f0b1fba53362126483d9e9466f889d8c154a",
+  "generatedAt": "2026-10-29T10:36:46.201448+00:00",
+  "commit": "d32c22699789b756e5a58a0d8652627f87af0a9f",
   "branch": "main",
-  "sourceFingerprint": "011bc32e9369212785fba15a29a62b3d6c216d6dce9f385e1da806a59fd1eca7",
+  "sourceFingerprint": "b7dd49bea1753ae137f6d7983d2053dda7b1ef32d736da3342e3a57972ff9e43",
   "summary": {
     "files": 1064,
-    "lines": 218853,
+    "lines": 218855,
     "symbols": 3128
   },
   "symbolIndex": {
@@ -699,7 +699,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1339
+        "line": 1341
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4709,7 +4709,7 @@
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1329
+        "line": 1331
       }
     ],
     "configured": [
@@ -21709,8 +21709,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1347,
-      "sha256": "87d498d82e37b4e8b68185e7f6e4c8d2df9fb820b24dd647e71be51656b832bc",
+      "lines": 1349,
+      "sha256": "dad7b5f611b5fa6877b0a518d879c9ef1bb5f2c82fd1f3c40f4b8b1c3359374d",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -21818,11 +21818,11 @@
         },
         {
           "name": "LuluAiServices",
-          "line": 1329
+          "line": 1331
         },
         {
           "name": "initialize",
-          "line": 1339
+          "line": 1341
         }
       ]
     },
