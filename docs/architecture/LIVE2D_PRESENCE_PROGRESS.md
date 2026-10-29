@@ -123,3 +123,10 @@
 - **正式修复**：在原 `motion()` 的异步失败路径核对修订号、当前模型实例和当前选中的动作对象。只有仍拥有播放槽位的真实失败才清除 `authoredMotion` 并发出原有 `motion-failed`；被新句、触摸或模型切换取代的迟到失败直接忽略。保留成功回执、真失败回执和原本的 Cubism 优先级；不增加模型调用、语义规则、Store 或轮询。
 - **根因回归**：原 `tools/live2d/test/touch-hit.mjs` 的真实 stage `motion()` VM，增加旧加载 reject→新句 Motion 仍 pending/可启动、旧失败无错误回执/诊断、当前加载 reject→仍有一次准确 `motion-failed` 的测试；继续保留同名 Motion continue、低帧率与触摸的既有断言。源码 [c29cd80](https://github.com/jiacimu-droid/lulu1/commit/c29cd80b10fac52b31567f5e37dcc217bd7a261b)，回归 [f34dde0](https://github.com/jiacimu-droid/lulu1/commit/f34dde0543251320c45e2dacceb3a6f8ecc49eb4)，均直接 main。只修改 `tools/live2d` 两个文件及本专项进度；`scripts/generate_code_index.py` 索引 `app/scripts/preview`，本轮无索引集合变化，不手写 `CODE_INDEX.md`。
 - **分层验收**：源码和回归已提交 main；对应新提交的 JS、Android JVM、assemblePhone、收集/Release 必须另查实际 CI。真机连续五句、真实异步加载失败及不同设备 FPS/温度仍未验，不能用测试源码替代设备证据。
+
+
+### 06:55 实际 CI / APK 核验
+
+- 本轮回归提交 `f34dde0` 对应 [Lulu APK #40968894322](https://github.com/jiacimu-droid/lulu1/actions/runs/40968894322)：原 `Build bundled Live2D stage` 已 **completed/success**，工作流实际执行 `node tools/live2d/test/parameters.mjs`、`node tools/live2d/test/touch-hit.mjs` 和 renderer 打包；因此本轮迟到 reject 的真实 stage VM 回归已在 CI 运行通过，而不只是提交测试文件。末次查询 `Test and build phone APK` 尚未 completed，Android JVM、assemblePhone、APK 收集/发布仍不能宣称成功。
+- 同轮开工基线 [Lulu APK #40965646539](https://github.com/jiacimu-droid/lulu1/actions/runs/40965646539) 已完成所有 build/test/collect/publish 步骤 success，但其提交早于本轮代码，只能证明旧基线可构建。原索引工作流 [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) 已 success；本轮仅触及不在原索引覆盖范围的 `tools/live2d` 和专项文档，索引由既有生成器管理。
+- 真机仍未验：连续五句真实 Motion3、迟到失败与新句并发、触摸、不同 TTS、模型校准、15/30 FPS 和发热。不能把 JS VM 的正确回执归属冒充人物可见动作的实际自然度。
