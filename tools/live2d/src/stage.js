@@ -95,6 +95,7 @@ let playing = false
 let mouth = 0
 let pcmAvailable = false
 let listening = false
+let thinking = false
 let paused = false
 // Simulated body rhythm is separate from emotional expression choreography.
 let physicalState = { energy: 78, sleepPressure: 22 }
@@ -517,7 +518,7 @@ function applyFinalParameters(core, deltaMs) {
     authoredMotion: motionActive,
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     touchMotionActive: motionActive && authoredMotion?.source === 'touch',
-    listening, speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
+    listening, thinking, speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
     deferPhysicsOutputs: true,
   })
@@ -1002,6 +1003,8 @@ function update(next) {
   // Legacy providers without a versioned cue retain coarse status control.
   if (!preciseSpeechOwnership) playing = !!next.speaking
   listening = !!next.listening
+  // This is the real call's pending-model state, not a guessed emotion.
+  thinking = !!next.thinking
   pcmAvailable = !!next.hasPcmSamples
   const incomingMouth = Number(next.mouth)
   mouth = Number.isFinite(incomingMouth)

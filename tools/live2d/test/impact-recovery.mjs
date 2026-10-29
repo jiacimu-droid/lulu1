@@ -217,7 +217,8 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
 {
   function samplePresence(fps, state) {
     const values = {
-      ParamAngleY: 0, ParamBodyAngleY: 0,
+      ParamAngleX: 0, ParamAngleY: 0,
+      ParamBodyAngleX: 0, ParamBodyAngleY: 0,
       ParamEyeBallX: 0, ParamEyeBallY: 0,
     }
     const layer = createVisualLayerRuntime({
@@ -242,6 +243,20 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
   for (const fps of [15, 30, 60]) {
     const idle = samplePresence(fps, { listening: false, speaking: false })
     const attentive = samplePresence(fps, { listening: true, speaking: false })
+    const pondering = samplePresence(fps, { thinking: true, listening: false, speaking: false })
+    assert.ok(pondering.ParamAngleX < idle.ParamAngleX - .9 &&
+      pondering.ParamAngleY < idle.ParamAngleY - .6,
+      'actual pending-model state must give a subtle look-away, not idle')
+    assert.ok(pondering.ParamEyeBallX < idle.ParamEyeBallX - .08,
+      'thinking gaze should follow the neck without inventing an emotion')
+    const stillListening = samplePresence(fps, { thinking: true, listening: true, speaking: false })
+    assert.ok(Math.abs(stillListening.ParamAngleY - attentive.ParamAngleY) < .02,
+      'microphone listening takes precedence over pending-model posture')
+    const alreadyTalking = samplePresence(fps, { thinking: true, speaking: true })
+    const talkingBaseline = samplePresence(fps, { speaking: true })
+    assert.ok(Math.abs(alreadyTalking.ParamAngleX - talkingBaseline.ParamAngleX) < .02 &&
+      Math.abs(alreadyTalking.ParamEyeBallX - talkingBaseline.ParamEyeBallX) < .02,
+      'actual voice onset must release thinking posture and gaze')
     assert.ok(attentive.ParamAngleY - idle.ParamAngleY > .8,
       'real microphone listening must visibly orient the neck')
     assert.ok(attentive.ParamBodyAngleY - idle.ParamBodyAngleY > .2,
@@ -251,7 +266,7 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
     assert.ok(Math.abs(talking.ParamAngleY - talkingOnly.ParamAngleY) < .02,
       'the role speaking must not also perform the microphone-listening pose')
     const authored = samplePresence(fps, {
-      listening: true, speaking: false, authoredMotion: true,
+      listening: true, thinking: true, speaking: false, authoredMotion: true,
     })
     assert.ok(Math.abs(authored.ParamAngleY + 7) < .02 &&
       Math.abs(authored.ParamBodyAngleY + 3) < .02,
@@ -263,7 +278,7 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
     assert.ok(deliberate.ParamAngleY < -3 && deliberate.ParamBodyAngleY < -1.5,
       'explicit character pose outranks passive listening')
     const touched = samplePresence(fps, {
-      listening: true, speaking: false,
+      listening: false, thinking: true, speaking: false,
       touchReflex: { pitch: -6, body: { pitch: -3 } },
     })
     assert.ok(touched.ParamAngleY < -3,

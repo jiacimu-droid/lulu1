@@ -43,7 +43,7 @@ const bridge = {
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   mouthExclusiveExpressions: new Set(['tongue']),
-  playing: false, mouth: 0, pcmAvailable: false, listening: false,
+  playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
   pendingExpressionName: null, pendingSpeechParts: null,
   activeExpressionName: null, activeTouchExpression: null, activeExpressionStartedAt: 0,
   activeExpressionIsPreview: false, lastSpeechSoundAt: 0, lastRealMouthSignalAt: 0,
@@ -58,6 +58,11 @@ const bridge = {
 }
 vm.createContext(bridge)
 vm.runInContext(entries, bridge)
+// The production stage receives the actual call's model-pending state.
+bridge.update({ speaking: false, listening: false, thinking: true, mouth: 0 })
+assert.equal(bridge.thinking, true)
+bridge.update({ speaking: false, listening: true, thinking: false, mouth: 0 })
+assert.equal(bridge.thinking, false)
 const first = { head: { roll: 6 }, body: { yaw: 2 }, face: { smile: .4 },
   motion: { group: 'Gesture', index: 0 },
   beats: [{ atMs: 0, head: { roll: 8 }, durationMs: 450 },

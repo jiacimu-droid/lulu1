@@ -71,6 +71,7 @@ private data class Live2DBinaryFrame(val jpeg: ByteArray, val reply: JavaScriptR
 internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Boolean,
     callId: String = "",
     listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier,
+    thinking: Boolean = false,
     hasPcmSamples: Boolean = false,
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
     previewRevision: Int = 0,
@@ -492,9 +493,9 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // Do not saturate WebView's main thread with high-frequency audio
     // amplitude callbacks while it is rendering and encoding video frames.
     val mouthStep = if (speaking && hasPcmSamples) (mouthLevel.coerceIn(0f, 1f) * 20f).toInt() else 0
-    LaunchedEffect(stage, speaking, listening, mouthStep, hasPcmSamples) {
+    LaunchedEffect(stage, speaking, listening, thinking, mouthStep, hasPcmSamples) {
         val payload = JSONObject().put("speaking", speaking).put("listening", listening)
-            .put("mouth", mouthStep / 20.0).put("hasPcmSamples", hasPcmSamples)
+            .put("thinking", thinking).put("mouth", mouthStep / 20.0).put("hasPcmSamples", hasPcmSamples)
         stage.evaluateJavascript(
             "window.__luluStageState = ${payload}; window.LuluLive2D && window.LuluLive2D.update(window.__luluStageState)",
             null,

@@ -91,3 +91,11 @@
 - **正式链路**：`Live2DCallStage → stage.update(listening) → applyFinalParameters → createVisualLayerRuntime.update`。只在麦克风倾听、角色没有正在发声且没有本人 Motion3/表情/显式头身脸动作或触摸时，提供幅度克制的抬头/上身注意姿态；沿已有帧率无关弹簧平滑进入与释放，保持正视，不做随机语义动作。角色本人 Motion3、触摸和表情拥有优先权；不新增角色状态、LLM 调用或定时器。
 - **根因回归**：`impact-recovery.mjs` 新增实际 final actuator 的 15/30/60 FPS 比较，断言倾听与 idle 不再相同、说话不叠倾听姿态、真实 Motion3/本人显式姿态/触摸不被盖掉；`parameters.mjs` 检查正式 stage 的倾听参数接线。仅修改 `tools/live2d/` 和本专项进度文档；原索引生成器扫描 `app/scripts/preview`，本次没有索引集合变化，不手写 CODE_INDEX。
 - **验收分层**：本提交是正式源码和根因回归，不等于已在 CI 运行。后续需核对该 SHA 的 Live2D JS、Android JVM、assemblePhone、APK 发布。真机仍需看倾听→角色说话→触摸→打断、不同 TTS、15/30 FPS 及实际音画差/发热。思考阶段没有可靠独立状态信号，本轮不冒充已实现“思考表演”。
+
+## 2026-10-30 02:10 · L2：真实模型等待阶段的视线与姿态接线（源码/回归提交，CI 与真机待验）
+
+- **基线核对**：完整 10-29 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、10-28 连续性计划及基础/社交/内驱独立进度均已复读；核对最新 main。v6605 的真实逐句 Motion3、TTS 首音、打断墓碑、触摸优先级与上轮 `listening` 末端姿态已经存在，不重复创建。L1 五句及 L3 低 FPS 真机表现仍属已有待验；词级时间戳为可选增强。
+- **已证实缺口**：原 `LuluVoiceCallState.thinking` 在电话会话里是真实模型正在生成回复的状态，但 `Live2DFullscreenVideoCall → Live2DCallStage → stage.update → visualLayers.update` 仅传 `listening` 与 `speaking`，未传 `thinking`；用户说完后模型正在处理的间隔仍是普通待机，不具备 L2 的思考过渡。不能根据麦克风声音推断人物情绪。
+- **完整修复**：原通话 `state.connected && state.thinking` 传到现有 WebView 状态更新，再交最终 Cubism actuator。只在非倾听、非发声、无本人 Motion3/表情/明确姿态/触摸时轻微移开视线、调整头与上身；真实开声、倾听、触摸或本人动作立即夺回优先权，原弹簧自然收回。不生成新 Motion/表情、不引入新状态中心、额外模型轮次、常态轮询或猜测语义。预览/诊断沿可选参数默认 false，行为不变。
+- **根因回归**：现有 `conversation-performance.mjs` 实际执行 stage.update；`impact-recovery.mjs` 对 15/30/60 FPS 的思考→倾听/开声优先级、真实 Motion3 和触摸覆盖做最终 Cubism 参数断言；`parameters.mjs` 核对真实 Kotlin call-state → WebView JSON → JS final actuator 接线。索引仍交给原 `Refresh code index` 工作流，不手工伪造 `CODE_INDEX.md`。
+- **分层验收**：源码和回归提交不代表测试已执行；需按对应提交核对 Live2D JS、Android JVM、assemblePhone、APK 收集/发布。真机连续五句、真实等待→接话、低 FPS、触摸并发与发热均未验。

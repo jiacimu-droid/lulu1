@@ -649,8 +649,13 @@ assert.ok(stage.includes('mouthExpressionGate.finished()'))
 assert.ok(stage.includes('mouthExpressionGate.interrupted()'))
 assert.ok(stage.includes('setBodyState'))
 assert.ok(stage.includes('physical: physicalState'))
-assert.ok(stage.includes('listening, speaking: playing, expressionActive:'),
-  'Android microphone listening must reach the final visual layer rather than remain unused')
+assert.ok(stage.includes('listening, thinking, speaking: playing, expressionActive:'),
+  'Android listening and real pending-model phase must reach the final actuator')
+assert.match(fullscreenVideo, /thinking = state\.connected && state\.thinking/,
+  'the real call session, not a guessed voice level, owns thinking state')
+assert.match(androidStage, /LaunchedEffect\(stage, speaking, listening, thinking, mouthStep, hasPcmSamples\)/)
+assert.match(androidStage, /\.put\("thinking", thinking\)/)
+assert.ok(stage.includes('thinking = !!next.thinking'))
 assert.ok(stage.includes("setParameter(core, 'ParamTongueOut', 0)"))
 assert.ok(stage.includes('const audibleMouth = playing && (!pcmAvailable || mouth > .055)'))
 assert.ok(stage.includes('1600 / Math.max(1, root.clientWidth, root.clientHeight)'))

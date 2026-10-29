@@ -347,6 +347,7 @@ internal fun Live2DFullscreenVideoCall(
                     actualSpeech.characterId == characterId &&
                     actualSpeech.phase == Live2DSpeechTimeline.Phase.Playing,
                 listening = state.connected && state.listening,
+                thinking = state.connected && state.thinking,
                 mouthLevel = mouthLevel,
                 hasPcmSamples = avatarPresentation?.hasPcmSamples == true,
                 previewExpression = cue?.expression ?: previewExpression,

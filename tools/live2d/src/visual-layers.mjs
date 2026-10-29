@@ -69,7 +69,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, listening = false, speaking, authoredMotion = false, touchMotionActive = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, listening = false, thinking = false, speaking, authoredMotion = false, touchMotionActive = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -83,20 +83,26 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // An authored Motion3, expression, touch or explicit pose always wins.
     const attending = listening && !speaking && !authoredMotion &&
       !touchReflex && !head && !body && !face && !expressionActive
+    // The call session knows when its model is actually generating a reply.
+    // Show a small, reversible thinking posture only in that factual phase;
+    // never infer feelings from microphone level or overwrite authored acts.
+    const pondering = thinking && !listening && !speaking && !authoredMotion &&
+      !touchReflex && !head && !body && !face && !expressionActive
     const idleHead = !head && !touchReflex ? {
       // Head Z is a chosen neck tilt, NOT a permanent sine-wave wobble.
       // Keep the chin stable while ordinary speech animates the mouth.
-      yaw: 0,
+      yaw: pondering ? -1.4 : 0,
       pitch: .18 * Math.sin(seconds * .23 + .8) +
         speechEnergy * .18 * Math.sin(seconds * .47) +
-        (attending ? 1.2 + .18 * Math.sin(seconds * .65) : 0),
-      roll: 0,
+        (attending ? 1.2 + .18 * Math.sin(seconds * .65) : 0) +
+        (pondering ? -.85 : 0),
+      roll: pondering ? .3 : 0,
     } : null
     const idleBody = !body && !touchReflex ? {
-      yaw: .06 * Math.sin(seconds * .19 + .5),
+      yaw: .06 * Math.sin(seconds * .19 + .5) + (pondering ? -.25 : 0),
       pitch: .23 * Math.sin(seconds * .23) +
         speechEnergy * .18 * Math.sin(seconds * .47) +
-        (attending ? .32 : 0),
+        (attending ? .32 : 0) + (pondering ? -.18 : 0),
       roll: .09 * Math.sin(seconds * .17 + .9),
     } : null
     // Authored motion files can contain head/torso movement as well as arms.
@@ -207,8 +213,13 @@ export function createVisualLayerRuntime({ has, read, write }) {
       const pairedBrow = key === 'browLeftY' || key === 'browRightY'
       const bilateralBrow = pairedBrow
         ? touchReflex?.face?.browY ?? face?.browY : null
+      // Briefly glance away while the actual model request is pending.
+      // Real exp3 eyes, explicit gaze, touch and authored Motion3 win.
+      const thinkingGaze = pondering && !eyeShapeLocked
+        ? key === 'gazeX' ? -.14 : key === 'gazeY' ? .12 : null
+        : null
       const requested = touchReflex?.face?.[key] ?? face?.[key] ??
-        bilateralBrow ??
+        bilateralBrow ?? thinkingGaze ??
         (speechBrow != null && speechBrow > .008 ? speechBrow : null)
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       if (authoredMotion && requested == null) {
