@@ -132,7 +132,8 @@ internal object ResidentSocialMailbox {
     /** Physical co-presence, a real meeting, or an existing two-way thread
      * permits first contact. No arbitrary messaging of invisible strangers. */
     fun canContact(from: String, to: String): Boolean {
-        if (from.isBlank() || from == to ||
+        if (from.isBlank() || to.isBlank() || from == to ||
+            MigratedDomainStores.characters.settings.value[from] == null ||
             MigratedDomainStores.characters.settings.value[to] == null) return false
         if (to in contactsOf(from)) return true
         // A friendship confirmed through the existing QQ friend-request store
@@ -140,6 +141,10 @@ internal object ResidentSocialMailbox {
         // when the pair have not exchanged their first message or met today.
         if (MomentFriendAccess.areFriends(from, to)) return true
         if (CharacterSocialRelationship.knowsEachOther(from, to)) return true
+        // An unresolved/real-world label is not observed digital co-presence.
+        // Historical encounters, mail and confirmed friends above still permit
+        // legitimate contact independently of today's life-form or location.
+        if (!DigitalLifeProfileStore.isEnabled(from) || !DigitalLifeProfileStore.isEnabled(to)) return false
         val a = DigitalWorldStore.locationOf(from)
         return a.isNotBlank() && a == DigitalWorldStore.locationOf(to) &&
             !a.startsWith("home:") && !a.startsWith("resident-home:")
@@ -180,6 +185,10 @@ internal object ResidentSocialMailbox {
     internal fun mailWakeEnabled(to: String): Boolean =
         if (to.startsWith("resident:")) true else DigitalLifeProfileStore.isEnabled(to)
 
+    // Serialize the durable append AND both participants' observation records.
+    // Readers/cursors share this monitor, so they cannot acknowledge a later
+    // message while an earlier append has not yet become a delivered event.
+    @Synchronized
     fun send(from: String, to: String, content: String,
         author: String = "character", at: Instant = Instant.now()): ResidentDirectMessage {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
