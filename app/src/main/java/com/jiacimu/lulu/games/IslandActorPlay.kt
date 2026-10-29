@@ -24,7 +24,16 @@ internal object IslandActorPlay {
         val a = w.friends.firstOrNull { it.id == id && it.hp > 0 } ?: return emptyList()
         val result = mutableListOf(IslandActorOption("none", "观察、交谈或保持安静", "none"))
         if (!canAct || w.finished) return result
+        if (s.fruit > 0 && w.hp < 12 &&
+            abs(a.x - w.x) + abs(a.y - w.y) <= 1)
+            result += IslandActorOption("help_player", "把一颗野果送给玩家，为他恢复生命", "help_player")
         for ((x, y) in listOf(a.x+1 to a.y, a.x-1 to a.y, a.x to a.y+1, a.x to a.y-1)) {
+            val injured = w.friends.firstOrNull {
+                it.id != id && it.hp <= 0 && it.x == x && it.y == y
+            }
+            if (injured != null && s.fruit >= 2)
+                result += IslandActorOption("revive:$x:$y",
+                    "花两颗野果救起附近倒地队友", "revive", x, y)
             if (!w.inBounds(x, y)) continue
             val mob = w.mobs.firstOrNull { it.hp > 0 && it.x == x && it.y == y }
             if (mob != null) {
@@ -108,6 +117,7 @@ internal object IslandActorPlay {
             w.events.any { it.startsWith(eventPrefix(id,turn)) }) return null
         val a = options(s,id).firstOrNull { it.id==choice.actionId } ?: return null
         var next = w
+        var fruit = s.fruit
         val outcome = when (a.kind) {
             "none" -> "观察现场"
             "move" -> {
@@ -149,6 +159,20 @@ internal object IslandActorPlay {
                 next=w.copy(tiles=tiles,wood=w.wood-if(a.kind=="wall") 2 else 1)
                 when(a.kind) {"plant"->"自己种树";"wall"->"自己建造木墙";else->"自己铺地板"}
             }
+            "help_player" -> {
+                next = w.copy(hp = (w.hp + 3).coerceAtMost(12))
+                fruit -= 1
+                "自己拿一颗野果帮助玩家恢复了生命"
+            }
+            "revive" -> {
+                next = w.copy(friends = w.friends.map { teammate ->
+                    if (teammate.id != id && teammate.hp <= 0 &&
+                        teammate.x == a.x && teammate.y == a.y)
+                        teammate.copy(hp = 4) else teammate
+                })
+                fruit -= 2
+                "自己救起倒地伙伴，消耗了两颗野果"
+            }
             "rest" -> {
                 next=w.copy(friends=w.friends.map {
                     if(it.id==id) it.copy(hp=(it.hp+3).coerceAtMost(8)) else it
@@ -162,7 +186,7 @@ internal object IslandActorPlay {
             ?.let { "；下一步想：${it.take(100)}" } ?: ""
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
-        return s.copy(world=next)
+        return s.copy(world=next, fruit=fruit)
     }
 
     fun facts(s: BlockIslandState, id: String, heard: String): String {
@@ -198,7 +222,7 @@ internal object IslandActorPlay {
             characterId=id,
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
-像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
+像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。队友有危险时可以选择照顾、支援、救起倒地伙伴，也可以视局势选择先做其他事，不是强制保姆。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
 options 给出真实可选操作。approach 是你自己选择的远处目标，本轮只能沿合法路线走一格；想继续向那边探索，下轮你可以再次选择，并不强制跟随主人。
 你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。
 只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。

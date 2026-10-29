@@ -98,6 +98,40 @@ class IslandActorPlayTest {
         }
     }
 
+    @Test fun companionCanChooseToAidWoundedPlayerWithRealFruitCost() {
+        val s = world()
+        val actor = s.world.friends.first()
+        val prepared = s.copy(fruit = 1, world = s.world.copy(
+            hp = 5,
+            x = actor.x, y = actor.y + 1,
+        ))
+        assertTrue(IslandActorPlay.options(prepared, actor.id).any { it.id == "help_player" })
+        val result = IslandActorPlay.apply(prepared, actor.id, prepared.world.turns,
+            IslandActorChoice("help_player", "你先吃点东西，我去看看周围"))!!
+        assertEquals(8, result.world.hp)
+        assertEquals(0, result.fruit)
+        assertEquals(prepared.world.turns, result.world.turns)
+        assertTrue(result.world.events.last().contains("帮助玩家"))
+        assertNull(IslandActorPlay.apply(result, actor.id, result.world.turns,
+            IslandActorChoice("help_player", "")))
+    }
+
+    @Test fun rescueNeedsActualDownedTeammateAndTwoFruit() {
+        val base = world()
+        val alice = base.world.friends.first()
+        val bob = base.world.friends[1]
+        val prepared = base.copy(fruit = 2, world = base.world.copy(
+            friends = listOf(alice, bob.copy(hp = 0)),
+        ))
+        val option = IslandActorPlay.options(prepared, "alice").first { it.kind == "revive" }
+        val result = IslandActorPlay.apply(prepared, "alice", prepared.world.turns,
+            IslandActorChoice(option.id, "我来救你"))!!
+        assertEquals(4, result.world.friends[1].hp)
+        assertEquals(0, result.fruit)
+        val noFood = prepared.copy(fruit = 1)
+        assertFalse(IslandActorPlay.options(noFood, "alice").any { it.kind == "revive" })
+    }
+
     @Test fun invalidStructuredChoicesAreRejectedNotReinterpreted() {
         assertNull(IslandActorPlay.parse("我去采集"))
         assertNull(IslandActorPlay.parse("""{"actionId":"none"}"""))
