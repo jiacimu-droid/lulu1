@@ -23,6 +23,12 @@ class SleepCallContinuationPolicyTest {
         assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(30 * 60_000L))
     }
 
+    @Test fun onlyOneExactTextAudioRetryBeforeAnotherModelTurn() {
+        assertTrue(SleepCallContinuationPolicy.shouldRetryFailedAudio(true, 1))
+        assertFalse(SleepCallContinuationPolicy.shouldRetryFailedAudio(true, 0))
+        assertFalse(SleepCallContinuationPolicy.shouldRetryFailedAudio(false, 1))
+    }
+
     @Test fun bedtimeWaitsUntilAudibleSpeechFinishesBeforeHandlingNewWords() {
         assertTrue(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, "主人还醒着"))
         assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, " "))
