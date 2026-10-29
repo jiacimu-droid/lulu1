@@ -281,6 +281,8 @@ class CharacterCausalTraceTest {
         source(b, "trace-search-foreign", "另一人物自己的私聊")
         val mind = JSONObject().put("decisions", JSONArray().put(
             JSONObject().put("causalEvidenceId", "trace-search-receipt")
+                .put("causalEvidenceRevision", 1L)
+                .put("at", at.plusSeconds(20).toString())
                 .put("selected", "publish_moment")
                 .put("reason", "搜索后想整理内容再分享")
                 .put("outcome", "尚未收到发布回执")))
@@ -307,6 +309,71 @@ class CharacterCausalTraceTest {
         assertTrue(revised.any { it.title.contains("历史版本的行动回执") })
         assertFalse(revised.any { it.title.contains("回执后的本人选择") })
         assertFalse(revised.any { it.title == "原生结果记录" })
+    }
+
+    @Test fun postToolDecisionRequiresActualResultChronologyAndRevision() {
+        source(a, "trace-order-origin")
+        receipt(a, "trace-order-result", "trace-order-origin",
+            "web_search", "succeeded", true, "真实结果已返回")
+        // A late persistence/import can attach the correct evidence ID to a
+        // decision timestamped before the result. It is not a follow-up.
+        CharacterInnerLifeStore.recordDecision(a, "trace-before-result",
+            "publish_moment", "结果返回之前已经想分享", "", null,
+            "尚未执行", false, now = at.plusSeconds(5),
+            causalEvidenceId = "trace-order-result")
+        val before = CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-order-origin"), SharedExperienceTimeline.all(a), JSONObject())
+        assertFalse(before.any { it.title.contains("回执后的本人选择") })
+        assertTrue(before.any { it.title.contains("后续关系未证实") &&
+            it.detail.contains("早于实际结果") })
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, "trace-order-result"))
+
+        CharacterInnerLifeStore.recordDecision(a, "trace-after-result",
+            "publish_moment", "读完结果后才决定分享", "", null,
+            "仍未发布", false, now = at.plusSeconds(20),
+            causalEvidenceId = "trace-order-result")
+        for (anchor in listOf("trace-order-origin", "trace-order-result")) {
+            val lines = CharacterCausalTrace.inspect(context, a, event(a, anchor),
+                SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b), JSONObject())
+            assertEquals(1, lines.count { it.title.contains("回执后的本人选择") })
+            assertTrue(lines.any { it.title.contains("回执后的本人选择") &&
+                it.detail.contains("读完结果后才决定分享") })
+            assertTrue(lines.any { it.title.contains("后续关系未证实") &&
+                it.detail.contains("结果返回之前") })
+            assertFalse(lines.any { it.title.contains("执行器确认成功") &&
+                it.detail.contains("仍未发布") })
+        }
+        assertTrue(CharacterCausalTrace.inspect(context, b,
+            event(a, "trace-order-origin"), SharedExperienceTimeline.all(a),
+            JSONObject()).isEmpty())
+    }
+
+    @Test fun editedResultAndLegacyChoiceNeverBecomeVerifiedFollowUp() {
+        source(a, "trace-revised-origin")
+        receipt(a, "trace-revised-result", "trace-revised-origin",
+            "web_search", "succeeded", true, "原来的搜索结果")
+        CharacterInnerLifeStore.recordDecision(a, "trace-revised-choice",
+            "publish_moment", "针对原来结果的选择", "", null,
+            "未发布", false, now = at.plusSeconds(20),
+            causalEvidenceId = "trace-revised-result")
+        receipt(a, "trace-revised-result", "trace-revised-origin",
+            "web_search", "succeeded", true, "修改后的搜索结果")
+        val legacy = JSONObject().put("decisions", JSONArray().put(
+            JSONObject().put("id", "trace-legacy-choice")
+                .put("causalEvidenceId", "trace-revised-result")
+                .put("selected", "publish_moment")
+                .put("reason", "旧记录没有时间和版本")))
+        val lines = CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-revised-result"), SharedExperienceTimeline.all(a), legacy)
+        assertFalse(lines.any { it.title.contains("回执后的本人选择") })
+        assertTrue(lines.any { it.title.contains("后续关系未证实") &&
+            it.detail.contains("历史版本") })
+        assertTrue(lines.any { it.title.contains("后续关系未证实") &&
+            it.detail.contains("旧选择未记录依据版本") })
+        SharedExperienceTimeline.deleteEvent("trace-revised-result")
+        assertTrue(CharacterCausalTrace.inspect(context, a,
+            event(a, "trace-revised-result"), SharedExperienceTimeline.all(a),
+            legacy).isEmpty())
     }
 
     @Test fun perceivedReceiptWithoutFollowUpIsNotMisreportedAsDeliberateSilence() {
