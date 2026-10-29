@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`823b81779308d8cc5da315fe00a8bfee66b1c646`
+- 基准提交：`2e3ff7a20882d3d210d9cb40881252428afb09e9`
 - 分支：`main`
-- 已索引文件：1070
-- 已索引代码/文本行：221403
-- 已发现符号：3145
+- 已索引文件：1072
+- 已索引代码/文本行：221611
+- 已发现符号：3151
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -642,6 +642,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 150 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 587 | 25 |
@@ -1050,6 +1051,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 230 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:41:53.614888+00:00",
-  "commit": "823b81779308d8cc5da315fe00a8bfee66b1c646",
+  "generatedAt": "2026-10-29T14:44:46.419420+00:00",
+  "commit": "2e3ff7a20882d3d210d9cb40881252428afb09e9",
   "branch": "main",
-  "sourceFingerprint": "c1cd229f8372717d93ca174b7a7e7f2a07d2767feb762382f2db0af1b2e68027",
+  "sourceFingerprint": "fae2524bf2bc433badc653aa0566d93f0a51f9bc159bf79b95fbe9a807c0a332",
   "summary": {
-    "files": 1070,
-    "lines": 221403,
-    "symbols": 3145
+    "files": 1072,
+    "lines": 221611,
+    "symbols": 3151
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1826,6 +1826,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
         "line": 103
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 16
       }
     ],
     "expand": [
@@ -3082,6 +3086,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt",
         "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 61
       }
     ],
     "userDeparted": [
@@ -7046,6 +7054,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -12820,6 +12832,18 @@
         "line": 40
       }
     ],
+    "eventPrefix": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 15
+      }
+    ],
+    "facts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 109
+      }
+    ],
     "GameModelConnectionStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
@@ -17492,6 +17516,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt",
         "line": 12
+      }
+    ],
+    "IslandActorPlayTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
+        "line": 5
       }
     ],
     "RelicEscapeRulesTest": [
@@ -30850,6 +30880,33 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+      "lines": 150,
+      "sha256": "b731836030454c435f47103a459de9ddc3eea70949d58e41e119775720037130",
+      "symbols": [
+        {
+          "name": "eventPrefix",
+          "line": 15
+        },
+        {
+          "name": "options",
+          "line": 16
+        },
+        {
+          "name": "parse",
+          "line": 51
+        },
+        {
+          "name": "apply",
+          "line": 61
+        },
+        {
+          "name": "facts",
+          "line": 109
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
       "lines": 52,
       "sha256": "af9cc18e0df9b086cd1fdcb9b8d7e7db67fe32481fb5b77358746ca5e61137af",
@@ -37182,6 +37239,17 @@
         {
           "name": "ExpeditionRulesTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
+      "lines": 58,
+      "sha256": "9498d1ff8b4d8547a0915c53a6273cf5d8716b62ce5c6fba1c1ceff038bd6ddd",
+      "symbols": [
+        {
+          "name": "IslandActorPlayTest",
+          "line": 5
         }
       ]
     },
