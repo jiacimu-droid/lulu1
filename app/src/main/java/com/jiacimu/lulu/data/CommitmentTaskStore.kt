@@ -128,12 +128,16 @@ object CommitmentTaskStore {
                     task.linkedAlarmId.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
-                        status = CommitmentTaskStatus.Expired,
+                        // Missing a passive review must not expire the underlying
+                        // care promise. No late extra call is silently placed.
+                        status = if (task.followUpKind == "verification")
+                            CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
                         nextCheckAt = null,
                         linkedAlarmId = null,
+                        followUpKind = "",
                         revision = task.revision + 1L,
                         updatedAt = now,
-                        lastActionResult = "应用恢复时发现有限重试时点已经错过；原任务结果仍未确认，停止自动追加动作",
+                        lastActionResult = "应用恢复时发现复查或有限重试时点已经错过；目标结果仍未确认，不擅自补拨；等待角色重新安排",
                     )
                 }
                 else -> task
@@ -219,10 +223,12 @@ object CommitmentTaskStore {
         val deadline = scheduledAt ?: current.nextCheckAt ?: current.dueAt
         if (deadline != null && !CommitmentAlarmTiming.due(deadline, receivedAt)) {
             if (CommitmentAlarmTiming.expired(deadline, receivedAt)) update(current.id) { old -> old.copy(
-                status = CommitmentTaskStatus.Expired, linkedAlarmId = null, nextCheckAt = null,
+                status = if (old.followUpKind == "verification")
+                    CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
+                linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
                 lastAlarmScheduledAt = deadline, lastAlarmReceivedAt = receivedAt,
                 lastAlarmDeliverySource = deliverySource,
-                lastActionResult = "系统回调迟于约定超过两分钟；未补拨，未记作准时履约",
+                lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
             ) }
             return null
         }
