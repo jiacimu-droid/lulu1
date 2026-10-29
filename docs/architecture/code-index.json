@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T17:08:09.306126+00:00",
-  "commit": "0ef64946b3e9d6e85298545f04c10e003cabcf94",
+  "generatedAt": "2026-10-29T17:08:54.206006+00:00",
+  "commit": "4d6b6dba41168a210e14f6633da624f91f515fcc",
   "branch": "main",
-  "sourceFingerprint": "71cdc3f731204fda493a84cf4365f80191f61331a85dd299ab47c3970beea0c3",
+  "sourceFingerprint": "67cdc353ade3f5fc7345cf7dd93bdef0129082091c02d7db56ec3d83cedddbb8",
   "summary": {
     "files": 1086,
-    "lines": 224736,
-    "symbols": 3189
+    "lines": 224759,
+    "symbols": 3190
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6003,7 +6003,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 471
+        "line": 485
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -7916,10 +7916,16 @@
         "line": 417
       }
     ],
-    "deleteMoment": [
+    "forgetEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 448
+      }
+    ],
+    "deleteMoment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 462
       }
     ],
     "planningGuidance": [
@@ -25206,8 +25212,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 603,
-      "sha256": "4e2ba9310cafb913e1b06fd653d27cb421f287d002762a8a5a55d9da223a9b4b",
+      "lines": 621,
+      "sha256": "b34225b81e2789620479e574581cab1174ca2723784e2d42a4c84df8f767cfd0",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -25278,12 +25284,16 @@
           "line": 417
         },
         {
-          "name": "deleteMoment",
+          "name": "forgetEvidence",
           "line": 448
         },
         {
+          "name": "deleteMoment",
+          "line": 462
+        },
+        {
           "name": "clearCharacter",
-          "line": 471
+          "line": 485
         }
       ]
     },
@@ -32985,8 +32995,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2168,
-      "sha256": "2fd5eb36347a87072b3dc4c5c0351eee1e4b18110e77c37d734d3cd004041bb7",
+      "lines": 2173,
+      "sha256": "3c1057d6266c127ec49be9b5c90c11dcfe30c11436605e85afe7acbfd7fa9cdf",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
