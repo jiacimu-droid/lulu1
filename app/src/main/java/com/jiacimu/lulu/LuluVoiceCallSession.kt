@@ -1069,15 +1069,6 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 if (!busy && current.connected) {
-                    val deferred = deferredBedtimeVoiceTurn
-                    if (deferred != null && current.sleepMode &&
-                        deferred.callId == current.callExperienceId &&
-                        speechQueue?.hasPendingAudio != true) {
-                        deferredBedtimeVoiceTurn = null
-                        handleUserSpeech(deferred.text, allowWhileMuted = true,
-                            acousticNote = deferred.acousticNote)
-                        return@busyChanged
-                    }
                     mediaSpeechResume?.cancel()
                     mediaSpeechResume = scope.launch {
                         delay(600L)
@@ -1106,6 +1097,20 @@ internal object LuluVoiceCallSession {
                         }
                     }
                     scheduleSleepContinuation()
+                }
+            },
+            onDrained = {
+                // Only a naturally finished speech queue may consume the
+                // verified STT turn. Forced stop(), mic retry, a wake alarm,
+                // and hangup must not re-enter another user reply.
+                val current = mutableState.value
+                val deferred = deferredBedtimeVoiceTurn
+                if (current.connected && current.sleepMode && deferred != null &&
+                    deferred.callId == current.callExperienceId &&
+                    speechQueue?.hasPendingAudio != true) {
+                    deferredBedtimeVoiceTurn = null
+                    handleUserSpeech(deferred.text, allowWhileMuted = true,
+                        acousticNote = deferred.acousticNote)
                 }
             },
             onError = { error -> if (mutableState.value.connected) {
