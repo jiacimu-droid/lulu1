@@ -221,8 +221,14 @@ internal object CharacterStateHistory {
                 // independently authored presence moments. Different thoughts
                 // sharing a template or subject must remain separate.
                 val independentMoments = old.moment != null && row.moment != null
+                // Similar topics or a shared opening do not prove two
+                // independent authored thoughts are the same. Semantic
+                // overlap is only used to join a causal projection to a
+                // presence snapshot from that SAME real event.
                 val sameVoice = equivalent(oldVoice, nextVoice) &&
-                    (!independentMoments || oldVoice == nextVoice)
+                    (oldVoice == nextVoice || (sameExecutionWindow && overlap &&
+                        !independentMoments &&
+                        (old.moment != null || row.moment != null)))
                 val fingerprint = old.moment?.innerThoughtFingerprint.orEmpty()
                 val sameFingerprint = fingerprint.isNotBlank() &&
                     fingerprint == row.moment?.innerThoughtFingerprint
@@ -230,7 +236,12 @@ internal object CharacterStateHistory {
                 // with the actual presence moment. Different actual voices
                 // remain independent even when they are close together.
                 val isSupportingProjection = sameExecutionWindow && overlap &&
-                    (old.moment == null || row.moment == null)
+                    (old.moment == null || row.moment == null) &&
+                    // A tool receipt with no heart voice is a supporting
+                    // projection. TWO independent authored causal voices are
+                    // not, even if they reference the same triggering event.
+                    (old.moment != null || row.moment != null ||
+                        oldVoice.isBlank() || nextVoice.isBlank())
                 // Two different inner voices about the same source are genuine
                 // changes, not duplicates. Do not merge merely by clock minute.
                 nearby && (sameVoice || sameFingerprint || isSupportingProjection)
