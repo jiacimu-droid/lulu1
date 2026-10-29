@@ -27,6 +27,11 @@ internal object SleepCallContinuationPolicy {
         enabled: Boolean, remainingAttempts: Int, audioAlreadyStarted: Boolean,
     ): Boolean = enabled && remainingAttempts > 0 && !audioAlreadyStarted
 
+    /** A text bubble is already persisted; only its phone reply must wait.
+     * Ordinary calls remain interruptible, including while TTS is pending. */
+    fun shouldHoldTypedTurn(opening: Boolean, sleepMode: Boolean, audioPending: Boolean): Boolean =
+        opening || (sleepMode && audioPending)
+
     /** A verified microphone turn waits for bedtime narration instead of
      * resetting its active TTS queue. Ordinary chat retains barge-in. */
     fun shouldDeferUserWords(sleepMode: Boolean, audibleSpeech: Boolean, text: String): Boolean =
