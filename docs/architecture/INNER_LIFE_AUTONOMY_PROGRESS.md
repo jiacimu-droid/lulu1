@@ -86,3 +86,12 @@
 - 源码、测试和本专项进度的原子 main 提交：[a7e01638](https://github.com/jiacimu-droid/lulu1/commit/a7e01638a60a44b114bb46f23382e4dd1e6423eb)；后续 main 对比仅有其他专项文件和自动索引变更，本专项修复仍在 main。
 - 原有 [Refresh code index #40864330068](https://github.com/jiacimu-droid/lulu1/actions/runs/40864330068) 已 **completed/success**，自动索引提交 `1374e67b`，CODE_INDEX 基准指向 `a7e01638`；未手工修改索引。
 - 原 [Lulu APK #40864330013](https://github.com/jiacimu-droid/lulu1/actions/runs/40864330013) 因后续并发 main 提交而 **cancelled**，不能算 JVM 测试通过、APK 构建成功或发布。后续 main 的 APK #40864759507 在本次核对时仍 pending；须等待包含此修复的后续 completed run 证实原失败断言已通过，真机仍待验。
+
+## 2026-10-29 T2/T3：旧失败回执不得污染新兴趣或已结束的整理
+
+- **四类核对**：旧 nextAction→真实 ToolRouter 回执、兴趣 source/revision 校验和已结束兴趣的迟到成功回执门禁已有源码；最新 main 的 [APK #40903765474](https://github.com/jiacimu-droid/lulu1/actions/runs/40903765474) 已 completed/success，包含 Live2D、JVM、phone、APK 发布步骤，但不是本次变更的验收。此前 D2/T3 的真机强杀与跨三次自然唤醒仍待验；多年数据量/真实模型自然兴趣选择为可选增强。**本轮真实缺口**：失败回执路径未同步成功回执的来源门禁。
+- **根因**：`CharacterCuriosityRuntime.recordOutcome` 已拒绝旧来源/旧问法抢占新 pending，`recordFailure` 却仅按 threadId 找到当前线程，把迟到的旧失败作为最新问题的失败并覆盖 repeats/reason；已经 dropped/satisfied 的线程也可新增失败。原 `promptSection` 无条件显示最近三项 failures，使已关闭兴趣仍通过「最近失败」进入后续自主选择，形成无真实意愿的旧问题反复浮现。
+- **正式源码**：只改原 `CharacterCuriosityRuntime.kt`。失败回执归属核验当前 pending 的有效 source、问法与本角色归属；已实践线程核验当前问题/来源并拒绝已关闭兴趣的迟到失败。仍允许旧协议在尚无线程时记录未关联的真实失败；不删除历史失败或工具时间线。新失败保存原有可选 sourceEvidenceId，后续 `promptSection` 只显示仍属于有效待探索问题/线程的已关联失败；不借另一人的来源，也不为失败自动重试、重开或收费。
+- **回归源码**：`CharacterExplorationContinuityTest` 两条测试覆盖旧工具失败晚到→新 inquiry 与新失败不被污染→真实新工具成功清除当前失败→本人明确结案后迟到失败不能复活；另覆盖结案前真实失败仍保存在原 Store、重启后不再出现在自主决策提示。原执行事实仍由时间线保留，回归文件提交不能代替 JVM 实跑。
+- **提交**：源码 [af32d94](https://github.com/jiacimu-droid/lulu1/commit/af32d94f66991dcc95ed11ab61291fba6d5fece9)，回归 [410c3ef](https://github.com/jiacimu-droid/lulu1/commit/410c3efc11d5ea80f9e382c78fca1a7a45ed3447)。仅修改本专项运行时、对应测试和本专项进度；不碰基础/社交/Live2D 的公共文件，不新建 Store、调度或模型轮次。
+- **验证分层**：源码提交后原 [Refresh code index #40907424813](https://github.com/jiacimu-droid/lulu1/actions/runs/40907424813) completed/success，自动索引提交 `45bf6bb`；回归提交后原 [Refresh code index #40907490706](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490706) 最初为 queued。源码单独 [APK #40907424998](https://github.com/jiacimu-droid/lulu1/actions/runs/40907424998) 因后续回归提交被取消；包含回归的 [APK #40907490830](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490830) 最初为 pending。执行环境无 Android SDK/Gradle，**不能宣布本轮 JVM、APK、Release 或真机通过**；须按最终 run 状态继续核对。真实设备的强杀、权限变化和三次跨天唤醒仍未验。
