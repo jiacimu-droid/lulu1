@@ -262,11 +262,16 @@ class InMemoryLuluChatStore : LuluChatStore {
                             else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}将 $names 移出了群聊")
                     }
                 }
-                appendSystemMessage(conversationId, "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + if (normalized.ownerIncluded) 1 else 0} 人。")
-                recordGroupMembershipAwareness(conversation, addedMemberIds)
+                val actualNotice = appendSystemMessage(conversationId,
+                    "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + if (normalized.ownerIncluded) 1 else 0} 人。")
+                // A character can leave and rejoin the SAME group. This real, persisted
+                // membership change message is the unique evidence for the new invitation,
+                // not the previous conversation.updatedAt (which may be stale).
+                recordGroupMembershipAwareness(conversation, addedMemberIds,
+                    invitationId = actualNotice.id, invitationAt = actualNotice.createdAt)
                 removedMemberIds.forEach { characterId ->
                     SharedExperienceTimeline.record(
-                        eventId = "group-removed-${conversation.id}-$characterId-${Instant.now().toEpochMilli()}",
+                        eventId = "group-removed-${conversation.id}-$characterId-${actualNotice.id}",
                         characterId = characterId,
                         channel = "群聊·${normalized.name}",
                         sessionId = conversation.id,
@@ -275,7 +280,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                         content = (if (normalized.ownerIncluded) "用户"
                             else "${MigratedDomainStores.characters.get(normalized.creatorCharacterId).displayName}") +
                             "将你移出了群聊《${normalized.name}》。你保留此前真实经历，但不再是群成员，也不会读取或参与此后的群聊消息。",
-                        occurredAt = Instant.now(),
+                        occurredAt = actualNotice.createdAt,
                         triggerExtraction = false,
                         evidenceKind = EventEvidenceKind.Observation,
                     )
@@ -305,6 +310,8 @@ class InMemoryLuluChatStore : LuluChatStore {
     private fun recordGroupMembershipAwareness(
         conversation: LuluConversation,
         onlyCharacterIds: Set<String>? = null,
+        invitationId: String = conversation.updatedAt.toEpochMilli().toString(),
+        invitationAt: Instant = conversation.updatedAt,
     ) {
         val group = conversation.groupChat ?: return
         val characterNames = group.members.map { member ->
@@ -318,7 +325,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             .filter { member -> onlyCharacterIds == null || member.characterId in onlyCharacterIds }
             .forEach { member ->
                 SharedExperienceTimeline.record(
-                    eventId = "group-joined-${conversation.id}-${member.characterId}-${conversation.updatedAt.toEpochMilli()}",
+                    eventId = "group-joined-${conversation.id}-${member.characterId}-$invitationId",
                     characterId = member.characterId,
                     channel = "群聊·${group.name}",
                     sessionId = conversation.id,
@@ -329,7 +336,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                     else if (member.characterId == group.creatorCharacterId)
                         "你创建了群聊《${group.name}》。群成员：$memberSummary。可以在群里聊天，其他人自行决定是否回应。"
                     else "${MigratedDomainStores.characters.get(group.creatorCharacterId).displayName}邀请你加入了群聊《${group.name}》。群成员：$memberSummary。你可以自己决定是否回应。",
-                    occurredAt = conversation.updatedAt,
+                    occurredAt = invitationAt,
                     triggerExtraction = false,
                     evidenceKind = EventEvidenceKind.Observation,
                 )

@@ -59,6 +59,38 @@ class CharacterCreatedGroupTest {
             listOf(notice.id + ":group:" + b.characterId)).isEmpty())
     }
 
+    @Test fun groupInviteIsInThePersonalTimelineAndRejoiningHasNewEvidence() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val a = MigratedDomainStores.characters.create("建群-" + UUID.randomUUID()).characterId
+        val b = MigratedDomainStores.characters.create("重进-" + UUID.randomUUID()).characterId
+        val c = MigratedDomainStores.characters.create("留群-" + UUID.randomUUID()).characterId
+        val created = MigratedDomainStores.chat.createGroupConversation(
+            "周末一起聊天", listOf(a, b, c))
+        val membership = created.groupChat!!
+        val initial = SharedExperienceTimeline.recentEvents(b, 100)
+            .single { it.sessionId == created.id && it.source == "group-membership" }
+        assertTrue(initial.content.contains("周末一起聊天"))
+        assertTrue(initial.content.contains("群成员"))
+        assertTrue(initial.content.contains("邀请"))
+        val leaving = membership.copy(members = membership.members.filterNot { it.characterId == b })
+        assertTrue(MigratedDomainStores.chat.updateGroupConversation(created.id, leaving))
+        val returnGroup = membership.copy(members = membership.members)
+        assertTrue(MigratedDomainStores.chat.updateGroupConversation(created.id, returnGroup))
+        val history = SharedExperienceTimeline.recentEvents(b, 150)
+            .filter { it.sessionId == created.id && it.source == "group-membership" }
+        assertEquals(3, history.size)
+        assertEquals(2, history.count { it.content.contains("拉进了群聊") })
+        assertEquals(1, history.count { it.content.contains("移出了群聊") })
+        assertEquals(3, history.map { it.id }.distinct().size)
+        // The remaining members get actual persisted membership-change notices;
+        // the group change is not secret just because only the added member has a new invite.
+        assertTrue(SharedExperienceTimeline.recentEvents(c, 160).any {
+            it.sessionId == created.id && it.content.contains("群成员变更")
+        })
+    }
+
     @Test fun unrelatedCharactersCannotBePulledIntoPrivateGroup() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
