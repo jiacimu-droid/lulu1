@@ -601,7 +601,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
     }
 
-    override fun editMessage(messageId: String, content: String): Boolean {
+    override fun editMessage(messageId: String, content: String): Boolean = synchronized(lock) {
+        // Keep the original chat text AND its timeline revision in one
+        // mutation lease. Otherwise edit -> restore-original can expose the
+        // old text with the old revision before the asynchronous evidence
+        // update, allowing a stale model bubble through the final guard.
         val clean = content.trim()
         if (clean.isBlank()) return false
         val changed = mutateMessagesContaining(messageId) { messages ->
