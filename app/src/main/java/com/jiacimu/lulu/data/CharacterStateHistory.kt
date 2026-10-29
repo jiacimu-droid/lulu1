@@ -11,6 +11,9 @@ internal data class CharacterStateHistoryRow(
     val deletionKind: String = "", val deletionKey: String = "",
     val extraDeletions: List<Pair<String, String>> = emptyList(),
     val mergedMomentTimes: List<Instant> = emptyList(),
+    /** Display-only: a previously displayed authored voice, not a deleted event. */
+    val suppressRepeatedVoice: Boolean = false,
+    val suppressRepeatedIdeas: Boolean = false,
 )
 
 /** One chronological view of the original snapshots, thoughts and decisions. No new persistence. */
@@ -155,9 +158,10 @@ internal object CharacterStateHistory {
             "一段心事的结束" to listOf(it.optString("focus"), it.optString("resolution"))
                 .filter(String::isNotBlank).joinToString("\n")
         }
-        return compactRepeatedMoments(rows.distinctBy { it.key })
+        val visible = compactRepeatedMoments(rows.distinctBy { it.key })
             .sortedWith(compareByDescending<CharacterStateHistoryRow> { it.at }.thenBy { it.key })
             .take(maxEntries.coerceAtLeast(0))
+        return suppressRepeatedNarration(visible)
     }
 
 
@@ -255,6 +259,47 @@ internal object CharacterStateHistory {
         return output
     }
 
+    /**
+     * Causal thoughts are saved before an external tool runs; presence and
+     * decision snapshots can be saved minutes later. They are separate facts
+     * carrying one authored voice. Preserve every record and action, and omit
+     * only the already-shown narrative from the read-only history projection.
+     */
+    internal fun suppressRepeatedNarration(input: List<CharacterStateHistoryRow>): List<CharacterStateHistoryRow> {
+        data class Seen(val at: Instant, val voice: String, val ideas: List<String>,
+                        val evidenceIds: Set<String>)
+        val seen = mutableListOf<Seen>()
+        val output = mutableMapOf<String, CharacterStateHistoryRow>()
+        fun normalize(text: String): String = text.lowercase().filter(Char::isLetterOrDigit)
+        for (row in input.sortedWith(compareBy<CharacterStateHistoryRow> { it.at }.thenBy { it.key })) {
+            val shown = display(row)
+            val voice = normalize(shown.voice)
+            if (voice.length < 48) {
+                output[row.key] = row
+                continue
+            }
+            val duplicate = seen.asReversed().firstOrNull { prior ->
+                val minutes = java.time.Duration.between(prior.at, row.at).toMinutes()
+                val commonEvidence = row.evidenceIds.any { it.isNotBlank() && it in prior.evidenceIds }
+                minutes in 0L..15L && (voice == prior.voice ||
+                    (commonEvidence && voice.length >= 80 &&
+                        prior.voice.length >= voice.length && prior.voice.startsWith(voice)))
+            }
+            if (duplicate == null) {
+                seen += Seen(row.at, voice, shown.otherThoughts.map { normalize(it.second) },
+                    row.evidenceIds.toSet())
+                output[row.key] = row
+            } else {
+                val ideas = shown.otherThoughts.map { normalize(it.second) }
+                output[row.key] = row.copy(
+                    suppressRepeatedVoice = true,
+                    suppressRepeatedIdeas = ideas.isNotEmpty() && ideas == duplicate.ideas,
+                )
+            }
+        }
+        return input.map { output[it.key] ?: it }
+    }
+
     /** A single read model for the "此刻" card; persisted data remains owned by
      * its original stores. Every section needs distinct information, not a
      * renamed copy of the same inner monologue. */
@@ -270,9 +315,10 @@ internal object CharacterStateHistory {
         val lines = row.detail.lines().map(String::trim).filter(String::isNotBlank)
         val labels = setOf("状态", "动作", "想法", "当时的念头",
             "仍在权衡", "想调整", "当时怎样理解这段关系", "当时挂心的事")
-        val voice = row.moment?.innerThought?.trim().orEmpty().ifBlank {
+        val rawVoice = row.moment?.innerThought?.trim().orEmpty().ifBlank {
             lines.firstOrNull { it.substringBefore('：') !in labels }.orEmpty()
         }
+        val voice = if (row.suppressRepeatedVoice) "" else rawVoice
         val mood = row.moment?.mood.orEmpty()
             .split(Regex("\\s*[·•；;]+\\s*")).map(String::trim)
             .filter(String::isNotBlank).distinct().joinToString(" · ")
@@ -292,7 +338,7 @@ internal object CharacterStateHistory {
             } else if (label in labels) {
                 readingLegacyIdea = false
                 continue
-            } else if (voice.lines().any { it.trim() == line }) {
+            } else if (rawVoice.lines().any { it.trim() == line }) {
                 readingLegacyIdea = false
                 continue
             } else if (!line.contains('：') && row.moment != null) {
@@ -311,7 +357,8 @@ internal object CharacterStateHistory {
                 }) continue
             extras += "想法" to content
         }
-        return MomentDisplay(voice, mood, status, gesture, extras)
+        return MomentDisplay(voice, mood, status, gesture,
+            if (row.suppressRepeatedIdeas) emptyList() else extras)
     }
 
     fun delete(characterId: String, row: CharacterStateHistoryRow) {
