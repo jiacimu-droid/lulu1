@@ -300,6 +300,20 @@ internal object CharacterCuriosityRuntime {
         val assignedId = selectedQuestion?.let(::identity) ?: selected?.let(::identity)
             ?: UUID.randomUUID().toString()
         val current = selected?.let { JSONObject(it.toString()) } ?: JSONObject()
+        // A delayed tool callback is a real experience, but not a new decision
+        // to reopen an interest the character already settled or dropped.
+        // Only a later, separately observed inquiry with the same owned ID
+        // authorizes continuation; old pending questions cannot do so.
+        val closed = current.optString("status").takeIf { it == "dropped" || it == "satisfied" }
+        val closedAt = runCatching {
+            Instant.parse(current.optString(if (closed == "dropped") "releasedAt" else "settledAt"))
+        }.getOrNull()
+        val inquiryAt = selectedQuestion?.let {
+            runCatching { Instant.parse(it.optString("at")) }.getOrNull()
+        }
+        val resumedAfterClosure = closed != null && closedAt != null &&
+            inquiryAt != null && inquiryAt.isAfter(closedAt)
+        val preserveClosure = closed != null && !resumedAfterClosure
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
@@ -312,16 +326,23 @@ internal object CharacterCuriosityRuntime {
             .put("action", action.take(60)).put("receipt", receipt.take(240))
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status))
-        current.put("threadId", assignedId)
-            .put("topic", fields[0]).put("steps", kept)
-            .put("motiveId", linkedMotiveId(characterId, proposal)
-                .ifBlank { current.optString("motiveId") })
-            .put("question", fields[1]).put("why", fields[2])
-            .put("nextStep", fields[3]).put("status", status)
-            .put("parentThreadId", selectedQuestion?.optString("parentThreadId").orEmpty()
-                .ifBlank { current.optString("parentThreadId") })
-            .put("parentTopic", proposal?.optString("parentTopic").orEmpty().ifBlank { current.optString("parentTopic") })
+        current.put("threadId", assignedId).put("steps", kept)
             .put("updatedAt", now.toString())
+        if (!preserveClosure) {
+            current.put("topic", fields[0])
+                .put("motiveId", linkedMotiveId(characterId, proposal)
+                    .ifBlank { current.optString("motiveId") })
+                .put("question", fields[1]).put("why", fields[2])
+                .put("nextStep", fields[3]).put("status", status)
+                .put("parentThreadId", selectedQuestion?.optString("parentThreadId").orEmpty()
+                    .ifBlank { current.optString("parentThreadId") })
+                .put("parentTopic", proposal?.optString("parentTopic").orEmpty()
+                    .ifBlank { current.optString("parentTopic") })
+            if (resumedAfterClosure) {
+                listOf("releaseReason", "releasedAt", "settleReason", "settledAt")
+                    .forEach(current::remove)
+            }
+        }
         if (selected != null) threadRecords.removeAll { identity(it) == identity(selected) }
         threadRecords.add(current)
         root.put("threads", JSONArray().apply { threadRecords.forEach(::put) })
@@ -373,9 +394,16 @@ internal object CharacterCuriosityRuntime {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
         if (matchQuestion == null && matchThread == null) return
+        if (matchQuestion == null && matchThread?.optString("status") == "dropped") return
         if (matchThread != null) {
             matchThread.put("status", "dropped")
                 .put("releaseReason", fields[2]).put("releasedAt", now.toString())
+            root.put("threads", threads)
+        } else if (matchQuestion != null) {
+            // A pending question can be closed before its first tool finishes.
+            // Keep its terminal decision in this SAME store, not a second queue.
+            threads.put(JSONObject(matchQuestion.toString()).put("status", "dropped")
+                .put("releaseReason", fields[2]).put("releasedAt", now.toString()))
             root.put("threads", threads)
         }
         root.put("questions", JSONArray().apply {
@@ -407,9 +435,14 @@ internal object CharacterCuriosityRuntime {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
         if (matchQuestion == null && matchThread == null) return
+        if (matchQuestion == null && matchThread?.optString("status") == "satisfied") return
         if (matchThread != null) {
             matchThread.put("status", "satisfied")
                 .put("settleReason", fields[2]).put("settledAt", now.toString())
+            root.put("threads", threads)
+        } else if (matchQuestion != null) {
+            threads.put(JSONObject(matchQuestion.toString()).put("status", "satisfied")
+                .put("settleReason", fields[2]).put("settledAt", now.toString()))
             root.put("threads", threads)
         }
         root.put("questions", JSONArray().apply {
@@ -514,6 +547,16 @@ internal object CharacterCuriosityRuntime {
             for (i in 0 until threads.length()) {
                 val t = threads.optJSONObject(i) ?: continue
                 val steps = t.optJSONArray("steps") ?: JSONArray()
+                if (steps.length() == 0) {
+                    // Pending-only terminal decisions have no action receipt.
+                    // Preserve unrelated closures while retracting their own
+                    // withdrawn observation; never discard all such records
+                    // merely because another thread's evidence was revoked.
+                    if (t.optString("observedId") == eventId ||
+                        t.optString("parentEvidenceId") == eventId) changed = true
+                    else keptThreads.put(t)
+                    continue
+                }
                 val kept = JSONArray()
                 for (j in 0 until steps.length()) {
                     val step = steps.optJSONObject(j) ?: continue
