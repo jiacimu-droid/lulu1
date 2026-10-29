@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:47:57.143924+00:00",
-  "commit": "b8fd7d723675ebd240c83a1c0db4c9ed0895f855",
+  "generatedAt": "2026-10-29T14:53:43.378674+00:00",
+  "commit": "5a11f48f83db0091bc0d903025090bacb0949b4a",
   "branch": "main",
-  "sourceFingerprint": "621b253eb086ac15dcf2825567822a8e6b5145282c6afad277a5a47c62882909",
+  "sourceFingerprint": "4ca732e9a82e98d8747cc680183a5332aa9e6a94511ccf76fda801c06bb1b227",
   "summary": {
     "files": 1073,
-    "lines": 221793,
+    "lines": 221818,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -30908,8 +30908,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 166,
-      "sha256": "92e1de11347b8fd0301eb35f2d2b176f7d8762d8ff9b39d06d546c8b4ae94484",
+      "lines": 191,
+      "sha256": "b852adef68a4d90d69595e1aa6a99a6d37c3658085581f4c219b3145613d3779",
       "symbols": []
     },
     {
