@@ -59,6 +59,10 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         selectedEventIds = emptySet()
         confirmBatchDelete = false
     }
+    // Search changes the deletion scope. Never keep invisible selections.
+    LaunchedEffect(search) {
+        selectedEventIds = emptySet()
+    }
     var count by rememberSaveable(characterId, area, search) { mutableIntStateOf(40) }
     val memories by repository.observeMemories(characterId).collectAsState(initial = emptyList())
     val validityRevision by MemoryValidityStore.revisions.collectAsState()
