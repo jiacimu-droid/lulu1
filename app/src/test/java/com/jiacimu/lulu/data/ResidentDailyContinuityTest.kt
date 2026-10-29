@@ -1039,6 +1039,23 @@ class ResidentDailyContinuityTest {
         assertEquals("cancelled", afterCancel.single().status)
         assertEquals(1, RoleDayScheduleStore.plans(app, actor).count { it.id == original.id })
         assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(rejectedId)).isEmpty())
+
+        // A different resident whose same valid 09:00 choice was never saved
+        // before the crash must NOT receive a late 10:05 post/alarm.
+        val interrupted = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "未落库的旧日程${UUID.randomUUID().toString().take(5)}",
+            identity = "喜欢清晨散步", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = chosenAt.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, chosenAt)
+        val interruptedActor = ResidentCharacterBridge.characterId(interrupted.id)
+        assertTrue(ResidentDailyDecision.saveAgenda(app, interrupted, proposal,
+            replayAt, decisionAt = chosenAt).isEmpty())
+        assertTrue(RoleDayScheduleStore.plans(app, interruptedActor).none {
+            it.originEvidenceId == "native-daily-${interrupted.id}-${ResidentDailyDecision.date(chosenAt)}"
+        })
+        val interruptedRejected = "native-daily-${interrupted.id}-${ResidentDailyDecision.date(chosenAt)}-agenda-rejected-0"
+        assertTrue(SharedExperienceTimeline.eventsByIds(interruptedActor,
+            listOf(interruptedRejected)).any { it.content.contains("已过去") })
     }
 
     @Test(timeout = 60_000) fun rejectedLiveAgendaIsNotReportedAsFinishedOrRetriedForMoney() = runBlocking {
