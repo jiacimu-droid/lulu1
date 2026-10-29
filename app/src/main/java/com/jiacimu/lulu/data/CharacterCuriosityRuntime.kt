@@ -114,11 +114,23 @@ internal object CharacterCuriosityRuntime {
     fun activeThreads(role: String, root: JSONObject = snapshot(role)): List<JSONObject> {
         val pending = pendingQuestions(role, root)
         val threads = root.optJSONArray("threads") ?: return emptyList()
-        return entries(threads).distinctBy { normalized(it.optString("topic")) + ":" +
-            normalized(it.optString("question")) }.filter { thread ->
-            thread.optString("status") == "exploring" &&
-                pending.none { sameIdentity(it, thread) || sameQuestion(it, thread) } && lastRealStep(role, thread) != null
-        }
+        return entries(threads).mapNotNull { thread ->
+            if (thread.optString("status") != "exploring" ||
+                pending.any { sameIdentity(it, thread) || sameQuestion(it, thread) }) return@mapNotNull null
+            val verified = lastRealStep(role, thread) ?: return@mapNotNull null
+            val steps = thread.optJSONArray("steps")
+            // A newer receipt may be edited or revoked while an older one
+            // remains valid. Only the verified step may inform the next choice.
+            // Keep the full stored history for source-level diagnostics.
+            if (steps?.optJSONObject(steps.length() - 1) === verified) thread
+            else JSONObject(thread.toString()).apply {
+                listOf("question", "why", "nextStep").forEach { field ->
+                    put(field, verified.optString(field))
+                }
+                put("updatedAt", verified.optString("at"))
+            }
+        }.distinctBy { normalized(it.optString("topic")) + ":" +
+            normalized(it.optString("question")) }
     }
 
     internal fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
@@ -552,11 +564,11 @@ internal object CharacterCuriosityRuntime {
         return buildString {
             appendLine("【本人尚未结束的兴趣线索｜内部连续性，不要像报告一样念出来】")
             active.forEach { t ->
-                val steps = t.optJSONArray("steps") ?: JSONArray()
-                val receipt = steps.optJSONObject(steps.length() - 1)?.optString("receipt").orEmpty()
+                val verified = lastRealStep(characterId, t) ?: return@forEach
+                val receipt = verified.optString("receipt")
                 appendLine("- 真正尝试过「" + t.optString("topic").take(70) + "」，最近结果=" +
                     receipt.take(120) + "；还想知道=" + t.optString("question").take(110) +
-                    "；threadId=" + identity(t) + "；源事件ID=" + lastRealStep(characterId, t)?.optString("evidenceId").orEmpty() +
+                    "；threadId=" + identity(t) + "；源事件ID=" + verified.optString("evidenceId") +
                     "；可选下一步=" + t.optString("nextStep").take(120))
             }
             pending.forEach { q ->
@@ -623,13 +635,12 @@ internal object CharacterCuriosityRuntime {
             if (active.isNotEmpty()) {
                 appendLine("已经真实行动过、仍可能继续探索的主题：")
                 active.forEach { t ->
-                    val steps = t.optJSONArray("steps") ?: JSONArray()
-                    val last = steps.optJSONObject(steps.length() - 1)
+                    val last = lastRealStep(characterId, t) ?: return@forEach
                     val hours = runCatching {
-                        Duration.between(Instant.parse(t.optString("updatedAt")), now).toHours()
+                        Duration.between(Instant.parse(last.optString("at")), now).toHours()
                     }.getOrDefault(0L).coerceAtLeast(0L)
                     appendLine("- threadId=" + identity(t) + "；" + t.optString("topic") + "；问题=" + t.optString("question") +
-                        "；最近真实行动结果=" + last?.optString("receipt").orEmpty().take(150) +
+                        "；最近真实行动结果=" + last.optString("receipt").take(150) +
                         "；约" + hours + "小时前；可选下一步=" + t.optString("nextStep"))
                 }
                 appendLine("已经把最近结果告诉对方、或者已经和对方聊清楚的问题，下次整理好奇心时把 status 标成 satisfied，让它从心事里退出来，不要一直占着探索位；还想继续追问的才留 exploring；不感兴趣了标 dropped。")

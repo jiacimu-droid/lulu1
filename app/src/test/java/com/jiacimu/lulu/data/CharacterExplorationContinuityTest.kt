@@ -384,4 +384,71 @@ class CharacterExplorationContinuityTest {
         assertFalse(CharacterCuriosityRuntime.briefContext(role).contains("跨天探索0"))
     }
 
+
+    @Test fun editedLatestReceiptFallsBackToLastVerifiedProgressInEveryDecisionContext() {
+        val original = question("证据演进")
+        CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(role).single().getString("threadId")
+        val first = outcome("verified-progress", 10)
+        CharacterCuriosityRuntime.recordOutcome(role, original.put("threadId", threadId),
+            "web_search", true, "第一份已核实资料", first.id, now.plusSeconds(20))
+        val revised = question("证据演进").put("threadId", threadId)
+            .put("question", "后来才提出的新问题")
+            .put("nextStep", "依据后来资料继续")
+        val second = outcome("edited-progress", 30)
+        CharacterCuriosityRuntime.recordOutcome(role, revised, "web_search", true,
+            "第二份已失效资料", second.id, now.plusSeconds(40))
+
+        // Simulate an edited receipt before its asynchronous projection
+        // invalidation is observed: the stored step revision no longer matches.
+        val state = CharacterCuriosityRuntime.snapshot(role)
+        val steps = state.getJSONArray("threads").getJSONObject(0).getJSONArray("steps")
+        assertEquals(2, steps.length())
+        steps.getJSONObject(1).put("revision", second.revision + 1L)
+        val prefs = context.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString(role, state.toString()).commit())
+        CharacterCuriosityRuntime.initialize(context)
+
+        val active = CharacterCuriosityRuntime.activeThreads(role).single()
+        assertEquals(threadId, active.getString("threadId"))
+        assertEquals("想弄清证据演进的现实条件是什么", active.getString("question"))
+        assertEquals("查证目前尚未确认的前提", active.getString("nextStep"))
+        assertEquals(first.id, CharacterCuriosityRuntime.lastRealStep(role, active)?.optString("evidenceId"))
+        val compact = CharacterCuriosityRuntime.briefContext(role, now.plusSeconds(3600))
+        val autonomous = CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
+            emptyList(), now.plusSeconds(3600))
+        for (view in listOf(compact, autonomous)) {
+            assertTrue(view, view.contains("第一份已核实资料"))
+            assertFalse(view, view.contains("第二份已失效资料"))
+            assertFalse(view, view.contains("后来才提出的新问题"))
+            assertFalse(view, view.contains("依据后来资料继续"))
+        }
+        // Reading the projection never rewrites the original two-step history.
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+            .getJSONObject(0).getJSONArray("steps").length())
+        assertTrue(CharacterCuriosityRuntime.activeThreads("unrelated-role").isEmpty())
+    }
+
+    @Test fun invalidEarlierSiblingCannotHideASeparateVerifiedThreadWithTheSameQuestion() {
+        val valid = outcome("verified-sibling", 10)
+        fun thread(id: String, evidenceId: String, revision: Long) = JSONObject()
+            .put("threadId", id).put("topic", "共同话题")
+            .put("question", "同一个尚待研究的问题")
+            .put("status", "exploring").put("updatedAt", now.toString())
+            .put("steps", JSONArray().put(JSONObject().put("evidenceId", evidenceId)
+                .put("revision", revision).put("action", "web_search")
+                .put("receipt", "实际资料").put("at", now.toString())))
+        val state = JSONObject().put("threads", JSONArray()
+            .put(thread("invalid-first", "missing-evidence", 1L))
+            .put(thread("verified-second", valid.id, valid.revision)))
+        val prefs = context.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString(role, state.toString()).commit())
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals("verified-second", CharacterCuriosityRuntime.activeThreads(role)
+            .single().getString("threadId"))
+        assertTrue(CharacterCuriosityRuntime.briefContext(role, now.plusSeconds(30))
+            .contains("实际资料"))
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").length())
+    }
+
 }
