@@ -14,6 +14,66 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun unfinishedSleepResponsibilityMustHaveDurableOwnFollowUpBeforeOffline() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
+        val role = MigratedDomainStores.characters.create("睡前责任交接回归").characterId
+        val now = java.time.Instant.now()
+        val first = CommitmentTask(characterId = role, goal = "陪主人准备入睡",
+            status = CommitmentTaskStatus.WaitingForFeedback, attemptCount = 1,
+            completionCondition = "已经开始休息且不再玩手机",
+            dueAt = now.minusSeconds(600))
+        val second = CommitmentTask(characterId = role, goal = "核实睡前陪伴结果",
+            status = CommitmentTaskStatus.WaitingForFeedback, attemptCount = 1,
+            completionCondition = "有可靠反馈", dueAt = now.minusSeconds(400))
+        CommitmentTaskStore.initialize(context)
+        CommitmentTaskStore.save(first)
+        CommitmentTaskStore.save(second)
+        try {
+            CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+                "睡前陪伴", perceiveNow = false)
+            assertFalse(CompanionOnlineStore.goOfflineByChoice(role, now))
+            assertTrue(CompanionOnlineStore.isOnline(role, now))
+            val checkAt = now.plusSeconds(20 * 60L)
+            val one = JSONObject().put("taskId", first.id)
+                .put("at", checkAt.toString()).put("reason", "我想确认她是否真的休息")
+            val two = JSONObject().put("taskId", second.id)
+                .put("at", checkAt.plusSeconds(300).toString())
+                .put("reason", "复查先前的陪伴效果")
+            val wrongRole = org.json.JSONArray().put(one)
+                .put(JSONObject().put("taskId", "another-role-task")
+                    .put("at", checkAt.toString()).put("reason", "越权"))
+            assertFalse(CompanionOnlineStore.goOfflineByChoice(role, now, wrongRole))
+            assertTrue(CompanionOnlineStore.isOnline(role, now))
+            assertFalse(com.jiacimu.lulu.system.LuluAlarmSystem.list()
+                .any { it.commitmentTaskId in setOf(first.id, second.id) })
+            assertTrue(CompanionOnlineStore.goOfflineByChoice(role, now,
+                org.json.JSONArray().put(one).put(two)))
+            assertFalse(CompanionOnlineStore.isOnline(role, now))
+            assertEquals(CompanionOnlineReason.SelfChosenSleep,
+                CompanionOnlineStore.states.value.getValue(role).reason)
+            for (original in listOf(first, second)) {
+                val saved = CommitmentTaskStore.snapshot(role).first { it.id == original.id }
+                assertEquals(CommitmentTaskStatus.WaitingForFeedback, saved.status)
+                assertEquals("verification", saved.followUpKind)
+                assertTrue(saved.isOutcomeReview())
+                assertNotNull(saved.nextCheckAt)
+                assertTrue(com.jiacimu.lulu.system.LuluAlarmSystem.list().any {
+                    it.id == saved.linkedAlarmId && it.characterId == role &&
+                        it.commitmentTaskId == original.id && it.silentCallback
+                })
+            }
+            // Existing successors must not create another batch of timers.
+            assertTrue(CompanionSleepHandoff.uncovered(context, role, now).isEmpty())
+        } finally {
+            CommitmentTaskStore.remove(first.id)
+            CommitmentTaskStore.remove(second.id)
+            CompanionOnlineStore.resetCharacter(role)
+        }
+    }
+
     @Test fun roleCanGoOfflineImmediatelyWithoutErasingItsNextWake() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
