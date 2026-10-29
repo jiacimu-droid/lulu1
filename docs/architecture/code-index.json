@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:54:49.278917+00:00",
-  "commit": "083a6af70211c7913ae6a66a9a19f30adf33682a",
+  "generatedAt": "2026-10-29T14:56:29.287172+00:00",
+  "commit": "fd18ad75d5302168df443c662d21f1894f5017a6",
   "branch": "main",
-  "sourceFingerprint": "ad672643bed5671dc60e890feb5fd9b88377db68d77cb832055a5b106334b406",
+  "sourceFingerprint": "a71f0bda813b25180382e0183b110c1d468f02e3ca89d5ba9324d212aca4c63d",
   "summary": {
     "files": 1073,
-    "lines": 222057,
+    "lines": 222065,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -3089,7 +3089,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 61
+        "line": 66
       }
     ],
     "userDeparted": [
@@ -12841,7 +12841,7 @@
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 109
+        "line": 114
       }
     ],
     "GameModelConnectionStatus": [
@@ -30881,8 +30881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 150,
-      "sha256": "b731836030454c435f47103a459de9ddc3eea70949d58e41e119775720037130",
+      "lines": 155,
+      "sha256": "3dd1101eabac48ac5f4b6e4b8e18e0b7045bf254eee5145fc4289ebdd9b1feaf",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -30898,11 +30898,11 @@
         },
         {
           "name": "apply",
-          "line": 61
+          "line": 66
         },
         {
           "name": "facts",
-          "line": 109
+          "line": 114
         }
       ]
     },
@@ -37250,8 +37250,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
-      "lines": 58,
-      "sha256": "9498d1ff8b4d8547a0915c53a6273cf5d8716b62ce5c6fba1c1ceff038bd6ddd",
+      "lines": 61,
+      "sha256": "9d6a981e6ca21293a5ba67970af73204c1cbf92895bd9a9abf25710e7e0bd31a",
       "symbols": [
         {
           "name": "IslandActorPlayTest",
