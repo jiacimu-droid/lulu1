@@ -312,6 +312,33 @@ class CharacterRecordArchitectureTest {
         assertEquals(2, rows.size)
     }
 
+    @Test fun actualHistoryProjectionDoesNotRepeatCausalVoiceAfterSlowWorldAction() {
+        val original = "今天刚知道古堡摸金的玩法，我想先在水边看看，然后再问问她下午是单排还是双排。等她有空了慢慢聊，不需要立刻催她。"
+        SharedExperienceTimeline.record("heart-source", role, "私聊", "用户", "我们聊聊那个古堡玩法",
+            now, triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        CharacterInnerLifeStore.recordCausalTransition(role, "heart-source",
+            appraisal = JSONObject().put("privateIdeas", JSONArray().put("等她回来问问单排还是双排")),
+            innerLife = null, innerThoughtBasis = null,
+            selectedAction = "message", innerThought = original,
+            reason = "刚聊到有趣的事情", now = now)
+        val later = now.plusSeconds(8 * 60)
+        SharedExperienceTimeline.record("world-event", role, "数字世界", "执行器", "角色真的走到了水边",
+            later, triggerExtraction = false, source = "digital-world",
+            evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.recordDecision(role, "world-real-choice", "digital_world",
+            "想去水边看看", "", null, "已在水边", true,
+            now = later, causalEvidenceId = "world-event")
+        val snapshot = CompanionPresenceState(role, innerThought = original,
+            statusText = "在水边吹风", updatedAt = later)
+        val rows = CharacterStateHistory.entries(role, listOf(snapshot), later.plusSeconds(2))
+        assertEquals(2, rows.size)
+        assertEquals(1, rows.count { CharacterStateHistory.display(it).voice == original })
+        assertEquals(1, rows.flatMap { it.decisions }.count { it.id == "world-real-choice" })
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf("heart-source")).size)
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf("world-event")).size)
+    }
+
     @Test fun repeatedLongInnerVoiceFromTwoActionsIsDisplayedOnceButBothActionsSurvive() {
         val voice = "好家伙，原来是古堡里摸金的小游戏。我刚想起她说的甜章和蓝宝石项链，打算等她忙完再问问下午是单排还是双排。"
         val ideas = "想法：等她回来问问古堡玩法"
