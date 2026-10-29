@@ -129,7 +129,20 @@ internal data class ReplySourceWatermark(
     val sourceRevisions: Map<String, Long>,
     val sourceContents: Map<String, String>,
     val latestUserMessageId: String?,
+    // Other members joining/leaving or a rename changes who hears the reply.
+    // A response generated for yesterday's room must not be sent into today's.
+    val visibleGroupScene: GroupReplyScene?,
 )
+
+/** Only the fields that affect who is present and how this shared room is presented.
+ * Cosmetic pin/avatar settings do not cancel an in-flight reply. */
+internal data class GroupReplyScene(
+    val name: String,
+    val ownerIncluded: Boolean,
+    val userGroupNickname: String,
+    val members: List<com.jiacimu.lulu.data.LuluGroupMember>,
+)
+
 
 internal fun captureReplySourceWatermark(
     conversationId: String,
@@ -168,7 +181,10 @@ internal fun captureReplySourceWatermark(
         messages.lastOrNull {
             it.sender == LuluChatMessage.Sender.User &&
                 it.status == LuluChatMessage.Status.Sent
-        }?.id)
+        }?.id,
+        group?.let { GroupReplyScene(it.name, it.ownerIncluded,
+            it.userGroupNickname, it.members) },
+    )
 }
 
 internal fun isReplySourceWatermarkCurrent(

@@ -85,6 +85,25 @@ class QqReplySourceWatermarkTest {
         assertFalse(isReplySourceWatermarkCurrent(bRevised, store))
     }
 
+    @Test fun joiningOrRenamingGroupInvalidatesEarlierGeneratedGroupReply() {
+        val store = InMemoryLuluChatStore().also { it.initialize(RuntimeEnvironment.getApplication()) }
+        val a = MigratedDomainStores.characters.create("房间变更甲").characterId
+        val b = MigratedDomainStores.characters.create("房间变更乙").characterId
+        val c = MigratedDomainStores.characters.create("房间变更丙").characterId
+        val group = store.createGroupConversation("聊天小组", listOf(a, b))
+        val msg = store.sendUserMessage(group.id, "一起讨论一下")
+        val first = captureReplySourceWatermark(group.id, a, setOf(msg.id), store)!!
+        val changed = group.groupChat!!.copy(
+            members = group.groupChat!!.members + LuluGroupMember(c),
+        )
+        assertTrue(store.updateGroupConversation(group.id, changed))
+        assertFalse(isReplySourceWatermarkCurrent(first, store))
+        val second = captureReplySourceWatermark(group.id, a, setOf(msg.id), store)!!
+        assertTrue(isReplySourceWatermarkCurrent(second, store))
+        assertTrue(store.updateGroupConversation(group.id, changed.copy(name = "新的小组名")))
+        assertFalse(isReplySourceWatermarkCurrent(second, store))
+    }
+
     @Test fun userCorrectionDuringTypingLeadStopsOldBubblesBeforeAnyDelivery() = runBlocking {
         val role = MigratedDomainStores.characters.create("慢回复水位角色").characterId
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "慢回复")
