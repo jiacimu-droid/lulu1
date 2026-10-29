@@ -66,6 +66,32 @@ class OnlineChatExperienceTest {
         assertFalse(CompanionOnlineStore.isOnline(id))
     }
 
+    @Test fun malformedSideStepBlocksOnlyItsDependentEffectInTheRealRunner() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("错误步骤不能冒充成功").characterId
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+            "本人仍在线", perceiveNow = false)
+        val decision = JSONObject().put("action", "silent")
+            .put("sideActions", org.json.JSONArray().put("malformed")
+                .put(JSONObject().put("tool", "go_offline").put("args", JSONObject())
+                    .put("requiresPreviousSuccess", true)))
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        val blocked = OrderedCharacterActions.execute(context, role, steps,
+            requestId = "malformed-before-sleep-$role", initialCompleted = true)
+        assertTrue(blocked.notes.toString(), blocked.notes.any { it.contains("动作格式无效") })
+        assertTrue(blocked.notes.toString(), blocked.notes.any { it.contains("前一步尚未成功") })
+        assertFalse(blocked.anyAccepted)
+        assertTrue(CompanionOnlineStore.isOnline(role))
+        // Explicitly independent follow-up still runs, via its actual slot ID.
+        steps.getJSONObject(1).put("requiresPreviousSuccess", false)
+        val continued = OrderedCharacterActions.execute(context, role, steps,
+            requestId = "independent-after-malformed-$role", initialCompleted = true)
+        assertTrue(continued.notes.toString(), continued.anyCompleted)
+        assertFalse(CompanionOnlineStore.isOnline(role))
+    }
+
     @Test fun newerUserBubbleDefersOnlyUnstartedStepsInTheOriginalRunner() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)

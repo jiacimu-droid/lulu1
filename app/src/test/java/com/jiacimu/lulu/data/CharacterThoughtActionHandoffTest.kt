@@ -117,6 +117,72 @@ class CharacterThoughtActionHandoffTest {
         assertEquals(1, CharacterThoughtActionHandoff.actions(same)!!.length())
     }
 
+    @Test fun malformedSecondarySlotsSurviveBeforeDependentActions() {
+        for (invalid in listOf<Any>("not an action", JSONObject.NULL, 7)) {
+            val decision = JSONObject().put("steps", JSONArray().put(action()))
+                .put("sideActions", JSONArray().put(invalid)
+                    .put(action("go_offline").put("requiresPreviousSuccess", true)))
+            val before = decision.toString()
+            val steps = CharacterThoughtActionHandoff.actions(decision)!!
+            assertEquals(3, steps.length())
+            assertNull(steps.optJSONObject(1))
+            assertEquals("go_offline", steps.getJSONObject(2).getString("tool"))
+            assertEquals(before, decision.toString())
+        }
+    }
+
+    @Test fun differentCausalOwnersAndLearningApplicationsAreNeverSilentlyCollapsed() {
+        for (field in listOf("motiveId", "concernId", "experienceId", "curiosity", "learningApplication")) {
+            fun linked(value: String): JSONObject = action().put(field,
+                if (field in listOf("curiosity", "learningApplication"))
+                    JSONObject().put("id", value) else value)
+            val decision = JSONObject().put("steps", JSONArray().put(linked("first")))
+                .put("sideActions", JSONArray().put(linked("second")))
+                .put("nextAction", linked("third"))
+            val before = decision.toString()
+            val steps = CharacterThoughtActionHandoff.actions(decision)!!
+            assertEquals(field, 3, steps.length())
+            for ((index, value) in listOf("first", "second", "third").withIndex()) {
+                val actual = steps.getJSONObject(index).get(field)
+                assertTrue(actual.toString().contains(value))
+            }
+            assertEquals(before, decision.toString())
+        }
+    }
+
+    @Test fun repeatedAliasRetainsExplicitLearningAndQuestionMetadata() {
+        val application = JSONObject().put("learningId", "actual-learning")
+        val question = JSONObject().put("threadId", "actual-question")
+        val declared = action().put("learningApplication", application).put("curiosity", question)
+        val decision = JSONObject().put("steps", JSONArray().put(action()))
+            .put("sideActions", JSONArray().put(declared))
+            .put("nextAction", JSONObject(declared.toString()))
+        val before = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        assertEquals(1, steps.length())
+        assertEquals("actual-learning", steps.getJSONObject(0)
+            .getJSONObject("learningApplication").getString("learningId"))
+        assertEquals("actual-question", steps.getJSONObject(0)
+            .getJSONObject("curiosity").getString("threadId"))
+        assertEquals(before, decision.toString())
+    }
+
+    @Test fun nestedQuestionActionKeepsItsOwnerWithoutOverridingExplicitQuestion() {
+        val question = JSONObject().put("topic", "本人想继续的问题")
+            .put("threadId", "original-thread").put("sourceEvidenceId", "original-event")
+            .put("nextAction", action())
+        val decision = JSONObject().put("curiosities", JSONArray().put(question))
+        val before = decision.toString()
+        val step = CharacterThoughtActionHandoff.actions(decision)!!.getJSONObject(0)
+        assertEquals("original-thread", step.getJSONObject("curiosity").getString("threadId"))
+        assertFalse(step.getJSONObject("curiosity").has("nextAction"))
+        assertEquals(before, decision.toString())
+        val explicit = JSONObject().put("threadId", "explicitly-chosen-thread")
+        question.getJSONObject("nextAction").put("curiosity", explicit)
+        assertEquals("explicitly-chosen-thread", CharacterThoughtActionHandoff.actions(decision)!!
+            .getJSONObject(0).getJSONObject("curiosity").getString("threadId"))
+    }
+
     @Test fun aPossibleStepInProseNeverExecutesByItself() {
         assertNull(CharacterThoughtActionHandoff.actions(concern(JSONObject()
             .put("possibleNextStep", "明天下午三点搜搜资料"))))

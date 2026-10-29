@@ -171,6 +171,28 @@ class CharacterExplorationContinuityTest {
             .getJSONObject(0).getJSONArray("steps").length())
     }
 
+    @Test fun nextActionResultContinuesTheAuthoredQuestionAcrossReplay() = runBlocking {
+        val inquiry = question("由想法落实的媒体条件")
+        CharacterExplorationContinuity.remember(context, role, inquiry, null, listOf("input"), now)
+        context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE).edit()
+            .putBoolean("$role:media", true).commit()
+        val decision = JSONObject().put("action", "silent").put("curiosity",
+            JSONObject(inquiry.toString()).put("nextAction", JSONObject().put("tool", "control_volume")
+                .put("args", JSONObject().put("action", "status"))))
+        val before = decision.toString()
+        val steps = CharacterThoughtActionHandoff.actions(decision)!!
+        val request = "nested-question-step-$role"
+        OrderedCharacterActions.execute(context, role, steps, request, userEvidenceIds = setOf("input"))
+        val threads = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+        assertEquals(1, threads.length())
+        assertEquals("由想法落实的媒体条件", threads.getJSONObject(0).getString("topic"))
+        assertEquals(1, threads.getJSONObject(0).getJSONArray("steps").length())
+        assertEquals(before, decision.toString())
+        OrderedCharacterActions.execute(context, role, steps, request, userEvidenceIds = setOf("input"))
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+            .getJSONObject(0).getJSONArray("steps").length())
+    }
+
     @Test fun bothLivePrivateChatAndLegacyProtocolReceiveTheSameOptionalExplorationContract() {
         assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(CharacterExplorationContinuity.runtimeGuidance))
         assertTrue(CharacterDecisionProtocol.causalPrinciples.contains(CharacterExplorationContinuity.guidance))

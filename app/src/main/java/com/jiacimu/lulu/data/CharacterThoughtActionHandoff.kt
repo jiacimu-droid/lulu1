@@ -35,27 +35,29 @@ internal object CharacterThoughtActionHandoff {
         }
         val secondary = decision.optJSONArray("sideActions")
         for (index in 0 until (secondary?.length() ?: 0)) {
-            val step = secondary?.optJSONObject(index)?.let(AutonomousActionWireProtocol::normalizeStep) ?: continue
-            val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
-                .firstOrNull { existing ->
-                    // Empty tool names are not real action identities. Two
-                    // malformed selected steps must each retain an independent
-                    // failure receipt rather than disappearing as duplicates.
-                    step.optString("tool").isNotBlank() &&
-                        existing.optString("tool") == step.optString("tool") &&
-                        canonical(existing.optJSONObject("args") ?: JSONObject()) ==
-                            canonical(step.optJSONObject("args") ?: JSONObject()) &&
-                        existing.optBoolean("requiresPreviousSuccess") ==
-                            step.optBoolean("requiresPreviousSuccess")
-                }
-            if (duplicate == null) result.put(JSONObject(step.toString()))
-            else listOf("motiveId", "concernId", "experienceId", "reason", "curiosity").forEach { key ->
-                if (!duplicate.has(key) && step.has(key)) duplicate.put(key, step.get(key))
+            val raw = secondary?.optJSONObject(index)
+            if (raw == null) {
+                // Preserve the failed slot. Removing it would let the next
+                // dependent action inherit an earlier, unrelated success.
+                result.put(secondary?.opt(index) ?: JSONObject.NULL)
+                continue
             }
+            val step = AutonomousActionWireProtocol.normalizeStep(raw)
+            val duplicate = (0 until result.length()).mapNotNull(result::optJSONObject)
+                .firstOrNull { sameAction(it, step) }
+            if (duplicate == null) result.put(step)
+            else mergeLinks(duplicate, step)
         }
-        fun add(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false) {
+        fun add(owner: JSONObject?, concern: Boolean = false, motive: Boolean = false, inquiry: Boolean = false) {
             val chosen = owner?.optJSONObject("nextAction") ?: return
             val step = AutonomousActionWireProtocol.normalizeStep(chosen)
+            if (inquiry && !step.has("curiosity")) {
+                // This action is explicitly nested in THIS question. Carry
+                // its authored identity to ToolRouter's existing result path.
+                // Do not include nextAction recursively or infer new content.
+                val question = JSONObject(owner.toString()).apply { remove("nextAction") }
+                step.put("curiosity", question)
+            }
             if (concern && step.optString("concernId").isBlank())
                 owner.optString("threadId").takeIf(String::isNotBlank)?.let { step.put("concernId", it) }
             if (motive && step.optString("motiveId").isBlank())
@@ -69,21 +71,12 @@ internal object CharacterThoughtActionHandoff {
                     if (args.optString("concernId").isBlank()) args.put("concernId", it)
                 }
             }
-            fun same(other: JSONObject): Boolean = step.optString("tool").isNotBlank() &&
-                other.optString("tool") == step.optString("tool") &&
-                canonical(other.optJSONObject("args") ?: JSONObject()) ==
-                    canonical(step.optJSONObject("args") ?: JSONObject()) &&
-                other.optBoolean("requiresPreviousSuccess", false) ==
-                    step.optBoolean("requiresPreviousSuccess", false)
-            // A direct tool or explicit steps already owns this effect. Do not execute it twice.
+            // A direct tool or explicit steps already owns this effect.
             if (decision.optString("action") == "tool" &&
-                same(AutonomousActionWireProtocol.normalizeStep(decision))) return
-            val existing = (0 until result.length()).mapNotNull(result::optJSONObject).firstOrNull(::same)
-            if (existing != null) {
-                listOf("motiveId", "concernId", "experienceId", "reason", "curiosity").forEach { key ->
-                    if (!existing.has(key) && step.has(key)) existing.put(key, step.get(key))
-                }
-            } else result.put(step)
+                sameAction(AutonomousActionWireProtocol.normalizeStep(decision), step)) return
+            val existing = (0 until result.length()).mapNotNull(result::optJSONObject)
+                .firstOrNull { sameAction(it, step) }
+            if (existing != null) mergeLinks(existing, step) else result.put(step)
         }
         add(decision)
         CharacterOpenConcernRuntime.proposals(decision.optJSONObject("appraisal"))
@@ -98,10 +91,32 @@ internal object CharacterThoughtActionHandoff {
                 add(item, motive = key == "motives")
             }
         }
-        add(decision.optJSONObject("curiosity"))
+        add(decision.optJSONObject("curiosity"), inquiry = true)
         val questions = decision.optJSONArray("curiosities")
-        for (i in 0 until (questions?.length() ?: 0)) add(questions?.optJSONObject(i))
+        for (i in 0 until (questions?.length() ?: 0)) add(questions?.optJSONObject(i), inquiry = true)
         return result.takeIf { it.length() > 0 }
+    }
+
+    private val causalLinks = listOf("motiveId", "concernId", "experienceId", "curiosity", "learningApplication")
+
+    /** Same executable request AND compatible explicitly authored ownership.
+     * Conflicting links must not credit one question/goal with another's work. */
+    private fun sameAction(left: JSONObject, right: JSONObject): Boolean =
+        right.optString("tool").isNotBlank() &&
+            left.optString("tool") == right.optString("tool") &&
+            canonical(left.optJSONObject("args") ?: JSONObject()) ==
+                canonical(right.optJSONObject("args") ?: JSONObject()) &&
+            left.optBoolean("requiresPreviousSuccess", false) ==
+                right.optBoolean("requiresPreviousSuccess", false) &&
+            causalLinks.all { key ->
+                !left.has(key) || !right.has(key) ||
+                    canonical(left.opt(key)) == canonical(right.opt(key))
+            }
+
+    private fun mergeLinks(target: JSONObject, source: JSONObject) {
+        (causalLinks + "reason").forEach { key ->
+            if (!target.has(key) && source.has(key)) target.put(key, source.get(key))
+        }
     }
 
     private fun canonical(value: Any?): String = when (value) {
