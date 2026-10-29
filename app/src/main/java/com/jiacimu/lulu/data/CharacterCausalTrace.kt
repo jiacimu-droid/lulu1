@@ -265,20 +265,20 @@ internal object CharacterCausalTrace {
         // exact daily decision task ID; don't confuse rejected planning with
         // an action the resident performed or chose to cancel.
         val rejectedAgenda = if (current.source == "resident-daily") {
-            val candidates = events.filter {
-                it.characterId == characterId &&
-                    it.source == "resident-agenda-rejected" &&
-                    it.taskId == current.id &&
-                    it.id.startsWith("${current.id}-agenda-rejected-")
-            }
-            val live = SharedExperienceTimeline.eventsByIds(characterId, candidates.map { it.id })
-                .associateBy { it.id }
-            candidates.filter { live[it.id]?.revision == it.revision }
+            // The expanded card's [events] is only a recent UI page. A settled
+            // rejection must remain visible years later even if its receipt
+            // has left that page. The original timeline owns these stable IDs.
+            SharedExperienceTimeline.eventsByIdPrefix(
+                characterId, "${current.id}-agenda-rejected-")
+                .filter { it.source == "resident-agenda-rejected" &&
+                    it.taskId == current.id }
                 .sortedBy { it.id }.takeLast(12)
         } else emptyList()
         rejectedAgenda.forEach { rejected ->
+            val provenance = if (current.revision > 1L)
+                "；原日决定文字已编辑，旧拒绝不能证明针对当前版本" else ""
             rows += CharacterCausalTraceLine("日程未排入 · 执行器拒绝",
-                rejected.content.take(260), rejected.id)
+                (rejected.content + provenance).take(300), rejected.id)
         }
         // A saved resident agenda is a decision to schedule, NOT a tool
         // execution. Link by the durable source ID/revision recorded at save

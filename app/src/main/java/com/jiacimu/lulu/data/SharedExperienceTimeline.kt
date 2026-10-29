@@ -283,6 +283,28 @@ object SharedExperienceTimeline {
                 args, null, null, null, "1").use { it.moveToFirst() }
     }
 
+    /** Read the durable children of one stable evidence ID without scanning
+     * years of unrelated timeline pages. The original role/profile visibility
+     * rules remain enforced by eventsByIds. */
+    internal fun eventsByIdPrefix(characterId: String, prefix: String): List<SharedTimelineEvent> {
+        if (characterId.isBlank() || prefix.isBlank()) return emptyList()
+        val database = helper?.readableDatabase ?: return emptyList()
+        // Stable evidence IDs are ASCII. The primary-key range treats '_' and
+        // '%' literally, unlike an unescaped SQL LIKE wildcard.
+        val ids = database.query("timeline_events", arrayOf("id"),
+            "character_id = ? AND id >= ? AND id < ?",
+            arrayOf(characterId, prefix, prefix + "\uFFFF"),
+            null, null, "id ASC").use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    val id = cursor.getString(0)
+                    if (id.startsWith(prefix)) add(id)
+                }
+            }
+        }
+        return eventsByIds(characterId, ids)
+    }
+
     fun eventsByIds(characterId: String, eventIds: Collection<String>): List<SharedTimelineEvent> {
         val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct()
         if (ids.size > 120) return ids.chunked(120).flatMap { eventsByIds(characterId, it) }

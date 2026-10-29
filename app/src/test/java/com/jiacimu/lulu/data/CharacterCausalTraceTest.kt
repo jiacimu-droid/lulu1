@@ -315,6 +315,55 @@ class CharacterCausalTraceTest {
             it.detail.contains("不证明由当前事件直接触发") })
     }
 
+    @Test fun residentRejectedAgendaSurvivesShortUiWindowAndHonorsEditWithdrawalAndRole() {
+        val dailyId = "native-daily-causal-trace-2026-10-29"
+        SharedExperienceTimeline.record(dailyId, a, "原住民·每日自我安排", "居民",
+            "本人今天决定安排几件事", at, triggerExtraction = false,
+            source = "resident-daily", evidenceKind = EventEvidenceKind.CharacterStatement)
+        fun rejection(role: String, id: String, task: String, detail: String) {
+            SharedExperienceTimeline.record(id, role, "原住民·每日自我安排", "日程执行器",
+                detail, at.plusSeconds(1), triggerExtraction = false,
+                source = "resident-agenda-rejected",
+                evidenceKind = EventEvidenceKind.Observation, taskId = task)
+        }
+        val first = "${dailyId}-agenda-rejected-0"
+        val legacyOverflow = "${dailyId}-agenda-rejected-12"
+        rejection(a, first, dailyId, "第一项联系人权限拒绝")
+        rejection(a, legacyOverflow, dailyId, "旧数据第十三项超限拒绝")
+        rejection(a, "${dailyId}-agenda-rejected-2", "unrelated-task", "其他任务的拒绝")
+        rejection(b, "${dailyId}-agenda-rejected-3", dailyId, "另一个人物的私事")
+
+        // The UI has retained only the original decision card. Exact
+        // historical receipts must still be found without scanning all().
+        val shortWindow = listOf(event(a, dailyId))
+        val before = CharacterCausalTrace.inspect(context, a, event(a, dailyId),
+            shortWindow, JSONObject())
+        assertEquals(2, before.count { it.title.contains("日程未排入") })
+        assertTrue(before.any { it.detail.contains("第一项联系人权限拒绝") })
+        assertTrue(before.any { it.detail.contains("第十三项超限拒绝") })
+        assertFalse(before.any { it.detail.contains("其他任务") ||
+            it.detail.contains("另一个人物") })
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, first))
+
+        SharedExperienceTimeline.record(dailyId, a, "原住民·每日自我安排", "居民",
+            "本人后来修改了当天决定", at, triggerExtraction = false,
+            source = "resident-daily", evidenceKind = EventEvidenceKind.CharacterStatement)
+        val edited = CharacterCausalTrace.inspect(context, a, event(a, dailyId),
+            listOf(event(a, dailyId)), JSONObject())
+        assertTrue(edited.any { it.title.contains("日程未排入") &&
+            it.detail.contains("不能证明针对当前版本") })
+
+        SharedExperienceTimeline.deleteEvent(first)
+        val withdrawn = CharacterCausalTrace.inspect(context, a, event(a, dailyId),
+            listOf(event(a, dailyId)), JSONObject())
+        assertFalse(withdrawn.any { it.evidenceId == first })
+        assertTrue(withdrawn.any { it.evidenceId == legacyOverflow })
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, a, first))
+        SharedExperienceTimeline.deleteEvent(dailyId)
+        assertTrue(CharacterCausalTrace.inspect(context, a, shortWindow.single(),
+            shortWindow, JSONObject()).isEmpty())
+    }
+
     @Test fun residentScheduleHasExactDecisionProvenanceWithoutClaimingExecution() {
         val sourceId = "trace-scheduled-daily-a"
         fun dailyDecision(content: String) = SharedExperienceTimeline.record(
