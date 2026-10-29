@@ -59,6 +59,10 @@ internal fun ProactiveIncomingCallOverlay() {
             incomingReason = call.reason,
             incomingCommitmentTaskId = call.commitmentTaskId,
         )
+        // Choose the invited medium BEFORE dialing. The opening role reply
+        // starts from the Connected callback; setting video only after it
+        // connected used to make a video invitation's first turn voice-only.
+        LuluCallWindowController.setVideoMode(call.mediaMode == "video")
         LuluVoiceCallSession.dial()
         val started = LuluVoiceCallSession.state.value
         if (started.phase !in setOf(CallPhase.Dialing, CallPhase.Connected)) {
