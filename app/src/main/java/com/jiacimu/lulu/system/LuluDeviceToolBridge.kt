@@ -161,6 +161,7 @@ object LuluDeviceToolBridge {
         phoneCallId: String = "",
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
         onLive2DAction: ((JSONObject) -> Unit)? = null,
+        onLive2DStatus: ((String) -> Unit)? = null,
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
@@ -1515,9 +1516,12 @@ object LuluDeviceToolBridge {
                 // previously dropped real gestures whenever speech needed
                 // harmless boundary normalization (while the safe speech still
                 // played). Only invalid or undeliverable turns suppress it.
-                plan.live2d?.let { chosen ->
-                    runCatching { onLive2DAction?.invoke(chosen) }
-                }
+                if (live2dDecisionContext.isNotBlank() &&
+                    onLive2DAction != null && !sceneContext.contains("哄睡")) {
+                    Live2DPhoneMotionRepair.publish(appContext,
+                        characterId, phoneCallId, safeText, plan.live2d, history,
+                        userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus)
+                } else plan.live2d?.let { chosen -> onLive2DAction?.invoke(chosen) }
             }
             if (!invalidBlame && !rewriting && !plan.endCall &&
                 sceneContext.contains("电话") && phoneCallId.isNotBlank() &&
@@ -1643,6 +1647,7 @@ object LuluDeviceToolBridge {
                 $onlineChatBubbleRule
                 $voicePerformanceRule
                 $characterHangupRule
+                $live2dDecisionContext
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
@@ -1716,6 +1721,12 @@ object LuluDeviceToolBridge {
             if (sceneContext.contains("电话") &&
                 com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(checkedResultText))
                 throw IllegalStateException("工具结果混入内部分析，未向通话播放")
+            if (live2dDecisionContext.isNotBlank() && !sceneContext.contains("哄睡") &&
+                checkedResultText.isNotBlank()) {
+                Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
+                    checkedResultText, finalPlan?.live2d, "$history\n真实工具回执：$toolResult",
+                    userText, sceneContext, connection, title, onLive2DAction, onLive2DStatus)
+            }
             if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(
                     characterId, finalPlan, "聊天·工具",
@@ -2018,10 +2029,12 @@ object LuluDeviceToolBridge {
             // Normalize this one known, locally verified action instead of
             // rejecting the entire telephone response for a wrapper mismatch.
             val legacyFavorite = json.optString("action") == "favorite_user_message"
+            val pairedSpeech = com.jiacimu.lulu.Live2DDialoguePlan.spokenText(json)
             val action = if (legacyFavorite) "tool"
+                else if (json.optString("action") == "reply" && pairedSpeech != null) "reply"
                 else CharacterDecisionProtocol.chatAction(json) ?: return null
             val bubbleValues = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(raw)
-            val spoken = if (json.optJSONArray("bubbles") != null && !bubbleValues.isNullOrEmpty())
+            val spoken = pairedSpeech ?: if (json.optJSONArray("bubbles") != null && !bubbleValues.isNullOrEmpty())
                 bubbleValues.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
             else com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(raw).orEmpty()
             ToolPlan(
@@ -2033,7 +2046,7 @@ object LuluDeviceToolBridge {
                     .put("reason", json.optString("reason")) else JSONObject(),
                 statusText = json.optString("statusText").ifBlank { json.optString("status") },
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
-                live2d = json.optJSONObject("live2d"),
+                live2d = com.jiacimu.lulu.Live2DDialoguePlan.visual(json),
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
                 innerThoughtBasis = json.optJSONObject("innerThoughtBasis"),
                 mood = json.optString("mood"),

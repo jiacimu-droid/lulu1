@@ -11,6 +11,12 @@ internal object Live2DSpeechAnchorPlan {
 
     private const val BOUNDARY_CHARS = "。！？!?；;，,：:\n \t"
     private const val STRIP_CHARS = "。！？!?；;，,：:、·…— \t\n\r"
+    private val voicePrefix = Regex("(?:\\[[A-Za-z][A-Za-z0-9 ,.'’:_/!()?+\\-]{0,119}\\]\\s*)+$")
+
+    // Preserve audio directions with the clause they describe. Otherwise
+    // [warmly]你好 either fails the boundary check or creates a tag-only TTS.
+    private fun cueStart(speech: String, position: Int): Int =
+        voicePrefix.find(speech.substring(0, position))?.range?.first ?: position
 
     private fun atBoundary(speech: String, position: Int): Boolean =
         position == 0 || speech[position - 1] in BOUNDARY_CHARS
@@ -37,7 +43,7 @@ internal object Live2DSpeechAnchorPlan {
         val first = text.indexOf(normalizedAnchor)
         if (first < 0 || text.indexOf(normalizedAnchor, first + normalizedAnchor.length) >= 0)
             return null
-        val position = origin[first]
+        val position = cueStart(speech, origin[first])
         return if (atBoundary(speech, position)) position else null
     }
 
@@ -69,9 +75,10 @@ internal object Live2DSpeechAnchorPlan {
         val distinct = anchors.distinct()
         val primary = distinct.mapNotNull { anchor ->
             if (anchor.isBlank() || anchor.length > 60) return@mapNotNull null
-            val position = speech.indexOf(anchor)
-            if (position < 0 || speech.indexOf(anchor, position + anchor.length) >= 0)
+            val literalPosition = speech.indexOf(anchor)
+            if (literalPosition < 0 || speech.indexOf(anchor, literalPosition + anchor.length) >= 0)
                 return@mapNotNull null
+            val position = cueStart(speech, literalPosition)
             // Don't split a TTS word or fabricate a time for a quote that
             // doesn't begin at a real clause boundary in the final spoken text.
             if (!atBoundary(speech, position)) return@mapNotNull null

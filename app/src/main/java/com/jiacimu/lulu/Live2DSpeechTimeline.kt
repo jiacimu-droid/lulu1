@@ -22,17 +22,36 @@ internal object Live2DSpeechTimeline {
         val revision: Long = 0L,
         val segmentIndex: Int = 0,
         val visualSequence: Long = 0L,
+        val segmentId: String = "",
     )
+    data class Position(val characterId: String = "", val callId: String = "",
+        val utteranceId: String = "", val visualSequence: Long = 0, val segmentIndex: Int = 0,
+        val segmentId: String = "", val elapsedMs: Long = 0)
+    private val mutablePosition = MutableStateFlow(Position())
+    val position = mutablePosition.asStateFlow()
     private val mutableEvents = MutableStateFlow(Event())
     val events = mutableEvents.asStateFlow()
     private var revision = 0L
 
     @Synchronized
     fun started(characterId: String, callId: String, utteranceId: String,
-        segmentIndex: Int = 0, visualSequence: Long = 0L) {
+        segmentIndex: Int = 0, visualSequence: Long = 0L, segmentId: String = "") {
         if (characterId.isBlank() || callId.isBlank() || utteranceId.isBlank()) return
         mutableEvents.value = Event(characterId, callId, utteranceId,
-            Phase.Playing, ++revision, segmentIndex, visualSequence)
+            Phase.Playing, ++revision, segmentIndex, visualSequence, segmentId)
+        mutablePosition.value = Position(characterId, callId, utteranceId, visualSequence,
+            segmentIndex, segmentId)
+    }
+
+    @Synchronized
+    fun progressed(characterId: String, callId: String, utteranceId: String, elapsedMs: Long) {
+        val current = mutableEvents.value
+        if (elapsedMs < 0 || current.phase != Phase.Playing || current.characterId != characterId ||
+            current.callId != callId || current.utteranceId != utteranceId) return
+        val previous = mutablePosition.value
+        if (previous.utteranceId == utteranceId && elapsedMs < previous.elapsedMs) return
+        mutablePosition.value = Position(characterId, callId, utteranceId, current.visualSequence,
+            current.segmentIndex, current.segmentId, elapsedMs)
     }
 
     @Synchronized

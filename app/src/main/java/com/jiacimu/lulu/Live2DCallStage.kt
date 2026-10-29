@@ -103,6 +103,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         context.getSharedPreferences("lulu_live2d_touch_zones_v1", Context.MODE_PRIVATE)
     }
     val playbackEvent by Live2DSpeechTimeline.events.collectAsState()
+    val playbackPosition by Live2DSpeechTimeline.position.collectAsState()
     val qualityReceiver = rememberUpdatedState(qualityMode)
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
@@ -427,8 +428,16 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             stage.evaluateJavascript(
                 "window.LuluLive2D && window.LuluLive2D.onPlaybackEvent(" +
                     JSONObject.quote(phase) + ", " + playbackEvent.segmentIndex +
-                    ", " + playbackEvent.visualSequence + ")", null,
+                    ", " + playbackEvent.visualSequence + ", " + JSONObject.quote(playbackEvent.segmentId) + ")", null,
             )
+        }
+    }
+    LaunchedEffect(stage, playbackPosition, rendererReady.value) {
+        if (rendererReady.value && playbackPosition.callId == callId &&
+            playbackPosition.characterId == characterId && playbackPosition.elapsedMs > 0) {
+            stage.evaluateJavascript("window.LuluLive2D && window.LuluLive2D.audioPosition(" +
+                "${playbackPosition.visualSequence},${playbackPosition.segmentIndex}," +
+                JSONObject.quote(playbackPosition.segmentId) + ",${playbackPosition.elapsedMs})", null)
         }
     }
     // A visual cue can arrive while the Cubism model is still loading.
@@ -455,6 +464,13 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 previewBeats.forEach { beat ->
                     val item = JSONObject().put("atMs", beat.atMs)
                         .put("segmentIndex", beat.segmentIndex)
+                        .put("transition", beat.transition)
+                    beat.segmentId?.let { item.put("segmentId", it) }
+                    beat.motionMetadata?.let { metadata ->
+                        metadata.fadeInMs?.let { item.put("motionFadeInMs", it) }
+                        metadata.durationMs?.let { item.put("motionDurationMs", it) }
+                        item.put("motionParameterIds", JSONArray(metadata.parameterIds))
+                    }
                     beat.durationMs?.let { item.put("durationMs", it) }
                     beat.expression?.let { item.put("expression", it) }
                     beat.motion?.let { item.put("motion", JSONObject()

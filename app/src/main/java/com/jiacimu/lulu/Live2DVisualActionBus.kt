@@ -26,7 +26,9 @@ internal object Live2DVisualActionBus {
         val head: Head? = null, val body: Body? = null, val face: Face? = null,
         val durationMs: Int? = null,
         val anchor: String? = null, val segmentIndex: Int = 0,
-        val motion: Pair<String, Int>? = null)
+        val motion: Pair<String, Int>? = null,
+        val segmentId: String? = null, val transition: String = "blend",
+        val motionMetadata: Live2DMotionMetadata? = null)
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
     internal val faceChannels = linkedMapOf(
@@ -56,6 +58,7 @@ internal object Live2DVisualActionBus {
         val sequence: Long,
         val immediate: Boolean = false,
         val beats: List<Beat> = emptyList(),
+        val speechParts: List<Live2DDialoguePlan.Part> = emptyList(),
     )
     private val mutableCues = MutableStateFlow<Map<String, Cue>>(emptyMap())
     val cues = mutableCues.asStateFlow()
@@ -97,6 +100,7 @@ internal object Live2DVisualActionBus {
         if (visibleStages[characterId] != callId || callId.isBlank()) return ""
         val controls = Live2DAssets.controls(context, characterId)
         if (controls.expressions.isEmpty() && controls.motions.isEmpty()) return ""
+        if (controls.motions.isEmpty()) return "当前视频模型没有 Motion3；正常输出 text，可选 live2d.expression，真实表情：${controls.expressions.joinToString("、")}。不得虚构身体动作。"
         val expressions = controls.expressions.take(20).joinToString("、").ifBlank { "无" }
         val motions = controls.motions.joinToString("、") { (group, index) ->
             Live2DMotionCatalog.describe(group, index) ?: "$group#$index"
@@ -108,22 +112,20 @@ internal object Live2DVisualActionBus {
             真实动作目录（group#index=动作描述）：
             $motions
             真实表情资源：$expressions
-            结合你的性格、当下心情与每句话的语气，自主从真实目录选择最合适的 Motion3，不按关键词机械匹配。视频通话时尽可能让每个自然说话片段都对应一个真实动作，而不是只给回复开头配动作。
-            同一次正常回复即可填写 live2d，不会额外调用语言模型：
-            {"action":"reply","text":"你回来了！我刚才还想着你呢。不过我可没一直等你。",
-             "live2d":{"beats":[
-               {"anchor":"你回来了","motion":{"group":"LuluWolf","index":17}},
-               {"anchor":"不过我可没一直等你","motion":{"group":"LuluWolf","index":6}}
-             ]}}
+            结合你的性格、当下心情与每句话的语气，自主从真实目录选择最合适的 Motion3，不按关键词机械匹配。视频发言的输出契约：每个实际说话片段都必须对应你选择的真实动作，不能只给回复开头配动作；执行前会检查漏项。日常短句可选轻微动作，神态和力度仍由你自己决定。
+            本次可见视频的 reply 使用 speech 数组作为唯一台词来源，取代普通电话的 text；不要重复输出 text 或 bubbles。
+            {"action":"reply","speech":[
+               {"id":"s1","text":"你回来了！","motion":{"group":"LuluWolf","index":17},"transition":"blend"},
+               {"id":"s2","text":"不过我可没一直等你。","motion":{"group":"LuluWolf","index":6},"transition":"blend"}
+             ]}
             上面仅说明格式；必须自行从真实目录选动作，示例不是固定搭配。
-            beats 中每项 motion.group 与 motion.index 必须与目录完全一致（索引从0开始）。可以给每个独立句子安排 anchor+motion，整轮最多16拍。长句按自然分句变化，短句一个动作即可；不要为每个字单独分拍，也不要只改表情不动身体。
-            anchor 必须逐字来自这次 text 的分句开头（如句首、逗号后、句号后），并且只出现一次；程序会等对应 TTS 片段真正开始发声才播放 Motion。
-            若希望在整句话开始时做一个动作，可直接用 {"live2d":{"motion":{"group":"LuluWolf","index":3}}}；等实际发声后播放。
+            speech 每个片段的 id 唯一、text 非空，motion.group/index 必须与目录完全一致（索引从0开始），整轮最多16段。每段直接绑定字幕、语音与动作，不使用原文锚点或估算的 atMs；同一句话重复出现也用不同 id。
+            按自然说话意图分段，避免为了动而拆成单字。声音标签直接保留在相应 text 中；整轮保持连贯情绪，不逐句随机变声。
+            新动作 transition=blend，从当前真实姿态衔接；若下一段仍继续同一个动作，填相同 motion 并用 transition=continue，播放器不从头重播尚在进行的动作。
             不要为普通 Motion 使用 head/body/face 数值或 performance.movement；原生 Motion 包含自己完整的身体协调、节奏与回弹，唇形随真实声音独立变化。
             如果你想用这个模型真实提供的表情资源，可单独选择 expression，也可配合一个 motion；没有的资源不能虚构。
-            beats 允许 {"anchor":"原话分句","motion":{"group":"真实组名","index":真实序号},"expression":"真实表情名"}。
-            没有匹配锚点或无效组名/序号时，执行器跳过该动作，不凭台词猜动作，也不补造替代动作。
-            只有确实想安静陪伴的时刻才省略 live2d；平常讲话尽量每句有可执行 Motion3。模型不存在的动作不能编造，程序不会按台词替你猜动作。
+            speech 每段可选 expression=真实表情名。表情可以沿用；身体动作、面部与口型独立协调。
+            选择 silent 安静陪伴时可以省略 live2d；选择 reply 开口时每个片段须有可执行 Motion3。模型不存在的动作不能编造，程序不会按台词替你猜动作。
             老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
         """.trimIndent()
@@ -184,11 +186,14 @@ internal object Live2DVisualActionBus {
     @Synchronized
     fun publish(context: Context, characterId: String, callId: String, chosen: JSONObject?): Boolean {
         if (chosen == null || visibleStages[characterId] != callId || callId.isBlank()) return false
+        val paired = Live2DDialoguePlan.parts(chosen)
+        val controls = Live2DAssets.controls(context, characterId)
+        if (chosen.has("speech") && (paired == null || paired.any { it.motion !in controls.motions })) return false
         // An explicit original Motion3 is the main performance authority;
         // never inject a second parameter-generated body score on top of it.
-        val request = if (chosen.optJSONObject("motion") != null) chosen
+        val request = if (paired != null) JSONObject().put("beats", Live2DDialoguePlan.beats(paired))
+            else if (chosen.optJSONObject("motion") != null) chosen
             else Live2DConversationPerformance.expand(chosen)
-        val controls = Live2DAssets.controls(context, characterId)
         val expression = request.optString("expression").trim().takeIf(String::isNotBlank)
         // The LLM chooses the intent; if it chose a movement, execute the
         // imported rig's REAL authored clip rather than only a tiny parameter
@@ -339,7 +344,10 @@ internal object Live2DVisualActionBus {
                     // Model-selected Motion3 is a first-class timed beat, not
                     // a parameter approximation. Keep the complete clip intact.
                     add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs,
-                        anchor, motion = beatMotion))
+                        anchor, segmentIndex = if (paired != null) item.optInt("segmentIndex") else 0,
+                        motion = beatMotion, segmentId = if (paired != null) item.optString("segmentId") else null,
+                        transition = if (paired != null) item.optString("transition", "blend") else "blend",
+                        motionMetadata = beatMotion?.let { Live2DAssets.motionMetadata(context, characterId, it.first, it.second) }))
                 }
             }
         }.sortedBy(Beat::atMs)
@@ -350,6 +358,7 @@ internal object Live2DVisualActionBus {
             callId, characterId, filledExpression, motion, angles, body, filledFace, sequence,
             immediate = request.optBoolean("_executeNow", false),
             beats = beats,
+            speechParts = paired.orEmpty(),
         ))
         return true
     }

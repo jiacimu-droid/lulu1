@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
+import { createMotionTransition } from '../src/motion-transition.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
 import { touchExpressionCategory } from '../src/touch-reflex.mjs'
@@ -32,6 +33,7 @@ const bridge = {
     motion: (group, index) => { motions.push([group, index]); return true },
   },
   performanceRuntime: createPerformanceRuntime({ now: () => clock }),
+  motionTransition: createMotionTransition({ read: () => null, write: () => {}, now: () => clock }),
   mouthExpressionGate: createSpeechExpressionGate({ now: () => clock }),
   speechMouth: createSpeechMouthRuntime({
     has: () => false, write: () => false,
@@ -332,5 +334,106 @@ bridge.onPlaybackEvent('playing', 2, 987)
 assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
 assert.equal(motions.length, beforeMotion + 2,
   'interrupted turn must not replay an old Motion3')
+
+// Android's coarse amplitude update and exact onStarted event are separate
+// Compose effects. A late speaking=false from the previous audio fragment
+// must not erase THIS fragment's model-selected motion before the next frame.
+bridge.onPlaybackEvent('interrupted')
+const beforeCoarseRace = motions.length
+bridge.perform({ visualSequence: 2001, beats: [
+  { segmentIndex: 0, atMs: 80, motion: { group: 'LuluWolf', index: 30 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 2001)
+bridge.update({ speaking: false, mouth: 0 })
+clock += 100
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1,
+  'a delayed amplitude snapshot cannot cancel the actual utterance score')
+assert.equal(motions.length, beforeCoarseRace + 1)
+bridge.onPlaybackEvent('finished', 0, 2001)
+clock += 100
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+
+// Conversely, a stale speaking=true snapshot cannot start the next turn's
+// top-level motion before that turn's real voice event arrives.
+bridge.perform({ visualSequence: 2002,
+  motion: { group: 'LuluWolf', index: 34 } })
+const beforePremature = motions.length
+bridge.update({ speaking: true, mouth: .5 })
+assert.equal(motions.length, beforePremature)
+bridge.onPlaybackEvent('playing', 0, 2002)
+assert.equal(motions.length, beforePremature + 1)
+bridge.onPlaybackEvent('interrupted', 0, 2002)
+
+// Paired plans use immutable part IDs; repeated words cannot bind another
+// part's action. Continuing the SAME clip must not restart it each sentence.
+bridge.perform({ visualSequence: 3000, beats: [
+  { segmentId: 's1', segmentIndex: 0, atMs: 0, motion: { group: 'LuluWolf', index: 28 } },
+  { segmentId: 's2', segmentIndex: 1, atMs: 0, transition: 'continue', motion: { group: 'LuluWolf', index: 28 } },
+  { segmentId: 's3', segmentIndex: 2, atMs: 0, motion: { group: 'LuluWolf', index: 6 } },
+] })
+const beforePaired = motions.length
+bridge.onPlaybackEvent('playing', 0, 3000, 'wrong')
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 0)
+bridge.onPlaybackEvent('finished', 0, 3000, 'wrong')
+bridge.onPlaybackEvent('playing', 0, 3000, 's1')
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+await Promise.resolve()
+assert.equal(motions.length, beforePaired + 1)
+bridge.onPlaybackEvent('finished', 0, 3000, 's1')
+bridge.onPlaybackEvent('playing', 1, 3000, 's2')
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+assert.equal(motions.length, beforePaired + 1, 'continue does not restart the active authored clip')
+bridge.onPlaybackEvent('finished', 1, 3000, 's2')
+bridge.onPlaybackEvent('playing', 2, 3000, 's3')
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+await Promise.resolve()
+assert.equal(motions.length, beforePaired + 2)
+assert.equal(bridge.audioPosition(3000, 1, 's2', 500), false, 'old part clock is rejected')
+assert.equal(bridge.audioPosition(3000, 2, 's3', 120), true)
+bridge.onPlaybackEvent('interrupted', 2, 3000, 's3')
+assert.equal(bridge.audioPosition(3000, 2, 's3', 200), false)
+
+// Once actual audio positions exist, wall time and a stalled HTTP stream do
+// not advance a future beat. No character-count timestamps are synthesized.
+const audioClock = createPerformanceRuntime({ now: () => clock })
+audioClock.schedule([{ atMs: 250, motion: { group: 'Gesture', index: 0 } }])
+audioClock.startSpeech()
+audioClock.audioPosition(100)
+clock += 1000
+assert.equal(audioClock.tick(() => {}), 0)
+assert.equal(audioClock.audioPosition(50), false)
+audioClock.audioPosition(260)
+assert.equal(audioClock.tick(() => {}), 1)
+assert.equal(audioClock.tick(() => {}), 0)
+
+// A new clip starts at the last displayed joints, blends to the real
+// incoming motion, and touches no unowned mouth/eye/arm parameters.
+const blended = new Map([['ParamAngleX', 12], ['ParamBodyAngleX', -4], ['ParamMouthOpenY', .7]])
+const transitionWrites = []
+const transition = createMotionTransition({ now: () => clock,
+  read: (_core, id) => blended.get(id),
+  write: (_core, id, value) => { blended.set(id, value); transitionWrites.push(id) },
+})
+transition.capture({}, blended.keys())
+transition.begin(['ParamAngleX', 'ParamBodyAngleX'], 200)
+blended.set('ParamAngleX', -10)
+blended.set('ParamBodyAngleX', 3)
+transition.update({})
+assert.equal(blended.get('ParamAngleX'), 12)
+clock += 100
+blended.set('ParamAngleX', -10)
+transition.update({})
+assert.equal(blended.get('ParamAngleX'), 1)
+clock += 100
+blended.set('ParamAngleX', -10)
+transition.update({})
+assert.equal(blended.get('ParamAngleX'), -10)
+assert.equal(blended.get('ParamMouthOpenY'), .7)
+assert.ok(!transitionWrites.includes('ParamMouthOpenY'))
+transitionWrites.length = 0
+transition.begin(['ParamAngleX'], 200)
+transition.cancel()
+transition.update({})
+assert.equal(transitionWrites.length, 0)
 
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')

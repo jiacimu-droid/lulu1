@@ -10,6 +10,7 @@ import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
+import { createMotionTransition } from './motion-transition.mjs'
 import { createSpeechMouthRuntime } from './speech-mouth.mjs'
 import { isWolfRig, enhanceWolfTouch, createWolfImpactPresentation } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
@@ -211,6 +212,10 @@ let faceRequest = null
 let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
 let authoredMotion = null
+const motionTransition = createMotionTransition({
+  read: (core, id) => getParameter(core, id),
+  write: (core, id, value) => setParameter(core, id, value),
+})
 let motionRevision = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
@@ -424,8 +429,9 @@ function applyPerformanceBeat(beat, lateMs = 0) {
   if (remainingMs === 0) return
   // A motion beat is the role's actual authored Motion3, not a synthetic
   // parameter pose. The imported model/asset list was validated on Android.
-  if (beat.motion) motion(beat.motion.group, beat.motion.index, true)
-  if (beat.expression) startSpeechExpression(beat.expression)
+  if (beat.motion) motion(beat.motion.group, beat.motion.index, true, 'character', beat)
+  if (beat.expression && !(beat.transition === 'continue' &&
+      activeExpressionName === preferredExpression(beat.expression))) startSpeechExpression(beat.expression)
   if (beat.head) head(beat.head, true)
   if (beat.body) body(beat.body, true)
   if (beat.face) face(beat.face, true)
@@ -502,6 +508,7 @@ function applyFinalParameters(core, deltaMs) {
     eyeLeftOpen: undefined, eyeRightOpen: undefined,
   } : faceRequest
   const manager = model?.internalModel?.motionManager
+  motionTransition.update(core)
   const motionActive = !!authoredMotion?.started && authoredMotion.model === model &&
     manager?.isFinished?.() === false
   if (authoredMotion?.started && !motionActive) authoredMotion = null
@@ -568,6 +575,7 @@ function applyFinalParameters(core, deltaMs) {
     jawOverride: tactilePose?.face?.jawOpen ?? visibleFace?.jawOpen,
     poutOverride: tactilePose?.face?.pout ?? visibleFace?.pout,
   })
+  motionTransition.capture(core, core.getModel?.()?.parameters?.ids || [])
 }
 function installFinalParameterControl(loadedModel) {
   const internal = loadedModel.internalModel
@@ -778,6 +786,7 @@ async function load(modelURL) {
     // Stale clips from the previous model must never play against the new rig.
     motionRevision++
     authoredMotion = null
+    motionTransition.reset()
     performanceRuntime.reset()
     scoredBeats = []
     scoreVisualSequence = 0
@@ -839,6 +848,7 @@ async function load(modelURL) {
 // Moment state is driven by the Android phone player's actual audible
 // events, not merely an LLM response or a pending TTS network request.
 function activatePendingSpeechMoment() {
+  if (scoreVisualSequence > 0 && scoreVisualSequence !== audioVisualSequence) return
   if (!pendingExpressionName && !pendingSpeechParts) return
   const selected = pendingExpressionName?.name
   const parts = pendingSpeechParts
@@ -851,7 +861,7 @@ function activatePendingSpeechMoment() {
   if (parts?.body) body(parts.body)
   if (parts?.face) face(parts.face)
 }
-function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0) {
+function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segmentId = '') {
   if (phase === 'playing') {
     // Android sends a start only after this exact queued TTS fragment emits
     // actual audio. Never replay a visual choice from another voice turn.
@@ -861,13 +871,16 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0) {
         audioSegmentIndex !== segmentIndex
       audioVisualSequence = eventVisualSequence
       audioSegmentIndex = segmentIndex
+      audioSegmentId = segmentId
       if (changed && scoreVisualSequence > 0) {
         performanceRuntime.stopSpeech()
         if (scoreVisualSequence === audioVisualSequence) {
           const selected = scoredBeats.filter(beat =>
-            (beat.segmentIndex ?? 0) === audioSegmentIndex)
+            (beat.segmentIndex ?? 0) === audioSegmentIndex &&
+              (!beat.segmentId || beat.segmentId === audioSegmentId))
           performanceRuntime.schedule(selected)
           performanceRuntime.startSpeech()
+          if (segmentId) performanceRuntime.audioPosition(0)
         }
       }
     }
@@ -918,6 +931,11 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0) {
   // should cancel immediately rather than make the role keep talking.
   if (phase === 'interrupted') speechMouth.reset()
 }
+function audioPosition(sequence, segmentIndex, segmentId, elapsedMs) {
+  if (sequence !== audioVisualSequence || segmentIndex !== audioSegmentIndex ||
+      segmentId !== audioSegmentId || sequence !== scoreVisualSequence) return false
+  return performanceRuntime.audioPosition(elapsedMs)
+}
 function update(next) {
   const wasPlaying = playing
   playing = !!next.speaking
@@ -943,7 +961,10 @@ function update(next) {
   if (!playing) {
     mouth = 0
     if (wasPlaying) {
-      performanceRuntime.stopSpeech()
+      // Compose's amplitude/status snapshot can trail the exact utterance
+      // callback. It must not erase a just-started score or a pending next
+      // sentence. Versioned scores end ONLY on their utterance event.
+      if (scoreVisualSequence === 0) performanceRuntime.stopSpeech()
       settleSpeechMoment()
       const gate = mouthExpressionGate.finished()
       if (gate.play) playVerifiedSpeechExpression(gate.play, true)
@@ -1488,6 +1509,7 @@ function resetSpeechExpression() {
   activeExpressionIsPreview = false
 }
 function clearSpeechMoment() {
+  motionTransition.cancel()
   resetSpeechExpression()
   mouthExpressionGate.reset()
   if (playing) mouthExpressionGate.started()
@@ -1570,13 +1592,15 @@ let scoredBeats = []
 let scoreVisualSequence = 0
 let audioVisualSequence = 0
 let audioSegmentIndex = 0
+let audioSegmentId = ''
 function choreography(beats, immediatePreview = false) {
   if (!model) return
   scoredBeats = Array.isArray(beats) ? beats.slice(0, 16) : []
   const selected = scoredBeats.filter(beat =>
     (beat.segmentIndex ?? 0) ===
       (scoreVisualSequence > 0 && audioVisualSequence === scoreVisualSequence
-        ? audioSegmentIndex : 0))
+        ? audioSegmentIndex : 0) &&
+      (!beat.segmentId || beat.segmentId === audioSegmentId))
   performanceRuntime.schedule(selected, !!immediatePreview)
 }
 // One atomic character decision, including ordinary chat performances. A new
@@ -1603,7 +1627,7 @@ function perform(cue, immediatePreview = false) {
   if (cue.beats) choreography(cue.beats, immediatePreview)
   return true
 }
-function motion(group, index, immediatePreview = false, source = 'character') {
+function motion(group, index, immediatePreview = false, source = 'character', options = {}) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
   if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
@@ -1611,6 +1635,8 @@ function motion(group, index, immediatePreview = false, source = 'character') {
     return
   }
   const target = model
+  if (options.transition === 'continue' && authoredMotion?.model === target &&
+      authoredMotion.group === group && authoredMotion.index === index) return
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source }
   authoredMotion = chosen
@@ -1633,6 +1659,7 @@ function motion(group, index, immediatePreview = false, source = 'character') {
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
     } else {
       chosen.started = true
+      motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
       notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)
     }
   }).catch(error => {
@@ -1699,7 +1726,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, perform, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection, resizeCalibrationZone }
+window.LuluLive2D = { load, update, onPlaybackEvent, audioPosition, setPaused, perform, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection, resizeCalibrationZone }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }

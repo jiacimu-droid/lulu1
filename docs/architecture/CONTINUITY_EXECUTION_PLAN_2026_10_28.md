@@ -1,5 +1,21 @@
 # 统一人物连续性实施清单（2026-10-28 主分支核对版）
 
+## 2026-10-29 P3：台词/动作成对计划、实际音频进度与原生 motion 衔接（本轮待 CI/真机）
+
+- 本轮将上一版逐句锚点补漏提升为 `Live2DDialoguePlan`：同一模型 reply 用唯一 speech 数组同时选择 id/text/motion/transition，原角色心理/工具流程保持；现有 Cue 临时携带同一份片段，按最终口语精确一致校验直接入 TTS，不靠重复原文和标点搜索。普通回复与真实工具结果反馈共用同一视觉契约/发布入口；纯语音、哄睡长段和旧 beats 兼容。
+- AudioTrack 首音与进度改读已消费帧，系统缓存语音读 MediaPlayer.currentPosition，经同一语音事件的 utteranceId/visualSequence/segmentId 向既有 stage 报告。真实位置到来后节拍不靠墙钟越过欠载；没有真实位置的兼容通道不谎称词级同步。
+- 动作 continue 避免同一实际 clip 跨句重启；blend 从上一帧已呈现参数淡入新 Motion3，时长/控制通道来自实际 model3/Motion3，跨动作混合在触摸/表情/PCM 层之前完成。口型、触摸、眼型依旧沿原控制权；中断/模型切换取消旧过渡。移除通话执行路径的轮换点头兜底，不用程序选动作掩盖契约失败。
+- 已新增 JS/JVM 根因回归：重复台词/声音标签无锚点、有效计划零补正、重写失配不复用、真实模型资源/时长/掩码→Cue→语音身份、旧进度/逆向时间拒绝、continue不重播、实际时钟欠载、只混合真实控制关节。JS parameters/touch-hit 本地通过；JVM、APK、索引与真机需按最终提交 CI 核验。
+- **保留边界**：原16段协议未扩容；词级重音、原生动画逐采样重定时、任意关键帧长时间保持、不同 TTS 服务跨段音色连续性仍未实证/未实现，不把片段级同步说成逐字同步。没有真实 fade 元数据的模型仍依赖原播放器；真机应观察三句话连演、插话、摸脸交还、低帧率和真实首音/补正率。
+
+## 2026-10-29 P3：视频逐片段 Motion3 契约与播放状态竞争（本轮待 CI/真机）
+
+- 真实断点：视频指令同时包含「不必每轮动」与「尽可能每句动作」，没有检查正常 reply 是否只给开头选了一个 Motion3，原 liveness floor 也只有整轮一个动作。新增 `Live2DSpokenMotionContract` 按真实 `CallReplyStream` 发声片段核对句首锚点与当前模型真实 group/index；只检验结构和资源，不从台词/情绪猜动作。
+- 正常非哄睡视频使用现有同一角色、同一已选聊天连接：首轮完整动作零新增模型请求；真实漏项/无效选项最多一次动作元数据补正。原台词、心理、日程和工具决定不重做；补正仍失败保留原语音/有效动作，并通过现有通话错误状态与感知记录说明动作未配齐，不谎称每句已执行。没有 motion 的模型不购买无效补正；纯语音/静默和哄睡长段不强制此契约。现有单轮16拍边界未扩张，超长文本仍可能无法配齐，不能承诺任意长独白全覆盖。
+- 声音标签边界：`[warmly]句首` 以前因前一个字符为 `]` 无法绑定，空格版还会切出只有标签的 TTS 请求。锚点现在把合法英文声音标签与其后原句保在同一实际音频片段，不伪造词级时间戳。
+- 播放竞争：Compose 的粗粒度 speaking/PCM 状态与真实 utterance 回调属于独立 effect；迟到的 speaking=false 曾清空真实 onStarted 刚启动的动作。带 visualSequence 的动作仅由真实 utterance 结束事件停止；迟到 speaking=true 也不能提前播放下一轮 pending motion。旧无版本预览继续兼容。
+- 本地已验：Live2D `parameters.mjs`、`touch-hit.mjs`（包含真实 stage 函数的 conversation-performance 回归）通过，覆盖迟到 false 不吞当前动作、迟到 true 不提前播放下轮，以及原触摸/打断/多分句动作。新增 JVM 回归覆盖首段动作不足、有效选择零补正、无效资源一次补正、失败保留、无 motion 不请求、声音标签保留。JVM/APK 与实际 Android 视频尚未验收，需按本轮最终 main CI 核实。真实补正率与延迟也须真机测量，不能把源码契约当成模型和画面已成功。
+
 基线：`main@5407206b57aabbed80ceffd919dd45933aba096f`；核对 AGENTS.md、UNIFIED_CHARACTER_CONTRACT.md、COMPANION_GROWTH_FRAMEWORK.md、CHARACTER_LOOP_AUDIT.md 及相关正式 Kotlin 源码与测试。本文是**未完成工作、验证要求和执行顺序**，不是已通过 Android 真机的声明。后续每轮先读取最新 main 的提交和源码，更新完成情况；不把这份快照当永恒事实。
 
 ## 当前已具备，禁止重建

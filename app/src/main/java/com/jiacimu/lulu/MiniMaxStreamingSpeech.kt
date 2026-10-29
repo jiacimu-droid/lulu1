@@ -30,7 +30,8 @@ internal class MiniMaxStreamingSpeech(context: Context) {
     }
 
     suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}, recordingTarget: File? = null,
-        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> }): Boolean = withContext(Dispatchers.IO) {
+        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> },
+        onPosition: (Long) -> Unit = {}): Boolean = withContext(Dispatchers.IO) {
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
         val epoch = generation
@@ -55,6 +56,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
             .setBufferSizeInBytes(maxOf(AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT), rate))
             .setTransferMode(AudioTrack.MODE_STREAM).build()
         track = audio
+        val playbackClock = CallAudioPlaybackClock(audio, rate, { epoch == generation }, onAudioStarted, onPosition)
         val payload = JSONObject().put("model", prefs.getString("minimax_model", "speech-2.8-turbo"))
             .put("text", text).put("stream", true).put("output_format", "hex")
             .put("stream_options", JSONObject().put("exclude_aggregated_audio", true))
@@ -90,7 +92,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                             }
                             val count = audio.write(bytes, offset, bytes.size - offset, AudioTrack.WRITE_BLOCKING)
                             check(count > 0) { "流式音频播放失败" }
-                            if (bytesWritten == 0L) onAudioStarted()
+                            playbackClock.sample()
                             recording?.write(bytes, offset, count)
                             // Visual lip sync is optional; audio must still play if it fails.
                             runCatching { onPcmFrame(bytes, offset, count) }
@@ -107,8 +109,10 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                 delay(20)
             }
             playedToEnd = epoch == generation && complete
+            playbackClock.sample()
             playedToEnd
         } finally {
+            playbackClock.close()
             recording?.finish(playedToEnd)
             request.disconnect()
             if (connection === request) connection = null

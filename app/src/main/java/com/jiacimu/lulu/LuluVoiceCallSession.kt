@@ -1602,7 +1602,7 @@ internal object LuluVoiceCallSession {
             // The published cue belongs to this model reply only. A preceding
             // call turn's unplayed visual choice cannot follow new TTS.
             var visualSequenceForReply = 0L
-            fun enqueueSpoken(parts: List<String>, visualSequence: Long = 0L) {
+            fun enqueueSpoken(parts: List<String>, visualSequence: Long = 0L, partIds: List<String> = emptyList()) {
                 parts.forEachIndexed { segmentIndex, part ->
                     val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
                     if (speech.isBlank()) return@forEachIndexed
@@ -1629,7 +1629,7 @@ internal object LuluVoiceCallSession {
                             if (sameReply()) {
                                 Live2DSpeechTimeline.started(
                                     latest.characterId, latest.callExperienceId, voiceMessageId,
-                                    segmentIndex, visualSequence)
+                                    segmentIndex, visualSequence, partIds.getOrElse(segmentIndex) { "" })
                                 promiseTaskId?.let { com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceStarted(it, latest.callExperienceId) }
                                 // Retain all audible segments, not only the last bubble.
                                 // STT echo for an earlier sentence can arrive during
@@ -1656,6 +1656,10 @@ internal object LuluVoiceCallSession {
                         onEnded = {
                             Live2DSpeechTimeline.finished(
                                 latest.characterId, latest.callExperienceId, voiceMessageId)
+                        },
+                        onProgress = { elapsed ->
+                            if (sameReply()) Live2DSpeechTimeline.progressed(latest.characterId,
+                                latest.callExperienceId, voiceMessageId, elapsed)
                         },
                         onDelivered = {
                             if (!sameReply()) return@enqueue
@@ -1745,7 +1749,7 @@ internal object LuluVoiceCallSession {
             val videoTurnContext = if (LuluCallWindowController.videoRequested.value) {
                 if (Live2DVisualActionBus.isStageVisible(
                         latest.characterId, latest.callExperienceId)) {
-                    "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。可以依据真实情绪与意图使用已提供的身体动作能力，不必每轮动，也不要反复口头宣布视频已开启。$cameraVisibilityRule"
+                    "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。说话的每个片段须按已提供的动作契约选择真实 Motion3；安静时可以不动，不要反复口头宣布视频已开启。$cameraVisibilityRule"
                 } else {
                     "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示。$cameraVisibilityRule 等身体实际可用时再选择可执行动作。"
                 }
@@ -1852,6 +1856,9 @@ internal object LuluVoiceCallSession {
                         }
                     }
                 },
+                onLive2DStatus = { status ->
+                    if (sameReply()) mutableState.update { it.copy(errorMessage = status) }
+                },
                 // The full role decision and its private fields must pass the
                 // publication boundary BEFORE any subtitle or audio output.
                 // Streaming partial JSON previously leaked raw deliberation.
@@ -1950,20 +1957,6 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
-                // If this reply carried no visual choice at all, keep the
-                // talking character from standing frozen for the whole
-                // reply: one small neutral everyday clip from the bus.
-                if (visualSequenceForReply == 0L) {
-                    appContext?.let { context ->
-                        if (Live2DVisualActionBus.publishLivenessFloor(
-                                context, latest.characterId, latest.callExperienceId)) {
-                            visualSequenceForReply = Live2DVisualActionBus.cues
-                                .value[latest.characterId]
-                                ?.takeIf { it.callId == latest.callExperienceId }
-                                ?.sequence ?: 0L
-                        }
-                    }
-                }
                 val authoredAnchors = Live2DVisualActionBus.cues.value[latest.characterId]
                     ?.takeIf { it.callId == latest.callExperienceId &&
                         it.sequence == visualSequenceForReply && visualSequenceForReply != 0L }
@@ -1979,7 +1972,18 @@ internal object LuluVoiceCallSession {
                     Live2DSpeechAnchorPlan.fromQueuedParts(
                         text, remaining, authoredAnchors)
                 else null
-                val segments = anchorPlan?.parts?.takeIf { it.isNotEmpty() } ?: remaining
+                val pairedCue = Live2DVisualActionBus.cues.value[latest.characterId]
+                    ?.takeIf { it.callId == latest.callExperienceId &&
+                        it.sequence == visualSequenceForReply }
+                val pairedParts = pairedCue?.speechParts?.let { Live2DDialoguePlan.queuedParts(it, text) }
+                if (!pairedCue?.speechParts.isNullOrEmpty() && pairedParts == null) {
+                    val status = "台词已变化，本轮动作计划未执行"
+                    mutableState.update { it.copy(errorMessage = status) }
+                    com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(latest.characterId, status)
+                    visualSequenceForReply = 0L
+                }
+                val segments = pairedParts?.map { it.text }
+                    ?: anchorPlan?.parts?.takeIf { it.isNotEmpty() } ?: remaining
                 // Split/bedtime/streamed TTS can already be segmented before
                 // the visual plan arrives. An empty map previously erased every
                 // authored Motion beat even when a fragment started with its
@@ -1992,7 +1996,7 @@ internal object LuluVoiceCallSession {
                         latest.characterId, latest.callExperienceId,
                         visualSequenceForReply, segmentForAnchor)
                 else visualSequenceForReply
-                enqueueSpoken(segments, synchronizedSequence)
+                enqueueSpoken(segments, synchronizedSequence, pairedParts?.map { it.id }.orEmpty())
                 // During a new call's opening, do not reopen the microphone while
                 // the first sentence is still synthesizing. Speaking becomes true
                 // only when real PCM is audible, not when TTS request begins.

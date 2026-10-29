@@ -29,6 +29,7 @@ internal class LuluCallSpeechQueue(
         val onDelivered: (() -> Unit)?,
         val onStarted: (() -> Unit)?,
         val onEnded: (() -> Unit)?,
+        val onProgress: ((Long) -> Unit)?,
     )
 
     private val appContext = context.applicationContext
@@ -50,10 +51,11 @@ internal class LuluCallSpeechQueue(
         messageId: String? = null,
         onStarted: (() -> Unit)? = null,
         onEnded: (() -> Unit)? = null,
+        onProgress: ((Long) -> Unit)? = null,
     ) {
         val speech = VoicePerformance.forPlayback(appContext, text)
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded))
+        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded, onProgress))
         if (!active) playNext()
     }
 
@@ -67,6 +69,7 @@ internal class LuluCallSpeechQueue(
         active = false
         activeRequest = null
         engine.onPlaybackState = null
+        engine.onPlaybackPosition = null
         onSpeakerChanged(null)
         onBusyChanged(false)
         engine.stop()
@@ -80,6 +83,7 @@ internal class LuluCallSpeechQueue(
         active = false
         activeRequest = null
         engine.onPlaybackState = null
+        engine.onPlaybackPosition = null
         onSpeakerChanged(null)
         onBusyChanged(false)
         engine.shutdown()
@@ -111,6 +115,10 @@ internal class LuluCallSpeechQueue(
                 }
             }
         }
+        engine.onPlaybackPosition = { elapsed -> scope.launch(Dispatchers.Main.immediate) {
+            if (localGeneration == generation && active && activeRequest === request && audible)
+                request.onProgress?.invoke(elapsed)
+        } }
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
             scope.launch {
@@ -123,6 +131,7 @@ internal class LuluCallSpeechQueue(
                 active = false
                 activeRequest = null
                 engine.onPlaybackState = null
+                engine.onPlaybackPosition = null
                 if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
                 playNext()
             }

@@ -8,6 +8,13 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
   let pending = null
   let current = null
   let speaking = false
+  let positionMs = null
+  function audioPosition(elapsedMs) {
+    if (!speaking || !Number.isFinite(elapsedMs) || elapsedMs < 0 ||
+        (positionMs !== null && elapsedMs < positionMs)) return false
+    positionMs = elapsedMs
+    return true
+  }
 
   function schedule(beats, immediate = false) {
     const allowed = Array.isArray(beats) ? beats.filter(beat =>
@@ -48,6 +55,7 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
   function startSpeech() {
     if (speaking) return // duplicate PCM/status callback
     speaking = true
+    positionMs = null
     if (pending) {
       if (now() - pending.queuedAt <= 20000) {
         current = { beats: pending.beats, index: 0, startedAt: now(), immediate: false }
@@ -58,6 +66,7 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
 
   function stopSpeech() {
     speaking = false
+    positionMs = null
     clearScore()
   }
 
@@ -73,7 +82,9 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
     if (!current || (!current.immediate && !speaking)) return 0
     // Monotonic wall elapsed, independent of Pixi/JPEG FPS. If a frame takes
     // 200 ms, due gestures are processed once, in chronological order.
-    const elapsed = Math.max(0, time - current.startedAt)
+    // Once an actual playback position is available, an underrun/paused
+    // AudioTrack cannot keep advancing the score by wall-clock time.
+    const elapsed = positionMs ?? Math.max(0, time - current.startedAt)
     let fired = 0
     while (current && current.index < current.beats.length &&
         current.beats[current.index].atMs <= elapsed) {
@@ -93,6 +104,7 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
 
   function reset() {
     speaking = false
+    positionMs = null
     current = null
     pending = null
   }
@@ -101,5 +113,5 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
       remaining: current ? current.beats.length - current.index : 0 }
   }
 
-  return { schedule, scheduleSegments, startSpeech, stopSpeech, clearScore, tick, reset, state }
+  return { schedule, scheduleSegments, startSpeech, stopSpeech, audioPosition, clearScore, tick, reset, state }
 }

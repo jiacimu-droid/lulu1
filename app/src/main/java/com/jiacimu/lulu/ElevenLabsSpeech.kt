@@ -97,13 +97,15 @@ internal class ElevenLabsSpeech(context: Context) {
     }
 
     suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null, source: String = "phone_direct",
-        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> }): Boolean = withContext(Dispatchers.IO) {
+        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> },
+        onPosition: (Long) -> Unit = {}): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
         // A long bedtime turn remains one visible message and one recording,
         // but each WebSocket synthesis segment has its own bounded PCM stream.
         val speechParts = if (ElevenLabsModels.websocket(selectedModel()))
             ElevenLabsSpeechSegments.split(text) else listOf(text)
         var audio: AudioTrack? = null
+        var playbackClock: CallAudioPlaybackClock? = null
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
         try {
@@ -115,6 +117,7 @@ internal class ElevenLabsSpeech(context: Context) {
                 .setBufferSizeInBytes(maxOf(rate, AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)))
                 .setTransferMode(AudioTrack.MODE_STREAM).build()
             audio = output; track = output
+            playbackClock = CallAudioPlaybackClock(output, rate, { token == epoch }, onStarted, onPosition)
             CallAudioRoute.preferredOutput?.let { check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" } }
             output.play()
             var written = 0L
@@ -137,7 +140,7 @@ internal class ElevenLabsSpeech(context: Context) {
                                 }
                                 val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
                                 check(sent > 0) { "ElevenLabs 音频播放失败" }
-                                if (written == 0L) onStarted()
+                                playbackClock?.sample()
                                 recording?.write(buffer, offset, sent)
                                 // A renderer failure must never interrupt a phone call.
                                 runCatching { onPcmFrame(buffer, offset, sent) }
@@ -157,8 +160,10 @@ internal class ElevenLabsSpeech(context: Context) {
                 delay(20)
             }
             playedToEnd = token == epoch
+            playbackClock?.sample()
             playedToEnd
         } finally {
+            playbackClock?.close()
             // The recording contains exactly what was sent to AudioTrack, not a
             // second TTS generation. Interrupted or failed speech is discarded.
             recording?.finish(playedToEnd)

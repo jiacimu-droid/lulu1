@@ -188,6 +188,22 @@ internal object Live2DAssets {
     }
 
     /** Facts about one library model, shown in the library and the call picker. */
+    fun motionMetadata(context: Context, characterId: String, group: String, index: Int): Live2DMotionMetadata? {
+        val relative = prefs(context).getString("model:$characterId", null).orEmpty()
+        val settings = File(base(context), relative)
+        if (relative.isBlank() || !inside(base(context), settings) || !settings.isFile || index < 0) return null
+        return runCatching {
+            val refs = Live2DModelManifestAdapter.normalizedSettings(settings).getJSONObject("FileReferences")
+            val entry = refs.getJSONObject("Motions").getJSONArray(group).getJSONObject(index)
+            val clip = File(settings.parentFile, entry.getString("File"))
+            if (!inside(base(context), clip) || !clip.isFile) return null
+            val data = JSONObject(clip.readText())
+            if (entry.has("FadeInTime")) data.put("FadeInTime", entry.get("FadeInTime"))
+            Live2DMotionMetadata.read(data)
+        }.getOrNull()
+    }
+
+    /** Facts about one library model, shown in the library and the call picker. */
     data class LibraryModelHealth(
         val expressions: Int,
         val motions: Int,

@@ -38,6 +38,8 @@ internal class LuluSpeechEngine(context: Context) {
     var lastError: String = ""
         private set
     var onPlaybackState: ((Boolean) -> Unit)? = null
+    var onPlaybackPosition: ((Long) -> Unit)? = null
+    private val positionHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private val elevenSpeech = ElevenLabsSpeech(appContext)
     private var player: MediaPlayer? = null
@@ -104,7 +106,8 @@ internal class LuluSpeechEngine(context: Context) {
             scope.launch {
                 runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
                     onAudioStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
-                    recordingTarget = recordingTarget, onPcmFrame = onPcmFrame) }
+                    recordingTarget = recordingTarget, onPcmFrame = onPcmFrame,
+                    onPosition = { if (requestGeneration == playbackGeneration) onPlaybackPosition?.invoke(it) }) }
                     .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
@@ -113,7 +116,8 @@ internal class LuluSpeechEngine(context: Context) {
                 runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
                     onStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
                     recordingTarget = recordingTarget, source = source,
-                    onPcmFrame = onPcmFrame) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                    onPcmFrame = onPcmFrame,
+                    onPosition = { if (requestGeneration == playbackGeneration) onPlaybackPosition?.invoke(it) }) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else {
@@ -267,6 +271,7 @@ internal class LuluSpeechEngine(context: Context) {
 
     fun stop() {
         playbackGeneration++
+        positionHandler.removeCallbacksAndMessages(null)
         synthesisJob?.cancel()
         synthesisJob = null
         audioConnection?.disconnect()
@@ -485,6 +490,16 @@ internal class LuluSpeechEngine(context: Context) {
             start()
             onPlaybackState?.invoke(true)
         }
+        // Publish the actual player before a main-thread progress callback
+        // can run (synthesis completion may arrive on a Binder thread).
+        val target = player ?: return
+        positionHandler.post(object : Runnable {
+            override fun run() {
+                if (player !== target || generation != playbackGeneration || onPlaybackPosition == null) return
+                runCatching { onPlaybackPosition?.invoke(target.currentPosition.toLong()) }
+                positionHandler.postDelayed(this, 100)
+            }
+        })
     }
 
     private fun reportVoiceFailure(error: Throwable) {
@@ -496,6 +511,7 @@ internal class LuluSpeechEngine(context: Context) {
     }
 
     private fun finishPlayback(success: Boolean = false) {
+        positionHandler.removeCallbacksAndMessages(null)
         lastPlaybackSucceeded = success
         onPlaybackState?.invoke(false)
         activeUtteranceId = null
