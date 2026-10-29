@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:26:42.076514+00:00",
-  "commit": "29c51b508049d08df54f561b654f910d617e1b60",
+  "generatedAt": "2026-10-29T10:29:38.917487+00:00",
+  "commit": "e1563c4ee9458deca947f0dafa0c1a62c01363c2",
   "branch": "main",
-  "sourceFingerprint": "106a4f4ec5a10d1fdd51ccfa6061941d3dae2aea606ce029a558c9f8f45feaac",
+  "sourceFingerprint": "13a21b930dcbc6f6500e33153d285e6ec911984b8abaf4241119d5aa3ebe887b",
   "summary": {
-    "files": 1062,
-    "lines": 218781,
-    "symbols": 3126
+    "files": 1063,
+    "lines": 218801,
+    "symbols": 3127
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -496,6 +496,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
         "line": 361
+      }
+    ],
+    "dispatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechCallbackBoundary.kt",
+        "line": 9
       }
     ],
     "measure": [
@@ -18102,6 +18108,17 @@
         {
           "name": "context",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechCallbackBoundary.kt",
+      "lines": 20,
+      "sha256": "b3848bce0522063305b8502dbdb72690a48134a267be69a6cef7f8aefca3ed66",
+      "symbols": [
+        {
+          "name": "dispatch",
+          "line": 9
         }
       ]
     },
