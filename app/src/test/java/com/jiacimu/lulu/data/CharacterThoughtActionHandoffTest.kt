@@ -93,6 +93,30 @@ class CharacterThoughtActionHandoffTest {
         assertNull(CharacterThoughtActionHandoff.actions(thoughtOnly))
     }
 
+    @Test fun thoughtActionPreservesItsExplicitDependencyWhenAnEqualToolAlreadyExists() {
+        for (dependentFirst in listOf(false, true)) {
+            val first = action().put("requiresPreviousSuccess", dependentFirst)
+            val next = action().put("requiresPreviousSuccess", !dependentFirst)
+            val decision = JSONObject().put("action", "silent")
+                .put("steps", JSONArray().put(first))
+                .put("innerLife", JSONObject().put("thoughts", JSONArray()
+                    .put(JSONObject().put("nextAction", next))))
+            val original = decision.toString()
+            val steps = CharacterThoughtActionHandoff.actions(decision)!!
+            assertEquals(2, steps.length())
+            assertEquals(dependentFirst, steps.getJSONObject(0)
+                .getBoolean("requiresPreviousSuccess"))
+            assertEquals(!dependentFirst, steps.getJSONObject(1)
+                .getBoolean("requiresPreviousSuccess"))
+            assertEquals(original, decision.toString())
+        }
+        // Identical dependency declarations still refer to one chosen effect.
+        val repeated = action().put("requiresPreviousSuccess", true)
+        val same = JSONObject().put("steps", JSONArray().put(repeated))
+            .put("nextAction", JSONObject(repeated.toString()))
+        assertEquals(1, CharacterThoughtActionHandoff.actions(same)!!.length())
+    }
+
     @Test fun aPossibleStepInProseNeverExecutesByItself() {
         assertNull(CharacterThoughtActionHandoff.actions(concern(JSONObject()
             .put("possibleNextStep", "明天下午三点搜搜资料"))))

@@ -72,7 +72,9 @@ internal object CharacterThoughtActionHandoff {
             fun same(other: JSONObject): Boolean = step.optString("tool").isNotBlank() &&
                 other.optString("tool") == step.optString("tool") &&
                 canonical(other.optJSONObject("args") ?: JSONObject()) ==
-                    canonical(step.optJSONObject("args") ?: JSONObject())
+                    canonical(step.optJSONObject("args") ?: JSONObject()) &&
+                other.optBoolean("requiresPreviousSuccess", false) ==
+                    step.optBoolean("requiresPreviousSuccess", false)
             // A direct tool or explicit steps already owns this effect. Do not execute it twice.
             if (decision.optString("action") == "tool" &&
                 same(AutonomousActionWireProtocol.normalizeStep(decision))) return
