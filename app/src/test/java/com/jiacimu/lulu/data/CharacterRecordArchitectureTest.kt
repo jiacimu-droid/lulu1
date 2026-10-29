@@ -392,6 +392,65 @@ class CharacterRecordArchitectureTest {
         assertEquals(full.take(180), projected.single { it.key == "later-world" }.detail)
     }
 
+    @Test fun multilineHistoryDedupeUsesEntireAuthoredVoiceNotSharedOpening() {
+        val opening = "刚才玩古堡摸金让我有点好奇。我想知道它有哪些玩法，又担心问太多会打扰到她。"
+        val firstEnding = "现在决定去水边吹吹风，等她回来再问一遍那个宝箱是怎么开的。"
+        val secondEnding = "不过看到新消息突然想起昨天约好一起读书，决定先去看看书签。"
+        val first = CharacterStateHistoryRow("voice-one", now, "发送消息",
+            "${opening}\\n${firstEnding}\\n想法：探索游戏",
+            evidenceIds = listOf("message-one"))
+        val later = CharacterStateHistoryRow("voice-two", now.plusSeconds(8 * 60),
+            "在数字世界活动", "${opening}\\n${secondEnding}\\n想法：想去读书",
+            evidenceIds = listOf("world-two"))
+        val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(later, first))
+        assertEquals(2, rows.size)
+        val earlierVoice = CharacterStateHistory.display(rows.single { it.key == "voice-one" }).voice
+        val newVoice = CharacterStateHistory.display(rows.single { it.key == "voice-two" }).voice
+        assertEquals("${opening}\\n${firstEnding}", earlierVoice)
+        assertEquals("${opening}\\n${secondEnding}", newVoice)
+        assertNotEquals(earlierVoice, newVoice)
+    }
+
+    @Test fun multilineCausalTransitionsKeepOriginalAuthoredSpeechNotOtherFactLabels() {
+        val opening = "同一场游戏今天有点意思，我想起她之前问过那个蓝宝石项链的事情。"
+        val initial = "${opening}\\n不过我现在还不知道玩法，所以应该先问问她。"
+        val revised = "${opening}\\n刚才看到书桌上的书，决定先继续阅读，不再追问游戏。"
+        listOf("source-transition-a" to now, "source-transition-b" to now.plusSeconds(8 * 60))
+            .forEach { (id, at) ->
+                SharedExperienceTimeline.record(id, role, "本人真实观察", "角色",
+                    "另一项实际发生的独立事件", at, triggerExtraction = false,
+                    source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+            }
+        val mind = JSONObject().put("causalTransitions", JSONArray()
+            .put(JSONObject().put("evidenceId", "source-transition-a")
+                .put("at", now.toString()).put("innerThought", initial)
+                .put("appraisal", JSONObject().put("privateIdeas", JSONArray().put("想去问问玩法"))))
+            .put(JSONObject().put("evidenceId", "source-transition-b")
+                .put("at", now.plusSeconds(8 * 60).toString()).put("innerThought", revised)
+                .put("appraisal", JSONObject().put("privateIdeas", JSONArray().put("想继续阅读")))))
+        val rows = CharacterStateHistory.entries(role, emptyList(), now.plusSeconds(9 * 60),
+            mind, emptyList())
+        assertEquals(2, rows.size)
+        assertEquals(setOf(initial, revised),
+            rows.map { CharacterStateHistory.display(it).voice }.toSet())
+        assertEquals(2, rows.sumOf { CharacterStateHistory.display(it).otherThoughts.size })
+    }
+
+    @Test fun multilineExactReusedVoiceIsOnlyShownOnceWithoutDroppingItsActions() {
+        val voice = "今天的古堡玩法比我想的有趣多了，原来这个游戏还可以和她一起玩。\\n我想先去水边走走，等她回来再分享新的发现。"
+        val laterAt = now.plusSeconds(8 * 60)
+        val first = CharacterStateHistoryRow("first-heart", now, "发送消息",
+            voice, evidenceIds = listOf("chat-id"))
+        val second = CharacterStateHistoryRow("second-heart", laterAt, "在数字世界活动",
+            voice, decisions = listOf(CharacterRecordProjection.DecisionMoment(
+                "world-move", laterAt, "在数字世界活动", "想走过去", "已抵达", "world-id")),
+            evidenceIds = listOf("world-id"))
+        val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(second, first))
+        assertEquals(1, rows.count { CharacterStateHistory.display(it).voice.isNotBlank() })
+        assertEquals(1, rows.flatMap { it.decisions }.count { it.id == "world-move" })
+        assertEquals(2, rows.flatMap { it.evidenceIds }.distinct().size)
+    }
+
     @Test fun newVoiceAboutSameTopicAndLongAgoRepetitionRemainVisible() {
         val firstVoice = "刚刚去古堡摸金，我想起她之前说过的那个游戏，等一会儿再跟她聊聊，看看有什么新的进展。"
         val newVoice = "刚才又去了水边，突然想起另一件完全不同的事。虽然还在玩那个游戏，我现在却开始琢磨晚上的音乐。"
