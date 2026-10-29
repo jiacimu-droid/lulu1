@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.WindowManager
@@ -22,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
@@ -56,6 +59,28 @@ private sealed interface GameRoute {
     data class Replay(val recordId: String) : GameRoute
 }
 
+/** Save the route as a String so configuration changes cannot send players to the lobby. */
+private val savedGameRoute = Saver<GameRoute, String>(
+    save = { it.savedGameId() },
+    restore = { it.toGameRouteOrHome() },
+)
+
+private fun GameRoute.savedGameId(): String = when (this) {
+    GameRoute.Home -> "home"
+    GameRoute.DeepSea -> "deep_sea_journey"
+    GameRoute.BlockIsland -> "block_island"
+    GameRoute.RelicEscape -> "relic_escape"
+    GameRoute.PerfectMan -> "perfect_man"
+    GameRoute.Roleplay -> "roleplay"
+    GameRoute.TurtleSoup -> "turtle_soup"
+    GameRoute.RapportQuiz -> "rapport_quiz"
+    GameRoute.YachtDice -> "yacht_dice"
+    GameRoute.Gomoku -> "gomoku"
+    GameRoute.MemoryMatch -> "memory_match"
+    GameRoute.Records -> "records"
+    is GameRoute.Replay -> "replay:" + recordId
+}
+
 private data class GameLauncher(
     val id: String,
     val title: String,
@@ -72,7 +97,10 @@ private data class GameLauncher(
 fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
-    var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
+    var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
+        mutableStateOf(initialGameId.toGameRouteOrHome())
+    }
+    var landscape by rememberSaveable { mutableStateOf(false) }
     val bgmEnabled = GameAmbientSoundscape(if (route == GameRoute.DeepSea) GameSoundscape.Ocean else GameSoundscape.Arcade)
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
@@ -118,6 +146,24 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
         if (immersivePlay) window?.addFlags(flag)
         onDispose {
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
+        }
+    }
+    // Opt-in landscape for large-map games only. No global Activity or manifest lock:
+    // restore the host Activity's previous preference when the game is closed.
+    val landscapeSupported = route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.DeepSea)
+    val priorOrientation = remember(hostActivity) {
+        hostActivity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+    DisposableEffect(hostActivity, landscapeSupported, landscape) {
+        if (landscapeSupported) {
+            hostActivity?.requestedOrientation =
+                if (landscape) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        onDispose {
+            if (landscapeSupported && hostActivity?.isChangingConfigurations != true) {
+                hostActivity?.requestedOrientation = priorOrientation
+            }
         }
     }
 
@@ -197,6 +243,13 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                     }
                     Text(route.title(), color = Color.White, fontWeight = FontWeight.Bold,
                         fontSize = 15.sp, modifier = Modifier.weight(1f), maxLines = 1)
+                    if (landscapeSupported) {
+                        TextButton(onClick = { landscape = !landscape }) {
+                            Text(if (landscape) "竖屏" else "横屏",
+                                color = Color(0xFFB9EBD6), fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold)
+                        }
+                    }
                     GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
                     ModelArchiveIconButton(
                         usage = ModelUsage.Game, title = "游戏模型",
@@ -229,13 +282,21 @@ private fun GameRoute.title(): String = when (this) {
 }
 
 private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
+    "home" -> GameRoute.Home
     "deep_sea", "deep_sea_journey" -> GameRoute.DeepSea
     "block_island" -> GameRoute.BlockIsland
     "relic_escape" -> GameRoute.RelicEscape
+    "perfect_man" -> GameRoute.PerfectMan
+    "roleplay" -> GameRoute.Roleplay
     "turtle_soup" -> GameRoute.TurtleSoup
+    "rapport_quiz" -> GameRoute.RapportQuiz
     "yacht_dice" -> GameRoute.YachtDice
+    "gomoku" -> GameRoute.Gomoku
     "memory_match" -> GameRoute.MemoryMatch
-    else -> GameRoute.Home
+    "records" -> GameRoute.Records
+    else -> this?.trim()?.takeIf { it.startsWith("replay:", ignoreCase = true) }
+        ?.substringAfter(":")?.takeIf(String::isNotBlank)?.let(GameRoute::Replay)
+        ?: GameRoute.Home
 }
 
 @Composable
