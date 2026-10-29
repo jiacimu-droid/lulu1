@@ -316,12 +316,28 @@ internal object CharacterCuriosityRuntime {
         // the action must name that exact, still-valid observed source.
         val freshOwnedInquiry = selectedQuestion != null &&
             origin.isNotBlank() && selectedQuestion.optString("observedId") == origin &&
+            normalized(selectedQuestion.optString("question")) == normalized(fields[1]) &&
             pendingQuestions(characterId, root).any {
                 identity(it) == identity(selectedQuestion)
             }
         val resumedAfterClosure = closed != null && closedAt != null &&
             inquiryAt != null && inquiryAt.isAfter(closedAt) && freshOwnedInquiry
         val preserveClosure = closed != null && !resumedAfterClosure
+        // A newer, still-pending question owns its own source. An old tool
+        // callback must not consume it or rewrite an already exploring thread.
+        // The real tool receipt stays in SharedExperienceTimeline even when it
+        // cannot be attributed to this newer subjective inquiry.
+        val inquiryAt = runCatching { Instant.parse(current.optString("at")) }.getOrNull()
+        val olderOrigin = if (origin.isNotBlank() &&
+            current.optString("observedId").isNotBlank() &&
+            origin != current.optString("observedId")) {
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(origin))
+                .firstOrNull()?.occurredAt
+        } else null
+        if (closed == null && selected != null &&
+            ((selectedQuestion != null && !freshOwnedInquiry) ||
+                (selectedQuestion == null && inquiryAt != null &&
+                    olderOrigin?.isBefore(inquiryAt) == true))) return
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
@@ -350,6 +366,14 @@ internal object CharacterCuriosityRuntime {
                     .ifBlank { current.optString("parentThreadId") })
                 .put("parentTopic", proposal?.optString("parentTopic").orEmpty()
                     .ifBlank { current.optString("parentTopic") })
+            // Persist the inquiry that this verified action actually served.
+            // Later callbacks can then reject older sources even after the
+            // pending question has been consumed by the successful result.
+            if (selectedQuestion != null && (freshOwnedInquiry || selected == null)) {
+                current.put("observedId", selectedQuestion.optString("observedId"))
+                    .put("observedRevision", selectedQuestion.optLong("observedRevision"))
+                    .put("at", selectedQuestion.optString("at"))
+            }
             if (resumedAfterClosure) {
                 listOf("releaseReason", "releasedAt", "settleReason", "settledAt")
                     .forEach(current::remove)

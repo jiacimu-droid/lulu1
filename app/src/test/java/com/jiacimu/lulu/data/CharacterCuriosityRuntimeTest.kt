@@ -415,4 +415,87 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+
+    @Test fun oldToolResultCannotConsumeANewerPendingQuestionOrItsFailure() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(),
+            "source-1", "第一次看到的线索", at.plusSeconds(10)))
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        realRead("first-inquiry-result", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "旧问题的第一次真实阅读", "first-inquiry-result", at.plusSeconds(20))
+        assertEquals(0, CharacterCuriosityRuntime.visibleQuestions(id).size)
+
+        val newQuestion = proposal("新证据出现后人物为什么改变主意")
+            .put("threadId", threadId).put("sourceEvidenceId", "source-observation")
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, newQuestion,
+            "source-observation", "新的独立观察", at.plusSeconds(30)))
+        CharacterCuriosityRuntime.recordFailure(id, newQuestion, "reading",
+            "新问题暂时查不到", at.plusSeconds(35))
+        realRead("old-action-late", at.plusSeconds(40))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "旧动作晚到", "old-action-late", at.plusSeconds(40))
+        val pending = CharacterCuriosityRuntime.visibleQuestions(id)
+        assertEquals(1, pending.size)
+        assertEquals(newQuestion.getString("question"), pending.single().getString("question"))
+        val before = CharacterCuriosityRuntime.snapshot(id)
+        assertEquals(1, before.getJSONArray("threads").getJSONObject(0)
+            .getJSONArray("steps").length())
+        assertEquals(1, before.getJSONArray("failures").length())
+        assertEquals("故事后面如何发展",
+            before.getJSONArray("threads").getJSONObject(0).getString("question"))
+        // The late tool did execute: do not delete or invent its timeline fact.
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf("old-action-late")).firstOrNull())
+
+        realRead("new-inquiry-result", at.plusSeconds(50))
+        CharacterCuriosityRuntime.recordOutcome(id, newQuestion, "reading", true,
+            "新问题的真实阅读", "new-inquiry-result", at.plusSeconds(50))
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        assertEquals(0, CharacterCuriosityRuntime.visibleQuestions(id).size)
+        val after = CharacterCuriosityRuntime.snapshot(id)
+        val thread = after.getJSONArray("threads").getJSONObject(0)
+        assertEquals(newQuestion.getString("question"), thread.getString("question"))
+        assertEquals("source-observation", thread.getString("observedId"))
+        assertEquals(2, thread.getJSONArray("steps").length())
+        assertEquals(0, after.getJSONArray("failures").length())
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("新问题的真实阅读"))
+
+        // An even later callback from the OLD observation must not roll back
+        // the newer inquiry after its pending slot has already been consumed.
+        realRead("old-action-even-later", at.plusSeconds(60))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "旧任务再次迟到", "old-action-even-later", at.plusSeconds(60))
+        val finalThread = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals(newQuestion.getString("question"), finalThread.getString("question"))
+        assertEquals(2, finalThread.getJSONArray("steps").length())
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("新问题的真实阅读"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun revisingAQuestionOnTheSameObservationStillRejectsItsOldPendingAction() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(),
+            "source-1", "同一材料引发旧问题", at.plusSeconds(10)))
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        realRead("same-source-first", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "旧问题确实做过", "same-source-first", at.plusSeconds(20))
+        val revised = proposal("同一材料的新疑问").put("threadId", threadId)
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, revised,
+            "source-1", "仍是同一材料但本人改问法", at.plusSeconds(30)))
+        realRead("same-source-old-late", at.plusSeconds(40))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "旧问题的迟到回执", "same-source-old-late", at.plusSeconds(40))
+        assertEquals("同一材料的新疑问",
+            CharacterCuriosityRuntime.visibleQuestions(id).single().getString("question"))
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads")
+            .getJSONObject(0).getJSONArray("steps").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
 }
