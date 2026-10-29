@@ -516,15 +516,21 @@ class ResidentDailyContinuityTest {
             evidenceKind = EventEvidenceKind.CharacterStatement)
         assertEquals(2L, SharedExperienceTimeline.eventsByIds(actor, listOf(decisionId))
             .single().revision)
-        assertTrue(ResidentDailyDecision.runDuePlan(app, plan, now))
+        // Editing the paid decision revokes its unsent effects. A blank
+        // causeEvidenceId cannot authorize replaying the obsolete choice.
+        assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+        assertEquals("source_unavailable", prefs.getString("due-phase:$key", ""))
         val receiptId = "tool-$actor-resident-plan-${plan.id}-${plan.dueAt.epochSecond}"
-        val receipt = SharedExperienceTimeline.eventsByIds(actor, listOf(receiptId)).single()
-        assertEquals("", JSONObject(receipt.content).optString("causeEvidenceId"))
-        assertEquals(1, MomentsStore.posts.value.count {
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(receiptId)).isEmpty())
+        assertFalse(MomentsStore.posts.value.any {
             it.authorCharacterId == actor && it.content == post
         })
+        assertFalse(ResidentDailyDecision.hasSavedDueToResume(app, plan))
+        assertTrue(RoleDayScheduleStore.plans(app, actor).any {
+            it.id == plan.id && it.status != "completed"
+        })
         assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
-        assertEquals(1, MomentsStore.posts.value.count {
+        assertFalse(MomentsStore.posts.value.any {
             it.authorCharacterId == actor && it.content == post
         })
     }

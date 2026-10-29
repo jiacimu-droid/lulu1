@@ -27,6 +27,15 @@ import java.time.Instant
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterSocialNetworkTest {
 
+    @org.junit.Before
+    fun initializeWorkerHost() {
+        // Manifest-free tests must initialize the worker host explicitly;
+        // DigitalWorldStore uses it to schedule the existing reality window.
+        val app = RuntimeEnvironment.getApplication() as Context
+        if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
+            androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
+    }
+
     @Test
     fun acceptedQQFriendIsAnActualRelationshipEvenBeforeFirstMessageOrFormalMeeting() {
         val app = RuntimeEnvironment.getApplication() as Context
