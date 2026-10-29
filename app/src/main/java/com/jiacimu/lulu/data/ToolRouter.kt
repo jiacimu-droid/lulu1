@@ -114,6 +114,27 @@ object ToolRouter {
                 if (old.optString("motiveId") != motiveId || old.optString("concernId") != concernId ||
                     old.optString("experienceId") != experienceId)
                     return@withLock failure("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
+                // The request ID identifies ONE decision and its source, not merely
+                // a tool with matching JSON args. A different chat turn or due
+                // slot must never inherit a previous person's actual effect.
+                // Legacy rows without these fields remain readable as history.
+                if (old.has("causeEvidenceId") && old.optString("causeEvidenceId") != causeEvidenceId)
+                    return@withLock failure("同一执行ID的原始依据已变化，请使用新的行动ID", "waiting_user")
+                if (old.has("expectedPlanDueAt") &&
+                    old.optString("expectedPlanDueAt") != expectedPlanDueAt?.toString().orEmpty())
+                    return@withLock failure("同一执行ID的日程时间版本已变化，请使用新的行动ID", "waiting_user")
+                // A retry-safe unfinished operation is NOT a completed historical
+                // result. Its original evidence must still exist at the version
+                // the model saw; otherwise a late retry acts on corrected text.
+                if (old.optString("status") == "running" && cap?.retrySafe == true &&
+                    old.optString("causeEvidenceId").isNotBlank()) {
+                    val original = CharacterActionEvidence.resolve(characterId,
+                        old.optString("causeEvidenceId"))
+                    if (old.optLong("causeEvidenceRevision", 0L) <= 0L ||
+                        original?.revision != old.optLong("causeEvidenceRevision")) {
+                        return@withLock failure("原始依据已编辑或撤回，未继续执行旧请求", "waiting_user")
+                    }
+                }
                 if (old.optString("status") != "running" || cap?.retrySafe != true) {
                     val saved = old.optString("result")
                     val receiptId = "tool-$characterId-$requestId"
@@ -183,6 +204,7 @@ object ToolRouter {
                 .put("motiveId", motiveId).put("concernId", concernId).put("experienceId", experienceId)
                 .put("causeEvidenceId", verifiedCause?.id.orEmpty())
                 .put("causeEvidenceRevision", verifiedCause?.revision ?: 0L)
+                .put("expectedPlanDueAt", expectedPlanDueAt?.toString().orEmpty())
                 .put("reason", reason)
                 .put("curiosity", curiosity?.let { JSONObject(it.toString()).apply {
                     if (optString("sourceEvidenceId").isBlank()) put("sourceEvidenceId", causeEvidenceId)
