@@ -125,3 +125,9 @@
 - **正式修复**：模型仍自主选择reply/silent，复用原模型轮次。将生成后的实际提交集中到原Store的commitUserCommentReply：重新读取当前原帖/主人评论/角色与权限，在现有mutate锁内再次验证原评论和同人同目标重复；仅真正保存评论才记录原公开或定向证据。原mutate继续原子保存评论与提醒；未提交候选不写证据、不新增红点、不唤醒其他角色。不改公共ToolRouter、模型网关、人物主循环或其他专项。
 - **根因回归**：原MomentConversationContinuationTest增加真实ToolRouter→主人帖评论→旧快照不能清除→Store重载保留提醒→已读后同request重放不再提醒→主人回复→角色接话→删除清理；角色原帖上直接回复主人；个人作者筛选、撤权不可见及角色间普通评论不骚扰主人。另直接覆盖生产自动回复提交边界：首次真实提交有证据，迟到重复不增加评论/证据/红点，撤权与原帖删除后迟到候选均不生成幽灵事件。无测试模型调用。
 - **验证边界**：已运行现有scripts/generate_code_index.py及差异检查，正式索引由原工作流生成。不把测试源码当JVM通过，须按本提交对应CI核对Android单测、assemblePhone、APK发布；当前执行环境无Android SDK/Gradle。真机提醒、后台/重启、多日自然交往与跨Store强杀仍未验。本轮只提交MomentsStore、原独立回归及本专项进度。
+
+### 本轮提交、索引与实际CI复核
+
+- 源码与四项集成回归已提交main：[3b53b598](https://github.com/jiacimu-droid/lulu1/commit/3b53b598cabba3cc8d960d0b0d64fc69279781b2)。对应原[索引#40910393155](https://github.com/jiacimu-droid/lulu1/actions/runs/40910393155) completed/success，实际索引提交5c2315b的基准为此SHA。本提交[APK#40910393113](https://github.com/jiacimu-droid/lulu1/actions/runs/40910393113)在分配job前被后续main取消，不能声明测试执行过。
+- 继续核对包含本提交的ce5b7458：[APK#40910786872](https://github.com/jiacimu-droid/lulu1/actions/runs/40910786872)、job123578015677。Live2D步骤成功，Android步骤16:22:52 UTC启动，16:23:25被新main取消；日志尚未出现testDebugUnitTest执行完成，故本轮新增JVM/phone/发布均仍未确认。不把排队、编译或取消当通过，也不反复重跑干扰其他窗口。
+- 并发窗口后续7bd2ad75/8c2e2f35为现有提醒增加好友权限刷新及锁序处理，已逐处重新读取，保留本次commitUserCommentReply及全部回归；未覆盖同文件新改动。真机及自然社交仍待验。
