@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`264e8054cb66f60e3ce98f74927e75c96372547a`
+- 基准提交：`13c1b4eafe0ccf67631f9cb2d62fafd5841be15c`
 - 分支：`main`
 - 已索引文件：1072
-- 已索引代码/文本行：221616
+- 已索引代码/文本行：221617
 - 已发现符号：3151
 
 | 文件 | 行数 | 符号数 |
@@ -636,7 +636,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 160 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |

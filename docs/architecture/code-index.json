@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:45:24.007156+00:00",
-  "commit": "264e8054cb66f60e3ce98f74927e75c96372547a",
+  "generatedAt": "2026-10-29T14:46:01.342457+00:00",
+  "commit": "13c1b4eafe0ccf67631f9cb2d62fafd5841be15c",
   "branch": "main",
-  "sourceFingerprint": "66ecd891ebbe42753f59c9fdd8bb362172b4861ee76a7552cb16fd7823968349",
+  "sourceFingerprint": "217aab6dab039edd630a3046c9c6d21bf041dbc6d379c0faa99c7cf37fd2748f",
   "summary": {
     "files": 1072,
-    "lines": 221616,
+    "lines": 221617,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -113,7 +113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 132
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -30809,8 +30809,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-      "lines": 160,
-      "sha256": "29e915a3b423af8bbeabe4d08ee8ae107c9b52404aae2a099eb7c4faec94136d",
+      "lines": 161,
+      "sha256": "8f1908c9d402579a12886d9f9d31bf701cd3db1812e149dedc86a90427553a05",
       "symbols": [
         {
           "name": "attach",
@@ -30822,7 +30822,7 @@
         },
         {
           "name": "stop",
-          "line": 132
+          "line": 133
         }
       ]
     },
