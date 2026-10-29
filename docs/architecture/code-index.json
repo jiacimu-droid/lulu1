@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:24:40.522503+00:00",
-  "commit": "e10497e4550c8e0d47f9dbf48146107ca1351a5b",
+  "generatedAt": "2026-10-29T14:24:59.817936+00:00",
+  "commit": "9f3822c68cadd3313e5d00ae1e0733df503dd93f",
   "branch": "main",
-  "sourceFingerprint": "93458c92d1e2e427624f96122bda2d8cd6758f120d55f187a8c0b2eb95f66110",
+  "sourceFingerprint": "5a37e3ce539ac9e3213e4d26deb5d97ba1ba754a66918da72d8271255a281765",
   "summary": {
     "files": 1068,
-    "lines": 221013,
-    "symbols": 3141
+    "lines": 221059,
+    "symbols": 3142
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1813,7 +1813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 99
+        "line": 137
       }
     ],
     "supported": [
@@ -2291,31 +2291,37 @@
     "stageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 70
+        "line": 77
       }
     ],
     "stageClosed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 75
+        "line": 85
+      }
+    ],
+    "recordMotionOutcome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 103
       }
     ],
     "isStageVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 87
+        "line": 125
       }
     ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 92
+        "line": 130
       }
     ],
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 143
+        "line": 189
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2333,7 +2339,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 187
+        "line": 233
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -2343,7 +2349,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 218
+        "line": 264
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2357,31 +2363,31 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 229
+        "line": 275
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 286
+        "line": 332
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 296
+        "line": 342
       }
     ],
     "publishLivenessFloor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 381
+        "line": 427
       }
     ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 398
+        "line": 444
       }
     ],
     "Model": [
@@ -19562,8 +19568,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 415,
-      "sha256": "96467f3b4385653624576956076d3a281212f6693d1b5d55fe733990e17102fe",
+      "lines": 461,
+      "sha256": "13ef794f9176b08d3d0ba87c7f924d6960d924e5015ff38f02e85b6da5e495d6",
       "symbols": [
         {
           "name": "Head",
@@ -19587,55 +19593,59 @@
         },
         {
           "name": "stageReady",
-          "line": 70
+          "line": 77
         },
         {
           "name": "stageClosed",
-          "line": 75
+          "line": 85
+        },
+        {
+          "name": "recordMotionOutcome",
+          "line": 103
         },
         {
           "name": "isStageVisible",
-          "line": 87
+          "line": 125
         },
         {
           "name": "stageParameters",
-          "line": 92
+          "line": 130
         },
         {
           "name": "capabilityNote",
-          "line": 99
+          "line": 137
         },
         {
           "name": "normalized",
-          "line": 143
+          "line": 189
         },
         {
           "name": "publish",
-          "line": 187
+          "line": 233
         },
         {
           "name": "bounded",
-          "line": 218
+          "line": 264
         },
         {
           "name": "boundedBody",
-          "line": 229
+          "line": 275
         },
         {
           "name": "headNumber",
-          "line": 286
+          "line": 332
         },
         {
           "name": "bodyNumber",
-          "line": 296
+          "line": 342
         },
         {
           "name": "publishLivenessFloor",
-          "line": 381
+          "line": 427
         },
         {
           "name": "bindSpeechAnchors",
-          "line": 398
+          "line": 444
         }
       ]
     },
