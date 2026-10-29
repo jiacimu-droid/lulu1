@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:01:38.771087+00:00",
-  "commit": "af32d94f66991dcc95ed11ab61291fba6d5fece9",
+  "generatedAt": "2026-10-29T16:02:00.831700+00:00",
+  "commit": "410c3efc11d5ea80f9e382c78fca1a7a45ed3447",
   "branch": "main",
-  "sourceFingerprint": "b24821500286dab2b5bc69c25bade12c4ae7c95aac614ee5b2d4a063b8c77d62",
+  "sourceFingerprint": "f7a15b6623ea0b8fe7914968535da6e1054f765d9599da38d4eec7cf2cff59ff",
   "summary": {
     "files": 1076,
-    "lines": 222736,
+    "lines": 222811,
     "symbols": 3160
   },
   "symbolIndex": {
@@ -34748,8 +34748,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 470,
-      "sha256": "8181227bf3c19016d47376eecac0d209da0e423042af9f3ec4583ed1d6e3a160",
+      "lines": 545,
+      "sha256": "97538da66a28f59bb82e4d82d2f25141f7233738013ed5d43d1a55bf09695d2c",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
