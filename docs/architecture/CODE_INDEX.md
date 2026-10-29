@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e40c664b42de6d5f4095a734dec928265a21eae`
+- 基准提交：`cb10e5134dee7c5ef9945d485cb0be2115ac39db`
 - 分支：`main`
-- 已索引文件：1067
-- 已索引代码/文本行：220129
-- 已发现符号：3139
+- 已索引文件：1068
+- 已索引代码/文本行：220286
+- 已发现符号：3140
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -373,7 +373,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 306 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 184 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 291 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 56 | 1 |
@@ -413,7 +413,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 403 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1588 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1592 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 603 | 19 |
@@ -500,7 +500,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1151 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 106 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1058 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1080 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 52 | 3 |
@@ -967,6 +967,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 346 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 97 | 1 |

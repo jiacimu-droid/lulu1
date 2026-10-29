@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:08:31.217742+00:00",
-  "commit": "1e40c664b42de6d5f4095a734dec928265a21eae",
+  "generatedAt": "2026-10-29T12:12:58.249836+00:00",
+  "commit": "cb10e5134dee7c5ef9945d485cb0be2115ac39db",
   "branch": "main",
-  "sourceFingerprint": "08eb14df945f2ce3fb3fc18667ae64075549b4156544837d0881e27a055ace77",
+  "sourceFingerprint": "b87420128ad06ef86ca8e330047528e290cff9803d548b8cc192c073d3dffe37",
   "summary": {
-    "files": 1067,
-    "lines": 220129,
-    "symbols": 3139
+    "files": 1068,
+    "lines": 220286,
+    "symbols": 3140
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2401,7 +2401,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1326
+        "line": 1330
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4361,7 +4361,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 175
+        "line": 179
       }
     ],
     "recent": [
@@ -6235,7 +6235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 756
+        "line": 778
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -6867,13 +6867,13 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 144
+        "line": 145
       }
     ],
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 164
+        "line": 168
       }
     ],
     "groupedFields": [
@@ -7591,43 +7591,43 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1244
+        "line": 1248
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1288
+        "line": 1292
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1295
+        "line": 1299
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1309
+        "line": 1313
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1319
+        "line": 1323
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1365
+        "line": 1369
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1541
+        "line": 1545
       }
     ],
     "age": [
@@ -10371,37 +10371,37 @@
     "likeAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 484
+        "line": 504
       }
     ],
     "commentAsCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 493
+        "line": 513
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 539
+        "line": 561
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 559
+        "line": 581
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 583
+        "line": 605
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 777
+        "line": 799
       }
     ],
     "annotations": [
@@ -16682,6 +16682,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
         "line": 11
+      }
+    ],
+    "MomentConversationContinuationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
+        "line": 19
       }
     ],
     "MomentFriendAccessTest": [
@@ -23902,20 +23908,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 184,
-      "sha256": "a70b7b63c977cf15004677fed8aa068167ec32bcbb534f444a600c76136e7a66",
+      "lines": 188,
+      "sha256": "8469dce9a1dc3c88d65de351f462f3acaab09049c769227f199aa5627fa68c93",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 144
+          "line": 145
         },
         {
           "name": "requestContext",
-          "line": 164
+          "line": 168
         },
         {
           "name": "summary",
-          "line": 175
+          "line": 179
         }
       ]
     },
@@ -24765,8 +24771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1588,
-      "sha256": "530f3e7d4261288db7a0e196cb972cb5d21530d277320057d52084eaef872803",
+      "lines": 1592,
+      "sha256": "6c1fca2752562db326c857104335ba751c36afc4c1eb97ecf52534a83cfa73c4",
       "symbols": [
         {
           "name": "asJson",
@@ -24782,35 +24788,35 @@
         },
         {
           "name": "world",
-          "line": 1244
+          "line": 1248
         },
         {
           "name": "recordedReceiptId",
-          "line": 1288
+          "line": 1292
         },
         {
           "name": "completedEvidence",
-          "line": 1295
+          "line": 1299
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1309
+          "line": 1313
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1319
+          "line": 1323
         },
         {
           "name": "from",
-          "line": 1326
+          "line": 1330
         },
         {
           "name": "requiresCompletion",
-          "line": 1365
+          "line": 1369
         },
         {
           "name": "availableContext",
-          "line": 1541
+          "line": 1545
         }
       ]
     },
@@ -27611,8 +27617,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1058,
-      "sha256": "b34dac3fcbd2e58dbc79cb7148ebbea253cbe149b103965d1145dd440968e16e",
+      "lines": 1080,
+      "sha256": "f23649f06485c32618981868c6a83e0a53589aa6445d043f77f4beaf9d290928",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -27664,31 +27670,31 @@
         },
         {
           "name": "likeAsCharacter",
-          "line": 484
+          "line": 504
         },
         {
           "name": "commentAsCharacter",
-          "line": 493
+          "line": 513
         },
         {
           "name": "toggleUserLike",
-          "line": 539
+          "line": 561
         },
         {
           "name": "addUserComment",
-          "line": 559
+          "line": 581
         },
         {
           "name": "addUserReply",
-          "line": 583
+          "line": 605
         },
         {
           "name": "delete",
-          "line": 756
+          "line": 778
         },
         {
           "name": "clearCharacterData",
-          "line": 777
+          "line": 799
         }
       ]
     },
@@ -35968,6 +35974,17 @@
         {
           "name": "ModelStructuredOutputTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
+      "lines": 127,
+      "sha256": "2b1b1ea56297498f5f1f7570513a8e1bb39aa7c5a848e6fb534bdf16a3c77d17",
+      "symbols": [
+        {
+          "name": "MomentConversationContinuationTest",
+          "line": 19
         }
       ]
     },
