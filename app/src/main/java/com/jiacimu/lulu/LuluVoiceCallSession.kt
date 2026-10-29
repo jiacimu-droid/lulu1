@@ -386,7 +386,13 @@ internal object LuluVoiceCallSession {
             // A cluster of QQ chat bubbles is one human turn, not N rapid phone replies.
             delay(1_600L)
             while (isActiveForChat(conversationId) && mutableState.value.callExperienceId == callId &&
-                mutableState.value.opening) delay(250L)
+                (mutableState.value.opening ||
+                    (mutableState.value.sleepMode && speechQueue?.hasPendingAudio == true))) {
+                // Typed messages already live in QQ history. Do not let their
+                // phone response stop an audible bedtime paragraph mid-sentence.
+                // New chat bubbles merge into this same waiting user turn.
+                delay(250L)
+            }
             if (!isActiveForChat(conversationId) || mutableState.value.callExperienceId != callId) return@launch
             val typed = incomingChatDrafts.joinToString("\n").trim()
             val evidenceIds = incomingChatEvidenceIds.toList()
