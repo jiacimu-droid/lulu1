@@ -9,6 +9,8 @@ import androidx.compose.material.icons.outlined.VolumeOff
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,12 +34,12 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
     var line by remember(run.id) { mutableStateOf("") }
     var failure by remember(run.id) { mutableStateOf("") }
     val speaker = rememberIslandCompanionVoice { failure = it }
-    var heard by remember { mutableStateOf("") }
+    var inbox by rememberSaveable(run.id,stateSaver=relicInboxSaver) { mutableStateOf(IslandTeamInbox()) }
     var speechVersion by remember { mutableIntStateOf(0) }
-    val mic = rememberGameSpeechInput { heard = it; speechVersion++ }
+    val mic = rememberGameSpeechInput { inbox=inbox.enqueue(it);speechVersion++ }
     val currentRun by rememberUpdatedState(readRun)
     val latestChoice by rememberUpdatedState(onChoice)
-    val latestHeard by rememberUpdatedState(heard)
+    val latestInbox by rememberUpdatedState(inbox)
     val latestSpeech by rememberUpdatedState(speechVersion)
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
     val members = run.allies.map { it.id }
@@ -51,7 +53,7 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
             val turn = currentRun().turns
             val version = latestSpeech
             if (requestedTurn == turn && requestedSpeech == version) continue
-            val message = if (version != requestedSpeech) latestHeard else ""
+            val unread = latestInbox
             requestedTurn = turn
             requestedSpeech = version
             busy = true
@@ -60,6 +62,7 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                 for (id in members) {
                     val snapshot = currentRun()
                     if (snapshot.allies.none { it.id == id && it.hp > 0 }) continue
+                    val message=unread.forRole(id).joinToString("\n")
                     if (message.isBlank() && RelicActorPlay.acted(snapshot,id)) continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
                         .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
@@ -80,12 +83,14 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                         failure = "伙伴行动未能保存，请在行囊中查看错误"
                         continue
                     }
+                    if(message.isNotBlank())inbox=inbox.acknowledge(id,unread.messages.size)
                     val name = MigratedDomainStores.characters.get(id).displayName
                     line = name + "：" + choice.speech.ifBlank {
                         currentRun().events.lastOrNull { it.who == id && it.action == "decision" }?.text.orEmpty()
                     }
                     speaker.enqueue(id,choice.speech)
                 }
+                inbox=inbox.compact(members)
             } finally { busy = false }
         }
     }
@@ -110,3 +115,7 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
         }
     }
 }
+
+private val relicInboxSaver = Saver<IslandTeamInbox,String>(
+    save={it.toJson()},restore={IslandTeamInbox.fromJson(it)},
+)
