@@ -100,3 +100,12 @@
 
 - 回归提交 `410c3ef` 对应原 [Refresh code index #40907490706](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490706) **completed/success**，自动索引提交 [9f8226d](https://github.com/jiacimu-droid/lulu1/commit/9f8226d377b8)；实际 `CODE_INDEX.md` 基准为 `410c3efc11d5ea80f9e382c78fca1a7a45ed3447`，已覆盖源码和回归。无需手工重写索引。
 - [Lulu APK #40907490830](https://github.com/jiacimu-droid/lulu1/actions/runs/40907490830) 复核时仍 **pending**，尚无 Android JVM/phone/Release 通过证据。旧 [#40903765474](https://github.com/jiacimu-droid/lulu1/actions/runs/40903765474) 的成功仅作修改前基线。真机与跨日验收仍待。
+
+## 2026-10-30 D2/T2：首次探索回执及失效线程的事实归属
+
+- **四类核对**：已有验通的是此前同一角色多步骤 ToolRouter 回执及旧兴趣修订的源码/历史 CI；已有待验的是跨三次自然唤醒、真机强杀与真实模型取舍；本轮已证实缺口是**首次行动尚无 explored thread 时，旧来源回执可吞掉新的 pending 问题**，以及显式失效 threadId 的失败被当成无关联失败塞回自主提示。多年兴趣量/设备性能属于可选增强，不另造中心。
+- **根因**：`recordOutcome` 的迟到来源校验只在 `selected != null` 时生效，首个 pending inquiry 没有历史 thread，旧动作只要复用其 threadId/问法就能写入新进展并消费 pending；`recordFailure` 的 `matching` 未找到显式 threadId 时退成空 ID，`promptSection` 又把空 ID 视为历史兼容失败，令已删除或其他人物的失败成为新的重试线索。
+- **正式修复**：只在原 `CharacterCuriosityRuntime` 事实门禁核验首次 pending 的明确 `sourceEvidenceId`、当前问法及仍有效的观察；明确指向未知线程的失败不再伪装为旧协议无 ID 反馈。旧协议真正没有 threadId 的失败仍可保存，真实工具回执仍在原时间线，正确来源的首次成功正常消耗 pending、写入原 threads Store。没有自动重试、第二套状态、常态模型轮次或新唤醒。
+- **根因回归源码**：`CharacterCuriosityRuntimeTest` 新增「首次新问题→旧来源真实回执晚到→pending 与 threads 不受污染→新来源真实结果正常结转→重新绑定后保留」及「显式无效 threadId 失败不能变成自主重试线索→本人真实失败仍持久保存」两组。未将测试源码视为 JVM 已通过。
+- **main 提交**：源码 [fed16e8](https://github.com/jiacimu-droid/lulu1/commit/fed16e8a51db172b207034eeecf7b0548930ad9a)，回归 [9ccae8a](https://github.com/jiacimu-droid/lulu1/commit/9ccae8a185c371e6c6dec2b66a069b982394b5fa)。并行 main 仅使用原文件当前 blob SHA 更新，不覆盖社交/基础/Live2D 专项文件。
+- **验证边界**：原有 `Refresh code index` 自动生成 `CODE_INDEX.md` / `code-index.json`，不得手工伪造。需核对包含回归提交的 Android JVM、assemblePhone、APK/Release 真实完成结果；真机、权限变化、强杀与三次跨天自然唤醒仍待验。
