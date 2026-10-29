@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:37:13.369594+00:00",
-  "commit": "d1bec4aca4cdfebaafdf8800dbb8ed252058d8e1",
+  "generatedAt": "2026-10-29T12:53:56.101548+00:00",
+  "commit": "3ac0c80664b903114c80f2693aafa479a4ffbc89",
   "branch": "main",
-  "sourceFingerprint": "0b8503ecdf4a29292bdd6193d67a37aca721383b2cb724809cb7a1713a2131ce",
+  "sourceFingerprint": "e8cc02f5454d85f376755e87128da1dd6017c805065e504df810be904c3e17ec",
   "summary": {
     "files": 1068,
-    "lines": 220418,
-    "symbols": 3140
+    "lines": 220489,
+    "symbols": 3141
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6027,7 +6027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 581
+        "line": 603
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -6067,7 +6067,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 597
+        "line": 619
       }
     ],
     "informativeAction": [
@@ -9121,7 +9121,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 702
+        "line": 724
       }
     ],
     "LegacyLuluImportResult": [
@@ -11461,67 +11461,67 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 285
+        "line": 307
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 336
+        "line": 358
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 392
+        "line": 414
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 399
+        "line": 421
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 417
+        "line": 439
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 428
+        "line": 450
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 442
+        "line": 464
       }
     ],
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 537
+        "line": 559
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 546
+        "line": 568
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 578
+        "line": 600
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 684
+        "line": 706
       }
     ],
     "Limits": [
@@ -15480,16 +15480,22 @@
         "line": 20
       }
     ],
+    "rejection": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 323
+      }
+    ],
     "dailyDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 320
+        "line": 369
       }
     ],
     "actualStep": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 749
+        "line": 798
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -22761,7 +22767,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
       "lines": 569,
-      "sha256": "7b6dfba64e3a0239caae088cffbef2991ca8bdb111c88ba6558527a3322d1ff9",
+      "sha256": "4d53ad0fd8777b40f46cbb4b4ab508227b746fd21911699b632d4c8ab2cb244b",
       "symbols": [
         {
           "name": "inspect",
@@ -28767,8 +28773,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 816,
-      "sha256": "f609a91bf86db1d50300a45d76172ed09af03c0c85fc08b2ae1a6f972492392d",
+      "lines": 838,
+      "sha256": "ee505bb1b2e377016cb44ca4692f23258a867e97ed18cd8970d1d48b204c142f",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -28804,59 +28810,59 @@
         },
         {
           "name": "eventsByIds",
-          "line": 285
+          "line": 307
         },
         {
           "name": "deleteEvent",
-          "line": 336
+          "line": 358
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 392
+          "line": 414
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 399
+          "line": 421
         },
         {
           "name": "deleteConversationMessage",
-          "line": 417
+          "line": 439
         },
         {
           "name": "deleteConversationData",
-          "line": 428
+          "line": 450
         },
         {
           "name": "recentEvents",
-          "line": 442
+          "line": 464
         },
         {
           "name": "recentUserActivities",
-          "line": 537
+          "line": 559
         },
         {
           "name": "recentXhsReadings",
-          "line": 546
+          "line": 568
         },
         {
           "name": "sessionEvents",
-          "line": 578
+          "line": 600
         },
         {
           "name": "recentContext",
-          "line": 581
+          "line": 603
         },
         {
           "name": "remember",
-          "line": 597
+          "line": 619
         },
         {
           "name": "exportBackup",
-          "line": 684
+          "line": 706
         },
         {
           "name": "importBackup",
-          "line": 702
+          "line": 724
         }
       ]
     },
@@ -34356,8 +34362,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 781,
-      "sha256": "6ceea0547e79f9ed1ef10ee57b984cac3edb20a4bf0f49f805aa8c9a16e2b511",
+      "lines": 830,
+      "sha256": "c59b4a90dfce66634a1fbe890276367088ebd141a55b3aac1c8d82ec8850aefe",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -34372,12 +34378,16 @@
           "line": 200
         },
         {
+          "name": "rejection",
+          "line": 323
+        },
+        {
           "name": "dailyDecision",
-          "line": 320
+          "line": 369
         },
         {
           "name": "actualStep",
-          "line": 749
+          "line": 798
         }
       ]
     },
