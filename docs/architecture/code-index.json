@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:58:05.736355+00:00",
-  "commit": "2daab4b093c766690a2ce7e3517f80066ada836d",
+  "generatedAt": "2026-10-29T20:19:49.523911+00:00",
+  "commit": "c33c481d5647c4b3e3416339ad703360589f294c",
   "branch": "main",
-  "sourceFingerprint": "7f319b9ac46ab3699321157e91b0f1161e455f303199fd5420a79b6751c4cc2f",
+  "sourceFingerprint": "23b8dbef3f8b57286253c3830ec5f5b8e1e598cadf0bf97cdc6f05799e98b4bd",
   "summary": {
     "files": 1091,
-    "lines": 226326,
+    "lines": 226363,
     "symbols": 3204
   },
   "symbolIndex": {
@@ -5561,7 +5561,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 718
+        "line": 755
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -5853,7 +5853,7 @@
     "matches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 503
+        "line": 540
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -5867,7 +5867,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 582
+        "line": 619
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5877,7 +5877,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 683
+        "line": 720
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -23184,8 +23184,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 806,
-      "sha256": "a6b4324c7e10405a9daca411d2fd93f3245a0655e9e42a680655add1520f43c2",
+      "lines": 843,
+      "sha256": "21b864508ff17c3b0861496927e5e9680f1d58552693382b25729ee9a56f7f7d",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -23201,19 +23201,19 @@
         },
         {
           "name": "matches",
-          "line": 503
+          "line": 540
         },
         {
           "name": "pendingDecisionCues",
-          "line": 582
+          "line": 619
         },
         {
           "name": "briefContext",
-          "line": 683
+          "line": 720
         },
         {
           "name": "promptSection",
-          "line": 718
+          "line": 755
         }
       ]
     },
