@@ -242,7 +242,7 @@ private fun GameHome(
         GameLauncher("turtle_soup", "海龟汤", "提问、推理，和角色一起破解谜题。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
         GameLauncher("yacht_dice", "快艇骰子", "五颗骰子掷三次，可单人也可多人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
     )
-    var showClassics by remember { mutableStateOf(false) }
+    var showClassics by remember { mutableStateOf(true) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(Color(0xFF111620)),
@@ -697,67 +697,78 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
     val pressed by interaction.collectIsPressedAsState()
     val scale by androidx.compose.animation.core.animateFloatAsState(
         targetValue = if (pressed) .975f else 1f,
-        animationSpec = androidx.compose.animation.core.tween(120),
+        animationSpec = tween(135),
         label = "game-card-press",
     )
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
+    val tag = when (launcher.route) {
+        GameRoute.BlockIsland -> "建造 · 生存"
+        GameRoute.RelicEscape -> "探索 · 撤离"
+        GameRoute.MemoryMatch -> "翻牌 · 对战"
+        GameRoute.TurtleSoup -> "提问 · 推理"
+        GameRoute.YachtDice -> "掷骰 · 计分"
+        else -> "一起玩"
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 132.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
             .clickable(interactionSource = interaction, indication = null) { onOpen(launcher.route) },
-        colors = CardDefaults.cardColors(containerColor = GameDesign.card),
-        border = BorderStroke(1.dp, launcher.accent.copy(alpha = .28f)),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (pressed) 1.dp else 3.dp),
+        color = Color(0xFF182231),
+        shape = RoundedCornerShape(26.dp),
+        border = BorderStroke(1.dp, launcher.accent.copy(alpha = .38f)),
+        shadowElevation = if (pressed) 2.dp else 8.dp,
     ) {
-        Row(
-            Modifier.fillMaxWidth().heightIn(min = 92.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            Modifier.fillMaxWidth().background(
+                Brush.horizontalGradient(listOf(
+                    launcher.accent.copy(alpha = .29f),
+                    Color(0xFF1A2534),
+                    Color(0xFF101824),
+                )),
+            ),
         ) {
             Box(
-                Modifier
-                    .width(82.dp)
-                    .height(92.dp)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(launcher.accent.copy(alpha = .20f), launcher.accent.copy(alpha = .07f)),
-                        ),
+                Modifier.align(Alignment.TopEnd).offset(x = 28.dp, y = (-33).dp)
+                    .size(168.dp).background(
+                        Brush.radialGradient(listOf(launcher.accent.copy(alpha = .28f), Color.Transparent)),
+                        CircleShape,
                     ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Surface(
-                    color = launcher.accent,
-                    shape = RoundedCornerShape(18.dp),
-                    shadowElevation = 4.dp,
-                    modifier = Modifier.size(52.dp),
-                ) {
+            )
+            Icon(
+                launcher.icon, null,
+                tint = launcher.accent.copy(alpha = .11f),
+                modifier = Modifier.align(Alignment.CenterEnd).offset(x = 11.dp).size(128.dp),
+            )
+            Row(Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Surface(color = launcher.accent.copy(alpha = .18f),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, launcher.accent.copy(alpha = .4f)),
+                    modifier = Modifier.size(66.dp)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(launcher.icon, null, tint = Color.White, modifier = Modifier.size(27.dp))
+                        Icon(launcher.icon, null, tint = launcher.accent, modifier = Modifier.size(34.dp))
                     }
                 }
-            }
-            Column(
-                Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 13.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(launcher.title, fontSize = 18.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
-                    Icon(Icons.Outlined.ChevronRight, null, tint = launcher.accent, modifier = Modifier.size(21.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(tag, color = launcher.accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    Text(launcher.title, color = Color.White, fontSize = 21.sp,
+                        fontWeight = FontWeight.Black)
+                    Text(launcher.subtitle, color = Color(0xFFCBD5E2), fontSize = 11.sp,
+                        lineHeight = 17.sp, maxLines = 2)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            if (launcher.minCharacters == 0) "单人或同行"
+                            else if (launcher.maxCharacters > 1) "多人一起玩"
+                            else "双人合作",
+                            color = Color(0xFF9EADBF), fontSize = 10.sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text("开始玩", color = launcher.accent, fontSize = 12.sp,
+                            fontWeight = FontWeight.Black)
+                        Icon(Icons.Outlined.ChevronRight, null, tint = launcher.accent,
+                            modifier = Modifier.size(20.dp))
+                    }
                 }
-                Text(launcher.subtitle, color = GameDesign.muted, fontSize = 12.sp, lineHeight = 17.sp)
-                Text(
-                    when {
-                        launcher.minCharacters == 0 -> "可单人 · 最多邀请 ${launcher.maxCharacters} 位角色"
-                        launcher.maxCharacters > 1 -> "最多 " + (launcher.maxCharacters + 1) + " 人"
-                        else -> "双人游戏"
-                    },
-                    color = launcher.accent,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                )
             }
         }
     }
