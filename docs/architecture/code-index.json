@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T06:56:48.550263+00:00",
-  "commit": "73ebfe4e9ce1dfa1662e98e31bfc1e7393f2709e",
+  "generatedAt": "2026-10-29T06:58:22.263132+00:00",
+  "commit": "38b28c2a2ac1957fc4cef8f1090e958884d491ac",
   "branch": "main",
-  "sourceFingerprint": "24bc734db6ad5a42fd71cebe53e66e1ae4cbd8bd8a7c61792913be236028cedc",
+  "sourceFingerprint": "9e55d927ce6f43751ee3062f11c1ff5d39dcda9d9dfd5b724b02390991330cab",
   "summary": {
     "files": 1055,
-    "lines": 217213,
+    "lines": 217248,
     "symbols": 3099
   },
   "symbolIndex": {
@@ -2289,7 +2289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1313
+        "line": 1326
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7453,43 +7453,43 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1231
+        "line": 1244
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1275
+        "line": 1288
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1282
+        "line": 1295
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1296
+        "line": 1309
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1306
+        "line": 1319
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1352
+        "line": 1365
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1528
+        "line": 1541
       }
     ],
     "age": [
@@ -14813,7 +14813,7 @@
     "QqReplySourceWatermarkTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-        "line": 22
+        "line": 25
       }
     ],
     "QqXhsShareCodecTest": [
@@ -24419,8 +24419,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1575,
-      "sha256": "f851ef86e530f88af33cc2d1daecd01dd10daf47e90b0a7317f22196c688c132",
+      "lines": 1588,
+      "sha256": "530f3e7d4261288db7a0e196cb972cb5d21530d277320057d52084eaef872803",
       "symbols": [
         {
           "name": "asJson",
@@ -24436,35 +24436,35 @@
         },
         {
           "name": "world",
-          "line": 1231
+          "line": 1244
         },
         {
           "name": "recordedReceiptId",
-          "line": 1275
+          "line": 1288
         },
         {
           "name": "completedEvidence",
-          "line": 1282
+          "line": 1295
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1296
+          "line": 1309
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1306
+          "line": 1319
         },
         {
           "name": "from",
-          "line": 1313
+          "line": 1326
         },
         {
           "name": "requiresCompletion",
-          "line": 1352
+          "line": 1365
         },
         {
           "name": "availableContext",
-          "line": 1528
+          "line": 1541
         }
       ]
     },
@@ -33155,12 +33155,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 102,
-      "sha256": "9bcab7fb580e8ec96a91a20d5ce2068a6bb296a5dcd8f4e43686bba3bbfaabf4",
+      "lines": 124,
+      "sha256": "b7c0753a2d8aee81bee0c0a8a9c39f0e8f097844100d77d32d8bb48e0b427ba1",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
-          "line": 22
+          "line": 25
         }
       ]
     },
