@@ -27,3 +27,4 @@
 - **源码修复**：CharacterCuriosityRuntime.ownedContinuityEvidenceId 仅按本人的显式 threadId 读取仍有效的待探索原观察或已实践真实回执；rememberVerified 仅为本轮明确提到的旧线程扩展该证据，不开放任意模型声明的来源，不扩大日常上下文，也不替人物选择行动。沿原 questions/threads Store 保存状态；已撤回、版本失效、已结束或跨角色来源不能借用。
 - **回归源码**：6 条独立观察超出 3 条轮换后，模型仍能按真实来源结束第一条，重启后保留其他 5 条；无效 ID/跨人物不可借用。4 条真实搜索回执超出 2 条轮换后，旧线程可放下且后续召回不再重复；不重跑工具、不增加模型轮次。
 - **验证分层**：本轮源码与回归写入 main 后由现有 code-index 工作流执行原生成器；Android JVM、APK、真机三次跨日唤醒与真实人物自主选择，须分别以对应 CI/设备结果核实，不能以测试编写宣称通过。旧历史已经丢失或原来源失效的记录不能自动恢复。
+- **main/CI 实证**：源码与回归提交 [`cf22080`](https://github.com/jiacimu-droid/lulu1/commit/cf22080abe990454fb2c83cd02a7471aad6c5ab0)。原索引工作流 [#40843545295](https://github.com/jiacimu-droid/lulu1/actions/runs/40843545295) 已 success，自动生成的索引提交为 `40210afb`，CODE_INDEX 基准明确指向 `cf22080`。对应 [Lulu APK #40843545409](https://github.com/jiacimu-droid/lulu1/actions/runs/40843545409) 在本次核对时仍为 in_progress，Android JVM/assemblePhone/Release 尚未通过，真机未验。
