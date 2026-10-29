@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:35:30.031626+00:00",
-  "commit": "c21829abd224da6818d99d1d91ccedc01f589a13",
+  "generatedAt": "2026-10-29T10:36:19.478710+00:00",
+  "commit": "7cc5f0b1fba53362126483d9e9466f889d8c154a",
   "branch": "main",
-  "sourceFingerprint": "70d5f96031ffa179472895fa27216960d0ec79fe297defb6fdb5f771029bafa8",
+  "sourceFingerprint": "011bc32e9369212785fba15a29a62b3d6c216d6dce9f385e1da806a59fd1eca7",
   "summary": {
     "files": 1064,
-    "lines": 218847,
+    "lines": 218853,
     "symbols": 3128
   },
   "symbolIndex": {
@@ -93,7 +93,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 76
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -973,7 +973,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 58
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
@@ -2587,7 +2587,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 93
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -19746,20 +19746,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 208,
-      "sha256": "2815d1c87276acc54c71f951ddf561316cc37ababa4d6a26bfbd3aac9cff937d",
+      "lines": 214,
+      "sha256": "683e02b69d8f7d5fa4c7a0f284001641a1d36d836d36937584e55be4a764415d",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 58
+          "line": 64
         },
         {
           "name": "stop",
-          "line": 76
+          "line": 82
         },
         {
           "name": "shutdown",
-          "line": 93
+          "line": 99
         }
       ]
     },
