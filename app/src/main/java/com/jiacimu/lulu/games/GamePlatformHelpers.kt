@@ -125,9 +125,10 @@ internal class GameSpeaker(private val isReady: () -> Boolean) {
 
     fun attach(value: TextToSpeech?) { tts = value }
 
-    fun speak(text: String) {
+    fun speak(text: String, append: Boolean = false) {
         if (!enabled || !isReady() || text.isBlank()) return
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lulu-game-${System.currentTimeMillis()}")
+        val queue = if (append) TextToSpeech.QUEUE_ADD else TextToSpeech.QUEUE_FLUSH
+        tts?.speak(text, queue, null, "lulu-game-${System.currentTimeMillis()}")
     }
 
     fun stop() { tts?.stop() }
