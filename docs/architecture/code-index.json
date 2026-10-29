@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T17:56:40.530430+00:00",
-  "commit": "9cdc8eba543cc2c1667bd526f9ad8342e02c81ba",
+  "generatedAt": "2026-10-29T17:57:06.777766+00:00",
+  "commit": "50b921683f32685283230ec192ce35844017722a",
   "branch": "main",
-  "sourceFingerprint": "3fe000fbedb2eaea07f0406534e3358b58d5ed82942b40c8b0b4c3631ca154f3",
+  "sourceFingerprint": "aba1a3db82d20829f2df3d86df36652b032089d8f604123eb0b31b716716c257",
   "summary": {
     "files": 1088,
     "lines": 225326,
@@ -23456,7 +23456,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 106,
-      "sha256": "71676a165fb36e5342b5da58f70938342b23d51503e4d8b55c575d2caf6911f0",
+      "sha256": "81ac9658658a13bc75474e910ba5a2b16582cfb6f214290b67ff1e645d422e34",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -35159,7 +35159,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
       "lines": 462,
-      "sha256": "1c41c7828c3257e404d88044e658b10a3c6e046a010599ea19560b18d35c61fd",
+      "sha256": "835c163ea5473b06c4edd2fb0cda310c7c2faab20256d97a5505b00e77aae2d3",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
