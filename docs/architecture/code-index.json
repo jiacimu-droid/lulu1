@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:44:46.419420+00:00",
-  "commit": "2e3ff7a20882d3d210d9cb40881252428afb09e9",
+  "generatedAt": "2026-10-29T14:45:24.007156+00:00",
+  "commit": "264e8054cb66f60e3ce98f74927e75c96372547a",
   "branch": "main",
-  "sourceFingerprint": "fae2524bf2bc433badc653aa0566d93f0a51f9bc159bf79b95fbe9a807c0a332",
+  "sourceFingerprint": "66ecd891ebbe42753f59c9fdd8bb362172b4861ee76a7552cb16fd7823968349",
   "summary": {
     "files": 1072,
-    "lines": 221611,
+    "lines": 221616,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -11255,7 +11255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 144
+        "line": 145
       }
     ],
     "allowedLeisureLocation": [
@@ -12631,19 +12631,19 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 145
+        "line": 146
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 465
+        "line": 470
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 501
+        "line": 506
       }
     ],
     "perform": [
@@ -30471,8 +30471,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 508,
-      "sha256": "fe8844bf94221e593c07ce1aa99198b23039eafa2b8890e9c24c389653539ada",
+      "lines": 513,
+      "sha256": "d11ffc5737072a43177206426573f9a3ae0cabd1a3c047541751ed31e5526029",
       "symbols": [
         {
           "name": "toJson",
@@ -30508,19 +30508,19 @@
         },
         {
           "name": "reject",
-          "line": 144
-        },
-        {
-          "name": "near",
           "line": 145
         },
         {
+          "name": "near",
+          "line": 146
+        },
+        {
           "name": "nextStep",
-          "line": 465
+          "line": 470
         },
         {
           "name": "actionName",
-          "line": 501
+          "line": 506
         }
       ]
     },
