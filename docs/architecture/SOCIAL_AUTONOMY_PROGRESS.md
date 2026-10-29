@@ -94,3 +94,9 @@
 - 当前 [3ac0c806 APK #40877079954](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079954) 最后核对仍在 Test and build phone APK；索引 #40877079824 success。最新实际 release 仍为 v6609（c10614b9），不把它当作包含本轮社交改动的安装包。未取得新APK，不提供虚假下载地址。
 - 截图的 check_login_status/context deadline exceeded 再核对仍对应已有 V3 服务端修复：arm64-proot.sh 在 repair-login 路径升级原/V2 源码、保留Cookie/Token、复用运行实例DISPLAY并成功编译后重启。手机端原120秒预算和网页账号状态等待已有，不能以再次改手机超时替代更新实际服务。重新运行脚本67项回归、bash语法检查及差异检查均通过；真实手机服务升级/Go编译/登录与搜索正文仍须现场验。
 - 本轮完成上轮未确认的自动回归验收并提供服务器升级步骤，不制造重复源码变更。S1/S2既有回归基础、S3完整邀请/拒绝/改期待验、S4自动回复链通过与真机体验未验继续分开记录；无新增模型请求、定时任务、PR或Issue。
+
+### S4 撤回链本轮提交与分层验收
+
+- 实际源码、回归及进度提交 [e47eb179](https://github.com/jiacimu-droid/lulu1/commit/e47eb17977e38dd750a2b2e58cdb172503adfabd)；原索引 [#40879145428](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145428) completed/success。提交前逐文件比较最新 main，未发现并发同文件变化；未覆盖此前同步 commit 持久化修复。
+- 对应 [Lulu APK #40879145278](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145278) 最后核对 in_progress，新增撤回回归尚无执行完成证据，不能报告 JVM 或 APK 通过。上一轮 #40877079954 已 cancelled，不能算 APK 发布。
+- 本轮仅修改 MomentsStore 精确删除4行、独立评论回归及本专项进度；原索引生成器已运行并由既有工作流同步。原帖删除和评论者账号清理的强杀/重启、真实 UI 撤回与多年数据仍待真机；原帖保留时无关评论与证据不得受影响。下一轮先追本回归所在最新 completed CI，若失败先修原链，不重复创建社交中心。
