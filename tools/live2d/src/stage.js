@@ -1526,16 +1526,18 @@ function setPaused(value) {
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
+    // Preserve the discarded turn's identity BEFORE clearing its state.
+    // Otherwise the terminal guard always sees sequence 0 and a delayed
+    // onStarted can revive a hidden/cancelled Motion3 after returning to video.
+    const discardedSequence = Math.max(scoreVisualSequence, audioVisualSequence)
     scoredBeats = []
     scoreVisualSequence = 0
     audioVisualSequence = 0
     audioSegmentIndex = 0
     audioSegmentId = ''
-    // The hidden stage intentionally discards its score. Do not let a late
-    // TTS start from that discarded visual turn resurrect the old movement.
-    if (scoreVisualSequence > 0 &&
-        (!finalizedAudio || scoreVisualSequence >= finalizedAudio.sequence))
-      finalizedAudio = { sequence: scoreVisualSequence, segmentIndex: 0, interrupted: true }
+    if (discardedSequence > 0 &&
+        (!finalizedAudio || discardedSequence >= finalizedAudio.sequence))
+      finalizedAudio = { sequence: discardedSequence, segmentIndex: 0, interrupted: true }
     clearSpeechMoment()
     touchReflex = null
     cancelTactileMotion()
