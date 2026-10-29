@@ -14,6 +14,8 @@ internal data class CharacterStateHistoryRow(
     /** Display-only: a previously displayed authored voice, not a deleted event. */
     val suppressRepeatedVoice: Boolean = false,
     val suppressRepeatedIdeas: Boolean = false,
+    /** Exact source-authored text for causal history, never inferred from UI labels. */
+    val authoredVoice: String = "",
 )
 
 /** One chronological view of the original snapshots, thoughts and decisions. No new persistence. */
@@ -104,10 +106,12 @@ internal object CharacterStateHistory {
                 }
                 rows[existing] = row.copy(detail = (listOf(row.detail) + added)
                     .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct(),
-                    extraDeletions = (row.extraDeletions + ("transition" to "$evidenceId|$at")).distinct())
+                    extraDeletions = (row.extraDeletions + ("transition" to "$evidenceId|$at")).distinct(),
+                    authoredVoice = row.authoredVoice.ifBlank { change.optString("innerThought") })
             } else rows += CharacterStateHistoryRow("transition:$at:$index", at, "当时的感想与取舍",
                 authoredParts.joinToString("\n"), evidenceIds = listOf(evidenceId),
-                deletionKind = "transition", deletionKey = evidenceId)
+                deletionKind = "transition", deletionKey = evidenceId,
+                authoredVoice = change.optString("innerThought"))
         }
         fun collect(array: String, timeField: String, kind: String, keyField: String,
                     describe: (JSONObject) -> Pair<String, String>) {
@@ -172,18 +176,25 @@ internal object CharacterStateHistory {
      * projections, not their underlying evidence, and never collapse distinct
      * changes merely because they occurred in the same minute.
      */
+    private val narrativeFactLabels = setOf("状态", "动作", "想法", "当时的念头",
+        "仍在权衡", "想调整", "当时怎样理解这段关系", "当时挂心的事", "缘由", "结果")
+
+    /** Extract the WHOLE original voice, not only its first paragraph. A full
+     * transition can be multiline and later diverge from a shared opening.
+     * Explicit source text wins over any legacy display-only inference. */
+    private fun sourceVoice(row: CharacterStateHistoryRow): String {
+        val owned = row.moment?.innerThought?.trim().orEmpty().ifBlank { row.authoredVoice.trim() }
+        if (owned.isNotBlank()) return owned
+        val lines = row.detail.lines().map(String::trim).filter(String::isNotBlank)
+        // A legacy pure thought/voice has no field labels. The first labelled
+        // section ends the authored prose. Never promote an idea continuation
+        // into a second voice when the row started with structured metadata.
+        return lines.takeWhile { it.substringBefore('：') !in narrativeFactLabels }.joinToString("\n")
+    }
+
     internal fun compactRepeatedMoments(input: List<CharacterStateHistoryRow>): List<CharacterStateHistoryRow> {
         val output = mutableListOf<CharacterStateHistoryRow>()
-        fun voiceOf(row: CharacterStateHistoryRow): String =
-            row.moment?.innerThought?.trim().orEmpty().ifBlank {
-                row.detail.lineSequence().map(String::trim).firstOrNull {
-                    it.length >= 12 && !it.startsWith("状态：") &&
-                        !it.startsWith("动作：") && !it.startsWith("想法：") &&
-                        !it.startsWith("当时的念头：") && !it.startsWith("缘由：") &&
-                        !it.startsWith("结果：") && !it.startsWith("仍在权衡：") &&
-                        !it.startsWith("想调整：") && !it.startsWith("当时怎样理解")
-                }.orEmpty()
-            }
+        fun voiceOf(row: CharacterStateHistoryRow): String = sourceVoice(row)
         fun equivalent(a: String, b: String) =
             a.isNotBlank() && b.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(a, b)
         fun supportingDeletion(row: CharacterStateHistoryRow): Pair<String, String>? =
@@ -320,11 +331,8 @@ internal object CharacterStateHistory {
 
     internal fun display(row: CharacterStateHistoryRow): MomentDisplay {
         val lines = row.detail.lines().map(String::trim).filter(String::isNotBlank)
-        val labels = setOf("状态", "动作", "想法", "当时的念头",
-            "仍在权衡", "想调整", "当时怎样理解这段关系", "当时挂心的事")
-        val rawVoice = row.moment?.innerThought?.trim().orEmpty().ifBlank {
-            lines.firstOrNull { it.substringBefore('：') !in labels }.orEmpty()
-        }
+        val labels = narrativeFactLabels
+        val rawVoice = sourceVoice(row)
         val voice = if (row.suppressRepeatedVoice) "" else rawVoice
         val mood = row.moment?.mood.orEmpty()
             .split(Regex("\\s*[·•；;]+\\s*")).map(String::trim)
