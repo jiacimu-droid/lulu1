@@ -76,3 +76,14 @@
 - **回归源码**：`GroupChatTurnPlannerTest.onlyOwnerGroupInputUsesForegroundCoordinator` 保留真实前台、后台、非用户、非群聊、群通话用例，并补冷启动 `appVisible=null` 时不得启动前台协调。回归 main 提交 `283f823591b27752d367a1723cbb736b775f1920`。测试文件提交不等于已运行通过。
 - **验证分层**：已核实旧构建的真实 Kotlin 编译错误与本次源码类型修正；新提交对应 Android JVM、assemblePhone、APK 发布、代码索引自动生成的最终结果仍需核对，未取得完成结论不得记成功。真机冷启动群聊、前后台切换与真实群通话仍待验。现有 `Refresh code index` 工作流负责生成索引，禁止手工伪造；此次修改了 `app/` 文件。
 - **设备验收**：强杀应用后直接由后台消息/通知唤醒，确认未知可见性不会触发前台群聊轮次；打开应用后本人发一条群消息应只有一个前台协调器；切到后台、群通话中发送消息应沿原分支，不出现双重自动回复。观察真实发送回执与日志，不以 UI 上出现气泡替代完整执行证据。
+
+
+## 2026-10-30 · P4 删除居民日程后保留原到点模型请求的本人历史
+
+- **基线**：核对 10-29 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、旧连续性清单及当前 main；此前历史跨日投影 `historicalAttempts` 已支持尚存在的计划和每日请求，原模型确定拒绝/结果未知分流、请求幂等、日程撤回门禁均已存在，不重建。
+- **真实根因**：原到点请求仅以 `execute:<planId>:<dueAt>` 和阶段存储；历史只读投影为了防跨角色串线，必须从**当前** `RoleDayScheduleStore.plans(actor)` 找回 planId 归属。用户删除已取消/失效日程或移除旧约定时，原请求及费用/失败记录仍在居民 prefs，却从本人旧请求历史中消失。不能因查询不到而误以为从未尝试，也不能从可预测 ID 猜另一个居民的请求。
+- **源码**：`ResidentDailyDecision.kt` 在首次 claim 的同一 `SharedPreferences.commit()` 中写入不可变 `due-origin:<requestId>`（本人 characterId、原 planId、原 dueAt），明确拒绝后同连接不重发、配置变化后的原有有界重试也保留此归属。历史查询优先验证该原始元数据与请求 ID 一致，旧版没有元数据时继续只允许通过仍存在的本人计划确认归属；损坏或异人标记不能借当前计划兜底冒认。只读查询不执行工具、不唤醒、不收费、不新建第二个状态中心；原日程删除和原始执行证据仍各自遵守既有生命周期。
+- **根因级回归**：`ResidentDailyContinuityTest.removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay` 用真实 MockWebServer 502 制造结果未知请求，核验首次 claim 的本人来源、旧请求可查、删除计划后仍可查、其他居民不可查、查询不修改 prefs、旧计划不得重发或补发动态；旧版无元数据的 fixture 删除计划后仍不允许推断归属。回归代码已提交，不能当作测试执行成功。
+- **main 源码提交**：`c26a9df50423c371e6b3ebf779f0963e06328205`；**回归提交**：`ce57e3eb750a27bd04e4ad3d94c81f686ed3b4f7`。本次只改基础连续性文件与本专项进度；索引交原有 Refresh code index 工作流自动生成，不手工修改生成物。
+- **验证层级**：此前 main `0da72e45` 的 Lulu APK [#40965646539](https://github.com/jiacimu-droid/lulu1/actions/runs/40965646539) completed/success，**不能代表本轮**。本轮源码提交索引 [#40968831436](https://github.com/jiacimu-droid/lulu1/actions/runs/40968831436) completed/success；回归提交索引 [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) 初查 in_progress；同提交 APK [#40968872681](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872681) 因并发新提交 cancelled。后续完整 JVM/APK 以对应提交或包含提交的后继 main 工作流最终状态为准，**真机未验**。
+- **真机验收**：居民在到期时遇到模型 502/断网，确认原请求状态为未知；取消并删除旧日程，隔天从本人历史查看仍有原失败记录；切到其他居民看不到此条；重启后查询不重新购买模型回复、不会自动发布原动态。长期多年份性能、旧版无来源元数据且已删除计划的精确归属仍无法凭空补证。
