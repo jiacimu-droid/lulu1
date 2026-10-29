@@ -108,3 +108,9 @@
 - **正式修复**：只在 `tools/live2d/src/stage.js` 保留隐藏前**确实开声**的版本化音频身份用于接收真实终止回调，取消待发 score/Motion/表情与 PCM；隐藏终止只释放 speaking/口型，不执行旧表情，不降低被取消的新 score 的版本墓碑。显示后若原音频仍在播放，仅允许继续当前 PCM 口型，不恢复旧 choreography；真正完成后不再张嘴。隐藏阶段粗状态不抢权，未版本化旧服务在隐藏时释放粗 speaking，回到可见后仍兼容新粗状态。没有新 Store、额外模型调用、固定动作配额或主循环改动。
 - **根因回归**：在原 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 增加隐藏中旧音频完成、隐藏后完成、待发新 score 墓碑不可降级、粗 speaking/PCM 不复活、显示后仍在播的 PCM 可继续、旧版粗状态兼容；保留此前连续片段与打断门禁测试。正式源码提交 [337042b](https://github.com/jiacimu-droid/lulu1/commit/337042bfe2442049ee79d89fc2f385eb62079470)，回归提交 [b0103e3](https://github.com/jiacimu-droid/lulu1/commit/b0103e364ef24cce6ce188f599edf817ebff2d25)，直接 main，未改其他专项文件。
 - **索引与验证边界**：原 `scripts/generate_code_index.py` 只遍历 `app/scripts/preview`，本轮仅改 `tools/live2d` 与本进度文档，不改变索引文件集合，故不手工伪造 CODE_INDEX。回归提交对应原 [Lulu APK #40948163462](https://github.com/jiacimu-droid/lulu1/actions/runs/40948163462) 初查为 pending；JS 测试、Android JVM、assemblePhone、收集/发布必须继续以对应 SHA 的实际状态核验，不能宣称通过。真机隐藏→语音结束→恢复、隐藏时继续播放、15/30 FPS、首音/动作延迟、发热和不同语音服务仍未验。
+
+
+### 04:24 CI 实测：Live2D JS 成功，Android Kotlin 编译被其他专项阻断
+
+- [Lulu APK #40948163462](https://github.com/jiacimu-droid/lulu1/actions/runs/40948163462)（回归提交 `b0103e3`，job `123709185127`）实际 **completed/failure**：`Build bundled Live2D stage` **completed/success**，覆盖本轮真实 stage VM 测试；`Test and build phone APK` **completed/failure**，日志明确为 `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt:410:26` 的 Kotlin `Boolean?` 传给 `Boolean` 参数。Android JVM/assemblePhone/收集/Release 因编译阻断**未通过**，不能将 JS 成功写成整包成功。该文件不属于 Live2D 专项，本轮没有跨职责抢改公共 Store；需由基础执行专项处理并在后续包含本提交的 main 构建重新核验。
+- 真实手机上的视频隐藏、语音播放/结束、恢复嘴型及动作自然度仍未验；若新 CI 被后续 main 取消，也不能用取消状态证明通过。
