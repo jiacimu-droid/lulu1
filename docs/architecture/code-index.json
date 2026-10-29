@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:40:45.153156+00:00",
-  "commit": "d28e717f93780ccd21df9988959c621053c4638c",
+  "generatedAt": "2026-10-29T16:41:36.210145+00:00",
+  "commit": "8eac7656d1fbdeedf90e331c425f9041667534a9",
   "branch": "main",
-  "sourceFingerprint": "73c270f8762d96581d147cb2a5a263fa7351b1ed34e3a0015a53fb298eccd93e",
+  "sourceFingerprint": "3de3e4d003d884385591130c57c724f3379a3aee9164fbf070685874390bc7a0",
   "summary": {
     "files": 1086,
-    "lines": 224293,
+    "lines": 224303,
     "symbols": 3187
   },
   "symbolIndex": {
@@ -24181,8 +24181,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 291,
-      "sha256": "8e9c4f2468392fe5f00d6f74b7d1f016bc33143cead4a53ea823ec7b3dada5f7",
+      "lines": 301,
+      "sha256": "c44f7fabf9e344120fe2aaa5d8bbfd922abd8bc79c73d3e66ee41c92c1ed4328",
       "symbols": [
         {
           "name": "groupedFields",
