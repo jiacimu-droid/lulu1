@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:34:32.564746+00:00",
-  "commit": "fb5a48583276560933db8578d5ca3a765c384ef7",
+  "generatedAt": "2026-10-29T15:36:55.597425+00:00",
+  "commit": "bc99d29d6c42c2aac2ff88c2bdb404cd76f17d01",
   "branch": "main",
-  "sourceFingerprint": "adc05b6b7f8e0db3e8d280c26185ae1d16c273402c334ee1bdcd865f52f78135",
+  "sourceFingerprint": "63237bbdb646d6d9c2b01919724fbd2ab109ccd6c71e9f30bf05ad0f8e100b6a",
   "summary": {
     "files": 1076,
-    "lines": 222526,
-    "symbols": 3158
+    "lines": 222569,
+    "symbols": 3159
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12860,6 +12860,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
         "line": 167
+      }
+    ],
+    "submitPlayerMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
+        "line": 49
       }
     ],
     "GameModelConnectionStatus": [
@@ -30953,9 +30959,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 212,
-      "sha256": "6b23482db9b30bdb02826023775ec4a77b150d8a7c5afeab8d2ebdab65790f3a",
-      "symbols": []
+      "lines": 255,
+      "sha256": "91be7f529a093b3f5b3f4a8715f7b0d3ae2367a666d0c652cd54fd2d6dbb55d1",
+      "symbols": [
+        {
+          "name": "submitPlayerMessage",
+          "line": 49
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
