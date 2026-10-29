@@ -39,3 +39,12 @@
 - **根因回归源码**：`CharacterCausalTraceTest.residentRejectedAgendaSurvivesShortUiWindowAndHonorsEditWithdrawalAndRole` 仅传入原日决定一条 UI 记录，验证第 1/13 项旧拒绝仍可找回；同前缀但其他 taskId、另一人物的拒绝不串入；源编辑显示历史来源风险；拒绝撤回后不复活；查看不产生感知检查点，源撤回后详情为空。
 - **main 源码与回归提交**：`3ac0c80664b903114c80f2693aafa479a4ffbc89`。代码索引交由现有 `Refresh code index` 工作流生成，不手工伪造。首次查询该提交对应索引 [#40877079824](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079824) 为 in_progress，Android JVM/APK [#40877079954](https://github.com/jiacimu-droid/lulu1/actions/runs/40877079954) 为 pending；均不能算通过。真机旧时间线翻阅、撤回及多年数据量压力尚未验证。
 - **协作范围**：仅改本专项因果诊断及其回归、原权威时间线的最小只读索引查询；未触碰公共 ToolRouter、社交、内驱、Live2D 或并发总清单。没有新增常态模型调用、定时唤醒、自动重试或副作用。
+
+## 2026-10-29 · P0-B/P4 居民日决定和到点决定的历史工具回执跨窗口恢复
+
+- **核对现状**：`CharacterCausalTrace` 已有本人 `CharacterInnerLifeStore.decisions` 的精确工具回执回溯、历史搜索反馈和居民 agenda 拒绝查询；但居民 `ResidentDailyDecision` 的直接动态/私信与到点主动作/独立步骤，其已付费的 JSON 决定保存在原居民请求 prefs，并非 `CharacterInnerLifeStore.decisions`。打开多年以前的原 `resident-daily` / `resident-due-decision` 卡片时，UI 近期窗口里没有工具回执，就会误报「没有后续」，即使原 ToolRouter 回执仍在 SQLite。
+- **源码修复**：仅在原只读 `CharacterCausalTrace.kt` 从原居民决定 prefs 精确恢复当次真正选择的动作请求 ID：`native-daily-...-post/message/extra-N`、`resident-plan-<planId>-<原dueEpoch>` 和 `native-wake-...-extra-N`。复用现有 `executionRequestLines` 对原来源 ID/revision、角色、决定时刻、执行回执及持久执行记录逐项校验；实际回执可继续展示原生结果、感知检查点与下一轮选择。未保存的选择不靠相似文本或可预测 ID 猜测；跨角色/编辑/撤回不能借旧成功。到点 `wait/reschedule/cancel` 的主选择不经过 ToolRouter，仅读 `RoleDayScheduleStore.lastMutationRequestId` 与原 due 版本证明日程确实变更，不能冒充原活动完成；后来再改动时只报版本证据不足。
+- **回归源码**：`CharacterCausalTraceTest` 增加居民每日直接动态成功、私信失败、独立步骤未回执、跨角色隔离、短 UI 窗口与完整窗口去重、来源编辑/撤回；到点 execute 主动作和独立步骤分开回执、未保存决定不得补造；wait 主选择从未确认到真实日程变更、后续撤销使原变更不再冒充当前状态。
+- **main 提交**：`b544af10e87cfec27eefbc15e12a1809b49d5b82`（源码），`083a6af70211c7913ae6a66a9a19f30adf33682a`（回归）；代码索引由原有自动工作流生成，已观察到索引提交 `aa57f6f2d8e4af44c34cadea45e4e681e37685f7`。自动提交本身不证明索引工作流或 Android 测试成功。
+- **验收分层**：GitHub 提交与索引生成提交已核实；本次无法取得对应 JVM/APK 工作流的可验证成功结论，标记**待核实**；真机强杀恢复、真实工具/居民权限变化、跨日历史规模性能均**未验**。此变更只读，不触发模型/工具，不修改其他专项或公共 ToolRouter。
+
