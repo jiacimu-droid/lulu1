@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:31:09.422664+00:00",
-  "commit": "feec60c2d768ea011135524c22e4b0f214870b03",
+  "generatedAt": "2026-10-29T14:34:05.163044+00:00",
+  "commit": "18b6bc0f796b4133521a0defd7148e9790c05515",
   "branch": "main",
-  "sourceFingerprint": "38f1d3f444e806d267c9fe795e7982ccaf940baf8558274b2b343cfeaaaf8c3a",
+  "sourceFingerprint": "71d9e2bb2d1efd79c88ae240cd545c7685c584002b012520e250fca3c0ed8345",
   "summary": {
-    "files": 1068,
-    "lines": 221131,
-    "symbols": 3143
+    "files": 1070,
+    "lines": 221245,
+    "symbols": 3144
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17494,6 +17494,12 @@
         "line": 14
       }
     ],
+    "RelicQuickActionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
+        "line": 5
+      }
+    ],
     "MiniTheaterLibraryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
@@ -31191,6 +31197,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt",
+      "lines": 59,
+      "sha256": "487e935f5e6e04f53536bd4cebfb96e6c41c26bb02eade563cea25954f4bc8b8",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
       "lines": 56,
       "sha256": "996ac3e0afd9c536ad88d72cdb0ffbcde924592336468720dc294e8dc8d15f0c",
@@ -37171,6 +37183,17 @@
         {
           "name": "RelicEscapeRulesTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
+      "lines": 55,
+      "sha256": "bc22d75bdd72c2134784350ebdd1c1078a5438b6c2b16572aa1971e323581349",
+      "symbols": [
+        {
+          "name": "RelicQuickActionTest",
+          "line": 5
         }
       ]
     },
