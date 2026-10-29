@@ -139,7 +139,8 @@ internal object BlockIslandRules {
         return structure !in setOf("workbench", "campfire", "bed")
     }
 
-    fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y): BlockIslandState {
+    fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y,
+        autonomousIds: Set<String> = emptySet()): BlockIslandState {
         val w = s.world
         fun reject(reason: String) = s.copy(world = w.copy(notice = reason))
         fun near(x: Int = tx, y: Int = ty) = abs(w.x - x) + abs(w.y - y) <= 1
@@ -310,26 +311,30 @@ internal object BlockIslandRules {
             }
             else -> return reject("未知操作")
         }
-        return advance(next, message)
+        return advance(next, message, autonomousIds)
     }
 
-    private fun advance(s: BlockIslandState, message: String): BlockIslandState {
+    private fun advance(s: BlockIslandState, message: String,
+        autonomousIds: Set<String>): BlockIslandState {
         var result = s.copy(world = s.world.copy(
             turns = s.world.turns + 1,
             notice = message,
             events = (s.world.events + message).takeLast(150),
         ))
-        result = companionTurn(result)
+        result = companionTurn(result, autonomousIds)
         result = monstersTurn(result)
         result = respawnMonsters(result)
         result = replenishResources(result)
         return result
     }
 
-    private fun companionTurn(s: BlockIslandState): BlockIslandState {
+    private fun companionTurn(s: BlockIslandState, autonomousIds: Set<String>): BlockIslandState {
         var world = s.world
         val updates = mutableListOf<String>()
         val friends = world.friends.map { friend ->
+            // A model-controlled player acts after the actual user turn; do not secretly
+            // override that character with the old follow/gather/guard autopilot.
+            if (friend.id in autonomousIds) return@map friend
             if (friend.hp <= 0) return@map friend
             val threat = world.mobs.firstOrNull { it.hp > 0 && distance(it.x, it.y, friend.x, friend.y) <= 1 }
             if (threat != null) {
