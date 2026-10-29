@@ -20,3 +20,12 @@
 - **main 提交**：`38cbe96de541c5a0bf1ca5dfb08e16d876cf45ed`、`e86b4a50714922ec957a1a19410c51561ec13a03`（源码）、`757a22481294ebe58cbbec90e39dd5b5e63e2525`（回归）。`Refresh code index` 继续使用仓库原工作流，不手工伪造索引。
 - **分层验收**：截至本次核对，对应 `Lulu APK #40861164725`、`Refresh code index #40861164836` 均为 pending，**JVM/APK/索引成功均未确认**；真机、长历史分页、进程强杀及真实搜索服务仍待验。此修复仅提高只读诊断完整性，不替角色决定分享，也不解决旧版从未保存精确 ID 的历史。
 - **协作边界**：只改本专项的 `CharacterCausalTrace.kt`、`CharacterCausalTraceTest.kt` 和本进度文件；未修改 ToolRouter、居民社交、内驱想法、Live2D 或并发总清单。未来如需跨入口稳定 ID 写入改动，交基础执行网关统一协调。
+
+## 2026-10-29 · P0-B 工具请求 ID 与本人选择的因果归属再核对
+
+- **源码根因**：`CharacterCausalTrace.executionRequestLines` 原来从本人已保存决定取稳定请求 ID 后，只核对工具回执的 `requestId` 和角色归属，就在原决定卡展示「本人选择对应的主动作 · 执行器确认成功」。若旧版、导入或冲突数据中相同请求 ID 绑定了另一条原始事件或不同 revision，诊断会把真实存在、但不属于这次选择的副作用误归因。缺独立回执时，对 `lulu_tool_executions` 已保存请求也只校验角色和 ID，可能误认另一来源的持久结果。
+- **修复范围**：仅在原只读 `CharacterCausalTrace.kt` 的精确请求追踪处核对本人选择的 `causalEvidenceId`、`causalEvidenceRevision`、选择时间与工具回执的 `causeEvidenceId`、`causeEvidenceRevision`、真实发生时间；旧记录缺任一可核对字段、时序倒置或来源不匹配时保留原工具回执事实，但改为「回执归属未证实」，不得显示为这次决定已执行。原执行请求只有持久状态、没有独立回执时也核对来源/版本/请求开始时间；来源不明时只报告不可归因，不自动补回执、不重放副作用。历史已编辑来源仍可保留当时真正匹配的历史执行事实，不把旧版等同于当前版本。
+- **根因回归**：`CharacterCausalTraceTest` 新增同 ID 跨消息误关联、同源不同版本、合法同源同版本、跨人物隔离、已保存结果与原选择来源冲突、恢复匹配后仍缺独立回执以及只读检查不生成回执。原有主/独立步骤、电话 legacy ID、搜索结果与最终反馈回归继续适用。
+- **main 提交**：`de7203dab1b7df29c63ac0a843b5f4c98021072e`（源码），`370d3e77d8cff1e9db7314aae31b60bf9e98473a`（回归）。不改公共 `ToolRouter`，不抢社交/内驱/Live2D 专项，不额外购买模型轮次。
+- **验证层级**：截至 2026-10-29 19:54（北京时间）查询，源码提交的 Refresh code index [#40868840701](https://github.com/jiacimu-droid/lulu1/actions/runs/40868840701) completed/success；回归提交对应索引 [#40868883714](https://github.com/jiacimu-droid/lulu1/actions/runs/40868883714) in_progress，Lulu APK [#40868883613](https://github.com/jiacimu-droid/lulu1/actions/runs/40868883613) pending。测试源码提交不等于 JVM 通过；本次真机及多年数据故障注入未验证。早先源码提交的 APK #40868840523 cancelled，不能算通过。
+- **真机验收**：在一人原消息与真实工具结果卡中核对请求 ID、来源和版本；编辑原消息或通过故障注入重用旧请求 ID 后，详情应保留另一个真实回执，但不能写成当前选择的成功；恢复同源同版本的原回执可显示真实状态。断网/强杀后的未确认请求不得因查看详情而重复执行。
