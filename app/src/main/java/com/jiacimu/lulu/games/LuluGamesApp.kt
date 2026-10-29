@@ -100,11 +100,12 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     }
 
     val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
+    val immersivePlay = route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
 
     Scaffold(
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
         topBar = {
-            TopAppBar(
+            if (!immersivePlay) TopAppBar(
                 title = { Text(route.title(), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = ::stepBack) {
@@ -145,6 +146,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             ArcadeAtmosphere(Modifier.matchParentSize())
+            Box(Modifier.fillMaxSize().padding(top = if (immersivePlay) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
@@ -162,6 +164,30 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
                     record = state.records.firstOrNull { it.id == current.recordId },
                     onBack = { route = GameRoute.Records },
                 )
+            }
+            }
+            if (immersivePlay) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(54.dp)
+                        .background(Brush.horizontalGradient(listOf(Color(0xF00A1521), Color(0xC0182635))))
+                        .padding(horizontal = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = ::stepBack) {
+                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = Color.White)
+                    }
+                    Text(route.title(), color = Color.White, fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp, modifier = Modifier.weight(1f), maxLines = 1)
+                    GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
+                    ModelArchiveIconButton(
+                        usage = ModelUsage.Game, title = "游戏模型",
+                        subtitle = "仅影响游戏内的角色生成，不影响其他对话模型。",
+                        icon = Icons.Outlined.Memory, contentDescription = "选择游戏模型",
+                        tint = Color.White, accent = Color.White,
+                        background = Color(0xFF111620), ink = Color.White,
+                        muted = Color(0xFFB8C2D3), border = Color.White.copy(alpha = .18f),
+                    )
+                }
             }
         }
     }
