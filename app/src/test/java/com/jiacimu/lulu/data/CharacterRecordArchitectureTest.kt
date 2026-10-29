@@ -367,6 +367,31 @@ class CharacterRecordArchitectureTest {
         assertTrue(displayRows.single { it.key == "second-action" }.detail.contains(voice))
     }
 
+    @Test fun olderFullHeartVoiceAndLaterLegacyTruncatedCopyAreNotTwoVoices() {
+        val full = (1..5).joinToString("") {
+            "刚刚聊到古堡摸金，我想等她忙完以后再问问下午是单排还是双排；不急着催她，我先去水边走走。"
+        }
+        val laterAt = now.plusSeconds(8 * 60)
+        val initial = CharacterStateHistoryRow("original-voice", now, "发送消息",
+            full, evidenceIds = listOf("message-evidence"))
+        val truncated = CharacterStateHistoryRow("later-world", laterAt, "在数字世界活动",
+            full.take(180),
+            decisions = listOf(CharacterRecordProjection.DecisionMoment(
+                "walk-to-water", laterAt, "在数字世界活动", "去水边",
+                "实际走到了水边", "world-evidence")),
+            evidenceIds = listOf("world-evidence"))
+        // Legacy presence snapshots sometimes lost their originating causal
+        // evidence ID. A literal long prefix needs no semantic guess or new
+        // model call, and actions remain independently auditable.
+        val projected = CharacterStateHistory.suppressRepeatedNarration(listOf(truncated, initial))
+        assertEquals(2, projected.size)
+        assertEquals(full, CharacterStateHistory.display(projected.single { it.key == "original-voice" }).voice)
+        assertEquals("", CharacterStateHistory.display(projected.single { it.key == "later-world" }).voice)
+        assertEquals(listOf("walk-to-water"), projected.flatMap { it.decisions }.map { it.id })
+        assertEquals(2, projected.flatMap { it.evidenceIds }.distinct().size)
+        assertEquals(full.take(180), projected.single { it.key == "later-world" }.detail)
+    }
+
     @Test fun newVoiceAboutSameTopicAndLongAgoRepetitionRemainVisible() {
         val firstVoice = "刚刚去古堡摸金，我想起她之前说过的那个游戏，等一会儿再跟她聊聊，看看有什么新的进展。"
         val newVoice = "刚才又去了水边，突然想起另一件完全不同的事。虽然还在玩那个游戏，我现在却开始琢磨晚上的音乐。"
