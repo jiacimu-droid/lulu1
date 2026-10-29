@@ -70,6 +70,11 @@ internal fun ProactiveIncomingCallOverlay() {
             return
         }
         connectingCall = call
+        // The user tapped Answer, but the audio session is still dialing.
+        // Start preparing the video renderer behind the ringing overlay now,
+        // rather than after startOpening() has already begun its first reply.
+        // This does NOT mark the call answered: only the Connected check does.
+        LuluCallWindowController.start(video = call.mediaMode == "video")
         notice = "正在连接电话…"
     }
 
@@ -91,6 +96,7 @@ internal fun ProactiveIncomingCallOverlay() {
             !matching || session.phase in setOf(CallPhase.Idle, CallPhase.Ended) ||
                 session.phase == CallPhase.Ready || !call.active() -> {
                 connectingCall = null
+                LuluCallWindowController.minimize()
                 notice = session.errorMessage.ifBlank { "这次接通失败，来电仍可重试" }
             }
         }
@@ -101,6 +107,7 @@ internal fun ProactiveIncomingCallOverlay() {
         if (connectingCall == call && LuluVoiceCallSession.state.value.phase == CallPhase.Dialing) {
             LuluVoiceCallSession.cancelDial()
             connectingCall = null
+            LuluCallWindowController.minimize()
             notice = "连接超时，未记为已接听；请检查收音线路后重试"
         }
     }
