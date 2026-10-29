@@ -122,6 +122,27 @@ internal object CharacterInnerHistoryArchive {
         return matches.toList()
     }
 
+    /** Finish a previously saved decision even if many later turns moved it
+     * into the original cold pages. The caller commits this editor together
+     * with its other state; this never resurrects a withdrawn decision. */
+    fun revise(store: SharedPreferences, role: String, root: JSONObject,
+        field: String, edit: SharedPreferences.Editor,
+        matches: (JSONObject) -> Boolean, transform: (JSONObject) -> JSONObject): Boolean {
+        if (field !in limits) return false
+        val count = root.optJSONObject(META)?.optInt(field, 0) ?: 0
+        for (page in count - 1 downTo 0) {
+            val original = read(store, role, field, page)
+            val index = original.indexOfLast(matches)
+            if (index < 0) continue
+            val revised = original.toMutableList()
+            revised[index] = transform(JSONObject(revised[index].toString()))
+            edit.putString(key(role, field, page),
+                JSONArray().apply { revised.forEach(::put) }.toString())
+            return true
+        }
+        return false
+    }
+
     fun hasOlder(store: SharedPreferences?, role: String, root: JSONObject, limit: Int): Boolean {
         val prefs = store ?: return false
         val meta = root.optJSONObject(META)
