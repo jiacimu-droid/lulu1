@@ -146,6 +146,48 @@ class QqReplySourceWatermarkTest {
         })
     }
 
+    @Test fun groupActionIgnoresOtherMembersUnreadAndSendsOnlyOwnBubble() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val a = MigratedDomainStores.characters.create("群聊先发言成员").characterId
+        val b = MigratedDomainStores.characters.create("群聊后发言成员").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("后宫测试群", listOf(a, b))
+        val user = MigratedDomainStores.chat.sendUserMessage(group.id, "把我打入冷宫吗")
+        val earlierRole = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我先回一句", a)
+        // Online perception includes the user's raw ID AND another character's
+        // ID. Only the former is a user-message watermark for member B.
+        val ids = setOf(user.id, earlierRole.id)
+        assertEquals(setOf(user.id),
+            com.jiacimu.lulu.data.replyUserMessageIdsForDestination(group.id, b, ids))
+        val args = JSONObject().put("groupId", group.id).put("text", "那当然不会啦")
+            .put("_replyEvidenceIds", JSONArray().put(user.id).put(earlierRole.id))
+        val outcome = CompanionActionRuntime.execute(app, b, "send_group_message", args)
+        assertTrue(outcome.message, outcome.success)
+        assertTrue(MigratedDomainStores.chat.messages(group.id).value.any {
+            it.authorCharacterId == b && it.content == "那当然不会啦"
+        })
+    }
+
+    @Test fun groupActionStillStopsOnNewUserCorrectionWithOtherRoleEvidence() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val a = MigratedDomainStores.characters.create("群消息纠正甲").characterId
+        val b = MigratedDomainStores.characters.create("群消息纠正乙").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("纠正测试群", listOf(a, b))
+        val user = MigratedDomainStores.chat.sendUserMessage(group.id, "之前的问题")
+        val olderRole = MigratedDomainStores.chat.appendCharacterMessage(group.id, "先接一句", a)
+        val args = JSONObject().put("groupId", group.id).put("text", "应该停止的旧回复")
+            .put("_replyEvidenceIds", JSONArray().put(olderRole.id).put(user.id))
+        val pending = async { CompanionActionRuntime.execute(app, b, "send_group_message", args) }
+        withTimeout(8_000) {
+            while (!ChatGenerationActivity.isRunning(group.id)) delay(10)
+        }
+        MigratedDomainStores.chat.sendUserMessage(group.id, "不对，我改主意了")
+        val outcome = pending.await()
+        assertFalse(outcome.success)
+        assertTrue(MigratedDomainStores.chat.messages(group.id).value.none {
+            it.authorCharacterId == b && it.content == "应该停止的旧回复"
+        })
+    }
+
     @Test fun finalCommitGuardRejectsEditedSourceAndNewUserCorrection() {
         val store = InMemoryLuluChatStore().also { it.initialize(RuntimeEnvironment.getApplication()) }
         val role = MigratedDomainStores.characters.create("提交水位角色").characterId
