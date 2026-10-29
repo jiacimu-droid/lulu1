@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.InMemoryLuluChatStore
+import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
@@ -8,6 +9,8 @@ import com.jiacimu.lulu.data.MemoryTestEnvironment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
+import org.json.JSONArray
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -94,6 +97,25 @@ class QqReplySourceWatermarkTest {
         delay(100)
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "不对，我改主意了")
         assertEquals("", pending.await())
+        assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.none {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+        })
+    }
+
+    @Test fun actionExecutorDoesNotReportSuccessWhenCorrectedReplyWasNeverSent() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("动作回执水位角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "动作回执")
+        val first = MigratedDomainStores.chat.sendUserMessage(conversation.id, "先说原问题")
+        val args = JSONObject().put("text", "针对旧问题的回复")
+            .put("_replyEvidenceIds", JSONArray().put(first.id))
+        val pending = async {
+            CompanionActionRuntime.execute(app, role, "send_private_message", args)
+        }
+        delay(100)
+        MigratedDomainStores.chat.sendUserMessage(conversation.id, "刚才说错了，按这条来")
+        val result = pending.await()
+        assertFalse("Stale reply cannot be marked as a successful action", result.success)
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.none {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         })
