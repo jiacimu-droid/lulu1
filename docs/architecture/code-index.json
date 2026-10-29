@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T11:33:09.825498+00:00",
-  "commit": "a53c7d3da413e7dbb75d2e27e925b608bfce4c40",
+  "generatedAt": "2026-10-29T11:36:48.476640+00:00",
+  "commit": "12aa97a12307ad3402574a81983caf45e0ff0620",
   "branch": "main",
-  "sourceFingerprint": "4f1f1bee18df29d6c1ca1ee9cb12e31b3ab4617f6aa0ed856e311ee0dc13a5a6",
+  "sourceFingerprint": "b6919d0a55d51e747cec99f71760ebacac1bca7aec8e28d52c36d0844f894234",
   "summary": {
     "files": 1067,
-    "lines": 219713,
+    "lines": 219720,
     "symbols": 3134
   },
   "symbolIndex": {
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 367
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6213,7 +6213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 363
+        "line": 370
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -24157,8 +24157,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 388,
-      "sha256": "938b494642aa8fe49a9fa9848c323fc4e5302da988f18c1014f88f6ac6b38378",
+      "lines": 395,
+      "sha256": "4109ed22908b69a7fb91772793a125fb05b365584fc55573d25f2e26893a050f",
       "symbols": [
         {
           "name": "entries",
@@ -24190,11 +24190,11 @@
         },
         {
           "name": "delete",
-          "line": 363
+          "line": 370
         },
         {
           "name": "remove",
-          "line": 367
+          "line": 374
         }
       ]
     },
