@@ -34,3 +34,9 @@
 - 新增 ResidentMailDeliveryAtomicityTest，直接拦截真实 SharedPreferences 的第一笔提交并发起第二笔发送，验证第二笔不能越过第一笔、两封信均持久保留、双方可追溯观察、第三人不可见、重载后均未读及逐封确认。另验持久化失败不产生送达事实、未知发送者/默认现实标签拒绝、确认好友后正常首次联系。测试不用模型或额外网络。
 - 已运行 scripts/generate_code_index.py 和 git diff --check；索引由仓库原有工作流同步。执行环境没有 Gradle，新增 JVM 必须以此提交的既有 CI 为准。真机多线程/杀进程未验；此锁修复不是“偏好存储与 SQLite 跨进程事务”声明，真实进程在两个存储之间死亡的恢复仍交基础专项。
 - 发现当前基线 APK #40862044670 实际 failure：1947 项测试完成，CharacterExplorationContinuityTest.eachOrderedToolCarriesItsQuestionAndAnUnseenResultCannotMarkItSatisfied 的 exploring/satisfied 断言失败。属于内驱探索状态契约，未在社交任务中偷改断言或掩盖。新构建需区分这项既有阻断与本轮邮箱回归；整体 APK 未通过时不得报发布成功。
+
+### 本轮实际验证结果
+
+- 源码与回归提交：[51f70e33](https://github.com/jiacimu-droid/lulu1/commit/51f70e331a948efc57110c6f1c9759140142d0a6)。索引 [#40863097284](https://github.com/jiacimu-droid/lulu1/actions/runs/40863097284) completed/success。
+- [Lulu APK #40863097204](https://github.com/jiacimu-droid/lulu1/actions/runs/40863097204) completed/failure，实际已编译并跑完1950项JVM测试，1项失败。新增 ResidentMailDeliveryAtomicityTest 的3项回归均通过；唯一失败仍是原基线的 CharacterExplorationContinuityTest.eachOrderedToolCarriesItsQuestionAndAnUnseenResultCannotMarkItSatisfied（expected exploring / actual satisfied）。没有改旧断言来冒充通过。
+- 该既有失败阻止后续 assemblePhone/收集/发布；不能报告新APK成功。社交的源码与JVM证据已取得，真机并发发送、后台唤醒与强杀恢复仍分别待验。下一轮继续 S3 双方邀约及到场链，先核对基础/内驱专项是否已经消除这一公共构建阻断。
