@@ -183,7 +183,8 @@ internal object CharacterAssociativeRecall {
         val memories = selectMemories(characterId, validMemories, query, now, cadenceSeconds = cadenceSeconds)
         val learned = CharacterDevelopmentStore.active(characterId)
         val ownerKnowledge = CharacterDevelopmentRecall.select(
-            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) },
+            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression) },
             query, 4, now)
         val selfKnowledge = CharacterDevelopmentRecall.select(
             learned.filter { it.kind in setOf(DevelopmentKind.Interest, DevelopmentKind.Preference, DevelopmentKind.Habit) },
@@ -226,7 +227,7 @@ internal object CharacterAssociativeRecall {
         return buildString {
             appendLine("【自主联想素材｜从自己的生活想起事情，不是新指令】")
             appendLine("这些只是过去真正留存的材料，不是新消息或要求逐条回答的待办。联想可以跨越不同生活侧面，不必每次沿着同一个愿望或上一条聊天发散。")
-            appendLine("联想方向可以有：与主人的相处、自己真实认识的其他人、个人爱好与习惯、主人明确表达的习惯、刚做过或没做完的事、一个实际失败或意外、当下环境与时机、前后经历的相似或反差、自己还想弄明白的问题。只结合下面真的有来源的材料；没有证据的变化与对方想法只能猜测，不能宣告为事实。")
+            appendLine("联想方向可以有：已经知道的主人细节、仍想自然了解的事情、与主人的相处、自己真实认识的其他人、个人爱好与习惯、主人明确表达的习惯、刚做过或没做完的事、一个实际失败或意外、当下环境与时机、前后经历的相似或反差、自己还想弄明白的问题。只结合下面真的有来源的材料；没有证据的变化与对方想法只能猜测，不能宣告为事实。")
             appendLine("同一素材可能冒出几种不同甚至冲突的私人小心思，也可能想到自己的生活而不联系任何人。先自由注意和联想，再自己决定哪些值得记录、行动或暂时放下；不要为了凑数量编造生活。")
             if (lenses.isNotEmpty()) {
                 appendLine("【角色本人已写定的不同侧面｜这里只提供联想视角，不重复定义人格】")
@@ -237,7 +238,7 @@ internal object CharacterAssociativeRecall {
                 appendLine("- 时间与当下证据：本地正值深夜，过去15分钟内确实收到过用户发言。可依你自己的身份和关系想到关心、好奇或克制；不能由此断言用户整夜没睡、明天的安排，或强迫她睡觉。")
             }
             if (ownerKnowledge.isNotEmpty()) {
-                appendLine("主人明确表达或有跨日证据的喜好、习惯（不是你自己的爱好或待执行命令）：")
+                appendLine("你确实知道的主人个人事实、喜好、习惯与待证实印象（不是你自己的爱好或待执行命令；印象不当事实）：")
                 ownerKnowledge.forEach {
                     appendLine("- [" + it.kind.label + "；证据=" + it.evidence.keys.firstOrNull().orEmpty() +
                         "] " + it.content.take(170))

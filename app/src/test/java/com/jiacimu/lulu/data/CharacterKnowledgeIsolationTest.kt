@@ -198,4 +198,43 @@ class CharacterKnowledgeIsolationTest {
             server.shutdown()
         }
     }
+    @Test fun ownerPhysicalFactIsPersonalVersionedAndWithdrawnWithItsSource() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val knowing = MigratedDomainStores.characters.create("主人档案测试甲", "只相信自己听见的事实")
+        val unaware = MigratedDomainStores.characters.create("主人档案测试乙", "不知道别人的私聊")
+        val role = knowing.characterId
+        val other = unaware.characterId
+        val eventId = "user-hand-" + UUID.randomUUID()
+        val persona = CharacterRuntime.personaConstraintSnapshot(role)
+        SharedExperienceTimeline.record(eventId, role, "私聊", "用户", "我的手肉嘟嘟的",
+            Instant.now().minusSeconds(60), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val fresh = SharedExperienceTimeline.eventsByIds(role, listOf(eventId))
+            .associate { it.id to it.revision }
+        assertTrue(CharacterDevelopmentStore.applyProposal(role, "user:appearance:hands",
+            DevelopmentKind.UserFact, "主人告诉我她的手肉嘟嘟的",
+            listOf(eventId), emptyList(), persona, fresh))
+        assertTrue(CharacterDevelopmentStore.active(other).isEmpty())
+        assertTrue(CharacterRuntime.personalityRuntimeContext(role).contains("手肉嘟嘟"))
+        assertFalse(CharacterRuntime.personalityRuntimeContext(other).contains("手肉嘟嘟"))
+        assertFalse(CharacterDevelopmentStore.applyProposal(other, "user:appearance:hands",
+            DevelopmentKind.UserFact, "错拿别人的私聊当事实",
+            listOf(eventId), emptyList(), CharacterRuntime.personaConstraintSnapshot(other)))
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:impression:hand",
+            DevelopmentKind.UserImpression, "似乎手很小",
+            listOf(eventId), emptyList(), persona))
+        SharedExperienceTimeline.record(eventId, role, "私聊", "用户", "我刚才是在开玩笑",
+            Instant.now(), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertFalse(CharacterDevelopmentStore.active(role).any { it.kind == DevelopmentKind.UserFact })
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:appearance:hands",
+            DevelopmentKind.UserFact, "主人告诉我她的手肉嘟嘟的",
+            listOf(eventId), emptyList(), persona, fresh))
+        SharedExperienceTimeline.deleteEvent(eventId)
+        assertFalse(CharacterRuntime.personalityRuntimeContext(role).contains("手肉嘟嘟"))
+    }
+
 }

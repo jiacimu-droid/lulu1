@@ -62,4 +62,11 @@ class DevelopmentPolicyTest {
         assertEquals(3, DevelopmentPolicy.counterExamplesToRetire(DevelopmentMaturity.Established))
     }
 
+    @Test fun userFactsNeedOneRealStatementAndImpressionsNeedRepeatedEvidence() {
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserFact, 1, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserFact, 0, true, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserImpression, 1, true, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserImpression, 2, false, 0))
+    }
+
 }

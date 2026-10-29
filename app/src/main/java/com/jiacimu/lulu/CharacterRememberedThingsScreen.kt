@@ -74,11 +74,28 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val ownerFacts = remember(characterId, ownerRevision, timelineRevision) {
         CharacterDevelopmentStore.active(characterId)
-            .filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.VerifiedMethod) }
+            .filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression, DevelopmentKind.VerifiedMethod) }
             .sortedByDescending { it.createdAt }
     }
     val ownerMatches = ownerFacts.filter {
-        search.isBlank() || (it.kind.label + it.content).contains(search.trim(), ignoreCase = true)
+        search.isBlank() || (it.kind.label + it.slot + it.content).contains(search.trim(), ignoreCase = true)
+    }
+    // A readable projection of the original per-character learning records.
+    // Category comes from the model's stable slot, not a second profile database.
+    val ownerGroups = ownerMatches.groupBy { record ->
+        when {
+            record.kind == DevelopmentKind.VerifiedMethod -> "相处与陪伴"
+            record.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) -> "喜好与日常习惯"
+            record.kind == DevelopmentKind.UserImpression -> "尚待确认的印象"
+            record.slot.startsWith("user:appearance:") -> "外貌与身体"
+            record.slot.startsWith("user:personality:") -> "性格与心理"
+            record.slot.startsWith("user:life:") -> "生活日常"
+            record.slot.startsWith("user:experience:") -> "个人经历"
+            record.slot.startsWith("user:ability:") -> "能力与特点"
+            record.slot.startsWith("user:relationship:") -> "重要的人与关系"
+            else -> "其他关于主人的认识"
+        }
     }
     val observedRoutines = remember(characterId, timelineRevision) {
         UserRoutinePatterns.recent(characterId)
@@ -144,7 +161,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         Column(Modifier.fillMaxSize().padding(padding)) {
             CharacterSectionTabs(listOf("记住的事", "核心记忆", "原始时间线", "关于主人"), area, onSelect = { area = it })
             OutlinedTextField(value = search, onValueChange = { search = it }, singleLine = true,
-                placeholder = { Text(when (area) { 2 -> "搜索原始记录"; 3 -> "搜索偏好与习惯"; else -> "搜索记忆" }) },
+                placeholder = { Text(when (area) { 2 -> "搜索原始记录"; 3 -> "搜索主人档案"; else -> "搜索记忆" }) },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
@@ -204,14 +221,20 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         }
                     }
                     if (ownerMatches.isEmpty() && matchingRoutines.isEmpty()) item {
-                        Text("还没有发现明确的偏好或相处经验", color = LuluColors.Muted)
+                        Text("还没有关于主人的个人认识；新的真实经历会逐渐丰富档案", color = LuluColors.Muted)
                     }
-                    items(ownerMatches.take(count), key = { "owner:${it.id}" }) { record ->
+                    ownerGroups.forEach { (section, records) ->
+                        item(key = "owner-heading:$section") {
+                            Text(section, fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp, color = LuluColors.Ink)
+                        }
+                        items(records.take(count), key = { "owner:${it.id}" }) { record ->
                         var expanded by remember(record.id) { mutableStateOf(false) }
                         CharacterRecordCard {
                             Text(record.kind.label, color = LuluColors.Muted, fontSize = 12.sp)
                             Text(record.content, fontSize = 16.sp, lineHeight = 24.sp)
-                            Text(if (record.maturity == DevelopmentMaturity.Established) "多次得到支持" else "初步认识",
+                            Text(if (record.kind == DevelopmentKind.UserImpression) "尚未得到主人确认"
+                                else if (record.maturity == DevelopmentMaturity.Established) "多次得到支持" else "主人曾经告诉我",
                                 color = LuluColors.Muted, fontSize = 11.sp)
                             TextButton(onClick = { expanded = !expanded }) {
                                 Text(if (expanded) "收起依据" else "查看来源")
@@ -224,6 +247,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                                 }
                             }
                         }
+                    }
                     }
                 } else if (area != 2) {
                     val rows = if (area == 1) coreRemembered else remembered

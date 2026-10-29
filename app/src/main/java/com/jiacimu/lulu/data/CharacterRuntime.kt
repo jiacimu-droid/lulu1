@@ -87,12 +87,14 @@ object CharacterRuntime {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = CharacterDevelopmentRecall.select(
             learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
-        val userHabits = CharacterDevelopmentRecall.select(
-            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) }, query, if (compact) 5 else 12)
+        val ownerKnowledge = CharacterDevelopmentRecall.select(
+            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression) }, query, if (compact) 7 else 16)
         val adaptive = CharacterDevelopmentRecall.select(
             learned.filterNot {
                 it.kind == DevelopmentKind.NarrativeMeaning ||
-                    it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit)
+                    it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                        DevelopmentKind.UserFact, DevelopmentKind.UserImpression)
             }, query, if (compact) 5 else 16)
         return buildString {
             // The stable principles are shared in CharacterDecisionProtocol;
@@ -136,16 +138,16 @@ object CharacterRuntime {
             // to the same decision in chat, voice and passive perception.
             // This is a cue, not a schedule, command or another memory store.
             UserRoutinePatterns.nearTimeContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
-            if (userHabits.isNotEmpty()) {
-                appendLine("【关于用户的偏好与习惯｜不是你的人格】")
-                appendLine("区分用户明确表达的喜恶、用户自述的习惯和跨日观察到的规律；依据随时可被新话修订。")
-                userHabits.forEach { record ->
+            if (ownerKnowledge.isNotEmpty()) {
+                appendLine("【你逐渐形成的主人档案｜仅限自己真实知道的事情，不是你的人格】")
+                appendLine("区分主人亲口说过的个人事实/偏好、她自述的习惯、跨日规律和你尚未证实的主观印象；旧话可能已变化，新明确纠正优先。")
+                ownerKnowledge.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established)
                         "多次较稳定" else "暂时观察"
-                    if (compact) appendLine("- [$maturity] ${record.content.take(220)}")
-                    else appendLine("- [$maturity] ${record.slot}：${record.content}；依据=${record.evidence.keys.joinToString()}")
+                    if (compact) appendLine("- [${record.kind.label}；$maturity] ${record.content.take(220)}")
+                    else appendLine("- [${record.kind.label}；$maturity] ${record.slot}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
-                appendLine("尽量自己观察、联想和尝试，不要遇事就让用户给答案。用对方实际反馈调整相处；当天的新话高于旧印象。记住偏好不等于擅自执行需要授权的操作。")
+                appendLine("自然地在合适话题联想，不要机械复述档案、追问凑全资料。尚不了解的事情可以好奇，但印象不是事实，不可假称看过主人的样貌。记住事实不等于擅自执行需要授权的操作。")
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")

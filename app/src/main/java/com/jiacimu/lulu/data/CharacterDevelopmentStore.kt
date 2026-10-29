@@ -10,6 +10,7 @@ import java.util.UUID
 enum class DevelopmentKind(val label: String) {
     Interest("兴趣"), Preference("偏好"), Habit("习惯"),
     UserPreference("用户的偏好"), UserHabit("用户的习惯"),
+    UserFact("主人告诉我的事实"), UserImpression("对主人的待证实印象"),
     ExpressionHabit("表达习惯"), Judgment("判断"),
     SituationalPattern("情境反应倾向"), NarrativeMeaning("叙事意义"),
     RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
@@ -87,7 +88,8 @@ object CharacterDevelopmentStore {
     fun active(characterId: String): List<DevelopmentRecord> {
         val authorized = authorizedPersonaSnapshots(characterId)
         return history(characterId).filter { record ->
-            record.active && (record.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) ||
+            record.active && (record.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression) ||
                 record.personaSnapshot in authorized) &&
                 (record.evidence + record.counterEvidence).all { (id, revision) ->
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()?.revision == revision
@@ -110,31 +112,46 @@ object CharacterDevelopmentStore {
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
-        if (kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit)) {
-            // Keep what the user actually said distinct from the companion's own
-            // traits. A clear first-person preference/self-report is useful now;
-            // a pattern inferred from behaviour still needs independent days.
-            if (factual.isEmpty() || factual.any { event ->
-                    val saidByUser = event.evidenceKind == EventEvidenceKind.UserStatement &&
-                        (event.channel == "私聊" || event.channel.contains("电话") ||
-                            event.channel.contains("见面"))
-                    !saidByUser && !(kind == DevelopmentKind.UserHabit &&
+        if (kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression)) {
+            // Every character learns about the owner only from its own accessible
+            // original events. A UserFact is a user-authored statement, never a
+            // character's observation, guess, model output or an external article.
+            val ownerChannels = { event: SharedTimelineEvent ->
+                event.channel == "私聊" || event.channel.contains("电话") ||
+                    event.channel.contains("见面")
+            }
+            val directOwnerEvidence = { event: SharedTimelineEvent ->
+                event.evidenceKind == EventEvidenceKind.UserStatement && ownerChannels(event)
+            }
+            if (factual.isEmpty()) return false
+            if (kind == DevelopmentKind.UserFact && factual.any { !directOwnerEvidence(it) }) return false
+            if (kind == DevelopmentKind.UserImpression && (factual.size < 2 ||
+                    factual.any { !ownerChannels(it) || it.evidenceKind !in setOf(
+                        EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) })) return false
+            if (kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) &&
+                factual.any { event ->
+                    !directOwnerEvidence(event) && !(kind == DevelopmentKind.UserHabit &&
                         UserRoutinePatterns.isStart(event))
                 }) return false
             val direct = factual.any { event ->
-                if (event.evidenceKind != EventEvidenceKind.UserStatement) return@any false
+                if (!directOwnerEvidence(event)) return@any false
                 val text = event.content
-                if (kind == DevelopmentKind.UserPreference)
-                    Regex("我.{0,8}(喜欢|不喜欢|更喜欢|偏爱|讨厌|希望|不希望|想要|不想)|别总|别再|不要再|下次.{0,14}(请|别|不要)|就这样")
+                when (kind) {
+                    DevelopmentKind.UserFact, DevelopmentKind.UserImpression -> true
+                    DevelopmentKind.UserPreference ->
+                        Regex("我.{0,8}(喜欢|不喜欢|更喜欢|偏爱|讨厌|希望|不希望|想要|不想)|别总|别再|不要再|下次.{0,14}(请|别|不要)|就这样")
+                            .containsMatchIn(text)
+                    DevelopmentKind.UserHabit -> Regex("我(一般|通常|经常|习惯|总是|平时|每次|基本)")
                         .containsMatchIn(text)
-                else Regex("我(一般|通常|经常|习惯|总是|平时|每次|基本)")
-                    .containsMatchIn(text)
+                    else -> false
+                }
             }
             val day = { event: SharedTimelineEvent ->
                 event.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
             }
             val distinctDays = factual.map(day).toSet()
-            if (!direct) {
+            if (kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) && !direct) {
                 if (factual.size < 3 || distinctDays.size < 3) return false
                 // Three unrelated phone actions must not be treated as one habit.
                 // A quoted user routine can still be established from separate days.

@@ -99,7 +99,8 @@ internal object CharacterInitiativeRuntime {
             learned.filter { it.kind == DevelopmentKind.Preference }, cue, limit = 3, allowFallback = true,
         )
         val ownerPreferences = relevant(
-            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) },
+            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression) },
             cue, limit = 4, allowFallback = true,
         )
         val userMemories = userSupportMemories(characterId, cue)
@@ -117,7 +118,7 @@ internal object CharacterInitiativeRuntime {
                 routines.forEach { appendLine("- ${it.content}") }
             }
             if (ownerPreferences.isNotEmpty()) {
-                appendLine("主人真实表达的喜恶/自述习惯与跨日观察，优先自己考虑怎样照顾这些偏好，不要把所有主意都反问她：")
+                appendLine("关于主人的真实个人信息、喜恶/自述习惯、跨日观察及尚未证实的主观印象；区分事实和猜测，优先自己考虑怎样照顾已知偏好，不要把所有主意都反问她：")
                 ownerPreferences.forEach { appendLine("- ${it.content}") }
             }
             if (userMemories.isNotEmpty()) {

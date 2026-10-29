@@ -32,7 +32,9 @@ object DevelopmentPolicy {
             DevelopmentKind.Habit, DevelopmentKind.ExpressionHabit -> evidenceCount >= 3
             // User facts and interpersonal methods have stricter source validation in
             // CharacterDevelopmentStore, not a blanket three-day requirement.
-            DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.VerifiedMethod -> evidenceCount >= 1
+            DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.UserFact,
+            DevelopmentKind.VerifiedMethod -> evidenceCount >= 1
+            DevelopmentKind.UserImpression -> evidenceCount >= 2
             else -> evidenceCount >= 3 || explicitUserInstruction
         }
     }

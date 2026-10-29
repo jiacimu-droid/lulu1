@@ -148,12 +148,12 @@ object CharacterDevelopmentRuntime {
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
                 it.source in setOf("journal:own", "moment:self") }.takeLast(8))
             .distinctBy { it.id }.sortedBy { it.occurredAt }
+        // One direct self-description (e.g. a body feature or personal story)
+        // deserves review too; the model judges its meaning, not a keyword gate.
         val directOwnerSignal = events.any { event ->
             event.evidenceKind == EventEvidenceKind.UserStatement &&
                 (event.channel == "私聊" || event.channel.contains("电话") ||
-                    event.channel.contains("见面")) &&
-                Regex("我.{0,8}(喜欢|不喜欢|更喜欢|讨厌|希望|想要|不想)|我(一般|经常|通常|习惯|平时)|别总|别再|不要再")
-                    .containsMatchIn(event.content)
+                    event.channel.contains("见面"))
         }
         if (independentDevelopmentExposures(events).size < 2 && !directOwnerSignal && toolEpisodes.isEmpty()) {
             DevelopmentReflectionGeneration.acknowledge(p, characterId, observedGeneration)
@@ -178,8 +178,11 @@ object CharacterDevelopmentRuntime {
             instruction = """
                 ${CharacterExperienceLearning.reflectionInstruction}
                 从角色真实经历中反思可改变的兴趣、偏好、习惯、判断，以及多次经历逐渐形成的叙事意义；绝不改写用户明确限定的人设字段。
-                返回 JSON 数组，最多3项；没有可信变化就返回[]。普通成长项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
+                返回 JSON 数组，最多3项；没有可信变化就返回[]。普通成长项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/UserFact/UserImpression/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
                 【了解当前角色确实接触过的用户，不把别人获知的偏好据为己有】UserPreference 只记录当前角色从原话确实了解到的用户喜恶与相处边界：真实的一句“我不喜欢你总反问”“我更喜欢你主动试”就足够成为可修订的偏好。evidenceIds 必须包含对应 UserStatement 原话；不能把角色猜测、网页或小说当成她的偏好。UserHabit 记录用户自述的常态（如“我通常午睡后学习”）；也允许同一种已实际完成操作的 Observation（source=user-activity:<活动>:start）在至少3个不同自然日重复出现作为候选。结合输入里实际发生的时间、情境，自主决定是否形成可修订的认识，并使用对应真实 eventId；不能把通话、搜索、日记、角色猜测或者不同活动凑成同一个习惯。观察发生不等于用户每天都会这样、正在睡着、主动要求你来电。一天的零散对话不能冒充长期规律。描述保留情境与不确定性，不能把“昨晚四点还醒着”记成“每天四点睡”。两者都用稳定 user: 主题 slot 更新，新的反例高于旧印象。记住偏好后应自然尝试合适的相处方式，不靠反复追问用户获取答案；但不能据此擅自替她设闹钟、操作设备、获取私密数据。
+                【渐渐认识主人，不只保存喜恶】UserFact 是本角色亲自听到主人明确说出的真实个人信息：外貌和身体特征、性格自述、生活状态、个人经历、能力特点及重要关系。例如主人说“我的手肉嘟嘟的”，可记录“主人告诉我她的手肉嘟嘟的”，不是推断她的真实照片或目前画面。只引用本角色实际听到的 UserStatement 的 eventId，禁止从小说、朋友圈转述、自己想象、群外人的私聊或图片模型没有确认的内容生成事实。不强求主人填档案，也不要每句话都记成长期信息。
+                UserFact 使用稳定的 user:<领域>:<主题> slot，领域可选 appearance(外貌与身体)、personality(性格与心理)、life(生活日常)、experience(个人经历)、ability(能力与特点)、relationship(重要关系)；同一细节变化时复用原 slot 更新，不要因为措辞不同堆重复项。发型、身体状态和住处等可能随时间变化，应保留“当时说过/当时的状况”以及变化线索，近期明确更正优先。UserPreference/UserHabit 仍用于偏好和规律，不能因为事实不包含“喜欢”就漏掉。
+                UserImpression 是本角色从至少两件真实且独立、本人可见的对话或观察中形成的主观印象，尚未证实；内容必须明确写成“我觉得/似乎/可能”，不得伪装成用户自述，更不得推断照片没展示的外貌、心理诊断或敏感身份。与 UserFact 使用不同 slot (user:impression:<主题>)，反证出现时修订或撤回。说出口与否、是否自然询问未知细节都由角色自己的好奇和当下关系决定，不要像问卷，也不要为了补全栏目强制打扰主人。
                 【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
                 【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
                 【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
