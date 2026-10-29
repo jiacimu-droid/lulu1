@@ -2705,4 +2705,80 @@ class ResidentDailyContinuityTest {
         assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(dueId)).isEmpty())
         RoleDayScheduleStore.remove(app, actor, plan.id)
     }
+
+    @Test(timeout = 60_000)
+    fun residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource(): Unit = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val chosenAt = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "日程来源原子校验${UUID.randomUUID().toString().take(6)}",
+            identity = "庭院记录者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = chosenAt.minusSeconds(3600)))
+        val other = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "另一个居民${UUID.randomUUID().toString().take(6)}",
+            identity = "庭院记录者", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = chosenAt.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, chosenAt)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val foreign = ResidentCharacterBridge.characterId(other.id)
+        val sourceId = "native-daily-${native.id}-${ResidentDailyDecision.date(chosenAt)}"
+        SharedExperienceTimeline.record(sourceId, actor, "原住民·每日自我安排",
+            native.name, "本人原始决定，尚未执行", chosenAt,
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val original = SharedExperienceTimeline.eventsByIds(actor, listOf(sourceId)).single()
+        assertEquals(1L, original.revision)
+
+        fun proposal(slot: String, title: String): JSONObject =
+            JSONObject().put("agenda", JSONArray().put(JSONObject()
+                .put("at", slot).put("title", title)
+                .put("intent", "想真实记录庭院的变化")
+                .put("activityAction", "publish_moment")
+                .put("activityArgs", JSONObject().put("text", title))))
+        val accepted = ResidentDailyDecision.saveAgenda(app, native,
+            proposal("09:00", "记录早晨的花"), chosenAt, sourceEvidence = original)
+        assertEquals(1, accepted.size)
+        assertEquals(sourceId, accepted.single().originEvidenceId)
+        assertEquals(1L, accepted.single().originEvidenceRevision)
+
+        // A later edit must stop a NEW calendar write from the old JSON,
+        // while preserving the genuinely saved first plan.
+        SharedExperienceTimeline.record(sourceId, actor, "原住民·每日自我安排",
+            native.name, "主人编辑了原来的决定", chosenAt,
+            triggerExtraction = false, source = "resident-daily",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertEquals(2L, SharedExperienceTimeline.eventsByIds(actor,
+            listOf(sourceId)).single().revision)
+        assertTrue(ResidentDailyDecision.saveAgenda(app, native,
+            proposal("10:00", "旧版本不得补排"), chosenAt,
+            sourceEvidence = original).isEmpty())
+        assertFalse(RoleDayScheduleStore.plans(app, actor).any {
+            it.title == "旧版本不得补排"
+        })
+
+        // A tombstone also blocks the original saved decision from
+        // scheduling any further activity; it never erases prior history.
+        SharedExperienceTimeline.deleteEvent(sourceId)
+        assertTrue(SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(sourceId))
+        assertTrue(ResidentDailyDecision.saveAgenda(app, native,
+            proposal("11:00", "撤回后不得复活"), chosenAt,
+            sourceEvidence = original).isEmpty())
+        assertFalse(RoleDayScheduleStore.plans(app, actor).any {
+            it.title == "撤回后不得复活"
+        })
+        assertEquals(1, RoleDayScheduleStore.plans(app, actor).count {
+            it.id == accepted.single().id
+        })
+
+        // The same evidence object cannot authorize another person's agenda.
+        assertTrue(ResidentDailyDecision.saveAgenda(app, other,
+            proposal("12:00", "跨人物不能借来源"), chosenAt,
+            sourceEvidence = original).isEmpty())
+        assertFalse(RoleDayScheduleStore.plans(app, foreign).any {
+            it.title == "跨人物不能借来源"
+        })
+        RoleDayScheduleStore.remove(app, actor, accepted.single().id)
+    }
 }
