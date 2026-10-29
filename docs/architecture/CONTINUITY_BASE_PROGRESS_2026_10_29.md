@@ -10,3 +10,13 @@
 - **main 提交**：`59b5d6b03343205ff73868a607075e6c2d959a85`（原始账本只读查询）、`a165ee965907665cde53dc47a0488a73fc80639f`（居民原决定重放门禁）、`380d117539fc869175b329fa1b824417b7508eb5`（根因回归）。
 - **验证边界**：源码与测试已提交；CI/JVM/APK 及真实手机强杀、权限变化与多日连续性须以对应提交的工作流及设备实测单独核验，不能据测试文件存在宣布通过。不会因拒绝自动重购模型或让程序替居民选新的行动。原始拒绝事实可由本人下一次正常模型轮次看到，但是否重新安排只能由新的本人决定。
 - **并发协作**：本轮只改 `SharedExperienceTimeline.kt` 的最小只读查询、`ResidentDailyDecision.kt`、`ResidentDailyContinuityTest.kt` 和本专项进度；未触碰社交、内驱、Live2D 文件，也未修改总清单以免与其他任务发生覆盖。源码索引由现有 Refresh code index 工作流生成，不能手工伪造。
+
+## 2026-10-29 · P0-B/P4 历史搜索回执与最终反馈跨窗口精确追踪
+
+- **已验源码基础**：原 `CharacterCausalTrace` 已有工具结果、下一轮决定、感知检查点及搜索反馈的只读诊断；`CharacterInnerHistoryArchive` 已保存历史本人决定，`SharedExperienceTimeline.eventsByIds` 已支持按本人、稳定 ID 精确读取。上述不代表真机已验。
+- **真实缺口**：原来源卡和搜索结果卡寻找 ToolRouter 子回执/最终反馈时依赖调用方传入的近期 `events` 列表。数千条历史之后，原搜索、本人选择和最终答复都仍在权威 Store，UI 窗口却可能只剩原事件，导致误报没有真实执行或没有最终送达。
+- **根因修复**：`CharacterCausalTrace.kt` 在原来源卡按本人保存决定的主/独立步骤稳定 requestId，精确读取既有 `tool-...` / `tool-rejected-...` 原始回执；要求请求归属、同一原事件 ID、当时 revision 和决定时间均匹配。搜索结果卡和来源卡根据原 `:verified-search-feedback` 稳定 ID 查真实回复回执；副步骤 `:step:N` 还原本轮请求 ID，只做格式映射，不猜测行动语义。仍核验真实反馈来源版本、发生时间、人物归属与撤回，不创建状态中心、不重发消息、不额外请求模型。旧无请求 ID/版本的记录继续明确无法精确证明。
+- **根因回归**：`CharacterCausalTraceTest.archivedSearchChoiceLinksActualStepAndReplyWithoutRecentEventWindow` 只向诊断传原始事件一个窗口项，检验从本人已保存的步骤选择找到旧搜索与真正送达的最终答复；搜索回执卡在仅有自身一条记录时也能找到最终答复；验证跨人物隔离、结果编辑后旧答复不能冒充新版、撤回后不复活。测试代码提交不代表 JVM 通过。
+- **main 提交**：`38cbe96de541c5a0bf1ca5dfb08e16d876cf45ed`、`e86b4a50714922ec957a1a19410c51561ec13a03`（源码）、`757a22481294ebe58cbbec90e39dd5b5e63e2525`（回归）。`Refresh code index` 继续使用仓库原工作流，不手工伪造索引。
+- **分层验收**：截至本次核对，对应 `Lulu APK #40861164725`、`Refresh code index #40861164836` 均为 pending，**JVM/APK/索引成功均未确认**；真机、长历史分页、进程强杀及真实搜索服务仍待验。此修复仅提高只读诊断完整性，不替角色决定分享，也不解决旧版从未保存精确 ID 的历史。
+- **协作边界**：只改本专项的 `CharacterCausalTrace.kt`、`CharacterCausalTraceTest.kt` 和本进度文件；未修改 ToolRouter、居民社交、内驱想法、Live2D 或并发总清单。未来如需跨入口稳定 ID 写入改动，交基础执行网关统一协调。
