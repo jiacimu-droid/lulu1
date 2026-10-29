@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:53:56.101548+00:00",
-  "commit": "3ac0c80664b903114c80f2693aafa479a4ffbc89",
+  "generatedAt": "2026-10-29T13:08:09.419908+00:00",
+  "commit": "e47eb17977e38dd750a2b2e58cdb172503adfabd",
   "branch": "main",
-  "sourceFingerprint": "e8cc02f5454d85f376755e87128da1dd6017c805065e504df810be904c3e17ec",
+  "sourceFingerprint": "c07d51e1ad5338823e0b90580e065f9243e2484814c1a52e1cc18e4f7ed408b9",
   "summary": {
     "files": 1068,
-    "lines": 220489,
+    "lines": 220532,
     "symbols": 3141
   },
   "symbolIndex": {
@@ -27623,8 +27623,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 1088,
-      "sha256": "c0c52f61bdb903fd8b3edec527308d9b926eb0ab8923da5f2afada29f3f7e2d1",
+      "lines": 1092,
+      "sha256": "91c85e3ac1fc9de21a0fa467ea3268e3c6c2b4cef4fc022c49855cdeaeff03a5",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -35989,8 +35989,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 134,
-      "sha256": "a895ec7805585e5f603450a0a45807b34529edc70351026553dbaf40623a6728",
+      "lines": 173,
+      "sha256": "791c861408a783624cc90c0840a7ec78cf441be17200d2fbc2d7716eed99ede0",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
