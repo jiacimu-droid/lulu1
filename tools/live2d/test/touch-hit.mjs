@@ -396,6 +396,64 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   ctx.wolfRigActive = false
   assert.equal(play(), false, 'other imported models must not receive wolf clips')
 }
+// Run the actual stage motion() against deferred Cubism loads. A low-FPS
+// frame can miss the moment a clip finishes; the next 'continue' must restart
+// it. Conversely, a stale async result must never stop the newer same-name
+// clip, and touch choreography cannot impersonate the role's chosen motion.
+{
+  const motionSource = source.slice(source.indexOf('function motion(group, index,'),
+    source.indexOf("\ndocument.addEventListener('visibilitychange'"))
+  const loads = []
+  let finished = false
+  let stops = 0
+  const manager = {
+    state: { currentGroup: 'Gesture', currentIndex: 0 },
+    isFinished: () => finished,
+    stopAllMotions: () => { stops++ },
+  }
+  const loadedModel = {
+    internalModel: { motionManager: manager },
+    motion: (group, index, priority) => new Promise(resolve =>
+      loads.push({ group, index, priority, resolve })),
+  }
+  const ctx = {
+    model: loadedModel, playing: true, pendingSpeechParts: null,
+    motionRevision: 0, authoredMotion: null,
+    motionTransition: { begin: () => {} }, notify: () => {},
+  }
+  vm.createContext(ctx)
+  vm.runInContext(motionSource, ctx)
+  ctx.motion('Gesture', 0, true, 'character')
+  assert.equal(loads.length, 1)
+  ctx.motion('Gesture', 0, true, 'character', { transition: 'continue' })
+  assert.equal(loads.length, 1, 'pending same Motion3 continues without duplicate load')
+  loads[0].resolve(true)
+  await Promise.resolve()
+  assert.equal(ctx.authoredMotion.started, true)
+  finished = true
+  ctx.motion('Gesture', 0, true, 'character', { transition: 'continue' })
+  assert.equal(loads.length, 2, 'completed clip must restart on next spoken part')
+  ctx.motion('Gesture', 0, true, 'character', { transition: 'blend' })
+  assert.equal(loads.length, 3)
+  loads[1].resolve(true)
+  await Promise.resolve()
+  assert.equal(stops, 0, 'stale same-name load cannot stop newer pending motion')
+  assert.equal(ctx.authoredMotion.revision, 3)
+  loads[2].resolve(true)
+  await Promise.resolve()
+  assert.equal(ctx.authoredMotion.started, true)
+  finished = false
+  ctx.motion('Gesture', 0, true, 'character', { transition: 'continue' })
+  assert.equal(loads.length, 3, 'genuinely active same clip continues')
+  ctx.authoredMotion.source = 'touch'
+  ctx.motion('Gesture', 0, true, 'character', { transition: 'continue' })
+  assert.equal(loads.length, 4, 'touch clip cannot consume a character speech choice')
+  ctx.authoredMotion = null
+  ctx.motionRevision++
+  loads[3].resolve(true)
+  await Promise.resolve()
+  assert.equal(stops, 1, 'cancelled load with no successor may still be stopped')
+}
 const touchSource = source.slice(source.indexOf('function tickTactileContact(tactileNow)'), source.indexOf('\nfunction setPaused(value)'))
 let stageTime = 1000
 const stageResponse = createTouchResponseRuntime({ now: () => stageTime })
