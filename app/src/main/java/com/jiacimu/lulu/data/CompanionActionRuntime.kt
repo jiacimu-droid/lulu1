@@ -648,7 +648,7 @@ internal object CompanionActionRuntime {
                         )
                     } else parsed.copy(content = authoredText, voiceBubbleTexts = voiceTexts)
                 }
-                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         presentation, actionableUserMessageIds = replyEvidenceIds)
                 }
@@ -671,7 +671,15 @@ internal object CompanionActionRuntime {
                             "plan:${plan.id}:${plan.dueAt.toEpochMilli()}", conversation.id)
                     }
                 }
-                CompanionActionResult(true, "已在私聊中发送消息", conversation.id, deliveredId)
+                // A newer user correction can invalidate a paced reply before
+                // its first bubble or between bubbles. A partial send is real
+                // history, but NOT a completed whole-turn delivery receipt.
+                val complete = deliveredText.isNotBlank() && deliveredId.isNotBlank()
+                CompanionActionResult(complete,
+                    if (complete) "已在私聊中发送消息"
+                    else if (deliveredId.isNotBlank()) "部分气泡已送达，后续因来源变更或中断而停止"
+                    else "原用户消息已变化、被撤回或发送中断；本轮没有送达消息",
+                    conversation.id, deliveredId)
             }
             "send_group_message" -> {
                 val groupId = args.optString("groupId").trim()
@@ -681,14 +689,19 @@ internal object CompanionActionRuntime {
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
-                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text),
-                     actionableUserMessageIds = replyEvidenceIds)
+                        actionableUserMessageIds = replyEvidenceIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
-                CompanionActionResult(true, "已在群聊《${conversation.groupChat?.name}》发言", conversation.id, deliveredId)
+                val complete = deliveredText.isNotBlank() && deliveredId.isNotBlank()
+                CompanionActionResult(complete,
+                    if (complete) "已在群聊《${conversation.groupChat?.name}》发言"
+                    else if (deliveredId.isNotBlank()) "部分群聊气泡已送达，后续因来源变更或中断而停止"
+                    else "群聊原消息已变化、被撤回或发送中断；本轮没有送达消息",
+                    conversation.id, deliveredId)
             }
             "send_game_invite" -> {
                 val gameId = args.optString("gameId").trim()
