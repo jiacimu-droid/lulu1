@@ -311,8 +311,16 @@ internal object CharacterCuriosityRuntime {
         val inquiryAt = selectedQuestion?.let {
             runCatching { Instant.parse(it.optString("at")) }.getOrNull()
         }
+        // A stale callback can arrive after a NEW inquiry was saved with
+        // the same threadId. It must not steal that inquiry's right to resume:
+        // the action must name that exact, still-valid observed source.
+        val freshOwnedInquiry = selectedQuestion != null &&
+            origin.isNotBlank() && selectedQuestion.optString("observedId") == origin &&
+            pendingQuestions(characterId, root).any {
+                identity(it) == identity(selectedQuestion)
+            }
         val resumedAfterClosure = closed != null && closedAt != null &&
-            inquiryAt != null && inquiryAt.isAfter(closedAt)
+            inquiryAt != null && inquiryAt.isAfter(closedAt) && freshOwnedInquiry
         val preserveClosure = closed != null && !resumedAfterClosure
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
@@ -353,7 +361,8 @@ internal object CharacterCuriosityRuntime {
             for (i in 0 until questions.length()) {
                 val q = questions.optJSONObject(i) ?: continue
                 val at = runCatching { Instant.parse(q.optString("at")) }.getOrNull()
-                if (selectedQuestion == null || identity(q) != identity(selectedQuestion) ||
+                if (preserveClosure || selectedQuestion == null ||
+                    identity(q) != identity(selectedQuestion) ||
                     q.optString("observedId") == evidenceId || at?.isAfter(now) == true) put(q)
             }
         })
@@ -369,7 +378,7 @@ internal object CharacterCuriosityRuntime {
                 val sameUnlinkedQuestion = failure.optString("threadId").isBlank() &&
                     normalized(failure.optString("topic")) == normalized(fields[0]) &&
                     normalized(failure.optString("question")) == normalized(fields[1])
-                if (!sameThread && !sameUnlinkedQuestion) put(failure)
+                if (preserveClosure || !sameThread && !sameUnlinkedQuestion) put(failure)
             }
         })
         save(characterId, root)
