@@ -1729,7 +1729,8 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       (!authoredMotion.started ||
         target.internalModel?.motionManager?.isFinished?.() !== true)) return
   const revision = ++motionRevision
-  const chosen = { model: target, revision, group, index, started: false, source }
+  const chosen = { model: target, revision, group, index, started: false, source,
+    visualSequence: scoreVisualSequence, segmentId: options.segmentId || '' }
   authoredMotion = chosen
   // Pixi/Cubism normally starts clips at NORMAL priority. An idle clip or
   // an earlier normal speech clip can then silently reject the next sentence.
@@ -1748,16 +1749,25 @@ function motion(group, index, immediatePreview = false, source = 'character', op
           manager?.state?.currentIndex === index) manager.stopAllMotions?.()
       return
     }
+    // This is a renderer acknowledgement, not the model's proposed gesture.
+    // Capture the score identity BEFORE the async Cubism load finishes.
+    const receipt = JSON.stringify({ sequence: chosen.visualSequence, group, index,
+      segmentId: chosen.segmentId, source })
     if (ok === false) {
       authoredMotion = null
+      if (source === 'character') notify('motion-failed', receipt)
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
     } else {
       chosen.started = true
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
+      if (source === 'character') notify('motion-started', receipt)
       notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)
     }
   }).catch(error => {
     if (authoredMotion === chosen) authoredMotion = null
+    if (source === 'character') notify('motion-failed', JSON.stringify({
+      sequence: chosen.visualSequence, group, index,
+      segmentId: chosen.segmentId, source }))
     notify('diagnostic', 'Motion3 播放失败：' + group + '#' + index + ' ' +
       (error?.message || String(error)))
   })
