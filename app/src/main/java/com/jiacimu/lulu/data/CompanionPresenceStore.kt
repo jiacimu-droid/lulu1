@@ -470,13 +470,13 @@ object CompanionPresenceStore {
                     ?.let { "presence-$it-$characterId" }
                     ?: "presence-$characterId-${moment.updatedAt.toEpochMilli()}"
                 nativeId == eventId
-            }.forEach { deleteMoment(characterId, it.updatedAt) }
+            }.forEach { deleteMoment(characterId, it.updatedAt, timelineAlreadyDeleted = true) }
     }
 
     /** Delete one real presence record, its private snapshot and its derived
      * timeline entry; never remove the user's original chat message. */
     @Synchronized
-    fun deleteMoment(characterId: String, at: Instant): Boolean {
+    fun deleteMoment(characterId: String, at: Instant, timelineAlreadyDeleted: Boolean = false): Boolean {
         val history = mutableHistories.value[characterId].orEmpty()
         val moments = history.filter { it.updatedAt == at }
         val current = mutableStates.value[characterId]?.takeIf { it.updatedAt == at }
@@ -492,7 +492,7 @@ object CompanionPresenceStore {
             val eventId = moment.provenanceId.takeIf(String::isNotBlank)
                 ?.let { "presence-$it-$characterId" }
                 ?: "presence-$characterId-${moment.updatedAt.toEpochMilli()}"
-            SharedExperienceTimeline.deleteEvent(eventId)
+            if (!timelineAlreadyDeleted) SharedExperienceTimeline.deleteEvent(eventId)
             if (moment.provenanceId.isNotBlank()) {
                 CharacterInnerLifeStore.forgetPresenceMomentProjections(
                     characterId, moment.provenanceId, moment.updatedAt)
