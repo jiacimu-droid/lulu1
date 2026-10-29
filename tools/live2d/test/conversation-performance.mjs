@@ -371,13 +371,13 @@ bridge.perform({ visualSequence: 2100, beats: [
   { segmentIndex: 0, atMs: 0, head: { roll: 2 } },
 ] })
 bridge.onPlaybackEvent('playing', 0, 2100, 'old')
+const beforeNextVoice = motions.length
 bridge.perform({ visualSequence: 2101,
   motion: { group: 'LuluWolf', index: 35 },
   expression: 'star',
   beats: [{ segmentIndex: 0, segmentId: 'new', atMs: 0,
     face: { smile: .3 }, durationMs: 350 }],
 })
-const beforeNextVoice = motions.length
 assert.equal(motions.length, beforeNextVoice,
   'a new authored motion is queued while the older voice is audible')
 assert.equal(bridge.pendingSpeechParts.motion.index, 35)
