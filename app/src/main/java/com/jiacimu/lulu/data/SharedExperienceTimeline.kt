@@ -269,6 +269,20 @@ object SharedExperienceTimeline {
     fun all(characterId: String): List<SharedTimelineEvent> =
         query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** A stable decision's rejected action must not become newly executable on replay.
+     * A withdrawn rejection still happened: deleting its visible evidence is not
+     * permission to revive the old choice. This is a read-only lookup against
+     * the canonical event ledger and its existing deletion tombstones. */
+    internal fun hasRecordedOrWithdrawnEvent(eventId: String): Boolean {
+        if (eventId.isBlank()) return false
+        val database = helper?.readableDatabase ?: return false
+        val args = arrayOf(eventId)
+        return database.query("timeline_events", arrayOf("id"), "id = ?",
+            args, null, null, null, "1").use { it.moveToFirst() } ||
+            database.query("deleted_timeline_events", arrayOf("event_id"), "event_id = ?",
+                args, null, null, null, "1").use { it.moveToFirst() }
+    }
+
     fun eventsByIds(characterId: String, eventIds: Collection<String>): List<SharedTimelineEvent> {
         val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct()
         if (ids.size > 120) return ids.chunked(120).flatMap { eventsByIds(characterId, it) }
