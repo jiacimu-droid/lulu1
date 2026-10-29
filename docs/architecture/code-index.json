@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:30:22.004628+00:00",
-  "commit": "e54bc4f1ba8a3b0fe9c6ba619e53defcd31d2f28",
+  "generatedAt": "2026-10-29T14:30:50.658037+00:00",
+  "commit": "240fe3dd120991dabe905c069452cbaee1a2e96a",
   "branch": "main",
-  "sourceFingerprint": "c03a5548ab4aafb35831d85862315ccc1748c46b26e1c3939b04128c0400c905",
+  "sourceFingerprint": "38f1d3f444e806d267c9fe795e7982ccaf940baf8558274b2b343cfeaaaf8c3a",
   "summary": {
     "files": 1068,
     "lines": 221131,
@@ -19573,7 +19573,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
       "lines": 466,
-      "sha256": "3d87ae7baa7bf6eb92ce1870da2d5704aef6b9f9a556a621b8a24e6e1d6ded59",
+      "sha256": "036347818591515f953203fb873a25e6a88f3ea112a7c75875f35b4715ed99b2",
       "symbols": [
         {
           "name": "Head",
@@ -33208,7 +33208,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
       "lines": 122,
-      "sha256": "9d42c0ac50939d92c7cfaa8381b46907b639364698452bf67f3c7eef016584e7",
+      "sha256": "d10fe6972c506ed112bf0ad95540eda280ede850ee2a3b3fc7dca1dd9553bdd9",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
