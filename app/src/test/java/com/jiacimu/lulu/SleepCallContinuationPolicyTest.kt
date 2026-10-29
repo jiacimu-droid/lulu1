@@ -23,6 +23,13 @@ class SleepCallContinuationPolicyTest {
         assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(30 * 60_000L))
     }
 
+    @Test fun bedtimeWaitsUntilAudibleSpeechFinishesBeforeHandlingNewWords() {
+        assertTrue(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, "主人还醒着"))
+        assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, " "))
+        assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(true, false, "现在说话"))
+        assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(false, true, "普通通话可以打断"))
+    }
+
     @Test fun failedBedtimeNarrationWaitsAndDoesNotChangeDeadline() {
         val deadline = 12_000L + SleepCallContinuationPolicy.AUTO_END_AT_MILLIS
         assertEquals(2_000L,
