@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bdeb3fe115199f18092f1059ffe17c23f921c9bf`
+- 基准提交：`6041279ba640127664da37e89de36d113c53f57d`
 - 分支：`main`
-- 已索引文件：1090
-- 已索引代码/文本行：226004
-- 已发现符号：3201
+- 已索引文件：1091
+- 已索引代码/文本行：226050
+- 已发现符号：3202
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -417,7 +417,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1626 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 974 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 982 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 664 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 93 | 3 |
@@ -768,6 +768,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |

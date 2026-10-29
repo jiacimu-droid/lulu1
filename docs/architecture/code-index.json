@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:16:00.871216+00:00",
-  "commit": "bdeb3fe115199f18092f1059ffe17c23f921c9bf",
+  "generatedAt": "2026-10-29T18:16:22.918083+00:00",
+  "commit": "6041279ba640127664da37e89de36d113c53f57d",
   "branch": "main",
-  "sourceFingerprint": "06b38c4a09ee45f789733e3b0ed338dc627c062063d5a51ee22242edc334372a",
+  "sourceFingerprint": "c27066ceba8e7de62b678aa7e416f72c1b6589d4aae5cf5d38d5cdb3f5ea7c2c",
   "summary": {
-    "files": 1090,
-    "lines": 226004,
-    "symbols": 3201
+    "files": 1091,
+    "lines": 226050,
+    "symbols": 3202
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7619,7 +7619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 850
+        "line": 858
       }
     ],
     "CommitmentTask": [
@@ -7805,19 +7805,19 @@
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 382
+        "line": 388
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 547
+        "line": 555
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 603
+        "line": 611
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -7827,43 +7827,43 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 617
+        "line": 625
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 647
+        "line": 655
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 664
+        "line": 672
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 679
+        "line": 687
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 851
+        "line": 859
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 872
+        "line": 880
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 893
+        "line": 901
       }
     ],
     "repeatsConfirmedAction": [
@@ -15004,6 +15004,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
         "line": 14
+      }
+    ],
+    "GroupChatTurnPlannerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
+        "line": 6
       }
     ],
     "ListenTogetherRoomTest": [
@@ -25193,8 +25199,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 974,
-      "sha256": "0d66630d2ce57b3021fc114ae7153f9933aeab065bbc6bfb8cb79e78531998ec",
+      "lines": 982,
+      "sha256": "54d22c7567cc49b6229f5a2a51ca9c8e189fbb659d8062780b916dd4aac80d1b",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -25242,47 +25248,47 @@
         },
         {
           "name": "onConversationMessage",
-          "line": 382
+          "line": 388
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 547
+          "line": 555
         },
         {
           "name": "markSeen",
-          "line": 603
+          "line": 611
         },
         {
           "name": "resetCharacter",
-          "line": 617
+          "line": 625
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 647
+          "line": 655
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 664
+          "line": 672
         },
         {
           "name": "extendByOwnChoice",
-          "line": 679
+          "line": 687
         },
         {
           "name": "Result",
-          "line": 850
+          "line": 858
         },
         {
           "name": "uncovered",
-          "line": 851
+          "line": 859
         },
         {
           "name": "proposalIssue",
-          "line": 872
+          "line": 880
         },
         {
           "name": "ensure",
-          "line": 893
+          "line": 901
         }
       ]
     },
@@ -33739,6 +33745,17 @@
         {
           "name": "ElevenLabsAudioContractsTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
+      "lines": 38,
+      "sha256": "d78d7be579ba6aea92c3c8b5c3c474bb17cbe2356fad24c1a0b3a95e2ff2b9c0",
+      "symbols": [
+        {
+          "name": "GroupChatTurnPlannerTest",
+          "line": 6
         }
       ]
     },
