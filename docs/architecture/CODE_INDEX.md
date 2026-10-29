@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9f7601232aaefc517d9e92c8f3d7bebd50f9d87d`
+- 基准提交：`f2b4e0f1f1e0d752457021bccc2667cb15f543f2`
 - 分支：`main`
 - 已索引文件：1070
-- 已索引代码/文本行：221334
-- 已发现符号：3144
+- 已索引代码/文本行：221368
+- 已发现符号：3145
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -173,7 +173,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 466 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 497 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
@@ -709,7 +709,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 165 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 69 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 72 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2168 | 4 |
