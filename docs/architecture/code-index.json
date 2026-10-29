@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:38:52.559893+00:00",
-  "commit": "dbc58d754af6fe7aa4e6b1e0301f6aa6e9c1f647",
+  "generatedAt": "2026-10-29T15:39:39.267357+00:00",
+  "commit": "02de87147ce27a9c11aa7d45b3082732b1f1913e",
   "branch": "main",
-  "sourceFingerprint": "9de4929309f5364f907fd476b4430d366caa5bb68c66a2d04d93937face8080e",
+  "sourceFingerprint": "ee221459c345195e44f74228e856a798b0806300819a3fbf4581bfc1b9e1bfd8",
   "summary": {
     "files": 1076,
-    "lines": 222627,
+    "lines": 222647,
     "symbols": 3159
   },
   "symbolIndex": {
@@ -985,7 +985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 38
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -1381,7 +1381,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 85
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -1611,7 +1611,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 73
+        "line": 76
       }
     ],
     "split": [
@@ -2675,7 +2675,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 28
+        "line": 29
       }
     ],
     "setBlocked": [
@@ -12661,7 +12661,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 90
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -12675,7 +12675,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 516
+        "line": 517
       }
     ],
     "saveTurn": [
@@ -30566,20 +30566,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 545,
-      "sha256": "8a56a634c456c1ba6262e2183dd7dfcc4719fff16d6b6e3bf8626e1d3b130c4d",
+      "lines": 546,
+      "sha256": "12181c5500816796e08df5fb179eb9c0dacd4cad5eee5eda6ad9af2f3dc082a3",
       "symbols": [
         {
           "name": "save",
-          "line": 85
+          "line": 86
         },
         {
           "name": "perform",
-          "line": 90
+          "line": 91
         },
         {
           "name": "targetFor",
-          "line": 516
+          "line": 517
         }
       ]
     },
@@ -30959,8 +30959,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 255,
-      "sha256": "91be7f529a093b3f5b3f4a8715f7b0d3ae2367a666d0c652cd54fd2d6dbb55d1",
+      "lines": 270,
+      "sha256": "73862ed5226daf7a9bb3c10ad6b21c37165eb209f0c9eb72ac75f9eb07f75f09",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -30970,20 +30970,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-      "lines": 93,
-      "sha256": "7f0781843848bc6f70f090388caea4343b98de1d5d346b089959b9606d7584b5",
+      "lines": 97,
+      "sha256": "d565e42e1b6485bad93a46f0013907e74636bde00e2f2f2079fb486e39c93ba8",
       "symbols": [
         {
           "name": "setEnabled",
-          "line": 28
+          "line": 29
         },
         {
           "name": "enqueue",
-          "line": 38
+          "line": 40
         },
         {
           "name": "close",
-          "line": 73
+          "line": 76
         }
       ]
     },
