@@ -709,6 +709,7 @@ internal object ResidentDailyDecision {
             // has since lost contact permission, the slot passed or the owner
             // cancelled it. Replaying the saved decision must not resurrect it
             // or invent a new rejection for an already recorded plan.
+            val target = params.optString("targetCharacterId").trim()
             val previouslyArranged = RoleDayScheduleStore.plans(context, actor).firstOrNull {
                 it.originEvidenceId == decisionId && it.originEvidenceRevision == 1L &&
                     it.dueAt == dueAt && it.activityAction == action &&
@@ -748,7 +749,6 @@ internal object ResidentDailyDecision {
                 reject(index, row, "原决定的活动时刻已过去，未补发或擅自改期")
                 continue
             }
-            val target = params.optString("targetCharacterId").trim()
             if (action in setOf("send_character_message", "send_friend_request") &&
                 (target !in known || target == actor)) {
                 reject(index, row, "当前没有对目标角色的真实联系权限")
