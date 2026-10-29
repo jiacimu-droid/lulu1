@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2144b0058e25a5d2adc30e5addc652cde5399591`
+- 基准提交：`fd02fdeed25176734406d14756d76aa8c8585cba`
 - 分支：`main`
 - 已索引文件：1054
-- 已索引代码/文本行：216605
+- 已索引代码/文本行：216630
 - 已发现符号：3094
 
 | 文件 | 行数 | 符号数 |
@@ -894,7 +894,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 233 | 10 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 466 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 491 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 26 | 1 |
