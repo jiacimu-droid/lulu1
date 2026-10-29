@@ -36,7 +36,7 @@ internal data class CompanionActionResult(
 }
 
 /** One real execution layer shared by foreground chat decisions and background perception. */
-internal /** Map a frozen perception batch to user messages in this exact destination.
+/** Map a frozen perception batch to user messages in this exact destination.
  * Other characters' group bubbles and messages in other conversations must
  * remain in the character's perceived evidence, but are not user reply anchors.
  * Include the raw user ID even when its current status changed: the sender's
@@ -58,7 +58,7 @@ internal fun replyUserMessageIdsForDestination(
         .map { it.id }.toSet()
 }
 
-object CompanionActionRuntime {
+internal object CompanionActionRuntime {
     private fun ownQqGroupsContext(characterId: String): String {
         val groups = MigratedDomainStores.chat.conversations.value
             .filter { it.groupChat?.members?.any { m -> m.characterId == characterId } == true }
