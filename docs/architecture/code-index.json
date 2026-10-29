@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T06:56:27.192165+00:00",
-  "commit": "052318ff0491dab099a4e316fb6f245287cdc677",
+  "generatedAt": "2026-10-29T06:56:48.550263+00:00",
+  "commit": "73ebfe4e9ce1dfa1662e98e31bfc1e7393f2709e",
   "branch": "main",
-  "sourceFingerprint": "f260fd839f8d94731098c3fbb6ae874afb0fe235eb7ed2dff029cfd5b492f9ac",
+  "sourceFingerprint": "24bc734db6ad5a42fd71cebe53e66e1ae4cbd8bd8a7c61792913be236028cedc",
   "summary": {
-    "files": 1054,
-    "lines": 217111,
-    "symbols": 3098
+    "files": 1055,
+    "lines": 217213,
+    "symbols": 3099
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14808,6 +14808,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
         "line": 7
+      }
+    ],
+    "QqReplySourceWatermarkTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
+        "line": 22
       }
     ],
     "QqXhsShareCodecTest": [
@@ -33144,6 +33150,17 @@
         {
           "name": "QqMessageGroupingTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
+      "lines": 102,
+      "sha256": "9bcab7fb580e8ec96a91a20d5ce2068a6bb296a5dcd8f4e43686bba3bbfaabf4",
+      "symbols": [
+        {
+          "name": "QqReplySourceWatermarkTest",
+          "line": 22
         }
       ]
     },
