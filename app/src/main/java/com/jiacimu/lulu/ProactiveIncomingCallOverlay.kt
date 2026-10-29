@@ -81,8 +81,8 @@ internal fun ProactiveIncomingCallOverlay() {
                 ProactiveIncomingCallStore.respond(call, answered = true)
                 connectingCall = null
                 notice = ""
-                // Incoming calls remain voice-first unless a video call is explicitly offered.
-                LuluCallWindowController.start(video = false)
+                // The same real session opens in the character's offered medium.
+                LuluCallWindowController.start(video = call.mediaMode == "video")
             }
             !matching || session.phase in setOf(CallPhase.Idle, CallPhase.Ended) ||
                 session.phase == CallPhase.Ready || !call.active() -> {
@@ -162,7 +162,8 @@ internal fun ProactiveIncomingCallOverlay() {
                     Spacer(Modifier.height(22.dp))
                     Text(character.displayName, fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color(0xFF25262A))
                     Spacer(Modifier.height(7.dp))
-                    Text("语音来电", color = Color(0xFF72757C), fontSize = 14.sp)
+                    Text(if (call.mediaMode == "video") "Live2D 视频来电" else "语音来电",
+                        color = Color(0xFF72757C), fontSize = 14.sp)
                     if (notice.isNotBlank()) {
                         Spacer(Modifier.height(10.dp))
                         Text(notice, color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
