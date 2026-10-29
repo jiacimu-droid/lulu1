@@ -2,6 +2,15 @@
 
 本文件只记录 P0-A/P0-B/P1/P4 基础执行恢复、来源版本、跨入口回执诊断和长期数据生命周期的增量工作。总约束仍见 [CONTINUITY_EXECUTION_PLAN_2026_10_28.md](CONTINUITY_EXECUTION_PLAN_2026_10_28.md)。不覆盖社交、内驱想法和 Live2D 专项进度。源码已提交、CI 成功、APK 构建成功、真机通过是四种独立证据。
 
+## 2026-10-30 · P0-A 原决定来源撤回/编辑后的恢复禁行
+
+- **源码根因**：原居民每日决定持久保存后，`runOnceLocked` 恢复时会先调用 `saveAgenda`，随后即使原 `resident-daily` 事件被主人编辑、撤回，仍可使用空 `causeEvidenceId` 继续发布动态、私信与独立步骤。到点 `runDuePlanLocked` 的 `dueDecisionEvidence` 虽会在编辑/撤回时返回空 ID，执行器仍继续使用无来源的 ToolRouter 请求或修改日程。已有工具幂等只防重复请求，不能把来源撤回当作继续执行的授权。
+- **实际修复**：`ResidentDailyDecision.kt` 复用 `SharedExperienceTimeline.eventsByIds` 和原撤回墓碑查询，恢复每日决定时先核对来源归属、source 和 revision=1；已编辑/撤回的原决定不得继续排程或执行未送达动作。到点决定在写入/找回原 `resident-due-decision` 事件后必须取得真实 revision=1 的 ID，才能执行主动作、独立步骤或改期/取消/等待。来源不可核验时保存原 prefs 中的 `source_unavailable` 及错误说明，不删除旧决定和既有真实回执，不再次购买模型决定，也不新建状态中心。
+- **根因级回归**：`ResidentDailyContinuityTest.withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects` 覆盖已保存每日决定的原来源编辑、已保存到点决定的原来源撤回，断言不发旧动态、不执行独立动作、不把原日程标记完成、再次恢复不重放、撤回墓碑不复活、旧决定仍保留可诊断状态。原先合法且来源未撤回的保存决定恢复测试继续保留。
+- **main 源码提交**：[`4e1798482f3e1130848a11a54f6071d974859382`](https://github.com/jiacimu-droid/lulu1/commit/4e1798482f3e1130848a11a54f6071d974859382)；**回归源码提交**：[`651de1f6a035040b3e51b48ef94bb755a0af9a46`](https://github.com/jiacimu-droid/lulu1/commit/651de1f6a035040b3e51b48ef94bb755a0af9a46)。自动代码索引提交 `b15787f4d96fc192669c73e8fa3d963220e1e07e` 的父提交为本轮测试，仍须以工作流结论为准。
+- **分层验证**：本轮测试提交对应 [Refresh code index #40917194990](https://github.com/jiacimu-droid/lulu1/actions/runs/40917194990) 与 [Lulu APK #40917195008](https://github.com/jiacimu-droid/lulu1/actions/runs/40917195008) 在首次核实时分别为 queued/pending，不能算通过。此前 `eb729589` 的 [APK #40914143501](https://github.com/jiacimu-droid/lulu1/actions/runs/40914143501) completed/failure，实际 2029 个 JVM 测试中 `ConversationExpressionGatewayTest.bestFriendIdentitySurvivesPrivatePlannerAndLeanRendererWithoutSharingOtherRolesStyle` 失败，属其他角色人设专项，未越界修改。真实手机强杀/撤回并发、Android 后台与多日运行均未验证。
+- **保留风险**：日决定原始事件在 `saveAgenda` 后才记录，撤回与排程写入若恰好并发，仍需进一步做原始时间线/日程的原子边界故障注入；本轮先阻止已撤回/已编辑的持久决定在后续恢复中产生新副作用。没有改公共 ToolRouter、社交、内驱或 Live2D 专项。
+
 ## 2026-10-29 · P0-A 居民被拒绝日程不得因权限恢复而偷排
 
 - **真实根因**：`ResidentDailyDecision.saveAgenda` 记录结构合法但现场权限/资源不满足的行时，使用稳定 `native-daily-...-agenda-rejected-N` 原始事件 ID；但下一次恢复同一已付费模型决定时，只核对原已保存日程，未把该行的既有拒绝回执作为终态。联系人后来出现、群成员权限变化或资源恢复后，原来已被拒绝的行可能变成新日程；同一拒绝再次写入还可能因为新的 `occurredAt` 改写 revision。即使主人撤回拒绝事件，原始墓碑仍应阻止旧决定复活。
