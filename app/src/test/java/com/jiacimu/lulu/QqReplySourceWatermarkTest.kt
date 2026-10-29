@@ -161,7 +161,7 @@ class QqReplySourceWatermarkTest {
         val args = JSONObject().put("groupId", group.id).put("text", "那当然不会啦")
             .put("_replyEvidenceIds", JSONArray().put(user.id).put(earlierRole.id))
         val outcome = CompanionActionRuntime.execute(app, b, "send_group_message", args)
-        assertTrue(outcome.message, outcome.success)
+        assertTrue(outcome.summary, outcome.success)
         assertTrue(MigratedDomainStores.chat.messages(group.id).value.any {
             it.authorCharacterId == b && it.content == "那当然不会啦"
         })
