@@ -56,8 +56,9 @@ class PhoneModelTransportPolicyTest {
 
     @Test fun phoneSseBuffersCompleteDecisionWithoutPartialCallback() = runBlocking {
         val server = MockWebServer()
-        val part1 = "{\\\"action\\\":\\\"reply\\\","
-        val part2 = "\\\"text\\\":\\\"你好，听见啦。\\\"}"
+        val fullReply = """{"action":"reply","text":"你好，听见啦。"}"""
+        val part1 = fullReply.take(18)
+        val part2 = fullReply.drop(18)
         val responseBody = "data: ${delta(part1)}\n\n" +
             "data: ${delta(part2)}\n\n" +
             "data: [DONE]\n\n"
