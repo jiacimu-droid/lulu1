@@ -281,7 +281,14 @@ internal object CharacterStateHistory {
             val duplicate = seen.asReversed().firstOrNull { prior ->
                 val minutes = java.time.Duration.between(prior.at, row.at).toMinutes()
                 val commonEvidence = row.evidenceIds.any { it.isNotBlank() && it in prior.evidenceIds }
-                minutes in 0L..15L && (voice == prior.voice ||
+                // Presence projections can trim a 600-character authored voice
+                // to 140 characters and lose the source ID. A long, verbatim
+                // prefix of an earlier voice is still that SAME text, not a
+                // newly authored inner life event. Suppress only the later
+                // shorter copy; a later extended/new thought stays visible.
+                val exactTruncatedCopy = voice.length >= 120 &&
+                    prior.voice.length > voice.length && prior.voice.startsWith(voice)
+                minutes in 0L..15L && (voice == prior.voice || exactTruncatedCopy ||
                     (commonEvidence && voice.length >= 80 &&
                         prior.voice.length >= voice.length && prior.voice.startsWith(voice)))
             }
