@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:20:32.173450+00:00",
-  "commit": "ecce75012da33dbd768dae3e470498326a01cd80",
+  "generatedAt": "2026-10-29T10:21:58.367371+00:00",
+  "commit": "ecb049e7ff62ace692e44c77fcb226498db081b7",
   "branch": "main",
-  "sourceFingerprint": "d36b198d6d586d0d30ec76dcfe83e9d7dbc8655b7b289c274f217cdb09859658",
+  "sourceFingerprint": "0e45e49149e9829b75396096c1dfa4611ab271b068477779cb4e28d358ba98eb",
   "summary": {
     "files": 1062,
-    "lines": 218721,
+    "lines": 218728,
     "symbols": 3123
   },
   "symbolIndex": {
@@ -93,7 +93,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 66
+        "line": 67
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -967,7 +967,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 48
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
@@ -2581,7 +2581,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 82
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -3977,25 +3977,25 @@
     "shouldDeferUserWords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "nextPauseAfterFailureMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "shouldEndAtDeadline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "canContinue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 60
+        "line": 61
       }
     ],
     "requestedFocus": [
@@ -19705,20 +19705,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 189,
-      "sha256": "d64699a1ae643eadf4b43eb168e608db03b1c901b34cb404e6b4df7d05fe950a",
+      "lines": 195,
+      "sha256": "f25ee9310a5ad08da505df5487715a1ebc2cf1a150299617b9682d73266e8701",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 48
+          "line": 49
         },
         {
           "name": "stop",
-          "line": 66
+          "line": 67
         },
         {
           "name": "shutdown",
-          "line": 82
+          "line": 85
         }
       ]
     },
@@ -21177,8 +21177,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-      "lines": 72,
-      "sha256": "76ce7f045f942e4bbdf961651b461ef69060ae7bcbfda85e777029e177f9a393",
+      "lines": 73,
+      "sha256": "8596f6ad5d224b98d0d119009c65417c1afb766e554d9a8f99e3107152d2ec59",
       "symbols": [
         {
           "name": "nextPauseMillis",
@@ -21190,19 +21190,19 @@
         },
         {
           "name": "shouldDeferUserWords",
-          "line": 31
+          "line": 32
         },
         {
           "name": "nextPauseAfterFailureMillis",
-          "line": 36
+          "line": 37
         },
         {
           "name": "shouldEndAtDeadline",
-          "line": 54
+          "line": 55
         },
         {
           "name": "canContinue",
-          "line": 60
+          "line": 61
         }
       ]
     },
