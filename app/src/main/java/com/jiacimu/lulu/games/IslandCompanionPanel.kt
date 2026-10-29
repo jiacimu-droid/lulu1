@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.VolumeOff
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +38,9 @@ internal fun IslandCompanionPanel(
 ) {
     val speaker = rememberIslandCompanionVoice()
     var voice by rememberSaveable { mutableStateOf(false) }
-    var pendingUserSpeech by remember { mutableStateOf(emptyList<String>()) }
+    var teamInbox by rememberSaveable(island.world.seed, saver = islandTeamInboxSaver) {
+        mutableStateOf(IslandTeamInbox())
+    }
     var typedMessage by rememberSaveable { mutableStateOf("") }
     var showTextChat by rememberSaveable { mutableStateOf(false) }
     var speechIndex by remember { mutableIntStateOf(0) }
@@ -51,7 +54,7 @@ internal fun IslandCompanionPanel(
         if (message.isBlank()) return
         // Preserve every player message that arrives while the model is busy;
         // the conflated wake signal does not mean conflated conversation content.
-        pendingUserSpeech = pendingUserSpeech + message
+        teamInbox = teamInbox.enqueue(message)
         dialogue = (dialogue + ("你： " + message)).takeLast(6)
         speechIndex += 1
     }
@@ -62,7 +65,7 @@ internal fun IslandCompanionPanel(
     val members = island.world.friends.map { it.id }
     val latestNavigating by rememberUpdatedState(navigating)
     val latestSpeechIndex by rememberUpdatedState(speechIndex)
-    val latestPendingUserSpeech by rememberUpdatedState(pendingUserSpeech)
+    val latestTeamInbox by rememberUpdatedState(teamInbox)
     val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
 
@@ -78,16 +81,14 @@ internal fun IslandCompanionPanel(
         val expectedTurn = currentIsland.world.turns
         val currentSpeech = latestSpeechIndex
         if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == currentSpeech) continue
-        val heard = if (lastRequestedSpeech != currentSpeech)
-            latestPendingUserSpeech.joinToString("\n") else ""
-        if (heard.isNotBlank()) pendingUserSpeech = emptyList()
+        val unreadSnapshot = latestTeamInbox
         val allActed = members.all { id ->
             currentIsland.world.events.any {
                 it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
             }
         }
         // Reopening a previously completed turn does not pay for a redundant reply.
-        if (heard.isBlank() && allActed) {
+        if (allActed && members.all { unreadSnapshot.forRole(it).isEmpty() }) {
             lastRequestedTurn = expectedTurn
             lastRequestedSpeech = currentSpeech
             continue
@@ -100,10 +101,17 @@ internal fun IslandCompanionPanel(
             var workingState = currentIsland
             for (id in members) {
                 val snapshot = workingState
-                if (snapshot.world.turns != expectedTurn || snapshot.world.friends.none { it.id == id }) break
+                if (snapshot.world.turns != expectedTurn ||
+                    snapshot.world.friends.none { it.id == id }) break
+                val heard = unreadSnapshot.forRole(id).joinToString("\n")
+                val alreadyCompleted = snapshot.world.events.any {
+                    it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
+                }
+                if (alreadyCompleted && heard.isBlank()) continue
                 // Generate a real decision from this role's own identity, the actual current
                 // board, and its own earlier game events. The configured Game model is reused.
-                val result = IslandActorPlay.decide(snapshot, id, heard)
+                val result = runCatching { IslandActorPlay.decide(snapshot, id, heard) }
+                    .getOrElse { Result.failure(it) }
                 val choice = result.getOrNull()
                 if (choice == null) {
                     error = result.exceptionOrNull()?.message ?: "伙伴暂时无法作出决定"
@@ -117,20 +125,25 @@ internal fun IslandCompanionPanel(
                 val selectedAction = IslandActorPlay.options(latest, id, !alreadyActed)
                     .firstOrNull { it.id == choice.actionId }
                 if (selectedAction == null) {
-                    error = "伙伴选择的操作已失效；没有替他改选动作"
+                    error = "伙伴选择的操作已失效；消息保留待下一次重试"
                     continue
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
                 if (!alreadyActed) {
                     val applied = IslandActorPlay.apply(latest, id, expectedTurn, choice)
                     if (applied == null) {
-                        error = "局势已经改变，本次角色行动未执行"
+                        error = "局势已经改变，行动未执行；消息仍待送达"
                         continue
                     }
                     workingState = applied
                     currentSave(applied)
                     if (selectedAction.x >= 0 && selectedAction.y >= 0)
                         currentPing(selectedAction.x to selectedAction.y)
+                }
+                // Confirm delivery only after a valid role-owned decision was processed.
+                // Never clear messages before the API returns: each role has its own ack.
+                if (heard.isNotBlank()) {
+                    teamInbox = teamInbox.acknowledge(id, unreadSnapshot.messages.size)
                 }
                 if (choice.speech.isNotBlank()) {
                     dialogue = (dialogue + (name + "： " + choice.speech)).takeLast(6)
@@ -140,6 +153,9 @@ internal fun IslandCompanionPanel(
                     dialogue = (dialogue + (name + " · " + event.substringAfter("：", event))).takeLast(6)
                 }
             }
+            // Drop only the prefix acknowledged by every current team member; newly
+            // typed messages arriving during the request remain in the queue.
+            teamInbox = teamInbox.compact(members)
         } finally {
             thinking = false
         }
@@ -249,6 +265,12 @@ internal fun IslandCompanionPanel(
                 if (error.isNotBlank())
                     Text(error + "（游戏仍可继续）", color = Color(0xFFFFC3BA),
                         fontSize = 11.sp, lineHeight = 17.sp)
+                if (teamInbox.messages.isNotEmpty()) {
+                    Text(
+                        "${teamInbox.messages.size} 条队伍消息待确认 · 模型失败时保留，下一次行动或发言会继续投递",
+                        color = Color(0xFFEFD3A6), fontSize = 11.sp, lineHeight = 16.sp,
+                    )
+                }
                 // New chat is immediate; saved factual world events still reappear after rotation.
                 val teamFeed = if (dialogue.isNotEmpty()) dialogue.takeLast(3)
                     else island.world.events.filter { it.startsWith("队友[") }.takeLast(2)
@@ -267,3 +289,9 @@ internal fun IslandCompanionPanel(
         }
     }
 }
+
+/** Saved-state only: the real actor identity and game history remain in existing stores. */
+private val islandTeamInboxSaver = Saver<IslandTeamInbox, String>(
+    save = { it.toJson() },
+    restore = { IslandTeamInbox.fromJson(it) },
+)
