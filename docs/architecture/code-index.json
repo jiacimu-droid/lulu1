@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:10:18.369401+00:00",
-  "commit": "5d78ae2fb6a84e0c27eb75cf4424b326390c9c26",
+  "generatedAt": "2026-10-29T18:11:34.310789+00:00",
+  "commit": "1ba755d6b6092c1387b2b79ad51fcabe00b2eddf",
   "branch": "main",
-  "sourceFingerprint": "16b717a980dcd36d13dd9e7c210c2fccc9ea2b5a09c7f3e8614ec888772b5e7e",
+  "sourceFingerprint": "efb2103e021627b9943d3a55aaa09c299535fe409762a31fbb3e9b25993bafb5",
   "summary": {
     "files": 1088,
-    "lines": 225814,
+    "lines": 225816,
     "symbols": 3199
   },
   "symbolIndex": {
@@ -1801,7 +1801,7 @@
     "send": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 207
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
@@ -1811,13 +1811,13 @@
     "angles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 449
+        "line": 450
       }
     ],
     "faceValues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 454
+        "line": 455
       }
     ],
     "Capture": [
@@ -19477,20 +19477,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 936,
-      "sha256": "754a0c8edb4106ef7b22f84aa282937b2c124711516482c08fd30c81a749c88a",
+      "lines": 937,
+      "sha256": "07e83961a0def23c5abce659f9da4887f099d7f847aaaf54c0db24cf5067aa41",
       "symbols": [
         {
           "name": "send",
-          "line": 207
+          "line": 208
         },
         {
           "name": "angles",
-          "line": 449
+          "line": 450
         },
         {
           "name": "faceValues",
-          "line": 454
+          "line": 455
         }
       ]
     },
@@ -19598,8 +19598,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 942,
-      "sha256": "f7950a33f3c5c5f2b6fb5e45e2c44374b0e08a6c6650e435992094551702d011",
+      "lines": 943,
+      "sha256": "2915d667163173cc74f90fdedfe1da26026f218bc720180fc2e419df9928f211",
       "symbols": [
         {
           "name": "toggleSelfCamera",
