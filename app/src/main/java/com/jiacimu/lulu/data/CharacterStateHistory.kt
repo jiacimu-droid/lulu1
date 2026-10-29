@@ -183,6 +183,12 @@ internal object CharacterStateHistory {
      * transition can be multiline and later diverge from a shared opening.
      * Explicit source text wins over any legacy display-only inference. */
     private fun sourceVoice(row: CharacterStateHistoryRow): String {
+        // A standalone structured "thought" is an impulse, NOT authored
+        // private narration. Legacy rows stored its text without a "想法："
+        // prefix; treating that as an inner voice creates a false heart voice
+        // and can wrongly deduplicate a real causal transition nearby.
+        if (row.deletionKind == "thought" && row.moment == null &&
+            row.authoredVoice.isBlank()) return ""
         val snapshotVoice = row.moment?.innerThought?.trim().orEmpty()
         val causalVoice = row.authoredVoice.trim()
         // Old presence snapshots may store only a prefix of the same source
@@ -370,6 +376,10 @@ internal object CharacterStateHistory {
         // execution reasons, uncertainties and audit results remain available
         // in their original causal/evidence records; they are not extra voices.
         val extras = mutableListOf<Pair<String, String>>()
+        if (row.deletionKind == "thought" && row.moment == null &&
+            row.authoredVoice.isBlank() && row.detail.isNotBlank()) {
+            extras += "想法" to row.detail.trim()
+        }
         var readingLegacyIdea = false
         for (line in lines) {
             val label = line.substringBefore('：')
