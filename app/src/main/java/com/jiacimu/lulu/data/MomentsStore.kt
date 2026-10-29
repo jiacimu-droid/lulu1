@@ -116,14 +116,19 @@ object MomentsStore {
             }
     }
 
-    fun markCharacterPostsSeen(characterId: String? = null) {
-        val remaining = if (characterId == null) emptySet() else {
-            val visibleIds = mutablePosts.value.filter {
-                it.authorCharacterId == characterId && MomentFriendAccess.canView(it, MomentFriendAccess.OWNER)
-            }.mapTo(hashSetOf()) { it.id }
-            prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterNot { it in visibleIds }.toSet()
+    /** Read only the posts and comments actually present in this rendered feed snapshot.
+     * A later reply on the same post cannot be swallowed by an earlier read callback. */
+    @Synchronized
+    fun markVisiblePostsSeen(observed: List<MomentPost>) {
+        val store = prefs ?: return
+        val current = store.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty()
+        val visible = observed.filter { MomentFriendAccess.canView(it, MomentFriendAccess.OWNER) }
+        val remaining = MomentOwnerUnread.markViewed(current, visible)
+        if (remaining != current) {
+            check(store.edit().putStringSet(KEY_UNREAD_CHARACTER_IDS, remaining).commit()) {
+                "Failed to persist the owner's Moments read receipt"
+            }
         }
-        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, remaining)?.apply()
         mutableUnreadCharacterPosts.value = remaining.size
     }
 
@@ -169,9 +174,8 @@ object MomentsStore {
             imageDescription = cleanDescription,
             imageUnderstandingStatus = initialImageStatus(cleanImage, cleanDescription),
         )
+        // mutate() commits the post and its unread activity in the same durable transaction.
         savePost(post)
-        if (MomentFriendAccess.canView(post, MomentFriendAccess.OWNER))
-            addUnreadCharacterPost(post.id)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
         // Do not spin up a separate paid social reaction for every friend.
@@ -783,7 +787,6 @@ object MomentsStore {
     fun delete(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
         mutate { current -> current.filterNot { it.id == postId } }
-        removeUnreadCharacterPost(postId)
         val characterIds = MigratedDomainStores.characters.settings.value.keys
         characterIds.forEach { characterId ->
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
@@ -936,28 +939,19 @@ object MomentsStore {
         }
     }.ifBlank { "[朋友圈图片]" }
 
-    private fun addUnreadCharacterPost(postId: String) {
-        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().toMutableSet()
-        current += postId
-        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
-        mutableUnreadCharacterPosts.value = current.size
-    }
-
-    private fun removeUnreadCharacterPost(postId: String) {
-        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().toMutableSet()
-        if (current.remove(postId)) prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
-        mutableUnreadCharacterPosts.value = current.size
-    }
-
+    @Synchronized
     private fun refreshUnreadCount() {
-        val existingIds = mutablePosts.value.asSequence()
-            .filter { it.authorType == MomentAuthorType.Character &&
-                MomentFriendAccess.canView(it, MomentFriendAccess.OWNER) }
-            .map(MomentPost::id)
-            .toSet()
-        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterTo(mutableSetOf()) { it in existingIds }
-        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
-        mutableUnreadCharacterPosts.value = current.size
+        val store = prefs ?: return
+        val current = store.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty()
+        val valid = MomentOwnerUnread.reconcile(current, mutablePosts.value) {
+            MomentFriendAccess.canView(it, MomentFriendAccess.OWNER)
+        }
+        if (valid != current) {
+            check(store.edit().putStringSet(KEY_UNREAD_CHARACTER_IDS, valid).commit()) {
+                "Failed to persist Moments unread migration"
+            }
+        }
+        mutableUnreadCharacterPosts.value = valid.size
     }
 
     @Synchronized private fun mutate(transform: (List<MomentPost>) -> List<MomentPost>) {
@@ -978,10 +972,22 @@ object MomentsStore {
         // were already told succeeded. Persist the entire updated authority
         // before publishing the new StateFlow, and surface write failure.
         val store = checkNotNull(prefs) { "MomentsStore must be initialized before a social action" }
-        check(store.edit().putString(KEY_POSTS, encode(next).toString()).commit()) {
-            "Failed to durably persist Moments before publishing the action"
+        val existingUnread = store.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty()
+        val unread = MomentOwnerUnread.afterMutation(
+            before = mutablePosts.value,
+            after = next,
+            current = existingUnread,
+        ) { post -> MomentFriendAccess.canView(post, MomentFriendAccess.OWNER) }
+        // Persist timeline truth and owner-facing unread receipt atomically.
+        // Publishing the StateFlows before commit could leave a lost red dot after restart.
+        check(store.edit()
+            .putString(KEY_POSTS, encode(next).toString())
+            .putStringSet(KEY_UNREAD_CHARACTER_IDS, unread)
+            .commit()) {
+            "Failed to durably persist Moments and unread activity before publishing"
         }
         mutablePosts.value = next
+        mutableUnreadCharacterPosts.value = unread.size
     }
 
     private fun encode(values: List<MomentPost>): JSONArray = JSONArray().apply {
