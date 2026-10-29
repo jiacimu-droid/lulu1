@@ -93,7 +93,7 @@ class BundledJiangDuImportTest {
         assertEquals(CharacterProfileSchema.xingHeIdentity,
             CharacterIdentityStore.identities.value["lulu"])
         val state = CharacterLifeStore.state("lulu")
-        assertEquals(4, state.getInt("xingHeProfileVersion"))
+        assertEquals(5, state.getInt("xingHeProfileVersion"))
         assertTrue(state.has("xingHeMigrationBackupV1"))
         assertFalse(state.has("jiangDuPresetVersion"))
         assertEquals("最好的闺蜜", state.getJSONObject("relationshipAgreements")
@@ -144,7 +144,7 @@ class BundledJiangDuImportTest {
                 displayName = "星禾", persona = CharacterProfileSchema.xingHeV2Persona))
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state("lulu")
-            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(5, upgraded.getInt("xingHeProfileVersion"))
             assertTrue(upgraded.has("xingHeV2UpgradeBackup"))
             assertTrue(upgraded.has("xingHeV3ExpressionBackup"))
             assertEquals("natural", upgraded.getJSONObject("expressionPreferences").getString("kaomoji"))
@@ -197,10 +197,60 @@ class BundledJiangDuImportTest {
             assertEquals("用户自己重写的朋友约定",
                 upgraded.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
             assertEquals("", upgraded.getJSONObject("profile").getString("perception"))
-            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(5, upgraded.getInt("xingHeProfileVersion"))
         } finally {
             save.invoke(CharacterLifeStore, "lulu", previousState)
             MigratedDomainStores.characters.update(previousRole)
+        }
+    }
+
+    @Test fun v4WarmFriendshipUpgradePreservesCustomFieldsAndAllOtherCharacters() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val previous = JSONObject(CharacterLifeStore.state("lulu").toString())
+        val originalRole = MigratedDomainStores.characters.get("lulu")
+        val otherId = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val otherBefore = CharacterLifeStore.state(otherId).toString()
+        val otherPersona = MigratedDomainStores.characters.get(otherId).persona
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            val old = JSONObject(previous.toString())
+            val profile = old.getJSONObject("profile")
+            CharacterProfileSchema.xingHeV4ToneFields.forEach { (key, oldDefault) ->
+                profile.put(key, oldDefault)
+            }
+            profile.put("speechHabits", "我自定义的闺蜜口吻")
+            old.getJSONObject("relationshipAgreements").getJSONObject("user")
+                .put("details", CharacterProfileSchema.xingHeV4Friendship)
+            old.put("xingHeProfileVersion", 4).remove("xingHeV4WarmthBackup")
+            save.invoke(CharacterLifeStore, "lulu", old)
+            MigratedDomainStores.characters.update(originalRole.copy(
+                displayName = "星禾", persona = CharacterProfileSchema.xingHeV4Persona))
+            CharacterLifeStore.initialize(context)
+            val upgraded = CharacterLifeStore.state("lulu")
+            assertEquals(5, upgraded.getInt("xingHeProfileVersion"))
+            assertTrue(upgraded.has("xingHeV4WarmthBackup"))
+            assertEquals(CharacterProfileSchema.xingHePersona,
+                MigratedDomainStores.characters.get("lulu").persona)
+            assertEquals(CharacterProfileSchema.xingHeProfile.getValue("care"),
+                upgraded.getJSONObject("profile").getString("care"))
+            assertEquals(CharacterProfileSchema.xingHeProfile.getValue("conflict"),
+                upgraded.getJSONObject("profile").getString("conflict"))
+            assertEquals("我自定义的闺蜜口吻",
+                upgraded.getJSONObject("profile").getString("speechHabits"))
+            assertEquals(CharacterProfileSchema.xingHeFriendship,
+                upgraded.getJSONObject("relationshipAgreements").getJSONObject("user")
+                    .getString("details"))
+            assertEquals(otherBefore, CharacterLifeStore.state(otherId).toString())
+            assertEquals(otherPersona, MigratedDomainStores.characters.get(otherId).persona)
+            CharacterLifeStore.initialize(context)
+            assertEquals("我自定义的闺蜜口吻",
+                CharacterLifeStore.state("lulu").getJSONObject("profile").getString("speechHabits"))
+        } finally {
+            save.invoke(CharacterLifeStore, "lulu", previous)
+            MigratedDomainStores.characters.update(originalRole)
         }
     }
 
@@ -221,7 +271,7 @@ class BundledJiangDuImportTest {
             save.invoke(CharacterLifeStore, "lulu", prior)
             CharacterLifeStore.initialize(context)
             val migrated = CharacterLifeStore.state("lulu")
-            assertEquals(4, migrated.getInt("xingHeProfileVersion"))
+            assertEquals(5, migrated.getInt("xingHeProfileVersion"))
             assertEquals("expressive", migrated.getJSONObject("expressionPreferences").getString("kaomoji"))
             assertEquals("restrained", migrated.getJSONObject("expressionPreferences").getString("stickers"))
             assertEquals("星禾", MigratedDomainStores.characters.get("lulu").displayName)
@@ -264,7 +314,7 @@ class BundledJiangDuImportTest {
 
             CharacterLifeStore.initialize(context)
             val upgraded = CharacterLifeStore.state("lulu")
-            assertEquals(4, upgraded.getInt("xingHeProfileVersion"))
+            assertEquals(5, upgraded.getInt("xingHeProfileVersion"))
             assertEquals(CharacterProfileSchema.xingHePersona,
                 MigratedDomainStores.characters.get("lulu").persona)
             assertEquals(CharacterProfileSchema.xingHeProfile.getValue("care"),
