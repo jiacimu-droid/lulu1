@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T08:51:19.407413+00:00",
-  "commit": "191867bbf0ffe9396f650d0b6e858a084849443b",
+  "generatedAt": "2026-10-29T08:51:37.941338+00:00",
+  "commit": "9d9fc1beae96019cc51b660d42e03c9efb50a202",
   "branch": "main",
-  "sourceFingerprint": "63cdf76cb6fead947ddfa3a5b3f2627290b03ce29e0d48955ddb6001a08ddcd4",
+  "sourceFingerprint": "da1bda407e31f71eaeef867d51dbb6cc8fa4df061dcc09fc802c945201c7abe0",
   "summary": {
     "files": 1062,
-    "lines": 218325,
+    "lines": 218332,
     "symbols": 3118
   },
   "symbolIndex": {
@@ -5557,7 +5557,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 58
+        "line": 65
       }
     ],
     "latestPending": [
@@ -7385,7 +7385,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 45
+        "line": 52
       }
     ],
     "onResponse": [
@@ -33526,8 +33526,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-      "lines": 72,
-      "sha256": "8fe41d5c9cea6324c66923efbfcf6de2c610aa66d41be2c2fe9ae84a91bb62d9",
+      "lines": 79,
+      "sha256": "db4f57a7746b828a8c8d1227a4abd56911b6e86c38efc88661c9572767eb7676",
       "symbols": [
         {
           "name": "SleepCallContinuationPolicyTest",
@@ -33535,11 +33535,11 @@
         },
         {
           "name": "due",
-          "line": 45
+          "line": 52
         },
         {
           "name": "eligible",
-          "line": 58
+          "line": 65
         }
       ]
     },
