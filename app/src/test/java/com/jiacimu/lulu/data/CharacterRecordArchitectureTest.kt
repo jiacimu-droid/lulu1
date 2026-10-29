@@ -397,24 +397,24 @@ class CharacterRecordArchitectureTest {
         val firstEnding = "现在决定去水边吹吹风，等她回来再问一遍那个宝箱是怎么开的。"
         val secondEnding = "不过看到新消息突然想起昨天约好一起读书，决定先去看看书签。"
         val first = CharacterStateHistoryRow("voice-one", now, "发送消息",
-            "${opening}\\n${firstEnding}\\n想法：探索游戏",
+            "${opening}\n${firstEnding}\n想法：探索游戏",
             evidenceIds = listOf("message-one"))
         val later = CharacterStateHistoryRow("voice-two", now.plusSeconds(8 * 60),
-            "在数字世界活动", "${opening}\\n${secondEnding}\\n想法：想去读书",
+            "在数字世界活动", "${opening}\n${secondEnding}\n想法：想去读书",
             evidenceIds = listOf("world-two"))
         val rows = CharacterStateHistory.suppressRepeatedNarration(listOf(later, first))
         assertEquals(2, rows.size)
         val earlierVoice = CharacterStateHistory.display(rows.single { it.key == "voice-one" }).voice
         val newVoice = CharacterStateHistory.display(rows.single { it.key == "voice-two" }).voice
-        assertEquals("${opening}\\n${firstEnding}", earlierVoice)
-        assertEquals("${opening}\\n${secondEnding}", newVoice)
+        assertEquals("${opening}\n${firstEnding}", earlierVoice)
+        assertEquals("${opening}\n${secondEnding}", newVoice)
         assertNotEquals(earlierVoice, newVoice)
     }
 
     @Test fun multilineCausalTransitionsKeepOriginalAuthoredSpeechNotOtherFactLabels() {
         val opening = "同一场游戏今天有点意思，我想起她之前问过那个蓝宝石项链的事情。"
-        val initial = "${opening}\\n不过我现在还不知道玩法，所以应该先问问她。"
-        val revised = "${opening}\\n刚才看到书桌上的书，决定先继续阅读，不再追问游戏。"
+        val initial = "${opening}\n不过我现在还不知道玩法，所以应该先问问她。"
+        val revised = "${opening}\n刚才看到书桌上的书，决定先继续阅读，不再追问游戏。"
         listOf("source-transition-a" to now, "source-transition-b" to now.plusSeconds(8 * 60))
             .forEach { (id, at) ->
                 SharedExperienceTimeline.record(id, role, "本人真实观察", "角色",
@@ -437,7 +437,7 @@ class CharacterRecordArchitectureTest {
     }
 
     @Test fun multilineExactReusedVoiceIsOnlyShownOnceWithoutDroppingItsActions() {
-        val voice = "今天的古堡玩法比我想的有趣多了，原来这个游戏还可以和她一起玩。\\n我想先去水边走走，等她回来再分享新的发现。"
+        val voice = "今天的古堡玩法比我想的有趣多了，原来这个游戏还可以和她一起玩。\n我想先去水边走走，等她回来再分享新的发现。"
         val laterAt = now.plusSeconds(8 * 60)
         val first = CharacterStateHistoryRow("first-heart", now, "发送消息",
             voice, evidenceIds = listOf("chat-id"))
