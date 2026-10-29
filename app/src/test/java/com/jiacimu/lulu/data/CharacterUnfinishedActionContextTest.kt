@@ -406,6 +406,31 @@ class CharacterUnfinishedActionContextTest {
             listOf("tool-$role-$request")).size)
     }
 
+    @Test fun aRealPublishedMomentIsNeverReplayedForAnotherTurnWithTheSameRequestId() = runBlocking {
+        val otherSource = "different-chat-$role"
+        SharedExperienceTimeline.record(otherSource, role, "私聊", "主人",
+            "后来的另一轮话", now, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val request = "published-once-$role"
+        val args = JSONObject().put("text", "今天我确实想分享这段自己读过的材料。")
+        val before = MomentsStore.posts.value.count { it.authorCharacterId == role }
+        val first = JSONObject(ToolRouter.execute(context, role, "publish_moment",
+            args, requestId = request, causeEvidenceId = origin))
+        assertTrue(first.toString(), first.optBoolean("success"))
+        assertEquals(before + 1, MomentsStore.posts.value.count { it.authorCharacterId == role })
+        val second = JSONObject(ToolRouter.execute(context, role, "publish_moment",
+            args, requestId = request, causeEvidenceId = otherSource))
+        assertFalse(second.optBoolean("success"))
+        assertEquals("waiting_user", second.optString("status"))
+        assertEquals(before + 1, MomentsStore.posts.value.count { it.authorCharacterId == role })
+        assertEquals(first.toString(), ToolRouter.execute(context, role, "publish_moment",
+            args, requestId = request, causeEvidenceId = origin))
+        assertEquals(before + 1, MomentsStore.posts.value.count { it.authorCharacterId == role })
+        val receipt = SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).single()
+        assertEquals(origin, JSONObject(receipt.content).optString("causeEvidenceId"))
+    }
+
     @Test fun editedOrWithdrawnSourceCannotResumeUnfinishedRetrySafeRequest() = runBlocking {
         val request = "edited-running-$role"
         val execution = JSONObject().put("characterId", role).put("requestId", request)
