@@ -409,6 +409,9 @@ class CharacterRecordArchitectureTest {
             now.plusSeconds(90), mind, emptyList())
         assertEquals(1, rows.size)
         assertEquals(full, CharacterStateHistory.display(rows.single()).voice)
+        // Restoring the full voice must not promote its old short excerpt
+        // to another "想法" in the same card.
+        assertTrue(CharacterStateHistory.display(rows.single()).otherThoughts.isEmpty())
         assertTrue(rows.single().evidenceIds.contains(evidence))
     }
 
