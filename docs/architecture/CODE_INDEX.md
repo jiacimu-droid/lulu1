@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fb5cbf99208cf369cf3fce7389422241fed8eb52`
+- 基准提交：`191867bbf0ffe9396f650d0b6e858a084849443b`
 - 分支：`main`
 - 已索引文件：1062
-- 已索引代码/文本行：218317
-- 已发现符号：3117
+- 已索引代码/文本行：218325
+- 已发现符号：3118
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -195,7 +195,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 820 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2538 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2541 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -271,7 +271,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 483 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 61 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 66 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 60 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt` | 114 | 8 |
