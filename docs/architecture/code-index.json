@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:32:09.932937+00:00",
-  "commit": "13eba2899b2e0656168c6ee9f57b76f3f6650d40",
+  "generatedAt": "2026-10-29T15:33:15.781364+00:00",
+  "commit": "36a7f91d993b5fec2ef4526d708016af7ed51e3b",
   "branch": "main",
-  "sourceFingerprint": "e466b8d4075fcc71a408fddda35cafc1a355f21d906ac5b108c91489571f0ace",
+  "sourceFingerprint": "0fc9ece23c2915b617ac39cfec761446910d3deffec72bc14251619845e27058",
   "summary": {
-    "files": 1075,
-    "lines": 222433,
-    "symbols": 3155
+    "files": 1076,
+    "lines": 222526,
+    "symbols": 3158
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -984,6 +984,10 @@
         "line": 44
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+        "line": 38
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
         "line": 138
       }
@@ -1604,6 +1608,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
         "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+        "line": 73
       }
     ],
     "split": [
@@ -2664,6 +2672,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
         "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+        "line": 28
       }
     ],
     "setBlocked": [
@@ -30942,8 +30954,27 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
       "lines": 212,
-      "sha256": "534198f33ee00025448abae0a78806cea719a6aceefd006c1997e1a8b4eb1650",
+      "sha256": "6b23482db9b30bdb02826023775ec4a77b150d8a7c5afeab8d2ebdab65790f3a",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+      "lines": 93,
+      "sha256": "7f0781843848bc6f70f090388caea4343b98de1d5d346b089959b9606d7584b5",
+      "symbols": [
+        {
+          "name": "setEnabled",
+          "line": 28
+        },
+        {
+          "name": "enqueue",
+          "line": 38
+        },
+        {
+          "name": "close",
+          "line": 73
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
