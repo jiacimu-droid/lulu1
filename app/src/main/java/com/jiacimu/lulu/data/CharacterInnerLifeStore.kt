@@ -1525,6 +1525,12 @@ object CharacterInnerLifeStore {
         actionSignature: String = "",
         causalEvidenceId: String = "",
         attentionOffered: List<String> = emptyList(),
+        // Only the executor request ID, never the model's action prose, links
+        // a saved choice to its independent ToolRouter effects.
+        executionRequestId: String = "",
+        executionStepCount: Int = 0,
+        executionHasPrimary: Boolean = true,
+        executionState: String = "reported",
     ) {
         if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
         if (selectedAction == "silent" && reason.isBlank()) return
@@ -1561,6 +1567,10 @@ object CharacterInnerLifeStore {
             .put("motiveId", chosenMotiveId.take(80))
             .put("causalEvidenceId", causalEvidenceId.trim().take(220))
             .put("causalEvidenceRevision", sourceRevision)
+            .put("executionRequestId", executionRequestId.trim().take(180))
+            .put("executionStepCount", executionStepCount.coerceIn(0, 24))
+            .put("executionHasPrimary", executionHasPrimary)
+            .put("executionState", executionState)
             // These are IDs actually OFFERED by the common read-only working
             // set, not claims that the model understood or rejected each one.
             // Do not copy private topic text or create another attention store.
@@ -1573,6 +1583,48 @@ object CharacterInnerLifeStore {
             .put("outcome", outcome.take(230)))
         root.put("decisions", updated)
         save(characterId, root)
+    }
+
+    /** A model's chosen action is durably recorded BEFORE the executor starts.
+     * The later outcome only fills the same decision; it cannot rewrite the
+     * model's selection or claim a result for a newer source revision. A crash
+     * leaves the honest pending record and the ToolRouter request/receipt can
+     * be inspected independently. Cold-page completion uses the same archive,
+     * not a second decision store. */
+    @Synchronized fun completeDecision(
+        characterId: String, decisionId: String, executionRequestId: String,
+        outcome: String, succeeded: Boolean,
+    ): Boolean {
+        val store = prefs ?: return false
+        if (characterId.isBlank() || decisionId.isBlank() || executionRequestId.isBlank()) return false
+        val root = snapshot(characterId)
+        fun eligible(item: JSONObject): Boolean {
+            if (item.optString("id") != decisionId ||
+                item.optString("executionRequestId") != executionRequestId ||
+                item.optString("executionState") != "pending") return false
+            val cause = item.optString("causalEvidenceId")
+            if (cause.isBlank()) return true
+            val revision = item.optLong("causalEvidenceRevision", 0L)
+            return revision > 0L && SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(cause)).firstOrNull()?.revision == revision
+        }
+        fun completed(item: JSONObject) = item.put("executionState", "reported")
+            .put("outcome", outcome.take(230)).put("succeeded", succeeded)
+        val hot = root.optJSONArray("decisions") ?: JSONArray()
+        for (index in 0 until hot.length()) {
+            val item = hot.optJSONObject(index) ?: continue
+            if (!eligible(item)) continue
+            hot.put(index, completed(item))
+            root.put("decisions", hot)
+            save(characterId, root)
+            return true
+        }
+        val edit = store.edit()
+        if (!CharacterInnerHistoryArchive.revise(store, characterId, root,
+                "decisions", edit, ::eligible, ::completed)) return false
+        check(edit.commit()) { "历史决定的执行结果保存失败" }
+        revisionState.value += 1L
+        return true
     }
 
     /**
