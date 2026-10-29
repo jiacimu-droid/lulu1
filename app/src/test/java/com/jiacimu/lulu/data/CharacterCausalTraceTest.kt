@@ -146,6 +146,70 @@ class CharacterCausalTraceTest {
             .getString("$a:$runningId", "{}")!!).optString("status"))
     }
 
+    @Test fun exactRequestIdCannotBorrowAnotherSourceOrRevisionReceipt() {
+        val sourceId = "trace-attribution-original"
+        val otherSource = "trace-attribution-other"
+        val requestId = "trace-attribution-request"
+        val receiptId = "tool-$a-$requestId"
+        source(a, sourceId)
+        source(a, otherSource, "另一条独立消息")
+        CharacterInnerLifeStore.recordDecision(a, "trace-attribution-decision", "tool",
+            "针对第一条消息执行", "", null, "待核对", false, at,
+            causalEvidenceId = sourceId, executionRequestId = requestId)
+
+        // A matching request ID alone is not proof: this historical receipt
+        // belongs to a different message and must not complete the decision.
+        receipt(a, receiptId, otherSource, "web_search", "succeeded", true,
+            "另一条消息的真实搜索结果", requestId = requestId)
+        fun trace() = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)))
+        val foreign = trace()
+        assertTrue(foreign.any { it.title.contains("主动作 · 回执归属未证实") &&
+            it.detail.contains("另一条原始依据") && it.evidenceId == receiptId })
+        assertFalse(foreign.any { it.title.contains("主动作 · 行动回执") &&
+            it.title.contains("执行器确认成功") })
+
+        // Even the same source ID is insufficient after a version mismatch.
+        receipt(a, receiptId, sourceId, "web_search", "succeeded", true,
+            "旧版本结果", revision = 0L, requestId = requestId)
+        assertTrue(trace().any { it.title.contains("主动作 · 回执归属未证实") &&
+            it.detail.contains("原始依据版本") })
+        receipt(a, receiptId, sourceId, "web_search", "succeeded", true,
+            "真实对应结果", revision = 1L, requestId = requestId)
+        assertTrue(trace().any { it.title.contains("主动作 · 行动回执") &&
+            it.title.contains("执行器确认成功") })
+        assertFalse(CharacterCausalTrace.inspect(context, b, event(a, sourceId),
+            listOf(event(a, sourceId))).isNotEmpty())
+    }
+
+    @Test fun persistedResultWithoutTimelineReceiptMustMatchDecisionSource() {
+        val sourceId = "trace-persisted-source"
+        val otherSource = "trace-persisted-other"
+        val requestId = "trace-persisted-request"
+        source(a, sourceId)
+        source(a, otherSource)
+        CharacterInnerLifeStore.recordDecision(a, "trace-persisted-decision", "tool",
+            "等待原执行器结果", "", null, "尚无独立回执", false, at,
+            causalEvidenceId = sourceId, executionRequestId = requestId)
+        val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
+        val claim = JSONObject().put("characterId", a).put("requestId", requestId)
+            .put("status", "succeeded").put("startedAt", at.plusSeconds(2).toString())
+            .put("causeEvidenceId", otherSource).put("causeEvidenceRevision", 1L)
+            .put("result", JSONObject().put("success", true).toString())
+        assertTrue(prefs.edit().putString("$a:$requestId", claim.toString()).commit())
+        fun trace() = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)))
+        assertTrue(trace().any { it.title.contains("主动作 · 回执未找到") &&
+            it.detail.contains("归属未证实") && it.detail.contains("另一条原始依据") })
+        claim.put("causeEvidenceId", sourceId)
+        assertTrue(prefs.edit().putString("$a:$requestId", claim.toString()).commit())
+        assertTrue(trace().any { it.title.contains("主动作 · 回执未找到") &&
+            it.detail.contains("执行器保存了结果") && it.detail.contains("独立时间线回执缺失") })
+        // A read-only inspection never creates the missing receipt.
+        assertTrue(SharedExperienceTimeline.eventsByIds(a,
+            listOf("tool-$a-$requestId")).isEmpty())
+    }
+
     @Test fun rejectedRouterRequestKeepsActualSourceRevisionWithoutPretendingExecution() = runBlocking {
         source(a, "trace-denied-source")
         val response = ToolRouter.execute(context, a, "nonexistent_trace_capability", JSONObject(),
