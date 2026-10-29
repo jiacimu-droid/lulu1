@@ -44,3 +44,7 @@
 - **实现**：仍使用原 CharacterCuriosityRuntime questions/threads。已关闭的兴趣接收真实回执时只追加经过证据核验的步骤，不改 dropped/satisfied、结束理由、原问题与下一步；只有关闭之后由本人明确产生、以真实观察为来源的同 threadId 新 inquiry 才能重新探索。首次回执前结束的 pending question 在原 threads 留无步骤终态；撤回其来源只移除对应终态，不误删其他独立问题。重复 evidenceId 幂等，不新增 Store、模型轮次、定时器或公共 ToolRouter 改动。
 - **回归源码**：CharacterCuriosityRuntimeTest 新增「已探索→放下→晚到真实结果→保留终态及真实步骤→重放幂等→真实新问题恢复」「pending→满意→首个回执迟到仍满意」「撤回一个无步骤终态不删除其他终态」三组。测试写入源码不等于 JVM 已通过。
 - **main 提交**：[7a8aabb](https://github.com/jiacimu-droid/lulu1/commit/7a8aabbe27246a1714af29b8568dc93e6a650fc0)、[6d8653b](https://github.com/jiacimu-droid/lulu1/commit/6d8653b61a56cfd01c02c7cdd05734cef6521012)。原索引生成已自动触发；并发推送令本次 [索引 #40859572420](https://github.com/jiacimu-droid/lulu1/actions/runs/40859572420) 与 [APK #40859572497](https://github.com/jiacimu-droid/lulu1/actions/runs/40859572497) cancelled，不能算测试或 APK 通过；需核对包含这两个提交的后续 main CI。真机、强杀恢复与三次跨天唤醒仍未验。
+
+### 同轮追加：新问题出现后，旧回执也不能抢走新问题
+
+- 继续审查发现：仅凭「新 inquiry 的时间晚于 dropped/satisfied」就允许重开仍不够；同一 threadId 的旧工具回执可能恰好在新 inquiry 写入后返回，错误地借新问题解锁，并清掉新 pending 与失败反馈。修复提交 [199b45a](https://github.com/jiacimu-droid/lulu1/commit/199b45ae76560e1a3290a752540ca1e3678f2330)：重开必须同时满足本次动作明确引用新 inquiry 的 sourceEvidenceId、本人该观察仍存在且 revision 有效、观察时间晚于原关闭时间；不符合时真实结果仍归档但不消耗新问题或失败反馈。新增回归 [4f2d3b1](https://github.com/jiacimu-droid/lulu1/commit/4f2d3b1ac98eb49faeec0d6f8494689fb48cabec) 模拟「已放下→新问题保存→旧动作迟到→新问题仍待办→真正引用新来源的动作完成才重开」。此处只做事实/来源校验，不以程序推测本人语义；仍须等对应后续 CI/JVM/APK 和真机验收。
