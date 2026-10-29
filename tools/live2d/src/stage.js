@@ -863,6 +863,12 @@ function activatePendingSpeechMoment() {
 }
 function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segmentId = '') {
   if (phase === 'playing') {
+    // Playback callbacks cross two asynchronous Compose/WebView effects. A
+    // late start for an older turn or an already superseded segment must not
+    // rewind the current voice/gesture clock.
+    if (eventVisualSequence < Math.max(audioVisualSequence, scoreVisualSequence) ||
+        (eventVisualSequence === audioVisualSequence &&
+          segmentIndex < audioSegmentIndex)) return
     // Android sends a start only after this exact queued TTS fragment emits
     // actual audio. Never replay a visual choice from another voice turn.
     if (Number.isInteger(segmentIndex) && segmentIndex >= 0 && segmentIndex < 16 &&
@@ -900,10 +906,27 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
     return
   }
   if (phase !== 'finished' && phase !== 'interrupted') return
+  // A delayed end belongs only to the audible fragment it identifies.
+  // Otherwise it could stop the next sentence and clear its pending Motion3.
+  if (eventVisualSequence !== audioVisualSequence ||
+      segmentIndex !== audioSegmentIndex || segmentId !== audioSegmentId) return
+  const nextCueWaiting = scoreVisualSequence > 0 &&
+    scoreVisualSequence !== audioVisualSequence
   audioVisualSequence = 0
   audioSegmentIndex = 0
+  audioSegmentId = ''
   playing = false
   performanceRuntime.stopSpeech()
+  if (nextCueWaiting) {
+    // The old voice ended while the next character decision is waiting for
+    // its own first audible sample. Release old mouth only; preserve the
+    // newer score, selected motion/expression and their queued ownership.
+    mouth = 0
+    pcmAvailable = false
+    lastRealMouthSignalAt = 0
+    speechMouth.reset()
+    return
+  }
   const gate = phase === 'finished'
     ? mouthExpressionGate.finished() : mouthExpressionGate.interrupted()
   if (gate.reset && activeExpressionName) resetSpeechExpression()
@@ -1617,13 +1640,29 @@ function perform(cue, immediatePreview = false) {
     performanceRuntime.stopSpeech()
   pendingExpressionName = null
   pendingSpeechParts = null
+  const awaitingOwnVoice = !immediatePreview && scoreVisualSequence > 0 &&
+    scoreVisualSequence !== audioVisualSequence
   if (playing || immediatePreview) clearSpeechMoment()
   else pendingSpeechParts = { queuedAt: Date.now(), replace: true }
-  if (cue.motion) motion(cue.motion.group, cue.motion.index, immediatePreview)
-  if (cue.expression) expression(cue.expression, immediatePreview)
-  if (cue.head) head(cue.head, immediatePreview)
-  if (cue.body) body(cue.body, immediatePreview)
-  if (cue.face) face(cue.face, immediatePreview)
+  if (awaitingOwnVoice) {
+    // A new model decision can arrive before the previous utterance ends.
+    // Stage its top-level Motion3/face too, not just the scored beats: the
+    // old utterance's coarse 'playing' flag does not authorize this action.
+    pendingSpeechParts = { queuedAt: Date.now(), replace: true }
+    if (cue.motion) pendingSpeechParts.motion = cue.motion
+    if (cue.head) pendingSpeechParts.head = cue.head
+    if (cue.body) pendingSpeechParts.body = cue.body
+    if (cue.face) pendingSpeechParts.face = cue.face
+    if (cue.expression) pendingExpressionName = {
+      name: cue.expression, queuedAt: Date.now(),
+    }
+  } else {
+    if (cue.motion) motion(cue.motion.group, cue.motion.index, immediatePreview)
+    if (cue.expression) expression(cue.expression, immediatePreview)
+    if (cue.head) head(cue.head, immediatePreview)
+    if (cue.body) body(cue.body, immediatePreview)
+    if (cue.face) face(cue.face, immediatePreview)
+  }
   if (cue.beats) choreography(cue.beats, immediatePreview)
   return true
 }
