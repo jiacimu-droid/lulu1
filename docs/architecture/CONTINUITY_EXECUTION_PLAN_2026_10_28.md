@@ -415,5 +415,5 @@
 
 - [x] **源码根因**：`ToolRouter.execute` 的持久请求去重只校验 `requestId + tool/args fingerprint + motive/concern/experience`，没有校验当初真实的 `causeEvidenceId` 或计划 `expectedPlanDueAt`。跨入口迟到回包/重复 ID 即使带着另一条聊天输入或新改期时间，也可能恢复旧成功结果，误以为本次决定已执行；对于 `retrySafe` 的 `running` 请求，来源编辑/撤回后仍可能沿旧请求重新执行，违背当前版本事实。
 - [x] **统一执行层修复**：保留 ToolRouter 的唯一执行与幂等中心，不加收费模型调用。新请求将 `expectedPlanDueAt` 与原有已验证 `causeEvidenceId/causeEvidenceRevision` 一起持久保存；重放先比较当初请求的来源 ID、日程时间版本与原有参数/目标指纹，不一致返回 `waiting_user`，不重建旧回执也不执行新副作用。仅当原请求是 `running` 且工具声明 `retrySafe` 时，进一步要求原证据仍存在且 revision 未变；已完成的旧结果仍可在原请求身份下恢复，不因后来编辑/撤权/停用而改写历史。旧版未存新增时间版本字段的记录继续按旧身份回放，不能推断它具有新的精确日程版本证据。
-- [x] **根因级回归源码**：`CharacterUnfinishedActionContextTest` 新增同一工具/参数/请求 ID 被不同来源或无来源重放时拒绝、正确原来源可恢复一次历史回执；原来源修订/撤回后 `retrySafe running` 不执行；改期后的 `expectedPlanDueAt` 不得借用旧已完成结果，旧时刻仍可只读恢复。既有撤销权限后旧结果重放、退役工具历史、相同参数幂等回归继续保留。
+- [x] **根因级回归源码**：`CharacterUnfinishedActionContextTest` 新增同一工具/参数/请求 ID 被不同来源或无来源重放时拒绝、正确原来源可恢复一次历史回执；另以真实 publish_moment 验证已发布动态在另一输入重放时不会再次发布、旧请求仅恢复原回执；原来源修订/撤回后 `retrySafe running` 不执行；改期后的 `expectedPlanDueAt` 不得借用旧已完成结果，旧时刻仍可只读恢复。既有撤销权限后旧结果重放、退役工具历史、相同参数幂等回归继续保留。
 - [ ] **分层验收**：本轮新 main 的 Android JVM 全套、APK、原有 code-index workflow 与真机私聊/电话/居民跨入口重复请求、改期和进程中断分别核对；源码/测试提交不等于真机通过。历史记录未持久化来源字段的旧版请求无法补造精确来源；未知远端结果仍不得盲目重发。
