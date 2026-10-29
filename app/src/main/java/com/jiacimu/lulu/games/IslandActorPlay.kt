@@ -23,6 +23,8 @@ internal object IslandActorPlay {
         val w = s.world
         val a = w.friends.firstOrNull { it.id == id && it.hp > 0 } ?: return emptyList()
         val result = mutableListOf(IslandActorOption("none", "观察、交谈或保持安静", "none"))
+        if (id in s.companionTravel && !w.finished)
+            result += IslandActorOption("stop_travel", "停止自己正在执行的行程，不再继续前往原目标", "stop_travel")
         if (!canAct || w.finished) return result
         if (s.fruit > 0 && w.hp < 12 &&
             abs(a.x - w.x) + abs(a.y - w.y) <= 1)
@@ -85,7 +87,7 @@ internal object IslandActorPlay {
                 w.x == step.first && w.y == step.second) continue
             result += IslandActorOption(
                 "approach:${target.first}:${target.second}",
-                "主动前往(${target.first},${target.second})附近的${feature}（本次走一步）",
+                "主动前往(${target.first},${target.second})附近的${feature}（沿路线持续前往，到目标旁停下）",
                 "approach", target.first, target.second,
             )
         }
@@ -113,8 +115,9 @@ internal object IslandActorPlay {
     /** Null means stale, repeated or physically invalid; no action is invented. */
     fun apply(s: BlockIslandState, id: String, turn: Int, choice: IslandActorChoice): BlockIslandState? {
         val w = s.world
-        if (w.turns != turn || w.friends.none { it.id==id && it.hp>0 } ||
-            w.events.any { it.startsWith(eventPrefix(id,turn)) }) return null
+        if (w.turns != turn || w.finished || w.friends.none { it.id==id && it.hp>0 }) return null
+        if (choice.actionId == "stop_travel") return IslandTravel.cancel(s,id,choice.speech)
+        if (w.events.any { it.startsWith(eventPrefix(id,turn)) }) return null
         val a = options(s,id).firstOrNull { it.id==choice.actionId } ?: return null
         var next = w
         var fruit = s.fruit
@@ -186,7 +189,8 @@ internal object IslandActorPlay {
             ?.let { "；下一步想：${it.take(100)}" } ?: ""
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
-        return s.copy(world=next, fruit=fruit)
+        val applied = s.copy(world=next, fruit=fruit)
+        return applied.copy(companionTravel=IslandTravel.afterChoice(s,applied,id,a))
     }
 
     /** Keep the player's newer turn; only the same still-legal chosen operation is merged. */
@@ -217,6 +221,7 @@ internal object IslandActorPlay {
                 JSONObject().put("id", teammate.id)
                     .put("x", teammate.x).put("y", teammate.y).put("hp", teammate.hp)
             }))
+            .put("currentTravel",s.companionTravel[id]?.json() ?: JSONObject.NULL)
             .put("nearby",JSONArray(nearby))
             .put("recentEvents",JSONArray(w.events.takeLast(10)))
             .put("playerSpeech",heard)
@@ -231,7 +236,7 @@ internal object IslandActorPlay {
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
 像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。队友有危险时可以选择照顾、支援、救起倒地伙伴，也可以视局势选择先做其他事，不是强制保姆。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
-options 给出真实可选操作。approach 是你自己选择的远处目标，本轮只能沿合法路线走一格；想继续向那边探索，下轮你可以再次选择，并不强制跟随主人。
+options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不需每格重新选择，到达不代表已采集或攻击。currentTravel 是你已选择、正在执行的行程；none 仅交谈或观察并保留行程，stop_travel 可明确停止行程，且不占移动次数。没有行程时不会替你自动选目标。
 你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。
 只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。
 角色决定行动与说话，程序只检查真实执行与回执。你不是任务助手，不需要每步都解释或每次都讲话。""",

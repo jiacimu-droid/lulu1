@@ -17,6 +17,7 @@ internal data class BlockIslandState(
     val lastRestTurn: Int = -20,
     val fish: Int = 0,
     val lastFishTurn: Int = -20,
+    val companionTravel: Map<String, IslandTravelPlan> = emptyMap(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -25,6 +26,9 @@ internal data class BlockIslandState(
         .put("tools", JSONArray(tools.sorted()))
         .put("structures", JSONObject().apply {
             structures.forEach { (index, item) -> put(index.toString(), item) }
+        })
+        .put("companionTravel", JSONObject().apply {
+            companionTravel.forEach { (id,plan) -> put(id,plan.json()) }
         })
         .put("lastRestTurn", lastRestTurn)
         .put("fish", fish).put("lastFishTurn", lastFishTurn)
@@ -57,7 +61,8 @@ internal data class BlockIslandState(
             val fish = json.optInt("fish", 0)
             if (fruit < 0 || fish < 0) return@runCatching null
             BlockIslandState(world, fruit, tools, positions,
-                json.optInt("lastRestTurn", -20), fish, json.optInt("lastFishTurn", -20))
+                json.optInt("lastRestTurn", -20), fish, json.optInt("lastFishTurn", -20),
+                IslandTravel.restore(json.optJSONObject("companionTravel"),world))
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -115,7 +120,9 @@ internal object BlockIslandRules {
     fun BlockIslandState.withPartners(ids: List<String>): BlockIslandState {
         val old = world.friends.associateBy { it.id }
         val spawn = listOf(5 to 4, 6 to 4, 6 to 6, 5 to 6)
-        return copy(world = world.copy(friends = ids.distinct().filter(String::isNotBlank).take(3)
+        val participants = ids.distinct().filter(String::isNotBlank).take(3)
+        return copy(companionTravel=companionTravel.filterKeys { it in participants },
+            world = world.copy(friends = participants
             .mapIndexed { index, id ->
                 old[id] ?: ExpeditionFriend(id, spawn[index].first, spawn[index].second, mode = "follow")
             }))
@@ -323,6 +330,7 @@ internal object BlockIslandRules {
             events = (s.world.events + message).takeLast(150),
         ))
         result = companionTurn(result, autonomousIds)
+        result = IslandTravel.advance(result, autonomousIds)
         result = monstersTurn(result)
         result = respawnMonsters(result)
         result = replenishResources(result)

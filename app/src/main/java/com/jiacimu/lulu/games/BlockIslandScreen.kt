@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.LinearEasing
@@ -128,9 +129,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val nearTarget = world.adjacent(target.first, target.second)
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
 
+    val worldNotice = remember(world.notice,world.friends.map { it.id }) {
+        world.friends.fold(world.notice) { line,friend ->
+            val name=MigratedDomainStores.characters.get(friend.id).displayName
+            line.replace("队友[${friend.id}]",name).replace("行程[${friend.id}]",name)
+        }
+    }
+
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
-        notice = world.notice,
+        notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
             if (night) "☾ 夜晚" else "☀ 白天",
         scene = {
@@ -143,7 +151,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             if (game.playWithCharacter && world.friends.isNotEmpty() &&
                 world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
                 IslandCompanionPanel(island, navigateTo != null, autonomousCompanions,
-                    { autonomousCompanions = it }, ::save, { companionPing = it }, readIsland = { island })
+                    { enabled ->
+                        autonomousCompanions = enabled
+                        if (!enabled) save(IslandTravel.stopAll(island))
+                    }, ::save, { companionPing = it }, readIsland = { island })
             }
         },
         actions = {
@@ -205,7 +216,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
         }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
-            Text(world.notice, modifier = Modifier.fillMaxWidth().padding(11.dp),
+            Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -448,6 +459,10 @@ private fun BlockIslandCanvas(
     companionPing: Pair<Int, Int>? = null,
 ) {
     val w = island.world
+    val playerVisual = islandActorPosition(w.seed,"player",w.x,w.y)
+    val companionVisuals = w.friends.associate { friend ->
+        key(friend.id) { friend.id to islandActorPosition(w.seed,friend.id,friend.x,friend.y) }
+    }
     // Only the Canvas recomposes for breeze/water/fire; controls & saved state stay stable.
     val scenery = rememberInfiniteTransition(label = "island-weather")
     val phase by scenery.animateFloat(
@@ -491,10 +506,26 @@ private fun BlockIslandCanvas(
     ) {
         with(BlockIslandArt) {
             paint(
-                island = island, selected = target, companionPing = companionPing, left = left, top = top,
+                island = island, selected = target, companionPing = companionPing,
+                playerVisual = playerVisual, companionVisuals = companionVisuals, left = left, top = top,
                 cols = cols, rows = rows, night = night, phase = phase,
                 impact = impact, impactProgress = impactProgress,
             )
         }
     }
+}
+
+/** Interpolate real adjacent moves only. Scene resets and respawns snap, never fly across the map. */
+@Composable
+private fun islandActorPosition(seed: Int,id: String,x: Int,y: Int): Offset {
+    val target=Offset(x.toFloat(),y.toFloat())
+    val position=remember(seed,id) { Animatable(target,Offset.VectorConverter) }
+    val previous=remember(seed,id) { arrayOf(target) }
+    LaunchedEffect(seed,id,x,y) {
+        val distance=abs(previous[0].x-target.x)+abs(previous[0].y-target.y)
+        previous[0]=target
+        if(distance<=1f)position.animateTo(target,tween(145,easing=LinearEasing))
+        else position.snapTo(target)
+    }
+    return position.value
 }

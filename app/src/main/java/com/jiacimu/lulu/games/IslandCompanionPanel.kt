@@ -136,7 +136,7 @@ internal fun IslandCompanionPanel(
                     continue
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
-                if (!alreadyActed) {
+                if (!alreadyActed || choice.actionId == "stop_travel") {
                     val applied = IslandActorPlay.applyLive(latest, snapshot, id, choice)
                     if (applied == null) {
                         error = "局势已经改变，行动未执行；消息仍待送达"
@@ -189,6 +189,19 @@ internal fun IslandCompanionPanel(
                 }
                 TextButton(onClick={ expanded=!expanded },contentPadding=PaddingValues(4.dp)) {
                     Text(if(expanded)"收起" else "聊天",color=Color(0xFFBDE4D5),fontSize=11.sp)
+                }
+            }
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                island.world.friends.forEach { friend ->
+                    val name=MigratedDomainStores.characters.get(friend.id).displayName
+                    val travel=island.companionTravel[friend.id]
+                    AssistChip(onClick={currentPing((travel?.x ?: friend.x) to (travel?.y ?: friend.y))},
+                        label={ Text(name+" · "+friend.hp+"❤"+
+                            (travel?.let { " → (${it.x},${it.y})" } ?: ""),fontSize=11.sp) },
+                        colors=AssistChipDefaults.assistChipColors(containerColor=Color(0xFF254752),
+                            labelColor=Color(0xFFD7F6E5)),
+                        border=BorderStroke(1.dp,Color(0xFF46786E)))
                 }
             }
             if(expanded) Row(verticalAlignment=Alignment.CenterVertically) {

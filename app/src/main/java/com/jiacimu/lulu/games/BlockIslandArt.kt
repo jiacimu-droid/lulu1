@@ -36,6 +36,8 @@ internal object BlockIslandArt {
         island: BlockIslandState,
         selected: Pair<Int, Int>,
         companionPing: Pair<Int, Int>? = null,
+        playerVisual: Offset? = null,
+        companionVisuals: Map<String,Offset> = emptyMap(),
         left: Int,
         top: Int,
         cols: Int,
@@ -54,6 +56,8 @@ internal object BlockIslandArt {
             verticalInset + (y - top) * tile,
         )
         fun center(x: Int, y: Int) = origin(x, y) + Offset(tile * .5f, tile * .5f)
+        fun actorCenter(visual: Offset?,x: Int,y: Int): Offset = if(visual==null)center(x,y) else
+            Offset(horizontalInset+(visual.x-left+.5f)*tile,verticalInset+(visual.y-top+.5f)*tile)
         for (y in top until (top + rows).coerceAtMost(w.height)) {
             for (x in left until (left + cols).coerceAtMost(w.width)) {
                 val cell = w.cell(x, y)
@@ -110,12 +114,12 @@ internal object BlockIslandArt {
             .forEach { friend ->
                 val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
                 if (friend.hp > 0) drawPerson(
-                    center(friend.x, friend.y), tile,
+                    actorCenter(companionVisuals[friend.id],friend.x,friend.y), tile,
                     companionOutfits[look], companionHair[look], phase + look * .13f, false,
-                ) else drawFallen(center(friend.x, friend.y), tile)
+                ) else drawFallen(actorCenter(companionVisuals[friend.id],friend.x,friend.y), tile)
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
-            drawPerson(center(w.x, w.y), tile,
+            drawPerson(actorCenter(playerVisual,w.x,w.y), tile,
                 Color(0xFFEEA87C), Color(0xFF715047), phase, true)
         }
         // A teammate's actual selected destination, distinct from the player's yellow selection.
