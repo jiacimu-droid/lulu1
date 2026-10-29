@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
+import kotlinx.coroutines.channels.Channel
 
 /**
  * This is a game scene adapter, not a separate character identity or action store.
@@ -46,15 +47,38 @@ internal fun IslandCompanionPanel(
     val currentIsland by rememberUpdatedState(island)
     val currentSave by rememberUpdatedState(onSave)
     val members = island.world.friends.map { it.id }
+    val latestNavigating by rememberUpdatedState(navigating)
+    val latestSpeechIndex by rememberUpdatedState(speechIndex)
+    val latestSpoken by rememberUpdatedState(lastSpoken)
+    val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
     speaker.enabled = voice
 
+    // Real state changes only enqueue one signal. Fast manual movement does not cancel
+    // in-flight model requests or generate unlimited duplicate decisions.
     LaunchedEffect(island.world.seed, island.world.turns, navigating, autonomous, speechIndex, members) {
-        if (!autonomous || navigating || members.isEmpty()) return@LaunchedEffect
+        if (autonomous && !navigating && members.isNotEmpty()) signals.trySend(Unit)
+    }
+    LaunchedEffect(island.world.seed, autonomous, members) {
+        if (!autonomous || members.isEmpty()) return@LaunchedEffect
+        for (signal in signals) {
+        if (latestNavigating) continue
         val expectedTurn = currentIsland.world.turns
-        if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == speechIndex) return@LaunchedEffect
-        val heard = if (lastRequestedSpeech != speechIndex) lastSpoken else ""
+        val currentSpeech = latestSpeechIndex
+        if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == currentSpeech) continue
+        val heard = if (lastRequestedSpeech != currentSpeech) latestSpoken else ""
+        val allActed = members.all { id ->
+            currentIsland.world.events.any {
+                it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
+            }
+        }
+        // Reopening a previously completed turn does not pay for a redundant reply.
+        if (heard.isBlank() && allActed) {
+            lastRequestedTurn = expectedTurn
+            lastRequestedSpeech = currentSpeech
+            continue
+        }
         lastRequestedTurn = expectedTurn
-        lastRequestedSpeech = speechIndex
+        lastRequestedSpeech = currentSpeech
         error = ""
         thinking = true
         try {
@@ -101,6 +125,7 @@ internal fun IslandCompanionPanel(
             }
         } finally {
             thinking = false
+        }
         }
     }
 
