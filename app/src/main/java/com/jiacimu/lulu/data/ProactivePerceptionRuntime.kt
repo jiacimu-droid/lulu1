@@ -94,6 +94,7 @@ object ProactivePerceptionRuntime {
         val alternatives: org.json.JSONArray? = null,
         val onlineChoice: String = "",
         val onlineChoiceReason: String = "",
+        val onlineNextChecks: org.json.JSONArray? = null,
         val lifeSceneTitle: String = "",
         val lifeScene: String = "",
     )
@@ -789,6 +790,7 @@ object ProactivePerceptionRuntime {
                     appendLine("判断是否已经收到明确且可信的目标结果证据；如果没有，保留目标，选择等待新的信号、五分钟后有理由地再次复盘、改变行动方法，或暂停。")
                     appendLine("没有回复不能证明用户仍在睡、仍在生气或不喜欢你；也不能用同一句话连续刷屏强迫回应。")
                     appendLine("正在等待闹钟到期的目标有系统精确唤醒，不必为了证明还在乎而每几分钟空转。")
+                    appendLine("休眠前请检查未完成承诺是否已有真实后续闹钟或关联日程。没有的，onlineDecision.nextChecks=[{taskId:已有任务ID,at:本人选定的带时区偏移ISO时间,reason:本人的复查理由}]逐项安排静默复查。复查不会自动打电话，提醒送达也不等于目标完成。已经有闹钟的不用重复创建。")
                     appendLine("你不是被要求讨好用户，不能凭用户沉默认定她还在生气。")
                     appendLine("在线决定与本轮 action 是两种不同选择：")
                     appendLine("""onlineDecision={"choice":"continue|sleep","reason":"具体原因"}。""")
@@ -1041,6 +1043,7 @@ object ProactivePerceptionRuntime {
                     想再保持五分钟在线可选择 continue；之后仍会重新考虑，不是永久在线。
                     当已有可参考的愉悦度或唤醒度时，结合个人习惯和真实活动考虑它们：低唤醒度可以休眠但不代表一定疲倦，高唤醒度也可以主动休眠；数值不设硬阈值、不替你选。缺少数值就依据已有情绪、动机和事实自己判断。
                     暂时休息、觉得没必要继续在线、想留空间给对方，可选择 sleep。
+                    选择 sleep 之前必须交接未完成责任：有实际未来闹钟/已关联日程的责任不用重复安排；没有的在 onlineDecision 里附 nextChecks 数组，每项写 taskId、at(带时区偏移的ISO时间)、reason。下次复查时间由你本人选择，执行器核实登记成功。不要因为已经提醒她睡觉，就假定她已入睡。
                     你的同时行动由正常 action 决定，可以是发送消息或保持安静；不要重复道歉刷屏。
                     不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
                     动作完成不等于目标达成：给她发了道歉消息，不等于她已原谅；叫醒铃声响了，不等于她已醒。
@@ -1680,6 +1683,10 @@ object ProactivePerceptionRuntime {
                     "use_location", "use_home_item",
                 ) && recentlyFinishedSoloScene &&
                 recentAutonomousActions.takeLast(3).count { it == "DIGITAL_WORLD" } >= 2
+            val sleepHandoff = if (decision.onlineChoice == "sleep")
+                CompanionSleepHandoff.ensure(appContext, characterId,
+                    decision.onlineNextChecks, Instant.now())
+            else CompanionSleepHandoff.Result(true)
             val wantsMoreTime = OnlineContinuationPolicy.permits(
                 choice = decision.onlineChoice,
                 reason = decision.onlineChoiceReason,
@@ -1703,8 +1710,10 @@ object ProactivePerceptionRuntime {
                 when {
                     keptAwake -> "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
                     newerWindow -> "旧到期判断已被更新的在线状态取代"
+                    decision.onlineChoice == "sleep" && !sleepHandoff.ok ->
+                        "在线窗口到期：未交接责任，因此不能认定为主动休眠 · ${sleepHandoff.reason.take(120)}"
                     decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
-                        "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
+                        "自主决定休眠，后续责任已交接 · ${decision.onlineChoiceReason.take(90)}"
                     OnlineContinuationPolicy.contractIssue(decision.onlineChoice,
                         decision.onlineChoiceReason) != null ->
                         "运行窗口到期：在线决定契约未满足，补正未成功；不是角色主动休眠"
@@ -2813,6 +2822,7 @@ object ProactivePerceptionRuntime {
                 ?.trim()?.lowercase().orEmpty(),
             onlineChoiceReason = json.optJSONObject("onlineDecision")?.optString("reason")
                 ?.trim()?.take(220).orEmpty(),
+            onlineNextChecks = json.optJSONObject("onlineDecision")?.optJSONArray("nextChecks"),
             lifeSceneTitle = json.optString("lifeSceneTitle").trim().take(70),
             lifeScene = json.optString("lifeScene").trim().take(1_800),
         )
