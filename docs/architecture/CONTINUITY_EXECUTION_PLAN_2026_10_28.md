@@ -406,3 +406,6 @@
 - [x] **跨入口修复**：在原请求级互斥与能力级互斥内，先读取持久化请求、核验原工具/参数 fingerprint 与 motive/concern/experience 关联，再只读重放已完成结果及修复原 ToolResult 回执和必要感知唤醒；无结果的非 retrySafe running 保守报未知。仅新请求及 retrySafe 的未完成请求进入当前 capability/权限/日程门禁，权限撤回不能借旧 ID 执行新副作用。复用原 ToolRouter，无额外模型调用。
 - [x] **回归源码**：CharacterUnfinishedActionContextTest 覆盖设备读取已保存结果→自主权限撤回→两次跨入口重放且只补一个原回执；新请求仍拒绝；已退役日记历史重放而新请求不可执行；retrySafe running 在撤权后不可继续执行；同 ID 不同参数不被重放。真实设备权限变更、进程死亡及 Android 全套 JVM/APK 仍须单独验收。
 - [ ] **待验**：当前 main 的完整 CI、APK、真机重启和历史回执投影；已保存结果重放不等于证明远端未知结果成功。原请求若已损坏或旧版没有保存结果，仍需人工核实，不得盲目重发。
+
+
+- **前一轮 CI 失败及回归契约校正（2026-10-29）**：Lulu APK #40803125576 已完成且 failure（1885 项 JVM 测试中 1 项失败）。`CharacterCausalTraceTest.editedResultAndLegacyChoiceNeverBecomeVerifiedFollowUp` 原测试以同一个 tool-router ID 改写执行回执，再要求该回执继续存在，与原生结果修订后依赖回执撤回的事实生命周期不符。回归改为编辑原生搜索结果：验证旧 ToolRouter 回执被撤回、历史决定只读标旧版本、无版本选择不能冒充当前结果、删除后全部失效。旧失败不能视为通过，须以新 main CI 重新核实。

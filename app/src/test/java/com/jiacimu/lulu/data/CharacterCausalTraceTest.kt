@@ -350,30 +350,41 @@ class CharacterCausalTraceTest {
 
     @Test fun editedResultAndLegacyChoiceNeverBecomeVerifiedFollowUp() {
         source(a, "trace-revised-origin")
+        // A native result may be edited; its dependent executor receipt must
+        // then be withdrawn, never silently rewritten under the same request.
+        SharedExperienceTimeline.record("trace-revised-native", a, "网页搜索结果", "执行器",
+            "原来的搜索结果", at.plusSeconds(8), triggerExtraction = false,
+            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
         receipt(a, "trace-revised-result", "trace-revised-origin",
-            "web_search", "succeeded", true, "原来的搜索结果")
+            "web_search", "succeeded", true, "原来的搜索结果",
+            native = "trace-revised-native")
         CharacterInnerLifeStore.recordDecision(a, "trace-revised-choice",
             "publish_moment", "针对原来结果的选择", "", null,
             "未发布", false, now = at.plusSeconds(20),
-            causalEvidenceId = "trace-revised-result")
-        receipt(a, "trace-revised-result", "trace-revised-origin",
-            "web_search", "succeeded", true, "修改后的搜索结果")
+            causalEvidenceId = "trace-revised-native")
+        val oldReceipt = event(a, "trace-revised-result")
+        SharedExperienceTimeline.record("trace-revised-native", a, "网页搜索结果", "执行器",
+            "修改后的搜索结果", at.plusSeconds(8), triggerExtraction = false,
+            source = "web_search", evidenceKind = EventEvidenceKind.Observation)
+        assertTrue(SharedExperienceTimeline.eventsByIds(a,
+            listOf("trace-revised-result")).isEmpty())
+        assertTrue(CharacterCausalTrace.inspect(context, a, oldReceipt,
+            SharedExperienceTimeline.all(a), JSONObject()).isEmpty())
         val legacy = JSONObject().put("decisions", JSONArray().put(
             JSONObject().put("id", "trace-legacy-choice")
-                .put("causalEvidenceId", "trace-revised-result")
+                .put("causalEvidenceId", "trace-revised-native")
                 .put("selected", "publish_moment")
                 .put("reason", "旧记录没有时间和版本")))
+        val current = event(a, "trace-revised-native")
         val lines = CharacterCausalTrace.inspect(context, a,
-            event(a, "trace-revised-result"), SharedExperienceTimeline.all(a), legacy)
+            current, SharedExperienceTimeline.all(a), legacy)
         assertFalse(lines.any { it.title.contains("回执后的本人选择") })
-        assertTrue(lines.any { it.title.contains("后续关系未证实") &&
-            it.detail.contains("历史版本") })
-        assertTrue(lines.any { it.title.contains("后续关系未证实") &&
-            it.detail.contains("旧选择未记录依据版本") })
-        SharedExperienceTimeline.deleteEvent("trace-revised-result")
-        assertTrue(CharacterCausalTrace.inspect(context, a,
-            event(a, "trace-revised-result"), SharedExperienceTimeline.all(a),
-            legacy).isEmpty())
+        assertTrue(lines.any { it.title.contains("本人选择") &&
+            it.title.contains("历史版本") })
+        assertTrue(lines.any { it.title.contains("旧记录来源版本未证实") })
+        SharedExperienceTimeline.deleteEvent("trace-revised-native")
+        assertTrue(CharacterCausalTrace.inspect(context, a, current,
+            SharedExperienceTimeline.all(a), legacy).isEmpty())
     }
 
     @Test fun perceivedReceiptWithoutFollowUpIsNotMisreportedAsDeliberateSilence() {
