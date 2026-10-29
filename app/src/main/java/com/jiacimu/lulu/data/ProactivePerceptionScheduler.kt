@@ -631,6 +631,40 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /**
+     * Exceptional recovery only: an online expiry chose sleep but could not
+     * persist the role's required follow-up. Retry the SAME character decision
+     * once after a quiet delay, not an infinite five-minute paid loop.
+     * This is a system recovery wake, NOT a fabricated owner-selected deadline.
+     */
+    fun scheduleUnfinishedSleepHandoff(context: Context, characterId: String) {
+        if (characterId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences("lulu_sleep_handoff_recovery_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        val last = prefs.getLong("scheduled:$characterId", 0L)
+        // One extra decision opportunity per hour at most, even if the model
+        // or Android continues to reject the same malformed/offline plan.
+        if (last > 0L && now - last in 0L until (60L * 60_000L)) return
+        val task = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(2L, TimeUnit.MINUTES)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger",
+                    "休眠责任交接失败：仍有未完成的本人承诺缺少真实未来复查。读取原任务ID，" +
+                    "由本人重新选择实际下一步；如果想安静休息，可调用 go_offline 并在 nextChecks " +
+                    "填好每项尚未交接责任的复查时刻。不要重发原提醒或假定主人睡着。")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("preserveOffline", true)
+                .build())
+            .build()
+        if (!prefs.edit().putLong("scheduled:$characterId", now).commit()) return
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-sleep-handoff-recovery-$characterId", ExistingWorkPolicy.REPLACE, task)
+    }
+
     /** Every completed result-bearing search re-enters the ONE ordinary character
      * perception/decision loop, irrespective of whether it began in chat, call or solo life.
      * The durable ToolRouter event is the input; this job is only a wake-up.
