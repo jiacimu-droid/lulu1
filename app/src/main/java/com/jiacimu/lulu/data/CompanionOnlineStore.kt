@@ -395,6 +395,15 @@ object CompanionOnlineStore {
             return // Phone speech never enters the text reply queue.
         }
         val now = message.createdAt
+        // While the app is visible, an owner-written group bubble has ONE
+        // coordinator, not simultaneous independent online generators for
+        // every member. Calls and background deliveries keep their own paths.
+        val coordinatedGroupTurn = conversation.groupChat != null &&
+            message.sender == LuluChatMessage.Sender.User &&
+            UserInteractionPresenceStore.state.value.appVisible &&
+            conversation.groupChat.members.none {
+                CompanionPresenceStore.isInCall(it.characterId)
+            }
         if (message.sender == LuluChatMessage.Sender.User) {
             // Open the quiet window at the FIRST bubble even if the character is
             // still offline. Pressing the wake button later must reuse this
@@ -416,7 +425,7 @@ object CompanionOnlineStore {
                 recordActivity(conversation.characterId, now)
                 return
             }
-            appContext?.let { context ->
+            if (!coordinatedGroupTurn) appContext?.let { context ->
                 readers.distinct().filter(String::isNotBlank).forEach { reader ->
                     OnlineChatBatchStore.onUserBubble(context, reader, atMillis = now.toEpochMilli())
                 }
@@ -434,6 +443,11 @@ object CompanionOnlineStore {
                     now = now,
                 )
             }
+        }
+
+        if (coordinatedGroupTurn) {
+            com.jiacimu.lulu.GroupChatRoundCoordinator.schedule(conversation.id)
+            return
         }
 
         // Per-role message delivery already writes independent witnessed history.
