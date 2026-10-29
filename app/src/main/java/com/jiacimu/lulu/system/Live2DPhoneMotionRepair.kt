@@ -35,7 +35,10 @@ internal object Live2DPhoneMotionRepair {
         text: String, chosen: JSONObject?, history: String, userText: String,
         sceneContext: String, connection: ModelConnection, title: String,
     ): Live2DSpokenMotionContract.Resolution {
-        if (!Live2DVisualActionBus.isStageVisible(characterId, callId))
+        // Do not drop the opening turn merely because WebView/Cubism is still
+        // loading. The installed manifest already provides genuine Motion3 IDs.
+        if (!Live2DVisualActionBus.canPlanVideo(context, characterId, callId) &&
+            !Live2DVisualActionBus.isStageVisible(characterId, callId))
             return Live2DSpokenMotionContract.Resolution(chosen, emptyList(), false)
         val motions = Live2DAssets.controls(context, characterId).motions
         return Live2DSpokenMotionContract.resolve(text, chosen, motions) { errors ->
