@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:11:34.310789+00:00",
-  "commit": "1ba755d6b6092c1387b2b79ad51fcabe00b2eddf",
+  "generatedAt": "2026-10-29T18:13:33.045029+00:00",
+  "commit": "c02851028c48c9ce78e2ecc36f397bda15a2590a",
   "branch": "main",
-  "sourceFingerprint": "efb2103e021627b9943d3a55aaa09c299535fe409762a31fbb3e9b25993bafb5",
+  "sourceFingerprint": "56dfb9607fb4220fd7f1aa234fa8488cea97f14e2313c7ca328f2fc8500d8a32",
   "summary": {
-    "files": 1088,
-    "lines": 225816,
-    "symbols": 3199
+    "files": 1089,
+    "lines": 225909,
+    "symbols": 3200
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1630,6 +1630,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt",
         "line": 12
+      }
+    ],
+    "decode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
+        "line": 33
       }
     ],
     "genuinelyConnected": [
@@ -14410,12 +14420,6 @@
         "line": 8
       }
     ],
-    "decode": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-        "line": 33
-      }
-    ],
     "planningText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -19330,6 +19334,17 @@
         {
           "name": "split",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
+      "lines": 93,
+      "sha256": "7877b4dcd21680c06f088a4c1654deede6901fd47883847a1d18e32204eee207",
+      "symbols": [
+        {
+          "name": "decode",
+          "line": 22
         }
       ]
     },
