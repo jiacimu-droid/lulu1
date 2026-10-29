@@ -23,6 +23,23 @@ class SleepCallContinuationPolicyTest {
         assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(30 * 60_000L))
     }
 
+    @Test fun failedBedtimeNarrationWaitsAndDoesNotChangeDeadline() {
+        val deadline = 12_000L + SleepCallContinuationPolicy.AUTO_END_AT_MILLIS
+        assertEquals(2_000L,
+            SleepCallContinuationPolicy.nextPauseAfterFailureMillis(0L, consecutiveFailures = 0))
+        assertEquals(10_000L,
+            SleepCallContinuationPolicy.nextPauseAfterFailureMillis(0L, consecutiveFailures = 1))
+        assertEquals(20_000L,
+            SleepCallContinuationPolicy.nextPauseAfterFailureMillis(0L, story = true, consecutiveFailures = 2))
+        assertEquals(40_000L,
+            SleepCallContinuationPolicy.nextPauseAfterFailureMillis(0L, consecutiveFailures = 3))
+        assertEquals(90_000L,
+            SleepCallContinuationPolicy.nextPauseAfterFailureMillis(0L, consecutiveFailures = 20))
+        assertFalse(SleepCallContinuationPolicy.shouldEndAtDeadline(
+            deadline, 12_000L + 5 * 60_000L, true))
+        assertTrue(SleepCallContinuationPolicy.shouldEndAtDeadline(deadline, deadline, true))
+    }
+
     @Test fun bedtimeDeadlineIsAbsoluteEvenWithPlaybackOrHallucinatedSpeech() {
         val deadline = 10_000L + SleepCallContinuationPolicy.AUTO_END_AT_MILLIS
         fun due(now: Long, connected: Boolean = true, deadlineAt: Long? = deadline) =
