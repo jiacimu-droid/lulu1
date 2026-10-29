@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:02:22.993713+00:00",
-  "commit": "ad2630b499a2019dcded5833e35b701f7605315f",
+  "generatedAt": "2026-10-29T15:26:44.914723+00:00",
+  "commit": "117d67161923827ab125e25d3cd668b99571c3ae",
   "branch": "main",
-  "sourceFingerprint": "24ebcbc52b45e587576e2c3b221feb5da69de1b4356f112b598d8d33b135de98",
+  "sourceFingerprint": "3cb5ff83a22d09fd6d3c0f5115447a373860dfd9a7e57883e26f1f0387d54bb2",
   "summary": {
     "files": 1075,
-    "lines": 222259,
+    "lines": 222265,
     "symbols": 3155
   },
   "symbolIndex": {
@@ -17543,7 +17543,7 @@
     "IslandActorPlayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
-        "line": 5
+        "line": 12
       }
     ],
     "RelicEscapeRulesTest": [
@@ -37302,12 +37302,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
-      "lines": 61,
-      "sha256": "9d6a981e6ca21293a5ba67970af73204c1cbf92895bd9a9abf25710e7e0bd31a",
+      "lines": 67,
+      "sha256": "0df199987434a224b2e381b77c72e42e82ecceacd546495c6073ae1619dbe32d",
       "symbols": [
         {
           "name": "IslandActorPlayTest",
-          "line": 5
+          "line": 12
         }
       ]
     },
