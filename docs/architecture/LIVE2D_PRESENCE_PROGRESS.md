@@ -62,3 +62,11 @@
 
 - 首次 [#40869070191](https://github.com/jiacimu-droid/lulu1/actions/runs/40869070191) 的 JS 失败来自回归 VM 仍把 `setPaused` 留为旧 mock，未执行实际 stage 函数，错误地读到上一轮 `finalizedAudio=3101`；[6e2aee1](https://github.com/jiacimu-droid/lulu1/commit/6e2aee1d165192566d55bf3a405075b76242e662) 已改成真实函数。第二次 [#40869265166](https://github.com/jiacimu-droid/lulu1/actions/runs/40869265166) 的 JS 失败是 VM 缺少不相关的触摸取消依赖 `cancelTactileMotion`，不是生产触摸路径失败；[3b75a94](https://github.com/jiacimu-droid/lulu1/commit/3b75a945f059b27f847a583a0b572379b65a05eb) 仅补该依赖的 mock，真实 `setPaused` 与 `onPlaybackEvent` 均保持生产函数。
 - [Lulu APK #40869350440](https://github.com/jiacimu-droid/lulu1/actions/runs/40869350440) 对应 `3b75a94`：**Build bundled Live2D stage 已 completed/success**（包含实际 stage 生命周期新回归和打包）。核对时 Android JVM/assemblePhone 仍 pending，APK 收集与发布尚未通过；不得把 JS 成功冒充整包成功。真机仍未验。
+
+## 2026-10-29 20:43：隐藏阶段粗粒度语音状态复活待发动作（L1/L2）
+
+- **核对**：重读 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、10-28 清单、最新 main 和社交专项；v6605 的逐句 Motion/TTS、原生帧回压及模型校准已有，不重建。
+- **根因**：此前隐藏时虽清除 `scoredBeats` 和版本号，却留下 `pendingSpeechParts`/`pendingExpressionName`。恢复可见后旧粗 `update(speaking=true)` 可以绕过精确 TTS 终止门禁，激活已作废的 Motion3/表情；隐藏时 `perform` 也能重新排队。
+- **修复**：`tools/live2d/src/stage.js` 统一取消顶层待发动作与表情，隐藏时拒绝新 `perform`，`activatePendingSpeechMoment` 不消费暂停阶段队列；新一轮可见 TTS 首音仍可正常启动。不增加模型调用或状态中心。
+- **回归**：`tools/live2d/test/conversation-performance.mjs` 使用实际 stage VM 验证旧音频→新句排队→隐藏→粗状态迟到→重新显示→真正新句开声。仅修改本专项文件，现有索引生成器不扫描 `tools/live2d`，不手写 CODE_INDEX。
+- **验收边界**：本提交只是源码与回归，待 GitHub Actions 的 JS 测试、Android JVM、assemblePhone、APK 收集/发布核验；真机隐藏/恢复、低 FPS、触摸并发和音画同步未验。

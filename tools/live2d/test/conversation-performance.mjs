@@ -528,6 +528,44 @@ assert.equal(motions.length, beforeHidden + 1,
   'the next visible, actually audible turn may still start its own Motion3')
 bridge.onPlaybackEvent('interrupted', 0, 3202, 'fresh')
 
+// A hidden stage must discard queued top-level Motion3 and expression too.
+// A coarse speaking snapshot can arrive after the score has been cleared.
+bridge.perform({ visualSequence: 3300, beats: [
+  { segmentIndex: 0, segmentId: 'prior', atMs: 0, head: { roll: 3 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 3300, 'prior')
+bridge.perform({ visualSequence: 3301,
+  motion: { group: 'LuluWolf', index: 39 }, expression: 'star',
+  beats: [{ segmentIndex: 0, segmentId: 'queued', atMs: 0, head: { roll: -6 } }],
+})
+assert.equal(bridge.pendingSpeechParts.motion.index, 39)
+assert.equal(bridge.pendingExpressionName.name, 'star')
+const beforeHiddenQueue = motions.length
+bridge.setPaused(true)
+assert.equal(bridge.pendingSpeechParts, null, 'hidden stage drops queued Motion3')
+assert.equal(bridge.pendingExpressionName, null, 'hidden stage drops queued expression')
+assert.equal(bridge.performanceRuntime.state().remaining, 0)
+assert.equal(bridge.perform({ visualSequence: 3302,
+  motion: { group: 'LuluWolf', index: 40 } }), false,
+  'hidden stage must not accept new performance cues')
+bridge.onPlaybackEvent('playing', 0, 3302, 'hidden')
+bridge.update({ speaking: true, mouth: .3 })
+bridge.setPaused(false)
+bridge.update({ speaking: true, mouth: .3 })
+bridge.onPlaybackEvent('playing', 0, 3301, 'queued')
+assert.equal(motions.length, beforeHiddenQueue,
+  'late coarse speaking updates cannot resurrect discarded Motion3')
+assert.equal(bridge.pendingExpressionName, null)
+bridge.perform({ visualSequence: 3303,
+  motion: { group: 'LuluWolf', index: 41 },
+  beats: [{ segmentIndex: 0, segmentId: 'fresh', atMs: 0, head: { roll: 1 } }],
+})
+bridge.onPlaybackEvent('playing', 0, 3303, 'fresh')
+await Promise.resolve()
+assert.equal(motions.length, beforeHiddenQueue + 1,
+  'new visible turn starts on its own TTS event')
+bridge.onPlaybackEvent('interrupted', 0, 3303, 'fresh')
+
 // Once actual audio positions exist, wall time and a stalled HTTP stream do
 // not advance a future beat. No character-count timestamps are synthesized.
 const audioClock = createPerformanceRuntime({ now: () => clock })

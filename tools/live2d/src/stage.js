@@ -850,6 +850,8 @@ async function load(modelURL) {
 // Moment state is driven by the Android phone player's actual audible
 // events, not merely an LLM response or a pending TTS network request.
 function activatePendingSpeechMoment() {
+  // Coarse TTS snapshots can arrive while a hidden WebView is paused.
+  if (paused) return
   if (scoreVisualSequence > 0 && scoreVisualSequence !== audioVisualSequence) return
   if (!pendingExpressionName && !pendingSpeechParts) return
   const selected = pendingExpressionName?.name
@@ -1529,6 +1531,10 @@ function setPaused(value) {
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
+    // A score and its queued top-level Motion3/expression share one lease.
+    // Cancel both before late coarse speaking snapshots can activate them.
+    pendingSpeechParts = null
+    pendingExpressionName = null
     // Preserve the discarded turn's identity BEFORE clearing its state.
     // Otherwise the terminal guard always sees sequence 0 and a delayed
     // onStarted can revive a hidden/cancelled Motion3 after returning to video.
@@ -1667,7 +1673,8 @@ function choreography(beats, immediatePreview = false) {
 // One atomic character decision, including ordinary chat performances. A new
 // expression-only cue must also supersede an older, queued choreography.
 function perform(cue, immediatePreview = false) {
-  if (!model || !cue || typeof cue !== 'object') return false
+  // Hidden-stage decisions cannot be replayed later without fresh audio.
+  if (paused || !model || !cue || typeof cue !== 'object') return false
   performanceRuntime.clearScore()
   scoreVisualSequence = Number.isSafeInteger(cue.visualSequence) && cue.visualSequence > 0
     ? cue.visualSequence : 0
