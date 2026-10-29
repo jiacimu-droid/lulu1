@@ -152,6 +152,9 @@ class CharacterSocialNetworkTest {
             .contains("只属于甲的私人心理印象"))
         val trio = MigratedDomainStores.chat.createGroupConversation(
             "三人群", listOf(a,b,c), ownerIncluded = false)
+        assertEquals("", CharacterSocialRelationship.contextForGroup(listOf(a,b,c)))
+        MigratedDomainStores.chat.appendCharacterMessage(trio.id, "三人都能听到甲说", a)
+        MigratedDomainStores.chat.appendCharacterMessage(trio.id, "三人都能听到乙说", b)
         val visible = CharacterSocialRelationship.contextForGroup(listOf(a,b,c))
         assertTrue(visible.contains("共同群聊"))
         assertFalse(visible.contains("私下只告诉乙的秘密"))
