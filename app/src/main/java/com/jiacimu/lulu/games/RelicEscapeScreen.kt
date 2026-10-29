@@ -105,6 +105,37 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 }
             }
         },
+        movement = {
+            val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
+            GameDirectionalPad(accent = relicGold, enabled = active) { dx, dy ->
+                run?.hero?.let { action("move", it.x + dx, it.y + dy) }
+            }
+        },
+        quickActions = {
+            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
+                val hero = run.hero
+                val sx = selected.first
+                val sy = selected.second
+                val visible = run.visible(sx, sy)
+                val adjacent = RelicEscapeRules.distance(hero.x, hero.y, sx, sy) <= 1
+                val enemy = run.mobs.any { it.hp > 0 && it.x == sx && it.y == sy }
+                val chest = run.chests.any { !it.opened && it.x == sx && it.y == sy }
+                val moveStep = if (visible) RelicEscapeRules.path(run, hero.x, hero.y, sx, sy) else null
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    GameHudQuickAction("攻击", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && enemy,
+                        Modifier.weight(1f)) { action("attack", sx, sy) }
+                    GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && chest,
+                        Modifier.weight(1f)) { action("open", sx, sy) }
+                }
+                Spacer(Modifier.height(4.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    GameHudQuickAction("潜行", relicGreen, run.phase != RelicPhase.DOWNED && moveStep != null,
+                        Modifier.weight(1f)) { moveStep?.let { action("sneak", it.first, it.second) } }
+                    GameHudQuickAction("治疗", relicGreen, hero.kits > 0 && hero.hp < 10,
+                        Modifier.weight(1f)) { action("heal") }
+                }
+            }
+        },
         actions = {
             val quick = run?.let { relicQuickAction(it,selected) }
             Button(onClick = {
@@ -266,25 +297,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     Text(quick.hint, color = relicMuted, fontSize = 11.sp, lineHeight = 16.sp)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("更多操作", color = relicGold, fontWeight = FontWeight.Bold,
+                    Text("高级操作", color = relicGold, fontWeight = FontWeight.Bold,
                         fontSize = 13.sp, modifier = Modifier.weight(1f))
                     TextButton(onClick = { showAdvanced = !showAdvanced }) {
-                        Text(if (showAdvanced) "收起操作" else "方向 / 潜行 / 道具",
+                        Text(if (showAdvanced) "收起操作" else "战术 / 道具",
                             color = relicGold, fontSize = 12.sp)
                     }
                 }
                 if (showAdvanced) {
                 if(run.phase!=RelicPhase.DOWNED) {
-                    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                        Column(horizontalAlignment=Alignment.CenterHorizontally) {
-                            RelicControl("↑"){action("move",hero.x,hero.y-1)}
-                            Row(horizontalArrangement=Arrangement.spacedBy(2.dp)) {
-                                RelicControl("←"){action("move",hero.x-1,hero.y)}
-                                RelicControl("↓"){action("move",hero.x,hero.y+1)}
-                                RelicControl("→"){action("move",hero.x+1,hero.y)}
-                            }
-                        }
-                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Row(horizontalArrangement=Arrangement.spacedBy(5.dp)) {
                                 RelicCommand("向目标一步",Modifier.weight(1f),enabled=visible) {
                                     val step=RelicEscapeRules.path(run,hero.x,hero.y,sx,sy)
@@ -315,7 +337,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                     action("extract")
                                 }
                             }
-                        }
                     }
                 }
                 Text("遗迹战术",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
@@ -439,12 +460,6 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         Text(title,fontSize=10.sp,color=relicMuted)
         Text(detail,fontSize=14.sp,fontWeight=FontWeight.Bold,color=color)
     }
-}
-@Composable private fun RelicControl(text:String,onClick:()->Unit) {
-    FilledTonalButton(onClick=onClick,modifier=Modifier.size(40.dp),
-        shape=RoundedCornerShape(10.dp),contentPadding=PaddingValues(0.dp),
-        colors=ButtonDefaults.filledTonalButtonColors(containerColor=Color(0xFF435366),
-            contentColor=Color.White)){Text(text,fontSize=19.sp)}
 }
 @Composable private fun RelicCommand(text:String,modifier:Modifier=Modifier,enabled:Boolean=true,onClick:()->Unit) {
     Button(onClick=onClick,enabled=enabled,modifier=modifier.height(39.dp),
