@@ -689,7 +689,6 @@ object MomentsStore {
         val responder = MigratedDomainStores.characters.get(responderId)
         val repliedComment = userComment.replyToCommentId?.let { id -> post.comments.firstOrNull { it.id == id } }
         val postAuthorName = postAuthorName(post)
-        val directPrivateThread = userComment.replyToCharacterId == responderId
         val replyText = LuluAiServices.gateway.generate(
             characterId = responderId,
             facts = buildString {
@@ -751,20 +750,43 @@ object MomentsStore {
                 }
             }.getOrDefault("")
         }
-        if (replyText.isBlank() || !MomentFriendAccess.canView(post, responderId) ||
-            mutablePosts.value.none { it.id == postId }) return
+        commitUserCommentReply(postId, commentId, responderId, replyText)
+    }
+
+    /** Commit a generated reply only against a still-existing owner comment.
+     * The model can take seconds; deletion or another completed reply may win.
+     * No action evidence may be emitted for an uncommitted candidate.
+     */
+    internal fun commitUserCommentReply(
+        postId: String,
+        commentId: String,
+        responderId: String,
+        replyText: String,
+    ): MomentComment? {
+        if (replyText.isBlank()) return null
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
+        if (!MomentFriendAccess.canView(post, responderId)) return null
+        val userComment = post.comments.firstOrNull {
+            it.id == commentId && it.characterId == USER_COMMENTER_ID
+        } ?: return null
+        val directPrivateThread = userComment.replyToCharacterId == responderId
+        val responder = MigratedDomainStores.characters.settings.value[responderId] ?: return null
         val reply = MomentComment(
             characterId = responderId,
             content = replyText,
             replyToCommentId = commentId,
             replyToCharacterId = USER_COMMENTER_ID,
         )
+        var saved = false
         mutate { current ->
             current.map { item ->
-                if (item.id != postId || item.comments.any { it.characterId == responderId && it.replyToCommentId == commentId }) item
-                else item.copy(comments = item.comments + reply)
+                if (item.id != postId || !MomentFriendAccess.canView(item, responderId) ||
+                    userComment !in item.comments ||
+                    item.comments.any { it.characterId == responderId && it.replyToCommentId == commentId }) item
+                else item.copy(comments = item.comments + reply).also { saved = true }
             }
         }
+        if (!saved) return null
         if (directPrivateThread) {
             SharedExperienceTimeline.record(
                 eventId = "moment-comment-${reply.id}-$responderId",
@@ -779,9 +801,10 @@ object MomentsStore {
                 post = post,
                 comment = reply,
                 speakerName = responder.displayName,
-                timelineText = "【公开评论】回复了${UserProfileContext.displayLabel()}在${postAuthorName}朋友圈下的评论：${reply.content}",
+                timelineText = "【公开评论】回复了${UserProfileContext.displayLabel()}在${postAuthorName(post)}朋友圈下的评论：${reply.content}",
             )
         }
+        return reply
     }
 
     fun delete(postId: String) {

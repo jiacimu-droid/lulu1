@@ -53,6 +53,113 @@ class MomentConversationContinuationTest {
                 target?.let { put("replyToCommentId", it) }
             }, requestId = request))
 
+    @Test fun ownerPostReplyReminderSurvivesReloadReplayAndStaleAcknowledgement() = runBlocking {
+        val actor = role()
+        MomentsStore.markVisiblePostsSeen(MomentsStore.posts.value)
+        val original = MomentsStore.publishUser("主人真实发布的动态")!!.also { ownedPosts += it.id }
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        val stale = listOf(original)
+        val request = "owner-comment-${UUID.randomUUID()}"
+        val result = speak(actor, original.id, "我看到这里了", request = request)
+        assertTrue(result.toString(), result.optBoolean("success"))
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.markVisiblePostsSeen(stale)
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(MomentsStore, null)
+        MomentsStore.initialize(app)
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        assertEquals(1, live(original.id).comments.size)
+        MomentsStore.markVisiblePostsSeen(listOf(live(original.id)))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertEquals(result.toString(), speak(actor, original.id, "我看到这里了", request = request).toString())
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        val ownerComment = MomentsStore.addUserComment(original.id, "还有这一句")!!
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertTrue(speak(actor, original.id, "这一句我也看到了", ownerComment.id).optBoolean("success"))
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.delete(original.id)
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+    }
+
+    @Test fun directedToolReplyToOwnerOnCharacterPostReopensOnlyThatPostReminder() = runBlocking {
+        val actor = role()
+        val original = post(actor)
+        MomentsStore.markVisiblePostsSeen(MomentsStore.posts.value)
+        val userCommentId = UUID.randomUUID().toString()
+        // Restore an already-delivered owner comment through the existing
+        // schema, avoiding any paid automatic-reaction call in this regression.
+        val prefs = app.getSharedPreferences("lulu_moments", Context.MODE_PRIVATE)
+        val rows = org.json.JSONArray(prefs.getString("posts_v1", "[]"))
+        for (i in 0 until rows.length()) {
+            val row = rows.getJSONObject(i)
+            if (row.getString("id") == original.id) row.getJSONArray("comments").put(
+                JSONObject().put("id", userCommentId).put("characterId", "__user__")
+                    .put("content", "你说的是哪本书？")
+                    .put("createdAt", java.time.Instant.now().toString()))
+        }
+        assertTrue(prefs.edit().putString("posts_v1", rows.toString()).commit())
+        MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(MomentsStore, null)
+        MomentsStore.initialize(app)
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        val snapshot = listOf(live(original.id))
+        assertTrue(speak(actor, original.id, "是昨天读完的那本。", userCommentId).optBoolean("success"))
+        assertEquals("__user__", live(original.id).comments.last().replyToCharacterId)
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.markVisiblePostsSeen(snapshot)
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.markVisiblePostsSeen(listOf(live(original.id)))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+    }
+
+    @Test fun automaticReplyCommitRejectsDuplicateDeletedAndRevokedCandidatesWithoutGhostEvidence() {
+        val actor = role()
+        val original = MomentsStore.publishUser("主人原帖")!!.also { ownedPosts += it.id }
+        val parent = MomentsStore.addUserComment(original.id, "这是哪一段？")!!
+        MomentsStore.markVisiblePostsSeen(MomentsStore.posts.value)
+        val reply = MomentsStore.commitUserCommentReply(original.id, parent.id, actor, "是结尾那段。")!!
+        val evidence = "moment-public-comment-${reply.id}-$actor"
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(evidence)).isNotEmpty())
+        val events = SharedExperienceTimeline.all(actor)
+        assertEquals(1, MomentsStore.unreadCharacterPosts.value)
+        MomentsStore.markVisiblePostsSeen(listOf(live(original.id)))
+        assertNull(MomentsStore.commitUserCommentReply(original.id, parent.id, actor, "迟到的重复候选"))
+        assertEquals(events, SharedExperienceTimeline.all(actor))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertEquals(1, live(original.id).comments.count { it.replyToCommentId == parent.id })
+        val another = MomentsStore.addUserComment(original.id, "还有下一段吗？")!!
+        assertTrue(MomentFriendAccess.setFriends(actor, MomentFriendAccess.OWNER, false))
+        assertNull(MomentsStore.commitUserCommentReply(original.id, another.id, actor, "撤权后迟到"))
+        assertEquals(events, SharedExperienceTimeline.all(actor))
+        assertTrue(MomentFriendAccess.setFriends(actor, MomentFriendAccess.OWNER, true))
+        MomentsStore.delete(original.id)
+        val afterDeletion = SharedExperienceTimeline.all(actor)
+        assertNull(MomentsStore.commitUserCommentReply(original.id, parent.id, actor, "删除后迟到"))
+        assertEquals(afterDeletion, SharedExperienceTimeline.all(actor))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+    }
+
+    @Test fun ownerRemindersRespectFeedAccessAndProfileReadScope() = runBlocking {
+        val author = role()
+        val actor = role()
+        assertTrue(MomentFriendAccess.setFriends(author, actor, true))
+        val first = post(author)
+        val second = post(actor)
+        MomentsStore.markVisiblePostsSeen(listOf(live(first.id)))
+        assertEquals(setOf(second.id), app.getSharedPreferences("lulu_moments", Context.MODE_PRIVATE)
+            .getStringSet("unread_character_post_ids_v1", emptySet()))
+        MomentsStore.markVisiblePostsSeen(MomentsStore.posts.value)
+        assertTrue(speak(actor, first.id, "两位角色之间普通评论").optBoolean("success"))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertTrue(MomentFriendAccess.setFriends(author, MomentFriendAccess.OWNER, false))
+        val hidden = post(author)
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertTrue(speak(actor, hidden.id, "主人没有这个帖子的阅读权限").optBoolean("success"))
+        assertEquals(0, MomentsStore.unreadCharacterPosts.value)
+        assertTrue(live(hidden.id).comments.isNotEmpty())
+    }
+
     @Test fun realCommentReplyAndFollowUpRetainTargetsReceiptsUnreadAndReplayIdentity() = runBlocking {
         val author = role()
         val first = role()

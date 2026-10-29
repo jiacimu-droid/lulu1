@@ -115,3 +115,13 @@
 - 最新失败 [#40891469946](https://github.com/jiacimu-droid/lulu1/actions/runs/40891469946) 在 Live2D JS 阶段：touch-hit.mjs 执行真实 stage.motion()，新回执使用 scoreVisualSequence，但隔离VM没有该依赖，触发 ReferenceError。Android阶段未执行。用户本轮明确要求修bug，因此仅最小修该回归环境，不改并行任务的生产 Motion、视频邀请或通话网关。
 - 修复：隔离VM提供真实选定的 scoreVisualSequence，并收集真实 motion-started 回执，新增 sequence/group/index 核验；原 pending continue、完成重播、异步旧动作不杀新动作及触摸所有权断言全部保留。没有用删除回执或隐藏错误替代修复。
 - 本地 node tools/live2d/test/parameters.mjs 与 touch-hit.mjs 全部通过（含189接触案例及实际stage生命周期）；差异检查通过。仅tools测试与本专项记录，不改变索引生成器app/scripts/preview的集合，故无需重写索引。新提交Android JVM/APK及真机仍待对应既有CI/设备验证，不把JS通过冒充整包通过。
+
+
+## 2026-10-30 S4：真实评论回复提交与主人提醒闭环
+
+- **基线分类**：完整重读Library大纲、AGENTS与当前索引；统一人物契约、成长框架及10-28计划与上轮完整阅读版本逐字相同，核对其他三项专项进度。S1独立认识、S2真实邮箱、S3日程活动身份、S4定向回复均已有源码及自动回归基础；真机自然主动续聊、邀约成功/拒绝/改期及跨天互动仍待验。群体自然度为后续体验增强。7d2e3257索引#40839986477 success，APK#40839986524 cancelled，不重复本人在场候选。2a070525的APK#40888334511 success；b7609dad的#40891957115 cancelled，不将JS通过当整包通过。
+- **并发整合**：提交前发现另一窗口刚合入bacb55b/b4e7552的MomentOwnerUnread和MomentsScreen快照确认；已重新读取并保留其源码与comment稳定ID方案，撤掉本地同功能草稿，不覆盖或再造提醒逻辑。本轮只补真实Store/ToolRouter/重载的集成回归，并修下列实际提交断点。
+- **真实根因**：原replyToUserComment在模型完成后仍用旧post构造回复；mutate遇到已有同一回应就不保存，但之后仍无条件写新UUID的时间线“已回复”证据。模型等待期间父评论被账号清理删除时，也未核验父评论仍存在。由此原始证据可多出没有落帖的幽灵回复，或出现指向已删除评论的孤立回复。
+- **正式修复**：模型仍自主选择reply/silent，复用原模型轮次。将生成后的实际提交集中到原Store的commitUserCommentReply：重新读取当前原帖/主人评论/角色与权限，在现有mutate锁内再次验证原评论和同人同目标重复；仅真正保存评论才记录原公开或定向证据。原mutate继续原子保存评论与提醒；未提交候选不写证据、不新增红点、不唤醒其他角色。不改公共ToolRouter、模型网关、人物主循环或其他专项。
+- **根因回归**：原MomentConversationContinuationTest增加真实ToolRouter→主人帖评论→旧快照不能清除→Store重载保留提醒→已读后同request重放不再提醒→主人回复→角色接话→删除清理；角色原帖上直接回复主人；个人作者筛选、撤权不可见及角色间普通评论不骚扰主人。另直接覆盖生产自动回复提交边界：首次真实提交有证据，迟到重复不增加评论/证据/红点，撤权与原帖删除后迟到候选均不生成幽灵事件。无测试模型调用。
+- **验证边界**：已运行现有scripts/generate_code_index.py及差异检查，正式索引由原工作流生成。不把测试源码当JVM通过，须按本提交对应CI核对Android单测、assemblePhone、APK发布；当前执行环境无Android SDK/Gradle。真机提醒、后台/重启、多日自然交往与跨Store强杀仍未验。本轮只提交MomentsStore、原独立回归及本专项进度。
