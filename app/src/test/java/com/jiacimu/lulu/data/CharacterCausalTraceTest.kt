@@ -95,6 +95,56 @@ class CharacterCausalTraceTest {
         assertTrue(CharacterCausalTrace.inspect(context, b, event(a, "trace-a-source"), mixed, mind).isEmpty())
     }
 
+    @Test fun savedChoiceExposesExactPrimaryRejectionAndIndependentStepOutcomes() = runBlocking {
+        val sourceId = "trace-choice-before-executor"
+        val requestId = "trace-accepted-decision-1"
+        source(a, sourceId)
+        CharacterInnerLifeStore.recordDecision(a, "trace-choice-pending", "tool",
+            "先试一次，再做两件独立的事", "", null, "执行未确认", false, at,
+            causalEvidenceId = sourceId, executionRequestId = requestId,
+            executionStepCount = 2, executionState = "pending")
+        val initial = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            SharedExperienceTimeline.all(a))
+        assertTrue(initial.any { it.title.contains("执行总结未确认") })
+        assertEquals(3, initial.count { it.title.contains("回执未找到") })
+        ToolRouter.execute(context, a, "nonexistent_trace_capability", JSONObject(),
+            requestId = requestId, causeEvidenceId = sourceId)
+        val stepRequestId = "$requestId:step:0"
+        SharedExperienceTimeline.record("tool-$a-$stepRequestId", a,
+            "实际工具执行", "执行器",
+            JSONObject().put("characterId", a).put("requestId", stepRequestId)
+                .put("tool", "publish_moment").put("status", "succeeded")
+                .put("causeEvidenceId", sourceId).put("causeEvidenceRevision", 1L)
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "独立动态已发布").toString()).toString(),
+            at.plusSeconds(10), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        val runningId = "$requestId:step:1"
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$a:$runningId", JSONObject().put("characterId", a)
+                .put("requestId", runningId).put("status", "running").toString()).commit()
+        val mixed = SharedExperienceTimeline.all(a) + SharedExperienceTimeline.all(b)
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId), mixed)
+        assertTrue(lines.any { it.title.contains("本人选择对应的主动作") &&
+            it.title.contains("执行前被拒绝") })
+        assertTrue(lines.any { it.title.contains("本人选择对应的第1步") &&
+            it.detail.contains("独立动态已发布") })
+        assertTrue(lines.any { it.title.contains("第2步") &&
+            it.detail.contains("结果尚未确认") })
+        assertFalse(lines.any { it.title.contains("第2步") && it.title.contains("确认成功") })
+        assertTrue(CharacterInnerLifeStore.completeDecision(a, "trace-choice-pending",
+            requestId, "部分步骤已执行", false))
+        val after = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            SharedExperienceTimeline.all(a))
+        assertFalse(after.any { it.title.contains("执行总结未确认") })
+        assertTrue(after.any { it.detail.contains("部分步骤已执行") })
+        assertFalse(CharacterCausalTrace.inspect(context, b, event(a, sourceId), mixed).isNotEmpty())
+        // Inspecting evidence must not consume the pending second step.
+        assertEquals("running", JSONObject(context.getSharedPreferences(
+            "lulu_tool_executions", Context.MODE_PRIVATE)
+            .getString("$a:$runningId", "{}")!!).optString("status"))
+    }
+
     @Test fun rejectedRouterRequestKeepsActualSourceRevisionWithoutPretendingExecution() = runBlocking {
         source(a, "trace-denied-source")
         val response = ToolRouter.execute(context, a, "nonexistent_trace_capability", JSONObject(),
