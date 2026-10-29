@@ -942,12 +942,34 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
   // Otherwise it could stop the next sentence and clear its pending Motion3.
   if (eventVisualSequence !== audioVisualSequence ||
       segmentIndex !== audioSegmentIndex || segmentId !== audioSegmentId) return
+  if (paused) {
+    // The WebView may receive a real TTS finish while hidden. Retire the
+    // retained audible fragment without playing its cancelled expressions,
+    // and do not lower the newer score's interruption tombstone.
+    audioVisualSequence = 0
+    audioSegmentIndex = 0
+    audioSegmentId = ''
+    playing = false
+    mouth = 0
+    pcmAvailable = false
+    lastRealMouthSignalAt = 0
+    speechMouth.reset()
+    mouthExpressionGate.reset()
+    performanceRuntime.stopSpeech()
+    return
+  }
   const nextCueWaiting = scoreVisualSequence > 0 &&
     scoreVisualSequence !== audioVisualSequence
-  if (eventVisualSequence > 0) finalizedAudio = {
-    sequence: eventVisualSequence, segmentIndex,
-    interrupted: phase === 'interrupted',
-  }
+  // A delayed older finish must never replace the newer hidden/cancelled
+  // turn's terminal identity, even when it matches the old audible fragment.
+  if (eventVisualSequence > 0 &&
+      (!finalizedAudio || eventVisualSequence > finalizedAudio.sequence ||
+        (eventVisualSequence === finalizedAudio.sequence &&
+          !finalizedAudio.interrupted && segmentIndex >= finalizedAudio.segmentIndex)))
+    finalizedAudio = {
+      sequence: eventVisualSequence, segmentIndex,
+      interrupted: phase === 'interrupted',
+    }
   audioVisualSequence = 0
   audioSegmentIndex = 0
   audioSegmentId = ''
@@ -996,6 +1018,15 @@ function audioPosition(sequence, segmentIndex, segmentId, elapsedMs) {
   return performanceRuntime.audioPosition(elapsedMs)
 }
 function update(next) {
+  if (paused) {
+    // Compose snapshots may arrive while rendering is suspended. They are
+    // not evidence of a new audible fragment or permission to reopen lips.
+    listening = !!next.listening
+    thinking = !!next.thinking
+    mouth = 0
+    pcmAvailable = false
+    return
+  }
   const wasPlaying = playing
   // Versioned TTS onStarted/onFinished owns the mouth's speaking lease.
   // Compose's coarse snapshot may be delivered before start, after finish,
@@ -1552,26 +1583,36 @@ function setPaused(value) {
     // Otherwise the terminal guard always sees sequence 0 and a delayed
     // onStarted can revive a hidden/cancelled Motion3 after returning to video.
     const discardedSequence = Math.max(scoreVisualSequence, audioVisualSequence)
+    // Keep only the identity of audio that was actually playing. Its real
+    // finished/interrupted callback must still be able to close the speaking
+    // lease while the stage is hidden; queued scores are discarded.
+    const audibleVersioned = playing && audioVisualSequence > 0
     scoredBeats = []
     scoreVisualSequence = 0
-    audioVisualSequence = 0
-    audioSegmentIndex = 0
-    audioSegmentId = ''
+    if (!audibleVersioned) {
+      audioVisualSequence = 0
+      audioSegmentIndex = 0
+      audioSegmentId = ''
+      playing = false
+    }
+    mouth = 0
+    pcmAvailable = false
+    lastRealMouthSignalAt = 0
+    speechMouth.reset()
     if (discardedSequence > 0 &&
         (!finalizedAudio || discardedSequence >= finalizedAudio.sequence))
       finalizedAudio = { sequence: discardedSequence, segmentIndex: 0, interrupted: true }
     clearSpeechMoment()
+    mouthExpressionGate.reset()
     touchReflex = null
     cancelTactileMotion()
     wolfImpactPresentation.reset(model)
     activeTouchExpression = null
     tactileContact = null
     clearTouchCompanion()
-  } else if (playing) {
-    // Audio may have kept running while the renderer was hidden; resume
-    // present-time mouth animation without resurrecting skipped gestures.
-    performanceRuntime.startSpeech()
   }
+  // If a versioned fragment is still audible, its PCM mouth may continue
+  // after visibility returns; the discarded choreography never restarts.
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
 }
 function resetSpeechExpression() {
