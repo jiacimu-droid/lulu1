@@ -3,6 +3,9 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.data.CharacterMessageFavorites
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.LuluChatStore
+import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UserProfileContext
@@ -116,6 +119,66 @@ internal fun currentReplyTargetUserMessages(messages: List<LuluChatMessage>): Li
     return messages.drop(lastCharacterIndex + 1).filter { it.sender == LuluChatMessage.Sender.User }
 }
 
+/** A model reply is bound to the actual user messages and their timeline revisions.
+ * This is a read-only watermark, not a second conversation state store.
+ * A correction, deletion, newer user turn, or membership change invalidates
+ * the OLD generated reply without cancelling the newer turn's own work. */
+internal data class ReplySourceWatermark(
+    val conversationId: String,
+    val characterId: String,
+    val sourceRevisions: Map<String, Long>,
+    val sourceContents: Map<String, String>,
+    val latestUserMessageId: String?,
+)
+
+internal fun captureReplySourceWatermark(
+    conversationId: String,
+    characterId: String,
+    userMessageIds: Set<String>,
+    store: LuluChatStore = MigratedDomainStores.chat,
+): ReplySourceWatermark? {
+    if (userMessageIds.isEmpty()) return null
+    val conversation = store.conversations.value.firstOrNull { it.id == conversationId } ?: return null
+    val group = conversation.groupChat
+    if (group == null && conversation.characterId != characterId) return null
+    if (group != null && group.members.none { it.characterId == characterId }) return null
+    val messages = store.messages(conversationId).value
+    val sources = mutableMapOf<String, String>()
+    for (id in userMessageIds) {
+        val message = messages.firstOrNull {
+            it.id == id && it.sender == LuluChatMessage.Sender.User &&
+                it.status == LuluChatMessage.Status.Sent
+        } ?: return null
+        sources[id] = message.content
+    }
+    val evidenceIds = userMessageIds.associateWith { id ->
+        if (group == null) id else "${id}:group:$characterId"
+    }
+    val events = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds.values)
+        .associateBy { it.id }
+    val revisions = mutableMapOf<String, Long>()
+    for ((id, evidenceId) in evidenceIds) {
+        val event = events[evidenceId] ?: return null
+        if (event.source != "message" ||
+            event.evidenceKind != EventEvidenceKind.UserStatement ||
+            event.sessionId != conversationId || event.revision < 1L) return null
+        revisions[id] = event.revision
+    }
+    return ReplySourceWatermark(conversationId, characterId, revisions, sources,
+        messages.lastOrNull {
+            it.sender == LuluChatMessage.Sender.User &&
+                it.status == LuluChatMessage.Status.Sent
+        }?.id)
+}
+
+internal fun isReplySourceWatermarkCurrent(
+    watermark: ReplySourceWatermark,
+    store: LuluChatStore = MigratedDomainStores.chat,
+): Boolean = captureReplySourceWatermark(
+    watermark.conversationId, watermark.characterId,
+    watermark.sourceRevisions.keys, store,
+) == watermark
+
 private fun rolePacingSeed(characterId: String): Long = abs(characterId.hashCode().toLong())
 internal fun roleTypingLeadDelayMillis(characterId: String): Long = 900L + rolePacingSeed(characterId) % 1_100L
 private fun roleBubbleDelayMillis(characterId: String, bubble: String, index: Int): Long =
@@ -175,7 +238,13 @@ internal suspend fun appendRoleReplyWithPacing(
     presentation: CharacterReplyPresentation,
     actionableUserMessageIds: Set<String>? = null,
     interactionReceipt: String? = null,
+    sourceWatermark: ReplySourceWatermark? = null,
 ): String {
+    val watermark = sourceWatermark ?: if (!actionableUserMessageIds.isNullOrEmpty())
+        captureReplySourceWatermark(conversationId, characterId, actionableUserMessageIds)
+    else null
+    if (!actionableUserMessageIds.isNullOrEmpty() && watermark == null) return ""
+    if (watermark != null && !isReplySourceWatermarkCurrent(watermark)) return ""
     val plannedBubbles = characterOutgoingBubblePlan(presentation)
     val bubbles = plannedBubbles.map(CharacterOutgoingBubble::text)
     if (bubbles.isEmpty()) return ""
@@ -186,8 +255,13 @@ internal suspend fun appendRoleReplyWithPacing(
     val spoken = mutableListOf<LuluChatMessage>()
     val replyBatchId = UUID.randomUUID().toString()
     delay(roleTypingLeadDelayMillis(characterId))
+    var stale = false
     bubbles.forEachIndexed { index, bubble ->
-        if (!currentCoroutineContext().isActive) return@forEachIndexed
+        if (stale || !currentCoroutineContext().isActive) return@forEachIndexed
+        if (watermark != null && !isReplySourceWatermarkCurrent(watermark)) {
+            stale = true
+            return@forEachIndexed
+        }
         val visibleBubble = sanitizePersistedChatText(bubble)
         if (visibleBubble.isBlank()) return@forEachIndexed
         val sendVoiceNote = plannedBubbles[index].voiceNote && decodeQqChatImage(visibleBubble) == null
@@ -230,6 +304,10 @@ internal suspend fun appendRoleReplyWithPacing(
         }
         if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
     }
+    // A newer correction may arrive between paced bubbles. Already sent
+    // bubbles remain real history; do not claim the whole turn was delivered
+    // or run its deferred favorite/poke/side effects after the source changed.
+    if (stale || watermark != null && !isReplySourceWatermarkCurrent(watermark)) return ""
     if (spoken.size == bubbles.size) spoken.lastOrNull()?.let { last ->
         com.jiacimu.lulu.data.CharacterConversationAgency.delivered(characterId, interactionReceipt,
             last.id, spoken.joinToString("\n", transform = LuluChatMessage::content))
@@ -310,6 +388,11 @@ internal suspend fun runGroupReplies(
         val visibleAll = MigratedDomainStores.chat.messages(conversationId).value.filter { DigitalLifeProfileStore.allowsTimestamp(member.characterId, it.createdAt) }
         val recalledNow = recalledMessageIds(visibleAll)
         val latest = visibleAll.filterNot { it.id in recalledNow }
+        // Capture BEFORE the paid model request. Capturing only when sending
+        // would bless a reply generated against a now-edited user message.
+        val sourceWatermark = if (pendingUserIds.isEmpty()) null else
+            captureReplySourceWatermark(conversationId, member.characterId, pendingUserIds)
+                ?: run { onSpeakerChange(null); return }
         val historySource = if (index == 0) visibleAll.filterNot { it.id in pendingIds } else visibleAll
         val history = buildBoundedHistory(historySource, label, characterNames)
             .ifBlank { initialHistory.takeIf { !DigitalLifeProfileStore.isEnabled(member.characterId) }.orEmpty() }
@@ -359,6 +442,10 @@ internal suspend fun runGroupReplies(
                 userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         }
         if (!currentCoroutineContext().isActive) return
+        if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
+            onSpeakerChange(null)
+            return // The next user turn owns the correction; never send the old answer.
+        }
         val reply = result.getOrNull()
         if (reply == null) {
             onError("${character.displayName}回复失败：${result.exceptionOrNull()?.message ?: "未知错误"}")
@@ -372,10 +459,12 @@ internal suspend fun runGroupReplies(
                     CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser),
                     pendingUserIds,
                     interactionReceipt = reply.interactionReceipt,
+                    sourceWatermark = sourceWatermark,
                 )
                 if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) {
                     if (!phonePerformance && shown.isNotBlank() && reply.deferredActions != null &&
-                        currentCoroutineContext().isActive) {
+                        currentCoroutineContext().isActive &&
+                        (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
                         LuluDeviceToolBridge.executeDeferredReplyActions(
                             member.characterId, reply.deferredActions,
                             requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
