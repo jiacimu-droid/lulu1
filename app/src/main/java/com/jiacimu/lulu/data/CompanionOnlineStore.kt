@@ -286,7 +286,15 @@ object CompanionOnlineStore {
     }
 
     /** One real role-selected sleep action. Old expiry jobs see an obsolete lease. */
-    fun goOfflineByChoice(characterId: String, now: Instant = Instant.now()): Boolean {
+    fun goOfflineByChoice(characterId: String, now: Instant = Instant.now(),
+                          nextChecks: JSONArray? = null): Boolean {
+        val context = appContext ?: return false
+        val handoff = CompanionSleepHandoff.ensure(context, characterId, nextChecks, now)
+        if (!handoff.ok) {
+            CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                "自主休眠未执行：${handoff.reason}", now)
+            return false
+        }
         val wentOffline = synchronized(lock) {
             if (characterId.isBlank() || CompanionPresenceStore.isInCall(characterId))
                 return@synchronized false
@@ -800,4 +808,89 @@ object CompanionOnlineStore {
             }
         }
     }.getOrDefault(emptyMap())
+}
+
+/**
+ * A voluntary offline decision may release attention, never an accepted duty.
+ * Existing dated alarms and role-owned linked plans are already durable successors.
+ * An uncovered responsibility needs the SAME role decision to select its next
+ * check time. No keyword parser, default timer, or second promise ledger.
+ */
+internal object CompanionSleepHandoff {
+    data class Result(val ok: Boolean, val reason: String = "")
+
+    fun uncovered(context: Context, characterId: String, now: Instant): List<CommitmentTask> {
+        val linkedPlans = RoleDayScheduleStore.plans(context, characterId).asSequence()
+            .filter { it.status in setOf("planned", "due") }
+            .map { it.commitmentTaskId }.filter(String::isNotBlank).toSet()
+        return CommitmentTaskStore.active(characterId).filter { task ->
+            val alarmDue = task.nextCheckAt ?: task.dueAt
+            val existingAlarm = task.linkedAlarmId != null &&
+                alarmDue?.isAfter(now) == true &&
+                com.jiacimu.lulu.system.LuluAlarmSystem.list().any {
+                    it.id == task.linkedAlarmId && it.characterId == characterId &&
+                        it.commitmentTaskId == task.id
+                }
+            !existingAlarm && task.id !in linkedPlans
+        }
+    }
+
+    /** All-or-nothing scheduling. A failed alarm never becomes a fake next step. */
+    @Synchronized
+    fun ensure(context: Context, characterId: String, checks: JSONArray?,
+               now: Instant = Instant.now()): Result {
+        CommitmentTaskStore.initialize(context)
+        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
+        val outstanding = uncovered(context, characterId, now)
+        if (outstanding.isEmpty()) return Result(true)
+        if (checks == null) return Result(false,
+            "仍有${outstanding.size}项责任没有真正保存的后续时间；请先选定复查任务")
+        val selected = mutableMapOf<String, Pair<Instant, String>>()
+        for (i in 0 until checks.length()) {
+            val item = checks.optJSONObject(i)
+                ?: return Result(false, "后续复查步骤不是对象")
+            val id = item.optString("taskId").trim()
+            val at = runCatching { Instant.parse(item.optString("at").trim()) }.getOrNull()
+                ?: return Result(false, "后续复查缺少明确的ISO时间")
+            val reason = item.optString("reason").trim()
+            if (id.isBlank() || at <= now.plusSeconds(60) || reason.isBlank() ||
+                selected.putIfAbsent(id, at to reason) != null)
+                return Result(false, "后续复查的任务、时间或本人理由无效")
+        }
+        val needed = outstanding.map(CommitmentTask::id).toSet()
+        if (selected.keys != needed)
+            return Result(false, "须为所有未交接的责任选定下一次复查，不能略过或引用别人的任务")
+        val name = MigratedDomainStores.characters.get(characterId).displayName
+        val created = mutableListOf<com.jiacimu.lulu.system.LuluAlarm>()
+        for (task in outstanding) {
+            val (at, _) = selected.getValue(task.id)
+            val scheduled = com.jiacimu.lulu.system.LuluAlarmSystem.create(
+                characterId, name, at, "${task.goal.take(90)}（角色自主复查）",
+                silentCallback = true, commitmentTaskId = task.id,
+            ).getOrElse { error ->
+                created.forEach { com.jiacimu.lulu.system.LuluAlarmSystem.cancel(it.id) }
+                return Result(false, "复查闹钟未能持久保存：${error.message.orEmpty().take(110)}")
+            }
+            created += scheduled
+        }
+        outstanding.zip(created).forEach { (task, alarm) ->
+            val updated = CommitmentTaskStore.update(task.id) { old ->
+                if (old.revision != task.revision || !old.status.isActive()) old
+                else old.copy(
+                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    nextCheckAt = alarm.triggerAt,
+                    linkedAlarmId = alarm.id,
+                    followUpKind = "verification",
+                    lastActionResult = old.lastActionResult.take(200) +
+                        "；角色休眠前已选择下次复查${alarm.triggerAt}；目标尚未完成",
+                )
+            }
+            if (updated?.linkedAlarmId != alarm.id) {
+                com.jiacimu.lulu.system.LuluAlarmSystem.cancel(alarm.id)
+                // A concurrent cancellation is not permission to restore old promises.
+                return Result(false, "保存时原责任已改变，休眠交接未完成")
+            }
+        }
+        return Result(true, "未完成责任已有实际持久复查闹钟")
+    }
 }
