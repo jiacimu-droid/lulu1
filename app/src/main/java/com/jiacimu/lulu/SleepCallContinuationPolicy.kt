@@ -32,6 +32,14 @@ internal object SleepCallContinuationPolicy {
     fun shouldHoldTypedTurn(opening: Boolean, sleepMode: Boolean, audioPending: Boolean): Boolean =
         opening || (sleepMode && audioPending)
 
+    /** Bedtime autopulses and tool receipts are not new user requests.
+     * They cannot replace the armed 30-minute limit with an earlier hangup.
+     * A new user turn may still explicitly request a normal hangup. */
+    fun mayChangeHangupFromTurn(
+        sleepMode: Boolean, autonomousSleep: Boolean,
+        autonomousSilence: Boolean, wakeOpening: Boolean,
+    ): Boolean = !wakeOpening && !(sleepMode && (autonomousSleep || autonomousSilence))
+
     /** A verified microphone turn waits for bedtime narration instead of
      * resetting its active TTS queue. Ordinary chat retains barge-in. */
     fun shouldDeferUserWords(sleepMode: Boolean, audibleSpeech: Boolean, text: String): Boolean =
