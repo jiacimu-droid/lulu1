@@ -108,3 +108,10 @@
 - 实际源码、回归及进度提交 [e47eb179](https://github.com/jiacimu-droid/lulu1/commit/e47eb17977e38dd750a2b2e58cdb172503adfabd)；原索引 [#40879145428](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145428) completed/success。提交前逐文件比较最新 main，未发现并发同文件变化；未覆盖此前同步 commit 持久化修复。
 - 对应 [Lulu APK #40879145278](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145278) 最后核对 in_progress，新增撤回回归尚无执行完成证据，不能报告 JVM 或 APK 通过。上一轮 #40877079954 已 cancelled，不能算 APK 发布。
 - 本轮仅修改 MomentsStore 精确删除4行、独立评论回归及本专项进度；原索引生成器已运行并由既有工作流同步。原帖删除和评论者账号清理的强杀/重启、真实 UI 撤回与多年数据仍待真机；原帖保留时无关评论与证据不得受影响。下一轮先追本回归所在最新 completed CI，若失败先修原链，不重复创建社交中心。
+
+## 2026-10-29 用户 issue：最新 Live2D 回归 VM 缺少播放版本依赖
+
+- 上轮社交 2a070525 对应 [#40888334511](https://github.com/jiacimu-droid/lulu1/actions/runs/40888334511) 已 completed/success（JVM、phone、字节码核验及发布均成功），不是当前失败根因。
+- 最新失败 [#40891469946](https://github.com/jiacimu-droid/lulu1/actions/runs/40891469946) 在 Live2D JS 阶段：touch-hit.mjs 执行真实 stage.motion()，新回执使用 scoreVisualSequence，但隔离VM没有该依赖，触发 ReferenceError。Android阶段未执行。用户本轮明确要求修bug，因此仅最小修该回归环境，不改并行任务的生产 Motion、视频邀请或通话网关。
+- 修复：隔离VM提供真实选定的 scoreVisualSequence，并收集真实 motion-started 回执，新增 sequence/group/index 核验；原 pending continue、完成重播、异步旧动作不杀新动作及触摸所有权断言全部保留。没有用删除回执或隐藏错误替代修复。
+- 本地 node tools/live2d/test/parameters.mjs 与 touch-hit.mjs 全部通过（含189接触案例及实际stage生命周期）；差异检查通过。仅tools测试与本专项记录，不改变索引生成器app/scripts/preview的集合，故无需重写索引。新提交Android JVM/APK及真机仍待对应既有CI/设备验证，不把JS通过冒充整包通过。

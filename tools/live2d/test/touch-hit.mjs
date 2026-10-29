@@ -404,6 +404,7 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   const motionSource = source.slice(source.indexOf('function motion(group, index,'),
     source.indexOf("\ndocument.addEventListener('visibilitychange'"))
   const loads = []
+  const motionNotices = []
   let finished = false
   let stops = 0
   const manager = {
@@ -418,8 +419,10 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   }
   const ctx = {
     model: loadedModel, playing: true, pendingSpeechParts: null,
+    scoreVisualSequence: 4101,
     motionRevision: 0, authoredMotion: null,
-    motionTransition: { begin: () => {} }, notify: () => {},
+    motionTransition: { begin: () => {} },
+    notify: (kind, payload) => motionNotices.push({ kind, payload }),
   }
   vm.createContext(ctx)
   vm.runInContext(motionSource, ctx)
@@ -430,6 +433,10 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   loads[0].resolve(true)
   await new Promise(resolve => setImmediate(resolve))
   assert.equal(ctx.authoredMotion.started, true)
+  const startedReceipt = JSON.parse(motionNotices.find(n => n.kind === 'motion-started').payload)
+  assert.equal(startedReceipt.sequence, 4101, 'actual motion receipt retains the selected score identity')
+  assert.equal(startedReceipt.group, 'Gesture')
+  assert.equal(startedReceipt.index, 0)
   finished = true
   ctx.motion('Gesture', 0, true, 'character', { transition: 'continue' })
   assert.equal(loads.length, 2, 'completed clip must restart on next spoken part')
