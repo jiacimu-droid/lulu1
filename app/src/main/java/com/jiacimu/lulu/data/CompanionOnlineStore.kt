@@ -908,6 +908,7 @@ internal object CompanionSleepHandoff {
         }
         val committed = mutableListOf<Pair<CommitmentTask, com.jiacimu.lulu.system.LuluAlarm>>()
         outstanding.zip(created).forEach { (task, alarm) ->
+            val roleReason = selected.getValue(task.id).second
             val updated = CommitmentTaskStore.update(task.id) { old ->
                 if (old.revision != task.revision || !old.status.isActive()) old
                 else old.copy(
@@ -915,8 +916,9 @@ internal object CompanionSleepHandoff {
                     nextCheckAt = alarm.triggerAt,
                     linkedAlarmId = alarm.id,
                     followUpKind = "verification",
-                    lastActionResult = old.lastActionResult.take(200) +
-                        "；角色休眠前已选择下次复查${alarm.triggerAt}；目标尚未完成",
+                    lastActionResult = "上次执行：${old.lastActionResult.takeLast(85)}；" +
+                        "角色休眠前已实际安排${alarm.triggerAt}复查；" +
+                        "本人理由：${roleReason.take(100)}；目标仍未确认",
                 )
             }
             if (updated?.linkedAlarmId != alarm.id) {
