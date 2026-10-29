@@ -78,3 +78,7 @@
 - **实现**：仅在 `tools/live2d/src/stage.js` 增加最小的版本化语音所有权门禁：有明确 `visualSequence` 的表演由实际 onStarted/finished/interrupted 控制 `playing`，粗状态仅更新 PCM/倾听；完成、打断及隐藏后的迟到快照不再抢权。新显式无版本 cue/无版本 started 仍可恢复旧供应商的粗状态。真正换段时刷新开声时间，重复同段回调不重播。未改模型选择、人物主循环、Store、TTS API 或付费轮次。
 - **回归**：现有 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 新增首音前粗 true、播放中粗 false、结束/打断后粗 true、连续下一段开始时间以及显式 legacy cue 兼容断言。仅修改 `tools/live2d/` 和本专项进度；索引生成器覆盖 `app/scripts/preview`，本轮不改其集合，故不伪造索引。
 - **验证分层**：提交时源码与回归已落 main；CI 的 Live2D JS、Android JVM、assemblePhone、收集/发布须以对应 SHA 运行结果另行核验；真机 15/30FPS、音画首音差、模型切换与发热均未验。
+
+### 22:34 CI 静态契约同步
+
+- 本轮首个 [APK #40892527191](https://github.com/jiacimu-droid/lulu1/actions/runs/40892527191) 的真实 `conversation-performance.mjs` 已通过，但后续 `parameters.mjs` 仍断言旧源码必须包含 `if (playing) { activatePendingSpeechMoment() }`，与新增“只有同一片段重复回调才跳过开声”事实冲突，JS 阶段失败，Android 未执行。已同步旧静态断言到新的 `newAudioFragment` 门禁，并新增精确 TTS 所有权断言；未放宽动态回归。需以后续对应 SHA 的 CI 成功为准，真机仍待验。

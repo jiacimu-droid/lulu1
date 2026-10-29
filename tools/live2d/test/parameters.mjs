@@ -641,7 +641,10 @@ assert.ok(stage.includes('!eyePoseBusy'))
 assert.ok(stage.includes('eyeShapeLocked: eyesLocked'),
   'the real stage must transfer authored eye ownership to the final Cubism layer')
 assert.ok(stage.includes('voiceLevel: pcmAvailable ? mouth : null'))
-assert.ok(stage.includes('if (playing) {\n      activatePendingSpeechMoment()'))
+assert.ok(stage.includes('if (playing && !newAudioFragment) {\n      activatePendingSpeechMoment()'),
+  'only duplicate exact audio callbacks may skip a fresh mouth onset')
+assert.ok(stage.includes('if (!preciseSpeechOwnership) playing = !!next.speaking'),
+  'coarse speaking status must not overwrite an exact versioned TTS lease')
 assert.ok(stage.includes('mouthExpressionGate.finished()'))
 assert.ok(stage.includes('mouthExpressionGate.interrupted()'))
 assert.ok(stage.includes('setBodyState'))
