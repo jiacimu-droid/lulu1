@@ -23,7 +23,8 @@ import kotlin.coroutines.coroutineContext
 
 /** Event-driven scene adapter. No per-frame model calls, free-running paid timer or shadow identity. */
 @Composable
-internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorChoice) -> Boolean) {
+internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run },
+    onChoice: (String, IslandActorChoice) -> Boolean) {
     val context = LocalContext.current
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
     var voice by remember { mutableStateOf(prefs.getBoolean("voice",false)) }
@@ -34,7 +35,7 @@ internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorCh
     var heard by remember { mutableStateOf("") }
     var speechVersion by remember { mutableIntStateOf(0) }
     val mic = rememberGameSpeechInput { heard = it; speechVersion++ }
-    val latest by rememberUpdatedState(run)
+    val currentRun by rememberUpdatedState(readRun)
     val latestChoice by rememberUpdatedState(onChoice)
     val latestHeard by rememberUpdatedState(heard)
     val latestSpeech by rememberUpdatedState(speechVersion)
@@ -46,8 +47,8 @@ internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorCh
         var requestedTurn = -1
         var requestedSpeech = 0
         for (signal in signals) {
-            if (latest.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
-            val turn = latest.turns
+            if (currentRun().phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
+            val turn = currentRun().turns
             val version = latestSpeech
             if (requestedTurn == turn && requestedSpeech == version) continue
             val message = if (version != requestedSpeech) latestHeard else ""
@@ -57,7 +58,7 @@ internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorCh
             failure = ""
             try {
                 for (id in members) {
-                    val snapshot = latest
+                    val snapshot = currentRun()
                     if (snapshot.allies.none { it.id == id && it.hp > 0 }) continue
                     if (message.isBlank() && RelicActorPlay.acted(snapshot,id)) continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
@@ -68,10 +69,10 @@ internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorCh
                         failure = result.exceptionOrNull()?.message ?: "伙伴决定未完成"
                         continue
                     }
-                    if (latest.id != snapshot.id || latest.phase !in
+                    if (currentRun().id != snapshot.id || currentRun().phase !in
                         setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) break
-                    val alreadyActed = RelicActorPlay.acted(latest,id)
-                    if (RelicActorPlay.options(latest,id).none { it.id == choice.actionId }) {
+                    val alreadyActed = RelicActorPlay.acted(currentRun(),id)
+                    if (RelicActorPlay.options(currentRun(),id).none { it.id == choice.actionId }) {
                         failure = "局势已变化，伙伴选择的操作未执行"
                         continue
                     }
@@ -81,7 +82,7 @@ internal fun RelicCompanionPanel(run: RelicRun, onChoice: (String, IslandActorCh
                     }
                     val name = MigratedDomainStores.characters.get(id).displayName
                     line = name + "：" + choice.speech.ifBlank {
-                        latest.events.lastOrNull { it.who == id && it.action == "decision" }?.text.orEmpty()
+                        currentRun().events.lastOrNull { it.who == id && it.action == "decision" }?.text.orEmpty()
                     }
                     speaker.enqueue(id,choice.speech)
                 }

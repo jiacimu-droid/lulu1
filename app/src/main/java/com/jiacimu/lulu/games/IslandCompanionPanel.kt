@@ -38,6 +38,7 @@ internal fun IslandCompanionPanel(
     onAutonomousChange: (Boolean) -> Unit,
     onSave: (BlockIslandState) -> Unit,
     onPing: (Pair<Int, Int>) -> Unit,
+    readIsland: () -> BlockIslandState = { island },
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
@@ -65,7 +66,7 @@ internal fun IslandCompanionPanel(
         speechIndex += 1
     }
     val microphone = rememberGameSpeechInput { heard -> submitPlayerMessage(heard) }
-    val currentIsland by rememberUpdatedState(island)
+    val readCurrentIsland by rememberUpdatedState(readIsland)
     val currentSave by rememberUpdatedState(onSave)
     val currentPing by rememberUpdatedState(onPing)
     val members = island.world.friends.map { it.id }
@@ -84,12 +85,12 @@ internal fun IslandCompanionPanel(
         if (!autonomous || members.isEmpty()) return@LaunchedEffect
         for (signal in signals) {
         if (latestNavigating) continue
-        val expectedTurn = currentIsland.world.turns
+        val expectedTurn = readCurrentIsland().world.turns
         val currentSpeech = latestSpeechIndex
         if (lastRequestedTurn == expectedTurn && lastRequestedSpeech == currentSpeech) continue
         val unreadSnapshot = latestTeamInbox
         val allActed = members.all { id ->
-            currentIsland.world.events.any {
+            readCurrentIsland().world.events.any {
                 it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
             }
         }
@@ -104,9 +105,9 @@ internal fun IslandCompanionPanel(
         error = ""
         thinking = true
         try {
-            var workingState = currentIsland
+            var workingState = readCurrentIsland()
             for (id in members) {
-                val snapshot = currentIsland
+                val snapshot = readCurrentIsland()
                 if (snapshot.world.friends.none { it.id == id && it.hp > 0 }) continue
                 val heard = unreadSnapshot.forRole(id).joinToString("\n")
                 val alreadyCompleted = snapshot.world.events.any {
@@ -123,8 +124,8 @@ internal fun IslandCompanionPanel(
                     error = result.exceptionOrNull()?.message ?: "伙伴暂时无法作出决定"
                     continue
                 }
-                if (currentIsland.world.seed != snapshot.world.seed) break
-                val latest = currentIsland
+                if (readCurrentIsland().world.seed != snapshot.world.seed) break
+                val latest = readCurrentIsland()
                 val alreadyActed = latest.world.events.any {
                     it.startsWith(IslandActorPlay.eventPrefix(id, latest.world.turns))
                 }

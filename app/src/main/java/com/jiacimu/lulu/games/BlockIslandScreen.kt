@@ -143,7 +143,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             if (game.playWithCharacter && world.friends.isNotEmpty() &&
                 world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
                 IslandCompanionPanel(island, navigateTo != null, autonomousCompanions,
-                    { autonomousCompanions = it }, ::save, { companionPing = it })
+                    { autonomousCompanions = it }, ::save, { companionPing = it }, readIsland = { island })
             }
         },
         actions = {

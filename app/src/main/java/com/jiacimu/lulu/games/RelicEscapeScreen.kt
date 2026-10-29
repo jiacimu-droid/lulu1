@@ -98,7 +98,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         companion = {
             if (run != null && run.allies.isNotEmpty() && run.phase in
                 setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
-                RelicCompanionPanel(run) { id,choice ->
+                RelicCompanionPanel(run,readRun={snapshot.run ?: run}) { id,choice ->
                     var saved = false
                     change { ledger.companion(run.id,id,choice).also { saved = true } }
                     saved
