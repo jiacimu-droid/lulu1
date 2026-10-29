@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T08:26:25.893623+00:00",
-  "commit": "5431c09e1f1e59e441c8e6df9bc532f6580fd0fa",
+  "generatedAt": "2026-10-29T08:38:17.206287+00:00",
+  "commit": "cf22080abe990454fb2c83cd02a7471aad6c5ab0",
   "branch": "main",
-  "sourceFingerprint": "b3058eedd60d2a24c9f9ec70a50cbca519b8079aa68124a3414cd0f8e27e5df8",
+  "sourceFingerprint": "d74841be18798e4993f4ea9fa6e87915f72080380286354bcb57c29416fb2112",
   "summary": {
     "files": 1062,
-    "lines": 218156,
+    "lines": 218243,
     "symbols": 3116
   },
   "symbolIndex": {
@@ -5425,7 +5425,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 562
+        "line": 580
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -5693,13 +5693,13 @@
     "continuityEvidenceIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 136
+        "line": 154
       }
     ],
     "matches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 399
+        "line": 417
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -5709,7 +5709,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 456
+        "line": 474
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5719,7 +5719,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 527
+        "line": 545
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -6019,13 +6019,13 @@
     "informativeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 80
+        "line": 90
       }
     ],
     "returned": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 87
+        "line": 97
       }
     ],
     "guide": [
@@ -22657,8 +22657,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 639,
-      "sha256": "b2c65ab9462458b283678bef5eae0b3fe1790db1f6a777eaf08d86386623b1c8",
+      "lines": 657,
+      "sha256": "5c3d8cb231e24a0787f6a895f412966c3f6b0c83ca7ce85ba002bca1f1100791",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -22670,23 +22670,23 @@
         },
         {
           "name": "continuityEvidenceIds",
-          "line": 136
+          "line": 154
         },
         {
           "name": "matches",
-          "line": 399
+          "line": 417
         },
         {
           "name": "pendingDecisionCues",
-          "line": 456
+          "line": 474
         },
         {
           "name": "briefContext",
-          "line": 527
+          "line": 545
         },
         {
           "name": "promptSection",
-          "line": 562
+          "line": 580
         }
       ]
     },
@@ -22904,8 +22904,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-      "lines": 116,
-      "sha256": "0b08e8af468bc8c41fa5a8213b686c3a02d5aadedb63a65576da62c623c2cac6",
+      "lines": 126,
+      "sha256": "8cdc9753b0236ba821557a7faf66bca39732780929036973df7a6c7802842946",
       "symbols": [
         {
           "name": "context",
@@ -22925,11 +22925,11 @@
         },
         {
           "name": "informativeAction",
-          "line": 80
+          "line": 90
         },
         {
           "name": "returned",
-          "line": 87
+          "line": 97
         }
       ]
     },
@@ -34329,8 +34329,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 329,
-      "sha256": "4244acc49da4e20adf3714f877d1fbe3bdf43ca1ac51af3e171f7ce082e48c2a",
+      "lines": 388,
+      "sha256": "7735b6eccc409f1ec073d3fde1cbf7195d16471a90a5739296339c622f39403b",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
