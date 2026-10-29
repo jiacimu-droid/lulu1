@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:42:36.940038+00:00",
-  "commit": "612597feb738bec185fbd6cb18ca9c9537a43bd0",
+  "generatedAt": "2026-10-29T10:43:04.939881+00:00",
+  "commit": "26cc3ef4882adad38f39202e14ad18db1d72def4",
   "branch": "main",
-  "sourceFingerprint": "8b648d2c3042e2866e1eb9cf561ab7478a46fedec10ddd90f094839a6a45b16f",
+  "sourceFingerprint": "7ff2cd86bef76d0a67c4a39ca01201680aa2ba895f5bc897c5a57c690ad9f1a6",
   "summary": {
     "files": 1066,
-    "lines": 219130,
+    "lines": 219131,
     "symbols": 3130
   },
   "symbolIndex": {
@@ -36037,8 +36037,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt",
-      "lines": 110,
-      "sha256": "7d063fb67857cd4f12d4fec11a5ce63eb0aa248e30b224ef3f6ff9942f8fb0d7",
+      "lines": 111,
+      "sha256": "9c5e99ccd126524433ea11b5eb2a4d46fa929e305b66374c6bdc49bd2c0d1979",
       "symbols": [
         {
           "name": "PhoneModelTransportPolicyTest",
