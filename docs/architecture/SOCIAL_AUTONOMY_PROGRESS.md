@@ -1,5 +1,14 @@
 # 自主社交专项进度
 
+## 2026-10-29 S4：本人看见评论后能真正定向接话
+
+- **分类与基线**：7d2e3257 的索引 #40839986477 success、APK #40839986524 cancelled；本人在场候选修复在最新 main，不重做。S1/S2 有独立关系与邮箱回归历史证据，完整自然表现仍待真机；S3 已有约定活动身份门槛，762fd9c4 对应 APK #40868016796 现已 cancelled，不计验通；S4 已有动态、好友 ACL、本人手机红点与已读快照。多年群体自然表现为待验/可选增强，不重建状态中心。
+- **真实缺口**：CharacterPhoneInbox 只提供评论正文、没有 commentId；comment_moment 只收 postId/text，MomentsStore 对同一角色在一帖下已有顶层评论直接拒绝。已有的回复字段/UI/持久化只能由用户回复通道写入，角色与居民自己的正常决定无法准确回复另一条评论，也无法在首次评论后继续原话题。
+- **实际接线**：原手机上下文显示真实 commentId、作者与回复引用；原 comment_moment 允许可选 replyToCommentId，由同一帖子实际评论解析目标作者，不接受模型虚构目标身份。MomentsStore 沿原评论集合写入 replyToCommentId/replyToCharacterId，引用不存在或不属本帖则失败；不降级为顶层发言。本人明确的后续评论不再受“一人一帖一次”的固定限制，原显式呼唤自动反应的重复顶层保护保留。
+- **事实与执行**：原 CompanionActionRuntime 返回实际评论 evidenceId，经原 ToolRouter 请求 ID 幂等和回执恢复；不改 ToolRouter/主网关/统一人物存储。仅本人写入自己的评论行动事实，其他好友仍待原正常手机感知，第三人无权限不会看到。不增加自动回复循环、模型请求或唤醒全体好友。
+- **回归源码**：新增 MomentConversationContinuationTest，沿实际发布→手机评论 ID→ToolRouter 评论/回复→原请求重放→旧快照不吞新活动→本人再次接话→已有 Store 重载，另验跨帖/虚构目标、撤好友后拒绝、第三人不可见与后续顶层选择合法。角色间无需互为好友，只需对原帖有真实查看权限，保持现行“作者好友可看所有评论”契约。
+- **验证边界**：本机没有 Gradle/Android SDK，新增 JVM 尚待本提交原 CI 执行，不能按测试文件存在统计通过。旧 MomentsStore 的 apply 持久化与 ToolRouter 存在进程死亡间隙，本轮没有宣称跨 Store 原子事务；强杀恢复、真实模型愿意接话及多日自然社交仍需单独真机验收。最小跨文件接线限 CharacterPhoneInbox、MomentsStore、CompanionActionRuntime 及独立回归；其他专项文件不动。
+
 ## 2026-10-29 S3：约定活动不能被同一对象的另一件事冒充完成
 
 - 开工并提交前核对最新 main 与其他专项；本轮从上轮未推进的 S3 着手。已有日程会唤醒本人重新决定，ToolRouter 执行前调用 canBegin，真实成功回执再调用 completeFromReceipt；不新增人物循环、关系中心或模型调用。

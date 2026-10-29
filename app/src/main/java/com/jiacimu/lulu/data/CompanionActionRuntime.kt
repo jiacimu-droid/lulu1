@@ -130,7 +130,7 @@ internal object CompanionActionRuntime {
             appendLine("- create_group_chat，args={\"groupName\":\"自己取的群名\",\"memberIds\":[\"确认好友的角色ID\"]}：主动邀请真实好友组成自己的群聊，至少邀请一位。无需主人加入；仅在自己确实想组织共同讨论时选择，不能凭空拉陌生人。")
             appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
             appendLine("- like_moment，args={\"postId\":\"本轮手机可见的真实postId\"}：本人决定给好友真实动态点赞。")
-            appendLine("- comment_moment，args={\"postId\":\"真实postId\",\"text\":\"自己的评论\"}：向可见动态写真实评论，不限共同好友。")
+            appendLine("- comment_moment，args={\"postId\":\"真实postId\",\"text\":\"自己的评论\",\"replyToCommentId\":\"可选，本帖真实commentId\"}：评论原帖或接一条已看到的评论，不限共同好友；回复目标取原评论作者。")
             appendLine("- send_friend_request，args={\"targetCharacterId\":\"真实已认识的ID\",\"greeting\":\"自己的申请招呼\"}：申请加好友，对方未同意之前不会成为好友。")
             appendLine("- respond_friend_request，args={\"requestId\":\"本人收到的真实申请ID\",\"decision\":\"accept|decline\"}：决定是否同意好友申请，系统才生成QQ式好友确认消息。")
             appendLine("【角色手机】" + CharacterPhoneInbox.summary(characterId))
@@ -194,7 +194,7 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             CharacterPhoneInbox.initialize(context)
             appendLine("- like_moment，args={\"postId\":\"自己手机可见的真实帖子ID\"}：自主点赞。")
-            appendLine("- comment_moment，args={\"postId\":\"真实帖子ID\",\"text\":\"自己的评论\"}：自主评论。")
+            appendLine("- comment_moment，args={\"postId\":\"真实帖子ID\",\"text\":\"自己的评论\",\"replyToCommentId\":\"可选，本帖真实commentId\"}：自主评论或定向接话；省略replyToCommentId则评论原帖。")
             appendLine("- send_friend_request，args={\"targetCharacterId\":\"真实认识的数字生命ID\",\"greeting\":\"想说的话\"}：发好友申请，未获同意不能算好友。")
             appendLine("- respond_friend_request，args={\"requestId\":\"本人真实收到的申请ID\",\"decision\":\"accept|decline\"}：同意或拒绝，不替对方决定。")
             appendLine("手机未读和请求：" + CharacterPhoneInbox.summary(characterId))
@@ -480,10 +480,14 @@ internal object CompanionActionRuntime {
                 val postId = args.optString("postId").trim()
                 val text = args.optString("text").trim()
                 require(postId.isNotBlank() && text.isNotBlank()) { "评论需要真实帖子ID与本人正文" }
-                require(MomentsStore.commentAsCharacter(postId, characterId, text)) {
-                    "评论未发送：帖子不可见、重复或正文无效"
+                val comment = MomentsStore.commentAsCharacter(postId, characterId, text,
+                    args.optString("replyToCommentId").takeIf(String::isNotBlank))
+                requireNotNull(comment) {
+                    "评论未发送：帖子不可见、引用评论不存在或正文无效"
                 }
-                CompanionActionResult(true, "已真实评论好友的朋友圈")
+                CompanionActionResult(true, if (comment.replyToCommentId == null)
+                    "已真实评论好友的朋友圈" else "已真实回复朋友圈评论",
+                    evidenceId = "moment-public-comment-${comment.id}-$characterId")
             }
             "send_friend_request" -> {
                 CharacterFriendRequests.initialize(context)

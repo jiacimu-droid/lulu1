@@ -120,7 +120,8 @@ internal object CharacterPhoneInbox {
             val commentDigest = post.comments.takeLast(5).joinToString("；") { comment ->
                 val name = if (comment.characterId == "__user__") UserProfileContext.displayLabel()
                     else MigratedDomainStores.characters.get(comment.characterId).displayName
-                "$name：${comment.content.take(120)}"
+                "$name：${comment.content.take(120)}" +
+                    comment.replyToCommentId?.let { "（回复 commentId=$it）" }.orEmpty()
             }
             SharedExperienceTimeline.record(
                 eventId = if (post.authorCharacterId == characterId)
@@ -156,10 +157,13 @@ internal object CharacterPhoneInbox {
             post.comments.takeLast(6).forEach { c ->
                 val name = if (c.characterId == "__user__") UserProfileContext.displayLabel()
                     else MigratedDomainStores.characters.get(c.characterId).displayName
-                appendLine("  ${name}：${c.content.take(150)}")
+                appendLine("  commentId=${c.id}；作者Id=${c.characterId}；${name}：${c.content.take(150)}" +
+                    c.replyToCommentId?.let { "；回复 commentId=$it，targetId=${c.replyToCharacterId}" }.orEmpty())
             }
         }
-        appendLine("这些是你查看手机时可感知的事实，不代表你已经点赞评论。可以继续原计划并顺手做别的事；选择由你本人决定。")
+        appendLine("这些是你查看手机时可感知的事实，不代表你已经点赞评论。若想接某条评论，" +
+            "用 comment_moment 的 postId/text/replyToCommentId 引用本帖真实 commentId；不填 replyToCommentId 就评论原帖。" +
+            "回复对象由原评论确定，不能替对方回答，也不自动唤醒所有人。可以继续原计划并顺手做别的事；选择由你本人决定。")
     }
 
     fun requestContext(characterId: String): String = buildString {

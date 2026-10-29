@@ -405,7 +405,8 @@ object MomentsStore {
         if (mutablePosts.value.none { it.id == post.id } ||
             !MomentFriendAccess.canView(post, character.characterId)) return
         if (plan.wantsLike) addCharacterLike(post, character, authorName)
-        if (plan.comment.isNotBlank()) addCharacterTopLevelComment(post, character, authorName, plan.comment)
+        if (plan.comment.isNotBlank()) addCharacterComment(post, character, authorName,
+            plan.comment, automaticReaction = true)
     }
 
     private fun parseReactionPlan(raw: String): ReactionPlan? = runCatching {
@@ -452,30 +453,49 @@ object MomentsStore {
         // Do not insert awareness into sleeping friends' private memories.
     }
 
-    private fun addCharacterTopLevelComment(
+    private fun addCharacterComment(
         post: MomentPost,
         character: CharacterSettings,
         authorName: String,
         content: String,
-    ): Boolean {
+        replyToCommentId: String? = null,
+        automaticReaction: Boolean = false,
+    ): MomentComment? {
         val clean = content.trim().take(300)
-        if (clean.isBlank()) return false
-        val currentPost = mutablePosts.value.firstOrNull { it.id == post.id } ?: return false
-        if (currentPost.comments.any { it.characterId == character.characterId && it.replyToCommentId == null }) return false
-        val comment = MomentComment(characterId = character.characterId, content = clean)
+        if (clean.isBlank()) return null
+        val currentPost = mutablePosts.value.firstOrNull { it.id == post.id } ?: return null
+        if (!MomentFriendAccess.canView(currentPost, character.characterId)) return null
+        val target = replyToCommentId?.let { id ->
+            currentPost.comments.firstOrNull { it.id == id } ?: return null
+        }
+        val comment = MomentComment(characterId = character.characterId, content = clean,
+            replyToCommentId = target?.id, replyToCharacterId = target?.characterId)
+        var saved = false
         mutate { current ->
             current.map { item ->
-                if (item.id != post.id || item.comments.any { it.id == comment.id }) item
-                else item.copy(comments = item.comments + comment)
+                when {
+                    item.id != post.id -> item
+                    target != null && target !in item.comments -> item
+                    // Reopening the automatic reaction UI does not repeat its
+                    // original top-level comment. Explicit tool choices may
+                    // continue the conversation, including another top-level turn.
+                    automaticReaction && item.comments.any {
+                        it.characterId == character.characterId && it.replyToCommentId == null
+                    } -> item
+                    else -> item.copy(comments = item.comments + comment).also { saved = true }
+                }
             }
         }
+        if (!saved) return null
+        val replying = if (target == null) "评论了${authorName}的朋友圈"
+            else "回复了评论 commentId=${target.id}（${target.content.take(120)}）"
         recordPublicCommentForAllCharacters(
             post = post,
             comment = comment,
             speakerName = character.displayName,
-            timelineText = "【公开评论】评论了${authorName}的朋友圈：${comment.content}",
+            timelineText = "【公开评论】$replying：${comment.content}",
         )
-        return true
+        return comment
     }
 
     /** Model-selected, real actor-owned actions. Never infer consent from
@@ -491,12 +511,14 @@ object MomentsStore {
         return actorId in (mutablePosts.value.firstOrNull { it.id == postId }?.likedCharacterIds ?: emptySet())
     }
 
-    fun commentAsCharacter(postId: String, actorId: String, content: String): Boolean {
-        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return false
+    fun commentAsCharacter(postId: String, actorId: String, content: String,
+        replyToCommentId: String? = null): MomentComment? {
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
         if (actorId == USER_COMMENTER_ID || actorId == MomentFriendAccess.OWNER ||
-            !MomentFriendAccess.canView(post, actorId)) return false
-        val actor = MigratedDomainStores.characters.settings.value[actorId] ?: return false
-        return addCharacterTopLevelComment(post, actor, postAuthorName(post), content)
+            !MomentFriendAccess.canView(post, actorId)) return null
+        val actor = MigratedDomainStores.characters.settings.value[actorId] ?: return null
+        return addCharacterComment(post, actor, postAuthorName(post), content,
+            replyToCommentId?.trim()?.takeIf(String::isNotBlank))
     }
 
     /**
