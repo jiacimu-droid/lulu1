@@ -99,3 +99,12 @@
 - **完整修复**：原通话 `state.connected && state.thinking` 传到现有 WebView 状态更新，再交最终 Cubism actuator。只在非倾听、非发声、无本人 Motion3/表情/明确姿态/触摸时轻微移开视线、调整头与上身；真实开声、倾听、触摸或本人动作立即夺回优先权，原弹簧自然收回。不生成新 Motion/表情、不引入新状态中心、额外模型轮次、常态轮询或猜测语义。预览/诊断沿可选参数默认 false，行为不变。
 - **根因回归**：现有 `conversation-performance.mjs` 实际执行 stage.update；`impact-recovery.mjs` 对 15/30/60 FPS 的思考→倾听/开声优先级、真实 Motion3 和触摸覆盖做最终 Cubism 参数断言；`parameters.mjs` 核对真实 Kotlin call-state → WebView JSON → JS final actuator 接线。索引仍交给原 `Refresh code index` 工作流，不手工伪造 `CODE_INDEX.md`。
 - **分层验收**：源码和回归提交不代表测试已执行；需按对应提交核对 Live2D JS、Android JVM、assemblePhone、APK 收集/发布。真机连续五句、真实等待→接话、低 FPS、触摸并发与发热均未验。
+
+
+## 2026-10-30 04:20 · L2/L3：视频隐藏期间真实 TTS 结束后嘴型租约未释放
+
+- **核对基线**：完整阅读 10-29 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、10-28 连续性计划与本专项进度，并检查最新 main、基础/社交/内驱专项和 v6605 逐句 Motion/TTS 既有实现。已验通的历史层级仅限相应旧 CI；本次 L1 真实 Motion3、分句 TTS 开声与终止墓碑、L2 倾听/思考最终姿态已接线，不重复创建。连续五句自然度、低 FPS、校准和不同 TTS 的手机体验仍为已有待验；词级时间戳为可选增强。
+- **已证实根因**：`stage.js.setPaused(true)` 将 `audioVisualSequence/segmentId` 清零，却保留 `playing=true`；隐藏期间真正的 `finished/interrupted` 因身份不匹配被丢弃，恢复可见时还调用 `performanceRuntime.startSpeech()`，令已经停止的语音继续张嘴。独立 Compose `update(speaking=true)` 在隐藏时仍可修改旧版粗状态。此前隐藏取消只验 Motion 不复活，没有验真实音频结束后的嘴型租约。
+- **正式修复**：只在 `tools/live2d/src/stage.js` 保留隐藏前**确实开声**的版本化音频身份用于接收真实终止回调，取消待发 score/Motion/表情与 PCM；隐藏终止只释放 speaking/口型，不执行旧表情，不降低被取消的新 score 的版本墓碑。显示后若原音频仍在播放，仅允许继续当前 PCM 口型，不恢复旧 choreography；真正完成后不再张嘴。隐藏阶段粗状态不抢权，未版本化旧服务在隐藏时释放粗 speaking，回到可见后仍兼容新粗状态。没有新 Store、额外模型调用、固定动作配额或主循环改动。
+- **根因回归**：在原 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 增加隐藏中旧音频完成、隐藏后完成、待发新 score 墓碑不可降级、粗 speaking/PCM 不复活、显示后仍在播的 PCM 可继续、旧版粗状态兼容；保留此前连续片段与打断门禁测试。正式源码提交 [337042b](https://github.com/jiacimu-droid/lulu1/commit/337042bfe2442049ee79d89fc2f385eb62079470)，回归提交 [b0103e3](https://github.com/jiacimu-droid/lulu1/commit/b0103e364ef24cce6ce188f599edf817ebff2d25)，直接 main，未改其他专项文件。
+- **索引与验证边界**：原 `scripts/generate_code_index.py` 只遍历 `app/scripts/preview`，本轮仅改 `tools/live2d` 与本进度文档，不改变索引文件集合，故不手工伪造 CODE_INDEX。回归提交对应原 [Lulu APK #40948163462](https://github.com/jiacimu-droid/lulu1/actions/runs/40948163462) 初查为 pending；JS 测试、Android JVM、assemblePhone、收集/发布必须继续以对应 SHA 的实际状态核验，不能宣称通过。真机隐藏→语音结束→恢复、隐藏时继续播放、15/30 FPS、首音/动作延迟、发热和不同语音服务仍未验。
