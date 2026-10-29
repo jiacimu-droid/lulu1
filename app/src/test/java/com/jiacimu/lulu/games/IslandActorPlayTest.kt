@@ -57,7 +57,7 @@ class IslandActorPlayTest {
     @Test fun independentExplorationApproachesRealTargetWithoutTeleportingOrReplacingPlayerAction() {
         val s = world()
         val actor = s.world.friends.first()
-        val destination = 9 to 4
+        val destination = 5 to 9
         // Isolate the objective from unrelated procedural trees so the candidate
         // ranking, rather than map seed noise, is what this regression checks.
         val tiles = MutableList(s.world.tiles.size) { 0 }
