@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T11:53:52.483796+00:00",
-  "commit": "370d3e77d8cff1e9db7314aae31b60bf9e98473a",
+  "generatedAt": "2026-10-29T12:01:20.060513+00:00",
+  "commit": "a438da3cee98841549143af93b8a61bbece703f2",
   "branch": "main",
-  "sourceFingerprint": "f1caa9e8b752f21de0fb12a85f120bd0b33c7d4704671ff870d6083c5798ce86",
+  "sourceFingerprint": "912a4f858ab46033170021b141332ce25ca18cc114ba41a42ca4e4fd4809c521",
   "summary": {
     "files": 1067,
-    "lines": 219993,
+    "lines": 220001,
     "symbols": 3139
   },
   "symbolIndex": {
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 374
+        "line": 382
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5179,7 +5179,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 273
+        "line": 284
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -6163,7 +6163,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 21
+        "line": 23
       }
     ],
     "CharacterIdentityStore": [
@@ -6227,7 +6227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 370
+        "line": 378
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7147,7 +7147,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 112
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -7157,25 +7157,25 @@
     "voiceOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 177
+        "line": 197
       }
     ],
     "equivalent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 187
+        "line": 198
       }
     ],
     "supportingDeletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 189
+        "line": 200
       }
     ],
     "Seen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 269
+        "line": 280
       }
     ],
     "hasIndependentRegisteredStep": [
@@ -24185,44 +24185,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 395,
-      "sha256": "4109ed22908b69a7fb91772793a125fb05b365584fc55573d25f2e26893a050f",
+      "lines": 403,
+      "sha256": "5faa2ccb2ffd0338a2b2b963439ac22a09c7c273136fac178a305dd6e9b6b7ba",
       "symbols": [
         {
           "name": "entries",
-          "line": 21
+          "line": 23
         },
         {
           "name": "collect",
-          "line": 112
+          "line": 116
         },
         {
           "name": "voiceOf",
-          "line": 177
+          "line": 197
         },
         {
           "name": "equivalent",
-          "line": 187
+          "line": 198
         },
         {
           "name": "supportingDeletion",
-          "line": 189
+          "line": 200
         },
         {
           "name": "Seen",
-          "line": 269
+          "line": 280
         },
         {
           "name": "normalize",
-          "line": 273
+          "line": 284
         },
         {
           "name": "delete",
-          "line": 370
+          "line": 378
         },
         {
           "name": "remove",
-          "line": 374
+          "line": 382
         }
       ]
     },
