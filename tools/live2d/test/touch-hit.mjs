@@ -414,8 +414,8 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   }
   const loadedModel = {
     internalModel: { motionManager: manager },
-    motion: (group, index, priority) => new Promise(resolve =>
-      loads.push({ group, index, priority, resolve })),
+    motion: (group, index, priority) => new Promise((resolve, reject) =>
+      loads.push({ group, index, priority, resolve, reject })),
   }
   const ctx = {
     model: loadedModel, playing: true, pendingSpeechParts: null,
@@ -460,6 +460,35 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   loads[3].resolve(true)
   await new Promise(resolve => setImmediate(resolve))
   assert.equal(stops, 1, 'cancelled load with no successor may still be stopped')
+
+  // A superseded Cubism request can REJECT, not just resolve. Its late
+  // rejection must not claim that the next sentence's selected Motion failed.
+  const beforeFailures = motionNotices.filter(n => n.kind === 'motion-failed').length
+  ctx.motion('Gesture', 1, true, 'character')
+  ctx.motion('Gesture', 2, true, 'character')
+  assert.equal(loads.length, 6)
+  loads[4].reject(new Error('old async clip rejected'))
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(ctx.authoredMotion.index, 2, 'stale rejection cannot clear the newer clip')
+  assert.equal(motionNotices.filter(n => n.kind === 'motion-failed').length,
+    beforeFailures, 'superseded clip cannot emit a false character failure receipt')
+  assert.ok(!motionNotices.some(n => n.kind === 'diagnostic' &&
+    n.payload.includes('old async clip rejected')),
+    'superseded clip must not report an obsolete failure as current')
+  loads[5].resolve(true)
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(ctx.authoredMotion.started, true)
+  assert.equal(JSON.parse(motionNotices.filter(n => n.kind === 'motion-started').at(-1).payload).index, 2)
+
+  // A genuinely current failed Motion still produces one attributable
+  // failure receipt, so diagnostics are not hidden by the stale-load guard.
+  ctx.motion('Gesture', 3, true, 'character')
+  loads[6].reject(new Error('current async clip rejected'))
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(ctx.authoredMotion, null)
+  const failures = motionNotices.filter(n => n.kind === 'motion-failed')
+  assert.equal(failures.length, beforeFailures + 1)
+  assert.equal(JSON.parse(failures.at(-1).payload).index, 3)
 }
 const touchSource = source.slice(source.indexOf('function tickTactileContact(tactileNow)'), source.indexOf('\nfunction setPaused(value)'))
 let stageTime = 1000
