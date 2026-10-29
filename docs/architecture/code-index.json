@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:56:29.287172+00:00",
-  "commit": "fd18ad75d5302168df443c662d21f1894f5017a6",
+  "generatedAt": "2026-10-29T15:01:10.869452+00:00",
+  "commit": "acac6528f329f1c7b79eb4378e01b2172540f14a",
   "branch": "main",
-  "sourceFingerprint": "a71f0bda813b25180382e0183b110c1d468f02e3ca89d5ba9324d212aca4c63d",
+  "sourceFingerprint": "4d891eac295e1ada86edad30a7c0ba9f0ebd9de5bc7f60a34503f0ae3f210e17",
   "summary": {
     "files": 1073,
-    "lines": 222065,
+    "lines": 222126,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -13001,91 +13001,91 @@
     "Home": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 44
+        "line": 47
       }
     ],
     "DeepSea": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 45
+        "line": 48
       }
     ],
     "BlockIsland": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 46
+        "line": 49
       }
     ],
     "RelicEscape": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 47
+        "line": 50
       }
     ],
     "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 48
+        "line": 51
       }
     ],
     "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 49
+        "line": 52
       }
     ],
     "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 50
+        "line": 53
       }
     ],
     "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 52
+        "line": 55
       }
     ],
     "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 54
+        "line": 57
       }
     ],
     "Records": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 55
+        "line": 58
       }
     ],
     "Replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 72
+        "line": 97
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 78
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
@@ -31038,68 +31038,68 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 802,
-      "sha256": "f75eb3a02a3532bca3e626de53e11ee0b65f155fd8a173a0d0aec4396afbbf8e",
+      "lines": 863,
+      "sha256": "9146b67c0aee3c1bd5b1f55454cf05ee1530fa7fe9c03e0e1295385b3cb9b494",
       "symbols": [
         {
           "name": "Home",
-          "line": 44
-        },
-        {
-          "name": "DeepSea",
-          "line": 45
-        },
-        {
-          "name": "BlockIsland",
-          "line": 46
-        },
-        {
-          "name": "RelicEscape",
           "line": 47
         },
         {
-          "name": "PerfectMan",
+          "name": "DeepSea",
           "line": 48
         },
         {
-          "name": "Roleplay",
+          "name": "BlockIsland",
           "line": 49
         },
         {
-          "name": "TurtleSoup",
+          "name": "RelicEscape",
           "line": 50
         },
         {
-          "name": "RapportQuiz",
+          "name": "PerfectMan",
           "line": 51
         },
         {
-          "name": "YachtDice",
+          "name": "Roleplay",
           "line": 52
         },
         {
-          "name": "Gomoku",
+          "name": "TurtleSoup",
           "line": 53
         },
         {
-          "name": "MemoryMatch",
+          "name": "RapportQuiz",
           "line": 54
         },
         {
-          "name": "Records",
+          "name": "YachtDice",
           "line": 55
         },
         {
-          "name": "Replay",
+          "name": "Gomoku",
           "line": 56
         },
         {
+          "name": "MemoryMatch",
+          "line": 57
+        },
+        {
+          "name": "Records",
+          "line": 58
+        },
+        {
+          "name": "Replay",
+          "line": 59
+        },
+        {
           "name": "LuluGamesApp",
-          "line": 72
+          "line": 97
         },
         {
           "name": "stepBack",
-          "line": 78
+          "line": 106
         }
       ]
     },
