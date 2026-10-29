@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7a335136e072f3baa8975bdd7dc9b916c8ccda53`
+- 基准提交：`b51c51d3b38fed1fb2705b2baf076e2bf8d03e8d`
 - 分支：`main`
-- 已索引文件：1087
-- 已索引代码/文本行：225755
-- 已发现符号：3198
+- 已索引文件：1088
+- 已索引代码/文本行：225814
+- 已发现符号：3199
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -653,7 +653,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 867 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 880 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
@@ -1063,6 +1063,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 264 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
