@@ -105,6 +105,8 @@ object CompanionPresenceStore {
         // Android cannot keep a call alive across a process restart. Repair old current state only;
         // historical message snapshots remain exact records of their original moment.
         mutableStates.value.keys.toList().forEach(::finishCall)
+        // Old-APK repair must also withdraw archived psychology, not just UI cards.
+        CharacterInnerLifeStore.initialize(context.applicationContext)
         reconcileTombstonedMoments()
     }
 
