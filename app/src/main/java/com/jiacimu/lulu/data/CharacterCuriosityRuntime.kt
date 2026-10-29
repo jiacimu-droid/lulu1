@@ -528,9 +528,26 @@ internal object CharacterCuriosityRuntime {
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val previous = root.optJSONArray("failures") ?: JSONArray()
-        val linked = matching(entries(root.optJSONArray("questions")) +
-            entries(root.optJSONArray("threads")), proposal)
+        val pending = entries(root.optJSONArray("questions"))
+        val threads = entries(root.optJSONArray("threads"))
+        val linked = matching(pending + threads, proposal)
         val selectedId = linked?.let(::identity).orEmpty()
+        val currentQuestion = pending.firstOrNull { identity(it) == selectedId }
+        val currentThread = threads.firstOrNull { identity(it) == selectedId }
+        val origin = proposal?.optString("sourceEvidenceId").orEmpty().trim()
+        // Failure callbacks are executor facts, not a fresh decision to revive
+        // an old interest or replace the feedback of a revised inquiry.
+        // The successful receipt path already checks this same ownership.
+        if (currentQuestion != null) {
+            if (normalized(currentQuestion.optString("question")) != normalized(fields[1]) ||
+                (origin.isNotBlank() && origin != currentQuestion.optString("observedId")) ||
+                pendingQuestions(characterId, root).none { identity(it) == selectedId }) return
+        } else if (currentThread != null) {
+            if (currentThread.optString("status") != "exploring" ||
+                normalized(currentThread.optString("question")) != normalized(fields[1]) ||
+                (origin.isNotBlank() && currentThread.optString("observedId").isNotBlank() &&
+                    origin != currentThread.optString("observedId"))) return
+        }
         val same = entries(previous).firstOrNull {
             it.optString("threadId") == selectedId &&
                 normalized(it.optString("topic")) == normalized(fields[0]) &&
@@ -546,7 +563,8 @@ internal object CharacterCuriosityRuntime {
                     it.optString("action") == action }.takeLast(5)
             retained.forEach { put(it) }
             put(JSONObject().put("threadId", selectedId).put("topic", fields[0])
-                .put("question", fields[1]).put("action", action.take(60))
+                .put("question", fields[1]).put("sourceEvidenceId", origin)
+                .put("action", action.take(60))
                 .put("reason", reason.take(200)).put("repeats", repeats).put("at", now.toString()))
         })
         save(characterId, root)
@@ -708,7 +726,19 @@ internal object CharacterCuriosityRuntime {
         val questions = root.optJSONArray("questions") ?: JSONArray()
         val unanswered = attention(pendingQuestions(characterId, root), characterId, 3, now)
         val failures = root.optJSONArray("failures") ?: JSONArray()
-        val recentFailures = (0 until failures.length()).mapNotNull(failures::optJSONObject).takeLast(3)
+        val liveQuestions = pendingQuestions(characterId, root)
+        val liveThreads = activeThreads(characterId, root)
+        val recentFailures = entries(failures).filter { failure ->
+            val threadId = failure.optString("threadId")
+            if (threadId.isBlank()) true // Legacy failures before an inquiry was saved.
+            else (liveQuestions + liveThreads).any { owner ->
+                identity(owner) == threadId &&
+                    normalized(owner.optString("question")) == normalized(failure.optString("question")) &&
+                    (failure.optString("sourceEvidenceId").isBlank() ||
+                        owner.optString("observedId").isBlank() ||
+                        owner.optString("observedId") == failure.optString("sourceEvidenceId"))
+            }
+        }.takeLast(3)
         val lived = SharedExperienceTimeline.all(characterId).asReversed().filter {
             it.speaker == displayName && (it.channel.startsWith("独自") ||
                 it.channel.startsWith("数字世界") || it.channel.contains("朋友圈") ||
