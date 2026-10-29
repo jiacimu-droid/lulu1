@@ -28,3 +28,11 @@
 - **回归源码**：6 条独立观察超出 3 条轮换后，模型仍能按真实来源结束第一条，重启后保留其他 5 条；无效 ID/跨人物不可借用。4 条真实搜索回执超出 2 条轮换后，旧线程可放下且后续召回不再重复；不重跑工具、不增加模型轮次。
 - **验证分层**：本轮源码与回归写入 main 后由现有 code-index 工作流执行原生成器；Android JVM、APK、真机三次跨日唤醒与真实人物自主选择，须分别以对应 CI/设备结果核实，不能以测试编写宣称通过。旧历史已经丢失或原来源失效的记录不能自动恢复。
 - **main/CI 实证**：源码与回归提交 [`cf22080`](https://github.com/jiacimu-droid/lulu1/commit/cf22080abe990454fb2c83cd02a7471aad6c5ab0)。原索引工作流 [#40843545295](https://github.com/jiacimu-droid/lulu1/actions/runs/40843545295) 已 success，自动生成的索引提交为 `40210afb`，CODE_INDEX 基准明确指向 `cf22080`。对应 [Lulu APK #40843545409](https://github.com/jiacimu-droid/lulu1/actions/runs/40843545409) 在本次核对时仍为 in_progress，Android JVM/assemblePhone/Release 尚未通过，真机未验。
+
+## 2026-10-29 D2/T3：修订过的最新回执不得污染旧兴趣的有效进展
+
+- **分类核对**：已有验通的是原 T2 多动作交接的一次历史 CI（#40840507021），不代表本轮已验；已有待验的是上轮按旧 threadId 整理兴趣（cf22080，先前 APK 仍在运行）；本轮真实缺口是“旧回执失效后依然在本人后续上下文显示失效成果”。未来可选增强是多年历史规模、跨日三次实际选择和真实搜索供应商复测，不因它们未验而重新造中心。
+- **真实根因**：CharacterCuriosityRuntime.lastRealStep 已按本人来源 ID、修订号、真实动作核验并能回退到较早的有效回执，但 activeThreads 先按主题/问题去重再过滤，失效的旧兄弟记录可能抢占唯一名额；briefContext 和 promptSection 又直接拿 steps 最后一项的 receipt/question/nextStep/updatedAt，即使它已经失效，仍向电话/前台/自主感知提供错误的“最新真实成果”。这不是模型决定问题，而是只读投影越过了既有事实门禁。
+- **源码修复**：在原 CharacterCuriosityRuntime 只读 activeThreads 投影先过滤无效证据、再去重；若末项回执已失效，回退到 lastRealStep 的实际问题、下一步和时刻；briefContext/promptSection 统一使用经核验的真实回执。保留完整原 threads/steps 供回溯，不改模型意愿、真实执行、授权、持久化 schema、调度或收费次数。CharacterUnfinishedActionContext 继续复用同一个 activeThreads 投影。
+- **回归源码**：CharacterExplorationContinuityTest 新增同一线程两次实际搜索后最新回执 revision 失配，验证重启后仅旧有效成果进入私聊/电话精简上下文与自主决策提示、历史两步仍保留、另一人物不借用；另测同问题两条线程中失效旧记录不会挡住另一条有效记录。该测试需要 Android JVM 实际跑通，写入源码不等于通过。
+- **提交/CI**：源码与回归 [4000157](https://github.com/jiacimu-droid/lulu1/commit/4000157f1a90017a94889600578da8f708ef403f)。原索引生成工作流 [#40853357228](https://github.com/jiacimu-droid/lulu1/actions/runs/40853357228) 已触发（初查 in_progress）；[Lulu APK #40853357502](https://github.com/jiacimu-droid/lulu1/actions/runs/40853357502) 初查 pending，尚未验证 Android JVM/assemblePhone/Release。当前工具容器无 Android Gradle 工程与 SDK，不能本地宣称测试成功；真机和跨日多次唤醒仍待验。只读回退不改变真实执行结果，也不恢复早已永久丢失的历史。
