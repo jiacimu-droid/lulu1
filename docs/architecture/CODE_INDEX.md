@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5c56dea6679cbfb3c41ebf3eef53506909ec12be`
+- 基准提交：`952eda9231ad67a87bf21ad8555d4d984e8c3682`
 - 分支：`main`
 - 已索引文件：1054
-- 已索引代码/文本行：216492
+- 已索引代码/文本行：216605
 - 已发现符号：3094
 
 | 文件 | 行数 | 符号数 |
@@ -540,7 +540,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 465 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 487 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 302 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -894,7 +894,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 233 | 10 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 375 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt` | 466 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 26 | 1 |
