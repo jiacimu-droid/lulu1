@@ -511,6 +511,15 @@ assert.equal(vm.runInContext('finalizedAudio.sequence', bridge), 3201,
   'hidden stage must tombstone the newer queued score, not reset it to zero')
 assert.equal(vm.runInContext('finalizedAudio.interrupted', bridge), true)
 assert.equal(vm.runInContext('scoreVisualSequence', bridge), 0)
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 3200,
+  'keep the actual audible fragment identity so its hidden finish can retire it')
+bridge.update({ speaking: true, mouth: .8, hasPcmSamples: true })
+assert.equal(bridge.mouth, 0, 'hidden coarse PCM cannot animate a cancelled mouth')
+bridge.onPlaybackEvent('finished', 0, 3200, 'old')
+assert.equal(bridge.playing, false,
+  'real audio completion while hidden must release the speaking lease')
+assert.equal(vm.runInContext('finalizedAudio.sequence', bridge), 3201,
+  'old hidden finish cannot lower the newer cancelled-score tombstone')
 bridge.onPlaybackEvent('playing', 0, 3201, 'queued')
 bridge.onPlaybackEvent('playing', 0, 3202, 'not-yet-visible')
 assert.equal(vm.runInContext('audioVisualSequence', bridge), 0,
@@ -556,7 +565,18 @@ assert.equal(bridge.perform({ visualSequence: 3302,
 bridge.onPlaybackEvent('playing', 0, 3302, 'hidden')
 bridge.update({ speaking: true, mouth: .3 })
 bridge.setPaused(false)
+assert.equal(bridge.playing, true,
+  'still-audible TTS may retain its PCM mouth after returning to video')
+assert.equal(bridge.performanceRuntime.state().speaking, false,
+  'returning to video must not replay the hidden choreography')
+bridge.onPlaybackEvent('finished', 0, 3300, 'prior')
+assert.equal(bridge.playing, false,
+  'old audible TTS completion after resume must close its speaking lease')
+assert.equal(vm.runInContext('finalizedAudio.sequence', bridge), 3301,
+  'late old finish after resume must preserve the queued-turn tombstone')
 bridge.update({ speaking: true, mouth: .3 })
+assert.equal(bridge.playing, false,
+  'coarse speaking cannot revive the old fragment after visibility returns')
 bridge.onPlaybackEvent('playing', 0, 3301, 'queued')
 assert.equal(motions.length, beforeHiddenQueue,
   'late coarse speaking updates cannot resurrect discarded Motion3')
@@ -606,6 +626,15 @@ assert.equal(bridge.playing, false, 'interrupted versioned audio cannot reopen v
 bridge.perform({ visualSequence: 0, head: { roll: 1 } })
 bridge.update({ speaking: true, mouth: .3 })
 assert.equal(bridge.playing, true, 'a new explicit legacy cue restores coarse provider behavior')
+bridge.setPaused(true)
+bridge.update({ speaking: true, mouth: .8, hasPcmSamples: true })
+assert.equal(bridge.playing, false,
+  'unversioned audio cannot remain falsely audible after the stage is hidden')
+assert.equal(bridge.mouth, 0, 'hidden legacy PCM cannot open the mouth')
+bridge.setPaused(false)
+bridge.update({ speaking: true, mouth: .3 })
+assert.equal(bridge.playing, true,
+  'legacy coarse providers may resume from a fresh visible snapshot')
 bridge.update({ speaking: false, mouth: 0 })
 
 // Once actual audio positions exist, wall time and a stalled HTTP stream do
