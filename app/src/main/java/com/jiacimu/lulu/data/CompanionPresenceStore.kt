@@ -105,6 +105,26 @@ object CompanionPresenceStore {
         // Android cannot keep a call alive across a process restart. Repair old current state only;
         // historical message snapshots remain exact records of their original moment.
         mutableStates.value.keys.toList().forEach(::finishCall)
+        reconcileTombstonedMoments()
+    }
+
+    /** Repair orphaned UI psychology left by previous APKs that withdrew only
+     * the original timeline row. No text/time guesswork: require the exact
+     * native presence event ID in the durable deleted-event ledger. */
+    @Synchronized
+    internal fun reconcileTombstonedMoments() {
+        if (prefs == null || !SharedExperienceTimeline.isInitialized()) return
+        val stale = (mutableHistories.value.values.flatten() +
+            mutableStates.value.values).distinctBy { it.characterId to it.updatedAt }
+            .filter { moment ->
+                val nativeId = moment.provenanceId.takeIf(String::isNotBlank)
+                    ?.let { "presence-$it-${moment.characterId}" }
+                    ?: "presence-${moment.characterId}-${moment.updatedAt.toEpochMilli()}"
+                SharedExperienceTimeline.isDeletedEvent(nativeId)
+            }
+        stale.forEach { moment ->
+            deleteMoment(moment.characterId, moment.updatedAt, timelineAlreadyDeleted = true)
+        }
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
