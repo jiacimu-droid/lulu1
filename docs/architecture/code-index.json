@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T17:04:38.727251+00:00",
-  "commit": "835b97ad139e0b27b7d8fe8178eafe5ff06a3155",
+  "generatedAt": "2026-10-29T17:05:40.945986+00:00",
+  "commit": "28383e944690ffef77af09a60079dcc89ef6526b",
   "branch": "main",
-  "sourceFingerprint": "ad0846d52ed9f8b32eb5913f50082836daf33a16f0cf1f504c2518dc554abf6b",
+  "sourceFingerprint": "1cbdc362c940a783215b85d525f9f1c523d2d8d974f4228acc677f1e7c65d963",
   "summary": {
     "files": 1086,
-    "lines": 224637,
+    "lines": 224640,
     "symbols": 3189
   },
   "symbolIndex": {
@@ -16185,19 +16185,19 @@
     "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 165
+        "line": 168
       }
     ],
     "networkContextIsSilentWithoutConnections": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 217
+        "line": 220
       }
     ],
     "compactContextStaysSilentWhenContactsAreUnconnected": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-        "line": 226
+        "line": 229
       }
     ],
     "CharacterThoughtActionHandoffTest": [
@@ -35507,8 +35507,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt",
-      "lines": 245,
-      "sha256": "4fe70ecbc85e32b75f34ac2420635eb69a336dd5d109ca540e7a55a93827b286",
+      "lines": 248,
+      "sha256": "3690431f7c340dc411515951a7c76e9c96767c08b863091f96fa8798c10a3c07",
       "symbols": [
         {
           "name": "CharacterSocialNetworkTest",
@@ -35540,15 +35540,15 @@
         },
         {
           "name": "thirdPartyNeverLearnsOtherTwoCharactersPrivateNetworkUntilWitnessed",
-          "line": 165
+          "line": 168
         },
         {
           "name": "networkContextIsSilentWithoutConnections",
-          "line": 217
+          "line": 220
         },
         {
           "name": "compactContextStaysSilentWhenContactsAreUnconnected",
-          "line": 226
+          "line": 229
         }
       ]
     },
