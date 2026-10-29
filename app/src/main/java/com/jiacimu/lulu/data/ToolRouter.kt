@@ -212,8 +212,16 @@ object ToolRouter {
             CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
                 args.optJSONObject("expectation"))
             check(prefs.edit().putString(key, execution.toString()).commit())
+            // A step's curiosity is chosen BEFORE execution. Its status cannot
+            // be a post-result verdict: a model may include "satisfied" or
+            // "dropped" in the proposed tool metadata, but neither implies
+            // that the question was answered, shared, or abandoned. Preserve
+            // the original authored metadata on the durable request; register
+            // only an open inquiry until a later verified role decision.
             CharacterExplorationContinuity.remember(context, characterId,
-                execution.optJSONObject("curiosity"), null,
+                execution.optJSONObject("curiosity")?.let { pending ->
+                    JSONObject(pending.toString()).put("status", "exploring")
+                }, null,
                 listOf(execution.optString("causeEvidenceId")).filter(String::isNotBlank))
             // Once accepted, complete and persist the actual effect even if speech is interrupted.
             withContext(NonCancellable) {
