@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:18:34.622827+00:00",
-  "commit": "46e2c5d89a1c1f8da85c382b7a1c07bae65c0a16",
+  "generatedAt": "2026-10-29T18:57:26.332848+00:00",
+  "commit": "ca0251214f2553ebbd7d3c506df6abcd41fe19ef",
   "branch": "main",
-  "sourceFingerprint": "8dbb46203387fdaf293ce265cc5987c0ffc63e2963ff8213e4ffee25c06fedb8",
+  "sourceFingerprint": "01f0bc2168b3db0a12ab40f9b59da909363f35a0b04ada5e70a869b8887749d8",
   "summary": {
     "files": 1091,
-    "lines": 226217,
+    "lines": 226250,
     "symbols": 3202
   },
   "symbolIndex": {
@@ -1651,7 +1651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1946
+        "line": 1979
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11405,7 +11405,7 @@
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 672
+        "line": 673
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11415,7 +11415,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1469
+        "line": 1490
       }
     ],
     "plan": [
@@ -28918,8 +28918,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2010,
-      "sha256": "481961f5d05dc12723f667d0fabb4922802c403a9be2c4dedbe5de268b29072b",
+      "lines": 2043,
+      "sha256": "1451a0f749456e2ae4e86ebc6536b537f6a8cae9988a015623bcb65079a35d2e",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -28987,15 +28987,15 @@
         },
         {
           "name": "reject",
-          "line": 672
+          "line": 673
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1469
+          "line": 1490
         },
         {
           "name": "schedule",
-          "line": 1946
+          "line": 1979
         }
       ]
     },
