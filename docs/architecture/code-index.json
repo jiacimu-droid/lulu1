@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:14:00.751581+00:00",
-  "commit": "86154bae6252b68a855d3550ebb04b267432733c",
+  "generatedAt": "2026-10-29T18:15:03.662703+00:00",
+  "commit": "efea4d79ad18ab097a66f2babc73ed9d79cdcd18",
   "branch": "main",
-  "sourceFingerprint": "a70e532122e6de1c2e2eba27e7ee0860afb921f11ad5890208335fb3720462ae",
+  "sourceFingerprint": "5ca53c77dfe3aa99947462b4a3a6f8c92c904d42a09c87ea9d27a3f740a270f0",
   "summary": {
-    "files": 1089,
-    "lines": 225928,
-    "symbols": 3200
+    "files": 1090,
+    "lines": 225994,
+    "symbols": 3201
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1630,6 +1630,32 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt",
         "line": 12
+      }
+    ],
+    "schedule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 73
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
+        "line": 1946
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 801
       }
     ],
     "decode": [
@@ -6782,28 +6808,6 @@
         "line": 90
       }
     ],
-    "schedule": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 73
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
-        "line": 122
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 122
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1946
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 801
-      }
-    ],
     "CharacterMotiveReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -7615,7 +7619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 836
+        "line": 850
       }
     ],
     "CommitmentTask": [
@@ -7807,13 +7811,13 @@
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 533
+        "line": 547
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 589
+        "line": 603
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -7823,43 +7827,43 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 603
+        "line": 617
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 633
+        "line": 647
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 650
+        "line": 664
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 665
+        "line": 679
       }
     ],
     "uncovered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 837
+        "line": 851
       }
     ],
     "proposalIssue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 858
+        "line": 872
       }
     ],
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 879
+        "line": 893
       }
     ],
     "repeatsConfirmedAction": [
@@ -19338,6 +19342,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt",
+      "lines": 52,
+      "sha256": "59ca8ce1bb4056de9263fac6ec70f86147ae46342d00b8c86f52bd0fab0a14fb",
+      "symbols": [
+        {
+          "name": "schedule",
+          "line": 17
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
       "lines": 93,
       "sha256": "7877b4dcd21680c06f088a4c1654deede6901fd47883847a1d18e32204eee207",
@@ -25178,8 +25193,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 960,
-      "sha256": "9dc0c9c626b1aac7c38a00a24f76bddc5c631cbc80b5781622dc235a11a0b97d",
+      "lines": 974,
+      "sha256": "0d66630d2ce57b3021fc114ae7153f9933aeab065bbc6bfb8cb79e78531998ec",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -25231,43 +25246,43 @@
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 533
+          "line": 547
         },
         {
           "name": "markSeen",
-          "line": 589
-        },
-        {
-          "name": "resetCharacter",
           "line": 603
         },
         {
+          "name": "resetCharacter",
+          "line": 617
+        },
+        {
           "name": "schedulePersistedConcernReview",
-          "line": 633
+          "line": 647
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 650
+          "line": 664
         },
         {
           "name": "extendByOwnChoice",
-          "line": 665
+          "line": 679
         },
         {
           "name": "Result",
-          "line": 836
+          "line": 850
         },
         {
           "name": "uncovered",
-          "line": 837
+          "line": 851
         },
         {
           "name": "proposalIssue",
-          "line": 858
+          "line": 872
         },
         {
           "name": "ensure",
-          "line": 879
+          "line": 893
         }
       ]
     },

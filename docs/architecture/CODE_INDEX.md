@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`86154bae6252b68a855d3550ebb04b267432733c`
+- 基准提交：`efea4d79ad18ab097a66f2babc73ed9d79cdcd18`
 - 分支：`main`
-- 已索引文件：1089
-- 已索引代码/文本行：225928
-- 已发现符号：3200
+- 已索引文件：1090
+- 已索引代码/文本行：225994
+- 已发现符号：3201
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -145,6 +145,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 236 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 174 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 93 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
@@ -416,7 +417,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1626 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 960 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 974 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 664 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 93 | 3 |
