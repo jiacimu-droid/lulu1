@@ -183,8 +183,17 @@ internal object CharacterStateHistory {
      * transition can be multiline and later diverge from a shared opening.
      * Explicit source text wins over any legacy display-only inference. */
     private fun sourceVoice(row: CharacterStateHistoryRow): String {
-        val owned = row.moment?.innerThought?.trim().orEmpty().ifBlank { row.authoredVoice.trim() }
-        if (owned.isNotBlank()) return owned
+        val snapshotVoice = row.moment?.innerThought?.trim().orEmpty()
+        val causalVoice = row.authoredVoice.trim()
+        // Old presence snapshots may store only a prefix of the same source
+        // author's fuller voice. Prefer the full, explicitly owned version
+        // ONLY when it is a verbatim extension of that snapshot.
+        if (causalVoice.isNotBlank() && snapshotVoice.isNotBlank() &&
+            causalVoice.length > snapshotVoice.length && causalVoice.startsWith(snapshotVoice)) {
+            return causalVoice
+        }
+        if (snapshotVoice.isNotBlank()) return snapshotVoice
+        if (causalVoice.isNotBlank()) return causalVoice
         val lines = row.detail.lines().map(String::trim).filter(String::isNotBlank)
         // A legacy pure thought/voice has no field labels. The first labelled
         // section ends the authored prose. Never promote an idea continuation
@@ -276,6 +285,11 @@ internal object CharacterStateHistory {
                 extraDeletions = (old.extraDeletions + row.extraDeletions +
                     listOfNotNull(supportingDeletion(other))).distinct(),
                 mergedMomentTimes = allMomentTimes.filter { it != preferred.moment?.updatedAt },
+                // The preferred presence row might carry only the shortened
+                // voice. Preserve the original causal author's full text for
+                // the read-only projection even when this row wins the merge.
+                authoredVoice = listOf(preferred.authoredVoice, other.authoredVoice)
+                    .maxByOrNull(String::length).orEmpty(),
             )
         }
         return output
