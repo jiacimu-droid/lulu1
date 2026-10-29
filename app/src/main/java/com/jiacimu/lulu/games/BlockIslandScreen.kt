@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.LinearEasing
@@ -71,7 +72,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var showRecipes by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
-    var autonomousCompanions by remember { mutableStateOf(true) }
+    var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }

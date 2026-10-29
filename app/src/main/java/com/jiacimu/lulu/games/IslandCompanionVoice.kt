@@ -25,10 +25,12 @@ internal class IslandCompanionVoice(
     private var active = false
     private var enabled = false
     private var disposed = false
+    private var audioGeneration = 0L
 
     fun setEnabled(value: Boolean) {
         if (disposed || value == enabled) return
         enabled = value
+        audioGeneration++
         if (!value) {
             pending.clear()
             active = false
@@ -53,6 +55,7 @@ internal class IslandCompanionVoice(
             return
         }
         active = true
+        val expectedAudioGeneration = audioGeneration
         engine.speak(
             text = next.second,
             scope = scope,
@@ -62,7 +65,7 @@ internal class IslandCompanionVoice(
                 // Provider callbacks can arrive off-main; enqueue the next speaker on
                 // the scene scope and ignore late completions after the game closes.
                 scope.launch {
-                    if (!disposed) {
+                    if (!disposed && expectedAudioGeneration == audioGeneration) {
                         active = false
                         playNext()
                     }
@@ -74,6 +77,7 @@ internal class IslandCompanionVoice(
     fun close() {
         if (disposed) return
         disposed = true
+        audioGeneration++
         enabled = false
         pending.clear()
         engine.shutdown()

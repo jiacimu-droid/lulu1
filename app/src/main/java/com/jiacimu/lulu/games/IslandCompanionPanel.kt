@@ -195,8 +195,15 @@ internal fun IslandCompanionPanel(
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     listOf("一起探路", "小心怪物", "我们分头找资源").forEach { ping ->
-                        AssistChip(onClick = { submitPlayerMessage(ping) },
-                            label = { Text(ping, fontSize = 11.sp) })
+                        AssistChip(
+                            onClick = { submitPlayerMessage(ping) },
+                            label = { Text(ping, fontSize = 11.sp) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = Color(0xFF264951),
+                                labelColor = Color(0xFFC7F4E8),
+                            ),
+                            border = BorderStroke(1.dp, Color(0xFF46786E)),
+                        )
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -214,6 +221,14 @@ internal fun IslandCompanionPanel(
                             modifier = Modifier.weight(1f),
                             maxLines = 2,
                             placeholder = { Text("跟队友说句话…", fontSize = 12.sp) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedBorderColor = Color(0xFF9DE7D0),
+                                unfocusedBorderColor = Color(0xFF658F8A),
+                                focusedPlaceholderColor = Color(0xFFA4C9C1),
+                                unfocusedPlaceholderColor = Color(0xFFA4C9C1),
+                            ),
                         )
                         Button(onClick = {
                             submitPlayerMessage(typedMessage)
