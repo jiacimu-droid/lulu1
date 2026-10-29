@@ -103,7 +103,30 @@ object CharacterLifeStore {
         val character = characters.settings.value[characterId] ?: return
         val root = state(characterId)
         val profileVersion = root.optInt("xingHeProfileVersion")
-        if (profileVersion >= 5) return
+        if (profileVersion >= 6) return
+        if (profileVersion == 5) {
+            // Revoke only the bundled, model-facing stranger reference. Do not
+            // reset genuine memories, meetings, group messages or user edits.
+            if (character.displayName != "星禾") return
+            if (!root.has("xingHeV5KnowledgeBackup")) {
+                root.put("xingHeV5KnowledgeBackup", JSONObject()
+                    .put("identity", CharacterIdentityStore.identities.value[characterId].orEmpty())
+                    .put("social", root.optJSONObject("profile")?.optString("social").orEmpty()))
+                save(characterId, root)
+            }
+            val savedIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
+            if (savedIdentity == CharacterProfileSchema.xingHeV5Identity) {
+                CharacterIdentityStore.set(characterId, CharacterProfileSchema.xingHeIdentity)
+            }
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            if (profile.has("social") &&
+                profile.optString("social") == CharacterProfileSchema.xingHeV5Social) {
+                profile.put("social", CharacterProfileSchema.xingHeProfile.getValue("social"))
+            }
+            root.put("profile", profile).put("xingHeProfileVersion", 6)
+            save(characterId, root)
+            return
+        }
         if (profileVersion == 4) {
             // Only Xing He's own unchanged shipped defaults get the new, warmer
             // best-friend balance. Never reset edited profile fields, persona,
@@ -134,6 +157,7 @@ object CharacterLifeStore {
             }
             root.put("profile", profile).put("xingHeProfileVersion", 5)
             save(characterId, root)
+            migrateLegacyLuluToXingHe()
             return
         }
         if (profileVersion == 3) {
@@ -249,7 +273,7 @@ object CharacterLifeStore {
             .put("updatedAt", Instant.now().toString()))
         root.put("profile", profile)
             .put("relationshipAgreements", agreements)
-            .put("xingHeProfileVersion", 5)
+            .put("xingHeProfileVersion", 6)
         // Legacy butler nicknames and Jiang Du version flags cannot continue
         // overriding the explicitly changed character identity.
         root.remove("socialNames")
