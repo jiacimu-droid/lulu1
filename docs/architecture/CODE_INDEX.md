@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd02fdeed25176734406d14756d76aa8c8585cba`
+- 基准提交：`ab969c8505281784af80239e2ffe18ce7ecdb86f`
 - 分支：`main`
 - 已索引文件：1054
-- 已索引代码/文本行：216630
-- 已发现符号：3094
+- 已索引代码/文本行：216703
+- 已发现符号：3097
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -347,8 +347,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 202 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 149 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2042 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 170 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2094 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
