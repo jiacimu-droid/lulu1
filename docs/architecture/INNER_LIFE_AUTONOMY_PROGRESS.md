@@ -9,6 +9,12 @@
 - **验证层级**：修改前核对 main 的原索引和基础/社交/Live2D 专项进度；索引继续交原 `Refresh code index` 工作流自动生成，不手工修改索引。提交后须以实际 main CI 检查 JVM/assemblePhone/Release；真机、重启及三次跨天自然唤醒仍待验。只改内驱专项源码、回归及本文件，不碰公共 ToolRouter、人物网关或其他专项。
 
 
+### 本轮 main / 索引 / CI 实证
+
+- 源码、回归与本专项进度同一 main 提交 [d1bec4a](https://github.com/jiacimu-droid/lulu1/commit/d1bec4aca4cdfebaafdf8800dbb8ed252058d8e1)，修改文件仅为 `CharacterCuriosityRuntime.kt`、`CharacterCuriosityRuntimeTest.kt`、本进度。提交前已核对最新 main 及其他专项进度，没有覆盖并行改动。
+- 原有 [Refresh code index #40874727908](https://github.com/jiacimu-droid/lulu1/actions/runs/40874727908) **completed/success**；自动索引提交 [e142a2f](https://github.com/jiacimu-droid/lulu1/commit/e142a2f314b48862c5dde9e18c7fc949b339755d)，CODE_INDEX 基准确认为 `d1bec4aca4cdfebaafdf8800dbb8ed252058d8e1`。未手工改索引。
+- [Lulu APK #40874727954](https://github.com/jiacimu-droid/lulu1/actions/runs/40874727954) 对应本次源码提交，末次核对仍为 **pending**，上一轮 #6707 仍 in_progress；不能把源码、回归文件或索引成功当成 Android JVM/assemblePhone/Release 成功。当前执行容器没有 Gradle/Android SDK，未本地执行 Android JVM。真机、强杀和三次跨天唤醒仍待独立验收。
+
 ## 2026-10-29 T2：明确下一步的依赖条件不能在去重时丢失
 
 - 根因：CharacterThoughtActionHandoff.actions 合并 nextAction 时，仅比较工具与参数，没有比较 requiresPreviousSuccess。相同工具/参数若一项明确依赖前步成功、另一项独立执行，旧代码会吞掉后者或把它关联到错误条件，导致本人明确的下一步丢失或失去条件。sideActions 合并原来已比较该字段，两条入口不一致。
