@@ -2619,7 +2619,7 @@ class ResidentDailyContinuityTest {
 
 
     @Test(timeout = 60_000)
-    fun withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects() = runBlocking {
+    fun withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects(): Unit = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
         val now = Instant.now()
