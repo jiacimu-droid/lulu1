@@ -1,5 +1,13 @@
 # 自主社交专项进度
 
+## 2026-10-29 S1/S4：取消好友不撤回本人真实行动历史
+
+- 上轮 e47eb179 的 [APK #40879145278](https://github.com/jiacimu-droid/lulu1/actions/runs/40879145278) 已 completed/success：JS、完整JVM、assemblePhone、字节码核验、收集与发布均成功；索引 #40879145428 success。已发布 [v6711 ARM64](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6711/Lulu-arm64.apk)，构建来源 e47eb179。真机与多日自然社交仍未验。
+- 新缺口：MomentFriendAccess.setFriends(false) 调用 scrubHiddenTimeline，旧清理将本人已发评论/回复及点赞原始行动证据与其他人的可见投影一起删掉。取消好友仅改变当前访问权限，不代表当时没有真正发言/点赞；清理还可能使本人基于实际来往形成的认识无故失去来源。
+- 修复在原 MomentsStore 只读权限清理入口保留本人 moment-like、本人所写 moment-public-comment/moment-comment 原始行动。隐藏原帖、撤除旧广播投影和收到的他人留言仍沿原规则处理；不授予重新读帖或新发评论权限。显式取消点赞、删除原帖、清理本人账号继续沿既有撤回链删除对应事实，不新增历史副本或影子 Store。
+- 回归沿真实 ToolRouter 评论、点赞、本人手机阅读、取消好友、重复清理、再次发言拒绝、原帖显式删除：失去权限后本人两项真实行动仍可溯源，第三人不知情、手机上下文不泄漏原帖；显式删除原帖后两项证据均失效。
+- 已核对最新 main、AGENTS/统一契约/成长框架/旧计划与其他专项，必读契约与前轮相同；S1/S2原有自动回归基础、S3完整邀约拒绝改期待验、S4上轮自动构建验通而真机未验分开记录。不重复7d2e3257本人在场候选。本轮无模型请求、唤醒、公共ToolRouter或统一存储改动；已运行原索引生成与差异检查，新回归及APK以本提交CI另验。
+
 ## 2026-10-29 S4：定向回复的原帖删除与账号清理必须撤回真实行动证据
 
 - **分类/根因**：定向接话与重载已有后续 JVM 阶段通过证据，真机及APK另验；本轮真实缺口在删除链。工具新回复统一写本人 `moment-public-comment-<commentId>-<actor>`，旧自动回复可能写 `moment-comment-...`。deleteTimelineEventsForComment 却从父评论是否为用户定向回复推断存储种类，遇到新工具回复只删除私密ID，遗漏实际公开行动事件；原帖或账号评论已经删除，原始时间线/关联回执可能仍以为行动有效。

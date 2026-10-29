@@ -131,6 +131,35 @@ class MomentConversationContinuationTest {
         assertTrue(live(original.id).comments.all { it.replyToCommentId == null })
     }
 
+    @Test fun losingFriendAccessPreservesOwnActionsButCannotAuthorizeAnotherReply() = runBlocking {
+        val author = role()
+        val actor = role()
+        val third = role()
+        assertTrue(MomentFriendAccess.setFriends(author, actor, true))
+        val original = post(author)
+        val result = speak(actor, original.id, "当时真实留下的评论")
+        assertTrue(result.toString(), result.optBoolean("success"))
+        val commentEvidence = result.getString("evidenceId")
+        assertTrue(MomentsStore.likeAsCharacter(original.id, actor))
+        val likeEvidence = "moment-like-${original.id}-$actor"
+        assertTrue(CharacterPhoneInbox.acknowledgeObserved(actor, listOf(live(original.id))))
+        assertTrue(MomentFriendAccess.setFriends(author, actor, false))
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf(commentEvidence, likeEvidence)).size == 2)
+        assertTrue(SharedExperienceTimeline.eventsByIds(third,
+            listOf(commentEvidence, likeEvidence)).isEmpty())
+        assertFalse(CharacterPhoneInbox.modelContext(actor, listOf(live(original.id)))
+            .contains(original.id))
+        assertFalse(speak(actor, original.id, "失去访问权限后不得新发").optBoolean("success"))
+        MomentsStore.scrubHiddenTimeline(actor)
+        assertEquals(2, SharedExperienceTimeline.eventsByIds(actor,
+            listOf(commentEvidence, likeEvidence)).size)
+        // Explicit source withdrawal remains authoritative even after unfriending.
+        MomentsStore.delete(original.id)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor,
+            listOf(commentEvidence, likeEvidence)).isEmpty())
+    }
+
     @Test fun deletingPostRetractsToolReplyEvenWhenItsParentWasADirectedUserReply() = runBlocking {
         for (clearAccount in listOf(false, true)) {
         val actor = role()

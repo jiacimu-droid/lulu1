@@ -100,14 +100,18 @@ object MomentsStore {
             .forEach { post ->
                 SharedExperienceTimeline.deleteEvent("moment-${post.id}-$viewer")
                 SharedExperienceTimeline.deleteEvent("moment-image-understanding-${post.id}-$viewer")
-                SharedExperienceTimeline.deleteEvent("moment-like-${post.id}-$viewer")
+                // Losing feed access is not withdrawal of the viewer's own
+                // previously committed actions. Explicit unlike/post/account
+                // deletion still retracts those exact action evidence IDs.
                 (post.likedCharacterIds + USER_COMMENTER_ID).forEach { liker ->
                     SharedExperienceTimeline.deleteEvent("moment-visible-like-${post.id}-$liker-$viewer")
                 }
                 post.comments.forEach { comment ->
-                    SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-$viewer")
+                    if (comment.characterId != viewer)
+                        SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-$viewer")
                     SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$viewer")
-                    SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$viewer")
+                    if (comment.characterId != viewer)
+                        SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$viewer")
                 }
             }
     }
