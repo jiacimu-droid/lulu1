@@ -161,9 +161,21 @@ internal object CharacterCausalTrace {
                 body.optString("causeEvidenceId") != current.id ||
                 body.optLong("causeEvidenceRevision", 0L) != current.revision) return@mapNotNull null
             val matchingDecision = relatedDecisions.any { decision ->
-                decision.optLong("causalEvidenceRevision", 0L) == current.revision &&
-                    runCatching { java.time.Instant.parse(decision.optString("at")) }
-                        .getOrNull()?.let { !event.occurredAt.isBefore(it) } == true
+                if (decision.optLong("causalEvidenceRevision", 0L) != current.revision)
+                    return@any false
+                val base = decision.optString("executionRequestId").trim()
+                val explicit = decision.optJSONArray("executionStepRequestIds")
+                    ?.takeIf { it.length() > 0 }
+                val belongsToDecision = (decision.optBoolean("executionHasPrimary", true) &&
+                    requestId == base && base.isNotBlank()) ||
+                    (0 until decision.optInt("executionStepCount", 0).coerceIn(0, 24))
+                        .any { index ->
+                            requestId == if (explicit == null) "$base:step:$index"
+                                else explicit.optString(index).trim()
+                        }
+                belongsToDecision && runCatching {
+                    java.time.Instant.parse(decision.optString("at"))
+                }.getOrNull()?.let { !event.occurredAt.isBefore(it) } == true
             }
             if (!matchingDecision) return@mapNotNull null
             event to body
@@ -212,6 +224,7 @@ internal object CharacterCausalTrace {
             // The direct result card must not depend on a recent-events window
             // to locate the later verified reply's durable request ID.
             rows += searchFeedbackLines(context, characterId, current, payload, events)
+                .filterNot { feedback -> linked.any { it.first.id == feedback.evidenceId } }
         }
         linkedReceipts.takeLast(12).forEach { (event, body) ->
             val originalRevision = body.optLong("causeEvidenceRevision", 0L)
