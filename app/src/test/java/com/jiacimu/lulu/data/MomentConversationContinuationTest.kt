@@ -21,6 +21,11 @@ class MomentConversationContinuationTest {
     private val ownedPosts = mutableListOf<String>()
 
     @Before fun initialize() {
+        // Robolectric creates a new Application for each test while the Kotlin
+        // singleton may retain a previous test's SharedPreferences instance.
+        // Bind writes AND the reload assertion to this test's actual backing file.
+        MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(MomentsStore, null)
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
         LuluRepositories.initialize(app)
@@ -93,6 +98,8 @@ class MomentConversationContinuationTest {
         assertFalse(CharacterPhoneInbox.modelContext(outsider, listOf(live(original.id)))
             .contains(written.content))
         // Reload the existing authority, preserving reply links rather than rebuilding a thread.
+        assertTrue(app.getSharedPreferences("lulu_moments", Context.MODE_PRIVATE)
+            .getString("posts_v1", "").orEmpty().contains(followUp.id))
         MomentsStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
             .set(MomentsStore, null)
         MomentsStore.initialize(app)

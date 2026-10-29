@@ -64,3 +64,10 @@
 - 源码提交 [762fd9c4](https://github.com/jiacimu-droid/lulu1/commit/762fd9c4029391440f3c577ec4b88fdbb01fe30c)；索引 [#40868016881](https://github.com/jiacimu-droid/lulu1/actions/runs/40868016881) completed/success，索引提交 c0b9c6b。
 - [APK #40868016796](https://github.com/jiacimu-droid/lulu1/actions/runs/40868016796) 已进入 Test and build phone APK，记录时 in_progress，尚无 JVM 总结果或 APK 发布证据，不能按通过统计。
 - 额外验证固定 v2.5.0 的真实 login.go：原版 → V2 → V3、再次应用 V2/V3 均成功，保留账号/扫码辅助函数；这只证明源码转换与幂等，不冒充 Go 编译或真机登录成功。
+
+### S4 首轮 CI 实证与重载回归环境修正
+
+- 源码及回归提交 [cb10e513](https://github.com/jiacimu-droid/lulu1/commit/cb10e5134dee7c5ef9945d485cb0be2115ac39db)；原索引 [#40871402522](https://github.com/jiacimu-droid/lulu1/actions/runs/40871402522) completed/success，CODE_INDEX 基准已核对指向该 SHA。
+- [APK #40871402521](https://github.com/jiacimu-droid/lulu1/actions/runs/40871402521) completed/failure：1966 项 JVM 测试中 1 项失败，新增三项中的两项通过；完整回复链的发送、目标、幂等、红点、隔离断言均已执行，唯一失败在最后重载时找不到原帖。APK 没有生成/发布。
+- 定位测试的静态 MomentsStore.prefs 跨 Robolectric 测试应用复用：此前写入可能使用上一测试的偏好实例，末尾却从当前 Application 重新打开文件。测试现每项开头重新绑定 MomentsStore 到当前应用，并在重载前明确检查当前 backing file 已包含最后一条评论 ID；保留原重载后回复对象相等断言，不修改生产解码或删掉断言。修正仍须新 CI 证实。
+- 额外核对上轮 S3 的 #40868016796 完整日志：UTC 11:52 的 testDebugUnitTest 阶段结束后已进入 compilePhoneKotlin，随后取消；该轮 JVM 阶段已完成，phone APK/发布仍未完成。不能把整轮 cancelled 当作 APK 成功。
