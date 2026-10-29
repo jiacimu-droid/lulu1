@@ -41,6 +41,7 @@ internal class LuluCallSpeechQueue(
     private var active = false
     private var generation = 0L
     private var activeRequest: Request? = null
+    private var retryDelayJob: kotlinx.coroutines.Job? = null
     /** Includes synthesis waiting for first audio, not just audible playback. */
     val hasPendingAudio: Boolean get() = active || pending.isNotEmpty()
 
@@ -61,10 +62,12 @@ internal class LuluCallSpeechQueue(
         if (speech.isBlank()) return
         pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded,
             onProgress, retryOnFailure, if (retryOnFailure) 1 else 0))
-        if (!active) playNext()
+        if (!active && retryDelayJob?.isActive != true) playNext()
     }
 
     fun stop(clearQueue: Boolean = true) {
+        retryDelayJob?.cancel()
+        retryDelayJob = null
         activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
         // End the visual moment even on barge-in, TTS failure or hangup.
         // The generation fence below discards the now-stale finish callback.
@@ -81,6 +84,8 @@ internal class LuluCallSpeechQueue(
     }
 
     fun shutdown() {
+        retryDelayJob?.cancel()
+        retryDelayJob = null
         activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
         activeRequest?.onEnded?.invoke()
         generation += 1
@@ -127,7 +132,7 @@ internal class LuluCallSpeechQueue(
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
             scope.launch {
-                if (localGeneration != generation) return@launch
+                if (localGeneration != generation || !active || activeRequest !== request) return@launch
                 val succeeded = engine.lastPlaybackSucceeded
                 val failure = engine.lastError
                 request.speakerId?.let { AvatarController.playback(it, false) }
@@ -136,14 +141,15 @@ internal class LuluCallSpeechQueue(
                 engine.onPlaybackState = null
                 engine.onPlaybackPosition = null
                 if (!succeeded && SleepCallContinuationPolicy.shouldRetryFailedAudio(
-                        request.retryOnFailure, request.retriesRemaining)) {
+                        request.retryOnFailure, request.retriesRemaining, audible)) {
                     // Retry the identical bedtime paragraph, not a new model turn.
                     // Keep later segments queued behind this request, and fence
                     // the delayed retry against new speech or a call hangup.
                     pending.addFirst(request.copy(retriesRemaining = request.retriesRemaining - 1))
                     val retryGeneration = generation
-                    scope.launch {
+                    retryDelayJob = scope.launch {
                         delay(2_000L)
+                        retryDelayJob = null
                         if (retryGeneration == generation && !active) playNext()
                     }
                     return@launch
