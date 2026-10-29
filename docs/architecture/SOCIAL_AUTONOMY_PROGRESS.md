@@ -149,3 +149,9 @@
 - **根因定位**：新增两条fixture把信件固定在2026-10-28，person却将数字生命诞生时间设为当前时刻前60秒。正式SharedExperienceTimeline.record按DigitalLifeProfileStore.allowsTimestamp拒绝“诞生前经历”，故邮箱JSON全部保存的断言已经通过，但旧信双方的真实来源从未写入；historyForInspection正确排除不存在的证据。不是应该放宽的生产访问门禁，也不是7a335136重新剪掉了历史。
 - **修正**：仅为这两条历史恢复回归显式创建早于首封信的生命时间，并以当前时钟前一小时作为来信基线，后继邮件使用毫秒顺序，保证所有信都早于实际新send。recordDelivered先断言每个参与者出生有效，再核对真实时间线确实保存对应正文；不删掉重载、全部ID顺序、人物隔离、撤回、游标及写入失败断言。原其他三项回归的默认出生数据不变。正式邮箱保留全部历史的源码与模型窗口限制均未改。
 - **验证边界**：已运行原索引生成器及差异检查；新JVM结果仍须本次既有CI确认，不能将测试修正或排队当通过。即使社交5项通过，内驱失败未消除前也不能声称整套JVM/APK发布成功。真机、跨天自然旧话题续接及多年SharedPreferences规模仍待验。
+
+### 06时轮次提交与CI最终记录
+
+- 测试时间数据修正已提交main：[2cda68f4](https://github.com/jiacimu-droid/lulu1/commit/2cda68f457cd470f4347f4e56b572901124587d8)。对应原[Refresh code index #40963764184](https://github.com/jiacimu-droid/lulu1/actions/runs/40963764184) completed/success，自动索引提交6cbba218，基准为本修正SHA。
+- 对应[Lulu APK #40963764211](https://github.com/jiacimu-droid/lulu1/actions/runs/40963764211)、job123762903704：06:10启动，Live2D阶段成功，Android Test and build phone APK自06:11:22开始；截至06:22仍in_progress，日志接口NOT_FOUND，尚不能区分测试运行、phone编译或阻塞。没有Android JVM结束/phone/发布证据，**本轮两条私信回归与整包均未确认通过**。不将运行时长当通过，也不反复改断言或重排CI掩盖结果。下轮优先下载此job最终日志；若仍有本专项失败，继续同一真实链修复。
+- 当前源码已核验仍保留7a335136全部历史存储修复与此次日期/出生顺序修正；旧metadata被剪掉的恢复与多年性能仍不作保证。真机旧话题自然续接、后台强杀与跨天表现仍未验。
