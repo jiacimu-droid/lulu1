@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:26:06.549948+00:00",
-  "commit": "65a58085b8a21cb6e30b16cce31190617ea44814",
+  "generatedAt": "2026-10-29T10:26:23.753950+00:00",
+  "commit": "b1953c4d928db7720fc67ca49d3c1b4993d2d219",
   "branch": "main",
-  "sourceFingerprint": "bbabfbff1314765c5c3c8d0463dafb619760aa98caf3bb3a5e7bd2007bc7b870",
+  "sourceFingerprint": "106a4f4ec5a10d1fdd51ccfa6061941d3dae2aea606ce029a558c9f8f45feaac",
   "summary": {
     "files": 1062,
-    "lines": 218770,
-    "symbols": 3125
+    "lines": 218781,
+    "symbols": 3126
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5575,7 +5575,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 87
+        "line": 98
       }
     ],
     "latestPending": [
@@ -7403,7 +7403,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 74
+        "line": 85
       }
     ],
     "onResponse": [
@@ -15044,6 +15044,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "allowed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
+        "line": 49
       }
     ],
     "SleepGuidanceGuideTest": [
@@ -33578,20 +33584,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-      "lines": 101,
-      "sha256": "6064c019912f083f8e08e1da4b61e3b9e9315d3c60f34b2c922b746ece0e872d",
+      "lines": 112,
+      "sha256": "aed5fdfc7b48af90d9cfe2ca22fbfbb040ab8eed0a161f481416366f1e00997d",
       "symbols": [
         {
           "name": "SleepCallContinuationPolicyTest",
           "line": 5
         },
         {
+          "name": "allowed",
+          "line": 49
+        },
+        {
           "name": "due",
-          "line": 74
+          "line": 85
         },
         {
           "name": "eligible",
-          "line": 87
+          "line": 98
         }
       ]
     },
