@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T11:53:29.195083+00:00",
-  "commit": "de7203dab1b7df29c63ac0a843b5f4c98021072e",
+  "generatedAt": "2026-10-29T11:53:52.483796+00:00",
+  "commit": "370d3e77d8cff1e9db7314aae31b60bf9e98473a",
   "branch": "main",
-  "sourceFingerprint": "94528e8fd8186f53e7152525d2ee6ea32eda7b9dd20d88d0c3130c9c5fcc4e94",
+  "sourceFingerprint": "f1caa9e8b752f21de0fb12a85f120bd0b33c7d4704671ff870d6083c5798ce86",
   "summary": {
     "files": 1067,
-    "lines": 219929,
-    "symbols": 3137
+    "lines": 219993,
+    "symbols": 3139
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5536,6 +5536,14 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
         "line": 20
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 164
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 200
       }
     ],
     "hasExplicitBasis": [
@@ -15475,13 +15483,13 @@
     "dailyDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 256
+        "line": 320
       }
     ],
     "actualStep": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-        "line": 685
+        "line": 749
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -34342,20 +34350,28 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 717,
-      "sha256": "51ec1c2281855d082fa1cc6eb28d051d172d1edc00974a0b55cc4e0a4dfb39a5",
+      "lines": 781,
+      "sha256": "6ceea0547e79f9ed1ef10ee57b984cac3edb20a4bf0f49f805aa8c9a16e2b511",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
           "line": 20
         },
         {
+          "name": "trace",
+          "line": 164
+        },
+        {
+          "name": "trace",
+          "line": 200
+        },
+        {
           "name": "dailyDecision",
-          "line": 256
+          "line": 320
         },
         {
           "name": "actualStep",
-          "line": 685
+          "line": 749
         }
       ]
     },
