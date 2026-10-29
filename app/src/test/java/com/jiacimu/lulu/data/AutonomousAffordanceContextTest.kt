@@ -119,6 +119,23 @@ class AutonomousAffordanceContextTest {
         assertTrue(text.contains("solo_game"))
     }
 
+    @Test fun invitationOpportunityIsAsVisibleAsSoloPlayAndNeverConflatesAcceptanceWithVictory() {
+        val context = AutonomousAffordanceContext.render(
+            digital = false, location = "", books = emptyList(), groups = emptyList(),
+        )
+        assertTrue(context.contains("action=game_invite"))
+        assertTrue(context.contains("tool=send_game_invite"))
+        assertTrue(context.indexOf("action=game_invite") < context.indexOf("想自己找消遣"))
+        com.jiacimu.lulu.games.GameInvitationCatalog.titles.forEach { (id, title) ->
+            assertTrue("Missing invitation option $id", context.contains("$id=$title"))
+        }
+        assertTrue(context.contains("未回复不是拒绝"))
+        assertTrue(context.contains("发出邀请不等于被接受"))
+        assertTrue(context.contains("真实游戏结果"))
+        assertTrue(context.contains("不愿联系"))
+        assertTrue(context.contains("不用为活跃而机械邀请"))
+    }
+
     @Test fun exposesBothAutonomousGamesAndOnlySuppliedPersonalPlayHistory() {
         val withoutHistory = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),

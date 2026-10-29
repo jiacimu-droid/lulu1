@@ -35,6 +35,20 @@ enum class LuluGameType {
     RelicEscape,
 }
 
+/** A single validated invitation catalogue for the autonomous brain and actual chat executor.
+ * Inviting the owner is separate from the two games that can settle entirely off-screen. */
+object GameInvitationCatalog {
+    val titles: Map<String, String> = linkedMapOf(
+        "block_island" to "方块小岛",
+        "relic_escape" to "迷雾摸金",
+        "deep_sea_journey" to "深海回声",
+        "turtle_soup" to "海龟汤",
+        "yacht_dice" to "快艇骰子",
+        "memory_match" to "记忆配对",
+    )
+    fun title(gameId: String): String? = titles[gameId.trim().lowercase()]
+}
+
 /** Autonomous games are a subset of the games playable with the user. */
 object AutonomousGameCatalog {
     const val MEMORY_MATCH = "memory_match"

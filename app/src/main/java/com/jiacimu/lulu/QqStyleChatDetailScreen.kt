@@ -893,7 +893,13 @@ fun QqStyleChatDetailScreen(
                             onLongClick = { if (multiSelectMode) toggleSelected(message.id) else selectedMessage = message },
                             onSwipeReply = { if (multiSelectMode) toggleSelected(message.id) else beginReply(message) },
                             onAcceptGame = { gameId ->
-                                message.authorCharacterId?.let { com.jiacimu.lulu.games.LuluGames.store.selectCharacter(it) }
+                                val inviterId = message.authorCharacterId ?: author.characterId
+                                com.jiacimu.lulu.games.LuluGames.store.selectCharacter(inviterId)
+                                // The owner's real tap is evidence of acceptance, not evidence of
+                                // playing or winning. Store it under the inviter's own timeline.
+                                com.jiacimu.lulu.games.GameInvitationContinuity.recordAccepted(
+                                    context, inviterId, message.id, gameId,
+                                )
                                 onOpenGame(gameId)
                             },
                         )
