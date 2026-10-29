@@ -151,6 +151,22 @@ class CharacterExpressionGuideTest {
             .contains("真实回执"))
     }
 
+    @Test fun groupTurnIsLowDramaByDefaultWithoutErasingCharacterOrPrivateHistory() {
+        val group = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.GROUP_CHAT)
+        val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
+        assertTrue(group.contains("每位成员保持自己的一套语言偏好"))
+        assertTrue(group.contains("群里聊天不是每轮表演"))
+        assertTrue(group.contains("不因为群名有主题就把普通询问扩成一整段角色扮演"))
+        assertTrue(group.contains("一句平实回答"))
+        assertTrue(group.contains("不要为了制造笑点主动披露私人亲密细节"))
+        assertTrue(group.contains("听别人当众说了"))
+        assertTrue(group.contains("不说话"))
+        assertFalse(group.contains("每条不得超过"))
+        assertFalse(private.contains("群里聊天不是每轮表演"))
+        assertFalse(phone.contains("群里聊天不是每轮表演"))
+    }
+
     @Test fun distinctMembersKeepDistinctConfiguredVoicesInSharedGroupOrCall() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
