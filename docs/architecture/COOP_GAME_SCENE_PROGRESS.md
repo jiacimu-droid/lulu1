@@ -11,6 +11,7 @@
 ## 本地验证及边界
 
 - 使用 Kotlin 2.1.0 编译真实纯规则源码；JVM 规则测试使用 JSON/JUnit，网络模型入口用不允许调用的桩。为脱离 Android 的本地运行，仅在临时测试副本移除 Robolectric runner/注解；提交的正式测试仍使用 Robolectric。40 项游戏规则/消息投递回归通过。
-- Kotlin PSI 解析游戏目录通过；这只证明语法，不代表 Android/Compose 类型检查、APK 或真机性能。
-- 完整 Android 单测和 APK 交由仓库现有 Lulu APK 流水线执行。真机横竖屏、字体放大、麦克风、实际模型自主性、云音色质量、耗电和长时稳定性未在本地验收。
+- Kotlin PSI 解析游戏目录通过。随后使用真实 Android SDK 35、JDK 21、Gradle 8.10.2 完成 `:app:compileDebugKotlin`（Android/Compose 全源码编译）并通过；触摸层 IntSize/Float 镜头比例的编译错误已采用主干修正。
+- 正式 `:app:testDebugUnitTest` 指定 IslandActorPlayTest、RelicActorPlayTest、BlockIslandRulesTest、ExpeditionRulesTest、IslandTeamInboxTest 五类，40项 Android/Robolectric 回归通过（失败、错误、跳过均为0）。这一级没有移除 runner，没有模型网络桩替代正式应用代码。
+- 全量 Android 测试和完整手机 APK 打包仍由原 Lulu APK 流水线核验，不能以 Kotlin 编译或这40项测试代替 APK 成功。真机横竖屏、字体放大、麦克风、实际模型自主性、云音色质量、耗电和长时稳定性未在本地验收。
 - 本轮主要改造小岛与摸金；其他游戏沿用现有实现。回合行动提供自主选择机会，不宣称支持独立于游戏回合的无限实时模型操作。
