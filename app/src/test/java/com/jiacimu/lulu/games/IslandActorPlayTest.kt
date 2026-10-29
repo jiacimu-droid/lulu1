@@ -58,7 +58,9 @@ class IslandActorPlayTest {
         val s = world()
         val actor = s.world.friends.first()
         val destination = 9 to 4
-        val tiles = s.world.tiles.toMutableList()
+        // Isolate the objective from unrelated procedural trees so the candidate
+        // ranking, rather than map seed noise, is what this regression checks.
+        val tiles = MutableList(s.world.tiles.size) { 0 }
         tiles[s.world.index(destination.first, destination.second)] = 2
         val prepared = s.copy(world = s.world.copy(tiles = tiles))
         val option = IslandActorPlay.options(prepared, actor.id)

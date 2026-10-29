@@ -70,6 +70,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
+    var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by remember { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
@@ -126,13 +127,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val nearTarget = world.adjacent(target.first, target.second)
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
 
-    Column(
-        Modifier.fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF123C43), Color(0xFF102931), Color(0xFF101C26))))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
+    val boardContent: @Composable ColumnScope.() -> Unit = {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
@@ -176,7 +171,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     }
                 }
                 BlockIslandCanvas(
-                    island = island, target = target, zoomed = zoomed, night = night,
+                    island = island, target = target, companionPing = companionPing,
+                    zoomed = zoomed, night = night,
                     impact = impact, impactProgress = impactProgress.value,
                     onSelect = { x, y ->
                         target = x to y
@@ -214,6 +210,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         Text("轻触选格 · 双击目的地自动前往", color = Color(0xFF9EC9B3),
             fontSize = 10.sp)
+    }
+    val controlsContent: @Composable ColumnScope.() -> Unit = {
         if (game.playWithCharacter && world.friends.isNotEmpty() &&
             world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
             IslandCompanionPanel(
@@ -221,6 +219,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 autonomous = autonomousCompanions,
                 onAutonomousChange = { autonomousCompanions = it },
                 onSave = ::save,
+                onPing = { companionPing = it },
             )
         }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
@@ -372,6 +371,37 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             fontSize = 10.sp, color = Color(0xFF9AC0BA))
     }
 
+    val dimensions = LocalConfiguration.current
+    val widePlay = dimensions.screenWidthDp > dimensions.screenHeightDp && dimensions.screenWidthDp >= 620
+    Box(Modifier.fillMaxSize().background(
+        Brush.verticalGradient(listOf(Color(0xFF123C43), Color(0xFF102931), Color(0xFF101C26))),
+    )) {
+        if (widePlay) {
+            Row(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 7.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.weight(1.30f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    content = boardContent,
+                )
+                Column(
+                    modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(9.dp),
+                    content = controlsContent,
+                )
+            }
+        } else {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                boardContent()
+                controlsContent()
+            }
+        }
+    }
+
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
@@ -454,6 +484,7 @@ private fun islandCellTitle(tile: Int, structure: String?): String =
 private fun BlockIslandCanvas(
     island: BlockIslandState,
     target: Pair<Int, Int>,
+    companionPing: Pair<Int, Int>?,
     zoomed: Boolean,
     night: Boolean,
     impact: BlockIslandImpact?,
@@ -503,7 +534,8 @@ private fun BlockIslandCanvas(
     ) {
         with(BlockIslandArt) {
             paint(
-                island = island, selected = target, left = left, top = top,
+                island = island, selected = target, companionPing = companionPing,
+                left = left, top = top,
                 cols = cols, rows = rows, night = night, phase = phase,
                 impact = impact, impactProgress = impactProgress,
             )

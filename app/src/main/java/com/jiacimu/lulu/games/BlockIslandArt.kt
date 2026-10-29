@@ -34,6 +34,7 @@ internal object BlockIslandArt {
     internal fun DrawScope.paint(
         island: BlockIslandState,
         selected: Pair<Int, Int>,
+        companionPing: Pair<Int, Int>? = null,
         left: Int,
         top: Int,
         cols: Int,
@@ -115,6 +116,18 @@ internal object BlockIslandArt {
         if (w.x in left until left + cols && w.y in top until top + rows) {
             drawPerson(center(w.x, w.y), tile,
                 Color(0xFFEEA87C), Color(0xFF715047), phase, true)
+        }
+        // A teammate's actual selected destination, distinct from the player's yellow selection.
+        // Cyan pulses are painted from verified actions, never generated decorative targets.
+        if (companionPing != null &&
+            companionPing.first in left until left + cols &&
+            companionPing.second in top until top + rows) {
+            val c = center(companionPing.first, companionPing.second)
+            val glow = tile * (.39f + .09f * sin(phase * 6.28318f))
+            drawCircle(Color(0xFF72F0E4).copy(alpha = .17f), glow + tile * .20f, c)
+            drawCircle(Color(0xFF9BFFF0), glow, c,
+                style = Stroke((tile * .085f).coerceAtLeast(1.5f)))
+            drawCircle(Color.White, tile * .09f, c)
         }
         if (selected.first in left until left + cols && selected.second in top until top + rows) {
             val c = center(selected.first, selected.second)
