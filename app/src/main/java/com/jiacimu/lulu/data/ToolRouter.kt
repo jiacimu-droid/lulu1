@@ -99,19 +99,22 @@ object ToolRouter {
                 }
                 return result
             }
-            val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")
-            if (cap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
-            if (!CapabilityRegistry.allows(context, characterId, cap, userRequested)) return@withLock rejected("此角色尚未获准主动使用 ${cap.permission}", "waiting_user")
+            // Reconcile a previously persisted request before applying CURRENT
+            // permission/retirement policy. A completed effect is historical
+            // fact, not a fresh tool invocation: revoking access must stop new
+            // calls without hiding its old result or breaking receipt recovery.
+            // An unfinished retry-safe request still needs today's permission.
             val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
             val key = "$characterId:$requestId"
             val fingerprint = "$name:${canonical(args)}"
             val old = prefs.getString(key, null)?.let(::JSONObject)
+            val cap = CapabilityRegistry.find(name)
             if (old != null) {
                 if (old.optString("fingerprint") != fingerprint) return@withLock failure("同一执行ID的参数发生变化，请重新确认", "waiting_user")
                 if (old.optString("motiveId") != motiveId || old.optString("concernId") != concernId ||
                     old.optString("experienceId") != experienceId)
                     return@withLock failure("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
-                if (old.optString("status") != "running" || !cap.retrySafe) {
+                if (old.optString("status") != "running" || cap?.retrySafe != true) {
                     val saved = old.optString("result")
                     val receiptId = "tool-$characterId-$requestId"
                     if (old.optString("status") != "running" && saved.isNotBlank()) {
@@ -145,9 +148,14 @@ object ToolRouter {
                     }
                 }
             }
-            // Restore existing receipts BEFORE applying today's restriction: a
-            // newly closed contact window must not rewrite yesterday's real effect.
-            // Fresh attempts share this gate across primary and ordered side steps.
+            // Only a genuinely new request (or a retry-safe unfinished one)
+            // may reach the executor. Retired, unknown and newly revoked tools
+            // never gain execution permission through an old request ID.
+            val activeCap = cap ?: return@withLock rejected("未知能力：$name")
+            if (activeCap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
+            if (!CapabilityRegistry.allows(context, characterId, activeCap, userRequested))
+                return@withLock rejected("此角色尚未获准主动使用 ${activeCap.permission}", "waiting_user")
+            // The same policy applies to primary and ordered side steps.
             GoalFollowUpPolicy.contactBlockReason(
                 CharacterLifeStore.state(characterId).optJSONObject("intention"),
                 name, autonomousLifeTurn, intentionId, goalReviewMode,
@@ -272,7 +280,7 @@ object ToolRouter {
                         }
                     } else if (name == "summon_lulu") {
                         LuluScreenAwareness.summon(context, characterId)
-                    } else if (cap.domain == "phone") {
+                    } else if (activeCap.domain == "phone") {
                         LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
                     } else CompanionActionRuntime.execute(context, characterId, name, args,
                         selfInitiatedLifeTurn = autonomousLifeTurn && !userRequested).asJson()

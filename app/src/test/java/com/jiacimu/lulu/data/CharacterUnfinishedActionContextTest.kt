@@ -290,4 +290,85 @@ class CharacterUnfinishedActionContextTest {
         assertEquals("held", CharacterLifeFollowThroughStore.auditSnapshot(role)
             .single { it.getString("id") == origin }.getString("shareStatus"))
     }
+
+    @Test fun completedDeviceRequestRestoresOriginalReceiptAfterPermissionRevoked() = runBlocking {
+        val request = "replay-revoked-device-$role"
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("summary", "已完成的旧设备读取").toString()
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "get_battery").put("fingerprint", "get_battery:{}")
+            .put("status", "succeeded").put("result", result)
+            .put("causeEvidenceId", origin).put("causeEvidenceRevision", 1L)
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        // Simulate the role losing autonomous device access after the effect
+        // was committed but before its ToolResult timeline row was restored.
+        context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE).edit()
+            .putBoolean("$role:device_read", false).commit()
+        assertFalse(CapabilityRegistry.allows(context, role,
+            requireNotNull(CapabilityRegistry.find("get_battery")), false))
+        repeat(2) {
+            assertEquals(result, ToolRouter.execute(context, role, "get_battery",
+                JSONObject(), requestId = request, causeEvidenceId = origin))
+        }
+        val receiptId = "tool-$role-$request"
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(receiptId)).size)
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-rejected-$role-$request")).isEmpty())
+        assertEquals(1, SharedExperienceTimeline.all(role).count { it.id == receiptId })
+        // Current permissions still prohibit a NEW request.
+        val fresh = "new-denied-device-$role"
+        val denied = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = fresh))
+        assertFalse(denied.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-rejected-$role-$fresh")).isNotEmpty())
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$fresh")).isEmpty())
+    }
+
+    @Test fun retiredToolPreservesHistoricalOutcomeButCannotBeRunAgain() = runBlocking {
+        val request = "retired-history-$role"
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("summary", "旧版本真实保存的日记回执").toString()
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "write_journal").put("fingerprint", "write_journal:{}")
+            .put("status", "succeeded").put("result", result)
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        assertTrue(requireNotNull(CapabilityRegistry.find("write_journal")).retired)
+        assertEquals(result, ToolRouter.execute(context, role, "write_journal",
+            JSONObject(), requestId = request))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isNotEmpty())
+        val fresh = "retired-fresh-$role"
+        val rejected = JSONObject(ToolRouter.execute(context, role, "write_journal",
+            JSONObject(), requestId = fresh))
+        assertFalse(rejected.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$fresh")).isEmpty())
+    }
+
+    @Test fun requestFingerprintAndUnfinishedRetryStillHonorCurrentPolicy() = runBlocking {
+        val request = "running-revoked-$role"
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "get_battery").put("fingerprint", "get_battery:{}")
+            .put("status", "running")
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE).edit()
+            .putBoolean("$role:device_read", false).commit()
+        val denied = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request))
+        assertFalse(denied.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        // An old ID cannot bypass its immutable tool/args fingerprint.
+        val mismatch = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject().put("different", true), requestId = request, userRequested = true))
+        assertFalse(mismatch.optBoolean("success"))
+        assertTrue(mismatch.optString("error").contains("参数发生变化"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+    }
 }
