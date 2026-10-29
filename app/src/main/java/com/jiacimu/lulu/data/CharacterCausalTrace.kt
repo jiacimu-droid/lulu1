@@ -358,6 +358,26 @@ internal object CharacterCausalTrace {
             .associateBy { it.id }
         val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
         val prefix = if (historical) "历史选择的" else "本人选择对应的"
+        val chosenSource = decision.optString("causalEvidenceId")
+        val chosenRevision = decision.optLong("causalEvidenceRevision", 0L)
+        val decidedAt = runCatching {
+            java.time.Instant.parse(decision.optString("at"))
+        }.getOrNull()
+        // An executor request ID is necessary but not sufficient to attribute
+        // an old receipt to THIS choice. A reused/legacy ID may belong to a
+        // different source or revision; do not turn that effect into success.
+        fun provenanceProblem(body: JSONObject, occurredAt: java.time.Instant?): String? = when {
+            chosenSource.isBlank() || chosenRevision <= 0L ->
+                "本人选择未保存可核对的原始依据版本"
+            body.optString("causeEvidenceId") != chosenSource ->
+                "执行记录绑定了另一条原始依据"
+            body.optLong("causeEvidenceRevision", 0L) != chosenRevision ->
+                "执行记录的原始依据版本与本人选择不同"
+            decidedAt == null -> "本人选择时间缺失"
+            occurredAt == null -> "执行记录时间缺失"
+            occurredAt.isBefore(decidedAt) -> "执行记录早于本人选择"
+            else -> null
+        }
         return ids.flatMap { (slot, id) ->
             val found = listOf("tool-$characterId-$id", "tool-rejected-$characterId-$id")
                 .mapNotNull(actual::get)
@@ -369,26 +389,28 @@ internal object CharacterCausalTrace {
             if (found.isNotEmpty()) found.map { event ->
                 val body = objectValue(event.content)!!
                 val line = receiptLine(context, characterId, event, body)
-                val decidedAt = runCatching {
-                    java.time.Instant.parse(decision.optString("at"))
-                }.getOrNull()
-                val timeMismatch = decidedAt == null || event.occurredAt.isBefore(decidedAt)
-                line.copy(
-                    title = "$prefix$slot · ${line.title}" +
-                        if (timeMismatch) " · 时序未证实" else "",
-                    detail = if (timeMismatch)
-                        "回执时间早于选择或选择时间缺失，不能证明本次选择导致执行；${line.detail}"
-                    else line.detail,
+                val problem = provenanceProblem(body, event.occurredAt)
+                if (problem == null) line.copy(title = "$prefix$slot · ${line.title}")
+                else CharacterCausalTraceLine(
+                    "$prefix$slot · 回执归属未证实",
+                    "$problem；另有实际回执（${line.title}），但不能证明这次选择执行了它；${line.detail}",
+                    event.id,
                 )
             } else {
                 // A process may die after the durable request claim but before
-                // its independent timeline receipt. Do not call that success.
+                // its independent timeline receipt. Read the original claim,
+                // but never borrow another source's persisted result.
                 val persisted = prefs.getString("$characterId:$id", null)
                     ?.let { runCatching { JSONObject(it) }.getOrNull() }
                     ?.takeIf { it.optString("characterId") == characterId &&
                         it.optString("requestId") == id }
+                val persistedAt = persisted?.optString("startedAt")?.takeIf(String::isNotBlank)
+                    ?.let { runCatching { java.time.Instant.parse(it) }.getOrNull() }
+                val problem = persisted?.let { provenanceProblem(it, persistedAt) }
                 val detail = when {
                     persisted == null -> "没有找到该请求的持久化执行记录或回执；不能断定执行过"
+                    problem != null ->
+                        "执行记录归属未证实（$problem）；结果尚未确认属于本次选择，不能据此认定执行过"
                     persisted.optString("status") == "running" ->
                         "执行请求已持久化，结果尚未确认；不得盲目重复副作用"
                     persisted.optString("result").isNotBlank() ->
