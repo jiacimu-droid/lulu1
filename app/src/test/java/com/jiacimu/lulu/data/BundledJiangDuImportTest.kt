@@ -270,6 +270,8 @@ class BundledJiangDuImportTest {
             val old = JSONObject(previous.toString())
             old.put("xingHeProfileVersion", 5).remove("xingHeV5KnowledgeBackup")
             old.getJSONObject("profile").put("social", CharacterProfileSchema.xingHeV5Social)
+            old.getJSONObject("relationshipAgreements").getJSONObject("user")
+                .put("details", CharacterProfileSchema.xingHeV5Friendship)
             save.invoke(CharacterLifeStore, "lulu", old)
             CharacterIdentityStore.set("lulu", CharacterProfileSchema.xingHeV5Identity)
             CharacterLifeStore.initialize(context)
@@ -280,6 +282,8 @@ class BundledJiangDuImportTest {
                 CharacterIdentityStore.identities.value["lulu"])
             assertEquals(CharacterProfileSchema.xingHeProfile.getValue("social"),
                 updated.getJSONObject("profile").getString("social"))
+            assertEquals(CharacterProfileSchema.xingHeFriendship,
+                updated.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
             assertFalse(CharacterRuntime.definition("lulu").promptSection().contains("江渡"))
             assertEquals(otherBefore, CharacterLifeStore.state(otherId).toString())
             // An owner-edited identity and a deliberately blank social field are authoritative.
