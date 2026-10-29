@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:01:20.060513+00:00",
-  "commit": "a438da3cee98841549143af93b8a61bbece703f2",
+  "generatedAt": "2026-10-29T12:02:00.761076+00:00",
+  "commit": "2f953bacd8c9b985155288cba4888ad3884ba1ab",
   "branch": "main",
-  "sourceFingerprint": "912a4f858ab46033170021b141332ce25ca18cc114ba41a42ca4e4fd4809c521",
+  "sourceFingerprint": "4a0bfc7be15932e2ee1713fc8b8c82c46e092e40d48afd9201b1931f6ebc91be",
   "summary": {
     "files": 1067,
-    "lines": 220001,
+    "lines": 220060,
     "symbols": 3139
   },
   "symbolIndex": {
@@ -15905,7 +15905,7 @@
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-        "line": 398
+        "line": 457
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -34958,8 +34958,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 461,
-      "sha256": "b105ce1b4abaa7351e568c7ca83cdd6c48c921eb44b8a84134242e2d0dc0443c",
+      "lines": 520,
+      "sha256": "ddba03e42439ba941e682d954071f1158bf09e77a43e96563493f8b29ebc247d",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
@@ -34967,7 +34967,7 @@
         },
         {
           "name": "item",
-          "line": 398
+          "line": 457
         }
       ]
     },
