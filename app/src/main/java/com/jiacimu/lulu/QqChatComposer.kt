@@ -275,7 +275,10 @@ internal fun QqChatComposer(
 
             FilledTonalIconButton(
                 onClick = {
-                    if (receiving) onStop()
+                    // The user can interrupt an ongoing group conversation
+                    // simply by sending their new message. Stop remains
+                    // available when the draft is empty.
+                    if (receiving && !canSend) onStop()
                     else if (!importingPhoto && onWakeOrReply(payload())) clearAttachment()
                 },
                 enabled = receiving || !importingPhoto,
@@ -285,8 +288,8 @@ internal fun QqChatComposer(
                 ),
             ) {
                 Icon(
-                    if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
-                    if (receiving) "停止" else "回复",
+                    if (receiving && !canSend) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
+                    if (receiving && !canSend) "停止" else if (receiving) "发送并插话" else "回复",
                 )
             }
         }
