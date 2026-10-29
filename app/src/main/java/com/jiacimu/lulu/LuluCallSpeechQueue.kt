@@ -54,6 +54,12 @@ internal class LuluCallSpeechQueue(
         )
     }
 
+    // Kotlin's trailing-lambda syntax does not accept a vararg-only
+    // parameter. Keep one-callback and multi-callback overloads explicit.
+    private fun notifySafely(callback: () -> Unit) {
+        notifySafely(*arrayOf(callback))
+    }
+
     init { ChatAutoVoicePlayback.initialize(appContext) }
 
     fun enqueue(
