@@ -822,6 +822,8 @@ class CompanionModelGateway(
             failedRequestShape =
                 "systemChars=${systemPrompt.length};currentChars=${userPrompt.length};" +
                 "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size};" +
+                "transport=${if (streamResponse) "sse" else "json"};" +
+                "maxTokens=${maxTokens ?: "unset"};contextMode=${effectiveMode.name};" +
                 "largestSections=$largestSections"
             val reducedSections = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactSectionPairs(systemSections) else emptyList()
