@@ -53,6 +53,30 @@ class AutonomyCallAndReceiptTest {
         assertTrue(instruction.contains("不能代替真正的 start_call"))
     }
 
+    @Test fun roleOffersExplicitVideoCallRatherThanVoiceAndLegacyInvitationStaysVoice() {
+        val instruction = proactiveDecisionInstruction("explicit-video-call", directPrivateChat = true)
+        assertTrue(instruction.contains("mediaMode"))
+        val now = Instant.parse("2026-10-29T12:00:00Z")
+        val video = ProactiveIncomingCall("role", "chat", "打视频", now,
+            now.plusSeconds(120), mediaMode = "video")
+        val legacyVoice = ProactiveIncomingCall("role", "chat", "普通来电", now,
+            now.plusSeconds(120))
+        assertEquals("video", video.mediaMode)
+        assertEquals("voice", legacyVoice.mediaMode)
+        try {
+            video.copy(mediaMode = "audio_and_video")
+            fail("Unsupported media types must never silently become voice")
+        } catch (_: IllegalArgumentException) {
+            // Explicitly rejected; the executor must not claim a different call was offered.
+        }
+        val action = JSONObject().put("action", "message").put("text", "马上打视频")
+            .put("steps", JSONArray().put(JSONObject().put("tool", "start_call")
+                .put("args", JSONObject().put("text", "看见我啦")
+                    .put("mediaMode", "video"))))
+        assertEquals("video", CharacterThoughtActionHandoff.actions(action)!!
+            .getJSONObject(0).getJSONObject("args").getString("mediaMode"))
+    }
+
     @Test fun callActionSurvivesTaskPersistence() {
         val task = CommitmentTask(
             characterId = "promised-call",
