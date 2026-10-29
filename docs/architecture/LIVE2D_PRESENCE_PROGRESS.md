@@ -19,8 +19,8 @@
 - **根因二**：旧 Motion3 的异步加载 Promise 在新选择之后才返回时，原回调仅看新动作是否 started 和 group/index 是否相同；如果新动作尚在加载且恰好同名，`stopAllMotions()` 会把**新**动作一起停掉。这是播放权归属/版本竞争，不是模型没有选择 Motion。
 - **源码修复**：`tools/live2d/src/stage.js` 的 continue 仅在同一来源的同一动作**仍在等待或播放中**时复用；检测到 Cubism `isFinished()===true` 则允许下一句重新开播。迟到的旧 Promise 只有在**没有任何新动作接管**且当前管理器仍显示旧资源时才可 stop，不再凭相同 group/index 杀掉后继选择。角色仍自行选择 Motion；程序只维护实际播放生命周期和取消版本。
 - **回归**：`tools/live2d/test/touch-hit.mjs` 用真实 stage `motion()` 函数和可控异步模型，覆盖 pending continue 不重复加载、已结束片段重新播放、同名旧 Promise 不杀新选择、当前动作 continue、触摸来源不冒充角色、无后继时旧动作仍可停止。
-- **提交**：[d561907](https://github.com/jiacimu-droid/lulu1/commit/d561907529949b05bee907ad3c2944fac7a231e7)、[04387b6](https://github.com/jiacimu-droid/lulu1/commit/04387b6eeb6a68243c55c4f55011df6fd74fbe41)（现有 main，无分支/PR/Issue）。
-- **验证分层**：源码及回归已提交；本轮提交后的 [Lulu APK #40841896554](https://github.com/jiacimu-droid/lulu1/actions/runs/40841896554) 在写入本记录时仍为 pending，**尚不能宣称通过**。本次仅改 `tools/live2d/`（现有代码索引生成器统计 app/scripts/preview；工具源码不在该索引的文件表中），不手工伪造 `CODE_INDEX.md`。若索引工作流对后续 main 自动刷新，以工作流真实结果为准。
+- **提交**：[d561907](https://github.com/jiacimu-droid/lulu1/commit/d561907529949b05bee907ad3c2944fac7a231e7)、[04387b6](https://github.com/jiacimu-droid/lulu1/commit/04387b6eeb6a68243c55c4f55011df6fd74fbe41)、[1dad673](https://github.com/jiacimu-droid/lulu1/commit/1dad673fa6a5b7cec63e392e154b2e7336d27665)（VM Promise 回归按实际 event-loop flush，已做本地最小异步竞争 smoke）。均在现有 main，无分支/PR/Issue。
+- **验证分层**：源码及回归已提交；本地最小异步竞争 smoke 通过。前三个中间提交的 APK run 因 main 后续提交而 cancelled，不能算成功。合并本轮修复后的 [Lulu APK #40842109101](https://github.com/jiacimu-droid/lulu1/actions/runs/40842109101) 对应 `5431c09e`（另含并行内驱专项变更），在本次核对时 **Live2D JS 构建/测试步骤已 success，Android JVM/assemblePhone/收集/发布仍在运行，不能宣称全部通过**。原有 [代码索引 #40842109009](https://github.com/jiacimu-droid/lulu1/actions/runs/40842109009) 已 success；本次仅改 `tools/live2d/`（现有代码索引生成器统计 app/scripts/preview；工具源码不在该索引文件表中），不手工伪造 `CODE_INDEX.md`。真机动作未验。
 
 ## 待真机验收
 
