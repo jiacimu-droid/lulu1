@@ -111,12 +111,11 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     // Save the player's per-game manual toggle across orientation configuration changes.
     val context = LocalContext.current
     val hostActivity = remember(context) { context.gameHostActivity() }
-    val landscapeSupported = route in setOf(
-        GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.DeepSea,
-    )
+    val landscapeSupported = gameSupportsLandscape(route.savedGameId())
     var landscape by rememberSaveable(route.savedGameId()) { mutableStateOf(true) }
-    val requestedGameOrientation = if (pendingRoute == null && landscapeSupported && landscape)
-        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    val requestedGameOrientation = gameRequestedOrientation(
+        route.savedGameId(), selectionOpen = pendingRoute != null, preferLandscape = landscape,
+    )
 
     // One owner for the orientation request, covering game, picker and lobby routes.
     // Avoid restoring UNSPECIFIED while the physical phone is still horizontal.
@@ -856,6 +855,20 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
             }
         }
     }
+}
+
+/** Pure display contract: every non-world screen, including pickers, must be portrait. */
+internal fun gameSupportsLandscape(routeId: String): Boolean =
+    routeId in setOf("deep_sea_journey", "block_island", "relic_escape")
+
+internal fun gameRequestedOrientation(
+    routeId: String,
+    selectionOpen: Boolean,
+    preferLandscape: Boolean,
+): Int = if (!selectionOpen && preferLandscape && gameSupportsLandscape(routeId)) {
+    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+} else {
+    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 }
 
 /** Resolve themed/wrapped Compose contexts without assuming LocalContext is an Activity. */
