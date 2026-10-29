@@ -566,6 +566,43 @@ assert.equal(motions.length, beforeHiddenQueue + 1,
   'new visible turn starts on its own TTS event')
 bridge.onPlaybackEvent('interrupted', 0, 3303, 'fresh')
 
+// Versioned audio events own speaking even when Compose sends coarse status
+// ahead of onStarted, behind onFinished, or during the next spoken fragment.
+bridge.perform({ visualSequence: 3400, beats: [
+  { segmentIndex: 0, segmentId: 'first', atMs: 0, head: { roll: 2 } },
+] })
+bridge.update({ speaking: true, listening: true, mouth: .8, hasPcmSamples: true })
+assert.equal(bridge.playing, false, 'coarse speaking must not pre-open the mouth')
+assert.equal(bridge.performanceRuntime.state().speaking, false)
+bridge.onPlaybackEvent('playing', 0, 3400, 'first')
+assert.equal(bridge.playing, true, 'actual first audible sample starts speaking')
+bridge.update({ speaking: false, listening: false, mouth: 0, hasPcmSamples: false })
+assert.equal(bridge.playing, true, 'late coarse false cannot close audible speech')
+bridge.onPlaybackEvent('finished', 0, 3400, 'first')
+bridge.update({ speaking: true, mouth: .8 })
+assert.equal(bridge.playing, false, 'late coarse true cannot revive a finished segment')
+bridge.perform({ visualSequence: 3401, beats: [
+  { segmentIndex: 0, segmentId: 'second', atMs: 0, head: { roll: -2 } },
+  { segmentIndex: 1, segmentId: 'third', atMs: 0, head: { roll: 3 } },
+] })
+bridge.update({ speaking: true, mouth: .8 })
+assert.equal(bridge.playing, false, 'next decision still waits for its own onStarted')
+bridge.onPlaybackEvent('playing', 0, 3401, 'second')
+assert.equal(bridge.playing, true)
+clock += 80
+bridge.onPlaybackEvent('playing', 1, 3401, 'third')
+assert.equal(bridge.speakingBeganAt, clock,
+  'each actual segment start refreshes lip timing, even without a false status')
+bridge.update({ speaking: false, mouth: 0 })
+assert.equal(bridge.playing, true)
+bridge.onPlaybackEvent('interrupted', 1, 3401, 'third')
+bridge.update({ speaking: true, mouth: .8 })
+assert.equal(bridge.playing, false, 'interrupted versioned audio cannot reopen via coarse status')
+bridge.perform({ visualSequence: 0, head: { roll: 1 } })
+bridge.update({ speaking: true, mouth: .3 })
+assert.equal(bridge.playing, true, 'a new explicit legacy cue restores coarse provider behavior')
+bridge.update({ speaking: false, mouth: 0 })
+
 // Once actual audio positions exist, wall time and a stalled HTTP stream do
 // not advance a future beat. No character-count timestamps are synthesized.
 const audioClock = createPerformanceRuntime({ now: () => clock })

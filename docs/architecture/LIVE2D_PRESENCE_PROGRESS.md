@@ -70,3 +70,11 @@
 - **修复**：`tools/live2d/src/stage.js` 统一取消顶层待发动作与表情，隐藏时拒绝新 `perform`，`activatePendingSpeechMoment` 不消费暂停阶段队列；新一轮可见 TTS 首音仍可正常启动。不增加模型调用或状态中心。
 - **回归**：`tools/live2d/test/conversation-performance.mjs` 使用实际 stage VM 验证旧音频→新句排队→隐藏→粗状态迟到→重新显示→真正新句开声。仅修改本专项文件，现有索引生成器不扫描 `tools/live2d`，不手写 CODE_INDEX。
 - **验收边界**：本提交只是源码与回归，待 GitHub Actions 的 JS 测试、Android JVM、assemblePhone、APK 收集/发布核验；真机隐藏/恢复、低 FPS、触摸并发和音画同步未验。
+
+## 2026-10-29 22:29：粗 speaking 快照抢占真实 TTS 片段所有权（L1/L2）
+
+- **复核与分类**：完整读取 10-29 Library 大纲、AGENTS、CODE_INDEX、统一人物契约、成长框架、10-28 连续性计划及本专项进度，核对最新 main/并行专项与 v6605 基线。真实 Motion3、逐句 TTS ID/首音、已终止片段墓碑、隐藏取消及触摸参数分层均已有，不重建；15/30FPS、校准与自然度仍属真机待验；词级时间戳是可选增强。
+- **证实的真实缺口**：Android `Live2DCallStage` 用独立 Compose effect 发送粗 `update(speaking)` 与精确 `onPlaybackEvent`，到达顺序不保证。stage 的 `update` 原本无条件重写 `playing`，可在首音前提前张嘴、真正说话中被迟到 false 关闭，或完成/打断后由迟到 true 复活；连续句在旧 `playing=true` 时收到下一段精确 started 还会跳过唇部时间重置。这是本地时序所有权错误，不是角色没选择动作。
+- **实现**：仅在 `tools/live2d/src/stage.js` 增加最小的版本化语音所有权门禁：有明确 `visualSequence` 的表演由实际 onStarted/finished/interrupted 控制 `playing`，粗状态仅更新 PCM/倾听；完成、打断及隐藏后的迟到快照不再抢权。新显式无版本 cue/无版本 started 仍可恢复旧供应商的粗状态。真正换段时刷新开声时间，重复同段回调不重播。未改模型选择、人物主循环、Store、TTS API 或付费轮次。
+- **回归**：现有 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 新增首音前粗 true、播放中粗 false、结束/打断后粗 true、连续下一段开始时间以及显式 legacy cue 兼容断言。仅修改 `tools/live2d/` 和本专项进度；索引生成器覆盖 `app/scripts/preview`，本轮不改其集合，故不伪造索引。
+- **验证分层**：提交时源码与回归已落 main；CI 的 Live2D JS、Android JVM、assemblePhone、收集/发布须以对应 SHA 运行结果另行核验；真机 15/30FPS、音画首音差、模型切换与发热均未验。

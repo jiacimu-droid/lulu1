@@ -794,6 +794,7 @@ async function load(modelURL) {
     audioSegmentIndex = 0
     audioSegmentId = ''
     finalizedAudio = null
+    preciseSpeechOwnership = false
     mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
     headRequest = null
@@ -896,10 +897,12 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
           segmentIndex < audioSegmentIndex)) return
     // Android sends a start only after this exact queued TTS fragment emits
     // actual audio. Never replay a visual choice from another voice turn.
+    let newAudioFragment = false
     if (Number.isInteger(segmentIndex) && segmentIndex >= 0 && segmentIndex < 16 &&
         Number.isSafeInteger(eventVisualSequence) && eventVisualSequence >= 0) {
       const changed = audioVisualSequence !== eventVisualSequence ||
         audioSegmentIndex !== segmentIndex
+      newAudioFragment = changed
       audioVisualSequence = eventVisualSequence
       audioSegmentIndex = segmentIndex
       audioSegmentId = segmentId
@@ -915,8 +918,11 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
         }
       }
     }
-    // PCM/status and utterance events must not restart one speech performance.
-    if (playing) {
+    // The exact utterance event, not a coarse Compose status snapshot, owns
+    // the audible fragment. A new segment must refresh mouth timing even if
+    // the previous segment was still marked as playing.
+    preciseSpeechOwnership = eventVisualSequence > 0 || scoreVisualSequence > 0
+    if (playing && !newAudioFragment) {
       activatePendingSpeechMoment()
       return
     }
@@ -990,7 +996,11 @@ function audioPosition(sequence, segmentIndex, segmentId, elapsedMs) {
 }
 function update(next) {
   const wasPlaying = playing
-  playing = !!next.speaking
+  // Versioned TTS onStarted/onFinished owns the mouth's speaking lease.
+  // Compose's coarse snapshot may be delivered before start, after finish,
+  // or out of order with a segment change; it only supplies PCM/listening.
+  // Legacy providers without a versioned cue retain coarse status control.
+  if (!preciseSpeechOwnership) playing = !!next.speaking
   listening = !!next.listening
   pcmAvailable = !!next.hasPcmSamples
   const incomingMouth = Number(next.mouth)
@@ -1654,6 +1664,9 @@ function expression(name, immediatePreview = false) {
 // loop or audio timers: segment boundaries come from actual TTS onStarted.
 let scoredBeats = []
 let scoreVisualSequence = 0
+// One local playback owner, not a second character state: versioned TTS
+// callbacks outrank delayed coarse Compose snapshots until a new legacy cue.
+let preciseSpeechOwnership = false
 let audioVisualSequence = 0
 let audioSegmentIndex = 0
 let audioSegmentId = ''
@@ -1678,6 +1691,7 @@ function perform(cue, immediatePreview = false) {
   performanceRuntime.clearScore()
   scoreVisualSequence = Number.isSafeInteger(cue.visualSequence) && cue.visualSequence > 0
     ? cue.visualSequence : 0
+  preciseSpeechOwnership = scoreVisualSequence > 0
   scoredBeats = []
   // A new model decision may arrive while a previous utterance remains
   // audible. Do not run this turn's score against that older audio clock.
