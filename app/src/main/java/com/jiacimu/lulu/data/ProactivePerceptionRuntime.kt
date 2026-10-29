@@ -2403,6 +2403,11 @@ object ProactivePerceptionRuntime {
             put("incidentId", decision.incidentId)
             put("approach", decision.approach)
         }
+        if (decision.action == Action.CALL) {
+            // Direct action=call keeps the model's explicit medium; it is not inferred from text.
+            decision.toolArgs.optString("mediaMode").takeIf(String::isNotBlank)
+                ?.let { args.put("mediaMode", it) }
+        }
         if (decision.action != Action.TOOL) {
             decision.toolArgs.optString("planId").takeIf(String::isNotBlank)?.let { args.put("planId", it) }
         }
