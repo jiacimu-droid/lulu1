@@ -378,6 +378,12 @@ object CompanionOnlineStore {
             message.status == LuluChatMessage.Status.Sent &&
             !message.id.startsWith("voice-")
 
+    /** Public-message transport decision, not a judgement of any character's intent. */
+    internal fun shouldCoordinateGroupTurn(
+        isGroup: Boolean, userMessage: Boolean, appVisible: Boolean,
+        inGroupCall: Boolean,
+    ): Boolean = isGroup && userMessage && appVisible && !inGroupCall
+
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
         if (message.status != LuluChatMessage.Status.Sent) return
@@ -398,12 +404,14 @@ object CompanionOnlineStore {
         // While the app is visible, an owner-written group bubble has ONE
         // coordinator, not simultaneous independent online generators for
         // every member. Calls and background deliveries keep their own paths.
-        val coordinatedGroupTurn = conversation.groupChat != null &&
-            message.sender == LuluChatMessage.Sender.User &&
-            UserInteractionPresenceStore.state.value.appVisible &&
-            conversation.groupChat.members.none {
+        val coordinatedGroupTurn = shouldCoordinateGroupTurn(
+            isGroup = conversation.groupChat != null,
+            userMessage = message.sender == LuluChatMessage.Sender.User,
+            appVisible = UserInteractionPresenceStore.state.value.appVisible,
+            inGroupCall = conversation.groupChat?.members?.any {
                 CompanionPresenceStore.isInCall(it.characterId)
-            }
+            } == true,
+        )
         if (message.sender == LuluChatMessage.Sender.User) {
             // Open the quiet window at the FIRST bubble even if the character is
             // still offline. Pressing the wake button later must reuse this
