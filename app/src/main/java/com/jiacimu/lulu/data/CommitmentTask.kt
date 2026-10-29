@@ -56,7 +56,7 @@ internal fun CommitmentTask.readableLastResult(): String = lastActionResult
     .replace("对应辞海约定已删除", "对应约定记录已删除")
 
 internal fun CommitmentTask.isOutcomeReview(): Boolean =
-    followUpKind == "verification" && attemptCount > 0
+    followUpKind == "verification"
 
 /** An undated responsibility still needs a model-owned next-step review.
  * NeedsClarification is not permission to assume the missing user condition,
