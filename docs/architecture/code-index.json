@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:17:23.756124+00:00",
-  "commit": "a55ccf0b66cebc68073b166b9f9df74a50fd8bb1",
+  "generatedAt": "2026-10-29T16:18:42.759174+00:00",
+  "commit": "308d2e5f9b44ffb018027b49e4b8789c196f2d96",
   "branch": "main",
-  "sourceFingerprint": "4d4ba4918b46bebe7392925b1021444f1c8631945088336a53a005598201652f",
+  "sourceFingerprint": "ab2be39681a8b4df38537cf4f581c917d05d01fb89f88d777482d8725e705f06",
   "summary": {
-    "files": 1080,
-    "lines": 223176,
-    "symbols": 3171
+    "files": 1081,
+    "lines": 223244,
+    "symbols": 3172
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16830,6 +16830,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MomentOwnerUnreadTest.kt",
         "line": 5
+      }
+    ],
+    "MomentsOwnerUnreadIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
+        "line": 16
       }
     ],
     "NarrativeMemoryRecallIntegrationTest": [
@@ -36319,6 +36325,17 @@
         {
           "name": "MomentOwnerUnreadTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
+      "lines": 68,
+      "sha256": "34eaffef853d7fc12074aaff10ed0278c808b93dd4272199f2c4a69a424640d5",
+      "symbols": [
+        {
+          "name": "MomentsOwnerUnreadIntegrationTest",
+          "line": 16
         }
       ]
     },
