@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T11:01:03.233745+00:00",
-  "commit": "19d95ba1ed555fd59bdb1a98234e830463d2ef99",
+  "generatedAt": "2026-10-29T11:08:59.052682+00:00",
+  "commit": "51f70e331a948efc57110c6f1c9759140142d0a6",
   "branch": "main",
-  "sourceFingerprint": "27fb33203674f3e80d5ce918708eff1826270e865d5e0154ff7f38aa983ad45e",
+  "sourceFingerprint": "659bda94474719c940f803ebf530b2711900c3f213e7991fceaf16f4fda3a12b",
   "summary": {
-    "files": 1066,
-    "lines": 219396,
-    "symbols": 3133
+    "files": 1067,
+    "lines": 219595,
+    "symbols": 3134
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1785,7 +1785,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 182
+        "line": 192
       }
     ],
     "angles": [
@@ -11255,7 +11255,7 @@
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 147
+        "line": 152
       }
     ],
     "RoleDayPlan": [
@@ -17106,6 +17106,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
         "line": 16
+      }
+    ],
+    "ResidentMailDeliveryAtomicityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt",
+        "line": 26
       }
     ],
     "ResidentManualRecoveryTest": [
@@ -28563,8 +28569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 235,
-      "sha256": "73dd4a0da90f7bfe3cfed6ddb08bf5ca886a060a3e10c9df4d144fa89e14ceaf",
+      "lines": 244,
+      "sha256": "3651c33da61acf7dce4385e29514b2aba5cb11ae57ac6b89768bedc81590b91f",
       "symbols": [
         {
           "name": "contactsOf",
@@ -28584,11 +28590,11 @@
         },
         {
           "name": "visibleContacts",
-          "line": 147
+          "line": 152
         },
         {
           "name": "send",
-          "line": 182
+          "line": 192
         }
       ]
     },
@@ -36487,6 +36493,17 @@
         {
           "name": "ResidentMailCausalIntegrationTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt",
+      "lines": 190,
+      "sha256": "36fd316e1f2992ae18f64922a7054ff47515a4fa74fbdbae851c9339203a58a7",
+      "symbols": [
+        {
+          "name": "ResidentMailDeliveryAtomicityTest",
+          "line": 26
         }
       ]
     },
