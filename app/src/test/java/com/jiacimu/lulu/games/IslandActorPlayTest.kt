@@ -2,7 +2,13 @@ package com.jiacimu.lulu.games
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+/** Android JSONObject and the persisted island codec must run against a real Robolectric runtime. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class IslandActorPlayTest {
     private fun world(): BlockIslandState {
         val original=BlockIslandRules.newWorld(1337,listOf("alice","bob"))
