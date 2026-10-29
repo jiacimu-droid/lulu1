@@ -291,9 +291,16 @@ object CharacterInnerLifeStore {
         return true
     }
 
+    // Keep the original trailing-lambda contract: many existing callers use
+    // save(role, state) { field, entry -> ... } for archive withdrawal.
     private fun save(id: String, state: JSONObject,
-        removeArchive: ((String, JSONObject) -> Boolean)? = null,
-        retiredHistory: Map<String, List<JSONObject>> = emptyMap()) {
+        removeArchive: ((String, JSONObject) -> Boolean)? = null) {
+        saveWithRetired(id, state, removeArchive, emptyMap())
+    }
+
+    private fun saveWithRetired(id: String, state: JSONObject,
+        removeArchive: ((String, JSONObject) -> Boolean)?,
+        retiredHistory: Map<String, List<JSONObject>>) {
         val store = prefs ?: error("内在生活状态尚未初始化")
         val edit = store.edit()
         CharacterInnerHistoryArchive.prepare(store, id, state, edit, removeArchive, retiredHistory)
@@ -557,7 +564,7 @@ object CharacterInnerLifeStore {
                         .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
             }
             if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
-                save(characterId, root, removeArchive, retired)
+                saveWithRetired(characterId, root, removeArchive, retired)
         }
     }
 

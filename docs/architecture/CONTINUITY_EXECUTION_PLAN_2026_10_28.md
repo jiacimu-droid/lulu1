@@ -387,3 +387,5 @@
 - [x] 源码：编辑原始事件时仍撤销全部当前心理/关系/成长投影和感知检查点，但将当时已存在的本人 thoughts/decisions 只放入原 CharacterInnerHistoryArchive 冷页（与热状态同一 SharedPreferences 事务）；普通模型 snapshot 不再包含旧版本心理，展开原事件仍能看到精确来源和历史修订号。真正 deleteEvent/forgetExactThought/clear 仍从热/冷全部撤回；重复刺激引用也参与删除校验，不能借次要刺激复活已删除来源。没有新人物中心或模型调用。
 - [x] 回归：原先历史心念编辑测试继续执行；新增本人旧想法+未执行的选择在编辑后仅冷归档可查、不同人物隔离、撤回后全部清除；居民真实私信补正回归使用真实当前时刻而非未来虚拟出生时间，另核对反向联系权限。CI 1882 项中的其他通过结果不能代替本次新构建。
 - [ ] 待验证：新的 Android JVM 全套、APK、索引生成、真机长历史/编辑/撤回。历史归档之前已被永久裁掉的旧数据无法恢复；多次编辑及历史页大规模查询仍需专项压力测试。
+
+- CI 校正：#40797339580 在 compileDebugKotlin 失败。根因是新增 retiredHistory 默认参数被放到 save 的最后，破坏原有 Kotlin trailing-lambda 调用形式（如 save(role, root) { field, entry -> ... }），编译器把归档删除 lambda 当成 Map。已恢复原 save 签名，只有需要冷归档追加的编辑路径调用单独 saveWithRetired；不得把这次失败当作测试已通过。下一次 CI/APK 与真机仍待验。
