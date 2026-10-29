@@ -234,7 +234,7 @@ object SharedExperienceTimeline {
             CharacterLearningAgenda.invalidateEvidence(eventId)
             com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
-            CharacterInnerLifeStore.invalidateEvidence(eventId)
+            CharacterInnerLifeStore.invalidateEvidence(eventId, preserveHistoricalChoices = true)
             CommitmentTaskStore.invalidateCompletionEvidence(eventId)
             // Recreate an opportunity only from the freshly edited factual event.
             if (triggerExtraction && verifiedLifeEvent &&

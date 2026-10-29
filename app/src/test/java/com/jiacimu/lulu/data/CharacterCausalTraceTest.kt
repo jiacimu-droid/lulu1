@@ -436,6 +436,34 @@ class CharacterCausalTraceTest {
             SharedExperienceTimeline.all(a), JSONObject()).any { it.title.contains("本人想法") })
     }
 
+    @Test fun editedSourceRetiresDecisionsAndThoughtsWithoutReplayingOrErasingOtherPeople() {
+        val id = "trace-edited-private-history"
+        source(a, id, "原话：我可能会分享")
+        CharacterInnerLifeStore.observe(a, id, "原话：我可能会分享",
+            JSONObject().put("thoughts", JSONArray().put(
+                JSONObject().put("thought", "先想一想再分享"))), now = at)
+        CharacterInnerLifeStore.recordDecision(a, "trace-old-private-choice",
+            "publish_moment", "本人原先选择分享", "", null,
+            "没有实际执行回执", false, now = at.plusSeconds(1), causalEvidenceId = id)
+        assertEquals(1, CharacterInnerLifeStore.decisionsForEvidence(a, id).size)
+        source(a, id, "新话：现在不要分享")
+        assertTrue((CharacterInnerLifeStore.snapshot(a).optJSONArray("thoughts")?.length() ?: 0) == 0)
+        assertTrue((CharacterInnerLifeStore.snapshot(a).optJSONArray("decisions")?.length() ?: 0) == 0)
+        assertEquals(1, CharacterInnerLifeStore.thoughtsForEvidence(a, id).size)
+        assertEquals(1, CharacterInnerLifeStore.decisionsForEvidence(a, id).size)
+        assertTrue(CharacterInnerLifeStore.decisionsForEvidence(b, id).isEmpty())
+        val old = CharacterCausalTrace.inspect(context, a, event(a, id),
+            SharedExperienceTimeline.all(a), JSONObject())
+        assertTrue(old.any { it.title.contains("本人选择") &&
+            it.title.contains("历史版本 1") &&
+            it.detail.contains("不能用新文字解释旧选择") })
+        assertFalse(old.any { it.title.contains("执行器确认成功") })
+        SharedExperienceTimeline.deleteEvent(id)
+        assertTrue(CharacterInnerLifeStore.thoughtsForEvidence(a, id).isEmpty())
+        assertTrue(CharacterInnerLifeStore.decisionsForEvidence(a, id).isEmpty())
+        assertTrue(SharedExperienceTimeline.eventsByIds(a, listOf(id)).isEmpty())
+    }
+
     @Test fun repeatedThoughtKeepsEachActualStimulusVersionWithoutClaimingAnAction() {
         source(a, "trace-thought-first", "第一次看到花")
         source(a, "trace-thought-second", "第二次看到花")

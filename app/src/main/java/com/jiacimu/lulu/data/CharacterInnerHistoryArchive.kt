@@ -42,7 +42,8 @@ internal object CharacterInnerHistoryArchive {
     /** One atomic editor includes new pages, source retractions and the hot snapshot. */
     fun prepare(store: SharedPreferences, role: String, root: JSONObject,
         edit: SharedPreferences.Editor,
-        remove: ((String, JSONObject) -> Boolean)? = null) {
+        remove: ((String, JSONObject) -> Boolean)? = null,
+        retired: Map<String, List<JSONObject>> = emptyMap()) {
         val meta = root.optJSONObject(META) ?: JSONObject()
         for ((field, hotLimit) in limits) {
             val count = meta.optInt(field, 0)
@@ -53,12 +54,18 @@ internal object CharacterInnerHistoryArchive {
                     JSONArray().apply { retained.forEach(::put) }.toString())
             }
             val hot = rows(root.optJSONArray(field))
-            if (hot.size <= hotLimit) continue
-            root.put(field, JSONArray().apply { hot.takeLast(hotLimit).forEach(::put) })
+            val overflow = if (hot.size > hotLimit) hot.dropLast(hotLimit) else emptyList()
+            if (hot.size > hotLimit)
+                root.put(field, JSONArray().apply { hot.takeLast(hotLimit).forEach(::put) })
+            // A revised source retires its old private interpretation into the
+            // SAME cold history, without exposing it to ordinary model context.
+            // A withdrawn source still deletes these entries from all pages.
+            val additions = overflow + retired[field].orEmpty()
+            if (additions.isEmpty()) continue
             var page = if (count == 0) 0 else count - 1
             var last = if (count == 0) emptyList() else read(store, role, field, page)
             if (remove != null) last = last.filterNot { remove(field, it) }
-            for (item in hot.dropLast(hotLimit)) {
+            for (item in additions) {
                 if (last.size >= PAGE_SIZE) {
                     edit.putString(key(role, field, page),
                         JSONArray().apply { last.forEach(::put) }.toString())

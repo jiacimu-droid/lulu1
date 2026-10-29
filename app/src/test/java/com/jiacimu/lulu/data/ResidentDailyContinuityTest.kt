@@ -1115,8 +1115,10 @@ class ResidentDailyContinuityTest {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
         ResidentSocialMailbox.initialize(app)
-        val now = java.time.LocalDate.now().atTime(8, 0)
-            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        // The actual mailbox executor timestamps delivery with Instant.now().
+        // A synthetic future 08:00 birth on UTC CI would make the real letter
+        // predate both participants, so its timeline receipt was correctly absent.
+        val now = java.time.Instant.now()
         val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
             name = "私信补正居民${UUID.randomUUID().toString().take(6)}",
             identity = "喜欢与熟人通信", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
@@ -1134,6 +1136,7 @@ class ResidentDailyContinuityTest {
             JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
         assertTrue(ResidentSocialMailbox.canContact(friend.characterId, actor))
         assertNotNull(ResidentSocialMailbox.send(friend.characterId, actor, "你今天想聊什么？", at = now))
+        assertTrue(ResidentSocialMailbox.canContact(actor, friend.characterId))
         val greeting = "我想跟你聊聊今天的花${UUID.randomUUID()}"
         fun choice(to: String?) = JSONObject().put("lunch", "home")
             .put("evening", "courtyard").put("message", greeting).apply {

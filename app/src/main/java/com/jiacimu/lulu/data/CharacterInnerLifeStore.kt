@@ -292,10 +292,11 @@ object CharacterInnerLifeStore {
     }
 
     private fun save(id: String, state: JSONObject,
-        removeArchive: ((String, JSONObject) -> Boolean)? = null) {
+        removeArchive: ((String, JSONObject) -> Boolean)? = null,
+        retiredHistory: Map<String, List<JSONObject>> = emptyMap()) {
         val store = prefs ?: error("内在生活状态尚未初始化")
         val edit = store.edit()
-        CharacterInnerHistoryArchive.prepare(store, id, state, edit, removeArchive)
+        CharacterInnerHistoryArchive.prepare(store, id, state, edit, removeArchive, retiredHistory)
         check(edit.putString(id, state.toString()).commit()) {
             "内在生活状态尚未初始化或保存失败"
         }
@@ -399,8 +400,11 @@ object CharacterInnerLifeStore {
                 .containsMatchIn(afterglow.optString("feeling"))
     }
 
-    /** Individual raw-source deletion also invalidates subjective conclusions derived from it. */
-    @Synchronized fun invalidateEvidence(eventId: String) {
+    /** A revision invalidates active projections, but the old thought/choice
+     * remains read-only historical evidence. Actual withdrawal removes both
+     * active and cold records. Never let edited wording revive an old choice. */
+    @Synchronized fun invalidateEvidence(eventId: String,
+        preserveHistoricalChoices: Boolean = false) {
         if (eventId.isBlank()) return
         PerceptionStimulusLedger.invalidate(eventId)
         CharacterCuriosityRuntime.invalidateEvidence(eventId)
@@ -415,6 +419,7 @@ object CharacterInnerLifeStore {
         ids.forEach { characterId ->
             val root = snapshot(characterId)
             var changed = false
+            val retired = mutableMapOf<String, MutableList<JSONObject>>()
             val oldSeen = root.optJSONArray("seen") ?: JSONArray()
             val seen = JSONArray()
             for (i in 0 until oldSeen.length()) {
@@ -449,8 +454,14 @@ object CharacterInnerLifeStore {
                             CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
                         (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
                         (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
-                            backedBy(entry.optString("signature")) || backedBy(entry.optString("id"))))
-                    if (linked) changed = true else {
+                            backedBy(entry.optString("signature")) || backedBy(entry.optString("id")))) ||
+                        (key == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
+                            .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
+                    if (linked) {
+                        changed = true
+                        if (preserveHistoricalChoices && key in setOf("thoughts", "decisions"))
+                            retired.getOrPut(key) { mutableListOf() }.add(JSONObject(entry.toString()))
+                    } else {
                         if (key == "motives") {
                             if (CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
                             if (entry.optString("closureEvidenceId") == eventId) {
@@ -535,15 +546,18 @@ object CharacterInnerLifeStore {
                 }
             }
             val removeArchive: (String, JSONObject) -> Boolean = { field, entry ->
-                backedBy(entry.optString("evidenceId")) ||
+                if (preserveHistoricalChoices && field in setOf("thoughts", "decisions")) false
+                else backedBy(entry.optString("evidenceId")) ||
                     backedBy(entry.optString("closureEvidenceId")) ||
                     (field == "decisions" && (
                         backedBy(entry.optString("causalEvidenceId")) ||
                         backedBy(entry.optString("signature")) ||
-                        backedBy(entry.optString("id"))))
+                        backedBy(entry.optString("id")))) ||
+                    (field == "thoughts" && (0 until (entry.optJSONArray("stimuli")?.length() ?: 0))
+                        .any { stimulus -> entry.optJSONArray("stimuli")?.optString(stimulus) == eventId })
             }
             if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
-                save(characterId, root, removeArchive)
+                save(characterId, root, removeArchive, retired)
         }
     }
 
