@@ -45,6 +45,17 @@ class SleepCallContinuationPolicyTest {
             opening = false, sleepMode = false, audioPending = true))
     }
 
+    @Test fun autonomousBedtimeCannotScheduleEarlyEndOrTimedHangup() {
+        fun allowed(sleep: Boolean, auto: Boolean, silent: Boolean = false,
+                    wake: Boolean = false) =
+            SleepCallContinuationPolicy.mayChangeHangupFromTurn(sleep, auto, silent, wake)
+        assertFalse(allowed(sleep = true, auto = true))
+        assertFalse(allowed(sleep = true, auto = false, silent = true))
+        assertFalse(allowed(sleep = true, auto = false, wake = true))
+        assertTrue(allowed(sleep = true, auto = false))
+        assertTrue(allowed(sleep = false, auto = true))
+    }
+
     @Test fun bedtimeWaitsUntilAudibleSpeechFinishesBeforeHandlingNewWords() {
         assertTrue(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, "主人还醒着"))
         assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, " "))
