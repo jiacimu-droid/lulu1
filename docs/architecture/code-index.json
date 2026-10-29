@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T17:57:45.856849+00:00",
-  "commit": "29689a3e55f943d7b9cc66cf0c3793494aef54ab",
+  "generatedAt": "2026-10-29T17:58:03.472103+00:00",
+  "commit": "0992df3f26d4bb83a7ee0430ee6bb1404051d9d8",
   "branch": "main",
-  "sourceFingerprint": "9b3b3154181cc10a11336ad39032901c1d48baec76bdd1c3baa02d0e1199f60c",
+  "sourceFingerprint": "384933e678b2add2a575c3c1de5ed7b997467fb5dd5b08b04f638c9ddb1f1986",
   "summary": {
     "files": 1088,
-    "lines": 225364,
-    "symbols": 3201
+    "lines": 225385,
+    "symbols": 3202
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6023,7 +6023,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 485
+        "line": 506
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -7942,10 +7942,16 @@
         "line": 448
       }
     ],
+    "forgetTimelineMoment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 463
+      }
+    ],
     "deleteMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 462
+        "line": 479
       }
     ],
     "planningGuidance": [
@@ -25270,8 +25276,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 621,
-      "sha256": "b34225b81e2789620479e574581cab1174ca2723784e2d42a4c84df8f767cfd0",
+      "lines": 642,
+      "sha256": "7bf15d0cfd0758ca6d47bd6ea712eff0e29c664c763dab8f5a514c34aa327ced",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -25346,12 +25352,16 @@
           "line": 448
         },
         {
+          "name": "forgetTimelineMoment",
+          "line": 463
+        },
+        {
           "name": "deleteMoment",
-          "line": 462
+          "line": 479
         },
         {
           "name": "clearCharacter",
-          "line": 485
+          "line": 506
         }
       ]
     },
