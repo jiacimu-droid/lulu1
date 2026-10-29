@@ -123,16 +123,36 @@ internal object ResidentDailyDecision {
         val duePrefix = "due-phase:execute:"
         val due = keys.asSequence().filter { it.startsWith(duePrefix) }
             .mapNotNull { phaseKey ->
-                val body = phaseKey.removePrefix(duePrefix)
-                val planId = ownedPlans.firstOrNull { body.startsWith("$it:") }
-                    ?: return@mapNotNull null
-                val dueAt = runCatching { Instant.parse(body.removePrefix("$planId:")) }
-                    .getOrNull() ?: return@mapNotNull null
+                val key = phaseKey.removePrefix("due-phase:")
+                val originKey = "due-origin:$key"
+                // New requests retain their owner and original slot even after
+                // the owner deletes the mutable calendar entry. Older requests
+                // without provenance can only be attributed via a live plan.
+                // Never infer ownership from a predictable request ID alone.
+                val origin = if (p.contains(originKey)) {
+                    val saved = p.getString(originKey, null)?.let {
+                        runCatching { JSONObject(it) }.getOrNull()
+                    }
+                    val planId = saved?.optString("planId").orEmpty()
+                    val dueAt = saved?.optString("dueAt")?.let {
+                        runCatching { Instant.parse(it) }.getOrNull()
+                    }
+                    if (saved?.optString("characterId") == actor &&
+                        planId.isNotBlank() && dueAt != null &&
+                        key == "execute:$planId:$dueAt") planId to dueAt else null
+                } else {
+                    val body = phaseKey.removePrefix(duePrefix)
+                    ownedPlans.asSequence().mapNotNull { planId ->
+                        if (!body.startsWith("$planId:")) null
+                        else runCatching { Instant.parse(body.removePrefix("$planId:")) }
+                            .getOrNull()?.let { planId to it }
+                    }.firstOrNull()
+                } ?: return@mapNotNull null
+                val dueAt = origin.second
                 if (!dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(today))
                     return@mapNotNull null
                 val phase = p.getString(phaseKey, "").orEmpty()
                 if (phase !in unresolved) return@mapNotNull null
-                val key = "execute:$planId:$dueAt"
                 HistoricalAttempt("到点复议", dueAt, phase,
                     p.contains("due-decision:$key"),
                     !p.getString("due-invalid:$key", "").isNullOrBlank(),
@@ -476,14 +496,23 @@ internal object ResidentDailyDecision {
             p.getString(fingerprintKey, "")?.isNotBlank() == true &&
             p.getString(fingerprintKey, "") != fingerprint
 
-    /** Claim + phase are one synchronized durable transaction. Two wake
-     * workers must never both pass a stale Boolean read and buy a response. */
+    /** Claim, phase and immutable request ownership share one durable
+     * transaction. Removing a calendar plan must not erase an old paid
+     * request's owner or make another resident inherit its history. */
     @Synchronized
-    private fun claimDueRequest(p: android.content.SharedPreferences, key: String,
+    private fun claimDueRequest(p: android.content.SharedPreferences, plan: RoleDayPlan,
         fingerprint: String): Boolean {
+        val key = dueAttemptKey(plan)
         val phase = "due-phase:$key"
+        val originKey = "due-origin:$key"
+        val origin = JSONObject().put("characterId", plan.characterId)
+            .put("planId", plan.id).put("dueAt", plan.dueAt.toString()).toString()
+        // A corrupt or foreign owner marker must never be overwritten to
+        // authorize another model call for the same request identity.
+        if (p.contains(originKey) && p.getString(originKey, null) != origin) return false
         if (!p.getBoolean(key, false)) return p.edit()
-            .putBoolean(key, true).putString(phase, "requesting").commit()
+            .putBoolean(key, true).putString(phase, "requesting")
+            .putString(originKey, origin).commit()
         // A malformed first reply has already been received and paid for.
         // Even after a model change, the ordinary worker must not buy a new
         // first decision instead of resuming that reply's correction.
@@ -492,7 +521,7 @@ internal object ResidentDailyDecision {
                 "due-rejected-fingerprint:$key", fingerprint)) return false
         return p.edit().putInt("due-rejected-retries:$key",
             p.getInt("due-rejected-retries:$key", 0) + 1)
-            .putString(phase, "requesting").commit()
+            .putString(phase, "requesting").putString(originKey, origin).commit()
     }
 
     @Synchronized
@@ -1191,7 +1220,7 @@ internal object ResidentDailyDecision {
         } else {
             // A crash/timeout before receiving an answer is uncertain: never
             // silently buy a second model request for this appointment.
-            if (!claimDueRequest(p, key, connectionFingerprint(checkNotNull(selected)))) return false
+            if (!claimDueRequest(p, live, connectionFingerprint(checkNotNull(selected)))) return false
         }
         CharacterPhoneInbox.initialize(app)
         val pending = ResidentSocialMailbox.pendingIncoming(plan.characterId)
