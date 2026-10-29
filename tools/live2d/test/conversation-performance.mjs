@@ -17,7 +17,7 @@ const entries = source.slice(source.indexOf('function applyPerformanceBeat('),
     source.indexOf('function installFinalParameterControl(')) +
   source.slice(source.indexOf('function activatePendingSpeechMoment('),
     source.indexOf('// Debug option: mirror decoded WebGL frames')) +
-  source.slice(source.indexOf('function resetSpeechExpression('),
+  source.slice(source.indexOf('function setPaused('),
     source.indexOf('window.LuluLive2D ='))
 let clock = 1000
 const expressions = []
