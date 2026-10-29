@@ -322,9 +322,9 @@ object LuluDeviceToolBridge {
             【同一模型决定可以兼有回复与设备行为】
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
             若既想说话又想操作已授权能力，可以在一次决策中使用 action=reply 配合 steps=[{"tool":"真实能力名","args":{},"requiresPreviousSuccess":false},...]；按顺序执行多项实际动作，记录每一项结果，不限于音乐或音量。若希望保持安静，只操作设备，通话中可选 action=silent 加 steps。依赖前一步完成的动作写 requiresPreviousSuccess=true；尚在等待同意的屏幕请求不是已看见画面，需要真实回执才能继续基于画面作判断。
-            若在文字私聊里本人真想先发送语音/文字气泡、然后立即拨打电话，选择 action=reply 保留 speechIntent/dialogueMove，并同时提交 steps=[{\"tool\":\"start_call\",\"args\":{\"text\":\"接通后才说的开场语\"},\"requiresPreviousSuccess\":true}]。只能在角色已获准主动来电时选择；第一步实际消息送达后才能申请来电。口头承诺、内心打算和表演性动作不替代工具执行，电话未接通不能说已在电话里陪伴。表达模型只把已经决定的回复写成气泡，不负责新增或取消来电步骤。
+            若在文字私聊里本人真想先发送语音/文字气泡、然后立即拨打电话，选择 action=reply 保留 speechIntent/dialogueMove，并同时提交 steps=[{\"tool\":\"start_call\",\"args\":{\"text\":\"接通后才说的开场语\",\"mediaMode\":\"video\"},\"requiresPreviousSuccess\":true}]；如果本人选择语音电话，则明确 mediaMode=voice。用户要求打视频时应使用 video，而不是同名语音电话；程序不通过关键词代选媒介。只能在角色已获准主动来电时选择；第一步实际消息送达后才能申请来电。口头承诺、内心打算和表演性动作不替代工具执行，电话未接通不能说已在电话里陪伴。表达模型只把已经决定的回复写成气泡，不负责新增或取消来电步骤。
             若文字聊天想先回复再休眠，选择 action=reply，steps 最后填写 {"tool":"go_offline","args":{},"requiresPreviousSuccess":true}。必须等真实消息送达后下线；这不是结束电话。多步顺序由你自主决定。
-            若自己真心决定先回复再立即打电话，选 action=reply，并附 steps=[{"tool":"start_call","args":{"text":"接听后才说的开场白"},"requiresPreviousSuccess":true}]。这一步由原来电执行器校验授权并真正发起；只有口头说会打电话而没有选择 start_call，不能视为已行动。
+            若自己真心决定先回复再立即打电话，选 action=reply，并附 steps=[{"tool":"start_call","args":{"text":"接听后才说的开场白","mediaMode":"voice|video"},"requiresPreviousSuccess":true}]，mediaMode 必须选择真实值 voice 或 video。这一步由原来电执行器校验授权并真正发起；只有口头说会打电话而没有选择 start_call，不能视为已行动。
             媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。按你真正选定的顺序执行，不因任意固定动作数量上限丢掉决定；实际授权、设备执行能力及回执仍须逐项校验。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
