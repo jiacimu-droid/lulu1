@@ -19,6 +19,63 @@ import kotlin.random.Random
 
 internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
 
+/** A roster name, a one-sided public message and a reciprocal acquaintance are different facts.
+ * This is only a context projection; the speaking character still chooses the response. */
+internal fun groupPeerEvidenceLine(
+    name: String,
+    relation: com.jiacimu.lulu.data.CharacterSocialRelationshipSnapshot,
+    witnessedGroupSpeech: Boolean,
+    explicitAgreement: String = "",
+): String {
+    val relationship = when {
+        explicitAgreement.isNotBlank() -> "本人的明确关系约定：${explicitAgreement.take(150)}"
+        relation.knowsEachOther -> "已有真实交集：${relation.shortContext()}；认识不自动等于熟悉或亲密"
+        witnessedGroupSpeech -> "只曾在本群亲眼看到对方发言，尚无双方确认的交往"
+        else -> "只在本群成员名单看到姓名，尚无可核实的双方交往"
+    }
+    return "- $name：$relationship"
+}
+
+/** Project only this character's witnessed group speech and own relationship records.
+ * Do not supply a peer's private profile, presence, other chats or global relationship graph. */
+internal fun groupPeerEvidenceContext(
+    viewerId: String,
+    members: List<com.jiacimu.lulu.data.LuluGroupMember>,
+    visibleMessages: List<LuluChatMessage>,
+    characterNames: Map<String, String>,
+): String = buildString {
+    appendLine("【我与其他群成员真实认识到哪一步】")
+    members.asSequence().filter { it.characterId != viewerId }.take(12).forEach { member ->
+        val peerId = member.characterId
+        val label = member.groupNickname.ifBlank { characterNames[peerId] ?: peerId }
+        val relationship = com.jiacimu.lulu.data.CharacterSocialRelationship.snapshot(viewerId, peerId)
+        val seenSpeech = visibleMessages.any { message ->
+            message.sender == LuluChatMessage.Sender.Character &&
+                message.authorCharacterId == peerId &&
+                message.status == LuluChatMessage.Status.Sent &&
+                SharedExperienceTimeline.eventsByIds(viewerId,
+                    listOf("${message.id}:group:$viewerId")).isNotEmpty()
+        }
+        val explicit = com.jiacimu.lulu.data.CharacterSocialRelationship
+            .agreement(viewerId, peerId)?.let { agreement ->
+                listOf(agreement.title, agreement.details).filter(String::isNotBlank).joinToString("；")
+            }.orEmpty()
+        appendLine(groupPeerEvidenceLine(label, relationship, seenSpeech, explicit))
+        // An old or hearsay opinion is not a shared factual history.
+        val impression = com.jiacimu.lulu.data.CharacterSocialRelationship.perspective(viewerId, peerId)
+        if (impression != null && impression.evidenceId.isNotBlank() &&
+            SharedExperienceTimeline.eventsByIds(viewerId, listOf(impression.evidenceId)).isNotEmpty()) {
+            appendLine("  本人已有单方印象：${impression.impression}；" +
+                com.jiacimu.lulu.data.CharacterSocialRelationship
+                    .evidenceBoundary(viewerId, impression.evidenceId) +
+                "；不代表对方认识我，也不能当成证实的私人习惯")
+        }
+    }
+    append("群友在名单里、在线或共享同一话题，并不自动说明彼此相识或熟悉。" +
+        "可以凭当下群消息自然聊天、打趣或猜测，但猜测要表明不确定；" +
+        "不要凭名字推定对方作息、性格、关系或当前私下行为，也不要调用其他角色的私人记忆。")
+}
+
 /**
  * Legacy transport tokens are tolerated only at the parser boundary. New model prompts no longer
  * expose them. Any malformed spelling that still appears is normalized/removed before persistence,
@@ -426,11 +483,13 @@ internal suspend fun runGroupReplies(
                 "${group.userGroupNickname}、$memberList" else memberList
             appendLine("[这是QQ式群聊《${group.name}》，成员：$participants。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
-            appendLine("[本人对本群其他成员和用户的可追溯看法：\n" +
-                com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
-                    member.characterId, members.map { it.characterId } +
-                        (if (group.ownerIncluded) listOf("user") else emptyList())
-                ).ifBlank { "目前没有充分的关系证据，不预设亲疏" } + "]")
+            appendLine("[" + groupPeerEvidenceContext(member.characterId, members, latest, characterNames) + "]")
+            if (group.ownerIncluded) {
+                appendLine("[本人对用户自己的可追溯看法：\n" +
+                    com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
+                        member.characterId, listOf("user")
+                    ).ifBlank { "目前没有充分的关系证据" } + "]")
+            }
             appendLine("[群聊与私聊不同：这是所有成员共享的上下文，不要把别人的私聊内容带进来，也不要把对用户的一对一亲密话当成群内默认公开信息。]")
             if (quotable.isNotEmpty()) {
                 appendLine("[本轮可引用/收藏的用户消息：]")
