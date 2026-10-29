@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T15:01:48.558755+00:00",
-  "commit": "bdc8f88e041c907f45a14b36e6f5130592c62648",
+  "generatedAt": "2026-10-29T15:02:22.993713+00:00",
+  "commit": "ad2630b499a2019dcded5833e35b701f7605315f",
   "branch": "main",
-  "sourceFingerprint": "967bb4bb649d1eb707d292b2c29da93293bf4f1f2fd6bce453cb4e62eaf426d9",
+  "sourceFingerprint": "24ebcbc52b45e587576e2c3b221feb5da69de1b4356f112b598d8d33b135de98",
   "summary": {
-    "files": 1073,
-    "lines": 222131,
-    "symbols": 3151
+    "files": 1075,
+    "lines": 222259,
+    "symbols": 3155
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -923,7 +923,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 582
+        "line": 596
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -2417,7 +2417,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1333
+        "line": 1326
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -5271,7 +5271,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 113
+        "line": 106
       }
     ],
     "Attempt": [
@@ -7609,49 +7609,49 @@
     "autonomousDiscoveryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 74
+        "line": 67
       }
     ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1251
+        "line": 1244
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1295
+        "line": 1288
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1302
+        "line": 1295
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1316
+        "line": 1309
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1326
+        "line": 1319
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1372
+        "line": 1365
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1548
+        "line": 1541
       }
     ],
     "age": [
@@ -12808,6 +12808,12 @@
         "line": 132
       }
     ],
+    "recordAccepted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
+        "line": 14
+      }
+    ],
     "attach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -12856,70 +12862,80 @@
         "line": 23
       }
     ],
-    "AutonomousGameCatalog": [
+    "GameInvitationCatalog": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "title": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 46
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 60
+      }
+    ],
+    "AutonomousGameCatalog": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 53
       }
     ],
     "LuluGameRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 48
+        "line": 62
       }
     ],
     "AutonomousGameResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 63
+        "line": 77
       }
     ],
     "MemoryMatchState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 72
+        "line": 86
       }
     ],
     "MemoryTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 84
+        "line": 98
       }
     ],
     "MoodGuessRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 86
+        "line": 100
       }
     ],
     "LuluGameState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 92
+        "line": 106
       }
     ],
     "LuluGameStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 103
+        "line": 117
       }
     ],
     "setPlayWithCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 109
+        "line": 123
       }
     ],
     "selectCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 111
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
@@ -12929,73 +12945,73 @@
     "selectCharacters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 116
+        "line": 130
       }
     ],
     "openMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 127
+        "line": 141
       }
     ],
     "openCharacterMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 132
+        "line": 146
       }
     ],
     "closeUnmatchedCards": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 178
+        "line": 192
       }
     ],
     "resetMemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 194
+        "line": 208
       }
     ],
     "answerMood": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 196
+        "line": 210
       }
     ],
     "resetMoodGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 210
+        "line": 224
       }
     ],
     "recordExternalGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 212
+        "line": 226
       }
     ],
     "playAutonomousGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 290
+        "line": 304
       }
     ],
     "attachCharacterReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 434
+        "line": 448
       }
     ],
     "clearRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 452
+        "line": 466
       }
     ],
     "LuluGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 577
+        "line": 591
       }
     ],
     "Home": [
@@ -17518,6 +17534,12 @@
         "line": 12
       }
     ],
+    "GameInvitationContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
+        "line": 16
+      }
+    ],
     "IslandActorPlayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
@@ -21006,8 +21028,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1093,
-      "sha256": "abad4ef4728534daf18cbabbfd740b876afd18e19a8574486a6420129162faaf",
+      "lines": 1099,
+      "sha256": "5297675fe0621ec7c74571eb075f3794e20561ccfc5fbc1047ca64baf0a79b2b",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -22390,8 +22412,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 110,
-      "sha256": "93be6ea4b7ab08a43b7c157925cc3ff60d37cffa4ddc444732852b4526689347",
+      "lines": 112,
+      "sha256": "0f8c462976d4c1e182dfc6c08050af9e97b6aaaa7757f78d9ed5e3c45791eca3",
       "symbols": [
         {
           "name": "render",
@@ -24837,8 +24859,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1595,
-      "sha256": "af62e7586a6e2b8b198a27e1a72d307ad631e2f52a67faac244e1754f2d7c83f",
+      "lines": 1588,
+      "sha256": "ae769f85d55371a4bb517c060b52fa04df75f37e7d8d9da7088428d1cf442c8b",
       "symbols": [
         {
           "name": "asJson",
@@ -24846,43 +24868,43 @@
         },
         {
           "name": "autonomousDiscoveryContext",
-          "line": 74
+          "line": 67
         },
         {
           "name": "capabilityContext",
-          "line": 113
+          "line": 106
         },
         {
           "name": "world",
-          "line": 1251
+          "line": 1244
         },
         {
           "name": "recordedReceiptId",
-          "line": 1295
+          "line": 1288
         },
         {
           "name": "completedEvidence",
-          "line": 1302
+          "line": 1295
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1316
+          "line": 1309
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1326
+          "line": 1319
         },
         {
           "name": "from",
-          "line": 1333
+          "line": 1326
         },
         {
           "name": "requiresCompletion",
-          "line": 1372
+          "line": 1365
         },
         {
           "name": "availableContext",
-          "line": 1548
+          "line": 1541
         }
       ]
     },
@@ -30808,6 +30830,17 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt",
+      "lines": 44,
+      "sha256": "ea9f0b6c0a5317169255012a38ab4d46d26e5892872efe0409d7291694fb5647",
+      "symbols": [
+        {
+          "name": "recordAccepted",
+          "line": 14
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
       "lines": 161,
       "sha256": "8f1908c9d402579a12886d9f9d31bf701cd3db1812e149dedc86a90427553a05",
@@ -30931,108 +30964,116 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 587,
-      "sha256": "6e8080c8e2b3ebcc1a7a410549d45c99eee9dd37303cbc52448172442bb945d9",
+      "lines": 601,
+      "sha256": "bab9f43f9153a9848460aef1428ca4f7022d21d425968890a31911f1071a532b",
       "symbols": [
         {
           "name": "LuluGameType",
           "line": 23
         },
         {
-          "name": "AutonomousGameCatalog",
-          "line": 39
+          "name": "GameInvitationCatalog",
+          "line": 40
         },
         {
           "name": "title",
-          "line": 46
+          "line": 49
+        },
+        {
+          "name": "AutonomousGameCatalog",
+          "line": 53
+        },
+        {
+          "name": "title",
+          "line": 60
         },
         {
           "name": "LuluGameRecord",
-          "line": 48
+          "line": 62
         },
         {
           "name": "AutonomousGameResult",
-          "line": 63
+          "line": 77
         },
         {
           "name": "MemoryMatchState",
-          "line": 72
-        },
-        {
-          "name": "MemoryTurn",
-          "line": 84
-        },
-        {
-          "name": "MoodGuessRound",
           "line": 86
         },
         {
+          "name": "MemoryTurn",
+          "line": 98
+        },
+        {
+          "name": "MoodGuessRound",
+          "line": 100
+        },
+        {
           "name": "LuluGameState",
-          "line": 92
+          "line": 106
         },
         {
           "name": "LuluGameStore",
-          "line": 103
+          "line": 117
         },
         {
           "name": "setPlayWithCharacter",
-          "line": 109
+          "line": 123
         },
         {
           "name": "selectCharacter",
-          "line": 111
+          "line": 125
         },
         {
           "name": "selectCharacters",
-          "line": 116
+          "line": 130
         },
         {
           "name": "openMemoryCard",
-          "line": 127
+          "line": 141
         },
         {
           "name": "openCharacterMemoryCard",
-          "line": 132
+          "line": 146
         },
         {
           "name": "closeUnmatchedCards",
-          "line": 178
+          "line": 192
         },
         {
           "name": "resetMemoryMatch",
-          "line": 194
+          "line": 208
         },
         {
           "name": "answerMood",
-          "line": 196
-        },
-        {
-          "name": "resetMoodGuess",
           "line": 210
         },
         {
+          "name": "resetMoodGuess",
+          "line": 224
+        },
+        {
           "name": "recordExternalGame",
-          "line": 212
+          "line": 226
         },
         {
           "name": "playAutonomousGame",
-          "line": 290
+          "line": 304
         },
         {
           "name": "attachCharacterReply",
-          "line": 434
+          "line": 448
         },
         {
           "name": "clearRecords",
-          "line": 452
+          "line": 466
         },
         {
           "name": "LuluGames",
-          "line": 577
+          "line": 591
         },
         {
           "name": "initialize",
-          "line": 582
+          "line": 596
         }
       ]
     },
@@ -34174,8 +34215,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 138,
-      "sha256": "2fb448f502c9f1b0634411ae64e09ec93bdb9af31279ed2e098718f913d538f8",
+      "lines": 155,
+      "sha256": "4be8b9ad6bd719e8ae24d9012b5f9f923d47f03e465cb47128cc0c823e4d04b5",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -37245,6 +37286,17 @@
         {
           "name": "ExpeditionRulesTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
+      "lines": 52,
+      "sha256": "63c324c70692e12730f61a1e57716f6c97a0b97d12f94db13e51f2bb10ced6b6",
+      "symbols": [
+        {
+          "name": "GameInvitationContinuityTest",
+          "line": 16
         }
       ]
     },

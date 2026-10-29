@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bdc8f88e041c907f45a14b36e6f5130592c62648`
+- 基准提交：`ad2630b499a2019dcded5833e35b701f7605315f`
 - 分支：`main`
-- 已索引文件：1073
-- 已索引代码/文本行：222131
-- 已发现符号：3151
+- 已索引文件：1075
+- 已索引代码/文本行：222259
+- 已发现符号：3155
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -249,7 +249,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1093 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1099 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
@@ -308,7 +308,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 133 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 265 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 110 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 241 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 70 | 3 |
@@ -413,7 +413,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 403 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1595 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1588 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 804 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 603 | 19 |
@@ -636,6 +636,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
@@ -646,7 +647,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 191 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 587 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 863 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 506 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 269 | 2 |
@@ -836,7 +837,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 106 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 245 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 138 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 155 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 74 | 1 |
@@ -1052,6 +1053,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 230 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
