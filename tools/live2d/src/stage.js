@@ -865,6 +865,9 @@ function activatePendingSpeechMoment() {
 }
 function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segmentId = '') {
   if (phase === 'playing') {
+    // A hidden stage discarded its visual score. Background TTS callbacks
+    // may still arrive, but must not arm mouth/motion until a new visible cue.
+    if (paused) return
     // WebView and TTS callbacks can arrive out of order. A completed segment
     // cannot become audible again, and an interrupted turn is terminal.
     // Legacy unversioned providers (sequence 0) retain their old path.
