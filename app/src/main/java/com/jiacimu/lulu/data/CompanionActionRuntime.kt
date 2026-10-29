@@ -36,7 +36,29 @@ internal data class CompanionActionResult(
 }
 
 /** One real execution layer shared by foreground chat decisions and background perception. */
-internal object CompanionActionRuntime {
+internal /** Map a frozen perception batch to user messages in this exact destination.
+ * Other characters' group bubbles and messages in other conversations must
+ * remain in the character's perceived evidence, but are not user reply anchors.
+ * Include the raw user ID even when its current status changed: the sender's
+ * canonical revision/status gate then rejects stale or withdrawn responses.
+ */
+internal fun replyUserMessageIdsForDestination(
+    conversationId: String,
+    characterId: String,
+    perceivedIds: Set<String>,
+): Set<String> {
+    if (perceivedIds.isEmpty()) return emptySet()
+    val conversation = MigratedDomainStores.chat.conversations.value
+        .firstOrNull { it.id == conversationId } ?: return emptySet()
+    val prefixSuffix = ":group:$characterId"
+    return MigratedDomainStores.chat.messages(conversation.id).value.asSequence()
+        .filter { it.sender == LuluChatMessage.Sender.User }
+        .filter { it.id in perceivedIds ||
+            (conversation.groupChat != null && "${it.id}$prefixSuffix" in perceivedIds) }
+        .map { it.id }.toSet()
+}
+
+object CompanionActionRuntime {
     private fun ownQqGroupsContext(characterId: String): String {
         val groups = MigratedDomainStores.chat.conversations.value
             .filter { it.groupChat?.members?.any { m -> m.characterId == characterId } == true }
@@ -351,6 +373,10 @@ internal object CompanionActionRuntime {
                 ids.optString(index).takeIf(String::isNotBlank)
             }.toSet()
         }.orEmpty()
+        // Unread snapshots contain messages from *all* speakers and sometimes
+        // multiple conversations. They are evidence for the decision, not a set
+        // of user-message IDs for the eventual destination's send gate.
+        // Preserve the frozen IDs until the actual destination is known below.
         val result = when (normalizedAction) {
             "go_offline" -> {
                 val success = CompanionOnlineStore.goOfflineByChoice(characterId, now,
@@ -655,9 +681,10 @@ internal object CompanionActionRuntime {
                         )
                     } else parsed.copy(content = authoredText, voiceBubbleTexts = voiceTexts)
                 }
+                val targetUserIds = replyUserMessageIdsForDestination(conversation.id, characterId, replyEvidenceIds)
                 val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        presentation, actionableUserMessageIds = replyEvidenceIds)
+                        presentation, actionableUserMessageIds = targetUserIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
@@ -696,10 +723,11 @@ internal object CompanionActionRuntime {
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
+                val targetUserIds = replyUserMessageIdsForDestination(conversation.id, characterId, replyEvidenceIds)
                 val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text),
-                        actionableUserMessageIds = replyEvidenceIds)
+                        actionableUserMessageIds = targetUserIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
