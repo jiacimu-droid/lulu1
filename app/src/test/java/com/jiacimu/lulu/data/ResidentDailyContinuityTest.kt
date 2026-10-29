@@ -993,6 +993,102 @@ class ResidentDailyContinuityTest {
         JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
             JSONObject().put("content", json)))).toString())
 
+    @Test(timeout = 60_000) fun savedAgendaReplayUsesOriginalSlotAndNeverResurrectsCancelledPlan() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val chosenAt = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val replayAt = chosenAt.plusSeconds(2 * 3600L)
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "原时刻恢复居民${UUID.randomUUID().toString().take(5)}",
+            identity = "喜欢记录花草", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = chosenAt.minusSeconds(3600)))
+        ResidentCharacterBridge.sync(app, chosenAt)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val post = "原时刻的日程${UUID.randomUUID()}"
+        val agenda = JSONArray().put(JSONObject().put("at", "09:00")
+            .put("title", "记录庭院晨光").put("intent", "想保留今天晨光的颜色")
+            .put("activityAction", "publish_moment")
+            .put("activityArgs", JSONObject().put("text", post)))
+        val proposal = JSONObject().put("agenda", agenda)
+        val first = ResidentDailyDecision.saveAgenda(app, native, proposal, chosenAt)
+        assertEquals(1, first.size)
+        val original = first.single()
+        assertEquals("planned", original.status)
+
+        // Process restarts after 09:00: reuse the exact original row, rather
+        // than treating the original HH:mm as a new request or a rejection.
+        val replay = ResidentDailyDecision.saveAgenda(app, native, proposal,
+            replayAt, decisionAt = chosenAt)
+        assertEquals(original.id, replay.single().id)
+        assertEquals(1, RoleDayScheduleStore.plans(app, actor).count {
+            it.originEvidenceId == original.originEvidenceId &&
+                it.activityAction == "publish_moment" &&
+                JSONObject(it.activityArgs).optString("text") == post
+        })
+        val rejectedId = "native-daily-${native.id}-${ResidentDailyDecision.date(chosenAt)}-agenda-rejected-0"
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(rejectedId)).isEmpty())
+
+        // A later owner cancellation is authoritative. Replaying the old
+        // model answer must not schedule the cancelled action again.
+        assertTrue(RoleDayScheduleStore.cancel(app, actor, original.id,
+            "本人取消了旧计划", replayAt))
+        val afterCancel = ResidentDailyDecision.saveAgenda(app, native, proposal,
+            replayAt, decisionAt = chosenAt)
+        assertEquals(original.id, afterCancel.single().id)
+        assertEquals("cancelled", afterCancel.single().status)
+        assertEquals(1, RoleDayScheduleStore.plans(app, actor).count { it.id == original.id })
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(rejectedId)).isEmpty())
+    }
+
+    @Test(timeout = 60_000) fun rejectedLiveAgendaIsNotReportedAsFinishedOrRetriedForMoney() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "排程拒绝居民${UUID.randomUUID().toString().take(5)}",
+            identity = "庭院居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(3600)))
+        val agenda = JSONArray().put(JSONObject().put("at", "14:00")
+            .put("title", "联系未认识的人").put("intent", "想主动认识新朋友")
+            .put("activityAction", "send_character_message")
+            .put("activityArgs", JSONObject().put("targetCharacterId", "resident:unknown")
+                .put("text", "你好，我想聊聊")))
+        val decision = JSONObject().put("lunch", "home")
+            .put("evening", "courtyard").put("agenda", agenda)
+        assertNull(ResidentDailyDecision.dayContractError(decision, now))
+        val server = MockWebServer()
+        server.enqueue(answer(decision.toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "agenda-rejection-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            val day = ResidentDailyDecision.date(now)
+            val prefs = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            assertEquals("finished_with_agenda_rejections",
+                prefs.getString("phase:${native.id}:$day", ""))
+            assertFalse(ResidentDailyDecision.hasSavedDayToResume(app, native.id, now))
+            assertFalse(ResidentDailyDecision.runOnce(app, native, now))
+            assertEquals(1, server.requestCount)
+            val actor = ResidentCharacterBridge.characterId(native.id)
+            val rejectedId = "native-daily-${native.id}-$day-agenda-rejected-0"
+            assertEquals(1, SharedExperienceTimeline.eventsByIds(actor,
+                listOf(rejectedId)).count { it.source == "resident-agenda-rejected" })
+            assertTrue(RoleDayScheduleStore.plans(app, actor).none {
+                it.originEvidenceId == "native-daily-${native.id}-$day"
+            })
+            assertTrue(ResidentDailyDecision.historicalAttempts(app, native.id,
+                now.plusSeconds(86_400)).any {
+                it.phase == "finished_with_agenda_rejections" &&
+                    it.error.contains("未排入")
+            })
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun rejectedLiveAgendaItemsKeepSeparateRoleOwnedReceiptsAcrossReplayAndWithdrawal() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
