@@ -2,6 +2,15 @@
 
 本文件只记录 P0-A/P0-B/P1/P4 基础执行恢复、来源版本、跨入口回执诊断和长期数据生命周期的增量工作。总约束仍见 [CONTINUITY_EXECUTION_PLAN_2026_10_28.md](CONTINUITY_EXECUTION_PLAN_2026_10_28.md)。不覆盖社交、内驱想法和 Live2D 专项进度。源码已提交、CI 成功、APK 构建成功、真机通过是四种独立证据。
 
+## 2026-10-30 · P0-A 日计划先存来源、再排程的撤回并发边界
+
+- **已核实根因**：`ResidentDailyDecision.runOnceLocked` 原来先持久化模型 JSON，再调用 `saveAgenda` 修改唯一 `RoleDayScheduleStore`，最后才写 `resident-daily` 原始决定事件。进程在排程后、写原始来源前终止时，日程虽带 `originEvidenceId`，却暂时没有可核验的源事件；主人在多项排程中编辑/撤回来源时，原来只在整轮开始检查一次，后续行仍可能写入。稳定 ID 和事后补事件不足以保证来源当时有效。
+- **源码修复**：先在已保存 JSON 之后、任何日程/个人状态副作用之前，使用原 `SharedExperienceTimeline` 的同步监视器建立 revision=1 的决定证据；其内容明确区分“已选择”与“真正排入/执行”，不再提前声称成功。重放只读取既有来源，不覆盖编辑版本或撤回墓碑。将当时完整的 `SharedTimelineEvent` 传入 `saveAgenda`；逐行检验来源，在每次 `RoleDayScheduleStore.arrange/cancel` 与排程拒绝写入时复用已有 `commitIfEvidenceUnchanged` 监视器，保证主人编辑/撤回与该行持久提交有确定先后。途中失效立即停止后续行、标记 `source_unavailable`，不将剩余行误判成普通拒绝，不重购模型。原先直接调用 `saveAgenda` 的测试/旧入口保留兼容默认参数。
+- **根因回归源码**：`ResidentDailyContinuityTest.residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource` 先以有效来源安排一项，随后编辑 revision、撤回源事件、改用另一人物的证据，三种情况下均不得补排新行；原先已成功保存的日程仍存在，不被错误删除。旧日程重放、拒绝墓碑与来源失效的恢复测试继续保留。
+- **main 提交**：[`877d00e028b31cb774eda01e59059053406ce94f`](https://github.com/jiacimu-droid/lulu1/commit/877d00e028b31cb774eda01e59059053406ce94f)（根因修复）、[`ca0251214f2553ebbd7d3c506df6abcd41fe19ef`](https://github.com/jiacimu-droid/lulu1/commit/ca0251214f2553ebbd7d3c506df6abcd41fe19ef)（Kotlin 回调类型）、[`42795b626e5c5e8c410f0dcaea15be35c497f867`](https://github.com/jiacimu-droid/lulu1/commit/42795b626e5c5e8c410f0dcaea15be35c497f867)（回归）。只改本专项的居民执行器、回归和进度文件，索引由仓库原工作流自动生成。
+- **分层验收**：截至本条记录，[Refresh code index #40935673189](https://github.com/jiacimu-droid/lulu1/actions/runs/40935673189) `completed/success`，自动索引已写入 main；对应 [Lulu APK #40935673198](https://github.com/jiacimu-droid/lulu1/actions/runs/40935673198) 仍为 `pending`，JVM/APK 未能宣布通过；早期源码提交的构建被并发更新取消，不算通过。真机强杀、主人编辑与真实 WorkManager 并发、多日规模均未验证。此前其他专项的 `abacc32ac` 构建因 `CompanionOnlineStore.kt:410` 的 Kotlin 可空布尔类型不匹配失败；最新源码已变更，须以最新构建重新判定。
+- **剩余风险**：日计划原始证据与日程使用不同持久 Store，跨 SQLite 与 SharedPreferences 的整轮事务尚非单一数据库原子提交；本轮确保来源先落盘、逐行提交与编辑/撤回串行化，但不能将跨存储故障解释为所有动作必然完成。ToolRouter 的执行中断/回执仍沿既有幂等机制，后续需设备故障注入。
+
 ## 2026-10-30 · P0-A 原决定来源撤回/编辑后的恢复禁行
 
 - **源码根因**：原居民每日决定持久保存后，`runOnceLocked` 恢复时会先调用 `saveAgenda`，随后即使原 `resident-daily` 事件被主人编辑、撤回，仍可使用空 `causeEvidenceId` 继续发布动态、私信与独立步骤。到点 `runDuePlanLocked` 的 `dueDecisionEvidence` 虽会在编辑/撤回时返回空 ID，执行器仍继续使用无来源的 ToolRouter 请求或修改日程。已有工具幂等只防重复请求，不能把来源撤回当作继续执行的授权。
