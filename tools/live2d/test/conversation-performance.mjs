@@ -452,6 +452,38 @@ assert.equal(bridge.audioPosition(3000, 2, 's3', 120), true)
 bridge.onPlaybackEvent('interrupted', 2, 3000, 's3')
 assert.equal(bridge.audioPosition(3000, 2, 's3', 200), false)
 
+// A late TTS start after finished/interrupted is not a fresh phrase.
+// A mismatched immutable part ID must not poison the currently audible one.
+bridge.perform({ visualSequence: 3100, beats: [
+  { segmentIndex: 0, segmentId: 'first', atMs: 0, head: { roll: 7 } },
+  { segmentIndex: 1, segmentId: 'second', atMs: 0, head: { roll: -3 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 3100, 'wrong')
+assert.equal(bridge.playing, false, 'wrong part ID cannot open the TTS clock')
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 0)
+bridge.onPlaybackEvent('playing', 0, 3100, 'first')
+assert.equal(bridge.playing, true)
+bridge.onPlaybackEvent('playing', 0, 3100, 'stale')
+assert.equal(vm.runInContext('audioSegmentId', bridge), 'first',
+  'same-index late start cannot steal an audible segment')
+bridge.onPlaybackEvent('finished', 0, 3100, 'first')
+assert.equal(bridge.playing, false)
+bridge.onPlaybackEvent('playing', 0, 3100, 'first')
+assert.equal(bridge.playing, false, 'finished part cannot restart its mouth or score')
+bridge.onPlaybackEvent('playing', 1, 3100, 'second')
+assert.equal(bridge.playing, true, 'next genuine segment can still begin')
+bridge.onPlaybackEvent('interrupted', 1, 3100, 'second')
+assert.equal(bridge.playing, false)
+bridge.onPlaybackEvent('playing', 2, 3100, 'late')
+assert.equal(bridge.playing, false, 'interrupted turn cannot start later segments')
+bridge.perform({ visualSequence: 3101, beats: [
+  { segmentIndex: 0, segmentId: 'fresh', atMs: 0, head: { roll: 2 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 3101, 'fresh')
+assert.equal(bridge.playing, true, 'new decision is not blocked by the old tombstone')
+bridge.onPlaybackEvent('finished', 0, 3101, 'fresh')
+assert.equal(bridge.playing, false)
+
 // Once actual audio positions exist, wall time and a stalled HTTP stream do
 // not advance a future beat. No character-count timestamps are synthesized.
 const audioClock = createPerformanceRuntime({ now: () => clock })

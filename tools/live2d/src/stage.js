@@ -792,6 +792,8 @@ async function load(modelURL) {
     scoreVisualSequence = 0
     audioVisualSequence = 0
     audioSegmentIndex = 0
+    audioSegmentId = ''
+    finalizedAudio = null
     mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
     headRequest = null
@@ -863,6 +865,24 @@ function activatePendingSpeechMoment() {
 }
 function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segmentId = '') {
   if (phase === 'playing') {
+    // WebView and TTS callbacks can arrive out of order. A completed segment
+    // cannot become audible again, and an interrupted turn is terminal.
+    // Legacy unversioned providers (sequence 0) retain their old path.
+    if (eventVisualSequence > 0 && finalizedAudio &&
+        (eventVisualSequence < finalizedAudio.sequence ||
+          (eventVisualSequence === finalizedAudio.sequence &&
+            (finalizedAudio.interrupted ||
+              segmentIndex <= finalizedAudio.segmentIndex)))) return
+    // A paired dialogue plan owns the immutable TTS part ID. A late start
+    // with the right sequence/index but another ID must not steal the score.
+    if (eventVisualSequence > 0 && eventVisualSequence === scoreVisualSequence) {
+      const identified = scoredBeats.filter(beat =>
+        (beat.segmentIndex ?? 0) === segmentIndex && beat.segmentId)
+      if (identified.length && !identified.some(beat =>
+          beat.segmentId === segmentId)) return
+    }
+    if (playing && eventVisualSequence === audioVisualSequence &&
+        segmentIndex === audioSegmentIndex && segmentId !== audioSegmentId) return
     // Playback callbacks cross two asynchronous Compose/WebView effects. A
     // late start for an older turn or an already superseded segment must not
     // rewind the current voice/gesture clock.
@@ -912,6 +932,10 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
       segmentIndex !== audioSegmentIndex || segmentId !== audioSegmentId) return
   const nextCueWaiting = scoreVisualSequence > 0 &&
     scoreVisualSequence !== audioVisualSequence
+  if (eventVisualSequence > 0) finalizedAudio = {
+    sequence: eventVisualSequence, segmentIndex,
+    interrupted: phase === 'interrupted',
+  }
   audioVisualSequence = 0
   audioSegmentIndex = 0
   audioSegmentId = ''
@@ -1506,6 +1530,12 @@ function setPaused(value) {
     scoreVisualSequence = 0
     audioVisualSequence = 0
     audioSegmentIndex = 0
+    audioSegmentId = ''
+    // The hidden stage intentionally discards its score. Do not let a late
+    // TTS start from that discarded visual turn resurrect the old movement.
+    if (scoreVisualSequence > 0 &&
+        (!finalizedAudio || scoreVisualSequence >= finalizedAudio.sequence))
+      finalizedAudio = { sequence: scoreVisualSequence, segmentIndex: 0, interrupted: true }
     clearSpeechMoment()
     touchReflex = null
     cancelTactileMotion()
@@ -1616,6 +1646,9 @@ let scoreVisualSequence = 0
 let audioVisualSequence = 0
 let audioSegmentIndex = 0
 let audioSegmentId = ''
+// Exact TTS completion is terminal for a segment; late onStarted callbacks
+// must not reopen its mouth, beat clock or cancelled Motion3.
+let finalizedAudio = null
 function choreography(beats, immediatePreview = false) {
   if (!model) return
   scoredBeats = Array.isArray(beats) ? beats.slice(0, 16) : []

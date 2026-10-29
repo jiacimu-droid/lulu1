@@ -42,3 +42,10 @@
 - 初次回归提交 `41f3462` 的 [APK #40851748381](https://github.com/jiacimu-droid/lulu1/actions/runs/40851748381) 在 Live2D JS 测试阶段失败，**不是生产逻辑断言失败**：VM 真实 stage 的 `let scoreVisualSequence/audioVisualSequence` 是词法绑定，不是 `bridge` 对象属性；测试误读得到 `undefined`。已改用 `vm.runInContext(...)` 读取真实 stage 词法状态，修正提交 [d11e400](https://github.com/jiacimu-droid/lulu1/commit/d11e400d523860ca976fde8d35b885504746d823)。
 - [Lulu APK #40852044628](https://github.com/jiacimu-droid/lulu1/actions/runs/40852044628) 对应 `d11e400` 的 **Build bundled Live2D stage 已完成 success**，覆盖现有 JS 测试（含本轮新回归）及打包；截至更新时 Android `Test and build phone APK` 仍在运行，收集/发布 pending，不能算 Android/APK 通过。先前 `#40851748381` 的失败不可冒充成功。
 - 这轮只动本专项的 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 和独立进度文档。未改变索引生成器所覆盖的 app/scripts/preview 文件；不写假索引。真机仍待测。
+
+## 2026-10-29 18:48：已结束 TTS 片段的迟到开声不得复活（L1/L2）
+
+- **真实根因**：此前仅用当前 `audioVisualSequence/audioSegmentIndex` 拦截旧 `playing`；`finished/interrupted` 会将它们清零，导致同一旧片段的迟到 `onStarted` 被当成新的合法开声。正常结束后可能重新张嘴、重启已完成的拍点；打断后同轮后续片段也可能复活。即使同一 sequence/index，错误的 segmentId 仍可改写当前音频身份，令真正的结束回调被拒绝。
+- **修复**：`tools/live2d/src/stage.js` 在真实结束/打断时只记最小的已终止音频身份；完成片段不可重开，打断后的同一轮不可补播，旧轮迟到回调不可越过新轮。对带明确 `segmentId` 的逐句计划校验 `onStarted` 归属；同序号/索引但不同 ID 的迟到事件不能抢占当前语音。模型重新加载清空版本，隐藏时废弃的当前 score 标为终止；旧无版本语音继续原路径。不更改角色 Motion 选择、TTS 请求、Store 或人物主循环。
+- **回归**：在现有真实 stage VM 回归中新增错误片段 ID、同段迟到 start、结束后重开、打断后下一段迟到，以及新轮正常开声。仅触及 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 和本专项文档；未改变现有索引生成器覆盖的 `app/scripts/preview` 集合，不手工改索引。
+- **验证边界**：提交时为源码与回归待 CI；必须再查 Live2D JS 测试、Android 单测、assemblePhone、APK 收集/发布。真机 15/30 FPS、打断后重说、音画同步与触摸并发仍待独立验收。
