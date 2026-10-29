@@ -34,6 +34,17 @@ class SleepCallContinuationPolicyTest {
             enabled = true, remainingAttempts = 1, audioAlreadyStarted = true))
     }
 
+    @Test fun typedChatWaitsForBedtimeAudioButNotOrdinaryCallPlayback() {
+        assertTrue(SleepCallContinuationPolicy.shouldHoldTypedTurn(
+            opening = true, sleepMode = false, audioPending = false))
+        assertTrue(SleepCallContinuationPolicy.shouldHoldTypedTurn(
+            opening = false, sleepMode = true, audioPending = true))
+        assertFalse(SleepCallContinuationPolicy.shouldHoldTypedTurn(
+            opening = false, sleepMode = true, audioPending = false))
+        assertFalse(SleepCallContinuationPolicy.shouldHoldTypedTurn(
+            opening = false, sleepMode = false, audioPending = true))
+    }
+
     @Test fun bedtimeWaitsUntilAudibleSpeechFinishesBeforeHandlingNewWords() {
         assertTrue(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, "主人还醒着"))
         assertFalse(SleepCallContinuationPolicy.shouldDeferUserWords(true, true, " "))
