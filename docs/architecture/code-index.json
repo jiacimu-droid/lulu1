@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:08:33.312689+00:00",
-  "commit": "90efae5ce4a5119aa800d339c8de88d4ad6f2c9a",
+  "generatedAt": "2026-10-29T18:09:32.180297+00:00",
+  "commit": "7a335136e072f3baa8975bdd7dc9b916c8ccda53",
   "branch": "main",
-  "sourceFingerprint": "83aa2c3a4ded9ac1a802d8cf75ebab296c9673cb01f92c973ac0baacb3eff4fb",
+  "sourceFingerprint": "e22ebc9241f2fcf9b89db8378e31b8bce0fb884886a0405cd394be658914becd",
   "summary": {
-    "files": 1088,
-    "lines": 225752,
-    "symbols": 3202
+    "files": 1087,
+    "lines": 225755,
+    "symbols": 3198
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1805,7 +1805,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 192
+        "line": 167
       }
     ],
     "angles": [
@@ -11413,31 +11413,31 @@
     "contactsOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 49
+        "line": 47
       }
     ],
     "inbox": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 56
+        "line": 54
       }
     ],
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 78
+        "line": 76
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 134
+        "line": 132
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 152
+        "line": 150
       }
     ],
     "RoleDayPlan": [
@@ -17448,30 +17448,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt",
         "line": 17
-      }
-    ],
-    "ResidentSocialMailboxTrimTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
-        "line": 19
-      }
-    ],
-    "busyPairCannotEvictOtherPairsMail": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
-        "line": 32
-      }
-    ],
-    "globalCapStillAppliesAfterPairCaps": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
-        "line": 52
-      }
-    ],
-    "orderIsPreservedUnderCaps": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
-        "line": 68
       }
     ],
     "ResidentSocialMailboxWakeTest": [
@@ -28998,32 +28974,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 244,
-      "sha256": "3651c33da61acf7dce4385e29514b2aba5cb11ae57ac6b89768bedc81590b91f",
+      "lines": 223,
+      "sha256": "84f8439f8aeaffcee29c7dc272d674e9d930635a643c2216bd8a0aafdc4b2bc6",
       "symbols": [
         {
           "name": "contactsOf",
-          "line": 49
+          "line": 47
         },
         {
           "name": "inbox",
-          "line": 56
+          "line": 54
         },
         {
           "name": "evidenceId",
-          "line": 78
+          "line": 76
         },
         {
           "name": "canContact",
-          "line": 134
+          "line": 132
         },
         {
           "name": "visibleContacts",
-          "line": 152
+          "line": 150
         },
         {
           "name": "send",
-          "line": 192
+          "line": 167
         }
       ]
     },
@@ -37197,8 +37173,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt",
-      "lines": 190,
-      "sha256": "36fd316e1f2992ae18f64922a7054ff47515a4fa74fbdbae851c9339203a58a7",
+      "lines": 289,
+      "sha256": "d59aaf27123efb68dca7e439aecf7541368f36c4063950091235d37a6d146ca2",
       "symbols": [
         {
           "name": "ResidentMailDeliveryAtomicityTest",
@@ -37236,29 +37212,6 @@
         {
           "name": "ResidentPlanRevisionTest",
           "line": 17
-        }
-      ]
-    },
-    {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt",
-      "lines": 75,
-      "sha256": "3df28a645e1a63cabcd8b1d9aff3eb6e606a8ec194d22cdb17dd76962dd6606b",
-      "symbols": [
-        {
-          "name": "ResidentSocialMailboxTrimTest",
-          "line": 19
-        },
-        {
-          "name": "busyPairCannotEvictOtherPairsMail",
-          "line": 32
-        },
-        {
-          "name": "globalCapStillAppliesAfterPairCaps",
-          "line": 52
-        },
-        {
-          "name": "orderIsPreservedUnderCaps",
-          "line": 68
         }
       ]
     },

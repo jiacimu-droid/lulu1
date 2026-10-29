@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`90efae5ce4a5119aa800d339c8de88d4ad6f2c9a`
+- 基准提交：`7a335136e072f3baa8975bdd7dc9b916c8ccda53`
 - 分支：`main`
-- 已索引文件：1088
-- 已索引代码/文本行：225752
-- 已发现符号：3202
+- 已索引文件：1087
+- 已索引代码/文本行：225755
+- 已发现符号：3198
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -536,7 +536,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2010 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 132 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 244 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 223 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 821 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
@@ -1017,11 +1017,10 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2709 | 19 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 190 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 289 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 348 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxTrimTest.kt` | 75 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 410 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
