@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T20:59:02.739342+00:00",
-  "commit": "9558bc3c212741e94ff34d4b5bb420ead1815dad",
+  "generatedAt": "2026-10-29T22:10:32.267138+00:00",
+  "commit": "2cda68f457cd470f4347f4e56b572901124587d8",
   "branch": "main",
-  "sourceFingerprint": "faa4045dcef8edb58574f961508940a00d84a9f9d274219bb3dd95271f744e53",
+  "sourceFingerprint": "56345ea708e9fdba49ce87e537e6b2295b426030522c8ad5ebcfe4944375d650",
   "summary": {
     "files": 1091,
-    "lines": 226435,
+    "lines": 226441,
     "symbols": 3204
   },
   "symbolIndex": {
@@ -37244,8 +37244,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt",
-      "lines": 289,
-      "sha256": "d59aaf27123efb68dca7e439aecf7541368f36c4063950091235d37a6d146ca2",
+      "lines": 295,
+      "sha256": "395acddcb71401b3af9be337c0ba1ef3dbfb575003df2c66995ef65c1fb107f9",
       "symbols": [
         {
           "name": "ResidentMailDeliveryAtomicityTest",
