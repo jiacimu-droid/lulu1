@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ba7ac3d060e0475432741eee66d72543427e9c85`
+- 基准提交：`983fc48e33cee7240a05fd8e69b575931bb23d7a`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：224783
-- 已发现符号：3190
+- 已索引代码/文本行：224853
+- 已发现符号：3191
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -952,7 +952,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 337 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 67 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 121 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt` | 41 | 1 |
