@@ -484,6 +484,49 @@ assert.equal(bridge.playing, true, 'new decision is not blocked by the old tombs
 bridge.onPlaybackEvent('finished', 0, 3101, 'fresh')
 assert.equal(bridge.playing, false)
 
+// Android can hide the video stage while an old TTS fragment is audible and
+// the next decision is already queued. setPaused must retain the cancelled
+// score identity BEFORE zeroing it, or late onStarted resurrects old Motion3.
+bridge.touchResponse = { end: () => {} }
+bridge.wolfImpactPresentation = { reset: () => {} }
+bridge.app = null
+bridge.perform({ visualSequence: 3200, beats: [
+  { segmentIndex: 0, segmentId: 'old', atMs: 0, head: { roll: 3 } },
+] })
+bridge.onPlaybackEvent('playing', 0, 3200, 'old')
+bridge.perform({ visualSequence: 3201,
+  motion: { group: 'LuluWolf', index: 37 },
+  beats: [{ segmentIndex: 0, segmentId: 'queued', atMs: 0,
+    head: { roll: -4 } }],
+})
+const beforeHidden = motions.length
+bridge.setPaused(true)
+assert.equal(vm.runInContext('finalizedAudio.sequence', bridge), 3201,
+  'hidden stage must tombstone the newer queued score, not reset it to zero')
+assert.equal(vm.runInContext('finalizedAudio.interrupted', bridge), true)
+assert.equal(vm.runInContext('scoreVisualSequence', bridge), 0)
+bridge.onPlaybackEvent('playing', 0, 3201, 'queued')
+bridge.onPlaybackEvent('playing', 0, 3202, 'not-yet-visible')
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 0,
+  'hidden WebView must ignore all TTS starts, including a later sequence')
+bridge.setPaused(false)
+bridge.onPlaybackEvent('playing', 0, 3200, 'old')
+bridge.onPlaybackEvent('playing', 0, 3201, 'queued')
+assert.equal(vm.runInContext('audioVisualSequence', bridge), 0,
+  'returning to video cannot resurrect the discarded old/queued turn')
+assert.equal(motions.length, beforeHidden,
+  'no cancelled Motion3 can restart after a hidden-stage transition')
+bridge.perform({ visualSequence: 3202,
+  motion: { group: 'LuluWolf', index: 38 },
+  beats: [{ segmentIndex: 0, segmentId: 'fresh', atMs: 0,
+    head: { roll: 2 } }],
+})
+bridge.onPlaybackEvent('playing', 0, 3202, 'fresh')
+await Promise.resolve()
+assert.equal(motions.length, beforeHidden + 1,
+  'the next visible, actually audible turn may still start its own Motion3')
+bridge.onPlaybackEvent('interrupted', 0, 3202, 'fresh')
+
 // Once actual audio positions exist, wall time and a stalled HTTP stream do
 // not advance a future beat. No character-count timestamps are synthesized.
 const audioClock = createPerformanceRuntime({ now: () => clock })
