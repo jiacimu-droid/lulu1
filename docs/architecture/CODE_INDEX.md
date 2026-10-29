@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a80da55b3de81cef280321978d54a96f90d68b52`
+- 基准提交：`8eb32bbc5d1d5e088b695bab74706e1c3febed3c`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：224214
-- 已发现符号：3187
+- 已索引代码/文本行：224251
+- 已发现符号：3188
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -413,7 +413,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 409 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1598 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1626 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 946 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 603 | 19 |
@@ -656,7 +656,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 113 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 122 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 420 | 21 |
