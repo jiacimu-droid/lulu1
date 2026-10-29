@@ -32,7 +32,7 @@ internal fun IslandCompanionPanel(
     onSave: (BlockIslandState) -> Unit,
     onPing: (Pair<Int, Int>) -> Unit,
 ) {
-    val speaker = rememberGameSpeaker()
+    val speaker = rememberIslandCompanionVoice()
     var voice by remember { mutableStateOf(false) }
     var lastSpoken by remember { mutableStateOf("") }
     var speechIndex by remember { mutableIntStateOf(0) }
@@ -54,7 +54,7 @@ internal fun IslandCompanionPanel(
     val latestSpeechIndex by rememberUpdatedState(speechIndex)
     val latestSpoken by rememberUpdatedState(lastSpoken)
     val signals = remember(island.world.seed) { Channel<Unit>(Channel.CONFLATED) }
-    speaker.enabled = voice
+    LaunchedEffect(voice) { speaker.setEnabled(voice) }
 
     // Real state changes only enqueue one signal. Fast manual movement does not cancel
     // in-flight model requests or generate unlimited duplicate decisions.
@@ -122,7 +122,7 @@ internal fun IslandCompanionPanel(
                 }
                 if (choice.speech.isNotBlank()) {
                     dialogue = (dialogue + (name + "： " + choice.speech)).takeLast(6)
-                    speaker.speak(choice.speech, append = true)
+                    speaker.enqueue(id, choice.speech)
                 } else if (!alreadyActed) {
                     val event = workingState.world.events.lastOrNull().orEmpty()
                     dialogue = (dialogue + (name + " · " + event.substringAfter("：", event))).takeLast(6)
@@ -165,7 +165,7 @@ internal fun IslandCompanionPanel(
                     OutlinedButton(
                         onClick = {
                             voice = !voice
-                            if (!voice) speaker.stop()
+                            speaker.setEnabled(voice)
                         },
                         modifier = Modifier.weight(1f),
                     ) {
@@ -203,8 +203,8 @@ internal fun IslandCompanionPanel(
                             color = Color(0xFFE7F9F0), fontSize = 12.sp, lineHeight = 18.sp)
                     }
                 }
-                Text("使用游戏馆所选模型；语音为设备朗读，麦克风按次识别。",
-                    color = Color(0xFF95BEB4), fontSize = 10.sp)
+                Text("聊天选择游戏模型；朗读使用此人物已配置的语音服务。选择收费音色时会按次计费，关闭则不合成。",
+                    color = Color(0xFF95BEB4), fontSize = 10.sp, lineHeight = 15.sp)
             }
         }
     }
