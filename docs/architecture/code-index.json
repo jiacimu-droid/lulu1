@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T18:00:49.826172+00:00",
-  "commit": "30fcd586762c5274d54a376a4590e9b3ed557a3b",
+  "generatedAt": "2026-10-29T18:01:15.337188+00:00",
+  "commit": "4078513eea6c0e56617b9ea076b6887fd831d26c",
   "branch": "main",
-  "sourceFingerprint": "4c7610cd9b5e440b41ec50826399cb13fb902fe74a09df2de3e57b0a08adbc40",
+  "sourceFingerprint": "8073eeeb45b0f1ced690b2cd80c68820e76ce98e938c3edf31882892552d1522",
   "summary": {
     "files": 1088,
-    "lines": 225499,
+    "lines": 225552,
     "symbols": 3202
   },
   "symbolIndex": {
@@ -36165,8 +36165,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt",
-      "lines": 175,
-      "sha256": "dedca5010b7e2554b00fe8e730235e1990a293a5af902e320ac0598d6709475f",
+      "lines": 228,
+      "sha256": "3ad7606489d3abd12be78b9a900aaf447473c10ab920d07740c5f26b2a480c95",
       "symbols": [
         {
           "name": "GroupTimelineDeletionTest",
