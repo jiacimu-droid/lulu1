@@ -2564,6 +2564,62 @@ class ResidentDailyContinuityTest {
             assertEquals(3, server.requestCount)
         } finally { server.shutdown() }
     }
+    @Test(timeout = 60_000)
+    fun removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay(): Unit = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        val native = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "删除日程后追溯居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(4 * 86_400L)))
+        val other = DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+            name = "不能继承旧请求的居民${UUID.randomUUID().toString().take(5)}",
+            identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+            createdAt = now.minusSeconds(4 * 86_400L)))
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(native.id)
+        val dueAt = now.minusSeconds(2 * 86_400L)
+        val plan = RoleDayScheduleStore.arrange(app, actor, "旧日未完成活动",
+            "本人曾想分享", dueAt, dueAt.minusSeconds(600),
+            activityAction = "publish_moment",
+            activityArgs = JSONObject().put("text", "未知结果不能重发"))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(502).setBody("upstream unknown"))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null,
+                "historical-due-${UUID.randomUUID()}", server.url("/").toString(), "test")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            ScopedModelSelections.select(ResidentDailyDecision.SCOPE, archive.id)
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            val key = "execute:${plan.id}:${plan.dueAt}"
+            val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+            assertEquals("uncertain", p.getString("due-phase:$key", ""))
+            val origin = JSONObject(p.getString("due-origin:$key", null)!!)
+            assertEquals(actor, origin.getString("characterId"))
+            assertEquals(plan.id, origin.getString("planId"))
+            assertEquals(plan.dueAt.toString(), origin.getString("dueAt"))
+            assertEquals(1, ResidentDailyDecision.historicalAttempts(app, native.id, now)
+                .count { it.scope == "到点复议" && it.phase == "uncertain" })
+            assertTrue(RoleDayScheduleStore.remove(app, actor, plan.id))
+            assertTrue(RoleDayScheduleStore.plans(app, actor).none { it.id == plan.id })
+            val snapshot = p.all.toMap()
+            val history = ResidentDailyDecision.historicalAttempts(app, native.id, now)
+            assertEquals(1, history.count { it.scope == "到点复议" &&
+                it.phase == "uncertain" && !it.savedDecision &&
+                it.error.contains("upstream unknown") })
+            assertEquals(snapshot, p.all.toMap()) // read-only inspection
+            assertTrue(ResidentDailyDecision.historicalAttempts(app, other.id, now)
+                .none { it.scope == "到点复议" })
+            assertFalse(ResidentDailyDecision.runDuePlan(app, plan, now))
+            assertEquals(1, server.requestCount) // no second paid call or post
+            assertFalse(MomentsStore.posts.value.any {
+                it.authorCharacterId == actor && it.content == "未知结果不能重发"
+            })
+        } finally { server.shutdown() }
+    }
+
     @Test fun pastResidentRequestsRemainReadOnlyAfterMidnightAndAcrossPlanChanges() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
@@ -2621,6 +2677,10 @@ class ResidentDailyContinuityTest {
         assertEquals(0, p.getInt("manual-retry:${native.id}:$date", 0))
         assertTrue(ResidentDailyDecision.historicalAttempts(app, other.id, now)
             .none { it.scope == "到点复议" })
+        // Legacy rows never recorded an immutable owner. Once their plan is
+        // removed, a request ID alone must not be guessed into someone's past.
+        assertTrue(RoleDayScheduleStore.remove(app, actor, plan.id))
+        assertEquals(1, ResidentDailyDecision.historicalAttempts(app, native.id, now).size)
     }
 
 
