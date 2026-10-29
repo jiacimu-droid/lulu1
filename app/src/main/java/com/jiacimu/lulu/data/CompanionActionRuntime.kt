@@ -186,7 +186,7 @@ internal object CompanionActionRuntime {
         appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
         appendLine("【聊天与生活动作可以并行】如果此刻真的想把实际经历分享给自己的好友，可在回复的同一个JSON里加 steps=[{tool:publish_moment,args:{text:本人想发的正文}}]，不必等聊天结束或没有未读消息；也可同时继续研究、阅读等已列出的能力。是否公开由本人依关系、内容和隐私判断，不把用户私事擅自发圈，不强制发帖。已有明确分享欲时，可以直接选择发布并带上真实experienceId；不要只在心里重复想发布而不给出实际工具动作。每个steps项可独立附已有motiveId、concernId、experienceId、curiosity，只有这一步的真实回执才推进对应记录；与它无关的聊天送达不能代替。")
-        appendLine("- start_call，args={\"text\":\"电话接通后的第一句原话\"}：仅在角色已允许主动来电时发起真正的来电。text 会在真实接通后作为本人第一句语音朗读并写入通话记录；接听前不朗读，拒接不算说过。请遵守同一来电开场契约：${com.jiacimu.lulu.CallOpeningTurn.incomingLineContract}")
+        appendLine("- start_call，args={\"text\":\"电话接通后的第一句原话\",\"mediaMode\":\"voice|video\"}：由你根据当下真实请求和自己的选择明确区分语音电话 voice 与 Live2D 视频电话 video；不要把视频请求变成语音。video 会打开已选角色的 Live2D 模型，无法加载时由视频页面说明实际状况，不假装画面已经显示。省略 mediaMode 仅为旧版语音兼容。仅在角色已允许主动来电时发起真正的来电；text 在真实接通后作为本人第一句语音朗读并写入通话记录，接听前不朗读，拒接不算说过。请遵守同一来电开场契约：${com.jiacimu.lulu.CallOpeningTurn.incomingLineContract}")
         appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到生活记录的「收藏」，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
@@ -835,6 +835,8 @@ internal object CompanionActionRuntime {
                 val reason = args.optString("text").trim()
                     .ifBlank { "忽然有点想听听你的声音。" }
                     .take(300)
+                val mediaMode = args.optString("mediaMode", "voice")
+                require(mediaMode == "voice" || mediaMode == "video") { "start_call.mediaMode 只接受 voice 或 video" }
                 val conversation = privateConversation(characterId, character.displayName)
                 ProactiveIncomingCallStore.offer(
                     context = context,
@@ -843,6 +845,7 @@ internal object CompanionActionRuntime {
                     reason = reason,
                     now = now,
                     commitmentTaskId = args.optString("commitmentTaskId").takeIf(String::isNotBlank),
+                    mediaMode = mediaMode,
                 )
                 // Calls selected in *steps* use this same executor as primary
                 // call actions. Previously only the primary branch of
@@ -856,8 +859,8 @@ internal object CompanionActionRuntime {
                         context, characterId, conversation.id, reason)
                 }.getOrDefault(false) // A notification error must not undo a persisted call offer.
                 CompanionActionResult(true,
-                    if (notified) "已发起来电并显示来电邀请"
-                    else "已发起来电；系统通知权限或频道受限，请在应用中接听",
+                    if (notified) "已发起${if (mediaMode == "video") "Live2D 视频" else "语音"}来电并显示来电邀请，尚待接听"
+                    else "已发起${if (mediaMode == "video") "Live2D 视频" else "语音"}来电；系统通知权限或频道受限，请在应用中接听",
                     conversation.id, callNotificationShown = notified)
             }
             "digital_world_action" -> {
