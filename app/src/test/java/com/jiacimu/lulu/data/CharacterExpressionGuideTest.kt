@@ -156,15 +156,15 @@ class CharacterExpressionGuideTest {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
         assertTrue(group.contains("每位成员保持自己的一套语言偏好"))
-        assertTrue(group.contains("群里聊天不是每轮表演"))
-        assertTrue(group.contains("不因为群名有主题就把普通询问扩成一整段角色扮演"))
-        assertTrue(group.contains("一句平实回答"))
+        assertTrue(group.contains("不等于每句话都要演成小剧场"))
+        assertTrue(group.contains("群名和戏称可以偶尔顺势玩笑"))
+        assertTrue(group.contains("短答、吐槽、沉默或认真展开"))
         assertTrue(group.contains("不要为了制造笑点主动披露私人亲密细节"))
-        assertTrue(group.contains("听别人当众说了"))
+        assertTrue(group.contains("听别人公开说过不等于自己原本就知道"))
         assertTrue(group.contains("不说话"))
         assertFalse(group.contains("每条不得超过"))
-        assertFalse(private.contains("群里聊天不是每轮表演"))
-        assertFalse(phone.contains("群里聊天不是每轮表演"))
+        assertFalse(private.contains("不等于每句话都要演成小剧场"))
+        assertFalse(phone.contains("不等于每句话都要演成小剧场"))
     }
 
     @Test fun distinctMembersKeepDistinctConfiguredVoicesInSharedGroupOrCall() {
