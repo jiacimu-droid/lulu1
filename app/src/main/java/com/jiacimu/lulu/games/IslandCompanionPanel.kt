@@ -58,18 +58,20 @@ internal fun IslandCompanionPanel(
         error = ""
         thinking = true
         try {
+            var workingState = currentIsland
             for (id in members) {
-                val snapshot = currentIsland
+                val snapshot = workingState
                 if (snapshot.world.turns != expectedTurn || snapshot.world.friends.none { it.id == id }) break
                 // Generate a real decision from this role's own identity, the actual current
                 // board, and its own earlier game events. The configured Game model is reused.
                 val result = IslandActorPlay.decide(snapshot, id, heard)
-                val choice = result.getOrElse { failure ->
-                    error = failure.message ?: "伙伴暂时无法作出决定"
+                val choice = result.getOrNull()
+                if (choice == null) {
+                    error = result.exceptionOrNull()?.message ?: "伙伴暂时无法作出决定"
                     continue
                 }
-                val latest = currentIsland
-                if (latest.world.turns != expectedTurn) break
+                if (currentIsland.world.turns != expectedTurn) break
+                val latest = workingState
                 val alreadyActed = latest.world.events.any {
                     it.startsWith(IslandActorPlay.eventPrefix(id, expectedTurn))
                 }
@@ -86,13 +88,14 @@ internal fun IslandCompanionPanel(
                         error = "局势已经改变，本次角色行动未执行"
                         continue
                     }
+                    workingState = applied
                     currentSave(applied)
                 }
                 if (choice.speech.isNotBlank()) {
                     dialogue = (dialogue + (name + "： " + choice.speech)).takeLast(6)
                     speaker.speak(choice.speech, append = true)
                 } else if (!alreadyActed) {
-                    val event = currentIsland.world.events.lastOrNull().orEmpty()
+                    val event = workingState.world.events.lastOrNull().orEmpty()
                     dialogue = (dialogue + (name + " · " + event.substringAfter("：", event))).takeLast(6)
                 }
             }

@@ -69,6 +69,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
+    var autonomousCompanions by remember { mutableStateOf(true) }
+    val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }
     LaunchedEffect(impact) {
@@ -85,7 +87,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     fun perform(action: String, x: Int = target.first, y: Int = target.second) {
         navigateTo = null
-        val result = BlockIslandRules.act(island, action, x, y)
+        val result = BlockIslandRules.act(island, action, x, y, autonomousIds)
         if (result.world.turns > island.world.turns) {
             impact = BlockIslandImpact(x, y, action, result.world.turns)
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -112,7 +114,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             return@LaunchedEffect
         }
         delay(145)
-        val next = BlockIslandRules.act(island, "move", step.first, step.second)
+        val next = BlockIslandRules.act(island, "move", step.first, step.second, autonomousIds)
         if (next.world.x == world.x && next.world.y == world.y) navigateTo = null
         save(next)
     }
@@ -160,6 +162,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandStat("石", "${world.stone}", Color(0xFFC8D9E9), Modifier.weight(1f))
             IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
             IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
+        }
+        if (world.friends.isNotEmpty()) {
+            IslandCompanionPanel(
+                island = island, navigating = navigateTo != null,
+                autonomous = autonomousCompanions,
+                onAutonomousChange = { autonomousCompanions = it },
+                onSave = ::save,
+            )
         }
         Surface(shape = RoundedCornerShape(18.dp), color = Color(0xFF142D33),
             border = BorderStroke(1.dp, Color(0xFF75A39D).copy(alpha = .45f))) {
@@ -303,7 +313,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                                 fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1)
                             Text("生命${friend.hp}/8", color = Color(0xFFB6D0CC), fontSize = 10.sp)
                         }
-                        listOf("follow" to "跟随", "gather" to "采集", "guard" to "守卫").forEach { (mode, label) ->
+                        if (!autonomousCompanions) listOf("follow" to "跟随", "gather" to "采集", "guard" to "守卫").forEach { (mode, label) ->
                             FilterChip(
                                 selected = friend.mode == mode,
                                 onClick = { save(BlockIslandRules.setCompanionMode(island, friend.id, mode)) },
