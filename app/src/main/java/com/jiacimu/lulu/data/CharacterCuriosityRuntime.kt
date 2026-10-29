@@ -576,11 +576,31 @@ internal object CharacterCuriosityRuntime {
                     if (step.optString("evidenceId") == eventId || step.optString("sourceEvidenceId") == eventId) changed = true
                     else kept.put(step)
                 }
-                if (kept.length() == 0) continue
+                // A later explicit dropped/satisfied decision is not the
+                // status of the last tool step. Retracting a receipt may roll
+                // back the factual progress, but must not turn the character's
+                // own terminal choice into an unchosen "exploring" state.
+                val terminal = t.optString("status") in setOf("dropped", "satisfied")
+                if (kept.length() == 0) {
+                    // Keep the terminal decision as a tombstone for delayed
+                    // callbacks. An explicitly withdrawn original observation
+                    // still retracts a source-only terminal record.
+                    if (terminal && t.optString("observedId") != eventId &&
+                        t.optString("parentEvidenceId") != eventId) {
+                        t.put("steps", kept)
+                        keptThreads.put(t)
+                    }
+                    continue
+                }
                 if (kept.length() != steps.length()) {
-                    val last = kept.optJSONObject(kept.length() - 1) ?: continue
-                    t.put("steps", kept).put("updatedAt", last.optString("at"))
-                    listOf("question", "why", "nextStep", "status").forEach { t.put(it, last.optString(it)) }
+                    t.put("steps", kept)
+                    if (!terminal) {
+                        val last = kept.optJSONObject(kept.length() - 1) ?: continue
+                        t.put("updatedAt", last.optString("at"))
+                        listOf("question", "why", "nextStep", "status").forEach {
+                            t.put(it, last.optString(it))
+                        }
+                    }
                 }
                 keptThreads.put(t)
             }

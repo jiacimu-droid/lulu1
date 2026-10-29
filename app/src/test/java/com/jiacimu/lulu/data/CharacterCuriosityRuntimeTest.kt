@@ -347,4 +347,72 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+
+    @Test fun settlingAnInterestSurvivesReceiptRetractionAndDelayedNewReceipt() {
+        begin()
+        realRead("settled-first", at.plusSeconds(10))
+        realRead("settled-second", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "第一章的真实结果", "settled-first", at.plusSeconds(10))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal("第二章的疑问"), "reading", true,
+            "第二章的真实结果", "settled-second", at.plusSeconds(20))
+        CharacterCuriosityRuntime.settleInterest(id,
+            proposal("第二章的疑问").put("status", "satisfied"), at.plusSeconds(30))
+        val original = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        val threadId = original.getString("threadId")
+        val settledAt = original.getString("settledAt")
+
+        // The newest receipt is withdrawn, but an older valid result remains.
+        CharacterCuriosityRuntime.invalidateEvidence("settled-second")
+        val rolledBack = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", rolledBack.getString("status"))
+        assertEquals(settledAt, rolledBack.getString("settledAt"))
+        assertEquals("第二章的疑问", rolledBack.getString("question"))
+        assertEquals(1, rolledBack.getJSONArray("steps").length())
+        assertEquals("第一章的真实结果",
+            CharacterCuriosityRuntime.lastRealStep(id, rolledBack)?.optString("receipt"))
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+
+        // Even with no surviving tool receipt, the explicitly chosen ending
+        // must survive so a delayed tool callback cannot reopen it.
+        CharacterCuriosityRuntime.invalidateEvidence("settled-first")
+        val terminal = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("satisfied", terminal.getString("status"))
+        assertEquals(0, terminal.getJSONArray("steps").length())
+        assertEquals(settledAt, terminal.getString("settledAt"))
+        realRead("settled-late", at.plusSeconds(40))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal("旧动作迟到").put("threadId", threadId),
+            "reading", true, "真实但迟到的结果", "settled-late", at.plusSeconds(40))
+        assertEquals("satisfied", CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0).getString("status"))
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun droppingAnInterestSurvivesPartialReceiptRetraction() {
+        begin()
+        realRead("dropped-first", at.plusSeconds(10))
+        realRead("dropped-second", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "真实读过第一章", "dropped-first", at.plusSeconds(10))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal("不想再读的后续"), "reading", true,
+            "真实读过第二章", "dropped-second", at.plusSeconds(20))
+        CharacterCuriosityRuntime.releaseInterest(id,
+            proposal("不想再读的后续").put("status", "dropped"), at.plusSeconds(30))
+        val releasedAt = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0).getString("releasedAt")
+        CharacterCuriosityRuntime.invalidateEvidence("dropped-second")
+        val remaining = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", remaining.getString("status"))
+        assertEquals(releasedAt, remaining.getString("releasedAt"))
+        assertEquals("不想再读的后续", remaining.getString("question"))
+        assertEquals(1, remaining.getJSONArray("steps").length())
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
 }
