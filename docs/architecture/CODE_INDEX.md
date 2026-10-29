@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b6f7e9e8ea2bbafebe96edb1030219e42b8b1ea3`
+- 基准提交：`ff1e407887ef501fdb151bfbc38fba09d12a87eb`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：224009
+- 已索引代码/文本行：224011
 - 已发现符号：3185
 
 | 文件 | 行数 | 符号数 |
@@ -646,7 +646,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 245 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 285 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 286 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
@@ -656,7 +656,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 112 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 113 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 420 | 21 |

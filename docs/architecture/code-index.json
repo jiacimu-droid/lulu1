@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:23:39.461376+00:00",
-  "commit": "b6f7e9e8ea2bbafebe96edb1030219e42b8b1ea3",
+  "generatedAt": "2026-10-29T16:23:58.137449+00:00",
+  "commit": "ff1e407887ef501fdb151bfbc38fba09d12a87eb",
   "branch": "main",
-  "sourceFingerprint": "5730b915a6bb8309153684daeb46155aa2293f4622299a9768a9f5d7c0f3f550",
+  "sourceFingerprint": "025e120064daa1a6e86f3127696f8b9290a327a91beda4f98da23d74225b0e5b",
   "summary": {
     "files": 1086,
-    "lines": 224009,
+    "lines": 224011,
     "symbols": 3185
   },
   "symbolIndex": {
@@ -12959,7 +12959,7 @@
     "submitPlayerMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "setForeground": [
@@ -30746,7 +30746,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
       "lines": 501,
-      "sha256": "d322b2115bfbebd34249c8d3866dd0f80167efa981548d69c1da5f5ea00abd72",
+      "sha256": "f88bde3c20937488000ca8bdc3db09f4564454b62da2a9d8c2df48c8054d9412",
       "symbols": [
         {
           "name": "save",
@@ -31148,12 +31148,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 285,
-      "sha256": "c7858ca977eca615ef3507b22ef6c08b9be2bbaa9138ce375fe396e1ef250876",
+      "lines": 286,
+      "sha256": "f5b4ff02bae717c0c02e302ff9c589326071598b6fc7dfd9028e3224aed1586d",
       "symbols": [
         {
           "name": "submitPlayerMessage",
-          "line": 58
+          "line": 59
         }
       ]
     },
@@ -31456,8 +31456,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 112,
-      "sha256": "14c9836f392b0d8608cdfeffb0ac50dc31618321187ebab79c80332beca910b4",
+      "lines": 113,
+      "sha256": "a28e249ba269a17d94df968794713f1f6258b6bf62f8138b6694f4335c94a665",
       "symbols": []
     },
     {
@@ -31588,7 +31588,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
       "lines": 498,
-      "sha256": "262333c6c8eb1c321d2e37ff2f91a8ed6e319fae61101c9144103fb173d6a528",
+      "sha256": "4e4508a02fadf7eac90a372a4f84d52e91d49f9d3d981f9525fc1dfcd7e2e868",
       "symbols": [
         {
           "name": "change",
