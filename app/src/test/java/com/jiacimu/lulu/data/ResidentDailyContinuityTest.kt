@@ -774,6 +774,15 @@ class ResidentDailyContinuityTest {
         val repeated = ResidentDailyDecision.saveAgenda(app, a,
             JSONObject().put("agenda", JSONArray().put(agenda.getJSONObject(0))), now)
         assertTrue(repeated.isEmpty())
+        // The already scheduled request cannot remain an active future action
+        // after the real application was sent. Preserve its history and ID.
+        val originalRequestPlan = RoleDayScheduleStore.plans(app, role)
+            .single { it.id == saved[0].id }
+        assertEquals("cancelled", originalRequestPlan.status)
+        assertEquals("planned", RoleDayScheduleStore.plans(app, role)
+            .single { it.id == saved[1].id }.status)
+        assertEquals(2, RoleDayScheduleStore.plans(app, role)
+            .count { it.id in saved.map(RoleDayPlan::id) })
     }
 
     @Test(timeout = 60_000) fun invalidFurnitureProposalNeverBecomesAnExecutableAppointment() = runBlocking {
