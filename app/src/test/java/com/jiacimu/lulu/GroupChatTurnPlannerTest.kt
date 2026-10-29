@@ -36,6 +36,11 @@ class GroupChatTurnPlannerTest {
             isGroup = true, userMessage = false, appVisible = true, inGroupCall = false))
         assertFalse(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = false, inGroupCall = false))
+        // Cold start has no lifecycle visibility evidence yet. A nullable
+        // foreground signal must neither fail Kotlin compilation nor launch
+        // a duplicate foreground coordinator alongside background delivery.
+        assertFalse(CompanionOnlineStore.shouldCoordinateGroupTurn(
+            isGroup = true, userMessage = true, appVisible = null, inGroupCall = false))
         assertFalse(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = true))
     }
