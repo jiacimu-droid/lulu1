@@ -54,6 +54,48 @@ class IslandActorPlayTest {
         assertNull(IslandActorPlay.apply(result,"alice",w.turns,choice))
     }
 
+    @Test fun independentExplorationApproachesRealTargetWithoutTeleportingOrReplacingPlayerAction() {
+        val s = world()
+        val actor = s.world.friends.first()
+        val destination = 9 to 4
+        val tiles = s.world.tiles.toMutableList()
+        tiles[s.world.index(destination.first, destination.second)] = 2
+        val prepared = s.copy(world = s.world.copy(tiles = tiles))
+        val option = IslandActorPlay.options(prepared, actor.id)
+            .first { it.id == "approach:${destination.first}:${destination.second}" }
+        val decision = IslandActorChoice(option.id, "这边有矿，我先去看看", "自己去矿旁")
+        val result = IslandActorPlay.apply(prepared, actor.id, prepared.world.turns, decision)!!
+        val moved = result.world.friends.first()
+        assertEquals(1, kotlin.math.abs(actor.x - moved.x) + kotlin.math.abs(actor.y - moved.y))
+        assertEquals(prepared.world.x to prepared.world.y, result.world.x to result.world.y)
+        assertEquals(prepared.world.stone, result.world.stone)
+        assertEquals(2, result.world.cell(destination.first, destination.second))
+        assertTrue(result.world.events.last().contains("下一步想：自己去矿旁"))
+        assertNull(IslandActorPlay.apply(result, actor.id, prepared.world.turns, decision))
+    }
+
+    @Test fun blockedOrInventedDistantObjectivesCannotMoveOrCreateResources() {
+        val s = world()
+        val actor = s.world.friends.first()
+        assertNull(IslandActorPlay.apply(s, actor.id, s.world.turns,
+            IslandActorChoice("approach:999:999", "", "去地图外")))
+        val near = s.world.tiles.toMutableList()
+        val dest = 10 to 4
+        near[s.world.index(dest.first, dest.second)] = 1
+        val world = s.copy(world = s.world.copy(tiles = near))
+        val choice = IslandActorPlay.options(world, actor.id)
+            .firstOrNull { it.id == "approach:10:4" }
+        if (choice != null) {
+            val original = world.world.friends.first()
+            val applied = IslandActorPlay.apply(world, actor.id, world.world.turns,
+                IslandActorChoice(choice.id, ""))!!
+            assertEquals(world.world.wood, applied.world.wood)
+            assertEquals(world.world.stone, applied.world.stone)
+            assertEquals(1, kotlin.math.abs(original.x - applied.world.friends.first().x) +
+                kotlin.math.abs(original.y - applied.world.friends.first().y))
+        }
+    }
+
     @Test fun invalidStructuredChoicesAreRejectedNotReinterpreted() {
         assertNull(IslandActorPlay.parse("我去采集"))
         assertNull(IslandActorPlay.parse("""{"actionId":"none"}"""))

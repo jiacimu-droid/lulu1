@@ -9,7 +9,12 @@ import kotlin.math.abs
 
 /** The model chooses among real options; existing game state remains authoritative. */
 internal data class IslandActorOption(val id: String, val name: String, val kind: String, val x: Int = -1, val y: Int = -1)
-internal data class IslandActorChoice(val actionId: String, val speech: String)
+internal data class IslandActorChoice(
+    val actionId: String,
+    val speech: String,
+    /** One character-owned intention, not a completed action or persistent task. */
+    val intent: String = "",
+)
 
 internal object IslandActorPlay {
     fun eventPrefix(id: String, turn: Int) = "队友[" + id + "] 第" + turn + "回合："
@@ -42,6 +47,39 @@ internal object IslandActorPlay {
                     result += IslandActorOption("wall:$x:$y", "建造木墙，消耗2木", "wall", x, y)
             }
         }
+        // Let the person set their *own* destinations, not just react to adjacent tiles.
+        // Each candidate exposes only a legal first step; never teleport or spend a
+        // background model turn to walk all the way to a target.
+        val destinations = (0 until w.height).flatMap { y ->
+            (0 until w.width).mapNotNull { x ->
+                val distance = abs(a.x - x) + abs(a.y - y)
+                if (distance !in 2..10) return@mapNotNull null
+                val tile = w.cell(x, y)
+                val enemy = w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
+                val feature = when {
+                    enemy -> "怪物"
+                    tile == 1 -> "树林"
+                    tile == 2 -> "石矿"
+                    else -> return@mapNotNull null
+                }
+                Triple(x to y, feature, distance)
+            }
+        }.sortedWith(compareBy<Triple<Pair<Int, Int>, String, Int>> { it.third }
+            .thenBy { it.first.second }.thenBy { it.first.first })
+        // Limited map excerpt protects prompt tokens; this never limits the actor's
+        // number of decisions or changes the meaning of a valid model selection.
+        for ((target, feature, _) in destinations.take(16)) {
+            val step = BlockIslandRules.nextStep(s, a.x, a.y, target.first, target.second)
+                ?: continue
+            if (w.friends.any { it.hp > 0 && it.id != a.id &&
+                    it.x == step.first && it.y == step.second } ||
+                w.x == step.first && w.y == step.second) continue
+            result += IslandActorOption(
+                "approach:${target.first}:${target.second}",
+                "主动前往(${target.first},${target.second})附近的${feature}（本次走一步）",
+                "approach", target.first, target.second,
+            )
+        }
         if (a.hp<8 && s.structures.any { (index,kind) ->
                 kind in setOf("campfire","bed") &&
                     abs(index%w.width-a.x)+abs(index/w.width-a.y)<=1 })
@@ -59,7 +97,8 @@ internal object IslandActorPlay {
         if (!j.has("speech") || j.get("speech") !is String) return@runCatching null
         val action = j.getString("actionId")
         if (action.isBlank()) return@runCatching null
-        IslandActorChoice(action, j.getString("speech").trim())
+        if (j.has("intent") && j.get("intent") !is String) return@runCatching null
+        IslandActorChoice(action, j.getString("speech").trim(), j.optString("intent", "").trim())
     }.getOrNull()
 
     /** Null means stale, repeated or physically invalid; no action is invented. */
@@ -76,6 +115,18 @@ internal object IslandActorPlay {
                     if (it.id==id) it.copy(x=a.x,y=a.y) else it
                 })
                 "自己前进到("+a.x+","+a.y+")"
+            }
+            "approach" -> {
+                val self = w.friends.first { it.id == id }
+                val step = BlockIslandRules.nextStep(s, self.x, self.y, a.x, a.y)
+                    ?: return null
+                if (w.friends.any { it.hp > 0 && it.id != id &&
+                        it.x == step.first && it.y == step.second } ||
+                    w.x == step.first && w.y == step.second) return null
+                next = w.copy(friends = w.friends.map {
+                    if (it.id == id) it.copy(x = step.first, y = step.second) else it
+                })
+                "主动朝(${a.x},${a.y})前进一格，到了(${step.first},${step.second})"
             }
             "gather" -> {
                 val tile=w.cell(a.x,a.y)
@@ -107,7 +158,9 @@ internal object IslandActorPlay {
             else -> return null
         }
         val say = if(choice.speech.isBlank()) "" else "；他说：「"+choice.speech+"」"
-        val event=eventPrefix(id,turn)+outcome+say
+        val plan = choice.intent.takeIf { it.isNotBlank() }
+            ?.let { "；下一步想：${it.take(100)}" } ?: ""
+        val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
         return s.copy(world=next)
     }
@@ -128,6 +181,10 @@ internal object IslandActorPlay {
             .put("selfId",id).put("selfLocation",JSONArray(listOf(a.x,a.y)))
             .put("selfHp",a.hp).put("playerLocation",JSONArray(listOf(w.x,w.y)))
             .put("playerHp",w.hp).put("sharedWood",w.wood).put("sharedStone",w.stone)
+            .put("teammates",JSONArray(w.friends.map { teammate ->
+                JSONObject().put("id", teammate.id)
+                    .put("x", teammate.x).put("y", teammate.y).put("hp", teammate.hp)
+            }))
             .put("nearby",JSONArray(nearby))
             .put("recentEvents",JSONArray(w.events.takeLast(10)))
             .put("playerSpeech",heard)
@@ -141,14 +198,15 @@ internal object IslandActorPlay {
             characterId=id,
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
-按你自己的性格、兴趣、关系和当下情况，自主决定做什么；不必跟随玩家。可以探索、采集、建设、攻击或静静观察。
-只选择 options 中真实存在的一个 id，不得凭空创造资源或宣称行动已成功。你可以说话也可以沉默。
-只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻愿意自然说出口的话，不想说就为空字符串"}。
-行动将由游戏引擎独立校验、执行、记录结果；台词不是执行成功的证据。""",
+像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
+options 给出真实可选操作。approach 是你自己选择的远处目标，本轮只能沿合法路线走一格；想继续向那边探索，下轮你可以再次选择，并不强制跟随主人。
+你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。
+只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。
+角色决定行动与说话，程序只检查真实执行与回执。你不是任务助手，不需要每步都解释或每次都讲话。""",
             source="游戏 · 方块小岛自主同行",
             title="方块小岛伙伴自主决策",
             usage=ModelUsage.Game,
             contextMode=CompanionContextMode.CharacterAndScenario,
-            maxTokens=260,
+            maxTokens=320,
         ).mapCatching { parse(it.text) ?: error("游戏模型未返回有效的结构化选择") }
 }
