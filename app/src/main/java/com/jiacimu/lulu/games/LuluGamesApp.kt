@@ -100,12 +100,38 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
         mutableStateOf(initialGameId.toGameRouteOrHome())
     }
-    var landscape by rememberSaveable { mutableStateOf(false) }
     val bgmEnabled = GameAmbientSoundscape(if (route == GameRoute.DeepSea) GameSoundscape.Ocean else GameSoundscape.Arcade)
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
     fun stepBack() {
         if (route == GameRoute.Home || returnToCaller) onBack() else route = GameRoute.Home
+    }
+
+    // The game hall is portrait; only the three world-map games opt into landscape.
+    // Save the player's per-game manual toggle across orientation configuration changes.
+    val context = LocalContext.current
+    val hostActivity = remember(context) { context.gameHostActivity() }
+    val landscapeSupported = route in setOf(
+        GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.DeepSea,
+    )
+    var landscape by rememberSaveable(route.savedGameId()) { mutableStateOf(true) }
+    val requestedGameOrientation = if (pendingRoute == null && landscapeSupported && landscape)
+        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+    // One owner for the orientation request, covering game, picker and lobby routes.
+    // Avoid restoring UNSPECIFIED while the physical phone is still horizontal.
+    SideEffect {
+        if (hostActivity?.requestedOrientation != requestedGameOrientation) {
+            hostActivity?.requestedOrientation = requestedGameOrientation
+        }
+    }
+    DisposableEffect(hostActivity) {
+        onDispose {
+            if (hostActivity?.isChangingConfigurations != true &&
+                hostActivity?.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                hostActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
     }
 
     BackHandler { stepBack() }
@@ -135,10 +161,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
     val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
     val immersivePlay = route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
 
-    // Full-screen is confined to active game sessions. Restore the host window when the
-    // player goes back to the game hall, opens character selection, or leaves the app.
-    val context = LocalContext.current
-    val hostActivity = remember(context) { context.gameHostActivity() }
+    // Full-screen is confined to active game sessions; orientation is managed above.
     DisposableEffect(hostActivity, immersivePlay) {
         val window = hostActivity?.window
         val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -148,25 +171,6 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
             if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
         }
     }
-    // Opt-in landscape for large-map games only. No global Activity or manifest lock:
-    // restore the host Activity's previous preference when the game is closed.
-    val landscapeSupported = route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.DeepSea)
-    val priorOrientation = remember(hostActivity) {
-        hostActivity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-    }
-    DisposableEffect(hostActivity, landscapeSupported, landscape) {
-        if (landscapeSupported) {
-            hostActivity?.requestedOrientation =
-                if (landscape) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
-        onDispose {
-            if (landscapeSupported && hostActivity?.isChangingConfigurations != true) {
-                hostActivity?.requestedOrientation = priorOrientation
-            }
-        }
-    }
-
     Scaffold(
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
         topBar = {
