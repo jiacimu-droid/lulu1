@@ -517,7 +517,7 @@ function applyFinalParameters(core, deltaMs) {
     authoredMotion: motionActive,
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     touchMotionActive: motionActive && authoredMotion?.source === 'touch',
-    speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
+    listening, speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
     deferPhysicsOutputs: true,
   })

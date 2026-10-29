@@ -69,25 +69,34 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, touchMotionActive = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, listening = false, speaking, authoredMotion = false, touchMotionActive = false, expressionActive = false, eyeShapeLocked = false, voiceLevel = null, seconds, wolf = false, deferPhysicsOutputs = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
     // Touch and the character's own explicit pose take precedence.
     const speechEnergy = speaking ? (.4 + .6 * clamp01(
       Number.isFinite(voiceLevel) ? voiceLevel : .45)) : 0
+    // The call already supplies microphone-listening state, but until now
+    // nothing consumed it: the avatar stayed in the same idle pose while the
+    // user spoke. This is a restrained local attention posture, NOT an
+    // inference about the user's words, mood or the character's intentions.
+    // An authored Motion3, expression, touch or explicit pose always wins.
+    const attending = listening && !speaking && !authoredMotion &&
+      !touchReflex && !head && !body && !face && !expressionActive
     const idleHead = !head && !touchReflex ? {
       // Head Z is a chosen neck tilt, NOT a permanent sine-wave wobble.
       // Keep the chin stable while ordinary speech animates the mouth.
       yaw: 0,
       pitch: .18 * Math.sin(seconds * .23 + .8) +
-        speechEnergy * .18 * Math.sin(seconds * .47),
+        speechEnergy * .18 * Math.sin(seconds * .47) +
+        (attending ? 1.2 + .18 * Math.sin(seconds * .65) : 0),
       roll: 0,
     } : null
     const idleBody = !body && !touchReflex ? {
       yaw: .06 * Math.sin(seconds * .19 + .5),
       pitch: .23 * Math.sin(seconds * .23) +
-        speechEnergy * .18 * Math.sin(seconds * .47),
+        speechEnergy * .18 * Math.sin(seconds * .47) +
+        (attending ? .32 : 0),
       roll: .09 * Math.sin(seconds * .17 + .9),
     } : null
     // Authored motion files can contain head/torso movement as well as arms.

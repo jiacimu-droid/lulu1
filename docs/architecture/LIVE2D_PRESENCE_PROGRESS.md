@@ -82,3 +82,12 @@
 ### 22:34 CI 静态契约同步
 
 - 本轮首个 [APK #40892527191](https://github.com/jiacimu-droid/lulu1/actions/runs/40892527191) 的真实 `conversation-performance.mjs` 已通过，但后续 `parameters.mjs` 仍断言旧源码必须包含 `if (playing) { activatePendingSpeechMoment() }`，与新增“只有同一片段重复回调才跳过开声”事实冲突，JS 阶段失败，Android 未执行。已同步旧静态断言到新的 `newAudioFragment` 门禁，并新增精确 TTS 所有权断言；未放宽动态回归。需以后续对应 SHA 的 CI 成功为准，真机仍待验。
+
+
+## 2026-10-30 00:35 · L2：通话倾听状态从 Android 贯通到实际模型姿态
+
+- **最新 main 与职责核对**：已复读 Library 大纲、AGENTS、CODE_INDEX、人物契约、成长框架、10-28 连续性计划、本专项与基础/内驱/社交进度。v6605 逐句 Motion3/真实 TTS 首音、迟到回调版本门禁、触摸与表情所有权均已有，不重复搭建。L1 的连续五句和 L3 低 FPS 真机自然度仍是已有待验；任意词级对齐为可选增强。
+- **证实根因**：Android `Live2DCallStage` 已将 `listening` 通过 `update` 送至 `stage.js`，stage 也保存该值，但最终绘制 `visualLayers.update` 从未收到/读取它，导致用户说话时模型和无输入时姿态完全相同。这里的 `listening` 仅代表通话麦克风倾听，不代表识别到用户说话、情绪或角色正在思考。
+- **正式链路**：`Live2DCallStage → stage.update(listening) → applyFinalParameters → createVisualLayerRuntime.update`。只在麦克风倾听、角色没有正在发声且没有本人 Motion3/表情/显式头身脸动作或触摸时，提供幅度克制的抬头/上身注意姿态；沿已有帧率无关弹簧平滑进入与释放，保持正视，不做随机语义动作。角色本人 Motion3、触摸和表情拥有优先权；不新增角色状态、LLM 调用或定时器。
+- **根因回归**：`impact-recovery.mjs` 新增实际 final actuator 的 15/30/60 FPS 比较，断言倾听与 idle 不再相同、说话不叠倾听姿态、真实 Motion3/本人显式姿态/触摸不被盖掉；`parameters.mjs` 检查正式 stage 的倾听参数接线。仅修改 `tools/live2d/` 和本专项进度文档；原索引生成器扫描 `app/scripts/preview`，本次没有索引集合变化，不手写 CODE_INDEX。
+- **验收分层**：本提交是正式源码和根因回归，不等于已在 CI 运行。后续需核对该 SHA 的 Live2D JS、Android JVM、assemblePhone、APK 发布。真机仍需看倾听→角色说话→触摸→打断、不同 TTS、15/30 FPS 及实际音画差/发热。思考阶段没有可靠独立状态信号，本轮不冒充已实现“思考表演”。

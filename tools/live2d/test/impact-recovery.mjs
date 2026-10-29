@@ -208,3 +208,66 @@ for (const region of ['hand-left', 'arm-right', 'chest', 'body']) {
     assert.equal(spring.step(null, 16).roll, 0)
   }
 }
+
+
+// The phone's real listening flag must reach the final Cubism actuator.
+// Previously it was stored in stage.update() but never read by the renderer,
+// so microphone-on listening looked identical to silent idle. Verify the
+// physical handoff at low FPS without imposing an emotion or a fake Motion3.
+{
+  function samplePresence(fps, state) {
+    const values = {
+      ParamAngleY: 0, ParamBodyAngleY: 0,
+      ParamEyeBallX: 0, ParamEyeBallY: 0,
+    }
+    const layer = createVisualLayerRuntime({
+      has: (_core, id) => Object.hasOwn(values, id),
+      read: (_core, id) => values[id],
+      write: (_core, id, value) => { values[id] = value },
+    })
+    for (let i = 0; i < fps * 2; i++) {
+      // Cubism runs its authored motion before the final actuator each frame.
+      if (state.authoredMotion) {
+        values.ParamAngleY = -7
+        values.ParamBodyAngleY = -3
+      }
+      layer.update(values, {
+        deltaMs: 1000 / fps, seconds: i / fps, ...state,
+      })
+      assert.ok(Object.values(values).every(Number.isFinite),
+        'listening posture must stay finite even on a 15fps phone')
+    }
+    return values
+  }
+  for (const fps of [15, 30, 60]) {
+    const idle = samplePresence(fps, { listening: false, speaking: false })
+    const attentive = samplePresence(fps, { listening: true, speaking: false })
+    assert.ok(attentive.ParamAngleY - idle.ParamAngleY > .8,
+      'real microphone listening must visibly orient the neck')
+    assert.ok(attentive.ParamBodyAngleY - idle.ParamBodyAngleY > .2,
+      'listening must also have a subtle torso follow-through')
+    const talking = samplePresence(fps, { listening: true, speaking: true })
+    const talkingOnly = samplePresence(fps, { listening: false, speaking: true })
+    assert.ok(Math.abs(talking.ParamAngleY - talkingOnly.ParamAngleY) < .02,
+      'the role speaking must not also perform the microphone-listening pose')
+    const authored = samplePresence(fps, {
+      listening: true, speaking: false, authoredMotion: true,
+    })
+    assert.ok(Math.abs(authored.ParamAngleY + 7) < .02 &&
+      Math.abs(authored.ParamBodyAngleY + 3) < .02,
+      'real Motion3 owns the neck and torso even while the microphone is open')
+    const deliberate = samplePresence(fps, {
+      listening: true, speaking: false,
+      head: { pitch: -4 }, body: { pitch: -2 },
+    })
+    assert.ok(deliberate.ParamAngleY < -3 && deliberate.ParamBodyAngleY < -1.5,
+      'explicit character pose outranks passive listening')
+    const touched = samplePresence(fps, {
+      listening: true, speaking: false,
+      touchReflex: { pitch: -6, body: { pitch: -3 } },
+    })
+    assert.ok(touched.ParamAngleY < -3,
+      'physical touch must not be flattened by microphone listening')
+  }
+  console.log('Live2D listening: Android state, local attention, authored/touch ownership at 15/30/60fps')
+}
