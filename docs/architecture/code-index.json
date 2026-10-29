@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:36:46.201448+00:00",
-  "commit": "d32c22699789b756e5a58a0d8652627f87af0a9f",
+  "generatedAt": "2026-10-29T10:41:12.946378+00:00",
+  "commit": "fdf54a7b3f7aa93ee6ab135fda4c143c8ca10260",
   "branch": "main",
-  "sourceFingerprint": "b7dd49bea1753ae137f6d7983d2053dda7b1ef32d736da3342e3a57972ff9e43",
+  "sourceFingerprint": "78a34f9b31dec47b6d442026fc7ab52703932ee13d9c2e82240bcd2435d3cc56",
   "summary": {
-    "files": 1064,
-    "lines": 218855,
-    "symbols": 3128
+    "files": 1065,
+    "lines": 218882,
+    "symbols": 3129
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14546,6 +14546,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
         "line": 434
+      }
+    ],
+    "shouldStream": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
+        "line": 12
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -32420,8 +32426,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2162,
-      "sha256": "75c467b0039c85006dcc7abf906d87b01b75c7da404b2a91cc5e9580d30a58fb",
+      "lines": 2168,
+      "sha256": "aa388b2a6792ace2ef3581e33ea5509b049c1f47e562bb88ad641a90ee7fa5e1",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -32714,6 +32720,17 @@
         {
           "name": "text",
           "line": 86
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt",
+      "lines": 21,
+      "sha256": "39044794d102b8639a28efcf73ce838671f0e108f64e6629d9d3cd380556338b",
+      "symbols": [
+        {
+          "name": "shouldStream",
+          "line": 12
         }
       ]
     },
