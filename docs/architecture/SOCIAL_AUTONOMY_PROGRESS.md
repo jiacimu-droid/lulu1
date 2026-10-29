@@ -49,3 +49,9 @@
 - 源码与回归提交：[51f70e33](https://github.com/jiacimu-droid/lulu1/commit/51f70e331a948efc57110c6f1c9759140142d0a6)。索引 [#40863097284](https://github.com/jiacimu-droid/lulu1/actions/runs/40863097284) completed/success。
 - [Lulu APK #40863097204](https://github.com/jiacimu-droid/lulu1/actions/runs/40863097204) completed/failure，实际已编译并跑完1950项JVM测试，1项失败。新增 ResidentMailDeliveryAtomicityTest 的3项回归均通过；唯一失败仍是原基线的 CharacterExplorationContinuityTest.eachOrderedToolCarriesItsQuestionAndAnUnseenResultCannotMarkItSatisfied（expected exploring / actual satisfied）。没有改旧断言来冒充通过。
 - 该既有失败阻止后续 assemblePhone/收集/发布；不能报告新APK成功。社交的源码与JVM证据已取得，真机并发发送、后台唤醒与强杀恢复仍分别待验。下一轮继续 S3 双方邀约及到场链，先核对基础/内驱专项是否已经消除这一公共构建阻断。
+
+### S3 本轮提交与验证记录
+
+- 源码提交 [762fd9c4](https://github.com/jiacimu-droid/lulu1/commit/762fd9c4029391440f3c577ec4b88fdbb01fe30c)；索引 [#40868016881](https://github.com/jiacimu-droid/lulu1/actions/runs/40868016881) completed/success，索引提交 c0b9c6b。
+- [APK #40868016796](https://github.com/jiacimu-droid/lulu1/actions/runs/40868016796) 已进入 Test and build phone APK，记录时 in_progress，尚无 JVM 总结果或 APK 发布证据，不能按通过统计。
+- 额外验证固定 v2.5.0 的真实 login.go：原版 → V2 → V3、再次应用 V2/V3 均成功，保留账号/扫码辅助函数；这只证明源码转换与幂等，不冒充 Go 编译或真机登录成功。
