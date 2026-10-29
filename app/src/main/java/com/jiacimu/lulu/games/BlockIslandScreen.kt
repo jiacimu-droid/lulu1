@@ -163,14 +163,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandStat("果", "${island.fruit}", Color(0xFFF5D79B), Modifier.weight(1f))
             IslandStat("鱼", "${island.fish}", Color(0xFFA4E6F3), Modifier.weight(1f))
         }
-        if (world.friends.isNotEmpty()) {
-            IslandCompanionPanel(
-                island = island, navigating = navigateTo != null,
-                autonomous = autonomousCompanions,
-                onAutonomousChange = { autonomousCompanions = it },
-                onSave = ::save,
-            )
-        }
         Surface(shape = RoundedCornerShape(18.dp), color = Color(0xFF142D33),
             border = BorderStroke(1.dp, Color(0xFF75A39D).copy(alpha = .45f))) {
             Column(Modifier.padding(7.dp)) {
@@ -221,6 +213,15 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         Text("轻触选格 · 双击目的地自动前往", color = Color(0xFF9EC9B3),
             fontSize = 10.sp)
+        if (game.playWithCharacter && world.friends.isNotEmpty() &&
+            world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
+            IslandCompanionPanel(
+                island = island, navigating = navigateTo != null,
+                autonomous = autonomousCompanions,
+                onAutonomousChange = { autonomousCompanions = it },
+                onSave = ::save,
+            )
+        }
         Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF274C50)) {
             Text(world.notice, modifier = Modifier.fillMaxWidth().padding(11.dp),
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
