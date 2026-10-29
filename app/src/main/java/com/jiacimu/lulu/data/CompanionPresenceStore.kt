@@ -366,7 +366,20 @@ object CompanionPresenceStore {
             previous == null || thoughtChanged -> next.innerThought
             else -> ""
         }
-        val heartVoiceEventChanged = newHeartVoice.isNotBlank()
+        // A quiet turn may clear the current innerThought while the original
+        // voice remains in the historical log. Repeating that exact authored
+        // sentence minutes later (e.g. after an independent world action) is
+        // still a projection, not another psychological event. Reuse the
+        // existing fifteen-minute history window; never delete the older log.
+        val repeatedRecentVoice = newHeartVoice.isNotBlank() &&
+            mutableHistories.value[characterId].orEmpty().any { saved ->
+                saved.innerThought.isNotBlank() &&
+                    runCatching { Duration.between(saved.updatedAt, now).toMinutes() }
+                        .getOrNull() in 0L..15L &&
+                    normalizedThought(saved.innerThought) == normalizedThought(newHeartVoice)
+            }
+        val uniqueHeartVoice = if (repeatedRecentVoice) "" else newHeartVoice
+        val heartVoiceEventChanged = uniqueHeartVoice.isNotBlank()
         val earlierReflection = mutableHistories.value[characterId].orEmpty()
             .firstOrNull { it.momentReflection.isNotBlank() }?.momentReflection
             ?: previous?.momentReflection.orEmpty()
@@ -385,9 +398,9 @@ object CompanionPresenceStore {
         if (isChatTurn || visibleChanged || reflectionChanged ||
             (heartVoiceEventChanged && thoughtHistoryDue)) {
             val historySnapshot = next.copy(
-                innerThought = newHeartVoice,
+                innerThought = uniqueHeartVoice,
                 momentReflection = if (reflectionChanged) next.momentReflection else "",
-                showInHistory = visibleChanged || newHeartVoice.isNotBlank() ||
+                showInHistory = visibleChanged || uniqueHeartVoice.isNotBlank() ||
                     reflectionChanged || !isChatTurn,
             )
             mutableHistories.value = mutableHistories.value +
