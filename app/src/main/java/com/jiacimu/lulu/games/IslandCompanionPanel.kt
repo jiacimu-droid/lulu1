@@ -38,7 +38,7 @@ internal fun IslandCompanionPanel(
 ) {
     val speaker = rememberIslandCompanionVoice()
     var voice by rememberSaveable { mutableStateOf(false) }
-    var teamInbox by rememberSaveable(island.world.seed, saver = islandTeamInboxSaver) {
+    var teamInbox by rememberSaveable(island.world.seed, stateSaver = islandTeamInboxSaver) {
         mutableStateOf(IslandTeamInbox())
     }
     var typedMessage by rememberSaveable { mutableStateOf("") }
