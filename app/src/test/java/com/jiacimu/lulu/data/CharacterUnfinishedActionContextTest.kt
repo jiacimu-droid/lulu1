@@ -371,4 +371,95 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).isEmpty())
     }
+
+    @Test fun completedToolRequestCannotBeReattributedToAnotherInputOnReplay() = runBlocking {
+        val request = "source-bound-replay-$role"
+        val otherSource = "other-source-$role"
+        SharedExperienceTimeline.record(otherSource, role, "私聊", "主人",
+            "这是一条不同的真实输入", now, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("summary", "已经发生过的一次读取").toString()
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "get_battery").put("fingerprint", "get_battery:{}")
+            .put("status", "succeeded").put("result", result)
+            .put("causeEvidenceId", origin).put("causeEvidenceRevision", 1L)
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        val wrong = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request, causeEvidenceId = otherSource))
+        assertFalse(wrong.optBoolean("success"))
+        assertEquals("waiting_user", wrong.optString("status"))
+        assertTrue(wrong.optString("error").contains("原始依据"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        // A missing source is not permission to attach this old result to a
+        // fresh turn, even when its tool and JSON parameters are identical.
+        val missing = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request))
+        assertFalse(missing.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        assertEquals(result, ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request, causeEvidenceId = origin))
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).size)
+    }
+
+    @Test fun editedOrWithdrawnSourceCannotResumeUnfinishedRetrySafeRequest() = runBlocking {
+        val request = "edited-running-$role"
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "get_battery").put("fingerprint", "get_battery:{}")
+            .put("status", "running")
+            .put("causeEvidenceId", origin).put("causeEvidenceRevision", 1L)
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        val original = SharedExperienceTimeline.eventsByIds(role, listOf(origin)).single()
+        SharedExperienceTimeline.record(origin, role, original.channel, original.speaker,
+            "原来的材料已被更正，不能再照旧执行", original.occurredAt,
+            triggerExtraction = false, source = original.source,
+            evidenceKind = original.evidenceKind)
+        assertEquals(2L, SharedExperienceTimeline.eventsByIds(role, listOf(origin)).single().revision)
+        val stale = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request, causeEvidenceId = origin))
+        assertFalse(stale.optBoolean("success"))
+        assertEquals("waiting_user", stale.optString("status"))
+        assertTrue(stale.optString("error").contains("已编辑或撤回"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        SharedExperienceTimeline.deleteEvent(origin)
+        val withdrawn = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request, causeEvidenceId = origin))
+        assertFalse(withdrawn.optBoolean("success"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+    }
+
+    @Test fun dueSlotVersionCannotBorrowAnotherSlotsHistoricalToolOutcome() = runBlocking {
+        val request = "due-slot-bound-$role"
+        val originalDue = now.minusSeconds(120)
+        val nextDue = now.plusSeconds(3600)
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("summary", "旧时刻已确认的结果").toString()
+        val execution = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "write_journal").put("fingerprint", "write_journal:{}")
+            .put("status", "succeeded").put("result", result)
+            .put("causeEvidenceId", origin).put("causeEvidenceRevision", 1L)
+            .put("expectedPlanDueAt", originalDue.toString())
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", execution.toString()).commit()
+        val stale = JSONObject(ToolRouter.execute(context, role, "write_journal",
+            JSONObject(), requestId = request, causeEvidenceId = origin,
+            expectedPlanDueAt = nextDue))
+        assertFalse(stale.optBoolean("success"))
+        assertTrue(stale.optString("error").contains("日程时间版本"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        // Retirement of the tool does not erase the correctly scoped past.
+        assertEquals(result, ToolRouter.execute(context, role, "write_journal",
+            JSONObject(), requestId = request, causeEvidenceId = origin,
+            expectedPlanDueAt = originalDue))
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).size)
+    }
 }
