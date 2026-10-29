@@ -365,6 +365,19 @@ object CompanionOnlineStore {
         }
     }
 
+    /**
+     * A new USER bubble invites an immediate chat decision. A character's delivered
+     * group bubble remains readable by the other members, but must not launch
+     * another immediate generation for everyone who is online: that creates
+     * unbounded A→B→A→B reply chains and makes the group permanently "typing".
+     * Independent scheduled perception, explicit group wakes and real user
+     * messages still give each role a fresh opportunity to speak.
+     */
+    internal fun startsImmediateChatReply(message: LuluChatMessage): Boolean =
+        message.sender == LuluChatMessage.Sender.User &&
+            message.status == LuluChatMessage.Status.Sent &&
+            !message.id.startsWith("voice-")
+
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
         if (message.status != LuluChatMessage.Status.Sent) return
@@ -423,9 +436,12 @@ object CompanionOnlineStore {
             }
         }
 
-        // Life receipts do not renew the autonomous window or recursively enqueue another model.
-        // A bounded wake pulse lets the role reconsider after an activity, including choosing silence.
-        if (message.sender == LuluChatMessage.Sender.System) return
+        // Per-role message delivery already writes independent witnessed history.
+        // A group member's own reply is NOT another user prompt to all peers.
+        // Otherwise a pair of characters can keep each other generating forever.
+        // This gate affects only the immediate chat trigger, never the stored
+        // message, group participation, later perception or autonomous activities.
+        if (!startsImmediateChatReply(message)) return
 
         // Sending a message is a real expression, NOT an implicit decision to
         // stay online another five minutes. The expiry decision belongs to
@@ -466,12 +482,10 @@ object CompanionOnlineStore {
             }
             recipients = if (conversation.groupChat != null) {
                 members.filter { characterId ->
-                    characterId != message.authorCharacterId && isOnline(characterId, now)
+                    isOnline(characterId, now)
                 }
             } else {
-                listOf(conversation.characterId).filter { characterId ->
-                    message.sender == LuluChatMessage.Sender.User && isOnline(characterId, now)
-                }
+                listOf(conversation.characterId).filter { characterId -> isOnline(characterId, now) }
             }
         }
         recipients.forEach { characterId ->
