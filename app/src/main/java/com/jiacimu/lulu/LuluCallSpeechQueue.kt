@@ -45,6 +45,13 @@ internal class LuluCallSpeechQueue(
     /** Includes synthesis waiting for first audio, not just audible playback. */
     val hasPendingAudio: Boolean get() = active || pending.isNotEmpty()
 
+    private fun notifySafely(vararg callbacks: () -> Unit) {
+        CallSpeechCallbackBoundary.dispatch(
+            { error -> android.util.Log.e("LuluCallSpeechQueue", "Nonfatal playback observer failure", error) },
+            *callbacks,
+        )
+    }
+
     init { ChatAutoVoicePlayback.initialize(appContext) }
 
     fun enqueue(
@@ -68,34 +75,32 @@ internal class LuluCallSpeechQueue(
     fun stop(clearQueue: Boolean = true) {
         retryDelayJob?.cancel()
         retryDelayJob = null
-        activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
+        notifySafely { activeRequest?.speakerId?.let { AvatarController.playback(it, false) } }
         // End the visual moment even on barge-in, TTS failure or hangup.
         // The generation fence below discards the now-stale finish callback.
-        activeRequest?.onEnded?.invoke()
+        notifySafely { activeRequest?.onEnded?.invoke() }
         generation += 1
         if (clearQueue) pending.clear()
         active = false
         activeRequest = null
         engine.onPlaybackState = null
         engine.onPlaybackPosition = null
-        onSpeakerChanged(null)
-        onBusyChanged(false)
+        notifySafely({ onSpeakerChanged(null) }, { onBusyChanged(false) })
         engine.stop()
     }
 
     fun shutdown() {
         retryDelayJob?.cancel()
         retryDelayJob = null
-        activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
-        activeRequest?.onEnded?.invoke()
+        notifySafely { activeRequest?.speakerId?.let { AvatarController.playback(it, false) } }
+        notifySafely { activeRequest?.onEnded?.invoke() }
         generation += 1
         pending.clear()
         active = false
         activeRequest = null
         engine.onPlaybackState = null
         engine.onPlaybackPosition = null
-        onSpeakerChanged(null)
-        onBusyChanged(false)
+        notifySafely({ onSpeakerChanged(null) }, { onBusyChanged(false) })
         engine.shutdown()
     }
 
@@ -103,8 +108,7 @@ internal class LuluCallSpeechQueue(
         if (active) return
         val request = pending.pollFirst()
         if (request == null) {
-            onSpeakerChanged(null)
-            onBusyChanged(false)
+            notifySafely({ onSpeakerChanged(null) }, { onBusyChanged(false) })
             return
         }
 
@@ -118,16 +122,18 @@ internal class LuluCallSpeechQueue(
             if (playing) scope.launch(Dispatchers.Main.immediate) {
                 if (localGeneration == generation && active && activeRequest === request && !audible) {
                     audible = true
-                    onBusyChanged(true)
-                    request.speakerId?.let { AvatarController.playback(it, true) }
-                    onSpeakerChanged(request.speakerId)
-                    request.onStarted?.invoke()
+                    notifySafely(
+                        { onBusyChanged(true) },
+                        { request.speakerId?.let { AvatarController.playback(it, true) } },
+                        { onSpeakerChanged(request.speakerId) },
+                        { request.onStarted?.invoke() },
+                    )
                 }
             }
         }
         engine.onPlaybackPosition = { elapsed -> scope.launch(Dispatchers.Main.immediate) {
             if (localGeneration == generation && active && activeRequest === request && audible)
-                request.onProgress?.invoke(elapsed)
+                notifySafely { request.onProgress?.invoke(elapsed) }
         } }
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
@@ -135,7 +141,7 @@ internal class LuluCallSpeechQueue(
                 if (localGeneration != generation || !active || activeRequest !== request) return@launch
                 val succeeded = engine.lastPlaybackSucceeded
                 val failure = engine.lastError
-                request.speakerId?.let { AvatarController.playback(it, false) }
+                notifySafely { request.speakerId?.let { AvatarController.playback(it, false) } }
                 active = false
                 activeRequest = null
                 engine.onPlaybackState = null
@@ -154,12 +160,14 @@ internal class LuluCallSpeechQueue(
                     }
                     return@launch
                 }
-                if (succeeded) request.onDelivered?.invoke()
-                request.onEnded?.invoke()
+                notifySafely(
+                    { if (succeeded) request.onDelivered?.invoke() },
+                    { request.onEnded?.invoke() },
+                )
                 // When the last retry fails, do not silently skip the broken
                 // bedtime segment and play its sequel as though it was heard.
                 if (!succeeded && request.retryOnFailure) pending.clear()
-                if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
+                if (!succeeded) notifySafely { onError(failure.ifBlank { "发声失败，回复保留在字幕里" }) }
                 playNext()
             }
         }
