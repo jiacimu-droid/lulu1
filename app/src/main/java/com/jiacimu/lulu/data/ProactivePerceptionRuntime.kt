@@ -1752,6 +1752,13 @@ object ProactivePerceptionRuntime {
                 },
                 Instant.now(),
             )
+            if (decision.onlineChoice == "sleep" && !sleepHandoff.ok && !newerWindow) {
+                // The five-minute lease has already expired. A bounded
+                // durable repair prevents an unplanned sleep from stranding
+                // this real responsibility until an unrelated routine check.
+                ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(
+                    appContext, characterId)
+            }
             // If another event won the lease after the model generated its
             // response, its old action must not get sent into the new chat.
             if (!keptAwake && newerWindow) {
