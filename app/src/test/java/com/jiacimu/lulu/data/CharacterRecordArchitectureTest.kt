@@ -316,13 +316,13 @@ class CharacterRecordArchitectureTest {
         val voice = "好家伙，原来是古堡里摸金的小游戏。我刚想起她说的甜章和蓝宝石项链，打算等她忙完再问问下午是单排还是双排。"
         val ideas = "想法：等她回来问问古堡玩法"
         val first = CharacterStateHistoryRow("first-action", now, "发送消息",
-            "$" + "{voice}\\n$" + "{ideas}",
+            "${voice}\n${ideas}",
             decisions = listOf(CharacterRecordProjection.DecisionMoment(
                 "send-id", now, "发送消息", "真实发出消息", "已送达", "event-a")),
             evidenceIds = listOf("event-a"))
         val laterAt = now.plusSeconds(7 * 60)
         val second = CharacterStateHistoryRow("second-action", laterAt, "在数字世界活动",
-            "$" + "{voice}\\n$" + "{ideas}",
+            "${voice}\n${ideas}",
             decisions = listOf(CharacterRecordProjection.DecisionMoment(
                 "world-id", laterAt, "在数字世界活动", "走到了水边", "已执行", "event-b")),
             evidenceIds = listOf("event-b"))
