@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:02:26.098020+00:00",
-  "commit": "1b1530f27080e03fefa760f469784a1cd6006209",
+  "generatedAt": "2026-10-29T12:03:28.598206+00:00",
+  "commit": "24b727355bdbdd8d6ad3cb3637cf7a4c9afc8661",
   "branch": "main",
-  "sourceFingerprint": "5ba1806bed2b6091a48b7b0646b9f74bb1be198e304a23a516ae0ef36c809984",
+  "sourceFingerprint": "465c40d9cf2e4f6d6077218440138cb54faaf49c5c50efaa71f1e60329f3592b",
   "summary": {
     "files": 1067,
-    "lines": 220060,
+    "lines": 220071,
     "symbols": 3139
   },
   "symbolIndex": {
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 382
+        "line": 393
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5179,7 +5179,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 284
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -6227,7 +6227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 378
+        "line": 389
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7175,7 +7175,7 @@
     "Seen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 280
+        "line": 291
       }
     ],
     "hasIndependentRegisteredStep": [
@@ -24185,8 +24185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 403,
-      "sha256": "5faa2ccb2ffd0338a2b2b963439ac22a09c7c273136fac178a305dd6e9b6b7ba",
+      "lines": 414,
+      "sha256": "ec972e4909c41be6f7edc018d3d91a23c6a41c683b5a198fbfcb74a29e47370d",
       "symbols": [
         {
           "name": "entries",
@@ -24210,19 +24210,19 @@
         },
         {
           "name": "Seen",
-          "line": 280
+          "line": 291
         },
         {
           "name": "normalize",
-          "line": 284
+          "line": 295
         },
         {
           "name": "delete",
-          "line": 378
+          "line": 389
         },
         {
           "name": "remove",
-          "line": 382
+          "line": 393
         }
       ]
     },
