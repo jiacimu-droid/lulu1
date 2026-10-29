@@ -157,6 +157,30 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     }, ::save, { companionPing = it }, readIsland = { island })
             }
         },
+        movement = {
+            GameDirectionalPad(accent = Color(0xFFA9E5BD)) { dx, dy ->
+                perform("move", world.x + dx, world.y + dy)
+            }
+        },
+        quickActions = {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                GameHudQuickAction("采集", Color(0xFFA9E5BD),
+                    enabled = nearTarget && selectedCell in listOf(1, 2),
+                    modifier = Modifier.weight(1f)) { perform("gather") }
+                GameHudQuickAction("攻击", Color(0xFFFFC9AE),
+                    enabled = nearTarget && isMobSelected,
+                    modifier = Modifier.weight(1f)) { perform("fight") }
+            }
+            Spacer(Modifier.height(4.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                GameHudQuickAction("造墙", Color(0xFFA9E5BD),
+                    enabled = nearTarget && world.wood >= 2,
+                    modifier = Modifier.weight(1f)) { perform("wall") }
+                GameHudQuickAction("吃果", Color(0xFFA9E5BD),
+                    enabled = island.fruit > 0 && world.hp < 12,
+                    modifier = Modifier.weight(1f)) { perform("eat", world.x, world.y) }
+            }
+        },
         actions = {
             val action = when {
                 nearTarget && isMobSelected -> "fight"
@@ -219,16 +243,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Text(worldNotice, modifier = Modifier.fillMaxWidth().padding(11.dp),
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.width(130.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                IslandDirection("↑") { perform("move", world.x, world.y - 1) }
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    IslandDirection("←") { perform("move", world.x - 1, world.y) }
-                    IslandDirection("↓") { perform("move", world.x, world.y + 1) }
-                    IslandDirection("→") { perform("move", world.x + 1, world.y) }
-                }
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 IslandAction("采集资源", enabled = nearTarget && selectedCell in listOf(1, 2),
                     Modifier.fillMaxWidth()) { perform("gather") }
                 if (selectedCell == 8) IslandAction("水边钓鱼", enabled = nearTarget && "rod" in island.tools,
@@ -244,7 +259,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     enabled = world.hp < 12, Modifier.fillMaxWidth()) {
                     perform("eat_fish", world.x, world.y)
                 }
-            }
         }
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Text("选中身边的空地，再选择建筑。拆除会返还部分材料。",
@@ -400,16 +414,6 @@ private fun IslandStat(label: String, value: String, tint: Color, modifier: Modi
             Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
         }
     }
-}
-
-@Composable
-private fun IslandDirection(label: String, onClick: () -> Unit) {
-    FilledTonalButton(onClick = onClick,
-        modifier = Modifier.size(42.dp), shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = Color(0xFF396367), contentColor = Color.White,
-        )) { Text(label, fontWeight = FontWeight.Bold, fontSize = 19.sp) }
 }
 
 @Composable
