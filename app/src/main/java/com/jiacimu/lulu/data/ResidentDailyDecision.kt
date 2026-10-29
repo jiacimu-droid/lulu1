@@ -760,7 +760,7 @@ internal object ResidentDailyDecision {
             if (alreadyRequested) {
                 if (previouslyArranged != null &&
                     previouslyArranged.status in setOf("planned", "due")) {
-                    val cancelStaleRequest = {
+                    val cancelStaleRequest: () -> Unit = {
                         RoleDayScheduleStore.cancel(
                             context, actor, previouslyArranged.id,
                             "双方已成为好友或已有真实好友申请，原定申请不再执行", at,
