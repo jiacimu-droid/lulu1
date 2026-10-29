@@ -1,5 +1,9 @@
 package com.jiacimu.lulu.games
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.tween
@@ -19,6 +23,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -101,6 +106,20 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCall
 
     val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
     val immersivePlay = route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
+
+    // Full-screen is confined to active game sessions. Restore the host window when the
+    // player goes back to the game hall, opens character selection, or leaves the app.
+    val context = LocalContext.current
+    val hostActivity = remember(context) { context.gameHostActivity() }
+    DisposableEffect(hostActivity, immersivePlay) {
+        val window = hostActivity?.window
+        val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
+        val wasFullscreen = window?.attributes?.flags?.and(flag) != 0
+        if (immersivePlay) window?.addFlags(flag)
+        onDispose {
+            if (immersivePlay && !wasFullscreen) window?.clearFlags(flag)
+        }
+    }
 
     Scaffold(
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
@@ -772,4 +791,11 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
             }
         }
     }
+}
+
+/** Resolve themed/wrapped Compose contexts without assuming LocalContext is an Activity. */
+private tailrec fun Context.gameHostActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.gameHostActivity()
+    else -> null
 }
