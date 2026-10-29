@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.InMemoryLuluChatStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
+import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
@@ -113,7 +114,11 @@ class QqReplySourceWatermarkTest {
         val pending = async {
             CompanionActionRuntime.execute(app, role, "send_private_message", args)
         }
-        delay(100)
+        // Wait for the real sender to enter its paced-delivery lease,
+        // rather than racing the executor's synchronous setup.
+        withTimeout(8_000) {
+            while (!ChatGenerationActivity.isRunning(conversation.id)) delay(10)
+        }
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "刚才说错了，按这条来")
         val result = pending.await()
         assertFalse("Stale reply cannot be marked as a successful action", result.success)
