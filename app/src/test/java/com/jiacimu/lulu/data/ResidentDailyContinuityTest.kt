@@ -1189,6 +1189,81 @@ class ResidentDailyContinuityTest {
         assertTrue(afterWithdrawal.any { it.evidenceId == ids[1] })
     }
 
+    @Test(timeout = 60_000)
+    fun rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        ResidentSocialMailbox.initialize(app)
+        val at = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant()
+        fun resident(label: String) = DigitalWorldExpansionStore.registerResident(
+            DigitalWorldResident(name = "$label-${UUID.randomUUID()}",
+                identity = "庭院居民",
+                homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                createdAt = at.minusSeconds(3600)))
+        val actorNative = resident("旧决定")
+        val peerNative = resident("后来到场")
+        ResidentCharacterBridge.sync(app, at)
+        val actor = ResidentCharacterBridge.characterId(actorNative.id)
+        val peer = ResidentCharacterBridge.characterId(peerNative.id)
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            actorNative.id, DigitalWorldPublicPlaces.COURTYARD, at))
+        assertFalse(ResidentSocialMailbox.canContact(actor, peer))
+
+        fun row(action: String, title: String, args: JSONObject) = JSONObject()
+            .put("at", "14:00").put("title", title)
+            .put("intent", "这是本人真正想安排的活动")
+            .put("activityAction", action).put("activityArgs", args)
+        val original = JSONObject().put("agenda", JSONArray()
+            .put(row("send_character_message", "下午给新认识的人写信",
+                JSONObject().put("targetCharacterId", peer)
+                    .put("text", "你好，想一起聊聊吗")))
+            .put(row("publish_moment", "下午记录庭院变化",
+                JSONObject().put("text", "庭院里的新发现"))))
+        val prefix = "native-daily-${actorNative.id}-${ResidentDailyDecision.date(at)}"
+        val rejectionId = "$prefix-agenda-rejected-0"
+        val initial = ResidentDailyDecision.saveAgenda(app, actorNative, original, at)
+        assertEquals(1, initial.size)
+        val rejection = SharedExperienceTimeline.eventsByIds(actor, listOf(rejectionId)).single()
+        assertEquals(1L, rejection.revision)
+        assertTrue(rejection.content.contains("联系权限"))
+
+        // The first answer has already settled this row as rejected. A later
+        // real encounter cannot silently reinterpret that old paid decision.
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            peerNative.id, DigitalWorldPublicPlaces.COURTYARD, at.plusSeconds(30)))
+        assertTrue(ResidentSocialMailbox.canContact(actor, peer))
+        val replay = ResidentDailyDecision.saveAgenda(
+            app, actorNative, original, at.plusSeconds(60), at)
+        assertEquals(listOf(initial.single().id), replay.map { it.id })
+        assertEquals(1L, SharedExperienceTimeline.eventsByIds(actor,
+            listOf(rejectionId)).single().revision)
+        assertFalse(RoleDayScheduleStore.plans(app, actor).any {
+            it.originEvidenceId == prefix && it.activityAction == "send_character_message"
+        })
+
+        // Withdrawal hides the visible receipt; its canonical tombstone still
+        // prevents a later replay from making the rejected action real.
+        SharedExperienceTimeline.deleteEvent(rejectionId)
+        assertTrue(SharedExperienceTimeline.eventsByIds(actor, listOf(rejectionId)).isEmpty())
+        assertTrue(SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(rejectionId))
+        ResidentDailyDecision.saveAgenda(app, actorNative, original, at.plusSeconds(120), at)
+        assertFalse(RoleDayScheduleStore.plans(app, actor).any {
+            it.originEvidenceId == prefix && it.activityAction == "send_character_message"
+        })
+
+        // A NEW decision with its own date/source may independently choose
+        // the same action, now that the people actually can contact each other.
+        val tomorrow = at.plusSeconds(86_400)
+        val fresh = ResidentDailyDecision.saveAgenda(app, actorNative,
+            JSONObject().put("agenda", JSONArray().put(
+                row("send_character_message", "新一天主动联系朋友",
+                    JSONObject().put("targetCharacterId", peer)
+                        .put("text", "今天有空一起聊聊吗")))), tomorrow)
+        assertEquals(1, fresh.size)
+        assertEquals("send_character_message", fresh.single().activityAction)
+    }
+
     @Test fun nestedResidentChoicesMustBeStructurallyValidBeforeAnySideEffect() {
         val at = java.time.LocalDate.now().atTime(8, 0)
             .atZone(java.time.ZoneId.systemDefault()).toInstant()
