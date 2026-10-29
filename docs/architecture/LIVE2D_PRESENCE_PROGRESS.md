@@ -27,3 +27,12 @@
 同一回复至少连续五句（含两次同名 `continue`、已完成后重播、两种不同 Motion）；分别以 15/30 FPS 模拟负载，核对第二/三句可见动作、开始与 TTS 首音的实际差距、前一动作尚在加载时新选择不被取消。再测打断/重开、触摸与讲话并发、模型切换/校准复用、WebGL 与 Android 实际送达 FPS/P95、发热和不同 TTS 服务。只看 JS 函数调用或 APK 编译不算视觉通过。
 
 下一轮应先读取最新 main、对应 CI 与手机诊断，再选一个可证实的 L1–L3 断点；不要重新实现已存在的 speech/视觉总线。
+
+## 2026-10-29 17:40 续修：旧 TTS 回调抢占新一句动作（L1/L2，CI/真机待验）
+
+- **基线再核对**：先读完整 2026-10-29 Library 大纲、AGENTS、统一人物契约、成长框架、CODE_INDEX、10-28 连续性计划及本专项进度；从最新 main 的实际 stage / Android `Live2DSpeechTimeline` / `Live2DCallStage` / `conversation-performance.mjs` 确认已有真实 Motion3、逐句锚点、首音启动、音频进度与触摸所有权。未另建逐句系统或额外模型轮次。其他专项最新在处理居民日程、通话唤醒与独立动作，未改其公共 Store/ToolRouter。
+- **真实缺口/根因**：Android 已把 `visualSequence + segmentIndex + segmentId` 随真实 TTS 回调送给 JS，但 stage 原本对 `finished/interrupted` 无条件清空当前 `playing`、score 和待发 Motion。旧片段迟到的完成/打断可取消新片段，尤其新决策已经到达而旧语音尚在播放时；此时 `perform` 还会把旧语音的 `playing=true` 误当成新句已开声，提前播放新句顶层 Motion3/表情。旧 `playing` 也可能倒退到前一个 segment。不是模型没有挑 Motion。
+- **实际修复**：`tools/live2d/src/stage.js` 在开始回调拒绝比当前音频/模型 score 更旧的版本或倒退片段；结束/打断只接受与当前已开声的三元身份完全一致的事件。若旧音频结束而新 score 等待首音，仅释放旧嘴型，保留新决定已选的 Motion3、表情和拍点。新决定与旧音频不一致时，顶层 Motion/表情/姿态也进入原 `pendingSpeechParts`，直到新句真实 onStarted 才启动。旧无版本语音仍在全零版本时沿原入口工作；不新增 Store、定时器、LLM 请求或程序语义猜测。
+- **回归**：`tools/live2d/test/conversation-performance.mjs` 在真实 stage 函数 VM 上模拟旧音频播放→新句决定→旧 interrupted→新句首音→旧 finished/playing 迟到→新句有效 finished；另测旧正常 finished→新句首音。断言新动作首音前不启动、旧回调不能清掉新 score/动作、错 segmentId 不能结束新句。代码提交 [a450736](https://github.com/jiacimu-droid/lulu1/commit/a4507367f1ea62e8011f95851d6ae8049ffef6b0)、回归 [b6f28ba](https://github.com/jiacimu-droid/lulu1/commit/b6f28ba0ddaa8b3cdab49ff63a26f4954b3eaff7)、断言校正 [41f3462](https://github.com/jiacimu-droid/lulu1/commit/41f346239865f892db8e608a9e6e29a39d81e360)，均直接 main。
+- **验收层级**：提交与源码接线已完成；本轮末次 [Lulu APK #40851748381](https://github.com/jiacimu-droid/lulu1/actions/runs/40851748381) 对应 `41f3462`，截至记录时仍 pending，**不等于 JS 测试、Android JVM、assemblePhone、收集或 Release 已通过**。只修改 `tools/live2d` 和本进度文档；既有 `scripts/generate_code_index.py` 仅索引 `app/scripts/preview`，本轮未改变其索引集合，不能手工伪造 CODE_INDEX。此前 main 的 [APK #40846157083](https://github.com/jiacimu-droid/lulu1/actions/runs/40846157083) 失败点是居民 `ResidentDailyContinuityTest.dailyPlanPreservesChosenFriendshipAndFurnitureWithoutExecutingThem`，归基础专项处理，不能误报为 Live2D 编译失败。
+- **真机待验**：旧语音被打断后立刻说新句、快速连读至少五句、同名 Motion continue、旧 finished/playing 迟到、15/30 FPS、触摸与说话并发，测实际首音/动作开始差、FPS/P95 和发热。没有设备视频证据前仍为「源码已改、真机未验」，不宣称动作自然度已达标。
