@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T16:21:06.389882+00:00",
-  "commit": "9520daf4b781a719e823c02a5c51f504e7a8297e",
+  "generatedAt": "2026-10-29T16:21:36.894911+00:00",
+  "commit": "ce5b74588ff45904c2008d32dba65d8c94ceb22b",
   "branch": "main",
-  "sourceFingerprint": "8b17b62705ab465682b035c6d02661872aafdc62143ca648d5ce2337f9a49339",
+  "sourceFingerprint": "56482f917f0294ed82bff4071f7ea521bc617bb32119cbe60a4780004b1a916b",
   "summary": {
     "files": 1086,
-    "lines": 223883,
-    "symbols": 3181
+    "lines": 223905,
+    "symbols": 3182
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10352,22 +10352,28 @@
         "line": 17
       }
     ],
+    "setFriends": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
+        "line": 52
+      }
+    ],
     "audienceContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 84
+        "line": 90
       }
     ],
     "canView": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 96
+        "line": 102
       }
     ],
     "visiblePosts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 104
+        "line": 110
       }
     ],
     "reconcile": [
@@ -27814,24 +27820,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-      "lines": 107,
-      "sha256": "7f6f79125e1e63a48fdc52985e31c3d10ea20beb089ce0a864f72848e8b1bed0",
+      "lines": 113,
+      "sha256": "1feab950ed7f7aff799d0ebefa8a4244894603c8987798ba6229895cd6a1dfda",
       "symbols": [
         {
           "name": "MomentFriendAccess",
           "line": 17
         },
         {
+          "name": "setFriends",
+          "line": 52
+        },
+        {
           "name": "audienceContext",
-          "line": 84
+          "line": 90
         },
         {
           "name": "canView",
-          "line": 96
+          "line": 102
         },
         {
           "name": "visiblePosts",
-          "line": 104
+          "line": 110
         }
       ]
     },
@@ -36433,8 +36443,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt",
-      "lines": 68,
-      "sha256": "34eaffef853d7fc12074aaff10ed0278c808b93dd4272199f2c4a69a424640d5",
+      "lines": 84,
+      "sha256": "d440828a79de10484cc47702ba87461f5547c50383df11917bd100e573cf941a",
       "symbols": [
         {
           "name": "MomentsOwnerUnreadIntegrationTest",

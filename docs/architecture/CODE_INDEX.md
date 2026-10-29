@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9520daf4b781a719e823c02a5c51f504e7a8297e`
+- 基准提交：`ce5b74588ff45904c2008d32dba65d8c94ceb22b`
 - 分支：`main`
 - 已索引文件：1086
-- 已索引代码/文本行：223883
-- 已发现符号：3181
+- 已索引代码/文本行：223905
+- 已发现符号：3182
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -499,7 +499,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1158 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 107 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1128 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 130 | 3 |
@@ -981,7 +981,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt` | 309 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentOwnerUnreadTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt` | 68 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 97 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 104 | 1 |
