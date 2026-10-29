@@ -378,11 +378,17 @@ object CompanionOnlineStore {
             message.status == LuluChatMessage.Status.Sent &&
             !message.id.startsWith("voice-")
 
-    /** Public-message transport decision, not a judgement of any character's intent. */
+    /**
+     * Public-message transport decision, not a judgement of any character's intent.
+     * Foreground presence is nullable after process restart until the lifecycle
+     * reports a real visibility signal. Unknown is not proof of foreground:
+     * keep the existing background delivery path rather than starting a
+     * foreground group coordinator from a stale/absent observation.
+     */
     internal fun shouldCoordinateGroupTurn(
-        isGroup: Boolean, userMessage: Boolean, appVisible: Boolean,
+        isGroup: Boolean, userMessage: Boolean, appVisible: Boolean?,
         inGroupCall: Boolean,
-    ): Boolean = isGroup && userMessage && appVisible && !inGroupCall
+    ): Boolean = isGroup && userMessage && appVisible == true && !inGroupCall
 
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
