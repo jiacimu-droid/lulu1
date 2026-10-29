@@ -140,12 +140,16 @@ internal object CharacterCausalTrace {
             val detail = listOf(decision.optString("reason"), decision.optString("outcome"))
                 .filter(String::isNotBlank).joinToString("；")
             rows += CharacterCausalTraceLine(
-                (if (choice == "silent") "本人选择安静" else
+                (if (decision.optString("executionState") == "pending")
+                    "本人已选择 · 执行总结未确认 · ${CharacterRecordProjection.actionLabel(choice)}"
+                else if (choice == "silent") "本人选择安静" else
                     "本人选择 · ${CharacterRecordProjection.actionLabel(choice)}") + versionLabel,
                 (if (revision > 0L && revision != current.revision)
                     "当前来源版本为 ${current.revision}，不能用新文字解释旧选择；" else "") +
                     detail.take(210),
             )
+            rows += executionRequestLines(context, characterId, decision,
+                historical = revision == 0L || revision != current.revision)
         }
         if (payload != null) {
             val cause = payload.optString("causeEvidenceId")
@@ -263,6 +267,72 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
         }
         return rows
+    }
+
+    /** A model selection is not a tool result. Follow the executor's exact
+     * stable request IDs (primary and each ordered step), including rejected
+     * attempts. A shared source/task ID alone cannot prove that a particular
+     * decision executed. Reading this view never restores or retries effects. */
+    private fun executionRequestLines(
+        context: Context, characterId: String, decision: JSONObject,
+        historical: Boolean,
+    ): List<CharacterCausalTraceLine> {
+        val requestId = decision.optString("executionRequestId")
+        if (requestId.isBlank()) return emptyList() // Legacy decision: unknown lineage.
+        val steps = decision.optInt("executionStepCount", 0).coerceIn(0, 24)
+        val ids = buildList {
+            if (decision.optBoolean("executionHasPrimary", true)) add("主动作" to requestId)
+            repeat(steps) { index -> add("第${index + 1}步" to "$requestId:step:$index") }
+        }
+        if (ids.isEmpty()) return emptyList() // Genuine silence with no external action.
+        val evidenceIds = ids.flatMap { (_, id) ->
+            listOf("tool-$characterId-$id", "tool-rejected-$characterId-$id")
+        }
+        val actual = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
+            .associateBy { it.id }
+        val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
+        val prefix = if (historical) "历史选择的" else "本人选择对应的"
+        return ids.flatMap { (slot, id) ->
+            val found = listOf("tool-$characterId-$id", "tool-rejected-$characterId-$id")
+                .mapNotNull(actual::get)
+                .filter { event ->
+                    event.source == "tool-router" &&
+                        event.evidenceKind == EventEvidenceKind.ToolResult &&
+                        objectValue(event.content)?.optString("requestId") == id
+                }
+            if (found.isNotEmpty()) found.map { event ->
+                val body = objectValue(event.content)!!
+                val line = receiptLine(context, characterId, event, body)
+                val decidedAt = runCatching {
+                    java.time.Instant.parse(decision.optString("at"))
+                }.getOrNull()
+                val timeMismatch = decidedAt == null || event.occurredAt.isBefore(decidedAt)
+                line.copy(
+                    title = "$prefix$slot · ${line.title}" +
+                        if (timeMismatch) " · 时序未证实" else "",
+                    detail = if (timeMismatch)
+                        "回执时间早于选择或选择时间缺失，不能证明本次选择导致执行；${line.detail}"
+                    else line.detail,
+                )
+            } else {
+                // A process may die after the durable request claim but before
+                // its independent timeline receipt. Do not call that success.
+                val persisted = prefs.getString("$characterId:$id", null)
+                    ?.let { runCatching { JSONObject(it) }.getOrNull() }
+                    ?.takeIf { it.optString("characterId") == characterId &&
+                        it.optString("requestId") == id }
+                val detail = when {
+                    persisted == null -> "没有找到该请求的持久化执行记录或回执；不能断定执行过"
+                    persisted.optString("status") == "running" ->
+                        "执行请求已持久化，结果尚未确认；不得盲目重复副作用"
+                    persisted.optString("result").isNotBlank() ->
+                        "执行器保存了结果，但独立时间线回执缺失；须恢复或核对原回执"
+                    else -> "执行请求已保存，但结果尚未确认"
+                }
+                listOf(CharacterCausalTraceLine("$prefix$slot · 回执未找到",
+                    "$detail；请求ID：${id.take(75)}"))
+            }
+        }
     }
 
     /**
