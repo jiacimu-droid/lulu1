@@ -56,3 +56,9 @@
 - **源码修复**：原 `CharacterCuriosityRuntime.recordOutcome` 在真实工具结果到达时只记录 verified step、保持 `exploring`（已由本人关闭的旧线程仍保留关闭状态）；只有后续本人在原模型轮次对真实结果作出 `satisfied/dropped` 的明确选择，才由既有 `CharacterExplorationContinuity.remember → settleInterest/releaseInterest` 结案。真实回执、来源版本、人物归属、独立动作幂等均沿旧链，不新增 Store、模型调用或定时器。
 - **回归**：保留此前失败的真实 `OrderedCharacterActions.execute` 断言，并补「同一真实回执进入下一轮本人明确 satisfied→结案→原动作重放不得复活」；覆盖先行动、后看结果、再选择、重放的完整链。提交源码与回归不等于 JVM 已通过。
 - **验证边界**：本次直接提交 main 并交原 `Refresh code index` 生成 `CODE_INDEX.md` / `code-index.json`，不得手工伪造。须核对本提交对应 JVM/assemblePhone/APK/Release；真实手机、杀进程与三次跨天唤醒未验。其他专项源码、公共 ToolRouter/主网关/统一存储均未修改。
+
+### 本轮实际 CI 核对（a7e01638）
+
+- 源码、测试和本专项进度的原子 main 提交：[a7e01638](https://github.com/jiacimu-droid/lulu1/commit/a7e01638a60a44b114bb46f23382e4dd1e6423eb)；后续 main 对比仅有其他专项文件和自动索引变更，本专项修复仍在 main。
+- 原有 [Refresh code index #40864330068](https://github.com/jiacimu-droid/lulu1/actions/runs/40864330068) 已 **completed/success**，自动索引提交 `1374e67b`，CODE_INDEX 基准指向 `a7e01638`；未手工修改索引。
+- 原 [Lulu APK #40864330013](https://github.com/jiacimu-droid/lulu1/actions/runs/40864330013) 因后续并发 main 提交而 **cancelled**，不能算 JVM 测试通过、APK 构建成功或发布。后续 main 的 APK #40864759507 在本次核对时仍 pending；须等待包含此修复的后续 completed run 证实原失败断言已通过，真机仍待验。
