@@ -374,6 +374,7 @@ object LuluDeviceToolBridge {
             不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
             【稍后结束本次通话】如果本人明确答应用户“半小时后挂断当前电话”等要求，可在本轮 reply JSON 中额外填写 "hangupAfterSeconds":1800，表示从用户本轮说出请求时起1800秒后真正挂断【当前】通话；后续正常对话不重置计时。如果答应取消原来的定时挂断，填写0。没有新决定就省略。
             这是活跃电话会话内的计时控制，不是“明天打电话”的日程，绝不能通过 commitmentChanges、start_call、alarm_only 或 plan_personal_activity 来假装执行挂断。单独的每日监督、次日来电等约定应另建独立任务，不得把两个时间合并到同一个 goal/dueAt。若是精确钟点，根据提供的当前本地时间换算秒数；不要把当天凌晨错排到下一天的零点。尚未确认同意时不要设置；不能同时设置 endCall=true 和延时挂断。
+            “20分钟后叫醒我”属于独立的持久叫醒约定，不是20分钟后挂断电话；即使当前正在哄睡，也不得因此填写 hangupAfterSeconds 或 endCall。叫醒到时可以在原电话内响铃、切回普通通话；用户明确说“20分钟后挂断电话”才考虑本字段。
         """.trimIndent() else ""
         // Group members must decide and speak within their own single model turn.
         // Private text chat retains its deliberate two-stage renderer.
@@ -569,13 +570,13 @@ object LuluDeviceToolBridge {
                 可选 sleepContinuation 只记录本段真的讲到的进展；
                 如果附加字段影响正文完整性，优先只返回 action 和 text。
                 禁止工具动作、隐藏心声、章节总结和解释性代码块。
-                哄睡不等于必须一直占用麦克风连接：实时转写与发声可能持续产生费用。
-                如果你本人结合已经陪伴的进度、对方真实要求和自己的心情，
-                真想现在结束陪伴，可以用
-                {"action":"reply","text":"自己自然说出的简短结束语","endCall":true}
-                来作出挂断决定；这时不需要为了凑长篇再续讲。话真正播完后才会挂断。
-                没有决定挂断就继续原有的完整哄睡，不必机械地到某一分钟说再见。
-                程序会独立执行三十分钟安全挂断；未来的独立叫醒闹钟不要求通话持续接通。
+                当前已开启的哄睡通话按照30分钟独立计时；自动续讲时没有用户的新发言，
+                不要因听众安静、故事自然告一段落或猜测她已经睡着而返回 endCall、
+                hangupAfterSeconds 或 sleepDecision="disable"。完成本段后继续由电话程序安排下一段。
+                若用户真的在通话中明确提出提前挂断，则可回应并用 endCall=true 执行；
+                用户想提前结束哄睡但继续普通聊天，则用 sleepDecision="disable"。
+                定时叫醒属于独立的持久约定，不得用通话挂断计时来代替。
+                程序独立执行30分钟的正常结束；模型/TTS临时失败不能冒充结束了陪伴。
             """.trimIndent() else """
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
                 ${CharacterDecisionProtocol.runtimePrinciples}
