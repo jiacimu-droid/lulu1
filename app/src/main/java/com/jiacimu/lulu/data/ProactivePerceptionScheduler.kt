@@ -657,7 +657,9 @@ object ProactivePerceptionScheduler {
                     "填好每项尚未交接责任的复查时刻。不要重发原提醒或假定主人睡着。")
                 .putString("characterId", characterId)
                 .putBoolean("force", true)
-                .putBoolean("preserveOffline", true)
+                // This corrective worker must run for an offline role even
+                // when it has no unrelated emotional-aftercare motive.
+                .putBoolean("preserveOffline", false)
                 .build())
             .build()
         if (!prefs.edit().putLong("scheduled:$characterId", now).commit()) return
@@ -867,6 +869,13 @@ class ProactivePerceptionWorker(
                 .firstOrNull()?.revision ?: 1L else 1L
         if (characterId != null && retryEvidenceId.isNotBlank() &&
             PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId, retryRevision)) {
+            return@runCatching Result.success()
+        }
+        if (trigger.startsWith("休眠责任交接失败") && characterId != null &&
+            (CompanionOnlineStore.isOnline(characterId) ||
+                CompanionSleepHandoff.uncovered(applicationContext, characterId, Instant.now()).isEmpty())) {
+            // The original obligation has already been handed off or the role
+            // is awake for a newer event. No duplicate paid decision.
             return@runCatching Result.success()
         }
         if (preserveOffline && onlineExpiryAtMillis == 0L &&
