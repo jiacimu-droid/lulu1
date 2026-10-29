@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T17:54:19.856383+00:00",
-  "commit": "6bf79ca5bfb6f2af47f0bb5be2b9f11397c4b704",
+  "generatedAt": "2026-10-29T17:54:59.205942+00:00",
+  "commit": "53de8536c7f14438c7c234b3352cb9b4836293b5",
   "branch": "main",
-  "sourceFingerprint": "baa0375bf8869b44f651981a743700cdb49051d579cc9018e2968b4e45bf5755",
+  "sourceFingerprint": "a60f34b648847a1cc2c7dc409b6c324af902fc680660a2598e63b4cd19b18d04",
   "summary": {
     "files": 1088,
-    "lines": 225272,
+    "lines": 225310,
     "symbols": 3200
   },
   "symbolIndex": {
@@ -34147,8 +34147,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 290,
-      "sha256": "7ddd489b8e6248a9bd50549a51cdb3590afa112314649d0512a08626f99594d9",
+      "lines": 328,
+      "sha256": "1cdb8f72b95fc34477fe542a7a834c4ec55a093697081b5c2aecf0a507c5aa7e",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
