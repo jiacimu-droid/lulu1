@@ -130,6 +130,36 @@ internal object Live2DVisualActionBus {
         characterId.isNotBlank() && callId.isNotBlank() &&
             visibleStages[characterId] == callId
 
+    /**
+     * Voice generation and the first video frame have independent lifecycles.
+     * Permit this character to prepare a Motion3 score as soon as the selected
+     * imported model is known, while the renderer is still loading. This does
+     * NOT claim that the frame or the motion has actually been displayed.
+     * Inactive calls, voice mode and missing models cannot queue video cues.
+     */
+    internal fun isVideoPlanEligible(
+        requested: Boolean, connected: Boolean, sameCharacter: Boolean,
+        sameCall: Boolean, hasImportedModel: Boolean,
+    ): Boolean = requested && connected && sameCharacter && sameCall && hasImportedModel
+
+    @Synchronized
+    fun canPlanVideo(context: Context, characterId: String, callId: String): Boolean {
+        if (characterId.isBlank() || callId.isBlank()) return false
+        val live = LuluVoiceCallSession.state.value
+        return isVideoPlanEligible(
+            requested = LuluCallWindowController.videoRequested.value,
+            connected = live.connected,
+            sameCharacter = live.characterId == characterId,
+            sameCall = live.callExperienceId == callId,
+            hasImportedModel = Live2DAssets.modelUrl(context, characterId) != null,
+        )
+    }
+
+    /** A ready stage may play immediately; a live video call may queue while loading. */
+    @Synchronized
+    private fun canAcceptCue(context: Context, characterId: String, callId: String): Boolean =
+        isStageVisible(characterId, callId) || canPlanVideo(context, characterId, callId)
+
     @Synchronized
     fun stageParameters(characterId: String, callId: String, ids: String) {
         if (visibleStages[characterId] != callId) return
@@ -139,7 +169,7 @@ internal object Live2DVisualActionBus {
 
     @Synchronized
     fun capabilityNote(context: Context, characterId: String, callId: String): String {
-        if (visibleStages[characterId] != callId || callId.isBlank()) return ""
+        if (!canAcceptCue(context, characterId, callId)) return ""
         val controls = Live2DAssets.controls(context, characterId)
         if (controls.expressions.isEmpty() && controls.motions.isEmpty()) return ""
         if (controls.motions.isEmpty()) return "当前视频模型没有 Motion3；正常输出 text，可选 live2d.expression，真实表情：${controls.expressions.joinToString("、")}。不得虚构身体动作。"
@@ -149,6 +179,7 @@ internal object Live2DVisualActionBus {
         }.ifBlank { "无" }
         return """
             【当前 Live2D 视频通话：同一次回复里由你亲自选择动作】
+            这是已导入模型真实的动作资源目录，即使画面仍在加载，你也可以先自主选择每句话的 Motion3；程序按实际音频与视频加载状态执行。选择不等于播放成功。
             你的角色可以自己决定说什么、什么时候做出什么神态或动作；说话时默认要有动作陪着，不要站着干说。
             最重要的是使用真正存在的 Motion3 动作，不要自己编造头部/身体角度或指望文字描述让角色动起来。
             真实动作目录（group#index=动作描述）：
@@ -236,7 +267,7 @@ internal object Live2DVisualActionBus {
     /** Enforces the exact imported model manifest at execution time, independent of the LLM. */
     @Synchronized
     fun publish(context: Context, characterId: String, callId: String, chosen: JSONObject?): Boolean {
-        if (chosen == null || visibleStages[characterId] != callId || callId.isBlank()) return false
+        if (chosen == null || !canAcceptCue(context, characterId, callId)) return false
         val paired = Live2DDialoguePlan.parts(chosen)
         val controls = Live2DAssets.controls(context, characterId)
         if (chosen.has("speech") && (paired == null || paired.any { it.motion !in controls.motions })) return false
