@@ -65,7 +65,9 @@ fun MomentsScreen(characterId: String? = null) {
         }
     }
 
-    LaunchedEffect(characterId, posts.size) { MomentsStore.markCharacterPostsSeen(characterId) }
+    // A read receipt contains exactly the post/comment snapshot shown in this feed.
+    // New replies on already-existing posts must re-trigger acknowledgement.
+    LaunchedEffect(characterId, posts) { MomentsStore.markVisiblePostsSeen(posts) }
 
     if (composing) {
         MomentsComposePage(
