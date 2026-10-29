@@ -466,4 +466,79 @@ class CharacterExplorationContinuityTest {
         assertEquals(2, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").length())
     }
 
+
+    @Test fun lateFailureCannotStealNewInquiryOrReviveSettledInterest() {
+        val original = question("长期研究")
+        CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(role).single().getString("threadId")
+        val oldAction = JSONObject(original.toString()).put("threadId", threadId)
+        val first = outcome("old-research-completed", 10)
+        CharacterCuriosityRuntime.recordOutcome(role, oldAction, "web_search", true,
+            "第一阶段实际研究成果", first.id, now.plusSeconds(15))
+
+        // The same thread now has a genuinely different question and source.
+        val source = outcome("new-research-source", 25)
+        val revised = question("长期研究", source.id)
+            .put("threadId", threadId).put("question", "新证据下如何调整原方案")
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(role, revised,
+            source.id, "新的可核验材料", now.plusSeconds(30)))
+
+        // An old failure arrives AFTER the new question. It must neither
+        // replace its feedback nor become a reason to retry the old action.
+        CharacterCuriosityRuntime.recordFailure(role, oldAction, "web_search",
+            "旧动作迟到的失败", now.plusSeconds(35))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("failures").length())
+        CharacterCuriosityRuntime.recordFailure(role, revised, "web_search",
+            "新问题暂时无法查证", now.plusSeconds(40))
+        CharacterCuriosityRuntime.recordFailure(role, oldAction, "web_search",
+            "旧动作又失败", now.plusSeconds(45))
+        val pending = CharacterCuriosityRuntime.visibleQuestions(role).single()
+        assertEquals(revised.getString("question"), pending.getString("question"))
+        val failures = CharacterCuriosityRuntime.snapshot(role).getJSONArray("failures")
+        assertEquals(1, failures.length())
+        assertEquals(source.id, failures.getJSONObject(0).getString("sourceEvidenceId"))
+        assertEquals("新问题暂时无法查证", failures.getJSONObject(0).getString("reason"))
+        val before = CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
+            emptyList(), now.plusSeconds(50))
+        assertTrue(before.contains("新问题暂时无法查证"))
+        assertFalse(before.contains("旧动作迟到的失败"))
+
+        // A genuine new result resolves only the new inquiry. After the
+        // character chooses to settle it, later failed callbacks are inert.
+        val completed = outcome("new-research-completed", 60)
+        CharacterCuriosityRuntime.recordOutcome(role, revised, "web_search", true,
+            "新问题确有成果", completed.id, now.plusSeconds(65))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("failures").length())
+        CharacterCuriosityRuntime.settleInterest(role,
+            JSONObject(revised.toString()).put("status", "satisfied"), now.plusSeconds(70))
+        CharacterCuriosityRuntime.recordFailure(role, revised, "web_search",
+            "已结案任务的迟到失败", now.plusSeconds(75))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("failures").length())
+        assertFalse(CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
+            emptyList(), now.plusSeconds(80)).contains("已结案任务的迟到失败"))
+        assertEquals("satisfied", CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("threads").getJSONObject(0).getString("status"))
+        assertNotNull(SharedExperienceTimeline.eventsByIds(role, listOf(first.id)).firstOrNull())
+    }
+
+    @Test fun existingFailureOfClosedThreadDoesNotLeakIntoLaterAutonomyPrompt() {
+        val original = question("研究收尾")
+        CharacterExplorationContinuity.remember(context, role, original, null, listOf("input"), now)
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(role).single().getString("threadId")
+        val owned = JSONObject(original.toString()).put("threadId", threadId)
+        CharacterCuriosityRuntime.recordFailure(role, owned, "web_search",
+            "当时搜索确实失败", now.plusSeconds(5))
+        assertTrue(CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
+            emptyList(), now.plusSeconds(10)).contains("当时搜索确实失败"))
+        CharacterCuriosityRuntime.releaseInterest(role,
+            JSONObject(owned.toString()).put("status", "dropped"), now.plusSeconds(15))
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(role)
+            .getJSONArray("failures").length()) // Keep the historical diagnostic.
+        CharacterCuriosityRuntime.initialize(context) // A restarted projection is still closed.
+        assertFalse(CharacterCuriosityRuntime.promptSection(role, "探索连续性测试",
+            emptyList(), now.plusSeconds(20)).contains("当时搜索确实失败"))
+    }
 }
