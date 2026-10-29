@@ -335,7 +335,8 @@ class InMemoryLuluChatStore : LuluChatStore {
                         "用户把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。"
                     else if (member.characterId == group.creatorCharacterId)
                         "你创建了群聊《${group.name}》。群成员：$memberSummary。可以在群里聊天，其他人自行决定是否回应。"
-                    else "${MigratedDomainStores.characters.get(group.creatorCharacterId).displayName}邀请你加入了群聊《${group.name}》。群成员：$memberSummary。你可以自己决定是否回应。",
+                    else "${MigratedDomainStores.characters.get(group.creatorCharacterId).displayName}邀请你加入了群聊《${group.name}》。群成员：$memberSummary。你可以自己决定是否回应。"
+                        + "这里是系统公开的群成员名单，只说明这些人被列入同一群，不代表你已经与他们相遇、交谈、成为好友或知道他们的私生活；后续以你真正看见的发言和经历形成认识。",
                     occurredAt = invitationAt,
                     triggerExtraction = false,
                     evidenceKind = EventEvidenceKind.Observation,
