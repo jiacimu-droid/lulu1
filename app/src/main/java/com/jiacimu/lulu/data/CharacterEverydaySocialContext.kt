@@ -95,7 +95,13 @@ internal object CharacterEverydaySocialContext {
                     appendLine("- ${msg.createdAt} ${speaker}：${msg.content.take(145)}")
                 }
             }
-            val nearby = residents.filter { it.currentLocationCode == at }
+            // Presence is a world fact, but the observer is not another person
+            // available for interaction. Native IDs and role IDs use different
+            // namespaces; compare through the existing identity bridge.
+            val nearby = residents.filter {
+                it.currentLocationCode == at &&
+                    ResidentCharacterBridge.characterId(it.id) != characterId
+            }
             if (nearby.isNotEmpty()) {
                 appendLine("此处确实在场的居民：")
                 nearby.take(5).forEach { appendLine("- itemId=${it.id}；${it.name}；${it.identity}") }

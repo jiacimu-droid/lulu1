@@ -54,6 +54,36 @@ class ResidentDailyContinuityTest {
     }
 
 
+    @Test fun everydaySocialPresenceExcludesObserverAndRemoteResidents() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val now = Instant.now()
+        fun citizen(label: String) = DigitalWorldExpansionStore.registerResident(
+            DigitalWorldResident(name = "$label-${UUID.randomUUID()}",
+                identity = "庭院访客", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                createdAt = now.minusSeconds(60)))
+        val self = citizen("观察者")
+        val peer = citizen("同场的人")
+        val remote = citizen("留在家的人")
+        ResidentCharacterBridge.sync(app, now)
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            self.id, DigitalWorldPublicPlaces.COURTYARD, now))
+        assertNotNull(DigitalWorldExpansionStore.moveResident(
+            peer.id, DigitalWorldPublicPlaces.COURTYARD, now))
+        val role = ResidentCharacterBridge.characterId(self.id)
+        val context = CharacterEverydaySocialContext.render(role, now, emptyList())
+        assertTrue(context.contains("itemId=${peer.id}；"))
+        assertFalse(context.contains("itemId=${self.id}；"))
+        assertFalse(context.contains("itemId=${remote.id}；"))
+        // The same world facts are projected from the other person's view.
+        val reverse = CharacterEverydaySocialContext.render(
+            ResidentCharacterBridge.characterId(peer.id), now, emptyList())
+        assertTrue(reverse.contains("itemId=${self.id}；"))
+        assertFalse(reverse.contains("itemId=${peer.id}；"))
+        assertEquals(remote.homeLocationCode,
+            DigitalWorldExpansionStore.residents().first { it.id == remote.id }.currentLocationCode)
+    }
+
     @Test fun waitingReviewTimeUsesResidentsClockAndRejectsInvalidExplicitTimes() {
         val now = Instant.parse("2026-10-28T07:59:45Z")
         val zone = java.time.ZoneId.of("UTC")
