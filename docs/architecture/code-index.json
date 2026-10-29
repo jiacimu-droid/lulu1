@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T06:58:41.526739+00:00",
-  "commit": "664217d017a95fb67b9b5e08a4e1b333d062a7c3",
+  "generatedAt": "2026-10-29T06:59:29.132101+00:00",
+  "commit": "fcf55f1fd42dffe905f11537572df30a7995eb43",
   "branch": "main",
-  "sourceFingerprint": "9e55d927ce6f43751ee3062f11c1ff5d39dcda9d9dfd5b724b02390991330cab",
+  "sourceFingerprint": "3dd019ce1869d6e0b1f868f93ff8d6429a9fd651602dcddbcdd9701874343236",
   "summary": {
     "files": 1055,
-    "lines": 217248,
+    "lines": 217282,
     "symbols": 3099
   },
   "symbolIndex": {
@@ -3491,7 +3491,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 516
+        "line": 524
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -14813,7 +14813,7 @@
     "QqReplySourceWatermarkTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "QqXhsShareCodecTest": [
@@ -20575,12 +20575,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 542,
-      "sha256": "11ea8812950d7dfa82ee5a07620902ae9ff86d4af197c79003ab1400a5e58168",
+      "lines": 550,
+      "sha256": "de93a7b99953a54b5407ac80eb0bb92ab4535026ac688c7fe444e749108fb0b6",
       "symbols": [
         {
           "name": "render",
-          "line": 516
+          "line": 524
         }
       ]
     },
@@ -33155,12 +33155,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 124,
-      "sha256": "b7c0753a2d8aee81bee0c0a8a9c39f0e8f097844100d77d32d8bb48e0b427ba1",
+      "lines": 150,
+      "sha256": "2d4d6c91a26efd4ca1f81c6a8abe03f12f6c2ec5b18a76e63e45a3d1f9a7a943",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
-          "line": 25
+          "line": 26
         }
       ]
     },
