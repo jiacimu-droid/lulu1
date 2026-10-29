@@ -63,6 +63,23 @@ class AutonomyCallAndReceiptTest {
             now.plusSeconds(120))
         assertEquals("video", video.mediaMode)
         assertEquals("voice", legacyVoice.mediaMode)
+        // The actual durable incoming-call handoff must retain video on disk;
+        // a restarted UI must not silently show an ordinary voice invitation.
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        context.getSharedPreferences("lulu_advanced_settings", 0).edit()
+            .putBoolean("voice_call_ringtone_enabled", false).commit()
+        ProactiveIncomingCallStore.initialize(context)
+        try {
+            val offered = ProactiveIncomingCallStore.offer(context, "role-video", "chat-video",
+                "想看看你", now = now, mediaMode = "video")
+            assertEquals("video", offered.mediaMode)
+            val stored = context.getSharedPreferences("lulu_incoming_call_v1", 0)
+                .getString("pending", null)
+            assertEquals("video", JSONObject(stored!!).getString("mediaMode"))
+            assertEquals("video", ProactiveIncomingCallStore.activeFor("chat-video", now)?.mediaMode)
+        } finally {
+            ProactiveIncomingCallStore.clear()
+        }
         try {
             video.copy(mediaMode = "audio_and_video")
             fail("Unsupported media types must never silently become voice")
