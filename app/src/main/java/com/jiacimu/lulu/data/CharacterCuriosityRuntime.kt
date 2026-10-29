@@ -109,7 +109,7 @@ internal object CharacterCuriosityRuntime {
     }
 
     fun visibleQuestions(role: String): List<JSONObject> = pendingQuestions(role, snapshot(role))
-        .distinctBy { normalized(it.optString("topic")) + ":" + normalized(it.optString("question")) }
+        .distinctBy(::identity)
 
     fun activeThreads(role: String, root: JSONObject = snapshot(role)): List<JSONObject> {
         val pending = pendingQuestions(role, root)
@@ -129,8 +129,7 @@ internal object CharacterCuriosityRuntime {
                 }
                 put("updatedAt", verified.optString("at"))
             }
-        }.distinctBy { normalized(it.optString("topic")) + ":" +
-            normalized(it.optString("question")) }
+        }.distinctBy(::identity)
     }
 
     internal fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
@@ -379,7 +378,7 @@ internal object CharacterCuriosityRuntime {
                     .put("at", selectedQuestion.optString("at"))
             }
             if (resumedAfterClosure) {
-                listOf("releaseReason", "releasedAt", "settleReason", "settledAt")
+                listOf("releaseReason", "releasedAt", "settleReason", "settledAt", "ownerDeleted")
                     .forEach(current::remove)
             }
         }
@@ -530,16 +529,18 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
-    /** Owner-controlled removal of one pending curiosity. Verified past actions stay in the timeline. */
+    /** Owner-controlled removal of one owned curiosity. A pending-only
+     * deletion needs a terminal record: a delayed real tool receipt must not
+     * silently recreate the question after the owner removed it. */
     @Synchronized fun deleteInterest(characterId: String, threadId: String): Boolean {
-        if (prefs == null || threadId.isBlank()) return false
+        if (prefs == null || characterId.isBlank() || threadId.isBlank()) return false
         val root = snapshot(characterId)
         val questions = entries(root.optJSONArray("questions"))
         val threads = entries(root.optJSONArray("threads"))
-        val selected = (questions + threads).firstOrNull { identity(it) == threadId } ?: return false
-        fun matches(item: JSONObject) = identity(item) == threadId || sameQuestion(item, selected)
-        val found = questions.any(::matches) || threads.any(::matches)
-        if (!found) return false
+        fun matches(item: JSONObject) = identity(item) == threadId
+        val pending = questions.firstOrNull(::matches)
+        val existing = threads.firstOrNull(::matches)
+        if (pending == null && (existing == null || existing.optBoolean("ownerDeleted"))) return false
         root.put("questions", JSONArray().apply {
             questions.filterNot(::matches).forEach(::put)
         })
@@ -547,9 +548,14 @@ internal object CharacterCuriosityRuntime {
             threads.forEach { thread ->
                 if (matches(thread))
                     thread.put("status", "dropped").put("releaseReason", "主人已从心事删除")
-                        .put("releasedAt", Instant.now().toString())
+                        .put("releasedAt", Instant.now().toString()).put("ownerDeleted", true)
                 put(thread)
             }
+            // Unlike a model-chosen release, owner deletion may happen before
+            // any tool receipt. Preserve only the selected ID as a tombstone.
+            if (existing == null && pending != null) put(JSONObject(pending.toString())
+                .put("status", "dropped").put("releaseReason", "主人已从心事删除")
+                .put("releasedAt", Instant.now().toString()).put("ownerDeleted", true))
         })
         root.put("failures", JSONArray().apply {
             entries(root.optJSONArray("failures")).filterNot {

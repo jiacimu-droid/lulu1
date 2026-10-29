@@ -298,7 +298,12 @@ class CharacterCuriosityRuntimeTest {
         val resumed = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
         assertEquals("exploring", resumed.getString("status"))
         assertEquals("新的线索值得重新研究", resumed.getString("question"))
-        assertEquals(4, resumed.getJSONArray("steps").length())
+        // The stale callback was correctly rejected; only the two older
+        // verified steps and the new owned result belong to this thread.
+        assertEquals(3, resumed.getJSONArray("steps").length())
+        assertFalse((0 until resumed.getJSONArray("steps").length()).any {
+            resumed.getJSONArray("steps").getJSONObject(it).optString("evidenceId") == "stale-after-new-inquiry"
+        })
         assertFalse(resumed.has("releasedAt"))
         assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("重新探索的实际结果"))
         CharacterCuriosityRuntime.clear(id)
@@ -548,6 +553,71 @@ class CharacterCuriosityRuntimeTest {
         val failure = CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").getJSONObject(0)
         assertEquals(ownedId, failure.getString("threadId"))
         assertEquals("本人本次阅读失败", failure.getString("reason"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun deletingPendingCuriosityKeepsTerminalTombstoneAgainstLateReceipt() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1",
+            "本人尚未实践的问题", at.plusSeconds(10)))
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        assertTrue(CharacterCuriosityRuntime.deleteInterest(id, threadId))
+        assertFalse(CharacterCuriosityRuntime.deleteInterest(id, threadId))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        val tombstone = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", tombstone.getString("status"))
+        assertTrue(tombstone.getBoolean("ownerDeleted"))
+        assertEquals(0, tombstone.optJSONArray("steps")?.length() ?: 0)
+
+        realRead("deleted-late-receipt", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "删除后才送达的真实结果", "deleted-late-receipt", at.plusSeconds(20))
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        val after = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", after.getString("status"))
+        assertEquals(1, after.getJSONArray("steps").length())
+        assertTrue(after.getBoolean("ownerDeleted"))
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf("deleted-late-receipt")).firstOrNull())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun deletingOneIdenticalQuestionPreservesOtherOwnedSourceAndExploration() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+            proposal().put("threadId", "independent-request-a"),
+            "source-1", "第一条独立线索", at.plusSeconds(10)))
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+            proposal().put("threadId", "independent-request-b"),
+            "source-observation", "第二条独立线索", at.plusSeconds(10)))
+        val before = CharacterCuriosityRuntime.visibleQuestions(id)
+        assertEquals(2, before.size)
+        val first = before.single { it.optString("observedId") == "source-1" }
+        val second = before.single { it.optString("observedId") == "source-observation" }
+        assertNotEquals(first.getString("threadId"), second.getString("threadId"))
+        assertTrue(CharacterCuriosityRuntime.deleteInterest(id, first.getString("threadId")))
+        assertEquals(second.getString("threadId"),
+            CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId"))
+
+        realRead("other-owned-result", at.plusSeconds(30))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", second.getString("threadId"))
+                .put("sourceEvidenceId", "source-observation"),
+            "reading", true, "另一条线索的真实结果", "other-owned-result", at.plusSeconds(30))
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        val state = CharacterCuriosityRuntime.snapshot(id)
+        val all = state.getJSONArray("threads")
+        assertEquals(2, all.length())
+        val dropped = (0 until all.length()).map { all.getJSONObject(it) }
+            .single { it.getString("threadId") == first.getString("threadId") }
+        val active = (0 until all.length()).map { all.getJSONObject(it) }
+            .single { it.getString("threadId") == second.getString("threadId") }
+        assertEquals("dropped", dropped.getString("status"))
+        assertEquals("exploring", active.getString("status"))
+        assertEquals(1, CharacterCuriosityRuntime.activeThreads(id).size)
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("另一条线索的真实结果"))
         CharacterCuriosityRuntime.clear(id)
     }
 }
