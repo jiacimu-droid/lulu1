@@ -161,7 +161,7 @@ class CharacterExpressionGuideTest {
         assertTrue(group.contains("短答、吐槽、沉默或认真展开"))
         assertTrue(group.contains("不要为了制造笑点主动披露私人亲密细节"))
         assertTrue(group.contains("听别人公开说过不等于自己原本就知道"))
-        assertTrue(group.contains("不说话"))
+        assertTrue(group.contains("也可以不接"))
         assertFalse(group.contains("每条不得超过"))
         assertFalse(private.contains("不等于每句话都要演成小剧场"))
         assertFalse(phone.contains("不等于每句话都要演成小剧场"))
