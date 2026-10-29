@@ -397,19 +397,24 @@ object SharedExperienceTimeline {
     /** A copied executor summary must not outlive the native experience it references. */
     private fun withdrawDependentPersonalReceipts(eventId: String) {
         val database = helper?.readableDatabase ?: return
+        val rawMessageId = eventId.substringBefore(":group:")
         val dependents = database.query("timeline_events", arrayOf("id", "content"),
-            "source = ? AND content LIKE ?", arrayOf("tool-router", "%$eventId%"),
+            "source = ? AND (content LIKE ? OR content LIKE ?)",
+            arrayOf("tool-router", "%$eventId%", "%$rawMessageId%"),
             null, null, null).use { cursor ->
             buildList {
                 while (cursor.moveToNext()) {
                     val id = cursor.getString(0)
-                    val raw = cursor.getString(1)
-                    // Outbound chat delivery is an actual tool result, but is not a
-                    // life-experience stimulus. It still depends on the exact bubble.
+                    val execution = runCatching { JSONObject(cursor.getString(1)) }.getOrNull()
+                        ?: continue
+                    // Outbound group results contain the shared bubble ID while each
+                    // witness holds a role-scoped "<bubble>:group:<member>" event.
                     val delivered = runCatching {
-                        JSONObject(JSONObject(raw).optString("result")).optString("evidenceId")
-                    }.getOrNull()
-                    if (id != eventId && delivered == eventId) add(id)
+                        JSONObject(execution.optString("result")).optString("evidenceId")
+                    }.getOrNull().orEmpty()
+                    val exactGroupCopy = execution.optString("tool") == "send_group_message" &&
+                        delivered.isNotBlank() && eventId.startsWith("$delivered:group:")
+                    if (id != eventId && (delivered == eventId || exactGroupCopy)) add(id)
                 }
             }
         }
