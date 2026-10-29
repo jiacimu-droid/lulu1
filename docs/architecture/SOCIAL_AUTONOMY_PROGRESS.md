@@ -71,3 +71,10 @@
 - [APK #40871402521](https://github.com/jiacimu-droid/lulu1/actions/runs/40871402521) completed/failure：1966 项 JVM 测试中 1 项失败，新增三项中的两项通过；完整回复链的发送、目标、幂等、红点、隔离断言均已执行，唯一失败在最后重载时找不到原帖。APK 没有生成/发布。
 - 定位测试的静态 MomentsStore.prefs 跨 Robolectric 测试应用复用：此前写入可能使用上一测试的偏好实例，末尾却从当前 Application 重新打开文件。测试现每项开头重新绑定 MomentsStore 到当前应用，并在重载前明确检查当前 backing file 已包含最后一条评论 ID；保留原重载后回复对象相等断言，不修改生产解码或删掉断言。修正仍须新 CI 证实。
 - 额外核对上轮 S3 的 #40868016796 完整日志：UTC 11:52 的 testDebugUnitTest 阶段结束后已进入 compilePhoneKotlin，随后取消；该轮 JVM 阶段已完成，phone APK/发布仍未完成。不能把整轮 cancelled 当作 APK 成功。
+
+### S4 本轮最终核对（2026-10-29）
+
+- 测试隔离修正提交 [f2b04208](https://github.com/jiacimu-droid/lulu1/commit/f2b04208858b3e653666c13fa1e9d44dd2f70ad3)，索引 [#40872881804](https://github.com/jiacimu-droid/lulu1/actions/runs/40872881804) completed/success。其 [APK #40872882104](https://github.com/jiacimu-droid/lulu1/actions/runs/40872882104) cancelled，日志只到 debug 编译，不能声称修正后 JVM 通过。
+- 并行提交 [6eb8d39f](https://github.com/jiacimu-droid/lulu1/commit/6eb8d39f800e081b51d8d0036efb0a15caa638df) 改同一个 MomentsStore.mutate 为同步 commit 成功后才发布 StateFlow。已重新读取并确认本轮回复字段、目标核验及原工具入口保留；没有用本地旧文件覆盖它。该改动补强前文提及的 apply 耐久性边界，但跨 Store 强杀恢复仍需设备验证。
+- 包含双方改动的 [APK #40873243256](https://github.com/jiacimu-droid/lulu1/actions/runs/40873243256) 又在 debug 编译期间 cancelled。最新核对到 main 的 [c516a450 APK #40873792513](https://github.com/jiacimu-droid/lulu1/actions/runs/40873792513) in_progress，索引 #40873792608 success；该提交仅增加其他专项测试，定向回复与修正后的重载回归仍在 main。
+- 当前结论：源码接通，首轮 1966 项 JVM 中 1965 通过、1 项新重载回归失败后已修测试隔离；修正后完整 JVM/APK 尚无通过证据。无新 APK 可宣称发布，真机与跨天自然互动未验。下一轮先追包含 f2b04208 和 6eb8d39f 的最新 completed CI，若重载仍失败继续定位真实 backing file，不删除断言或反复重建回复功能。
