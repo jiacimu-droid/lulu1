@@ -20,3 +20,10 @@
 新增回归既含共享解码，也含真实 OrderedCharacterActions/ToolRouter 执行：错误槽位阻断依赖休眠但允许独立休眠；问题→明确下一步→媒体状态工具→问题进展→同请求重放不重复计数；兼容重复、冲突归属、学习关联保留、JSON不被修改、单项和数组问题。
 
 已运行索引生成器、git diff --check。当前执行器没有 Gradle/Android SDK，本次 JVM/APK 必须等待既有 CI 对应新提交的结果，真机未验。没有新增模型轮次、人物存储或调度。此次未把所有长期自主性目标宣布完成，跨日兴趣体验和电话真机仍需分别验证。
+
+## 2026-10-29 D2/T3：旧兴趣从轮换上下文中退场后仍能自主修订或放下
+
+- **已证实根因**：好奇心状态按本人长期保留，但 CharacterExplorationContinuity.rememberVerified 仅接受本轮输入及 continuityEvidenceIds 的最近 3 条待探索、2 条已实践证据。旧兴趣仍由 CharacterUnfinishedActionContext / 人物自主回顾提供稳定 threadId 和来源时，模型明确选择 satisfied/dropped 或继续修订，却因原来源不在短窗口内被静默忽略；多日累积后心事无法自然整理。
+- **源码修复**：CharacterCuriosityRuntime.ownedContinuityEvidenceId 仅按本人的显式 threadId 读取仍有效的待探索原观察或已实践真实回执；rememberVerified 仅为本轮明确提到的旧线程扩展该证据，不开放任意模型声明的来源，不扩大日常上下文，也不替人物选择行动。沿原 questions/threads Store 保存状态；已撤回、版本失效、已结束或跨角色来源不能借用。
+- **回归源码**：6 条独立观察超出 3 条轮换后，模型仍能按真实来源结束第一条，重启后保留其他 5 条；无效 ID/跨人物不可借用。4 条真实搜索回执超出 2 条轮换后，旧线程可放下且后续召回不再重复；不重跑工具、不增加模型轮次。
+- **验证分层**：本轮源码与回归写入 main 后由现有 code-index 工作流执行原生成器；Android JVM、APK、真机三次跨日唤醒与真实人物自主选择，须分别以对应 CI/设备结果核实，不能以测试编写宣称通过。旧历史已经丢失或原来源失效的记录不能自动恢复。

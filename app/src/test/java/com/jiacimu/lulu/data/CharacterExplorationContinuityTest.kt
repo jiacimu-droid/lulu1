@@ -325,4 +325,63 @@ class CharacterExplorationContinuityTest {
         SharedExperienceTimeline.deleteEvent(pendingId)
         assertTrue(CharacterCuriosityRuntime.activeThreads(role).isEmpty())
     }
+
+    @Test fun oldPendingInterestCanBeSettledOutsideTheRotatingWindow() {
+        repeat(6) { index ->
+            val source = "independent-observation-$index"
+            SharedExperienceTimeline.record(source, role, "私聊", "用户", "实际观察到了主题$index",
+                now.plusSeconds(index.toLong()), triggerExtraction = false, source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            CharacterExplorationContinuity.remember(context, role,
+                question("长期主题$index", source), null, listOf(source), now.plusSeconds(20))
+        }
+        val first = CharacterCuriosityRuntime.visibleQuestions(role).first {
+            it.optString("topic") == "长期主题0"
+        }
+        val oldId = first.getString("threadId")
+        assertFalse(CharacterCuriosityRuntime.continuityEvidenceIds(role).contains("independent-observation-0"))
+        val decision = question("长期主题0", "independent-observation-0")
+            .put("threadId", oldId).put("status", "satisfied")
+        val original = decision.toString()
+        CharacterExplorationContinuity.remember(context, role, decision, null, emptyList(), now.plusSeconds(30))
+        assertEquals(original, decision.toString())
+        assertEquals(5, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        assertFalse(CharacterCuriosityRuntime.visibleQuestions(role).any { it.optString("threadId") == oldId })
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(5, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        // An unowned threadId or a mismatched source cannot borrow this person's old evidence.
+        val forged = question("长期主题1", "independent-observation-0")
+            .put("threadId", "not-an-owned-thread").put("status", "dropped")
+        CharacterExplorationContinuity.remember(context, role, forged, null, emptyList(), now.plusSeconds(31))
+        assertEquals(5, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        CharacterExplorationContinuity.remember(context, "different-person", decision, null,
+            emptyList(), now.plusSeconds(31))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions("different-person").isEmpty())
+    }
+
+    @Test fun oldExploredThreadCanBeReleasedByItsRealReceiptWithoutReplayingTools() {
+        repeat(4) { index ->
+            val proposal = question("跨天探索$index")
+            CharacterExplorationContinuity.remember(context, role, proposal, null, listOf("input"), now)
+            val receipt = outcome("research-receipt-$index", 10L + index)
+            CharacterCuriosityRuntime.recordOutcome(role, proposal, "web_search", true,
+                "已经得到实际资料$index", receipt.id, now.plusSeconds(20))
+        }
+        val first = CharacterCuriosityRuntime.activeThreads(role).first {
+            it.optString("topic") == "跨天探索0"
+        }
+        val oldId = first.getString("threadId")
+        assertFalse(CharacterCuriosityRuntime.continuityEvidenceIds(role).contains("research-receipt-0"))
+        val decision = question("跨天探索0", "research-receipt-0")
+            .put("threadId", oldId).put("status", "dropped")
+        CharacterExplorationContinuity.remember(context, role, decision, null, emptyList(), now.plusSeconds(40))
+        assertEquals(3, CharacterCuriosityRuntime.activeThreads(role).size)
+        assertEquals("dropped", CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+            .getJSONObject(0).getString("status"))
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(3, CharacterCuriosityRuntime.activeThreads(role).size)
+        assertTrue(CharacterCuriosityRuntime.briefContext(role).contains("跨天探索"))
+        assertFalse(CharacterCuriosityRuntime.briefContext(role).contains("跨天探索0"))
+    }
+
 }

@@ -55,13 +55,23 @@ internal object CharacterExplorationContinuity {
         evidenceIds: Collection<String>, now: Instant) {
         if (single == null && (multiple?.length() ?: 0) == 0) return
         CharacterCuriosityRuntime.initialize(context)
+        val proposals = proposals(single, multiple)
+        // The normal prompt only carries a rotating few interests. A model can
+        // explicitly choose to revise or settle an older, still-owned thread:
+        // recover its VERIFIED source by threadId without trusting arbitrary
+        // sourceEvidenceIds or expanding the whole history into every turn.
+        val ownedSources = proposals.mapNotNull { proposal ->
+            CharacterCuriosityRuntime.ownedContinuityEvidenceId(role, proposal.optString("threadId"))
+        }
         val events = SharedExperienceTimeline.eventsByIds(role,
-            (evidenceIds + CharacterCuriosityRuntime.continuityEvidenceIds(role)).distinct())
+            (evidenceIds + CharacterCuriosityRuntime.continuityEvidenceIds(role) + ownedSources).distinct())
             .filter { !it.occurredAt.isAfter(now) && canGroundQuestion(it) }
         if (events.isEmpty()) return
         var changed = false
-        proposals(single, multiple).forEach { original ->
-            val requested = original.optString("sourceEvidenceId")
+        proposals.forEach { original ->
+            val requested = original.optString("sourceEvidenceId").ifBlank {
+                CharacterCuriosityRuntime.ownedContinuityEvidenceId(role, original.optString("threadId")).orEmpty()
+            }
             val event = if (requested.isNotBlank()) events.firstOrNull { it.id == requested }
                 else events.lastOrNull()
             if (event == null) return@forEach

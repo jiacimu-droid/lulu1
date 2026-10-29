@@ -132,6 +132,24 @@ internal object CharacterCuriosityRuntime {
         return null
     }
 
+
+    /**
+     * An explicitly selected old thread may fall outside the small rotating prompt
+     * window. Recover ONLY that person's still-valid source, never a source ID
+     * supplied by the model or a different character. This is evidence lookup,
+     * not a new choice to continue or settle an interest.
+     */
+    internal fun ownedContinuityEvidenceId(role: String, threadId: String): String? {
+        if (threadId.isBlank()) return null
+        val root = snapshot(role)
+        pendingQuestions(role, root).firstOrNull { identity(it) == threadId }?.let {
+            return it.optString("observedId").takeIf(String::isNotBlank)
+        }
+        val active = activeThreads(role, root).firstOrNull { identity(it) == threadId }
+            ?: return null
+        return lastRealStep(role, active)?.optString("evidenceId")?.takeIf(String::isNotBlank)
+    }
+
     /** IDs already visible in the shared brief context, not an unrestricted history search. */
     fun continuityEvidenceIds(role: String): List<String> {
         val root = snapshot(role)
