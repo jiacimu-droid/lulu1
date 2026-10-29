@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T10:54:24.292343+00:00",
-  "commit": "40ec3de1a22ebd779627732db8b797f9514e35f0",
+  "generatedAt": "2026-10-29T10:58:33.860474+00:00",
+  "commit": "4cbb886d33fc6b141e2e65e64736ee75dbfcb326",
   "branch": "main",
-  "sourceFingerprint": "751d8a8d375435c2017b30b74e5e1b7f243013b3894be0472eb23562248eb905",
+  "sourceFingerprint": "a7924df8a84b04371ed1344b8e11db20b26eae13fb0e55192dce3ad22b585867",
   "summary": {
     "files": 1066,
-    "lines": 219275,
-    "symbols": 3130
+    "lines": 219322,
+    "symbols": 3132
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 320
+        "line": 367
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5178,6 +5178,10 @@
         "line": 1689
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
+        "line": 273
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
         "line": 18
       }
@@ -6145,7 +6149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 18
+        "line": 21
       }
     ],
     "CharacterIdentityStore": [
@@ -6209,7 +6213,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 316
+        "line": 363
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7125,7 +7129,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 109
+        "line": 112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -7135,19 +7139,25 @@
     "voiceOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 173
+        "line": 177
       }
     ],
     "equivalent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 183
+        "line": 187
       }
     ],
     "supportingDeletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 185
+        "line": 189
+      }
+    ],
+    "Seen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
+        "line": 269
       }
     ],
     "hasIndependentRegisteredStep": [
@@ -18297,7 +18307,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt",
       "lines": 129,
-      "sha256": "afa61b0be601d4c959812092eeabecd2cf222d7db30e775a5616fa9f90e51070",
+      "sha256": "49d938cf1d726e095d78b538148351f2ce25df2107244da163c4c832b9c7d4e7",
       "symbols": []
     },
     {
@@ -24137,36 +24147,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 341,
-      "sha256": "d89fdbefd85a5b189df89e90467dc69486a67259536d130e14c360707f12a4c0",
+      "lines": 388,
+      "sha256": "938b494642aa8fe49a9fa9848c323fc4e5302da988f18c1014f88f6ac6b38378",
       "symbols": [
         {
           "name": "entries",
-          "line": 18
+          "line": 21
         },
         {
           "name": "collect",
-          "line": 109
+          "line": 112
         },
         {
           "name": "voiceOf",
-          "line": 173
+          "line": 177
         },
         {
           "name": "equivalent",
-          "line": 183
+          "line": 187
         },
         {
           "name": "supportingDeletion",
-          "line": 185
+          "line": 189
+        },
+        {
+          "name": "Seen",
+          "line": 269
+        },
+        {
+          "name": "normalize",
+          "line": 273
         },
         {
           "name": "delete",
-          "line": 316
+          "line": 363
         },
         {
           "name": "remove",
-          "line": 320
+          "line": 367
         }
       ]
     },
