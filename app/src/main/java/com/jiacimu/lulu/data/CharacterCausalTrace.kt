@@ -260,6 +260,9 @@ internal object CharacterCausalTrace {
                 }
             }
         }
+        // Durable resident choices retain their original per-action request IDs.
+        rows += residentSavedRequestLines(context, characterId, current,
+            linkedReceipts.map { it.first.id }.toSet(), mind)
         // Resident agenda validation is a factual scheduling outcome, not a
         // ToolRouter execution. Its own role-owned rows already carry the
         // exact daily decision task ID; don't confuse rejected planning with
@@ -322,6 +325,120 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("后续行动", "当前可检索记录中没有精确关联的决定或执行回执；不代表本人没有想法，也不能证明已执行")
         } else if (payload == null && relatedDecisions.isNotEmpty() && linkedReceipts.isEmpty() && linkedPlans.isEmpty()) {
             rows += CharacterCausalTraceLine("执行证据", "有选择记录，但未找到以这条事件为依据的工具回执；不能据此认定已经执行")
+        }
+        return rows
+    }
+
+
+    /** Recover the existing resident decision's actual ToolRouter request IDs.
+     * This is a read-only projection; no model call, execution or new state. */
+    private fun residentSavedRequestLines(
+        context: Context, characterId: String, source: SharedTimelineEvent,
+        alreadyVisible: Set<String>, mind: JSONObject,
+    ): List<CharacterCausalTraceLine> {
+        if (source.source !in setOf("resident-daily", "resident-due-decision"))
+            return emptyList()
+        val prefs = context.getSharedPreferences(
+            "lulu_resident_daily_decisions_v1", Context.MODE_PRIVATE)
+        val requests = mutableListOf<Pair<String, String>>()
+        var calendarOutcome: CharacterCausalTraceLine? = null
+        when (source.source) {
+            "resident-daily" -> {
+                val day = source.id.takeLast(10)
+                if (!Regex("\\d{4}-\\d{2}-\\d{2}").matches(day)) return emptyList()
+                val nativeId = source.id.removePrefix("native-daily-").removeSuffix("-$day")
+                if (nativeId.isBlank() ||
+                    source.id != "native-daily-$nativeId-$day") return emptyList()
+                val choice = prefs.getString("decision:$nativeId:$day", null)
+                    ?.let { runCatching { JSONObject(it) }.getOrNull() }
+                    ?: return emptyList()
+                if (choice.optString("post").isNotBlank())
+                    requests += "即时动态" to "${source.id}-post"
+                if (choice.optString("message").isNotBlank() &&
+                    choice.optString("messageTo").isNotBlank())
+                    requests += "即时私信" to "${source.id}-message"
+                val steps = choice.optJSONArray("steps")
+                for (index in 0 until (steps?.length() ?: 0)) {
+                    if (steps?.optJSONObject(index) != null)
+                        requests += "独立步骤${index + 1}" to "${source.id}-extra-$index"
+                }
+            }
+            "resident-due-decision" -> {
+                val planId = source.taskId
+                if (planId.isBlank()) return emptyList()
+                val prefix = "native-wake-$planId-"
+                if (!source.id.startsWith(prefix)) return emptyList()
+                val epoch = source.id.removePrefix(prefix).toLongOrNull()
+                    ?: return emptyList()
+                val dueAt = runCatching { java.time.Instant.ofEpochSecond(epoch) }
+                    .getOrNull() ?: return emptyList()
+                if (source.id != "$prefix$epoch") return emptyList()
+                val key = "execute:$planId:$dueAt"
+                val choice = prefs.getString("due-decision:$key", null)
+                    ?.let { runCatching { JSONObject(it) }.getOrNull() }
+                    ?: return emptyList()
+                val wanted = choice.optString("choice")
+                if (wanted == "execute")
+                    requests += "原计划主动作" to "resident-plan-$planId-$epoch"
+                val steps = choice.optJSONArray("steps")
+                for (index in 0 until (steps?.length() ?: 0)) {
+                    if (steps?.optJSONObject(index) != null)
+                        requests += "独立步骤${index + 1}" to "${source.id}-extra-$index"
+                }
+                if (wanted in setOf("wait", "reschedule", "cancel")) {
+                    val plan = RoleDayScheduleStore.plans(context, characterId)
+                        .firstOrNull { it.id == planId }
+                    val proved = plan != null && plan.lastMutationRequestId == key &&
+                        when (wanted) {
+                            "cancel" -> plan.status == "cancelled" && plan.dueAt == dueAt
+                            else -> plan.status == "planned" && plan.dueAt != dueAt
+                        }
+                    val label = when (wanted) {
+                        "wait" -> "等待复议"
+                        "reschedule" -> "改期"
+                        else -> "取消"
+                    }
+                    calendarOutcome = CharacterCausalTraceLine(
+                        "居民到点主选择 · $label · " +
+                            (if (proved) "日程变更有持久证据" else "变更未证实"),
+                        if (proved)
+                            "原日程版本=$dueAt；当前日程=${plan?.dueAt}；" +
+                                "仅证明日程变更，不证明原活动执行或目标达成" +
+                                (if (source.revision != 1L)
+                                    "；来源文字已编辑，属于历史版本的决定" else "")
+                        else "原选择已保存，但当前日程未保留该次变更的版本证据；" +
+                            "可能尚未执行或已被后续决定修改，不能认定活动完成",
+                    )
+                }
+            }
+        }
+        val rows = mutableListOf<CharacterCausalTraceLine>()
+        calendarOutcome?.let { rows += it }
+        for ((label, requestId) in requests.distinctBy { it.second }) {
+            val decision = JSONObject()
+                .put("executionRequestId", requestId)
+                .put("executionHasPrimary", true)
+                .put("causalEvidenceId", source.id)
+                .put("causalEvidenceRevision", 1L)
+                .put("at", source.occurredAt.toString())
+            val lines = executionRequestLines(context, characterId, decision,
+                historical = source.revision != 1L)
+            for (line in lines) {
+                if (line.evidenceId.isNotBlank() && line.evidenceId in alreadyVisible)
+                    continue
+                rows += line.copy(title = "居民保存的$label · ${line.title}")
+                if (source.revision != 1L || line.evidenceId.isBlank() ||
+                    line.title.contains("回执归属未证实")) continue
+                val receipt = SharedExperienceTimeline.eventsByIds(
+                    characterId, listOf(line.evidenceId)).firstOrNull() ?: continue
+                val body = objectValue(receipt.content) ?: continue
+                if (body.optString("requestId") == requestId &&
+                    body.optString("causeEvidenceId") == source.id &&
+                    body.optLong("causeEvidenceRevision", 0L) == 1L &&
+                    !receipt.occurredAt.isBefore(source.occurredAt)) {
+                    rows += receiptContinuation(context, characterId, receipt, body, mind)
+                }
+            }
         }
         return rows
     }
