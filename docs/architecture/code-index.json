@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T14:46:01.342457+00:00",
-  "commit": "13c1b4eafe0ccf67631f9cb2d62fafd5841be15c",
+  "generatedAt": "2026-10-29T14:46:51.096243+00:00",
+  "commit": "e1b735b4e3f431817e8a0ec4b8113b1a421e7e05",
   "branch": "main",
-  "sourceFingerprint": "217aab6dab039edd630a3046c9c6d21bf041dbc6d379c0faa99c7cf37fd2748f",
+  "sourceFingerprint": "342cea13e5daebb2bd91402c9d79e3d160121523e2dacc126aed216d6066516f",
   "summary": {
-    "files": 1072,
-    "lines": 221617,
+    "files": 1073,
+    "lines": 221780,
     "symbols": 3151
   },
   "symbolIndex": {
@@ -30905,6 +30905,12 @@
           "line": 109
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
+      "lines": 163,
+      "sha256": "bdb8515ebcbdcd1dd9bb2699b572428f3db2b2d5d87858d46dd162a7e4775b17",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
