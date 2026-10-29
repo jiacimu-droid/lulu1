@@ -320,30 +320,54 @@ internal object CharacterCausalTrace {
                 native?.id.orEmpty())
         }
         val causes = listOf(receipt, native).filterNotNull().distinctBy { it.id }
-        val followUps = causes.flatMap { source ->
+        val sourcedDecisions = causes.flatMap { source ->
             decisionsForSource(characterId, source.id, mind).map { source to it }
         }.distinctBy { (_, decision) ->
             decision.optString("id").ifBlank { decision.toString() }
-        }.sortedBy { (_, decision) -> decision.optString("at") }.takeLast(3)
-        followUps.forEach { (source, decision) ->
+        }.sortedBy { (_, decision) -> decision.optString("at") }
+
+        // A matching evidence ID alone does not establish that the choice was
+        // made AFTER the tool returned. Late writes, old imports and edits can
+        // otherwise turn an earlier intention into a fabricated follow-up.
+        // Require both the source revision and an actual decision timestamp.
+        fun unverifiedReason(source: SharedTimelineEvent, decision: JSONObject): String? {
             val revision = decision.optLong("causalEvidenceRevision", 0L)
-            val version = when {
-                revision == 0L -> " · 旧记录来源版本未证实"
-                revision != source.revision -> " · 历史版本 $revision"
-                else -> ""
+            val decidedAt = runCatching {
+                java.time.Instant.parse(decision.optString("at"))
+            }.getOrNull()
+            return when {
+                revision == 0L -> "旧选择未记录依据版本"
+                revision != source.revision ->
+                    "选择依据历史版本 $revision，当前结果版本 ${source.revision}"
+                decidedAt == null -> "选择未记录可核对的时间"
+                decidedAt.isBefore(source.occurredAt) ->
+                    "选择时间早于实际结果，不能视为结果后的决定"
+                else -> null
             }
+        }
+        val confirmed = sourcedDecisions.filter { (source, decision) ->
+            unverifiedReason(source, decision) == null
+        }.takeLast(3)
+        confirmed.forEach { (source, decision) ->
             rows += CharacterCausalTraceLine("回执后的本人选择 · " +
-                CharacterRecordProjection.actionLabel(decision.optString("selected")) + version,
-                (if (revision > 0L && revision != source.revision)
-                    "来源已编辑，不能用当前结果解释旧选择；" else "") +
-                    listOf(decision.optString("reason"), decision.optString("outcome"))
-                        .filter(String::isNotBlank).joinToString("；").take(210),
+                CharacterRecordProjection.actionLabel(decision.optString("selected")),
+                listOf(decision.optString("reason"), decision.optString("outcome"))
+                    .filter(String::isNotBlank).joinToString("；").take(210),
                 source.id)
         }
-        if (followUps.isEmpty() &&
+        sourcedDecisions.filter { (source, decision) ->
+            unverifiedReason(source, decision) != null
+        }.takeLast(3).forEach { (source, decision) ->
+            rows += CharacterCausalTraceLine("关联选择 · 后续关系未证实",
+                ("${unverifiedReason(source, decision)}；" +
+                    listOf(decision.optString("reason"), decision.optString("outcome"))
+                        .filter(String::isNotBlank).joinToString("；")).take(230),
+                source.id)
+        }
+        if (confirmed.isEmpty() &&
             PerceptionStimulusLedger.peekSeen(context, characterId, receipt.id, receipt.revision)) {
             rows += CharacterCausalTraceLine("回执后的后续",
-                "本人已有这条回执的感知检查点，但当前可检索的决定中没有精确后续；" +
+                "本人已有这条回执的感知检查点，但没有可证实发生在结果之后的选择；" +
                     "不能推断已放弃、未思考或目标完成", receipt.id)
         }
         val motiveId = body.optString("motiveId")
