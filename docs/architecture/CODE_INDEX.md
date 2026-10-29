@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b0b89ff283bdee4978a5924c5d0021135e45d316`
+- 基准提交：`8d39ede84662b4019a864113d12e1e58307685e7`
 - 分支：`main`
 - 已索引文件：1067
-- 已索引代码/文本行：220121
+- 已索引代码/文本行：220129
 - 已发现符号：3139
 
 | 文件 | 行数 | 符号数 |
@@ -385,7 +385,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 397 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 428 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 433 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 119 | 6 |
@@ -898,7 +898,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 733 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt` | 21 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 556 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 559 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 201 | 1 |

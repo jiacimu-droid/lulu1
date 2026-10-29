@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T12:05:54.683203+00:00",
-  "commit": "b0b89ff283bdee4978a5924c5d0021135e45d316",
+  "generatedAt": "2026-10-29T12:08:14.021075+00:00",
+  "commit": "8d39ede84662b4019a864113d12e1e58307685e7",
   "branch": "main",
-  "sourceFingerprint": "004d70187fb6479954a452fa9569f55267579b8c271c10dd269ebdd8dac326c4",
+  "sourceFingerprint": "08eb14df945f2ce3fb3fc18667ae64075549b4156544837d0881e27a055ace77",
   "summary": {
     "files": 1067,
-    "lines": 220121,
+    "lines": 220129,
     "symbols": 3139
   },
   "symbolIndex": {
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 407
+        "line": 412
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6227,7 +6227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 403
+        "line": 408
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -15905,7 +15905,7 @@
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-        "line": 493
+        "line": 496
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -24185,8 +24185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 428,
-      "sha256": "ba912043ad86f59092dcddac10ab612f564f16419ccb122768b49ceefc7c60a2",
+      "lines": 433,
+      "sha256": "3cb5d47d92371b9eec2207c137d2293db520cd1ce9e7693ce4cd54ac753e7e18",
       "symbols": [
         {
           "name": "entries",
@@ -24218,11 +24218,11 @@
         },
         {
           "name": "delete",
-          "line": 403
+          "line": 408
         },
         {
           "name": "remove",
-          "line": 407
+          "line": 412
         }
       ]
     },
@@ -34958,8 +34958,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 556,
-      "sha256": "8c38775962d0c7c58414cb1fff5c9423c2a2b436d629d0a321f63596a601c75a",
+      "lines": 559,
+      "sha256": "c364f4a29e44dfb6f74a44da10ef54b17ff20d2a63ee7a586771cbb9674f96c8",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
@@ -34967,7 +34967,7 @@
         },
         {
           "name": "item",
-          "line": 493
+          "line": 496
         }
       ]
     },
