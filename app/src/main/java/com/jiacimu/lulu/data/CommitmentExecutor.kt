@@ -83,6 +83,30 @@ internal object CommitmentExecutor {
         val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
         val sameCall = activeCall.connected && activeCall.characterId == claimedTask.characterId
         val wake = claimedTask.isWakeResponsibility()
+        // A reminder callback cannot interrupt its own unfinished wake speech:
+        // let that voice complete before the character judges the result.
+        if (wake && CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+                claimedTask.followUpKind, sameCall, activeCall.thinking,
+                activeCall.speaking, activeCall.opening)) {
+            val after = now.plusSeconds(45)
+            val retry = LuluAlarmSystem.create(
+                claimedTask.characterId, characterName, after,
+                "${claimedTask.goal}（等待上段叫醒语音播完后复查）",
+                silentCallback = true, commitmentTaskId = claimedTask.id,
+            ).getOrNull()
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                if (old.status != CommitmentTaskStatus.Running ||
+                    old.executionToken != claimedTask.executionToken) old else old.copy(
+                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    linkedAlarmId = retry?.id, nextCheckAt = retry?.triggerAt,
+                    followUpKind = if (retry == null) "" else "retry",
+                    lastActionResult = if (retry == null)
+                        "上一段叫醒仍在播放，但下一次复查调度失败；不能认定主人已醒"
+                    else "上一段叫醒仍在准备/播放；暂不打断，稍后再次核查",
+                )
+            }
+            return
+        }
         val selected = if (wake)
             WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
         else WakeActionPlanner.Choice(WakeActionPlanner.Cue.RING)
@@ -102,6 +126,21 @@ internal object CommitmentExecutor {
         // A local alarm is NOT permission to place a new phone call. In a live
         // bedtime call the same reminder may use its existing audio session.
         if (claimedTask.deliveryAction == "alarm_only") {
+            val attempt = claimedTask.attemptCount + 1
+            if (wake && attempt > CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) {
+                CommitmentTaskStore.update(claimedTask.id) { old ->
+                    old.copy(status = CommitmentTaskStatus.Blocked, attemptCount = attempt,
+                        linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
+                        lastActionResult = "已到本次叫醒的尝试上限；没有充分证据确认醒来")
+                }
+                return
+            }
+            // The model call above may have taken time; don't deliver a cue
+            // after an explicit user confirmation or task cancellation.
+            if (CommitmentTaskStore.snapshot().none {
+                    it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running &&
+                        it.executionToken == claimedTask.executionToken
+                }) return
             val playing = playChosenMusic()
             val delivered = if (playing) {
                 if (sameCall) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
@@ -113,9 +152,7 @@ internal object CommitmentExecutor {
                     com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                         claimedTask.characterId, claimedTask.goal, claimedTask.id,
                         ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
-                        ringCount = selected.ringCount,
                         ringSeconds = selected.ringSeconds,
-                        pauseSeconds = selected.pauseSeconds,
                     )
                 }
             } else {
@@ -126,22 +163,31 @@ internal object CommitmentExecutor {
                             claimedTask.characterId, characterName, claimedTask.goal)
                     }.isSuccess
             }
-            val review = if (delivered)
+            val reviewSeconds = if (wake) CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt)
+                else 10L * 60L
+            val review = if (delivered && reviewSeconds != null)
                 LuluAlarmSystem.create(
-                    claimedTask.characterId, characterName, now.plusSeconds(10 * 60L),
-                    "${claimedTask.goal}（监督结果复查）", silentCallback = true,
+                    claimedTask.characterId, characterName, now.plusSeconds(reviewSeconds),
+                    "${claimedTask.goal}（下一阶段或最终复查）", silentCallback = true,
                     commitmentTaskId = claimedTask.id,
                 ).getOrNull() else null
             CommitmentTaskStore.update(claimedTask.id) { old ->
-                old.copy(
+                if (old.status != CommitmentTaskStatus.Running ||
+                    old.executionToken != claimedTask.executionToken) old else old.copy(
                     status = if (delivered) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
                     linkedAlarmId = review?.id, nextCheckAt = review?.triggerAt,
-                    followUpKind = if (review != null) "verification" else "",
-                    attemptCount = 1,
+                    followUpKind = if (review == null) "" else
+                        if (wake && attempt < CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) "retry"
+                        else "verification",
+                    attemptCount = attempt,
+                    wakeAttemptHistory = if (!wake) old.wakeAttemptHistory else
+                        (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}；" +
+                            (if (playing) "播放器确认音乐开始" else if (delivered) "已安排铃声/提醒与语音，尚待播放回执" else "投递失败") +
+                            "；原因：${selected.reason.take(160)}").takeLast(6),
                     lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
-                        else if (sameCall) "已在原电话安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "语音" else "本机响铃及语音"}叫醒，不重复拨号；尚未确认实际播完或已醒"
+                        else if (sameCall) "在原电话安排本轮${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "自然说话" else "一次铃声后自然说话"}，不是连续响多遍；等待真实播放与叫醒反馈"
                         else "本机闹钟已发出通知；未证明目标已经达成；" +
                             (if (review != null) "已安排后续客观复查" else "复查未能安排") +
                             selected.reason.takeIf { it.isNotBlank() }?.let { "；角色决定：$it" }.orEmpty(),
@@ -257,12 +303,10 @@ internal object CommitmentExecutor {
                         "按你自己的人格自然地叫她起来；不把响铃当作她已经醒了。",
                     claimedTask.id,
                     ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
-                    ringCount = selected.ringCount,
                     ringSeconds = selected.ringSeconds,
-                    pauseSeconds = selected.pauseSeconds,
                 )
             }
-            val music = if (playing) "播放器已确认响应角色的音乐叫醒" else "角色安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "直接说话" else "多轮铃声后自然对话"}"
+            val music = if (playing) "播放器确认音乐启动" else "角色安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "本轮直接说话" else "本轮一次铃声后再说话"}"
             // Do not equate ringing/speaking with the goal "user awake".
             // Only outstanding goals receive a bounded follow-up after 5min.
             val delaySeconds = if (queued)
@@ -280,6 +324,12 @@ internal object CommitmentExecutor {
                     attemptCount = attempt,
                     linkedAlarmId = nextAlarm?.id,
                     nextCheckAt = nextAlarm?.triggerAt,
+                    followUpKind = if (nextAlarm == null) "" else
+                        if (attempt < CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) "retry" else "verification",
+                    wakeAttemptHistory = (old.wakeAttemptHistory +
+                        "第$attempt 阶段：角色选${selected.cue}；" +
+                        (if (queued) music else "叫醒行动未成功排入") +
+                        "；角色考虑：${selected.reason.take(160)}").takeLast(6),
                     lastActionResult = if (queued) buildString {
                         append("第$attempt 次已在原电话安排叫醒流程；声音实际送达仍以播放器回执为准，未确认主人醒来。$music")
                         if (selected.reason.isNotBlank()) append("；角色考虑：${selected.reason}")
@@ -336,6 +386,11 @@ internal object CommitmentExecutor {
                 status = if (!result.success || (wake && !deliveryNotificationShown && !useCall))
                     CommitmentTaskStatus.Blocked else CommitmentTaskStatus.WaitingForFeedback,
                 attemptCount = attempt,
+                wakeAttemptHistory = if (!wake) old.wakeAttemptHistory else
+                    (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}，" +
+                        "已尝试${if (useCall) "发起叫醒电话（先由本机来电铃声提示）" else "发出闹钟提醒"}；" +
+                        "结果：${if (result.success) "执行请求已发出，实际醒来尚未确认" else "执行失败：${result.summary.take(90)}"}；" +
+                        "原因：${selected.reason.take(160)}").takeLast(6),
                 nextCheckAt = followUp?.triggerAt,
                 linkedAlarmId = followUp?.id,
                 followUpKind = if (followUp == null) "" else if (reviewOnly) "verification" else "retry",
