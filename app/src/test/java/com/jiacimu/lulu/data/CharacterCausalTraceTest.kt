@@ -960,6 +960,7 @@ class CharacterCausalTraceTest {
         val unrelated = plan("不相关的用户发言")
         val wrongPlan = plan("其他日程的工具回执")
         val genuine = plan("本日程的真实成功回执")
+        val failed = plan("执行失败的回执")
         val native = plan("原生动态结果尚待归属核对")
         try {
             val userId = "trace-scheduled-unrelated-user"
@@ -968,11 +969,11 @@ class CharacterCausalTraceTest {
                 source = "message", evidenceKind = EventEvidenceKind.UserStatement)
             assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
                 unrelated.id, "publish_moment", userId, "旧记录", due.plusSeconds(3)))
-            fun toolResult(id: String, planId: String) {
+            fun toolResult(id: String, planId: String, success: Boolean = true) {
                 SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
                     JSONObject().put("tool", "publish_moment").put("planId", planId)
-                        .put("status", "succeeded")
-                        .put("result", JSONObject().put("success", true).toString())
+                        .put("status", if (success) "succeeded" else "failed")
+                        .put("result", JSONObject().put("success", success).toString())
                         .toString(), due.plusSeconds(2), triggerExtraction = false,
                     source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
             }
@@ -985,6 +986,11 @@ class CharacterCausalTraceTest {
             toolResult(genuineId, genuine.id)
             assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
                 genuine.id, "publish_moment", genuineId, "真实发布", due.plusSeconds(3)))
+            val failedId = "tool-$a-trace-scheduled-failed"
+            toolResult(failedId, failed.id, false)
+            assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                failed.id, "publish_moment", failedId, "失败不可冒充完成",
+                due.plusSeconds(3)))
             val nativeId = "trace-scheduled-native-result"
             SharedExperienceTimeline.record(nativeId, a, "朋友圈", "角色", "真实发布内容",
                 due.plusSeconds(2), triggerExtraction = false,
@@ -1002,12 +1008,13 @@ class CharacterCausalTraceTest {
             assertTrue(lineFor("其他日程的工具回执").title.contains("日程状态待核对"))
             assertTrue(lineFor("本日程的真实成功回执").title.contains("日程执行有回执"))
             assertTrue(lineFor("本日程的真实成功回执").detail.contains("本日程ID及动作匹配"))
+            assertTrue(lineFor("执行失败的回执").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").detail.contains("没有独立核对"))
             assertTrue(CharacterCausalTrace.inspect(context, b,
                 event(a, sourceId), listOf(event(a, sourceId)), JSONObject()).isEmpty())
         } finally {
-            listOf(unrelated, wrongPlan, genuine, native).forEach {
+            listOf(unrelated, wrongPlan, genuine, failed, native).forEach {
                 RoleDayScheduleStore.remove(context, a, it.id)
             }
         }
