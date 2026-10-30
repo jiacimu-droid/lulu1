@@ -2,6 +2,18 @@ package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +51,7 @@ internal fun GameSceneDeck(
     var drawer by remember { mutableStateOf(false) }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
+        LaunchedEffect(wide) { drawer = false }
         val sideWidth = minOf(maxWidth * .43f, 330.dp)
         val panelHeight = minOf(if (wide) maxHeight * .32f else maxHeight * .18f, 130.dp)
         val teamState = rememberSaveableStateHolder()
@@ -83,7 +96,7 @@ internal fun GameSceneDeck(
             .padding(start = 9.dp, bottom = 8.dp)) {
             movement()
         }
-        Column(
+        if (!drawer) Column(
             Modifier.align(Alignment.BottomEnd).navigationBarsPadding()
                 .width(if (wide) 206.dp else (maxWidth - 158.dp).coerceIn(152.dp, 206.dp))
                 .padding(end = 9.dp, bottom = 8.dp),
@@ -118,13 +131,17 @@ internal fun GameSceneDeck(
                 border = BorderStroke(1.dp, accent.copy(alpha = .35f)),
                 shadowElevation = 10.dp,
             ) {
-                Box {
-                    tools()
-                    FilledTonalButton(
-                        onClick = { drawer = false },
-                        modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).height(30.dp),
-                        contentPadding = PaddingValues(horizontal = 9.dp),
-                    ) { Text("关闭 ×", fontSize = 10.sp) }
+                Column {
+                    Row(Modifier.fillMaxWidth().height(42.dp).padding(start = 12.dp, end = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("背包 / 建造", modifier = Modifier.weight(1f),
+                            color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        TextButton(onClick = { drawer = false },
+                            contentPadding = PaddingValues(horizontal = 8.dp)) {
+                            Text("关闭 ×", color = Color.White, fontSize = 11.sp)
+                        }
+                    }
+                    Box(Modifier.weight(1f)) { tools() }
                 }
             }
         }
@@ -148,47 +165,95 @@ internal fun GameSceneDeck(
     }
 }
 
-/** Discrete directional pad: one press = one actual tile move, with no hidden menu. */
+/** Turn-based navigation: a tap is one tile, a hold repeats at a bounded cadence. */
 @Composable
 internal fun GameDirectionalPad(
     accent: Color,
     enabled: Boolean = true,
+    holdRepeatMs: Long = 340L,
     onStep: (dx: Int, dy: Int) -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        GameDirectionKey("↑", accent, enabled) { onStep(0, -1) }
+        GameDirectionKey("↑", "向上移动", accent, enabled, holdRepeatMs) { onStep(0, -1) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            GameDirectionKey("←", accent, enabled) { onStep(-1, 0) }
-            Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) {
+            GameDirectionKey("←", "向左移动", accent, enabled, holdRepeatMs) { onStep(-1, 0) }
+            Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
                 Surface(
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(26.dp),
                     color = Color(0x9615222B),
                     shape = CircleShape,
                     border = BorderStroke(1.dp, accent.copy(alpha = .3f)),
-                ) { Box(contentAlignment = Alignment.Center) {
-                    Text("✦", color = accent, fontSize = 12.sp)
-                } }
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("✦", color = accent, fontSize = 12.sp)
+                    }
+                }
             }
-            GameDirectionKey("→", accent, enabled) { onStep(1, 0) }
+            GameDirectionKey("→", "向右移动", accent, enabled, holdRepeatMs) { onStep(1, 0) }
         }
-        GameDirectionKey("↓", accent, enabled) { onStep(0, 1) }
+        GameDirectionKey("↓", "向下移动", accent, enabled, holdRepeatMs) { onStep(0, 1) }
     }
 }
 
 @Composable
 private fun GameDirectionKey(
-    text: String, accent: Color, enabled: Boolean, onClick: () -> Unit,
+    text: String,
+    accessibilityLabel: String,
+    accent: Color,
+    enabled: Boolean,
+    holdRepeatMs: Long,
+    onClick: () -> Unit,
 ) {
+    val currentAction = rememberUpdatedState(onClick)
+    var pressed by remember { mutableStateOf(false) }
+    val repeatMs = holdRepeatMs.coerceAtLeast(250L)
     Surface(
-        onClick = onClick, enabled = enabled, modifier = Modifier.size(42.dp),
+        modifier = Modifier
+            .size(46.dp)
+            .semantics {
+                role = Role.Button
+                contentDescription = accessibilityLabel
+                if (enabled) {
+                    onClick { currentAction.value(); true }
+                } else {
+                    disabled()
+                }
+            }
+            .pointerInput(enabled, repeatMs) {
+                if (!enabled) return@pointerInput
+                detectTapGestures(onPress = {
+                    pressed = true
+                    try {
+                        // Execute on down, never on release: a held move cannot gain a stray final turn.
+                        currentAction.value()
+                        coroutineScope {
+                            val repeating = launch {
+                                delay(420L)
+                                while (isActive) {
+                                    currentAction.value()
+                                    delay(repeatMs)
+                                }
+                            }
+                            try {
+                                tryAwaitRelease()
+                            } finally {
+                                repeating.cancel()
+                            }
+                        }
+                    } finally {
+                        pressed = false
+                    }
+                })
+            },
         shape = RoundedCornerShape(13.dp),
-        color = if (enabled) Color(0xD51C3540) else Color(0x88101E26),
+        color = if (!enabled) Color(0x88101E26)
+            else if (pressed) accent.copy(alpha = .52f) else Color(0xD51C3540),
         border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) .7f else .18f)),
-        shadowElevation = if (enabled) 3.dp else 0.dp,
+        shadowElevation = if (pressed) 1.dp else 3.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(text, color = if (enabled) Color.White else Color.Gray,
-                fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                fontSize = 23.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
