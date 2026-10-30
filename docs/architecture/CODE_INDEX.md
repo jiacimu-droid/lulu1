@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`305004aca945e43af6083ff0b40125968ba3d083`
+- 基准提交：`59c2d0ee44944a9cad19f882a34bb43e49828bad`
 - 分支：`main`
-- 已索引文件：1108
-- 已索引代码/文本行：228494
-- 已发现符号：3234
+- 已索引文件：1109
+- 已索引代码/文本行：228546
+- 已发现符号：3235
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -982,6 +982,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryAffectAttentionTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 118 | 1 |

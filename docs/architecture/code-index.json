@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:51:50.422157+00:00",
-  "commit": "305004aca945e43af6083ff0b40125968ba3d083",
+  "generatedAt": "2026-10-30T05:52:19.527521+00:00",
+  "commit": "59c2d0ee44944a9cad19f882a34bb43e49828bad",
   "branch": "main",
-  "sourceFingerprint": "d16e6b4dc52e680e5ff7c5edf81c8319ae2299a3fbd874fd1d2b00824e9217cf",
+  "sourceFingerprint": "7fb2eb6ce604a3b8cb0caae00a4569c4975f169a2cd79d1d8b71a71ad0a255d1",
   "summary": {
-    "files": 1108,
-    "lines": 228494,
-    "symbols": 3234
+    "files": 1109,
+    "lines": 228546,
+    "symbols": 3235
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16914,6 +16914,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
         "line": 12
+      }
+    ],
+    "MemoryAffectAttentionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryAffectAttentionTest.kt",
+        "line": 16
       }
     ],
     "MemoryAssociationPolicyTest": [
@@ -36763,6 +36769,17 @@
         {
           "name": "MeetingLocationRenderingTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryAffectAttentionTest.kt",
+      "lines": 52,
+      "sha256": "e4d45e77f20e55229936e3c2509186d66cbecba547d8b5904717c8085f36f06d",
+      "symbols": [
+        {
+          "name": "MemoryAffectAttentionTest",
+          "line": 16
         }
       ]
     },
