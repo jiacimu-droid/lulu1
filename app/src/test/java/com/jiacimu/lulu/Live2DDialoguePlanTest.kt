@@ -49,7 +49,7 @@ class Live2DDialoguePlanTest {
 
     @Test fun changedSpeechDoesNotReceiveAnOldPerformanceAfterFailedCorrection() = runBlocking {
         val visual = Live2DDialoguePlan.visual(envelope())!!
-        val result = Live2DSpokenMotionContract.resolve("实际已经改口。", visual, motions) { visual }
+        val result = Live2DSpokenMotionContract.resolve("实际已经改口。", visual, motions) { _, _ -> visual }
         assertFalse(result.repaired)
         assertNull(result.chosen)
         assertTrue(result.errors.isNotEmpty())
