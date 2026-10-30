@@ -29,8 +29,8 @@ internal fun CharacterLifeSettings(
 ) {
     val states by CharacterLifeStore.states.collectAsState()
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
-    var editing by remember { mutableStateOf<String?>(null) }
-    var draft by remember { mutableStateOf("") }
+    var editing by remember(characterId) { mutableStateOf<String?>(null) }
+    var draft by remember(characterId) { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     var dialogueGenerating by remember(characterId) { mutableStateOf(false) }
     var dialogueGenerationError by remember(characterId) { mutableStateOf("") }
@@ -135,7 +135,13 @@ internal fun CharacterLifeSettings(
                                     val material = buildString {
                                         appendLine("角色本人设定：")
                                         appendLine(currentPersona.ifBlank { seedPersona }.take(2300))
-                                        appendLine("明确身份设定：${seedIdentity.take(600)}")
+                                        val roleIdentity = com.jiacimu.lulu.data.CharacterIdentityStore
+                                            .get(characterId).ifBlank { seedIdentity }
+                                        appendLine("明确身份设定：${roleIdentity.take(600)}")
+                                        val userAgreement = com.jiacimu.lulu.data.CharacterSocialRelationship
+                                            .agreement(characterId, "user")?.title.orEmpty()
+                                        if (userAgreement.isNotBlank())
+                                            appendLine("已设定的当前关系：${userAgreement.take(150)}")
                                         listOf("expression", "speechHabits", "social", "conflict", "care", "respect")
                                             .forEach { key ->
                                                 profile?.optString(key)?.trim()
