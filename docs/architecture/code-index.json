@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:05:54.374719+00:00",
-  "commit": "5befdf9c27da4912c040797e818debe5c142852e",
+  "generatedAt": "2026-10-30T05:25:25.586610+00:00",
+  "commit": "176d600ad6ce770dc5150c8899d39cbaf49c4cbe",
   "branch": "main",
-  "sourceFingerprint": "22b8fb09e142135cd1fb89a6972cd646beb748d1bc47a4874411c81afb4dc989",
+  "sourceFingerprint": "22064cc38f9cf4e7458bd4a17a07bbc48cad26310fd35fc1ec9a4c6903df99f0",
   "summary": {
     "files": 1108,
-    "lines": 228431,
+    "lines": 228377,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -719,7 +719,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1339
+        "line": 1340
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4813,19 +4813,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1146
+        "line": 1147
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1158
+        "line": 1159
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1329
+        "line": 1330
       }
     ],
     "configured": [
@@ -15609,7 +15609,7 @@
     "ModelLocalRouteHealthTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "ModelPostTransportTest": [
@@ -22311,8 +22311,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1347,
-      "sha256": "0030d42a2272fe74c90039d47b99bd90a1535c0e81d11cdf6cd583169ec5b514",
+      "lines": 1348,
+      "sha256": "865cd1e7c167a3d5dd8605b89598ec14ee9fd1d7973960a3423244f3083d206e",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -22412,19 +22412,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1146
+          "line": 1147
         },
         {
           "name": "consumeEvent",
-          "line": 1158
+          "line": 1159
         },
         {
           "name": "LuluAiServices",
-          "line": 1329
+          "line": 1330
         },
         {
           "name": "initialize",
-          "line": 1339
+          "line": 1340
         }
       ]
     },
@@ -22483,14 +22483,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelLocalRouteHealth.kt",
-      "lines": 73,
-      "sha256": "2705f0653f466eb66ddbc155823bedc12fca42923e30302feb18352e2f5cf065",
+      "lines": 43,
+      "sha256": "7d246fb2a849cc2b2bb54c5529016f522c8cb7480428e627a6077b82ea7cde5e",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
       "lines": 76,
-      "sha256": "6e637faf2b8a9bd30a5c47cf28db60e678bf58d686ea2a55bbfe33447bddd6a2",
+      "sha256": "c3f4b92b16f988a71772ec85f7b434d568b1e16531bd9f46bf40c8552a7ee8aa",
       "symbols": []
     },
     {
@@ -34854,19 +34854,19 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt",
-      "lines": 80,
-      "sha256": "3911dc75e89cb1d86149645f82bfadea18a4c84af29248262b6cde8def389705",
+      "lines": 56,
+      "sha256": "8d522834d5a9b7687d434a6d988031ca88f97b131f48807ef41464ad3212befd",
       "symbols": [
         {
           "name": "ModelLocalRouteHealthTest",
-          "line": 12
+          "line": 14
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 98,
-      "sha256": "182de15c0a7120636f3c94be7862956e740bf58a1be7a8f053d1d680cad200b4",
+      "lines": 97,
+      "sha256": "fe1ca7c88945ffbc77af014610b08cf06da248d78f2c23e399173c3ad4348123",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
