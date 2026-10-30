@@ -471,7 +471,7 @@ object ProactivePerceptionScheduler {
      */
     fun scheduleCoalescedLifeReview(
         context: Context, characterId: String, delayMillis: Long, onlineOnly: Boolean,
-        eligibleAtMillis: Long,
+        eligibleAtMillis: Long, preserveOffline: Boolean = false,
     ) {
         if (characterId.isBlank() || eligibleAtMillis <= 0L) return
         val app = context.applicationContext
@@ -483,6 +483,7 @@ object ProactivePerceptionScheduler {
                 .putString("characterId", characterId)
                 .putBoolean("force", true)
                 .putBoolean("requireOnline", onlineOnly)
+                .putBoolean("preserveOffline", preserveOffline)
                 .putBoolean("respectMessageBuffer", true)
                 .build())
             .build()
@@ -574,7 +575,12 @@ object ProactivePerceptionScheduler {
             .setInputData(Data.Builder()
                 .putString("trigger", "真实生活后续回想：角色近期亲历事件，自己判断是否观察、阅读、私聊分享、发朋友圈或保持安静；不强制发消息。")
                 .putString("characterId", characterId)
-                .putBoolean("force", true).build())
+                .putBoolean("force", true)
+                // This is the character's already earned chance to decide
+                // what to do with a real experience, even if the online chat
+                // lease expired before the scheduled 75-second callback.
+                // It does not auto-send or make the character stay online.
+                .putBoolean("preserveOffline", true).build())
             .build()
         WorkManager.getInstance(app).enqueueUniqueWork(
             "lulu-verified-life-review-$characterId", ExistingWorkPolicy.KEEP, work)
