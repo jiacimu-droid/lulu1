@@ -101,6 +101,22 @@ class WakeActionPlannerTest {
         assertEquals(WakeActionPlanner.Cue.RING, fallback.cue)
     }
 
+    @Test fun firstPromisedRingUsesAnExplicitSystemFallbackForConflictingModelChoice() {
+        val conflicting = WakeActionPlanner.parseChoice(
+            """{"cue":"wait","contact":"call","reason":"想先观察"}""", true, true)
+        // Follow-up decisions remain exactly what the character chose.
+        assertEquals(WakeActionPlanner.Cue.WAIT,
+            WakeActionPlanner.honorFirstWakePromise(conflicting, 1).cue)
+        assertFalse(WakeActionPlanner.honorFirstWakePromise(conflicting, 1).systemFallback)
+        val initial = WakeActionPlanner.honorFirstWakePromise(conflicting, 0)
+        assertEquals(WakeActionPlanner.Cue.RING, initial.cue)
+        assertTrue(initial.systemFallback)
+        assertTrue(initial.executionIssue.contains("原选择=WAIT"))
+        assertEquals(WakeActionPlanner.Cue.RING,
+            WakeActionPlanner.honorFirstWakePromise(
+                WakeActionPlanner.parseChoice("""{"cue":"ring"}""", true, true), 0).cue)
+    }
+
     @Test fun invalidVolumeIsNotCarriedIntoExecutor() {
         val raw = """{"cue":"music","volumePercent":200}"""
         assertNull(WakeActionPlanner.parseChoice(raw, true, true).volumePercent)
