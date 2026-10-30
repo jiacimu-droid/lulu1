@@ -110,19 +110,22 @@ object ToolRouter {
             val old = prefs.getString(key, null)?.let(::JSONObject)
             val cap = CapabilityRegistry.find(name)
             if (old != null) {
-                if (old.optString("fingerprint") != fingerprint) return@withLock failure("同一执行ID的参数发生变化，请重新确认", "waiting_user")
+                // Rejected reuse is an observable fact too. Keep the original
+                // completed receipt untouched; a separate rejection timeline
+                // event explains why a stale request was not executed.
+                if (old.optString("fingerprint") != fingerprint) return@withLock rejected("同一执行ID的参数发生变化，请重新确认", "waiting_user")
                 if (old.optString("motiveId") != motiveId || old.optString("concernId") != concernId ||
                     old.optString("experienceId") != experienceId)
-                    return@withLock failure("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
+                    return@withLock rejected("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
                 // The request ID identifies ONE decision and its source, not merely
                 // a tool with matching JSON args. A different chat turn or due
                 // slot must never inherit a previous person's actual effect.
                 // Legacy rows without these fields remain readable as history.
                 if (old.has("causeEvidenceId") && old.optString("causeEvidenceId") != causeEvidenceId)
-                    return@withLock failure("同一执行ID的原始依据已变化，请使用新的行动ID", "waiting_user")
+                    return@withLock rejected("同一执行ID的原始依据已变化，请使用新的行动ID", "waiting_user")
                 if (old.has("expectedPlanDueAt") &&
                     old.optString("expectedPlanDueAt") != expectedPlanDueAt?.toString().orEmpty())
-                    return@withLock failure("同一执行ID的日程时间版本已变化，请使用新的行动ID", "waiting_user")
+                    return@withLock rejected("同一执行ID的日程时间版本已变化，请使用新的行动ID", "waiting_user")
                 // A retry-safe unfinished operation is NOT a completed historical
                 // result. Its original evidence must still exist at the version
                 // the model saw; otherwise a late retry acts on corrected text.
@@ -132,7 +135,7 @@ object ToolRouter {
                         old.optString("causeEvidenceId"))
                     if (old.optLong("causeEvidenceRevision", 0L) <= 0L ||
                         original?.revision != old.optLong("causeEvidenceRevision")) {
-                        return@withLock failure("原始依据已编辑或撤回，未继续执行旧请求", "waiting_user")
+                        return@withLock rejected("原始依据已编辑或撤回，未继续执行旧请求", "waiting_user")
                     }
                 }
                 if (old.optString("status") != "running" || cap?.retrySafe != true) {
