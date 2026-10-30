@@ -301,7 +301,11 @@ object ToolRouter {
                                         lastActionResult = "验收尚未通过：${proof.reason}；保留原目标及后续安排",
                                     )
                                 }
-                                failure("证据不足：${proof.reason}；没有结案")
+                                JSONObject().put("success", false)
+                                    .put("status", "unverified")
+                                    .put("taskId", task.id)
+                                    .put("summary", "尚未达到可核实的结案条件：${proof.reason}；任务保持未完成，可继续求证或复查")
+                                    .toString()
                             } else {
                                 task.linkedAlarmId?.let(com.jiacimu.lulu.system.LuluAlarmSystem::cancel)
                                 val verified = CommitmentTaskStore.update(task.id) { old ->
@@ -343,7 +347,11 @@ object ToolRouter {
                 execution.put("status", parsed.optString("status").ifBlank { if (parsed.optBoolean("success")) "succeeded" else "failed" })
                     .put("result", confirmedResult).put("finishedAt", Instant.now().toString())
                 check(prefs.edit().putString(key, execution.toString()).commit())
-                if (!parsed.optBoolean("success")) {
+                // An evidence gate saying "not yet proven" is an expected
+                // domain outcome, not an API/parser/device failure. Still
+                // persist its full receipt so the same role can reconsider.
+                if (!parsed.optBoolean("success") &&
+                    parsed.optString("status") != "unverified") {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "角色行动",
                         title = "${MigratedDomainStores.characters.get(characterId).displayName} · $name",
