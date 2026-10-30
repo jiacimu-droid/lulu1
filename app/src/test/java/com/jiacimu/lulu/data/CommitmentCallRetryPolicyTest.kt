@@ -49,6 +49,17 @@ class CommitmentCallRetryPolicyTest {
             2, "start_call", WakeActionPlanner.Contact.CALL, false))
         assertEquals("send_private_message", CommitmentCallRetryPolicy.wakeContactAction(
             3, "start_call", WakeActionPlanner.Contact.MESSAGE, true))
+        // Contradictory fields do not authorize the executor to dial or text:
+        // cue=WAIT owns the decision even when contact is stale/malformed.
+        assertEquals("", CommitmentCallRetryPolicy.wakeContactAction(
+            2, "start_call", WakeActionPlanner.Contact.CALL, true,
+            WakeActionPlanner.Cue.WAIT))
+        assertEquals("", CommitmentCallRetryPolicy.wakeContactAction(
+            2, "start_call", WakeActionPlanner.Contact.MESSAGE, true,
+            WakeActionPlanner.Cue.WAIT))
+        assertEquals("start_call", CommitmentCallRetryPolicy.wakeContactAction(
+            2, "start_call", WakeActionPlanner.Contact.CALL, true,
+            WakeActionPlanner.Cue.RING))
     }
 
     private val phoneWake = CommitmentTask(
