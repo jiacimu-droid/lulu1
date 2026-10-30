@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:44:03.314883+00:00",
-  "commit": "234691812b8ea1e76e93c7d94747eb5871aa755b",
+  "generatedAt": "2026-10-30T02:44:55.556639+00:00",
+  "commit": "943a6b3a785b9fdc9aed1505085647c6a25b39c6",
   "branch": "main",
-  "sourceFingerprint": "ec3417a7788880d7f0f28aaf44746697cbd978800b6b6173cc189a43ff1570ad",
+  "sourceFingerprint": "e8ceaeba60e6c95ffc6e1690eeb2bd0663d895e4c23f0e02a12f9c71112b25d4",
   "summary": {
     "files": 1094,
-    "lines": 227381,
-    "symbols": 3210
+    "lines": 227396,
+    "symbols": 3212
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11409,7 +11409,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 186
+        "line": 206
       }
     ],
     "allowedLeisureLocation": [
@@ -12782,10 +12782,22 @@
         "line": 176
       }
     ],
-    "act": [
+    "canPlantAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
         "line": 182
+      }
+    ],
+    "canRemoveAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
+        "line": 191
+      }
+    ],
+    "act": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
+        "line": 202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -12803,25 +12815,25 @@
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 187
+        "line": 207
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 500
+        "line": 513
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 506
+        "line": 519
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 544
+        "line": 557
       }
     ],
     "perform": [
@@ -12841,7 +12853,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 496
+        "line": 498
       }
     ],
     "saveTurn": [
@@ -30872,8 +30884,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 551,
-      "sha256": "1392ed779c80d894d01333853bb2f5580156df806e36185fd820d9cba83471c3",
+      "lines": 564,
+      "sha256": "3cd1420b85f873a42ab85a8668e022b690c2cc7bb8a73ee7ea1b5b068fdefd45",
       "symbols": [
         {
           "name": "toJson",
@@ -30912,35 +30924,43 @@
           "line": 176
         },
         {
-          "name": "act",
+          "name": "canPlantAt",
           "line": 182
         },
         {
+          "name": "canRemoveAt",
+          "line": 191
+        },
+        {
+          "name": "act",
+          "line": 202
+        },
+        {
           "name": "reject",
-          "line": 186
+          "line": 206
         },
         {
           "name": "near",
-          "line": 187
+          "line": 207
         },
         {
           "name": "nextStep",
-          "line": 500
+          "line": 513
         },
         {
           "name": "occupiedByOther",
-          "line": 506
+          "line": 519
         },
         {
           "name": "actionName",
-          "line": 544
+          "line": 557
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 540,
-      "sha256": "daaea5ef657747b2a757ac96198e79b8fb5ce142e8324678c79b55d3353737ae",
+      "lines": 542,
+      "sha256": "a42c90830893a6c299880de67b3e5716358f1c26b3730da265b47ddb558f7563",
       "symbols": [
         {
           "name": "save",
@@ -30952,7 +30972,7 @@
         },
         {
           "name": "targetFor",
-          "line": 496
+          "line": 498
         }
       ]
     },
