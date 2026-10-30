@@ -3,6 +3,8 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.LuluVoiceCallSession
 import com.jiacimu.lulu.system.LuluMediaPlayback
+import kotlinx.coroutines.delay
+import org.json.JSONObject
 
 /** Optional, evidence-gated wake-up music. Never starts on an unanswered alarm. */
 internal object WakeMusicCoordinator {
@@ -16,16 +18,38 @@ internal object WakeMusicCoordinator {
     }
 
     /** Immediate music is only called for a verified character-selected action. */
-    @Synchronized fun playImmediately(context: Context, characterId: String, taskId: String): Boolean {
+    suspend fun playImmediately(context: Context, characterId: String, taskId: String): Boolean {
         val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
             !permission.getBoolean("$characterId:media", false)) return false
-        val result = runCatching {
-            org.json.JSONObject(LuluMediaPlayback.control(context, "play"))
-        }.getOrNull() ?: return false
-        if (!result.optBoolean("success")) return false
+        val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }
+            .getOrNull() ?: return false
+        if (!result.optBoolean("accepted") && !result.optBoolean("success")) return false
+
+        // MediaController dispatch is asynchronous. Re-read the EXACT session
+        // instead of treating the original, possibly stale state as a failure
+        // or claiming that an accepted command means music is audible.
+        val packageName = result.optString("packageName")
+        if (!result.optBoolean("success")) delay(850L)
+        val sessions = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
+        val array = sessions?.optJSONArray("sessions")
+        val verified = (0 until (array?.length() ?: 0)).mapNotNull { array?.optJSONObject(it) }
+            .any { it.optString("packageName") == packageName &&
+                packageName.isNotBlank() && it.optBoolean("playing") }
+        if (!verified) return false
         context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
             .putBoolean("requested:$taskId", true).commit()
+        return true
+    }
+
+    /** A role-selected music wake survives the incoming call UI and app restart,
+     * but it is valid only for the actual answered call with this task ID. */
+    @Synchronized fun takeAnsweredMusicPlan(context: Context, characterId: String, taskId: String?): Boolean {
+        if (taskId.isNullOrBlank()) return false
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        val stored = prefs.getString(PENDING + characterId, "").orEmpty()
+        if (stored != taskId) return false
+        prefs.edit().remove(PENDING + characterId).commit()
         return true
     }
 
@@ -40,11 +64,16 @@ internal object WakeMusicCoordinator {
             !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
         val callActive = LuluVoiceCallSession.state.value.connected
         if (defer || callActive) {
-            // The live call's model may choose music, volume or silence in
-            // its next genuine observation. End-call is not such a choice.
-            context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
-                .remove(PENDING + characterId).commit()
-            return "本次电话不会在挂断时自动续播；接通后由角色自主决定音乐行动"
+            // Only an explicitly selected music cue can create this pending
+            // handoff. Actual playback requires an answered call and current
+            // permission, never a missed-call or hangup callback.
+            val editor = context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
+            if (defer && !callActive && taskId.isNotBlank()) {
+                editor.putString(PENDING + characterId, taskId).commit()
+                return "角色选择音乐叫醒，接通后尝试播放现有播放器；未接听不播放"
+            }
+            editor.remove(PENDING + characterId).commit()
+            return "当前电话内由已执行的唤醒动作负责，不在挂断时自动续播"
         }
         return play(context, taskId)
     }
