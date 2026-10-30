@@ -57,9 +57,10 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
     speaking = true
     positionMs = null
     if (pending) {
-      if (now() - pending.queuedAt <= 20000) {
-        current = { beats: pending.beats, index: 0, startedAt: now(), immediate: false }
-      }
+      // The call can spend longer than 20 seconds synthesizing TTS. A selected
+      // score belongs to its real utterance lifecycle, not a wall-clock lease:
+      // a newer score, interruption, model replacement or hidden stage clears it.
+      current = { beats: pending.beats, index: 0, startedAt: now(), immediate: false }
       pending = null
     }
   }
@@ -78,7 +79,6 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
   /** Render callback calls this after normal motions, before face sampling. */
   function tick(onBeat) {
     const time = now()
-    if (pending && time - pending.queuedAt > 20000) pending = null
     if (!current || (!current.immediate && !speaking)) return 0
     // Monotonic wall elapsed, independent of Pixi/JPEG FPS. If a frame takes
     // 200 ms, due gestures are processed once, in chronological order.
