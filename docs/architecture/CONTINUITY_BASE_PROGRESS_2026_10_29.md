@@ -1,5 +1,15 @@
 # 统一人物连续性 · 基础闭环专项进度
 
+## 2026-10-30 · P1/P4：当天撤回决定和日程拒绝不能等隔天才出现在诊断页
+
+- **四类基线**：居民来源撤回/编辑后的禁行、逐项日程拒绝及历史跨日查询属于已有源码；[Lulu APK #40977895938](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938) 于 2026-10-30 08:09（北京时间）后已完成 success，证明此前 main 的 JVM/phone APK/发布可通过，不等于本轮源码已经测试。当天被撤回的决定和被拒绝的日程属于真实诊断缺口；长期多年性能/真机是待验而非新模块。
+- **真实根因**：`ResidentDailyDecision.historicalAttempts` 对每日和到点请求均无条件过滤“不是昨天或更早”的记录；但 `dayRecovery/dueRecovery` 不接纳 `source_unavailable`，今日 `finished_with_agenda_rejections` 也不属于可恢复的付费请求。因此同一天主人撤回来源或居民部分日程被拒绝后，原持久状态/错误仍在 prefs，却无法从居民日程的历史诊断入口看到；要等次日才出现，容易被误以为未执行记录丢失。
+- **正式修复**：只在原 `ResidentDailyDecision.historicalAttempts` 的本人只读投影允许**当天**的 `source_unavailable` 与 `finished_with_agenda_rejections` 进入记录；未完成的 `requesting/uncertain/invalid_output` 等仍沿今日现有恢复控制、隔天才进入历史，未来日期一律排除。到点请求继续必须验证原 `due-origin` 本人/计划/原时刻，旧版仅凭现存本人日程确认，不因展示而重发。现有 `ResidentDecisionRecoveryControl` 文案说明记录包含当天已终止决定。没有新增 Store、模型轮次、自动唤醒或执行许可。
+- **根因级回归**：`ResidentDailyContinuityTest.sameDaySettledResidentFailuresAreVisibleWithoutRetryOrCrossRoleLeak` 验证当天每日来源失效、当天被拒绝日程、原日程已移除的当天到点来源失效均可见；当天结果未知仍归现有恢复入口、未来键不泄漏、其他居民不可见、跨日仍可追踪、只读不修改 prefs。
+- **main 源码提交**：[`88cb1f34`](https://github.com/jiacimu-droid/lulu1/commit/88cb1f34e6122eaa1d71a9c1bd4d96cd7b91c215)；回归 [`2ef3c0ed`](https://github.com/jiacimu-droid/lulu1/commit/2ef3c0ed4a35cf31c1d1cbc4dd95a78135c13b2b)、[`6e3185e7`](https://github.com/jiacimu-droid/lulu1/commit/6e3185e7e718adaf0db1c4655dc84a6b22c8fbb4)；诊断文案 [`9bdb4f07`](https://github.com/jiacimu-droid/lulu1/commit/9bdb4f0717d0da8a21094b653edf3e75d6cb1439)。只改本专项居民决策器、对应回归和原诊断文案；不覆盖社交/内驱/Live2D 文件。
+- **分层验证**：截至 2026-10-30 08:55（北京时间），本轮末次回归提交的 [Refresh code index #40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) 为 queued；[Lulu APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 为 queued，**尚无本轮 JVM/assemblePhone/APK 成功证据**。先前并发提交的工作流被取消不能当成功；自动索引需等原工作流实际完成，不能手写索引冒充生成。真机当天撤回→诊断刷新、删除到点计划、强杀恢复与多年历史量未验。
+
+
 本文件只记录 P0-A/P0-B/P1/P4 基础执行恢复、来源版本、跨入口回执诊断和长期数据生命周期的增量工作。总约束仍见 [CONTINUITY_EXECUTION_PLAN_2026_10_28.md](CONTINUITY_EXECUTION_PLAN_2026_10_28.md)。不覆盖社交、内驱想法和 Live2D 专项进度。源码已提交、CI 成功、APK 构建成功、真机通过是四种独立证据。
 
 ## 2026-10-30 · P0-A 日计划先存来源、再排程的撤回并发边界
