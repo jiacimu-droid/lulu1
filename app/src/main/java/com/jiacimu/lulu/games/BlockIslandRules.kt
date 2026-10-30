@@ -146,6 +146,40 @@ internal object BlockIslandRules {
         return structure !in setOf("workbench", "campfire", "bed")
     }
 
+    private fun buildingCost(action: String): Pair<Int, Int>? = when (action) {
+        "wall", "door" -> 2 to 0
+        "floor" -> 1 to 0
+        "workbench" -> 4 to 2
+        "campfire" -> 2 to 1
+        "bed" -> 3 to 1
+        "bridge" -> 3 to 0
+        else -> null
+    }
+
+    /** Same placement policy for the rule engine and the visible building HUD. */
+    fun canPlaceBuilding(s: BlockIslandState, action: String, x: Int, y: Int): Boolean {
+        val w = s.world
+        if (buildingCost(action) == null || w.finished || !w.inBounds(x, y)) return false
+        val cell = w.cell(x, y)
+        if (abs(w.x - x) + abs(w.y - y) > 1 ||
+            (x == w.x && y == w.y) ||
+            (action == "floor" && cell == 4) ||
+            w.friends.any { it.hp > 0 && it.x == x && it.y == y } ||
+            w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
+            (if (action == "bridge") cell != 8 ||
+                x == 0 || y == 0 || x == w.width - 1 || y == w.height - 1
+            else cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
+            w.index(x, y) in s.structures
+        ) return false
+        return true
+    }
+
+    fun canBuild(s: BlockIslandState, action: String, x: Int, y: Int): Boolean {
+        val (wood, stone) = buildingCost(action) ?: return false
+        return canPlaceBuilding(s, action, x, y) &&
+            s.world.wood >= wood && s.world.stone >= stone
+    }
+
     fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y,
         autonomousIds: Set<String> = emptySet()): BlockIslandState {
         val w = s.world
@@ -179,22 +213,9 @@ internal object BlockIslandRules {
                 else "开采矿石 +$amount"
             }
             "wall", "floor", "door", "workbench", "campfire", "bed", "bridge" -> {
-                if (!near() || (tx == w.x && ty == w.y) ||
-                    action == "floor" && cell == 4 ||
-                    w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } || mob != null ||
-                    (if (action == "bridge") cell != 8 ||
-                        tx == 0 || ty == 0 || tx == w.width - 1 || ty == w.height - 1
-                    else cell !in setOf(0, 4) && !(action == "door" && cell == 3)) ||
-                    index in s.structures) return reject("这里无法放置，靠近空地后再试")
-                val (woodCost, stoneCost) = when (action) {
-                    "wall" -> 2 to 0
-                    "floor" -> 1 to 0
-                    "door" -> 2 to 0
-                    "workbench" -> 4 to 2
-                    "bed" -> 3 to 1
-                    "bridge" -> 3 to 0
-                    else -> 2 to 1
-                }
+                if (!canPlaceBuilding(s, action, tx, ty))
+                    return reject("这里无法放置，靠近空地后再试")
+                val (woodCost, stoneCost) = checkNotNull(buildingCost(action))
                 if (w.wood < woodCost || w.stone < stoneCost)
                     return reject("材料不足：需要木材$woodCost、石料$stoneCost")
                 val newTile = when (action) {
