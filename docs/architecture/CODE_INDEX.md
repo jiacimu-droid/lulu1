@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`acbc4130bcd6efb4e2fbd9857ea992f6d09c1496`
+- 基准提交：`01edcf3589a9321e48055ea2246fe78c6a192e35`
 - 分支：`main`
 - 已索引文件：1120
-- 已索引代码/文本行：231131
+- 已索引代码/文本行：231134
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -180,7 +180,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 519 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 522 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
