@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f847321b9994e3ed2fc92ed98c84f2fb38a5ed5e`
-- 分支：`main`
-- 已索引文件：1101
-- 已索引代码/文本行：227920
-- 已发现符号：3221
+- 基准提交：`local`
+- 分支：`local`
+- 已索引文件：1103
+- 已索引代码/文本行：228075
+- 已发现符号：3223
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -247,7 +247,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 161 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1018 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 64 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 651 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 662 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -476,7 +476,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1128 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 540 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 548 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 146 | 6 |
@@ -525,7 +526,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 156 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3005 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3019 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1109 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
@@ -559,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 246 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 251 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 116 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 95 | 5 |
@@ -730,7 +731,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 72 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2174 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2182 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
@@ -973,6 +974,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
@@ -1004,7 +1006,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |

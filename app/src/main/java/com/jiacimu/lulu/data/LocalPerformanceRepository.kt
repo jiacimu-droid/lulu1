@@ -198,6 +198,14 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         }
     }
 
+    /** Uses the existing persisted timing stream; no second diagnostic store. */
+    suspend fun recordTiming(stage: String, durationMillis: Long, detail: String) {
+        val timing = PerformanceTimingRecord(stage = stage,
+            durationMillis = durationMillis.coerceAtLeast(0L), detail = detail)
+        update { current -> current.copy(timings =
+            (listOf(timing) + current.timings).take(TIMING_RECORD_LIMIT)) }
+    }
+
     suspend fun recordGeneration(
         source: String,
         title: String,
@@ -275,7 +283,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             PerformanceTimingRecord(
                 stage = "模型请求",
                 durationMillis = modelMillis.coerceAtLeast(0L),
-                detail = model,
+                detail = "$source · $title · $model",
             ),
             PerformanceTimingRecord(
                 stage = "总耗时",

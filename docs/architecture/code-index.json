@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:11:24.266902+00:00",
-  "commit": "f847321b9994e3ed2fc92ed98c84f2fb38a5ed5e",
-  "branch": "main",
-  "sourceFingerprint": "4defa329ab9e136d18654bc9a7302aab1de363787acd748ed15e5a1ff7d9ea31",
+  "generatedAt": "2026-10-30T03:11:59.435392+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "f1b4d9fd7dd13e1064250192b7f558f7dda638702728634be1526bafb23356d3",
   "summary": {
-    "files": 1101,
-    "lines": 227920,
-    "symbols": 3221
+    "files": 1103,
+    "lines": 228075,
+    "symbols": 3223
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3677,7 +3677,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 625
+        "line": 636
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -9427,7 +9427,13 @@
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 312
+        "line": 320
+      }
+    ],
+    "Key": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt",
+        "line": 10
       }
     ],
     "LuluAppPreferences": [
@@ -10851,19 +10857,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 592
+        "line": 597
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 594
+        "line": 599
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2938
+        "line": 2952
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16746,6 +16752,12 @@
         "line": 19
       }
     ],
+    "LocationAddressCacheTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt",
+        "line": 5
+      }
+    ],
     "LuluAppearanceLibraryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
@@ -21377,12 +21389,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 651,
-      "sha256": "05e2504e4eaf3e50613adcfa54b618a0bb9bac53e2bb0d30ff5e29d8152a9689",
+      "lines": 662,
+      "sha256": "97feab6000f593acfd939f6858acc2ab1f621c8fd207bd36004fbdf15d7c362a",
       "symbols": [
         {
           "name": "render",
-          "line": 625
+          "line": 636
         }
       ]
     },
@@ -26995,8 +27007,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 540,
-      "sha256": "67edfb18a8235313492c79b02d5c0916149fc1acfa93a091e6d61335fcd5b5ef",
+      "lines": 548,
+      "sha256": "6fec7bdd9d3341b1202eb49773908749bf55e798b169f5aa88a3dc4e329cb07f",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -27040,7 +27052,18 @@
         },
         {
           "name": "updateDurations",
-          "line": 312
+          "line": 320
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt",
+      "lines": 41,
+      "sha256": "2139ba0f90db80b90506f4d96229d220289a723a0bc7e2006d7e040c0cfbfb0c",
+      "symbols": [
+        {
+          "name": "Key",
+          "line": 10
         }
       ]
     },
@@ -28581,8 +28604,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3005,
-      "sha256": "79af3ba9e15a69e242dbf8d847ba7e7de50360450fc52ec6310978367ea5deec",
+      "lines": 3019,
+      "sha256": "cf65928ab29bfc651eef61dd157afb981bd0061d85ceb228a438fe17d9748e00",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28606,15 +28629,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 592
+          "line": 597
         },
         {
           "name": "deferSupersededDecision",
-          "line": 594
+          "line": 599
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2938
+          "line": 2952
         }
       ]
     },
@@ -29682,8 +29705,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 246,
-      "sha256": "7b2c2b0482becd2c797a875197c36812d0fa2d27eeb41f19c9bee8e2d4188584",
+      "lines": 251,
+      "sha256": "cf4d5743912e3d8b9af474feb4efa0ab056718f930d28517dc280de3861ee413",
       "symbols": [
         {
           "name": "age",
@@ -33283,8 +33306,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2174,
-      "sha256": "1137591bf2c4d6c094bd8a629d82da48b5122d7312f13c7b7856da66d24a3bf4",
+      "lines": 2182,
+      "sha256": "b830e0aafc3fc1ea0ba49113e0a7fe42aa32d1a9a121fb941fdb6d49f51c2b2b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36508,6 +36531,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt",
+      "lines": 50,
+      "sha256": "05c42e373ea3b9f54b83ab25bf4b30f317cc6328b4e61ec327ef1f586dc9088a",
+      "symbols": [
+        {
+          "name": "LocationAddressCacheTest",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
       "lines": 81,
       "sha256": "67169c5d05b8e75407e70f3b2443e4f2f175d86df1052f739af43b1974f12477",
@@ -36994,8 +37028,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 84,
-      "sha256": "c8688191edbce55388964fd27255e65e27c4799ba1b78e39fbce8b932b75a961",
+      "lines": 102,
+      "sha256": "f8dd0092b68dee5fb864a0a24bbdc6591a3050cc1d99b9de2c2888223061e62d",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",

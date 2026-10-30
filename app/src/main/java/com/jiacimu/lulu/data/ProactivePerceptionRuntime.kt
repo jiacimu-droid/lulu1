@@ -210,8 +210,12 @@ object ProactivePerceptionRuntime {
             }
             return total
         }
+        val queuedAtNanos = System.nanoTime()
         return cycleMutex.withLock(targetCharacterId) {
             currentCoroutineContext().ensureActive()
+            LuluRepositories.performance.recordTiming("角色执行队列",
+                (System.nanoTime() - queuedAtNanos) / 1_000_000L,
+                "角色=$targetCharacterId；批次=${onlineRevision ?: "自主"}")
             // The live expiry coroutine and the durable worker race safely:
             // exactly one owns the *actual* online deadline. New chat wakes win.
             if (onlineExpiryAtMillis > 0L &&
@@ -584,6 +588,7 @@ object ProactivePerceptionRuntime {
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
     ): Action {
+        val preparationStartedNanos = System.nanoTime()
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
         // The generation may take seconds. Any NEW user bubble can open a newer
@@ -720,7 +725,9 @@ object ProactivePerceptionRuntime {
         val salientInteraction = observedWorld.firstOrNull { event ->
             event.id == requiredInteractionEvidenceId && CharacterCausalAppraisalStage.eligible(event)
         } ?: CharacterCausalAppraisalStage.latestPending(observedWorld)
-        val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
+        // Normal perception uses timestamped system observations. A fresh GPS fix
+        // belongs to the explicit location tool, not every incoming chat bubble.
+        val deviceContext = UserDevicePerception.context(appContext, characterId, now)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
@@ -766,6 +773,9 @@ object ProactivePerceptionRuntime {
         val unreadPhotos = com.jiacimu.lulu.QqChatImageModelInput.prepare(
             appContext, characterId, onlineUnread.imageEvidenceIds,
         )
+        LuluRepositories.performance.recordTiming("感知现场准备",
+            (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
+            "角色=$characterId；批次=${onlineRevision ?: "自主"}")
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -1107,6 +1117,7 @@ object ProactivePerceptionRuntime {
             )
             throw error
         }
+        val firstModelCompletedNanos = System.nanoTime()
         currentCoroutineContext().ensureActive()
         if (batchSuperseded()) return deferSupersededDecision()
         // A manual reply or another worker may have delivered an answer while
@@ -2137,6 +2148,9 @@ object ProactivePerceptionRuntime {
             executionHasPrimary = decision.action != Action.SILENT,
             executionState = "pending",
         )
+        LuluRepositories.performance.recordTiming("决策返回到动作交接",
+            (System.nanoTime() - firstModelCompletedNanos) / 1_000_000L,
+            "角色=$characterId；批次=${onlineRevision ?: "自主"}")
         val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
             performAction(
                 appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,

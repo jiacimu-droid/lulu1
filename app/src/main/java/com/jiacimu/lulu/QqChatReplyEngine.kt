@@ -350,6 +350,17 @@ internal suspend fun appendRoleReplyWithPacing(
             stale = true
             return@forEachIndexed
         }
+        if (spoken.isEmpty()) {
+            // Wall-clock span from the latest real user source to the first
+            // persisted visible bubble, including batch wait, queue and models.
+            // This is message availability, not a claim of screen-render timing.
+            before.filter { it.id in allowed && it.sender == LuluChatMessage.Sender.User }
+                .maxByOrNull { it.createdAt }?.let { source ->
+                    LuluRepositories.performance.recordTiming("消息到首条回复入库",
+                        java.time.Duration.between(source.createdAt, created.createdAt).toMillis(),
+                        "会话=$conversationId；用户消息=${source.id}；回复=${created.id}")
+                }
+        }
         // Only actual delivered bubbles influence the character's future
         // expression style. A mere planner selection is not a real message.
         if (presentation.recallBubbleNumber != index + 1) {

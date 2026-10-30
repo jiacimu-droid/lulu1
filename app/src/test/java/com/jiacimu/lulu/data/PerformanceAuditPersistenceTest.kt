@@ -58,6 +58,24 @@ class PerformanceAuditPersistenceTest {
         assertEquals(1, saved.breakdown.size)
     }
 
+    @Test fun conversationStagesPersistWithoutBeingCountedAsAnotherModelCall() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val first = LocalPerformanceRepository(app)
+        first.clearTimings()
+        first.clearConsole()
+        val countBefore = first.usageRecords.first().size
+        first.recordTiming("角色执行队列", 120_000, "角色=test；批次=7")
+        first.recordTiming("消息到首条回复入库", 248_000, "会话=test；用户消息=user-7；回复=reply-7")
+        val reloaded = LocalPerformanceRepository(app)
+        assertEquals(countBefore, reloaded.usageRecords.first().size)
+        assertTrue(reloaded.consoleRecords.first().isEmpty())
+        val timings = reloaded.timingRecords.first()
+        assertEquals(248_000L, timings.first().durationMillis)
+        assertEquals("消息到首条回复入库", timings.first().stage)
+        assertEquals(120_000L, timings.last().durationMillis)
+        assertEquals("角色=test；批次=7", timings.last().detail)
+    }
+
     @Test fun oldStyleUsageDefaultsToUnauditedWithoutFakeCoverage() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val repository = LocalPerformanceRepository(app)

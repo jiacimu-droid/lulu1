@@ -163,6 +163,7 @@ object LuluDeviceToolBridge {
         onLive2DAction: ((JSONObject) -> Unit)? = null,
         onLive2DStatus: ((String) -> Unit)? = null,
     ): Result<ModelReply> {
+        val preparationStartedNanos = System.nanoTime()
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
@@ -472,6 +473,9 @@ object LuluDeviceToolBridge {
                 userRequested = true, causeEvidenceId = groundingEvidenceId,
             )
         }
+        com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
+            (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
+            "角色=$characterId；会话=$currentSessionId")
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -673,6 +677,7 @@ object LuluDeviceToolBridge {
         currentCoroutineContext().ensureActive()
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
+        val plannerCompletedNanos = System.nanoTime()
         val firstParsedPlan = parsePlan(plannedReply.text)
         // Same character/planner architecture; a malformed first JSON envelope gets
         // one bounded planner retry, not a separate personality-free response path.
@@ -1378,6 +1383,9 @@ object LuluDeviceToolBridge {
                         plannedSideActions?.optJSONObject(index)?.optString("tool")
                             ?.takeIf(String::isNotBlank)
                     }.distinct().joinToString(", ").ifBlank { "无" }
+                com.jiacimu.lulu.LuluRepositories.performance.recordTiming("规划到表达交接",
+                    (System.nanoTime() - plannerCompletedNanos) / 1_000_000L,
+                    "角色=$characterId；会话=$currentSessionId；随后另有一次表达模型请求")
                 val generated = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {

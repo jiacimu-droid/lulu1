@@ -202,16 +202,21 @@ internal object UserDevicePerception {
         val location = runCatching { if (refresh) LuluLocationProvider.freshLocation(context) else LuluLocationProvider.bestSystemLocation(context) }.getOrNull()
             ?: return "暂时没有新位置"
         val ageMinutes = (System.currentTimeMillis() - location.time).coerceAtLeast(0L) / 60_000L
-        val readable = runCatching {
-            if (!Geocoder.isPresent()) return@runCatching ""
-            Geocoder(context, Locale.getDefault())
+        // Cached coordinates are an observation, not a reason to wait for a
+        // network geocoder before every conversational model call.
+        val locale = Locale.getDefault()
+        val readable = LocationAddressCache.shared.peekOrRefresh(
+            LocationAddressCache.Key(location.latitude, location.longitude, locale.toLanguageTag()),
+        ) {
+            if (!Geocoder.isPresent()) return@peekOrRefresh ""
+            Geocoder(context.applicationContext, locale)
                 .getFromLocation(location.latitude, location.longitude, 1)
                 ?.firstOrNull()
                 ?.let { address ->
                     listOfNotNull(address.subLocality, address.locality, address.adminArea, address.countryName)
                         .map(String::trim).filter(String::isNotBlank).distinct().joinToString("，")
                 }.orEmpty()
-        }.getOrDefault("")
+        }
         return "${readable.ifBlank { "仅获得坐标，未获得可靠行政区地址" }}；精度约${location.accuracy.toInt()}米；数据约${ageMinutes}分钟前"
     }
 
