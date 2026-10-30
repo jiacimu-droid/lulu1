@@ -42,10 +42,27 @@ class LuluStudyWatchTest {
         prefs.edit().putString("study_watch_active", JSONObject()
             .put("id", "consented").put("characterId", "role-1")
             .put("startedAt", now - 1_000).put("endsAt", now + 600_000).toString()).commit()
+        // Persisted approval alone cannot prove current Android screenshot access.
         assertTrue(LuluStudyWatch.decisionStatus(context, "role-1", now)
-            .startsWith("已获准监督"))
+            .startsWith("监督已中断"))
+        assertFalse(LuluStudyWatch.canObserve(context, "role-1", "consented"))
         assertFalse(LuluStudyWatch.decisionStatus(context, "role-2", now)
-            .startsWith("已获准监督"))
+            .startsWith("监督会话已启动"))
+    }
+
+    @Test fun permissionRevocationOverridesPersistedApprovedSession() {
+        val now = System.currentTimeMillis()
+        val entry = JSONObject().put("id", "old-approved").put("characterId", "role-a")
+            .put("startedAt", now - 1_000).put("endsAt", now + 1_800_000)
+        prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true)
+            .putBoolean(LuluScreenAwareness.AUTONOMOUS, false)
+            .putString("study_watch_active", entry.toString()).commit()
+        assertNotNull(LuluStudyWatch.active(context, "role-a", now))
+        assertFalse(LuluStudyWatch.canObserve(context, "role-a", "old-approved"))
+        assertTrue(LuluStudyWatch.decisionStatus(context, "role-a", now)
+            .contains("角色自主屏幕视觉尚未授权"))
+        assertFalse(LuluStudyWatch.context(context, "role-a", Instant.ofEpochMilli(now))
+            .contains("主人已同意本次监督"))
     }
 
     @Test fun approvedSessionMustMatchRoleAndExpiresWithoutExtension() {
@@ -159,7 +176,11 @@ class LuluStudyWatchTest {
             .putString("study_watch_latest", JSONObject().put("sessionId", "study-time")
                 .put("at", now.toEpochMilli()).put("success", true)
                 .put("summary", "真的读到了学习资料").toString()).commit()
-        assertTrue(LuluStudyWatch.context(context, "role-a", now).contains("真的读到了学习资料"))
+        // A fabricated saved session plus old frame does not prove supervision
+        // is still functioning when live permissions and Accessibility are missing.
+        val actual = LuluStudyWatch.context(context, "role-a", now)
+        assertTrue(actual.contains("学习监督已中断"))
+        assertFalse(actual.contains("真的读到了学习资料"))
         assertTrue(LuluStudyWatch.context(context, "role-b", now).isBlank())
         assertFalse(LuluStudyWatch.context(context, "role-a", now.plusSeconds(2_000))
             .contains("真的读到了学习资料"))
