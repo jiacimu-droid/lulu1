@@ -138,6 +138,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
 
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
+        toolsLabel = "背包 / 建造",
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
             if (night) "☾ 夜晚" else "☀ 白天",
