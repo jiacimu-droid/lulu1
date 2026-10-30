@@ -926,7 +926,7 @@ object ProactivePerceptionRuntime {
                 if (duePlans.isNotBlank()) {
                     appendLine("【自己先前真正安排、现在待处理的日程】")
                     appendLine(duePlans)
-                    appendLine("对待办只能选：①实际执行并在本次动作 args.planId 传入准确 ID（需成功的真实回执）；② action=tool,tool=reschedule_personal_activity,args={planId,dueAt,reason}；③ action=tool,tool=cancel_personal_activity,args={planId,reason}。允许没想好暂时留着。说一句做完了不会自动结案。")
+                    appendLine("对待办可以选：①实际执行并在本次动作 args.planId 传入准确 ID（需成功的真实回执）；② action=tool,tool=reschedule_personal_activity,args={planId,dueAt,reason}；③ action=tool,tool=cancel_personal_activity,args={planId,reason}。如果暂时不打扰，也可以本人选择合适时刻用现有工具安排后续复查；有未完成的正式承诺时不能仅凭安静或唤醒成功就宣称履约。跨天失约是事实，不能当作刚到点自动重发。")
                 }
                 WorldLifeEpisodeStore.initialize(appContext)
                 // Music is a REAL device action, not an imagined soundtrack
