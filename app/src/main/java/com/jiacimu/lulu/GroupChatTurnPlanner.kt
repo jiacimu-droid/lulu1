@@ -55,7 +55,9 @@ internal object GroupChatTurnPlanner {
     fun decode(raw: String, allowedIds: List<String>, limit: Int): List<String>? =
         decodePlan(raw, allowedIds, limit)?.beats?.map { it.speakerId }
 
-    fun decodePlan(raw: String, allowedIds: List<String>, limit: Int): GroupChatScenePlan? {
+    fun decodePlan(
+        raw: String, allowedIds: List<String>, limit: Int, allowUserTarget: Boolean = true,
+    ): GroupChatScenePlan? {
         val obj = ModelStructuredOutput.objectOrNull(raw) ?: return null
         val directed = obj.optJSONArray("beats")
         val legacy = obj.optJSONArray("speakerIds")
@@ -69,7 +71,7 @@ internal object GroupChatTurnPlanner {
             GroupChatSceneBeat(
                 speakerId = id,
                 targetId = candidate.optString("targetId").trim()
-                    .takeIf { it in allowed || it == "user" },
+                    .takeIf { it in allowed || (allowUserTarget && it == "user") },
                 focus = candidate.optString("focus").trim().replace("\n", " ").take(150),
                 direction = candidate.optString("direction").trim().replace("\n", " ").take(260),
             )
@@ -176,7 +178,7 @@ internal object GroupChatTurnPlanner {
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 30_000,
             ).getOrThrow().text
-            decodePlan(answer, allowed, limit) ?: fallback
+            decodePlan(answer, allowed, limit, group.ownerIncluded) ?: fallback
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
