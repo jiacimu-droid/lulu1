@@ -192,12 +192,13 @@ internal fun GameDirectionalPad(
     accent: Color,
     enabled: Boolean = true,
     holdRepeatMs: Long = 340L,
+    stopWhen: Any? = null,
     onStep: (dx: Int, dy: Int) -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        GameDirectionKey("↑", "向上移动", accent, enabled, holdRepeatMs) { onStep(0, -1) }
+        GameDirectionKey("↑", "向上移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(0, -1) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            GameDirectionKey("←", "向左移动", accent, enabled, holdRepeatMs) { onStep(-1, 0) }
+            GameDirectionKey("←", "向左移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(-1, 0) }
             Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
                 Surface(
                     modifier = Modifier.size(26.dp),
@@ -210,9 +211,9 @@ internal fun GameDirectionalPad(
                     }
                 }
             }
-            GameDirectionKey("→", "向右移动", accent, enabled, holdRepeatMs) { onStep(1, 0) }
+            GameDirectionKey("→", "向右移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(1, 0) }
         }
-        GameDirectionKey("↓", "向下移动", accent, enabled, holdRepeatMs) { onStep(0, 1) }
+        GameDirectionKey("↓", "向下移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(0, 1) }
     }
 }
 
@@ -223,6 +224,7 @@ private fun GameDirectionKey(
     accent: Color,
     enabled: Boolean,
     holdRepeatMs: Long,
+    stopWhen: Any?,
     action: () -> Unit,
 ) {
     val currentAction = rememberUpdatedState(action)
@@ -240,7 +242,7 @@ private fun GameDirectionKey(
                     disabled()
                 }
             }
-            .pointerInput(enabled, repeatMs) {
+            .pointerInput(enabled, repeatMs, stopWhen) {
                 if (!enabled) return@pointerInput
                 detectTapGestures(onPress = {
                     pressed = true
@@ -286,7 +288,7 @@ internal fun GameHudQuickAction(
 ) {
     Surface(
         onClick = onClick, enabled = enabled,
-        modifier = modifier.height(35.dp),
+        modifier = modifier.height(43.dp),
         color = if (enabled) Color(0xE21F3741) else Color(0xA516252C),
         shape = RoundedCornerShape(11.dp),
         border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) .64f else .16f)),
