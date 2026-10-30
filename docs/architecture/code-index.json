@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T17:22:16.266400+00:00",
-  "commit": "bd69a2f8530b2e30bcbd577e591741a1566b2775",
+  "generatedAt": "2026-10-30T17:37:11.117701+00:00",
+  "commit": "7d8eb5796c17f55e72c2e11fb4aaa030f22c102c",
   "branch": "main",
-  "sourceFingerprint": "5ae555590f5f0bd485d60820eeaa03b3f311597d9e73a2af1efc2dccbacfcaa4",
+  "sourceFingerprint": "80aba62990d6d1d49cbcf81f842aca358410bbe077c22dc9b6bd57690b51014c",
   "summary": {
     "files": 1120,
-    "lines": 231060,
-    "symbols": 3260
+    "lines": 231096,
+    "symbols": 3261
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1998,34 +1998,40 @@
         "line": 174
       }
     ],
-    "Part": [
+    "FollowUp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
         "line": 8
       }
     ],
+    "Part": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
+        "line": 9
+      }
+    ],
     "spokenText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "visual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 17
+        "line": 19
       }
     ],
     "parts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 21
+        "line": 23
       }
     ],
     "errors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 41
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt",
@@ -2035,13 +2041,13 @@
     "beats": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 48
+        "line": 74
       }
     ],
     "queuedParts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-        "line": 59
+        "line": 95
       }
     ],
     "Sample": [
@@ -19971,36 +19977,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt",
-      "lines": 62,
-      "sha256": "e502818b6b87ec3ca2abd2429ea7414fc4c4b3a6d2731eff9cf9a1d02937d1fd",
+      "lines": 98,
+      "sha256": "c4efe4cbf1bbd5a01632c7137af4f74da4787e43a994a61c378e45f343ff83f0",
       "symbols": [
         {
-          "name": "Part",
+          "name": "FollowUp",
           "line": 8
         },
         {
+          "name": "Part",
+          "line": 9
+        },
+        {
           "name": "spokenText",
-          "line": 12
+          "line": 14
         },
         {
           "name": "visual",
-          "line": 17
+          "line": 19
         },
         {
           "name": "parts",
-          "line": 21
+          "line": 23
         },
         {
           "name": "errors",
-          "line": 41
+          "line": 59
         },
         {
           "name": "beats",
-          "line": 48
+          "line": 74
         },
         {
           "name": "queuedParts",
-          "line": 59
+          "line": 95
         }
       ]
     },
