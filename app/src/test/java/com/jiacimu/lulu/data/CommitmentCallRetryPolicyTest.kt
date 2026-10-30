@@ -4,7 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CommitmentCallRetryPolicyTest {
-    @Test fun connectedCallWakeChecksEveryFiveMinutesButStopsRingingAfterThreeTries() {
+    @Test fun connectedCallWakeChecksEveryFiveMinutesButOnlyThreeDecisionRounds() {
         assertEquals(300L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(1))
         assertEquals(300L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(2))
         assertEquals(150L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(3))
@@ -12,6 +12,19 @@ class CommitmentCallRetryPolicyTest {
         val messageOnlyWake = CommitmentTask(characterId = "role",
             goal = "二十分钟后叫醒我", deliveryAction = "send_private_message")
         assertTrue(CommitmentCallRetryPolicy.isFinalCheck(messageOnlyWake, 4, false))
+    }
+
+    @Test fun doNotInterruptEarlierWakeVoiceWhileItIsStillPlaying() {
+        assertTrue(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+            "retry", true, thinking = false, speaking = true, opening = false))
+        assertTrue(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+            "retry", true, thinking = true, speaking = false, opening = false))
+        assertFalse(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+            "retry", true, thinking = false, speaking = false, opening = false))
+        assertFalse(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+            "verification", true, thinking = false, speaking = true, opening = false))
+        assertFalse(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
+            "retry", false, thinking = false, speaking = true, opening = false))
     }
 
     private val phoneWake = CommitmentTask(
