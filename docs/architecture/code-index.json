@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:03:57.153657+00:00",
-  "commit": "172b842a4c1b9b49a4e3862aa8096a94130c8812",
+  "generatedAt": "2026-10-30T11:04:14.148837+00:00",
+  "commit": "ad669efdc15c80eff05385017044a825190e8530",
   "branch": "main",
-  "sourceFingerprint": "652afd4de9c2fd09d3e2327a59f4a4143ad525ee9a7e6226ff20da27e405bc88",
+  "sourceFingerprint": "57501120643cacd2963e46c7e90dc94cf830ff70b64f657e55c708d5fccb7807",
   "summary": {
     "files": 1119,
-    "lines": 230285,
+    "lines": 230288,
     "symbols": 3256
   },
   "symbolIndex": {
@@ -25390,8 +25390,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 500,
-      "sha256": "52d0bba163a68ebcc893b0de5299b3fd217a8f86f497dd9471ecfe61c4c341ea",
+      "lines": 503,
+      "sha256": "2dcc2d9cd272f3e1b40859d7bd78001eb8c37cff77e136837fcdaf4820df8f55",
       "symbols": [
         {
           "name": "wakeSpeechContext",
