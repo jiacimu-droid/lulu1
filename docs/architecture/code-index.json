@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T17:47:59.704036+00:00",
-  "commit": "d99382e6cb09efe98795eddefcec6e117427f611",
+  "generatedAt": "2026-10-30T17:53:40.490768+00:00",
+  "commit": "3c38c22193a15b408bee427311df838d3bf6c88b",
   "branch": "main",
-  "sourceFingerprint": "48aa7c15afa5a1732899139164876e9ab305e89150cef2e0e9af2d50b98ff2e5",
+  "sourceFingerprint": "99bae44117dc911e656c9091fc9ac742bb3596a654c615ef7842b186a00901cd",
   "summary": {
     "files": 1120,
-    "lines": 231209,
+    "lines": 231220,
     "symbols": 3263
   },
   "symbolIndex": {
@@ -15279,7 +15279,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-        "line": 110
+        "line": 119
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
@@ -34431,8 +34431,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-      "lines": 164,
-      "sha256": "eda28e311ce05f24b323c7b7c0e8827d66ec91a9371d66bfa3e38a6bbc662052",
+      "lines": 175,
+      "sha256": "c40fa890b9f9425bbb88e224d5e448311269f38962b28bbf350a19b8bfa0d982",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
@@ -34440,7 +34440,7 @@
         },
         {
           "name": "event",
-          "line": 110
+          "line": 119
         }
       ]
     },
