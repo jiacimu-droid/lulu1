@@ -74,7 +74,7 @@ class CommitmentOutcomeVerificationTest {
 
     @Test fun evidenceCandidatesUseTheSameProvenanceGateAsVerification() {
         val action = event("executed", EventEvidenceKind.ToolResult, "tool-router")
-            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"start_call"}""")
+            .copy(content = """{"status":"succeeded","result":"{\"success\":true}","tool":"start_call"}""")
         val observation = event("observed", EventEvidenceKind.Observation, "screen-consent")
             .copy(content = "本人真实看到一帧屏幕，仍需判断是否与目标有关")
         val followUp = event("review", EventEvidenceKind.Observation, "commitment-follow-up")
@@ -107,7 +107,7 @@ class CommitmentOutcomeVerificationTest {
 
     @Test fun noQualifiedCandidateMustNotBeAdvertisedAsCompletionProof() {
         val action = event("only-action", EventEvidenceKind.ToolResult, "tool-router")
-            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"create_alarm"}""")
+            .copy(content = """{"status":"succeeded","result":"{\"success\":true}","tool":"create_alarm"}""")
         val shown = CommitmentOutcomeVerification.candidateContext(task, listOf(action))
         assertTrue(shown.contains("没有类型合格的结案候选"))
         assertFalse(shown.contains("id=only-action"))
