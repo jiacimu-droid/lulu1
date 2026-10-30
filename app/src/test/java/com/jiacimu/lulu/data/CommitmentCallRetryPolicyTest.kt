@@ -14,6 +14,13 @@ class CommitmentCallRetryPolicyTest {
         assertTrue(CommitmentCallRetryPolicy.isFinalCheck(messageOnlyWake, 4, false))
     }
 
+    @Test fun eachWakeStageSchedulesAnIndependentDecisionOrFinalReview() {
+        assertEquals("retry", CommitmentCallRetryPolicy.followUpKindForWakeRound(1, true))
+        assertEquals("retry", CommitmentCallRetryPolicy.followUpKindForWakeRound(2, true))
+        assertEquals("verification", CommitmentCallRetryPolicy.followUpKindForWakeRound(3, true))
+        assertEquals("", CommitmentCallRetryPolicy.followUpKindForWakeRound(1, false))
+    }
+
     @Test fun doNotInterruptEarlierWakeVoiceWhileItIsStillPlaying() {
         assertTrue(CommitmentCallRetryPolicy.shouldDeferInCallWakeDecision(
             "retry", true, thinking = false, speaking = true, opening = false))
