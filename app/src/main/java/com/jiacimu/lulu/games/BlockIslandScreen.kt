@@ -268,7 +268,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         Text("选中身边的空地，再选择建筑。拆除会返还部分材料。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            IslandBuildChip("♣ 种树", "1木", nearTarget) { perform("plant") }
+            IslandBuildChip("♣ 种树", "1木", world.wood > 0 &&
+                BlockIslandRules.canPlantAt(island, target.first, target.second)) { perform("plant") }
             IslandBuildChip("▤ 地板", "1木", BlockIslandRules.canBuild(island, "floor", target.first, target.second)) { perform("floor") }
             IslandBuildChip("▥ 木墙", "2木", BlockIslandRules.canBuild(island, "wall", target.first, target.second)) { perform("wall") }
             IslandBuildChip("▣ 木门", "2木", BlockIslandRules.canBuild(island, "door", target.first, target.second)) { perform("door") }
@@ -276,7 +277,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandBuildChip("♨ 篝火", "2木1石", BlockIslandRules.canBuild(island, "campfire", target.first, target.second)) { perform("campfire") }
             IslandBuildChip("▱ 木床", "3木1石", BlockIslandRules.canBuild(island, "bed", target.first, target.second)) { perform("bed") }
             IslandBuildChip("▦ 木桥", "3木", BlockIslandRules.canBuild(island, "bridge", target.first, target.second)) { perform("bridge") }
-            IslandBuildChip("↶ 拆除", "退部分材料", nearTarget) { perform("remove") }
+            IslandBuildChip("↶ 拆除", "退部分材料",
+                BlockIslandRules.canRemoveAt(island, target.first, target.second)) { perform("remove") }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("背包与工具", color = Color(0xFFF0FCF4), fontWeight = FontWeight.Bold,
