@@ -494,3 +494,11 @@
 - [x] **索引**：原 Refresh code index [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) completed/success；生成物已进入 main，未手工修改。
 - [ ] **Android JVM/APK 与真机**：本轮回归提交的 Lulu APK [#40968872681](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872681) 被并发提交取消；源码提交的 [#40968831378](https://github.com/jiacimu-droid/lulu1/actions/runs/40968831378) 最后核实时仍在运行且未进入 Android 测试。需要等待包含本轮代码的后继 main 构建完整通过，并真机验证 502/强杀/删除日程/跨人隔离。长期数据规模与旧版已删计划无归属的历史仍是明确边界。
 - **协作**：本轮仅基础连续性源码/回归及本专项进度，不修改社交、内驱或 Live2D 专项；详细记录见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
+
+
+## 2026-10-30 P1/P4 增量验收：当天已终止的居民决定历史诊断（源码已提交，CI/真机待验）
+
+- 基线复核：原来源版本/撤回门禁、日程拒绝回执、跨日 `historicalAttempts` 和本人到点请求来源持久化均已有正式实现，不重复开发。最新已完整成功的先前主线构建为 [Lulu APK #40977895938](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938)（`fa116576`）；本轮不借其证明新增回归通过。
+- 真实缺口：今日 `source_unavailable`（每日/到点）和 `finished_with_agenda_rejections` 在旧历史投影被“必须早于今日”的筛选漏掉，又没有对应可重试控制；原始失败事实当日不可见，次日才出现。改为当天只读展示这些终止/拒绝事实；其他进行中或计费未知请求仍走原今日恢复入口，未来键、异人归属及旧日程权限边界不变。
+- 源码提交 `88cb1f34`、`9bdb4f07`；回归提交 `2ef3c0ed`、`6e3185e7`。用原 `ResidentDailyContinuityTest` 覆盖今日每日撤回、今日到点撤回且原计划已移除、今日日程拒绝、今日未知计费仍单独恢复、未来/异人不可见、跨日只读无副作用。只改本专项文件与现有诊断文案，不增加模型调用或独立状态中心。
+- 2026-10-30 08:55（北京时间）对应 [索引 #40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) 与 [Android/APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 尚在队列，**源码/回归已提交不等于自动测试或 APK 通过**；索引由原工作流生成，不手工改生成物。真机当天撤回后页面刷新、强杀、删除计划及多年数据性能仍待验；细节与后续状态见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
