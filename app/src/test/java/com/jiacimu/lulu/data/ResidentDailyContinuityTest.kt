@@ -2632,6 +2632,7 @@ class ResidentDailyContinuityTest {
                 createdAt = now.minusSeconds(86_400)))
         val revoked = citizen("今日来源撤回")
         val rejected = citizen("今日日程拒绝")
+        val uncertain = citizen("今日请求未知")
         ResidentCharacterBridge.sync(app, now)
         val actor = ResidentCharacterBridge.characterId(revoked.id)
         val dueAt = now.minusSeconds(3_600)
@@ -2645,6 +2646,8 @@ class ResidentDailyContinuityTest {
             .putString("phase:${rejected.id}:$today", "finished_with_agenda_rejections")
             .putString("decision:${rejected.id}:$today", JSONObject().put("agenda", JSONArray()).toString())
             .putString("last-error:${rejected.id}:$today", "第2项因权限未排入")
+            .putString("attempt:${uncertain.id}", today.toString())
+            .putString("phase:${uncertain.id}:$today", "uncertain")
             .putString("due-phase:$key", "source_unavailable")
             .putString("due-last-error:$key", "到点决定已撤回")
             .putString("due-origin:$key", JSONObject()
@@ -2669,6 +2672,9 @@ class ResidentDailyContinuityTest {
             now.minusSeconds(86_400)).isEmpty())
         // A same-day unknown charge stays with the existing recovery control,
         // and a future key must never be projected into today's history.
+        assertTrue(ResidentDailyDecision.historicalAttempts(app, uncertain.id, now).isEmpty())
+        assertEquals("uncertain", ResidentDailyDecision.dayRecovery(
+            app, uncertain.id, now)?.phase)
         assertFalse(revokedHistory.any { it.phase == "uncertain" })
         assertNull(ResidentDailyDecision.dayRecovery(app, revoked.id, now))
         assertEquals(2, ResidentDailyDecision.historicalAttempts(
