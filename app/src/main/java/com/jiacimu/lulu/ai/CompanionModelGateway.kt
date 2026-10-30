@@ -950,11 +950,20 @@ class CompanionModelGateway(
                         val advice = when {
                             error is ModelHttpException && error.status in setOf(400, 422) ->
                                 "；请求被明确拒绝，原样重试不会修复参数或输入问题"
+                            error is ModelLocalRouteUnavailableException ->
+                                "；本机端口未启动，请检查本机代理或本机模型接口；本轮请求未发送"
+                            error is java.net.SocketTimeoutException &&
+                                error.message.orEmpty().contains("connect", ignoreCase = true) ->
+                                "；连接阶段超时，服务端生成结果未知，客户端没有自动重发"
                             error is java.net.SocketTimeoutException ->
                                 "；网络读取超时，服务端生成结果未知，客户端没有自动重发"
+                            error is java.io.IOException ->
+                                "；网络连接中断，服务端生成结果未知，客户端没有自动重发"
                             else -> ""
                         }
-                        " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes$advice]"
+                        val route = if (error is java.io.IOException)
+                            requestUrl?.let(ModelLocalRouteHealth::transportHint).orEmpty() else ""
+                        " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes$advice$route]"
                     } else "",
                 requestUrl = requestUrl,
                 durationMillis = elapsedMillis(totalStartedAt),
@@ -1107,6 +1116,7 @@ class CompanionModelGateway(
         body: JSONObject,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): JSONObject {
+        ModelLocalRouteHealth.probeBeforePost(url)
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
             connection.requestMethod = "POST"
@@ -1129,6 +1139,7 @@ class CompanionModelGateway(
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
     ): ModelReply {
+        ModelLocalRouteHealth.probeBeforePost(url)
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
             connection.requestMethod = "POST"
