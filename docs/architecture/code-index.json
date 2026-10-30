@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T16:46:00.487090+00:00",
-  "commit": "4e9646ea8978c92bdea1059628c88aa05cae986c",
+  "generatedAt": "2026-10-30T16:46:19.923779+00:00",
+  "commit": "7a45ea13d997a9232faaca97d0e37e54f4499085",
   "branch": "main",
-  "sourceFingerprint": "762e86e8279e35e87fb762af76ea2d923d4e7c86900e8d9db6142f1203e1fc97",
+  "sourceFingerprint": "e7c4d1c6da03fad615305f4eced02645ecee29108239e6133d01ee4a70eb9f68",
   "summary": {
     "files": 1120,
-    "lines": 230546,
+    "lines": 230551,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -7205,37 +7205,37 @@
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 41
+        "line": 46
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 69
+        "line": 74
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 79
+        "line": 84
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 164
+        "line": 169
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 169
+        "line": 174
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 173
+        "line": 178
       }
     ],
     "offer": [
@@ -24801,8 +24801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 177,
-      "sha256": "09144597c5ce2ee700e3e400efc97f7259f5ea3af816601add75999aa36d3918",
+      "lines": 182,
+      "sha256": "f9a28476d3db3f1f99c3b2f16996cef6d6b3bc12bbe05c7f083375024279965d",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -24826,27 +24826,27 @@
         },
         {
           "name": "definitionChanges",
-          "line": 41
+          "line": 46
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 69
+          "line": 74
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 79
+          "line": 84
         },
         {
           "name": "learningContext",
-          "line": 164
-        },
-        {
-          "name": "leanExpressionContext",
           "line": 169
         },
         {
+          "name": "leanExpressionContext",
+          "line": 174
+        },
+        {
           "name": "developmentContext",
-          "line": 173
+          "line": 178
         }
       ]
     },
