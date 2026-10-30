@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T13:19:01.121689+00:00",
-  "commit": "fb7b2e1c4238bc0b654d9e67f16e75a2af7ac276",
+  "generatedAt": "2026-10-30T13:19:23.763627+00:00",
+  "commit": "794801c56923368d38430c8f1f798454f2bf271d",
   "branch": "main",
-  "sourceFingerprint": "8d428b76cd26eff72c0810221de4faa7bbf58707b473a9292c76456d54aba03f",
+  "sourceFingerprint": "5eb32b35f66bb18ed40c9fb4dc2c3eac79624ab3060c54c56e2e6bafe8ed0342",
   "summary": {
     "files": 1120,
-    "lines": 230452,
+    "lines": 230468,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -38234,8 +38234,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
-      "lines": 109,
-      "sha256": "b735950d525d6d3f6fad7cb378e281c8862f39738902c728a9c96873f663f9bb",
+      "lines": 125,
+      "sha256": "5f7cf8844195e5855042c6c2ab560b8f1ec02c25bf273712c7259dd2040b7c2f",
       "symbols": [
         {
           "name": "WakeActionPlannerTest",
