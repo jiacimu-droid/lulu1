@@ -515,3 +515,5 @@
 - [ ] **仍待验证**：包含最终测试提交的 Android JVM 全套、phone APK/发布、真机真实发布与旧日程详情、进程强杀/撤回以及多年历史性能。前一个主线 [APK #40993494707](https://github.com/jiacimu-droid/lulu1/actions/runs/40993494707) 的实际失败属于并行内驱 `CharacterCuriosityRuntimeTest`，不越界修改；失败/取消/排队不能当作本轮成功。
 
 - **同轮补强**：已编辑的工具成功回执（revision>1）因原日程未保存完成时的回执 revision，不能据当前文字证明旧执行；诊断保守标未核对，旧事实保留。源码 `91e76e87`、可空类型修正 `961ef332`、新增版本编辑回归 `23ef7045`；最终 JVM/phone APK 仍以最新包含测试的工作流为准，不以旧成功或排队替代。
+
+- **本轮 CI 实际结论（2026-10-30 11:07 北京时间）**：最终测试 `23ef7045` 的索引 [#40994961547](https://github.com/jiacimu-droid/lulu1/actions/runs/40994961547) completed/success；Android/APK [#40994961515](https://github.com/jiacimu-droid/lulu1/actions/runs/40994961515) completed/failure。真实 JVM 失败于内驱 `CharacterCuriosityRuntimeTest.onlyActiveExplorationsAppearInCrossSurfaceContext` 和本职责 `ResidentDailyContinuityTest` 两项 HTTP 401 结构补正错误详情断言（2484/2542），未进入 phone APK/发布。新 `CharacterCausalTraceTest` 未列为失败项，但不能以此宣称全套测试通过；居民错误详情仍是后续 P0-A/P4 真实构建阻断，需根因核查，不抢内驱源码。真机未验。
