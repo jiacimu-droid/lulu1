@@ -241,7 +241,15 @@ internal object LuluVoiceCallSession {
      * A bedtime session switches to the usual speaking voice for an audible wake.
      * This is an agent-owned reminder, never synthesized as a user utterance.
      */
-    fun announceScheduledReminder(characterId: String, text: String, taskId: String, ringFirst: Boolean = true): Boolean {
+    fun announceScheduledReminder(
+        characterId: String,
+        text: String,
+        taskId: String,
+        ringFirst: Boolean = true,
+        ringCount: Int = 2,
+        ringSeconds: Int = 5,
+        pauseSeconds: Int = 2,
+    ): Boolean {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId || text.isBlank()) return false
         if (speechQueue == null) return false
@@ -269,15 +277,31 @@ internal object LuluVoiceCallSession {
         val context = appContext ?: return false
         wakeCueJob = scope.launch {
             if (ringFirst) {
-                LuluCallRingtone.startInCallWake(context, "wake-$callId-$taskId", 6_000L)
-                delay(6_000L)
+                val bursts = ringCount.coerceIn(1, 4)
+                val duration = ringSeconds.coerceIn(2, 10) * 1_000L
+                val gap = pauseSeconds.coerceIn(1, 4) * 1_000L
+                repeat(bursts) { index ->
+                    // The user can answer at any point: real speech cancels
+                    // this job and stops the ringtone; no new call is placed.
+                    val live = mutableState.value
+                    if (!live.connected || live.callExperienceId != callId ||
+                        pendingScheduledWakeReason != reason) return@launch
+                    val ringKey = "wake-$callId-$taskId-$index"
+                    val started = LuluCallRingtone.startInCallWake(context, ringKey, duration)
+                    if (!started) return@repeat // Silent/DND is not an audible attempt.
+                    try {
+                        delay(duration)
+                    } finally {
+                        LuluCallRingtone.stopInCallWake(ringKey)
+                    }
+                    if (index < bursts - 1) delay(gap)
+                }
             }
-            LuluCallRingtone.stopInCallWake()
             val live = mutableState.value
             if (live.connected && live.callExperienceId == callId &&
                 pendingScheduledWakeReason == reason) {
-                // Natural wake wording is generated only after the ringtone.
-                // It is not a user's simulated speech.
+                // One model turn AFTER the acoustic cue; no extra paid
+                // synthesis for each of the preceding ringtone bursts.
                 handleUserSpeech("", opening = true)
             }
         }
