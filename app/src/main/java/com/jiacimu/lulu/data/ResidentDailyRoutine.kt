@@ -18,16 +18,18 @@ internal object ResidentDailyRoutine {
 
     /** Only an explicitly saved role decision may authorize a cafe order.
      * Legacy plans without the new optional fields cause no purchase. */
-    internal fun chosenCafeOrder(daily: JSONObject?, slot: String): String? =
-        when (daily?.optString(when (slot) {
+    internal fun chosenCafeOrder(daily: JSONObject?, slot: String): String? {
+        val field = when (slot) {
             "lunch" -> "cafeOrderLunch"
             "evening" -> "cafeOrderEvening"
             else -> return null
-        })) {
+        }
+        return when (daily?.optString(field)) {
             "sandwich" -> "cafe_consume_sandwich"
             "tea" -> "cafe_consume_tea"
             else -> null
         }
+    }
 
     private fun dutyPlace(person: DigitalWorldResident): String = when (person.templateName) {
         "苏弦" -> DigitalWorldPublicPlaces.GAME_HALL
