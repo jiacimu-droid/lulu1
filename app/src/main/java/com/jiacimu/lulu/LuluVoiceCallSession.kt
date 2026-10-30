@@ -87,6 +87,16 @@ internal data class LuluVoiceCallState(
 ) {
     val hasSession: Boolean get() = phase != CallPhase.Idle
     val connected: Boolean get() = phase == CallPhase.Connected
+
+    /** One observable call-reply lifecycle for voice and video, including incoming calls.
+     * This is presentation of the existing player/model facts, not a second call state. */
+    val replyActivity: String? get() = if (!connected) null else when {
+        speaking -> "${characterName.ifBlank { "对方" }}正在说话"
+        thinking -> "${characterName.ifBlank { "对方" }}正在回复…"
+        generatedTranscript.isNotBlank() -> "回复已生成，正在准备语音…"
+        opening -> "${characterName.ifBlank { "对方" }}正在准备开场…"
+        else -> null
+    }
 }
 
 internal object LuluVoiceCallSession {
