@@ -48,6 +48,8 @@ data class RoleDayPlan(
     val originEvidenceRevision: Long = 0L,
     /** Calendar-atomic provenance of a resident due mutation, never model-supplied. */
     val lastMutationRequestId: String = "",
+    /** The schedule worker handed the due item to the role; NOT evidence of execution. */
+    val lastWakeHandoffAt: Instant? = null,
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -82,7 +84,8 @@ object RoleDayScheduleStore {
                     o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false),
                     o.optString("concernId"), o.optString("originEvidenceId"),
                     o.optLong("originEvidenceRevision", 0L),
-                    o.optString("lastMutationRequestId"))
+                    o.optString("lastMutationRequestId"),
+                    o.optString("lastWakeHandoffAt").takeIf(String::isNotBlank)?.let(Instant::parse))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -109,7 +112,8 @@ object RoleDayScheduleStore {
                 .put("selfInitiated", p.selfInitiated).put("concernId", p.concernId)
                 .put("originEvidenceId", p.originEvidenceId)
                 .put("originEvidenceRevision", p.originEvidenceRevision)
-                .put("lastMutationRequestId", p.lastMutationRequestId))
+                .put("lastMutationRequestId", p.lastMutationRequestId)
+                .put("lastWakeHandoffAt", p.lastWakeHandoffAt?.toString().orEmpty()))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -282,19 +286,29 @@ object RoleDayScheduleStore {
             }, request)
     }
 
-    /** Restore future self-appointed wakeups, but do not replay potentially
-     * executed activities. Old due plans remain visible at the next decision. */
+    /** A missed WorkManager delivery must remain a real due opportunity after process
+     * death or a date rollover. Request one missing handoff, never replay the old
+     * action or silently declare the promise fulfilled. The existing role decision
+     * then chooses whether to act, defer, or cancel. */
+    internal fun needsWakeRestoration(plan: RoleDayPlan, now: Instant): Boolean =
+        if (plan.characterId.startsWith("resident:")) {
+            plan.status == "planned" && plan.dueAt.isAfter(now)
+        } else {
+            plan.status == "planned" ||
+                (plan.status == "due" && plan.lastWakeHandoffAt == null && !plan.dueAt.isAfter(now))
+        }
+
     fun restorePending(context: Context, now: Instant = Instant.now()) {
         all(context).filter { plan ->
-            (plan.status == "planned" && plan.dueAt.isAfter(now)) ||
+            needsWakeRestoration(plan, now) ||
                 (plan.status in setOf("due", "completed") &&
                     plan.characterId.startsWith("resident:") &&
                     (ResidentDailyDecision.hasSavedDueToResume(context, plan) ||
                         ResidentDailyDecision.hasSafeDueRequestToRetry(context, plan)))
         }.forEach { plan ->
-                runCatching { scheduleWake(context, plan, now, replace = false) }
-                    .onFailure { android.util.Log.w("LuluSchedule", "Role wake restoration failed", it) }
-            }
+            runCatching { scheduleWake(context, plan, now, replace = false) }
+                .onFailure { android.util.Log.w("LuluSchedule", "Role wake restoration failed", it) }
+        }
     }
 
     @Synchronized
@@ -681,6 +695,25 @@ object RoleDayScheduleStore {
         return target.copy(status = "due")
     }
 
+    /** Record only a successful dispatch into the existing character wake pipeline.
+     * Kept on the same plan so reopening the app cannot repeatedly create paid
+     * reconsiderations. A later action still requires its own verified receipt. */
+    @Synchronized
+    internal fun recordWakeHandoff(context: Context, characterId: String, planId: String,
+        expectedDueAt: Instant, at: Instant = Instant.now()): Boolean {
+        val records = all(context)
+        val original = records.firstOrNull {
+            it.characterId == characterId && it.id == planId &&
+                it.status == "due" && it.dueAt == expectedDueAt
+        } ?: return false
+        if (original.lastWakeHandoffAt != null) return true
+        persist(context, records.map { item ->
+            if (item.id == planId && item.characterId == characterId)
+                item.copy(lastWakeHandoffAt = at) else item
+        })
+        return true
+    }
+
     /** A due plan is not a completed activity. Only wake the original role's decision loop. */
     fun dueContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
         plans(context, characterId).filter { it.status == "due" ||
@@ -698,6 +731,7 @@ object RoleDayScheduleStore {
                         "关联意愿已暂停或放下：先重新考虑是否执行、改期或取消；" else "") +
                     "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}；" +
                     "上次选定的参数：${it.activityArgs.ifBlank { "{}" }.take(1200)}。" +
+                    "唤醒交接：${it.lastWakeHandoffAt?.let { at -> "已于$at 请求本人决策；尚不代表实际执行" } ?: "尚无成功交接回执"}。" +
                     "重新核实场景与用户意愿，可按原参数执行，也可适当调整；不自动调用。" +
                     (if (it.activityAction == "digital_world_action")
                         "原参数明确给出的 worldAction/activityId/incidentId/itemId/targetCharacterId 标识本项活动，" +
@@ -796,6 +830,10 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         }
         return runCatching {
             ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
+            // Only the *wake request* was submitted; do not mark the plan
+            // completed or claim the selected tool has run.
+            RoleDayScheduleStore.recordWakeHandoff(
+                applicationContext, role, plan.id, plan.dueAt)
             Result.success()
         }.getOrElse { Result.retry() }
     }
