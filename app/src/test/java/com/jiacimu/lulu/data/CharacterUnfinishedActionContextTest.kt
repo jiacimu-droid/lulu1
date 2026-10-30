@@ -372,6 +372,32 @@ class CharacterUnfinishedActionContextTest {
             listOf("tool-$role-$request")).isEmpty())
     }
 
+    @Test fun staleRequestIdRejectionLeavesIndependentDurableEvidence() = runBlocking {
+        val request = "stale-request-id-$role"
+        val cached = JSONObject().put("characterId", role).put("requestId", request)
+            .put("tool", "get_battery").put("fingerprint", "get_battery:{}")
+            .put("status", "succeeded")
+            .put("result", JSONObject().put("success", true).put("status", "succeeded")
+                .put("summary", "此前已读取过").toString())
+        context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
+            .putString("$role:$request", cached.toString()).commit()
+        val wrong = JSONObject(ToolRouter.execute(context, role, "get_battery",
+            JSONObject().put("changed", true), requestId = request, userRequested = true,
+            causeEvidenceId = origin))
+        assertFalse(wrong.optBoolean("success"))
+        assertEquals("waiting_user", wrong.optString("status"))
+        val rejection = SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-rejected-$role-$request")).single()
+        assertEquals(EventEvidenceKind.ToolResult, rejection.evidenceKind)
+        assertTrue(rejection.content.contains("参数发生变化"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$request")).isEmpty())
+        assertEquals(cached.toString(), context.getSharedPreferences(
+            "lulu_tool_executions", Context.MODE_PRIVATE).getString("$role:$request", ""))
+        assertTrue(SharedExperienceTimeline.eventsByIds("another-role",
+            listOf("tool-rejected-$role-$request")).isEmpty())
+    }
+
     @Test fun completedToolRequestCannotBeReattributedToAnotherInputOnReplay() = runBlocking {
         val request = "source-bound-replay-$role"
         val otherSource = "other-source-$role"
