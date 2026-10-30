@@ -3,7 +3,7 @@
 
 - **参考项目**：`mashangshui/digital-life-core`，默认分支快照 `02fdd9383314dd84705775e13c68963286301f4c`。源仓库 `package.json` 标注 MIT，来源：https://github.com/mashangshui/digital-life-core 。
 - **标签**：ORIGINAL（根据一般系统设计原则独立修订原 Kotlin 实现），不是 THIRD_PARTY 代码移植。本仓未复制第三方源码、配置、模型、提示词或资源，没有新增 DSH 运行依赖。
-- **实际修改**：`CharacterMotiveReview.kt` 的同一人物稳定 WorkManager 闹钟身份、忽略已错过计划的标记；`CharacterInnerLifeStore.kt` 延续已有权威 `motives` 和下一次复查机会；`ProactivePerceptionRuntime.kt` 对被其他事件抢占的非决定返回独立标记、禁止把早退记成目标已复查。相关测试在 `CharacterMotiveReviewTest.kt`。
+- **实际修改**：`CharacterMotiveReview.kt` 的原有按计划指纹的 WorkManager 复核、忽略已错过计划的标记；`CharacterInnerLifeStore.kt` 延续已有权威 `motives` 和下一次复查机会；`ProactivePerceptionRuntime.kt` 对被其他事件抢占的非决定返回独立标记、禁止把早退记成目标已复查。相关测试在 `CharacterMotiveReviewTest.kt`。
 - **暂不采用**：第二套 Gaps 账本、程序自动对目标意义打分、激素阈值强行控制行为、任意 TypeScript 自编译器官和重复付费决策调用。其余分阶段取舍见 `docs/architecture/DIGITAL_LIFE_RESEARCH_ADOPTION.md`。
 - **验证边界**：需要项目原生 JVM/Android 自动测试、APK 构建及真实手机跨场景观测。代码修改与静态审查不代表这些验证已完成。
 
