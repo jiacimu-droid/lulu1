@@ -42,6 +42,7 @@ internal fun GameSceneDeck(
     accent: Color,
     status: String,
     notice: String = "",
+    toolsLabel: String = "行囊 / 更多",
     scene: @Composable () -> Unit,
     companion: @Composable () -> Unit,
     companionAvailable: Boolean = false,
@@ -135,7 +136,7 @@ internal fun GameSceneDeck(
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = Color(0xD92A414B), contentColor = Color.White),
             ) {
-                Text(if (drawer) "关闭背包" else "背包 / 建造 / 更多", fontSize = 10.sp)
+                Text(toolsLabel, fontSize = 10.sp, maxLines = 1)
             }
         }
         // Landscape management is an in-scene side panel, NOT an opaque full-screen dialog.
@@ -154,7 +155,7 @@ internal fun GameSceneDeck(
                 Column {
                     Row(Modifier.fillMaxWidth().height(42.dp).padding(start = 12.dp, end = 6.dp),
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text("背包 / 建造", modifier = Modifier.weight(1f),
+                        Text(toolsLabel, modifier = Modifier.weight(1f),
                             color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         TextButton(onClick = { drawer = false },
                             contentPadding = PaddingValues(horizontal = 8.dp)) {
