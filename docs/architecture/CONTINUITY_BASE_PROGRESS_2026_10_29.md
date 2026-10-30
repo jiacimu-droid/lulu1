@@ -100,3 +100,12 @@
 - **main 源码提交**：`c26a9df50423c371e6b3ebf779f0963e06328205`；**回归提交**：`ce57e3eb750a27bd04e4ad3d94c81f686ed3b4f7`。本次只改基础连续性文件与本专项进度；索引交原有 Refresh code index 工作流自动生成，不手工修改生成物。
 - **验证层级**：此前 main `0da72e45` 的 Lulu APK [#40965646539](https://github.com/jiacimu-droid/lulu1/actions/runs/40965646539) completed/success，**不能代表本轮**。本轮源码提交索引 [#40968831436](https://github.com/jiacimu-droid/lulu1/actions/runs/40968831436) completed/success；回归提交索引 [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) 初查 in_progress；同提交 APK [#40968872681](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872681) 因并发新提交 cancelled。后续完整 JVM/APK 以对应提交或包含提交的后继 main 工作流最终状态为准，**真机未验**。
 - **真机验收**：居民在到期时遇到模型 502/断网，确认原请求状态为未知；取消并删除旧日程，隔天从本人历史查看仍有原失败记录；切到其他居民看不到此条；重启后查询不重新购买模型回复、不会自动发布原动态。长期多年份性能、旧版无来源元数据且已删除计划的精确归属仍无法凭空补证。
+
+
+## 2026-10-30 · P0-B/P4：个人日程完成投影不得借任意历史事件冒充成功回执
+
+- **基线核对**：原日程 `RoleDayScheduleStore.completeFromReceipt`、真实 `ToolRouter` 执行记录、本人原始时间线、已保存决定的来源版本和日程取消/重放门禁均存在；本轮不重建日程、人物记忆或工具网关。开工核对了 10-29 Library 大纲、AGENTS、完整索引、人物契约、成长框架、旧计划、各专项进度与近期 main；已有能力、待真机验收和可选多年压测分开记录。
+- **根因**：`CharacterCausalTrace.inspect` 的个人日程卡只要 `plan.status=completed` 且 `resultEvidenceId` 指向同人物仍存在的任意时间线事件，就显示「日程执行有回执」。该事件可能是主人自己的消息、另一项计划的成功回执、失败的工具回执或较早的旧事件；角色归属与事件存在并不证明这项日程真正执行。原 `completeFromReceipt` 的正常执行门禁不能替历史只读诊断补出缺失的归属证据。
+- **源码**：仅修改 `CharacterCausalTrace.kt` 的既有只读日程投影。必须是到期后实际保存的 `tool-router` `ToolResult`，且原回执 `planId`、`tool` 与本日程一致、状态为已确认成功，才显示「日程执行有回执」；无回执、错计划、失败回执、用户消息均显示「日程状态待核对」。真实原生动态/观察事件仍保留可点击的原始证据，但明确写「原生结果存在，未独立核对其属于本日程」；不删除已保存的 `completed` 投影、不擅自改历史或重新执行。原来源 revision 不匹配仍优先标为历史版本。
+- **根因回归**：`CharacterCausalTraceTest.completedScheduleCannotBorrowUnrelatedOrFailedResultAsVerifiedReceipt` 用同一人物的四种原始事件与不同计划，覆盖用户消息、别的计划成功回执、失败回执、本计划真实成功回执、原生动态仅可查、异人隔离；只读查询不执行工具。源码提交 [f5d211b9](https://github.com/jiacimu-droid/lulu1/commit/f5d211b9f7be267444424988d3da08c1a48e2506)，回归提交 [00d1ff49](https://github.com/jiacimu-droid/lulu1/commit/00d1ff4932a7e06cecb92c5826b48d9df3f004d1)、[05cf4581](https://github.com/jiacimu-droid/lulu1/commit/05cf45818a21c96e1dcb3d9f3d4b9f3789cd705e)。
+- **分层验收**：源码提交对应原 [Refresh code index #40994662294](https://github.com/jiacimu-droid/lulu1/actions/runs/40994662294) completed/success；测试增补后的最新索引与 Android JVM/assemblePhone/APK 须以对应后继 main 的完整工作流结果另核，不把取消、排队或测试源码视为通过。此前 [APK #40993494707](https://github.com/jiacimu-droid/lulu1/actions/runs/40993494707) 在 `CharacterCuriosityRuntimeTest.onlyActiveExplorationsAppearInCrossSurfaceContext` 失败，属于并行内驱专项，未越界改其源码。真机旧日程卡、真实原生发布及强杀后版本归属尚未验；原生事件缺精确工具请求关联时仍不能伪造完整执行证据。
