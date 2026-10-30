@@ -178,7 +178,7 @@ object VisionModelService {
                 """.trimIndent()
                 // Preserve this screenshot as request-only pixels. Model routing and
                 // cancellation/error handling are shared with the ordinary Chat API.
-                LuluAiServices.gateway.generate(
+                val description = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = "",
                     instruction = prompt,
@@ -189,8 +189,10 @@ object VisionModelService {
                     connectionOverride = ModelConnection(chat.baseUrl, chat.apiKey, chat.model),
                     usage = ModelUsage.Chat,
                     imageDataUrls = listOf(pixels),
-                ).getOrThrow().text.take(1300)
-            }
+                ).getOrThrow().text.trim()
+                check(description.isNotBlank()) { "聊天模型未返回可读的屏幕描述" }
+                description.take(1300)
+            }.onFailure { if (it is CancellationException) throw it }
         }
 
     fun canDescribeCamera(context: Context, characterId: String = ""): Boolean =
