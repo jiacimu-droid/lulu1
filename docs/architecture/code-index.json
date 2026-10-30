@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:13:24.741807+00:00",
-  "commit": "34718f7e72afcded0801d4fd26f0104a7ce90dda",
+  "generatedAt": "2026-10-30T07:17:04.501022+00:00",
+  "commit": "1615cd1883ae0d34f787da89b61556451bff6477",
   "branch": "main",
-  "sourceFingerprint": "99d9e7c3ee45b0ed033dbedf97bb17962bb1832c7dfc7ee8c6d10984b6558e52",
+  "sourceFingerprint": "ed78b39cdb31066918dcf06f7756618b9e28eece0dd94c7b2674b5cbe0bddcb8",
   "summary": {
     "files": 1115,
-    "lines": 229203,
+    "lines": 229234,
     "symbols": 3244
   },
   "symbolIndex": {
@@ -19586,8 +19586,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 274,
-      "sha256": "8255fcb993c29f8fd68ae3ff817224739e8a3ac19792f86eefe7bb97886b027d",
+      "lines": 305,
+      "sha256": "867c3eb602ee97113e2acb33c28d7e8e0b6cf611b6539b532bde9883bab5afa5",
       "symbols": [
         {
           "name": "stop",

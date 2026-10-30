@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`34718f7e72afcded0801d4fd26f0104a7ce90dda`
+- 基准提交：`1615cd1883ae0d34f787da89b61556451bff6477`
 - 分支：`main`
 - 已索引文件：1115
-- 已索引代码/文本行：229203
+- 已索引代码/文本行：229234
 - 已发现符号：3244
 
 | 文件 | 行数 | 符号数 |
@@ -146,7 +146,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 236 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 274 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 190 | 3 |
