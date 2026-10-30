@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:51:21.084959+00:00",
-  "commit": "e081ea11de89d539de4f55c531630c5cb094ced3",
+  "generatedAt": "2026-10-30T05:51:50.422157+00:00",
+  "commit": "305004aca945e43af6083ff0b40125968ba3d083",
   "branch": "main",
-  "sourceFingerprint": "0238ab1cc5fa354d5f00f5075debc7c7e17df8017b29644c46f1d12f8008d443",
+  "sourceFingerprint": "d16e6b4dc52e680e5ff7c5edf81c8319ae2299a3fbd874fd1d2b00824e9217cf",
   "summary": {
     "files": 1108,
-    "lines": 228468,
-    "symbols": 3233
+    "lines": 228494,
+    "symbols": 3234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11294,28 +11294,34 @@
         "line": 19
       }
     ],
+    "bonus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+        "line": 34
+      }
+    ],
     "RelevantMemoryRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 26
+        "line": 44
       }
     ],
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 186
+        "line": 212
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 220
+        "line": 246
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 246
+        "line": 272
       }
     ],
     "characterId": [
@@ -29115,28 +29121,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 576,
-      "sha256": "3b5e7de2d645cdd5408f13448a5070d29f77f8223c8715ae683f90815fdee8d6",
+      "lines": 602,
+      "sha256": "e1daa2ec118144f85292bb6f841f53ce5aa6fd7689abf38272bb2322b56b4ef2",
       "symbols": [
         {
           "name": "MemoryRecallResult",
           "line": 19
         },
         {
+          "name": "bonus",
+          "line": 34
+        },
+        {
           "name": "RelevantMemoryRecall",
-          "line": 26
+          "line": 44
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 186
+          "line": 212
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 220
+          "line": 246
         },
         {
           "name": "formatForPrompt",
-          "line": 246
+          "line": 272
         }
       ]
     },
