@@ -6,14 +6,21 @@ internal object CommitmentCallRetryPolicy {
 
     /**
      * Live call: the call itself remains open. Revisit the unconfirmed wake
-     * goal after five minutes, with at most three audible attempts. The final
-     * short callback records a still-unconfirmed outcome without more ringing.
+     * goal after five minutes, with at most three separately model-chosen
+     * wake rounds. The final callback only observes the result.
      */
     fun nextInCallWakeReviewSeconds(attempt: Int): Long? = when (attempt) {
         1, 2 -> 5L * 60L
         3 -> 150L
         else -> null
     }
+
+    /** Defer a scheduled retry while the previous spoken round is unfinished. */
+    fun shouldDeferInCallWakeDecision(
+        followUpKind: String, inCall: Boolean, thinking: Boolean,
+        speaking: Boolean, opening: Boolean,
+    ): Boolean = followUpKind == "retry" && inCall &&
+        (thinking || speaking || opening)
 
 
     fun isFinalCheck(task: CommitmentTask, attempt: Int, callsEnabled: Boolean): Boolean =
