@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:10:11.677442+00:00",
-  "commit": "84bd759b8d86eea03c1b5a3a82943d3749e05b46",
+  "generatedAt": "2026-10-30T11:10:35.431535+00:00",
+  "commit": "4e8a92c6de6e1e9007364819e9f1c2a5e7b8dac5",
   "branch": "main",
-  "sourceFingerprint": "974260ce78ed281f7fa428b57eced566c3a22b3e672ec426f1fc3a7db935cf53",
+  "sourceFingerprint": "b24beed2f9491320d00be8d63f4baf90022a76e7dcfd0fadb735664399816187",
   "summary": {
     "files": 1120,
-    "lines": 230409,
+    "lines": 230415,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -165,7 +165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 78
+        "line": 76
       }
     ],
     "preferredMicrophoneType": [
@@ -6711,13 +6711,13 @@
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 253
+        "line": 254
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 283
+        "line": 284
       }
     ],
     "localDay": [
@@ -11553,7 +11553,7 @@
     "plan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 40
+        "line": 38
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -24219,8 +24219,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 315,
-      "sha256": "37a004e6ec7b878128a8d31385fe3d09a25abb641cfc4d906150fa374c6455be",
+      "lines": 316,
+      "sha256": "0a85c2ee5e2d4c72fbe918eab5442a51d943c9b0fed9ae849f01b77188aabe09",
       "symbols": [
         {
           "name": "initialize",
@@ -24264,11 +24264,11 @@
         },
         {
           "name": "recordShareWish",
-          "line": 253
+          "line": 254
         },
         {
           "name": "recordAction",
-          "line": 283
+          "line": 284
         }
       ]
     },
@@ -29476,16 +29476,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 148,
-      "sha256": "69182589bcb364cb835595aa87f12ddc6d684102fe68e407f2ed76b4756c62fd",
+      "lines": 146,
+      "sha256": "ddd5e99f991e26dad37d22847d9f2d1c988bbe0b5fbdb1311f004992bd181c90",
       "symbols": [
         {
           "name": "plan",
-          "line": 40
+          "line": 38
         },
         {
           "name": "refresh",
-          "line": 78
+          "line": 76
         }
       ]
     },
@@ -37805,8 +37805,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 132,
-      "sha256": "b1ddc38ed7c1eeeb4a7b624ac293c9ea4d8527e10d7adc0159e4d7bb503c4b38",
+      "lines": 139,
+      "sha256": "53f472934aa4919fe7281c19200b1760a0da95ce73c760431c674364afaa3375",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",

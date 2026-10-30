@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`84bd759b8d86eea03c1b5a3a82943d3749e05b46`
+- 基准提交：`4e8a92c6de6e1e9007364819e9f1c2a5e7b8dac5`
 - 分支：`main`
 - 已索引文件：1120
-- 已索引代码/文本行：230409
+- 已索引代码/文本行：230415
 - 已发现符号：3258
 
 | 文件 | 行数 | 符号数 |
@@ -368,7 +368,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 315 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 316 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1114 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
@@ -548,7 +548,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 602 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2094 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 148 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 146 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 230 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 854 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
@@ -1043,7 +1043,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 132 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 139 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 2911 | 23 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
