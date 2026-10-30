@@ -214,6 +214,14 @@ internal object LuluStudyWatch {
             .toString()
     }
 
+    /** Report the actual cause: an Android failure is not a refusal by the owner. */
+    internal fun authorizationFailureReason(granted: Boolean, expired: Boolean,
+        blocker: String?): String = when {
+        !granted -> "主人选择拒绝了本次学习监督；没有截图"
+        expired -> "主人尝试授权时请求已过期；监督未启动，也没有截图"
+        else -> "主人点击了允许，但本机条件不满足：${blocker ?: "状态无法确认"}；监督未启动，也没有截图"
+    }
+
     @Synchronized
     fun resolve(context: Context, id: String, granted: Boolean) {
         val entry = pending(context)
@@ -228,11 +236,7 @@ internal object LuluStudyWatch {
         val role = entry.optString("characterId")
         if (!accepted) {
             if (!granted) prefs(context).edit().putLong("$LAST_DENIAL_AT:$role", now).commit()
-            val reason = when {
-                !granted -> "主人选择拒绝了本次学习监督；没有截图"
-                expired -> "主人尝试授权时请求已过期；监督未启动，也没有截图"
-                else -> "主人点击了允许，但本机条件不满足：${blocker ?: "状态无法确认"}；监督未启动，也没有截图"
-            }
+            val reason = authorizationFailureReason(granted, expired, blocker)
             SharedExperienceTimeline.record("study-watch-denied-$id", role, "屏幕监督授权", "手机",
                 reason, source = "study-watch-consent",
                 triggerExtraction = false, evidenceKind = EventEvidenceKind.ToolResult)
