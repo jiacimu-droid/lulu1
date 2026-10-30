@@ -64,7 +64,7 @@ internal object CommitmentOutcomeVerification {
         } else {
             appendLine("以下只是来源/时序/类型通过初筛的候选，仍需你判断是否真的证明上述目标；不相关就不要结案：")
             possible.forEach { event ->
-                appendLine("id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; content=${event.content.replace("\\n", " ").take(170)}")
+                appendLine("id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; content=${event.content.replace('\n', ' ').take(170)}")
             }
         }
     }.trim()
