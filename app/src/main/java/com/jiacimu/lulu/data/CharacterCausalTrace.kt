@@ -314,7 +314,7 @@ internal object CharacterCausalTrace {
                 // The plan stores an evidence ID, not the receipt revision.
                 // A subsequently edited receipt cannot prove what the plan
                 // originally completed against; fail closed until versioned.
-                actualReceipt.revision == 1L &&
+                actualReceipt?.revision == 1L &&
                 toolBody.optString("planId") == plan.id &&
                 toolBody.optString("tool").isNotBlank() &&
                 (plan.activityAction.isBlank() ||
