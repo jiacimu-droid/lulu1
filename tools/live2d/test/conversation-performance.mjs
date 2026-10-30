@@ -703,8 +703,9 @@ bridge.perform({ expression: 'star' }, true)
 const rejectCurrentExpression = rejectExpression
 const resetsAfterReplacement = expressionResets
 rejectOldExpression(new Error('obsolete exp3 load'))
-await Promise.resolve()
-await Promise.resolve()
+// The VM's Promise and the host's injected Promise have different realms.
+// Flush the actual rejection chain rather than assuming two microtasks suffice.
+await new Promise(resolve => setImmediate(resolve))
 assert.equal(bridge.activeExpressionName, 'star',
   'old same-name exp3 failure must not release the new segment expression')
 assert.equal(expressionResets, resetsAfterReplacement,
@@ -712,13 +713,22 @@ assert.equal(expressionResets, resetsAfterReplacement,
 assert.ok(!expressionDiagnostics.some(line => line.includes('obsolete exp3 load')),
   'stale exp3 failure must not be reported as current playback failure')
 rejectCurrentExpression(new Error('current exp3 load'))
-await Promise.resolve()
-await Promise.resolve()
+await new Promise(resolve => setImmediate(resolve))
 assert.equal(bridge.activeExpressionName, null,
   'real current exp3 failure releases eye ownership')
 assert.equal(expressionResets, resetsAfterReplacement + 1)
 assert.ok(expressionDiagnostics.some(line => line.includes('current exp3 load')),
   'real current failure still has a diagnostic receipt')
+
+// An exp3 wrapper can also return false without throwing. The current
+// segment must release its eye ownership instead of keeping a fake star face.
+bridge.model.expression = () => false
+bridge.perform({ expression: 'star' }, true)
+await new Promise(resolve => setImmediate(resolve))
+assert.equal(bridge.activeExpressionName, null,
+  'a current false exp3 result cannot lock eye ownership')
+assert.equal(expressionResets, resetsAfterReplacement + 2)
+assert.ok(expressionDiagnostics.some(line => line.includes('表情未切换：star')))
 
 // Some model wrappers throw synchronously rather than returning a Promise.
 // The real stage must handle that without aborting the render/score callback.

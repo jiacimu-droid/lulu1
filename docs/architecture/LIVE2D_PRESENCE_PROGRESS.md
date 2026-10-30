@@ -139,3 +139,12 @@
 - **正式修复**：仅在原 stage 的 exp3 播放与复位入口增加模型实例+表达租约修订号；新选择/复位自动使旧请求失效。旧 resolve/reject 不再报告当前成功/失败或复位新表情；当前真正失败仍报告并释放眼部独占；同步抛错走同一有归属的失败回执。保留同名选择、Cubism 原表情管理器、原 Motion3 优先级和嘴型/触摸门禁，不增加模型请求、语义推断或额外状态中心。
 - **根因回归**：原 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 覆盖“同名旧 exp3 延迟 reject → 新表情保留/管理器不复位/无旧失败诊断”、“当前 exp3 reject → 释放眼型并报告”以及“同步抛错 → 不泄漏表情租约”；其余 Motion3/TTS/触摸/低帧率测试保持原样。测试源码不是执行通过的证据。
 - **交付与验证边界**：本轮只修改 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 和本专项进度。现有 `scripts/generate_code_index.py` 仅覆盖 app/scripts/preview；本轮不触及索引输入，`CODE_INDEX.md` 继续由既有工作流维护，不手工伪造。对应本提交的 Live2D JS、Android JVM、assemblePhone、APK 发布需以实际 CI 结果另验；真机视觉连贯性与 exp3 资源加载竞争未验。
+
+
+## 2026-10-30 09:00 · L3：exp3 当前拒绝释放与真实 CI 阻断修复
+
+- **分类/并发复核**：v6605 逐句 Motion3 与 TTS 首音链已存在；近期异步 Motion3 旧回执归属有成功 JS CI。真机连续五句、不同 TTS、触摸、15/30 FPS/发热仍属已有待验；词级时间戳为可选增强。本轮仅处理 exp3 的当前失败，未重复开发原逐句系统。开工与提交前核对最新 main 和基础、社交、内驱专项进度，不触碰它们的 Store/路由/决策。
+- **真实失败证据**：[Lulu APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 的 `Build bundled Live2D stage` 失败，日志为 `conversation-performance.mjs:717`：当前 exp3 reject 后测试过早读取 `activeExpressionName='star'`。该 VM 测试把宿主 Promise 注入另一 VM Realm，原来仅等待两次微任务不足以保证异步拒绝链实际完成；旧失败与新失败的断言都可能假阳性/假阴性。Android JVM/APK 因此未执行。
+- **正式源码缺口**：同一 `playVerifiedSpeechExpression` 的 `target.expression(name)` 返回 `false` 时仅报告“未切换”，却仍保留当前 exp3 的眼型独占直到超时；这属于真实失败回执和表情参数所有权不一致。当前 false 现在报告原诊断并立即 `resetSpeechExpression()` 释放租约；迟到 false 仍受现有模型实例/修订号门禁保护，不会重置新一句。异常 reject/同步 throw 仍走原归属保护。
+- **回归**：原真实 stage VM 测试改为在跨 VM Promise 结算后（`setImmediate` 边界）断言旧 reject 不抢新表情、当前 reject 必须释放眼型；另增当前 `false` 回执释放与诊断测试，保留同步 throw 和其余 TTS/Motion/触摸测试。测试源码不等于 CI 通过，后续按本提交的 workflow 实际核验。
+- **索引边界**：仅改 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 与本专项进度。原 `scripts/generate_code_index.py` 只索引 `app/scripts/preview`，没有改变索引输入；不手工伪造 `CODE_INDEX.md` 或 `code-index.json`。真机表情加载失败/低 FPS 仍待验。

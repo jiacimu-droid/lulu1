@@ -1698,8 +1698,11 @@ function playVerifiedSpeechExpression(name, immediatePreview = false) {
     Promise.resolve(target.expression(name)).then(ok => {
       if (!ownsExpression()) return
       if (ok === false) {
+        // Cubism rejected this expression. A rejected current exp3 must
+        // release its eye/face lease, not lock the model until the timeout.
         notify('diagnostic', '表情未切换：' + name +
           '（资源未加载或当前已在使用）')
+        resetSpeechExpression()
       } else {
         notify('diagnostic', '表情已提交：' + name)
       }
