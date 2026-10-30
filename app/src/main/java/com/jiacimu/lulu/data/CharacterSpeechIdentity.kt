@@ -36,7 +36,7 @@ internal object CharacterSpeechIdentity {
             if (illustrativeDialogues.isNotBlank()) {
                 appendLine("【只属于本人的假设对话示范｜给表达层看节奏，不是过去真实发生的聊天】")
                 appendLine(illustrativeDialogues.take(1_100))
-                appendLine("这是主人审核过的个人语言示范，不是逐字台词、现实经历或对方现在说过的话。")
+                appendLine("这是此角色个人资料里的示范（可能由用户编辑或随角色预置），不是逐字台词、现实经历或对方现在说过的话。")
                 appendLine("从自己当下的立场、关系和情绪借鉴接话节奏；换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
                 appendLine("真实用户原话、最近关系变化和本人已经选定的行动优先；绝不把示例中的虚构对象、道具、经历带入当前现实。")
             }
