@@ -879,4 +879,17 @@ assert.equal(delayedScore.state().remaining, 0)
   manager.isFinished = () => false
 }
 
+// A later turn may have genuine audible speech but a failed visual plan.
+// The new motionless sequence clears stale performance ownership; it MUST
+// still accept real audio callbacks instead of remaining stuck on the first
+// successful turn's old score.
+bridge.perform({ visualSequence: 90003 })
+bridge.onPlaybackEvent('playing', 0, 90003, '')
+assert.equal(bridge.playing, true,
+  'motionless later video speech must not be dropped as a stale event')
+assert.equal(bridge.performanceRuntime.state().remaining, 0)
+bridge.onPlaybackEvent('finished', 0, 90003, '')
+assert.equal(bridge.playing, false,
+  'the real later speech finish must retire its own motionless visual lease')
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
