@@ -139,7 +139,7 @@ internal class ElevenLabsSpeech(context: Context) {
             var silentPrimaryStalled = false
             var firstWriteAttemptAt = 0L
             var lastHeadAt = 0L
-            var lastHead = 0L
+            var primaryHead = 0L
             val buffer = ByteArray(8192)
             for (part in speechParts) {
                 if (token != epoch) break
@@ -184,7 +184,7 @@ internal class ElevenLabsSpeech(context: Context) {
                                 playbackClock?.sample()
                                 val now = android.os.SystemClock.elapsedRealtime()
                                 val head = output.playbackHeadPosition.toLong() and 0xffffffffL
-                                if (head > lastHead) { lastHead = head; lastHeadAt = now }
+                                if (head > primaryHead) { primaryHead = head; lastHeadAt = now }
                                 if (sent == 0) {
                                     if (head == 0L && now - firstWriteAttemptAt >=
                                         CallAudioRecoveryPolicy.STARTUP_TIMEOUT_MS) {
