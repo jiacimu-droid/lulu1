@@ -21,6 +21,51 @@ class RoleDayScheduleStoreTest {
         activityAction = "read_book",
     )
 
+    @Test fun missedAndCrossMidnightOwnerPlansRecoverWithoutInventingACompletedAction() {
+        val midnight = Instant.parse("2026-10-31T00:42:00Z")
+        val missed = plan.copy(id = "bedtime-missed", title = "23:30 关心主人睡觉",
+            dueAt = midnight.minusSeconds(72 * 60), status = "planned")
+        val oldDue = missed.copy(status = "due")
+        assertTrue(RoleDayScheduleStore.needsWakeRestoration(missed, midnight))
+        assertTrue(RoleDayScheduleStore.needsWakeRestoration(oldDue, midnight))
+        assertFalse(RoleDayScheduleStore.needsWakeRestoration(oldDue.copy(
+            lastWakeHandoffAt = midnight.minusSeconds(60)), midnight))
+        assertFalse(RoleDayScheduleStore.needsWakeRestoration(oldDue.copy(
+            status = "completed"), midnight))
+        assertFalse(RoleDayScheduleStore.needsWakeRestoration(oldDue.copy(
+            status = "cancelled"), midnight))
+        assertFalse(RoleDayScheduleStore.needsWakeRestoration(oldDue.copy(
+            characterId = "resident:someone"), midnight))
+        assertTrue(RoleDayScheduleStore.needsWakeRestoration(missed.copy(
+            dueAt = midnight.plusSeconds(3600)), midnight))
+    }
+
+    @Test fun handoffIsDurableIdempotentAndNotAnActionReceipt() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "missed-bedtime-handoff-test"
+        val scheduledAt = Instant.now().plusSeconds(3600)
+        val created = RoleDayScheduleStore.arrange(context, role, "监督休息",
+            "答应关心她是否准备睡觉", scheduledAt, activityAction = "send_private_message")
+        try {
+            val duePlan = requireNotNull(RoleDayScheduleStore.markDue(context, role, created.id,
+                expectedDueAt = scheduledAt))
+            assertEquals("due", duePlan.status)
+            assertTrue(RoleDayScheduleStore.recordWakeHandoff(context, role, created.id,
+                scheduledAt, scheduledAt.plusSeconds(20)))
+            assertTrue(RoleDayScheduleStore.recordWakeHandoff(context, role, created.id,
+                scheduledAt, scheduledAt.plusSeconds(30)))
+            val stored = RoleDayScheduleStore.plans(context, role).first { it.id == created.id }
+            assertEquals(scheduledAt.plusSeconds(20), stored.lastWakeHandoffAt)
+            assertEquals("due", stored.status)
+            assertTrue(stored.resultEvidenceId.isBlank())
+            assertFalse(RoleDayScheduleStore.needsWakeRestoration(stored, scheduledAt.plusSeconds(60)))
+            assertFalse(RoleDayScheduleStore.recordWakeHandoff(context, role, created.id,
+                scheduledAt.plusSeconds(3600), scheduledAt.plusSeconds(40)))
+        } finally {
+            RoleDayScheduleStore.remove(context, role, created.id)
+        }
+    }
+
     @Test fun oneAutonomousDecisionCanKeepSeveralDifferentPlansWithoutDuplicates() {
         val a = plan.copy(status = "planned", id = "first",
             activityAction = "learn_topic",
