@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:25:56.483156+00:00",
-  "commit": "8464c1843887f32a432f06b13fc1c98d011c687a",
+  "generatedAt": "2026-10-30T05:40:05.296123+00:00",
+  "commit": "fa5cd7ad28edd2475692c325a2ded555a34266aa",
   "branch": "main",
-  "sourceFingerprint": "bd161edf3b67991e216bf105a539281a390bc16b6a02cc9a738548afca5b3941",
+  "sourceFingerprint": "cc64ef4bbdf684c933788f1595a1dff8da16a5d9d0ddfb27b6b497a66b179080",
   "summary": {
     "files": 1108,
-    "lines": 228377,
+    "lines": 228395,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -1651,7 +1651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 73
+        "line": 78
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
@@ -3965,7 +3965,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 46
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -4597,7 +4597,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 93
+        "line": 103
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
@@ -6883,13 +6883,13 @@
     "eligibleAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "quiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 53
+        "line": 54
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
@@ -6899,7 +6899,7 @@
     "CharacterMotiveReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 101
+        "line": 111
       }
     ],
     "isActive": [
@@ -10877,19 +10877,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 597
+        "line": 603
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 599
+        "line": 605
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2952
+        "line": 2958
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -24281,8 +24281,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-      "lines": 132,
-      "sha256": "a35ff3e0345bf1cf6baac0c855943256dba5e568cb640d3569ff1f68d0177619",
+      "lines": 144,
+      "sha256": "8dffc03bd6ee0925f0a2d676f338816de6eddcf5728d0f95d6cf7c144f025068",
       "symbols": [
         {
           "name": "from",
@@ -24294,27 +24294,27 @@
         },
         {
           "name": "pending",
-          "line": 46
+          "line": 47
         },
         {
           "name": "eligibleAt",
-          "line": 51
+          "line": 52
         },
         {
           "name": "quiet",
-          "line": 53
+          "line": 54
         },
         {
           "name": "schedule",
-          "line": 73
+          "line": 78
         },
         {
           "name": "restore",
-          "line": 93
+          "line": 103
         },
         {
           "name": "CharacterMotiveReviewWorker",
-          "line": 101
+          "line": 111
         }
       ]
     },
@@ -28681,8 +28681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3019,
-      "sha256": "cf65928ab29bfc651eef61dd157afb981bd0061d85ceb228a438fe17d9748e00",
+      "lines": 3025,
+      "sha256": "d2dc41bf0e9cb1d97d6945bad8a6945b91de1973eff3bdc564d3db6bd41cd168",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28706,15 +28706,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 597
+          "line": 603
         },
         {
           "name": "deferSupersededDecision",
-          "line": 599
+          "line": 605
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2952
+          "line": 2958
         }
       ]
     },
