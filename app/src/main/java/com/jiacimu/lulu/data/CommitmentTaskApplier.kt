@@ -238,10 +238,14 @@ private suspend fun updateCommitmentTask(
         target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
     // Parent update centrally invalidates obsolete future child actions.
     // Failed verification changes only its receipt and keeps them scheduled.
-    if (next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
+    // Only an actual reschedule may register a new alarm. A rejected
+    // completion must not reschedule the existing one or claim it was applied.
+    if (reschedule && next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
     CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }?.let { CommitmentLexiconSync.syncTask(it) }
+    val completed = next?.status == CommitmentTaskStatus.Completed
     return CommitmentDraftOutcome(
-        draft.action, draft.goal, target.id,
+        draft.action, draft.goal,
+        if (complete && !completed) null else target.id,
         next?.readableLastResult().orEmpty(),
     )
 }
