@@ -180,6 +180,26 @@ internal object BlockIslandRules {
             s.world.wood >= wood && s.world.stone >= stone
     }
 
+    fun canPlantAt(s: BlockIslandState, x: Int, y: Int): Boolean {
+        val w = s.world
+        if (w.finished || !w.inBounds(x, y)) return false
+        return abs(w.x - x) + abs(w.y - y) <= 1 && w.cell(x, y) == 0 &&
+            w.index(x, y) !in s.structures && !(x == w.x && y == w.y) &&
+            w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
+            w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+    }
+
+    fun canRemoveAt(s: BlockIslandState, x: Int, y: Int): Boolean {
+        val w = s.world
+        if (w.finished || !w.inBounds(x, y)) return false
+        val cell = w.cell(x, y)
+        return abs(w.x - x) + abs(w.y - y) <= 1 && cell != 7 &&
+            (cell in setOf(3, 4) || w.index(x, y) in s.structures) &&
+            !(x == w.x && y == w.y) &&
+            w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
+            w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
+    }
+
     fun act(s: BlockIslandState, action: String, tx: Int = s.world.x, ty: Int = s.world.y,
         autonomousIds: Set<String> = emptySet()): BlockIslandState {
         val w = s.world
@@ -230,20 +250,13 @@ internal object BlockIslandRules {
                 message = "建造成功：${actionName(action)}"
             }
             "plant" -> {
-                if (!near() || cell != 0 || index in s.structures ||
-                    (tx == w.x && ty == w.y) ||
-                    w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } ||
-                    mob != null) return reject("在身边的空草地种树")
+                if (!canPlantAt(s, tx, ty)) return reject("在身边的空草地种树")
                 if (w.wood < 1) return reject("种植树苗需要1木材")
                 next = s.copy(world = w.setTile(tx, ty, 1).copy(wood = w.wood - 1))
                 message = "种下一棵树，未来可以再次采集木材"
             }
             "remove" -> {
-                if (!near() || cell == 7 ||
-                    (cell !in setOf(3, 4) && index !in s.structures) ||
-                    (w.x == tx && w.y == ty) ||
-                    w.friends.any { it.hp > 0 && it.x == tx && it.y == ty } ||
-                    mob != null)
+                if (!canRemoveAt(s, tx, ty))
                     return reject("只能拆除附近无人占用的自建设施")
                 val structure = s.structures[index]
                 val refundWood = when (structure) {
