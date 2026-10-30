@@ -29,6 +29,23 @@ class WakeActionPlannerTest {
             WakeActionPlanner.parseChoice(raw, true, true).cue)
     }
 
+    @Test fun chosenAcousticBurstCountAndDurationsAreBounded() {
+        val many = WakeActionPlanner.parseChoice(
+            """{"cue":"ring","ringCount":99,"ringSeconds":99,"pauseSeconds":0}""", true, true)
+        assertEquals(WakeActionPlanner.Cue.RING, many.cue)
+        assertEquals(4, many.ringCount)
+        assertEquals(10, many.ringSeconds)
+        assertEquals(1, many.pauseSeconds)
+        val specific = WakeActionPlanner.parseChoice(
+            """{"cue":"ring","ringCount":3,"ringSeconds":4,"pauseSeconds":3}""", true, true)
+        assertEquals(3, specific.ringCount)
+        assertEquals(4, specific.ringSeconds)
+        assertEquals(3, specific.pauseSeconds)
+        assertEquals(2, WakeActionPlanner.parseChoice("oops", true, true).ringCount)
+        assertEquals(WakeActionPlanner.Cue.RING, WakeActionPlanner.parseChoice(
+            """{"cue":"music","ringCount":3}""", false, true).cue)
+    }
+
     @Test fun invalidVolumeIsNotCarriedIntoExecutor() {
         val raw = """{"cue":"music","volumePercent":200}"""
         assertNull(WakeActionPlanner.parseChoice(raw, true, true).volumePercent)
