@@ -1,6 +1,6 @@
 # Lulu1 代码索引
 
-- 基准提交：`d7315e2633af30ca45787bfe899703a92d6b1f0a`
+- 基准提交：`c4a73f9c1ed9ed766364cc5cd60f4114e8dc8f5d`
 - 分支：`main`
 - 已索引文件：1111
 - 已索引代码/文本行：228836
@@ -148,7 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 174 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 190 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 651 | 1 |
@@ -734,7 +734,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 72 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2174 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2176 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |

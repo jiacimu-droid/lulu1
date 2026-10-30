@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:39:46.997071+00:00",
-  "commit": "d7315e2633af30ca45787bfe899703a92d6b1f0a",
+  "generatedAt": "2026-10-30T06:42:47.644118+00:00",
+  "commit": "c4a73f9c1ed9ed766364cc5cd60f4114e8dc8f5d",
   "branch": "main",
-  "sourceFingerprint": "abee53cba3161a2ee1dcefc01193e2810777983d63f29ca00f9ad4b0c33e8733",
+  "sourceFingerprint": "a0eb73966d9b15c556b93d8630371c0b7ea06811f1f08eae717b886f87118354",
   "summary": {
     "files": 1111,
     "lines": 228836,
@@ -1673,13 +1673,13 @@
     "hintFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 36
+        "line": 34
       }
     ],
     "decode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 57
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
@@ -1689,7 +1689,7 @@
     "decodePlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 59
+        "line": 57
       }
     ],
     "genuinelyConnected": [
@@ -19584,20 +19584,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 190,
-      "sha256": "2d7f9076e0183e0abe1396cf27a2181a2c5a8f549f6007e7ae428d42e1eada01",
+      "lines": 188,
+      "sha256": "d569eda09216879f1c4c141c9ea532b02c787178476f517264e7b5f56ccfd437",
       "symbols": [
         {
           "name": "hintFor",
-          "line": 36
+          "line": 34
         },
         {
           "name": "decode",
-          "line": 57
+          "line": 55
         },
         {
           "name": "decodePlan",
-          "line": 59
+          "line": 57
         }
       ]
     },
@@ -33455,8 +33455,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2174,
-      "sha256": "d21a6f15e04e7095301edc92aca6622994eab9ef084419a7532543436f254e2d",
+      "lines": 2176,
+      "sha256": "c38655cfa9426f26e163e21941c654beb436a3c46fe2e4fe8c6973cbd007a609",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
