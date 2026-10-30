@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:54:10.056305+00:00",
-  "commit": "e908186ca4810e857ecc1668a7bfd60353452899",
+  "generatedAt": "2026-10-30T07:12:12.564840+00:00",
+  "commit": "27b9f1ce640f43868fd7092db51085e024d9a9d6",
   "branch": "main",
-  "sourceFingerprint": "d08272048a27480be0d8b62b4d99aa1d3087f067f4b8877024feecfe46dda91b",
+  "sourceFingerprint": "0c9ad6db6e97a7f9babc2007a1771e5863c5372823d16d64b462494d2c5324f9",
   "summary": {
-    "files": 1112,
-    "lines": 228977,
-    "symbols": 3241
+    "files": 1113,
+    "lines": 229067,
+    "symbols": 3242
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6235,7 +6235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 651
+        "line": 649
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -6275,7 +6275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 667
+        "line": 665
       }
     ],
     "informativeAction": [
@@ -9319,7 +9319,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 772
+        "line": 770
       }
     ],
     "LegacyLuluImportResult": [
@@ -11711,67 +11711,67 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 317
+        "line": 322
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 368
+        "line": 373
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 445
+        "line": 450
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 452
+        "line": 462
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 470
+        "line": 468
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 481
+        "line": 479
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 512
+        "line": 510
       }
     ],
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 607
+        "line": 605
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 616
+        "line": 614
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 648
+        "line": 646
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 754
+        "line": 752
       }
     ],
     "Limits": [
@@ -17744,6 +17744,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 116
+      }
+    ],
+    "TimelinePrefixDeletionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt",
+        "line": 20
       }
     ],
     "TokenConsolePresentationTest": [
@@ -29498,8 +29504,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 886,
-      "sha256": "044b2cbd0f2e52cff6db8bac259e9cb897703620f28a8302894d4bd0083b6c84",
+      "lines": 884,
+      "sha256": "01c935a0ae65f24f8d931873da278ce89c0c5512336aa6a04e267089348d2353",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -29535,59 +29541,59 @@
         },
         {
           "name": "eventsByIds",
-          "line": 317
+          "line": 322
         },
         {
           "name": "deleteEvent",
-          "line": 368
+          "line": 373
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 445
+          "line": 450
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 452
+          "line": 462
         },
         {
           "name": "deleteConversationMessage",
-          "line": 470
+          "line": 468
         },
         {
           "name": "deleteConversationData",
-          "line": 481
+          "line": 479
         },
         {
           "name": "recentEvents",
-          "line": 512
+          "line": 510
         },
         {
           "name": "recentUserActivities",
-          "line": 607
+          "line": 605
         },
         {
           "name": "recentXhsReadings",
-          "line": 616
+          "line": 614
         },
         {
           "name": "sessionEvents",
-          "line": 648
+          "line": 646
         },
         {
           "name": "recentContext",
-          "line": 651
+          "line": 649
         },
         {
           "name": "remember",
-          "line": 667
+          "line": 665
         },
         {
           "name": "exportBackup",
-          "line": 754
+          "line": 752
         },
         {
           "name": "importBackup",
-          "line": 772
+          "line": 770
         }
       ]
     },
@@ -37894,6 +37900,17 @@
         {
           "name": "propose",
           "line": 137
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt",
+      "lines": 92,
+      "sha256": "013822e526d0068efa6f1c00a237aaaeeaddc42a58a22712556044b9ec0d7021",
+      "symbols": [
+        {
+          "name": "TimelinePrefixDeletionTest",
+          "line": 20
         }
       ]
     },
