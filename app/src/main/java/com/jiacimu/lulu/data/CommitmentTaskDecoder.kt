@@ -41,6 +41,7 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         currentStep = item.optInt("currentStep", 0),
                         attemptCount = item.optInt("attemptCount", 0),
                         lastActionResult = item.optString("lastActionResult"),
+                        wakeAttemptHistory = item.optJSONArray("wakeAttemptHistory").strings().takeLast(6),
                         revision = item.optLong("revision", 1L).coerceAtLeast(1L),
                         linkedAlarmId = item.nullString("linkedAlarmId"),
                         executionToken = item.nullString("executionToken"),
