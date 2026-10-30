@@ -9,7 +9,9 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import okio.BufferedSink
 
-/** One chargeable POST, with readable 4xx bodies and no transport replay. */
+/** One chargeable POST through the system's configured network route.
+ * Never open a separate "health probe" socket or reject VPN/system proxies before OkHttp.
+ * One-shot body, disabled redirects and transport retry prevent silent paid replays. */
 internal object ModelPostTransport {
     internal enum class Phase { CONNECT, WRITE_BODY, READ_RESPONSE }
     private val client = OkHttpClient.Builder()
@@ -24,10 +26,8 @@ internal object ModelPostTransport {
         headers: Map<String, String>,
         body: String,
         readTimeoutMillis: Int,
-        preflight: (String) -> Unit = { ModelLocalRouteHealth.probeBeforePost(it) },
         read: (Response) -> T,
     ): T {
-        preflight(url)
         var phase = Phase.CONNECT
         val bytes = body.toByteArray(Charsets.UTF_8)
         val requestBody = object : RequestBody() {

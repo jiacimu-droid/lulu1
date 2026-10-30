@@ -950,14 +950,15 @@ class CompanionModelGateway(
                         val advice = when {
                             error is ModelHttpException && error.status in setOf(400, 422) ->
                                 "；请求被明确拒绝，原样重试不会修复参数或输入问题"
-                            error is ModelLocalRouteUnavailableException ->
-                                "；本机端口未启动，请检查本机代理或本机模型接口；本轮请求未发送"
                             error is ModelPostTransportException -> error.diagnostic
                             error is java.io.IOException ->
                                 "；网络连接中断，服务端生成结果未知，客户端没有自动重发"
                             else -> ""
                         }
-                        val route = if (error is java.io.IOException)
+                        // A proxy setting is context for a connection failure, never a
+                        // reason to block requests or blame unrelated response timeouts.
+                        val route = if (error is ModelPostTransportException &&
+                            error.phase == ModelPostTransport.Phase.CONNECT)
                             requestUrl?.let(ModelLocalRouteHealth::transportHint).orEmpty() else ""
                         " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes$advice$route]"
                     } else "",

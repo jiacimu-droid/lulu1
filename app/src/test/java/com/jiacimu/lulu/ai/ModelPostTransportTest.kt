@@ -16,7 +16,7 @@ class ModelPostTransportTest {
         try {
             val body = "{\"内容\":\"记忆\"}"
             assertEquals("ok", ModelPostTransport.execute(server.url("/").toString(),
-                emptyMap(), body, 30_000, preflight = {}) { it.body!!.string() })
+                emptyMap(), body, 30_000) { it.body!!.string() })
             val request = server.takeRequest()
             assertEquals(body, request.body.readUtf8())
             assertEquals(body.toByteArray(Charsets.UTF_8).size.toString(), request.getHeader("Content-Length"))
@@ -31,8 +31,7 @@ class ModelPostTransportTest {
         server.enqueue(MockResponse().setBody("must not retry"))
         server.start()
         try {
-            ModelPostTransport.execute(server.url("/").toString(), emptyMap(), "{}", 30_000,
-                preflight = {}) {
+            ModelPostTransport.execute(server.url("/").toString(), emptyMap(), "{}", 30_000) {
                 assertEquals(401, it.code)
                 assertTrue(it.body!!.string().contains("repair-auth-denied"))
             }
@@ -47,7 +46,7 @@ class ModelPostTransportTest {
         server.enqueue(MockResponse().setBody("must not redirect"))
         try {
             assertEquals(307, ModelPostTransport.execute(server.url("/").toString(),
-                emptyMap(), "{}", 30_000, preflight = {}) { it.code })
+                emptyMap(), "{}", 30_000) { it.code })
             assertEquals(1, server.requestCount)
         } finally { server.shutdown() }
     }
@@ -60,7 +59,7 @@ class ModelPostTransportTest {
         try {
             try {
                 ModelPostTransport.execute(server.url("/chat/completions").toString(),
-                    emptyMap(), "{\"model\":\"test\"}", 30_000, preflight = {}) { it.body!!.string() }
+                    emptyMap(), "{\"model\":\"test\"}", 30_000) { it.body!!.string() }
                 fail("Expected broken response")
             } catch (error: ModelPostTransportException) {
                 assertEquals(ModelPostTransport.Phase.READ_RESPONSE, error.phase)
@@ -73,8 +72,7 @@ class ModelPostTransportTest {
     @Test fun connectFailureIsNotReportedAsResponseReadTimeout() {
         val port = ServerSocket(0).use { it.localPort }
         try {
-            ModelPostTransport.execute("http://127.0.0.1:$port/", emptyMap(), "{}", 30_000,
-                preflight = {}) { it.body!!.string() }
+            ModelPostTransport.execute("http://127.0.0.1:$port/", emptyMap(), "{}", 30_000) { it.body!!.string() }
             fail("Expected connection failure")
         } catch (error: ModelPostTransportException) {
             assertEquals(ModelPostTransport.Phase.CONNECT, error.phase)
@@ -82,16 +80,17 @@ class ModelPostTransportTest {
         }
     }
 
-    @Test fun failedLocalPreflightNeverStartsPost() {
+    @Test fun providerRequestIsNotBlockedByAnIndependentLocalPreflight() {
         val server = MockWebServer()
+        server.enqueue(MockResponse().setBody("accepted"))
         server.start()
         try {
-            try {
-                ModelPostTransport.execute(server.url("/").toString(), emptyMap(), "{}", 30_000,
-                    preflight = { throw ModelLocalRouteUnavailableException("offline", IOException()) }) { "unused" }
-                fail("Expected local failure")
-            } catch (_: ModelLocalRouteUnavailableException) { }
-            assertEquals(0, server.requestCount)
+            // A loopback URL is a valid configured model gateway, not a VPN
+            // policy violation. Only the real OkHttp request should connect.
+            val result = ModelPostTransport.execute(server.url("/v1/chat").toString(),
+                emptyMap(), "{\"text\":\"hello\"}", 30_000) { it.body!!.string() }
+            assertEquals("accepted", result)
+            assertEquals(1, server.requestCount)
         } finally { server.shutdown() }
     }
 }
