@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:05:59.252174+00:00",
-  "commit": "fdd355a7df3ad04b1a46492ee44f1eeb1da63b4d",
+  "generatedAt": "2026-10-30T11:06:30.648445+00:00",
+  "commit": "ced5df88f9e89161464ce8d7918548efeca2f8b6",
   "branch": "main",
-  "sourceFingerprint": "cc9497e16e64e9557d03d35d3b6d006f24775906febf7a42d996911666cdeb1e",
+  "sourceFingerprint": "20e412998a558bfce41107b5e961448d4caf4cab50b7ead519e382cd9ade2968",
   "summary": {
     "files": 1119,
-    "lines": 230331,
+    "lines": 230346,
     "symbols": 3257
   },
   "symbolIndex": {
@@ -25400,8 +25400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 505,
-      "sha256": "3448fdec8d84b3d0bc6d58c316dbcb5d1ff7bc694655ec990d8ac8199066d71c",
+      "lines": 502,
+      "sha256": "af67e1e541d8d39dff7ac5165346cfb1d2ce5f90faa0347ecf7bc93766e2ac04",
       "symbols": [
         {
           "name": "wakeSpeechContext",
@@ -36443,8 +36443,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
-      "lines": 60,
-      "sha256": "9ff0da77467810f06307a0cdb80c74263e78fbda441956a9bd76e7fe40dc7880",
+      "lines": 78,
+      "sha256": "2705df1495483d22c2c4c85e6f147e80fef421a3cdaac612e32e8cff1ce59539",
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",
