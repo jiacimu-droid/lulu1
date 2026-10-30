@@ -177,9 +177,9 @@ internal object CommitmentExecutor {
                     status = if (delivered) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
                     linkedAlarmId = review?.id, nextCheckAt = review?.triggerAt,
-                    followUpKind = if (review == null) "" else
-                        if (wake && attempt < CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) "retry"
-                        else "verification",
+                    followUpKind = if (wake)
+                        CommitmentCallRetryPolicy.followUpKindForWakeRound(attempt, review != null)
+                        else if (review != null) "verification" else "",
                     attemptCount = attempt,
                     wakeAttemptHistory = if (!wake) old.wakeAttemptHistory else
                         (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}；" +
@@ -324,8 +324,8 @@ internal object CommitmentExecutor {
                     attemptCount = attempt,
                     linkedAlarmId = nextAlarm?.id,
                     nextCheckAt = nextAlarm?.triggerAt,
-                    followUpKind = if (nextAlarm == null) "" else
-                        if (attempt < CommitmentCallRetryPolicy.MAX_WAKE_CALL_ATTEMPTS) "retry" else "verification",
+                    followUpKind = CommitmentCallRetryPolicy.followUpKindForWakeRound(
+                        attempt, nextAlarm != null),
                     wakeAttemptHistory = (old.wakeAttemptHistory +
                         "第$attempt 阶段：角色选${selected.cue}；" +
                         (if (queued) music else "叫醒行动未成功排入") +
@@ -393,7 +393,9 @@ internal object CommitmentExecutor {
                         "原因：${selected.reason.take(160)}").takeLast(6),
                 nextCheckAt = followUp?.triggerAt,
                 linkedAlarmId = followUp?.id,
-                followUpKind = if (followUp == null) "" else if (reviewOnly) "verification" else "retry",
+                followUpKind = if (wake)
+                    CommitmentCallRetryPolicy.followUpKindForWakeRound(attempt, followUp != null)
+                    else if (followUp == null) "" else if (reviewOnly) "verification" else "retry",
                 lastActionResult = buildString {
                     append("第$attempt 次${if (useCall) "主动来电" else "叫醒提醒"}已尝试；")
                     append(if (result.success)
