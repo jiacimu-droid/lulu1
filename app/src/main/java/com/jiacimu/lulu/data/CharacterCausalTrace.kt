@@ -298,10 +298,31 @@ internal object CharacterCausalTrace {
             val actualReceipt = plan.resultEvidenceId.takeIf(String::isNotBlank)?.let { id ->
                 SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()
             }
+            // A completed calendar projection may point at a native post,
+            // observation or ToolRouter receipt. Existence of ANY role-owned
+            // event at that ID does not establish that this plan executed:
+            // it might be an earlier user message, a failed tool, or a
+            // different plan's receipt. Only a successful, plan-bound router
+            // receipt is independently confirmed here. Native effects remain
+            // visible, but their execution attribution needs separate proof.
+            val evidenceAfterDue = actualReceipt != null &&
+                !actualReceipt.occurredAt.isBefore(plan.dueAt)
+            val toolBody = if (actualReceipt?.source == "tool-router" &&
+                actualReceipt.evidenceKind == EventEvidenceKind.ToolResult &&
+                evidenceAfterDue) objectValue(actualReceipt.content) else null
+            val verifiedReceipt = toolBody != null &&
+                toolBody.optString("planId") == plan.id &&
+                toolBody.optString("tool").isNotBlank() &&
+                (plan.activityAction.isBlank() ||
+                    toolBody.optString("tool") == plan.activityAction) &&
+                receiptStatus(toolBody) == "执行器确认成功"
+            val nativeResult = evidenceAfterDue &&
+                actualReceipt?.source != "tool-router" &&
+                actualReceipt?.evidenceKind != EventEvidenceKind.UserStatement
             val status = when {
                 stale -> "旧版本的日程"
-                plan.status == "completed" && actualReceipt == null -> "日程状态待核对"
-                plan.status == "completed" -> "日程执行有回执"
+                plan.status == "completed" && verifiedReceipt -> "日程执行有回执"
+                plan.status == "completed" -> "日程状态待核对"
                 plan.status == "cancelled" -> "日程已取消"
                 plan.status == "planned" || plan.status == "due" -> "已排入日程，尚非执行"
                 else -> "日程状态未知"
@@ -312,9 +333,14 @@ internal object CharacterCausalTrace {
                 else -> "安排依据版本 $oldRevision"
             }
             val outcome = when {
+                plan.status == "completed" && verifiedReceipt ->
+                    "执行器成功回执与本日程ID及动作匹配；不等于本人目标已达成"
+                plan.status == "completed" && nativeResult ->
+                    "原生结果记录仍可查，但此处没有独立核对它属于本日程的执行回执"
                 plan.status == "completed" && actualReceipt == null ->
                     "状态曾记为完成，但原执行证据已撤回或不可见"
-                plan.status == "completed" -> "原执行证据仍可查，不等于本人目标已达成"
+                plan.status == "completed" ->
+                    "关联记录不符合本日程的执行证据条件，不能认定活动完成"
                 else -> "原活动没有在此处被证明执行成功"
             }
             rows += CharacterCausalTraceLine("个人日程 · $status",
