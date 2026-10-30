@@ -178,10 +178,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Spacer(Modifier.height(4.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 GameHudQuickAction("造墙", Color(0xFFA9E5BD),
-                    enabled = nearTarget && world.wood >= 2 &&
-                        target != (world.x to world.y) && selectedCell in setOf(0, 4) &&
-                        selectedStructure == null && !isMobSelected &&
-                        world.friends.none { it.hp > 0 && it.x == target.first && it.y == target.second },
+                    enabled = BlockIslandRules.canBuild(island, "wall", target.first, target.second),
                     modifier = Modifier.weight(1f)) { perform("wall") }
                 GameHudQuickAction("吃果", Color(0xFFA9E5BD),
                     enabled = island.fruit > 0 && world.hp < 12,
@@ -272,13 +269,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             IslandBuildChip("♣ 种树", "1木", nearTarget) { perform("plant") }
-            IslandBuildChip("▤ 地板", "1木", nearTarget) { perform("floor") }
-            IslandBuildChip("▥ 木墙", "2木", nearTarget) { perform("wall") }
-            IslandBuildChip("▣ 木门", "2木", nearTarget) { perform("door") }
-            IslandBuildChip("⚒ 工作台", "4木2石", nearTarget) { perform("workbench") }
-            IslandBuildChip("♨ 篝火", "2木1石", nearTarget) { perform("campfire") }
-            IslandBuildChip("▱ 木床", "3木1石", nearTarget) { perform("bed") }
-            IslandBuildChip("▦ 木桥", "3木", nearTarget) { perform("bridge") }
+            IslandBuildChip("▤ 地板", "1木", BlockIslandRules.canBuild(island, "floor", target.first, target.second)) { perform("floor") }
+            IslandBuildChip("▥ 木墙", "2木", BlockIslandRules.canBuild(island, "wall", target.first, target.second)) { perform("wall") }
+            IslandBuildChip("▣ 木门", "2木", BlockIslandRules.canBuild(island, "door", target.first, target.second)) { perform("door") }
+            IslandBuildChip("⚒ 工作台", "4木2石", BlockIslandRules.canBuild(island, "workbench", target.first, target.second)) { perform("workbench") }
+            IslandBuildChip("♨ 篝火", "2木1石", BlockIslandRules.canBuild(island, "campfire", target.first, target.second)) { perform("campfire") }
+            IslandBuildChip("▱ 木床", "3木1石", BlockIslandRules.canBuild(island, "bed", target.first, target.second)) { perform("bed") }
+            IslandBuildChip("▦ 木桥", "3木", BlockIslandRules.canBuild(island, "bridge", target.first, target.second)) { perform("bridge") }
             IslandBuildChip("↶ 拆除", "退部分材料", nearTarget) { perform("remove") }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
