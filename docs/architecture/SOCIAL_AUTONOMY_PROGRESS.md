@@ -155,3 +155,13 @@
 - 测试时间数据修正已提交main：[2cda68f4](https://github.com/jiacimu-droid/lulu1/commit/2cda68f457cd470f4347f4e56b572901124587d8)。对应原[Refresh code index #40963764184](https://github.com/jiacimu-droid/lulu1/actions/runs/40963764184) completed/success，自动索引提交6cbba218，基准为本修正SHA。
 - 对应[Lulu APK #40963764211](https://github.com/jiacimu-droid/lulu1/actions/runs/40963764211)、job123762903704：06:10启动，Live2D阶段成功，Android Test and build phone APK自06:11:22开始；截至06:22仍in_progress，日志接口NOT_FOUND，尚不能区分测试运行、phone编译或阻塞。没有Android JVM结束/phone/发布证据，**本轮两条私信回归与整包均未确认通过**。不将运行时长当通过，也不反复改断言或重排CI掩盖结果。下轮优先下载此job最终日志；若仍有本专项失败，继续同一真实链修复。
 - 当前源码已核验仍保留7a335136全部历史存储修复与此次日期/出生顺序修正；旧metadata被剪掉的恢复与多年性能仍不作保证。真机旧话题自然续接、后台强杀与跨天表现仍未验。
+
+
+## 2026-10-30 08时 · S2 发送时间事实门禁在持久化前校验
+
+- **开工核对与分类**：完整大纲、AGENTS、CODE_INDEX、人物契约、成长框架及各专项进度已读；AGENTS/人物契约/成长框架与上轮逐字相同，10-28连续性清单新增基础P4删除居民日程后原请求归属，已读取整段差异，不重复修改。7d2e3257原索引#40839986477 success、APK#40839986524 cancelled，本人在场候选不重复开发。S1独立关系、S2已有通信、S4定向回复为已有自动基础，真机自然互动待验；S3完整邀约成功/拒绝/改期与共同到场仍已有待验；群体自然度为后续增强。本轮只补下列真实发送缺口。
+- **补足上轮验收**：上轮#40963764211最终cancelled；已比较2cda68f4到f34dde054的后继差异，ResidentSocialMailbox与ResidentMailDeliveryAtomicityTest均无修改，故保留7a335136全部历史与2cda68f4出生时间fixture修正。包含它们的[APK#40968894322](https://github.com/jiacimu-droid/lulu1/actions/runs/40968894322)、job123780762940已completed/success，JVM、assemblePhone与发布成功，不再记成私信回归未通过；真机仍未验。并行内驱已处理其旧预期，未在本专项修改其断言。
+- **生产根因**：SharedExperienceTimeline.record按DigitalLifeProfileStore.allowsTimestamp拒收诞生前事件，但ResidentSocialMailbox.send原来只检查正文和联系人，先持久化mail，再写双方原始观察并返回成功。若传入的真实执行时间早于发送者或接收者出生（包括设备时钟回拨），一方或双方观察被正式Store拒绝，historyForInspection/pendingIncoming又正确排除没有来源的mail；工具和查手机代发仍可能谎报送达。此前错误fixture暴露了下层拒收行为，本轮修正发送提交契约，不削弱下层事实边界。
+- **实际源码链路**：在唯一send入口、任何UUID/持久化/双方事件/唤醒之前，复用双方各自allowsTimestamp校验，非法时间明确返回未发送；正常人物自己发信和主人代发共用此门禁。CompanionActionRuntime和PhoneInspectionScreen沿既有异常/失败处理，不改公共ToolRouter、人格网关或统一时间线；合法毫秒级边界保持一致，不猜日期、不修改本人语义或自动补一个时间，不增模型调用/重试/唤醒。
+- **根因回归**：在原原子送达回归增加四组合（较晚出生者为发送者/接收者×本人/主人代发）。实际send的非法时间不得改邮箱JSON、双方时间线或未读；同一对随后在正式出生毫秒边界可真实送达，双方各有正确来源证据、只收件者未读，确认后重载不复活，双方历史仍可回看。旧并发、全历史、撤回、角色隔离、写入失败和首次联系回归保留，不调用外部模型。
+- **验证边界**：已运行原scripts/generate_code_index.py及差异检查；正式索引仍由现有workflow生成。新增源码/测试不等于JVM或APK已通过，继续按本提交对应CI核对。真机调时、强杀、多日续接及多年历史性能未验；跨Preferences/SQLite强杀原子恢复仍属于基础专项既有边界，未宣称本门禁解决所有部分提交。

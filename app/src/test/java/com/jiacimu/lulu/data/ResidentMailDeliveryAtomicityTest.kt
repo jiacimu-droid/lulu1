@@ -258,6 +258,44 @@ class ResidentMailDeliveryAtomicityTest {
         }
     }
 
+    @Test fun preBirthDeliveryFailsBeforePersistenceAndCanonicalBirthMillisecondStillDelivers() {
+        for (youngerSender in listOf(false, true)) for (author in listOf("character", "owner-on-behalf")) {
+            val now = Instant.now()
+            val youngBirth = now.minusSeconds(60)
+            val oldBirth = now.minusSeconds(3600)
+            val sender = person(bornAt = if (youngerSender) youngBirth else oldBirth)
+            val receiver = person(bornAt = if (youngerSender) oldBirth else youngBirth)
+            assertTrue(MomentFriendAccess.setFriends(sender, receiver, true))
+            val storedBefore = actualPrefs.getString("messages", "[]")
+            val senderBefore = SharedExperienceTimeline.all(sender)
+            val receiverBefore = SharedExperienceTimeline.all(receiver)
+            val failure = runCatching { ResidentSocialMailbox.send(sender, receiver,
+                "发生在一方诞生前，不能冒充成功的消息", author, now.minusSeconds(120)) }.exceptionOrNull()
+            assertTrue("Both directions and both actual author types must reject pre-birth delivery",
+                failure is IllegalArgumentException)
+            assertEquals(storedBefore, actualPrefs.getString("messages", "[]"))
+            assertEquals(senderBefore, SharedExperienceTimeline.all(sender))
+            assertEquals(receiverBefore, SharedExperienceTimeline.all(receiver))
+            assertTrue(ResidentSocialMailbox.historyForInspection(sender).isEmpty())
+            assertTrue(ResidentSocialMailbox.pendingIncoming(receiver).isEmpty())
+            // Reuse the authority's millisecond boundary rather than inventing
+            // a stricter nanosecond rule for the same persisted birth instant.
+            val boundary = Instant.ofEpochMilli(youngBirth.toEpochMilli())
+            val sent = ResidentSocialMailbox.send(sender, receiver, "真实出生时刻后的第一封信", author, boundary)
+            for (viewer in listOf(sender, receiver)) {
+                val evidence = SharedExperienceTimeline.eventsByIds(viewer,
+                    listOf(ResidentSocialMailbox.evidenceId(sent, viewer))).single()
+                assertEquals(author.takeIf { it == "owner-on-behalf" } ?: "character-message", evidence.source)
+            }
+            assertEquals(listOf(sent.id), ResidentSocialMailbox.pendingIncoming(receiver).map { it.id })
+            assertTrue(ResidentSocialMailbox.acknowledgeIncoming(receiver, sent.id))
+            reloadMailbox()
+            assertEquals(listOf(sent.id), ResidentSocialMailbox.historyForInspection(sender).map { it.id })
+            assertEquals(listOf(sent.id), ResidentSocialMailbox.historyForInspection(receiver).map { it.id })
+            assertTrue(ResidentSocialMailbox.pendingIncoming(receiver).isEmpty())
+        }
+    }
+
     @Test fun failedPersistenceDoesNotInventDeliveryOrReciprocalAcquaintance() {
         val sender = person()
         val receiver = person()

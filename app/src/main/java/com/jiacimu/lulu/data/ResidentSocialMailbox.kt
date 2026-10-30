@@ -169,6 +169,13 @@ internal object ResidentSocialMailbox {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
         val text = content.trim().take(650)
         require(text.isNotBlank() && canContact(from, to)) { "双方尚未真实认识或同处现场，不能凭空通信" }
+        // Timeline persistence rejects pre-birth experiences. Enforce the same
+        // factual boundary before committing mail or reporting delivery, also
+        // when a device clock moves backwards after a character was created.
+        require(DigitalLifeProfileStore.allowsTimestamp(from, at) &&
+            DigitalLifeProfileStore.allowsTimestamp(to, at)) {
+            "发送时间早于通信参与者的数字生命诞生时间，消息未发送"
+        }
         val item = ResidentDirectMessage(UUID.randomUUID().toString(), from, to, text, at, author)
         // This is the durable conversation authority, not a prompt window.
         // Trimming it used to destroy old topics and could evict the read
