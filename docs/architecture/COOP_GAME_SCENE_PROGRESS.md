@@ -24,3 +24,14 @@
 - 人物相邻格移动按现有145ms寻路节奏做显示插值，复活/换场等跨格位移直接切换；逻辑碰撞、坐标与存档不随显示动画改变。队伍栏展示本人名字、生命和正在前往的坐标，点击沿用原地图标记入口；提示以人物名呈现，不展示内部角色ID。
 - 小岛、摸金共用的横屏布局将队伍栏放在右侧，主操作留在底部；队伍内容高度受实际视口约束并可滚动，保留横竖切换时的会话保存状态。手机实际触控、键盘和大字体效果仍需真机验收。
 - 新增10项持续行程、真实回合/重放、恢复、结束、取消、多人所有权、旧存档及坏执行元数据回归；独立JVM规则回归50项通过。真实 Android/Compose 编译通过，正式 Robolectric 六类50项全部通过，失败/错误/跳过均为0；完整APK和真机验收仍单独核对。
+
+
+## 2026-10-30 清晨交付核验
+
+- 已核对发布 `lulu-v6898`（北京时间2026-10-30 08:21:55），构建源提交为 `fa1165763a62a98c3ab84bb831e37e66058d5059`。GitHub compare 的共同祖先分别就是 `752533b3dcffbe0acecc653429ca2a8dba5c7c03` 与 `ff1e407887ef501fdb151bfbc38fba09d12a87eb`，不是上述游戏改动之前的旧包。
+- 正式 [Lulu APK流水线](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938) 的真实日志显示：`:app:verifyArtSafeVariants :app:testDebugUnitTest :app:assemblePhone` 整体成功，`BUILD SUCCESSFUL in 11m 10s`；手机包收集、最终DEX检查和Release发布均成功。本条是完整Android单测/手机APK证据，独立于先前40/50项规则回归；日志没有提供全量测试汇总数，因此不补写推测数量。
+- 已实际下载并检查 [ARM64 APK](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6898/Lulu-arm64.apk)：29,285,405字节，ZIP完整性通过，SHA-256为 `034a9d8decf8ed0a742712963abab1d0f1c3eb43fa64e010a5d7db0f6d9dc177`。包内 `META-INF/version-control-info.textproto` 的revision与上述源提交完全一致；DEX类定义包含GameSceneDeck、两游戏页面、RelicActorPlay、IslandActorPlay、IslandTeamInbox、IslandTravel与IslandCompanionVoice。
+- 原创营地WebP已在最终APK资源 `res/Sk.webp` 中逐字节核对，SHA-256为 `1109f321eab03f4e5c972fe647941c3cef0ce7e621a375ec14ba3f852a04ccc0`，与发布源素材一致。源码再次确认摸金的移动/开箱/战斗/治疗/救援真实修改原局状态、小岛读取最新状态合并、队伍消息按角色确认、语音沿本人音色串行播放并在离开/后台停止。
+- 发布源已包含后续触控布局修复：方向键固定左下、采集/战斗等主动作固定右下；背包管理横屏采用右侧场内面板，移动不藏在抽屉；游戏馆统一管理进出游戏的横竖屏请求。此处记录既有主干成果，不将其他窗口的实现认作本轮新增。
+- 本次读取的main为 `b7607428f764702a9657968a071c48e4ad450eab`，游戏源码/游戏测试与上述发布源无差异。更新主干最近一次失败 `6e3185e` 卡在Live2D的exp3眼部所有权测试，尚未进入Android游戏编译；另一窗口已提交对应修复并启动 [后续流水线](https://github.com/jiacimu-droid/lulu1/actions/runs/40983048341)。该后续构建在本次核验时尚未完成，不能将v6898称作包含后续所有主干修改的新包。
+- 未进行安卓真机启动、触控/大字体/方向恢复、实际模型陪玩与云音色体验验收；源码、单测和最终包内容核对不替代这些体验结论。本轮未改游戏行为代码，仅补充可复核交付证据，因此无需重新生成代码索引。
