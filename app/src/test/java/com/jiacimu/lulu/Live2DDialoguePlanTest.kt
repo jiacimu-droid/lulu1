@@ -142,6 +142,18 @@ class Live2DDialoguePlanTest {
                 assertEquals(100L, Live2DSpeechTimeline.position.value.elapsedMs)
                 Live2DSpeechTimeline.finished(role, call, "u$index")
             }
+            // Losing the next turn's chosen Motion3 must NOT reuse the prior
+            // cue/sequence, or stage.js will reject the new TTS as stale.
+            val emptySpeechSequence = Live2DVisualActionBus.publishUnplannedSpeech(
+                context, role, call)
+            assertTrue(emptySpeechSequence > cue.sequence)
+            val emptySpeechCue = Live2DVisualActionBus.cues.value.getValue(role)
+            assertEquals(emptySpeechSequence, emptySpeechCue.sequence)
+            assertNull(emptySpeechCue.motion)
+            assertTrue(emptySpeechCue.beats.isEmpty())
+            assertTrue(emptySpeechCue.speechParts.isEmpty())
+            assertFalse(Live2DVisualActionBus.recordMotionOutcome(role, call,
+                "motion-started", event(emptySpeechSequence, 0, "s1")))
         } finally {
             Live2DVisualActionBus.stageClosed(role, call)
             prefs.edit().remove("model:$role").commit()
