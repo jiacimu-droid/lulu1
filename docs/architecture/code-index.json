@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T08:17:52.112923+00:00",
-  "commit": "138d349efc185d2233ff3a7609654dfe4e334757",
+  "generatedAt": "2026-10-30T08:18:30.093489+00:00",
+  "commit": "ca8c36e2f41cb32a0b619fccb8972bc2935aa837",
   "branch": "main",
-  "sourceFingerprint": "7a944a7282d55e2bbd620123c6baf0cb69902417bb3c8f38171fc45362be602e",
+  "sourceFingerprint": "dfa4053db156fed76ceb359bc49c7751af483f46b934f040cf2768ff217081d3",
   "summary": {
     "files": 1119,
-    "lines": 229956,
-    "symbols": 3252
+    "lines": 229972,
+    "symbols": 3253
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7712,6 +7712,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
         "line": 13
+      }
+    ],
+    "wakeSpeechContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
+        "line": 117
       }
     ],
     "CommitmentLexiconSync": [
@@ -25366,9 +25372,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 432,
-      "sha256": "5bf84417072b09150b4490948b7dc3535b1fb3979a2a1913233d0dc5934376dd",
-      "symbols": []
+      "lines": 448,
+      "sha256": "675d40c24c65e9ebcdfa5a7f69514e8f2bc045cfa3b949a7dccf1eccae17d59f",
+      "symbols": [
+        {
+          "name": "wakeSpeechContext",
+          "line": 117
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
