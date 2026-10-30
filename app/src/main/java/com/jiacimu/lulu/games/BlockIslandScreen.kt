@@ -178,7 +178,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Spacer(Modifier.height(4.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 GameHudQuickAction("造墙", Color(0xFFA9E5BD),
-                    enabled = nearTarget && world.wood >= 2,
+                    enabled = nearTarget && world.wood >= 2 &&
+                        target != (world.x to world.y) && selectedCell in setOf(0, 4) &&
+                        selectedStructure == null && !isMobSelected &&
+                        world.friends.none { it.hp > 0 && it.x == target.first && it.y == target.second },
                     modifier = Modifier.weight(1f)) { perform("wall") }
                 GameHudQuickAction("吃果", Color(0xFFA9E5BD),
                     enabled = island.fruit > 0 && world.hp < 12,
