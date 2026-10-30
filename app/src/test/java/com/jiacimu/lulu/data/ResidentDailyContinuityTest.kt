@@ -2620,6 +2620,62 @@ class ResidentDailyContinuityTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun sameDaySettledResidentFailuresAreVisibleWithoutRetryOrCrossRoleLeak() {
+        val app = RuntimeEnvironment.getApplication() as android.content.Context
+        initializeBackgroundRuntime(app)
+        val zone = java.time.ZoneId.systemDefault()
+        val today = java.time.LocalDate.of(2026, 10, 30)
+        val now = today.atTime(16, 0).atZone(zone).toInstant()
+        fun citizen(label: String) = DigitalWorldExpansionStore.registerResident(
+            DigitalWorldResident(name = "$label-${UUID.randomUUID()}",
+                identity = "居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD,
+                createdAt = now.minusSeconds(86_400)))
+        val revoked = citizen("今日来源撤回")
+        val rejected = citizen("今日日程拒绝")
+        ResidentCharacterBridge.sync(app, now)
+        val actor = ResidentCharacterBridge.characterId(revoked.id)
+        val dueAt = now.minusSeconds(3_600)
+        val planId = "removed-today-${UUID.randomUUID()}"
+        val key = "execute:$planId:$dueAt"
+        val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
+        assertTrue(p.edit()
+            .putString("phase:${revoked.id}:$today", "source_unavailable")
+            .putString("decision:${revoked.id}:$today", JSONObject().put("post", "未执行").toString())
+            .putString("last-error:${revoked.id}:$today", "原来源今天已撤回")
+            .putString("phase:${rejected.id}:$today", "finished_with_agenda_rejections")
+            .putString("decision:${rejected.id}:$today", JSONObject().put("agenda", JSONArray()).toString())
+            .putString("last-error:${rejected.id}:$today", "第2项因权限未排入")
+            .putString("due-phase:$key", "source_unavailable")
+            .putString("due-last-error:$key", "到点决定已撤回")
+            .putString("due-origin:$key", JSONObject()
+                .put("characterId", actor).put("planId", planId)
+                .put("dueAt", dueAt.toString()).toString())
+            .putString("phase:${revoked.id}:${today.plusDays(1)}", "uncertain")
+            .commit())
+        val before = p.all.toMap()
+        val revokedHistory = ResidentDailyDecision.historicalAttempts(app, revoked.id, now)
+        assertEquals(2, revokedHistory.size)
+        assertTrue(revokedHistory.any { it.scope == "每日规划" &&
+            it.phase == "source_unavailable" && it.savedDecision &&
+            it.error.contains("已撤回") })
+        assertTrue(revokedHistory.any { it.scope == "到点复议" &&
+            it.phase == "source_unavailable" && !it.savedDecision &&
+            it.error.contains("到点决定") })
+        val rejectedHistory = ResidentDailyDecision.historicalAttempts(app, rejected.id, now)
+        assertEquals(1, rejectedHistory.size)
+        assertEquals("finished_with_agenda_rejections", rejectedHistory.single().phase)
+        assertTrue(rejectedHistory.single().savedDecision)
+        assertTrue(ResidentDailyDecision.historicalAttempts(app, rejected.id,
+            now.minusSeconds(86_400)).isEmpty())
+        // A same-day unknown charge stays with the existing recovery control,
+        // and a future key must never be projected into today's history.
+        assertFalse(revokedHistory.any { it.phase == "uncertain" })
+        assertNull(ResidentDailyDecision.dayRecovery(app, revoked.id, now))
+        assertEquals(2, ResidentDailyDecision.historicalAttempts(
+            app, revoked.id, now.plusSeconds(86_400)).size)
+        assertEquals(before, p.all.toMap())
+    }
+
     @Test fun pastResidentRequestsRemainReadOnlyAfterMidnightAndAcrossPlanChanges() {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         initializeBackgroundRuntime(app)
