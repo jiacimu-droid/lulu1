@@ -34,8 +34,6 @@ data class CommitmentTask(
     val currentStep: Int = 0,
     val attemptCount: Int = 0,
     val lastActionResult: String = "",
-    /** Actual wake attempts and the role's reasons; same authoritative task, not a second plan. */
-    val wakeAttemptHistory: List<String> = emptyList(),
     val revision: Long = 1L,
     val linkedAlarmId: String? = null,
     val executionToken: String? = null,
@@ -47,6 +45,8 @@ data class CommitmentTask(
     val followUpKind: String = "",
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
+    /** Current wake rounds with verified audio evidence and chosen reasons. */
+    val wakeAttemptHistory: List<String> = emptyList(),
 )
 
 /**
