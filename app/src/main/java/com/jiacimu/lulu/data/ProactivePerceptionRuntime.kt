@@ -31,6 +31,18 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/** Offline life reflection is an opportunity to choose, not a forced chat wake.
+ * Preserve explicitly scheduled event-triggered decisions; ordinary ambient
+ * reviews still wait for the role's next awake period. */
+internal fun shouldDeferSleepingLifeReview(
+    sleeping: Boolean,
+    deferredReview: Boolean,
+    onlineExpiryAtMillis: Long,
+    explicitUserWake: Boolean,
+    preserveOffline: Boolean,
+): Boolean = sleeping && deferredReview && onlineExpiryAtMillis == 0L &&
+    !explicitUserWake && !preserveOffline
+
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
@@ -310,8 +322,8 @@ object ProactivePerceptionRuntime {
                         trigger.startsWith("互动事件二次重试") ||
                         trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER) ||
                         trigger.startsWith("在线持续感知")
-                    if (sleeping && sleepDeferredReview && onlineExpiryAtMillis == 0L &&
-                        !explicitUserWake && !preserveOffline) continue
+                    if (shouldDeferSleepingLifeReview(sleeping, sleepDeferredReview,
+                            onlineExpiryAtMillis, explicitUserWake, preserveOffline)) continue
                     if (!force) {
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
                                 CommitmentTaskStore.snapshot(characterId), now)) continue
