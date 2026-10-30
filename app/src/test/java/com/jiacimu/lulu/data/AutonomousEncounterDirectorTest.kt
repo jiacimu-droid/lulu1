@@ -4,7 +4,13 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+/** JSONObject is implemented by Android in production and Robolectric in JVM tests. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class AutonomousEncounterDirectorTest {
     private val people = listOf("a", "b")
     private fun cue(speaker: String, phase: Int, direction: String = "回应面前的人") =
