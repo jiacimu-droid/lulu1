@@ -1502,13 +1502,23 @@ internal object LuluVoiceCallSession {
         // on answer; a missed/declined call must never start a player.
         val context = appContext
         val taskId = current.incomingCommitmentTaskId
-        if (context != null &&
+        val chosenMusic = if (context != null) {
             com.jiacimu.lulu.data.WakeMusicCoordinator.takeAnsweredMusicPlan(
-                context, current.characterId, taskId)) {
+                context, current.characterId, taskId)
+        } else null
+        if (context != null && chosenMusic != null) {
             val callId = current.callExperienceId
             scope.launch {
+                chosenMusic.volumePercent?.let {
+                    com.jiacimu.lulu.system.LuluMediaVolume.control(
+                        context, current.characterId, "set", it)
+                }
                 val verified = com.jiacimu.lulu.data.WakeMusicCoordinator.playImmediately(
                     context, current.characterId, taskId!!)
+                if (!verified && chosenMusic.volumePercent != null) {
+                    com.jiacimu.lulu.system.LuluMediaVolume.control(
+                        context, current.characterId, "restore")
+                }
                 val call = mutableState.value
                 if (call.connected && call.characterId == current.characterId &&
                     call.callExperienceId == callId) {
