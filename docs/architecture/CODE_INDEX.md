@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2e9a245cf920637482932c233a8449841987d6ee`
+- 基准提交：`896347d9de00ea2ebfd8db6f02ef6d71563a54a8`
 - 分支：`main`
 - 已索引文件：1120
-- 已索引代码/文本行：230416
+- 已索引代码/文本行：230417
 - 已发现符号：3258
 
 | 文件 | 行数 | 符号数 |
@@ -948,7 +948,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 340 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 145 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 392 | 1 |
@@ -1070,7 +1070,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 112 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 376 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 183 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 107 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:12:05.114028+00:00",
-  "commit": "2e9a245cf920637482932c233a8449841987d6ee",
+  "generatedAt": "2026-10-30T11:21:33.546369+00:00",
+  "commit": "896347d9de00ea2ebfd8db6f02ef6d71563a54a8",
   "branch": "main",
-  "sourceFingerprint": "8c7e5000a722ce88384405b53e0aff42d90a879103a73a7c96250b5153e197a2",
+  "sourceFingerprint": "223042f00f1fbf289f51c4939b6b2705e253d6ef444cfcafce0b841610b575ee",
   "summary": {
     "files": 1120,
-    "lines": 230416,
+    "lines": 230417,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -17905,7 +17905,7 @@
     "WakeActionPlannerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
-        "line": 13
+        "line": 15
       }
     ],
     "WakeCommitmentParserTest": [
@@ -36460,8 +36460,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
-      "lines": 78,
-      "sha256": "2705df1495483d22c2c4c85e6f147e80fef421a3cdaac612e32e8cff1ce59539",
+      "lines": 77,
+      "sha256": "d9ab1d74d24aea10ae63b4419cdcf175fd6b90b1550967ef3551d682386dc669",
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",
@@ -38234,12 +38234,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt",
-      "lines": 107,
-      "sha256": "b9e1338f7cb1ea445912e7cec730d02dbfdb7b5fac05c9aaebd449c023e83e6f",
+      "lines": 109,
+      "sha256": "b735950d525d6d3f6fad7cb378e281c8862f39738902c728a9c96873f663f9bb",
       "symbols": [
         {
           "name": "WakeActionPlannerTest",
-          "line": 13
+          "line": 15
         }
       ]
     },
