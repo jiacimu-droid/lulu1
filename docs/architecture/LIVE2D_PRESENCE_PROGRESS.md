@@ -148,3 +148,11 @@
 - **正式源码缺口**：同一 `playVerifiedSpeechExpression` 的 `target.expression(name)` 返回 `false` 时仅报告“未切换”，却仍保留当前 exp3 的眼型独占直到超时；这属于真实失败回执和表情参数所有权不一致。当前 false 现在报告原诊断并立即 `resetSpeechExpression()` 释放租约；迟到 false 仍受现有模型实例/修订号门禁保护，不会重置新一句。异常 reject/同步 throw 仍走原归属保护。
 - **回归**：原真实 stage VM 测试改为在跨 VM Promise 结算后（`setImmediate` 边界）断言旧 reject 不抢新表情、当前 reject 必须释放眼型；另增当前 `false` 回执释放与诊断测试，保留同步 throw 和其余 TTS/Motion/触摸测试。测试源码不等于 CI 通过，后续按本提交的 workflow 实际核验。
 - **索引边界**：仅改 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 与本专项进度。原 `scripts/generate_code_index.py` 只索引 `app/scripts/preview`，没有改变索引输入；不手工伪造 `CODE_INDEX.md` 或 `code-index.json`。真机表情加载失败/低 FPS 仍待验。
+
+
+### 09:16 本轮真实 CI / APK 已完成
+
+- 本轮正式源码、根因回归与进度的 [main 提交 b7607428](https://github.com/jiacimu-droid/lulu1/commit/b7607428f764702a9657968a071c48e4ad450eab)，对应原 [Lulu APK #40983048341](https://github.com/jiacimu-droid/lulu1/actions/runs/40983048341) 已 **completed/success**。job `123827474822` 的 `Build bundled Live2D stage`、`Test and build phone APK`、`Collect APK`、`Upload temporary APK` 和 `Publish Lulu release` 均为 completed/success；不是仅提交测试或排队。
+- [发布 v6905](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v6905) 的 `target_commitish` 已核对为 `b7607428f764702a9657968a071c48e4ad450eab`，资产 [Lulu-arm64.apk](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6905/Lulu-arm64.apk) 实际存在。此为本次代码对应的构建与发布证据，不代表手机已安装或体验通过。
+- 最新 main 已包含本提交，后续游戏专项另有独立文档提交；本轮没有覆盖其文件。生成索引不包含 `tools/live2d`，此前原索引 [#40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) completed/success；本轮无需虚构一次索引生成。
+- **仍待真机**：连续五句的可见 Motion3、异步 exp3 加载失败与触摸并发、语音暂停/打断/恢复、15/30 FPS、不同 TTS 及设备发热。自动构建成功不等于这些效果已通过。
