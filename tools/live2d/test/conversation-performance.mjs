@@ -769,4 +769,50 @@ assert.ok(Math.abs(bridge.blinkClock - 9.75) < .0001,
   'a long resume gap cannot skip the entire blink countdown')
 bridge.proceduralBlinkEnabled = false
 
+// A character-approved video score must survive slow TTS/network work.
+// Only real lifecycle cancellation or replacement may discard a versioned cue.
+const beforeLongWait = motions.length
+bridge.perform({ visualSequence: 90000, motion: { group: 'Gesture', index: 17 },
+  expression: 'star', beats: [
+    { segmentId: 'slow-audio', segmentIndex: 0, atMs: 0,
+      face: { smile: .3 }, durationMs: 500 },
+  ] })
+assert.equal(bridge.pendingSpeechParts.motion.index, 17)
+clock += 45000
+bridge.applyFinalParameters({}, 16)
+assert.equal(bridge.pendingSpeechParts.motion.index, 17,
+  'long TTS preparation cannot expire a chosen versioned Motion3')
+assert.equal(bridge.pendingExpressionName.name, 'star',
+  'long TTS preparation cannot expire the paired character expression')
+assert.equal(bridge.performanceRuntime.state().queued, true,
+  'long TTS preparation cannot erase the queued beat score')
+bridge.onPlaybackEvent('playing', 0, 90000, 'slow-audio')
+await Promise.resolve()
+assert.equal(motions.length, beforeLongWait + 1,
+  'the authored clip starts on its own real TTS start, even after 45 seconds')
+assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1)
+bridge.onPlaybackEvent('finished', 0, 90000, 'slow-audio')
+
+// Legacy unversioned coarse playback still drops indefinite abandoned cues.
+bridge.perform({ motion: { group: 'Gesture', index: 18 } })
+assert.equal(bridge.pendingSpeechParts.motion.index, 18)
+clock += 21000
+bridge.expireLegacyPendingSpeech(clock)
+assert.equal(bridge.pendingSpeechParts, null,
+  'only unversioned legacy pending gestures keep their old idle timeout')
+
+// The score runtime has the same ownership rule: a slow provider cannot
+// discard the beat before the first actual utterance start.
+const delayedScore = createPerformanceRuntime({ now: () => clock })
+assert.equal(delayedScore.schedule([{ atMs: 0, motion: { group: 'Gesture', index: 2 } }]), true)
+clock += 65000
+assert.equal(delayedScore.tick(() => {}), 0,
+  'waiting without audio must not animate')
+assert.equal(delayedScore.state().queued, true,
+  'the pending score must survive 65 seconds of network latency')
+delayedScore.startSpeech()
+assert.equal(delayedScore.tick(() => {}), 1)
+delayedScore.stopSpeech()
+assert.equal(delayedScore.state().remaining, 0)
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
