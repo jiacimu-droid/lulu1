@@ -384,6 +384,11 @@ object ProactivePerceptionRuntime {
                             requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
                     }
                     result.onSuccess { action ->
+                        // Preempted work is not a model-authored silent decision.
+                        // Only a committed decision may acknowledge a goal review.
+                        if (action == null) {
+                            AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
+                        } else {
                         reviewedMotives.forEach { reviewed ->
                             CharacterInnerLifeStore.claimMotiveReview(
                                 characterId, reviewed.id, reviewed.token, Instant.now(), coalesceDue = false)
@@ -400,6 +405,7 @@ object ProactivePerceptionRuntime {
                             .putBoolean("pending_concern_promise_$characterId", false)
                             .remove("silent_count_$characterId")
                             .apply()
+                        }
                     }.onFailure { error ->
                         // This persists recovery even when JobScheduler cancels the coroutine.
                         // Interrupted tool execution is never blindly replayed as a new action.
@@ -553,7 +559,7 @@ object ProactivePerceptionRuntime {
         now: Instant, requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
-    ): Action {
+    ): Action? {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         if (unread.text.isBlank()) return evaluateCharacterWithActivity(
@@ -587,7 +593,7 @@ object ProactivePerceptionRuntime {
         requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
         onlineRevision: Long? = null,
-    ): Action {
+    ): Action? {
         val preparationStartedNanos = System.nanoTime()
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
@@ -596,7 +602,7 @@ object ProactivePerceptionRuntime {
         // cannot be treated as the reply to the entire new user turn.
         fun batchSuperseded(): Boolean = onlineRevision != null &&
             !OnlineChatBatchStore.isCurrent(appContext, characterId, onlineRevision)
-        fun deferSupersededDecision(): Action {
+        fun deferSupersededDecision(): Action? {
             // Batch 1 diagnosis only: batch-superseded silences previously
             // lived only in recordPerceptionAttempt, not under the shadow tag.
             // Log.d only; this does not change the SILENT return.
@@ -606,7 +612,7 @@ object ProactivePerceptionRuntime {
             )
             CompanionPresenceStore.recordPerceptionAttempt(characterId,
                 "连续消息已合并为更新的未读批次 · 旧回复草稿未发送", Instant.now())
-            return Action.SILENT
+            return null
         }
         if (batchSuperseded()) return deferSupersededDecision()
         val awakeReflection = CompanionOnlineStore.isOnline(characterId, now)
@@ -632,7 +638,7 @@ object ProactivePerceptionRuntime {
             .selectedCharacterChatArchiveId(characterId, library)
         if (perceptionArchiveId == null) {
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知暂停 · 没有可用的聊天模型", now)
-            return Action.SILENT
+            return null
         }
         val connection = LuluAiServices.connectionStore.resolveConnection(perceptionArchiveId)
         val availableGroups = MigratedDomainStores.chat.conversations.value.filter {
@@ -1132,7 +1138,7 @@ object ProactivePerceptionRuntime {
                 "ProactiveGateShadow",
                 "guardSilent characterId=$characterId reason=unreadAlreadyHandled trigger=$trigger",
             )
-            return Action.SILENT
+            return null
         }
         // A call takes ownership immediately; a finished awake window cannot execute stale decisions.
         if (CompanionPresenceStore.isInCall(characterId) ||
@@ -1144,7 +1150,7 @@ object ProactivePerceptionRuntime {
                 "ProactiveGateShadow",
                 "guardSilent characterId=$characterId reason=inCallOrOnlineExpired trigger=$trigger",
             )
-            return Action.SILENT
+            return null
         }
         SharedExperienceTimeline.record(
             eventId = awakeObservationId, characterId = characterId,
@@ -1284,7 +1290,7 @@ object ProactivePerceptionRuntime {
                 onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "补正期间消息已由其他回复处理，本次不重复发言", Instant.now())
-            return Action.SILENT
+            return null
         }
         if (batchSuperseded()) return deferSupersededDecision()
         var parsed = (recoveredDecision ?: initialDecision?.takeUnless {
@@ -1507,7 +1513,7 @@ object ProactivePerceptionRuntime {
                 "ProactiveGateShadow",
                 "guardSilent characterId=$characterId reason=inCallOrOnlineExpiredFollowThrough trigger=$trigger",
             )
-            return Action.SILENT
+            return null
         }
         // The review owns ONLY the action. Preserve the original appraisal,
         // heart voice and motive proposal instead of silently discarding them.
@@ -1681,14 +1687,14 @@ object ProactivePerceptionRuntime {
         if (onlineUnread.messageIds.isNotEmpty() &&
             !CompanionOnlineStore.hasOriginalUnreadEvidence(
                 onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
-            return Action.SILENT
+            return null
         }
         if (CompanionPresenceStore.isInCall(characterId)) {
             android.util.Log.d(
                 "ProactiveGateShadow",
                 "guardSilent characterId=$characterId reason=inCallBeforeFinalDecision trigger=$trigger",
             )
-            return Action.SILENT
+            return null
         }
         val decision = onlineSpeech.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
@@ -1778,7 +1784,7 @@ object ProactivePerceptionRuntime {
                     "ProactiveGateShadow",
                     "guardSilent characterId=$characterId reason=onlineWindowSuperseded trigger=$trigger",
                 )
-                return Action.SILENT
+                return null
             }
         }
         // A new bubble may have arrived during optional same-role thinking.
