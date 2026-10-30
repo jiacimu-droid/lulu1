@@ -1,8 +1,11 @@
 package com.jiacimu.lulu.data
 
+import android.content.Context
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Test
+import org.robolectric.RuntimeEnvironment
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -44,6 +47,32 @@ class WakeActionPlannerTest {
         assertEquals(2, WakeActionPlanner.parseChoice("oops", true, true).ringCount)
         assertEquals(WakeActionPlanner.Cue.RING, WakeActionPlanner.parseChoice(
             """{"cue":"music","ringCount":3}""", false, true).cue)
+    }
+
+    @Test fun modelChosenWakeMusicSurvivesOnlyTheMatchingAnsweredCall() {
+        val context = RuntimeEnvironment.getApplication()
+        val characterId = "wake-music-handoff-test"
+        val taskId = "morning-t123"
+        val permissions = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        permissions.edit().putBoolean("$characterId:media", true)
+            .putBoolean("$characterId:wake_music_enabled", true).commit()
+        WakeMusicCoordinator.cancelPending(context, characterId)
+        try {
+            val staged = WakeMusicCoordinator.onScheduledWake(
+                context, characterId, taskId, defer = true, volumePercent = 42)
+            assertEquals(true, staged.contains("接通后"))
+            assertNull(WakeMusicCoordinator.takeAnsweredMusicPlan(context, characterId, "wrong-task"))
+            val selected = WakeMusicCoordinator.takeAnsweredMusicPlan(context, characterId, taskId)
+            assertNotNull(selected)
+            assertEquals(42, selected?.volumePercent)
+            // An answered task consumes the explicit choice once.
+            assertNull(WakeMusicCoordinator.takeAnsweredMusicPlan(context, characterId, taskId))
+            WakeMusicCoordinator.onScheduledWake(context, characterId, "missed", defer = true)
+            WakeMusicCoordinator.onMissedCall(context, characterId, "missed")
+            assertNull(WakeMusicCoordinator.takeAnsweredMusicPlan(context, characterId, "missed"))
+        } finally {
+            WakeMusicCoordinator.cancelPending(context, characterId)
+        }
     }
 
     @Test fun invalidVolumeIsNotCarriedIntoExecutor() {
