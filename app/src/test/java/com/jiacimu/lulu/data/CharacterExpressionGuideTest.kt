@@ -155,6 +155,31 @@ class CharacterExpressionGuideTest {
         assertFalse(secondVoice.contains("爱说冷笑话的独特节奏"))
     }
 
+    @Test fun approvedDialogueExamplesBelongOnlyToTheirCharacterAndAreNotRealHistory() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(app)
+        CharacterLifeStore.initialize(app)
+        CharacterDevelopmentStore.initialize(app)
+        val a = MigratedDomainStores.characters.create("对话甲", "说话利落又有点冷幽默")
+        val b = MigratedDomainStores.characters.create("对话乙", "有点内向，先观察再接话")
+        val firstSample = "【闲聊】\\n对方：晚饭吃什么？\\n角色：先看看冰箱。"
+        val secondSample = "【闲聊】\\n对方：下雨了。\\n角色：嗯，伞带了吗？"
+        CharacterLifeStore.setProfile(a.characterId, "dialogueExamples", firstSample)
+        CharacterLifeStore.setProfile(b.characterId, "dialogueExamples", secondSample)
+        val firstPrompt = CharacterSpeechIdentity.promptSection(a.characterId)
+        val secondPrompt = CharacterSpeechIdentity.promptSection(b.characterId)
+        assertTrue(firstPrompt.contains(firstSample))
+        assertFalse(firstPrompt.contains(secondSample))
+        assertTrue(secondPrompt.contains(secondSample))
+        assertFalse(secondPrompt.contains(firstSample))
+        assertTrue(firstPrompt.contains("不是过去真实发生的聊天"))
+        assertFalse(CharacterLifeStore.profileContext(a.characterId).contains(firstSample))
+        assertFalse(CharacterRuntime.personaConstraintSnapshot(a.characterId).contains(firstSample))
+        assertTrue(CharacterSpeechIdentity.promptSection(a.characterId,
+            includeConfigured = false, includeObserved = false).contains(firstSample))
+        assertTrue(CharacterProfileSchema.fields.any { it.key == "dialogueExamples" })
+    }
+
     @Test fun onlineUnreadPrivateChatUsesPrivateSpeechChannelRatherThanAutonomousBroadcast() {
         val freshPrivate = proactiveDecisionInstruction("ordinary-role-without-life", directPrivateChat = true)
         val autonomous = proactiveDecisionInstruction("ordinary-role-without-life")
