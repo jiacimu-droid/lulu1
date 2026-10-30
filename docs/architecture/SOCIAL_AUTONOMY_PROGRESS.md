@@ -172,3 +172,13 @@
 - 对应[Lulu APK #40977895938](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938)、job123810360994已completed/success。真实日志08:14:32执行testDebugUnitTest，08:16:44进入compilePhoneKotlin，08:21:48 BUILD SUCCESSFUL（11分10秒）；Live2D、Android Test and build phone APK、Collect APK、Upload temporary APK与Publish Lulu release均为completed/success。本轮新增发送边界回归和既有历史/游标回归随全套JVM通过，不能再写成仅测试源码已提交。
 - 已核对[release v6898](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v6898)的target_commitish准确为fa1165763a62a98c3ab84bb831e37e66058d5059，实际资产[Lulu-arm64.apk](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6898/Lulu-arm64.apk)已发布；不是把旧成功安装包当作本次交付。提交记录前再次读取最新main/本专项源码，确认并发窗口没有覆盖本次门禁。
 - 真机仍未验：设备调时后实际错误展示、后台唤醒/强杀、不同生命形态组合、多日自然旧话题续接和多年存储性能。当前结论仅为真实源码、自动JVM与APK交付通过，不宣称S1-S4全部真机体验完成。
+
+
+## 2026-10-30 10时 · S3 居民邀约的约定地点与真实会面来源闭环
+
+- **完整基线**：Library大纲104行完整重读；最新main、AGENTS、CODE_INDEX、人物契约、成长框架及三项并行进度已核对。AGENTS/人物契约/成长框架较fa116576无差异；最新10-28清单新增基础当天已终止请求诊断及其Live2D阻断复核，已读完整增量，不重复改。7d2e3257索引#40839986477 success、APK#40839986524 cancelled，本人在场候选不重做。当前main b7607428的[APK#40983048341](https://github.com/jiacimu-droid/lulu1/actions/runs/40983048341) completed/success，作为修改前基线。
+- **四类结论**：S1独立关系、S2真实私信/历史/生命时间、S4定向回复均已有源码和自动基线；自然主动续聊、双方真实邀约成功/拒绝/改期及多日共同活动是真机待验，不能说从零未实现。更多群体自然度和多年压力属后续增强。S3本轮证实缺口是约定地点没有进入居民交流执行/结案校验。
+- **根因**：RoleDayScheduleStore.canComplete原来只在worldAction=visit_public_place时对照locationCode参数。真正interact_resident虽验证了目标和活动身份，却不检查约定地点；约在咖啡角的同一居民在庭院聊天，也可先通过canBegin、后通过completeFromReceipt。反过来，恢复旧回执时直接读当前地点也会错：本人完成咖啡角会面后已经离场，不能因此否认当时真实赴约。
+- **正式修复与最小接线**：只在原RoleDayScheduleStore补一个共用居民会面地点事实门禁。执行前按DigitalWorldStore当前本人位置校验明确选定的venue；回执投影按本人可见、未撤回且revision=1的原resident-summary ToolResult→真实sessionId→已结束数字世界会面验证双方发言/参与者及地点，不用模型参数声称的locationCode或事后当前位置当证明。旧会议只保存权威地点label，因此仅在原公共地点注册表中能唯一映射到code时认可；更名/歧义、缺来源、跨人物、旧日程前的记录保持未完成，不从正文猜地点。原无地点日程继续兼容。角色若自主决定换地点，可取消重排；本人原日程上下文补清这一执行契约。未改ToolRouter、主网关、统一时间线或其他专项，不新增邀请中心/Store/模型调用/重试唤醒。
+- **完整真实回归链**：新增ScheduledSocialEncounterVenueTest，使用原arrange/reschedule/canBegin/completeFromReceipt、实际数字世界移动/commitResidentEncounter和原SQLite summary来源，无居民模型付费。覆盖错误地点即使args谎称咖啡角也不能开始/结案；真实庭院会面不冒充赴约；本人改期后旧due版本失效；真实到咖啡角并各自有交流记录；离场后从持久会面来源恢复完成并保留evidenceId；缺失、他人和已撤回来源不能证明地点。测试独立隔离/恢复原住民fixture，避免消耗其他用例的既有12居民资源限额，不改生产额度。
+- **验证层级**：已运行原scripts/generate_code_index.py、差异检查，正式索引仍由原工作流按提交生成。新增测试源码并非JVM通过；必须继续核对本提交的JVM、phone及发布CI。真机双方邀约语义、独立拒绝、多日改期/到场、强杀和自然会面表现仍未验。此轮只修显式居民邀约venue，不泛称所有活动的时空约束或整个S1-S4已经完成。

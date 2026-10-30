@@ -571,13 +571,45 @@ object RoleDayScheduleStore {
                 args?.optString(key) == selected.optString(key) }
     }
 
+    /** A chosen encounter venue is an execution fact, not prose in the title.
+     * Preflight uses the live world. Receipt recovery uses the actual committed
+     * meeting, so walking away afterward cannot invalidate a successful visit.
+     */
+    private fun matchesEncounterVenue(plan: RoleDayPlan, action: String, args: JSONObject?,
+        evidenceId: String? = null, now: Instant): Boolean {
+        if (plan.locationCode.isBlank() || action != "digital_world_action" ||
+            args?.optString("worldAction") != "interact_resident") return true
+        if (evidenceId == null) return DigitalWorldStore.locationOf(plan.characterId) == plan.locationCode
+        val event = SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(evidenceId))
+            .singleOrNull() ?: return false
+        if (event.source != "meeting" || event.evidenceKind != EventEvidenceKind.ToolResult ||
+            event.revision != 1L || event.sessionId.isBlank() ||
+            event.id != "meeting-${event.sessionId}-resident-summary-viewer-${plan.characterId}" ||
+            event.occurredAt.isBefore(plan.dueAt) || event.occurredAt.isAfter(now)) return false
+        val meeting = DigitalWorldStore.state.value.meetings.firstOrNull {
+            it.id == event.sessionId && it.reality == MeetingReality.DIGITAL_WORLD && it.endedAt != null
+        } ?: return false
+        if (plan.targetCharacterId.isNotBlank() && plan.targetCharacterId !in meeting.participantIds) return false
+        val nativeId = "resident:${args?.optString("itemId").orEmpty()}"
+        if (listOf(plan.characterId, nativeId).any { participant ->
+                participant !in meeting.participantIds || meeting.turns.none { it.speakerId == participant }
+            }) return false
+        // Existing meetings store canonical display labels. Only an unambiguous
+        // registry mapping proves a code; never guess from narrative text or
+        // the participants' current positions on a later receipt replay.
+        val venue = DigitalWorldPublicPlaces.all.filter { it.label == meeting.location }
+            .map { it.code }.distinct().singleOrNull() ?: return false
+        return venue == plan.locationCode
+    }
+
     /** Do not perform an action for a revoked wish, wrong target or old appointment. */
     fun canBegin(context: Context, characterId: String, planId: String, action: String,
         args: JSONObject, now: Instant = Instant.now(),
         expectedDueAt: Instant? = null): Boolean {
         val plan = plans(context, characterId).firstOrNull { it.id == planId } ?: return false
         if (expectedDueAt != null && plan.dueAt != expectedDueAt) return false
-        if (!canComplete(plan, characterId, action, "pending-action", now, args)) return false
+        if (!canComplete(plan, characterId, action, "pending-action", now, args) ||
+            !matchesEncounterVenue(plan, action, args, now = now)) return false
         if (plan.commitmentTaskId.isNotBlank() && CommitmentTaskStore.active(characterId).none {
                 it.id == plan.commitmentTaskId &&
                     it.needsUndatedActionReview()
@@ -598,6 +630,7 @@ object RoleDayScheduleStore {
         val previous = all(context)
         val plan = previous.firstOrNull { it.id == planId &&
             canComplete(it, characterId, action, evidenceId, now, args) &&
+                matchesEncounterVenue(it, action, args, evidenceId, now) &&
                 (it.commitmentTaskId.isBlank() || CommitmentTaskStore.active(characterId).any { task ->
                     task.id == it.commitmentTaskId && task.needsUndatedActionReview()
                 }) &&
@@ -672,6 +705,8 @@ object RoleDayScheduleStore {
                         "原参数明确给出的 worldAction/activityId/incidentId/itemId/targetCharacterId 标识本项活动，" +
                             "不能用打招呼或另一件事的回执完成它。若决定换活动，取消原项并另行安排；" +
                             "文字内容等非身份参数可由本人调整。出发、到场等准备动作不附本项 planId。" else "") +
+                    (if (it.locationCode.isNotBlank() && it.activityAction == "digital_world_action")
+                        "与居民当面交流须先在约定地点；回执按真实会面地点核验，不能以参数声称到场。若决定换地点，取消原项并另行安排。" else "") +
                     "想做就执行真实工具并把 planId 放入同一次最终动作 args；只有成功回执才算完成。" +
                     "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
