@@ -72,10 +72,10 @@ class ScheduledSocialEncounterVenueTest {
     private fun args() = JSONObject().put("worldAction", "interact_resident")
         .put("activityId", "chat").put("itemId", native.id)
 
-    private fun plan(): RoleDayPlan = RoleDayScheduleStore.arrange(app, actor,
+    private fun plan(selected: JSONObject = args(), linkResident: Boolean = true): RoleDayPlan = RoleDayScheduleStore.arrange(app, actor,
         "在咖啡角聊书-${UUID.randomUUID()}", "本人选择和这位居民相处", base.plusSeconds(120), base,
-        activityAction = "digital_world_action", targetResidentId = native.id,
-        locationCode = DigitalWorldPublicPlaces.CAFE, activityArgs = args()).also { plans += it.id }
+        activityAction = "digital_world_action", targetResidentId = if (linkResident) native.id else "",
+        locationCode = DigitalWorldPublicPlaces.CAFE, activityArgs = selected).also { plans += it.id }
 
     private fun moveBoth(place: String, at: Instant) {
         assertTrue(DigitalWorldStore.performAction(actor, "visit_public_place",
@@ -131,6 +131,18 @@ class ScheduledSocialEncounterVenueTest {
         assertEquals(actual, restored.resultEvidenceId)
     }
 
+    @Test fun executorNormalizedActionIdCannotBypassVenueForAnArgsOnlyResidentTarget() {
+        val formatted = args().put("worldAction", " INTERACT_RESIDENT\u200b ")
+        val appointment = plan(formatted, linkResident = false)
+        val due = appointment.dueAt.plusSeconds(1)
+        moveBoth(DigitalWorldPublicPlaces.COURTYARD, due)
+        assertFalse(RoleDayScheduleStore.canBegin(app, actor, appointment.id,
+            "digital_world_action", formatted, due))
+        val elsewhere = encounter(DigitalWorldPublicPlaces.COURTYARD, due)
+        assertFalse(RoleDayScheduleStore.completeFromReceipt(app, actor, appointment.id,
+            "digital_world_action", elsewhere, "动作格式不改变约定地点", due, formatted))
+    }
+
     @Test fun legacyDisplayNameCannotInventAStableVenueAfterRealStoreReload() {
         val appointment = plan()
         val due = appointment.dueAt.plusSeconds(1)
@@ -146,7 +158,7 @@ class ScheduledSocialEncounterVenueTest {
         DigitalWorldStore.initialize(app)
         val restored = DigitalWorldStore.state.value.meetings.single { it.id == meetings.single() }
         assertEquals("", restored.locationCode)
-        assertEquals(DigitalWorldPublicPlaces.label(DigitalWorldPublicPlaces.CAFE), restored.location)
+        assertEquals(DigitalWorldPublicPlaces.label(DigitalWorldPublicPlaces.CAFE).orEmpty(), restored.location)
         assertEquals(2, restored.turns.size)
         assertFalse(RoleDayScheduleStore.completeFromReceipt(app, actor, appointment.id,
             "digital_world_action", actual, "旧名称不能倒推真实地点身份", due, args()))

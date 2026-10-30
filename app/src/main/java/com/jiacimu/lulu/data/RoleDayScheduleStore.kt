@@ -578,7 +578,7 @@ object RoleDayScheduleStore {
     private fun matchesEncounterVenue(plan: RoleDayPlan, action: String, args: JSONObject?,
         evidenceId: String? = null, now: Instant): Boolean {
         if (plan.locationCode.isBlank() || action != "digital_world_action" ||
-            args?.optString("worldAction") != "interact_resident") return true
+            normalizeWorldAction(args?.optString("worldAction").orEmpty()) != "interact_resident") return true
         if (evidenceId == null) return DigitalWorldStore.locationOf(plan.characterId) == plan.locationCode
         val event = SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(evidenceId))
             .singleOrNull() ?: return false
