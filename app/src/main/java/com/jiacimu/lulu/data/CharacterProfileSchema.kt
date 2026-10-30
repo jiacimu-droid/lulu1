@@ -16,6 +16,7 @@ internal object CharacterProfileSchema {
         CharacterProfileField("social", "面对其他人", "", "亲密与社交"),
         CharacterProfileField("expression", "主色调 · 外在气质", "", "呈现与表达"),
         CharacterProfileField("speechHabits", "说话的味道", "", "呈现与表达"),
+        CharacterProfileField("dialogueExamples", "本人对话示例", "可编辑的虚构示范，非真实聊天记录", "呈现与表达"),
         CharacterProfileField("interests", "兴趣与审美", "", "呈现与表达"),
         // Historical typing labels are accepted for import but not injected as a
         // second personality rule: their content is already expressed as values
