@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -43,17 +44,20 @@ internal fun GameSceneDeck(
     notice: String = "",
     scene: @Composable () -> Unit,
     companion: @Composable () -> Unit,
+    companionAvailable: Boolean = false,
     actions: @Composable RowScope.() -> Unit,
     movement: @Composable () -> Unit = {},
     quickActions: @Composable () -> Unit = {},
     tools: @Composable () -> Unit,
 ) {
     var drawer by remember { mutableStateOf(false) }
+    var teamExpanded by remember { mutableStateOf(true) }
+    BackHandler(enabled = drawer) { drawer = false }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
         val wide = maxWidth > maxHeight
         LaunchedEffect(wide) { drawer = false }
-        val sideWidth = minOf(maxWidth * .43f, 330.dp)
-        val panelHeight = minOf(if (wide) maxHeight * .32f else maxHeight * .18f, 130.dp)
+        val sideWidth = minOf(maxWidth * .39f, 310.dp)
+        val panelHeight = minOf(if (wide) maxHeight * .46f else maxHeight * .25f, 205.dp)
         val teamState = rememberSaveableStateHolder()
         val teamPanel: @Composable () -> Unit = {
             teamState.SaveableStateProvider("team") {
@@ -86,9 +90,25 @@ internal fun GameSceneDeck(
                     maxLines = 2, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
             }
         }
-        if (!drawer) {
-            Box(Modifier.align(Alignment.TopEnd).width(sideWidth).padding(top = 5.dp, end = 8.dp)) {
-                teamPanel()
+        if (!drawer && companionAvailable) {
+            Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
+                .padding(top = 5.dp, end = 8.dp)) {
+                Surface(
+                    color = Color(0xD9132932), shape = RoundedCornerShape(11.dp),
+                    border = BorderStroke(1.dp, accent.copy(alpha = .24f)),
+                ) {
+                    Row(Modifier.fillMaxWidth().height(32.dp).padding(start = 10.dp, end = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("同行伙伴", modifier = Modifier.weight(1f), color = Color.White,
+                            fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        TextButton(onClick = { teamExpanded = !teamExpanded },
+                            contentPadding = PaddingValues(horizontal = 6.dp)) {
+                            Text(if (teamExpanded) "收起" else "展开", fontSize = 10.sp,
+                                color = accent)
+                        }
+                    }
+                }
+                if (teamExpanded) teamPanel()
             }
         }
         // Two independent thumb zones, leaving the middle of the world entirely playable.
