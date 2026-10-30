@@ -296,6 +296,27 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /** Restore a genuinely missed native promise through the existing role decision.
+     * No old alarm is replayed and no automatic message/call is invented.
+     * One pending work per role coalesces several missed obligations; the
+     * authoritative CommitmentTaskStore supplies their IDs and real receipts. */
+    fun scheduleMissedCommitmentReview(context: Context, characterId: String, missedAt: Instant) {
+        if (characterId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("characterId", characterId)
+                .putString("trigger", "重要事件：系统恢复时发现本人正式约定错过原定执行窗口（原时刻=$missedAt）。" +
+                    "这是失败事实，不是新用户请求；读取现存任务ID和回执，自行决定补救、复查、改期或暂不打扰。" +
+                    "不要直接重放旧闹钟、无证宣称主人已睡或重复创建原约定。")
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-missed-commitment-review-$characterId", ExistingWorkPolicy.KEEP, request)
+    }
+
     /** A character's own appointment is NOT a manual wake initiated by the user. */
     fun scheduleSelfPlanned(context: Context, characterId: String, title: String) {
         CompanionOnlineStore.wakeCharacter(
