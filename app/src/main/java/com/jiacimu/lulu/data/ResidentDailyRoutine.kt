@@ -24,11 +24,9 @@ internal object ResidentDailyRoutine {
             "evening" -> "cafeOrderEvening"
             else -> return null
         }
-        return when (daily?.optString(field)) {
-            "sandwich" -> "cafe_consume_sandwich"
-            "tea" -> "cafe_consume_tea"
-            else -> null
-        }
+        val selectedId = daily?.optString(field).orEmpty()
+        return DigitalCafeMenu.offerings.firstOrNull { it.id == selectedId }
+            ?.consumeActivity
     }
 
     private fun dutyPlace(person: DigitalWorldResident): String = when (person.templateName) {
