@@ -86,6 +86,16 @@ internal object GroupChatTurnPlanner {
         )
     }
 
+    /** No director decision means no fabricated scene. Explicitly mentioned
+     * participants can still decide for themselves whether to reply. */
+    internal fun fallbackForUnplannedTurn(
+        mentionedIds: List<String>, allowedIds: List<String>, limit: Int,
+    ): GroupChatScenePlan {
+        val ids = mentionedIds.distinct().filter { it in allowedIds }
+            .take(limit.coerceAtLeast(0))
+        return GroupChatScenePlan(ids.map(::GroupChatSceneBeat))
+    }
+
     /** Text-only, owner initiated group rounds; voice has different latency needs. */
     suspend fun choose(
         group: LuluGroupChat,
@@ -107,9 +117,10 @@ internal object GroupChatTurnPlanner {
             val nickname = member.groupNickname.ifBlank { names[member.characterId].orEmpty() }
             nickname.isNotBlank() && newestUserText.contains("@" + nickname, ignoreCase = true)
         }.map { it.characterId }.distinct()
-        val fallback = GroupChatScenePlan(
-            (addressed.ifEmpty { allowed.take(1) }).take(limit).map(::GroupChatSceneBeat)
-        )
+        // Explicit @ mentions are routing facts, not the system's idea of who
+        // should entertain the room. An unavailable director must not silently
+        // nominate the first unrelated member as a fictional "choice".
+        val fallback = fallbackForUnplannedTurn(addressed, allowed, limit)
         val library = LuluAiServices.connectionStore.library.value
         val archiveId = ScopedModelSelections.residentSocialArchiveId(library)
             ?: library.archiveIdFor(ModelUsage.Chat)
