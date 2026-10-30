@@ -1,3 +1,11 @@
+## 2026-10-30：digital-life-core 融合第二批（工具／注意力／诊断）
+
+- **参考**：https://github.com/mashangshui/digital-life-core ，`main` 快照 `02fdd9383314dd84705775e13c68963286301f4c`，原仓库 `package.json` 标注 MIT。
+- **来源标签：ORIGINAL**。依据权限内工具隔离、情绪注意力、状态可追溯的一般设计理念，在 Lulu1 原生 Kotlin 架构上独立开发。没有复制对方 TypeScript/README 代码、提示词、UI、生命状态参数、模型、图片、字体或任何资产；没有新增 DSH/Node 依赖。
+- **具体修改**：`ToolRouter.kt` 将已保存执行 ID 冲突/失效来源统一进入既有拒绝回执；`RelevantMemoryRecall.kt` 为同一角色当前情绪的同源、已相关记忆增加有界只读排序；`CharacterLifeDiagnostics.kt` 及 `CompanionPresenceDialog.kt` 用现有真实目标、决策与运行记录呈现状态。相关回归测试在 `CharacterUnfinishedActionContextTest.kt`、`MemoryAffectAttentionTest.kt`、`CharacterLifeDiagnosticsTest.kt`。
+- **不采用**：独立 Gaps/激素记账、自动将失败映射成愤怒、非受控自写代码器官、每轮多次付费分析、绕过用户授权或 VPN 的网络策略。详细实现范围、局限见 `docs/architecture/DIGITAL_LIFE_RESEARCH_ADOPTION.md`。
+- **验证**：代码提交、静态核查、JVM 回归实际运行、GitHub APK 构建、Android 真机体验是不同等级；未取得的测试结果不可填写为通过。
+
 
 ## 2026-10-30：digital-life-core 的主动唤醒与真相复核思路
 
