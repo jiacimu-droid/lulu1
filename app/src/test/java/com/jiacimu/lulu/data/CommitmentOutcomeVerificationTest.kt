@@ -72,6 +72,49 @@ class CommitmentOutcomeVerificationTest {
                 EventEvidenceKind.UserStatement))).accepted)
     }
 
+    @Test fun evidenceCandidatesUseTheSameProvenanceGateAsVerification() {
+        val action = event("executed", EventEvidenceKind.ToolResult, "tool-router")
+            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"start_call"}""")
+        val observation = event("observed", EventEvidenceKind.Observation, "screen-consent")
+            .copy(content = "本人真实看到一帧屏幕，仍需判断是否与目标有关")
+        val followUp = event("review", EventEvidenceKind.Observation, "commitment-follow-up")
+        val userClaim = event("claim", EventEvidenceKind.UserStatement)
+        val foreign = event("foreign", EventEvidenceKind.Observation, "device", "roleB")
+        val old = event("old", EventEvidenceKind.Observation, "device",
+            occurredAt = at.minusSeconds(4000))
+        val window = listOf(action, observation, followUp, userClaim, foreign, old)
+
+        val outcome = CommitmentOutcomeVerification.candidateContext(task, window)
+        assertTrue(outcome.contains("id=observed"))
+        assertFalse(outcome.contains("id=executed"))
+        assertFalse(outcome.contains("id=claim"))
+        assertFalse(outcome.contains("id=review"))
+        assertFalse(outcome.contains("id=foreign"))
+        assertFalse(outcome.contains("id=old"))
+        assertTrue(CommitmentOutcomeVerification.evaluate(task, listOf("observed"),
+            "这帧确实是设备观察但仍需判断目标是否达成", listOf(observation)).accepted)
+
+        val delivery = CommitmentOutcomeVerification.candidateContext(
+            task.copy(verificationMode = "delivery"), window)
+        assertTrue(delivery.contains("id=executed"))
+        assertFalse(delivery.contains("id=observed"))
+
+        val subjective = CommitmentOutcomeVerification.candidateContext(
+            task.copy(verificationMode = "subjective_report"), window)
+        assertTrue(subjective.contains("id=claim"))
+        assertTrue(subjective.contains("id=observed"))
+    }
+
+    @Test fun noQualifiedCandidateMustNotBeAdvertisedAsCompletionProof() {
+        val action = event("only-action", EventEvidenceKind.ToolResult, "tool-router")
+            .copy(content = """{"status":"succeeded","result":"{\\"success\\":true}","tool":"create_alarm"}""")
+        val shown = CommitmentOutcomeVerification.candidateContext(task, listOf(action))
+        assertTrue(shown.contains("没有类型合格的结案候选"))
+        assertFalse(shown.contains("id=only-action"))
+        assertFalse(CommitmentOutcomeVerification.evaluate(task, listOf("only-action"),
+            "已经发出了本机闹钟所以人肯定睡了", listOf(action)).accepted)
+    }
+
     @Test fun followUpKindDoesNotMisrouteWakeRetries() {
         assertTrue(task.copy(attemptCount = 1, followUpKind = "verification").isOutcomeReview())
         assertFalse(task.copy(attemptCount = 1, followUpKind = "retry").isOutcomeReview())
