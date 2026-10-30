@@ -54,6 +54,13 @@ class ResidentAutonomyBoundaryTest {
             .put("cafeOrderEvening", "none")
         assertNull(ResidentDailyRoutine.chosenCafeOrder(null, "lunch"))
         assertEquals("cafe_consume_tea", ResidentDailyRoutine.chosenCafeOrder(daily, "lunch"))
+        // The actor may choose any real menu item, not only the two formerly
+        // hard-coded food/drink defaults in the clock worker.
+        val coffee = org.json.JSONObject().put("cafeOrderLunch", "coffee")
+        assertEquals("cafe_consume_coffee",
+            ResidentDailyRoutine.chosenCafeOrder(coffee, "lunch"))
+        val cake = org.json.JSONObject().put("cafeOrderLunch", "cake")
+        assertEquals("cafe_consume_cake", ResidentDailyRoutine.chosenCafeOrder(cake, "lunch"))
         assertNull(ResidentDailyRoutine.chosenCafeOrder(daily, "evening"))
         assertNull(ResidentDailyRoutine.chosenCafeOrder(daily, "morning"))
         assertNull(ResidentDailyRoutine.chosenCafeOrder(
