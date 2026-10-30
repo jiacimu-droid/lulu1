@@ -136,6 +136,10 @@ internal class ElevenLabsSpeech(context: Context) {
             output.play()
             var written = 0L
             var carry = 0
+            var silentPrimaryStalled = false
+            var firstWriteAttemptAt = 0L
+            var lastHeadAt = 0L
+            var lastHead = 0L
             val buffer = ByteArray(8192)
             for (part in speechParts) {
                 if (token != epoch) break
@@ -147,32 +151,56 @@ internal class ElevenLabsSpeech(context: Context) {
                             if (count < 0) break
                             val total = count + carry
                             val even = total - total % 2
+                            // Save received PCM once, regardless of playback status;
+                            // a stalled Android writer must not force paid TTS again.
+                            recording?.write(buffer, 0, even)
+                            if (replayAvailable) {
+                                if (written + even > 20L * 1024 * 1024) {
+                                    replayAvailable = false
+                                    runCatching { replayOutput?.close() }
+                                    replayOutput = null
+                                } else {
+                                    runCatching { replayOutput?.write(buffer, 0, even) }
+                                        .onFailure {
+                                            replayAvailable = false
+                                            runCatching { replayOutput?.close() }
+                                            replayOutput = null
+                                        }
+                                }
+                            }
+                            written += even
+                            if (even > 0 && firstWriteAttemptAt == 0L)
+                                firstWriteAttemptAt = android.os.SystemClock.elapsedRealtime()
                             var offset = 0
-                            while (offset < even && token == epoch) {
+                            while (offset < even && token == epoch && !silentPrimaryStalled) {
                                 CallAudioRoute.preferredOutput?.let {
-                                    if (output.preferredDevice?.id != it.id) check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+                                    if (output.preferredDevice?.id != it.id)
+                                        check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
                                 }
-                                val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
-                                check(sent > 0) { "ElevenLabs 音频播放失败" }
+                                // Never let WRITE_BLOCKING hang forever when the
+                                // selected Android communication device is silent.
+                                val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_NON_BLOCKING)
+                                check(sent >= 0) { "ElevenLabs AudioTrack 写入失败：$sent" }
                                 playbackClock?.sample()
-                                recording?.write(buffer, offset, sent)
-                                if (replayAvailable) {
-                                    if (written + sent > 20L * 1024 * 1024) {
-                                        replayAvailable = false
-                                        runCatching { replayOutput?.close() }
-                                        replayOutput = null
-                                    } else {
-                                        runCatching { replayOutput?.write(buffer, offset, sent) }
-                                            .onFailure {
-                                                replayAvailable = false
-                                                runCatching { replayOutput?.close() }
-                                                replayOutput = null
-                                            }
+                                val now = android.os.SystemClock.elapsedRealtime()
+                                val head = output.playbackHeadPosition.toLong() and 0xffffffffL
+                                if (head > lastHead) { lastHead = head; lastHeadAt = now }
+                                if (sent == 0) {
+                                    if (head == 0L && now - firstWriteAttemptAt >=
+                                        CallAudioRecoveryPolicy.STARTUP_TIMEOUT_MS) {
+                                        silentPrimaryStalled = true
+                                        Log.w("ElevenLabsSpeech", "Silent output: caching remaining already-generated PCM for local replay")
+                                        break
                                     }
+                                    check(head == 0L || now - lastHeadAt <
+                                        CallAudioRecoveryPolicy.DRAIN_STALL_TIMEOUT_MS) {
+                                        "手机音频输出停滞，已停止向播放设备写入"
+                                    }
+                                    delay(20)
+                                } else {
+                                    runCatching { onPcmFrame(buffer, offset, sent) }
+                                    offset += sent
                                 }
-                                // A renderer failure must never interrupt a phone call.
-                                runCatching { onPcmFrame(buffer, offset, sent) }
-                                offset += sent; written += sent
                             }
                             carry = total % 2
                             if (carry == 1) buffer[0] = buffer[even]
@@ -196,6 +224,9 @@ internal class ElevenLabsSpeech(context: Context) {
             }
             if (token != epoch) return@withContext false
             val playedOnPrimary = output.playbackHeadPosition.toLong() and 0xffffffffL
+            // After a silent stall, the primary may have received only part of the PCM.
+            if (silentPrimaryStalled && playedOnPrimary > 0L)
+                error("手机音频输出初始化过慢，原播放器只接收了部分语音")
             if (CallAudioRecoveryPolicy.canReplay(
                     playedOnPrimary, written, replayFile?.length() ?: 0L, replayAvailable)) {
                 Log.w("ElevenLabsSpeech", "PCM received but AudioTrack did not start; retrying local playback without TTS request")
