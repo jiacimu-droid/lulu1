@@ -102,8 +102,17 @@ class Live2DDialoguePlanTest {
         prefs.edit().putString("model:$role", relative).commit()
         try {
             Live2DVisualActionBus.stageReady(role, call)
-            assertTrue(Live2DVisualActionBus.publish(context, role, call, Live2DDialoguePlan.visual(envelope())))
+            val authored = envelope().apply {
+                getJSONArray("speech").getJSONObject(0).put("followUps",
+                    org.json.JSONArray().put(JSONObject().put("motion",
+                        JSONObject().put("group", "Gesture").put("index", 1))))
+            }
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                Live2DDialoguePlan.visual(authored)))
             val cue = Live2DVisualActionBus.cues.value.getValue(role)
+            assertEquals(1, cue.beats[0].followUps.size)
+            assertEquals("Gesture" to 1, cue.beats[0].followUps[0].motion)
+            assertEquals(2500, cue.beats[0].followUps[0].metadata?.durationMs)
             // The role cannot claim the visual cue was performed before Cubism reports it.
             assertFalse(Live2DVisualActionBus.capabilityNote(context, role, call)
                 .contains("真实身体执行回执"))
@@ -121,6 +130,8 @@ class Live2DDialoguePlanTest {
                 "motion-started", event(cue.sequence, 0, "s3")))
             assertTrue(Live2DVisualActionBus.recordMotionOutcome(role, call,
                 "motion-started", event(cue.sequence, 0, "s1")))
+            assertTrue(Live2DVisualActionBus.recordMotionOutcome(role, call,
+                "motion-started", event(cue.sequence, 1, "s1")))
             assertTrue(Live2DVisualActionBus.capabilityNote(context, role, call)
                 .contains("（Gesture#0）：已启动"))
             assertTrue(Live2DVisualActionBus.recordMotionOutcome(role, call,
