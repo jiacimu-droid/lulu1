@@ -128,6 +128,13 @@ internal object CommitmentExecutor {
             append("没有用户已醒的可靠证据时，不可宣称目标已完成。")
         }
 
+        fun selectionEvidence(): String = when {
+            selected.systemFallback -> "系统保底（非角色决定）：${selected.executionIssue}"
+            selected.executionIssue.isNotBlank() ->
+                "角色原选择=${selected.cue}；暂不能执行：${selected.executionIssue}"
+            else -> "角色选择=${selected.cue}；理由=${selected.reason.take(150)}"
+        }
+
         suspend fun playChosenMusic(): Boolean {
             if (selected.cue != WakeActionPlanner.Cue.MUSIC) return false
             selected.volumePercent?.let {
@@ -180,7 +187,7 @@ internal object CommitmentExecutor {
                             claimedTask.characterId, characterName, claimedTask.goal)
                     }.isSuccess
             }
-            val reviewSeconds = if (wake) CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt)
+            val reviewSeconds = if (wake) selected.reviewAfterSeconds ?: CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt)
                 else 10L * 60L
             val review = if (delivered && reviewSeconds != null)
                 LuluAlarmSystem.create(
@@ -326,7 +333,7 @@ internal object CommitmentExecutor {
             // Do not equate ringing/speaking with the goal "user awake".
             // Only outstanding goals receive a bounded follow-up after 5min.
             val delaySeconds = if (queued)
-                CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt) else null
+                selected.reviewAfterSeconds ?: CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt) else null
             val nextAlarm = delaySeconds?.let { seconds ->
                 LuluAlarmSystem.create(
                     claimedTask.characterId, characterName, now.plusSeconds(seconds),
@@ -362,7 +369,7 @@ internal object CommitmentExecutor {
         // A song is deferred only if THIS role actually chose music today.
         // The fact a phone call ended is never sufficient to create a song request.
         val plannedMusic = if (wake && useCall &&
-            selected.cue == WakeActionPlanner.Cue.MUSIC) {
+            selected.cue == WakeActionPlanner.Cue.MUSIC && selected.executionIssue.isBlank()) {
             WakeMusicCoordinator.onScheduledWake(
                 appContext, claimedTask.characterId, claimedTask.id, defer = true,
                 volumePercent = selected.volumePercent)
