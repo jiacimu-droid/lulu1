@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:34:15.825401+00:00",
-  "commit": "913758b9972f4d6f85ccb952eaa68264df765e7a",
+  "generatedAt": "2026-10-30T02:34:40.959773+00:00",
+  "commit": "d672f5100054008fb4173d114d659cdab6678752",
   "branch": "main",
-  "sourceFingerprint": "b0bd619eb1a975102fecdb2b4abd1e80c694da9a95029e9d725957e576d0658c",
+  "sourceFingerprint": "1772cf8a34f58f2f61be109f23f9ac7d21b4446331b4c2982f61e7740f60096e",
   "summary": {
-    "files": 1092,
-    "lines": 227051,
+    "files": 1093,
+    "lines": 227124,
     "symbols": 3207
   },
   "symbolIndex": {
@@ -22316,6 +22316,12 @@
           "line": 5
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelLocalRouteHealth.kt",
+      "lines": 73,
+      "sha256": "2705f0653f466eb66ddbc155823bedc12fca42923e30302feb18352e2f5cf065",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",

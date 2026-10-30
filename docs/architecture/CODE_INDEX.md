@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`913758b9972f4d6f85ccb952eaa68264df765e7a`
+- 基准提交：`d672f5100054008fb4173d114d659cdab6678752`
 - 分支：`main`
-- 已索引文件：1092
-- 已索引代码/文本行：227051
+- 已索引文件：1093
+- 已索引代码/文本行：227124
 - 已发现符号：3207
 
 | 文件 | 行数 | 符号数 |
@@ -299,6 +299,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ModelLocalRouteHealth.kt` | 73 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 79 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
