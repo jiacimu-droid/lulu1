@@ -652,6 +652,24 @@ internal fun Live2DFullscreenVideoCall(
                         CallPhase.Ended -> "通话已结束"
                         else -> "视频通话"
                     }, fontSize = 12.sp, color = Color.White.copy(alpha = .7f))
+                    // Incoming calls and user-initiated turns share this exact
+                    // model -> TTS -> audible lifecycle; no silent waiting.
+                    state.replyActivity?.let { activity ->
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center) {
+                            if (!state.speaking) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(10.dp),
+                                    color = Color.White,
+                                    strokeWidth = 1.5.dp,
+                                )
+                                Spacer(Modifier.width(6.dp))
+                            }
+                            Text(activity, fontSize = 11.sp,
+                                color = Color.White.copy(alpha = .94f),
+                                maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
                 }
                 Spacer(Modifier.weight(1f))
                 Box {
@@ -774,8 +792,13 @@ internal fun Live2DFullscreenVideoCall(
                 Text(cameraFailure, fontSize = 12.sp, color = Color.White,
                     textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 8.dp))
             }
-            val liveWords = state.playingTranscript.ifBlank {
-                state.partialTranscript.ifBlank { state.statusMessage }
+            val liveWords = when {
+                state.speaking -> state.playingTranscript
+                state.userSpeaking -> state.partialTranscript
+                // Progress belongs to the permanent header; subtitles
+                // describe audible speech instead of a stale waiting message.
+                state.replyActivity != null -> ""
+                else -> state.statusMessage
             }
             // Captions behave like subtitles: only the line being spoken
             // now (plus the one just finished) stays on screen. The full
