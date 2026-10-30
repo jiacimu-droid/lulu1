@@ -110,7 +110,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         movement = {
             val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
-            GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 580L) { dx, dy ->
+            GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 580L,
+                stopWhen = (run?.hero?.hp to run?.phase)) { dx, dy ->
                 run?.hero?.let { action("move", it.x + dx, it.y + dy) }
             }
         },
@@ -134,7 +135,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     GameHudQuickAction("潜行", relicGreen, run.phase != RelicPhase.DOWNED && moveStep != null,
                         Modifier.weight(1f)) { moveStep?.let { action("sneak", it.first, it.second) } }
-                    GameHudQuickAction("治疗", relicGreen, hero.kits > 0 && hero.hp < 10,
+                    GameHudQuickAction("治疗", relicGreen, run.phase != RelicPhase.DOWNED &&
+                        hero.kits > 0 && hero.hp < 10,
                         Modifier.weight(1f)) { action("heal") }
                 }
             }
