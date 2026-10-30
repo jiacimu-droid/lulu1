@@ -17,6 +17,8 @@ internal object CharacterSpeechIdentity {
     ): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
+        val illustrativeDialogues = CharacterLifeStore.state(characterId)
+            .optJSONObject("profile")?.optString("dialogueExamples").orEmpty().trim()
         val acquired = if (includeObserved) CharacterDevelopmentRecall.select(
             CharacterDevelopmentStore.active(characterId).filter { it.kind == DevelopmentKind.ExpressionHabit },
             query, limit = 5) else emptyList()
@@ -31,6 +33,13 @@ internal object CharacterSpeechIdentity {
             }
             // Full-context calls already include this setting in the character profile.
             if (includeConfigured && initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
+            if (illustrativeDialogues.isNotBlank()) {
+                appendLine("【只属于本人的假设对话示范｜给表达层看节奏，不是过去真实发生的聊天】")
+                appendLine(illustrativeDialogues.take(1_100))
+                appendLine("这是主人审核过的个人语言示范，不是逐字台词、现实经历或对方现在说过的话。")
+                appendLine("从自己当下的立场、关系和情绪借鉴接话节奏；换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
+                appendLine("真实用户原话、最近关系变化和本人已经选定的行动优先；绝不把示例中的虚构对象、道具、经历带入当前现实。")
+            }
             if (acquired.isNotEmpty()) {
                 appendLine("从多次可核验交流中形成的习惯（结合当前反馈判断是否适用）：")
                 acquired.forEach { appendLine("- ${it.content}") }
