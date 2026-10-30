@@ -235,6 +235,7 @@ internal fun Live2DFullscreenVideoCall(
     }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
+    var motionFailureNotice by remember(state.callExperienceId) { mutableStateOf("") }
     var videoPerformance by remember(modelUrl) { mutableStateOf("") }
     var rendererPerformance by remember(modelUrl) { mutableStateOf("") }
     // One public video experience, three internal recovery stages:
@@ -419,8 +420,13 @@ internal fun Live2DFullscreenVideoCall(
                     // onRenderProcessGone. Never recreate it without user retry.
                     if (stageStatus == "fatal" && phase != "fatal") return@Live2DCallStage
                     if (phase == "motion-started" || phase == "motion-failed") {
-                        Live2DVisualActionBus.recordMotionOutcome(
+                        // Only the currently owned character cue may update
+                        // user-visible playback status. Manual auditions and
+                        // stale WebViews are not evidence of role action.
+                        val accepted = Live2DVisualActionBus.recordMotionOutcome(
                             characterId, state.callExperienceId, phase, detail)
+                        if (accepted) motionFailureNotice = if (phase == "motion-failed")
+                            "本句 Motion3 未启动，语音仍正常" else ""
                     } else if (phase == "performance") {
                         // GPU render cadence and Android delivered cadence are
                         // separate measurements, not one misleading FPS.
@@ -791,6 +797,18 @@ internal fun Live2DFullscreenVideoCall(
             if (cameraFailure.isNotBlank()) {
                 Text(cameraFailure, fontSize = 12.sp, color = Color.White,
                     textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 8.dp))
+            }
+            val motionNotice = state.errorMessage.takeIf {
+                it.startsWith("视频动作")
+            } ?: motionFailureNotice
+            if (state.connected && motionNotice.isNotBlank()) {
+                Text(motionNotice, fontSize = 11.sp, maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White, textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF304C62).copy(alpha = .80f))
+                        .padding(horizontal = 12.dp, vertical = 6.dp))
             }
             val liveWords = when {
                 state.speaking -> state.playingTranscript
