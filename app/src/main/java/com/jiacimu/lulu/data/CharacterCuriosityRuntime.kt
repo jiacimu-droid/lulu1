@@ -167,10 +167,12 @@ internal object CharacterCuriosityRuntime {
     /** IDs already visible in the shared brief context, not an unrestricted history search. */
     fun continuityEvidenceIds(role: String): List<String> {
         val root = snapshot(role)
-        val threads = root.optJSONArray("threads") ?: JSONArray()
+        // Select from the same verified, still-active projection used by the
+        // conversation and autonomous context. Raw persisted entries can include
+        // older unverified records; selecting them first would waste both source
+        // slots and silently block a valid older interest from being revised.
         return pendingQuestions(role, root).takeLast(3).map { it.optString("observedId") } +
-            (0 until threads.length()).mapNotNull(threads::optJSONObject)
-                .filter { it.optString("status") == "exploring" }.takeLast(2)
+            activeThreads(role, root).takeLast(2)
                 .mapNotNull { lastRealStep(role, it)?.optString("evidenceId") }
     }
 
