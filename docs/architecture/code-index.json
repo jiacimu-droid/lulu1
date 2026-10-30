@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:00:27.184206+00:00",
-  "commit": "ba8a61487b7590b50c69366ecf2b7a0d787a0ba1",
+  "generatedAt": "2026-10-30T11:00:49.061530+00:00",
+  "commit": "42b423171c101ebb4627a5f3b09b56d1a1ed4a42",
   "branch": "main",
-  "sourceFingerprint": "3f6bddca3d031b7e1ce00f6d27bfd7770fe7b449e5850fe8b075e0a5aa1441c5",
+  "sourceFingerprint": "7c23596c33f8263a9cd8cc12516c58fa9706fde61af867640bad83a09b33b58b",
   "summary": {
     "files": 1119,
-    "lines": 230165,
+    "lines": 230196,
     "symbols": 3254
   },
   "symbolIndex": {
@@ -165,7 +165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 62
+        "line": 76
       }
     ],
     "preferredMicrophoneType": [
@@ -11541,7 +11541,7 @@
     "plan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 24
+        "line": 38
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -29444,16 +29444,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 132,
-      "sha256": "58d19d4ac6f6a0ec87b49ab7477e80ef706db3e8fd4e0d0d4bb23a684671bbe1",
+      "lines": 146,
+      "sha256": "3248e1b6ed1ff94fb293c88af01aac7104d56fbe4551763982d210711b9a4638",
       "symbols": [
         {
           "name": "plan",
-          "line": 24
+          "line": 38
         },
         {
           "name": "refresh",
-          "line": 62
+          "line": 76
         }
       ]
     },
@@ -37758,8 +37758,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 115,
-      "sha256": "0e5cdb1c4c3f324d4156b599d0fdc40d6d68407a8f615a04ca1a5502d0fafcb4",
+      "lines": 132,
+      "sha256": "b1ddc38ed7c1eeeb4a7b624ac293c9ea4d8527e10d7adc0159e4d7bb503c4b38",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
