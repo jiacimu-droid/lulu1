@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`59c2d0ee44944a9cad19f882a34bb43e49828bad`
+- 基准提交：`7b2dec5b629fd7fc42f80a415a8d09ebb454e048`
 - 分支：`main`
-- 已索引文件：1109
-- 已索引代码/文本行：228546
-- 已发现符号：3235
+- 已索引文件：1110
+- 已索引代码/文本行：228605
+- 已发现符号：3236
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -112,7 +112,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 835 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 843 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DesktopWorldBulletinCard.kt` | 150 | 0 |
@@ -364,6 +364,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 315 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1114 | 9 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:52:19.527521+00:00",
-  "commit": "59c2d0ee44944a9cad19f882a34bb43e49828bad",
+  "generatedAt": "2026-10-30T05:53:06.776596+00:00",
+  "commit": "7b2dec5b629fd7fc42f80a415a8d09ebb454e048",
   "branch": "main",
-  "sourceFingerprint": "7fb2eb6ce604a3b8cb0caae00a4569c4975f169a2cd79d1d8b71a71ad0a255d1",
+  "sourceFingerprint": "f664305008d017a6aee3863313f52484e6e1d5b6e9a9dd0d8caffc6ad8a1a3e0",
   "summary": {
-    "files": 1109,
-    "lines": 228546,
-    "symbols": 3235
+    "files": 1110,
+    "lines": 228605,
+    "symbols": 3236
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3376,6 +3376,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
         "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt",
+        "line": 14
       }
     ],
     "time": [
@@ -19087,8 +19091,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 835,
-      "sha256": "98b6c76ca787a7aab766c2d6c220cfc7917d938148636df3af4ccec2090fa579",
+      "lines": 843,
+      "sha256": "aaeab2e9c529f1f5d9ab6d0cf93c6783c522ff4637f730bb1aa934ff07344743",
       "symbols": []
     },
     {
@@ -24026,6 +24030,17 @@
         {
           "name": "matchingActionFeedback",
           "line": 629
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt",
+      "lines": 51,
+      "sha256": "930994e9ff532fcf09465ba3d414b9254e2f5af71a459e40a06bd503dcfcaf30",
+      "symbols": [
+        {
+          "name": "lines",
+          "line": 14
         }
       ]
     },
