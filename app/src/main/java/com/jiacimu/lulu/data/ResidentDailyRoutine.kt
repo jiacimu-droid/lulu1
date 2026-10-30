@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import java.time.Instant
 import java.time.ZoneId
+import org.json.JSONObject
 
 /** Time-aware, locally executed commitments of native-world residents.
  *
@@ -14,6 +15,19 @@ import java.time.ZoneId
 internal object ResidentDailyRoutine {
     internal data class Plan(val slot: String, val location: String, val activity: String,
         val intendedActivity: String = "")
+
+    /** Only an explicitly saved role decision may authorize a cafe order.
+     * Legacy plans without the new optional fields cause no purchase. */
+    internal fun chosenCafeOrder(daily: JSONObject?, slot: String): String? =
+        when (daily?.optString(when (slot) {
+            "lunch" -> "cafeOrderLunch"
+            "evening" -> "cafeOrderEvening"
+            else -> return null
+        })) {
+            "sandwich" -> "cafe_consume_sandwich"
+            "tea" -> "cafe_consume_tea"
+            else -> null
+        }
 
     private fun dutyPlace(person: DigitalWorldResident): String = when (person.templateName) {
         "苏弦" -> DigitalWorldPublicPlaces.GAME_HALL
@@ -88,12 +102,12 @@ internal object ResidentDailyRoutine {
             CharacterLifeStore.saveBodyState(characterId, body.toJson(),
                 cause = "原住民真实日程：" + activity)
             if (plan.slot in setOf("lunch", "evening") &&
+                canonical.currentLocationCode == DigitalWorldPublicPlaces.CAFE &&
                 residents.any { it.isCafeBarista && plan(it, at, context = app).location == DigitalWorldPublicPlaces.CAFE }) {
-                val choice = when {
-                    body.hunger >= 23.0 -> DigitalCafeMenu.byConsume("cafe_consume_sandwich")
-                    body.thirst >= 23.0 -> DigitalCafeMenu.byConsume("cafe_consume_tea")
-                    else -> null
-                }
+                // The resident already chose; the world clock can only verify
+                // present location, a real barista, inventory and action receipts.
+                val savedDay = ResidentDailyDecision.planFor(app, resident.id, at)
+                val choice = chosenCafeOrder(savedDay, plan.slot)?.let(DigitalCafeMenu::byConsume)
                 if (choice != null) {
                     // Use the very same inventory/receipt executor used by the
                     // main companion. Ordering is not eating; a failed order
