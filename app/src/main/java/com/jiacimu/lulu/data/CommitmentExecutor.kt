@@ -136,7 +136,9 @@ internal object CommitmentExecutor {
         }
 
         suspend fun playChosenMusic(): Boolean {
-            if (selected.cue != WakeActionPlanner.Cue.MUSIC) return false
+            if (selected.cue != WakeActionPlanner.Cue.MUSIC ||
+                selected.executionIssue.isNotBlank() ||
+                !WakeActionPlanner.musicAllowed(appContext, claimedTask.characterId)) return false
             selected.volumePercent?.let {
                 LuluMediaVolume.control(appContext, claimedTask.characterId, "set", it)
             }
