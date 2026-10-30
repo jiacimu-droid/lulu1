@@ -504,3 +504,12 @@
 - 2026-10-30 08:55（北京时间）对应 [索引 #40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) 与 [Android/APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 尚在队列，**源码/回归已提交不等于自动测试或 APK 通过**；索引由原工作流生成，不手工改生成物。真机当天撤回后页面刷新、强杀、删除计划及多年数据性能仍待验；细节与后续状态见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
 
 - **2026-10-30 08:57 真实工作流复核**：上述 [索引 #40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) 已 `completed/success`，自动索引提交 `55eb6035` 进入 main；[Lulu APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 已 `completed/failure`，build job `123826434592` 日志明确为同期 Live2D `exp3` 的 JS 回归断言 `real current exp3 failure releases eye ownership` 失败，Android JVM/assemblePhone 尚未执行。该阻断属 Live2D 专项，不在基础专项越界修改；待其修复后的包含本轮代码的新 main CI 才能验收本轮 Kotlin 回归/APK。真机未验。
+
+
+## 2026-10-30 P0-B/P4：个人日程完成记录的原生结果归属诊断（源码与回归已提交，CI/真机另验）
+
+- [x] **真实缺口**：旧 `CharacterCausalTrace.inspect` 只要日程状态为 completed，且 `resultEvidenceId` 在本人时间线仍存在，就显示「日程执行有回执」。用户自己的消息、另一日程成功回执、失败工具回执、旧时间事件也可能被误当成本计划的执行证据。已有日程、ToolRouter 与时间线不重复开发。
+- [x] **实际修复**：只读个人日程卡要求 `tool-router` 真实成功 `ToolResult` 的 `planId`、动作和到期时间匹配，才显示独立核对的执行回执。其他记录保持历史和链接，但只能显示「日程状态待核对」；原生动态/观察的真实记录可查，不再把其存在自动等同于本日程执行成功。保留旧来源版本警告、取消状态与原存储，不自动恢复/重发/额外购买模型。
+- [x] **根因回归源码**：`CharacterCausalTraceTest.completedScheduleCannotBorrowUnrelatedOrFailedResultAsVerifiedReceipt` 覆盖本人用户消息、他计划成功、工具失败、本计划真实成功、原生结果未独立归属与跨角色隔离。源码 `f5d211b9`；测试 `00d1ff49`、`05cf4581`。基础专项详细进度见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
+- [x] **已有索引证据**：源码提交对应 [Refresh code index #40994662294](https://github.com/jiacimu-droid/lulu1/actions/runs/40994662294) completed/success；测试更新后的生成物需继续核对原工作流。
+- [ ] **仍待验证**：包含最终测试提交的 Android JVM 全套、phone APK/发布、真机真实发布与旧日程详情、进程强杀/撤回以及多年历史性能。前一个主线 [APK #40993494707](https://github.com/jiacimu-droid/lulu1/actions/runs/40993494707) 的实际失败属于并行内驱 `CharacterCuriosityRuntimeTest`，不越界修改；失败/取消/排队不能当作本轮成功。
