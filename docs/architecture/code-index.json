@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:59:02.144647+00:00",
-  "commit": "521280eb25ce65b6e4de6e4339f2e464ebe9128b",
+  "generatedAt": "2026-10-30T03:00:58.448784+00:00",
+  "commit": "961ef332756f22826155ba2259e7e35e3e573a99",
   "branch": "main",
-  "sourceFingerprint": "5b5389ac64c7b8f1edc8af83c106e808f94c14f5abff9dde4eb370b779a725e5",
+  "sourceFingerprint": "cb2759ec09b7b2d7d9b7a682f7aa24627ecc89c9c9e36cb57f811ee62c641571",
   "summary": {
     "files": 1096,
-    "lines": 227659,
+    "lines": 227663,
     "symbols": 3216
   },
   "symbolIndex": {
@@ -5725,13 +5725,13 @@
     "provenanceProblem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 512
+        "line": 516
       }
     ],
     "unverifiedReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-        "line": 644
+        "line": 648
       }
     ],
     "snapshot": [
@@ -23200,8 +23200,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
-      "lines": 712,
-      "sha256": "545aa366d7fc9b61de0c4f101a2e6337ba6953d532645dfc0fe5af8769cfc112",
+      "lines": 716,
+      "sha256": "80e88edf6e79d150e605fc764f870818816af7761bfe3d873b861f04b40c899d",
       "symbols": [
         {
           "name": "inspect",
@@ -23209,11 +23209,11 @@
         },
         {
           "name": "provenanceProblem",
-          "line": 512
+          "line": 516
         },
         {
           "name": "unverifiedReason",
-          "line": 644
+          "line": 648
         }
       ]
     },
