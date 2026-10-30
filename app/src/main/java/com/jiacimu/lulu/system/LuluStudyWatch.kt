@@ -222,14 +222,19 @@ internal object LuluStudyWatch {
         context.getSystemService(NotificationManager::class.java).cancel(REQUEST_NOTICE)
         LuluScreenRequestPopup.dismiss("study-watch:$id")
         val now = System.currentTimeMillis()
-        val accepted = granted &&
-            now - entry.optLong("at") in 0..CONSENT_LIFETIME_MS &&
-            observationBlocker(context, requestChannel = true) == null
+        val expired = now - entry.optLong("at") !in 0..CONSENT_LIFETIME_MS
+        val blocker = observationBlocker(context, requestChannel = true)
+        val accepted = granted && !expired && blocker == null
         val role = entry.optString("characterId")
         if (!accepted) {
             if (!granted) prefs(context).edit().putLong("$LAST_DENIAL_AT:$role", now).commit()
+            val reason = when {
+                !granted -> "主人选择拒绝了本次学习监督；没有截图"
+                expired -> "主人尝试授权时请求已过期；监督未启动，也没有截图"
+                else -> "主人点击了允许，但本机条件不满足：${blocker ?: "状态无法确认"}；监督未启动，也没有截图"
+            }
             SharedExperienceTimeline.record("study-watch-denied-$id", role, "屏幕监督授权", "手机",
-                "主人未同意这段屏幕监督，未观察画面", source = "study-watch-consent",
+                reason, source = "study-watch-consent",
                 triggerExtraction = false, evidenceKind = EventEvidenceKind.ToolResult)
             return
         }
