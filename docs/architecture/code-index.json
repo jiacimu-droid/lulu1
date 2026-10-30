@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:55:07.574110+00:00",
-  "commit": "b626afe9a17e17da474467bb4e8665a25d2e3b83",
+  "generatedAt": "2026-10-30T07:56:42.927201+00:00",
+  "commit": "8367bd9b97c72da8d2c1719499db88445b2cf328",
   "branch": "main",
-  "sourceFingerprint": "54f9f6d0ea44814de0811aa6debaca98dbbb3b6358cade3b8861186bbc810edb",
+  "sourceFingerprint": "dabbe946eb678b689128a841a11fd3f04ba5dc7253473dbcc274d5ffd4bf204b",
   "summary": {
     "files": 1119,
-    "lines": 229751,
+    "lines": 229766,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -5089,19 +5089,19 @@
     "canDescribeCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 181
+        "line": 195
       }
     ],
     "xhsConnectionOverride": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 206
+        "line": 220
       }
     ],
     "PreparedXhsImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 214
+        "line": 228
       }
     ],
     "CharacterSummary": [
@@ -14825,37 +14825,37 @@
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 309
+        "line": 310
       }
     ],
     "scheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 372
+        "line": 373
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 422
+        "line": 423
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 432
+        "line": 433
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 462
+        "line": 463
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 474
+        "line": 475
       }
     ],
     "showCapture": [
@@ -22792,8 +22792,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 392,
-      "sha256": "80fdb940ebcf0933c9ec0eb37f8dd8e352ca30765339e33957c9845a1343a14c",
+      "lines": 406,
+      "sha256": "138588fd946a40e7d7db92b7587d89095367248a4c68126131db329f9a5b8001",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -22809,15 +22809,15 @@
         },
         {
           "name": "canDescribeCamera",
-          "line": 181
+          "line": 195
         },
         {
           "name": "xhsConnectionOverride",
-          "line": 206
+          "line": 220
         },
         {
           "name": "PreparedXhsImages",
-          "line": 214
+          "line": 228
         }
       ]
     },
@@ -33630,8 +33630,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 525,
-      "sha256": "4cc1df559382995b8835c4ac395bbabc0ebd61bd1cff8ee46899a94cf2ecb171",
+      "lines": 526,
+      "sha256": "b8eba073e9752c1d01e33246dfc5ad09063f91a5618a7b4289785f768953e1e6",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -33683,27 +33683,27 @@
         },
         {
           "name": "summon",
-          "line": 309
+          "line": 310
         },
         {
           "name": "scheduledReminder",
-          "line": 372
+          "line": 373
         },
         {
           "name": "recentAppActivity",
-          "line": 422
+          "line": 423
         },
         {
           "name": "addUntil",
-          "line": 432
+          "line": 433
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 462
+          "line": 463
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 474
+          "line": 475
         }
       ]
     },
