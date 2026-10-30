@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:15:53.473741+00:00",
-  "commit": "73fd06ecf50039157c6f9f9405f8f5a9aa52afd6",
+  "generatedAt": "2026-10-30T02:21:52.444328+00:00",
+  "commit": "2a1d9c7405636f9c238fcf8fa2c5ba801d863428",
   "branch": "main",
-  "sourceFingerprint": "7d90342a6cdb4fcb2727dbf0bf157b0a7e4b37ee1980a598770d286723344246",
+  "sourceFingerprint": "376899802a29a19f5e2bf4d6a9dbbf69ef98a8dbc70234927f77f2789109cdd3",
   "summary": {
     "files": 1092,
-    "lines": 226944,
+    "lines": 226974,
     "symbols": 3207
   },
   "symbolIndex": {
@@ -811,7 +811,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 98
+        "line": 100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -6071,7 +6071,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 904
+        "line": 906
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6083,7 +6083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 717
+        "line": 715
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -8329,7 +8329,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 219
+        "line": 221
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -8645,149 +8645,149 @@
     "DigitalWorldState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 69
+        "line": 71
       }
     ],
     "DigitalWorldActionResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 77
+        "line": 79
       }
     ],
     "DigitalWorldStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 84
+        "line": 86
       }
     ],
     "homeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 107
+        "line": 109
       }
     ],
     "ensureHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 111
+        "line": 113
       }
     ],
     "readingShelf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 160
+        "line": 162
       }
     ],
     "itemsAtHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 165
+        "line": 167
       }
     ],
     "itemsAtLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 191
+        "line": 193
       }
     ],
     "syncNativeResidentLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 202
+        "line": 204
       }
     ],
     "locationOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 216
+        "line": 218
       }
     ],
     "performAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 272
+        "line": 274
       }
     ],
     "startMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 452
+        "line": 454
       }
     ],
     "appendMeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 513
+        "line": 515
       }
     ],
     "commitResidentEncounter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 531
+        "line": 533
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 557
+        "line": 559
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 590
+        "line": 592
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 583
+        "line": 585
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 593
+        "line": 595
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 649
+        "line": 651
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 674
+        "line": 676
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 701
+        "line": 703
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 739
+        "line": 741
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 799
+        "line": 801
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 806
+        "line": 808
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 835
+        "line": 837
       }
     ],
     "strongest": [
@@ -11545,37 +11545,37 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 606
+        "line": 604
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 624
+        "line": 622
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 671
+        "line": 669
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 687
+        "line": 685
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 724
+        "line": 722
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 740
+        "line": 738
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -26164,8 +26164,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1191,
-      "sha256": "105c57b253883e8093f839e894085db5eb44630790660661ead1606e649de7e7",
+      "lines": 1195,
+      "sha256": "60768fbff4c3764115c719a63a62ff464f25dba1236765ed2f7e158d9031fdad",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -26201,115 +26201,115 @@
         },
         {
           "name": "DigitalWorldState",
-          "line": 69
+          "line": 71
         },
         {
           "name": "DigitalWorldActionResult",
-          "line": 77
+          "line": 79
         },
         {
           "name": "DigitalWorldStore",
-          "line": 84
+          "line": 86
         },
         {
           "name": "initialize",
-          "line": 98
+          "line": 100
         },
         {
           "name": "homeLocation",
-          "line": 107
+          "line": 109
         },
         {
           "name": "ensureHome",
-          "line": 111
+          "line": 113
         },
         {
           "name": "readingShelf",
-          "line": 160
+          "line": 162
         },
         {
           "name": "itemsAtHome",
-          "line": 165
+          "line": 167
         },
         {
           "name": "itemsAtLocation",
-          "line": 191
+          "line": 193
         },
         {
           "name": "syncNativeResidentLocation",
-          "line": 202
+          "line": 204
         },
         {
           "name": "locationOf",
-          "line": 216
+          "line": 218
         },
         {
           "name": "contextFor",
-          "line": 219
+          "line": 221
         },
         {
           "name": "performAction",
-          "line": 272
+          "line": 274
         },
         {
           "name": "startMeeting",
-          "line": 452
+          "line": 454
         },
         {
           "name": "appendMeetingTurn",
-          "line": 513
+          "line": 515
         },
         {
           "name": "commitResidentEncounter",
-          "line": 531
+          "line": 533
         },
         {
           "name": "meetingLocationOptions",
-          "line": 557
+          "line": 559
         },
         {
           "name": "invitationLocationOptions",
-          "line": 583
+          "line": 585
         },
         {
           "name": "meetingLocationOptions",
-          "line": 590
+          "line": 592
         },
         {
           "name": "moveMeeting",
-          "line": 593
+          "line": 595
         },
         {
           "name": "endMeeting",
-          "line": 649
+          "line": 651
         },
         {
           "name": "deleteMeeting",
-          "line": 674
+          "line": 676
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 701
+          "line": 703
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 739
+          "line": 741
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 799
+          "line": 801
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 806
+          "line": 808
         },
         {
           "name": "meetingContext",
-          "line": 835
+          "line": 837
         },
         {
           "name": "clearCharacter",
-          "line": 904
+          "line": 906
         }
       ]
     },
@@ -29073,8 +29073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 856,
-      "sha256": "0a1bc4f58cc64b4040458caed3e86a1b42b3c0ffaa22a0aad181bf8de9ed5909",
+      "lines": 854,
+      "sha256": "1852a135c04a77aa1e419ca530fda59245e829bd441db72763a44267bbf3bc94",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -29142,31 +29142,31 @@
         },
         {
           "name": "canBegin",
-          "line": 606
+          "line": 604
         },
         {
           "name": "completeFromReceipt",
-          "line": 624
+          "line": 622
         },
         {
           "name": "markDue",
-          "line": 671
+          "line": 669
         },
         {
           "name": "dueContext",
-          "line": 687
+          "line": 685
         },
         {
           "name": "clearCharacter",
-          "line": 717
+          "line": 715
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 724
+          "line": 722
         },
         {
           "name": "canResume",
-          "line": 740
+          "line": 738
         }
       ]
     },
@@ -37353,8 +37353,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt",
-      "lines": 143,
-      "sha256": "83a9f7c73fdace70d81ddb12592fe91c5431d2d28869fa49a1569743bdc2a953",
+      "lines": 171,
+      "sha256": "c4347bb5c89285bb4b2a38f9a727d31c24c302d547f1a5fd0e0c5ebbdea4d025",
       "symbols": [
         {
           "name": "ScheduledSocialEncounterVenueTest",
