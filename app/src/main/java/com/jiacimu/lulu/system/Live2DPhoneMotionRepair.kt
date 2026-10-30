@@ -41,16 +41,18 @@ internal object Live2DPhoneMotionRepair {
             !Live2DVisualActionBus.isStageVisible(characterId, callId))
             return Live2DSpokenMotionContract.Resolution(chosen, emptyList(), false)
         val motions = Live2DAssets.controls(context, characterId).motions
-        return Live2DSpokenMotionContract.resolve(text, chosen, motions) { errors ->
+        return Live2DSpokenMotionContract.resolve(text, chosen, motions) { errors, previousVisual ->
             val response = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = JSONObject().put("spokenText", text).put("originalVisual", chosen)
+                    .put("rejectedVisual", previousVisual)
                     .put("validationErrors", org.json.JSONArray(errors)).toString(),
                 instruction = """
                     这是你刚才同一次视频回复的动作字段补正，不是新对话或新的工具决定。
                     spokenText 已确定，不得改写、重说、执行工具或修改任何心理/日程。
                     结合本人性格与刚才的语气，补齐每个发声片段句首的真实 motion；短句也要配齐。
                     只返回 {"live2d":{"speech":[{"id":"s1","text":"原台词片段","motion":{"group":"真实组名","index":0},"transition":"blend"}]}}。
+                    rejectedVisual 是上一份未通过验证的动作计划；请针对 validationErrors 修正它，不要重复提交相同的无效字段。
                     原计划若已有 speech，保持每个 id、text 和顺序不变，只补正动作。否则划分自然发声片段，所有 text 必须精确拼回 spokenText，保留声音标签、标点和空格。
                     不填写原文锚点或估算的 atMs。下一片段仍继续相同动作时用 transition=continue。
                     ${Live2DVisualActionBus.capabilityNote(context, characterId, callId)}
