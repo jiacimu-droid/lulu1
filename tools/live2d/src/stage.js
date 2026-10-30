@@ -451,6 +451,14 @@ function settleSpeechMoment() {
   bodyRequestEndAt = Math.min(bodyRequestEndAt, until)
   faceRequestEndAt = Math.min(faceRequestEndAt, until)
 }
+function expireLegacyPendingSpeech(now) {
+  if (scoreVisualSequence !== 0) return
+  if ((pendingExpressionName && now - pendingExpressionName.queuedAt > 20000) ||
+      (pendingSpeechParts && now - pendingSpeechParts.queuedAt > 20000)) {
+    pendingExpressionName = null
+    pendingSpeechParts = null
+  }
+}
 // Compose inputs after motion, expressions, focus and breathing, before physics.
 // Cubism restores saved motion parameters after drawing, so post-physics touch
 // writes never reached the next frame's physics inputs either.
@@ -487,13 +495,11 @@ function applyFinalParameters(core, deltaMs) {
        timeNow - activeExpressionStartedAt > 6200)) {
     resetSpeechExpression()
   }
-  if ((pendingExpressionName &&
-       timeNow - pendingExpressionName.queuedAt > 20000) ||
-      (pendingSpeechParts &&
-       timeNow - pendingSpeechParts.queuedAt > 20000)) {
-    pendingExpressionName = null
-    pendingSpeechParts = null
-  }
+  // Versioned video choices wait for their actual utterance start, even
+  // if network/TTS takes longer than 20s. Only legacy unversioned cues have
+  // a time-based stale-state guard; versioned cues are canceled by the real
+  // call/model lifecycle and exact visual-sequence replacement.
+  expireLegacyPendingSpeech(timeNow)
   // AIRI-style final-phase ownership: normal motion/physics already ran.
   // Hold steady eye contact, spring deliberate poses, release expressions,
   // and preserve subtle dedicated breathing; passive blink and speech mouth
