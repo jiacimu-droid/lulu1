@@ -20,7 +20,7 @@ class Live2DSpokenMotionContractTest {
 
     @Test fun completeSameTurnScoreNeedsNoExtraModelRequest() = runBlocking {
         var requests = 0
-        val result = Live2DSpokenMotionContract.resolve(text, complete(), motions) {
+        val result = Live2DSpokenMotionContract.resolve(text, complete(), motions) { _, _ ->
             requests++; null
         }
         assertEquals(0, requests)
@@ -48,14 +48,14 @@ class Live2DSpokenMotionContractTest {
         val original = complete().also {
             it.getJSONArray("beats").getJSONObject(1).getJSONObject("motion").put("index", 99)
         }
-        val result = Live2DSpokenMotionContract.resolve(text, original, motions) {
+        val result = Live2DSpokenMotionContract.resolve(text, original, motions) { _, _ ->
             requests++; JSONObject("""{"performance":{"movement":"nod"}}""")
         }
         assertEquals(2, requests)
         assertFalse(result.repaired)
         assertSame(original, result.chosen)
         assertTrue(result.errors.isNotEmpty())
-        val missing = Live2DSpokenMotionContract.resolve(text, null, motions) { null }
+        val missing = Live2DSpokenMotionContract.resolve(text, null, motions) { _, _ -> null }
         assertNull(missing.chosen)
         assertTrue(missing.errors.isNotEmpty())
     }
@@ -85,7 +85,7 @@ class Live2DSpokenMotionContractTest {
     }
 
     @Test fun modelsWithoutMotionResourcesDoNotBuyFutileCorrections() = runBlocking {
-        val result = Live2DSpokenMotionContract.resolve(text, null, emptyList()) {
+        val result = Live2DSpokenMotionContract.resolve(text, null, emptyList()) { _, _ ->
             fail("No callable Motion3 exists"); null
         }
         assertTrue(result.errors.isEmpty())
