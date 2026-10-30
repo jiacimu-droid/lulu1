@@ -396,7 +396,11 @@ internal object CommitmentExecutor {
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 if (old.status != CommitmentTaskStatus.Running ||
                     old.executionToken != claimedTask.executionToken) old else old.copy(
-                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    // Without a durable callback, WAIT cannot ever be
+                    // reconsidered; report a blocked schedule, not a live
+                    // pending review with no execution path.
+                    status = if (followUp == null) CommitmentTaskStatus.Blocked
+                        else CommitmentTaskStatus.WaitingForFeedback,
                     attemptCount = attempt,
                     wakeAttemptHistory = (old.wakeAttemptHistory +
                         "第$attempt 轮没有向主人发起联系：${selectionEvidence()}；" +
