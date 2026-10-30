@@ -10,6 +10,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class GroupChatTurnPlannerTest {
+    @Test fun unavailableDirectorNeverNominatesAnUnaddressedFirstSpeaker() {
+        assertTrue(GroupChatTurnPlanner.fallbackForUnplannedTurn(
+            emptyList(), listOf("first", "second"), 2).beats.isEmpty())
+        val directed = GroupChatTurnPlanner.fallbackForUnplannedTurn(
+            listOf("second", "unknown", "second"), listOf("first", "second"), 2)
+        assertEquals(listOf("second"), directed.beats.map { it.speakerId })
+        assertTrue(GroupChatTurnPlanner.fallbackForUnplannedTurn(
+            listOf("second"), listOf("first", "second"), 0).beats.isEmpty())
+    }
+
     @Test fun onlyListedMembersCanReceiveAnOpportunity() {
         val ids = listOf("role-a", "role-b", "role-c")
         val raw = """{"speakerIds":["role-b","intruder","role-b","role-a","role-c"]}"""
