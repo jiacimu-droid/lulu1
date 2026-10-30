@@ -115,8 +115,11 @@ internal object CharacterCuriosityRuntime {
         val pending = pendingQuestions(role, root)
         val threads = root.optJSONArray("threads") ?: return emptyList()
         return entries(threads).mapNotNull { thread ->
+            // Only a pending revision of THIS thread supersedes its previous
+            // verified result. Independent inquiries may use identical words
+            // and still have different owners, sources and progress.
             if (thread.optString("status") != "exploring" ||
-                pending.any { sameIdentity(it, thread) || sameQuestion(it, thread) }) return@mapNotNull null
+                pending.any { sameIdentity(it, thread) }) return@mapNotNull null
             val verified = lastRealStep(role, thread) ?: return@mapNotNull null
             val steps = thread.optJSONArray("steps")
             // A newer receipt may be edited or revoked while an older one
@@ -174,8 +177,14 @@ internal object CharacterCuriosityRuntime {
     private fun previousResult(role: String, root: JSONObject, question: JSONObject): String {
         val threads = entries(root.optJSONArray("threads"))
         val exact = matching(threads, question)
-        val legacy = threads.filter { normalized(it.optString("topic")) ==
-            normalized(question.optString("topic")) }.singleOrNull()
+        // Topic is only a shelf. An independent question with its own ID
+        // cannot inherit a different thread's verified result merely because
+        // that happens to be the sole explored thread on the same topic.
+        // Keep the old topic-only fallback for genuinely ID-less legacy data.
+        val legacy = if (question.optString("threadId").isBlank()) threads.filter {
+            normalized(it.optString("topic")) ==
+                normalized(question.optString("topic"))
+        }.singleOrNull() else null
         return (exact ?: legacy)?.let { lastRealStep(role, it)?.optString("receipt") }.orEmpty()
     }
 

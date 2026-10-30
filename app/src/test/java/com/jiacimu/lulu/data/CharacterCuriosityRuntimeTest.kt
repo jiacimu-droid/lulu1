@@ -620,4 +620,43 @@ class CharacterCuriosityRuntimeTest {
         assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("另一条线索的真实结果"))
         CharacterCuriosityRuntime.clear(id)
     }
+
+    @Test fun identicalWordingWithIndependentSourceKeepsBothInterestsAndTheirResultsSeparate() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(),
+            "source-1", "第一条独立来源", at.plusSeconds(10)))
+        val exploredId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        realRead("first-verified-reading", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("threadId", exploredId).put("sourceEvidenceId", "source-1"),
+            "reading", true, "第一条实际阅读的证据", "first-verified-reading", at.plusSeconds(20))
+        assertEquals(exploredId, CharacterCuriosityRuntime.activeThreads(id).single().getString("threadId"))
+
+        // A separate observed situation happens to inspire the same wording.
+        // Its explicit nonmatching request ID prevents an implicit legacy merge.
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+            proposal().put("threadId", "independent-new-request"),
+            "source-observation", "第二条独立来源", at.plusSeconds(30)))
+        val pendingId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        assertNotEquals(exploredId, pendingId)
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        assertEquals(exploredId, CharacterCuriosityRuntime.activeThreads(id).single().getString("threadId"))
+        assertEquals(pendingId, CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId"))
+
+        val brief = CharacterCuriosityRuntime.briefContext(id, at.plusSeconds(40))
+        assertTrue(brief.contains("第一条实际阅读的证据"))
+        assertTrue(brief.contains("threadId=$exploredId"))
+        assertTrue(brief.contains("threadId=$pendingId"))
+        // The new question has not performed the first thread's reading.
+        assertTrue(brief.contains("此前真实结果=（这个新问题尚未实践"))
+        val decision = CharacterCuriosityRuntime.promptSection(id, "测试人物",
+            emptyList(), at.plusSeconds(40))
+        assertTrue(decision.contains("threadId=$exploredId"))
+        assertTrue(decision.contains("threadId=$pendingId"))
+
+        assertTrue(CharacterCuriosityRuntime.deleteInterest(id, pendingId))
+        assertEquals(exploredId, CharacterCuriosityRuntime.activeThreads(id).single().getString("threadId"))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        CharacterCuriosityRuntime.clear(id)
+    }
 }

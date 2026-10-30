@@ -125,3 +125,12 @@
 - **正式修复**：只在原 `CharacterCuriosityRuntime` 的唯一 questions/threads Store 中按稳定 threadId 删除；未实践的删除写入原 threads 的 dropped/ownerDeleted 终态墓碑，后到的实际执行回执只存真实步骤，不恢复关注；同题独立来源按各自 ID 展示和保留。本人未来确实新建有有效来源的新 inquiry 时，仍沿原来源/时间门禁重新开始，并清除旧 ownerDeleted 标记。不改变本人模型选择、公共 ToolRouter、调度、权限或付费次数。
 - **根因回归**：原 `CharacterCuriosityRuntimeTest` 增加删除未实践问题→迟到真实阅读→重启仍不复活、同题不同来源独立问题→删除其一→另一条真实行动与持久化不受影响。另根据 [APK #40953735874](https://github.com/jiacimu-droid/lulu1/actions/runs/40953735874) 的真实 2064 项 JVM/3 失败日志，修正本专项旧回归 `delayedVerifiedResultCannotReopenAnExplicitlyDroppedInterestButNewInquiryCan` 的错误预期 4→3：旧来源迟到回执被事实门禁正确拒绝，两个既有真实步骤+一个新来源结果才是 3，补显式断言旧 ID 未写入。社交专项另外两条失败由其负责人单独修正，不越界。
 - **验证分层**：本段记录源码与回归意图；以本次 main 提交后原 `Refresh code index` 和 `Lulu APK` 的实际最终运行结果为准。当前容器无 Android SDK/Gradle，不能将回归源码、索引生成排队、APK 排队视为 JVM/发布通过。真机删除→迟到回执、强杀恢复、跨三次自然唤醒仍未验。
+
+## 2026-10-30 D2/T3：同文不同来源的独立兴趣不得在连续性投影中互相遮蔽、借用成果
+
+- **四类核对**：旧的本人兴趣提问、真实工具步骤、来源修订/撤回、终态与删除保护已有正式实现；基线 [Lulu APK #40977895938](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938)（fa116576）已 completed/success，包含 Android JVM、phone 构建与发布，但不能代替本轮回归。真机跨三次自然唤醒、强杀/权限变化和本人真实模型取舍仍待验；多年历史量性能属于可选增强。
+- **已证实根因**：同一人两条独立来源、不同 threadId、但 topic/question 字面相同的兴趣，一条已真实实践、另一条仍待实践时，原 `activeThreads` 用 `sameQuestion` 把已实践的独立线程错误隐藏；原 `previousResult` 在新问题已有自己的 threadId 且找不到精确线程时，仍凭“此 topic 只有一条旧线程”把别人的实际阅读回执标成新问题的“此前真实结果”。这两处只读投影破坏了前轮已实现的一题多来源独立性，不是角色模型的主观决定。
+- **正式修复**：仅在原 `CharacterCuriosityRuntime` 中让 pending 修订遮蔽自己的稳定身份，不能以同文遮蔽另一线程；“此前真实结果”先按精确身份匹配，有独立 threadId 而未实践的提问不借同主题旧回执，真正无 ID 的历史记录保留原唯一主题兼容。原始问题/steps、来源校验、人物归属、实际执行、结案与删除逻辑不变；不增加 Store、收费模型轮次、固定行为配额或唤醒。
+- **根因级回归源码**：`CharacterCuriosityRuntimeTest.identicalWordingWithIndependentSourceKeepsBothInterestsAndTheirResultsSeparate` 贯通“本人两份独立观察→第一条真实阅读回执→第二条同文待实践→重启后私聊/电话上下文和自主提示均见两条、第二条不冒领第一条结果→主人删除第二条不影响第一条”。回归源码提交不等于 JVM 实际通过。
+- **验证边界**：本轮提交后交由原 `Refresh code index` 生成索引；以该源码提交或包含它的后继 main 的真实 `Lulu APK` 工作流核对 JVM、assemblePhone、APK/Release。未完成前不得声称通过；真机与三次跨天自然唤醒仍待验。
+
