@@ -66,7 +66,9 @@ internal object LuluCallRingtone {
         return true
     }
 
-    @Synchronized fun stopInCallWake() {
+    @Synchronized fun stopInCallWake(key: String? = null) {
+        // A cancelled older wake coroutine must not stop a newer burst.
+        if (key != null && inCallWakeKey != key) return
         runCatching { inCallWake?.stop() }
         inCallWake = null
         inCallWakeKey = null
