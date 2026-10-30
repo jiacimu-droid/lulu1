@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:43:05.683944+00:00",
-  "commit": "cdc71de16f01457000b54e8f94ec11df4ed816bb",
+  "generatedAt": "2026-10-30T06:43:34.846898+00:00",
+  "commit": "8b50fa591d1ebb009e85e9eb0f6df96a8d658273",
   "branch": "main",
-  "sourceFingerprint": "a0eb73966d9b15c556b93d8630371c0b7ea06811f1f08eae717b886f87118354",
+  "sourceFingerprint": "8e0d61fd1c67f2dcd7bb7fe0b1b10e2b5db27a77f292c06399519eaa91771ae5",
   "summary": {
     "files": 1111,
-    "lines": 228836,
+    "lines": 228842,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -19584,8 +19584,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 188,
-      "sha256": "d569eda09216879f1c4c141c9ea532b02c787178476f517264e7b5f56ccfd437",
+      "lines": 190,
+      "sha256": "3db7f839e2699ed54ffed1295511c044c52faec8d624efad3dabb173c913a229",
       "symbols": [
         {
           "name": "hintFor",
@@ -34111,8 +34111,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
-      "lines": 86,
-      "sha256": "68bf12b78aec8e38feb445c2f59edc98e79a86bfc2b12de7248f8c51bc1bd675",
+      "lines": 90,
+      "sha256": "330f6cda20448ccbe65777e1cef1427923e8ec0fcfd906ec37a537e7e76f5191",
       "symbols": [
         {
           "name": "GroupChatTurnPlannerTest",
