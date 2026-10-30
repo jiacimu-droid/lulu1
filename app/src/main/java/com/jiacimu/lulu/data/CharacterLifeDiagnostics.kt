@@ -41,7 +41,9 @@ internal object CharacterLifeDiagnostics {
                 recent.optBoolean("succeeded") -> "执行器已回写成功总结；目标效果仍待单独核对"
                 else -> "执行器已回写未完成/失败总结；不可冒充成功"
             }
-            add("最近决定 · $selected；$execution")
+            val decidedAt = DateTimeFormatter.ofPattern("MM-dd HH:mm").withZone(zone)
+                .format(Instant.parse(recent.optString("at")))
+            add("最近决定 · $decidedAt · $selected；$execution")
             recent.optString("outcome").takeIf(String::isNotBlank)?.let {
                 add("执行摘要 · ${it.take(150)}（具体工具步骤以原始回执为准）")
             }
