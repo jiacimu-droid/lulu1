@@ -184,3 +184,11 @@
 - **验证层级**：已运行原scripts/generate_code_index.py、差异检查，正式索引仍由原工作流按提交生成。新增测试源码并非JVM通过；必须继续核对本提交的JVM、phone及发布CI。真机双方邀约语义、独立拒绝、多日改期/到场、强杀和自然会面表现仍未验。此轮只修显式居民邀约venue，不泛称所有活动的时空约束或整个S1-S4已经完成。首次门禁提交73fd06ec之后复核了名称无法证明历史地点的问题，本轮最终接入稳定code；未用名称匹配作为最终验收方案。
 
 - **动作格式边界复核**：居民目标可只放在activityArgs，且真实执行器会用normalizeWorldAction处理空格、格式字符与大小写。地点门禁复用同一纯格式函数，避免旧无顶层targetResidentId的合法计划用格式变体绕过地点检查；新增第四条真实日程/世界来源回归覆盖此情形。不增加语义词表或第二解释器。原2a1d9c74的#40991226577被并发main取消，日志到testDebugUnitTest但未出现phone编译，不能记JVM已通过；首轮73fd06ec的#40990643503日志已完成JVM并进入compilePhoneKotlin后取消，仅证明首轮自动阶段，不代替最终补强版本。
+
+### 10:40 源码、索引与并发CI的实际状态
+
+- 本轮主链提交[73fd06ec](https://github.com/jiacimu-droid/lulu1/commit/73fd06ecf50039157c6f9f9405f8f5a9aa52afd6)、稳定地点代码持久化[2a1d9c74](https://github.com/jiacimu-droid/lulu1/commit/2a1d9c7405636f9c238fcf8fa2c5ba801d863428)、最终同执行器ID规范化[9b172908](https://github.com/jiacimu-droid/lulu1/commit/9b17290859f3fbf13d3cf2b769c2374f20a23b37)。最终原[Refresh code index #40992202550](https://github.com/jiacimu-droid/lulu1/actions/runs/40992202550) completed/success；此前#40990643381、#40991226574也success，原生成物已进入main。没有手工伪造索引。
+- 首轮[APK#40990643503](https://github.com/jiacimu-droid/lulu1/actions/runs/40990643503)、job123851923652真实日志10:19:50执行testDebugUnitTest、10:22:01进入compilePhoneKotlin，随后10:22:11 cancelled。这证明首轮两条真实链回归及完整JVM阶段通过，**不证明后续稳定code/旧格式/格式变体的最终版本通过，也不证明APK发布**。
+- 稳定代码版本[APK#40991226577](https://github.com/jiacimu-droid/lulu1/actions/runs/40991226577)、job123854021369在testDebugUnitTest期间被并发main取消；最终[APK#40992202452](https://github.com/jiacimu-droid/lulu1/actions/runs/40992202452)也cancelled。继续追含全部改动的cf5faa09 [#40992561938](https://github.com/jiacimu-droid/lulu1/actions/runs/40992561938)，job123858368700在10:36:59刚启动Gradle、10:37:30即cancelled，尚未跑到JVM。未用排队/编译/运行时长冒充通过，未另建或反复重排工作流。
+- 最新包含版本5df9c313的[APK#40993029748](https://github.com/jiacimu-droid/lulu1/actions/runs/40993029748)查询时pending；逐文件重新比较本轮日程门禁、世界会面metadata、四项回归及专项进度，内容均保留且与最终提交一致，没有覆盖游戏/内驱/Live2D变更。**最终四项JVM、phone和Release仍未确认；本轮没有可宣称包含新S3功能的已验证APK。** 下轮先追该SHA或内容未变的后继main完成结果，若本专项失败先修原链，不重复开发地点中心。
+- 真机仍未验。遗留缺code的会面只保留阅读与历史，不倒推地点补结案；程序不自动重做活动，角色可沿原日程自行决定下一步。S3完整自然邀约/拒绝/改期和多日社交仍未宣称完成。
