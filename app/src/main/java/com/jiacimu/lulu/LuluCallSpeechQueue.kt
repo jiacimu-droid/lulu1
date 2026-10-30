@@ -126,6 +126,8 @@ internal class LuluCallSpeechQueue(
         active = true
         activeRequest = request
         val localGeneration = generation
+        val providerAtStart = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            .getString("tts_provider", "system").orEmpty()
         var audible = false
         var lastMouthSampleAt = 0L
         // Report real PCM playback, not the HTTP TTS preparation interval.
@@ -160,10 +162,8 @@ internal class LuluCallSpeechQueue(
                 // ElevenLabs may already have charged for PCM even when Android
                 // reports zero audible frames. Never pay again automatically.
                 // ElevenLabsSpeech first retries the exact cached PCM locally.
-                val paidElevenLabs = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
-                    .getString("tts_provider", "system") == "elevenlabs"
-                if (!succeeded && !paidElevenLabs && SleepCallContinuationPolicy.shouldRetryFailedAudio(
-                        request.retryOnFailure, request.retriesRemaining, audible)) {
+                if (!succeeded && SleepCallContinuationPolicy.shouldRetryFailedAudio(
+                        request.retryOnFailure, request.retriesRemaining, audible, providerAtStart)) {
                     // Retry the identical bedtime paragraph, not a new model turn.
                     // Keep later segments queued behind this request, and fence
                     // the delayed retry against new speech or a call hangup.
