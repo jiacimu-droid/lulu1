@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T08:01:59.299210+00:00",
-  "commit": "32e36e0a1d4f9e806f320f581b885b674ae85164",
+  "generatedAt": "2026-10-30T08:09:03.224867+00:00",
+  "commit": "356d859e10eb1a95de7747625ed3b731521f538f",
   "branch": "main",
-  "sourceFingerprint": "a2d6438a623dfebe4bfba39205fe6fd20a1d10ce82cbc302d2fca95236d2d5fc",
+  "sourceFingerprint": "9721681f910241efbe9da56a6267483e9a2c054f98fab37f9da4e69bd3b6198e",
   "summary": {
     "files": 1119,
-    "lines": 229830,
+    "lines": 229841,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -12109,7 +12109,7 @@
     "musicAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
-        "line": 25
+        "line": 23
       }
     ],
     "acceptedRequest": [
@@ -25379,8 +25379,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 118,
-      "sha256": "35dacba12a278d65ad415cc7e0bdb8e0a51e8ec357e89bf38de6f58771c19797",
+      "lines": 120,
+      "sha256": "fab058bde7b8940616a1ae7bf79b5082a95578728065dd506565d68279b923e6",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -25396,8 +25396,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 74,
-      "sha256": "c5168dfeff8317669feab7a87dc26977555888fa12f481a496894e13aabf27a7",
+      "lines": 75,
+      "sha256": "756b96d81fe8a406dba99ca691a4696d196a5788ff51c6774bd5f49954f73170",
       "symbols": []
     },
     {
@@ -25413,8 +25413,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 43,
-      "sha256": "5450ab4f36552e4a97d4b9e19fb3581b0aab5b6ba09f06290f58e8cb2aee577e",
+      "lines": 44,
+      "sha256": "96c1a670af25d0191ed29478547b9bf36efc059e534bd68338783cdbd0b11300",
       "symbols": []
     },
     {
@@ -30054,8 +30054,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
-      "lines": 110,
-      "sha256": "4cd927ab2f02086635ff37c5e0662435ed6575d38121fc2211423b38de14fbd3",
+      "lines": 117,
+      "sha256": "3ecc828b04112639484e0e1d55f80a447d4794c48901162345a61d2c3a21af02",
       "symbols": [
         {
           "name": "Cue",
@@ -30067,7 +30067,7 @@
         },
         {
           "name": "musicAllowed",
-          "line": 25
+          "line": 23
         }
       ]
     },
