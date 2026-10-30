@@ -281,7 +281,10 @@ internal object LuluVoiceCallSession {
                 // Future cues belong to a fresh model decision after observation.
                 val duration = ringSeconds.coerceIn(2, 10) * 1_000L
                 val ringKey = "wake-$callId-$taskId"
-                if (LuluCallRingtone.startInCallWake(context, ringKey, duration)) {
+                val ringStarted = LuluCallRingtone.startInCallWake(context, ringKey, duration)
+                com.jiacimu.lulu.data.CommitmentCallFeedback.onInCallRingtone(
+                    taskId, callId, ringStarted)
+                if (ringStarted) {
                     try { delay(duration) }
                     finally { LuluCallRingtone.stopInCallWake(ringKey) }
                 }
