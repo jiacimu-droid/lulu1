@@ -18,16 +18,19 @@ class WakeActionPlannerTest {
 
     @Test fun musicRequiresPermissionEvenIfModelWantsIt() {
         val raw = """{"cue":"music","reason":"想让她精神一点","volumePercent":42}"""
-        assertEquals(WakeActionPlanner.Cue.RING,
-            WakeActionPlanner.parseChoice(raw, false, true).cue)
+        val noPermission = WakeActionPlanner.parseChoice(raw, false, true)
+        assertEquals(WakeActionPlanner.Cue.MUSIC, noPermission.cue)
+        assertTrue(noPermission.executionIssue.contains("权限"))
+        assertFalse(noPermission.systemFallback)
         assertEquals(WakeActionPlanner.Cue.MUSIC,
             WakeActionPlanner.parseChoice(raw, true, true).cue)
     }
 
     @Test fun speechWithoutLiveCallMustNotSilenceTheAlarm() {
         val raw = """{"cue":"speak","openingLine":"该起床啦"}"""
-        assertEquals(WakeActionPlanner.Cue.RING,
-            WakeActionPlanner.parseChoice(raw, true, false).cue)
+        val unconnected = WakeActionPlanner.parseChoice(raw, true, false)
+        assertEquals(WakeActionPlanner.Cue.SPEAK, unconnected.cue)
+        assertTrue(unconnected.executionIssue.contains("尚未连接"))
         assertEquals(WakeActionPlanner.Cue.SPEAK,
             WakeActionPlanner.parseChoice(raw, true, true).cue)
     }
@@ -44,7 +47,7 @@ class WakeActionPlannerTest {
         val music = WakeActionPlanner.parseChoice("""{"cue":"music"}""", true, true)
         assertEquals(WakeActionPlanner.Cue.MUSIC, music.cue)
         assertEquals(6, WakeActionPlanner.parseChoice("invalid", true, true).ringSeconds)
-        assertEquals(WakeActionPlanner.Cue.RING, WakeActionPlanner.parseChoice(
+        assertEquals(WakeActionPlanner.Cue.MUSIC, WakeActionPlanner.parseChoice(
             """{"cue":"music"}""", false, true).cue)
     }
 
@@ -72,6 +75,28 @@ class WakeActionPlannerTest {
         } finally {
             WakeMusicCoordinator.cancelPending(context, characterId)
         }
+    }
+
+    @Test fun eachFollowUpKeepsModelsContactChoiceAndRequestedReviewTime() {
+        val model = WakeActionPlanner.parseChoice(
+            """{"cue":"wait","contact":"wait","reviewAfterSeconds":420,"reason":"再观察一下"}""",
+            true, false)
+        assertEquals(WakeActionPlanner.Cue.WAIT, model.cue)
+        assertEquals(WakeActionPlanner.Contact.WAIT, model.contact)
+        assertEquals(420L, model.reviewAfterSeconds)
+        assertFalse(model.systemFallback)
+        val call = WakeActionPlanner.parseChoice(
+            """{"cue":"ring","contact":"call","reviewAfterSeconds":1400}""",
+            true, false)
+        assertEquals(WakeActionPlanner.Contact.CALL, call.contact)
+        assertNull(call.reviewAfterSeconds)
+        val message = WakeActionPlanner.parseChoice(
+            """{"cue":"speak","contact":"message","openingLine":"起床啦"}""",
+            false, false)
+        assertEquals(WakeActionPlanner.Contact.MESSAGE, message.contact)
+        val fallback = WakeActionPlanner.parseChoice("not json", true, true)
+        assertTrue(fallback.systemFallback)
+        assertEquals(WakeActionPlanner.Cue.RING, fallback.cue)
     }
 
     @Test fun invalidVolumeIsNotCarriedIntoExecutor() {
