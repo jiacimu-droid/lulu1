@@ -306,11 +306,12 @@ internal object CommitmentExecutor {
 
         // First contact respects the original promise. Later contacts require
         // the role's new structured decision; attempt count is only a bound.
-        val action = if (wake && !sameCall)
-            CommitmentCallRetryPolicy.wakeContactAction(
+        val action = when {
+            !wake -> if (scheduledCall) "start_call" else "send_private_message"
+            sameCall -> "reuse_connected_call"
+            else -> CommitmentCallRetryPolicy.wakeContactAction(
                 attempt, claimedTask.deliveryAction, selected.contact, callsEnabled)
-        else if (sameCall) "reuse_connected_call"
-        else if (scheduledCall) "start_call" else "send_private_message"
+        }
         val useCall = action == "start_call"
         val wording = if (wake) selected.openingLine.ifBlank {
             // This is visibly marked as emergency system text in the receipt,
