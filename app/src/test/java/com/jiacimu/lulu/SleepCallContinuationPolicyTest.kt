@@ -32,6 +32,11 @@ class SleepCallContinuationPolicyTest {
             enabled = false, remainingAttempts = 1, audioAlreadyStarted = false))
         assertFalse(SleepCallContinuationPolicy.shouldRetryFailedAudio(
             enabled = true, remainingAttempts = 1, audioAlreadyStarted = true))
+        // A zero-frame Android output does not prove ElevenLabs failed to bill.
+        assertFalse(SleepCallContinuationPolicy.shouldRetryFailedAudio(
+            enabled = true, remainingAttempts = 1, audioAlreadyStarted = false, provider = "elevenlabs"))
+        assertTrue(SleepCallContinuationPolicy.shouldRetryFailedAudio(
+            enabled = true, remainingAttempts = 1, audioAlreadyStarted = false, provider = "minimax"))
     }
 
     @Test fun typedChatWaitsForBedtimeAudioButNotOrdinaryCallPlayback() {
