@@ -499,6 +499,22 @@ internal object Live2DVisualActionBus {
             .put("motion", JSONObject().put("group", "LuluWolf").put("index", index)))
     }
 
+    /**
+     * A video reply whose motion selection failed still owns a NEW audible
+     * speech lease. Retire the former turn's score so its version fence cannot
+     * reject every later real TTS start as "stale". This marker carries NO
+     * Motion3 or emotion; it must never be reported as action success.
+     */
+    @Synchronized
+    fun publishUnplannedSpeech(context: Context, characterId: String, callId: String): Long {
+        if (callId.isBlank() || characterId.isBlank() ||
+            !canAcceptCue(context, characterId, callId)) return 0L
+        sequence++
+        mutableCues.value = mutableCues.value +
+            (characterId to Cue(callId, characterId, sequence = sequence))
+        return sequence
+    }
+
     /** Bind only exact phrase anchors to actual queued TTS starts, fenced by
      * the issuing visual decision. Never infer timestamps for missing quotes. */
     @Synchronized
