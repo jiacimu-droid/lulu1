@@ -32,21 +32,20 @@ class WakeActionPlannerTest {
             WakeActionPlanner.parseChoice(raw, true, true).cue)
     }
 
-    @Test fun chosenAcousticBurstCountAndDurationsAreBounded() {
-        val many = WakeActionPlanner.parseChoice(
-            """{"cue":"ring","ringCount":99,"ringSeconds":99,"pauseSeconds":0}""", true, true)
-        assertEquals(WakeActionPlanner.Cue.RING, many.cue)
-        assertEquals(4, many.ringCount)
-        assertEquals(10, many.ringSeconds)
-        assertEquals(1, many.pauseSeconds)
-        val specific = WakeActionPlanner.parseChoice(
-            """{"cue":"ring","ringCount":3,"ringSeconds":4,"pauseSeconds":3}""", true, true)
-        assertEquals(3, specific.ringCount)
-        assertEquals(4, specific.ringSeconds)
-        assertEquals(3, specific.pauseSeconds)
-        assertEquals(2, WakeActionPlanner.parseChoice("oops", true, true).ringCount)
+    @Test fun eachNewDecisionChoosesOneCueNotAPrearrangedBatch() {
+        val ring = WakeActionPlanner.parseChoice(
+            """{"cue":"ring","ringSeconds":99,"reason":"已经说过话仍没确认醒来，想再响铃"}""", true, true)
+        assertEquals(WakeActionPlanner.Cue.RING, ring.cue)
+        assertEquals(10, ring.ringSeconds)
+        val talk = WakeActionPlanner.parseChoice(
+            """{"cue":"speak","openingLine":"再叫你一下，好不好？"}""", true, true)
+        assertEquals(WakeActionPlanner.Cue.SPEAK, talk.cue)
+        assertEquals("再叫你一下，好不好？", talk.openingLine)
+        val music = WakeActionPlanner.parseChoice("""{"cue":"music"}""", true, true)
+        assertEquals(WakeActionPlanner.Cue.MUSIC, music.cue)
+        assertEquals(6, WakeActionPlanner.parseChoice("invalid", true, true).ringSeconds)
         assertEquals(WakeActionPlanner.Cue.RING, WakeActionPlanner.parseChoice(
-            """{"cue":"music","ringCount":3}""", false, true).cue)
+            """{"cue":"music"}""", false, true).cue)
     }
 
     @Test fun modelChosenWakeMusicSurvivesOnlyTheMatchingAnsweredCall() {
