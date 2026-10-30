@@ -840,11 +840,13 @@ object ProactivePerceptionRuntime {
                     openCommitments.take(12).forEach { task ->
                         appendLine("id=${task.id}; goal=${task.goal.take(140)}; condition=${task.completionCondition.take(130)}; mode=${task.verificationMode}; status=${task.status}; last=${task.readableLastResult().take(160)}")
                     }
-                    appendLine("按真实任务结果自己选择是否调查、继续帮助、等待或放下。只有获得能证明完成条件的真实证据后，才可以使用 tool=verify_commitment,args={taskId:原任务ID,completionEvidenceIds:[真实时间线事件ID],verificationReason:证据与目标完成条件的具体联系} 正式验收。这个工具不做调查，只核验已经取得的证据来源、时序及类型；交谈中说过、工具申请中、一个手机状态线索都不是完成的证明。")
-                    appendLine("若尚无完成证据且需要稍后继续核查，可在本轮 steps 选择 tool=schedule_commitment_review,args={taskId:原任务ID,at:本人选定的未来带时区ISO时间,reason:还缺什么证据及复查理由}。这会持久安排同一任务的静默复查，不会自动再拨电话、不修改原约定日期、不清零已尝试次数；仅在心声里说再看一次不会安排。")
-                    SharedExperienceTimeline.recentEvents(characterId, 28).takeLast(12).forEach { event ->
-                        appendLine("可核验证据 id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; text=${event.content.replace("\n", " ").take(130)}")
+                    appendLine("【按各自任务证据模式核对，不能见到一个事件ID就假定能结案】")
+                    appendLine("这些只是来源/类型初筛候选，不保证语义上满足目标。只有自己判断真实结果满足完成条件后，才能使用 tool=verify_commitment,args={taskId:原任务ID,completionEvidenceIds:[实际存在且相关的事件ID],verificationReason:证据如何真正支持目标}。若无合适证据不要空试验收，先调查、继续行动、等待或复查。")
+                    val recentCommitmentEvidence = SharedExperienceTimeline.recentEvents(characterId, 160)
+                    openCommitments.take(12).forEach { task ->
+                        appendLine(CommitmentOutcomeVerification.candidateContext(task, recentCommitmentEvidence))
                     }
+                    appendLine("若尚无完成证据且需要稍后继续核查，可在本轮 steps 选择 tool=schedule_commitment_review,args={taskId:原任务ID,at:本人选定的未来带时区ISO时间,reason:还缺什么证据及复查理由}。复查只唤醒同一角色重新判断，不会自动重拨电话或替代真正达标。")
                 }
                 com.jiacimu.lulu.system.LuluStudyWatch.proactiveOpportunity(appContext, characterId, now.toEpochMilli())
                     .takeIf(String::isNotBlank)?.let(::appendLine)
