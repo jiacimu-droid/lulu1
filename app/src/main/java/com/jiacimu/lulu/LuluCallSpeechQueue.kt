@@ -192,7 +192,16 @@ internal class LuluCallSpeechQueue(
             // Android's built-in TTS can synthesize to WAV once before playback.
             // For streaming cloud providers we record AudioTrack itself below.
             engine.speakAndCache(request.text, java.io.File(target.parentFile, target.name.removeSuffix(".wav")),
-                scope, voiceIdOverride = request.voiceId, onFinished = onFinished, source = "phone_direct")
+                scope, voiceIdOverride = request.voiceId, onFinished = onFinished, source = "phone_direct",
+                onPcmLevel = { level ->
+                    // The cached system WAV is sampled at MediaPlayer's real
+                    // position. A previous/cancelled turn cannot move this
+                    // character's mouth after the call changes ownership.
+                    if (localGeneration == generation && active && audible &&
+                        activeRequest === request) {
+                        request.speakerId?.let { AvatarController.audio(it, level) }
+                    }
+                })
         } else {
             engine.speak(
                 text = request.text,
