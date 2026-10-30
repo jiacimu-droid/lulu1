@@ -50,6 +50,19 @@ class LuluStudyWatchTest {
             .startsWith("监督会话已启动"))
     }
 
+    @Test fun approvalFailureNeverRewritesOwnerConsentAsDenial() {
+        assertTrue(LuluStudyWatch.authorizationFailureReason(true, false, "无障碍未连接")
+            .contains("主人点击了允许"))
+        assertTrue(LuluStudyWatch.authorizationFailureReason(true, false, "无障碍未连接")
+            .contains("无障碍未连接"))
+        assertFalse(LuluStudyWatch.authorizationFailureReason(true, false, "无障碍未连接")
+            .contains("主人选择拒绝"))
+        assertTrue(LuluStudyWatch.authorizationFailureReason(true, true, null)
+            .contains("已过期"))
+        assertTrue(LuluStudyWatch.authorizationFailureReason(false, false, null)
+            .contains("主人选择拒绝"))
+    }
+
     @Test fun permissionRevocationOverridesPersistedApprovedSession() {
         val now = System.currentTimeMillis()
         val entry = JSONObject().put("id", "old-approved").put("characterId", "role-a")
