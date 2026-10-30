@@ -72,22 +72,13 @@ internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, va
 internal object CharacterMotiveReviewScheduler {
     private val submitted = ConcurrentHashMap<String, String>()
 
-    // One stable WorkManager identity per role. A revised plan replaces the
-    // obsolete alarm instead of accumulating one work item per token/time.
-    internal fun workName(role: String) = "lulu-motive-review-$role"
-
     fun schedule(context: Context, role: String, state: JSONObject, force: Boolean = false) {
         val policy = ProactivePerceptionPolicyStore.get(role)
         // Unscheduled wishes ride the existing ordinary perception pulse.
         // Only the role's authored time gets a dedicated wake; otherwise a
         // large goal set could accidentally create one paid loop per batch.
         val next = CharacterMotiveReview.pending(state).firstOrNull { !it.fallback }
-        if (!policy.enabled || next == null) {
-            if (submitted.remove(role) != null) {
-                WorkManager.getInstance(context.applicationContext).cancelUniqueWork(workName(role))
-            }
-            return
-        }
+        if (!policy.enabled || next == null) { submitted.remove(role); return }
         val due = CharacterMotiveReview.eligibleAt(next.dueAt, policy, ZoneId.systemDefault())
         val signature = next.token + ":" + due.toEpochMilli()
         if (!force && submitted[role] == signature) return
@@ -96,8 +87,11 @@ internal object CharacterMotiveReviewScheduler {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder().putString("characterId", role).putString("motiveId", next.id)
                 .putString("token", next.token).build()).build()
+        // Do not REPLACE an in-flight worker: other goal changes can arrive
+        // during a model/tool call and cancel a legitimate ongoing action.
+        // Obsolete token-specific workers recheck the current plan before IO.
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-            workName(role), ExistingWorkPolicy.REPLACE, request)
+            "lulu-motive-review-$role-${next.token}-${due.toEpochMilli()}", ExistingWorkPolicy.KEEP, request)
         submitted[role] = signature
     }
 
