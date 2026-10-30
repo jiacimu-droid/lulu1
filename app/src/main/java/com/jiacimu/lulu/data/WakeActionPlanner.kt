@@ -11,7 +11,17 @@ import java.time.Instant
 /** Character-led wake strategy with a reliable Android fallback. */
 internal object WakeActionPlanner {
     enum class Cue { RING, SPEAK, MUSIC }
-    data class Choice(val cue: Cue, val reason: String = "", val volumePercent: Int? = null, val openingLine: String = "")
+    data class Choice(
+        val cue: Cue,
+        val reason: String = "",
+        val volumePercent: Int? = null,
+        val openingLine: String = "",
+        // An optional multi-burst local ringtone, selected by this character.
+        // Defaults apply only if the model selects RING / the fallback is needed.
+        val ringCount: Int = 2,
+        val ringSeconds: Int = 5,
+        val pauseSeconds: Int = 2,
+    )
 
     fun musicAllowed(context: Context, characterId: String): Boolean {
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
@@ -48,10 +58,12 @@ internal object WakeActionPlanner {
                 instruction = """
                     你是正在履行这项真实责任的原角色。结合自己的性格、关系、
                     已知的习惯与当前约定，自由决定这一刻怎么叫醒她。
-                    只返回 JSON：{"cue":"ring|speak|music","reason":"为什么想这么做","volumePercent":35,"openingLine":"如果要打电话，你接通后自然说的第一句"}
-                    ring=本机响铃，通话已接通时随后自然开口；
-                    speak=已接通的电话里直接以平常声线叫醒，未接通仍需电话铃声；
-                    music=让现有授权播放器真实播放音乐，不凭空指定歌曲。
+                    只返回 JSON：{"cue":"ring|speak|music","reason":"为什么想这么做","ringCount":3,"ringSeconds":5,"pauseSeconds":2,"volumePercent":35,"openingLine":"如果要打电话，你接通后自然说的第一句"}
+                    ring=本机响铃；已经接通的电话可分成1-4次短铃声（每次2-10秒，间隔1-4秒），结束后由你自然开口。
+                    speak=已接通的电话里直接以平常声线叫醒，未接通仍需电话铃声。
+                    music=让现有授权播放器真实播放音乐，不凭空指定歌曲；没有播放器或权限则必须返回到有声铃声。
+                    叫醒不是说一句话就完成。若确实没有醒来的反馈，考虑用多轮铃声、音乐或再开口，而不是反复说一样的台词；但可自己选择最符合此刻关系与约定的方式。
+                    ringCount、ringSeconds、pauseSeconds 仅在 ring 或音乐失败回退铃声时执行，不会产生新的付费语音调用。
                     答应打电话的任务仍必须实际来电，不能擅自换成纯文字或音乐。
                     music 只在已授权时可选；音量只控制音乐且受安全限幅限制。
                     可以温柔，可以觉得需要更响一点；无需遵循固定顺序。
@@ -84,8 +96,14 @@ internal object WakeActionPlanner {
             "music" -> if (canMusic) Cue.MUSIC else Cue.RING
             else -> Cue.RING
         }
-        return Choice(cue, json.optString("reason").trim().take(180),
-            json.optInt("volumePercent", -1).takeIf { it in 0..65 },
-            json.optString("openingLine").trim().take(180))
+        return Choice(
+            cue = cue,
+            reason = json.optString("reason").trim().take(180),
+            volumePercent = json.optInt("volumePercent", -1).takeIf { it in 0..65 },
+            openingLine = json.optString("openingLine").trim().take(180),
+            ringCount = json.optInt("ringCount", 2).coerceIn(1, 4),
+            ringSeconds = json.optInt("ringSeconds", 5).coerceIn(2, 10),
+            pauseSeconds = json.optInt("pauseSeconds", 2).coerceIn(1, 4),
+        )
     }
 }
