@@ -513,3 +513,5 @@
 - [x] **根因回归源码**：`CharacterCausalTraceTest.completedScheduleCannotBorrowUnrelatedOrFailedResultAsVerifiedReceipt` 覆盖本人用户消息、他计划成功、工具失败、本计划真实成功、原生结果未独立归属与跨角色隔离。源码 `f5d211b9`；测试 `00d1ff49`、`05cf4581`。基础专项详细进度见 `CONTINUITY_BASE_PROGRESS_2026_10_29.md`。
 - [x] **已有索引证据**：源码提交对应 [Refresh code index #40994662294](https://github.com/jiacimu-droid/lulu1/actions/runs/40994662294) completed/success；测试更新后的生成物需继续核对原工作流。
 - [ ] **仍待验证**：包含最终测试提交的 Android JVM 全套、phone APK/发布、真机真实发布与旧日程详情、进程强杀/撤回以及多年历史性能。前一个主线 [APK #40993494707](https://github.com/jiacimu-droid/lulu1/actions/runs/40993494707) 的实际失败属于并行内驱 `CharacterCuriosityRuntimeTest`，不越界修改；失败/取消/排队不能当作本轮成功。
+
+- **同轮补强**：已编辑的工具成功回执（revision>1）因原日程未保存完成时的回执 revision，不能据当前文字证明旧执行；诊断保守标未核对，旧事实保留。源码 `91e76e87`、可空类型修正 `961ef332`、新增版本编辑回归 `23ef7045`；最终 JVM/phone APK 仍以最新包含测试的工作流为准，不以旧成功或排队替代。
