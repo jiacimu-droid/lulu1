@@ -297,11 +297,9 @@ internal object CommitmentExecutor {
         // The fact a phone call ended is never sufficient to create a song request.
         val plannedMusic = if (wake && useCall &&
             selected.cue == WakeActionPlanner.Cue.MUSIC) {
-            selected.volumePercent?.let {
-                LuluMediaVolume.control(appContext, claimedTask.characterId, "set", it)
-            }
             WakeMusicCoordinator.onScheduledWake(
-                appContext, claimedTask.characterId, claimedTask.id, defer = true)
+                appContext, claimedTask.characterId, claimedTask.id, defer = true,
+                volumePercent = selected.volumePercent)
         } else ""
         val args = JSONObject().put("text", wording)
         if (useCall) args.put("commitmentTaskId", claimedTask.id)
