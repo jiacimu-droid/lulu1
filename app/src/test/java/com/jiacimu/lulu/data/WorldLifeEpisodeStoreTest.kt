@@ -28,6 +28,23 @@ class WorldLifeEpisodeStoreTest {
             triggerExtraction = false)
     }
 
+    @Test fun fullStoryAndEndingSurviveSaveAndReload() {
+        WorldLifeEpisodeStore.initialize(context)
+        val at = Instant.now()
+        val sourceId = "full-story-" + java.util.UUID.randomUUID()
+        fact(sourceId, at)
+        val prose = "真实交流逐渐展开，人物的选择终于有了回应。".repeat(260) + "最后一句应当完整保留。"
+        val episode = WorldLifeEpisodeStore.record(role, "cafe", "回答之后", prose,
+            "确实发生的交流", sourceId, at)!!
+        assertTrue(prose.length > 4000)
+        assertEquals(prose, episode.scene)
+        WorldLifeEpisodeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(WorldLifeEpisodeStore, null)
+        WorldLifeEpisodeStore.initialize(context)
+        assertEquals(prose, WorldLifeEpisodeStore.find(episode.id)?.scene)
+        WorldLifeEpisodeStore.clear(role)
+    }
+
     @Test fun followupActionsAtSamePlaceShareOneEpisode() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)

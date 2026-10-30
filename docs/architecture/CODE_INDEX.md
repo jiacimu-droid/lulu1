@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`814eb08bdc10454f733057e008f14b91dbde509b`
+- 基准提交：`5349fcac5a66f79e39abb3ae508b1060413f6c2c`
 - 分支：`main`
-- 已索引文件：1103
-- 已索引代码/文本行：228075
-- 已发现符号：3223
+- 已索引文件：1105
+- 已索引代码/文本行：228184
+- 已发现符号：3226
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -316,7 +316,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 265 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 241 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 243 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 70 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
@@ -572,9 +572,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 220 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 311 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 320 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 232 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 138 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 141 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt` | 27 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 43 | 2 |
@@ -1062,9 +1063,10 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 180 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 121 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 90 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 214 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 231 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt` | 42 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |

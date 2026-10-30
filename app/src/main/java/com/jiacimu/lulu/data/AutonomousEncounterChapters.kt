@@ -107,10 +107,10 @@ internal object AutonomousEncounterChapters {
             appendLine("以下为同一场会面已保存的原始时间线，不能添加未记载的事或台词：")
             meeting.turns.forEachIndexed { i, turn ->
                 appendLine("${i + 1}. ${turn.speakerName}（${turn.speakerId}）")
-                if (turn.sceneText.isNotBlank()) appendLine("  可见动作：${turn.sceneText.take(500)}")
-                if (turn.dialogue.isNotBlank()) appendLine("  确实说过：${turn.dialogue.take(600)}")
+                if (turn.sceneText.isNotBlank()) appendLine("  可见动作：${turn.sceneText}")
+                if (turn.dialogue.isNotBlank()) appendLine("  确实说过：${turn.dialogue}")
             }
-        }.take(14_000)
+        }
         ScopedModelSelections.initialize(context.applicationContext)
         val connection = runCatching {
             ScopedModelSelections.worldLifeConnection(ids.first())
@@ -129,7 +129,7 @@ internal object AutonomousEncounterChapters {
                     请依据已实际发生的共同时间线，写一次完整的生活短篇，
                     并分别呈现每位在场者从公开行为角度能看见的不同侧面。
                     输出一个 JSON 对象：
-                    {"chapters":[{"characterId":"真实参与者ID","title":"鲜活具体的篇名","scene":"有起承转合的300至550字短篇"}]}
+                    {"chapters":[{"characterId":"真实参与者ID","title":"鲜活具体的篇名","scene":"围绕本次真实事件充分展开、有完整发展与收束的短篇"}]}
                     chapters 必须包含名单里的每人各一篇，不能重复 ID，不要 JSON 外说明。
                     同一场戏可以有很多真实对话轮次，也可以在意外小事后出现格外尴尬的沉默：
                     关系生疏的人可能无从接话，熟悉的人可能自然打趣，甚至关系紧张的人可能更难堪。
@@ -139,13 +139,13 @@ internal object AutonomousEncounterChapters {
                     绝不能加入未记载的台词、动作、意外、物品、活动完成、关系变化或未来事件；
                     不能猜成事实，不能写出别人没有表达的私人念头，也不能冒充当事人。
                     文学化结果只供阅读，不用于更新地图、关系、记忆、计划或行动事实。
+                    ${WorldLifeNarrativeGuide.instruction}
                 """.trimIndent(),
                 source = "数字世界·合场文学",
                 title = "共同经历的不同视角",
-                maxTokens = 1700 + ids.size * 950,
+                maxTokens = 1_700 + ids.size * 2_400,
                 contextMode = CompanionContextMode.Isolated,
                 connectionOverride = connection,
-                readTimeoutMillis = 65_000,
             )
         } catch (cancel: CancellationException) {
             throw cancel
@@ -155,7 +155,9 @@ internal object AutonomousEncounterChapters {
                 message = error.message.orEmpty().take(150))
             return
         }
-        val chapters = result.getOrNull()?.text?.let { parseChapters(it, ids) }.orEmpty()
+        val raw = result.getOrNull()?.text.orEmpty()
+        if (WorldLifeNarrativeGuide.skipReason(raw) != null) return
+        val chapters = parseChapters(raw, ids)
         if (chapters.isEmpty()) {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "生活小剧场", title = "合场文学格式不可用",

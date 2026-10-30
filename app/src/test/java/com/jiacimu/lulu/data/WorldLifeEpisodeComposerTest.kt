@@ -10,6 +10,30 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [28])
 
 class WorldLifeEpisodeComposerTest {
+    @Test fun explicitNoStoryChoiceIsNotAnEmptyResponseOrRetryableFailure() {
+        val outcome = WorldLifeEpisodeComposer.parseComposition(
+            """{"publication":"skip","reason":"本次只有进店点餐，没有实际交谈或可展开的本人关注点"}""", "咖啡角")!!
+        assertNull(outcome.draft)
+        assertTrue(outcome.skippedReason.contains("只有进店点餐"))
+        assertEquals("", outcome.failureReason)
+        assertFalse(outcome.retryable)
+        assertNull(WorldLifeEpisodeComposer.parseComposition("""{"publication":"skip"}""", ""))
+    }
+
+    @Test fun contradictorySkipCannotSilentlyDiscardAStory() {
+        val raw = org.json.JSONObject().put("publication", "skip").put("reason", "日常")
+            .put("scene", "他停下脚步，回过头来，把刚才没听清的话认真问了一遍。".repeat(5)).toString()
+        assertNull(WorldLifeEpisodeComposer.parseComposition(raw, ""))
+    }
+
+    @Test fun completeLongSceneKeepsItsActualEnding() {
+        val prose = "他们把刚才各自没说清楚的事情慢慢讲开。".repeat(260) + "最后他收回了那句玩笑，认真记住了她的回答。"
+        assertTrue(prose.length > 4000)
+        val draft = WorldLifeEpisodeComposer.parseComposition("《那句玩笑以后》\n\n$prose", "")!!.draft!!
+        assertEquals(prose, draft.scene)
+        assertTrue(draft.scene.endsWith("认真记住了她的回答。"))
+    }
+
     @Test fun modelFailureReasonUsesStableHttpStatusNotObfuscatedClassName() {
         assertEquals("模型接口鉴权或权限失败（HTTP 401）",
             WorldLifeEpisodeComposer.failureSummary(IllegalStateException("请求失败（401）：unauthorized")))

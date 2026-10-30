@@ -3,8 +3,6 @@ package com.jiacimu.lulu.data
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.withTimeoutOrNull
-import java.time.Instant
 
 /**
  * An authored private scene, anchored in a real executed action.
@@ -20,6 +18,7 @@ internal data class WorldLifeComposeOutcome(
     val draft: WorldLifeSceneDraft? = null,
     val failureReason: String = "",
     val retryable: Boolean = true,
+    val skippedReason: String = "",
 )
 
 internal object WorldLifeEpisodeComposer {
@@ -111,9 +110,18 @@ internal object WorldLifeEpisodeComposer {
                 ?: structured?.optString("title").orEmpty().trim().take(24)
                     .takeUnless { genericHeading(it) }
                 ?: deriveSceneTitle(scene),
-            scene = scene.take(4_000),
+            scene = scene,
             unresolvedThread = structured?.optString("unresolvedThread").orEmpty().trim().take(220),
         )
+    }
+
+    internal fun parseComposition(raw: String, suppliedTitle: String): WorldLifeComposeOutcome? {
+        val json = ModelStructuredOutput.objectOrNull(raw)
+        if (json?.optString("publication") == "skip") {
+            val reason = WorldLifeNarrativeGuide.skipReason(raw) ?: return null
+            return WorldLifeComposeOutcome(skippedReason = reason, retryable = false)
+        }
+        return parseModelScene(raw, suppliedTitle)?.let { WorldLifeComposeOutcome(draft = it) }
     }
 
     private fun genericHeading(title: String): Boolean =
@@ -163,11 +171,9 @@ internal object WorldLifeEpisodeComposer {
         val items = witnessedItems ?: DigitalWorldStore.itemsAtLocation(characterId).take(9)
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
-        val now = Instant.now()
-        val sourceFacts = verifiedEvents.sortedBy { it.occurredAt }.take(16)
-            .joinToString("\n") { e ->
-                "${e.occurredAt} · ${e.speaker}（${e.channel}，证据=${e.id}）：${e.content.take(850)}"
-            }.take(6_600)
+        // These are already selected, same-role proofs. Keep the actual reply
+        // and resolution instead of chopping the end off a witnessed exchange.
+        val sourceFacts = WorldLifeNarrativeGuide.sourceFacts(verifiedEvents)
         // Every actual meeting participant can have a separate subjective bond.
         // Do not treat only native residents as socially meaningful characters.
         val encounteredPeople = verifiedEvents.asSequence()
@@ -190,7 +196,7 @@ internal object WorldLifeEpisodeComposer {
         var firstFailure = ""
         var firstPermanent = false
         val model = try {
-            withTimeoutOrNull(63_000L) {
+            run {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
@@ -214,9 +220,9 @@ internal object WorldLifeEpisodeComposer {
                         }
                     },
                     instruction = """
-                        【根据已真实发生的经历，创作生活小剧场】
+                        【根据已真实发生的经历，选择并写完整生活小剧场】
                         $sceneScope
-                        写第三人称、约300至650汉字的完整生活小说片段。字数不是质量指标：读者要看见具体场面和人物内在变化，而非抽象议论文、抒情工作报告、道德总结或千篇一律的安慰。
+                        写第三人称的完整生活小说片段。字数不是质量指标：读者要看见具体场面和人物内在变化，而非抽象议论文、抒情工作报告、道德总结或千篇一律的安慰。
                         开始就进入可感知的地点/时间与一个具体动作；结合角色真实计划、已有关系与生活经历，表现本人此刻的期待、犹豫或兴趣。
                         有真实阻力、犹豫、期待落空或意外发现时，借细节、停顿、动作与反应写出张力；若本次并无冲突，就写角色正在享受、观察或探索的具体趣味，不要凭空强迫转折。可以幽默、懊恼、轻快、执拗、好奇、怅惘或安宁，不能每篇都沉郁反思、想念主人。
                         根据原始事实展现真正发生的交流、进展、行动选择或人物当时的反应。相遇故事尤其要展现已经发生的具体玩笑、邀请与回应、意见分歧、笨拙动作或微妙变化，而不是把整个过程简写成坐下、喝咖啡、离开；只能从本角色自身视角解释。允许这次经历没有剧烈变化；不要为了故事好看虚构突发事件、强制转念或关系升温。结尾落在真实后果、一个微妙的新理解或仍未解决的个人疑问。不要宣布「生活仍然继续」「没必要特别」「真正重要的是」等空泛感悟，不点评自己的写作任务。
@@ -228,13 +234,15 @@ internal object WorldLifeEpisodeComposer {
                         第一行单独写一条与本篇实际场景和人物情绪贴切的散文式篇名，格式《篇名》，约4～12个汉字；不写“独处小剧场”“一个人的时光”这种栏目名，也不照搬任务名。空一行后写小说正文，绝对不用JSON包装。
                         正文直接按小说排版：自然段落之间空一行，尽量每段一到三句，人物动作、对话和私下心思用文学笔法自然衔接。不要写【叙述】【心声】【对白】、旁白说明、章节分析或其他系统标签。
                         格式不是成功条件，不要为此牺牲人物和故事。私人猜想不等于世界事实；只有上面已提交证据中存在的对话，才能作为对方实际说的话。
+                        ${WorldLifeNarrativeGuide.instruction}
                     """.trimIndent(),
                     source = "数字世界·生活小剧场",
                     title = "${character.displayName}的生活小剧场",
-                    maxTokens = 1_800,
+                    // The guide now allows a developed 700–1200-character scene;
+                    // leave output room for dialogue and the ending in this one call.
+                    maxTokens = 3_600,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     connectionOverride = ScopedModelSelections.worldLifeConnection(characterId),
-                    readTimeoutMillis = 55_000,
                 )
                 response.exceptionOrNull()?.let { error ->
                     firstFailure = failureSummary(error)
@@ -249,21 +257,22 @@ internal object WorldLifeEpisodeComposer {
             firstPermanent = permanentFailure(error)
             null
         }
-        parseModelScene(model.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
+        parseComposition(model.orEmpty(), suppliedTitle)?.let { return it }
         if (firstPermanent) return WorldLifeComposeOutcome(
             failureReason = firstFailure, retryable = false)
 
         // Retry ONLY a failed generation, never an already committed world action.
-        // Keep the retry short so autonomous perception is not blocked by a second long chapter.
+        // This writer already runs outside live perception. Keep the same story
+        // contract and shared transport timeout instead of degrading to a shorter vignette.
         var retryFailure = ""
         var retryPermanent = false
         val retry = try {
-            withTimeoutOrNull(36_000L) {
+            run {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
                         appendLine("已执行世界动作：$confirmedAction")
-                        if (sourceFacts.isNotBlank()) appendLine("真实事件与双向台词：\n${sourceFacts.take(4000)}")
+                        if (sourceFacts.isNotBlank()) appendLine("真实事件与双向台词：\n$sourceFacts")
                         if (actualSocialContext.isNotBlank()) appendLine("已知关系：${actualSocialContext.take(600)}")
                         appendLine("真实地点：$locationName（$location）")
                         appendLine("已登记现场物件：${items.ifBlank { "无" }}")
@@ -274,17 +283,17 @@ internal object WorldLifeEpisodeComposer {
                     },
                     instruction = """
                         $sceneScope
-                        写一篇约250至450汉字、有画面感、真实生活细节和人物主体性的第三人称生活短篇。
+                        写一篇有画面感、真实生活细节和人物主体性的完整第三人称生活短篇。
                         必须围绕已保存的真实行动和居民交谈展开，已记录的NPC可按真实台词入场；不得编造额外的NPC到访、
                         对话、道具、读书、来电、移动或相处结果。允许细腻主观心理，但别写空泛人生哲理报告。
-                        第一行《有画面感的散文篇名》，空一行后自然语言正文；不写JSON或【叙述】【心声】【对白】标签。标题应来自当前故事而非固定模板，不虚构世界事实。
+                        选择成篇时，第一行《有画面感的散文篇名》，空一行后自然语言正文；不写JSON或【叙述】【心声】【对白】标签。标题应来自当前故事而非固定模板，不虚构世界事实。
+                        ${WorldLifeNarrativeGuide.instruction}
                     """.trimIndent(),
                     source = "数字世界·生活小剧场补写",
                     title = "${character.displayName}的生活片段补写",
-                    maxTokens = 1_250,
+                    maxTokens = 3_600,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     connectionOverride = ScopedModelSelections.worldLifeConnection(characterId),
-                    readTimeoutMillis = 30_000,
                 )
                 response.exceptionOrNull()?.let { error ->
                     retryFailure = failureSummary(error)
@@ -299,7 +308,7 @@ internal object WorldLifeEpisodeComposer {
             retryPermanent = permanentFailure(error)
             null
         }
-        parseModelScene(retry.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
+        parseComposition(retry.orEmpty(), suppliedTitle)?.let { return it }
         return WorldLifeComposeOutcome(retryable = !retryPermanent, failureReason = when {
             model.isNullOrBlank() && retry.isNullOrBlank() && firstFailure.isBlank() && retryFailure.isBlank() -> "两次请求超时或空响应"
             retryFailure.isNotBlank() -> "补写请求失败：$retryFailure"

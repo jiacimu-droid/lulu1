@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:25:48.466542+00:00",
-  "commit": "814eb08bdc10454f733057e008f14b91dbde509b",
+  "generatedAt": "2026-10-30T03:40:18.098406+00:00",
+  "commit": "5349fcac5a66f79e39abb3ae508b1060413f6c2c",
   "branch": "main",
-  "sourceFingerprint": "9854fae54f0669044de84fe5eba5970f2bb277d5efdf6a21696e1c7a5adb937b",
+  "sourceFingerprint": "5d17d617e6ce327d89cd948a76c674529863abc5fc301df3df1fe15e18ce0f0d",
   "summary": {
-    "files": 1103,
-    "lines": 228075,
-    "symbols": 3223
+    "files": 1105,
+    "lines": 228184,
+    "symbols": 3226
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5315,7 +5315,7 @@
     "AutonomousEncounterChaptersWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 197
+        "line": 199
       }
     ],
     "Outcome": [
@@ -12140,6 +12140,18 @@
         "line": 18
       }
     ],
+    "skipReason": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
+        "line": 15
+      }
+    ],
+    "sourceFacts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
+        "line": 21
+      }
+    ],
     "failureMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt",
@@ -17796,6 +17808,12 @@
         "line": 23
       }
     ],
+    "WorldLifeNarrativeGuideTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt",
+        "line": 6
+      }
+    ],
     "XhsAutonomousReadingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
@@ -22852,8 +22870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 241,
-      "sha256": "b6a8bb4468de0bd2a3f37bac9f14ecc24e2590941a8192e02414de2b2ef396a8",
+      "lines": 243,
+      "sha256": "41df59a2ab00af0b3758a12acd03844d4ca9ea1139ee1b36404f2ccb34ce0061",
       "symbols": [
         {
           "name": "enqueue",
@@ -22865,7 +22883,7 @@
         },
         {
           "name": "AutonomousEncounterChaptersWorker",
-          "line": 197
+          "line": 199
         }
       ]
     },
@@ -29984,14 +30002,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
-      "lines": 311,
-      "sha256": "159fa956f70db2c89b131fc11dd4e6220e13bc7dedd64e5cda989767e9f96e7c",
+      "lines": 320,
+      "sha256": "a0995fc80ac553d5d10aab6d90dc212d67279356ff57e759aac39d123f4045ee",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
       "lines": 232,
-      "sha256": "78c215ba46236c76fe752d1a3bed1ce5ab7c85525b73fadeb4315a58836af006",
+      "sha256": "ddedd17fb1ea27063e3afca77b3b6a8e163ed663af485c139ce057ecd0e49da4",
       "symbols": [
         {
           "name": "episodes",
@@ -30021,12 +30039,27 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-      "lines": 138,
-      "sha256": "a765a79e58d9a19efe41a0c74d62a451a4c65c640fc790cd4bb70f3c67054afb",
+      "lines": 141,
+      "sha256": "e64ca6243c49f719946f67ed80fbd342244c2958dafc06d0368e4881033945cc",
       "symbols": [
         {
           "name": "WorldLifeEpisodeWorker",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
+      "lines": 27,
+      "sha256": "e8432e8f9d72b7dabb4824d34b0787301c9e5301649c10be6f98679b8f4205b7",
+      "symbols": [
+        {
+          "name": "skipReason",
+          "line": 15
+        },
+        {
+          "name": "sourceFacts",
+          "line": 21
         }
       ]
     },
@@ -37900,8 +37933,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt",
-      "lines": 90,
-      "sha256": "2280f34d59c72d6eafeb7d14d958fc75093db428fd0746f1d2919ccadf5cc6a6",
+      "lines": 114,
+      "sha256": "6ec5e5cd790f1abe88c45c3d9ec32d1fdad62fac79bc1def74edf0060f576fd1",
       "symbols": [
         {
           "name": "WorldLifeEpisodeComposerTest",
@@ -37911,8 +37944,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
-      "lines": 214,
-      "sha256": "519b12660a4cad5650b58c7e5aeeebe6ea54f65e91306157132c0f012df52e60",
+      "lines": 231,
+      "sha256": "0e1879423c8282fba7f550a35f1f4d66aa8811e6a604aa840d16891305c8b2a7",
       "symbols": [
         {
           "name": "WorldLifeEpisodeStoreTest",
@@ -37932,6 +37965,17 @@
         {
           "name": "mood",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt",
+      "lines": 27,
+      "sha256": "d573330df2e5c4aa40cfe7b47b922d2c6779d311b61aaee21eae1b9602c86cd8",
+      "symbols": [
+        {
+          "name": "WorldLifeNarrativeGuideTest",
+          "line": 6
         }
       ]
     },

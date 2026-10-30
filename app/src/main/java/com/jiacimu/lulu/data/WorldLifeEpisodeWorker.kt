@@ -27,7 +27,7 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 ?: return@withLock Result.success()
             val category = inputData.getString("category").orEmpty().ifBlank { "outing" }
             val sourceIds = (listOf(id) + inputData.getStringArray("sourceEvidenceIds").orEmpty())
-                .distinct().take(16)
+                .distinct().take(if (category == "encounter") 32 else 16)
             val verified = SharedExperienceTimeline.eventsByIds(role, sourceIds)
             if (verified.size != sourceIds.size) return@withLock Result.success()
             if (source.revision != inputData.getLong("revision", -1L)) return@withLock Result.success()
@@ -50,6 +50,9 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
             // publish a ghost scene or a bogus failure message.
             if (SharedExperienceTimeline.eventsByIds(role, sourceIds).toSet() != verified.toSet())
                 return@withLock Result.success()
+            // Explicitly declining to turn a routine action into fiction is a
+            // completed editorial choice, not an empty/error response to retry.
+            if (composition.skippedReason.isNotBlank()) return@withLock Result.success()
             if (composition.draft == null) {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
                     source = "生活小剧场",
@@ -113,7 +116,7 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 .putString("location", location).putString("evidenceId", evidenceId)
                 .putLong("revision", source.revision).putString("items", items)
                 .putStringArray("sourceEvidenceIds", (listOf(evidenceId) + sourceEvidenceIds)
-                    .distinct().take(16).toTypedArray()).putString("category", category)
+                    .distinct().take(if (category == "encounter") 32 else 16).toTypedArray()).putString("category", category)
                 .putString("title", title.take(70)).putString("seed", seed.take(500))
             // WorkManager Data has a platform 10KB serialized limit. Preserve
             // the factual task if its optional snapshot cannot fit; the writer
