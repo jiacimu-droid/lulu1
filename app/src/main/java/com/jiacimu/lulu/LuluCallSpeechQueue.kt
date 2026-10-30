@@ -129,7 +129,10 @@ internal class LuluCallSpeechQueue(
         val providerAtStart = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             .getString("tts_provider", "system").orEmpty()
         var audible = false
-        var lastMouthSampleAt = 0L
+        // Both supported streaming providers use 24kHz PCM16 mono.
+        // PCM writes can run ahead of AudioTrack's actual playback.
+        val pcmEnvelope = if (providerAtStart in setOf("elevenlabs", "minimax"))
+            CallSpeechPcmEnvelope(24_000) else null
         // Report real PCM playback, not the HTTP TTS preparation interval.
         engine.onPlaybackState = { playing ->
             if (playing) scope.launch(Dispatchers.Main.immediate) {
@@ -145,8 +148,12 @@ internal class LuluCallSpeechQueue(
             }
         }
         engine.onPlaybackPosition = { elapsed -> scope.launch(Dispatchers.Main.immediate) {
-            if (localGeneration == generation && active && activeRequest === request && audible)
+            if (localGeneration == generation && active && activeRequest === request && audible) {
+                pcmEnvelope?.levelAt(elapsed)?.let { level ->
+                    request.speakerId?.let { AvatarController.audio(it, level) }
+                }
                 notifySafely { request.onProgress?.invoke(elapsed) }
+            }
         } }
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
@@ -212,13 +219,9 @@ internal class LuluCallSpeechQueue(
                 recordingTarget = target,
                 onPcmFrame = { pcm, offset, length ->
                     if (localGeneration == generation && active && activeRequest === request) {
-                        val now = android.os.SystemClock.elapsedRealtime()
-                        if (now - lastMouthSampleAt >= 65L) {
-                            lastMouthSampleAt = now
-                            request.speakerId?.let {
-                                AvatarController.audio(it, CallSpeechPcmLevel.measure(pcm, offset, length))
-                            }
-                        }
+                        // Record queued sound shape, but do NOT animate until
+                        // AudioTrack confirms this timestamp was heard.
+                        pcmEnvelope?.append(pcm, offset, length)
                     }
                 },
             )
