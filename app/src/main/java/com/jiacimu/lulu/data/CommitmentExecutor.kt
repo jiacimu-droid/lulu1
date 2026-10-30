@@ -111,6 +111,23 @@ internal object CommitmentExecutor {
             WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
         else WakeActionPlanner.Choice(WakeActionPlanner.Cue.RING)
 
+        // The planning result is a real decision by the SAME character.
+        // Pass it into the actual phone reply so the next utterance doesn't
+        // forget why the character changed tactics or repeat a generic script.
+        fun wakeSpeechContext(attempt: Int): String = buildString {
+            append("真实叫醒约定：${claimedTask.goal}；第$attempt 轮。")
+            append("本轮此前选定的声音动作：${selected.cue}。")
+            if (selected.reason.isNotBlank())
+                append("本人这轮的理由：${selected.reason.take(180)}。")
+            if (claimedTask.wakeAttemptHistory.isNotEmpty())
+                append("以前的实际叫醒步骤与播放回执：")
+                    .append(claimedTask.wakeAttemptHistory.takeLast(4).joinToString("；") { it.take(170) })
+                    .append("。")
+            if (selected.openingLine.isNotBlank())
+                append("你刚才想用这样的语气开口：${selected.openingLine.take(180)}；按本人性格自然表达，不要逐字念执行说明。")
+            append("没有用户已醒的可靠证据时，不可宣称目标已完成。")
+        }
+
         suspend fun playChosenMusic(): Boolean {
             if (selected.cue != WakeActionPlanner.Cue.MUSIC) return false
             selected.volumePercent?.let {
@@ -150,7 +167,7 @@ internal object CommitmentExecutor {
             } else if (sameCall) {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                     com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
-                        claimedTask.characterId, claimedTask.goal, claimedTask.id,
+                        claimedTask.characterId, wakeSpeechContext(attempt), claimedTask.id,
                         ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
                         ringSeconds = selected.ringSeconds,
                     )
@@ -299,8 +316,7 @@ internal object CommitmentExecutor {
             } else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                 com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                     claimedTask.characterId,
-                    "真实定时事件：在同一通电话中履行第$attempt 次叫醒『${claimedTask.goal}』。" +
-                        "按你自己的人格自然地叫她起来；不把响铃当作她已经醒了。",
+                    wakeSpeechContext(attempt),
                     claimedTask.id,
                     ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
                     ringSeconds = selected.ringSeconds,
