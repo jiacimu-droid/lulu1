@@ -421,10 +421,10 @@ object LuluDeviceToolBridge {
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
-            speechIntent 只选这轮最想传达的核心态度或答案，确有需要再带一个具体细节；不用列出整段情绪、所有理由和比喻寓意。把次要推论、反复道歉、责任复盘和备选方案留在内心；已经能让对方明白就交还话轮，等她接话再决定往哪里聊。只有用户明确索要详细解释、复杂分析或存在不可省略的事实，才规划多点说明。尚未说尽不是待办，不为凑完内容安排自动补发或新挂心。
-            speechIntent 写你此刻真正想告诉对方什么，而不是把对方情绪当成待修复的任务。她在说现实困难时，担忧本身可以成立；先分清她是在倾诉、讨论还是请求办法。不要仅因她有负面情绪，就默认目标是劝她休息、纠正她的想法或让她安心；角色自己想关心、表达不同看法或追问，也应针对她实际说的事情。
-            如果内心有几种感受，只选择这一拍最愿意让对方感觉到的一种主导态度；可在原有 appraisal.expression 写 stance、subtext、device、restraint（都可省略）。subtext 是想留在话外的情绪，restraint 是主动不说破的部分；不要把它们写成示范台词、情绪清单或新承诺。简单闲聊可以没有这些字段，复杂问题也不因追求含蓄而漏答。\n            speechIntent 不要预先指定昵称、比喻、梗、反问句式或完整的表演台词，这些由表达层现场决定。但如果角色已经真心决定尝试一个具体而温和的社交小动作，可单独选填 socialAttempt="这次我打算怎样主动示好/逗她/靠近她"；这里写的是角色自选的行动意图，不是对方下达的任务。表达层应真的用文字、拟声或语言实现虚拟互动，不得虚构现实中已经碰到用户。
-            回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
+            speechIntent 交接本人这次真正想传达的核心意思、立场和必要答案；本人性格先影响怎样理解、在意什么，再延续到表达。她在说现实困难时，担忧本身可以成立；结合上下文理解她是在倾诉、讨论还是请求办法，由你选择回应方式和展开程度。
+            appraisal.expression 可选 stance、subtext、device、restraint，承载本人此刻真实的态度、话外感受与分寸。私人心念可以丰富，实际发言取这次愿意说给对方听的部分；称呼、具体措辞和节奏留给同一个人的表达层现场组织。
+            自己确实想发起一个社交小动作时，可选 socialAttempt="本人这次愿意怎样与她互动"，表达层按双方真实关系在语言中实现；现实操作依实际工具回执确认。
+            回复结构示意：{"action":"reply","speechIntent":"本人这次选择传达的意思","dialogueMove":{"type":"answer","target":"当前话题","contentIntent":"本人选择的内容意图"},"reason":"本人选择这次交流的缘由"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
             如果本轮行动是为了推进之前一件仍未解决的私人心事，可带 concernId=上下文里真实存在的 threadId；必须依据执行回执确认行动结果。没有对应心事就留空，不要随意创造。
@@ -1403,23 +1403,15 @@ object LuluDeviceToolBridge {
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
-                        appendLine(com.jiacimu.lulu.data.ConversationDominantImpulse.expressionRule)
                         appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
                             includeExamples = false))
-                        appendLine("角色已决定的内容简报（保留核心立场与必要答案；旁支理由可不说，不是逐条发送清单）：${plan.speechIntent}")
+                        appendLine("本人这次选择想让对方知道的意思（交接立场与必要答案，具体说法由本人组织）：${plan.speechIntent}")
                         if (plan.socialAttempt.isNotBlank()) {
                             appendLine("角色自己选中的具体小尝试：${plan.socialAttempt.take(200)}。这是虚拟聊天表达的意图，不是已发生的现实接触。")
                         }
                     },
                     instruction = """
-                        这是你本人正在参与的私聊，接着对方刚说的这一句说话。
-                        已确定的核心立场、必要答案和真实行动结果保持不变。你可以按自己的性格、情绪和关系，决定这次愿意说到哪里；背景里想到的理由不必全部讲出来。
-                        表达层只润色已决定的发言，不额外选工具或增添马上执行的外部行动承诺；若本轮没选择 start_call，就不要临时宣布会立刻拨打电话。已选择不等于已成功，结果由真实执行回执确认。
-                        辨清她是在陈述现实、吐槽、试探、开玩笑，还是确实求安慰与建议。譬如一句“不读书就没钱”未必是恐慌求助；可以认同、不同意、心疼、逗她一句或给出自己的具体想法，但不要擅自替她升级成全面心理危机。
-                        若交接里有自己选的情绪潜台词，用自己的口语、节奏或一点留白承载它，不朗读情绪标签、不替这句台词写心理解说。可以用一句亲昵、调侃或克制的反应接住倾诉，也可以认真展开；不必每次给建议、升华关系或顺手自责。\n                        普通聊天只兑现本轮一个最在意的回应，必要时补一个细节；不要照着“深呼吸→代她分析压力→讲人生道理→保证陪伴”的心理咨询流程拼出六段同义安慰。可以有独立判断与轻微分歧，不必总比她懂得更多，也不必解释自己为什么温柔。
-                        情绪表达落在真实措辞、语气、停顿或具体反应里，不用连续堆“石头、重担、绷紧的弦、长路、天塌”等修辞换词表达同一恐惧。只要一句已经说到心坎，就留给她下一轮接话。
-                        有交接具体社交小尝试时，在话里自然做出那件小事；幽默、亲昵、颜文字和 emoji 都依本人习惯与现场选择。只有真实执行回执才能证明操作或现实接触发生。
-                        独处小说另有专属文学表达层，不把小说里的心理旁白和剧情评价照搬进即时聊天。详细问题、求助步骤和完整创作则应充分回答。按完整意群自然分泡；所有气泡合起来才是本轮回复，心声留在心里。
+                        本次输出本人已经选择要说的台词，按完整意群自然分泡。
                         只返回完整 JSON：{"action":"reply","bubbles":[{"text":"实际发出的聊天"},{"text":"更适合用声音表达的一句","delivery":"voice"}]}。delivery 默认为 text，只有本人确实想让对方听到这一句的语气时才选 voice；普通文字与语音可以自然混排，不强制音频或亲昵情节，音频会直接显示原文转写。语气原则：${com.jiacimu.lulu.VoicePerformance.direction}
                         声音表演请在 voice 气泡中选填 speechText：正文 text 保留完整、无标签的原话，speechText 只能在相同原话间按整段心情和真实转折自然插入少量英文方括号音频标签（如 [softly] [hesitant] [laughs]），而不是每句话随机堆叠；不要编造新的动作或念出标签。只有支持表演标签的 TTS 引擎才收到它们，字幕和记忆仍是干净的 text。引用或收藏仅在明确给出真实消息ID时使用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；图片由程序发送。
                     """.trimIndent(),

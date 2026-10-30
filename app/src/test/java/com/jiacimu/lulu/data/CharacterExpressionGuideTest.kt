@@ -12,21 +12,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterExpressionGuideTest {
-    @Test fun wanxiangLanguagePrinciplesImproveSurfaceRhythmWithoutForcingSpeechStyle() {
-        val ordinary = CharacterExpressionGuide.forGeneration("聊天表达渲染")
-        val retry = CharacterExpressionGuide.forGeneration("聊天表达自然度修复")
-        val full = CharacterExpressionGuide.forGeneration("普通聊天")
-        listOf(ordinary, retry, full).forEach { prompt ->
-            assertTrue(prompt.contains("【语言与句段：像本人当下真的在说、想、写】"))
-            assertTrue(prompt.contains("心声可以联想、犹豫或自我反驳"))
-            assertTrue(prompt.contains("日记、朋友圈与故事"))
-            assertTrue(prompt.contains("不能为生动而编造"))
-            assertTrue(prompt.contains("不是每轮都必须迟疑"))
+    @Test fun sharedLanguageGuideKeepsPrivateStateSeparateAndPersonaInControl() {
+        listOf("聊天表达渲染", "聊天表达自然度修复", "普通聊天").forEach { source ->
+            val prompt = CharacterExpressionGuide.forGeneration(source)
+            assertTrue(prompt.contains("性格同时影响关注点、立场、主动性、措辞与节奏"))
+            assertTrue(prompt.contains("尚未说出口的私人变化"))
+            assertTrue(prompt.contains("日记、朋友圈与故事各有听众和体裁"))
+            assertTrue(prompt.contains("真实回执"))
+            assertEquals(1, prompt.split("【语言与句段：").size - 1)
             assertFalse(prompt.contains("首个输出字符必须是"))
-            assertFalse(prompt.contains("</think><thinking>"))
         }
-        assertEquals(1, ordinary.split("【语言与句段：").size - 1)
-        assertEquals(1, full.split("【语言与句段：").size - 1)
     }
 
     @Test fun innerVoiceIsOnlyWhatTheCharacterHasNotSaidOutLoud() {
@@ -42,7 +37,7 @@ class CharacterExpressionGuideTest {
     }
 
     @Test fun decisionHandoffDoesNotPreWriteTheCharactersStyle() {
-        assertTrue(CharacterDecisionProtocol.principles.contains("不要预先规定昵称"))
+        assertTrue(CharacterDecisionProtocol.principles.contains("交接核心意思、真实感受和必要事实"))
         val handoff = CharacterDecisionProtocol.expressionContext(
             appraisal = null,
             innerLife = null,
@@ -86,48 +81,24 @@ class CharacterExpressionGuideTest {
         )
         assertFalse(handoff.contains("角色自选的情绪表达线索"))
         val principles = CharacterExpressionGuide.subtextPrinciples
-        assertTrue(principles.contains("不必把一切说透"))
-        assertTrue(principles.contains("有时需要认真解释"))
-        assertTrue(principles.contains("不模仿固定示例"))
-        assertTrue(principles.contains("独立一张恰当的表情包"))
+        assertTrue(principles.contains("想坦诚说开时也可以直接表达"))
+        assertTrue(principles.contains("本人此刻愿意分享的部分"))
+        assertTrue(principles.contains("本人可选择的表达方式"))
+        assertTrue(principles.contains("表情包、颜文字、纯文字和声音"))
     }
 
-    @Test fun sharedPrinciplesLeaveRoomForBothBriefAndExpressiveChat() {
-        val prompt = CharacterExpressionGuide.promptSection()
-        assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
-        assertTrue(prompt.contains("文采是能力，不是义务"))
-        assertTrue(prompt.contains("真有话想抒发时也不必压成刻意简短的句子"))
-        assertTrue(prompt.contains("个人语言会成长，但不自我复制"))
-        assertFalse(prompt.contains("每条不超过"))
-    }
-
-    @Test fun everydayChatRhythmIsAReferenceNotAReplyQuota() {
-        val online = proactiveDecisionInstruction("rhythm-test-role", directPrivateChat = true)
-        val foreground = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+    @Test fun expressiveAndBriefTurnsBothRemainAvailableWithoutNumericQuota() {
+        val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
-        val repair = CharacterExpressionGuide.forGeneration("聊天表达自然度修复")
-        listOf(online, foreground, renderer, repair).forEach { prompt ->
-            assertTrue(prompt.contains("日常闲聊的常见节奏"))
-            assertTrue(prompt.contains("一到三句"))
-            assertTrue(prompt.contains("不是每轮必须达到或不得超过"))
-            assertTrue(prompt.contains("具体节奏由本人个性"))
+        val online = proactiveDecisionInstruction("rhythm-test-role", directPrivateChat = true)
+        listOf(private, renderer, online).forEach { prompt ->
+            assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
             assertTrue(prompt.contains("复杂问题"))
-            assertEquals(1, prompt.split("【日常闲聊的常见节奏").size - 1)
+            assertTrue(prompt.contains("具体节奏由本人个性"))
+            assertEquals(1, prompt.split("【随谈话需要展开与停留】").size - 1)
+            assertFalse(prompt.contains("一到三句"))
+            assertFalse(prompt.contains("每条不超过"))
         }
-        val autonomous = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)
-        val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
-        assertTrue(autonomous.contains("【日常闲聊的常见节奏"))
-        assertTrue(autonomous.contains("自主思考、日记、朋友圈和需要详细说明的事情不受闲聊节奏约束"))
-        assertFalse(phone.contains("【日常闲聊的常见节奏"))
-        assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每轮不得超过三句"))
-        assertFalse(CharacterExpressionGuide.casualChatRhythm.contains("每条不超过"))
-    }
-
-    @Test fun nonExplicitDetailRequestsMayStillReceiveACompleteAnswer() {
-        val guidance = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
-        assertTrue(guidance.contains("即使对方没有说“详细”"))
-        assertTrue(guidance.contains("不要根据对方消息长短替角色决定说多少"))
-        assertFalse(guidance.contains("长解释只在对方明确要详细"))
     }
 
     @Test fun oneSpeakerIdentityRuleSurvivesEveryDeliveryChannel() {
@@ -156,11 +127,11 @@ class CharacterExpressionGuideTest {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
         assertTrue(group.contains("每位成员保持自己的一套语言偏好"))
-        assertTrue(group.contains("不等于每句话都要演成小剧场"))
+        assertTrue(group.contains("谈话兴致与熟悉程度来自实际互动"))
         assertTrue(group.contains("群名和戏称可以偶尔顺势玩笑"))
         assertTrue(group.contains("短答、吐槽、沉默或认真展开"))
-        assertTrue(group.contains("不要为了制造笑点主动披露私人亲密细节"))
-        assertTrue(group.contains("听别人公开说过不等于自己原本就知道"))
+        assertTrue(group.contains("分享时顾及群内听众与隐私"))
+        assertTrue(group.contains("认识到哪一步依据自己见证的交流"))
         assertTrue(group.contains("也可以不接"))
         assertFalse(group.contains("每条不得超过"))
         assertFalse(private.contains("不等于每句话都要演成小剧场"))
@@ -223,19 +194,19 @@ class CharacterExpressionGuideTest {
     @Test fun directPrivateReplyIsSpokenConversationNotAnExhaustivePlanningReport() {
         val shortExchange = privateConversationInstruction("那宝宝喜欢哪个？给你发了六个", "之前已经看了发来的图")
         assertTrue(shortExchange.contains("text 会原样进入聊天气泡"))
-        assertTrue(shortExchange.contains("已说过的事实不必先复述确认"))
-        assertTrue(shortExchange.contains("也不必一口气做总评"))
-        assertTrue(shortExchange.contains("同一轮拆成几个气泡也仍只是这一轮发言"))
+        assertTrue(shortExchange.contains("从本人的性格、所知、立场与在意之处理解它"))
+        assertTrue(shortExchange.contains("选择此刻真正想对这个人说什么"))
+        assertTrue(shortExchange.contains("多条气泡合起来才是这一轮发言"))
         assertTrue(shortExchange.contains("认真请教、要完整分析"))
-        assertTrue(shortExchange.contains("不改变已有可选行动"))
+        assertTrue(shortExchange.contains("原有 action/text/真实动作参数结构和可选行动"))
         assertFalse(shortExchange.contains("最多回复"))
     }
 
     @Test fun situationalPlayfulnessIsAChoiceNotAFlirtingTemplate() {
         val expression = CharacterExpressionGuide.promptSection()
         val initiative = proactiveDecisionInstruction("ordinary-role-without-life")
-        assertTrue(expression.contains("临场生动感"))
-        assertTrue(expression.contains("不强行搞气氛"))
+        assertTrue(expression.contains("这个人的判断一路延续到选择行动和说出口的话"))
+        assertTrue(expression.contains("有时鲜明，有时平淡"))
         assertTrue(initiative.contains("本人自发的小冲动"))
         assertTrue(initiative.contains("优先选择对应的真实 action"))
         assertTrue(CharacterDecisionProtocol.principles.contains("spontaneousBid"))

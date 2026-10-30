@@ -67,20 +67,17 @@ class DialogueMoveEngineTest {
         assertEquals(4, result.maxBubbles)
     }
 
-    @Test fun moveSpecificExpressionRulesHaveRealStoppingConditions() {
-        val ack = DialogueMoveEngine.expressionConstraint(
-            DialogueMovePlan(DialogueMoveType.ACKNOWLEDGE, contentIntent = "确认听见了"),
-        )
-        assertTrue(ack.contains("确认完成就停"))
-
-        val tease = DialogueMoveEngine.expressionConstraint(
-            DialogueMovePlan(DialogueMoveType.TEASE, contentIntent = "顺手逗她一下"),
-        )
-        assertTrue(tease.contains("玩笑落地就停"))
-
-        val close = DialogueMoveEngine.expressionConstraint(
-            DialogueMovePlan(DialogueMoveType.CLOSE, contentIntent = "结束这一拍"),
-        )
-        assertTrue(close.contains("不追加新问题"))
+    @Test fun chosenMoveIsPreservedWhilePersonOwnsItsActualExpression() {
+        DialogueMoveType.values().forEach { type ->
+            val plan = DialogueMovePlan(type, contentIntent = "这次自己的意思", maxBubbles = 4)
+            val prompt = DialogueMoveEngine.expressionConstraint(plan)
+            assertTrue(prompt.contains(type.wire))
+            assertTrue(prompt.contains("这次自己的意思"))
+            assertTrue(prompt.contains("具体态度承接当前设定与感受"))
+            assertFalse(prompt.contains("严禁"))
+            assertFalse(prompt.contains("不总结、不建议"))
+            assertFalse(prompt.contains("呼吸练习"))
+            assertEquals(4, plan.maxBubbles)
+        }
     }
 }

@@ -114,48 +114,14 @@ internal object DialogueMoveEngine {
 
     fun expressionConstraint(plan: DialogueMovePlan): String = buildString {
         appendLine("【角色模型已选择的会话动作】${plan.type.wire}")
-        if (plan.target.isNotBlank()) appendLine("修复/回应目标：${plan.target}")
-        if (plan.contentIntent.isNotBlank()) appendLine("内容意图：${plan.contentIntent}")
+        if (plan.target.isNotBlank()) appendLine("这次想回应的具体内容：${plan.target}")
+        if (plan.contentIntent.isNotBlank()) appendLine("本人选择想传达的意思：${plan.contentIntent}")
         if (plan.repairFormat == RepairFormat.CANDIDATE && plan.candidate.isNotBlank()) {
-            appendLine("唯一允许提出的候选理解：${plan.candidate}")
-            appendLine("该候选仅供确认，不能当成已经理解正确。")
+            appendLine("本人想向对方确认的候选理解：${plan.candidate}")
+            appendLine("这仍是待确认的理解，保留不确定性，依据对方实际回应再修订。")
         }
-        appendLine("只落实上面已选定的互动重点，不把背景、情绪、解释和计划逐项扩成新任务。气泡按完整意群自然划分；同一个互动动作可以分成两条完整短话，短反应一泡即可，不把规划中的动作数量当成视觉气泡配额。")
-        appendLine("严禁把一个词或一句没说完的话拆到两条气泡中；不按固定字符数切，任何分段都要让阅读顺畅。")
-        when (plan.type) {
-            DialogueMoveType.BACKCHANNEL ->
-                appendLine("这只是一个在场反应：一个短反应就够，不总结、不建议、不把话题抢过来。")
-            DialogueMoveType.ACKNOWLEDGE ->
-                appendLine("只确认这一拍真正需要确认的内容；确认完成就停，不再追加安慰、保证或关系总结。")
-            DialogueMoveType.ANSWER ->
-                appendLine("直接回答必要内容；不用先复述用户问题，也不用在答案后再写一段‘总结一下’。")
-            DialogueMoveType.ASK ->
-                appendLine("只问当前最有信息增量的问题；通常一个问题就够，不连发访谈式追问。")
-            DialogueMoveType.REASSURE ->
-                appendLine("安抚只落在当前具体担忧上，像这个熟人当场接话；无需在一轮内消除对方全部焦虑。对方没有请求指导时，不把关心扩成呼吸练习、分析心理、讲人生道理再劝她别扛的一整套流程；不要为了显得深情扩大成永久承诺或完整情感宣言。")
-            DialogueMoveType.TEASE ->
-                appendLine("玩笑落地就停；不要解释笑点、补免责声明或再接一段温柔总结。")
-            DialogueMoveType.DISAGREE ->
-                appendLine("明确表达不同意见和最关键理由即可；除非对方真的在讨论复杂问题，不写辩论稿。")
-            DialogueMoveType.SHARE ->
-                appendLine("这是分享自己的想法/生活，不自动转成给用户建议，也不强行问用户一个问题来收尾。")
-            DialogueMoveType.TOPIC_SHIFT ->
-                appendLine("自然把话题带过去即可；无需解释为什么要换话题。")
-            DialogueMoveType.DEFER ->
-                appendLine("说明暂时不处理/晚点再说的边界即可；没有必要补偿式长篇解释。")
-            DialogueMoveType.DECLINE ->
-                appendLine("拒绝要清楚、有本人立场；简短理由足够，不写客服式道歉模板。")
-            DialogueMoveType.CLOSE ->
-                appendLine("自然收尾即可；不强行总结整段关系，也不追加新问题重新把对话打开。")
-            DialogueMoveType.SELF_REPAIR ->
-                appendLine("直接改正刚才自己的表达或事实，不把小修正演成郑重道歉仪式。")
-            else -> Unit
-        }
-        appendLine("允许口语里有停顿、改口、没说满、轻微不完美；不要求每一拍都把背景、态度、原因、计划和结论补齐。意思已经够了就停。")
-        if (plan.isRepair) {
-            appendLine("当前首先完成局部修复。不要枚举第二个候选，不要把误解改写成惩罚/将功补过/暗号/撒娇剧本。")
-            appendLine("不要连续追问，不要在这一拍额外做关系总结。说到足够让对方继续修复就停。")
-        }
+        appendLine("把这个交流意图放回两人的真实关系，用本人的语言与节奏实现。本人可以坦率、含蓄、热烈、克制或平淡，具体态度承接当前设定与感受。气泡按完整意群自然划分，展开程度由本人结合当前话题和必要答案决定。")
+        if (plan.isRepair) appendLine("承接对方已说出的澄清，修正需要修正的那一处；真实仍不明白时，可以用自己的方式确认。共同理解恢复后，继续怎样聊由本人结合对方回应选择。")
     }.trim()
 
 }

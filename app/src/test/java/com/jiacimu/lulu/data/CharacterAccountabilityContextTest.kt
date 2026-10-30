@@ -83,13 +83,13 @@ class CharacterAccountabilityContextTest {
 
     @Test fun expressionGuidePreservesIndependenceWithoutUnjustifiedCondescension() {
         val guide = CharacterExpressionGuide.promptSection()
-        assertTrue(guide.contains("独立人格"))
+        assertTrue(guide.contains("本人的稳定性格、价值、兴趣"))
         assertTrue(guide.contains("承诺和行为要承接真实记录"))
         assertTrue(guide.contains("执行成功必须有真正回执"))
-        assertTrue(guide.contains("语气、停顿、标点和消息节奏"))
-        assertTrue(guide.contains("朋友圈面向熟人分享"))
-        assertTrue(guide.contains("日记是自我整理"))
-        assertTrue(guide.contains("个人语言会成长，但不自我复制"))
+        assertTrue(guide.contains("句长、措辞、修辞和停顿"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS).contains("朋友圈面向熟人分享"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS).contains("日记是自我整理"))
+        assertTrue(guide.contains("个人语言的成长依据真实经历与反馈"))
     }
 
     @Test fun sleepingSupervisionDisputeIsNotMisreadAsUserAttackingTheRole() {

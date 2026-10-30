@@ -186,12 +186,12 @@ class WanxiangCharacterContinuityTest {
     @Test fun sharedPrivateAndVoiceGuidanceAllowsSpontaneousSpeechWithoutInventedMisunderstanding() {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
-        assertTrue(private.contains("不为了活人感故意制造误会"))
+        assertTrue(private.contains("承接两人已经说到哪里"))
         // Follow the shared, current conversational rule instead of matching
         // wording from an earlier draft: never append a mechanical recap or
         // question merely to make a chat turn look complete.
-        assertTrue(private.contains("不要在每轮末尾附一段总结或机械追问"))
-        assertTrue(phone.contains("不要在每轮末尾附一段总结或机械追问"))
+        assertTrue(private.contains("表达足够时可自然交还话轮"))
+        assertTrue(phone.contains("表达足够时可自然交还话轮"))
         assertTrue(phone.contains("没有听清便承认没听清"))
         assertTrue(phone.contains("实时通话优先低延迟"))
         assertFalse(phone.contains("每次必须"))

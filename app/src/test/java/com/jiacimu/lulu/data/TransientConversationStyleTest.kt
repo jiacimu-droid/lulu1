@@ -14,14 +14,14 @@ class TransientConversationStyleTest {
     @Test fun explicitMisunderstandingBecomesRepairPressure() {
         val style = TransientConversationStyle.analyze("你没有get到我什么意思")
         assertEquals(TransientConversationStyle.TonePressure.REPAIR, style.tonePressure)
-        assertTrue(TransientConversationStyle.context("你没有get到我什么意思").contains("纠正误会"))
+        assertTrue(TransientConversationStyle.context("你没有get到我什么意思").contains("真实澄清与新信息可以改变理解"))
     }
 
     @Test fun multiPartInputCanAllowBurstButNotSentenceFragments() {
         val style = TransientConversationStyle.analyze("我学累了\n脑子都转不动了\n想歇一下")
         assertTrue(style.prefersShortBurst)
         val context = TransientConversationStyle.context("我学累了\n脑子都转不动了\n想歇一下")
-        assertTrue(context.contains("不拆开未说完的意群"))
+        assertTrue(context.contains("自然分成完整气泡"))
     }
 
     @Test fun complexRequestAllowsFullerResponse() {
@@ -75,7 +75,7 @@ class TransientConversationStyleTest {
         val brief = TransientConversationStyle.context("不读书就没钱，")
         assertTrue(brief.contains("回复篇幅"))
         assertTrue(brief.contains("真实对话"))
-        assertTrue(brief.contains("不强制额外的安慰"))
+        assertTrue(brief.contains("具体表达仍属于这个人"))
         val normal = TransientConversationStyle.context("我今天走了好远的路，还去逛了昨天跟你说的那家店")
         assertTrue(normal.contains("完整气泡"))
         listOf("帮我分析学习计划怎么调整", "继续讲故事哄我睡", "详细解释原因").forEach { input ->

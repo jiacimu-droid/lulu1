@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:41:45.653923+00:00",
-  "commit": "39491a5b33ac5d6966bde848d5d523b524e4cf17",
-  "branch": "main",
-  "sourceFingerprint": "5d17d617e6ce327d89cd948a76c674529863abc5fc301df3df1fe15e18ce0f0d",
+  "generatedAt": "2026-10-30T03:43:38.112924+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "4f98c0ef651daf2bb122b61f2c3d1d42d661704099c5800cee154cba73f20eed",
   "summary": {
-    "files": 1105,
-    "lines": 228184,
-    "symbols": 3226
+    "files": 1106,
+    "lines": 228117,
+    "symbols": 3227
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 219
+        "line": 185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
@@ -5577,7 +5577,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 87
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -5905,25 +5905,25 @@
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 173
+        "line": 172
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 175
+        "line": 174
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 190
+        "line": 189
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 195
+        "line": 194
       }
     ],
     "conciseAppraisal": [
@@ -6219,19 +6219,19 @@
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 49
+        "line": 39
       }
     ],
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 55
+        "line": 47
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 69
+        "line": 60
       }
     ],
     "relationships": [
@@ -7987,7 +7987,7 @@
     "planningGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-        "line": 19
+        "line": 10
       }
     ],
     "turns": [
@@ -8053,13 +8053,13 @@
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 189
+        "line": 155
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 225
+        "line": 191
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
@@ -17184,6 +17184,12 @@
         "line": 17
       }
     ],
+    "PositiveExpressionGuidanceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
+        "line": 7
+      }
+    ],
     "PrivateChatExpressionContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
@@ -23379,8 +23385,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 199,
-      "sha256": "abd4ff03d4a3a313d0793b8662c5b7be0b9a83b5c3767725adf77cf72e602b83",
+      "lines": 198,
+      "sha256": "88d942d2b9bdf977bcb308ca453894f2ed15b1309380c8584f41a82583da971d",
       "symbols": [
         {
           "name": "expressionContext",
@@ -23388,19 +23394,19 @@
         },
         {
           "name": "usesSeparateExpression",
-          "line": 173
+          "line": 172
         },
         {
           "name": "chatAction",
-          "line": 175
+          "line": 174
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 190
+          "line": 189
         },
         {
           "name": "speechIntent",
-          "line": 195
+          "line": 194
         }
       ]
     },
@@ -23653,24 +23659,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 106,
-      "sha256": "81ac9658658a13bc75474e910ba5a2b16582cfb6f214290b67ff1e645d422e34",
+      "lines": 79,
+      "sha256": "3dd232b157efc53f23ab55a7e94c77c9e17df440b3e53f3f3c779a721afc0a00",
       "symbols": [
         {
           "name": "isExpressionOnly",
-          "line": 49
-        },
-        {
-          "name": "forGeneration",
-          "line": 55
-        },
-        {
-          "name": "channelNote",
-          "line": 69
+          "line": 39
         },
         {
           "name": "promptSection",
-          "line": 87
+          "line": 45
+        },
+        {
+          "name": "forGeneration",
+          "line": 47
+        },
+        {
+          "name": "channelNote",
+          "line": 60
         }
       ]
     },
@@ -25566,12 +25572,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-      "lines": 26,
-      "sha256": "33f2c4a0fef103217e87002dc2f5571fc86bd1e3f20e640e1f45ef964faf561c",
+      "lines": 18,
+      "sha256": "df9e880583f3b53e0abc3a122c1988aa8f6ed83579bce2b3070e037955f221b6",
       "symbols": [
         {
           "name": "planningGuidance",
-          "line": 19
+          "line": 10
         }
       ]
     },
@@ -25623,8 +25629,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 375,
-      "sha256": "825a3dd763dfed2e1c6b1965039389cdf1c30213ba37e9f96b0878ce77271b3e",
+      "lines": 341,
+      "sha256": "4ebccb0fb0161d41062c76ceb4d3a8407f0da817f40185485f3e47bbf3c117f9",
       "symbols": [
         {
           "name": "fromWire",
@@ -25644,15 +25650,15 @@
         },
         {
           "name": "afterDecision",
-          "line": 189
+          "line": 155
         },
         {
           "name": "context",
-          "line": 219
+          "line": 185
         },
         {
           "name": "evaluate",
-          "line": 225
+          "line": 191
         }
       ]
     },
@@ -28461,8 +28467,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 155,
-      "sha256": "674fcd559af275334e0285d03611df388a23b49ec51c0b5c782fdea83a146518",
+      "lines": 152,
+      "sha256": "3310687d9b56b6fed0f303a90e6f97300688be8b6a6d044b64f4bcc813629112",
       "symbols": []
     },
     {
@@ -29612,8 +29618,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-      "lines": 100,
-      "sha256": "e9c04fb1dbcb799276f2a7f3b1c766838d984b4d41996e987a0668e2f4ca2fa2",
+      "lines": 95,
+      "sha256": "f26db6df24899ad8efc3aff4241611488fc8a58beb849e639683aeb9dbc1342a",
       "symbols": [
         {
           "name": "allowsExpansion",
@@ -33339,8 +33345,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2182,
-      "sha256": "248cb95c57281595580bebc3bd5d8e029fe3a8e94ad965c680241f0ff846c4a8",
+      "lines": 2174,
+      "sha256": "d21a6f15e04e7095301edc92aca6622994eab9ef084419a7532543436f254e2d",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -35132,7 +35138,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 112,
-      "sha256": "250f085adb65b914960d7ed07636208ab866c8f6c7eb482c13cdff6f6d1fccf3",
+      "sha256": "381bd47649c8049a7738a2d78fbb68c34aa972834abfc6bae49eca5e04bc1510",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -35484,8 +35490,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 462,
-      "sha256": "0f24e74f6647999eb8bd39ec39567ac3f9b4f75720a8cb75d7d718c732d3b7c6",
+      "lines": 433,
+      "sha256": "dc0adf0c6b46f5f888f362bb409b7798f0b61f71906ff6a8625223b2f8eaebe6",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -36155,7 +36161,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
       "lines": 409,
-      "sha256": "6b956f341c3b65d18d45cf2fbe3fb808fa189f2120d2c58b2f69f2be1c9b5e8a",
+      "sha256": "cce04225176034d974242c643f0bf1e648b53c044b24d999f820a6ca01e69df6",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -36276,8 +36282,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-      "lines": 87,
-      "sha256": "2500bae217d2ae0b90bd4d1780a27891c5aa57e55fcfa0909e3f69f308eb41ed",
+      "lines": 84,
+      "sha256": "1926ff2dc190002e5021cb28d4239c394f7f956ca4ced623a87ce4bef682e9b1",
       "symbols": [
         {
           "name": "DialogueMoveEngineTest",
@@ -37104,6 +37110,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
+      "lines": 51,
+      "sha256": "cf0074bd94ffb995365402df9c6e22cb701be2aeba8b0c9327aecc2a6a10aaa8",
+      "symbols": [
+        {
+          "name": "PositiveExpressionGuidanceTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
       "lines": 68,
       "sha256": "e091b50b81f740038a65cc7e9a3afe02b9d1cdaa1d4504497af4c1b2d3ca7000",
@@ -37737,7 +37754,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
       "lines": 86,
-      "sha256": "1a452ffb3695a4ec1e3c04b314583984c79cbe695a60c5a0332b2c4e1216edf4",
+      "sha256": "2ed33cbbfe5556b37e35243a9bdea2bb983359f3087c2e0f545b40bd80f579ec",
       "symbols": [
         {
           "name": "TransientConversationStyleTest",
@@ -37874,7 +37891,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt",
       "lines": 200,
-      "sha256": "e045f0f50ef7eafe1196cfd63d8f91edd56c5b5a414a2bd14f7533a7c4134d3c",
+      "sha256": "ec4b0832aa06c9eafef4512edb5273427738def03c08320e240dd72602efec12",
       "symbols": [
         {
           "name": "WanxiangCharacterContinuityTest",
