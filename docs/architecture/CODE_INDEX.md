@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e3a287403d0bf23791c795d6eb42ea72419cf36`
+- 基准提交：`33567f304bfe4e66807b9373ec4e4fd1bcac6755`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：230099
-- 已发现符号：3253
+- 已索引代码/文本行：230128
+- 已发现符号：3254
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -559,7 +559,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 517 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 528 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 302 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -1061,7 +1061,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |

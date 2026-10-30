@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T08:53:15.619265+00:00",
-  "commit": "1e3a287403d0bf23791c795d6eb42ea72419cf36",
+  "generatedAt": "2026-10-30T08:54:11.831441+00:00",
+  "commit": "33567f304bfe4e66807b9373ec4e4fd1bcac6755",
   "branch": "main",
-  "sourceFingerprint": "f262c305be4c8009db0f5062d260ac369f8bab78f4120c79621c2489171f8884",
+  "sourceFingerprint": "7ade0c9d81446226cd88e3a77192a72b191a593bac25d6be2f936a65e0ee7488",
   "summary": {
     "files": 1119,
-    "lines": 230099,
-    "symbols": 3253
+    "lines": 230128,
+    "symbols": 3254
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11928,28 +11928,34 @@
         "line": 122
       }
     ],
+    "shouldReportPerformanceError": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 37
+      }
+    ],
     "primaryAllowsDependentSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 34
+        "line": 46
       }
     ],
     "ToolRouter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 39
+        "line": 51
       }
     ],
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 63
+        "line": 75
       }
     ],
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 417
+        "line": 428
       }
     ],
     "allowsExpansion": [
@@ -29830,28 +29836,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 517,
-      "sha256": "16afdedc937bfc0f3b5e367592810179091ed636344395275ef2a2feb83fce94",
+      "lines": 528,
+      "sha256": "abaa39613390451d2d817716258d7ec75f9096e2aba62fe872a0c971d7d476b6",
       "symbols": [
         {
           "name": "completed",
           "line": 20
         },
         {
+          "name": "shouldReportPerformanceError",
+          "line": 37
+        },
+        {
           "name": "primaryAllowsDependentSteps",
-          "line": 34
+          "line": 46
         },
         {
           "name": "ToolRouter",
-          "line": 39
+          "line": 51
         },
         {
           "name": "rejected",
-          "line": 63
+          "line": 75
         },
         {
           "name": "project",
-          "line": 417
+          "line": 428
         }
       ]
     },
@@ -38073,8 +38083,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt",
-      "lines": 54,
-      "sha256": "bd7a596b2aa7c2d358bb48bb7878d5edd84efd92e0cbde37747d2f5ec345033b",
+      "lines": 72,
+      "sha256": "4164fc5f99e0b4f4d9ff3b8bbdcef814356ab67f546ec56287130536fc6a6fd9",
       "symbols": [
         {
           "name": "ToolExecutionStatusTest",
