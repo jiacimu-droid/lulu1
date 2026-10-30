@@ -23,6 +23,7 @@ class TimelinePrefixDeletionTest {
     @Before fun before() {
         MemoryTestEnvironment.release()
         LuluRepositories.initialize(context)
+        LuluRepositories.lexicon.initialize(context)
         SharedExperienceTimeline.initialize(context)
     }
 
