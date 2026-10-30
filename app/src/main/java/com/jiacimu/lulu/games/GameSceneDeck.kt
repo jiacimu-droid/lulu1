@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -91,25 +92,35 @@ internal fun GameSceneDeck(
                     maxLines = 2, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
             }
         }
-        if (!drawer && companionAvailable) {
+        if (companionAvailable) {
             Column(Modifier.align(Alignment.TopEnd).width(sideWidth)
                 .padding(top = 5.dp, end = 8.dp)) {
-                Surface(
-                    color = Color(0xD9132932), shape = RoundedCornerShape(11.dp),
-                    border = BorderStroke(1.dp, accent.copy(alpha = .24f)),
-                ) {
-                    Row(Modifier.fillMaxWidth().height(32.dp).padding(start = 10.dp, end = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Text("同行伙伴", modifier = Modifier.weight(1f), color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                        TextButton(onClick = { teamExpanded = !teamExpanded },
-                            contentPadding = PaddingValues(horizontal = 6.dp)) {
-                            Text(if (teamExpanded) "收起" else "展开", fontSize = 10.sp,
-                                color = accent)
+                if (!drawer) {
+                    Surface(
+                        color = Color(0xD9132932), shape = RoundedCornerShape(11.dp),
+                        border = BorderStroke(1.dp, accent.copy(alpha = .24f)),
+                    ) {
+                        Row(Modifier.fillMaxWidth().height(32.dp).padding(start = 10.dp, end = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text("同行伙伴", modifier = Modifier.weight(1f), color = Color.White,
+                                fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                            TextButton(onClick = { teamExpanded = !teamExpanded },
+                                contentPadding = PaddingValues(horizontal = 6.dp)) {
+                                Text(if (teamExpanded) "收起" else "展开", fontSize = 10.sp,
+                                    color = accent)
+                            }
                         }
                     }
                 }
-                if (teamExpanded) teamPanel()
+                // Keep the exact same composition mounted when visually collapsed.
+                // Both companion panels own live AI decisions, inbox and voice effects.
+                // Removing the composition here would cancel their in-flight work.
+                Box(Modifier.then(
+                    if (teamExpanded && !drawer) Modifier.heightIn(max = panelHeight)
+                    else Modifier.height(0.dp),
+                ).clipToBounds()) {
+                    teamPanel()
+                }
             }
         }
         // Two independent thumb zones, leaving the middle of the world entirely playable.
