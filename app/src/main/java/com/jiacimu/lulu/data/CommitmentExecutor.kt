@@ -302,19 +302,23 @@ internal object CommitmentExecutor {
             return
         }
 
-        val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
-        val action = if (useCall) "start_call" else "send_private_message"
-        val wording = selected.openingLine.takeIf { wake && useCall && it.isNotBlank() } ?: when {
-            // Incoming-call text is now literally spoken after answer, never
-            // just shown as an instruction on the ringing screen.
-            scheduledCall && wake && attempt == 1 -> "到我们约好的时间啦，我来叫你起床。醒了就跟我说一声，好不好？"
-            scheduledCall && attempt == 1 -> "到我们约好的时间啦，我给你打过来啦。"
-            useCall && wake && attempt > 1 -> "我再来叫你一次啦。醒了就跟我说一声。"
-            useCall && attempt > 1 -> "刚才没接通，我按约定再打来啦。"
-            wake && attempt == 1 -> "${claimedTask.goal}。我来叫你啦，醒了跟我说一声。"
-            wake -> "${claimedTask.goal}。还没确认你醒来，我再提醒你一次。"
-            else -> error("An ordinary scheduled chat reminder must use the popup and character decision route")
+        // First contact respects the original promise. Later contacts require
+        // the role's new structured decision; attempt count is only a bound.
+        val action = when {
+            !wake -> if (scheduledCall) "start_call" else "send_private_message"
+            sameCall -> "reuse_connected_call"
+            attempt == 1 -> if (scheduledCall) "start_call" else "send_private_message"
+            selected.contact == WakeActionPlanner.Contact.CALL && callsEnabled -> "start_call"
+            selected.contact == WakeActionPlanner.Contact.MESSAGE -> "send_private_message"
+            else -> "" // WAIT, missing choice or unavailable permission
         }
+        val useCall = action == "start_call"
+        val wording = if (wake) selected.openingLine.ifBlank {
+            // This is visibly marked as emergency system text in the receipt,
+            // not a fictional character-authored line.
+            "到点提醒：${claimedTask.goal}"
+        } else if (attempt == 1) "到我们约好的时间啦，我给你打过来啦。"
+        else "刚才没接通，我按约定再打来啦。"
         // A promised wake-up during an already connected call is a spoken
         // reminder in THAT call, never another incoming call over its UI.
         // The call session switches from bedtime voice to the normal voice.
