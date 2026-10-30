@@ -388,7 +388,8 @@ object ProactivePerceptionRuntime {
                         // Only a committed decision may acknowledge a goal review.
                         if (action == null) {
                             AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
-                        } else {
+                            return@onSuccess
+                        }
                         reviewedMotives.forEach { reviewed ->
                             CharacterInnerLifeStore.claimMotiveReview(
                                 characterId, reviewed.id, reviewed.token, Instant.now(), coalesceDue = false)
@@ -405,7 +406,6 @@ object ProactivePerceptionRuntime {
                             .putBoolean("pending_concern_promise_$characterId", false)
                             .remove("silent_count_$characterId")
                             .apply()
-                        }
                     }.onFailure { error ->
                         // This persists recovery even when JobScheduler cancels the coroutine.
                         // Interrupted tool execution is never blindly replayed as a new action.
