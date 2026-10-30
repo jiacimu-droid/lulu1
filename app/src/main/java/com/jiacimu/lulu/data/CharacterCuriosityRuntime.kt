@@ -730,6 +730,18 @@ internal object CharacterCuriosityRuntime {
                 root.put("dormantQuestions", JSONArray().apply { keptDormant.forEach(::put) })
                 changed = true
             }
+            // A failed attempt is still tied to the observation that inspired it.
+            // Editing/deleting that source retracts its retry cue, even if no
+            // question or verified step currently references the source.
+            // Unlinked legacy failures without a source cannot be inferred away.
+            val failures = entries(root.optJSONArray("failures"))
+            val keptFailures = failures.filterNot {
+                it.optString("sourceEvidenceId") == eventId
+            }
+            if (keptFailures.size != failures.size) {
+                root.put("failures", JSONArray().apply { keptFailures.forEach(::put) })
+                changed = true
+            }
             if (changed) {
                 root.put("threads", keptThreads).put("questions", keptQuestions)
                 save(characterId, root)

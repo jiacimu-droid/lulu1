@@ -141,3 +141,11 @@
 - **正式源码**：只改原 `CharacterCuriosityRuntime.kt`：当前存在待探索问题时成功与失败回执必须携带本人该问题的有效来源，不能凭同文/ID 消耗它；显式未知 threadId 的成功结果不再凭空造线程；已实践且保存了观察来源的线程也不接受无来源失败。真正无关联 ID 的旧协议仍可记录真实新工具成果或独立失败；已结束兴趣的合法迟到事实与原时间线保持，正确来源的行动仍按原步骤/幂等结转。没有增加 Store、模型调用、定时器、公共网关或语义词表。
 - **根因回归源码**：`CharacterCuriosityRuntimeTest` 新增“当前 pending + 相同 ID/同文但无来源/显式陌生 ID 的真实成功不能抢占 → 本人正确来源真实成功 → 重启与重放仍只一份成果”及“当前真实失败 → 缺来源迟到失败不能覆盖 → 正确成功清除 → 已探索线程缺来源失败仍不污染”；旧版直接调用测试改为显式传入其原真实来源，保留无 pending 的旧协议测试。写入测试文件不是 JVM 实际执行通过。
 - **验证边界**：按原 Refresh code index 自动生成 CODE_INDEX/code-index.json，不能手写生成物；本轮 GitHub Actions Android JVM、assemblePhone、APK/Release 需以包含本提交的实际完成 run 核对，取消/排队不算成功。真机与三次跨天自然唤醒未验。只修改本专项源码、测试与本进度文件，不触碰基础/社交/Live2D。
+
+## 2026-10-30 D2/T3：原始观察编辑后，失败回执的旧重试线索同步撤回
+
+- **四类核对**：D1/T1 既有动机与想法层次、D2/T2 的本人来源→真实工具回执→后续本人再选择均已有正式实现和历史 CI 证据；最新跨三次自然唤醒、强杀、真实模型取舍仍待真机验。多年数据压测是可选增强。本轮确证缺口在既有兴趣失败反馈的来源撤回，不另建任务/兴趣 Store。此前 `CharacterCuriosityRuntimeTest.onlyActiveExplorationsAppearInCrossSurfaceContext` 的旧 CI 失败（旧测试未带来源）已在当前 main 的测试源码补 `sourceEvidenceId`，本轮不重复修它，后续 JVM 仍需实证。
+- **根因**：`SharedExperienceTimeline` 编辑/删除原始事件已通过 `CharacterInnerLifeStore.invalidateEvidence` 进入 `CharacterCuriosityRuntime.invalidateEvidence`；该函数只撤回问题、休眠问题和成功步骤，却完全忽略 `failures[].sourceEvidenceId`。因此旧来源被修订或删除后，即使问题已失效，原有无 threadId 的失败仍被 `promptSection` 当作近期真实重试线索；若只剩失败记录，旧逻辑甚至不会保存任何失效变更。
+- **实际源码**：仅在原 `CharacterCuriosityRuntime.invalidateEvidence` 的同一次 Store 保存中移除准确引用被撤回 `eventId` 的失败投影，并让只有失败被撤回时也持久提交；其他来源的失败与无法归属来源的旧协议历史继续保留。程序只撤回失效事实，不自行选择重试/放下、不删原始时间线、不新增模型轮次、自动唤醒或公共存储。
+- **根因级回归源码**：`CharacterCuriosityRuntimeTest` 新增真实 `SharedExperienceTimeline.record` 编辑→本人待探索问题及同源失败撤回→另一独立来源失败保留→重启后提示不再出现旧失败；另测只有无 threadId 失败而无任何问题/线程时，来源编辑仍能单独落盘撤回。源码/测试提交不能当作 JVM 通过。
+- **验收边界**：按仓库原有 Refresh code index 自动生成 `CODE_INDEX.md` 与 `code-index.json`；对应 Android JVM、phone APK/发布必须核对实际完成工作流。真机编辑/删除来源、强杀恢复和三次跨天自然唤醒仍待验；本轮不覆盖基础/社交/Live2D 专项。

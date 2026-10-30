@@ -729,4 +729,51 @@ class CharacterCuriosityRuntimeTest {
             at.plusSeconds(50)).contains("旧失败"))
         CharacterCuriosityRuntime.clear(id)
     }
+
+    @Test fun editingObservationRetractsItsFailureButKeepsAnotherSourceFeedback() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(),
+            "source-1", "第一条真实观察", at.plusSeconds(10)))
+        val threadId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        CharacterCuriosityRuntime.recordFailure(id,
+            proposal().put("threadId", threadId).put("sourceEvidenceId", "source-1"),
+            "reading", "旧观察导致的失败", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordFailure(id,
+            proposal("另一条故事线如何发展").put("sourceEvidenceId", "source-observation"),
+            "reading", "另一观察仍有效的失败", at.plusSeconds(25))
+        assertEquals(2, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+
+        // This is the real timeline edit path, not a direct synthetic invalidation.
+        SharedExperienceTimeline.record("source-1", id, "数字世界事件", "数字世界",
+            "第一条观察已被修订", at, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        val state = CharacterCuriosityRuntime.snapshot(id)
+        val failures = state.getJSONArray("failures")
+        assertEquals(1, failures.length())
+        assertEquals("source-observation", failures.getJSONObject(0).getString("sourceEvidenceId"))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        val context = CharacterCuriosityRuntime.promptSection(id, "测试人物",
+            emptyList(), at.plusSeconds(40))
+        assertFalse(context.contains("旧观察导致的失败"))
+        assertTrue(context.contains("另一观察仍有效的失败"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun editingSourceOfUnlinkedFailurePersistsRetractionWithoutOtherStateChanges() {
+        begin()
+        CharacterCuriosityRuntime.recordFailure(id,
+            proposal().put("sourceEvidenceId", "source-observation"),
+            "reading", "仅有失败的旧来源", at.plusSeconds(20))
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+
+        SharedExperienceTimeline.record("source-observation", id, "数字世界事件", "数字世界",
+            "这条来源现在已修改", at, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+        assertFalse(CharacterCuriosityRuntime.promptSection(id, "测试人物",
+            emptyList(), at.plusSeconds(30)).contains("仅有失败的旧来源"))
+        CharacterCuriosityRuntime.clear(id)
+    }
 }
