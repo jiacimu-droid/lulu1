@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:39:05.808972+00:00",
-  "commit": "8ab9b35fd2ce03dfc5cc7f8c167ccd4f451768fb",
+  "generatedAt": "2026-10-30T07:39:58.204036+00:00",
+  "commit": "8dfd016063378f752acdbecf88fc814d20afce90",
   "branch": "main",
-  "sourceFingerprint": "c1afa563b40cce24662d9ed0e8d7ff3e68bf6412872e749f5963892db4884613",
+  "sourceFingerprint": "2c66b3675c856390fff8b6c688d0604730d1d118383ea913f17cff8a50c8ff6d",
   "summary": {
-    "files": 1115,
-    "lines": 229414,
-    "symbols": 3243
+    "files": 1116,
+    "lines": 229530,
+    "symbols": 3245
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -544,6 +544,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
         "line": 134
+      }
+    ],
+    "levelAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt",
+        "line": 22
+      }
+    ],
+    "open": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt",
+        "line": 57
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
+        "line": 105
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 117
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 40
       }
     ],
     "explicitlyEndsOwnCall": [
@@ -2716,20 +2740,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
         "line": 67
-      }
-    ],
-    "open": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 105
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
-        "line": 117
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
-        "line": 40
       }
     ],
     "refreshLocation": [
@@ -18790,6 +18800,21 @@
         {
           "name": "finish",
           "line": 36
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt",
+      "lines": 116,
+      "sha256": "e7b4face61f9db54d4c35909e1ab5136022456a58469f033aa8d8963f2fa1920",
+      "symbols": [
+        {
+          "name": "levelAt",
+          "line": 22
+        },
+        {
+          "name": "open",
+          "line": 57
         }
       ]
     },
