@@ -113,6 +113,9 @@ internal object CommitmentExecutor {
                     com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                         claimedTask.characterId, claimedTask.goal, claimedTask.id,
                         ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
+                        ringCount = selected.ringCount,
+                        ringSeconds = selected.ringSeconds,
+                        pauseSeconds = selected.pauseSeconds,
                     )
                 }
             } else {
@@ -254,6 +257,9 @@ internal object CommitmentExecutor {
                         "按你自己的人格自然地叫她起来；不把响铃当作她已经醒了。",
                     claimedTask.id,
                     ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
+                    ringCount = selected.ringCount,
+                    ringSeconds = selected.ringSeconds,
+                    pauseSeconds = selected.pauseSeconds,
                 )
             }
             val music = if (playing) "角色自主选择在原电话内播放音乐" else "角色选择${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "直接说话" else "铃声加自然对话"}"
