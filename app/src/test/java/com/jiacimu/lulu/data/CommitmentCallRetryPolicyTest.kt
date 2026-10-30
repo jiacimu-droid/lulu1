@@ -35,7 +35,6 @@ class CommitmentCallRetryPolicyTest {
     }
 
     @Test fun laterWakeContactMustComeFromCharacterRatherThanAttemptCount() {
-        val contact = WakeActionPlanner.Contact
         assertEquals("start_call", CommitmentCallRetryPolicy.wakeContactAction(
             1, "start_call", null, true))
         assertEquals("send_private_message", CommitmentCallRetryPolicy.wakeContactAction(
@@ -43,13 +42,13 @@ class CommitmentCallRetryPolicyTest {
         assertEquals("", CommitmentCallRetryPolicy.wakeContactAction(
             2, "start_call", null, true))
         assertEquals("", CommitmentCallRetryPolicy.wakeContactAction(
-            2, "start_call", contact.WAIT, true))
+            2, "start_call", WakeActionPlanner.Contact.WAIT, true))
         assertEquals("start_call", CommitmentCallRetryPolicy.wakeContactAction(
-            2, "start_call", contact.CALL, true))
+            2, "start_call", WakeActionPlanner.Contact.CALL, true))
         assertEquals("", CommitmentCallRetryPolicy.wakeContactAction(
-            2, "start_call", contact.CALL, false))
+            2, "start_call", WakeActionPlanner.Contact.CALL, false))
         assertEquals("send_private_message", CommitmentCallRetryPolicy.wakeContactAction(
-            3, "start_call", contact.MESSAGE, true))
+            3, "start_call", WakeActionPlanner.Contact.MESSAGE, true))
     }
 
     private val phoneWake = CommitmentTask(
