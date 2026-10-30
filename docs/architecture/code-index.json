@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T00:56:10.949065+00:00",
-  "commit": "ab187b5cefa2104e16ceb60fc2540639a0988635",
+  "generatedAt": "2026-10-30T02:15:53.473741+00:00",
+  "commit": "73fd06ecf50039157c6f9f9405f8f5a9aa52afd6",
   "branch": "main",
-  "sourceFingerprint": "6b5b9c20d58d5e38abc00ed9cbed7e84aa5fc5aa3922b1ca15b3692fd1def131",
+  "sourceFingerprint": "7d90342a6cdb4fcb2727dbf0bf157b0a7e4b37ee1980a598770d286723344246",
   "summary": {
-    "files": 1091,
-    "lines": 226766,
-    "symbols": 3206
+    "files": 1092,
+    "lines": 226944,
+    "symbols": 3207
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6083,7 +6083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 682
+        "line": 717
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -11545,37 +11545,37 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 575
+        "line": 606
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 592
+        "line": 624
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 638
+        "line": 671
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 654
+        "line": 687
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 689
+        "line": 724
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 705
+        "line": 740
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -17506,6 +17506,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt",
         "line": 6
+      }
+    ],
+    "ScheduledSocialEncounterVenueTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt",
+        "line": 21
       }
     ],
     "ScreenVisionCapabilityContextTest": [
@@ -29067,8 +29073,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 821,
-      "sha256": "ca9d7c5feeab0a44c2d754bc3157302eca84464be48413b26c316113b9c19514",
+      "lines": 856,
+      "sha256": "0a1bc4f58cc64b4040458caed3e86a1b42b3c0ffaa22a0aad181bf8de9ed5909",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -29136,31 +29142,31 @@
         },
         {
           "name": "canBegin",
-          "line": 575
+          "line": 606
         },
         {
           "name": "completeFromReceipt",
-          "line": 592
+          "line": 624
         },
         {
           "name": "markDue",
-          "line": 638
+          "line": 671
         },
         {
           "name": "dueContext",
-          "line": 654
+          "line": 687
         },
         {
           "name": "clearCharacter",
-          "line": 682
+          "line": 717
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 689
+          "line": 724
         },
         {
           "name": "canResume",
-          "line": 705
+          "line": 740
         }
       ]
     },
@@ -37342,6 +37348,17 @@
         {
           "name": "ScheduledReminderDeliveryTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt",
+      "lines": 143,
+      "sha256": "83a9f7c73fdace70d81ddb12592fe91c5431d2d28869fa49a1569743bdc2a953",
+      "symbols": [
+        {
+          "name": "ScheduledSocialEncounterVenueTest",
+          "line": 21
         }
       ]
     },
