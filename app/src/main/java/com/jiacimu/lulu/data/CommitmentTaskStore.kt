@@ -185,6 +185,7 @@ object CommitmentTaskStore {
                 update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Scheduled,
                     dueAt = next, nextCheckAt = next, linkedAlarmId = alarm.id,
                     executionToken = null, attemptCount = 0,
+                    wakeAttemptHistory = emptyList(),
                     lastActionResult = "已跳过错过的时段并恢复下一次每日安排；未补打旧电话") }
             }.onFailure { error ->
                 update(task.id) { old -> old.copy(status = CommitmentTaskStatus.Blocked,
@@ -332,6 +333,7 @@ object CommitmentTaskStore {
                     executionToken = null,
                     followUpKind = "",
                     attemptCount = 0,
+                    wakeAttemptHistory = emptyList(),
                     lastActionResult = current.lastActionResult.take(220) +
                         "；每日循环已登记下次时刻：${next.atZone(zone)}",
                 )
