@@ -27,6 +27,44 @@ class GroupChatTurnPlannerTest {
             """```json\n{"speakerIds":["b"]}\n```""", ids, 3))
     }
 
+
+    @Test fun directorPlanKeepsDistinctActorBeatsAndTargets() {
+        val raw = """{"sceneFocus":"用户刚介绍两位群友","beats":[
+          {"speakerId":"a","targetId":"user","focus":"回应介绍","direction":"一句话接住"},
+          {"speakerId":"b","targetId":"a","focus":"接刚才的真实发言","direction":"按本人立场回应"},
+          {"speakerId":"a","direction":"不能重复"},
+          {"speakerId":"intruder","direction":"不能插入"}
+        ],"ending":"留给主人插话"}"""
+        val plan = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 5)!!
+        assertEquals(listOf("a", "b"), plan.beats.map { it.speakerId })
+        assertEquals("a", plan.beats[1].targetId)
+        assertTrue(plan.hintFor("a", mapOf("a" to "星禾", "b" to "江渡")).contains("一句话接住"))
+        assertFalse(plan.hintFor("a", emptyMap()).contains("按本人立场回应"))
+        assertTrue(plan.hintFor("b", mapOf("a" to "星禾")).contains("与星禾互动"))
+    }
+
+    @Test fun invalidTargetCannotInjectUnknownParticipantAndPauseIsPreserved() {
+        val raw = """{"beats":[{"speakerId":"a","targetId":"outsider","direction":"对话"}]}"""
+        val plan = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 2)!!
+        assertNull(plan.beats.single().targetId)
+        assertEquals(emptyList<String>(), GroupChatTurnPlanner.decode(
+            """{"beats":[]}""", listOf("a", "b"), 3))
+        assertEquals(listOf("b"), GroupChatTurnPlanner.decode(
+            """{"speakerIds":["b"]}""", listOf("a", "b"), 3))
+    }
+
+    @Test fun oneActorNeverReceivesAnotherActorsSuggestedDialogue() {
+        val scene = GroupChatScenePlan(
+            listOf(
+                GroupChatSceneBeat("a", direction = "只属于甲的建议"),
+                GroupChatSceneBeat("b", direction = "只属于乙的建议"),
+            ),
+        )
+        assertTrue(scene.hintFor("a", emptyMap()).contains("只属于甲的建议"))
+        assertFalse(scene.hintFor("a", emptyMap()).contains("只属于乙的建议"))
+        assertEquals("", scene.hintFor("c", emptyMap()))
+    }
+
     @Test fun onlyOwnerGroupInputUsesForegroundCoordinator() {
         assertTrue(CompanionOnlineStore.shouldCoordinateGroupTurn(
             isGroup = true, userMessage = true, appVisible = true, inGroupCall = false))
