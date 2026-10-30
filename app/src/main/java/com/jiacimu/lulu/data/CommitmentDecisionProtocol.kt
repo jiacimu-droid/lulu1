@@ -40,11 +40,15 @@ internal object CommitmentDecisionProtocol {
         tasks.forEach { task ->
             appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; dailyBase=${task.dailyBaseDueAt}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}; verificationMode=${task.verificationMode}; nextReview=${task.nextCheckAt}; lastReceipt=${task.readableLastResult().take(170)}")
         }
-        val roles = tasks.map(CommitmentTask::characterId).distinct()
-        if (roles.isNotEmpty()) appendLine("【可引用的真实证据ID｜说过话只证明说过】")
-        roles.forEach { role ->
-            SharedExperienceTimeline.recentEvents(role, 25).takeLast(14).forEach { e ->
-                appendLine("id=${e.id}; at=${e.occurredAt}; type=${e.evidenceKind}; source=${e.source}; summary=${e.content.replace("\n", " ").take(130)}")
+        if (tasks.isNotEmpty()) {
+            appendLine("【结案证据候选（仅来源、时间和类型初筛，不等于目标完成）】")
+            // This extracted/reconciliation path must offer the same evidence
+            // contract as the live role planner rather than a random last-N list.
+            val byRole = tasks.map(CommitmentTask::characterId).distinct()
+                .associateWith { role -> SharedExperienceTimeline.recentEvents(role, 160) }
+            tasks.forEach { task ->
+                appendLine(CommitmentOutcomeVerification.candidateContext(
+                    task, byRole[task.characterId].orEmpty(), maxItems = 4))
             }
         }
     }
