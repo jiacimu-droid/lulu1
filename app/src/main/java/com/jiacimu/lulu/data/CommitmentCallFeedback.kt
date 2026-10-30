@@ -17,7 +17,7 @@ internal object CommitmentCallFeedback {
                     else CommitmentTaskStatus.WaitingForFeedback,
                 linkedAlarmId = if (keepReview) old.linkedAlarmId else null,
                 nextCheckAt = if (keepReview) old.nextCheckAt else null,
-                followUpKind = if (keepReview) "verification" else "",
+                followUpKind = if (keepReview) old.followUpKind else "",
                 lastActionResult = if (!answered)
                     "用户拒接本次来电，不继续自动拨号；目标是否达成仍未知"
                 else "电话已实际连接（${java.time.Instant.now()}）；仅证明接通，未核实目标结果",
