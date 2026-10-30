@@ -165,3 +165,10 @@
 - **实际源码链路**：在唯一send入口、任何UUID/持久化/双方事件/唤醒之前，复用双方各自allowsTimestamp校验，非法时间明确返回未发送；正常人物自己发信和主人代发共用此门禁。CompanionActionRuntime和PhoneInspectionScreen沿既有异常/失败处理，不改公共ToolRouter、人格网关或统一时间线；合法毫秒级边界保持一致，不猜日期、不修改本人语义或自动补一个时间，不增模型调用/重试/唤醒。
 - **根因回归**：在原原子送达回归增加四组合（较晚出生者为发送者/接收者×本人/主人代发）。实际send的非法时间不得改邮箱JSON、双方时间线或未读；同一对随后在正式出生毫秒边界可真实送达，双方各有正确来源证据、只收件者未读，确认后重载不复活，双方历史仍可回看。旧并发、全历史、撤回、角色隔离、写入失败和首次联系回归保留，不调用外部模型。
 - **验证边界**：已运行原scripts/generate_code_index.py及差异检查；正式索引仍由现有workflow生成。新增源码/测试不等于JVM或APK已通过，继续按本提交对应CI核对。真机调时、强杀、多日续接及多年历史性能未验；跨Preferences/SQLite强杀原子恢复仍属于基础专项既有边界，未宣称本门禁解决所有部分提交。
+
+### 08:23 完整CI与APK核验
+
+- 实际源码/回归/专项进度提交：[fa116576](https://github.com/jiacimu-droid/lulu1/commit/fa1165763a62a98c3ab84bb831e37e66058d5059)。原[Refresh code index #40977895918](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895918) completed/success，自动索引已进入main，不手写生成物。
+- 对应[Lulu APK #40977895938](https://github.com/jiacimu-droid/lulu1/actions/runs/40977895938)、job123810360994已completed/success。真实日志08:14:32执行testDebugUnitTest，08:16:44进入compilePhoneKotlin，08:21:48 BUILD SUCCESSFUL（11分10秒）；Live2D、Android Test and build phone APK、Collect APK、Upload temporary APK与Publish Lulu release均为completed/success。本轮新增发送边界回归和既有历史/游标回归随全套JVM通过，不能再写成仅测试源码已提交。
+- 已核对[release v6898](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v6898)的target_commitish准确为fa1165763a62a98c3ab84bb831e37e66058d5059，实际资产[Lulu-arm64.apk](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6898/Lulu-arm64.apk)已发布；不是把旧成功安装包当作本次交付。提交记录前再次读取最新main/本专项源码，确认并发窗口没有覆盖本次门禁。
+- 真机仍未验：设备调时后实际错误展示、后台唤醒/强杀、不同生命形态组合、多日自然旧话题续接和多年存储性能。当前结论仅为真实源码、自动JVM与APK交付通过，不宣称S1-S4全部真机体验完成。
