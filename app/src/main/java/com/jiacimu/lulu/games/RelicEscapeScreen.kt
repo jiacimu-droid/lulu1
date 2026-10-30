@@ -85,6 +85,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
 
     GameSceneDeck(
         accent = relicGold,
+        toolsLabel = "背包 / 战术",
         notice = error.ifBlank { if(run?.phase == RelicPhase.SUCCESS)
             "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
             "本次探索结束 · 战利品遗失" else run?.notice.orEmpty() },
