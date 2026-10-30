@@ -75,3 +75,18 @@
 - ReasoningBank 官方快照 `ed80611788292ea739f1effd31f16c53823b8a0d`（Apache-2.0）的 README 与 `WebArena/memory_management.py`：https://github.com/google-research/reasoning-bank 。只借鉴经验检索后用于当前任务的分工，未复制 Python、嵌入调用、模型推理文本或任务评测资产。
 - ProV-Mem 论文：https://arxiv.org/abs/2610.23998 、https://arxiv.org/html/2610.23998v1 。只参考视觉证据时序和职责拆分，独立修复本仓时间/授权漏洞，未复制提示词、代码、图片或模型资源，不宣称达到论文效果。
 - 原完整清单的其他官方资料与论文保持为选型参考，不将宣传、论文设计或项目README视为本机验收结果。
+
+
+## 2026-10-30：digital-life-core 融合审计与首批实现
+
+参考 `mashangshui/digital-life-core` 的 `main` 快照 `02fdd9383314dd84705775e13c68963286301f4c`（`package.json` 标记 MIT；实际文件复用仍需单独核验），阅读 README 的 Gaps/自主唤醒、状态复核、Life-OS 器官宿主、情绪注意力、休眠/恢复和回执设计。**没有复制第三方 TypeScript、提示词、UI 或资源，也没有安装 DSH/Node 插件。**
+
+### 分阶段取舍（“已存在”不等于已实机验收）
+
+1. **P0 目标/醒前复核：本批修复。** 继续以 `CharacterInnerLifeStore.motives` 为唯一目标真账，`CharacterMotiveReview` 为只读调度投影。定时工作按角色复用唯一 WorkManager 名称，修改计划后替换原工作；Worker 在实际执行前仍按目标 id/指纹核验，取消/暂停/修改的旧闹钟不能触发旧行动。错过原时刻 30 分钟以上时，不再谎称“已复查”：只记录 `skippedReviewPlan` 的计划指纹，交还原普通感知节律。角色重选的新计划可再次唤醒；不增加每条目标一条付费循环。
+2. **P0 决策/反馈边界：本批修复。** 后台感知的无可用模型、被新私聊批次替换、被电话抢占、旧消息已应答、在线窗口已过等早退，使用 `null` 表示“未完成本轮有效决策”，而不再返回真正的 `Action.SILENT`。外围只对已完成有效决策的回合认领到期目标；中断仍保留目标供下一轮处理，不记作角色主动沉默。有效的 `silent` 选择仍可正常复查，不能凭行动有无推断目标已达成。
+3. **P1 能力宿主：仅比较，未引入新架构。** 现有 `CapabilityRegistry`、`ToolRouter`、`AutonomousPerceptionAttempts` 和独立工具回执负责权限、幂等、失败边界；不复制 `OrganHost`、不允许运行时自主编译任意代码。
+4. **P1 记忆注意力：已有机制沿用。** 使用 `CharacterAttentionWorkingSet`、角色原有情绪投影、`CharacterLearningLedger` 和统一记忆召回，不按 API 错误机械改变主观情绪，不删永久记忆、不新增激素中心或额外 LLM 轮次。
+5. **P2 数字身体与可观察性：沿用既有状态/记录。** 保留 `CompanionPresenceStore`、`CharacterInnerLifeStore.decisions`、原生 `ToolRouter` 执行回执、手机节律；未新增仪表盘或量表，未来若补 UI 要依实际诊断缺口进行。
+
+回归用例：`CharacterMotiveReviewTest` 新增超时闹钟不伪造 `reviewedAt/reviewedPlan`、开放目标仍保留且普通复查恢复、新计划不被旧指纹吞掉、按角色区分排程身份。静态源码核对不是 JVM 单测、APK 打包或 Redmi/VPN 真机通过；CI 与真机结果须分别确认。
