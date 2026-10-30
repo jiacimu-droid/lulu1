@@ -47,6 +47,10 @@ class GroupChatTurnPlannerTest {
         val raw = """{"beats":[{"speakerId":"a","targetId":"outsider","direction":"对话"}]}"""
         val plan = GroupChatTurnPlanner.decodePlan(raw, listOf("a", "b"), 2)!!
         assertNull(plan.beats.single().targetId)
+        assertNull(GroupChatTurnPlanner.decodePlan(
+            """{"beats":[{"speakerId":"a","targetId":"user"}]}""",
+            listOf("a", "b"), 2, allowUserTarget = false,
+        )!!.beats.single().targetId)
         assertEquals(emptyList<String>(), GroupChatTurnPlanner.decode(
             """{"beats":[]}""", listOf("a", "b"), 3))
         assertEquals(listOf("b"), GroupChatTurnPlanner.decode(
