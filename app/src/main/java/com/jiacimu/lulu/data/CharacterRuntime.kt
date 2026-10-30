@@ -36,7 +36,12 @@ object CharacterRuntime {
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,
             listOf(character.displayName, CharacterIdentityStore.identities.value[characterId].orEmpty(), persona,
                 life.lifeForm.name, life.bornAt?.toString().orEmpty(),
-                CharacterLifeStore.state(characterId).optJSONObject("expressionPreferences")?.toString().orEmpty()))
+                CharacterLifeStore.state(characterId).optJSONObject("expressionPreferences")?.toString().orEmpty(),
+                // Approved dialogue samples are expression exemplars, not
+                // biographical facts; nevertheless updating them invalidates
+                // the same role's live configuration snapshot.
+                CharacterLifeStore.state(characterId).optJSONObject("profile")
+                    ?.optString("dialogueExamples").orEmpty()))
     }
 
     fun definitionChanges(characterId: String): Flow<CharacterDefinitionSnapshot> = combine(
