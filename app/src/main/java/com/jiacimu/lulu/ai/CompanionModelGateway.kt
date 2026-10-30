@@ -952,11 +952,7 @@ class CompanionModelGateway(
                                 "；请求被明确拒绝，原样重试不会修复参数或输入问题"
                             error is ModelLocalRouteUnavailableException ->
                                 "；本机端口未启动，请检查本机代理或本机模型接口；本轮请求未发送"
-                            error is java.net.SocketTimeoutException &&
-                                error.message.orEmpty().contains("connect", ignoreCase = true) ->
-                                "；连接阶段超时，服务端生成结果未知，客户端没有自动重发"
-                            error is java.net.SocketTimeoutException ->
-                                "；网络读取超时，服务端生成结果未知，客户端没有自动重发"
+                            error is ModelPostTransportException -> error.diagnostic
                             error is java.io.IOException ->
                                 "；网络连接中断，服务端生成结果未知，客户端没有自动重发"
                             else -> ""
@@ -1116,19 +1112,8 @@ class CompanionModelGateway(
         body: JSONObject,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): JSONObject {
-        ModelLocalRouteHealth.probeBeforePost(url)
-        val connection = URL(url).openConnection() as HttpURLConnection
-        return try {
-            connection.requestMethod = "POST"
-            connection.connectTimeout = 30_000
-            connection.readTimeout = readTimeoutMillis.coerceIn(30_000, 300_000)
-            connection.doOutput = true
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
-            connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
-            readJsonResponse(connection)
-        } finally {
-            connection.disconnect()
+        return ModelPostTransport.execute(url, headers, body.toString(), readTimeoutMillis) {
+            readJsonResponse(it)
         }
     }
 
@@ -1139,18 +1124,10 @@ class CompanionModelGateway(
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
     ): ModelReply {
-        ModelLocalRouteHealth.probeBeforePost(url)
-        val connection = URL(url).openConnection() as HttpURLConnection
-        return try {
-            connection.requestMethod = "POST"
-            connection.connectTimeout = 30_000
-            connection.readTimeout = readTimeoutMillis.coerceIn(30_000, 300_000)
-            connection.doOutput = true
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            connection.setRequestProperty("Accept", "text/event-stream, application/json")
-            headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
-            connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
-
+        return ModelPostTransport.execute(
+            url, headers + ("Accept" to "text/event-stream, application/json"),
+            body.toString(), readTimeoutMillis,
+        ) { connection ->
             val status = connection.responseCode
             if (status !in 200..299) {
                 val raw = connection.errorStream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
@@ -1251,7 +1228,7 @@ class CompanionModelGateway(
             }
 
             if (content.isEmpty() && plainResponse.isNotBlank()) {
-                return modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
+                return@execute modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
                     onStreamText?.invoke(reply.text)
                 }
             }
@@ -1265,8 +1242,6 @@ class CompanionModelGateway(
                 cachedTokens = cachedTokens,
                 finishReason = finishReason,
             )
-        } finally {
-            connection.disconnect()
         }
     }
 

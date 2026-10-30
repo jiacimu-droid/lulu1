@@ -160,7 +160,8 @@ class LocalMemoryRepository : MemoryRepository {
                     ${understandingUpdateInstruction()}
                 """.trimIndent(),
                 source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
-                contextMode = CompanionContextMode.Isolated, connectionOverride = extractionConnection(),
+                contextMode = CompanionContextMode.Isolated, streamResponse = true,
+                connectionOverride = extractionConnection(),
             ).getOrThrow()
             val parsed = parseMemoryArray(result.text, characterId, context).filter { update ->
                 update.memory.kind == MemoryKind.Fact && update.memory.sourceIds().any(targetIds::contains)
@@ -261,6 +262,8 @@ class LocalMemoryRepository : MemoryRepository {
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
+                // Receive progress through the same gateway; only the final validated JSON is committed.
+                streamResponse = true,
                 maxTokens = (800 + batch.size.coerceAtMost(40) * 180).coerceIn(3_200, 8_000),
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 180_000,

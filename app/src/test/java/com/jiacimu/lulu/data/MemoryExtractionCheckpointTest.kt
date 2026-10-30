@@ -35,6 +35,23 @@ class MemoryExtractionCheckpointTest {
         assertEquals(newLife, MemoryExtractionJobStore.pending().single())
     }
 
+    @Test fun networkFailureDuringMessageBurstStillBacksOffWithoutLosingNewWork() {
+        val old = MemoryExtractionJobStore.enqueue("role", sourceReplyId = "first")
+        MemoryExtractionJobStore.enqueue("role", sourceReplyId = "arrived-during-post")
+        MemoryExtractionJobStore.failed(old, java.io.IOException("connection closed"))
+        val pending = MemoryExtractionJobStore.pending().single()
+        assertEquals(2L, pending.revision)
+        assertEquals("arrived-during-post", pending.sourceReplyId)
+        assertEquals(1, pending.attempts)
+        assertFalse(memoryExtractionRetryDue(pending, pending.updatedAt.plusSeconds(2)))
+        MemoryExtractionJobStore.complete(old)
+        assertEquals(pending, MemoryExtractionJobStore.pending().single())
+        MemoryExtractionJobStore.complete(pending)
+        val recreated = MemoryExtractionJobStore.enqueue("role", sourceReplyId = "new-life")
+        MemoryExtractionJobStore.failed(old, java.io.IOException("late old socket"))
+        assertEquals(recreated, MemoryExtractionJobStore.pending().single())
+    }
+
     @Test fun dirtyRoleSurvivesSourceDeletionAndRestartWithBackoff() {
         val context = RuntimeEnvironment.getApplication() as Context
         MemoryExtractionJobStore.enqueue("role", sourceReplyId = "older")
