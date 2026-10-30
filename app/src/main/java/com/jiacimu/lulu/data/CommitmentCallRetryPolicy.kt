@@ -22,6 +22,14 @@ internal object CommitmentCallRetryPolicy {
     ): Boolean = followUpKind == "retry" && inCall &&
         (thinking || speaking || opening)
 
+    /** Rounds 1/2 lead to another role decision; after round 3 we only verify.
+     * The alarm is one durable callback, never a batch of automatic ringing. */
+    fun followUpKindForWakeRound(attempt: Int, alarmCreated: Boolean): String = when {
+        !alarmCreated -> ""
+        attempt in 1 until MAX_WAKE_CALL_ATTEMPTS -> "retry"
+        else -> "verification"
+    }
+
 
     fun isFinalCheck(task: CommitmentTask, attempt: Int, callsEnabled: Boolean): Boolean =
         when {
