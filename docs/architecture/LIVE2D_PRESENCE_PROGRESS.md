@@ -130,3 +130,12 @@
 - 本轮回归提交 `f34dde0` 对应 [Lulu APK #40968894322](https://github.com/jiacimu-droid/lulu1/actions/runs/40968894322)：原 `Build bundled Live2D stage` 已 **completed/success**，工作流实际执行 `node tools/live2d/test/parameters.mjs`、`node tools/live2d/test/touch-hit.mjs` 和 renderer 打包；因此本轮迟到 reject 的真实 stage VM 回归已在 CI 运行通过，而不只是提交测试文件。末次查询 `Test and build phone APK` 尚未 completed，Android JVM、assemblePhone、APK 收集/发布仍不能宣称成功。
 - 同轮开工基线 [Lulu APK #40965646539](https://github.com/jiacimu-droid/lulu1/actions/runs/40965646539) 已完成所有 build/test/collect/publish 步骤 success，但其提交早于本轮代码，只能证明旧基线可构建。原索引工作流 [#40968872611](https://github.com/jiacimu-droid/lulu1/actions/runs/40968872611) 已 success；本轮仅触及不在原索引覆盖范围的 `tools/live2d` 和专项文档，索引由既有生成器管理。
 - 真机仍未验：连续五句真实 Motion3、迟到失败与新句并发、触摸、不同 TTS、模型校准、15/30 FPS 和发热。不能把 JS VM 的正确回执归属冒充人物可见动作的实际自然度。
+
+
+## 2026-10-30 08:51 · L3：迟到 exp3 异步失败不得清除新一句同名表情
+
+- **四类核对**：v6605 已有逐句 Motion3、真实 TTS 片段首音、表情与嘴型分层，最近 L1 Motion3 迟到失败门禁已由 [APK #40968894322](https://github.com/jiacimu-droid/lulu1/actions/runs/40968894322) completed/success 验证；不重复开发。已有待验为真机五句、触摸/语音并发、模型校准、15/30 FPS 与发热。真实缺口是 exp3 异步失败的所有权；词级时间戳仍属可选增强。
+- **真实根因**：`tools/live2d/src/stage.js` 的 `playVerifiedSpeechExpression` 在同一模型上异步调用 `model.expression(name)`。前一句 `star` 尚在加载时，后一句可再次选择 `star`；前一句的 Promise 迟到 reject，旧 `catch` 仅比较字符串 `activeExpressionName === name`，便错误调用 `resetSpeechExpression()` 清除后一句的真实 exp3 及眼部独占。同步抛错还发生在 `Promise.resolve` 之外，可能直接中断原 render/score 回调。
+- **正式修复**：仅在原 stage 的 exp3 播放与复位入口增加模型实例+表达租约修订号；新选择/复位自动使旧请求失效。旧 resolve/reject 不再报告当前成功/失败或复位新表情；当前真正失败仍报告并释放眼部独占；同步抛错走同一有归属的失败回执。保留同名选择、Cubism 原表情管理器、原 Motion3 优先级和嘴型/触摸门禁，不增加模型请求、语义推断或额外状态中心。
+- **根因回归**：原 `tools/live2d/test/conversation-performance.mjs` 的真实 stage VM 覆盖“同名旧 exp3 延迟 reject → 新表情保留/管理器不复位/无旧失败诊断”、“当前 exp3 reject → 释放眼型并报告”以及“同步抛错 → 不泄漏表情租约”；其余 Motion3/TTS/触摸/低帧率测试保持原样。测试源码不是执行通过的证据。
+- **交付与验证边界**：本轮只修改 `tools/live2d/src/stage.js`、`tools/live2d/test/conversation-performance.mjs` 和本专项进度。现有 `scripts/generate_code_index.py` 仅覆盖 app/scripts/preview；本轮不触及索引输入，`CODE_INDEX.md` 继续由既有工作流维护，不手工伪造。对应本提交的 Live2D JS、Android JVM、assemblePhone、APK 发布需以实际 CI 结果另验；真机视觉连贯性与 exp3 资源加载竞争未验。

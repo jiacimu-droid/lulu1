@@ -680,4 +680,55 @@ transition.cancel()
 transition.update({})
 assert.equal(transitionWrites.length, 0)
 
+
+// The actual stage expression() is asynchronous for some imported exp3
+// assets. A rejected OLD request with the SAME name must not reset the next
+// spoken segment's eyes, while a current rejection must release them.
+const originalExpression = bridge.model.expression
+const originalNotify = bridge.notify
+const originalResetExpression = manager.expressionManager.resetExpression
+const expressionDiagnostics = []
+let expressionResets = 0
+manager.expressionManager.resetExpression = () => { expressionResets++ }
+bridge.notify = (type, detail) => {
+  if (type === 'diagnostic') expressionDiagnostics.push(detail)
+}
+let rejectExpression = null
+bridge.model.expression = () => new Promise((_resolve, reject) => {
+  rejectExpression = reject
+})
+bridge.perform({ expression: 'star' }, true)
+const rejectOldExpression = rejectExpression
+bridge.perform({ expression: 'star' }, true)
+const rejectCurrentExpression = rejectExpression
+const resetsAfterReplacement = expressionResets
+rejectOldExpression(new Error('obsolete exp3 load'))
+await Promise.resolve()
+await Promise.resolve()
+assert.equal(bridge.activeExpressionName, 'star',
+  'old same-name exp3 failure must not release the new segment expression')
+assert.equal(expressionResets, resetsAfterReplacement,
+  'stale exp3 failure must not reset the newer Cubism expression manager')
+assert.ok(!expressionDiagnostics.some(line => line.includes('obsolete exp3 load')),
+  'stale exp3 failure must not be reported as current playback failure')
+rejectCurrentExpression(new Error('current exp3 load'))
+await Promise.resolve()
+await Promise.resolve()
+assert.equal(bridge.activeExpressionName, null,
+  'real current exp3 failure releases eye ownership')
+assert.equal(expressionResets, resetsAfterReplacement + 1)
+assert.ok(expressionDiagnostics.some(line => line.includes('current exp3 load')),
+  'real current failure still has a diagnostic receipt')
+
+// Some model wrappers throw synchronously rather than returning a Promise.
+// The real stage must handle that without aborting the render/score callback.
+bridge.model.expression = () => { throw new Error('synchronous exp3 failure') }
+bridge.perform({ expression: 'star' }, true)
+assert.equal(bridge.activeExpressionName, null,
+  'synchronous Cubism failure must not latch an unplayed eye expression')
+assert.ok(expressionDiagnostics.some(line => line.includes('synchronous exp3 failure')))
+bridge.model.expression = originalExpression
+bridge.notify = originalNotify
+manager.expressionManager.resetExpression = originalResetExpression
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')

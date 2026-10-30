@@ -1615,7 +1615,12 @@ function setPaused(value) {
   // after visibility returns; the discarded choreography never restarts.
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
 }
+// The same exp3 may be selected again in the next spoken segment while
+// its previous async Cubism request is still pending. Only the current
+// expression lease may reset the face or report a playback outcome.
+let expressionRevision = 0
 function resetSpeechExpression() {
+  expressionRevision++
   if (model && activeExpressionName) {
     const manager = model.internalModel?.motionManager?.expressionManager
     try { manager?.resetExpression() } catch (error) {
@@ -1664,29 +1669,44 @@ function playVerifiedSpeechExpression(name, immediatePreview = false) {
   name = preferredExpression(name)
   if (!model || !name) return
   resetSpeechExpression()
+  const target = model
+  const revision = expressionRevision
   activeExpressionName = name
   activeExpressionStartedAt = Date.now()
   activeExpressionIsPreview = !!immediatePreview
   lastSpeechSoundAt = Date.now()
-  const manager = model.internalModel?.motionManager?.expressionManager
+  const manager = target.internalModel?.motionManager?.expressionManager
   const knownIndex = manager?.getExpressionIndex?.(name) ?? -1
   if (knownIndex < 0) {
     notify('diagnostic', '无法找到表情：' + name + '；需与模型 exp3 文件名一致')
-    if (activeExpressionName === name) resetSpeechExpression()
+    resetSpeechExpression()
     return
   }
-  Promise.resolve(model.expression(name)).then(ok => {
-    if (ok === false) {
-      notify('diagnostic', '表情未切换：' + name +
-        '（资源未加载或当前已在使用）')
-    } else {
-      notify('diagnostic', '表情已提交：' + name)
-    }
-  }).catch(error => {
+  const ownsExpression = () => target === model &&
+    revision === expressionRevision && activeExpressionName === name
+  const reportFailure = error => {
+    // An old exp3 load can reject after a new segment selects the SAME name.
+    // That rejection must not reset the newer expression or its eye ownership.
+    if (!ownsExpression()) return
     notify('diagnostic', '表情播放异常：' + name + ' ' +
       (error?.message || String(error)))
-    if (activeExpressionName === name) resetSpeechExpression()
-  })
+    resetSpeechExpression()
+  }
+  try {
+    // Cubism implementations may reject asynchronously OR throw before a
+    // Promise is returned. Both failures use the same owned release path.
+    Promise.resolve(target.expression(name)).then(ok => {
+      if (!ownsExpression()) return
+      if (ok === false) {
+        notify('diagnostic', '表情未切换：' + name +
+          '（资源未加载或当前已在使用）')
+      } else {
+        notify('diagnostic', '表情已提交：' + name)
+      }
+    }).catch(reportFailure)
+  } catch (error) {
+    reportFailure(error)
+  }
 }
 function expression(name, immediatePreview = false) {
   name = preferredExpression(name)
