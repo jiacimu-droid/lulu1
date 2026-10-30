@@ -472,6 +472,19 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                         metadata.durationMs?.let { item.put("motionDurationMs", it) }
                         item.put("motionParameterIds", JSONArray(metadata.parameterIds))
                     }
+                    if (beat.followUps.isNotEmpty()) item.put("followUps", JSONArray().also { sequence ->
+                        beat.followUps.forEach { extra ->
+                            sequence.put(JSONObject()
+                                .put("motion", JSONObject().put("group", extra.motion.first)
+                                    .put("index", extra.motion.second))
+                                .put("transition", extra.transition)
+                                .also { cue ->
+                                    extra.metadata?.fadeInMs?.let { cue.put("motionFadeInMs", it) }
+                                    extra.metadata?.durationMs?.let { cue.put("motionDurationMs", it) }
+                                    extra.metadata?.let { cue.put("motionParameterIds", JSONArray(it.parameterIds)) }
+                                })
+                        }
+                    })
                     beat.durationMs?.let { item.put("durationMs", it) }
                     beat.expression?.let { item.put("expression", it) }
                     beat.motion?.let { item.put("motion", JSONObject()
