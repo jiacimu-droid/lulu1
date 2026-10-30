@@ -14,6 +14,25 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterDefinitionTest {
+    @Test fun changingApprovedDialogueExamplesRefreshesRoleWithoutTurningSampleIntoPersonaFact() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.characters.initialize(app)
+        CharacterIdentityStore.initialize(app)
+        CharacterLifeStore.initialize(app)
+        DigitalLifeProfileStore.initialize(app)
+        val actor = MigratedDomainStores.characters.create("对话示例角色", "直接但不刻薄")
+        val original = CharacterRuntime.definition(actor.characterId)
+        CharacterLifeStore.setProfile(actor.characterId, "dialogueExamples",
+            "对方：今天累了\\n角色：先歇会儿，等你缓过来再聊")
+        val modified = CharacterRuntime.definition(actor.characterId)
+        assertFalse(original.hasSameConfiguration(modified))
+        assertFalse(modified.promptSection().contains("对方：今天累了"))
+        assertTrue(CharacterSpeechIdentity.promptSection(actor.characterId)
+            .contains("对方：今天累了"))
+        CharacterLifeStore.setProfile(actor.characterId, "dialogueExamples", "")
+        assertFalse(modified.hasSameConfiguration(CharacterRuntime.definition(actor.characterId)))
+    }
+
     @Test fun everyDefinitionReadUsesLatestIdentityPersonaAndCompleteBehaviorFields() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.characters.initialize(context)
