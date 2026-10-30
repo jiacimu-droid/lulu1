@@ -4,7 +4,7 @@ import com.jiacimu.lulu.system.LuluAlarmSystem
 import java.time.Instant
 
 /** A model-selected result check retains the original goal, date and attempt budget. */
-internal fun scheduleCommitmentReview(characterId: String, draft: CommitmentTaskDraft,
+internal suspend fun scheduleCommitmentReview(characterId: String, draft: CommitmentTaskDraft,
     now: Instant = Instant.now()): CommitmentDraftOutcome {
     fun failed(note: String) = CommitmentDraftOutcome("review", draft.goal, null, note)
     val task = CommitmentTaskStore.active(characterId).firstOrNull { it.id == draft.targetTaskId }

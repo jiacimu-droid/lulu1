@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:13:19.933599+00:00",
-  "commit": "9c5dabc9cd0ad2996914c0443cd433c8414d4a2b",
+  "generatedAt": "2026-10-30T03:14:55.106951+00:00",
+  "commit": "cfacd9a39fb910f3867ad04caa8e4af5667eec5f",
   "branch": "main",
-  "sourceFingerprint": "f1b4d9fd7dd13e1064250192b7f558f7dda638702728634be1526bafb23356d3",
+  "sourceFingerprint": "ddf86c13f4d85358eed7f45385f1be10b9fb29d2e491461d581c793adf0d3062",
   "summary": {
     "files": 1103,
     "lines": 228075,
@@ -25151,7 +25151,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt",
       "lines": 41,
-      "sha256": "e183dd1b069598586f7c98017f3f68d17badee3c20941eaf0c1dc031d7d39158",
+      "sha256": "c86e56200aeafd869920e5e4bacb208e139abfe3bf3eef7b5aef6761de3e0310",
       "symbols": [
         {
           "name": "failed",
@@ -33307,7 +33307,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2182,
-      "sha256": "b830e0aafc3fc1ea0ba49113e0a7fe42aa32d1a9a121fb941fdb6d49f51c2b2b",
+      "sha256": "248cb95c57281595580bebc3bd5d8e029fe3a8e94ad965c680241f0ff846c4a8",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36045,7 +36045,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
       "lines": 340,
-      "sha256": "a635673955f96b541c5ba760620e8eff45bd6815079bc4a4862169e1af27bc3e",
+      "sha256": "5649fc0ddea7c2f322412e95667198775e9a73af6b5f75bd2fe0e48ac5802b4c",
       "symbols": [
         {
           "name": "CommitmentAlarmRecoveryTest",

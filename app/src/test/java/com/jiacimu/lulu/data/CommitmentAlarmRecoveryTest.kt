@@ -58,7 +58,7 @@ class CommitmentAlarmRecoveryTest {
         MemoryTestEnvironment.release()
     }
 
-    @Test fun modelResultReviewKeepsOriginalDeadlineAndAttemptBudgetAndSurvivesReload() {
+    @Test fun modelResultReviewKeepsOriginalDeadlineAndAttemptBudgetAndSurvivesReload() = runBlocking {
         val task = saveTask(Instant.now().minusSeconds(600))
         val original = CommitmentTaskStore.update(task.id) { it.copy(
             status = CommitmentTaskStatus.WaitingForFeedback,
@@ -82,7 +82,7 @@ class CommitmentAlarmRecoveryTest {
         assertEquals(3, current(task).attemptCount)
     }
 
-    @Test fun invalidReviewCannotErasePriorAlarmOrModifyAnotherRole() {
+    @Test fun invalidReviewCannotErasePriorAlarmOrModifyAnotherRole() = runBlocking {
         val task = saveTask(Instant.now().minusSeconds(60))
         CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
         val before = current(task)

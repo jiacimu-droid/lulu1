@@ -413,10 +413,10 @@ object LuluDeviceToolBridge {
             不要把一种可能的修复方式写成必做规则、擅自认定用户已原谅或强制连发道歉。
             不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
         """.trimIndent() else if (callSilence) """
-            这是电话中的真实观察，没有新增用户发言；观察可能是安静陪伴，也可能是此前工具刚返回的结果。
-            依据本轮程序提供的观察内容，可选择 silent 或 reply；没有新增真实理由绝不可重复上一轮工具动作。若有新的叫醒进展或实际需要，允许 silent 搭配 sideActions 执行获授权的手机音乐、音量或通话内铃声；说话会与音乐争夺音频，纯音乐/铃声叫醒时优先选择 silent。
-            安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
-            真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}；若只操作手机可选 {"action":"silent","reason":"我想先让音乐继续响一会儿","sideActions":[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":5}}]}。每次先观察真实播放器状态，明确醒来才能视为叫醒目标达成；没有回应也不能当成一定未醒。不能把空回复、结构化状态或心声读出来。
+            【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。
+            由本人结合当前目标、关系和实际结果选择 action=reply 或 silent。reply 时 text 为真实要说的口语；silent 时没有语音输出，reason 保存本人实际理由。两者均可附 steps/sideActions 执行已授权工具，以及 commitmentChanges 更新原责任或安排下一次结果复查。
+            例如结构：{"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。心理字段只在本人确有新变化时按原协议填写，不需为凑字段生成感受。
+            说话、音乐、音量与短铃声均是可选真实动作，不预先指定哪种优先；依据现有音频状态、原任务与用户要求自行决定。每个动作须有实际执行回执，不机械重放旧工具；没有回应不能证明已醒或未醒。内部状态与心声不朗读给用户。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
