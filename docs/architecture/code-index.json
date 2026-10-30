@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T17:03:11.009578+00:00",
-  "commit": "0568e5d447fb9f4dd19d508138f446bcf1b2c617",
+  "generatedAt": "2026-10-30T17:03:32.100942+00:00",
+  "commit": "566ec50f70b8482f35bf5ebacffba86f8a7d6f57",
   "branch": "main",
-  "sourceFingerprint": "1fc280d24bf202fd8c8276f3747da03db3e286ece73e9bcf4ef0f29b5d266be8",
+  "sourceFingerprint": "facfd67138207ac0042cfd506b92c084785d81f586a16b362e79f322cfa091f2",
   "summary": {
     "files": 1120,
-    "lines": 230826,
-    "symbols": 3258
+    "lines": 230889,
+    "symbols": 3259
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15900,6 +15900,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
         "line": 14
+      }
+    ],
+    "replace": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
+        "line": 29
       }
     ],
     "CallMediaSemanticBoundaryTest": [
@@ -35459,12 +35465,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 397,
-      "sha256": "9ccebfbeb564048924e6b92b432b7ead728a282b16f8ee781ea35aba67fde96d",
+      "lines": 460,
+      "sha256": "c6396ec24c13fbac153f63a5147a431b9a37e4145777b9a1ef11e36d15c32a47",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
           "line": 14
+        },
+        {
+          "name": "replace",
+          "line": 29
         }
       ]
     },
