@@ -383,6 +383,34 @@ internal object CommitmentExecutor {
             }
             return
         }
+        // The role may wait, or a chosen contact may be unavailable. Neither
+        // situation authorizes an automatic alternative call/message.
+        if (wake && action.isBlank()) {
+            val seconds = selected.reviewAfterSeconds
+                ?: CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled)
+            val followUp = seconds?.let {
+                LuluAlarmSystem.create(claimedTask.characterId, characterName,
+                    now.plusSeconds(it), "${claimedTask.goal}（下一次独立判断）",
+                    silentCallback = true, commitmentTaskId = claimedTask.id).getOrNull()
+            }
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                if (old.status != CommitmentTaskStatus.Running ||
+                    old.executionToken != claimedTask.executionToken) old else old.copy(
+                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    attemptCount = attempt,
+                    wakeAttemptHistory = (old.wakeAttemptHistory +
+                        "第$attempt 轮没有向主人发起联系：${selectionEvidence()}；" +
+                        "联系渠道=${selected.contact ?: "无有效选择"}").takeLast(6),
+                    linkedAlarmId = followUp?.id,
+                    nextCheckAt = followUp?.triggerAt,
+                    followUpKind = CommitmentCallRetryPolicy.followUpKindForWakeRound(
+                        attempt, followUp != null),
+                    lastActionResult = "本轮没有擅自发起电话或消息；${selectionEvidence()}；" +
+                        if (followUp != null) "复查已登记" else "复查调度未成功",
+                )
+            }
+            return
+        }
         // A song is deferred only if THIS role actually chose music today.
         // The fact a phone call ended is never sufficient to create a song request.
         val plannedMusic = if (wake && useCall &&
