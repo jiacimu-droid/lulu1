@@ -166,7 +166,8 @@ internal object CommitmentExecutor {
                         it.executionToken == claimedTask.executionToken
                 }) return
             val playing = playChosenMusic()
-            val delivered = if (playing) {
+            val delivered = if (selected.cue == WakeActionPlanner.Cue.WAIT &&
+                !selected.systemFallback) true else if (playing) {
                 if (sameCall) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                     com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
                 }
@@ -208,8 +209,11 @@ internal object CommitmentExecutor {
                     wakeAttemptHistory = if (!wake) old.wakeAttemptHistory else
                         (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}；" +
                             (if (playing) "播放器确认音乐开始" else if (delivered) "已安排铃声/提醒与语音，尚待播放回执" else "投递失败") +
-                            "；原因：${selected.reason.take(160)}").takeLast(6),
-                    lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
+                            "；${selectionEvidence()}").takeLast(6),
+                    lastActionResult = if (!delivered)
+                        "叫醒声音未成功触发；${selectionEvidence()}"
+                        else if (selected.cue == WakeActionPlanner.Cue.WAIT)
+                            "角色选择暂时等待下一次复查；本轮没有发出声音；尚未确认已醒"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
                         else if (sameCall) "在原电话安排本轮${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "自然说话" else "一次铃声后自然说话"}，不是连续响多遍；等待真实播放与叫醒反馈"
                         else "本机闹钟已发出通知；未证明目标已经达成；" +
@@ -316,7 +320,8 @@ internal object CommitmentExecutor {
         // The call session switches from bedtime voice to the normal voice.
         if (wake && sameCall) {
             val playing = playChosenMusic()
-            val queued = if (playing) {
+            val queued = if (selected.cue == WakeActionPlanner.Cue.WAIT &&
+                !selected.systemFallback) true else if (playing) {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                     com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
                 }
@@ -329,7 +334,15 @@ internal object CommitmentExecutor {
                     ringSeconds = selected.ringSeconds,
                 )
             }
-            val music = if (playing) "播放器确认音乐启动" else "角色安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "本轮直接说话" else "本轮一次铃声后再说话"}"
+            val music = when {
+                selected.cue == WakeActionPlanner.Cue.WAIT -> "角色选择本轮等待，不追加声音"
+                playing -> "播放器确认音乐已启动"
+                selected.cue == WakeActionPlanner.Cue.MUSIC ->
+                    "角色选音乐，播放不可用，本机铃声保底（非角色改选）"
+                selected.systemFallback -> "模型不可用，本机铃声保底"
+                selected.cue == WakeActionPlanner.Cue.SPEAK -> "本轮角色选自然说话"
+                else -> "本轮角色选一次铃声后再说话"
+            }
             // Do not equate ringing/speaking with the goal "user awake".
             // Only outstanding goals receive a bounded follow-up after 5min.
             val delaySeconds = if (queued)
@@ -352,7 +365,7 @@ internal object CommitmentExecutor {
                     wakeAttemptHistory = (old.wakeAttemptHistory +
                         "第$attempt 阶段：角色选${selected.cue}；" +
                         (if (queued) music else "叫醒行动未成功排入") +
-                        "；角色考虑：${selected.reason.take(160)}").takeLast(6),
+                        "；${selectionEvidence()}").takeLast(6),
                     lastActionResult = if (queued) buildString {
                         append("第$attempt 次已在原电话安排叫醒流程；声音实际送达仍以播放器回执为准，未确认主人醒来。$music")
                         if (selected.reason.isNotBlank()) append("；角色考虑：${selected.reason}")
