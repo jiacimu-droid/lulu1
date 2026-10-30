@@ -79,4 +79,40 @@ class CharacterMotiveReviewTest {
         assertTrue(next.filter { it.id != "future" }.all { it.fallback && it.dueAt.isAfter(now) })
         assertFalse(next.single { it.id == "future" }.fallback)
     }
+    @Test fun lateAlarmDefersWithoutFalselyRecordingAnActualReview() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterInnerLifeStore, null)
+        CharacterInnerLifeStore.initialize(context)
+        val role = "review-stale-owner"
+        val first = motive()
+        context.getSharedPreferences("lulu_inner_life_v1", 0).edit()
+            .putString(role, JSONObject().put("motives", JSONArray().put(first)).toString()).commit()
+        val old = CharacterMotiveReview.from(first)!!
+        val now = old.dueAt.plusSeconds(31 * 60)
+        assertTrue(CharacterInnerLifeStore.deferStaleMotiveReview(role, old.id, old.token, now))
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertEquals(old.token, saved.getString("skippedReviewPlan"))
+        assertFalse(saved.has("reviewedPlan"))
+        assertFalse(saved.has("reviewedAt"))
+        assertEquals("active", saved.getString("status"))
+        assertEquals("接着读这本书", saved.getString("aim"))
+        val next = CharacterMotiveReview.from(saved)!!
+        assertTrue(next.fallback)
+        assertTrue(next.dueAt.isAfter(now))
+        assertFalse(CharacterInnerLifeStore.deferStaleMotiveReview(role, old.id, old.token, now))
+        val revised = JSONObject(saved.toString())
+            .put("nextStep", "选择新的章节")
+            .put("reviewAfter", now.plusSeconds(1800).toString())
+        assertFalse(CharacterMotiveReview.from(revised)!!.fallback)
+    }
+
+    @Test fun oneAlarmIdentityPerCharacterAcrossPlanChanges() {
+        val role = "role-with-goals"
+        assertEquals(CharacterMotiveReviewScheduler.workName(role),
+            CharacterMotiveReviewScheduler.workName(role))
+        assertNotEquals(CharacterMotiveReviewScheduler.workName(role),
+            CharacterMotiveReviewScheduler.workName("another-role"))
+    }
+
 }
