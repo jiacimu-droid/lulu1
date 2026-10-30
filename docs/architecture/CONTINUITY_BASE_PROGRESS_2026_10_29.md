@@ -12,6 +12,9 @@
 
 本文件只记录 P0-A/P0-B/P1/P4 基础执行恢复、来源版本、跨入口回执诊断和长期数据生命周期的增量工作。总约束仍见 [CONTINUITY_EXECUTION_PLAN_2026_10_28.md](CONTINUITY_EXECUTION_PLAN_2026_10_28.md)。不覆盖社交、内驱想法和 Live2D 专项进度。源码已提交、CI 成功、APK 构建成功、真机通过是四种独立证据。
 
+
+- **08:57 后续实际 CI 核实**：本轮 [Refresh code index #40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) 已 `completed/success`，原自动索引提交 `55eb60359430d385e3e1d60c5d9bf558e421918c` 已在 main；[Lulu APK #40982736974](https://github.com/jiacimu-droid/lulu1/actions/runs/40982736974) 则 `completed/failure`。已读取 build job `123826434592` 原始日志，实际失败在 **Live2D JS 测试**的 `AssertionError: real current exp3 failure releases eye ownership`，发生于 Android JVM 和 APK 阶段之前。此失败对应同期 Live2D 专项 `87649cb3` 的 exp3 异步表情改动；基础专项不得覆盖其文件或误报 Android Kotlin 测试失败。已向本专项进度保留证据，等待 Live2D 专项修复后以包含本轮提交的新 main 完整 CI 复核；当前 Android JVM、APK 和真机仍**未通过本轮验收**。
+
 ## 2026-10-30 · P0-A 日计划先存来源、再排程的撤回并发边界
 
 - **已核实根因**：`ResidentDailyDecision.runOnceLocked` 原来先持久化模型 JSON，再调用 `saveAgenda` 修改唯一 `RoleDayScheduleStore`，最后才写 `resident-daily` 原始决定事件。进程在排程后、写原始来源前终止时，日程虽带 `originEvidenceId`，却暂时没有可核验的源事件；主人在多项排程中编辑/撤回来源时，原来只在整轮开始检查一次，后续行仍可能写入。稳定 ID 和事后补事件不足以保证来源当时有效。
