@@ -213,6 +213,9 @@ let faceRequest = null
 let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
 let authoredMotion = null
+// A model-authored sequence for the CURRENT audible TTS fragment only.
+// Never loop an arbitrary clip or manufacture another character gesture.
+let speechMotionFollowUps = []
 const motionTransition = createMotionTransition({
   read: (core, id) => getParameter(core, id),
   write: (core, id, value) => setParameter(core, id, value),
@@ -462,6 +465,26 @@ function expireLegacyPendingSpeech(now) {
 // Compose inputs after motion, expressions, focus and breathing, before physics.
 // Cubism restores saved motion parameters after drawing, so post-physics touch
 // writes never reached the next frame's physics inputs either.
+function advanceSpeechMotionIfFinished() {
+  const current = authoredMotion
+  const manager = model?.internalModel?.motionManager
+  if (!current?.started || current.model !== model ||
+      manager?.isFinished?.() !== true) return false
+  authoredMotion = null
+  // End of a real authored clip, not a text/punctuation timer. Follow-ups
+  // belong only to the same visible character decision and audible part.
+  if (playing && !paused && current.source === 'character' &&
+      current.visualSequence > 0 && current.visualSequence === audioVisualSequence &&
+      current.segmentId === audioSegmentId && speechMotionFollowUps.length) {
+    const next = speechMotionFollowUps.shift()
+    motion(next.motion.group, next.motion.index, true, 'character', {
+      ...next, segmentId: current.segmentId, fromFollowUp: true,
+    })
+    return true
+  }
+  speechMotionFollowUps = []
+  return false
+}
 function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
   // Low-FPS video still advances breathing by real elapsed frame time.
@@ -518,11 +541,13 @@ function applyFinalParameters(core, deltaMs) {
     eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
     eyeLeftOpen: undefined, eyeRightOpen: undefined,
   } : faceRequest
+  // Keep an already-chosen sequence alive after its first clip naturally
+  // finishes. The next Motion3 is NOT scheduled by guessed speech speed.
+  advanceSpeechMotionIfFinished()
   const manager = model?.internalModel?.motionManager
   motionTransition.update(core)
   const motionActive = !!authoredMotion?.started && authoredMotion.model === model &&
     manager?.isFinished?.() === false
-  if (authoredMotion?.started && !motionActive) authoredMotion = null
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: visibleFace,
     authoredMotion: motionActive,
@@ -797,6 +822,7 @@ async function load(modelURL) {
     // Stale clips from the previous model must never play against the new rig.
     motionRevision++
     authoredMotion = null
+    speechMotionFollowUps = []
     motionTransition.reset()
     performanceRuntime.reset()
     scoredBeats = []
@@ -918,6 +944,7 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
       audioSegmentIndex = segmentIndex
       audioSegmentId = segmentId
       if (changed && scoreVisualSequence > 0) {
+        speechMotionFollowUps = []
         performanceRuntime.stopSpeech()
         if (scoreVisualSequence === audioVisualSequence) {
           const selected = scoredBeats.filter(beat =>
@@ -984,6 +1011,7 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
   audioSegmentIndex = 0
   audioSegmentId = ''
   playing = false
+  speechMotionFollowUps = []
   performanceRuntime.stopSpeech()
   if (nextCueWaiting) {
     // The old voice ended while the next character decision is waiting for
@@ -1650,6 +1678,7 @@ function clearSpeechMoment() {
   bodyRequest = null
   faceRequest = null
   motionRevision++
+  speechMotionFollowUps = []
   if (authoredMotion) {
     try { authoredMotion.model?.internalModel?.motionManager?.stopAllMotions?.() } catch (_) {}
     authoredMotion = null
@@ -1779,7 +1808,8 @@ function perform(cue, immediatePreview = false) {
   const awaitingOwnVoice = !immediatePreview && scoreVisualSequence > 0 &&
     scoreVisualSequence !== audioVisualSequence
   if (playing || immediatePreview) clearSpeechMoment()
-  else pendingSpeechParts = { queuedAt: Date.now(), replace: true }
+  else speechMotionFollowUps = []
+  if (!playing && !immediatePreview) pendingSpeechParts = { queuedAt: Date.now(), replace: true }
   if (awaitingOwnVoice) {
     // A new model decision can arrive before the previous utterance ends.
     // Stage its top-level Motion3/face too, not just the scored beats: the
@@ -1804,6 +1834,15 @@ function perform(cue, immediatePreview = false) {
 }
 function motion(group, index, immediatePreview = false, source = 'character', options = {}) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
+  // Explicit new motions supersede a prior unplayed sequence. Only the
+  // current model's bounded, validated Motion3 follow-ups are eligible.
+  if (!options.fromFollowUp) {
+    speechMotionFollowUps = source === 'character' && Array.isArray(options.followUps)
+      ? options.followUps.filter(item => item?.motion &&
+          typeof item.motion.group === 'string' &&
+          Number.isInteger(item.motion.index) && item.motion.index >= 0)
+          .slice(0, 5) : []
+  }
   if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.motion = { group, index }
@@ -1837,6 +1876,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     if (revision !== motionRevision || target !== model ||
         authoredMotion !== chosen) return
     authoredMotion = null
+    speechMotionFollowUps = []
     if (source === 'character') notify('motion-failed', JSON.stringify({
       sequence: chosen.visualSequence, group, index,
       segmentId: chosen.segmentId, source }))
@@ -1868,6 +1908,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       segmentId: chosen.segmentId, source })
     if (ok === false) {
       authoredMotion = null
+      speechMotionFollowUps = []
       if (source === 'character') notify('motion-failed', receipt)
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
     } else {
