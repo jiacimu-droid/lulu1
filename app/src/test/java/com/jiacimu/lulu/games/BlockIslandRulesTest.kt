@@ -49,6 +49,30 @@ class BlockIslandRulesTest {
         assertEquals(fed.world.friends, reloaded.world.friends)
     }
 
+    @Test fun buildingAvailabilityUsesTheSamePlacementAndResourceRulesAsExecution() {
+        val created = BlockIslandRules.newWorld(6, emptyList())
+        val stocked = created.copy(world = created.world.copy(wood = 6, stone = 2))
+        assertTrue(BlockIslandRules.canPlaceBuilding(stocked, "wall", 5, 5))
+        assertTrue(BlockIslandRules.canBuild(stocked, "wall", 5, 5))
+        assertTrue(BlockIslandRules.canBuild(stocked, "workbench", 5, 5))
+        assertFalse(BlockIslandRules.canBuild(stocked, "wall", 4, 5))
+        assertFalse(BlockIslandRules.canBuild(stocked, "wall", -1, 5))
+        assertFalse(BlockIslandRules.canBuild(stocked, "unknown", 5, 5))
+
+        val poor = stocked.copy(world = stocked.world.copy(wood = 1, stone = 0))
+        assertTrue(BlockIslandRules.canPlaceBuilding(poor, "wall", 5, 5))
+        assertFalse(BlockIslandRules.canBuild(poor, "wall", 5, 5))
+        assertFalse(BlockIslandRules.canBuild(poor, "workbench", 5, 5))
+
+        val walled = BlockIslandRules.act(stocked, "wall", 5, 5)
+        assertFalse(BlockIslandRules.canBuild(walled, "wall", 5, 5))
+        assertTrue(BlockIslandRules.canBuild(walled, "door", 5, 5))
+        val doored = BlockIslandRules.act(walled, "door", 5, 5)
+        assertEquals("door", doored.structures[doored.world.index(5, 5)])
+        assertFalse(BlockIslandRules.canBuild(doored, "wall", 5, 5))
+        assertFalse(BlockIslandRules.canBuild(doored, "door", 5, 5))
+    }
+
     @Test fun plantingRenewablyGrowsTreesButRequiresSeedResource() {
         val base = BlockIslandRules.newWorld(5, emptyList()).copy(
             world = BlockIslandRules.newWorld(5, emptyList()).world.copy(wood = 1, mobs = emptyList()),
