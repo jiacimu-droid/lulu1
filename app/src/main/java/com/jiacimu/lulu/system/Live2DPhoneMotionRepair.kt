@@ -53,8 +53,9 @@ internal object Live2DPhoneMotionRepair {
                     结合本人性格与刚才的语气，补齐每个发声片段句首的真实 motion；短句也要配齐。
                     只返回 {"live2d":{"speech":[{"id":"s1","text":"原台词片段","motion":{"group":"真实组名","index":0},"transition":"blend"}]}}。
                     rejectedVisual 是上一份未通过验证的动作计划；请针对 validationErrors 修正它，不要重复提交相同的无效字段。
-                    原计划若已有 speech，保持每个 id、text 和顺序不变，只补正动作。否则划分自然发声片段，所有 text 必须精确拼回 spokenText，保留声音标签、标点和空格。
+                    原计划若已有 speech，保持每个 id、text 和顺序不变，只补正无效或缺失的动作；已合法选择的后续动作 followUps 也要保留。否则划分自然发声片段，所有 text 必须精确拼回 spokenText，保留声音标签、标点和空格。
                     不填写原文锚点或估算的 atMs。下一片段仍继续相同动作时用 transition=continue。
+                    对长片段（中间几次转折但仍是同一段自然语音）可在每个 speech 项里增加 followUps:[{"motion":{"group":"真实组名","index":0}}]，最多5个；每段都只使用实际导入的 Motion3。它们按原文件真实播放结束顺次执行，声音结束立即停止后续，不需要分割或重新合成音频。
                     ${Live2DVisualActionBus.capabilityNote(context, characterId, callId)}
                 """.trimIndent(),
                 source = "视频动作契约补正",
