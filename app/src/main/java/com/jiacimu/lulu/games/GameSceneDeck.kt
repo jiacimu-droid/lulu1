@@ -202,9 +202,9 @@ private fun GameDirectionKey(
     accent: Color,
     enabled: Boolean,
     holdRepeatMs: Long,
-    onClick: () -> Unit,
+    action: () -> Unit,
 ) {
-    val currentAction = rememberUpdatedState(onClick)
+    val currentAction = rememberUpdatedState(action)
     var pressed by remember { mutableStateOf(false) }
     val repeatMs = holdRepeatMs.coerceAtLeast(250L)
     Surface(
