@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:51:25.171643+00:00",
-  "commit": "1a3041f953bff94f331f113bfd2254b198720340",
+  "generatedAt": "2026-10-30T06:53:55.879463+00:00",
+  "commit": "f16c55ff69143397a206ebf48a07c92008e52147",
   "branch": "main",
-  "sourceFingerprint": "4d88f8d0e980006c36655a8b31198aa5f70185350c6b88ca978bcf4aa5187719",
+  "sourceFingerprint": "d08272048a27480be0d8b62b4d99aa1d3087f067f4b8877024feecfe46dda91b",
   "summary": {
     "files": 1112,
-    "lines": 228961,
+    "lines": 228977,
     "symbols": 3241
   },
   "symbolIndex": {
@@ -19876,8 +19876,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 984,
-      "sha256": "405274288a115dcd71861ba7ff93e2c12e4ad2255acdff5b5cde96a032db5b75",
+      "lines": 989,
+      "sha256": "183813c86b874e3419831efc44d4343fb2156f3acde0829227481439b0fa8202",
       "symbols": [
         {
           "name": "toggleSelfCamera",
@@ -33465,8 +33465,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2180,
-      "sha256": "2cd6a90ac3848498a24df6ee68e112643b98d5f1ae0d9611d0b34630eba2936f",
+      "lines": 2191,
+      "sha256": "a72f5e0c7438a1acee0d0913658c34308e20347059768ba99b59139bcb805225",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
