@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T13:19:23.763627+00:00",
-  "commit": "794801c56923368d38430c8f1f798454f2bf271d",
+  "generatedAt": "2026-10-30T16:44:41.730543+00:00",
+  "commit": "bb75c2e447507d35e1362f7f5b98cbde53721e0d",
   "branch": "main",
-  "sourceFingerprint": "5eb32b35f66bb18ed40c9fb4dc2c3eac79624ab3060c54c56e2e6bafe8ed0342",
+  "sourceFingerprint": "c6787616e0ab1f104ee37ad46e23f5edbb6fb9538858075780dd7e12cb81604e",
   "summary": {
     "files": 1120,
-    "lines": 230468,
+    "lines": 230470,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -461,7 +461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1065
+        "line": 1066
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -6603,7 +6603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1025
+        "line": 1026
       }
     ],
     "cue": [
@@ -7111,7 +7111,7 @@
     "groupedFields": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-        "line": 27
+        "line": 28
       }
     ],
     "fromLegacy": [
@@ -24293,8 +24293,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1114,
-      "sha256": "a1baa72ac1783e4963b481abd6d64a0dd65f2e6a4d08eb8bc881ebdd7d14721c",
+      "lines": 1115,
+      "sha256": "82c26c83df3547e99a26b30e63f215c494c4823f7c5fc5bd71ee7d8bbad5c79e",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -24326,11 +24326,11 @@
         },
         {
           "name": "compactContext",
-          "line": 1025
+          "line": 1026
         },
         {
           "name": "context",
-          "line": 1065
+          "line": 1066
         }
       ]
     },
@@ -24710,12 +24710,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 305,
-      "sha256": "55bf2b326a6a936fb6cae960b4f322f11f77c87a7de621f9ab5c036679e10980",
+      "lines": 306,
+      "sha256": "b7c56b25fcb07f8639644f36fbef4ed406e2790cb6851a0aeb9c1d66637e71a9",
       "symbols": [
         {
           "name": "groupedFields",
-          "line": 27
+          "line": 28
         }
       ]
     },
