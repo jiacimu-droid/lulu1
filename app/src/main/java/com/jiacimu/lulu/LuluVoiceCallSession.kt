@@ -2112,23 +2112,30 @@ internal object LuluVoiceCallSession {
                     Live2DSpeechAnchorPlan.fromQueuedParts(
                         text, remaining, authoredAnchors)
                 else null
+                if (LuluCallWindowController.videoRequested.value &&
+                    visualSequenceForReply == 0L) {
+                    // If an earlier video turn had a visualSequence>0, the
+                    // next speech's default sequence=0 was rejected by the
+                    // renderer's stale-event fence. Give this ACTUAL voice
+                    // reply a fresh, motionless identity instead of leaving
+                    // the previous score as owner. Never claim it is a motion.
+                    if (!mutableState.value.sleepMode && appContext?.let { context ->
+                            Live2DAssets.controls(context, latest.characterId).motions.isNotEmpty()
+                        } == true) {
+                        val notice = "视频动作未生成有效计划；语音仍正常"
+                        mutableState.update { it.copy(errorMessage = notice) }
+                        com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
+                            latest.characterId,
+                            "视频回复已经生成口语，但本轮没有发布有效 Motion3 计划；不能视为动作已执行")
+                    }
+                    appContext?.let { context ->
+                        visualSequenceForReply = Live2DVisualActionBus.publishUnplannedSpeech(
+                            context, latest.characterId, latest.callExperienceId)
+                    }
+                }
                 val pairedCue = Live2DVisualActionBus.cues.value[latest.characterId]
                     ?.takeIf { it.callId == latest.callExperienceId &&
-                        it.sequence == visualSequenceForReply }
-                if (LuluCallWindowController.videoRequested.value &&
-                    visualSequenceForReply == 0L && !mutableState.value.sleepMode &&
-                    appContext?.let { context ->
-                        Live2DAssets.controls(context, latest.characterId).motions.isNotEmpty()
-                    } == true) {
-                    // Do not silently present a stationary avatar as a completed
-                    // performance: distinguish a successfully spoken turn from
-                    // a missing/failed model-selected Motion3 plan.
-                    val notice = "视频动作未生成有效计划；语音仍正常"
-                    mutableState.update { it.copy(errorMessage = notice) }
-                    com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
-                        latest.characterId,
-                        "视频回复已经生成口语，但本轮没有发布有效 Motion3 计划；不能视为动作已执行")
-                }
+                        it.sequence == visualSequenceForReply && visualSequenceForReply != 0L }
                 val pairedParts = pairedCue?.speechParts?.let { Live2DDialoguePlan.queuedParts(it, text) }
                 if (!pairedCue?.speechParts.isNullOrEmpty() && pairedParts == null) {
                     val status = "台词已变化，本轮动作计划未执行"
