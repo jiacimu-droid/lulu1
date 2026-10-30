@@ -20,6 +20,24 @@ class ToolExecutionStatusTest {
         }
     }
 
+    @Test fun expectedIncompleteOutcomeIsNotAnAppFailureButCannotUnlockLaterSteps() {
+        val expected = listOf("unverified", "waiting_user", "waiting_permission",
+            "requested", "requested_unverified", "pending", "denied")
+        expected.forEach { status ->
+            val result = JSONObject().put("success", false).put("status", status)
+                .put("summary", "真实请求还未完成")
+            assertFalse(status, ToolExecutionStatus.shouldReportPerformanceError(result))
+            assertFalse(status, ToolExecutionStatus.completed(result))
+        }
+        assertTrue(ToolExecutionStatus.shouldReportPerformanceError(
+            JSONObject().put("success", false).put("status", "failed")
+                .put("error", "真正的执行失败")))
+        assertTrue(ToolExecutionStatus.shouldReportPerformanceError(
+            JSONObject().put("success", false).put("error", "无状态的执行失败")))
+        assertFalse(ToolExecutionStatus.shouldReportPerformanceError(
+            JSONObject().put("success", true).put("status", "succeeded")))
+    }
+
     @Test fun firstOrderedStepIsNotBlockedByPhantomPrimaryTool() {
         val absentPrimary = JSONObject().put("success", true).put("status", "skipped")
         // Online/silent choices with only steps should behave like phone's
