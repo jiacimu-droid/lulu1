@@ -90,3 +90,12 @@
 5. **P2 数字身体与可观察性：沿用既有状态/记录。** 保留 `CompanionPresenceStore`、`CharacterInnerLifeStore.decisions`、原生 `ToolRouter` 执行回执、手机节律；未新增仪表盘或量表，未来若补 UI 要依实际诊断缺口进行。
 
 回归用例：`CharacterMotiveReviewTest` 新增超时闹钟不伪造 `reviewedAt/reviewedPlan`、开放目标仍保留且普通复查恢复、新计划不被旧指纹吞掉。静态源码核对不是 JVM 单测、APK 打包或 Redmi/VPN 真机通过；CI 与真机结果须分别确认。
+
+### 2026-10-30：后三阶段实际融合补充（阶段 3–5）
+
+3. **P1 工具失败恢复（本轮已落代码）**：`ToolRouter` 原有拒绝路径会写独立 `tool-rejected-<role>-<request>` 回执，但已存在执行 ID 的参数/关联目标/来源/日程版本冲突，以及撤回来源后的安全拒绝，直接返回 `failure(...)`，遗漏同等的真实拒绝证据。本轮将这五类拒绝接回原 `rejected()` 统一入口，已有执行结果不覆盖、不重复调用工具，供原始时间线、角色目标与后续诊断追踪。不是给角色增加自主修改程序的器官或新的调度器。
+4. **P1 情绪影响记忆注意力（本轮已落代码）**：在现有 `RelevantMemoryRecall` 最终已验证候选排序时，读取本人唯一 `CharacterInnerLifeStore.emotion` 及已有随时间衰减的 `emotionInfluence`。仅对 `timeline-events:` 的**准确同一原始事件**记忆做上限 0.12 的只读排序加权；其他人物、批量来源、失效/未来情绪没有加权。先由既有相关性/向量/原始来源门禁筛选，不新增候选、情绪事实、硬编码情绪关键词、额外模型调用或数据中心。记忆永久内容及退出召回的设置不变。
+5. **P2 生活与执行可观察性（本轮已落代码）**：复用 `CharacterInnerLifeStore.decisions/motives` 的只读 `CharacterLifeDiagnostics`，接入现有 `CompanionPresenceDialog` 的「此刻 → 最近感知 → 详情」。显示本人活跃目标、等待真实效果数量、已有复查机会、最近决定的 pending/reported 阶段及执行摘要。成功执行≠主人已满意/目标已完成；不会为了展示再支付一次 AI 决策或写一份影子状态。复查时间是记录中的机会，不冒充 Android 闹钟已精确触发。
+- **新增回归源码**：`CharacterUnfinishedActionContextTest` 验证执行 ID 冲突留下拒绝回执且不覆盖历史完成记录；`MemoryAffectAttentionTest` 验证情绪同源匹配/其他角色/批量来源/自然衰减；`CharacterLifeDiagnosticsTest` 验证 pending/等待效果/未来事件/只读投影。
+- **验证边界**：源码已写入 `main`，仓库原 `code-index.yml` 将按索引规则自动运行；本轮本地没有安卓构建环境，尚未取得这些变更的 Robolectric/JVM、APK 和用户 VPN 真机实测结果。不能把测试文件存在当成测试已通过。
+
