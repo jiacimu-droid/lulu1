@@ -111,7 +111,22 @@ internal object WakeActionPlanner {
         } catch (_: Exception) {
             null // Never sacrifice the audible Android fallback for AI failure.
         } ?: return fallback
-        return parseChoice(raw, canMusic, inCall)
+        return honorFirstWakePromise(parseChoice(raw, canMusic, inCall), task.attemptCount)
+    }
+
+    /** The owner explicitly promised the first audible ring. A valid but
+     * conflicting model response is preserved as an execution failure, not
+     * silently re-labelled as a new character preference. Subsequent rounds
+     * are fully character-selected and may intentionally stay quiet. */
+    internal fun honorFirstWakePromise(choice: Choice, previousAttempts: Int): Choice {
+        if (previousAttempts != 0 || choice.cue == Cue.RING) return choice
+        return Choice(
+            cue = Cue.RING,
+            systemFallback = true,
+            executionIssue = "首次约定先响铃，角色本轮原选择=${choice.cue}；" +
+                "未按既有叫醒约定形成可执行决定，本机仅做首次铃声保底",
+            reason = choice.reason,
+        )
     }
 
     /** Central validation used for live decisions and regression tests. */
