@@ -438,7 +438,9 @@ internal object CommitmentExecutor {
         val reviewOnly = !wake && result.success && (deliveryNotificationShown || useCall)
         val afterSeconds = if (reviewOnly) 10L * 60L
             else if (result.success && (deliveryNotificationShown || useCall))
-                CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled)
+                if (wake) selected.reviewAfterSeconds
+                    ?: CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled)
+                else CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled)
             else null
         val retryAt = afterSeconds?.let(now::plusSeconds)
         val followUp = retryAt?.let { at ->
@@ -458,7 +460,7 @@ internal object CommitmentExecutor {
                     (old.wakeAttemptHistory + "第$attempt 阶段：角色选择${selected.cue}，" +
                         "已尝试${if (useCall) "发起叫醒电话（先由本机来电铃声提示）" else "发出闹钟提醒"}；" +
                         "结果：${if (result.success) "执行请求已发出，实际醒来尚未确认" else "执行失败：${result.summary.take(90)}"}；" +
-                        "原因：${selected.reason.take(160)}").takeLast(6),
+                        "${selectionEvidence()}").takeLast(6),
                 nextCheckAt = followUp?.triggerAt,
                 linkedAlarmId = followUp?.id,
                 followUpKind = if (wake)
@@ -470,6 +472,7 @@ internal object CommitmentExecutor {
                         if (useCall) "拨号发出不代表用户接听或醒来"
                         else "提醒发出不代表用户已经醒来"
                         else "执行失败：${result.summary.take(150)}")
+                    if (wake) append("；${selectionEvidence()}")
                     if (musicResult.isNotBlank()) append("；音乐：$musicResult")
                     if (!deliveryNotificationShown) append("；提醒通知没有得到确认")
                     if (followUp != null) append(if (reviewOnly)
