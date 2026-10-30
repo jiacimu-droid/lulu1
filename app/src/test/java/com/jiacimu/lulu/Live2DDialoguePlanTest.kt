@@ -25,7 +25,7 @@ class Live2DDialoguePlanTest {
         val text = Live2DDialoguePlan.spokenText(envelope)!!
         assertEquals("[warmly]你好呀！[warmly]你好呀！我在听呢。", text)
         val visual = Live2DDialoguePlan.visual(envelope)!!
-        val resolved = Live2DSpokenMotionContract.resolve(text, visual, motions) {
+        val resolved = Live2DSpokenMotionContract.resolve(text, visual, motions) { _, _ ->
             fail("Valid paired reply must not purchase another model turn"); null
         }
         assertTrue(resolved.errors.isEmpty())
