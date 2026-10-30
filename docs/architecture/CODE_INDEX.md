@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c63f4227c0b1050161c97ab70c0372e0d7e55064`
+- 基准提交：`5df9c31330a89e84f0597694aec2e5abf9071e4b`
 - 分支：`main`
 - 已索引文件：1094
-- 已索引代码/文本行：227247
+- 已索引代码/文本行：227325
 - 已发现符号：3208
 
 | 文件 | 行数 | 符号数 |
@@ -337,7 +337,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 137 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 858 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 867 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 199 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 113 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
@@ -881,7 +881,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt` | 131 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 663 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 732 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionArchiveTest.kt` | 158 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 283 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
