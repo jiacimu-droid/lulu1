@@ -268,7 +268,9 @@ internal object LuluVoiceCallSession {
             current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Body,
                 thinking = false, opening = false, playingTranscript = "",
                 incomingCommitmentTaskId = taskId,
-                generatedTranscript = "", statusMessage = "通话内响铃叫醒 · 不会重新拨号")
+                generatedTranscript = "",
+                statusMessage = if (ringFirst) "正在安排通话内叫醒铃声 · 不会重新拨号"
+                    else "正在准备叫醒语音 · 不会重新拨号")
         }
         speechQueue?.stop()
         val callId = call.callExperienceId
@@ -280,7 +282,7 @@ internal object LuluVoiceCallSession {
                 val bursts = ringCount.coerceIn(1, 4)
                 val duration = ringSeconds.coerceIn(2, 10) * 1_000L
                 val gap = pauseSeconds.coerceIn(1, 4) * 1_000L
-                repeat(bursts) { index ->
+                for (index in 0 until bursts) {
                     // The user can answer at any point: real speech cancels
                     // this job and stops the ringtone; no new call is placed.
                     val live = mutableState.value
@@ -288,7 +290,7 @@ internal object LuluVoiceCallSession {
                         pendingScheduledWakeReason != reason) return@launch
                     val ringKey = "wake-$callId-$taskId-$index"
                     val started = LuluCallRingtone.startInCallWake(context, ringKey, duration)
-                    if (!started) return@repeat // Silent/DND is not an audible attempt.
+                    if (!started) break // Silent/DND is not an audible attempt.
                     try {
                         delay(duration)
                     } finally {
@@ -1509,13 +1511,18 @@ internal object LuluVoiceCallSession {
         if (context != null && chosenMusic != null) {
             val callId = current.callExperienceId
             scope.launch {
-                chosenMusic.volumePercent?.let {
+                // Consent may have been revoked between the alarm and answer.
+                // No audio, media or volume action may bypass current permission.
+                val allowed = com.jiacimu.lulu.data.WakeActionPlanner.musicAllowed(
+                    context, current.characterId)
+                if (allowed) chosenMusic.volumePercent?.let {
                     com.jiacimu.lulu.system.LuluMediaVolume.control(
                         context, current.characterId, "set", it)
                 }
-                val verified = com.jiacimu.lulu.data.WakeMusicCoordinator.playImmediately(
-                    context, current.characterId, taskId!!)
-                if (!verified && chosenMusic.volumePercent != null) {
+                val verified = allowed &&
+                    com.jiacimu.lulu.data.WakeMusicCoordinator.playImmediately(
+                        context, current.characterId, taskId!!)
+                if (allowed && !verified && chosenMusic.volumePercent != null) {
                     com.jiacimu.lulu.system.LuluMediaVolume.control(
                         context, current.characterId, "restore")
                 }
