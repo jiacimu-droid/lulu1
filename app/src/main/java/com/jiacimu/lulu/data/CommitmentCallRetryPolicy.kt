@@ -10,7 +10,11 @@ internal object CommitmentCallRetryPolicy {
     fun wakeContactAction(
         attempt: Int, originalDeliveryAction: String,
         contact: WakeActionPlanner.Contact?, callsEnabled: Boolean,
+        cue: WakeActionPlanner.Cue? = null,
     ): String = when {
+        // A role-selected pause cannot become a call just because contact had
+        // a stale/conflicting channel value.
+        cue == WakeActionPlanner.Cue.WAIT -> ""
         attempt == 1 -> if (originalDeliveryAction == "start_call")
             "start_call" else "send_private_message"
         contact == WakeActionPlanner.Contact.CALL && callsEnabled -> "start_call"
