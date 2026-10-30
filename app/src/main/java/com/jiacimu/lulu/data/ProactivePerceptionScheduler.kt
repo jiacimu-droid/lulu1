@@ -561,6 +561,16 @@ object ProactivePerceptionScheduler {
             "lulu-resident-episode-$characterId-$episodeId", ExistingWorkPolicy.REPLACE, work)
     }
 
+    /** Durable contract for a verified experience: the callback must still
+     * reach the role when its five-minute online lease has ended. The later
+     * choice (including silence) remains entirely model-owned. */
+    internal fun lifeFollowThroughInput(characterId: String): Data = Data.Builder()
+        .putString("trigger", "真实生活后续回想：角色近期亲历事件，自己判断是否观察、阅读、私聊分享、发朋友圈或保持安静；不强制发消息。")
+        .putString("characterId", characterId)
+        .putBoolean("force", true)
+        .putBoolean("preserveOffline", true)
+        .build()
+
     fun scheduleLifeFollowThrough(context: Context, characterId: String) {
         if (characterId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
@@ -572,15 +582,7 @@ object ProactivePerceptionScheduler {
         val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setInitialDelay(75_000L, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .setInputData(Data.Builder()
-                .putString("trigger", "真实生活后续回想：角色近期亲历事件，自己判断是否观察、阅读、私聊分享、发朋友圈或保持安静；不强制发消息。")
-                .putString("characterId", characterId)
-                .putBoolean("force", true)
-                // This is the character's already earned chance to decide
-                // what to do with a real experience, even if the online chat
-                // lease expired before the scheduled 75-second callback.
-                // It does not auto-send or make the character stay online.
-                .putBoolean("preserveOffline", true).build())
+            .setInputData(lifeFollowThroughInput(characterId))
             .build()
         WorkManager.getInstance(app).enqueueUniqueWork(
             "lulu-verified-life-review-$characterId", ExistingWorkPolicy.KEEP, work)
