@@ -95,19 +95,24 @@ object CapabilityRegistry {
         val permittedOnDemand = registered && screen.onDemandAllowed(context)
         val permittedAutonomous = registered && screen.autonomousAllowed(context)
         val summonRegistered = find("summon_lulu") != null
+        val accessibilityConnected = com.jiacimu.lulu.system.LuluAccessibilityService.observe().connected
+        val chatConfigured = com.jiacimu.lulu.ai.VisionModelService.canDescribeCamera(context, characterId)
         return buildString {
             appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
-            appendLine("read_screen 只能读无障碍文字，capture_screen 才会真实获取一帧屏幕并调用已配置的视觉模型。")
+            appendLine("本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
+            appendLine("read_screen 只能读无障碍文字；capture_screen 获取一帧真实截图，沿本角色聊天模型的多模态接口理解图片，无需单独设置识图模型。")
+            appendLine("授权开关、Android 实际权限、监督时段、已获取屏幕画面是不同层次的事实；主人说权限已开可以提醒你去核对，但不能替代本机状态。")
             appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
             if (permittedAutonomous) {
                 appendLine("角色已获准自主识图：action=tool,tool=capture_screen,args={}；直接读取当前一帧，无须逐次申请、无固定五分钟间隔。工具完成后由原有回执进入下一轮感知，再据实际画面更新判断；未获取成功不得声称看到。如果这张截图确实值得留在自己的手机相册，可以在执行前自己选择 args={\"saveToAlbum\":true}，只有实际捕获并识图成功的画面才会保存，回执含 albumSaved 与 photoId；不选则截图照常只用于当次识图，不长期留存。")
             } else if (permittedOnDemand) {
                 appendLine("按需识图已授权，但自主识图尚未开启；主人本轮明确要求时可用 action=tool,tool=capture_screen,args={}。需要自主查看时请主人打开『权限与能力→角色屏幕视觉→自主观察』。")
             } else {
-                appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务及识图模型。你可以直接提出授权请求，但不得说工具不存在或已经看到了屏幕。")
+                appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务；无需额外配置识图模型，使用本角色已选的支持图片输入的聊天模型。你可以直接提出授权请求，但不得说工具不存在或已经看到了屏幕。")
             }
-            appendLine("【学习监督真实状态】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
+            appendLine("【学习监督本机核验状态（以它为准）】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
+            appendLine("回应监督请求时先看这条当前设备状态，再决定并尝试真实行动；请自然说清楚已答应、正在申请、已启动或尚不能启动的实际阶段，别用口头答应替代回执。")
             appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
             appendLine("summon_lulu 工具已注册=$summonRegistered；发送可点击的回到露露机通知获授权=${summonRegistered && screen.summonAllowed(context)}。已获授权时可用 action=tool,tool=summon_lulu,args={}，不是强制切回 App。")
             appendLine("以上是当前本机能力记录。不要声称自己查过『动作清单』、拿到了截图或真正打开某 App，除非本轮有相应执行回执。")
