@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:47:31.095706+00:00",
-  "commit": "c6278a8b54d6e48ff7632aa532d290099bb2af7b",
+  "generatedAt": "2026-10-30T06:49:03.990921+00:00",
+  "commit": "e8a7cd733ddf34aca1747545d07b3f0fa32955d4",
   "branch": "main",
-  "sourceFingerprint": "197d8a4b7e521c227d4f90fead9a14762f1b99d45ca960b50b9bccc2073f2359",
+  "sourceFingerprint": "f8a56086f8bc4efa28987fbe8fb521030cd3e7023fe41efd175d71bf0544ea3d",
   "summary": {
     "files": 1111,
-    "lines": 228872,
+    "lines": 228883,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -20077,8 +20077,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt",
-      "lines": 47,
-      "sha256": "8ca6f07a792587118fd574a237b520dbacdd40598181d6625cd34b5abad75e33",
+      "lines": 58,
+      "sha256": "d2ce65de5a76ce6636e376ed9d831a69bd61822b043949aec6bab58629043a5f",
       "symbols": [
         {
           "name": "errors",
