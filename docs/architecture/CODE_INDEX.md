@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`eeec5be2ec8f3058a40656570551f5437dc6e3ae`
+- 基准提交：`1a3041f953bff94f331f113bfd2254b198720340`
 - 分支：`main`
-- 已索引文件：1111
-- 已索引代码/文本行：228932
-- 已发现符号：3240
+- 已索引文件：1112
+- 已索引代码/文本行：228961
+- 已发现符号：3241
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -801,6 +801,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 346 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |

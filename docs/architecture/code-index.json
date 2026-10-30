@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:50:53.692400+00:00",
-  "commit": "eeec5be2ec8f3058a40656570551f5437dc6e3ae",
+  "generatedAt": "2026-10-30T06:51:25.171643+00:00",
+  "commit": "1a3041f953bff94f331f113bfd2254b198720340",
   "branch": "main",
-  "sourceFingerprint": "bbe70ad0973a542d763ee93c0da22e6ad318eb0925ec575e3950a3d874b70240",
+  "sourceFingerprint": "4d88f8d0e980006c36655a8b31198aa5f70185350c6b88ca978bcf4aa5187719",
   "summary": {
-    "files": 1111,
-    "lines": 228932,
-    "symbols": 3240
+    "files": 1112,
+    "lines": 228961,
+    "symbols": 3241
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15293,6 +15293,12 @@
     "LuluCallFloatingWindowTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
+        "line": 5
+      }
+    ],
+    "LuluVoiceCallReplyActivityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt",
         "line": 5
       }
     ],
@@ -34359,6 +34365,17 @@
       "symbols": [
         {
           "name": "LuluCallFloatingWindowTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt",
+      "lines": 29,
+      "sha256": "f4c05846c1ad5ba452d301b1217c4cd0f65d28af31134666af041e9fe372266e",
+      "symbols": [
+        {
+          "name": "LuluVoiceCallReplyActivityTest",
           "line": 5
         }
       ]
