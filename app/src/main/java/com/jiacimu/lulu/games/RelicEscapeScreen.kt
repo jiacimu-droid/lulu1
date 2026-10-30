@@ -95,6 +95,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true)
             else RelicCampBackdrop()
         },
+        companionAvailable = run != null && run.allies.isNotEmpty() &&
+            run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED),
         companion = {
             if (run != null && run.allies.isNotEmpty() && run.phase in
                 setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
@@ -107,7 +109,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         movement = {
             val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
-            GameDirectionalPad(accent = relicGold, enabled = active) { dx, dy ->
+            GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 580L) { dx, dy ->
                 run?.hero?.let { action("move", it.x + dx, it.y + dy) }
             }
         },
