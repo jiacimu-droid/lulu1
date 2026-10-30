@@ -26,6 +26,18 @@ internal object CommitmentCallFeedback {
     }
 
     /** Connected is not the same as audible; keep these independent facts. */
+    /** Playback of a local cue is evidence of the attempt, not wakefulness. */
+    fun onInCallRingtone(taskId: String, callId: String, started: Boolean) {
+        CommitmentTaskStore.update(taskId) { old ->
+            if (!old.isWakeResponsibility() ||
+                old.status !in setOf(CommitmentTaskStatus.Running, CommitmentTaskStatus.WaitingForFeedback)) old
+            else old.copy(
+                wakeAttemptHistory = (old.wakeAttemptHistory +
+                    "通话${callId.take(12)}：本轮本机铃声${if (started) "已真正启动" else "未启动"}；主人是否醒来仍未知").takeLast(6),
+            )
+        }
+    }
+
     fun onVoiceStarted(taskId: String, callId: String) {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
@@ -36,7 +48,11 @@ internal object CommitmentCallFeedback {
     fun onVoiceDelivered(taskId: String, callId: String) {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
-            else old.copy(lastActionResult = "本次叫醒语音已完整送达播放器（${java.time.Instant.now()}；会话=${callId.take(12)}）；尚未收到用户明确已醒的反馈")
+            else old.copy(
+                lastActionResult = "本次叫醒语音已完整送达播放器（${java.time.Instant.now()}；会话=${callId.take(12)}）；尚未收到用户明确已醒的反馈",
+                wakeAttemptHistory = (old.wakeAttemptHistory +
+                    "通话${callId.take(12)}：本轮叫醒语音已完整播放；并不证明主人已醒").takeLast(6),
+            )
         }
     }
 
