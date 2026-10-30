@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T17:39:42.384781+00:00",
-  "commit": "01edcf3589a9321e48055ea2246fe78c6a192e35",
+  "generatedAt": "2026-10-30T17:42:12.505828+00:00",
+  "commit": "eb37e70416bc54261aa81468e864ab8cb1eab97d",
   "branch": "main",
-  "sourceFingerprint": "47f68d4d30853c1ef7f30fc34a5fb6bd520a66e7df79336891c065ce6a4fe04f",
+  "sourceFingerprint": "6d7b05bd5ea1fb0678f942294e5f6223fddbf134890fd832f0251aa7e458ddde",
   "summary": {
     "files": 1120,
-    "lines": 231134,
+    "lines": 231135,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -33582,8 +33582,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt",
-      "lines": 74,
-      "sha256": "f3afd4c5c9fcf5e0749d958a3e374d9c67f7c896bedb82c106c552aa57600dd7",
+      "lines": 75,
+      "sha256": "2780d439b695c81d3004135e5bac9894418666c13923160047a82e055b2c580f",
       "symbols": []
     },
     {
