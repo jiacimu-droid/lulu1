@@ -302,7 +302,7 @@ object CommitmentTaskStore {
         val previousDue = task.dueAt ?: return
         // Keep the same task's one pending outcome-review callback before
         // moving a daily bedside promise to tomorrow. No second task/store.
-        if (task.followUpKind == "verification" &&
+        if (task.followUpKind in setOf("verification", "retry") &&
             task.status == CommitmentTaskStatus.WaitingForFeedback &&
             task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true) return
         val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
