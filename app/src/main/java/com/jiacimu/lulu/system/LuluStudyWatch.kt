@@ -102,28 +102,36 @@ internal object LuluStudyWatch {
         return entry.takeIf { now >= entry.optLong("startedAt") && now < end }
     }
 
+    /** One Android fact-check shared by the model-visible status and the actual executor.
+     * A stored session/consent flag is not proof that the device can capture now. */
+    private fun observationBlocker(context: Context, requestChannel: Boolean): String? = when {
+        !LuluScreenAwareness.autonomousAllowed(context) -> "角色自主屏幕视觉尚未授权"
+        !notificationsAllowed(context, needRequestChannel = requestChannel) ->
+            "学习监督通知未启用或已被关闭"
+        !LuluAccessibilityService.observe().connected -> "无障碍屏幕截图服务尚未连接"
+        else -> null
+    }
+
     /** Time-bounded, owner-approved, visibly indicated consent for every screen frame. */
     fun canObserve(context: Context, role: String, id: String): Boolean =
         id.isNotBlank() && active(context, role)?.optString("id") == id &&
-            notificationsAllowed(context, needRequestChannel = false) && LuluScreenAwareness.autonomousAllowed(context)
+            observationBlocker(context, requestChannel = false) == null
 
     /** The actual tool/permission state surfaced to every character decision entry. */
     fun decisionStatus(context: Context, role: String, now: Long = System.currentTimeMillis()): String {
         active(context, role, now)?.let { session ->
-            return "已获准监督，剩余" +
+            observationBlocker(context, requestChannel = false)?.let { blocker ->
+                return "监督已中断：$blocker；虽然存有未到期的旧会话，但目前不能截图，也不能声称正在监督"
+            }
+            return "监督会话已启动，剩余" +
                 ((session.optLong("endsAt") - now + 59_999L) / 60_000L).coerceAtLeast(0) +
-                "分钟；只依据真实截图回执谈论观察结果"
+                "分钟；是否真正看到屏幕须以成功的单帧截图回执为准"
         }
         val waiting = pending(context)
         if (waiting.optString("characterId") == role &&
             now - waiting.optLong("at") in 0..CONSENT_LIFETIME_MS)
             return "正在等待主人确认授权，尚未看到画面"
-        if (!LuluScreenAwareness.autonomousAllowed(context))
-            return "未开始：尚未开启角色自主屏幕视觉授权"
-        if (!notificationsAllowed(context))
-            return "未开始：需要开启可见、可停止的学习监督通知"
-        if (!LuluAccessibilityService.observe().connected)
-            return "未开始：无障碍屏幕截图服务尚未连接"
+        observationBlocker(context, requestChannel = true)?.let { return "未开始：$it" }
         if (now - prefs(context).getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS)
             return "未开始：主人近期拒绝过，请勿再次请求"
         if (now - prefs(context).getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS)
@@ -161,12 +169,9 @@ internal object LuluStudyWatch {
     fun request(context: Context, role: String, requestedMinutes: Int): String {
         if (role.isBlank() || role.startsWith("resident:"))
             return response(false, "学习监督仅供本人真实聊天角色使用")
-        if (!LuluScreenAwareness.autonomousAllowed(context))
-            return response(false, "请先到权限与能力中同意角色自主屏幕视觉")
-        if (!notificationsAllowed(context))
-            return response(false, "学习监督须开启通知，确保随时可见和停止")
-        if (!LuluAccessibilityService.observe().connected)
-            return response(false, "先开启无障碍服务，角色才能真实查看屏幕")
+        observationBlocker(context, requestChannel = true)?.let {
+            return response(false, "学习监督未启动：$it")
+        }
         val now = System.currentTimeMillis()
         val p = prefs(context)
         if (now - p.getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS)
@@ -219,8 +224,7 @@ internal object LuluStudyWatch {
         val now = System.currentTimeMillis()
         val accepted = granted &&
             now - entry.optLong("at") in 0..CONSENT_LIFETIME_MS &&
-            LuluScreenAwareness.autonomousAllowed(context) &&
-            notificationsAllowed(context) && LuluAccessibilityService.observe().connected
+            observationBlocker(context, requestChannel = true) == null
         val role = entry.optString("characterId")
         if (!accepted) {
             if (!granted) prefs(context).edit().putLong("$LAST_DENIAL_AT:$role", now).commit()
@@ -360,6 +364,9 @@ internal object LuluStudyWatch {
     /** Latest actual result is a fact supplied to the same original role decision. */
     fun context(context: Context, role: String, now: Instant = Instant.now()): String {
         val session = active(context, role, now.toEpochMilli()) ?: return ""
+        observationBlocker(context, requestChannel = false)?.let { blocker ->
+            return "【学习监督已中断】$blocker。虽然此前有时段授权，本机当前无法继续截图；不要声称仍在监督或已经看过屏幕。"
+        }
         val result = parse(prefs(context).getString(LATEST, "{}"))
         return buildString {
             appendLine("【主人亲自授权的限时学习监督】")
