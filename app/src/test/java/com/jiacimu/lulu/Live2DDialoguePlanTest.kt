@@ -35,6 +35,36 @@ class Live2DDialoguePlanTest {
         assertNull(Live2DDialoguePlan.queuedParts(parts, "改写后的另一句话"))
     }
 
+    @Test fun longSpeechPartCarriesMultipleChosenFollowUpMotions() {
+        val visual = envelope().apply {
+            getJSONArray("speech").getJSONObject(0).put("followUps", org.json.JSONArray()
+                .put(JSONObject().put("motion", JSONObject().put("group", "Gesture").put("index", 1)))
+                .put(JSONObject().put("motion", JSONObject().put("group", "Gesture").put("index", 0))
+                    .put("transition", "continue")))
+        }
+        val text = Live2DDialoguePlan.spokenText(visual)!!
+        val parts = Live2DDialoguePlan.parts(visual)!!
+        assertEquals(2, parts[0].followUps.size)
+        assertEquals("Gesture" to 1, parts[0].followUps[0].motion)
+        assertEquals("continue", parts[0].followUps[1].transition)
+        assertTrue(Live2DDialoguePlan.errors(text, visual, motions).isEmpty())
+        val compiled = Live2DDialoguePlan.beats(parts).getJSONObject(0)
+        assertEquals(2, compiled.getJSONArray("followUps").length())
+        assertEquals("s1", compiled.getString("segmentId"))
+        val invented = JSONObject(visual.toString())
+        invented.getJSONArray("speech").getJSONObject(0).getJSONArray("followUps")
+            .getJSONObject(0).getJSONObject("motion").put("index", 99)
+        assertTrue(Live2DDialoguePlan.errors(text, invented, motions).any { it.contains("后续动作1") })
+        val missing = JSONObject(visual.toString())
+        missing.getJSONArray("speech").getJSONObject(0).getJSONArray("followUps")
+            .getJSONObject(0).remove("motion")
+        assertNull(Live2DDialoguePlan.parts(missing))
+        val invalidTransition = JSONObject(visual.toString())
+        invalidTransition.getJSONArray("speech").getJSONObject(0).getJSONArray("followUps")
+            .getJSONObject(0).put("transition", "loop")
+        assertNull(Live2DDialoguePlan.parts(invalidTransition))
+    }
+
     @Test fun duplicateIdsMissingTextAndInventedMotionCannotBeSilentlyCompiled() {
         val duplicate = Live2DDialoguePlan.visual(envelope())!!
         duplicate.getJSONArray("speech").getJSONObject(1).put("id", "s1")
