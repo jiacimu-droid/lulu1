@@ -58,6 +58,60 @@ class CommitmentAlarmRecoveryTest {
         MemoryTestEnvironment.release()
     }
 
+    @Test fun modelResultReviewKeepsOriginalDeadlineAndAttemptBudgetAndSurvivesReload() {
+        val task = saveTask(Instant.now().minusSeconds(600))
+        val original = CommitmentTaskStore.update(task.id) { it.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            attemptCount = 3, linkedAlarmId = null, nextCheckAt = null) }!!
+        val at = Instant.now().plusSeconds(600)
+        val draft = CommitmentTaskDraft(action = "review", goal = "",
+            targetTaskId = task.id, dueAt = at, verificationReason = "仍缺少醒来证据，稍后检查实际反馈")
+        assertEquals(task.id, scheduleCommitmentReview(task.characterId, draft).appliedTaskId)
+        val reviewed = current(task)
+        assertEquals(original.dueAt, reviewed.dueAt)
+        assertEquals(3, reviewed.attemptCount)
+        assertEquals(original.completionCondition, reviewed.completionCondition)
+        assertEquals("verification", reviewed.followUpKind)
+        assertEquals(at, reviewed.nextCheckAt)
+        assertTrue(LuluAlarmSystem.list().single { it.id == reviewed.linkedAlarmId }.silentCallback)
+        assertEquals(task.id, scheduleCommitmentReview(task.characterId, draft).appliedTaskId)
+        assertEquals(reviewed.linkedAlarmId, current(task).linkedAlarmId)
+        detach(CommitmentTaskStore, "prefs")
+        CommitmentTaskStore.initialize(context)
+        assertEquals(reviewed.nextCheckAt, current(task).nextCheckAt)
+        assertEquals(3, current(task).attemptCount)
+    }
+
+    @Test fun invalidReviewCannotErasePriorAlarmOrModifyAnotherRole() {
+        val task = saveTask(Instant.now().minusSeconds(60))
+        CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
+        val before = current(task)
+        val draft = CommitmentTaskDraft(action = "review", goal = "", targetTaskId = task.id,
+            dueAt = Instant.now().minusSeconds(1), verificationReason = "核查")
+        assertNull(scheduleCommitmentReview(task.characterId, draft).appliedTaskId)
+        assertNull(scheduleCommitmentReview("other-role", draft.copy(dueAt = Instant.now().plusSeconds(600))).appliedTaskId)
+        assertNull(scheduleCommitmentReview(task.characterId,
+            draft.copy(dueAt = Instant.now().plusSeconds(600), verificationReason = "")).appliedTaskId)
+        assertEquals(before, current(task))
+    }
+
+    @Test fun answeringDoesNotEraseThePersistedWakeFollowUp() {
+        val task = saveTask(Instant.now().minusSeconds(1))
+        val reviewAt = Instant.now().plusSeconds(300)
+        CommitmentTaskStore.update(task.id) { it.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            followUpKind = "retry", linkedAlarmId = "wake-review", nextCheckAt = reviewAt) }
+        CommitmentCallFeedback.onResponse(task.id, answered = true)
+        assertEquals("wake-review", current(task).linkedAlarmId)
+        assertEquals(reviewAt, current(task).nextCheckAt)
+        assertEquals("retry", current(task).followUpKind)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
+        CommitmentCallFeedback.onResponse(task.id, answered = false)
+        assertNull(current(task).linkedAlarmId)
+        assertNull(current(task).nextCheckAt)
+        assertEquals(CommitmentTaskStatus.Blocked, current(task).status)
+    }
+
     @Test fun openingActivityAtDeadlineKeepsBothUnclaimedAndLiveExecutions() {
         val now = Instant.now()
         val task = saveTask(now.minusSeconds(1))

@@ -249,6 +249,7 @@ internal object LuluVoiceCallSession {
         mutableState.update { current ->
             current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Body,
                 thinking = false, opening = false, playingTranscript = "",
+                incomingCommitmentTaskId = taskId,
                 generatedTranscript = "", statusMessage = "通话内响铃叫醒 · 不会重新拨号")
         }
         speechQueue?.stop()
@@ -274,7 +275,7 @@ internal object LuluVoiceCallSession {
     }
 
     /** A musical wake can happen without hanging up or dialing a second call. */
-    fun exitSleepForWake(characterId: String): Boolean {
+    fun exitSleepForWake(characterId: String, taskId: String? = null): Boolean {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId) return false
         sleepContinuationJob?.cancel()
@@ -285,6 +286,7 @@ internal object LuluVoiceCallSession {
         speechQueue?.stop()
         setSleepMode(false)
         mutableState.update { it.copy(thinking = false, speaking = false,
+            incomingCommitmentTaskId = taskId ?: it.incomingCommitmentTaskId,
             playingTranscript = "", statusMessage = "叫醒时间到了 · 通话仍然连接") }
         return true
     }
@@ -1752,8 +1754,10 @@ internal object LuluVoiceCallSession {
                 latest.sleepFocus, continuing = autonomousSleep,
                 silenceMillis = sleepSilenceMillis(),
             ) + "\n" + SleepNarrativeStore.context(latest.callExperienceId, latest.sleepFocus) else ""
+            val responsibilityContext = CallResponsibilityContext.forCall(
+                latest.characterId, latest.incomingCommitmentTaskId, java.time.Instant.now())
             val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
-                SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis, latest.microphoneMuted) else ""
+                SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis, latest.microphoneMuted, responsibilityContext) else ""
             // A genuine new time-based observation has a new action identity.
             // An older fixed milestone reused the SAME execution ID for
             // multiple wake pulses, making a later volume change impossible.
@@ -1831,6 +1835,10 @@ internal object LuluVoiceCallSession {
                 phoneCallId = latest.callExperienceId,
                 turnContext = buildString {
                     append(videoTurnContext)
+                    if (responsibilityContext.isNotBlank()) {
+                        append('\n')
+                        append(responsibilityContext)
+                    }
                     if (sharedCameraObservation.isNotBlank()) {
                         append('\n')
                         append(sharedCameraObservation)
@@ -1874,7 +1882,7 @@ internal object LuluVoiceCallSession {
                 sceneContext = "正在与用户进行一对一实时电话。\n" + (when {
                     externalToolResult?.id?.startsWith("interaction-call-touch-") == true ->
                         "用户在本次 Live2D 视频电话中真的触摸了你的屏幕数字形象。这是新互动，不是麦克风说话；结合真实关系、性格和当下想法，你可以自主选择自然回应一句、执行有能力的 Live2D 动作或者安静，不要机械撒娇或假装实体触觉。"
-                    externalToolResult != null -> "一对一电话仍然接通，先前请求的小红书检索刚刚返回真实结果。用户没有新增发言。结合最近对话与本人的情绪，决定是否自然接一句结果或暂时不说；成功才说读到了，失败只依据真实回执，不编造权限原因，不复述工具字段或重复搜索。"
+                    externalToolResult != null -> "一对一电话仍然接通，刚收到工具结果或原任务的真实结果核查观察。用户没有新增发言。依据回执的实际类型、原目标和最近对话选择下一步；检查过不等于目标完成，尚未达成时考虑继续行动或调整原计划。成功失败如实判断，不把设备线索当作已醒证据，不重复执行已完成的查询。"
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
                         【哄睡长段续讲】一次输出完整连续的一段，不要分多次重复开头或总结。
@@ -1882,7 +1890,7 @@ internal object LuluVoiceCallSession {
                         $bedtimeGuide
                         自然接着上次真正说过的内容继续，不断切换技巧或从头开场都没有必要。说完这一段让电话程序安排后续；不要反复索要回应或制造新的世界事件。
                     """.trimIndent()
-                    wakeOpening -> "你现在正在履行约定的叫醒电话：必须真的叫用户起床，但怎么称呼、说什么话、说几句，由你结合一贯的个性、相处经历和此刻心情自然决定。不要朗读闹钟文本或任务目标，不要机械地念‘起床啦，听见了没’模板；不要假装用户已醒。你说完第一段叫醒话后电话仍然接通，用户还想和你聊几句，别因为叫醒任务完成就主动挂电话或启动音乐。"
+                    wakeOpening -> "你现在正在履行约定的叫醒电话：必须真的叫用户起床，但怎么称呼、说什么话、说几句，由你结合一贯的个性、相处经历和此刻心情自然决定。不要朗读闹钟文本或任务目标，不要机械地念‘起床啦，听见了没’模板；不要假装用户已醒。你说完第一段叫醒话后电话仍然接通，尚未确认用户醒来；继续依据原任务与真实反馈选择开口、短铃声或已授权音乐，不能把开场说完当作叫醒完成。"
                     opening && latest.sleepMode -> "哄睡电话刚刚接通，用户尚未开口。你先轻声自然开场，不催促她说话，不假装她回答。\n$bedtimeGuide"
                     opening -> CallOpeningTurn.prompt()
                     latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚说了话，要先认真回应她，再自然选择引导或陪伴方式。用户可以安静只听，别催促答话。\n$bedtimeGuide"

@@ -11,6 +11,16 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CommitmentDecisionProtocolTest {
+    @Test fun modelCanChooseObservationOnlyReviewOnTheOriginalTask() {
+        val task = CommitmentTask(id = "wake", characterId = "role", goal = "叫醒")
+        val draft = CommitmentDecisionProtocol.drafts(JSONArray(
+            """[{"action":"review","targetTaskId":"wake","dueAt":"2026-10-30T10:00:00+08:00","verificationReason":"需要新的醒来证据"}]"""), listOf(task)).single()
+        assertEquals("review", draft.action)
+        assertEquals("wake", draft.targetTaskId)
+        assertEquals(Instant.parse("2026-10-30T02:00:00Z"), draft.dueAt)
+        assertEquals("需要新的醒来证据", draft.verificationReason)
+    }
+
     @Test fun interpreterChosenCalendarDateSurvivesWithoutProgramReinterpretation() {
         val changes = JSONArray("""[{"action":"create","goal":"这次睡醒时叫我","dueAt":"2026-10-16T09:00:00+08:00","timezone":"Asia/Shanghai"}]""")
         assertEquals(Instant.parse("2026-10-16T01:00:00Z"), CommitmentDecisionProtocol.drafts(changes, emptyList()).single().dueAt)

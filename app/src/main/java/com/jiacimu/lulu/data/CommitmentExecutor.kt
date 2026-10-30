@@ -36,8 +36,9 @@ internal object CommitmentExecutor {
             val summary = "约定的结果核查；目标：${claimedTask.goal}；完成标准：${claimedTask.completionCondition}。" +
                 "初始行动已发生，但目的是否实现仍未确认。以下是近期实际设备线索，并不自动构成达标证据：\n" +
                 observation.take(2_500)
+            val reviewEventId = "commitment:verification:${claimedTask.id}:${claimedTask.executionToken}"
             SharedExperienceTimeline.record(
-                eventId = "commitment:verification:${claimedTask.id}:${claimedTask.executionToken}",
+                eventId = reviewEventId,
                 characterId = claimedTask.characterId,
                 channel = "约定结果核查",
                 speaker = "设备观察",
@@ -54,6 +55,18 @@ internal object CommitmentExecutor {
                     linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
                     lastActionResult = "到期行动已尝试，已进行一次客观状态复查；结果仍须按完成标准找可靠证据确认",
                 )
+            }
+            // This call owns the ongoing goal. Deliver its real review through
+            // the existing call result queue, rather than a background reply
+            // that is suppressed while the same role is on the phone.
+            val reviewCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+            if (reviewCall.connected && reviewCall.characterId == claimedTask.characterId &&
+                reviewCall.incomingCommitmentTaskId == claimedTask.id) {
+                val queued = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    com.jiacimu.lulu.LuluVoiceCallSession.onExternalToolResult(
+                        claimedTask.characterId, reviewCall.callExperienceId, reviewEventId)
+                }
+                if (queued) return
             }
             CompanionOnlineStore.initialize(appContext)
             CompanionOnlineStore.wakeCharacter(
@@ -92,7 +105,7 @@ internal object CommitmentExecutor {
             val playing = playChosenMusic()
             val delivered = if (playing) {
                 if (sameCall) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
-                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId)
+                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
                 }
                 true
             } else if (sameCall) {
@@ -232,7 +245,7 @@ internal object CommitmentExecutor {
             val playing = playChosenMusic()
             val queued = if (playing) {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
-                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId)
+                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId, claimedTask.id)
                 }
             } else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                 com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(

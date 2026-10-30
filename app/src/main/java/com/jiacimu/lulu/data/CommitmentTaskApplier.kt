@@ -34,6 +34,7 @@ internal suspend fun applyCommitmentTaskDrafts(
             "reschedule" -> updateCommitmentTask(characterId, draft, sourceEventIds, reschedule = true)
             "cancel" -> updateCommitmentTask(characterId, draft, sourceEventIds, cancel = true)
             "complete" -> updateCommitmentTask(characterId, draft, sourceEventIds, complete = true)
+            "review" -> scheduleCommitmentReview(characterId, draft)
             else -> CommitmentDraftOutcome(draft.action, draft.goal, null, "未知的约定动作，未执行")
         }
     }

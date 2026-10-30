@@ -9,8 +9,7 @@ internal object CommitmentCallFeedback {
         if (task.status != CommitmentTaskStatus.WaitingForFeedback) return
         // A response is one delivery fact. Completion is evaluated against the
         // original result condition by the same evidence gate as every other goal.
-        val keepReview = task.followUpKind == "verification" &&
-            task.linkedAlarmId != null && task.nextCheckAt != null
+        val keepReview = task.keepsFollowUpAfterCallResponse(answered)
         if (!keepReview) task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
         CommitmentTaskStore.update(taskId) { old ->
             old.copy(

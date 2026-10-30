@@ -264,6 +264,16 @@ object ToolRouter {
                             .put("summary", if (stopped) "学习监督已停止，不再检查屏幕"
                                 else "该角色没有正在进行的学习监督")
                             .toString()
+                    } else if (name == "schedule_commitment_review") {
+                        CommitmentTaskStore.initialize(context)
+                        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
+                        val at = runCatching { Instant.parse(args.optString("at")) }.getOrNull()
+                        val outcome = scheduleCommitmentReview(characterId, CommitmentTaskDraft(
+                            action = "review", goal = "", targetTaskId = args.optString("taskId"),
+                            dueAt = at, verificationReason = args.optString("reason")))
+                        JSONObject().put("success", outcome.appliedTaskId != null)
+                            .put("status", if (outcome.appliedTaskId != null) "succeeded" else "failed")
+                            .put("summary", outcome.note).toString()
                     } else if (name == "verify_commitment") {
                         CommitmentTaskStore.initialize(context)
                         val taskId = args.optString("taskId").trim()

@@ -48,12 +48,14 @@ class CallSilencePolicyTest {
         assertTrue(CallSilencePolicy.shouldRecoverStuckCapture(true, true, 90_000L))
     }
 
-    @Test fun mutedStudyCompanionshipIsObservationRatherThanFakeUserSpeech() {
+    @Test fun mutedCallProvidesFactsWithoutInventingPsychologicalGuidance() {
         val scene = CallSilencePolicy.context(15 * 60_000L, true)
         assertTrue(scene.contains("用户没有新增发言"))
         assertTrue(scene.contains("已静音"))
-        assertTrue(scene.contains("学习"))
-        assertTrue(scene.contains("可选择 silent"))
+        assertTrue(scene.contains("未完成目标"))
+        assertTrue(scene.contains("reply 或 silent"))
+        assertFalse(scene.contains("担心打扰"))
+        assertFalse(scene.contains("安静陪伴时刻"))
         assertTrue(scene.contains("允许挂断"))
     }
 }

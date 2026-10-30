@@ -21,4 +21,14 @@ class CommitmentTaskCallScopeTest {
             goal = "明天早晨八点电话叫醒", deliveryAction = "start_call")
             .isMisroutedLiveHangup())
     }
+
+    @Test fun answeringKeepsBoundedRetryAndDecliningStopsIt() {
+        val task = CommitmentTask(characterId = "role", goal = "叫醒",
+            followUpKind = "retry", linkedAlarmId = "review",
+            nextCheckAt = java.time.Instant.now().plusSeconds(300))
+        assertTrue(task.keepsFollowUpAfterCallResponse(true))
+        assertFalse(task.keepsFollowUpAfterCallResponse(false))
+        assertFalse(task.copy(linkedAlarmId = null).keepsFollowUpAfterCallResponse(true))
+        assertTrue(task.copy(followUpKind = "verification").keepsFollowUpAfterCallResponse(false))
+    }
 }

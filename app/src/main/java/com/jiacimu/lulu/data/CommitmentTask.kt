@@ -109,3 +109,9 @@ internal fun nextDailyCommitmentDue(
 }
 
 
+
+/** Answering is delivery evidence, not cancellation of the pending result check.
+ * Declining stops retry calls, while an observation-only check remains valid. */
+internal fun CommitmentTask.keepsFollowUpAfterCallResponse(answered: Boolean): Boolean =
+    linkedAlarmId != null && nextCheckAt != null &&
+        (followUpKind == "verification" || (answered && followUpKind == "retry"))

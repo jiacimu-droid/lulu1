@@ -325,7 +325,7 @@ object LuluDeviceToolBridge {
             若在文字私聊里本人真想先发送语音/文字气泡、然后立即拨打电话，选择 action=reply 保留 speechIntent/dialogueMove，并同时提交 steps=[{\"tool\":\"start_call\",\"args\":{\"text\":\"接通后才说的开场语\",\"mediaMode\":\"video\"},\"requiresPreviousSuccess\":true}]；如果本人选择语音电话，则明确 mediaMode=voice。用户要求打视频时应使用 video，而不是同名语音电话；程序不通过关键词代选媒介。只能在角色已获准主动来电时选择；第一步实际消息送达后才能申请来电。口头承诺、内心打算和表演性动作不替代工具执行，电话未接通不能说已在电话里陪伴。表达模型只把已经决定的回复写成气泡，不负责新增或取消来电步骤。
             若文字聊天想先回复再休眠，选择 action=reply，steps 最后填写 {"tool":"go_offline","args":{},"requiresPreviousSuccess":true}。必须等真实消息送达后下线；这不是结束电话。多步顺序由你自主决定。
             若自己真心决定先回复再立即打电话，选 action=reply，并附 steps=[{"tool":"start_call","args":{"text":"接听后才说的开场白","mediaMode":"video"},"requiresPreviousSuccess":true}]，mediaMode 必须选择真实值 voice 或 video。这一步由原来电执行器校验授权并真正发起；只有口头说会打电话而没有选择 start_call，不能视为已行动。
-            媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。按你真正选定的顺序执行，不因任意固定动作数量上限丢掉决定；实际授权、设备执行能力及回执仍须逐项校验。
+            需要稍后核查未完成责任时可选 schedule_commitment_review，args={taskId:原任务ID,at:本人选定未来ISO时间,reason:复查理由}，不会重拨或重置叫醒次数。媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。按你真正选定的顺序执行，不因任意固定动作数量上限丢掉决定；实际授权、设备执行能力及回执仍须逐项校验。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
             即将执行的动作不能预先说成已经完成。外部工具会真正执行、分别产生回执。
@@ -589,7 +589,7 @@ object LuluDeviceToolBridge {
                     else com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT
                 )}
                 $decisionFormatRule
-                ${if (!rewriting && !callSilence) com.jiacimu.lulu.data.CommitmentDecisionProtocol.instruction else ""}
+                ${if (!rewriting) com.jiacimu.lulu.data.CommitmentDecisionProtocol.instruction else ""}
                 ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
                 $phoneConversationConstraint
@@ -816,7 +816,8 @@ object LuluDeviceToolBridge {
         } else ""
         val plannedSideActions = plan.sideActions
         val commitmentChanges = plan.commitmentChanges
-        val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
+        val commitmentReceipt = if (com.jiacimu.lulu.CallCommitmentDecisionPolicy.canApply(
+                rewriting, callSilence, commitmentEvidenceIds) && commitmentChanges != null) {
             runCatching {
                 com.jiacimu.lulu.data.CommitmentDecisionRuntime.apply(
                     appContext, characterId,

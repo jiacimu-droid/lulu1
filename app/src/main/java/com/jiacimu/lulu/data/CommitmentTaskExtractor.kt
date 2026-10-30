@@ -60,7 +60,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
         for (index in 0 until array.length()) {
             val item = array.optJSONObject(index) ?: continue
             val action = item.optString("action").trim().lowercase()
-            if (action !in setOf("create", "reschedule", "cancel", "complete")) continue
+            if (action !in setOf("create", "reschedule", "cancel", "complete", "review")) continue
             val goal = item.optString("goal").trim()
             if (goal.isBlank() && action == "create") continue
             val dueAt = item.optString("dueAt").trim().takeIf(String::isNotBlank)
