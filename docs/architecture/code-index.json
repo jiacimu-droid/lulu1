@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:37:45.932316+00:00",
-  "commit": "4bad8b4be2e71be3c40851b18bce2e9b435d1ac8",
+  "generatedAt": "2026-10-30T07:39:05.808972+00:00",
+  "commit": "8ab9b35fd2ce03dfc5cc7f8c167ccd4f451768fb",
   "branch": "main",
-  "sourceFingerprint": "32224d5e76b493006ccb8b0cdc4dbc7d8e25f35bdf49eb9090a917a60b4c41c0",
+  "sourceFingerprint": "c1afa563b40cce24662d9ed0e8d7ff3e68bf6412872e749f5963892db4884613",
   "summary": {
     "files": 1115,
     "lines": 229414,
@@ -34217,7 +34217,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
       "lines": 122,
-      "sha256": "d10fe6972c506ed112bf0ad95540eda280ede850ee2a3b3fc7dca1dd9553bdd9",
+      "sha256": "68debdd7e0e90431a5f664fb29a685a8fac265b4657dec6090821d08077bab9a",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
