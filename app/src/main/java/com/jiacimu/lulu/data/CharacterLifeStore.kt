@@ -43,19 +43,19 @@ object CharacterLifeStore {
         migrateLegacyLuluToXingHe()
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
-        seedBundledDialogueExamplesIfAbsent()
+        syncBundledExpressionPresets()
     }
 
     /**
-     * Ship per-person illustrative examples into their EXISTING editable
-     * profile. Do not add a parallel memory store or make the user press
-     * "generate" on every installation. Once the key exists, even an
-     * intentionally empty string is the owner's choice and stays untouched.
+     * Keep the two bundled characters' hypothetical speech examples in their
+     * EXISTING editable profiles. Missing entries are seeded once. The prior
+     * exact Xing He factory wording may be upgraded; any other value, including
+     * the owner's deliberately empty string, is preserved as-is.
      *
-     * Only the two official existing contacts qualify: never seed every role
-     * with the same sample or recreate a deleted/repurposed identity.
+     * This is not a second personality or memory store. A renamed/deleted
+     * bundled contact and all unrelated characters are not modified.
      */
-    @Synchronized internal fun seedBundledDialogueExamplesIfAbsent() {
+    @Synchronized internal fun syncBundledExpressionPresets() {
         if (prefs == null) return
         val registered = MigratedDomainStores.characters.settings.value
         val presets = listOf(
@@ -76,10 +76,24 @@ object CharacterLifeStore {
             }
             if (!recognized) return@forEach
             val profile = root.optJSONObject("profile") ?: JSONObject()
-            if (profile.has("dialogueExamples")) return@forEach
-            profile.put("dialogueExamples", examples)
-            root.put("profile", profile)
-            save(id, root)
+            var updated = false
+            val existingExamples = profile.optString("dialogueExamples")
+            if (!profile.has("dialogueExamples") ||
+                (id == "lulu" && existingExamples == CharacterProfileSchema.xingHeDialogueExamplesV1)) {
+                profile.put("dialogueExamples", examples)
+                updated = true
+            }
+            if (id == "lulu" &&
+                profile.optString("speechHabits") == CharacterProfileSchema.xingHeSpeechHabitsV6) {
+                // Only the exact bundled former style gets the livelier wording.
+                // Explicitly customized or emptied speech habits are untouched.
+                profile.put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV7)
+                updated = true
+            }
+            if (updated) {
+                root.put("profile", profile)
+                save(id, root)
+            }
         }
     }
 
