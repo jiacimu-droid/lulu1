@@ -27,6 +27,18 @@ internal object ToolExecutionStatus {
         return status.isBlank() || status in completedStates
     }
 
+    /** Expected authorization/review outcomes stay in the durable tool receipt,
+     * but are not transport, parser or executor failures for the performance log.
+     * Explicit failures and unknown statuses remain operational diagnostics. */
+    private val expectedIncompleteStates = setOf(
+        "unverified", "waiting_user", "waiting_permission",
+        "requested", "requested_unverified", "pending", "denied",
+    )
+
+    fun shouldReportPerformanceError(result: JSONObject): Boolean =
+        !result.optBoolean("success") &&
+            result.optString("status").trim().lowercase() !in expectedIncompleteStates
+
     /** A missing primary tool is not a failed predecessor. Ordered steps can
      * follow the character's chosen speech/silence without a phantom failure;
      * when a primary tool DID run, only its verified result unlocks dependent steps.
@@ -350,8 +362,7 @@ object ToolRouter {
                 // An evidence gate saying "not yet proven" is an expected
                 // domain outcome, not an API/parser/device failure. Still
                 // persist its full receipt so the same role can reconsider.
-                if (!parsed.optBoolean("success") &&
-                    parsed.optString("status") != "unverified") {
+                if (ToolExecutionStatus.shouldReportPerformanceError(parsed)) {
                     com.jiacimu.lulu.LuluRepositories.performance.recordError(
                         source = "角色行动",
                         title = "${MigratedDomainStores.characters.get(characterId).displayName} · $name",
