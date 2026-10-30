@@ -418,15 +418,12 @@ fun LuluVoiceCallScreen(
                 Spacer(Modifier.height(8.dp))
                 if (state.connected) {
                     val liveStatus = when {
-                        state.speaking -> "${state.characterName.ifBlank { characterName }}正在说话"
+                        state.speaking -> state.replyActivity.orEmpty()
                         state.userSpeaking -> "正在听你说话…"
-                        state.thinking -> "对方正在回复…"
-                        state.opening -> "${state.characterName.ifBlank { characterName }}正在准备开场…"
+                        state.replyActivity != null -> state.replyActivity.orEmpty()
                         state.microphoneMuted -> "麦克风已关闭"
                         state.errorMessage.isNotBlank() -> "语音处理出错，可以重新收音"
                         state.statusMessage.contains("识别") -> "正在识别你刚才说的话…"
-                        state.statusMessage.contains("发声") ||
-                            state.generatedTranscript.isNotBlank() -> "回复已生成，正在准备语音…"
                         else -> "正在听你说话"
                     }
                     Row(
