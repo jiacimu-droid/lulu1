@@ -71,6 +71,13 @@ class BlockIslandRulesTest {
         assertEquals("door", doored.structures[doored.world.index(5, 5)])
         assertFalse(BlockIslandRules.canBuild(doored, "wall", 5, 5))
         assertFalse(BlockIslandRules.canBuild(doored, "door", 5, 5))
+        assertTrue(BlockIslandRules.canRemoveAt(doored, 5, 5))
+        assertFalse(BlockIslandRules.canPlantAt(doored, 5, 5))
+        val cleared = BlockIslandRules.act(doored, "remove", 5, 5)
+        assertFalse(BlockIslandRules.canRemoveAt(cleared, 5, 5))
+        assertTrue(BlockIslandRules.canPlantAt(cleared, 5, 5))
+        assertFalse(BlockIslandRules.canPlantAt(cleared, cleared.world.x, cleared.world.y))
+        assertFalse(BlockIslandRules.canRemoveAt(cleared, -1, 5))
     }
 
     @Test fun plantingRenewablyGrowsTreesButRequiresSeedResource() {
