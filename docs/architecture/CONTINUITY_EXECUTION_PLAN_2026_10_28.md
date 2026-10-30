@@ -517,3 +517,11 @@
 - **同轮补强**：已编辑的工具成功回执（revision>1）因原日程未保存完成时的回执 revision，不能据当前文字证明旧执行；诊断保守标未核对，旧事实保留。源码 `91e76e87`、可空类型修正 `961ef332`、新增版本编辑回归 `23ef7045`；最终 JVM/phone APK 仍以最新包含测试的工作流为准，不以旧成功或排队替代。
 
 - **本轮 CI 实际结论（2026-10-30 11:07 北京时间）**：最终测试 `23ef7045` 的索引 [#40994961547](https://github.com/jiacimu-droid/lulu1/actions/runs/40994961547) completed/success；Android/APK [#40994961515](https://github.com/jiacimu-droid/lulu1/actions/runs/40994961515) completed/failure。真实 JVM 失败于内驱 `CharacterCuriosityRuntimeTest.onlyActiveExplorationsAppearInCrossSurfaceContext` 和本职责 `ResidentDailyContinuityTest` 两项 HTTP 401 结构补正错误详情断言（2484/2542），未进入 phone APK/发布。新 `CharacterCausalTraceTest` 未列为失败项，但不能以此宣称全套测试通过；居民错误详情仍是后续 P0-A/P4 真实构建阻断，需根因核查，不抢内驱源码。真机未验。
+
+
+## 2026-10-30 P0-A/P4：居民 HTTP 401 补正回执 CI 复核（已验证本职责回归，APK 未通过）
+
+- **已有验通**：并行网络专项 [92920104](https://github.com/jiacimu-droid/lulu1/commit/92920104d9787f9ba7b5c0973822163553b21b26) 已从原 HTTP 401 provider 响应体保留错误信息并禁止重放计费 POST。本职责原两项 ResidentDailyContinuityTest（首次无效决定后结构补正 401、原决定保留、换模型不重购）在后继 [Lulu APK #41005358298](https://github.com/jiacimu-droid/lulu1/actions/runs/41005358298) 的 JVM 测试中未失败；不能把旧失败继续当成尚未修复的居民缺口。
+- **本轮最小变更**：[78df8ecd](https://github.com/jiacimu-droid/lulu1/commit/78df8ecd758d1e1ee426c5912c3ddef2b03b14cf) 仅给这两项断言增加持久错误详情的失败诊断，不更改业务条件、角色选择或重试；专项进度另见 CONTINUITY_BASE_PROGRESS_2026_10_29.md。索引 [#41005357851](https://github.com/jiacimu-droid/lulu1/actions/runs/41005357851) 已 completed/success。
+- **已有待验/真实阻断**：本轮 2115 项 JVM 测试仍有 3 项失败，均为并行社交 AutonomousEncounterDirectorTest 未配置 Android JSONObject 的测试环境，整套 JVM 未通过，assemblePhone/APK 未执行；该专项自行修复，不越界修改。真机补正/强杀/真实供应商错误详情和长期数据量仍未验；不以本轮局部回归成功宣称 APK 或设备通过。
+- **可选增强**：将来按真实供应商响应和长期数据测量评估错误摘要展示/分页，不因这次 CI 再造模型网关、重试器或状态中心。
