@@ -156,3 +156,12 @@
 - [发布 v6905](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v6905) 的 `target_commitish` 已核对为 `b7607428f764702a9657968a071c48e4ad450eab`，资产 [Lulu-arm64.apk](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v6905/Lulu-arm64.apk) 实际存在。此为本次代码对应的构建与发布证据，不代表手机已安装或体验通过。
 - 最新 main 已包含本提交，后续游戏专项另有独立文档提交；本轮没有覆盖其文件。生成索引不包含 `tools/live2d`，此前原索引 [#40982737035](https://github.com/jiacimu-droid/lulu1/actions/runs/40982737035) completed/success；本轮无需虚构一次索引生成。
 - **仍待真机**：连续五句的可见 Motion3、异步 exp3 加载失败与触摸并发、语音暂停/打断/恢复、15/30 FPS、不同 TTS 及设备发热。自动构建成功不等于这些效果已通过。
+
+
+## 2026-10-30 10:24 · L1：Motion3 同步异常必须产生当前句失败回执并释放动作槽位
+
+- **四类复核**：已验通的自动化基线为 v6605 的真实逐句 Motion3/TTS 首音编排，以及 [Lulu APK #40983048341](https://github.com/jiacimu-droid/lulu1/actions/runs/40983048341) 对 exp3 失败归属的 JS/JVM/phone/发布成功；已存在待验的是连续五句真机动作、真实不同 TTS、触摸并发、校准复用与 15/30 FPS/发热。词级时间戳仍为可选增强。本轮确认的源码真实缺口是 Motion3 资源加载**同步抛错**，不是重建原逐句动作系统。
+- **根因与修复**：原 `tools/live2d/src/stage.js` 的 `Promise.resolve(target.motion(...)).then(...).catch(...)` 仅处理已返回 Promise 的异步拒绝；若 Cubism 适配器在返回前同步 throw，异常逃出真实语句/渲染调用，`authoredMotion` 保留未开始的当前动作且无 `motion-failed` 回执。现在先通过同一有归属的异常处理器取得 `motionRequest`，同步 throw 与异步 reject 统一校验当前修订、模型实例、动作对象；只有当前角色 Motion3 报失败并释放槽位，触摸 Motion 不伪装角色回执；下一句可继续启动。正常成功、返回 false、旧请求迟到及 `transition=continue` 保持原行为，不新增模型调用/Store/时钟或行为配额。
+- **根因回归**：原 `tools/live2d/test/touch-hit.mjs` 的实际 `stage.motion()` VM 增加同步 throw→不抛至外层→释放槽位→一次准确失败回执及诊断、触摸失败不产生角色回执、下一句真实异步 Motion3 仍成功；保留旧迟到 reject、继续播放和低 FPS 测试。提交源码/回归不等于测试已在 CI 执行；须以本次提交或包含它的后继 main 的实际工作流状态核对。
+- **协作与索引**：开工前已读 10-29 Library 完整大纲、AGENTS、CODE_INDEX、人物契约、成长框架、10-28 计划及基础/社交/内驱专项进度，核对最新 main 和近提交。仅改 `tools/live2d/src/stage.js`、`tools/live2d/test/touch-hit.mjs` 和本专项进度。现有 `scripts/generate_code_index.py` 只扫描 `app/scripts/preview`，本轮没有索引输入变化，不手写生成物；原自动索引继续维护。
+- **验收边界**：本轮无本机仓库 Node 全套与 Android SDK，需核对 GitHub Actions 真实 JS/JVM/assemblePhone/发布；真机尚未验同步抛错资源、五句动作、低帧率与音画差，不以自动测试替代视觉验收。

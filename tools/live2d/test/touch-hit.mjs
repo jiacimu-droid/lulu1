@@ -489,6 +489,30 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
   const failures = motionNotices.filter(n => n.kind === 'motion-failed')
   assert.equal(failures.length, beforeFailures + 1)
   assert.equal(JSON.parse(failures.at(-1).payload).index, 3)
+
+  // Cubism can reject a missing/corrupt Motion3 BEFORE returning a Promise.
+  // That synchronous failure must not crash the frame/score dispatcher or
+  // leave the authored-motion slot locked against the next spoken sentence.
+  const deferredMotion = loadedModel.motion
+  loadedModel.motion = () => { throw new Error('current sync clip rejected') }
+  assert.doesNotThrow(() => ctx.motion('Gesture', 4, true, 'character'))
+  assert.equal(ctx.authoredMotion, null, 'sync throw releases current Motion3 ownership')
+  const afterSyncFailures = motionNotices.filter(n => n.kind === 'motion-failed')
+  assert.equal(afterSyncFailures.length, beforeFailures + 2)
+  assert.equal(JSON.parse(afterSyncFailures.at(-1).payload).index, 4)
+  assert.ok(motionNotices.some(n => n.kind === 'diagnostic' &&
+    n.payload.includes('current sync clip rejected')),
+    'sync failure retains its real diagnostic')
+  assert.doesNotThrow(() => ctx.motion('Gesture', 4, true, 'touch'))
+  assert.equal(motionNotices.filter(n => n.kind === 'motion-failed').length,
+    beforeFailures + 2, 'touch failure cannot impersonate character Motion3')
+  loadedModel.motion = deferredMotion
+  ctx.motion('Gesture', 5, true, 'character')
+  assert.equal(loads.length, 8, 'next sentence can request a real Motion3 after sync failure')
+  loads[7].resolve(true)
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(ctx.authoredMotion.started, true)
+  assert.equal(JSON.parse(motionNotices.filter(n => n.kind === 'motion-started').at(-1).payload).index, 5)
 }
 const touchSource = source.slice(source.indexOf('function tickTactileContact(tactileNow)'), source.indexOf('\nfunction setPaused(value)'))
 let stageTime = 1000

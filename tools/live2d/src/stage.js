@@ -1818,7 +1818,29 @@ function motion(group, index, immediatePreview = false, source = 'character', op
   // Explicit character-selected Motion3 is a new authored action: FORCE it
   // through the motion manager rather than falling back to blinking/mouth.
   const priority = 3 // MotionPriority.FORCE in pixi-live2d-display
-  Promise.resolve(target.motion(group, index, priority)).then(ok => {
+  // Cubism can throw before returning a Promise; an invalid Motion3 must
+  // produce the same owned failure receipt as a rejected asynchronous load.
+  const reportMotionFailure = error => {
+    // An older Cubism load may reject after another sentence or touch has
+    // taken the motion slot. Its error is not a failure of the current
+    // character choice and must not emit a misleading renderer receipt.
+    if (revision !== motionRevision || target !== model ||
+        authoredMotion !== chosen) return
+    authoredMotion = null
+    if (source === 'character') notify('motion-failed', JSON.stringify({
+      sequence: chosen.visualSequence, group, index,
+      segmentId: chosen.segmentId, source }))
+    notify('diagnostic', 'Motion3 播放失败：' + group + '#' + index + ' ' +
+      (error?.message || String(error)))
+  }
+  let motionRequest
+  try {
+    motionRequest = target.motion(group, index, priority)
+  } catch (error) {
+    reportMotionFailure(error)
+    return
+  }
+  Promise.resolve(motionRequest).then(ok => {
     if (revision !== motionRevision || target !== model) {
       const manager = target.internalModel?.motionManager
       // A resource load may finish after cancellation. Stop only that stale
@@ -1844,19 +1866,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       if (source === 'character') notify('motion-started', receipt)
       notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)
     }
-  }).catch(error => {
-    // An older Cubism load may reject after another sentence or touch has
-    // taken the motion slot. Its error is not a failure of the current
-    // character choice and must not emit a misleading renderer receipt.
-    if (revision !== motionRevision || target !== model ||
-        authoredMotion !== chosen) return
-    authoredMotion = null
-    if (source === 'character') notify('motion-failed', JSON.stringify({
-      sequence: chosen.visualSequence, group, index,
-      segmentId: chosen.segmentId, source }))
-    notify('diagnostic', 'Motion3 播放失败：' + group + '#' + index + ' ' +
-      (error?.message || String(error)))
-  })
+  }).catch(reportMotionFailure)
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 function face(target, immediatePreview = false) {
