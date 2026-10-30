@@ -4,6 +4,20 @@ package com.jiacimu.lulu.data
 internal object CommitmentCallRetryPolicy {
     const val MAX_WAKE_CALL_ATTEMPTS = 3
 
+    /** First round honors the already promised channel. Later contact is
+     * exclusively the role's choice, checked against actual call permissions.
+     * Empty means no outbound contact, not an invitation to auto-redial. */
+    fun wakeContactAction(
+        attempt: Int, originalDeliveryAction: String,
+        contact: WakeActionPlanner.Contact?, callsEnabled: Boolean,
+    ): String = when {
+        attempt == 1 -> if (originalDeliveryAction == "start_call")
+            "start_call" else "send_private_message"
+        contact == WakeActionPlanner.Contact.CALL && callsEnabled -> "start_call"
+        contact == WakeActionPlanner.Contact.MESSAGE -> "send_private_message"
+        else -> ""
+    }
+
     /**
      * Live call: the call itself remains open. Revisit the unconfirmed wake
      * goal after five minutes, with at most three separately model-chosen
