@@ -32,7 +32,8 @@ class Live2DSpokenMotionContractTest {
         val opening = JSONObject("""{"motion":{"group":"Gesture","index":0}}""")
         assertEquals(2, Live2DSpokenMotionContract.errors(text, opening, motions).size)
         var requests = 0
-        val result = Live2DSpokenMotionContract.resolve(text, opening, motions) { errors ->
+        val result = Live2DSpokenMotionContract.resolve(text, opening, motions) { errors, previous ->
+            assertSame(opening, previous)
             requests++
             assertEquals(2, errors.size)
             complete()
@@ -42,7 +43,7 @@ class Live2DSpokenMotionContractTest {
         assertTrue(result.errors.isEmpty())
     }
 
-    @Test fun invalidClipOrMissingMetadataGetsOneCorrectionWithoutInventingMotion() = runBlocking {
+    @Test fun invalidClipOrMissingMetadataNeverInventsMotionAfterTwoCorrections() = runBlocking {
         var requests = 0
         val original = complete().also {
             it.getJSONArray("beats").getJSONObject(1).getJSONObject("motion").put("index", 99)
@@ -50,13 +51,37 @@ class Live2DSpokenMotionContractTest {
         val result = Live2DSpokenMotionContract.resolve(text, original, motions) {
             requests++; JSONObject("""{"performance":{"movement":"nod"}}""")
         }
-        assertEquals(1, requests)
+        assertEquals(2, requests)
         assertFalse(result.repaired)
         assertSame(original, result.chosen)
         assertTrue(result.errors.isNotEmpty())
         val missing = Live2DSpokenMotionContract.resolve(text, null, motions) { null }
         assertNull(missing.chosen)
         assertTrue(missing.errors.isNotEmpty())
+    }
+
+    @Test fun secondCorrectionReceivesRejectedPlanAndPreservesSpeech() = runBlocking {
+        fun score(index: Int) = JSONObject().put("speech", org.json.JSONArray().put(
+            JSONObject().put("id", "s1").put("text", text)
+                .put("motion", JSONObject().put("group", "Gesture").put("index", index))
+                .put("transition", "blend")))
+        val rejected = score(99)
+        var requests = 0
+        val result = Live2DSpokenMotionContract.resolve(text, null, motions) { errors, previous ->
+            requests++
+            if (requests == 1) {
+                assertNull(previous)
+                rejected
+            } else {
+                assertSame(rejected, previous)
+                assertEquals(1, errors.size)
+                score(0)
+            }
+        }
+        assertEquals(2, requests)
+        assertTrue(result.repaired)
+        assertTrue(result.errors.isEmpty())
+        assertEquals(text, Live2DDialoguePlan.spokenText(result.chosen!!))
     }
 
     @Test fun modelsWithoutMotionResourcesDoNotBuyFutileCorrections() = runBlocking {
