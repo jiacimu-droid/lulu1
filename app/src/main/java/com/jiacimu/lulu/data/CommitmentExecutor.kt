@@ -141,7 +141,7 @@ internal object CommitmentExecutor {
                     attemptCount = 1,
                     lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
-                        else if (sameCall) "在原电话内${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "用普通声线" else "响铃后"}叫醒，没有重新拨号；未确认醒来"
+                        else if (sameCall) "已在原电话安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "语音" else "本机响铃及语音"}叫醒，不重复拨号；尚未确认实际播完或已醒"
                         else "本机闹钟已发出通知；未证明目标已经达成；" +
                             (if (review != null) "已安排后续客观复查" else "复查未能安排") +
                             selected.reason.takeIf { it.isNotBlank() }?.let { "；角色决定：$it" }.orEmpty(),
@@ -262,7 +262,7 @@ internal object CommitmentExecutor {
                     pauseSeconds = selected.pauseSeconds,
                 )
             }
-            val music = if (playing) "角色自主选择在原电话内播放音乐" else "角色选择${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "直接说话" else "铃声加自然对话"}"
+            val music = if (playing) "播放器已确认响应角色的音乐叫醒" else "角色安排${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "直接说话" else "多轮铃声后自然对话"}"
             // Do not equate ringing/speaking with the goal "user awake".
             // Only outstanding goals receive a bounded follow-up after 5min.
             val delaySeconds = if (queued)
@@ -281,7 +281,7 @@ internal object CommitmentExecutor {
                     linkedAlarmId = nextAlarm?.id,
                     nextCheckAt = nextAlarm?.triggerAt,
                     lastActionResult = if (queued) buildString {
-                        append("第$attempt 次已在原电话执行叫醒；未收到明确回应，不视为已醒。$music")
+                        append("第$attempt 次已在原电话安排叫醒流程；声音实际送达仍以播放器回执为准，未确认主人醒来。$music")
                         if (selected.reason.isNotBlank()) append("；角色考虑：${selected.reason}")
                         append(if (nextAlarm != null) "；已安排后续目标复查"
                             else "；后续提醒已到次数上限或未排成功")
