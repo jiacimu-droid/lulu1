@@ -37,7 +37,7 @@ internal object WakeActionPlanner {
         val fallback = Choice(Cue.RING)
         val canMusic = musicAllowed(context, task.characterId)
         val raw = try {
-            withTimeoutOrNull(8_000L) {
+            withTimeoutOrNull(20_000L) {
                 // Cold-process AlarmManager deliveries are allowed to use the
                 // same configured character model as foreground conversations.
                 LuluAiServices.initialize(context)
@@ -64,7 +64,9 @@ internal object WakeActionPlanner {
                     已知的习惯与当前约定，自由决定这一刻怎么叫醒她。
                     只返回 JSON：{"cue":"ring|speak|music","reason":"结合已经发生的叫醒过程，本轮为什么这样做","ringSeconds":6,"volumePercent":35,"openingLine":"如需在电话里开口，你自然想说的第一句"}
                     这是同一个叫醒目标的下一步，不是每次从零开始的新任务。
-                    第一次叫醒，主人要求先响铃再说话；主动来电时手机来电铃声本身就是第一声响铃。
+                    第一次叫醒（此前尝试次数为0），主人已经明确选择「先铃声，后自然说话」：
+                    同一通话内本轮应选 cue=ring；如果尚未接通，就用真正的来电铃声作为第一次响铃，接听后说话。
+                    从第二轮开始不固定顺序，你根据上一阶段的实际回执和自己的想法选择。
                     后续每次都看上一阶段的真实结果，重新自主选择下一步：
                     ring=本轮短铃声（2-10秒）再自然开口；
                     speak=通话中直接再开口；未接通时仍必须通过可听见的来电/闹钟；
