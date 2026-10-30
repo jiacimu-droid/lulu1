@@ -59,6 +59,32 @@ class CharacterCuriosityRuntimeTest {
         }
     }
 
+    @Test fun continuityEvidenceSlotsUseValidActiveThreadsNotStalePersistedEntries() {
+        begin()
+        realRead("verified-older-read", at.plusSeconds(10))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "确实读到的内容", "verified-older-read", at.plusSeconds(10))
+        val context = RuntimeEnvironment.getApplication() as Context
+        val state = CharacterCuriosityRuntime.snapshot(id)
+        val threads = state.getJSONArray("threads")
+        assertEquals(1, threads.length())
+        // Legacy/recovered records may still occupy the stored array while
+        // having no verified receipt. They must not consume the small model
+        // evidence window before valid active threads are selected.
+        listOf("stale-unverified-a", "stale-unverified-b").forEach { threadId ->
+            threads.put(JSONObject().put("threadId", threadId)
+                .put("topic", "旧记录").put("question", "尚无实际探索结果")
+                .put("status", "exploring").put("steps", org.json.JSONArray()))
+        }
+        val prefs = context.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        assertTrue(prefs.edit().putString(id, state.toString()).commit())
+        CharacterCuriosityRuntime.initialize(context)
+        assertEquals(1, CharacterCuriosityRuntime.activeThreads(id).size)
+        assertEquals(listOf("verified-older-read"),
+            CharacterCuriosityRuntime.continuityEvidenceIds(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun ownerCanResumePreviousDormantQuestionWithItsOriginalIdentity() {
         begin()
         val archived = JSONObject().put("threadId", "archived-thread")
