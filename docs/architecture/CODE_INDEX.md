@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2f9827f9fafe8c6d07ab5d44711da522dbf6b4cc`
+- 基准提交：`97b615cb21bf63d5d3bd5a228e1f8f11d6e73f8f`
 - 分支：`main`
-- 已索引文件：1118
-- 已索引代码/文本行：229700
-- 已发现符号：3248
+- 已索引文件：1119
+- 已索引代码/文本行：229751
+- 已发现符号：3249
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -769,6 +769,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmEnvelopeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechWavLevelTest.kt` | 78 | 1 |

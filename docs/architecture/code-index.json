@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:46:32.113296+00:00",
-  "commit": "2f9827f9fafe8c6d07ab5d44711da522dbf6b4cc",
+  "generatedAt": "2026-10-30T07:46:50.969226+00:00",
+  "commit": "97b615cb21bf63d5d3bd5a228e1f8f11d6e73f8f",
   "branch": "main",
-  "sourceFingerprint": "447f10888e63e44db1653d5ad631883b383ad27905101c116ce38113ed4680db",
+  "sourceFingerprint": "311cfbb5d22e270001b5ae85a3f5256703857d3fc04ac951f889e9cba95ea1a8",
   "summary": {
-    "files": 1118,
-    "lines": 229700,
-    "symbols": 3248
+    "files": 1119,
+    "lines": 229751,
+    "symbols": 3249
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15039,6 +15039,12 @@
     "CallSpeechCallbackBoundaryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt",
+        "line": 5
+      }
+    ],
+    "CallSpeechPcmEnvelopeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechPcmEnvelopeTest.kt",
         "line": 5
       }
     ],
@@ -34028,6 +34034,17 @@
       "symbols": [
         {
           "name": "CallSpeechCallbackBoundaryTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechPcmEnvelopeTest.kt",
+      "lines": 51,
+      "sha256": "8e76d93c3fc5ffabe5ea20dcb70da7f157f3eb5e5402b90ed73a8b9c70697475",
+      "symbols": [
+        {
+          "name": "CallSpeechPcmEnvelopeTest",
           "line": 5
         }
       ]
