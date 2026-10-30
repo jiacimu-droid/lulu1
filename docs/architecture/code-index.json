@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:06:05.960038+00:00",
-  "commit": "b52c438aca614206f22962f5dcc6d63a5d71576a",
+  "generatedAt": "2026-10-30T06:39:46.997071+00:00",
+  "commit": "d7315e2633af30ca45787bfe899703a92d6b1f0a",
   "branch": "main",
-  "sourceFingerprint": "b5f41ea9565347314602066b5e1526846a1736d470eef8762cab53d62978187e",
+  "sourceFingerprint": "abee53cba3161a2ee1dcefc01193e2810777983d63f29ca00f9ad4b0c33e8733",
   "summary": {
     "files": 1111,
-    "lines": 228691,
-    "symbols": 3237
+    "lines": 228836,
+    "symbols": 3239
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1670,14 +1670,26 @@
         "line": 801
       }
     ],
+    "hintFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
+        "line": 36
+      }
+    ],
     "decode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-        "line": 22
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 33
+      }
+    ],
+    "decodePlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
+        "line": 59
       }
     ],
     "genuinelyConnected": [
@@ -3689,7 +3701,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 636
+        "line": 646
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -19572,12 +19584,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
-      "lines": 93,
-      "sha256": "7877b4dcd21680c06f088a4c1654deede6901fd47883847a1d18e32204eee207",
+      "lines": 190,
+      "sha256": "2d7f9076e0183e0abe1396cf27a2181a2c5a8f549f6007e7ae428d42e1eada01",
       "symbols": [
         {
+          "name": "hintFor",
+          "line": 36
+        },
+        {
           "name": "decode",
-          "line": 22
+          "line": 57
+        },
+        {
+          "name": "decodePlan",
+          "line": 59
         }
       ]
     },
@@ -21461,12 +21481,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 662,
-      "sha256": "97feab6000f593acfd939f6858acc2ab1f621c8fd207bd36004fbdf15d7c362a",
+      "lines": 672,
+      "sha256": "14c9500ca943440a68338845ff71699d7ead57edabd4cf8677ba68f22759bd78",
       "symbols": [
         {
           "name": "render",
-          "line": 636
+          "line": 646
         }
       ]
     },
@@ -34091,8 +34111,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
-      "lines": 48,
-      "sha256": "223829ba363408fafccae7b0ecdecdb65f7d22ea92f6ab5a7e71f3802b361f2a",
+      "lines": 86,
+      "sha256": "68bf12b78aec8e38feb445c2f59edc98e79a86bfc2b12de7248f8c51bc1bd675",
       "symbols": [
         {
           "name": "GroupChatTurnPlannerTest",
