@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:58:02.457080+00:00",
-  "commit": "f5d211b9f7be267444424988d3da08c1a48e2506",
+  "generatedAt": "2026-10-30T02:58:40.884890+00:00",
+  "commit": "05cf45818a21c96e1dcb3d9f3d4b9f3789cd705e",
   "branch": "main",
-  "sourceFingerprint": "24c6842702d5d0f3815a4f1804f395b85a834a11ceaca40bc7e970924afc0d17",
+  "sourceFingerprint": "5b5389ac64c7b8f1edc8af83c106e808f94c14f5abff9dde4eb370b779a725e5",
   "summary": {
     "files": 1096,
-    "lines": 227586,
-    "symbols": 3213
+    "lines": 227659,
+    "symbols": 3216
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11422,6 +11422,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
         "line": 24
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 957
       }
     ],
     "contactsOf": [
@@ -15804,6 +15808,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
         "line": 798
+      }
+    ],
+    "toolResult": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 972
+      }
+    ],
+    "lineFor": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
+        "line": 1003
       }
     ],
     "CharacterContinuityGatewayTest": [
@@ -35101,8 +35117,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
-      "lines": 951,
-      "sha256": "cfaf9f01749fda9740b0d192a09f3e9a82bda426071762c90a5f7f60cf1a8f87",
+      "lines": 1024,
+      "sha256": "09674136e295326e3c8f899e6de5e08b4af98afa543c17dce97cd4497c326143",
       "symbols": [
         {
           "name": "CharacterCausalTraceTest",
@@ -35127,6 +35143,18 @@
         {
           "name": "actualStep",
           "line": 798
+        },
+        {
+          "name": "plan",
+          "line": 957
+        },
+        {
+          "name": "toolResult",
+          "line": 972
+        },
+        {
+          "name": "lineFor",
+          "line": 1003
         }
       ]
     },
