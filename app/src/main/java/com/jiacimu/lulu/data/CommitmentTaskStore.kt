@@ -75,6 +75,9 @@ object CommitmentTaskStore {
     @Synchronized
     fun reconcileAfterRestart(now: Instant = Instant.now()) {
         var changed = false
+        // These are real missed deliveries, not inferred from goal wording.
+        // Preserve their original due times while the daily task advances.
+        val missedByRole = linkedMapOf<String, Instant>()
         val next = mutableTasks.value.map { task ->
             when {
                 // Old releases could schedule a new call for an instruction to
@@ -110,6 +113,7 @@ object CommitmentTaskStore {
                 }
                 task.status == CommitmentTaskStatus.Scheduled &&
                     task.dueAt?.let { CommitmentAlarmTiming.expired(it, now) } == true -> {
+                    task.dueAt?.let { missedByRole.putIfAbsent(task.characterId, it) }
                     task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
@@ -149,6 +153,15 @@ object CommitmentTaskStore {
         appContext?.let {
             RoleDayScheduleStore.mergeMatchingDailyCallPlans(it)
             restoreMissedDailyCalls(it, now)
+            missedByRole.forEach { (characterId, missedAt) ->
+                runCatching {
+                    ProactivePerceptionScheduler.scheduleMissedCommitmentReview(
+                        it, characterId, missedAt)
+                }.onFailure { error ->
+                    android.util.Log.w("LuluCommitment",
+                        "Missed commitment decision handoff could not be queued for $characterId", error)
+                }
+            }
         }
     }
 
