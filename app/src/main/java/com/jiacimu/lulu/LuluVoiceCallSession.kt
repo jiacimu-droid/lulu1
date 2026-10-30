@@ -1984,6 +1984,13 @@ internal object LuluVoiceCallSession {
                                     context, latest.characterId, latest.callExperienceId, visualAction)) {
                                 visualSequenceForReply = Live2DVisualActionBus.cues.value[latest.characterId]
                                     ?.takeIf { it.callId == latest.callExperienceId }?.sequence ?: 0L
+                                // A previous visual failure must not follow a new,
+                                // valid character-selected score into the next turn.
+                                mutableState.update { it.copy(errorMessage =
+                                    if (it.errorMessage.startsWith("视频动作")) "" else it.errorMessage) }
+                            } else if (LuluCallWindowController.videoRequested.value) {
+                                mutableState.update { it.copy(errorMessage =
+                                    "视频动作未能送达播放器；语音仍正常") }
                             }
                         }
                     }
@@ -2116,6 +2123,8 @@ internal object LuluVoiceCallSession {
                     // Do not silently present a stationary avatar as a completed
                     // performance: distinguish a successfully spoken turn from
                     // a missing/failed model-selected Motion3 plan.
+                    val notice = "视频动作未生成有效计划；语音仍正常"
+                    mutableState.update { it.copy(errorMessage = notice) }
                     com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
                         latest.characterId,
                         "视频回复已经生成口语，但本轮没有发布有效 Motion3 计划；不能视为动作已执行")
