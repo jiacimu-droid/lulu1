@@ -310,7 +310,8 @@ internal object CommitmentExecutor {
             !wake -> if (scheduledCall) "start_call" else "send_private_message"
             sameCall -> "reuse_connected_call"
             else -> CommitmentCallRetryPolicy.wakeContactAction(
-                attempt, claimedTask.deliveryAction, selected.contact, callsEnabled)
+                attempt, claimedTask.deliveryAction, selected.contact, callsEnabled,
+                selected.cue)
         }
         val useCall = action == "start_call"
         val wording = if (wake) selected.openingLine.ifBlank {
