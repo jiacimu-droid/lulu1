@@ -148,7 +148,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 onNavigate = { x, y -> target = x to y; navigateTo = x to y },
                 fullscreen = true, companionPing = companionPing)
         },
-        companionAvailable = game.playWithCharacter && world.friends.isNotEmpty(),
+        companionAvailable = game.playWithCharacter && world.friends.isNotEmpty() &&
+            world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3),
         companion = {
             if (game.playWithCharacter && world.friends.isNotEmpty() &&
                 world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
@@ -160,7 +161,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         movement = {
-            GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 420L) { dx, dy ->
+            GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 420L,
+                stopWhen = world.hp to world.seed) { dx, dy ->
                 perform("move", world.x + dx, world.y + dy)
             }
         },
