@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:12:41.045345+00:00",
-  "commit": "d75c805c6eab0323ecce8c4b9c3ce8d64eb2c817",
+  "generatedAt": "2026-10-30T07:13:24.741807+00:00",
+  "commit": "34718f7e72afcded0801d4fd26f0104a7ce90dda",
   "branch": "main",
-  "sourceFingerprint": "ecb220a1bdadf1f825bf88ef99a9d27bad8e899b5fb3f94bb78dd04904934fc1",
+  "sourceFingerprint": "99d9e7c3ee45b0ed033dbedf97bb17962bb1832c7dfc7ee8c6d10984b6558e52",
   "summary": {
-    "files": 1113,
-    "lines": 229068,
-    "symbols": 3242
+    "files": 1115,
+    "lines": 229203,
+    "symbols": 3244
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 23
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt",
@@ -126,6 +126,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
         "line": 56
+      }
+    ],
+    "canReplay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRecoveryPolicy.kt",
+        "line": 10
       }
     ],
     "microphone": [
@@ -1631,7 +1637,7 @@
     "close": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 61
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -14970,6 +14976,12 @@
         "line": 5
       }
     ],
+    "CallAudioRecoveryPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt",
+        "line": 5
+      }
+    ],
     "CallCommitmentDecisionPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt",
@@ -18551,6 +18563,17 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRecoveryPolicy.kt",
+      "lines": 14,
+      "sha256": "e696795e3acb77d8940072cb6c5be08a5fdeb8bb3b6040ecb24db213470b57cb",
+      "symbols": [
+        {
+          "name": "canReplay",
+          "line": 10
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
       "lines": 156,
       "sha256": "2694ae758fff59afd299793c1eaa57481109a8c70acae0fc53037ea16809085f",
@@ -19563,16 +19586,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 174,
-      "sha256": "d06a639e1abc0b293444fcd15cf35d7f316b987bc60c6d59cf89b8c10fa34dd6",
+      "lines": 274,
+      "sha256": "8255fcb993c29f8fd68ae3ff817224739e8a3ac19792f86eefe7bb97886b027d",
       "symbols": [
         {
           "name": "stop",
-          "line": 23
+          "line": 25
         },
         {
           "name": "close",
-          "line": 61
+          "line": 74
         }
       ]
     },
@@ -20406,8 +20429,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 214,
-      "sha256": "683e02b69d8f7d5fa4c7a0f284001641a1d36d836d36937584e55be4a764415d",
+      "lines": 219,
+      "sha256": "d0577fb0babbc238025ce7c179b4e792cbbcfb043607d20a8e25b59f6f5c7a3c",
       "symbols": [
         {
           "name": "enqueue",
@@ -33863,6 +33886,17 @@
       "symbols": [
         {
           "name": "BundledCuteStickerCatalogTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt",
+      "lines": 16,
+      "sha256": "83fefb21cad69dfb41c13f3da3f7d59cef9c9875f0f13ba798a255c982885568",
+      "symbols": [
+        {
+          "name": "CallAudioRecoveryPolicyTest",
           "line": 5
         }
       ]

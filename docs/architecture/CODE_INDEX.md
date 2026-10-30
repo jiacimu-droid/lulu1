@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d75c805c6eab0323ecce8c4b9c3ce8d64eb2c817`
+- 基准提交：`34718f7e72afcded0801d4fd26f0104a7ce90dda`
 - 分支：`main`
-- 已索引文件：1113
-- 已索引代码/文本行：229068
-- 已发现符号：3242
+- 已索引文件：1115
+- 已索引代码/文本行：229203
+- 已发现符号：3244
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -73,6 +73,7 @@
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 230 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioPlaybackClock.kt` | 42 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioRecoveryPolicy.kt` | 14 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 74 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallCommitmentDecisionPolicy.kt` | 8 | 1 |
@@ -145,7 +146,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 236 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 174 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 274 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 190 | 3 |
@@ -185,7 +186,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 214 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 219 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 580 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |
@@ -757,6 +758,7 @@
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 249 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
