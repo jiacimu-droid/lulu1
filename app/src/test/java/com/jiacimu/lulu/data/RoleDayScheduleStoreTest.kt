@@ -22,10 +22,14 @@ class RoleDayScheduleStoreTest {
     )
 
     @Test fun missedAndCrossMidnightOwnerPlansRecoverWithoutInventingACompletedAction() {
-        val midnight = Instant.parse("2026-10-31T00:42:00Z")
+        // 00:42 on 10/31 in China; 72 minutes before was 23:30 on 10/30.
+        val midnight = Instant.parse("2026-10-30T16:42:00Z")
         val missed = plan.copy(id = "bedtime-missed", title = "23:30 关心主人睡觉",
             dueAt = midnight.minusSeconds(72 * 60), status = "planned")
         val oldDue = missed.copy(status = "due")
+        val zone = java.time.ZoneId.of("Asia/Shanghai")
+        assertEquals(30, missed.dueAt.atZone(zone).dayOfMonth)
+        assertEquals(31, midnight.atZone(zone).dayOfMonth)
         assertTrue(RoleDayScheduleStore.needsWakeRestoration(missed, midnight))
         assertTrue(RoleDayScheduleStore.needsWakeRestoration(oldDue, midnight))
         assertFalse(RoleDayScheduleStore.needsWakeRestoration(oldDue.copy(
@@ -61,6 +65,13 @@ class RoleDayScheduleStoreTest {
             assertFalse(RoleDayScheduleStore.needsWakeRestoration(stored, scheduledAt.plusSeconds(60)))
             assertFalse(RoleDayScheduleStore.recordWakeHandoff(context, role, created.id,
                 scheduledAt.plusSeconds(3600), scheduledAt.plusSeconds(40)))
+            val newTime = scheduledAt.plusSeconds(3600)
+            val rescheduled = RoleDayScheduleStore.reschedule(context, role, created.id,
+                newTime, "根据新的判断重新核查")
+            assertNull(rescheduled.lastWakeHandoffAt)
+            assertEquals("planned", rescheduled.status)
+            assertTrue(RoleDayScheduleStore.needsWakeRestoration(rescheduled,
+                scheduledAt.plusSeconds(60)))
         } finally {
             RoleDayScheduleStore.remove(context, role, created.id)
         }
