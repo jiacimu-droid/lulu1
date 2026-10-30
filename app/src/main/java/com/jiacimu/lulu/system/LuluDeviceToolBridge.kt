@@ -441,7 +441,7 @@ object LuluDeviceToolBridge {
             只输出一个完整 JSON，如 {"action":"reply","text":"我自己的群聊发言","reason":"想接话的简短原因"}；
             或 {"action":"silent","reason":"此刻为什么不想接话"}。
         """.trimIndent() else """
-            这是电话的低延迟通道，普通交谈一般给可以直接念出的 text；若确实想不说话而操作已授权的设备，允许 silent 配合 sideActions，不能返回仅有 speechIntent 的空发言。
+            这是电话的低延迟通道，纯语音通话可以直接给可朗读的 text；若本轮提供了真实 Live2D 视频动作目录，则改用该目录约定的 speech 数组，每个实际说出的片段同时包含台词与本人选择的 Motion3，不再同时返回 text 或 bubbles。若确实想不说话而操作已授权的设备，允许 silent 配合 sideActions，不能返回仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
             【电话里可以当场收藏，无需先挂断或先回复另一次电话】
             你若真正决定把提供的某条准确用户消息保存在生活记录的「收藏」，可以在正常的电话回复里同时写
@@ -657,6 +657,10 @@ object LuluDeviceToolBridge {
                 sceneContext.contains("哄睡") -> 3_800
                 rewriting -> 2_400
                 separateExpression -> 1_450
+                // Per-part spoken Motion3 and the role's optional private
+                // state must fit in the same complete JSON decision. The
+                // regular 1500-token voice budget can truncate a video score.
+                sceneContext.contains("电话") && live2dDecisionContext.isNotBlank() -> 3_200
                 sceneContext.contains("电话") && userText.length < 280 -> 1_500
                 else -> 2_400
             },
