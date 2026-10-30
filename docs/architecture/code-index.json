@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:41:04.898690+00:00",
-  "commit": "877b5003ed7e06d5286cb54fb4fc72168c7a00d2",
+  "generatedAt": "2026-10-30T07:45:52.553761+00:00",
+  "commit": "723b1ec0d1a127185261af4994dcc4fb2193b929",
   "branch": "main",
-  "sourceFingerprint": "b14ecbd37953b31f8800de98259d97d16b05c1819bac0f3f0770497eced3f718",
+  "sourceFingerprint": "423aa500efd61d01cde395211cb1f1193e916ad3b4034b16e851ab1fd796e294",
   "summary": {
-    "files": 1117,
-    "lines": 229650,
-    "symbols": 3246
+    "files": 1118,
+    "lines": 229697,
+    "symbols": 3248
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -530,6 +530,30 @@
         "line": 9
       }
     ],
+    "append": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 33
+      }
+    ],
+    "levelAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt",
+        "line": 22
+      }
+    ],
     "measure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt",
@@ -544,12 +568,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
         "line": 134
-      }
-    ],
-    "levelAt": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt",
-        "line": 22
       }
     ],
     "open": [
@@ -12562,16 +12580,6 @@
         "line": 24
       }
     ],
-    "append": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 93
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
-        "line": 33
-      }
-    ],
     "rollback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
@@ -18780,6 +18788,21 @@
         {
           "name": "dispatch",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt",
+      "lines": 47,
+      "sha256": "dd3d127e1532a6653d1c0325db36c00324ddd2303f85b2b935d272d028e68f5c",
+      "symbols": [
+        {
+          "name": "append",
+          "line": 17
+        },
+        {
+          "name": "levelAt",
+          "line": 34
         }
       ]
     },

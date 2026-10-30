@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`877b5003ed7e06d5286cb54fb4fc72168c7a00d2`
+- 基准提交：`723b1ec0d1a127185261af4994dcc4fb2193b929`
 - 分支：`main`
-- 已索引文件：1117
-- 已索引代码/文本行：229650
-- 已发现符号：3246
+- 已索引文件：1118
+- 已索引代码/文本行：229697
+- 已发现符号：3248
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -85,6 +85,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallResponsibilityContext.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 49 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechCallbackBoundary.kt` | 20 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechWavLevel.kt` | 116 | 2 |
