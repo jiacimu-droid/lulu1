@@ -784,8 +784,11 @@ assert.equal(bridge.pendingSpeechParts.motion.index, 17,
   'long TTS preparation cannot expire a chosen versioned Motion3')
 assert.equal(bridge.pendingExpressionName.name, 'star',
   'long TTS preparation cannot expire the paired character expression')
-assert.equal(bridge.performanceRuntime.state().queued, true,
-  'long TTS preparation cannot erase the queued beat score')
+assert.equal(vm.runInContext('scoredBeats.length', bridge), 1,
+  'the exact segment-ID beat stays in the versioned score until real onStarted')
+// Exact segment-ID beats are intentionally scheduled only AFTER the matching
+// TTS fragment is known; the local runtime has no audible segment yet.
+assert.equal(bridge.performanceRuntime.state().queued, false)
 bridge.onPlaybackEvent('playing', 0, 90000, 'slow-audio')
 await Promise.resolve()
 assert.equal(motions.length, beforeLongWait + 1,
