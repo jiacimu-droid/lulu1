@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:40:23.859821+00:00",
-  "commit": "cb7fbbec3c2049d52d1a46c3a5db23712e186e62",
+  "generatedAt": "2026-10-30T05:40:40.220899+00:00",
+  "commit": "990cc940940ca1aa740e517ca90a45854ec41f56",
   "branch": "main",
-  "sourceFingerprint": "54854f9da44c66ee97a8e6a56bfef590c39062cd5244262a5fa5b06dd33161f7",
+  "sourceFingerprint": "48c2966d2a8a98e1b5ace47bb8852a21b83466a5fe41bf39129bc78fb07f3570",
   "summary": {
     "files": 1108,
-    "lines": 228417,
+    "lines": 228453,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -35837,8 +35837,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt",
-      "lines": 83,
-      "sha256": "f475a555dae0c7a03e8f07418a3b8cec4ca35333b28e83c4519e2fa00ab64725",
+      "lines": 119,
+      "sha256": "87cbf9ae8b14c741f2defb60b85200601e817bf2d9d85651c3889708590a437a",
       "symbols": [
         {
           "name": "CharacterMotiveReviewTest",
