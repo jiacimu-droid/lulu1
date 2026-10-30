@@ -48,6 +48,23 @@ class ResidentAutonomyBoundaryTest {
             ResidentSocialMailbox.unconsidered(messages, "mail-4", 2).map { it.id })
     }
 
+    @Test fun cafeNeedsExplicitDailyRoleChoiceAndCannotBuyFromAnInvalidPlan() {
+        val daily = org.json.JSONObject()
+            .put("cafeOrderLunch", "tea")
+            .put("cafeOrderEvening", "none")
+        assertNull(ResidentDailyRoutine.chosenCafeOrder(null, "lunch"))
+        assertEquals("cafe_consume_tea", ResidentDailyRoutine.chosenCafeOrder(daily, "lunch"))
+        assertNull(ResidentDailyRoutine.chosenCafeOrder(daily, "evening"))
+        assertNull(ResidentDailyRoutine.chosenCafeOrder(daily, "morning"))
+        assertNull(ResidentDailyRoutine.chosenCafeOrder(
+            org.json.JSONObject().put("cafeOrderLunch", "sandwich-and-tea"), "lunch"))
+        val valid = org.json.JSONObject().put("lunch", "cafe").put("evening", "home")
+            .put("cafeOrderLunch", "sandwich")
+        assertNull(ResidentDailyDecision.dayContractError(valid, now))
+        assertTrue(ResidentDailyDecision.dayContractError(
+            valid.put("cafeOrderLunch", "surprise"), now)?.contains("cafeOrderLunch") == true)
+    }
+
     @Test fun dailyPlannerCannotCreateFantasyWorldLocations() {
         assertEquals(DigitalWorldPublicPlaces.CAFE,
             ResidentDailyDecision.publicPlace("cafe", "resident-home:r"))
