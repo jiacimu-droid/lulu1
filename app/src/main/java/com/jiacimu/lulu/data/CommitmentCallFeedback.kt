@@ -25,7 +25,6 @@ internal object CommitmentCallFeedback {
         }
     }
 
-    /** Connected is not the same as audible; keep these independent facts. */
     /** Playback of a local cue is evidence of the attempt, not wakefulness. */
     fun onInCallRingtone(taskId: String, callId: String, started: Boolean) {
         CommitmentTaskStore.update(taskId) { old ->
@@ -60,7 +59,10 @@ internal object CommitmentCallFeedback {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
             else old.copy(status = CommitmentTaskStatus.Blocked,
-                lastActionResult = "电话已接通，但本次叫醒语音播放失败（${java.time.Instant.now()}；会话=${callId.take(12)}）：${error.take(110)}；不算成功叫醒")
+                lastActionResult = "电话已接通，但本次叫醒语音播放失败（${java.time.Instant.now()}；会话=${callId.take(12)}）：${error.take(110)}；不算成功叫醒",
+                wakeAttemptHistory = (old.wakeAttemptHistory +
+                    "通话${callId.take(12)}：本轮语音播放失败（${error.take(90)}），不能当成已听见或已醒").takeLast(6),
+            )
         }
     }
 
