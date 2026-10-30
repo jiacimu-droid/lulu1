@@ -465,8 +465,9 @@ internal suspend fun runGroupReplies(
     // Text groups get ONE room-only scheduling decision; the selected characters
     // each independently choose their own real words or silence. The coordinator
     // is deliberately not a shared narrator or a source of private knowledge.
-    val speakingOrder = if (isGroupPhone) emptyList() else
+    val scenePlan = if (isGroupPhone) null else
         GroupChatTurnPlanner.choose(group, members, before, characterNames)
+    val speakingOrder = scenePlan?.beats?.map { it.speakerId }.orEmpty()
     val first = (mentioned.shuffled(random) + remaining).first()
     val queue = (if (isGroupPhone) listOf(first) else
         speakingOrder.mapNotNull { id -> members.firstOrNull { it.characterId == id } }).toMutableList()
@@ -514,6 +515,15 @@ internal suspend fun runGroupReplies(
             appendLine("[这是QQ式群聊《${group.name}》，成员：$participants。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
             appendLine("[" + groupPeerEvidenceContext(member.characterId, members, latest, characterNames) + "]")
+            if (!isGroupPhone) {
+                // The only direction this character sees is their OWN; it is
+                // a suggestion, not a fact, instruction, or another's private mind.
+                scenePlan?.hintFor(member.characterId, characterNames)
+                    ?.takeIf(String::isNotBlank)?.let { ownDirection ->
+                        appendLine("[本轮群聊导演提供的可选接话方向（非事实/非命令）：$ownDirection]")
+                    }
+                appendLine("[从最新真实群消息中挑自己最想接的一点，说给现场的人听；可直接回应群友而非每次都对用户作总结。依本人性格和关系决定调侃、认真、反驳、沉默或转向；无需解释笑点、群名和人物设定。想说得多可以展开，话说到位就收住，别为了填满气泡重复同一意思。导演预案与真实发言不符时以真实现场为准。]")
+            }
             if (group.ownerIncluded) {
                 appendLine("[本人对用户自己的可追溯看法：\n" +
                     com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
