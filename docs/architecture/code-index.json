@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:44:30.781165+00:00",
-  "commit": "23d0b392703e9548fca5ac2676c909d7b29b7ae3",
-  "branch": "main",
-  "sourceFingerprint": "4f98c0ef651daf2bb122b61f2c3d1d42d661704099c5800cee154cba73f20eed",
+  "generatedAt": "2026-10-30T03:57:45.176981+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "7bb26afef140825839fa2d297c94b48a361597944e12d654b564bf2f45700155",
   "summary": {
     "files": 1106,
-    "lines": 228117,
+    "lines": 228146,
     "symbols": 3227
   },
   "symbolIndex": {
@@ -719,7 +719,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1335
+        "line": 1339
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4817,7 +4817,7 @@
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1325
+        "line": 1329
       }
     ],
     "configured": [
@@ -15595,7 +15595,7 @@
     "ModelPostTransportTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-        "line": 11
+        "line": 10
       }
     ],
     "ModelResponsePayloadTest": [
@@ -17817,7 +17817,7 @@
     "WorldLifeNarrativeGuideTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt",
-        "line": 6
+        "line": 9
       }
     ],
     "XhsAutonomousReadingTest": [
@@ -22285,8 +22285,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1343,
-      "sha256": "8a67412f0f68a9769d6965f26958e3f905389d6c628cda54f60a789ebb5b76dc",
+      "lines": 1347,
+      "sha256": "0030d42a2272fe74c90039d47b99bd90a1535c0e81d11cdf6cd583169ec5b514",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -22394,11 +22394,11 @@
         },
         {
           "name": "LuluAiServices",
-          "line": 1325
+          "line": 1329
         },
         {
           "name": "initialize",
-          "line": 1335
+          "line": 1339
         }
       ]
     },
@@ -22463,8 +22463,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-      "lines": 60,
-      "sha256": "f54878d26e2aaa29c77a1f77d64ac455d90371036fc8500efb9af2c90dbedf2d",
+      "lines": 76,
+      "sha256": "6e637faf2b8a9bd30a5c47cf28db60e678bf58d686ea2a55bbfe33447bddd6a2",
       "symbols": []
     },
     {
@@ -34812,12 +34812,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 96,
-      "sha256": "fdedaad18a0230de04f56659faccfd5044da7ffb64b05299f6bbc7c5f2495190",
+      "lines": 98,
+      "sha256": "182de15c0a7120636f3c94be7862956e740bf58a1be7a8f053d1d680cad200b4",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
-          "line": 11
+          "line": 10
         }
       ]
     },
@@ -35364,8 +35364,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 732,
-      "sha256": "c5d75753c2c7199ee6cf043bbb45ea30006e1477ef8dc5624b906fdfb7d4f22a",
+      "lines": 733,
+      "sha256": "5312a740fc4a3f882a0a3c150be945b81d4e2c46bf9b19703cc967306caeccbd",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
@@ -35491,7 +35491,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
       "lines": 433,
-      "sha256": "dc0adf0c6b46f5f888f362bb409b7798f0b61f71906ff6a8625223b2f8eaebe6",
+      "sha256": "0754609792c2f21dff1c166bbb13fca28b9a1e1cd2e3652537903f4e45567429",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -36161,7 +36161,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
       "lines": 409,
-      "sha256": "cce04225176034d974242c643f0bf1e648b53c044b24d999f820a6ca01e69df6",
+      "sha256": "e76aee6cc8489a079a8b2bff8ef5d80e655e721da54d0d4add38066d14080561",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -37341,7 +37341,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
       "lines": 107,
-      "sha256": "1a5b4a2c5fa6dc8194720490977f30cbd9334352d45edf0a760687e48973788d",
+      "sha256": "d12a2749da02a22e6cd9bae054e7c113e1f2b9eae055bdf88436372094a0f8ed",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
@@ -37987,12 +37987,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt",
-      "lines": 27,
-      "sha256": "d573330df2e5c4aa40cfe7b47b922d2c6779d311b61aaee21eae1b9602c86cd8",
+      "lines": 33,
+      "sha256": "81ec9f8a7cfd1611bac0b6f16db242129e579dfc9e34227fbc5b0dc7b441fabd",
       "symbols": [
         {
           "name": "WorldLifeNarrativeGuideTest",
-          "line": 6
+          "line": 9
         }
       ]
     },

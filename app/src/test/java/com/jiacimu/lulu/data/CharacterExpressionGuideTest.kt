@@ -18,7 +18,7 @@ class CharacterExpressionGuideTest {
             assertTrue(prompt.contains("性格同时影响关注点、立场、主动性、措辞与节奏"))
             assertTrue(prompt.contains("尚未说出口的私人变化"))
             assertTrue(prompt.contains("日记、朋友圈与故事各有听众和体裁"))
-            assertTrue(prompt.contains("真实回执"))
+            assertTrue(prompt.contains("执行成功必须有真正回执"))
             assertEquals(1, prompt.split("【语言与句段：").size - 1)
             assertFalse(prompt.contains("首个输出字符必须是"))
         }

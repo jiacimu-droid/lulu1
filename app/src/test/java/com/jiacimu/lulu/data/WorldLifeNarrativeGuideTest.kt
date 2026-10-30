@@ -4,12 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.time.Instant
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(manifest = org.robolectric.annotation.Config.NONE, sdk = [28])
 class WorldLifeNarrativeGuideTest {
     @Test fun readerLengthAndRoutineWordsNeverChooseSkipForTheModel() {
         assertNull(WorldLifeNarrativeGuide.skipReason("走进咖啡店，点了一杯咖啡，然后坐下。"))
         assertNull(WorldLifeNarrativeGuide.skipReason("""{"scene":"走进咖啡店，点了一杯咖啡，然后坐下。"}"""))
         assertEquals("缺少可展开内容", WorldLifeNarrativeGuide.skipReason(
-            "```json\n{\"publication\":\"skip\",\"reason\":\"缺少可展开内容\"}\n```"))
+            """```json
+            {"publication":"skip","reason":"缺少可展开内容"}
+            ```""".trimIndent()))
+        assertNull(WorldLifeNarrativeGuide.skipReason("""{\"publication\":\"skip\"}"""))
+
     }
 
     @Test fun selectedExchangeKeepsTheLastReplyAndLongActionDetailInOrder() {

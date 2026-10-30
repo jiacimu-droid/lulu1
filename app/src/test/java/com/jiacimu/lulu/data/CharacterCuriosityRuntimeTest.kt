@@ -100,7 +100,8 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "看过书的简介", at)
         assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("尚未实践"))
         realRead("real-source", at)
-        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true, "实际读了第一章", "real-source", at)
+        CharacterCuriosityRuntime.recordOutcome(id, proposal().put("sourceEvidenceId", "source-1"),
+            "reading", true, "实际读了第一章", "real-source", at)
         assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("实际读了第一章"))
         CharacterCuriosityRuntime.releaseInterest(id, proposal().put("status", "dropped"))
         assertEquals("", CharacterCuriosityRuntime.briefContext(id))

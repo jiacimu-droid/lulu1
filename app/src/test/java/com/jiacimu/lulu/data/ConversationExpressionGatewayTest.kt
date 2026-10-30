@@ -394,8 +394,8 @@ class ConversationExpressionGatewayTest {
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
             assertTrue(system.contains(JSONObject().put("messageId", current.id)
                 .put("text", current.content).toString()))
-            assertTrue(system.contains("担忧本身可以成立"))
-            assertTrue(system.contains("无需总比她懂得更多"))
+            assertTrue(system.contains("从本人的性格、所知、立场与在意之处"))
+            assertTrue(system.contains("选择此刻真正想对这个人说什么"))
             assertTrue(MigratedDomainStores.chat.messages(chat.id).value.any {
                 it.sender == LuluChatMessage.Sender.Character && it.content == spoken
             })

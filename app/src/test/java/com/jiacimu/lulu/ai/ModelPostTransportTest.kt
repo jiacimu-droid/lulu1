@@ -1,78 +1,66 @@
 package com.jiacimu.lulu.ai
 
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.OutputStream
-import java.net.HttpURLConnection
-import java.net.SocketTimeoutException
-import java.net.URL
+import java.net.ServerSocket
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import org.junit.Assert.*
 import org.junit.Test
 
 class ModelPostTransportTest {
-    private class Connection : HttpURLConnection(URL("http://example.test")) {
-        var connects = 0
-        var disconnected = false
-        var failure: String = ""
-        val sent = ByteArrayOutputStream()
-        val bodyLength get() = fixedContentLength
-        override fun connect() { connects++; if (failure == "connect") throw SocketTimeoutException("timeout") }
-        override fun disconnect() { disconnected = true }
-        override fun usingProxy() = false
-        override fun getOutputStream(): OutputStream {
-            if (failure == "write") throw IOException("connection closed")
-            return sent
-        }
-    }
-
     @Test fun utf8BodyUsesExactLengthAndOnePost() {
-        val connection = Connection()
-        val text = "{\"内容\":\"记忆\"}"
-        val reply = ModelPostTransport.execute("http://example.test", emptyMap(), text, 180_000,
-            open = { connection }, preflight = {}) { "ok" }
-        assertEquals("ok", reply)
-        assertEquals(text.toByteArray(Charsets.UTF_8).size, connection.bodyLength)
-        assertEquals(text, connection.sent.toString("UTF-8"))
-        assertEquals(1, connection.connects)
-        assertTrue(connection.disconnected)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody("ok"))
+        server.start()
+        try {
+            val body = "{\"内容\":\"记忆\"}"
+            assertEquals("ok", ModelPostTransport.execute(server.url("/").toString(),
+                emptyMap(), body, 30_000, preflight = {}) { it.body!!.string() })
+            val request = server.takeRequest()
+            assertEquals(body, request.body.readUtf8())
+            assertEquals(body.toByteArray(Charsets.UTF_8).size.toString(), request.getHeader("Content-Length"))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
     }
 
-    @Test fun identicalTimeoutMessageIsClassifiedByActualPhase() {
-        for (stage in ModelPostTransport.Phase.values()) {
-            val connection = Connection().apply {
-                failure = when (stage) {
-                    ModelPostTransport.Phase.CONNECT -> "connect"
-                    ModelPostTransport.Phase.WRITE_BODY -> "write"
-                    else -> ""
-                }
+    @Test fun authenticationRejectionRetainsProviderBodyWithoutReplaying() {
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(401)
+            .setBody("{\"error\":{\"message\":\"repair-auth-denied\"}}"))
+        server.enqueue(MockResponse().setBody("must not retry"))
+        server.start()
+        try {
+            ModelPostTransport.execute(server.url("/").toString(), emptyMap(), "{}", 30_000,
+                preflight = {}) {
+                assertEquals(401, it.code)
+                assertTrue(it.body!!.string().contains("repair-auth-denied"))
             }
-            val failure = try {
-                ModelPostTransport.execute("http://example.test", emptyMap(), "{}", 180_000,
-                    open = { connection }, preflight = {}) { throw SocketTimeoutException("timeout") }
-                error("Expected failure")
-            } catch (error: ModelPostTransportException) { error }
-            assertEquals(stage, failure.phase)
-            assertEquals(1, connection.connects)
-            assertTrue(connection.disconnected)
-            if (stage == ModelPostTransport.Phase.CONNECT) {
-                assertEquals(0, connection.sent.size())
-                assertTrue(failure.diagnostic.contains("正文尚未发送"))
-            } else assertTrue(failure.diagnostic.contains("结果未知"))
-        }
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun redirectDoesNotReplayThePaidBodyAtAnotherEndpoint() {
+        val server = MockWebServer()
+        server.start()
+        server.enqueue(MockResponse().setResponseCode(307).setHeader("Location", server.url("/other")))
+        server.enqueue(MockResponse().setBody("must not redirect"))
+        try {
+            assertEquals(307, ModelPostTransport.execute(server.url("/").toString(),
+                emptyMap(), "{}", 30_000, preflight = {}) { it.code })
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
     }
 
     @Test fun disconnectAfterAcceptedBodyDoesNotReplayChargeablePost() {
-        val server = okhttp3.mockwebserver.MockWebServer()
-        server.enqueue(okhttp3.mockwebserver.MockResponse().setSocketPolicy(
-            okhttp3.mockwebserver.SocketPolicy.DISCONNECT_AFTER_REQUEST))
-        server.enqueue(okhttp3.mockwebserver.MockResponse().setBody("must not replay"))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AFTER_REQUEST))
+        server.enqueue(MockResponse().setBody("must not replay"))
         server.start()
         try {
             try {
                 ModelPostTransport.execute(server.url("/chat/completions").toString(),
-                    emptyMap(), "{\"model\":\"test\"}", 30_000, preflight = {}) {
-                    it.inputStream.use { stream -> stream.readBytes() }
-                }
+                    emptyMap(), "{\"model\":\"test\"}", 30_000, preflight = {}) { it.body!!.string() }
                 fail("Expected broken response")
             } catch (error: ModelPostTransportException) {
                 assertEquals(ModelPostTransport.Phase.READ_RESPONSE, error.phase)
@@ -82,14 +70,28 @@ class ModelPostTransportTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun failedLocalPreflightNeverOpensPost() {
-        var opened = false
+    @Test fun connectFailureIsNotReportedAsResponseReadTimeout() {
+        val port = ServerSocket(0).use { it.localPort }
         try {
-            ModelPostTransport.execute("http://localhost:12000", emptyMap(), "{}", 180_000,
-                open = { opened = true; Connection() },
-                preflight = { throw ModelLocalRouteUnavailableException("offline", IOException()) }) { "unused" }
-            fail("Expected local failure")
-        } catch (_: ModelLocalRouteUnavailableException) { }
-        assertFalse(opened)
+            ModelPostTransport.execute("http://127.0.0.1:$port/", emptyMap(), "{}", 30_000,
+                preflight = {}) { it.body!!.string() }
+            fail("Expected connection failure")
+        } catch (error: ModelPostTransportException) {
+            assertEquals(ModelPostTransport.Phase.CONNECT, error.phase)
+            assertTrue(error.diagnostic.contains("正文尚未发送"))
+        }
+    }
+
+    @Test fun failedLocalPreflightNeverStartsPost() {
+        val server = MockWebServer()
+        server.start()
+        try {
+            try {
+                ModelPostTransport.execute(server.url("/").toString(), emptyMap(), "{}", 30_000,
+                    preflight = { throw ModelLocalRouteUnavailableException("offline", IOException()) }) { "unused" }
+                fail("Expected local failure")
+            } catch (_: ModelLocalRouteUnavailableException) { }
+            assertEquals(0, server.requestCount)
+        } finally { server.shutdown() }
     }
 }

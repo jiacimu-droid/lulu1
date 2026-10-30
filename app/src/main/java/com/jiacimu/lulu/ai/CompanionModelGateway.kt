@@ -1113,7 +1113,7 @@ class CompanionModelGateway(
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): JSONObject {
         return ModelPostTransport.execute(url, headers, body.toString(), readTimeoutMillis) {
-            readJsonResponse(it)
+            parseJsonResponse(it.code, it.body?.string().orEmpty())
         }
     }
 
@@ -1128,9 +1128,9 @@ class CompanionModelGateway(
             url, headers + ("Accept" to "text/event-stream, application/json"),
             body.toString(), readTimeoutMillis,
         ) { connection ->
-            val status = connection.responseCode
+            val status = connection.code
             if (status !in 200..299) {
-                val raw = connection.errorStream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                val raw = connection.body?.string().orEmpty()
                 throw modelHttpException(status, raw)
             }
 
@@ -1199,7 +1199,7 @@ class CompanionModelGateway(
                 return true
             }
 
-            connection.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
+            checkNotNull(connection.body) { "接口返回了空内容" }.byteStream().bufferedReader(Charsets.UTF_8).use { reader ->
                 val eventData = StringBuilder()
                 while (!streamFinished) {
                     val line = reader.readLine() ?: break
@@ -1251,6 +1251,10 @@ class CompanionModelGateway(
             ?.bufferedReader(Charsets.UTF_8)
             ?.use { it.readText() }
             .orEmpty()
+        return parseJsonResponse(status, raw)
+    }
+
+    private fun parseJsonResponse(status: Int, raw: String): JSONObject {
         if (status !in 200..299) {
             throw modelHttpException(status, raw)
         }

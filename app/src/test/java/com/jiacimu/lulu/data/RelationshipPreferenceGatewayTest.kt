@@ -60,7 +60,7 @@ class RelationshipPreferenceGatewayTest {
             val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
             val prompt = request.getJSONArray("messages").getJSONObject(0).getString("content")
             assertTrue(prompt.contains("多角色共同互动"))
-            assertTrue(prompt.contains("人物的基本原则"))
+            assertTrue(prompt.contains("【以本人为表达的起点】"))
             assertFalse(prompt.contains(uniqueHabit))
             assertFalse(prompt.contains(uniqueMemory))
         } finally {
