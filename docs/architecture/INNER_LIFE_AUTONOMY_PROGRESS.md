@@ -149,3 +149,12 @@
 - **实际源码**：仅在原 `CharacterCuriosityRuntime.invalidateEvidence` 的同一次 Store 保存中移除准确引用被撤回 `eventId` 的失败投影，并让只有失败被撤回时也持久提交；其他来源的失败与无法归属来源的旧协议历史继续保留。程序只撤回失效事实，不自行选择重试/放下、不删原始时间线、不新增模型轮次、自动唤醒或公共存储。
 - **根因级回归源码**：`CharacterCuriosityRuntimeTest` 新增真实 `SharedExperienceTimeline.record` 编辑→本人待探索问题及同源失败撤回→另一独立来源失败保留→重启后提示不再出现旧失败；另测只有无 threadId 失败而无任何问题/线程时，来源编辑仍能单独落盘撤回。源码/测试提交不能当作 JVM 通过。
 - **验收边界**：按仓库原有 Refresh code index 自动生成 `CODE_INDEX.md` 与 `code-index.json`；对应 Android JVM、phone APK/发布必须核对实际完成工作流。真机编辑/删除来源、强杀恢复和三次跨天自然唤醒仍待验；本轮不覆盖基础/社交/Live2D 专项。
+
+
+## 2026-10-30 D2/T3：失效历史线程不能占用真实兴趣的连续性证据窗口
+
+- **四类核对**：既有本人来源核验、真实阅读回执、跨入口兴趣召回和旧线程显式 ID 恢复已实现；历史 APK/JVM 成功仅证明对应旧提交，不代替本轮验收。真机强杀、真实模型自主取舍、跨三次自然唤醒仍待验；多年数据压测属可选增强。
+- **已证实缺口与根因**：原 `CharacterCuriosityRuntime.continuityEvidenceIds` 先从持久化原始 threads 中按 status=exploring 取最后两条，再验证各自的真实步骤。两个无有效回执的历史线程即可占满窗口，使更早但仍有有效阅读回执的兴趣丢失连续性来源。其他上下文已使用 `activeThreads` 事实投影，两处证据选择不一致。
+- **实际修复**：连续性来源也先使用本人现有 `activeThreads(role, root)` 的有效投影，再选最多两条真实步骤证据；保留原 questions/threads Store、原始历史、人物归属和显式旧 threadId 恢复。不增加模型轮次、调度、自动执行、固定配额或公共网关修改。
+- **回归源码**：`CharacterCuriosityRuntimeTest.continuityEvidenceSlotsUseValidActiveThreadsNotStalePersistedEntries` 在原 SharedPreferences 注入一条真实阅读兴趣和两条无有效回执的历史线程，核对原只读投影保留真实兴趣且连续性来源返回其准确回执 ID；重绑原 Store 后仍可恢复。源码测试写入不等于 JVM 已执行。
+- **验收边界**：本轮仅修改 CharacterCuriosityRuntime、本专项对应测试及本进度；原 Refresh code index 工作流生成索引，不手工改索引。Android JVM、phone APK、Release 以实际 CI 最终状态为准；真机/跨日仍待独立验证。
