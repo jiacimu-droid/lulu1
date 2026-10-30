@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`592fcdcb59835f9493dd0acde3c91945d392bf34`
+- 基准提交：`57d7a60b93d4b34f55d678c2bcbc8ced5e46a04f`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：230292
+- 已索引代码/文本行：230317
 - 已发现符号：3256
 
 | 文件 | 行数 | 符号数 |
@@ -1069,7 +1069,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 112 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 376 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 183 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 82 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
