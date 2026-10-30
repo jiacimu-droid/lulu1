@@ -11,6 +11,7 @@ internal object WakeMusicCoordinator {
     private const val STORE = "lulu_wake_music_actions"
     private const val PENDING = "pending:"
     private var deferredCharacter: String? = null
+    internal data class ArmedWakeMusic(val volumePercent: Int?)
 
     /** Model-authored wake task completion already verified actual user evidence. */
     @Synchronized fun onModelConfirmedWake(context: Context, characterId: String) {
@@ -44,13 +45,17 @@ internal object WakeMusicCoordinator {
 
     /** A role-selected music wake survives the incoming call UI and app restart,
      * but it is valid only for the actual answered call with this task ID. */
-    @Synchronized fun takeAnsweredMusicPlan(context: Context, characterId: String, taskId: String?): Boolean {
-        if (taskId.isNullOrBlank()) return false
+    @Synchronized fun takeAnsweredMusicPlan(
+        context: Context, characterId: String, taskId: String?,
+    ): ArmedWakeMusic? {
+        if (taskId.isNullOrBlank()) return null
         val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        val stored = prefs.getString(PENDING + characterId, "").orEmpty()
-        if (stored != taskId) return false
+        val raw = prefs.getString(PENDING + characterId, "").orEmpty()
+        val plan = runCatching { JSONObject(raw) }.getOrNull()
+        val matches = (plan?.optString("taskId") ?: raw) == taskId
+        if (!matches) return null
         prefs.edit().remove(PENDING + characterId).commit()
-        return true
+        return ArmedWakeMusic(plan?.optInt("volumePercent", -1)?.takeIf { it in 0..65 })
     }
 
     /**
@@ -58,7 +63,10 @@ internal object WakeMusicCoordinator {
      * Never put a surprise PLAY into a generic on-hangup callback. A separate
      * model-authored call_end plan has its own executor and durable receipt.
      */
-    @Synchronized fun onScheduledWake(context: Context, characterId: String, taskId: String, defer: Boolean): String {
+    @Synchronized fun onScheduledWake(
+        context: Context, characterId: String, taskId: String, defer: Boolean,
+        volumePercent: Int? = null,
+    ): String {
         val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
             !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
@@ -69,7 +77,8 @@ internal object WakeMusicCoordinator {
             // permission, never a missed-call or hangup callback.
             val editor = context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
             if (defer && !callActive && taskId.isNotBlank()) {
-                editor.putString(PENDING + characterId, taskId).commit()
+                editor.putString(PENDING + characterId, JSONObject().put("taskId", taskId)
+                    .put("volumePercent", volumePercent?.takeIf { it in 0..65 } ?: JSONObject.NULL).toString()).commit()
                 return "角色选择音乐叫醒，接通后尝试播放现有播放器；未接听不播放"
             }
             editor.remove(PENDING + characterId).commit()
