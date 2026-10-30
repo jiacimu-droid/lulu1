@@ -57,7 +57,7 @@ class BundledJiangDuImportTest {
             val xingVoice = CharacterSpeechIdentity.promptSection(xingId)
             assertTrue(jiangVoice.contains("江渡：这么明显？"))
             assertFalse(jiangVoice.contains("星禾："))
-            assertTrue(xingVoice.contains("星禾：发来我看看。"))
+            assertTrue(xingVoice.contains("星禾：啊啊啊我发现一组巨好看的配色！"))
             assertFalse(xingVoice.contains("江渡："))
             assertFalse(CharacterLifeStore.profileContext(jiangId).contains("江渡："))
             assertFalse(CharacterLifeStore.profileContext(xingId).contains("星禾："))
@@ -72,6 +72,56 @@ class BundledJiangDuImportTest {
         } finally {
             save.invoke(CharacterLifeStore, jiangId, jiangBefore)
             save.invoke(CharacterLifeStore, xingId, xingBefore)
+        }
+    }
+
+    @Test fun onlyOldStockXingHeDialogueAndStyleAreUpgradedAndManualChangesSurvive() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val xingId = "lulu"
+        val jiangId = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val before = JSONObject(CharacterLifeStore.state(xingId).toString())
+        val jiangBefore = JSONObject(CharacterLifeStore.state(jiangId).toString())
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            val legacy = JSONObject(before.toString())
+            legacy.getJSONObject("profile")
+                .put("dialogueExamples", CharacterProfileSchema.xingHeDialogueExamplesV1)
+                .put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV6)
+            save.invoke(CharacterLifeStore, xingId, legacy)
+            CharacterLifeStore.initialize(context)
+            val upgraded = CharacterLifeStore.state(xingId).getJSONObject("profile")
+            assertEquals(CharacterProfileSchema.xingHeDialogueExamples,
+                upgraded.getString("dialogueExamples"))
+            assertEquals(CharacterProfileSchema.xingHeSpeechHabitsV7,
+                upgraded.getString("speechHabits"))
+            assertTrue(upgraded.getString("dialogueExamples").contains("星禾："))
+            assertFalse(CharacterLifeStore.profileContext(xingId)
+                .contains("星禾：啊啊啊"))
+            assertEquals(jiangBefore.toString(), CharacterLifeStore.state(jiangId).toString())
+
+            // Owner's chosen tone and authored dialogue take precedence over
+            // this or any future bundled preset, including intentional blanks.
+            CharacterLifeStore.setProfile(xingId, "dialogueExamples", "我写的星禾特有对话")
+            CharacterLifeStore.setProfile(xingId, "speechHabits", "开朗也可以很简练")
+            CharacterLifeStore.initialize(context)
+            assertEquals("我写的星禾特有对话", CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("dialogueExamples"))
+            assertEquals("开朗也可以很简练", CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("speechHabits"))
+            CharacterLifeStore.setProfile(xingId, "dialogueExamples", "")
+            CharacterLifeStore.setProfile(xingId, "speechHabits", "")
+            CharacterLifeStore.initialize(context)
+            assertEquals("", CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("dialogueExamples"))
+            assertEquals("", CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("speechHabits"))
+        } finally {
+            save.invoke(CharacterLifeStore, xingId, before)
         }
     }
 
