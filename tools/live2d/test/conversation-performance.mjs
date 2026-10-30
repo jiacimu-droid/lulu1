@@ -818,4 +818,65 @@ assert.equal(delayedScore.tick(() => {}), 1)
 delayedScore.stopSpeech()
 assert.equal(delayedScore.state().remaining, 0)
 
+// A long TTS fragment with three clauses may carry several REAL Motion3
+// clips chosen together. The next clip begins only when Cubism finishes the
+// previous one, and stops when this exact audible segment finishes.
+{
+  let ended = false
+  manager.isFinished = () => ended
+  const before = motions.length
+  bridge.perform({ visualSequence: 90001, beats: [
+    { segmentIndex: 0, segmentId: 'long-monologue', atMs: 0,
+      motion: { group: 'Gesture', index: 20 },
+      followUps: [
+        { motion: { group: 'Gesture', index: 21 }, transition: 'blend' },
+        { motion: { group: 'Gesture', index: 22 }, transition: 'blend' },
+      ] },
+  ] })
+  bridge.onPlaybackEvent('playing', 0, 90001, 'long-monologue')
+  bridge.performanceRuntime.tick(bridge.applyPerformanceBeat)
+  await Promise.resolve()
+  assert.equal(motions.length, before + 1)
+  assert.equal(motions.at(-1)[1], 20)
+  bridge.applyFinalParameters({}, 16)
+  assert.equal(motions.length, before + 1,
+    'unfinished Cubism Motion3 must not be rushed by speech duration guesses')
+  ended = true
+  bridge.applyFinalParameters({}, 16)
+  await Promise.resolve()
+  assert.equal(motions.length, before + 2)
+  assert.equal(motions.at(-1)[1], 21)
+  ended = false
+  bridge.applyFinalParameters({}, 16)
+  assert.equal(motions.length, before + 2)
+  ended = true
+  bridge.applyFinalParameters({}, 16)
+  await Promise.resolve()
+  assert.equal(motions.length, before + 3)
+  assert.equal(motions.at(-1)[1], 22)
+  bridge.onPlaybackEvent('finished', 0, 90001, 'long-monologue')
+  bridge.applyFinalParameters({}, 16)
+  await Promise.resolve()
+  assert.equal(motions.length, before + 3,
+    'audio finish must not replay or extend the selected sequence')
+  // No following utterance may inherit the old part's gestures.
+  const beforeNewPart = motions.length
+  bridge.perform({ visualSequence: 90002, beats: [
+    { segmentIndex: 0, segmentId: 'new-part', atMs: 0,
+      motion: { group: 'Gesture', index: 23 },
+      followUps: [{ motion: { group: 'Gesture', index: 24 } }] },
+  ] })
+  bridge.onPlaybackEvent('playing', 0, 90002, 'new-part')
+  bridge.performanceRuntime.tick(bridge.applyPerformanceBeat)
+  await Promise.resolve()
+  assert.equal(motions.length, beforeNewPart + 1)
+  bridge.onPlaybackEvent('interrupted', 0, 90002, 'new-part')
+  ended = true
+  bridge.applyFinalParameters({}, 16)
+  await Promise.resolve()
+  assert.equal(motions.length, beforeNewPart + 1,
+    'interrupting a call must cancel unfinished role-selected follow-ups')
+  manager.isFinished = () => false
+}
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
