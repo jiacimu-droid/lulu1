@@ -40,6 +40,7 @@ internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, va
             val explicit = candidate("reviewAfter")
             val reviewedAt = runCatching { Instant.parse(motive.optString("reviewedAt")) }.getOrNull()
             if (explicit != null && motive.optString("reviewedPlan") != explicit.token &&
+                motive.optString("skippedReviewPlan") != explicit.token &&
                 (reviewedAt == null || explicit.dueAt.isAfter(reviewedAt))) return explicit
             return candidate("fallbackReviewAt")
         }
@@ -71,13 +72,22 @@ internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, va
 internal object CharacterMotiveReviewScheduler {
     private val submitted = ConcurrentHashMap<String, String>()
 
+    // One stable WorkManager identity per role. A revised plan replaces the
+    // obsolete alarm instead of accumulating one work item per token/time.
+    internal fun workName(role: String) = "lulu-motive-review-$role"
+
     fun schedule(context: Context, role: String, state: JSONObject, force: Boolean = false) {
         val policy = ProactivePerceptionPolicyStore.get(role)
         // Unscheduled wishes ride the existing ordinary perception pulse.
         // Only the role's authored time gets a dedicated wake; otherwise a
         // large goal set could accidentally create one paid loop per batch.
         val next = CharacterMotiveReview.pending(state).firstOrNull { !it.fallback }
-        if (!policy.enabled || next == null) { submitted.remove(role); return }
+        if (!policy.enabled || next == null) {
+            if (submitted.remove(role) != null) {
+                WorkManager.getInstance(context.applicationContext).cancelUniqueWork(workName(role))
+            }
+            return
+        }
         val due = CharacterMotiveReview.eligibleAt(next.dueAt, policy, ZoneId.systemDefault())
         val signature = next.token + ":" + due.toEpochMilli()
         if (!force && submitted[role] == signature) return
@@ -87,7 +97,7 @@ internal object CharacterMotiveReviewScheduler {
             .setInputData(Data.Builder().putString("characterId", role).putString("motiveId", next.id)
                 .putString("token", next.token).build()).build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-            "lulu-motive-review-$role-${next.token}-${due.toEpochMilli()}", ExistingWorkPolicy.KEEP, request)
+            workName(role), ExistingWorkPolicy.REPLACE, request)
         submitted[role] = signature
     }
 
@@ -113,8 +123,10 @@ class CharacterMotiveReviewWorker(context: Context, params: WorkerParameters) : 
         val now = Instant.now()
         if (now.isBefore(due)) return Result.retry()
         if (Duration.between(due, now).toMinutes() > 30) {
-            CharacterInnerLifeStore.claimMotiveReview(role, id, token, now, coalesceDue = false)
-            return Result.success() // A stale review is not permission to contact hours later.
+            // Expiry is not an actual appraisal. Retain the goal, but mark
+            // this obsolete alarm as skipped and offer it at normal cadence.
+            CharacterInnerLifeStore.deferStaleMotiveReview(role, id, token, now)
+            return Result.success() // Never call a model hours after a missed alarm.
         }
         // The ordinary per-person owner claims the exact plan after checking
         // call/unread ownership. A busy conversation defers, never consumes it.
