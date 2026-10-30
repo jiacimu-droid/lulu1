@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T17:42:12.505828+00:00",
-  "commit": "eb37e70416bc54261aa81468e864ab8cb1eab97d",
+  "generatedAt": "2026-10-30T17:47:59.704036+00:00",
+  "commit": "d99382e6cb09efe98795eddefcec6e117427f611",
   "branch": "main",
-  "sourceFingerprint": "6d7b05bd5ea1fb0678f942294e5f6223fddbf134890fd832f0251aa7e458ddde",
+  "sourceFingerprint": "48aa7c15afa5a1732899139164876e9ab305e89150cef2e0e9af2d50b98ff2e5",
   "summary": {
     "files": 1120,
-    "lines": 231135,
-    "symbols": 3262
+    "lines": 231209,
+    "symbols": 3263
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2546,10 +2546,16 @@
         "line": 488
       }
     ],
+    "publishUnplannedSpeech": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 509
+      }
+    ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 505
+        "line": 521
       }
     ],
     "Model": [
@@ -3095,19 +3101,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2202
+        "line": 2218
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2357
+        "line": 2373
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2497
+        "line": 2513
       }
     ],
     "returnToList": [
@@ -15273,7 +15279,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-        "line": 80
+        "line": 110
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
@@ -20305,8 +20311,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 522,
-      "sha256": "07c2ddd18b1cc22b0ce4892cc66cd582c753e9c2a20b37b8ee0128e388fbc320",
+      "lines": 538,
+      "sha256": "b4d24f652328affaef5e0497d53b61ae19a12c4c77e4e1fa89e71085654d5021",
       "symbols": [
         {
           "name": "Head",
@@ -20389,8 +20395,12 @@
           "line": 488
         },
         {
+          "name": "publishUnplannedSpeech",
+          "line": 509
+        },
+        {
           "name": "bindSpeechAnchors",
-          "line": 505
+          "line": 521
         }
       ]
     },
@@ -20818,8 +20828,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2643,
-      "sha256": "8c8da9dbe29af71d63aedd74da2d1a794a87b39bcf61f78e3d7bcd9fb42649e8",
+      "lines": 2659,
+      "sha256": "37ed134e763957a1177a64320b73e5e49f5ca69f8653465128d35ce74b8a6be7",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -20903,15 +20913,15 @@
         },
         {
           "name": "sameSession",
-          "line": 2202
+          "line": 2218
         },
         {
           "name": "retryListening",
-          "line": 2357
+          "line": 2373
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2497
+          "line": 2513
         }
       ]
     },
@@ -34421,8 +34431,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
-      "lines": 122,
-      "sha256": "aba3d0449876a61156afa4ab7591494ff4f289e72cd33493e4b9e74007a4eb7a",
+      "lines": 164,
+      "sha256": "eda28e311ce05f24b323c7b7c0e8827d66ec91a9371d66bfa3e38a6bbc662052",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
@@ -34430,7 +34440,7 @@
         },
         {
           "name": "event",
-          "line": 80
+          "line": 110
         }
       ]
     },
