@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`27b9f1ce640f43868fd7092db51085e024d9a9d6`
+- 基准提交：`d75c805c6eab0323ecce8c4b9c3ce8d64eb2c817`
 - 分支：`main`
 - 已索引文件：1113
-- 已索引代码/文本行：229067
+- 已索引代码/文本行：229068
 - 已发现符号：3242
 
 | 文件 | 行数 | 符号数 |
@@ -1053,7 +1053,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 92 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
