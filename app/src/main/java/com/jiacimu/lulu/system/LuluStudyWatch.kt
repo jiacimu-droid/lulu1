@@ -123,9 +123,16 @@ internal object LuluStudyWatch {
             observationBlocker(context, requestChannel = false)?.let { blocker ->
                 return "监督已中断：$blocker；虽然存有未到期的旧会话，但目前不能截图，也不能声称正在监督"
             }
+            val last = parse(prefs(context).getString(LATEST, "{}"))
+            val observation = if (last.optString("sessionId") == session.optString("id") &&
+                now >= last.optLong("at") && last.optLong("at") > 0L) {
+                val elapsed = (now - last.optLong("at")) / 60_000L
+                val outcome = if (last.optBoolean("success")) "成功识别" else "未能识别"
+                "最近一次截图${elapsed}分钟前$outcome：${last.optString("summary").take(140)}"
+            } else "尚无真实截图回执"
             return "监督会话已启动，剩余" +
                 ((session.optLong("endsAt") - now + 59_999L) / 60_000L).coerceAtLeast(0) +
-                "分钟；是否真正看到屏幕须以成功的单帧截图回执为准"
+                "分钟；$observation。仅成功回执能证明曾看到该帧，不代表持续监看"
         }
         val waiting = pending(context)
         if (waiting.optString("characterId") == role &&
