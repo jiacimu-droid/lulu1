@@ -102,15 +102,20 @@ internal object ResidentDailyDecision {
             "invalid_output", "definite_rejected", "decided", "needs_recovery",
             "partial_side_steps", "waiting_partial", "finished_with_agenda_rejections",
             "source_unavailable")
+        // A revoked decision or rejected agenda has no same-day recovery
+        // control. Show its settled outcome immediately rather than hiding
+        // it until midnight; active/uncertain requests keep their existing
+        // same-day recovery UI and enter history on following days.
+        val sameDaySettled = setOf("source_unavailable", "finished_with_agenda_rejections")
         val keys = p.all.keys
         val dailyPrefix = "phase:$nativeId:"
         val daily = keys.asSequence().filter { it.startsWith(dailyPrefix) }
             .mapNotNull { phaseKey ->
                 val day = runCatching { LocalDate.parse(phaseKey.removePrefix(dailyPrefix)) }
                     .getOrNull() ?: return@mapNotNull null
-                if (!day.isBefore(today)) return@mapNotNull null
                 val phase = p.getString(phaseKey, "").orEmpty()
-                if (phase !in unresolved) return@mapNotNull null
+                if (phase !in unresolved || day.isAfter(today) ||
+                    (day == today && phase !in sameDaySettled)) return@mapNotNull null
                 val suffix = "$nativeId:$day"
                 HistoricalAttempt("每日规划",
                     day.atStartOfDay(ZoneId.systemDefault()).toInstant(), phase,
@@ -149,10 +154,10 @@ internal object ResidentDailyDecision {
                     }.firstOrNull()
                 } ?: return@mapNotNull null
                 val dueAt = origin.second
-                if (!dueAt.atZone(ZoneId.systemDefault()).toLocalDate().isBefore(today))
-                    return@mapNotNull null
                 val phase = p.getString(phaseKey, "").orEmpty()
-                if (phase !in unresolved) return@mapNotNull null
+                val dueDay = dueAt.atZone(ZoneId.systemDefault()).toLocalDate()
+                if (phase !in unresolved || dueDay.isAfter(today) ||
+                    (dueDay == today && phase !in sameDaySettled)) return@mapNotNull null
                 HistoricalAttempt("到点复议", dueAt, phase,
                     p.contains("due-decision:$key"),
                     !p.getString("due-invalid:$key", "").isNullOrBlank(),
