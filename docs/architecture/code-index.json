@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:40:56.033648+00:00",
-  "commit": "4a61b5e548e2eec439038dd25933e75d5a6b5a27",
+  "generatedAt": "2026-10-30T05:43:25.631827+00:00",
+  "commit": "f1bb9faa0a6d0fb32158e66fe05db5882ef27eeb",
   "branch": "main",
-  "sourceFingerprint": "48c2966d2a8a98e1b5ace47bb8852a21b83466a5fe41bf39129bc78fb07f3570",
+  "sourceFingerprint": "dab702f63772610c2cc51ac9f5ecab326549eb4dd6b89ad9900b38bf76793daf",
   "summary": {
     "files": 1108,
-    "lines": 228453,
+    "lines": 228440,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -1651,7 +1651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 78
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
@@ -4597,7 +4597,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 103
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
@@ -6899,7 +6899,7 @@
     "CharacterMotiveReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 111
+        "line": 105
       }
     ],
     "isActive": [
@@ -24281,8 +24281,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-      "lines": 144,
-      "sha256": "8dffc03bd6ee0925f0a2d676f338816de6eddcf5728d0f95d6cf7c144f025068",
+      "lines": 138,
+      "sha256": "624c87859df57096b2dee31c32a7d1fcc10102df87665250a116b95f5eff9a4d",
       "symbols": [
         {
           "name": "from",
@@ -24306,15 +24306,15 @@
         },
         {
           "name": "schedule",
-          "line": 78
+          "line": 74
         },
         {
           "name": "restore",
-          "line": 103
+          "line": 97
         },
         {
           "name": "CharacterMotiveReviewWorker",
-          "line": 111
+          "line": 105
         }
       ]
     },
@@ -35837,8 +35837,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt",
-      "lines": 119,
-      "sha256": "87cbf9ae8b14c741f2defb60b85200601e817bf2d9d85651c3889708590a437a",
+      "lines": 112,
+      "sha256": "5eef9bfa4cd176235d3ef5d47dc4b21671cb9c500c01f994e2aec0d97881cec1",
       "symbols": [
         {
           "name": "CharacterMotiveReviewTest",

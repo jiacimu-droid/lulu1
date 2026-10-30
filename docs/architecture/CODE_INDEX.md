@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4a61b5e548e2eec439038dd25933e75d5a6b5a27`
+- 基准提交：`f1bb9faa0a6d0fb32158e66fe05db5882ef27eeb`
 - 分支：`main`
 - 已索引文件：1108
-- 已索引代码/文本行：228453
+- 已索引代码/文本行：228440
 - 已发现符号：3233
 
 | 文件 | 行数 | 符号数 |
@@ -374,7 +374,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 92 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 144 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 138 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 350 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 306 | 10 |
@@ -919,7 +919,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 119 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 334 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 174 | 2 |
