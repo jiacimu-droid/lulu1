@@ -27,6 +27,7 @@ internal fun encodeCommitmentTasks(values: List<CommitmentTask>): String = JSONA
             put("currentStep", task.currentStep)
             put("attemptCount", task.attemptCount)
             put("lastActionResult", task.lastActionResult)
+            put("wakeAttemptHistory", JSONArray(task.wakeAttemptHistory))
             put("revision", task.revision)
             put("linkedAlarmId", task.linkedAlarmId ?: JSONObject.NULL)
             put("executionToken", task.executionToken ?: JSONObject.NULL)
