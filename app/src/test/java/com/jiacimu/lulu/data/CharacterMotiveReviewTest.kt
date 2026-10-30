@@ -79,6 +79,7 @@ class CharacterMotiveReviewTest {
         assertTrue(next.filter { it.id != "future" }.all { it.fallback && it.dueAt.isAfter(now) })
         assertFalse(next.single { it.id == "future" }.fallback)
     }
+
     @Test fun lateAlarmDefersWithoutFalselyRecordingAnActualReview() {
         val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
         CharacterInnerLifeStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
@@ -106,6 +107,4 @@ class CharacterMotiveReviewTest {
             .put("reviewAfter", now.plusSeconds(1800).toString())
         assertFalse(CharacterMotiveReview.from(revised)!!.fallback)
     }
-
-
 }
