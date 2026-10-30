@@ -24,6 +24,24 @@ data class MemoryRecallResult(
     val excluded: Map<String, String> = emptyMap(),
 )
 
+/**
+ * The role's CURRENT subjective emotion may draw a little extra attention to
+ * a memory sourced from that exact same witnessed event. This is a read-only
+ * tie-breaker applied only AFTER ordinary relevance and provenance checks.
+ * A historical batch is too broad to establish the same-event relationship.
+ */
+internal object MemoryAffectAttention {
+    fun bonus(memory: MemoryEntry, characterId: String, emotion: JSONObject?,
+        influence: CharacterInnerLifeStore.EmotionInfluence?): Double {
+        if (influence == null || emotion == null || memory.characterId != characterId) return 0.0
+        val source = emotion.optString("evidenceId").trim()
+        if (source.isBlank() || !memory.source.startsWith("timeline-events:") ||
+            source !in memory.sourceIds()) return 0.0
+        return 0.12 * (influence.remainingStrength /
+            influence.initialStrength.coerceAtLeast(1)).coerceIn(0.0, 1.0)
+    }
+}
+
 object RelevantMemoryRecall {
     private data class EmbeddingRankResult(
         val ranked: List<MemoryEntry> = emptyList(),
@@ -160,6 +178,11 @@ object RelevantMemoryRecall {
         }
 
         val graph = MemoryAssociationPolicy.expand(memories, candidates, limit = 24)
+        // No extra recall, no synthetic emotions and no permanent memory edits:
+        // only same-event evidence already in the relevant working set gets
+        // a modest preference while this role's recorded feeling is still active.
+        val currentEmotion = CharacterInnerLifeStore.snapshot(characterId).optJSONObject("emotion")
+        val emotionInfluence = CharacterInnerLifeStore.emotionInfluence(currentEmotion, now)
         val directRanks = candidates.withIndex().associate { it.value.id to it.index }
         val graphById = graph.associateBy { it.memory.id }
         val ranked = (candidates + graph.map { it.memory }).distinctBy(MemoryEntry::id)
@@ -168,9 +191,12 @@ object RelevantMemoryRecall {
                 val hit = graphById[memory.id]
                 MemoryAssociationPolicy.priority(memory,
                     if (directRank != null) 1.0 / (1.0 + directRank * 0.12) else 0.12,
-                    if (hit != null) 0.6 / hit.depth else 0.0, now)
+                    if (hit != null) 0.6 / hit.depth else 0.0, now) +
+                    MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence)
             }
         val reasons = ranked.associate { memory -> memory.id to buildString {
+            if (MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence) > 0.0)
+                append("与本角色当前情绪同源的真实经历，注意力略提高；")
             if (memory.id in lexicalPositiveIds) append("关键词/情境相关；")
             if (vectorRanked.any { it.id == memory.id }) append("语义相关；")
             graphById[memory.id]?.let { append("关联自=${it.viaId}，${it.reason}，${it.depth}跳；") }
