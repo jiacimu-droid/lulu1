@@ -78,6 +78,18 @@ class CommitmentOutcomeVerificationTest {
         assertTrue(task.copy(attemptCount = 0, followUpKind = "verification").isOutcomeReview())
     }
 
+    @Test fun wakeRoundHistoryPersistsAndLegacyTasksStayCompatible() {
+        val wake = task.copy(goal = "明天早上叫醒我", deliveryAction = "start_call",
+            attemptCount = 2, followUpKind = "retry",
+            wakeAttemptHistory = listOf("第一轮铃声已启动", "第一轮说话已播完", "第二轮角色选择再说话"))
+        val restored = decodeCommitmentTasks(encodeCommitmentTasks(listOf(wake))).single()
+        assertEquals(wake.wakeAttemptHistory, restored.wakeAttemptHistory)
+        assertEquals(2, restored.attemptCount)
+        assertEquals("retry", restored.followUpKind)
+        assertEquals(emptyList<String>(), decodeCommitmentTasks(
+            encodeCommitmentTasks(listOf(task))).single().wakeAttemptHistory)
+    }
+
     @Test fun persistedRecordsRetainEvidenceAndReviewKinds() {
         val old = task.copy(followUpKind = "verification", verificationMode = "delivery",
             completionEvidenceIds = listOf("ok"), lastVerificationReason = "actual result")
