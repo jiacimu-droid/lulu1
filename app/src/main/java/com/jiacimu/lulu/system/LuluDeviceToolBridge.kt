@@ -767,6 +767,17 @@ object LuluDeviceToolBridge {
                 ?: return Result.failure(IllegalStateException(
                     "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
                 ))
+            // A malformed phone JSON can still recover genuinely speakable
+            // text. Previously this early return skipped the whole Live2D
+            // action gateway: audio played but no motion was ever planned.
+            // Repair only the missing visual contract with the same character
+            // and the same immutable words, never re-decide a tool or reply.
+            if (sceneContext.contains("电话") && !callSilence &&
+                live2dDecisionContext.isNotBlank() && onLive2DAction != null) {
+                Live2DPhoneMotionRepair.publish(appContext, characterId, phoneCallId,
+                    verifiedSpeech, null, history, userText, sceneContext,
+                    connection, title, onLive2DAction, onLive2DStatus)
+            }
             return Result.success(plannedReply.copy(text = verifiedSpeech))
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
