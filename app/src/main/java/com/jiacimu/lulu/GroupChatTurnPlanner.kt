@@ -12,14 +12,12 @@ import com.jiacimu.lulu.data.ModelStructuredOutput
 import kotlinx.coroutines.CancellationException
 
 /**
- * A public-room speaking-order proposal, NOT a shared brain or dialogue author.
- *
- * The model only sees a short excerpt from this group and its roster. It never
- * receives a member's persona, private memories, thoughts or contact graph.
- * Each selected member still makes its own independent reply/silence decision.
+ * One ephemeral room-direction model call. It reads the public conversation,
+ * user-authored cast outlines and factual acquaintance stages. It never reads
+ * another person's private memories, moods, thoughts or contact graph.
+ * Production notes are not group facts; every participant retains their own
+ * model, identity, independent decision and right to remain silent.
  */
-
-/** A private, disposable room-direction suggestion, never a character decision. */
 internal data class GroupChatSceneBeat(
     val speakerId: String,
     val targetId: String? = null,
@@ -171,9 +169,9 @@ internal object GroupChatTurnPlanner {
                 characterId = "",
                 facts = "群聊《${group.name.take(60)}》\n成员ID、人物演出参照与认识阶段（不可直接公开为事实）：\n$cast\n当前群内公开消息：\n$scene",
                 instruction = instruction,
-                source = "群聊协调",
-                title = "群聊发言机会",
-                maxTokens = 700,
+                source = "群聊导演",
+                title = "群聊现场编排",
+                maxTokens = (380 + limit * 140).coerceAtMost(1_500),
                 connectionOverride = connection,
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 30_000,
