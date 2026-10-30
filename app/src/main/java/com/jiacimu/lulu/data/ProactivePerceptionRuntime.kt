@@ -852,7 +852,7 @@ object ProactivePerceptionRuntime {
                 if (openCommitments.isNotEmpty()) {
                     appendLine("【当前已承担的目标与统一验收入口】")
                     openCommitments.take(12).forEach { task ->
-                        appendLine("id=${task.id}; goal=${task.goal.take(140)}; condition=${task.completionCondition.take(130)}; mode=${task.verificationMode}; status=${task.status}; last=${task.readableLastResult().take(160)}")
+                        appendLine("id=${task.id}; goal=${task.goal.take(140)}; condition=${task.completionCondition.take(130)}; mode=${task.verificationMode}; status=${task.status}; repeat=${task.repeat}; due=${task.dueAt}; nextCheck=${task.nextCheckAt}; last=${task.readableLastResult().take(240)}")
                     }
                     appendLine("【按各自任务证据模式核对，不能见到一个事件ID就假定能结案】")
                     appendLine("这些只是来源/类型初筛候选，不保证语义上满足目标。只有自己判断真实结果满足完成条件后，才能使用 tool=verify_commitment,args={taskId:原任务ID,completionEvidenceIds:[实际存在且相关的事件ID],verificationReason:证据如何真正支持目标}。若无合适证据不要空试验收，先调查、继续行动、等待或复查。")
