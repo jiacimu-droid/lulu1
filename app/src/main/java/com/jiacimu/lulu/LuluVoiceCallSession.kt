@@ -1497,6 +1497,28 @@ internal object LuluVoiceCallSession {
         if (LuluCallWindowController.videoRequested.value) {
             InteractionSignalBridge.recordVideoSelected(current.characterId, current.callExperienceId)
         }
+        // A scheduled wake's model may already have selected music BEFORE
+        // the incoming invitation. Consume that exact task-owned choice only
+        // on answer; a missed/declined call must never start a player.
+        val context = appContext
+        val taskId = current.incomingCommitmentTaskId
+        if (context != null &&
+            com.jiacimu.lulu.data.WakeMusicCoordinator.takeAnsweredMusicPlan(
+                context, current.characterId, taskId)) {
+            val callId = current.callExperienceId
+            scope.launch {
+                val verified = com.jiacimu.lulu.data.WakeMusicCoordinator.playImmediately(
+                    context, current.characterId, taskId!!)
+                val call = mutableState.value
+                if (call.connected && call.characterId == current.characterId &&
+                    call.callExperienceId == callId) {
+                    mutableState.update {
+                        it.copy(statusMessage = if (verified) "已实际启动叫醒音乐 · 还没有确认你醒来"
+                            else "音乐播放器没有确认开始，已保留本次电话叫醒")
+                    }
+                }
+            }
+        }
         handleUserSpeech("", opening = true)
     }
 
