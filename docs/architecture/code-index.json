@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T08:00:15.889758+00:00",
-  "commit": "581f20dd3b91953d7ea219b49582a441c2e03070",
+  "generatedAt": "2026-10-30T08:00:54.795444+00:00",
+  "commit": "64b34f92bb322107cb80b357b41429ebcd1b433d",
   "branch": "main",
-  "sourceFingerprint": "cd97148f1595292c67115db1516ab22479d1a4146ac298c8f68c620591cf94b6",
+  "sourceFingerprint": "5ee664762b0b5eb9383289c1ebc4445fa61d0fa3f7fdbb0c240ddb756a7e5507",
   "summary": {
     "files": 1119,
-    "lines": 229804,
+    "lines": 229821,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -121,7 +121,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 349
+        "line": 353
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt",
@@ -267,7 +267,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 335
+        "line": 339
       }
     ],
     "isWakeCallReason": [
@@ -521,7 +521,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 370
+        "line": 374
       }
     ],
     "dispatch": [
@@ -5641,7 +5641,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 218
+        "line": 226
       }
     ],
     "supports": [
@@ -14943,31 +14943,31 @@
     "restoreOverlay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 295
+        "line": 299
       }
     ],
     "scheduleNext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 316
+        "line": 320
       }
     ],
     "recordCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 410
+        "line": 414
       }
     ],
     "LuluStudyWatchReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 435
+        "line": 439
       }
     ],
     "LuluStudyWatchWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-        "line": 446
+        "line": 450
       }
     ],
     "shouldStream": [
@@ -33760,8 +33760,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
-      "lines": 504,
-      "sha256": "68061b1a0acc8241bded9ace9a18acec264053c0e59c7a51abbea87d8b4cad8b",
+      "lines": 508,
+      "sha256": "67963dcc87a709e956f1355c21d3d46cca1cfe442069d674bd1347555c0520c2",
       "symbols": [
         {
           "name": "active",
@@ -33785,39 +33785,39 @@
         },
         {
           "name": "resolve",
-          "line": 218
+          "line": 226
         },
         {
           "name": "restoreOverlay",
-          "line": 295
+          "line": 299
         },
         {
           "name": "scheduleNext",
-          "line": 316
+          "line": 320
         },
         {
           "name": "claim",
-          "line": 335
+          "line": 339
         },
         {
           "name": "stop",
-          "line": 349
+          "line": 353
         },
         {
           "name": "context",
-          "line": 370
+          "line": 374
         },
         {
           "name": "recordCheck",
-          "line": 410
+          "line": 414
         },
         {
           "name": "LuluStudyWatchReceiver",
-          "line": 435
+          "line": 439
         },
         {
           "name": "LuluStudyWatchWorker",
-          "line": 446
+          "line": 450
         }
       ]
     },
@@ -38692,8 +38692,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
-      "lines": 191,
-      "sha256": "91da6ce07558b45b7f436c217f6d96775cfe19802bb900919c7204971c5834fb",
+      "lines": 204,
+      "sha256": "3e32d2e4d6eb2ca0deac87f5c3b5332a08e4e043733ceeaf9b577f90e160605c",
       "symbols": [
         {
           "name": "LuluStudyWatchTest",
