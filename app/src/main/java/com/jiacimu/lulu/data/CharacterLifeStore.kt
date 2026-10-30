@@ -1006,10 +1006,11 @@ object CharacterLifeStore {
             } else groups
         }
         val sections = orderedGroups.mapNotNull { (group, fields) ->
-            val values = fields.mapNotNull { field ->
-                profile.optString(field.key).trim().takeIf(String::isNotBlank)
-                    ?.let { "- ${field.label}：$it" }
-            }
+            val values = fields.filterNot { it.key == "dialogueExamples" }
+                .mapNotNull { field ->
+                    profile.optString(field.key).trim().takeIf(String::isNotBlank)
+                        ?.let { "- ${field.label}：$it" }
+                }
             values.takeIf(List<String>::isNotEmpty)?.let {
                 "【$group】\n" + it.joinToString("\n")
             }
