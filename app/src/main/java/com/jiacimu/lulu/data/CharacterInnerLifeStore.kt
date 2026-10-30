@@ -329,6 +329,28 @@ object CharacterInnerLifeStore {
         return true
     }
 
+    /**
+     * A delayed worker cannot imply that the role actually reconsidered a goal.
+     * Remember only the skipped alarm fingerprint; keep the goal open and
+     * revisit it during the already configured ordinary perception cadence.
+     * A later model-authored plan has a new fingerprint and is eligible again.
+     */
+    @Synchronized internal fun deferStaleMotiveReview(
+        role: String, id: String, token: String, now: Instant = Instant.now(),
+    ): Boolean {
+        val root = snapshot(role)
+        val entries = root.optJSONArray("motives") ?: return false
+        val motive = (0 until entries.length()).mapNotNull(entries::optJSONObject)
+            .firstOrNull { it.optString("id") == id } ?: return false
+        val plan = CharacterMotiveReview.from(motive) ?: return false
+        if (plan.token != token || now.isBefore(plan.dueAt)) return false
+        if (!plan.fallback) motive.put("skippedReviewPlan", plan.token)
+        motive.remove("fallbackReviewAt")
+        CharacterMotiveProgress.ensureFollowUp(motive, nextMotiveReviewAt(role, root, now), now)
+        save(role, root)
+        return true
+    }
+
     // Keep the original trailing-lambda contract: many existing callers use
     // save(role, state) { field, entry -> ... } for archive withdrawal.
     private fun save(id: String, state: JSONObject,
