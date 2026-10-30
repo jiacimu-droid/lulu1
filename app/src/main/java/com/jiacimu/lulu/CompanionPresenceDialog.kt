@@ -259,6 +259,14 @@ internal fun CompanionPresenceDialog(
                                         Text(line, color = Color(0xFF858086),
                                             fontSize = 11.sp, lineHeight = 17.sp)
                                     }
+                                    // Character-owned decisions and goals, not guessed from
+                                    // chat text or an extra diagnostic model request.
+                                    CharacterLifeDiagnostics.lines(
+                                        CharacterInnerLifeStore.snapshot(characterId), now,
+                                    ).forEach { line ->
+                                        Text(line, color = Color(0xFF858086),
+                                            fontSize = 11.sp, lineHeight = 17.sp)
+                                    }
                                     state?.lastPerceptionNote?.takeIf(String::isNotBlank)?.let {
                                         Text("运行记录 · " + it.take(180),
                                             color = Color(0xFF858086), fontSize = 11.sp)
