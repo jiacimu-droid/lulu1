@@ -246,9 +246,7 @@ internal object LuluVoiceCallSession {
         text: String,
         taskId: String,
         ringFirst: Boolean = true,
-        ringCount: Int = 2,
-        ringSeconds: Int = 5,
-        pauseSeconds: Int = 2,
+        ringSeconds: Int = 6,
     ): Boolean {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId || text.isBlank()) return false
@@ -279,24 +277,13 @@ internal object LuluVoiceCallSession {
         val context = appContext ?: return false
         wakeCueJob = scope.launch {
             if (ringFirst) {
-                val bursts = ringCount.coerceIn(1, 4)
+                // Just ONE native ringing cue before this round's speech.
+                // Future cues belong to a fresh model decision after observation.
                 val duration = ringSeconds.coerceIn(2, 10) * 1_000L
-                val gap = pauseSeconds.coerceIn(1, 4) * 1_000L
-                for (index in 0 until bursts) {
-                    // The user can answer at any point: real speech cancels
-                    // this job and stops the ringtone; no new call is placed.
-                    val live = mutableState.value
-                    if (!live.connected || live.callExperienceId != callId ||
-                        pendingScheduledWakeReason != reason) return@launch
-                    val ringKey = "wake-$callId-$taskId-$index"
-                    val started = LuluCallRingtone.startInCallWake(context, ringKey, duration)
-                    if (!started) break // Silent/DND is not an audible attempt.
-                    try {
-                        delay(duration)
-                    } finally {
-                        LuluCallRingtone.stopInCallWake(ringKey)
-                    }
-                    if (index < bursts - 1) delay(gap)
+                val ringKey = "wake-$callId-$taskId"
+                if (LuluCallRingtone.startInCallWake(context, ringKey, duration)) {
+                    try { delay(duration) }
+                    finally { LuluCallRingtone.stopInCallWake(ringKey) }
                 }
             }
             val live = mutableState.value
