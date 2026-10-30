@@ -115,7 +115,8 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.recordInquiry(id, proposal(), "legacy-read",
             "旧版阅读保存的实际记录", at)
         assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("questions").length())
-        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+        CharacterCuriosityRuntime.recordOutcome(id,
+            proposal().put("sourceEvidenceId", "legacy-read"), "reading", true,
             "已阅读下一段", "legacy-read", at)
         assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").length())
     }
@@ -189,7 +190,7 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "真实看到的问题", at)
         val pending = CharacterCuriosityRuntime.visibleQuestions(id).single()
         val identity = pending.getString("threadId")
-        val owned = proposal().put("threadId", identity)
+        val owned = proposal().put("threadId", identity).put("sourceEvidenceId", "source-1")
         CharacterCuriosityRuntime.recordFailure(id, owned, "reading", "读书失败", at)
         assertEquals(identity, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures")
             .getJSONObject(0).getString("threadId"))
@@ -657,6 +658,74 @@ class CharacterCuriosityRuntimeTest {
         assertTrue(CharacterCuriosityRuntime.deleteInterest(id, pendingId))
         assertEquals(exploredId, CharacterCuriosityRuntime.activeThreads(id).single().getString("threadId"))
         assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun unownedToolReceiptsCannotClaimPendingQuestionOrInventForeignThread() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1",
+            "本人真实发现的疑问", at.plusSeconds(10)))
+        val ownedId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        realRead("unbound-read", at.plusSeconds(20))
+        listOf(
+            proposal().put("threadId", ownedId),
+            proposal(),
+            proposal().put("threadId", "another-person-or-deleted-thread")
+                .put("sourceEvidenceId", "source-1"),
+        ).forEach { stale ->
+            CharacterCuriosityRuntime.recordOutcome(id, stale, "reading", true,
+                "真实执行但不能归属当前问题", "unbound-read", at.plusSeconds(20))
+        }
+        assertEquals(1, CharacterCuriosityRuntime.visibleQuestions(id).size)
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id)
+            .optJSONArray("threads")?.length() ?: 0)
+        assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf("unbound-read")).firstOrNull())
+
+        realRead("owned-read", at.plusSeconds(30))
+        val current = proposal().put("threadId", ownedId).put("sourceEvidenceId", "source-1")
+        CharacterCuriosityRuntime.recordOutcome(id, current, "reading", true,
+            "本人本次问题的实际阅读", "owned-read", at.plusSeconds(30))
+        CharacterCuriosityRuntime.recordOutcome(id, current, "reading", true,
+            "同一回执重放", "owned-read", at.plusSeconds(40))
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(id).isEmpty())
+        val thread = CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").getJSONObject(0)
+        assertEquals(ownedId, thread.getString("threadId"))
+        assertEquals(1, thread.getJSONArray("steps").length())
+        assertEquals("owned-read", thread.getJSONArray("steps").getJSONObject(0).getString("evidenceId"))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun missingSourceFailureCannotReplaceOwnedPendingOrExploredFeedback() {
+        begin()
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1",
+            "本人真实发现的疑问", at.plusSeconds(10)))
+        val ownedId = CharacterCuriosityRuntime.visibleQuestions(id).single().getString("threadId")
+        val current = proposal().put("threadId", ownedId).put("sourceEvidenceId", "source-1")
+        CharacterCuriosityRuntime.recordFailure(id, current, "reading",
+            "本次确实失败", at.plusSeconds(20))
+        CharacterCuriosityRuntime.recordFailure(id, proposal().put("threadId", ownedId),
+            "reading", "缺来源的旧失败", at.plusSeconds(25))
+        CharacterCuriosityRuntime.recordFailure(id, proposal(),
+            "reading", "无ID无来源的旧失败", at.plusSeconds(26))
+        var failures = CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures")
+        assertEquals(1, failures.length())
+        assertEquals("本次确实失败", failures.getJSONObject(0).getString("reason"))
+        assertEquals(1, failures.getJSONObject(0).getInt("repeats"))
+
+        realRead("owned-after-failure", at.plusSeconds(30))
+        CharacterCuriosityRuntime.recordOutcome(id, current, "reading", true,
+            "真正成功的下一步", "owned-after-failure", at.plusSeconds(30))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+        CharacterCuriosityRuntime.recordFailure(id, proposal().put("threadId", ownedId),
+            "reading", "已实践线程的无来源旧失败", at.plusSeconds(40))
+        failures = CharacterCuriosityRuntime.snapshot(id).optJSONArray("failures")
+            ?: org.json.JSONArray()
+        assertEquals(0, failures.length())
+        CharacterCuriosityRuntime.initialize(RuntimeEnvironment.getApplication() as Context)
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("真正成功的下一步"))
+        assertFalse(CharacterCuriosityRuntime.promptSection(id, "测试人物", emptyList(),
+            at.plusSeconds(50)).contains("旧失败"))
         CharacterCuriosityRuntime.clear(id)
     }
 }

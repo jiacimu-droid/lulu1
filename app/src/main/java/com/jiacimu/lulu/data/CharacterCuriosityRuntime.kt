@@ -298,6 +298,11 @@ internal object CharacterCuriosityRuntime {
         val match = matching(threadRecords, proposal) ?: selectedQuestion?.let { pendingQuestion ->
             threadRecords.firstOrNull { identity(it) == identity(pendingQuestion) }
         }
+        // A caller naming a specific old/foreign thread cannot create a new
+        // interest merely because its tool really executed. Its receipt remains
+        // in the original timeline, but no owned inquiry authorizes this ID.
+        if (proposal?.optString("threadId")?.isNotBlank() == true &&
+            selectedQuestion == null && match == null) return
         // Legacy callers that have no ID can continue a uniquely named prior topic,
         // but must never steal the history of one of several same-topic branches.
         val legacyThread = if (proposal?.optString("threadId").isNullOrBlank() &&
@@ -333,7 +338,10 @@ internal object CharacterCuriosityRuntime {
         // Even the FIRST tool result for a question needs source ownership.
         // There is no explored thread yet for the later selected != null guard
         // to catch a stale callback from a different observation.
-        if (selectedQuestion != null && origin.isNotBlank() && !freshOwnedInquiry) return
+        // Without a source ID, an old callback could consume a newer pending
+        // inquiry just by repeating its threadId and wording. Legacy unlinked
+        // actions remain supported when there is no owned pending inquiry.
+        if (selectedQuestion != null && !freshOwnedInquiry) return
         val preserveClosure = closed != null && !resumedAfterClosure
         // A newer, still-pending question owns its own source. An old tool
         // callback must not consume it or rewrite an already exploring thread.
@@ -599,13 +607,14 @@ internal object CharacterCuriosityRuntime {
         // an old interest or replace the feedback of a revised inquiry.
         // The successful receipt path already checks this same ownership.
         if (currentQuestion != null) {
-            if (normalized(currentQuestion.optString("question")) != normalized(fields[1]) ||
-                (origin.isNotBlank() && origin != currentQuestion.optString("observedId")) ||
+            if (origin.isBlank() ||
+                normalized(currentQuestion.optString("question")) != normalized(fields[1]) ||
+                origin != currentQuestion.optString("observedId") ||
                 pendingQuestions(characterId, root).none { identity(it) == selectedId }) return
         } else if (currentThread != null) {
             if (currentThread.optString("status") != "exploring" ||
                 normalized(currentThread.optString("question")) != normalized(fields[1]) ||
-                (origin.isNotBlank() && currentThread.optString("observedId").isNotBlank() &&
+                (currentThread.optString("observedId").isNotBlank() &&
                     origin != currentThread.optString("observedId"))) return
         }
         val same = entries(previous).firstOrNull {

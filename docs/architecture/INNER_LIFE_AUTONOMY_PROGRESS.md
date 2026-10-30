@@ -134,3 +134,10 @@
 - **根因级回归源码**：`CharacterCuriosityRuntimeTest.identicalWordingWithIndependentSourceKeepsBothInterestsAndTheirResultsSeparate` 贯通“本人两份独立观察→第一条真实阅读回执→第二条同文待实践→重启后私聊/电话上下文和自主提示均见两条、第二条不冒领第一条结果→主人删除第二条不影响第一条”。回归源码提交不等于 JVM 实际通过。
 - **验证边界**：本轮提交后交由原 `Refresh code index` 生成索引；以该源码提交或包含它的后继 main 的真实 `Lulu APK` 工作流核对 JVM、assemblePhone、APK/Release。未完成前不得声称通过；真机与三次跨天自然唤醒仍待验。
 
+## 2026-10-30 D2/T2：缺失来源与陌生线程的工具回执不得认领当前兴趣
+
+- **四类核对**：已存在并有历史自动 CI 通过的链路是本人真实观察→未实践疑问→工具执行回执→本人下一轮再决定、原始时间线及原 Store 的幂等；上轮同文独立来源的源码与回归已合并，不能重做。已有待验为最新整包 Android JVM/发布、真机强杀恢复、真实模型自主取舍及跨三次自然唤醒；多年数据量压测是可选增强。本轮已证实的缺口是**没有 sourceEvidenceId 的迟到成功/失败回执仍可按相同 threadId 或题目抢占当前 pending**，以及带陌生显式 threadId 的真实成功回执可创建本人的新兴趣线程。
+- **根因**：原 `recordOutcome` 只在 `origin.isNotBlank()` 时检查 `freshOwnedInquiry`，空来源绕过当前待办的事实归属；无 pending、无历史 thread 时，显式未知 ID 又落入 UUID/新线程路径。原 `recordFailure` 对当前待办和已探索线程仅在来源非空时比对，空来源旧失败可能覆盖当前问题的真实失败次数与原因。真实工具已执行不等于回执有权修改任一主观兴趣。
+- **正式源码**：只改原 `CharacterCuriosityRuntime.kt`：当前存在待探索问题时成功与失败回执必须携带本人该问题的有效来源，不能凭同文/ID 消耗它；显式未知 threadId 的成功结果不再凭空造线程；已实践且保存了观察来源的线程也不接受无来源失败。真正无关联 ID 的旧协议仍可记录真实新工具成果或独立失败；已结束兴趣的合法迟到事实与原时间线保持，正确来源的行动仍按原步骤/幂等结转。没有增加 Store、模型调用、定时器、公共网关或语义词表。
+- **根因回归源码**：`CharacterCuriosityRuntimeTest` 新增“当前 pending + 相同 ID/同文但无来源/显式陌生 ID 的真实成功不能抢占 → 本人正确来源真实成功 → 重启与重放仍只一份成果”及“当前真实失败 → 缺来源迟到失败不能覆盖 → 正确成功清除 → 已探索线程缺来源失败仍不污染”；旧版直接调用测试改为显式传入其原真实来源，保留无 pending 的旧协议测试。写入测试文件不是 JVM 实际执行通过。
+- **验证边界**：按原 Refresh code index 自动生成 CODE_INDEX/code-index.json，不能手写生成物；本轮 GitHub Actions Android JVM、assemblePhone、APK/Release 需以包含本提交的实际完成 run 核对，取消/排队不算成功。真机与三次跨天自然唤醒未验。只修改本专项源码、测试与本进度文件，不触碰基础/社交/Live2D。
