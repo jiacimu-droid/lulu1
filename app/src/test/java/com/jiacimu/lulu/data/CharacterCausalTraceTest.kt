@@ -947,4 +947,70 @@ class CharacterCausalTraceTest {
             it.title.contains("变更未证实") })
     }
 
+    @Test fun completedScheduleCannotBorrowUnrelatedOrFailedResultAsVerifiedReceipt() {
+        val sourceId = "trace-scheduled-result-owner"
+        val now = Instant.now()
+        val due = now.plusSeconds(120)
+        SharedExperienceTimeline.record(sourceId, a, "原住民·每日自我安排", "角色",
+            "本人安排稍后发动态", now, triggerExtraction = false,
+            source = "resident-daily", evidenceKind = EventEvidenceKind.CharacterStatement)
+        fun plan(title: String) = RoleDayScheduleStore.arrange(context, a, title,
+            "本人选择到点发布", due, now, activityAction = "publish_moment",
+            originEvidenceId = sourceId, originEvidenceRevision = 1L)
+        val unrelated = plan("不相关的用户发言")
+        val wrongPlan = plan("其他日程的工具回执")
+        val genuine = plan("本日程的真实成功回执")
+        val native = plan("原生动态结果尚待归属核对")
+        try {
+            val userId = "trace-scheduled-unrelated-user"
+            SharedExperienceTimeline.record(userId, a, "私聊", "用户", "我也有计划",
+                due.plusSeconds(1), triggerExtraction = false,
+                source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+            assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                unrelated.id, "publish_moment", userId, "旧记录", due.plusSeconds(3)))
+            fun toolResult(id: String, planId: String) {
+                SharedExperienceTimeline.record(id, a, "实际工具执行", "执行器",
+                    JSONObject().put("tool", "publish_moment").put("planId", planId)
+                        .put("status", "succeeded")
+                        .put("result", JSONObject().put("success", true).toString())
+                        .toString(), due.plusSeconds(2), triggerExtraction = false,
+                    source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+            }
+            val foreignId = "tool-$a-trace-scheduled-foreign"
+            toolResult(foreignId, genuine.id)
+            assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                wrongPlan.id, "publish_moment", foreignId, "成功但属于另一计划",
+                due.plusSeconds(3)))
+            val genuineId = "tool-$a-trace-scheduled-genuine"
+            toolResult(genuineId, genuine.id)
+            assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                genuine.id, "publish_moment", genuineId, "真实发布", due.plusSeconds(3)))
+            val nativeId = "trace-scheduled-native-result"
+            SharedExperienceTimeline.record(nativeId, a, "朋友圈", "角色", "真实发布内容",
+                due.plusSeconds(2), triggerExtraction = false,
+                source = "moment", evidenceKind = EventEvidenceKind.CharacterStatement)
+            assertTrue(RoleDayScheduleStore.completeFromReceipt(context, a,
+                native.id, "publish_moment", nativeId, "原生动态",
+                due.plusSeconds(3)))
+            val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+                listOf(event(a, sourceId)), JSONObject())
+            fun lineFor(title: String) = lines.single {
+                it.title.startsWith("个人日程") && it.detail.contains("活动=$title")
+            }
+            assertTrue(lineFor("不相关的用户发言").title.contains("日程状态待核对"))
+            assertTrue(lineFor("不相关的用户发言").detail.contains("不能认定活动完成"))
+            assertTrue(lineFor("其他日程的工具回执").title.contains("日程状态待核对"))
+            assertTrue(lineFor("本日程的真实成功回执").title.contains("日程执行有回执"))
+            assertTrue(lineFor("本日程的真实成功回执").detail.contains("本日程ID及动作匹配"))
+            assertTrue(lineFor("原生动态结果尚待归属核对").title.contains("日程状态待核对"))
+            assertTrue(lineFor("原生动态结果尚待归属核对").detail.contains("没有独立核对"))
+            assertTrue(CharacterCausalTrace.inspect(context, b,
+                event(a, sourceId), listOf(event(a, sourceId)), JSONObject()).isEmpty())
+        } finally {
+            listOf(unrelated, wrongPlan, genuine, native).forEach {
+                RoleDayScheduleStore.remove(context, a, it.id)
+            }
+        }
+    }
+
 }
