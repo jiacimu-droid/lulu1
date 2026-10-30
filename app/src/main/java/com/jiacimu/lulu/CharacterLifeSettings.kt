@@ -32,6 +32,8 @@ internal fun CharacterLifeSettings(
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    var dialogueGenerating by remember(characterId) { mutableStateOf(false) }
+    var dialogueGenerationError by remember(characterId) { mutableStateOf("") }
     // A one-time, evidence-constrained fill of *only* speech habits and interests.
     // Existing user-authored fields are never replaced. Unlike the former
     // ten-field button, this is tied to stable setting evidence, not guesses.
@@ -116,6 +118,71 @@ internal fun CharacterLifeSettings(
                         else "未设定"
                     }, maxLines = 3,
                         overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (field.key == "dialogueExamples") {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(enabled = !dialogueGenerating, onClick = {
+                            scope.launch {
+                                dialogueGenerating = true
+                                dialogueGenerationError = ""
+                                try {
+                                    val profile = CharacterLifeStore.state(characterId)
+                                        .optJSONObject("profile")
+                                    val currentPersona = com.jiacimu.lulu.data.MigratedDomainStores
+                                        .characters.get(characterId).persona
+                                    val material = buildString {
+                                        appendLine("角色本人设定：")
+                                        appendLine(currentPersona.ifBlank { seedPersona }.take(2300))
+                                        appendLine("明确身份设定：${seedIdentity.take(600)}")
+                                        listOf("expression", "speechHabits", "social", "conflict", "care", "respect")
+                                            .forEach { key ->
+                                                profile?.optString(key)?.trim()
+                                                    ?.takeIf(String::isNotBlank)
+                                                    ?.let { appendLine("$key：${it.take(250)}") }
+                                            }
+                                    }
+                                    val generated = LuluAiServices.gateway.generate(
+                                        characterId = characterId,
+                                        facts = material,
+                                        instruction = """
+                                            你是角色的对话样例编辑。只根据明确提供的个人设定，写三段短小的虚构即时通讯对话，供用户预览并决定是否保存。
+                                            每段用【场景】一行标识不同情境（闲聊、真正有观点的回应、遇到小分歧或需要关心），每段包含“对方：”与“角色：”的自然往返；允许角色连续发两句或只回一句，也允许迟疑和不赞同。
+                                            **真正区别**应出现在这个人会注意什么、如何接话、语气、分寸、幽默感与潜台词上；不要把所有人写成温柔客服、说明书、文学旁白或撒娇机器。
+                                            选用很普通的小事做假设素材（例如随手聊一个见闻），让人物性格影响其自然反应。没有给出的经历、爱好、关系或称呼不可凭空设定；可以使用不含真实姓名的普通情景。
+                                            不要分析人格，不要总结技巧，不要给角色写固定必用台词，不要假装这些对话真的发生过。不要输出 JSON/Markdown 代码块，只输出三段可编辑的示例文本，总体尽量精简。
+                                        """.trimIndent(),
+                                        source = "角色本人对话示例草稿",
+                                        title = "按人设生成短对话草稿",
+                                        maxTokens = 760,
+                                        contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
+                                    )
+                                    val candidate = generated.getOrNull()?.text.orEmpty()
+                                        .trim().take(1_500)
+                                    if (candidate.isBlank()) {
+                                        dialogueGenerationError = generated.exceptionOrNull()?.message
+                                            ?.take(100) ?: "没有生成有效的示例，请重试或直接编辑"
+                                    } else {
+                                        draft = candidate
+                                        editing = "dialogueExamples" // The user must explicitly save.
+                                    }
+                                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                                    throw cancelled
+                                } catch (error: Exception) {
+                                    dialogueGenerationError = error.message?.take(100)
+                                        ?: "生成失败，可直接编辑对话示例"
+                                } finally {
+                                    dialogueGenerating = false
+                                }
+                            }
+                        }) { Text(if (dialogueGenerating) "正在生成示例…" else "按本人设定生成三段对话") }
+                    }
+                    if (dialogueGenerationError.isNotBlank()) Text(dialogueGenerationError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
+                    Text("示例只是可编辑的假设对话；审核保存后才影响这个角色，不会变成聊天历史。",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (field.key == "speechHabits") {
