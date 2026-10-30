@@ -26,6 +26,7 @@ internal class LuluSpeechEngine(context: Context) {
         val generation: Long,
         val file: File,
         val fallbackText: String,
+        val onPcmLevel: ((Float) -> Unit)? = null,
     )
 
     private val appContext = context.applicationContext
@@ -43,6 +44,7 @@ internal class LuluSpeechEngine(context: Context) {
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private val elevenSpeech = ElevenLabsSpeech(appContext)
     private var player: MediaPlayer? = null
+    private var playbackWavLevel: CallSpeechWavLevel? = null
     private var synthesisJob: Job? = null
     @Volatile private var audioConnection: HttpURLConnection? = null
     @Volatile private var playbackGeneration = 0L
@@ -64,7 +66,8 @@ internal class LuluSpeechEngine(context: Context) {
                 if (utteranceId != null && synthesis?.utteranceId == utteranceId) {
                     pendingSynthesis = null
                     if (synthesis.generation == playbackGeneration && synthesis.file.exists() && synthesis.file.length() > 0L) {
-                        playAudioFile(synthesis.file, synthesis.generation, deleteAfterPlayback = false)
+                        playAudioFile(synthesis.file, synthesis.generation, deleteAfterPlayback = false,
+                            onPcmLevel = synthesis.onPcmLevel)
                     } else if (synthesis.generation == playbackGeneration) {
                         finishPlayback()
                     }
@@ -134,6 +137,7 @@ internal class LuluSpeechEngine(context: Context) {
         onFinished: (() -> Unit)? = null,
         allowGeneration: () -> Boolean = { true },
         source: String = "manual_read",
+        onPcmLevel: ((Float) -> Unit)? = null,
     ) {
         if (!allowGeneration() || !prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -149,7 +153,8 @@ internal class LuluSpeechEngine(context: Context) {
         val existing = cachedAudioFile(cacheBaseFile)
         if (existing != null) {
             existing.setLastModified(System.currentTimeMillis())
-            playAudioFile(existing, requestGeneration, deleteAfterPlayback = false)
+            playAudioFile(existing, requestGeneration, deleteAfterPlayback = false,
+                onPcmLevel = onPcmLevel)
             return
         }
 
@@ -171,7 +176,8 @@ internal class LuluSpeechEngine(context: Context) {
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
                             target.writeBytes(bytes)
-                            playAudioFile(target, requestGeneration, deleteAfterPlayback = false)
+                            playAudioFile(target, requestGeneration, deleteAfterPlayback = false,
+                                onPcmLevel = onPcmLevel)
                         }
                     }
                     .onFailure { error ->
@@ -183,6 +189,7 @@ internal class LuluSpeechEngine(context: Context) {
                 text = text,
                 target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.wav"),
                 generation = requestGeneration,
+                onPcmLevel = onPcmLevel,
             )
         }
     }
@@ -284,6 +291,8 @@ internal class LuluSpeechEngine(context: Context) {
         systemTts.stop()
         player?.release()
         player = null
+        playbackWavLevel?.close()
+        playbackWavLevel = null
         onPlaybackState?.invoke(false)
         val callback = completionCallback
         completionCallback = null
@@ -314,12 +323,13 @@ internal class LuluSpeechEngine(context: Context) {
         if (result == TextToSpeech.ERROR) finishPlayback()
     }
 
-    private fun synthesizeSystemToCache(text: String, target: File, generation: Long) {
+    private fun synthesizeSystemToCache(text: String, target: File, generation: Long,
+        onPcmLevel: ((Float) -> Unit)? = null) {
         configureSystemTts()
         target.parentFile?.mkdirs()
         target.delete()
         val utteranceId = "lulu-cache-$generation-${System.nanoTime()}"
-        pendingSynthesis = PendingSynthesis(utteranceId, generation, target, text)
+        pendingSynthesis = PendingSynthesis(utteranceId, generation, target, text, onPcmLevel)
         val result = systemTts.synthesizeToFile(text, null, target, utteranceId)
         if (result == TextToSpeech.ERROR) {
             pendingSynthesis = null
@@ -463,7 +473,10 @@ internal class LuluSpeechEngine(context: Context) {
             ?.second
     }
 
-    private fun playAudioFile(file: File, generation: Long, deleteAfterPlayback: Boolean) {
+    private fun playAudioFile(file: File, generation: Long, deleteAfterPlayback: Boolean,
+        onPcmLevel: ((Float) -> Unit)? = null) {
+        playbackWavLevel?.close()
+        playbackWavLevel = null
         player?.release()
         player = MediaPlayer().apply {
             setAudioAttributes(android.media.AudioAttributes.Builder()
@@ -475,13 +488,21 @@ internal class LuluSpeechEngine(context: Context) {
             setDataSource(file.absolutePath)
             setOnCompletionListener {
                 it.release()
-                if (player === it) player = null
+                if (player === it) {
+                    player = null
+                    playbackWavLevel?.close()
+                    playbackWavLevel = null
+                }
                 if (deleteAfterPlayback) file.delete()
                 if (generation == playbackGeneration) finishPlayback(true)
             }
             setOnErrorListener { mediaPlayer, _, _ ->
                 mediaPlayer.release()
-                if (player === mediaPlayer) player = null
+                if (player === mediaPlayer) {
+                    player = null
+                    playbackWavLevel?.close()
+                    playbackWavLevel = null
+                }
                 if (deleteAfterPlayback) file.delete()
                 if (generation == playbackGeneration) finishPlayback()
                 true
@@ -493,13 +514,23 @@ internal class LuluSpeechEngine(context: Context) {
         // Publish the actual player before a main-thread progress callback
         // can run (synthesis completion may arrive on a Binder thread).
         val target = player ?: return
-        positionHandler.post(object : Runnable {
-            override fun run() {
-                if (player !== target || generation != playbackGeneration || onPlaybackPosition == null) return
-                runCatching { onPlaybackPosition?.invoke(target.currentPosition.toLong()) }
-                positionHandler.postDelayed(this, 100)
-            }
-        })
+        // The synthesized WAV contains exactly what MediaPlayer is playing.
+        // Sample its amplitude at the real playback position, not while TTS
+        // is still downloading/synthesizing (or from the microphone).
+        if (onPcmLevel != null) playbackWavLevel = CallSpeechWavLevel.open(file)
+        if (onPlaybackPosition != null || (onPcmLevel != null && playbackWavLevel != null)) {
+            positionHandler.post(object : Runnable {
+                override fun run() {
+                    if (player !== target || generation != playbackGeneration) return
+                    runCatching {
+                        val position = target.currentPosition.toLong()
+                        onPlaybackPosition?.invoke(position)
+                        if (onPcmLevel != null) playbackWavLevel?.levelAt(position)?.let(onPcmLevel)
+                    }
+                    positionHandler.postDelayed(this, 100)
+                }
+            })
+        }
     }
 
     private fun reportVoiceFailure(error: Throwable) {
@@ -512,6 +543,8 @@ internal class LuluSpeechEngine(context: Context) {
 
     private fun finishPlayback(success: Boolean = false) {
         positionHandler.removeCallbacksAndMessages(null)
+        playbackWavLevel?.close()
+        playbackWavLevel = null
         lastPlaybackSucceeded = success
         onPlaybackState?.invoke(false)
         activeUtteranceId = null
