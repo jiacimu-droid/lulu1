@@ -456,7 +456,11 @@ function settleSpeechMoment() {
 // writes never reached the next frame's physics inputs either.
 function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
-  seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
+  // Low-FPS video still advances breathing by real elapsed frame time.
+  // The old 50/60ms caps lost time at 15fps (one frame is ~66.7ms).
+  // Bound only long resume/stall gaps to avoid a visible phase jump.
+  const animationDeltaSeconds = Math.min(Math.max(deltaMs / 1000, 0), .25)
+  seconds += animationDeltaSeconds
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
   const tactileNow = performance.now()
   tickTactileContact(tactileNow)
@@ -540,7 +544,7 @@ function applyFinalParameters(core, deltaMs) {
   if (proceduralBlinkEnabled && !eyePoseBusy &&
       hasParameter(core, 'ParamEyeLOpen') &&
       hasParameter(core, 'ParamEyeROpen')) {
-    const dt = Math.min(.06, Math.max(0, deltaMs / 1000))
+    const dt = animationDeltaSeconds
     if (blinkProgress < 0) {
       blinkClock -= dt
       if (blinkClock <= 0) blinkProgress = 0

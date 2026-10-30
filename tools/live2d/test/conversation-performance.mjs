@@ -741,4 +741,32 @@ bridge.model.expression = originalExpression
 bridge.notify = originalNotify
 manager.expressionManager.resetExpression = originalResetExpression
 
-console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')
+// The actual final-frame stage clock must not run 25% slow on a 15fps
+// native video bridge. Both breathing phase and reflex blink use elapsed
+// render time; a long resume gap is still bounded to avoid a phase jump.
+bridge.playing = false
+bridge.activeExpressionName = null
+bridge.faceRequest = null
+bridge.touchReflex = null
+bridge.proceduralBlinkEnabled = true
+for (const fps of [15, 30, 60, 120]) {
+  bridge.seconds = 0
+  bridge.blinkClock = 10
+  bridge.blinkProgress = -1
+  for (let i = 0; i < fps; i++) bridge.applyFinalParameters({}, 1000 / fps)
+  assert.ok(Math.abs(bridge.seconds - 1) < .0001,
+    `breathing clock must advance one second at ${fps}fps; got ${bridge.seconds}`)
+  assert.ok(Math.abs(bridge.blinkClock - 9) < .0001,
+    `blink countdown must advance one second at ${fps}fps; got ${bridge.blinkClock}`)
+}
+bridge.seconds = 0
+bridge.blinkClock = 10
+bridge.blinkProgress = -1
+bridge.applyFinalParameters({}, 600)
+assert.ok(Math.abs(bridge.seconds - .25) < .0001,
+  'a long resume gap cannot jump the breathing phase by 600ms')
+assert.ok(Math.abs(bridge.blinkClock - 9.75) < .0001,
+  'a long resume gap cannot skip the entire blink countdown')
+bridge.proceduralBlinkEnabled = false
+
+console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')

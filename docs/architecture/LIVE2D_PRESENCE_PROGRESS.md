@@ -165,3 +165,12 @@
 - **根因回归**：原 `tools/live2d/test/touch-hit.mjs` 的实际 `stage.motion()` VM 增加同步 throw→不抛至外层→释放槽位→一次准确失败回执及诊断、触摸失败不产生角色回执、下一句真实异步 Motion3 仍成功；保留旧迟到 reject、继续播放和低 FPS 测试。提交源码/回归不等于测试已在 CI 执行；须以本次提交或包含它的后继 main 的实际工作流状态核对。
 - **协作与索引**：开工前已读 10-29 Library 完整大纲、AGENTS、CODE_INDEX、人物契约、成长框架、10-28 计划及基础/社交/内驱专项进度，核对最新 main 和近提交。仅改 `tools/live2d/src/stage.js`、`tools/live2d/test/touch-hit.mjs` 和本专项进度。现有 `scripts/generate_code_index.py` 只扫描 `app/scripts/preview`，本轮没有索引输入变化，不手写生成物；原自动索引继续维护。
 - **验收边界**：本轮无本机仓库 Node 全套与 Android SDK，需核对 GitHub Actions 真实 JS/JVM/assemblePhone/发布；真机尚未验同步抛错资源、五句动作、低帧率与音画差，不以自动测试替代视觉验收。
+
+## 2026-10-30 12:48 · L3：15fps 视频帧的呼吸/眨眼物理时间不能被 50/60ms 截断
+
+- **四类核对**：已存在且有历史成功 APK 自动验证的能力为 v6605 逐句 Motion3/真实 TTS 首音与最近 exp3 所有权回归；此前 Motion3 同步异常修复已落 main，但本轮开工时新一轮完整 CI 尚未取得对应成功证据。已有待验：连续五句、不同 TTS、触摸与开声并发、同模型校准复用及 15/30fps 真机帧率/发热；词级时间戳属于可选增强，不重复开发。
+- **真实根因**：`tools/live2d/src/stage.js` 的实际 `applyFinalParameters` 每帧将呼吸相位 `seconds` 截到最多 50ms、反射眨眼倒计时截到最多 60ms。Android 原生视频桥在 15fps 每帧约 66.7ms，导致每秒呼吸只走约 0.75s、眨眼只走约 0.9s；该偏差与真实 TTS/人物选择无关，是渲染本地时间积分错误。上游 `installPhysicsFrameControl` 已传入实际有限帧间隔。
+- **正式修复**：同一最终绘制回调共用一次 `animationDeltaSeconds`，让 15/30/60/120fps 正常帧的呼吸与反射眨眼按实际时间推进；仅在大于 250ms 的长暂停/恢复帧限制相位跳变。保留原 Motion3/exp3、触摸、嘴型和物理所有权，不改角色语义、Store、TTS 请求或模型轮次。
+- **根因回归**：`tools/live2d/test/conversation-performance.mjs` 在真实 stage VM 的 `applyFinalParameters` 连续运行 15/30/60/120fps 一秒，核验呼吸时钟和眨眼倒计时各精确推进一秒；另验 600ms 停顿最多推进 250ms。新增测试必须以对应 GitHub Actions 实际执行结果为准，不能以测试文件存在宣称通过。
+- **协作/索引**：仅修改 `tools/live2d/src/stage.js`、本专项现有测试及本进度；`scripts/generate_code_index.py` 的原索引输入为 `app/scripts/preview`，本轮未改变其索引输入，沿现有 Refresh code index 工作流维护生成物，不手写 `CODE_INDEX.md`。开工已复读 Library 完整大纲、AGENTS、统一人物契约、成长框架、CODE_INDEX、10-28 连续性计划和基础/社交/内驱独立进度；提交前重新校验 main 与文件版本。
+- **验收边界**：本轮实际 JS、Android JVM、assemblePhone、APK 收集/发布以对应提交的原 CI 为准；真机帧率、发热、呼吸节律、自然度与实际音画差仍待设备验证。没有改其他专项的公共文件。
