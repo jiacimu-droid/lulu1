@@ -65,6 +65,8 @@ data class MeetingSession(
     val invitationText: String = "",
     val endedAt: Instant? = null,
     val turns: List<MeetingTurn> = emptyList(),
+    /** Actual immutable venue identity, captured by the world executor; legacy saves have none. */
+    val locationCode: String = "",
 )
 
 data class DigitalWorldState(
@@ -541,7 +543,7 @@ object DigitalWorldStore {
             val session = MeetingSession(UUID.randomUUID().toString(), listOf(characterId, nativeId),
                 MeetingReality.DIGITAL_WORLD, locationLabel(locationCode), now,
                 initiatedByCharacterId = characterId, invitationText = "与${resident.name}相处",
-                endedAt = now.plusMillis(turns.size.toLong()), turns = turns)
+                endedAt = now.plusMillis(turns.size.toLong()), turns = turns, locationCode = locationCode)
             val prior = mutable.value
             mutable.value = prior.copy(meetings = (prior.meetings + session))
             try { persistLocked(synchronous = true) } catch (error: Exception) { mutable.value = prior; throw error }
@@ -1112,6 +1114,7 @@ internal fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("participantIds", JSONArray(participantIds))
     put("reality", reality.name)
     put("location", location)
+    put("locationCode", locationCode)
     put("startedAt", startedAt.toString())
     put("initiatedByCharacterId", initiatedByCharacterId.orEmpty())
     put("invitationText", invitationText)
@@ -1179,6 +1182,7 @@ internal fun JSONObject.toMeeting(): MeetingSession? {
         reality = runCatching { MeetingReality.valueOf(optString("reality")) }
             .getOrDefault(MeetingReality.REALISTIC_SIMULATION),
         location = optString("location"),
+        locationCode = optString("locationCode"),
         startedAt = instant("startedAt"),
         initiatedByCharacterId = optString("initiatedByCharacterId").takeIf(String::isNotBlank),
         invitationText = optString("invitationText"),

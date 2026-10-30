@@ -39,6 +39,9 @@ class ScheduledSocialEncounterVenueTest {
         MigratedDomainStores.initialize(app)
         SharedExperienceTimeline.initialize(app)
         DigitalLifeProfileStore.initialize(app)
+        // Each Robolectric case has its own Application/backing preferences.
+        DigitalWorldStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(DigitalWorldStore, null)
         DigitalWorldStore.initialize(app)
         DigitalWorldExpansionStore.initialize(app)
         @Suppress("UNCHECKED_CAST")
@@ -87,6 +90,9 @@ class ScheduledSocialEncounterVenueTest {
             MeetingTurn(UUID.randomUUID().toString(), peer, native.name, "", "读完了，我想聊聊结尾。", at.plusMillis(1)))
         val session = DigitalWorldStore.commitResidentEncounter(actor, native.id, place, turns, at)
         meetings += session.id
+        assertEquals(place, session.locationCode)
+        assertEquals(place, session.toJson().toMeeting()!!.locationCode)
+        assertEquals("", session.toJson().apply { remove("locationCode") }.toMeeting()!!.locationCode)
         val id = "meeting-${session.id}-resident-summary-viewer-$actor"
         SharedExperienceTimeline.record(id, actor, "数字世界见面·${session.location}", "数字世界",
             "双方实际交流了这本书", at, sessionId = session.id, source = "meeting",
@@ -123,6 +129,28 @@ class ScheduledSocialEncounterVenueTest {
         val restored = RoleDayScheduleStore.plans(app, actor).single { it.id == revised.id }
         assertEquals("completed", restored.status)
         assertEquals(actual, restored.resultEvidenceId)
+    }
+
+    @Test fun legacyDisplayNameCannotInventAStableVenueAfterRealStoreReload() {
+        val appointment = plan()
+        val due = appointment.dueAt.plusSeconds(1)
+        moveBoth(DigitalWorldPublicPlaces.CAFE, due)
+        val actual = encounter(DigitalWorldPublicPlaces.CAFE, due)
+        val prefsField = DigitalWorldStore::class.java.getDeclaredField("prefs").apply { isAccessible = true }
+        val prefs = prefsField.get(DigitalWorldStore) as SharedPreferences
+        val saved = JSONObject(prefs.getString("world_v1", "{}"))
+        val sessions = saved.getJSONArray("meetings")
+        for (i in 0 until sessions.length()) sessions.getJSONObject(i).remove("locationCode")
+        assertTrue(prefs.edit().putString("world_v1", saved.toString()).commit())
+        prefsField.set(DigitalWorldStore, null)
+        DigitalWorldStore.initialize(app)
+        val restored = DigitalWorldStore.state.value.meetings.single { it.id == meetings.single() }
+        assertEquals("", restored.locationCode)
+        assertEquals(DigitalWorldPublicPlaces.label(DigitalWorldPublicPlaces.CAFE), restored.location)
+        assertEquals(2, restored.turns.size)
+        assertFalse(RoleDayScheduleStore.completeFromReceipt(app, actor, appointment.id,
+            "digital_world_action", actual, "旧名称不能倒推真实地点身份", due, args()))
+        assertEquals("planned", RoleDayScheduleStore.plans(app, actor).single { it.id == appointment.id }.status)
     }
 
     @Test fun missingWithdrawnOrAnotherPersonsSourceCannotProveTheVenue() {

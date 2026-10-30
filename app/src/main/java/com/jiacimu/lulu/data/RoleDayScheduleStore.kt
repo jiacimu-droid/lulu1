@@ -594,12 +594,10 @@ object RoleDayScheduleStore {
         if (listOf(plan.characterId, nativeId).any { participant ->
                 participant !in meeting.participantIds || meeting.turns.none { it.speakerId == participant }
             }) return false
-        // Existing meetings store canonical display labels. Only an unambiguous
-        // registry mapping proves a code; never guess from narrative text or
-        // the participants' current positions on a later receipt replay.
-        val venue = DigitalWorldPublicPlaces.all.filter { it.label == meeting.location }
-            .map { it.code }.distinct().singleOrNull() ?: return false
-        return venue == plan.locationCode
+        // A display name/current registry cannot reconstruct a historical
+        // venue identity. Legacy records without the executor's code remain
+        // readable but cannot newly prove this explicit appointment completed.
+        return meeting.locationCode.isNotBlank() && meeting.locationCode == plan.locationCode
     }
 
     /** Do not perform an action for a revoked wish, wrong target or old appointment. */
