@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T02:36:43.380521+00:00",
-  "commit": "6c552d4cdadc8dbae6626771b118e53a0e6ce6a2",
+  "generatedAt": "2026-10-30T02:37:08.636766+00:00",
+  "commit": "e5f8c1a99470a9736e6bed69c0303cd282bc3c53",
   "branch": "main",
-  "sourceFingerprint": "29e1df8f912bb29cdd07d36058b046244bf4de32787799fe9c4f6e772cacef56",
+  "sourceFingerprint": "12e5b0e958500197639c3f7de5f73465544dcc4723c84944e249a2bdc9587e47",
   "summary": {
-    "files": 1093,
-    "lines": 227158,
-    "symbols": 3207
+    "files": 1094,
+    "lines": 227240,
+    "symbols": 3208
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12829,7 +12829,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 493
+        "line": 494
       }
     ],
     "saveTurn": [
@@ -15510,6 +15510,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
         "line": 23
+      }
+    ],
+    "ModelLocalRouteHealthTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt",
+        "line": 12
       }
     ],
     "ModelResponsePayloadTest": [
@@ -30913,8 +30919,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 537,
-      "sha256": "d962345affd6c91b6103ba43d8226c4105f9649f287123f09cee15d426695da5",
+      "lines": 538,
+      "sha256": "3ec28aaa6d8b9d410514e439f7a28f62cd31a7d47f1ce0b5471d5fd1c0b5d8fe",
       "symbols": [
         {
           "name": "save",
@@ -30926,7 +30932,7 @@
         },
         {
           "name": "targetFor",
-          "line": 493
+          "line": 494
         }
       ]
     },
@@ -31226,8 +31232,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 299,
-      "sha256": "62a4e2f03797d0e245aaf81d953e6e5ba086a4e6e60a80f2d1bb45593a6ef40b",
+      "lines": 300,
+      "sha256": "81ff82250358c68989d1ac7fdea1e4e42e8be61f9fd758e621c62d7b0ef12ad1",
       "symbols": []
     },
     {
@@ -34577,6 +34583,17 @@
         {
           "name": "JevDirectionsTest",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt",
+      "lines": 80,
+      "sha256": "3911dc75e89cb1d86149645f82bfadea18a4c84af29248262b6cde8def389705",
+      "symbols": [
+        {
+          "name": "ModelLocalRouteHealthTest",
+          "line": 12
         }
       ]
     },

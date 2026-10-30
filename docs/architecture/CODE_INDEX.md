@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6c552d4cdadc8dbae6626771b118e53a0e6ce6a2`
+- 基准提交：`e5f8c1a99470a9736e6bed69c0303cd282bc3c53`
 - 分支：`main`
-- 已索引文件：1093
-- 已索引代码/文本行：227158
-- 已发现符号：3207
+- 已索引文件：1094
+- 已索引代码/文本行：227240
+- 已发现符号：3208
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -627,7 +627,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 428 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 530 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 537 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 538 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -642,7 +642,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 299 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 300 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
@@ -837,6 +837,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 80 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 145 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
