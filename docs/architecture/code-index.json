@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T05:53:06.776596+00:00",
-  "commit": "7b2dec5b629fd7fc42f80a415a8d09ebb454e048",
+  "generatedAt": "2026-10-30T05:53:22.393095+00:00",
+  "commit": "9dfd7126ccb765e69a96caee468417c57dbb53d8",
   "branch": "main",
-  "sourceFingerprint": "f664305008d017a6aee3863313f52484e6e1d5b6e9a9dd0d8caffc6ad8a1a3e0",
+  "sourceFingerprint": "22369ca7dcdfa751d58d8b960a5f0c4f98ea0465e0d967daa6cebcd6f3bb4833",
   "summary": {
-    "files": 1110,
-    "lines": 228605,
-    "symbols": 3236
+    "files": 1111,
+    "lines": 228661,
+    "symbols": 3237
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -16082,6 +16082,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
         "line": 18
+      }
+    ],
+    "CharacterLifeDiagnosticsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt",
+        "line": 15
       }
     ],
     "CharacterLifeFollowThroughStoreTest": [
@@ -35691,6 +35697,17 @@
         {
           "name": "record",
           "line": 102
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt",
+      "lines": 56,
+      "sha256": "6b1fa9a4e184480ea95dfd02e11b461ea8879ad4c8ca7aad8be2097d73fa846c",
+      "symbols": [
+        {
+          "name": "CharacterLifeDiagnosticsTest",
+          "line": 15
         }
       ]
     },
