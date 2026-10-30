@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T03:59:10.682901+00:00",
-  "commit": "92920104d9787f9ba7b5c0973822163553b21b26",
+  "generatedAt": "2026-10-30T04:00:10.093779+00:00",
+  "commit": "790430c5169057743acb7c2e43b916cb5985ff23",
   "branch": "main",
-  "sourceFingerprint": "7bb26afef140825839fa2d297c94b48a361597944e12d654b564bf2f45700155",
+  "sourceFingerprint": "c0ee12608f92a939b62e072e470847689007fcbaac4cd8ee6c5bc3366ec44d96",
   "summary": {
-    "files": 1106,
-    "lines": 228146,
-    "symbols": 3227
+    "files": 1108,
+    "lines": 228362,
+    "symbols": 3233
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2216,6 +2216,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt",
         "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 8
       }
     ],
     "bindExistingSegments": [
@@ -2354,6 +2358,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
         "line": 52
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 7
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -5332,12 +5340,76 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 21
       }
     ],
     "segments": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
         "line": 24
+      }
+    ],
+    "publicContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
+        "line": 35
+      }
+    ],
+    "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
+        "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
+        "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 100
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 117
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
+        "line": 10
       }
     ],
     "approvedBeats": [
@@ -7112,52 +7184,6 @@
         "line": 173
       }
     ],
-    "parse": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 41
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
-        "line": 18
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-        "line": 30
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 25
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
-        "line": 18
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 100
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 117
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 39
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
-        "line": 10
-      }
-    ],
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
@@ -8580,12 +8606,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
         "line": 18
-      }
-    ],
-    "publicContext": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
-        "line": 35
       }
     ],
     "explorationPlaces": [
@@ -15704,6 +15724,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt",
         "line": 14
+      }
+    ],
+    "AutonomousEncounterDirectorTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt",
+        "line": 7
       }
     ],
     "AutonomousEncounterPrivacyTest": [
@@ -22895,8 +22921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt",
-      "lines": 70,
-      "sha256": "aab449c400ad370438ad2177dc1865fc6fe197145f2f7a5daf5924e9e9af95cf",
+      "lines": 74,
+      "sha256": "b3450c751837de07a4d45942fbc7eb47a95d8df8edca49e2c0ae9102d4fc37bb",
       "symbols": [
         {
           "name": "Outcome",
@@ -22909,6 +22935,33 @@
         {
           "name": "segments",
           "line": 24
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+      "lines": 87,
+      "sha256": "f2605e8d0b0ded11b1f8eee0c40d67c8613f1eb0e2caf4e504c315f0169fdced",
+      "symbols": [
+        {
+          "name": "Cue",
+          "line": 7
+        },
+        {
+          "name": "Plan",
+          "line": 8
+        },
+        {
+          "name": "publicContext",
+          "line": 13
+        },
+        {
+          "name": "contractError",
+          "line": 21
+        },
+        {
+          "name": "parse",
+          "line": 58
         }
       ]
     },
@@ -22955,8 +23008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 942,
-      "sha256": "6acd252c5b66ecf1c963e84a6fa0ac66fc6344fd7e94375b5763a97aa4c872e0",
+      "lines": 1000,
+      "sha256": "d093404c21d7d74f9124b0041b9826f4b5e5ae4439eb53c7e9d8e867120c3708",
       "symbols": []
     },
     {
@@ -26319,8 +26372,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 232,
-      "sha256": "eb8509dd38b9b8d5646af7964acea019968550ef1987b50dac5427379597cc52",
+      "lines": 236,
+      "sha256": "376a69cded55bd207a5c82c3f9d6bf4998f1aba1ab1cf4df7152b7771f8c815a",
       "symbols": []
     },
     {
@@ -35004,12 +35057,23 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt",
-      "lines": 74,
-      "sha256": "f10b0bc21960f2f16e76c3b193c7ae31f82c3a12381a6ccce36dc397de484f82",
+      "lines": 89,
+      "sha256": "69e4563963e783e5356c47f5b1db7097febc0af818d9dabfb680530185a2c31e",
       "symbols": [
         {
           "name": "AutonomousEncounterDecisionTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt",
+      "lines": 48,
+      "sha256": "02c755a0f55eda416c81cbf9d988da906948cc217456365075c44be2220270dd",
+      "symbols": [
+        {
+          "name": "AutonomousEncounterDirectorTest",
+          "line": 7
         }
       ]
     },

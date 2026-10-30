@@ -16,6 +16,21 @@ class AutonomousEncounterDecisionTest {
         .put("beats", JSONArray().put(JSONObject().put("phase", 1)
             .put("segments", JSONArray().put(JSONObject().put("type", "dialogue").put("text", "你好呀")))))
 
+    @Test fun directedTurnCorrectsPrewrittenFutureReplyInsteadOfSilentlyDroppingIt() = runBlocking {
+        val prewritten = engage()
+        prewritten.getJSONArray("beats").put(JSONObject().put("phase", 2)
+            .put("segments", JSONArray().put(JSONObject().put("type", "dialogue").put("text", "没听见对方回答就预写的回应"))))
+        var corrections = 0
+        val result = AutonomousEncounterDecision.resolve(prewritten.toString(), expectedPhase = 1) {
+            corrections++
+            engage().toString()
+        }
+        assertEquals(1, corrections)
+        assertNotNull(result.decision)
+        assertEquals(1, result.decision!!.getJSONArray("beats").length())
+        assertNotNull(AutonomousEncounterDecision.contractError(engage(), expectedPhase = 2))
+    }
+
     @Test fun validChoiceDoesNotBuyCorrectionAndOwnerCannotBeForged() = runBlocking {
         val input = engage().put("speakerId", "someone-else")
         var calls = 0

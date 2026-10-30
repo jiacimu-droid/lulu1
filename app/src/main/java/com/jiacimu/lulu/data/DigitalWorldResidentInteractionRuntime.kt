@@ -39,6 +39,10 @@ internal object DigitalWorldResidentInteractionRuntime {
             // impersonate the native citizen's entire side of the conversation.
             val nativeId = ResidentCharacterBridge.characterId(resident.id)
             ResidentCharacterBridge.sync(context, now)
+            if (episodeStep == null) {
+                AutonomousSocialRuntime.directedResidentInteraction(
+                    context, characterId, nativeId, normalized, now)?.let { return@runCatching it }
+            }
             // Resident-to-resident dialogue uses the separately selected cheap model.
             // A protagonist meeting a resident retains the original identity model.
             ScopedModelSelections.initialize(context)

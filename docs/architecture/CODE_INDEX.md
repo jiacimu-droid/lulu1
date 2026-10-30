@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`92920104d9787f9ba7b5c0973822163553b21b26`
+- 基准提交：`790430c5169057743acb7c2e43b916cb5985ff23`
 - 分支：`main`
-- 已索引文件：1106
-- 已索引代码/文本行：228146
-- 已发现符号：3227
+- 已索引文件：1108
+- 已索引代码/文本行：228362
+- 已发现符号：3233
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -317,11 +317,12 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 243 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 70 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 74 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt` | 87 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 103 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 942 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 1000 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 127 | 8 |
@@ -455,7 +456,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 60 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 232 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 236 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1195 | 36 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 364 | 19 |
@@ -862,7 +863,8 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 155 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 43 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 74 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 89 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterPrivacyTest.kt` | 159 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterScriptTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 84 | 1 |

@@ -18,23 +18,47 @@ internal object AutonomousSocialRuntime {
     private val encounterMutex = Mutex()
 
     suspend fun onWorldArrival(
-        context: Context,
-        characterId: String,
-        previousLocation: String,
+        context: Context, characterId: String, previousLocation: String,
         now: Instant = Instant.now(),
-    ) = encounterMutex.withLock {
+    ) {
+        runWorldEncounter(context, characterId, previousLocation, now)
+    }
+
+    /** Ordinary native dialogue uses the same director/actor/world pipeline.
+     * A separately scripted resident task keeps its original dedicated executor. */
+    suspend fun directedResidentInteraction(context: Context, characterId: String,
+        nativeId: String, interaction: String, now: Instant): DigitalWorldActionResult? {
         ScopedModelSelections.initialize(context.applicationContext)
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return@withLock
+        // This new ordinary-native route must not silently buy an additional
+        // planning request for installations that only configured resident chat.
+        if (ScopedModelSelections.selectedArchiveId(ScopedModelSelections.WORLD_SCENE) == null) return null
+        if (runCatching { ScopedModelSelections.worldSceneConnection() }.isFailure) return null
+        val meeting = runWorldEncounter(context, characterId, null, now,
+            requestedPeers = setOf(nativeId), encounterIntent = interaction)
+            ?: return DigitalWorldActionResult(false,
+                "本次导演交谈未能完成；未回退重复购买另一份台词，可查看本次模型回执")
+        val evidenceId = "meeting-${meeting.id}-autonomous-summary-viewer-$characterId"
+        val evidence = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).firstOrNull()
+            ?: return DigitalWorldActionResult(false, "本次交谈尚无已保存的完成依据")
+        return DigitalWorldActionResult(true, evidence.content, evidenceId)
+    }
+
+    private suspend fun runWorldEncounter(
+        context: Context, characterId: String, previousLocation: String?, now: Instant,
+        requestedPeers: Set<String>? = null, encounterIntent: String = "",
+    ): MeetingSession? = encounterMutex.withLock {
+        ScopedModelSelections.initialize(context.applicationContext)
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return@withLock null
         val currentLocation = DigitalWorldStore.locationOf(characterId)
-        if (currentLocation == previousLocation) return@withLock
+        if (currentLocation == previousLocation) return@withLock null
         if (
             currentLocation != DigitalWorldStore.CLOUD_MEADOW &&
             currentLocation != DigitalWorldStore.ARRIVAL &&
             !currentLocation.startsWith("home:") &&
             !DigitalWorldPublicPlaces.contains(currentLocation)
-        ) return@withLock
+        ) return@withLock null
 
-        val worldTick = DigitalWorldLifeEventStore.tick(
+        val worldTick = if (previousLocation == null) null else DigitalWorldLifeEventStore.tick(
             context = context,
             characterId = characterId,
             now = now,
@@ -45,6 +69,7 @@ internal object AutonomousSocialRuntime {
             .asSequence()
             .filter { (id, location) ->
                 id != characterId &&
+                    (requestedPeers == null || id in requestedPeers) &&
                     location == currentLocation &&
                     DigitalLifeProfileStore.isEnabled(id)
             }
@@ -65,12 +90,12 @@ internal object AutonomousSocialRuntime {
                 generateSoloIncidentReaction(
                     context = context,
                     characterId = characterId,
-                    previousLocation = previousLocation,
+                    previousLocation = previousLocation ?: currentLocation,
                     tick = it,
                     now = now,
                 )
             }
-            return@withLock
+            return@withLock null
         }
 
         val participantIds = (listOf(characterId) + coLocatedIds).distinct()
@@ -87,7 +112,7 @@ internal object AutonomousSocialRuntime {
         // Only reject a genuinely overlapping live session. Once a meeting has ended, the same
         // characters may meet again immediately if their own later movement brings them together.
         // Repetition is a character choice, not a system cooldown policy.
-        if (activeOverlap) return@withLock
+        if (activeOverlap) return@withLock null
 
         val characters = participantIds.associateWith(MigratedDomainStores.characters::get)
         val names = participantIds.map { characters.getValue(it).displayName }
@@ -110,7 +135,7 @@ internal object AutonomousSocialRuntime {
                 location = location,
                 now = now,
             )
-        }.getOrNull() ?: return@withLock
+        }.getOrNull() ?: return@withLock null
 
         // startMeeting also serves user-initiated meetings, so replace its user-centric opening
         // timeline with the true autonomous fact for this special route.
@@ -121,20 +146,22 @@ internal object AutonomousSocialRuntime {
                 viewerCharacterId = id,
                 suffix = "autonomous-start",
                 speaker = "数字世界",
-                content = "${names.joinToString("、")}因为各自真实的移动在“$location”碰面了；主人不在这次现场。",
+                content = if (previousLocation != null)
+                    "${names.joinToString("、")}因为各自真实的移动在“$location”碰面了；主人不在这次现场。"
+                else "${names.joinToString("、")}在已经同处的“$location”开始交谈；本次主动互动=$encounterIntent，主人不在场。",
                 occurredAt = now,
                 triggerExtraction = false,
             )
         }
 
-        val generated = generateEncounter(context, session, participantIds, characters, location, worldTick, now)
+        val generated = generateEncounter(context, session, participantIds, characters, location, worldTick, now, encounterIntent)
         val witnessedTick = generated.directedMoment ?: worldTick
         if (generated.turns.isEmpty() && generated.privateReactions.isEmpty() &&
             generated.directedMoment == null) {
             // The encounter happened even if no valid model decision arrived.
             // Keep its evidence; do not turn a request failure into voluntary silence.
             DigitalWorldStore.endMeeting(session.id, now)
-            return@withLock
+            return@withLock null
         }
 
         val exchangeId = "autonomous-${session.id}"
@@ -200,85 +227,94 @@ internal object AutonomousSocialRuntime {
         // each actor's own model proposal only under their own characterId,
         // after the referenced meeting has actually been committed.
         participantIds.forEach { id ->
-            val reaction = generated.privateReactions[id] ?: return@forEach
+            val reactions = generated.privateReactions[id] ?: return@forEach
             val savedSession = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
                 ?: return@forEach
-            val ownEvidence = reactionEvidenceFor(savedSession, id)
-            val observed = SharedExperienceTimeline.eventsByIds(id, listOf(ownEvidence)).firstOrNull()
-                ?: return@forEach
-            runCatching {
-                CharacterInnerLifeStore.observe(
-                    id, ownEvidence, observed.content, reaction.optJSONObject("innerLife"),
-                    participantIds.filterNot { it == id }.toSet(), finishedAt)
-                CharacterInnerLifeStore.recordInnerVoice(
-                    id, ownEvidence, reaction.optString("innerThought"), finishedAt)
-                // Execute this role's OWN social decisions after the shared
-                // meeting facts exist. Friend requests, messages and group
-                // invitations use the SAME ToolRouter receipts as other scenes.
-                val socialSteps = reaction.optJSONArray("steps")
-                if (socialSteps != null && socialSteps.length() > 0) {
-                    val bounded = JSONArray().apply {
-                        for (index in 0 until minOf(3, socialSteps.length()))
-                            put(socialSteps.opt(index))
+            reactions.forEachIndexed { reactionIndex, reaction ->
+                val evidenceTurn = if (reaction.has("_encounterEvidenceTurnIndex"))
+                    savedSession.turns.getOrNull(reaction.optInt("_encounterEvidenceTurnIndex", -1)) else null
+                val ownEvidence = if (!reaction.has("_encounterEvidenceTurnIndex")) reactionEvidenceFor(savedSession, id)
+                    else if (evidenceTurn != null) "meeting-${session.id}-autonomous-turn-${evidenceTurn.id}-viewer-$id"
+                    else "meeting-${session.id}-autonomous-start-viewer-$id"
+                val observed = SharedExperienceTimeline.eventsByIds(id, listOf(ownEvidence)).firstOrNull()
+                    ?: return@forEachIndexed
+                val reactionAt = evidenceTurn?.occurredAt ?: finishedAt
+                runCatching {
+                    CharacterInnerLifeStore.observe(
+                        id, ownEvidence, observed.content, reaction.optJSONObject("innerLife"),
+                        participantIds.filterNot { it == id }.toSet(), reactionAt)
+                    CharacterInnerLifeStore.recordInnerVoice(
+                        id, ownEvidence, reaction.optString("innerThought"), reactionAt)
+                    // Execute this role's OWN social decisions after the shared
+                    // meeting facts exist. Friend requests, messages and group
+                    // invitations use the SAME ToolRouter receipts as other scenes.
+                    val socialSteps = reaction.optJSONArray("steps")
+                    if (socialSteps != null && socialSteps.length() > 0) {
+                        val bounded = JSONArray().apply {
+                            for (index in 0 until minOf(3, socialSteps.length()))
+                                put(socialSteps.opt(index))
+                        }
+                        val result = OrderedCharacterActions.execute(
+                            context, id, bounded,
+                            requestId = "encounter-social:$ownEvidence:$reactionIndex",
+                            autonomousLifeTurn = true,
+                            sceneAllowedTools = setOf(
+                                "send_friend_request", "send_character_message",
+                                "create_group_chat", "send_group_message",
+                                "plan_personal_activity",
+                            ),
+                        )
+                        // Failed, malformed or forbidden scene steps used to be
+                        // only local report strings. Persist one role-owned decision
+                        // summary as well as the executor's per-tool receipts, so
+                        // subsequent personal reflection can distinguish intention,
+                        // partial delivery and genuine completion.
+                        CharacterInnerLifeStore.recordDecision(
+                            characterId = id, decisionId = "encounter-social:$ownEvidence:$reactionIndex",
+                            selectedAction = "social_steps",
+                            reason = reaction.optString("reason").take(200),
+                            chosenMotiveId = "", alternatives = null,
+                            outcome = result.notes.joinToString("；").take(230)
+                                .ifBlank { "未产生可执行的社交回执" },
+                            succeeded = result.completedCount == bounded.length(),
+                            now = finishedAt, causalEvidenceId = ownEvidence,
+                        )
                     }
-                    val result = OrderedCharacterActions.execute(
-                        context, id, bounded,
-                        requestId = "encounter-social:$ownEvidence",
-                        autonomousLifeTurn = true,
-                        sceneAllowedTools = setOf(
-                            "send_friend_request", "send_character_message",
-                            "create_group_chat", "send_group_message",
-                            "plan_personal_activity",
-                        ),
-                    )
-                    // Failed, malformed or forbidden scene steps used to be
-                    // only local report strings. Persist one role-owned decision
-                    // summary as well as the executor's per-tool receipts, so
-                    // subsequent personal reflection can distinguish intention,
-                    // partial delivery and genuine completion.
-                    CharacterInnerLifeStore.recordDecision(
-                        characterId = id, decisionId = "encounter-social:$ownEvidence",
-                        selectedAction = "social_steps",
-                        reason = reaction.optString("reason").take(200),
-                        chosenMotiveId = "", alternatives = null,
-                        outcome = result.notes.joinToString("；").take(230)
-                            .ifBlank { "未产生可执行的社交回执" },
-                        succeeded = result.completedCount == bounded.length(),
-                        now = finishedAt, causalEvidenceId = ownEvidence,
-                    )
+                    // A role's explicit personal activity uses the same existing
+                    // executor; it never treats a merely spoken invite as consent.
+                    val decided = reaction.optJSONObject("appraisal")?.optJSONObject("ownActivity")
+                    if (decided != null && decided.optString("stage") == "decided") {
+                        val queued = CharacterSelfActivityRuntime.offer(
+                            context, id, reaction.optJSONObject("appraisal"), ownEvidence)
+                        if (!queued) CharacterInnerLifeStore.recordDecision(
+                            characterId = id, decisionId = "encounter-unqueued:$ownEvidence:$reactionIndex",
+                            selectedAction = decided.optString("action").ifBlank { "digital_world" },
+                            reason = decided.optString("whyNow").take(200),
+                            chosenMotiveId = "", alternatives = null,
+                            outcome = "尚未排程：活动参数或当前执行条件未通过校验",
+                            succeeded = false, now = finishedAt, causalEvidenceId = ownEvidence)
+                    }
+                }.onFailure { error ->
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字世界·相遇心理",
+                        title = "个人相遇反应保存失败",
+                        message = error.message.orEmpty().take(130))
                 }
-                // A role's explicit personal activity uses the same existing
-                // executor; it never treats a merely spoken invite as consent.
-                val decided = reaction.optJSONObject("appraisal")?.optJSONObject("ownActivity")
-                if (decided != null && decided.optString("stage") == "decided") {
-                    val queued = CharacterSelfActivityRuntime.offer(
-                        context, id, reaction.optJSONObject("appraisal"), ownEvidence)
-                    if (!queued) CharacterInnerLifeStore.recordDecision(
-                        characterId = id, decisionId = "encounter-unqueued:$ownEvidence",
-                        selectedAction = decided.optString("action").ifBlank { "digital_world" },
-                        reason = decided.optString("whyNow").take(200),
-                        chosenMotiveId = "", alternatives = null,
-                        outcome = "尚未排程：活动参数或当前执行条件未通过校验",
-                        succeeded = false, now = finishedAt, causalEvidenceId = ownEvidence)
-                }
-            }.onFailure { error ->
-                com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                    source = "数字世界·相遇心理",
-                    title = "个人相遇反应保存失败",
-                    message = error.message.orEmpty().take(130))
             }
         }
 
         // One isolated literary call produces each witnessed POV from the
         // SAME public scene. Never enqueue N independent prose requests.
         // Silence may be meaningful, but buys no automatic chapter.
-        if (generated.turns.isEmpty() && generated.directedMoment == null) return@withLock
+        if (generated.turns.isEmpty() && generated.directedMoment == null)
+            return@withLock DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
         val committedSession = DigitalWorldStore.state.value.meetings
-            .firstOrNull { it.id == session.id } ?: return@withLock
+            .firstOrNull { it.id == session.id } ?: return@withLock null
         AutonomousEncounterChapters.enqueue(
             context = context, meeting = committedSession,
             locationCode = currentLocation, worldTick = witnessedTick,
         )
+        committedSession
     }
 
     /** Each choice saw only its own and earlier public turns. Later answers
@@ -352,6 +388,7 @@ internal object AutonomousSocialRuntime {
         location: String,
         worldTick: DigitalWorldLifeTick?,
         now: Instant,
+        encounterIntent: String = "",
     ): GeneratedEncounter {
         val currentLocationCode = DigitalWorldStore.locationOf(participantIds.first())
         val homeOwnerId = currentLocationCode
@@ -360,6 +397,8 @@ internal object AutonomousSocialRuntime {
         val publicPlace = DigitalWorldPublicPlaces.all.firstOrNull { it.code == currentLocationCode }
         val authority = buildString {
             appendLine("地点：$location")
+            if (encounterIntent.isNotBlank())
+                appendLine("本次本人已选择的互动类型=$encounterIntent；展开这次相处，不擅自替换原目标。")
             when {
                 homeOwnerId != null -> {
                     val owner = characters[homeOwnerId]
@@ -395,8 +434,9 @@ internal object AutonomousSocialRuntime {
             participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
-        // One optional public scene adviser + one private decision per role.
-        // A single final literary pass later supplies the shared chapters.
+        // One director schedules actual turn opportunities. Each scheduled
+        // response sees earlier actor-owned public choices, not imagined replies.
+        // A single final literary pass later renders the committed experience.
         val scenePlan = suggestEncounterPossibilities(
             participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
         // Only a concrete supported tiny incident can enter the world, AFTER
@@ -413,19 +453,18 @@ internal object AutonomousSocialRuntime {
         val currentTick = directedMoment ?: worldTick
         val sceneIdea = scenePlan.idea
         val proposals = linkedMapOf<String, List<AutonomousEncounterScript.Beat>>()
-        val privateReactions = mutableMapOf<String, JSONObject>()
-        for (speakerId in participantIds) {
+        val privateReactions = mutableMapOf<String, MutableList<JSONObject>>()
+        val directed = scenePlan.turns.isNotEmpty()
+        val cues = if (directed) scenePlan.turns else participantIds.map {
+            AutonomousEncounterDirector.Cue(it, 1, "")
+        }
+        val selectedBeats = mutableListOf<AutonomousEncounterScript.Beat>()
+        for (cue in cues) {
+            val speakerId = cue.speakerId
             val peers = participantIds.filterNot { it == speakerId }
-            val previous = AutonomousEncounterScript.order(participantIds, proposals)
-                .joinToString("\n") { beat ->
-                    val name = characters.getValue(beat.speakerId).displayName
-                    val proposed = beat.turn.optJSONArray("segments") ?: JSONArray()
-                    val lines = (0 until proposed.length()).mapNotNull { index ->
-                        proposed.optJSONObject(index)?.optString("text")?.trim()
-                            ?.takeIf(String::isNotBlank)
-                    }
-                    "阶段${beat.phase} · $name：${lines.joinToString("；")}"
-                }
+            val previous = AutonomousEncounterDirector.publicContext(
+                if (directed) selectedBeats else AutonomousEncounterScript.order(participantIds, proposals),
+                participantIds.associateWith { characters.getValue(it).displayName })
             val selectedModel = runCatching { ScopedModelSelections.worldSocialConnection(speakerId) }
             if (selectedModel.isFailure) {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
@@ -453,21 +492,32 @@ internal object AutonomousSocialRuntime {
                     appendLine("双方共同可见的现有关系事实：$socialHistory")
                     appendLine("你本人对对方的主观看法（对方未必知道）：")
                     appendLine(CharacterSocialRelationship.perspectivesFor(speakerId, peers))
-                    if (sceneIdea.isNotBlank()) appendLine("【可忽略的创意提议，并非已发生事实】$sceneIdea")
+                    if (scenePlan.moment != null && directedMoment == null)
+                        appendLine("导演选定的追加小插曲没有执行成功，不是已发生事实；只依据上面的真实现场事件回应。")
+                    if (sceneIdea.isNotBlank()) appendLine("【本场具体情境安排，并非已发生的结果】$sceneIdea")
+                    if (directed) {
+                        appendLine("【当前出场机会｜阶段${cue.phase}】${cue.direction}")
+                        appendLine("你只决定现在这一段；后续人物会看到你实际选定的公开回应再接话，不需提前编完余下全场。")
+                        privateReactions[speakerId]?.lastOrNull()?.let { own ->
+                            appendLine("【你自己在本场上一段的私人决定草案，尚未写入正式记忆】$own")
+                        }
+                    }
                     appendLine("先前在场人物已自己选择的分阶段公开台词与动作草案（尚未提交）：")
                     appendLine(previous.ifBlank { "当前无人说话" })
                     appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
                     appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
                 }
+            val sceneOutputShape = if (directed) """{"choice":"engage|quiet","reason":"本人为何这样回应","segments":[{"type":"dialogue|action","text":"现在本人选择的公开言语或可见小动作"}],"steps":[],"innerThought":"本人未出口的念头，可省略","innerLife":{}}"""
+                else """{"choice":"engage|quiet","reason":"本人为何参与","beats":[{"phase":1,"segments":[{"type":"dialogue|action","text":"开场阶段本人真正愿意说的台词或可见小动作"}]},{"phase":2,"segments":[{"type":"dialogue|action","text":"第二阶段本人想说或做的事"}]}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"已认识对象ID","text":"本人真实想发送的内容"},"requiresPreviousSuccess":false}],"innerThought":"本人未出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"已有依据"},"social":{"targetId":"在场人物ID","interpretation":"个人理解","reason":"已有证据"},"motives":[{"op":"start","aim":"未来想做的事","why":"缘由","reason":"依据"}]}}"""
             val sceneInstruction = """
                     你是${characters.getValue(speakerId).displayName}本人，绝不是替几个人编台词的导演。
                     自己选择是否与眼前的人交流、做个小动作，或者安静；别人也有自己的意愿。
                     只返回 JSON：
-                    {"choice":"engage|quiet","reason":"本人为何参与","beats":[{"phase":1,"segments":[{"type":"dialogue|action","text":"开场阶段本人真正愿意说的台词或可见小动作"}]},{"phase":2,"segments":[{"type":"dialogue|action","text":"第二阶段本人想说或做的事"}]}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"已认识对象ID","text":"本人真实想发送的内容"},"requiresPreviousSuccess":false}],"innerThought":"本人未出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"已有依据"},"social":{"targetId":"在场人物ID","interpretation":"个人理解","reason":"已有证据"},"motives":[{"op":"start","aim":"未来想做的事","why":"缘由","reason":"依据"}]}}
-                    这是一场完整的生活戏而不是一句话。你仅调用一次模型，却可以在 beats 中提出阶段1到5的数段自己的公开言语/动作；没有想说的阶段可省略，不能强凑。允许开场、推进、不同看法、转向及余味。
-                    phase 只能是1至5整数且每个编号最多一次；每阶段 segments 为1至8项，每项 text 为1至900字符；各段是你自己愿意实施的动作，不是替其他人写剧本。
-                    你看得见前面参与者已经提议的公开阶段台词，可在相同阶段对这些真实台词作回应，也可打趣、婉拒或安静。你并不知道后续尚未选择的人会说什么，不能提前声称他们答应或替他们表态。
-                    未来阶段只写即使他人没有按预想发言也能独立成立的本人行为，不得演出尚未执行的共同活动和结果。
+                    $sceneOutputShape
+                    ${if (directed) "本轮只返回当前阶段${cue.phase}的一个 beat，或直接返回本轮 segments。先读懂前面人物本人已选定的公开言行，再决定你的回应；不要提前替后面几轮编台词。若选择不参与，可返回 quiet；由本人决定如何理解导演给出的处境，不必服从建议的态度和结果。" else "这是一场完整的生活戏。可在 beats 中提出阶段1到5的本人公开言语或动作；没有想说的阶段可省略，不强凑，也不假装知道别人后来的回应。"}
+                    phase 只能是1至5整数且每个编号最多一次；每阶段 segments 为1至8项，每项 text 为1至900字符；各段是你自己愿意实施的动作。
+                    你看得见前面参与者已经提议的公开阶段台词，可在这一段对这些已由本人选择的台词作回应，也可打趣、婉拒或安静。你并不知道后续尚未选择的人会说什么，不能提前声称他们答应或替他们表态。
+                    ${if (directed) "只选择眼前这一段的真实回应，不演出尚未执行的共同活动和结果。" else "未来阶段只写即使他人没有按预想发言也能独立成立的本人行为，不演出尚未执行的共同活动和结果。"}
                     choice=quiet 时 beats 为空；若想开口或做动作，choice=engage，reason 不为空。
                     允许说话、小玩笑、观念不同、邀请、婉拒、主动帮忙、关心、紧张和不喜欢；
                     不要求每轮发生大事，更不强制每个人成为朋友。根据真实关系和个人性格自然选择。
@@ -496,7 +546,7 @@ internal object AutonomousSocialRuntime {
             // get one same-role correction with the exact original scene.
             val outcome = if (raw.isBlank()) AutonomousEncounterDecision.Outcome(
                 null, raw, null, "模型未返回决定，未视为本人选择安静")
-            else AutonomousEncounterDecision.resolve(raw) { error ->
+            else AutonomousEncounterDecision.resolve(raw, expectedPhase = cue.phase.takeIf { directed }) { error ->
                 LuluAiServices.gateway.generate(
                     characterId = speakerId, facts = sceneFacts,
                     instruction = sceneInstruction + "\n【仅补正本次结构错误】$error\n" +
@@ -512,7 +562,7 @@ internal object AutonomousSocialRuntime {
             if (decision == null) {
                 val evidence = "meeting-${session.id}-autonomous-start-viewer-$speakerId"
                 CharacterInnerLifeStore.recordDecision(
-                    characterId = speakerId, decisionId = "encounter-invalid:${session.id}:$speakerId",
+                    characterId = speakerId, decisionId = "encounter-invalid:${session.id}:$speakerId:${selectedBeats.size}:${cue.phase}",
                     selectedAction = ModelStructuredOutput.objectOrNull(raw)?.optString("choice").orEmpty()
                         .ifBlank { "invalid_output" },
                     reason = ModelStructuredOutput.objectOrNull(raw)?.optString("reason").orEmpty(),
@@ -525,7 +575,8 @@ internal object AutonomousSocialRuntime {
                 continue
             }
             if (decision.optString("choice") == "quiet") {
-                privateReactions[speakerId] = decision
+                if (directed) decision.put("_encounterEvidenceTurnIndex", selectedBeats.lastIndex)
+                privateReactions.getOrPut(speakerId) { mutableListOf() }.add(decision)
                 continue
             }
             val verified = AutonomousEncounterScript.approvedBeats(speakerId, decision)
@@ -534,12 +585,15 @@ internal object AutonomousSocialRuntime {
                         listOf(speakerId)).turns.isNotEmpty()
                 }
             if (verified.isEmpty()) continue
-            proposals[speakerId] = verified
-            privateReactions[speakerId] = decision
+            val currentBeats = if (directed) verified.map { it.copy(phase = cue.phase) } else verified
+            selectedBeats += currentBeats
+            proposals[speakerId] = proposals[speakerId].orEmpty() + currentBeats
+            if (directed) decision.put("_encounterEvidenceTurnIndex", selectedBeats.lastIndex)
+            privateReactions.getOrPut(speakerId) { mutableListOf() }.add(decision)
         }
-        // A deterministic stage scheduler can weave a whole scene with no
-        // extra role-model calls. It never invents a spoken line or action.
-        val turns = AutonomousEncounterScript.order(participantIds, proposals)
+        // Directed turns retain their actual decision order. The legacy adviser
+        // path alone uses the earlier interleaving format for compatibility.
+        val turns = (if (directed) selectedBeats else AutonomousEncounterScript.order(participantIds, proposals))
             .mapNotNull { beat ->
                 parseEncounter(JSONObject().put("turns", JSONArray().put(beat.turn)).toString(),
                     listOf(beat.speakerId)).turns.firstOrNull()
@@ -557,9 +611,6 @@ internal object AutonomousSocialRuntime {
         return GeneratedEncounter(turns, summary, privateReactions, directedMoment)
     }
 
-    /** An isolated public-world adviser: suggestions, never authored actions. */
-    private data class ScenePlan(val idea: String = "", val moment: JSONObject? = null)
-
     private suspend fun suggestEncounterPossibilities(
         participants: List<String>,
         characters: Map<String, CharacterSettings>,
@@ -568,12 +619,10 @@ internal object AutonomousSocialRuntime {
         publicRelations: String,
         tick: DigitalWorldLifeTick?,
         at: Instant,
-    ): ScenePlan {
+    ): AutonomousEncounterDirector.Plan {
         val sceneConnection = runCatching { ScopedModelSelections.worldSceneConnection() }
-            .getOrNull() ?: return ScenePlan()
-        val suggestion = LuluAiServices.gateway.generate(
-            characterId = participants.first(),
-            facts = buildString {
+            .getOrNull() ?: return AutonomousEncounterDirector.Plan()
+        val directorFacts = buildString {
                 appendLine("【已确认场景】$locationFacts")
                 appendLine("时间：$at；${DigitalWorldEnvironment.snapshot(at).context()}")
                 if (tick != null) appendLine("现场真实事件：${tick.summary}；状态=${tick.status}")
@@ -581,51 +630,60 @@ internal object AutonomousSocialRuntime {
                 appendLine("在场人物的公开名称：")
                 participants.forEach { id ->
                     appendLine("$id：${characters.getValue(id).displayName}")
-                    appendLine("稳定性格设定（只供导演理解，不是公开事实）：${characters.getValue(id).persona.take(380)}")
+                    appendLine("稳定身份与背景设定（用于构思，不自动变成其他人物的知识）：${CharacterIdentityStore.get(id)}")
+                    appendLine("完整稳定人设（只供导演构思，不向其他人物公开）：${CharacterRuntime.personaConstraintSnapshot(id)}")
                 }
                 if (participants.size == 2) {
                     appendLine("两人已有真实来往：${CharacterSocialRelationship.snapshot(participants[0], participants[1]).shortContext()}")
                 }
                 appendLine("所有人曾共同见到的公开事实：${sharedPast.ifBlank { "暂无" }}")
                 appendLine("共同可核验关系：$publicRelations")
-            },
-            instruction = """
+            }
+        val directorInstruction = """
                 你是生活小剧场导演，必须尊重人物既有性格和真实关系，而非机械安排寒暄。
                 陌生、尴尬、亲密、互相戒备或熟络的人，其停顿、玩笑、试探和边界完全不同。
                 有趣来自两个人真实性格的碰撞，也可以来自尴尬的安静；不必每次搞笑、跌倒或恋爱。
                 可以导演安排一个真实的小插曲，让角色各自面对此事决定如何感受、接话或行动。
-                只返回 JSON：{"angle":"符合关系与性格的戏剧看点","options":["可选择的互动机会"],"moment":{"kind":"none|social_stumble|social_frame_crossing","actorId":"真实在场者ID","otherId":"另一在场者ID"},"phases":[{"phase":1,"direction":"开场"},{"phase":2,"direction":"推进"},{"phase":3,"direction":"不同反应"},{"phase":4,"direction":"转向"},{"phase":5,"direction":"余味"}]}。
+                先从各人完整稳定人设、实际关系与现场用途里选一件这几个人碰在一起才有趣的事：具体的兴趣差异、想试探又拿不准的邀请、已有话题上的不同意见，或你选择的小插曲。给出场面与行动机会，不能只写“开场、推进、余味”标签；不套统一客气、温柔或尴尬模板。
+                只返回 JSON：{"angle":"这几个人为什么会在此事上产生有趣反应","options":["具体互动机会"],"moment":{"kind":"none|social_stumble|social_frame_crossing","actorId":"真实在场者ID","otherId":"另一在场者ID"},"turns":[{"speakerId":"本轮出场者真实ID","phase":1,"direction":"他此刻面对的具体话题或处境，不代写台词、情绪和选择"},{"speakerId":"另一位真实ID","phase":1,"direction":"读到前一人本人选择的言行后回应"},{"speakerId":"第一人真实ID","phase":2,"direction":"根据刚收到的回应继续或调整"}]}。
+                turns 是真实执行顺序：每项会调用该角色自己的模型，读取前面已由本人选择的公开内容后再决定这一段。按情节需要选择出场者和段数，通常4至8段足以展开一件小事；阶段为1至5且按顺序前进，同一人同一阶段最多一段，整场最多20段。没有必要的轮次不要排，人物仍可选择不参与。
+                导演安排的只是角色会面对什么，不能强迫其接受邀请、说指定台词、产生指定心情或完成一项未执行的活动。避免提前把后面的结局塞给前面的人；稳定人设只用于策划，个人没有公开过的设定不可成为别人的知识。
                 moment=none 则不追加现场事件；人物自己的相处无需事故也可能精彩。
                 social_stumble：actorId 在 otherId 面前踉跄一步，未受伤。
                 social_frame_crossing：actorId 用现有数字手机准备取景时 otherId 意外入镜；未真正拍照、保存或分享，不自动加好友。
                 只能指定当前真实在场的人，事件经过世界系统验证、存档才算发生。
-                phases 只给节奏方向，不代替人物发言、强迫情绪或宣布活动结果。
+                turns.direction 给出具体处境与交流机会，不代替人物发言、强迫情绪或宣布活动结果。
                 本次已有未解决事件时先围绕它，不要额外安排无关的事故。
-            """.trimIndent(),
-            source = "数字世界·公开场景创意",
-            title = "相遇时的互动可能性",
-            maxTokens = 690,
+            """.trimIndent()
+        val suggestion = LuluAiServices.gateway.generate(
+            characterId = participants.first(), facts = directorFacts,
+            instruction = directorInstruction,
+            source = "数字世界·公开场景创意", title = "相遇时的互动可能性",
+            maxTokens = 1_800,
             contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
             connectionOverride = sceneConnection,
         ).getOrNull()?.text.orEmpty()
-        val json = ModelStructuredOutput.objectOrNull(suggestion) ?: return ScenePlan()
-        val angle = json.optString("angle").trim().take(180)
-        val options = json.optJSONArray("options")
-        val ideas = (0 until minOf(2, options?.length() ?: 0)).mapNotNull { index ->
-            options?.optString(index)?.trim()?.take(130)?.takeIf(String::isNotBlank)
+        if (suggestion.isBlank()) return AutonomousEncounterDirector.Plan()
+        var json = ModelStructuredOutput.objectOrNull(suggestion)
+        val issue = AutonomousEncounterDirector.contractError(json, participants, requireTurns = true)
+        if (issue != null) {
+            val corrected = LuluAiServices.gateway.generate(
+                characterId = participants.first(), facts = directorFacts,
+                instruction = directorInstruction + "\n仅补正本次结构问题：$issue\n原计划：$suggestion",
+                source = "数字世界·导演计划补正", title = "相遇编排格式补正",
+                maxTokens = 1_800,
+                contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
+                connectionOverride = sceneConnection,
+            ).getOrNull()?.text.orEmpty()
+            json = ModelStructuredOutput.objectOrNull(corrected)
         }
-        val phases = json.optJSONArray("phases")
-        val stageNotes = (0 until minOf(AutonomousEncounterScript.MAX_PHASES,
-            phases?.length() ?: 0)).mapNotNull { index ->
-            val phase = phases?.optJSONObject(index) ?: return@mapNotNull null
-            val number = phase.optInt("phase")
-            if (number !in 1..AutonomousEncounterScript.MAX_PHASES) return@mapNotNull null
-            "阶段$number：${phase.optString("direction").trim().take(110)}"
-        }
-        val scriptedMoment = json.optJSONObject("moment")
-            ?.takeIf { it.optString("kind") in setOf("social_stumble", "social_frame_crossing") }
-        return ScenePlan((listOf(angle) + ideas + stageNotes).filter(String::isNotBlank)
-            .joinToString("；").take(1050), scriptedMoment)
+        val finalIssue = AutonomousEncounterDirector.contractError(json, participants, requireTurns = true)
+        val plan = if (finalIssue == null) json?.let { AutonomousEncounterDirector.parse(it, participants) } else null
+        if (plan == null) com.jiacimu.lulu.LuluRepositories.performance.recordError(
+            source = "数字世界·导演计划补正", title = "导演编排未能执行",
+            message = finalIssue
+                ?: "未获得有效计划；保留原人物自主相遇流程，没有代编新剧情")
+        return plan ?: AutonomousEncounterDirector.Plan()
     }
 
     private suspend fun generateSoloIncidentReaction(
@@ -935,7 +993,7 @@ internal object AutonomousSocialRuntime {
     private data class GeneratedEncounter(
         val turns: List<GeneratedTurn>,
         val summary: String,
-        val privateReactions: Map<String, JSONObject> = emptyMap(),
+        val privateReactions: Map<String, List<JSONObject>> = emptyMap(),
         val directedMoment: DigitalWorldLifeTick? = null,
     )
 }

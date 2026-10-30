@@ -7,16 +7,16 @@ import org.json.JSONObject
 internal object AutonomousEncounterDecision {
     data class Outcome(val decision: JSONObject?, val original: String, val corrected: String?, val error: String?)
 
-    suspend fun resolve(raw: String, repair: suspend (String) -> String): Outcome {
+    suspend fun resolve(raw: String, expectedPhase: Int? = null, repair: suspend (String) -> String): Outcome {
         val first = ModelStructuredOutput.objectOrNull(raw)
-        val error = contractError(first) ?: return Outcome(first, raw, null, null)
+        val error = contractError(first, expectedPhase) ?: return Outcome(first, raw, null, null)
         val corrected = repair(error)
         val second = ModelStructuredOutput.objectOrNull(corrected)
-        val remaining = contractError(second)
+        val remaining = contractError(second, expectedPhase)
         return Outcome(second.takeIf { remaining == null }, raw, corrected, remaining)
     }
 
-    fun contractError(value: JSONObject?): String? {
+    fun contractError(value: JSONObject?, expectedPhase: Int? = null): String? {
         if (value == null) return "输出不是完整 JSON 对象"
         val choice = value.optString("choice")
         if (choice !in setOf("engage", "quiet")) return "choice 须为 engage 或 quiet"
@@ -36,6 +36,8 @@ internal object AutonomousEncounterDecision {
             if (value.has("beats")) {
                 val beats = value.optJSONArray("beats") ?: return "beats 须为数组"
                 if (beats.length() !in 1..AutonomousEncounterScript.MAX_PHASES) return "beats 须为1至5项"
+                if (expectedPhase != null && beats.length() != 1)
+                    return "本轮只执行导演当前阶段$expectedPhase，不能提前写后续回应"
                 val seen = hashSetOf<Int>()
                 for (i in 0 until beats.length()) {
                     val beat = beats.optJSONObject(i) ?: return "beats[$i] 须为对象"
@@ -43,6 +45,8 @@ internal object AutonomousEncounterDecision {
                     if (phase !is Number || phase.toDouble() != phase.toInt().toDouble() ||
                         phase.toInt() !in 1..AutonomousEncounterScript.MAX_PHASES || !seen.add(phase.toInt()))
                         return "beats[$i].phase 须为不重复的1至5整数"
+                    if (expectedPhase != null && phase.toInt() != expectedPhase)
+                        return "本轮阶段为$expectedPhase，不能预写其他阶段"
                     segments(beat.optJSONArray("segments"))?.let { return "beats[$i].$it" }
                 }
             } else segments(value.optJSONArray("segments"))?.let { return it }
