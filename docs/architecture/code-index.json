@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T00:55:32.382660+00:00",
-  "commit": "2ef3c0ed4a35cf31c1d1cbc4dd95a78135c13b2b",
+  "generatedAt": "2026-10-30T00:55:55.340477+00:00",
+  "commit": "6e3185e7e718adaf0db1c4655dc84a6b22c8fbb4",
   "branch": "main",
-  "sourceFingerprint": "38f46561b9289cbba10e8dd85a682775a4701d0b817259ec7e90777be82ded12",
+  "sourceFingerprint": "6b5b9c20d58d5e38abc00ed9cbed7e84aa5fc5aa3922b1ca15b3692fd1def131",
   "summary": {
     "files": 1091,
-    "lines": 226760,
+    "lines": 226766,
     "symbols": 3206
   },
   "symbolIndex": {
@@ -15975,7 +15975,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2849
+        "line": 2855
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17445,13 +17445,13 @@
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2744
+        "line": 2750
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2826
+        "line": 2832
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -21374,7 +21374,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt",
       "lines": 196,
-      "sha256": "8f35630ebe70b05a9829209f1e9c255d8482c5f6b1ec890069915c65c8add5f8",
+      "sha256": "033905a26350a2a42e4cd2278176f4189fc5bca12a77dcbf25efdbf0b5b1530e",
       "symbols": []
     },
     {
@@ -37152,8 +37152,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2901,
-      "sha256": "048eb5bdd420b132f819464e7f966dd32497d2d802a4e483337ed9c60b7c1775",
+      "lines": 2907,
+      "sha256": "d2694ad22861d59494cb367de590cea56f290573bfbf1fc0750e42b7d7b0efda",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -37237,15 +37237,15 @@
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 2744
+          "line": 2750
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 2826
+          "line": 2832
         },
         {
           "name": "proposal",
-          "line": 2849
+          "line": 2855
         }
       ]
     },
