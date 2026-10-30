@@ -43,6 +43,44 @@ object CharacterLifeStore {
         migrateLegacyLuluToXingHe()
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
+        seedBundledDialogueExamplesIfAbsent()
+    }
+
+    /**
+     * Ship per-person illustrative examples into their EXISTING editable
+     * profile. Do not add a parallel memory store or make the user press
+     * "generate" on every installation. Once the key exists, even an
+     * intentionally empty string is the owner's choice and stays untouched.
+     *
+     * Only the two official existing contacts qualify: never seed every role
+     * with the same sample or recreate a deleted/repurposed identity.
+     */
+    @Synchronized internal fun seedBundledDialogueExamplesIfAbsent() {
+        if (prefs == null) return
+        val registered = MigratedDomainStores.characters.settings.value
+        val presets = listOf(
+            BUNDLED_JIANG_DU_ID to CharacterProfileSchema.jiangDuDialogueExamples,
+            "lulu" to CharacterProfileSchema.xingHeDialogueExamples,
+        )
+        presets.forEach { (id, examples) ->
+            val character = registered[id] ?: return@forEach
+            val root = state(id)
+            val recognized = when (id) {
+                BUNDLED_JIANG_DU_ID -> character.displayName == "江渡" &&
+                    root.optInt("jiangDuPresetVersion") > 0 &&
+                    DigitalLifeProfileStore.lifeForm(id) == CharacterLifeForm.DIGITAL
+                "lulu" -> character.displayName == "星禾" &&
+                    root.optInt("xingHeProfileVersion") > 0 &&
+                    DigitalLifeProfileStore.lifeForm(id) != CharacterLifeForm.REAL_WORLD
+                else -> false
+            }
+            if (!recognized) return@forEach
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            if (profile.has("dialogueExamples")) return@forEach
+            profile.put("dialogueExamples", examples)
+            root.put("profile", profile)
+            save(id, root)
+        }
     }
 
     @Synchronized private fun ensureBundledJiangDu() {
