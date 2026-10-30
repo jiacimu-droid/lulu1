@@ -256,7 +256,8 @@ object LuluScreenAwareness {
                 report(context, "已取得一帧截图，识图进行中")
                 if (sessionId.isBlank()) LuluScreenRequestPopup.showProgress(context)
                 val description = VisionModelService.describeScreenFrame(
-                    context, bitmap, studyWatch = sessionId.isNotBlank()).getOrElse {
+                    context, bitmap, studyWatch = sessionId.isNotBlank(),
+                    characterId = characterId).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
                 val evidence = describedCapture(context, userRequested, characterId, sessionId,
