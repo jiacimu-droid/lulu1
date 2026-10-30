@@ -959,7 +959,7 @@ class CompanionModelGateway(
                         // reason to block requests or blame unrelated response timeouts.
                         val route = if (error is ModelPostTransportException &&
                             error.phase == ModelPostTransport.Phase.CONNECT)
-                            requestUrl?.let(ModelLocalRouteHealth::transportHint).orEmpty() else ""
+                            requestUrl?.let { ModelLocalRouteHealth.transportHint(it) }.orEmpty() else ""
                         " [请求结构：$failedRequestShape;bodyBytes=$failedRequestBytes$advice$route]"
                     } else "",
                 requestUrl = requestUrl,
