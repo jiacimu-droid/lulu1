@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T04:52:55.539805+00:00",
-  "commit": "59f9fa8fc98da7071f847008533c95983c8d3e11",
+  "generatedAt": "2026-10-30T04:53:33.159541+00:00",
+  "commit": "78df8ecd758d1e1ee426c5912c3ddef2b03b14cf",
   "branch": "main",
-  "sourceFingerprint": "fefcdc183f36c788ab3de68b1247062b96d1c12149098139849335c624cf0850",
+  "sourceFingerprint": "9ff21c14ce26dc6923dcb078c7b21d5b5c1fc3587734fc4ece8666c64986863b",
   "summary": {
     "files": 1108,
-    "lines": 228421,
+    "lines": 228425,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -16099,7 +16099,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2855
+        "line": 2859
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
@@ -17505,7 +17505,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2629
+        "line": 2633
       }
     ],
     "modelAnswer": [
@@ -17575,19 +17575,19 @@
     "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2568
+        "line": 2572
       }
     ],
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2750
+        "line": 2754
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2832
+        "line": 2836
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -37503,8 +37503,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 2907,
-      "sha256": "d2694ad22861d59494cb367de590cea56f290573bfbf1fc0750e42b7d7b0efda",
+      "lines": 2911,
+      "sha256": "8bfe1a35d6117bb1145f2661bb817688b4c5a6b580377d5bcb3da719e32eed3e",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -37580,23 +37580,23 @@
         },
         {
           "name": "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay",
-          "line": 2568
+          "line": 2572
         },
         {
           "name": "citizen",
-          "line": 2629
+          "line": 2633
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 2750
+          "line": 2754
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 2832
+          "line": 2836
         },
         {
           "name": "proposal",
-          "line": 2855
+          "line": 2859
         }
       ]
     },
