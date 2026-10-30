@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T06:49:23.902470+00:00",
-  "commit": "735796da8590b011e745ae0aede97d3ea6e40001",
+  "generatedAt": "2026-10-30T06:49:49.141277+00:00",
+  "commit": "d92169d4eb19246f92c7fde294312e8f74dd9b34",
   "branch": "main",
-  "sourceFingerprint": "1cd552ab736f797556334053ee42917fc4fb07e2c84d9a5204918f4203f66570",
+  "sourceFingerprint": "660ea0c1bc59a514c1ab9ecc8944327363a07e70f3dfca19bfbca8cb5dccacb0",
   "summary": {
     "files": 1111,
-    "lines": 228885,
-    "symbols": 3239
+    "lines": 228910,
+    "symbols": 3240
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4254,6 +4254,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
         "line": 547
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpokenMotionContractTest.kt",
+        "line": 64
       }
     ],
     "wordsToSubmitOnMute": [
@@ -34302,12 +34306,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpokenMotionContractTest.kt",
-      "lines": 89,
-      "sha256": "96fd5079430afe0d20d412cf3fdf626edcc5f90f87ad14d8d02303993aa71ca0",
+      "lines": 114,
+      "sha256": "e979ad9c751a15a771c74dae7b44e0f860854d56d6fa4c1aa793e6aac1fbff7a",
       "symbols": [
         {
           "name": "Live2DSpokenMotionContractTest",
           "line": 13
+        },
+        {
+          "name": "score",
+          "line": 64
         }
       ]
     },
