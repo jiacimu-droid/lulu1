@@ -1128,9 +1128,10 @@ internal object ResidentDailyDecision {
         // not a hunger-threshold implicit purchase in the world-clock worker.
         for (field in listOf("cafeOrderLunch", "cafeOrderEvening")) {
             if (choice.has(field) && choice.opt(field) !is String)
-                return "$field 只能是 none、sandwich 或 tea"
-            if (choice.has(field) && choice.optString(field) !in setOf("none", "sandwich", "tea"))
-                return "$field 必须由本人明确选择 none、sandwich 或 tea"
+                return "$field 必须是文本形式的真实菜单项 ID 或 none"
+            if (choice.has(field) && choice.optString(field) != "none" &&
+                DigitalCafeMenu.offerings.none { it.id == choice.optString(field) })
+                return "$field 必须由本人选择 none 或现有咖啡角菜单项 ID"
         }
         // Optional direct actions must be complete before any side effects.
         // Otherwise the original message is silently skipped after the daily
@@ -1767,7 +1768,7 @@ internal object ResidentDailyDecision {
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
                 可用：send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
-                如果计划中午/傍晚到咖啡角，你可以为这两个时段分别决定是否点三明治、茶、或者不点（cafeOrderLunch/cafeOrderEvening=none|sandwich|tea）。
+                如果计划中午/傍晚到咖啡角，你可以为这两个时段分别决定点现有咖啡角菜单中的什么，或不点。cafeOrderLunch/cafeOrderEvening 选择 none 或 ${DigitalCafeMenu.offerings.joinToString("|") { it.id }}。
                 这只是本人预先选择的日常生活动作，只有届时真的身在咖啡角且有店员时才会尝试执行；不到店、没库存或执行失败不能伪造消费。
                 饥饿和口渴仅供自己判断；程序不能据此替你选吃喝。旧日程没有这两个字段时不会自动购买。
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
@@ -1775,8 +1776,8 @@ internal object ResidentDailyDecision {
                 {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|send_friend_request|respond_friend_request|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
                  "lunch":"cafe|home|courtyard|games",
                  "evening":"cafe|home|courtyard|games",
-                 "cafeOrderLunch":"none|sandwich|tea",
-                 "cafeOrderEvening":"none|sandwich|tea",
+                 "cafeOrderLunch":"none|${DigitalCafeMenu.offerings.joinToString("|") { it.id }}",
+                 "cafeOrderEvening":"none|${DigitalCafeMenu.offerings.joinToString("|") { it.id }}",
                  "eveningActivity":"一件自己愿意做的短活动",
                  "mood":"今天本人真实的心情，可为空",
                  "thought":"自己内心一闪而过的念头，可为空",
@@ -1816,7 +1817,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；cafeOrderLunch 和 cafeOrderEvening 若提供必须选 none/sandwich/tea；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
