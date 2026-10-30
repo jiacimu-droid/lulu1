@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a6120efc83c4de34c7941fbb0377262a75b8e4e8`
+- 基准提交：`877b5003ed7e06d5286cb54fb4fc72168c7a00d2`
 - 分支：`main`
-- 已索引文件：1116
-- 已索引代码/文本行：229572
-- 已发现符号：3245
+- 已索引文件：1117
+- 已索引代码/文本行：229650
+- 已发现符号：3246
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -770,6 +770,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpeechWavLevelTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallTimeFactsTest.kt` | 71 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt` | 40 | 1 |
