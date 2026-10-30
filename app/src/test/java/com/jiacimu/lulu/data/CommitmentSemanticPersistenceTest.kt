@@ -128,6 +128,43 @@ class CommitmentSemanticPersistenceTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun rejectedCompletionKeepsExistingAlarmAndReportsNoAppliedChange() = runBlocking {
+        val due = Instant.now().plusSeconds(90 * 60)
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "叫醒主人并确认她醒来了",
+            dueAt = due, timezone = zone.id, status = CommitmentTaskStatus.Scheduled,
+            deliveryAction = "alarm_only", completionCondition = "主人确实醒来",
+            verificationMode = "outcome",
+        ))
+        val alarm = LuluAlarmSystem.create(role, "测试角色", due, task.goal,
+            commitmentTaskId = task.id).getOrThrow()
+        CommitmentTaskStore.update(task.id) { it.copy(linkedAlarmId = alarm.id) }
+        val receiptId = "action-only-" + task.id
+        SharedExperienceTimeline.record(
+            eventId = receiptId, characterId = role, channel = "实际工具执行",
+            speaker = "执行器",
+            content = """{"status":"succeeded","result":"{\"success\":true}","tool":"create_alarm"}""",
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult,
+            triggerExtraction = false,
+        )
+        val outcome = applyCommitmentTaskDrafts(
+            role, "rejected-completion-" + task.id, listOf("user-request"),
+            listOf(CommitmentTaskDraft(
+                action = "complete", goal = task.goal, targetTaskId = task.id,
+                completionEvidenceIds = listOf(receiptId),
+                verificationReason = "闹钟确实创建成功但还不能证明主人已经醒来了",
+            )),
+        ).single()
+        assertNull("Rejected completion must not be reported as an applied change",
+            outcome.appliedTaskId)
+        val retained = CommitmentTaskStore.snapshot(role).single { it.id == task.id }
+        assertEquals(CommitmentTaskStatus.Scheduled, retained.status)
+        assertEquals(alarm.id, retained.linkedAlarmId)
+        assertEquals(listOf(alarm.id),
+            LuluAlarmSystem.list().filter { it.commitmentTaskId == task.id }.map { it.id })
+        assertTrue(retained.lastVerificationReason.contains("可靠证据"))
+    }
+
     @Test fun acceptedTwentyMinuteWakeIsScheduledFromTheModelDraftAfterMainMissedIt() = runBlocking {
         val due = Instant.now().plusSeconds(20 * 60)
         val evidence = "accepted-wake-user"
