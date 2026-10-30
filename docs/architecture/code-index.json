@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:33:04.887512+00:00",
-  "commit": "17cb6232de06942849ec3f162c61bd5ee52a16f1",
+  "generatedAt": "2026-10-30T13:18:24.477853+00:00",
+  "commit": "6678e66d875fbf875c003b6ae4f46f71c4ad6e62",
   "branch": "main",
-  "sourceFingerprint": "344743cf6dcc350a6fc9a0fc4676c0111b8496aa38bf858d11261540389f0467",
+  "sourceFingerprint": "6b72fa86fd71a24dd1eb0c404fea7fc086f7d9fe72bb98f138a3d988cca53bf2",
   "summary": {
     "files": 1120,
-    "lines": 230421,
+    "lines": 230426,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -7681,31 +7681,31 @@
     "nextInCallWakeReviewSeconds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 26
+        "line": 30
       }
     ],
     "shouldDeferInCallWakeDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 33
+        "line": 37
       }
     ],
     "followUpKindForWakeRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 41
+        "line": 45
       }
     ],
     "isFinalCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 46
+        "line": 50
       }
     ],
     "nextDelaySeconds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 56
+        "line": 60
       }
     ],
     "drafts": [
@@ -25349,8 +25349,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-      "lines": 81,
-      "sha256": "5b3761d0d497cf54f3a5949cab74e86813d267d4ccf558c3ff83cab17c823c07",
+      "lines": 85,
+      "sha256": "a32821e3cd41e52c022bdf5408d9195054fb1e76ba0bb66cae363c3bda54e96c",
       "symbols": [
         {
           "name": "wakeContactAction",
@@ -25358,23 +25358,23 @@
         },
         {
           "name": "nextInCallWakeReviewSeconds",
-          "line": 26
+          "line": 30
         },
         {
           "name": "shouldDeferInCallWakeDecision",
-          "line": 33
+          "line": 37
         },
         {
           "name": "followUpKindForWakeRound",
-          "line": 41
+          "line": 45
         },
         {
           "name": "isFinalCheck",
-          "line": 46
+          "line": 50
         },
         {
           "name": "nextDelaySeconds",
-          "line": 56
+          "line": 60
         }
       ]
     },
@@ -25406,8 +25406,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 507,
-      "sha256": "dfa5150da9010eb01cf4882e6e00f6a32d36e909dcd16651a4c288546c85ea37",
+      "lines": 508,
+      "sha256": "c3038b9962c0512fc9e6db791ff51675df70dfee91de4f49dbb550bfb929e1e1",
       "symbols": [
         {
           "name": "wakeSpeechContext",
