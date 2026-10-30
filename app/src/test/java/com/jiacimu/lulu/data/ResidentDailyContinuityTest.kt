@@ -2481,8 +2481,10 @@ class ResidentDailyContinuityTest {
             val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
             val day = ResidentDailyDecision.date(now)
             assertEquals("definite_rejected", p.getString("phase:${native.id}:$day", ""))
-            assertTrue(p.getString("last-error:${native.id}:$day", "").orEmpty()
-                .contains("repair-auth-denied"))
+            assertTrue("persisted daily provider failure: " +
+                p.getString("last-error:${native.id}:$day", ""),
+                p.getString("last-error:${native.id}:$day", "").orEmpty()
+                    .contains("repair-auth-denied"))
             assertTrue(p.getString("invalid:${native.id}:$day", "").orEmpty()
                 .contains("bad-first-location"))
             assertFalse(p.contains("decision:${native.id}:$day"))
@@ -2539,8 +2541,10 @@ class ResidentDailyContinuityTest {
             val key = "execute:${plan.id}:${plan.dueAt}"
             val p = app.getSharedPreferences("lulu_resident_daily_decisions_v1", 0)
             assertEquals("definite_rejected", p.getString("due-phase:$key", ""))
-            assertTrue(p.getString("due-last-error:$key", "").orEmpty()
-                .contains("due-repair-auth-denied"))
+            assertTrue("persisted due provider failure: " +
+                p.getString("due-last-error:$key", ""),
+                p.getString("due-last-error:$key", "").orEmpty()
+                    .contains("due-repair-auth-denied"))
             assertTrue(p.getString("due-invalid:$key", "").orEmpty()
                 .contains("bad-first-due-at"))
             assertFalse(p.contains("due-decision:$key"))
