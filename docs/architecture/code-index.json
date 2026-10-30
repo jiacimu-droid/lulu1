@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T07:46:50.969226+00:00",
-  "commit": "97b615cb21bf63d5d3bd5a228e1f8f11d6e73f8f",
+  "generatedAt": "2026-10-30T07:54:52.066173+00:00",
+  "commit": "183f4c039bb2eb0146a9570c4a01c1459f7b4ed3",
   "branch": "main",
-  "sourceFingerprint": "311cfbb5d22e270001b5ae85a3f5256703857d3fc04ac951f889e9cba95ea1a8",
+  "sourceFingerprint": "54f9f6d0ea44814de0811aa6debaca98dbbb3b6358cade3b8861186bbc810edb",
   "summary": {
     "files": 1119,
     "lines": 229751,
@@ -34299,7 +34299,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DDialoguePlanTest.kt",
       "lines": 122,
-      "sha256": "68debdd7e0e90431a5f664fb29a685a8fac265b4657dec6090821d08077bab9a",
+      "sha256": "aba3d0449876a61156afa4ab7591494ff4f289e72cd33493e4b9e74007a4eb7a",
       "symbols": [
         {
           "name": "Live2DDialoguePlanTest",
@@ -34424,7 +34424,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpokenMotionContractTest.kt",
       "lines": 114,
-      "sha256": "e979ad9c751a15a771c74dae7b44e0f860854d56d6fa4c1aa793e6aac1fbff7a",
+      "sha256": "9a5abdb8d9edaa0de01d9216e30fed17cce5f4dbd4f7b2565b5a2ef98ef1197d",
       "symbols": [
         {
           "name": "Live2DSpokenMotionContractTest",
