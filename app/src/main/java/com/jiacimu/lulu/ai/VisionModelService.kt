@@ -135,13 +135,14 @@ object VisionModelService {
             }
         }
 
-    /** Single authorized screen frame, routed through the existing image provider. */
+    /** Screen observation follows the same character-scoped Chat archive and gateway as video calls.
+     * Standalone image settings must never be a prerequisite for an approved study session. */
     suspend fun describeScreenFrame(context: Context, bitmap: Bitmap,
-        studyWatch: Boolean = false): Result<String> =
+        studyWatch: Boolean = false, characterId: String = ""): Result<String> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val selected = configuration(context).takeIf(Configuration::ready)
-                    ?: chatConfiguration() ?: error("请先设置支持图片的识图模型")
+                val chat = chatConfiguration(characterId)
+                    ?: error("当前角色没有可用的聊天模型；请为角色选择支持图片输入的聊天模型")
                 val options = listOf(1400 to 82, 1152 to 76, 960 to 70, 800 to 62)
                 var pixels = ""
                 for ((edge, quality) in options) {
@@ -175,7 +176,20 @@ object VisionModelService {
                     不抄录密码、验证码、支付资料和密钥。
                     用紧凑中文提供给角色的视觉事实。
                 """.trimIndent()
-                describeWith(selected, listOf(pixels), prompt).take(1300)
+                // Preserve this screenshot as request-only pixels. Model routing and
+                // cancellation/error handling are shared with the ordinary Chat API.
+                LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = "",
+                    instruction = prompt,
+                    source = if (studyWatch) "学习监督·屏幕截图" else "屏幕视觉·单帧观察",
+                    title = "屏幕单帧视觉理解",
+                    maxTokens = 900,
+                    contextMode = CompanionContextMode.Isolated,
+                    connectionOverride = ModelConnection(chat.baseUrl, chat.apiKey, chat.model),
+                    usage = ModelUsage.Chat,
+                    imageDataUrls = listOf(pixels),
+                ).getOrThrow().text.take(1300)
             }
         }
 
