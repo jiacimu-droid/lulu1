@@ -21,6 +21,8 @@ internal object Live2DVisualActionBus {
     data class Head(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Body(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Face(val values: Map<String, Float>)
+    data class FollowUpMotion(val motion: Pair<String, Int>, val transition: String,
+        val metadata: Live2DMotionMetadata? = null)
     /** Milliseconds from the start of audible TTS, not from API request time. */
     data class Beat(val atMs: Int, val expression: String? = null,
         val head: Head? = null, val body: Body? = null, val face: Face? = null,
@@ -28,7 +30,8 @@ internal object Live2DVisualActionBus {
         val anchor: String? = null, val segmentIndex: Int = 0,
         val motion: Pair<String, Int>? = null,
         val segmentId: String? = null, val transition: String = "blend",
-        val motionMetadata: Live2DMotionMetadata? = null)
+        val motionMetadata: Live2DMotionMetadata? = null,
+        val followUps: List<FollowUpMotion> = emptyList())
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
     internal val faceChannels = linkedMapOf(
@@ -110,9 +113,11 @@ internal object Live2DVisualActionBus {
         val selected = event.optString("group") to event.optInt("index", -1)
         val segmentId = event.optString("segmentId")
         val authorized = if (segmentId.isNotBlank()) {
-            cue.beats.any { it.segmentId == segmentId && it.motion == selected }
+            cue.beats.any { it.segmentId == segmentId &&
+                (it.motion == selected || it.followUps.any { item -> item.motion == selected }) }
         } else {
-            cue.motion == selected || cue.beats.any { it.segmentId == null && it.motion == selected }
+            cue.motion == selected || cue.beats.any { it.segmentId == null &&
+                (it.motion == selected || it.followUps.any { item -> item.motion == selected }) }
         }
         if (!authorized) return false
         val recent = recentMotionReceipts.getOrPut(characterId) { mutableListOf() }
@@ -270,7 +275,9 @@ internal object Live2DVisualActionBus {
         if (chosen == null || !canAcceptCue(context, characterId, callId)) return false
         val paired = Live2DDialoguePlan.parts(chosen)
         val controls = Live2DAssets.controls(context, characterId)
-        if (chosen.has("speech") && (paired == null || paired.any { it.motion !in controls.motions })) return false
+        if (chosen.has("speech") && (paired == null || paired.any { part ->
+                part.motion !in controls.motions || part.followUps.any { it.motion !in controls.motions }
+            })) return false
         // An explicit original Motion3 is the main performance authority;
         // never inject a second parameter-generated body score on top of it.
         val request = if (paired != null) JSONObject().put("beats", Live2DDialoguePlan.beats(paired))
@@ -425,11 +432,26 @@ internal object Live2DVisualActionBus {
                     beatFace != null || beatMotion != null) {
                     // Model-selected Motion3 is a first-class timed beat, not
                     // a parameter approximation. Keep the complete clip intact.
+                    val followUps = buildList {
+                        val selected = item.optJSONArray("followUps")
+                        if (paired != null && selected != null) {
+                            for (j in 0 until minOf(selected.length(), 5)) {
+                                val extra = selected.optJSONObject(j) ?: continue
+                                val entry = extra.optJSONObject("motion") ?: continue
+                                val clip = entry.optString("group") to entry.optInt("index", -1)
+                                val mode = extra.optString("transition", "blend")
+                                if (clip !in controls.motions || mode !in setOf("blend", "continue")) continue
+                                add(FollowUpMotion(clip, mode,
+                                    Live2DAssets.motionMetadata(context, characterId, clip.first, clip.second)))
+                            }
+                        }
+                    }
                     add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs,
                         anchor, segmentIndex = if (paired != null) item.optInt("segmentIndex") else 0,
                         motion = beatMotion, segmentId = if (paired != null) item.optString("segmentId") else null,
                         transition = if (paired != null) item.optString("transition", "blend") else "blend",
-                        motionMetadata = beatMotion?.let { Live2DAssets.motionMetadata(context, characterId, it.first, it.second) }))
+                        motionMetadata = beatMotion?.let { Live2DAssets.motionMetadata(context, characterId, it.first, it.second) },
+                        followUps = followUps))
                 }
             }
         }.sortedBy(Beat::atMs)
