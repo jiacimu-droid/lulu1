@@ -539,7 +539,7 @@ object RoleDayScheduleStore {
         }
         val revised = original.copy(dueAt = dueAt, status = "planned",
             resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1,
-            lastMutationRequestId = mutationRequestId)
+            lastMutationRequestId = mutationRequestId, lastWakeHandoffAt = null)
         persist(context, previous.map { if (it.id == planId) revised else it })
         try {
             scheduleWake(context, revised, now, appendToCurrentWork = appendToCurrentWork)
@@ -655,7 +655,8 @@ object RoleDayScheduleStore {
         val follow = if (plan.repeat == "daily") {
             val nextAt = nextDailyDue(plan.dueAt, now)
             plan.copy(status = "planned", dueAt = nextAt, resolvedAt = now,
-                resultEvidenceId = evidenceId, resultSummary = summary.take(180))
+                resultEvidenceId = evidenceId, resultSummary = summary.take(180),
+                lastWakeHandoffAt = null)
         } else plan.copy(status = "completed",
             resolvedAt = now, resultEvidenceId = evidenceId, resultSummary = summary.take(180))
         persist(context, previous.map { if (it.id == plan.id) follow else it })
