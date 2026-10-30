@@ -12,6 +12,69 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class BundledJiangDuImportTest {
+    @Test fun authoredDialogueExamplesAreSeededOnceForExactlyTheTwoExistingCharacters() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+
+        val jiangId = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val xingId = "lulu"
+        val jiangBefore = JSONObject(CharacterLifeStore.state(jiangId).toString())
+        val xingBefore = JSONObject(CharacterLifeStore.state(xingId).toString())
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        fun replace(id: String, original: JSONObject) {
+            val changed = JSONObject(original.toString())
+            val profile = changed.optJSONObject("profile") ?: JSONObject()
+            profile.remove("dialogueExamples")
+            changed.put("profile", profile)
+            save.invoke(CharacterLifeStore, id, changed)
+        }
+        try {
+            // An existing installation upgraded from before examples existed.
+            replace(jiangId, jiangBefore)
+            replace(xingId, xingBefore)
+            CharacterLifeStore.initialize(context)
+
+            val jiang = CharacterLifeStore.state(jiangId)
+                .getJSONObject("profile").getString("dialogueExamples")
+            val xing = CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("dialogueExamples")
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, jiang)
+            assertEquals(CharacterProfileSchema.xingHeDialogueExamples, xing)
+            assertNotEquals(jiang, xing)
+            assertTrue(jiang.contains("江渡："))
+            assertTrue(xing.contains("星禾："))
+            assertFalse(jiang.contains("星禾："))
+            assertFalse(xing.contains("江渡："))
+
+            // Actual model-facing speech section gets the individual example,
+            // not a new real memory or biography or the other person's style.
+            val jiangVoice = CharacterSpeechIdentity.promptSection(jiangId)
+            val xingVoice = CharacterSpeechIdentity.promptSection(xingId)
+            assertTrue(jiangVoice.contains("江渡：这么明显？"))
+            assertFalse(jiangVoice.contains("星禾："))
+            assertTrue(xingVoice.contains("星禾：发来我看看。"))
+            assertFalse(xingVoice.contains("江渡："))
+            assertFalse(CharacterLifeStore.profileContext(jiangId).contains("江渡："))
+            assertFalse(CharacterLifeStore.profileContext(xingId).contains("星禾："))
+
+            CharacterLifeStore.setProfile(jiangId, "dialogueExamples", "主人自己写的独家样例")
+            CharacterLifeStore.setProfile(xingId, "dialogueExamples", "") // intentionally cleared
+            CharacterLifeStore.initialize(context)
+            assertEquals("主人自己写的独家样例", CharacterLifeStore.state(jiangId)
+                .getJSONObject("profile").getString("dialogueExamples"))
+            assertEquals("", CharacterLifeStore.state(xingId)
+                .getJSONObject("profile").getString("dialogueExamples"))
+        } finally {
+            save.invoke(CharacterLifeStore, jiangId, jiangBefore)
+            save.invoke(CharacterLifeStore, xingId, xingBefore)
+        }
+    }
+
     @Test fun repositoryPersonaIsImportedAsAnIndependentEditableCharacterOnce() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
