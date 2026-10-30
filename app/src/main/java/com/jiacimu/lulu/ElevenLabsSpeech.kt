@@ -11,6 +11,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.io.InputStream
 import java.io.File
+import java.io.FileOutputStream
+import android.util.Log
 
 /** Personal TTS credentials stay in the phone configuration, independent of the Agents service. */
 internal class ElevenLabsSpeech(context: Context) {
@@ -56,6 +58,17 @@ internal class ElevenLabsSpeech(context: Context) {
     }
 
     private fun selectedModel() = prefs.getString("eleven_tts_model", ElevenLabsModels.DEFAULT).orEmpty().trim().ifBlank { ElevenLabsModels.DEFAULT }
+
+    private fun createCallTrack(rate: Int): AudioTrack = AudioTrack.Builder()
+        .setAudioAttributes(AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+        .setAudioFormat(AudioFormat.Builder().setSampleRate(rate)
+            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+            .setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
+        .setBufferSizeInBytes(maxOf(rate, AudioTrack.getMinBufferSize(
+            rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)))
+        .setTransferMode(AudioTrack.MODE_STREAM).build()
 
     private class AudioSource(val input: InputStream, val cleanup: () -> Unit) {
         fun close() { runCatching { input.close() }; cleanup() }
@@ -108,14 +121,15 @@ internal class ElevenLabsSpeech(context: Context) {
         var playbackClock: CallAudioPlaybackClock? = null
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
+        // Keep a temporary copy of the already PAID PCM, so a silent Android
+        // output can be restarted without asking ElevenLabs to synthesize it again.
+        // Cache failure must not break otherwise healthy streaming playback.
+        val replayFile = runCatching { File.createTempFile("eleven-call-", ".pcm", appContext.cacheDir) }.getOrNull()
+        var replayOutput = replayFile?.let { runCatching { FileOutputStream(it) }.getOrNull() }
+        var replayAvailable = replayOutput != null
         try {
             val rate = 24_000
-            val output = AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
-                .setAudioFormat(AudioFormat.Builder().setSampleRate(rate).setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
-                .setBufferSizeInBytes(maxOf(rate, AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)))
-                .setTransferMode(AudioTrack.MODE_STREAM).build()
+            var output = createCallTrack(rate)
             audio = output; track = output
             playbackClock = CallAudioPlaybackClock(output, rate, { token == epoch }, onStarted, onPosition)
             CallAudioRoute.preferredOutput?.let { check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" } }
@@ -142,6 +156,20 @@ internal class ElevenLabsSpeech(context: Context) {
                                 check(sent > 0) { "ElevenLabs 音频播放失败" }
                                 playbackClock?.sample()
                                 recording?.write(buffer, offset, sent)
+                                if (replayAvailable) {
+                                    if (written + sent > 20L * 1024 * 1024) {
+                                        replayAvailable = false
+                                        runCatching { replayOutput?.close() }
+                                        replayOutput = null
+                                    } else {
+                                        runCatching { replayOutput?.write(buffer, offset, sent) }
+                                            .onFailure {
+                                                replayAvailable = false
+                                                runCatching { replayOutput?.close() }
+                                                replayOutput = null
+                                            }
+                                    }
+                                }
                                 // A renderer failure must never interrupt a phone call.
                                 runCatching { onPcmFrame(buffer, offset, sent) }
                                 offset += sent; written += sent
@@ -154,9 +182,79 @@ internal class ElevenLabsSpeech(context: Context) {
             }
             if (token != epoch) return@withContext false
             check(written > 0 && carry == 0) { "ElevenLabs PCM 音频不完整" }
-            val deadline = android.os.SystemClock.elapsedRealtime() + written * 1000 / (rate * 2) + 5_000
-            while (token == epoch && (output.playbackHeadPosition.toLong() and 0xffffffffL) < written / 2) {
-                check(android.os.SystemClock.elapsedRealtime() < deadline) { "语音播放超时" }
+            // The primary device can accept all PCM writes while never moving
+            // its playback head (e.g. during communication-route initialization).
+            // Detect that separately from a slow but genuinely audible speech.
+            runCatching { replayOutput?.flush(); replayOutput?.close() }
+                .onFailure { replayAvailable = false }
+            replayOutput = null
+            val firstAudioDeadline = android.os.SystemClock.elapsedRealtime() +
+                CallAudioRecoveryPolicy.STARTUP_TIMEOUT_MS
+            while (token == epoch && (output.playbackHeadPosition.toLong() and 0xffffffffL) == 0L &&
+                android.os.SystemClock.elapsedRealtime() < firstAudioDeadline) {
+                delay(25)
+            }
+            if (token != epoch) return@withContext false
+            val playedOnPrimary = output.playbackHeadPosition.toLong() and 0xffffffffL
+            if (CallAudioRecoveryPolicy.canReplay(
+                    playedOnPrimary, written, replayFile?.length() ?: 0L, replayAvailable)) {
+                Log.w("ElevenLabsSpeech", "PCM received but AudioTrack did not start; retrying local playback without TTS request")
+                playbackClock?.close()
+                runCatching { output.pause(); output.flush(); output.release() }
+                // Do not pin the second player to a possibly stale preferred
+                // device; Android's current communication route decides instead.
+                output = createCallTrack(rate)
+                audio = output; track = output
+                playbackClock = CallAudioPlaybackClock(output, rate, { token == epoch }, onStarted, onPosition)
+                check(output.state == AudioTrack.STATE_INITIALIZED) { "手机音频输出未初始化" }
+                output.play()
+                val replayBuffer = ByteArray(8192)
+                var replayed = 0L
+                var lastProgress = android.os.SystemClock.elapsedRealtime()
+                var lastHead = 0L
+                replayFile!!.inputStream().use { input ->
+                    while (token == epoch) {
+                        val count = input.read(replayBuffer)
+                        if (count < 0) break
+                        var offset = 0
+                        while (offset < count && token == epoch) {
+                            val sent = output.write(replayBuffer, offset, count - offset, AudioTrack.WRITE_NON_BLOCKING)
+                            check(sent >= 0) { "本地音频重播失败：AudioTrack 写入错误 $sent" }
+                            offset += sent
+                            replayed += sent
+                            playbackClock?.sample()
+                            val head = output.playbackHeadPosition.toLong() and 0xffffffffL
+                            if (head > lastHead) {
+                                lastHead = head
+                                lastProgress = android.os.SystemClock.elapsedRealtime()
+                            }
+                            check(android.os.SystemClock.elapsedRealtime() - lastProgress <
+                                CallAudioRecoveryPolicy.STARTUP_TIMEOUT_MS) {
+                                "手机音频输出未启动：本地重播也没有播放进度"
+                            }
+                            if (sent == 0) delay(20)
+                        }
+                        if (token != epoch) break
+                    }
+                }
+                if (token != epoch) return@withContext false
+                check(replayed == written) { "本地音频重播不完整" }
+            } else if (playedOnPrimary == 0L) {
+                error("手机音频输出未启动，已收到语音但没有播放进度（请检查通话输出设备）")
+            }
+            val drainDeadline = android.os.SystemClock.elapsedRealtime() +
+                written * 1000 / (rate * 2) + 5_000
+            var lastHead = output.playbackHeadPosition.toLong() and 0xffffffffL
+            var lastAdvanced = android.os.SystemClock.elapsedRealtime()
+            while (token == epoch && lastHead < written / 2) {
+                val now = android.os.SystemClock.elapsedRealtime()
+                val head = output.playbackHeadPosition.toLong() and 0xffffffffL
+                if (head > lastHead) { lastHead = head; lastAdvanced = now }
+                check(now < drainDeadline && now - lastAdvanced <
+                    CallAudioRecoveryPolicy.DRAIN_STALL_TIMEOUT_MS) {
+                    "手机音频播放停滞（已生成语音，播放头=$head，目标=${written / 2}）"
+                }
+                playbackClock?.sample()
                 delay(20)
             }
             playedToEnd = token == epoch
@@ -164,6 +262,8 @@ internal class ElevenLabsSpeech(context: Context) {
             playedToEnd
         } finally {
             playbackClock?.close()
+            runCatching { replayOutput?.close() }
+            replayFile?.delete()
             // The recording contains exactly what was sent to AudioTrack, not a
             // second TTS generation. Interrupted or failed speech is discarded.
             recording?.finish(playedToEnd)
