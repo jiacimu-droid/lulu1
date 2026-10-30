@@ -236,6 +236,11 @@ internal fun Live2DFullscreenVideoCall(
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var motionFailureNotice by remember(state.callExperienceId) { mutableStateOf("") }
+    LaunchedEffect(state.callExperienceId, cue?.sequence) {
+        // A failure belongs to one exact visual decision; a later chosen
+        // score must not inherit its warning before its own renderer receipt.
+        motionFailureNotice = ""
+    }
     var videoPerformance by remember(modelUrl) { mutableStateOf("") }
     var rendererPerformance by remember(modelUrl) { mutableStateOf("") }
     // One public video experience, three internal recovery stages:
