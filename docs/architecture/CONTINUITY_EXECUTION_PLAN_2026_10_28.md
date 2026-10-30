@@ -525,3 +525,11 @@
 - **本轮最小变更**：[78df8ecd](https://github.com/jiacimu-droid/lulu1/commit/78df8ecd758d1e1ee426c5912c3ddef2b03b14cf) 仅给这两项断言增加持久错误详情的失败诊断，不更改业务条件、角色选择或重试；专项进度另见 CONTINUITY_BASE_PROGRESS_2026_10_29.md。索引 [#41005357851](https://github.com/jiacimu-droid/lulu1/actions/runs/41005357851) 已 completed/success。
 - **已有待验/真实阻断**：本轮 2115 项 JVM 测试仍有 3 项失败，均为并行社交 AutonomousEncounterDirectorTest 未配置 Android JSONObject 的测试环境，整套 JVM 未通过，assemblePhone/APK 未执行；该专项自行修复，不越界修改。真机补正/强杀/真实供应商错误详情和长期数据量仍未验；不以本轮局部回归成功宣称 APK 或设备通过。
 - **可选增强**：将来按真实供应商响应和长期数据测量评估错误摘要展示/分页，不因这次 CI 再造模型网关、重试器或状态中心。
+
+## 2026-10-30 · P4：按前缀删除原始证据不得误删相似 ID 的其他经历
+
+- **四类基线**：已有且源码接通：`SharedExperienceTimeline.deleteEvent` 的墓碑、派生心声/记忆撤回、收藏 `InMemoryLexiconRepository.delete` 和数字世界见面删除入口；已有待验：多年历史性能、真机删除与恢复；真实缺口：`deleteEventsByIdPrefix` 把原始 ID 前缀拼入未转义的 SQLite `LIKE`，`_`/`%` 被解释为通配符，且默认 LIKE 大小写不敏感，可能删除同一人物其他收藏或见面会话的真实证据及其下游记忆；可选增强：长期大量前缀删除的分批/设备压力测量，不因本次新增常态后台任务。
+- **真实执行链**：复用原 `eventsByIdPrefix` 已有的主键范围与 Kotlin 字面 `startsWith`，抽出原始 ID 查询 `rawEventIdsByPrefix`；历史只读投影继续通过 `eventsByIds` 遵守人物/出生边界，而删除路径直接遍历原始 ID（含隐藏的旧历史），在同一 `SharedExperienceTimeline` 锁内逐个调用原 `deleteEvent`。保留墓碑、来源撤回、心声/记忆/承诺派生失效，不另建存储、不补模型调用、不改人物语义。收藏删除与见面删除现有调用点无需改路由。
+- **根因回归源码**：新增 `TimelinePrefixDeletionTest`，通过真实 `LuluRepositories.lexicon.save/delete` 测试 `fav_%` 收藏仅删除本人精确前缀回执，保留同人物 `fav_a`、`favZZ`、大小写变体和另一人物的证据；验证删除墓碑拒绝迟到结果复活；独立验证见面会话 `meeting-room_%` 不误删相似 session ID。没有把测试源码等同于 JVM 已通过。
+- **main 提交**：源码与回归 [`27b9f1ce`](https://github.com/jiacimu-droid/lulu1/commit/27b9f1ce640f43868fd7092db51085e024d9a9d6)，测试持久收藏初始化修正 [`d75c805c`](https://github.com/jiacimu-droid/lulu1/commit/d75c805c6eab0323ecce8c4b9c3ce8d64eb2c817)；只改权威时间线、独立专项回归及本专项进度/旧清单，不覆盖社交/内驱/Live2D。
+- **分层验收（首次核对）**：首个源码提交的原索引 [#41018608632](https://github.com/jiacimu-droid/lulu1/actions/runs/41018608632) completed/success；最终回归提交的 [索引 #41018659018](https://github.com/jiacimu-droid/lulu1/actions/runs/41018659018) queued，[Lulu APK #41018659128](https://github.com/jiacimu-droid/lulu1/actions/runs/41018659128) pending，尚无最终 JVM/APK 通过证据。前一 [APK #41016787511](https://github.com/jiacimu-droid/lulu1/actions/runs/41016787511) 真实失败于并行 Live2D `Live2DDialoguePlanTest.kt:28/52` Kotlin suspend 回调类型不匹配，属 Live2D 专项，不在本职责越界修改。真机收藏/见面删除、低内存强杀与长期历史均未验。
