@@ -293,6 +293,7 @@ object ProactivePerceptionRuntime {
                     // A lifestyle-review wake is not permission to disturb quiet
                     // hours just to produce a social post; unresolved cues persist.
                     if ((trigger.startsWith("真实生活后续回想") ||
+                        (preserveOffline && trigger.startsWith("合并后的自主生活回顾")) ||
                         trigger.startsWith("居民小事到了") ||
                         trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
                         isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
@@ -341,6 +342,7 @@ object ProactivePerceptionRuntime {
                                     appContext, characterId, eligibleAt - nowMs + 250L,
                                     onlineOnly = false,
                                     eligibleAtMillis = eligibleAt,
+                                    preserveOffline = preserveOffline,
                                 )
                             }
                             continue
