@@ -44,7 +44,7 @@ internal fun ResidentDecisionRecoveryControl(nativeId: String, onUpdated: () -> 
         }
     }
     if (history.isNotEmpty()) {
-        Text("历史未完成请求（仅供核对，不会自动补发）",
+        Text("未完成请求记录（含今日已终止的决定；仅供核对，不会自动补发）",
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         history.forEach { item ->
             val time = if (item.scope == "每日规划")
