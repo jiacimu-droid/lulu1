@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T11:09:42.573035+00:00",
-  "commit": "0fc48e4afa8d4dabd41787d7a96ae79038f974d1",
+  "generatedAt": "2026-10-30T11:10:11.677442+00:00",
+  "commit": "84bd759b8d86eea03c1b5a3a82943d3749e05b46",
   "branch": "main",
-  "sourceFingerprint": "08f9e06a14e28fe2fd35e4f1cbc1dfc1610b34768192eff3e3936c8db81b5cb3",
+  "sourceFingerprint": "974260ce78ed281f7fa428b57eced566c3a22b3e672ec426f1fc3a7db935cf53",
   "summary": {
-    "files": 1119,
-    "lines": 230356,
-    "symbols": 3257
+    "files": 1120,
+    "lines": 230409,
+    "symbols": 3258
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -963,7 +963,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 135
+        "line": 147
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -1711,7 +1711,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2029
+        "line": 2030
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -10937,43 +10937,43 @@
     "ProactivePerceptionRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 35
+        "line": 47
       }
     ],
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 143
+        "line": 155
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 151
+        "line": 163
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 160
+        "line": 172
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 605
+        "line": 617
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 607
+        "line": 619
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2962
+        "line": 2974
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11547,7 +11547,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1532
+        "line": 1533
       }
     ],
     "plan": [
@@ -15870,6 +15870,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
         "line": 19
+      }
+    ],
+    "AutonomousSharingWakeContractTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousSharingWakeContractTest.kt",
+        "line": 12
       }
     ],
     "AutonomyCallAndReceiptTest": [
@@ -28895,40 +28901,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3029,
-      "sha256": "bdda688c9ff3156083bd96418e93e833e39f991da871fbfab3092e180b490d5e",
+      "lines": 3041,
+      "sha256": "81a608b7c867f0ec56bef813c021d2aa47901c099c64b335acd68d53f44bfb39",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
-          "line": 35
+          "line": 47
         },
         {
           "name": "initialize",
-          "line": 135
+          "line": 147
         },
         {
           "name": "markConcernPromisePending",
-          "line": 143
+          "line": 155
         },
         {
           "name": "wakePlanFor",
-          "line": 151
+          "line": 163
         },
         {
           "name": "nextDueAt",
-          "line": 160
+          "line": 172
         },
         {
           "name": "batchSuperseded",
-          "line": 605
+          "line": 617
         },
         {
           "name": "deferSupersededDecision",
-          "line": 607
+          "line": 619
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2962
+          "line": 2974
         }
       ]
     },
@@ -29387,8 +29393,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2093,
-      "sha256": "e89f337962f40c9cc41a5ddfc7377524da27cf3eeb6e6f684d4256d9f9a90883",
+      "lines": 2094,
+      "sha256": "16052230bdefbec95f792dd9deb0837204ed3a807904277ec466b07d78d2b3aa",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29460,11 +29466,11 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1532
+          "line": 1533
         },
         {
           "name": "schedule",
-          "line": 2029
+          "line": 2030
         }
       ]
     },
@@ -35392,6 +35398,17 @@
         {
           "name": "AutonomousLearningRuntimeTest",
           "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousSharingWakeContractTest.kt",
+      "lines": 40,
+      "sha256": "3d7dbb05306ce80193cfe87bbf97db1611f9f80427e334a6dad9a62b78a7a4e4",
+      "symbols": [
+        {
+          "name": "AutonomousSharingWakeContractTest",
+          "line": 12
         }
       ]
     },
