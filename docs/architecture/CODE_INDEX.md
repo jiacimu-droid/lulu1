@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2bb635966fa53becd325d297a4f6647f35b0a7d3`
+- 基准提交：`2e9a245cf920637482932c233a8449841987d6ee`
 - 分支：`main`
 - 已索引文件：1120
-- 已索引代码/文本行：230415
+- 已索引代码/文本行：230416
 - 已发现符号：3258
 
 | 文件 | 行数 | 符号数 |
@@ -412,7 +412,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 81 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 68 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 138 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 502 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 503 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 91 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
