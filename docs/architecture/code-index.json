@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-30T08:13:11.486833+00:00",
-  "commit": "ef155574ff346d10246cf2a87e8dbd1c45fdb6d7",
+  "generatedAt": "2026-10-30T08:15:19.239748+00:00",
+  "commit": "82afbc4d87918ae3e46fb2ff39e8e4cee4f74769",
   "branch": "main",
-  "sourceFingerprint": "85571d541ebcec54d125dae5971bc8f275960e5078d419114aa530175ac673c8",
+  "sourceFingerprint": "6892a5f3716449f6f28616d779f2042984d1642ecb8b5c21effb99b4aab85493",
   "summary": {
     "files": 1119,
-    "lines": 229935,
-    "symbols": 3251
+    "lines": 229952,
+    "symbols": 3252
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7684,16 +7684,22 @@
         "line": 19
       }
     ],
+    "followUpKindForWakeRound": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
+        "line": 27
+      }
+    ],
     "isFinalCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 24
+        "line": 32
       }
     ],
     "nextDelaySeconds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 34
+        "line": 42
       }
     ],
     "drafts": [
@@ -25307,8 +25313,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-      "lines": 59,
-      "sha256": "1ae64aa48c3165b98cf5a873c86ebb33f339a27cd12d6b1b84fe4fa6e027fce3",
+      "lines": 67,
+      "sha256": "9b245d4df865e71a1e3fed7877bdfea5db40b964d0d26bcef1791789ea69b817",
       "symbols": [
         {
           "name": "nextInCallWakeReviewSeconds",
@@ -25319,12 +25325,16 @@
           "line": 19
         },
         {
+          "name": "followUpKindForWakeRound",
+          "line": 27
+        },
+        {
           "name": "isFinalCheck",
-          "line": 24
+          "line": 32
         },
         {
           "name": "nextDelaySeconds",
-          "line": 34
+          "line": 42
         }
       ]
     },
@@ -25356,8 +25366,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 430,
-      "sha256": "8fa885f10cead2bab41685dd056b9404a3894eeead0d455da97dda2cc4e04d48",
+      "lines": 432,
+      "sha256": "5bf84417072b09150b4490948b7dc3535b1fb3979a2a1913233d0dc5934376dd",
       "symbols": []
     },
     {
@@ -36382,8 +36392,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
-      "lines": 53,
-      "sha256": "c49ac15b55fd4ab8f1fdec888335be67eaa21b9f41ee75ec13f5861a3339b174",
+      "lines": 60,
+      "sha256": "9ff0da77467810f06307a0cdb80c74263e78fbda441956a9bd76e7fe40dc7880",
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",
