@@ -1011,6 +1011,20 @@ class CharacterCausalTraceTest {
             assertTrue(lineFor("执行失败的回执").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").title.contains("日程状态待核对"))
             assertTrue(lineFor("原生动态结果尚待归属核对").detail.contains("没有独立核对"))
+            // A later edit may keep the same request ID and a success status.
+            // The plan did not persist the original receipt revision, so the
+            // edited row cannot retroactively prove its original completion.
+            SharedExperienceTimeline.record(genuineId, a, "实际工具执行", "执行器",
+                JSONObject().put("tool", "publish_moment").put("planId", genuine.id)
+                    .put("status", "succeeded").put("summary", "事后改写的回执")
+                    .put("result", JSONObject().put("success", true).toString()).toString(),
+                due.plusSeconds(4), triggerExtraction = false,
+                source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+            assertTrue(event(a, genuineId).revision > 1L)
+            val revised = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+                listOf(event(a, sourceId)), JSONObject())
+            assertTrue(revised.any { it.title.contains("日程状态待核对") &&
+                it.detail.contains("活动=本日程的真实成功回执") })
             assertTrue(CharacterCausalTrace.inspect(context, b,
                 event(a, sourceId), listOf(event(a, sourceId)), JSONObject()).isEmpty())
         } finally {
