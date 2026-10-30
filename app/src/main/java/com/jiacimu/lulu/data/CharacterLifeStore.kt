@@ -29,11 +29,20 @@ object CharacterLifeStore {
     val states = mutable.asStateFlow()
 
     @Synchronized fun initialize(context: Context) {
-        appContext = context.applicationContext
-        if (prefs == null) {
-            prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
-            mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
+        val application = context.applicationContext
+        val currentPreferences = application.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+        // Initialization is repeatable. In particular, Robolectric creates new
+        // Application contexts across tests while Kotlin object singletons may
+        // survive; retaining the prior context's preferences makes state()
+        // diverge from what the current app actually persisted.
+        // Rebind and reload only when the preference source changes.
+        if (prefs !== currentPreferences) {
+            prefs = currentPreferences
+            mutable.value = currentPreferences.all.mapNotNull { (key, value) ->
+                (value as? String)?.let { key to it }
+            }.toMap()
         }
+        appContext = application
         // 预设补跑不能只在第一次启动做一次：重装后主角可能先叫默认名、
         // 或之后才被改名叫江渡，错过那一次就永远装不上。补跑本身是幂等的
         // （已到最新版直接返回、用户改过的字段一律不动），每次启动都跑才安全。
