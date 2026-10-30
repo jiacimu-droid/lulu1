@@ -30,17 +30,28 @@ internal object Live2DSpokenMotionContract {
 
     data class Resolution(val chosen: JSONObject?, val errors: List<String>, val repaired: Boolean)
 
-    /** One correction of visual metadata, never another dialogue/tool decision. */
+    /** A bounded contract-only correction, never a new dialogue/tool decision.
+     * The second attempt is only for a complete but invalid first correction,
+     * and receives the exact rejected proposal and its new validation errors. */
     suspend fun resolve(text: String, chosen: JSONObject?, motions: List<Pair<String, Int>>,
-        repair: suspend (List<String>) -> JSONObject?): Resolution {
-        val missing = errors(text, chosen, motions)
+        repair: suspend (List<String>, JSONObject?) -> JSONObject?): Resolution {
+        var missing = errors(text, chosen, motions)
         if (missing.isEmpty()) return Resolution(chosen, emptyList(), false)
-        val corrected = repair(missing)
-        val remaining = errors(text, corrected, motions)
-        return if (corrected != null && remaining.isEmpty()) Resolution(corrected, emptyList(), true)
-        else Resolution(chosen?.takeIf { original ->
-            !original.has("speech") || Live2DDialoguePlan.parts(original)
-                ?.joinToString("") { it.text } == text
-        }, if (corrected == null) missing else remaining, false)
+        var proposal = chosen
+        repeat(2) {
+            val corrected = repair(missing, proposal) ?: return Resolution(
+                chosen?.takeIf { original -> !original.has("speech") ||
+                    Live2DDialoguePlan.parts(original)?.joinToString("") { it.text } == text },
+                missing, false)
+            val remaining = errors(text, corrected, motions)
+            if (remaining.isEmpty()) return Resolution(corrected, emptyList(), true)
+            proposal = corrected
+            missing = remaining
+        }
+        // Do not publish a guessed replacement Motion3. A failed correction
+        // remains observable while the ordinary spoken answer survives.
+        return Resolution(chosen?.takeIf { original -> !original.has("speech") ||
+            Live2DDialoguePlan.parts(original)?.joinToString("") { it.text } == text },
+            missing, false)
     }
 }
