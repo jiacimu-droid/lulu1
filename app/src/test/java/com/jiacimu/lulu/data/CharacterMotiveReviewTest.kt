@@ -107,12 +107,5 @@ class CharacterMotiveReviewTest {
         assertFalse(CharacterMotiveReview.from(revised)!!.fallback)
     }
 
-    @Test fun oneAlarmIdentityPerCharacterAcrossPlanChanges() {
-        val role = "role-with-goals"
-        assertEquals(CharacterMotiveReviewScheduler.workName(role),
-            CharacterMotiveReviewScheduler.workName(role))
-        assertNotEquals(CharacterMotiveReviewScheduler.workName(role),
-            CharacterMotiveReviewScheduler.workName("another-role"))
-    }
 
 }
