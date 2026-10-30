@@ -25,7 +25,11 @@ internal object SleepCallContinuationPolicy {
      * beginning makes bedtime narration repeat itself mid-sentence. */
     fun shouldRetryFailedAudio(
         enabled: Boolean, remainingAttempts: Int, audioAlreadyStarted: Boolean,
-    ): Boolean = enabled && remainingAttempts > 0 && !audioAlreadyStarted
+        provider: String = "system",
+    ): Boolean = enabled && remainingAttempts > 0 && !audioAlreadyStarted &&
+        // A cloud TTS response can be charged before any audible frame is observed.
+        // The ElevenLabs renderer handles a silent device by local PCM replay.
+        provider != "elevenlabs"
 
     /** A text bubble is already persisted; only its phone reply must wait.
      * Ordinary calls remain interruptible, including while TTS is pending. */
