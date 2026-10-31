@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:29:13.364812+00:00",
-  "commit": "515d4e42b40b1181fab925d4491fbc25dbbffc9c",
+  "generatedAt": "2026-10-31T16:31:08.600461+00:00",
+  "commit": "1829c0f7a65d50f423ce4d3322c07fa8e781b786",
   "branch": "main",
-  "sourceFingerprint": "3e5eec5a65148bbf87e16c6c539ad174161a6a48c501b35f2ba432fd198062bf",
+  "sourceFingerprint": "500015742c5fcf45bcf23e7ef03a809bd1fad5de591257fe273e873d36ab43f7",
   "summary": {
     "files": 1131,
-    "lines": 232730,
-    "symbols": 3291
+    "lines": 232810,
+    "symbols": 3292
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -677,7 +677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 270
+        "line": 294
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -1922,6 +1922,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
         "line": 167
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
+        "line": 43
       }
     ],
     "angles": [
@@ -32441,14 +32445,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 122,
-      "sha256": "4671d97d36ebc71241e480d85b377f52014bd34d832fa1bf0de2a0c51136a483",
-      "symbols": []
+      "lines": 157,
+      "sha256": "76456314b5d3abfe37d134bd42f97dbfd32a0d3ec8bbdd3e13a9182a78ecb876",
+      "symbols": [
+        {
+          "name": "send",
+          "line": 43
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 308,
-      "sha256": "ee089471861012c5e8fce824baf8849083bdf7f09d5e099a357d027a3b9fd218",
+      "lines": 332,
+      "sha256": "d6b276da97f3bf1e49156a3b2b01fc3364dd8045428fbf7f96f2ba0f744e582f",
       "symbols": [
         {
           "name": "cell",
@@ -32460,7 +32469,7 @@
         },
         {
           "name": "label",
-          "line": 270
+          "line": 294
         }
       ]
     },
@@ -32580,8 +32589,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 558,
-      "sha256": "26c01f6f7884955ca9034557cb9dc8024e2223e3872cffb9e239402abc689014",
+      "lines": 579,
+      "sha256": "75f885f94b7a8398165e20270ff6e82244206923c489f1fb60eba79c735c1c75",
       "symbols": [
         {
           "name": "change",
