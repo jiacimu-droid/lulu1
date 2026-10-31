@@ -155,6 +155,22 @@ class CharacterExpressionGuideTest {
         assertFalse(secondVoice.contains("爱说冷笑话的独特节奏"))
     }
 
+    @Test fun authoredExamplesKeepTheFinalUserTurnBeyondTheOldCutoff() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(app)
+        CharacterLifeStore.initialize(app)
+        CharacterDevelopmentStore.initialize(app)
+        val role = MigratedDomainStores.characters.create("完整示范", "简洁接话")
+        val sample = "【示范】\n你：" + "完整原话。".repeat(240) +
+            "\n角色：嗯，听见了。\n你：然后呢？\n角色：这才是下一轮。"
+        assertTrue(sample.length > 1100)
+        CharacterLifeStore.setProfile(role.characterId, "dialogueExamples", sample)
+        val prompt = CharacterSpeechIdentity.promptSection(role.characterId)
+        assertTrue(prompt.contains(sample))
+        assertTrue(prompt.contains("等她真实回应后再继续"))
+        assertFalse(CharacterLifeStore.profileContext(role.characterId).contains(sample))
+    }
+
     @Test fun approvedDialogueExamplesBelongOnlyToTheirCharacterAndAreNotRealHistory() {
         val app = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(app)

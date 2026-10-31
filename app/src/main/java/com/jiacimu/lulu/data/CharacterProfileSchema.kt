@@ -85,7 +85,7 @@ internal object CharacterProfileSchema {
 
     // Two authored, hypothetical sample sets. They are per-character editable
     // profile defaults, NOT conversation evidence, biography, or a shared tone.
-    // Keep each within CharacterSpeechIdentity's bounded example projection.
+    // Keep complete turns; these are delivered through CharacterSpeechIdentity.
     val jiangDuDialogueExamples: String = """
         【随口｜不把一句话聊成演讲】
         你：今天脑子不想动。

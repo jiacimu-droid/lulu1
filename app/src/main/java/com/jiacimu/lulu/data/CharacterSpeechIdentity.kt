@@ -35,9 +35,11 @@ internal object CharacterSpeechIdentity {
             if (includeConfigured && initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
             if (illustrativeDialogues.isNotBlank()) {
                 appendLine("【只属于本人的假设对话示范｜给表达层看节奏，不是过去真实发生的聊天】")
-                appendLine(illustrativeDialogues.take(1_100))
+                // User-authored examples are complete exchanges. Cutting by character
+                // count can remove the user's next turn and teach a monologue.
+                appendLine(illustrativeDialogues)
                 appendLine("这是此角色个人资料里的示范（可能由用户编辑或随角色预置），不是逐字台词、现实经历或对方现在说过的话。")
-                appendLine("从自己当下的立场、关系和情绪借鉴接话节奏；换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
+                appendLine("借鉴的是每一拍怎样接住对方、怎样停下来等她接话；示例中的下一条用户发言属于未来一轮，等她真实回应后再继续。从自己当下的立场、关系和情绪组织措辞，换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
                 appendLine("真实用户原话、最近关系变化和本人已经选定的行动优先；绝不把示例中的虚构对象、道具、经历带入当前现实。")
             }
             if (acquired.isNotEmpty()) {

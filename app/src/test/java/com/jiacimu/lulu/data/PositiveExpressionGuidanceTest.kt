@@ -5,6 +5,17 @@ import org.junit.Test
 
 /** Prompt-contract checks only; these do not claim real-model personality quality. */
 class PositiveExpressionGuidanceTest {
+    @Test fun privateDecisionAndRenderingShareTurnTakingInsteadOfOnlyBubbleSplitting() {
+        val decision = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        for (prompt in listOf(decision, renderer)) {
+            assertTrue(prompt.contains("日常接话以有来有回为默认节奏"))
+            assertTrue(prompt.contains("把后续反应留给对方真实回应后再决定"))
+            assertTrue(prompt.contains("分泡本身不会减少内容"))
+            assertTrue(prompt.contains("复杂问题、多项需求"))
+        }
+    }
+
     @Test fun everyGatewayModeHasOneCommonPersonalityGuide() {
         listOf("普通聊天", "聊天表达渲染", "聊天表达自然度修复", "电话回复").forEach { source ->
             val prompt = CharacterExpressionGuide.forGeneration(source)

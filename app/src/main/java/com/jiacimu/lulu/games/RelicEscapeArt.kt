@@ -22,9 +22,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.runtime.remember
+import com.jiacimu.lulu.data.MigratedDomainStores
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sin
@@ -32,8 +36,13 @@ import kotlin.math.sin
 /** Local procedural art: no remote images, font downloads, or expensive per-frame textures. */
 @Composable
 internal fun RelicEscapeWorldMap(
-    run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false
+    run:RelicRun,selected:Pair<Int,Int>,onSelect:(Int,Int)->Unit,fullscreen:Boolean=false,
+    focus: Pair<Int, Int> = run.hero.x to run.hero.y,
 ) {
+    val names = run.allies.associate { ally ->
+        ally.id to MigratedDomainStores.characters.get(ally.id).displayName
+    }
+    val namePaint = remember { android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG) }
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
@@ -47,25 +56,18 @@ internal fun RelicEscapeWorldMap(
     ) {
         Canvas(
             (if(fullscreen)Modifier.fillMaxSize()else Modifier.fillMaxWidth().aspectRatio(run.w.toFloat()/run.h))
-                .pointerInput(run.id,onSelect) {
+                .pointerInput(run.id, run.w, run.h, fullscreen, focus, onSelect) {
                     detectTapGestures { tap->
-                        val t=if(fullscreen)maxOf(size.width.toFloat()/(if(size.width>size.height)20f else 12f),size.height.toFloat()/run.h.toFloat())
-                            else min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
-                        val ox=if(fullscreen)(size.width/2f-(run.hero.x+.5f)*t)
-                            .coerceIn((size.width-run.w*t).coerceAtMost(0f),0f) else 0f
-                        val oy=if(fullscreen)(size.height/2f-(run.hero.y+.5f)*t)
-                            .coerceIn((size.height-run.h*t).coerceAtMost(0f),0f) else 0f
-                        val tx=((tap.x-ox)/t).toInt();val ty=((tap.y-oy)/t).toInt()
-                        if(run.bounds(tx,ty))onSelect(tx,ty)
+                        val camera = relicMapCamera(size.width.toFloat(), size.height.toFloat(),
+                            run.w, run.h, fullscreen, focus)
+                        camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> onSelect(x, y) }
                     }
                 }
         ) {
-            val t=if(fullscreen)maxOf(size.width/(if(size.width>size.height)20f else 12f),size.height/run.h)
-                else min(size.width/run.w.toFloat(),size.height/run.h.toFloat())
-            val ox=if(fullscreen)(size.width/2f-(run.hero.x+.5f)*t)
-                .coerceIn((size.width-run.w*t).coerceAtMost(0f),0f) else 0f
-            val oy=if(fullscreen)(size.height/2f-(run.hero.y+.5f)*t)
-                .coerceIn((size.height-run.h*t).coerceAtMost(0f),0f) else 0f
+            val camera = relicMapCamera(size.width, size.height, run.w, run.h, fullscreen, focus)
+            val t = camera.tileSize
+            val ox = camera.offsetX
+            val oy = camera.offsetY
             translate(ox,oy) {
             fun cell(x:Int,y:Int)=Offset(x*t,y*t)
             fun center(x:Int,y:Int)=Offset((x+.5f)*t,(y+.5f)*t)
@@ -263,6 +265,28 @@ internal fun RelicEscapeWorldMap(
             drawPath(cape,Color(0xFF4F5279))
             drawCircle(if(run.hero.hp>0)Color(0xFFFFE6BC)else Color(0xFFF2A5AF),t*.27f,hero)
             drawCircle(Color.White,t*.065f,hero+Offset(t*.11f,-t*.10f))
+            // Actor labels are drawn last so terrain, monsters and overlapping actors
+            // cannot erase identity. They are display projections of the real roster.
+            fun label(text: String, x: Int, y: Int, color: Int, below: Boolean = false) {
+                val p = center(x, y)
+                namePaint.textSize = 11.sp.toPx()
+                namePaint.textAlign = android.graphics.Paint.Align.CENTER
+                namePaint.isFakeBoldText = true
+                val baseline = p.y + if (below) t * .75f else -t * .55f
+                val half = namePaint.measureText(text) / 2f + 5.dp.toPx()
+                drawRoundRect(Color(0xEE08131E), Offset(p.x - half, baseline + namePaint.ascent() - 3.dp.toPx()),
+                    Size(half * 2, namePaint.descent() - namePaint.ascent() + 6.dp.toPx()), CornerRadius(4.dp.toPx()))
+                namePaint.color = color
+                drawContext.canvas.nativeCanvas.drawText(text, p.x, baseline, namePaint)
+            }
+            run.allies.filter { run.visible(it.x, it.y) }.forEach { ally ->
+                label(names[ally.id].orEmpty(), ally.x, ally.y, android.graphics.Color.rgb(129, 232, 197),
+                    below = ally.x == run.hero.x && ally.y == run.hero.y)
+            }
+            drawCircle(Color(0xFFFFD894), t * .43f, hero, style = Stroke(2.dp.toPx()))
+            label("你", run.hero.x, run.hero.y, android.graphics.Color.rgb(255, 216, 148))
+            if (run.visible(run.exitX, run.exitY))
+                label("撤离门", run.exitX, run.exitY, android.graphics.Color.rgb(129, 232, 197), below = true)
             // Drifting dust and sparse fireflies soften the grid without masking real objects.
             repeat(12){i->
                 val x=((i*43+run.seed.toLong()*7).let{abs(it)%107}/107f)

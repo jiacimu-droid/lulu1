@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`67927a72e7955182b453c76a798d89dea0f817c5`
+- 基准提交：`57fde54739148021231ab70dc559dbb8e6efabfc`
 - 分支：`main`
-- 已索引文件：1120
-- 已索引代码/文本行：231370
-- 已发现符号：3264
+- 已索引文件：1122
+- 已索引代码/文本行：231500
+- 已发现符号：3267
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -355,7 +355,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 153 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 126 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 79 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 80 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt` | 140 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
@@ -394,7 +394,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 381 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 427 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 52 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 54 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 443 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 131 | 3 |
@@ -672,11 +672,12 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 114 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 122 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 284 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 308 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 420 | 21 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 518 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 541 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt` | 107 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicQuickAction.kt` | 59 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
@@ -911,7 +912,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 249 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 606 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 77 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 458 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 474 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
@@ -1024,7 +1025,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
@@ -1101,6 +1102,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |

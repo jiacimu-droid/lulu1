@@ -48,6 +48,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     val run=snapshot.run
     var kits by remember{mutableIntStateOf(1)}
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
+    // Movement returns the camera to the player; looking at teammates spends no turn.
+    var cameraFocus by remember(run?.id, run?.hero?.x, run?.hero?.y) {
+        mutableStateOf<Pair<Int, Int>?>(null)
+    }
     var confirmAbandon by remember{mutableStateOf(false)}
     var showGuide by remember(run?.id){mutableStateOf(true)}
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
@@ -90,10 +94,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             "撤离成功 · 带回${run.secured.size}件宝物" else if(run?.phase == RelicPhase.FAILURE)
             "本次探索结束 · 战利品遗失" else run?.notice.orEmpty() },
         status = if (run == null) "暗影遗迹 · 营地" else
-            "❤ ${run.hero.hp}/10   ◇ ${run.value}   行囊 ${run.hero.load}/8   第${run.turns}回合",
+            "❤ ${run.hero.hp}/10   ◇ ${run.value}   第${run.turns}回合\n" +
+                if (run.allies.isEmpty()) "本局单人探索" else "同行 ${run.allies.size} 人 · 金圈是你",
         scene = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
-                RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true)
+                RelicEscapeWorldMap(run,selected,{ x,y -> selected=x to y },fullscreen=true,
+                    focus = cameraFocus ?: (run.hero.x to run.hero.y))
             else RelicCampBackdrop()
         },
         companionAvailable = run != null && run.allies.isNotEmpty() &&
@@ -118,6 +124,23 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         quickActions = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero = run.hero
+                Text("方向键移动 · 点地图选目标", color = Color.White, fontSize = 10.sp)
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = { cameraFocus = null; selected = hero.x to hero.y }) {
+                        Text("定位你", color = relicGold, fontSize = 11.sp)
+                    }
+                    run.allies.forEach { ally ->
+                        val name = MigratedDomainStores.characters.get(ally.id).displayName
+                        TextButton(onClick = {
+                            cameraFocus = ally.x to ally.y
+                            selected = ally.x to ally.y
+                        }) { Text("找$name", color = relicGreen, fontSize = 11.sp) }
+                    }
+                }
+                val quickHint = relicQuickAction(run, selected)?.hint
+                Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
+                    color = relicGold, fontSize = 10.sp, maxLines = 2)
                 val sx = selected.first
                 val sy = selected.second
                 val visible = run.visible(sx, sy)
