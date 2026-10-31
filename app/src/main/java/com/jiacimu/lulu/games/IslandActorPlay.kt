@@ -25,7 +25,22 @@ internal object IslandActorPlay {
         val result = mutableListOf(IslandActorOption("none", "观察、交谈或保持安静", "none"))
         if (id in s.companionTravel && !w.finished)
             result += IslandActorOption("stop_travel", "停止自己正在执行的行程，不再继续前往原目标", "stop_travel")
+        val project=s.houseProject
+        if(project?.ownerId==id) {
+            if(project.phase=="building")
+                result += IslandActorOption("pause_house","暂停自己的建房工程，保留已施工部分","pause_house")
+            if(project.phase=="paused")
+                result += IslandActorOption("resume_house","继续已暂停的建房工程","resume_house")
+            if(project.phase!="demolishing")
+                result += IslandActorOption("demolish_house","逐步拆除自己建造的小屋","demolish_house")
+        }
         if (!canAct || w.finished) return result
+        if(project==null) {
+            for((x,y) in IslandHouseProjects.sites(s,id).take(3)) {
+                result += IslandActorOption("start_house:"+x+":"+y,
+                    "主动选择位置("+x+","+y+")建一座3×3小屋，约需17木；需要逐步施工","start_house",x,y)
+            }
+        }
         if (s.fruit > 0 && w.hp < 12 &&
             abs(a.x - w.x) + abs(a.y - w.y) <= 1)
             result += IslandActorOption("help_player", "把一颗野果送给玩家，为他恢复生命", "help_player")
@@ -117,12 +132,15 @@ internal object IslandActorPlay {
         val w = s.world
         if (w.turns != turn || w.finished || w.friends.none { it.id==id && it.hp>0 }) return null
         if (choice.actionId == "stop_travel") return IslandTravel.cancel(s,id,choice.speech)
+        if (IslandHouseProjects.isChangeAction(choice.actionId))
+            return IslandHouseProjects.choose(s,id,choice.actionId,choice.speech)
         if (w.events.any { it.startsWith(eventPrefix(id,turn)) }) return null
         val a = options(s,id).firstOrNull { it.id==choice.actionId } ?: return null
         var next = w
         var fruit = s.fruit
         val outcome = when (a.kind) {
             "none" -> "观察现场"
+            "start_house" -> "自主选择开始一座可持续执行的小屋工程"
             "move" -> {
                 next = w.copy(friends=w.friends.map {
                     if (it.id==id) it.copy(x=a.x,y=a.y) else it
@@ -190,6 +208,7 @@ internal object IslandActorPlay {
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
         val applied = s.copy(world=next, fruit=fruit)
+        if(a.kind=="start_house")return IslandHouseProjects.choose(applied,id,a.id,"")
         return applied.copy(companionTravel=IslandTravel.afterChoice(s,applied,id,a))
     }
 
@@ -222,6 +241,7 @@ internal object IslandActorPlay {
                     .put("x", teammate.x).put("y", teammate.y).put("hp", teammate.hp)
             }))
             .put("currentTravel",s.companionTravel[id]?.json() ?: JSONObject.NULL)
+            .put("houseProject",s.houseProject?.json() ?: JSONObject.NULL)
             .put("nearby",JSONArray(nearby))
             .put("recentEvents",JSONArray(w.events.takeLast(10)))
             .put("playerSpeech",heard)
@@ -236,7 +256,8 @@ internal object IslandActorPlay {
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
 像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。队友有危险时可以选择照顾、支援、救起倒地伙伴，也可以视局势选择先做其他事，不是强制保姆。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
-options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不需每格重新选择，到达不代表已采集或攻击。currentTravel 是你已选择、正在执行的行程；none 仅交谈或观察并保留行程，stop_travel 可明确停止行程，且不占移动次数。没有行程时不会替你自动选目标。
+options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不代表已采集。currentTravel 是当前行程。
+start_house 是你本人决定开启一座小屋工程，不代表已经建好。已选工程会随真实游戏回合逐格施工，每一步验证木材、路线、实体占用；木材不足就暂停。houseProject 是真实持久进度；你可以结合玩家当前讲话和你的想法，选择 pause_house、resume_house 或 demolish_house 逐格拆除自己建的部分。玩家改变主意应由你理解，不靠程序关键词强行拆房。none 只交流或观察，stop_travel 停止行程；没有原计划不自动编造下一个目标。
 你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。
 只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。
 角色决定行动与说话，程序只检查真实执行与回执。你不是任务助手，不需要每步都解释或每次都讲话。""",

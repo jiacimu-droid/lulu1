@@ -136,7 +136,8 @@ internal fun IslandCompanionPanel(
                     continue
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
-                if (!alreadyActed || choice.actionId == "stop_travel") {
+                if (!alreadyActed || choice.actionId == "stop_travel" ||
+                    IslandHouseProjects.isChangeAction(choice.actionId)) {
                     val applied = IslandActorPlay.applyLive(latest, snapshot, id, choice)
                     if (applied == null) {
                         error = "局势已经改变，行动未执行；消息仍待送达"
@@ -212,7 +213,7 @@ internal fun IslandCompanionPanel(
                 if(expanded) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    listOf("一起探路", "小心怪物", "我们分头找资源").forEach { ping ->
+                    listOf("一起探路", "要不要一起盖个家？", "不盖了的话，我们把房子拆掉吧").forEach { ping ->
                         AssistChip(
                             onClick = { submitPlayerMessage(ping) },
                             label = { Text(ping, fontSize = 11.sp) },

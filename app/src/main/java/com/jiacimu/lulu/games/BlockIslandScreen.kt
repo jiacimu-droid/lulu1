@@ -322,6 +322,29 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     perform("eat_fish", world.x, world.y)
                 }
         }
+        island.houseProject?.let { project ->
+            Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFF244950),
+                border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .4f))) {
+                Column(Modifier.fillMaxWidth().padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    val owner = MigratedDomainStores.characters.get(project.ownerId).displayName
+                    val phase = when(project.phase) {
+                        "building" -> "施工中"; "paused" -> "暂停中"
+                        "complete" -> "已完成"; else -> "拆除中"
+                    }
+                    Text("⌂ "+owner+"的小屋 · "+phase, color = Color.White,
+                        fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("进度 "+project.placed.size+"/9 · 位置("+
+                        project.left+","+project.top+") · 每个真实回合施工一步",
+                        color = Color(0xFFBEE8D2), fontSize = 11.sp)
+                    LinearProgressIndicator(progress = { project.placed.size/9f },
+                        modifier = Modifier.fillMaxWidth(), color = Color(0xFFA6E8C3),
+                        trackColor = Color(0xFF42636A))
+                    Text("想改变计划？在队伍聊天里直接告诉角色，由他决定暂停、继续或拆除。",
+                        color = Color(0xFFB5D5CD), fontSize = 11.sp)
+                }
+            }
+        }
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Text("选中身边的空地，再选择建筑。拆除会返还部分材料。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)

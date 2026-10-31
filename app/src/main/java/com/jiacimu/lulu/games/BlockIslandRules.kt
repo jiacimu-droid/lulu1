@@ -20,6 +20,7 @@ internal data class BlockIslandState(
     val companionTravel: Map<String, IslandTravelPlan> = emptyMap(),
     val supplyCaches: List<Int> = emptyList(),
     val openedSupplies: Set<Int> = emptySet(),
+    val houseProject: IslandHouseProject? = null,
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -36,6 +37,7 @@ internal data class BlockIslandState(
         .put("fish", fish).put("lastFishTurn", lastFishTurn)
         .put("supplyCaches", JSONArray(supplyCaches))
         .put("openedSupplies", JSONArray(openedSupplies.sorted()))
+        .put("houseProject", houseProject?.json() ?: JSONObject.NULL)
         .toString()
 
     companion object {
@@ -77,7 +79,8 @@ internal data class BlockIslandState(
                     a.optInt(i, -1).takeIf { it in caches }
                 }.toSet()
             } ?: emptySet()
-            base.copy(supplyCaches=caches, openedSupplies=opened)
+            base.copy(supplyCaches=caches, openedSupplies=opened,
+                houseProject=IslandHouseProject.read(json.optJSONObject("houseProject"),world))
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -403,6 +406,7 @@ internal object BlockIslandRules {
         ))
         result = companionTurn(result, autonomousIds)
         result = IslandTravel.advance(result, autonomousIds)
+        result = IslandHouseProjects.advance(result, autonomousIds)
         result = monstersTurn(result)
         result = respawnMonsters(result)
         result = replenishResources(result)
