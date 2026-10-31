@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:32:22.950530+00:00",
-  "commit": "19fbbdfdd97cc2018ec82a8ab3200c66a03a27b8",
+  "generatedAt": "2026-10-31T16:33:54.966273+00:00",
+  "commit": "869eea25eff7bccbebc6518bf4966603addc7eb4",
   "branch": "main",
-  "sourceFingerprint": "6b4ce65757c3f67f6386983406b7a4bdec6dfce8d9fa1a66bdc1c718058be4c7",
+  "sourceFingerprint": "225e60d740301fc71c67e4ecddf8cee1bb82a80e7709cc4706552406173c1ade",
   "summary": {
     "files": 1132,
-    "lines": 232946,
+    "lines": 232949,
     "symbols": 3293
   },
   "symbolIndex": {
@@ -3265,7 +3265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 67
+        "line": 69
       }
     ],
     "userDeparted": [
@@ -13259,7 +13259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 145
+        "line": 147
       }
     ],
     "submitPlayerMessage": [
@@ -32387,8 +32387,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 173,
-      "sha256": "4c67ee1aa59d1af66f4b780878a77a5be915bcf28c779e29fedfa016ce936395",
+      "lines": 175,
+      "sha256": "17dda446b56cd0345351196f28c88f8ad619455ab9f00bd6deac0a37248bea11",
       "symbols": [
         {
           "name": "acted",
@@ -32400,11 +32400,11 @@
         },
         {
           "name": "apply",
-          "line": 67
+          "line": 69
         },
         {
           "name": "facts",
-          "line": 145
+          "line": 147
         }
       ]
     },
@@ -32451,8 +32451,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 157,
-      "sha256": "76456314b5d3abfe37d134bd42f97dbfd32a0d3ec8bbdd3e13a9182a78ecb876",
+      "lines": 158,
+      "sha256": "0b7d06821f0cee6c935f1decd9f0b8391da4ea2c2d418cec889f2b94fc36613a",
       "symbols": [
         {
           "name": "send",
