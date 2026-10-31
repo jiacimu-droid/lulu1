@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f89d2aa55343b5e69671d1589c2d43d2972746ea`
+- 基准提交：`a263995aec5f246959b8affbc1dd30aeaa17a2ac`
 - 分支：`main`
-- 已索引文件：1128
-- 已索引代码/文本行：232051
-- 已发现符号：3276
+- 已索引文件：1129
+- 已索引代码/文本行：232293
+- 已发现符号：3283
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -637,8 +637,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 471 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 603 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 604 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 607 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 627 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -659,10 +659,11 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 250 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 299 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 271 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 300 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
