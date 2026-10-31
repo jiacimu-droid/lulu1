@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3246324ae192b8e7aece5f80057e0a196c702fe4`
+- 基准提交：`713fb4fb1f83599479914afea4f91687666f099b`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233686
+- 已索引代码/文本行：233701
 - 已发现符号：3303
 
 | 文件 | 行数 | 符号数 |
@@ -930,13 +930,13 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 81 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 977 | 19 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 980 | 19 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 226 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveContinuityTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 111 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 334 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 174 | 2 |
@@ -1031,7 +1031,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 62 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
@@ -1112,7 +1112,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 57 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 92 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
