@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:43:00.590640+00:00",
-  "commit": "e763386406d9aebff8a8fd07191337722a1efdfa",
+  "generatedAt": "2026-10-31T16:45:17.196366+00:00",
+  "commit": "884628077ac74764229f144763f742896cdeab35",
   "branch": "main",
-  "sourceFingerprint": "7a70c35a764984eab5c4910b862eaf70919c59d28d66847a094e495b3c7cff8e",
+  "sourceFingerprint": "40ee2f6f965b1c5ad5f8f45ba5772355c1f526312929617c21b523e89f2607b0",
   "summary": {
     "files": 1133,
-    "lines": 233127,
-    "symbols": 3299
+    "lines": 233142,
+    "symbols": 3300
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3269,7 +3269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 98
+        "line": 92
       }
     ],
     "userDeparted": [
@@ -4653,7 +4653,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 59
+        "line": 76
       }
     ],
     "watchedThrough": [
@@ -13702,6 +13702,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
         "line": 26
+      }
+    ],
+    "moveStep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
+        "line": 59
       }
     ],
     "syncExperiences": [
@@ -32414,7 +32420,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
       "lines": 227,
-      "sha256": "e8395e6e2c6c576207251016ba6c0b0d8fb2c1ad63d867d6712dedf3b67f10ff",
+      "sha256": "bf258957297e2456a83bdfd56a1256118d4509325fc73a05bbe37dea0d73225e",
       "symbols": [
         {
           "name": "acted",
@@ -32426,7 +32432,7 @@
         },
         {
           "name": "apply",
-          "line": 98
+          "line": 92
         },
         {
           "name": "facts",
@@ -32488,8 +32494,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 112,
-      "sha256": "69de09a92b4f7e7d1f83107e58bc33889790af11d2beccdb507d729ef4a90aec",
+      "lines": 127,
+      "sha256": "db182824371707b0b77fe1fa81e3ebba0fe21e7e95727377577946f08e4f1346",
       "symbols": [
         {
           "name": "json",
@@ -32512,8 +32518,12 @@
           "line": 52
         },
         {
-          "name": "advance",
+          "name": "moveStep",
           "line": 59
+        },
+        {
+          "name": "advance",
+          "line": 76
         }
       ]
     },
