@@ -33,6 +33,11 @@ internal object AutonomousActionWireProtocol {
         "position", "itemType", "journalTitle", "journalContent",
         "planId", "dueAt", "intent", "activityAction", "activityArgs",
         "commitmentTaskId", "repeat",
+        // Existing social tools accept these as authored executor arguments.
+        // Missing keys previously vanished when the model used the allowed
+        // flat step form, turning an explicit accept/decline into empty args.
+        "postId", "requestId", "decision", "greeting",
+        "replyToCommentId", "groupName", "memberIds",
     )
 
     // These are existing digital-world executor verbs, not independent ToolRouter
@@ -224,6 +229,14 @@ internal object AutonomousActionWireProtocol {
                 put("messageId", result.optString("messageId"))
                 put("reason", result.optString("reason"))
             })
+        }
+        // The same authored-field projection must work for ALL registered
+        // primary tool choices, not just world actions or side steps.
+        // normalizeStep preserves nested args precedence and never fabricates
+        // an absent requestId, decision or postId.
+        if (result.optString("action") == "tool" &&
+            CapabilityRegistry.find(result.optString("tool")) != null) {
+            result.put("args", normalizeStep(result).optJSONObject("args") ?: JSONObject())
         }
         // A registered tool sometimes arrives with explicit parameters at
         // the outer level and only worldAction (or an empty object) in args.
