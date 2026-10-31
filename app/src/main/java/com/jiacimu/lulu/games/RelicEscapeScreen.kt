@@ -139,6 +139,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         }) { Text("找$name", color = relicGreen, fontSize = 11.sp) }
                     }
                 }
+                if(run.guardedBy.isNotBlank()) {
+                    run.allies.firstOrNull { it.id==run.guardedBy && it.hp>0 }?.let { teammate ->
+                        Text("♡ "+MigratedDomainStores.characters.get(teammate.id).displayName+
+                            " 正在保护你",color=relicGreen,fontSize=11.sp,maxLines=1)
+                    }
+                }
                 val quickHint = relicQuickAction(run, selected)?.hint
                 Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
@@ -150,15 +156,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val chest = run.chests.any { !it.opened && it.x == sx && it.y == sy }
                 val moveStep = if (visible) RelicEscapeRules.path(run, hero.x, hero.y, sx, sy) else null
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    GameHudQuickAction("攻击", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && enemy,
+                    GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击", relicGold,
+                        run.phase != RelicPhase.DOWNED && enemy && RelicArsenal.canHit(run,sx,sy),
                         Modifier.weight(1f)) { action("attack", sx, sy) }
                     GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && chest,
                         Modifier.weight(1f)) { action("open", sx, sy) }
                 }
                 Spacer(Modifier.height(4.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    GameHudQuickAction("潜行", relicGreen, run.phase != RelicPhase.DOWNED && moveStep != null,
-                        Modifier.weight(1f)) { moveStep?.let { action("sneak", it.first, it.second) } }
+                    GameHudQuickAction("格挡", relicGreen, run.phase != RelicPhase.DOWNED,
+                        Modifier.weight(1f)) { action("defend") }
                     GameHudQuickAction("治疗", relicGreen, run.phase != RelicPhase.DOWNED &&
                         hero.kits > 0 && hero.hp < 10,
                         Modifier.weight(1f)) { action("heal") }
@@ -309,7 +316,9 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     chest!=null->chest.tier.label+"宝箱"
                     site?.kind=="altar"->"古老祭坛 · 唤醒后会有守卫"
                     site?.kind=="trap"->"古代陷阱 · 可提前解除"
-                    mob!=null->"敌人 · 生命"+mob.hp
+                    site?.kind=="supply"->"战地补给站 · 药剂与弩箭"
+                    site?.kind=="fountain"->"恢复灵泉"
+                    mob!=null->RelicArsenal.monsterName(mob.kind)+" · 生命"+mob.hp
                     sx==run.exitX && sy==run.exitY->"撤离信标"
                     run.tile(sx,sy)==1->"石墙"
                     run.tile(sx,sy)==2->"腐蚀地面"
@@ -365,8 +374,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                     action("open",sx,sy)
                                 }
                                 RelicCommand("攻击",Modifier.weight(1f),
-                                    enabled=mob!=null && visible &&
-                                        RelicEscapeRules.distance(hero.x,hero.y,sx,sy)<=1) {
+                                    enabled=mob!=null && visible && RelicArsenal.canHit(run,sx,sy)) {
                                     action("attack",sx,sy)
                                 }
                             }
@@ -378,6 +386,19 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                                     action("extract")
                                 }
                             }
+                    }
+                }
+                Text("切换武器（无回合消耗）",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    for(weaponId in listOf("blade","spear","bow")) {
+                        RelicCommand((if(weaponId==run.equipped)"✓ " else "")+
+                            RelicArsenal.label(weaponId)+
+                            (if(weaponId=="bow")" · "+run.bolts+"箭" else ""),
+                            enabled=weaponId in run.weapons && weaponId!=run.equipped &&
+                                run.phase!=RelicPhase.DOWNED) {
+                            action("equip",id=weaponId)
+                        }
                     }
                 }
                 Text("遗迹战术",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
@@ -408,7 +429,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
                 }
-                val latestTreasure=run.events.lastOrNull{it.action=="invoke" || it.action=="open"}
+                val latestTreasure=run.events.lastOrNull{it.action in setOf("invoke","open","resupply","fountain")}
                 if(latestTreasure!=null && run.turns-latestTreasure.turn<=1) {
                     Surface(shape=RoundedCornerShape(12.dp),
                         color=Color(0xFF604B39),border=BorderStroke(1.dp,relicGold.copy(alpha=.5f))) {

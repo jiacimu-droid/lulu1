@@ -136,7 +136,22 @@ internal fun RelicEscapeWorldMap(
                 }
                 val site=run.sites.firstOrNull{it.x==x && it.y==y}
                 if(site!=null) {
-                    if(site.kind=="altar") {
+                    if(site.kind=="supply") {
+                        val tint=if(site.spent)Color(0xFF6B8382) else Color(0xFF83E6CB)
+                        drawCircle(tint.copy(alpha=.12f+shimmer*.10f),t*.53f,c)
+                        drawRoundRect(Color(0xFF233E44),p+Offset(t*.18f,t*.27f),
+                            Size(t*.64f,t*.51f),CornerRadius(t*.08f))
+                        drawRoundRect(tint,p+Offset(t*.21f,t*.30f),
+                            Size(t*.58f,t*.42f),CornerRadius(t*.07f))
+                        drawRect(Color(0xFF17474B),p+Offset(t*.45f,t*.33f),
+                            Size(t*.10f,t*.36f))
+                    } else if(site.kind=="fountain") {
+                        val tint=if(site.spent)Color(0xFF6E8B8A) else Color(0xFF78D8FC)
+                        drawCircle(tint.copy(alpha=.14f+shimmer*.15f),t*.58f,c)
+                        drawCircle(Color(0xFF263F52),t*.40f,c)
+                        drawCircle(tint,t*.31f,c,style=Stroke(t*.085f))
+                        drawCircle(tint.copy(alpha=.60f),t*.22f,c)
+                    } else if(site.kind=="altar") {
                         val gold=if(site.spent)Color(0xFF778188)else Color(0xFFECB879)
                         drawCircle(gold.copy(alpha=if(site.spent).11f else .13f+shimmer*.16f),
                             t*.55f,c)
@@ -159,6 +174,11 @@ internal fun RelicEscapeWorldMap(
                 }
                 val chest=run.chests.firstOrNull{it.x==x && it.y==y}
                 if(chest!=null) {
+                    if(!chest.opened && chest.id in run.playerChestMarks) {
+                        drawCircle(Color(0xFFFFE4A8).copy(alpha=.18f+shimmer*.25f),
+                            t*.74f,c,style=Stroke(t*.080f))
+                        drawCircle(Color(0xFFFFE4A8),t*.10f,c+Offset(t*.29f,-t*.31f))
+                    }
                     val glow=when(chest.tier) {
                         RelicTier.COMMON->Color(0xFFD4A770)
                         RelicTier.RARE->Color(0xFF78D9FF)
@@ -255,6 +275,10 @@ internal fun RelicEscapeWorldMap(
                 }
             }
             val hero=center(run.hero.x,run.hero.y)
+            if(run.guardedBy.isNotBlank() && run.allies.any { it.id==run.guardedBy && it.hp>0 }) {
+                drawCircle(Color(0xFF98EFFF).copy(alpha=.22f+shimmer*.23f),
+                    t*.57f,hero,style=Stroke(t*.074f))
+            }
             drawCircle(Brush.radialGradient(listOf(Color(0xFFFFD7A5).copy(alpha=.35f),
                 Color.Transparent),center=hero,radius=t*1.0f),t*1.0f,hero)
             drawCircle(Color(0xFF07131E).copy(alpha=.50f),t*.42f,hero+Offset(t*.06f,t*.15f))

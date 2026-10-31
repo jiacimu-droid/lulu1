@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,10 +35,18 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
     var busy by remember { mutableStateOf(false) }
     var line by remember(run.id) { mutableStateOf("") }
     var failure by remember(run.id) { mutableStateOf("") }
+    var expanded by rememberSaveable(run.id){mutableStateOf(false)}
+    var typedMessage by rememberSaveable(run.id){mutableStateOf("")}
     val speaker = rememberIslandCompanionVoice { failure = it }
     var inbox by rememberSaveable(run.id,stateSaver=relicInboxSaver) { mutableStateOf(IslandTeamInbox()) }
     var speechVersion by remember { mutableIntStateOf(0) }
-    val mic = rememberGameSpeechInput { inbox=inbox.enqueue(it);speechVersion++ }
+    fun send(raw:String) {
+        val message=raw.trim()
+        if(message.isBlank())return
+        inbox=inbox.enqueue(message)
+        speechVersion++
+    }
+    val mic = rememberGameSpeechInput { send(it) }
     val currentRun by rememberUpdatedState(readRun)
     val latestChoice by rememberUpdatedState(onChoice)
     val latestInbox by rememberUpdatedState(inbox)
@@ -107,6 +117,31 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                 }
                 IconButton(onClick={speaker.stop();mic()},modifier=Modifier.size(34.dp)) {
                     Icon(Icons.Outlined.Mic,"跟伙伴说话",tint=Color.White,modifier=Modifier.size(18.dp))
+                }
+            }
+            if(members.isNotEmpty()) {
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement=Arrangement.spacedBy(5.dp)) {
+                    listOf("宝箱留给我开，好不好？","我们一起打怪！","你能保护我吗？").forEach { line ->
+                        AssistChip(onClick={send(line)},
+                            label={Text(line,fontSize=10.sp)},
+                            colors=AssistChipDefaults.assistChipColors(
+                                containerColor=Color(0xFF304759),
+                                labelColor=Color(0xFFE6F3EA)))
+                    }
+                }
+                TextButton(onClick={expanded=!expanded},
+                    contentPadding=PaddingValues(horizontal=5.dp,vertical=0.dp)) {
+                    Text(if(expanded)"收起" else "打字和伙伴商量",color=Color(0xFFFFD894),fontSize=11.sp)
+                }
+                if(expanded)Row(verticalAlignment=Alignment.CenterVertically,
+                    horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    OutlinedTextField(value=typedMessage,onValueChange={typedMessage=it},
+                        modifier=Modifier.weight(1f),maxLines=2,
+                        placeholder={Text("跟伙伴说句话…",fontSize=11.sp)})
+                    TextButton(onClick={send(typedMessage);typedMessage=""},enabled=typedMessage.isNotBlank()) {
+                        Text("发送",fontSize=11.sp)
+                    }
                 }
             }
             if(busy)LinearProgressIndicator(modifier=Modifier.fillMaxWidth(),color=Color(0xFFFFD894))
