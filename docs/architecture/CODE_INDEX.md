@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c4c030a432de3b541aedf1de3d1993bb6db57a59`
+- 基准提交：`8099afed6fae3c1033840010e0775067a8fd91b9`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233612
+- 已索引代码/文本行：233686
 - 已发现符号：3303
 
 | 文件 | 行数 | 符号数 |
@@ -659,7 +659,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 319 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 321 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 303 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
@@ -673,10 +673,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 880 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 494 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 266 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 270 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 63 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 163 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 164 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 184 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 332 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
@@ -1101,7 +1101,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 295 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 202 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 52 | 1 |

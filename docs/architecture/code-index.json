@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:57:16.621678+00:00",
-  "commit": "c4c030a432de3b541aedf1de3d1993bb6db57a59",
+  "generatedAt": "2026-10-31T16:58:38.737816+00:00",
+  "commit": "8099afed6fae3c1033840010e0775067a8fd91b9",
   "branch": "main",
-  "sourceFingerprint": "52c4054ffa3a4f4e16dda76448affbd228457044d8c21e3f161caa983fcb6298",
+  "sourceFingerprint": "39a32a4906b192e82ffb1469f1218177983173e73ac5dba9e5e37c250b6c2ec8",
   "summary": {
     "files": 1134,
-    "lines": 233612,
+    "lines": 233686,
     "symbols": 3303
   },
   "symbolIndex": {
@@ -3273,11 +3273,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 163
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 121
+        "line": 125
       }
     ],
     "userDeparted": [
@@ -5517,7 +5517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 147
+        "line": 149
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -13269,17 +13269,17 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 254
+        "line": 256
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 260
+        "line": 262
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 237
+        "line": 241
       }
     ],
     "submitPlayerMessage": [
@@ -32021,8 +32021,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 319,
-      "sha256": "66a39cbec98d0d12f0f775ca7d577a7e369fc959beb5d3e5f2b7b7986cabf150",
+      "lines": 321,
+      "sha256": "5cab05c65fd6e2457d751c42c756658fcc28b81a19ca185552cdce1b7ffd6801",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -32034,19 +32034,19 @@
         },
         {
           "name": "parse",
-          "line": 147
+          "line": 149
         },
         {
           "name": "apply",
-          "line": 163
+          "line": 165
         },
         {
           "name": "applyLive",
-          "line": 254
+          "line": 256
         },
         {
           "name": "facts",
-          "line": 260
+          "line": 262
         }
       ]
     },
@@ -32437,8 +32437,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 266,
-      "sha256": "3231a91002a53e980e875b0e6022940c46928c2fb1b179a536ea7b168ef03c0d",
+      "lines": 270,
+      "sha256": "85fcaeb896f901e5069cf2e0f3fee8b00d2141774751057ad06a678c96a9ebf5",
       "symbols": [
         {
           "name": "acted",
@@ -32450,11 +32450,11 @@
         },
         {
           "name": "apply",
-          "line": 121
+          "line": 125
         },
         {
           "name": "facts",
-          "line": 237
+          "line": 241
         }
       ]
     },
@@ -32501,8 +32501,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 163,
-      "sha256": "f9075d41ce03400fd225c5086e5f1d8c8ab9536a7d9661ec10a0831f0d5d57b4",
+      "lines": 164,
+      "sha256": "2d4f865412f88e3f79a7d1159daaca759fb5cfd15313fd7cc7e9a8a12a87f5c5",
       "symbols": [
         {
           "name": "send",
@@ -38949,8 +38949,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt",
-      "lines": 202,
-      "sha256": "187baeb55c6914e4fc0751834903e1807efb9cb9fcaec576a6f820b865c8480c",
+      "lines": 269,
+      "sha256": "ff463f621226554317469155d3364b0b34b7b68eeea080514d9b22ad30882a08",
       "symbols": [
         {
           "name": "CoopRouteContinuationTest",
