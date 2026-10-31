@@ -71,7 +71,8 @@ internal data class RelicRun(
     val weapons:Set<String> = setOf("blade"),val equipped:String="blade",
     val bolts:Int=5,val guarding:Boolean=false,
     val playerChestMarks:Set<Int> = emptySet(),
-    val guardedBy:String = ""
+    val guardedBy:String = "",
+    val coopPlans:Map<String,RelicCoopPlan> = emptyMap()
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -100,6 +101,7 @@ internal data class RelicRun(
         .put("bolts",bolts).put("guarding",guarding)
         .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
         .put("guardedBy",guardedBy)
+        .put("coopPlans",JSONObject().apply { coopPlans.forEach { (id,p) -> put(id,p.json()) } })
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
             if(j.getInt("v")!=2)return@runCatching null
@@ -107,7 +109,7 @@ internal data class RelicRun(
             if(w !in 12..32 || h !in 10..32)return@runCatching null
             val tiles=j.getJSONArray("tiles").let{a->(0 until a.length()).map{a.getInt(it)}}
             if(tiles.size!=w*h || tiles.any{it !in 0..3})return@runCatching null
-            RelicRun(j.getString("id"),j.getInt("seed"),j.getInt("level"),w,h,tiles,
+            val result=RelicRun(j.getString("id"),j.getInt("seed"),j.getInt("level"),w,h,tiles,
                 RelicPhase.valueOf(j.getString("phase")),RelicActor.read(j.getJSONObject("hero")),
                 j.getJSONArray("allies").actors(),j.getJSONArray("chests").chests(),
                 j.getJSONArray("mobs").mobs(),j.getJSONArray("drops").drops(),
@@ -138,6 +140,7 @@ internal data class RelicRun(
                         (0 until a.length()).any { a.getJSONObject(it).optString("id")==id }
                     }
                 } ?: "")
+            result.copy(coopPlans=RelicCoopTravel.restore(j.optJSONObject("coopPlans"),result))
         }.getOrNull()
     }
 }
@@ -354,6 +357,7 @@ internal object RelicEscapeRules {
         }
         next=reveal(next.copy(turns=s.turns+1))
         next=alliesTurn(next,autonomousIds)
+        next=RelicCoopTravel.advance(next,autonomousIds)
         next=enemyTurn(next,noise)
         next=next.copy(flareTurns=(next.flareTurns-1).coerceAtLeast(0),
             lureTurns=(next.lureTurns-1).coerceAtLeast(0),guarding=false)

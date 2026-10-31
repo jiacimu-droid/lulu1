@@ -139,6 +139,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         }) { Text("找$name", color = relicGreen, fontSize = 11.sp) }
                     }
                 }
+                run.coopPlans.forEach { (id,plan) ->
+                    val name=MigratedDomainStores.characters.get(id).displayName
+                    val work=when(plan.kind) {
+                        "support" -> "正在赶去支援"
+                        "chest" -> "正在寻找宝箱"
+                        else -> "正在与你集合"
+                    }
+                    Text(name+" · "+work,color=relicGreen,fontSize=11.sp,maxLines=1)
+                }
                 if(run.guardedBy.isNotBlank()) {
                     run.allies.firstOrNull { it.id==run.guardedBy && it.hp>0 }?.let { teammate ->
                         Text("♡ "+MigratedDomainStores.characters.get(teammate.id).displayName+
