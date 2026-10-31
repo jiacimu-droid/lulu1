@@ -1,6 +1,5 @@
 package com.jiacimu.lulu.data
 
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalTime
 
@@ -14,18 +13,15 @@ import java.time.LocalTime
  * separate, explicitly authorised step.
  *
  * Inputs are facts only (timestamps, counts, consent flag, topic key from
- * an existing motive / concern id). No text is searched, matched, or scored
- * here, so this cannot become a keyword / regex semantic judge.
+ * an existing motive / concern id). Old numerical cooling, daily caps, unanswered
+ * limits and thought TTLs are not a basis for vetoing a role's autonomous choice.
+ * Only an explicit per-character switch or user-selected quiet hours remain in
+ * this SHADOW diagnostic, which never enforces the resulting decision.
  */
 enum class ProactiveGateReason {
     SKIPPED_NOT_PROACTIVE,
     CONSENT_DISABLED,
     QUIET_HOURS,
-    UNANSWERED_OUTSTANDING,
-    COOLDOWN,
-    DAILY_CAP,
-    SAME_TOPIC_RECENT,
-    THOUGHT_EXPIRED,
     ALLOWED,
 }
 
@@ -34,12 +30,6 @@ data class ProactiveGatePolicy(
     val quietHoursEnabled: Boolean,
     val quietStartMinutesOfDay: Int,
     val quietEndMinutesOfDay: Int,
-    val minGapMinutes: Long = 240,
-    val maxPerDay: Int = 2,
-    val maxUnansweredOutstanding: Int = 1,
-    val sameTopicCooldownHours: Long = 24,
-    val thoughtTtlHours: Long = 72,
-    val maxAttemptsPerTopic: Int = 3,
 )
 
 data class ProactiveAttempt(
@@ -91,16 +81,6 @@ object ProactiveMessageGate {
             input.hasFreshUserMessage -> ProactiveGateReason.SKIPPED_NOT_PROACTIVE
             !input.policy.enabled -> ProactiveGateReason.CONSENT_DISABLED
             isQuiet(input.policy, input.localTime) -> ProactiveGateReason.QUIET_HOURS
-            input.unansweredOutstanding >= input.policy.maxUnansweredOutstanding ->
-                ProactiveGateReason.UNANSWERED_OUTSTANDING
-            input.lastProactiveSentAt != null &&
-                Duration.between(input.lastProactiveSentAt, input.now).toMinutes() <
-                input.policy.minGapMinutes -> ProactiveGateReason.COOLDOWN
-            input.proactiveSentToday >= input.policy.maxPerDay ->
-                ProactiveGateReason.DAILY_CAP
-            hasSameTopicRecent(input) -> ProactiveGateReason.SAME_TOPIC_RECENT
-            input.thought != null && input.now.isAfter(input.thought.expiresAt) ->
-                ProactiveGateReason.THOUGHT_EXPIRED
             else -> ProactiveGateReason.ALLOWED
         }
         return ProactiveGateDecision(
@@ -141,15 +121,4 @@ object ProactiveMessageGate {
     fun expireIfDue(meta: ProactiveThoughtMeta, now: Instant): ProactiveThoughtMeta =
         if (now.isAfter(meta.expiresAt)) meta.copy(status = "expired") else meta
 
-    private fun hasSameTopicRecent(input: ProactiveGateInput): Boolean {
-        val topicKey = input.thought?.topicKey.orEmpty()
-        if (topicKey.isBlank()) return false
-        val attempts = input.recentAttempts.filter { it.topicKey == topicKey }
-        if (attempts.size >= input.policy.maxAttemptsPerTopic) return true
-        return attempts.any { attempt ->
-            attempt.delivered &&
-                Duration.between(attempt.attemptedAt, input.now).toHours() <
-                input.policy.sameTopicCooldownHours
-        }
-    }
 }

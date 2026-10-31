@@ -120,11 +120,11 @@ class ProactiveMessageGateTest {
     }
 
     @Test
-    fun rejectDuringCooldown() {
+    fun recentDeliveryIsNotAContactVeto() {
         val decision = ProactiveMessageGate.evaluate(
             input(lastProactiveSentAt = now.minus(Duration.ofMinutes(60)))
         )
-        assertEquals(listOf(ProactiveGateReason.COOLDOWN), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
     }
 
     @Test
@@ -136,9 +136,9 @@ class ProactiveMessageGateTest {
     }
 
     @Test
-    fun rejectWhenUnansweredOutstanding() {
+    fun unansweredMessageDoesNotBlockAnotherAutonomousChoice() {
         val decision = ProactiveMessageGate.evaluate(input(unansweredOutstanding = 1))
-        assertEquals(listOf(ProactiveGateReason.UNANSWERED_OUTSTANDING), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
     }
 
     @Test
@@ -148,13 +148,13 @@ class ProactiveMessageGateTest {
     }
 
     @Test
-    fun rejectAtDailyCap() {
+    fun highDailyCountDoesNotBlockAnotherChoice() {
         val decision = ProactiveMessageGate.evaluate(input(proactiveSentToday = 2))
-        assertEquals(listOf(ProactiveGateReason.DAILY_CAP), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
     }
 
     @Test
-    fun rejectSameTopicRecent() {
+    fun sameTopicAgainIsNotAProgrammaticRefusal() {
         // 注意：实际门控以 thought.topicKey 为过滤键，不是 input 上的独立字段。
         val decision = ProactiveMessageGate.evaluate(
             input(
@@ -164,11 +164,11 @@ class ProactiveMessageGateTest {
                 ),
             )
         )
-        assertEquals(listOf(ProactiveGateReason.SAME_TOPIC_RECENT), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
     }
 
     @Test
-    fun rejectSameTopicAtMaxAttemptsEvenIfOld() {
+    fun repeatedAttemptsNeverOverrideRoleChoice() {
         val old = now.minus(Duration.ofHours(100))
         val decision = ProactiveMessageGate.evaluate(
             input(
@@ -180,7 +180,7 @@ class ProactiveMessageGateTest {
                 ),
             )
         )
-        assertEquals(listOf(ProactiveGateReason.SAME_TOPIC_RECENT), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
     }
 
     @Test
@@ -240,7 +240,7 @@ class ProactiveMessageGateTest {
     fun expiredThoughtIsDiagnosedNotDeleted() {
         val meta = thought(expiresAt = Instant.parse("2026-10-26T11:00:00Z"))
         val decision = ProactiveMessageGate.evaluate(input(thoughtMeta = meta))
-        assertEquals(listOf(ProactiveGateReason.THOUGHT_EXPIRED), decision.reasons)
+        assertEquals(listOf(ProactiveGateReason.ALLOWED), decision.reasons)
         val expired = ProactiveMessageGate.expireIfDue(meta, now)
         assertEquals("expired", expired.status)
         assertEquals("想问问今天过得怎么样", expired.thought)
