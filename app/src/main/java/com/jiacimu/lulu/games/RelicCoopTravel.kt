@@ -19,7 +19,7 @@ internal object RelicCoopTravel {
             }.getOrNull() ?:return@mapNotNull null
             if(plan.kind !in setOf("support","regroup","chest","rescue") ||
                 plan.lastStepTurn !in -1..s.turns ||
-                (plan.kind!="regroup" && plan.targetId<0))null
+                (plan.kind in setOf("support","chest") && plan.targetId<0))null
             else actor.id to plan
         }.toMap()
     }

@@ -52,10 +52,13 @@ class CharacterMotiveReviewTest {
 
     @Test fun overnightQuietHoursMoveTheOpportunityToLocalMorning() {
         val due = Instant.parse("2026-10-18T15:30:00Z") // 23:30 in Shanghai
+        // Quiet hours are now opt-in per person: an explicitly enabled policy
+        // still defers a 23:30 local review, while the default does not.
         assertEquals(Instant.parse("2026-10-18T23:00:00Z"), CharacterMotiveReview.eligibleAt(
-            due, ProactivePerceptionPolicy(), ZoneId.of("Asia/Shanghai")))
+            due, ProactivePerceptionPolicy(quietHoursEnabled = true),
+            ZoneId.of("Asia/Shanghai")))
         assertEquals(due, CharacterMotiveReview.eligibleAt(due,
-            ProactivePerceptionPolicy(quietHoursEnabled = false), ZoneId.of("Asia/Shanghai")))
+            ProactivePerceptionPolicy(), ZoneId.of("Asia/Shanghai")))
     }
 
     @Test fun oneClaimPersistsAndCoalescesDueGoalsWithoutConsumingFuturePlans() {

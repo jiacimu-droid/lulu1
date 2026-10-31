@@ -81,13 +81,16 @@ class CharacterLifeStoreTest {
             true, "尝试换一种表达", now.plusSeconds(320)))
         pending = CharacterLifeStore.state(role).getJSONObject("intention")
         assertEquals(2, pending.getInt("unansweredContactAttempts"))
-        assertFalse(pending.has("nextReviewAt"))
+        // Two unanswered attempts are evidence, not permission for the
+        // scheduler to cancel an otherwise valid character-authored goal.
+        // The actual next review remains scheduled unless the user requests space.
+        assertEquals(now.plusSeconds(620),
+            java.time.Instant.parse(pending.getString("nextReviewAt")))
         assertNull(GoalFollowUpPolicy.contactBlockReason(
             pending, "send_private_message", autonomous = true, intentionId = goalId))
-        // The automatic five-minute paid review is bounded after two unanswered
-        // contacts, but a later independent role decision remains executable.
-        // New actual user evidence resets the unanswered count, not the user's
-        // relationship outcome or consent.
+        // The next review is retained after unanswered contacts; whether to
+        // reach out remains the same role's decision. Actual new user evidence
+        // resets the count, and an explicit request for space pauses the goal.
         CharacterLifeStore.observeUserGoalEvidence(role, "genuine-reply", "我还想再想想", now.plusSeconds(400))
         pending = CharacterLifeStore.state(role).getJSONObject("intention")
         assertEquals(0, pending.getInt("unansweredContactAttempts"))

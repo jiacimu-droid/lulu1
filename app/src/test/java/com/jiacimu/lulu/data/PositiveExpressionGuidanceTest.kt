@@ -9,8 +9,10 @@ class PositiveExpressionGuidanceTest {
         val decision = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         for (prompt in listOf(decision, renderer)) {
-            assertTrue(prompt.contains("日常接话以有来有回为默认节奏"))
-            assertTrue(prompt.contains("把后续反应留给对方真实回应后再决定"))
+            assertTrue(prompt.contains("日常接话以有来有回为自然节奏"))
+            assertTrue(prompt.contains("不替对方编造下一句话"))
+            assertTrue(prompt.contains("表达足够时"))
+            assertTrue(prompt.contains("交还话轮"))
             assertTrue(prompt.contains("分泡本身不会减少内容"))
             assertTrue(prompt.contains("复杂问题、多项需求"))
         }

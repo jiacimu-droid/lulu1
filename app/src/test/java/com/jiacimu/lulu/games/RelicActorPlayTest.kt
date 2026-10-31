@@ -36,7 +36,14 @@ class RelicActorPlayTest {
         val move=RelicActorPlay.options(next,"alice").first { it.kind=="move" }
         val acted=RelicActorPlay.apply(next,"alice",IslandActorChoice(move.id,""))!!
         assertNull(RelicActorPlay.apply(acted,"alice",IslandActorChoice(move.id,"")))
-        assertEquals(listOf("none"),RelicActorPlay.options(acted,"alice").map { it.id })
+        // Physical moves are exhausted, but changing the next goal is a
+        // conversation-level choice and never grants a second movement.
+        val followUp = RelicActorPlay.options(acted,"alice")
+        assertTrue(followUp.any { it.id=="none" })
+        assertTrue(followUp.any { it.id=="plan_regroup" })
+        assertTrue(followUp.none { it.kind in setOf(
+            "move","attack","open","heal","rescue","share",
+            "guard_player","regroup","support","approach_chest","rush_rescue") })
         assertTrue(RelicActorPlay.acted(RelicRun.read(acted.json())!!,"alice"))
     }
 
