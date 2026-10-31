@@ -193,6 +193,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
+            if(island.guardedBy.isNotBlank()) {
+                val protector=world.friends.firstOrNull { it.id==island.guardedBy && it.hp>0 }
+                if(protector!=null)Text(
+                    "♡ "+MigratedDomainStores.characters.get(protector.id).displayName+" 正在保护你",
+                    color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
+            }
             island.houseProject?.let { project ->
                 val owner=MigratedDomainStores.characters.get(project.ownerId).displayName
                 val progress=when(project.phase) {

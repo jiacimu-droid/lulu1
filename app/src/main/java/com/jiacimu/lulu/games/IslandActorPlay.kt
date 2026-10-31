@@ -44,6 +44,18 @@ internal object IslandActorPlay {
         if (s.fruit > 0 && w.hp < 12 &&
             abs(a.x - w.x) + abs(a.y - w.y) <= 1)
             result += IslandActorOption("help_player", "把一颗野果送给玩家，为他恢复生命", "help_player")
+        if (abs(a.x-w.x)+abs(a.y-w.y)<=2 && s.guardedBy!=id)
+            result += IslandActorOption("guard_player","自主护在玩家身边，下一次怪物打到玩家时代为抵挡1点伤害，自己受1伤","guard_player")
+        for(mob in w.mobs.filter { it.hp>0 &&
+            abs(it.x-w.x)+abs(it.y-w.y)<=3 &&
+            abs(it.x-a.x)+abs(it.y-a.y) in 2..9 }.take(3)) {
+            val step=BlockIslandRules.nextStep(s,a.x,a.y,mob.x,mob.y)
+            if(step!=null && w.friends.none { it.id!=id && it.hp>0 &&
+                    it.x==step.first && it.y==step.second } &&
+                !(w.x==step.first && w.y==step.second))
+                result += IslandActorOption("protect:"+mob.x+":"+mob.y,
+                    "玩家附近有怪物，主动靠近威胁支援他，可沿已选行程逐步走到敌人旁","approach",mob.x,mob.y)
+        }
         for ((x, y) in listOf(a.x+1 to a.y, a.x-1 to a.y, a.x to a.y+1, a.x to a.y-1)) {
             val injured = w.friends.firstOrNull {
                 it.id != id && it.hp <= 0 && it.x == x && it.y == y
@@ -55,6 +67,9 @@ internal object IslandActorPlay {
             val mob = w.mobs.firstOrNull { it.hp > 0 && it.x == x && it.y == y }
             if (mob != null) {
                 result += IslandActorOption("fight:$x:$y", "攻击坐标($x,$y)的怪物", "fight", x, y)
+                if(abs(w.x-x)+abs(w.y-y)<=1)
+                    result += IslandActorOption("combo:$x:$y",
+                        "与玩家合击同一只怪物，造成3点伤害","combo",x,y)
                 continue
             }
             if (w.cell(x, y) in setOf(1, 2))
@@ -165,12 +180,17 @@ internal object IslandActorPlay {
                     stone=w.stone+if(tile==2) 1 else 0)
                 if(tile==1) "自己采木+1" else "自己采石+1"
             }
-            "fight" -> {
+            "fight","combo" -> {
+                val damage=if(a.kind=="combo")3 else 2
                 next=w.copy(mobs=w.mobs.map {
                     if(it.hp>0 && it.x==a.x && it.y==a.y)
-                        it.copy(hp=(it.hp-2).coerceAtLeast(0)) else it
+                        it.copy(hp=(it.hp-damage).coerceAtLeast(0)) else it
                 })
-                "自己攻击怪物，造成2点伤害"
+                if(a.kind=="combo")"与玩家一起合击怪物，造成3点伤害"
+                else "自己攻击怪物，造成2点伤害"
+            }
+            "guard_player" -> {
+                "主动保护玩家，下一次怪物攻击时挡下1点伤害"
             }
             "plant","floor","wall" -> {
                 val tiles=w.tiles.toMutableList().also {
@@ -206,7 +226,8 @@ internal object IslandActorPlay {
             ?.let { "；下一步想：${it.take(100)}" } ?: ""
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
-        val applied = s.copy(world=next, fruit=fruit)
+        val applied = s.copy(world=next, fruit=fruit,
+            guardedBy=if(a.kind=="guard_player")id else s.guardedBy)
         return applied.copy(companionTravel=IslandTravel.afterChoice(s,applied,id,a))
     }
 
@@ -240,6 +261,11 @@ internal object IslandActorPlay {
             }))
             .put("currentTravel",s.companionTravel[id]?.json() ?: JSONObject.NULL)
             .put("houseProject",s.houseProject?.json() ?: JSONObject.NULL)
+            .put("playerGuardedBy",s.guardedBy)
+            .put("visibleThreats",JSONArray(w.mobs.filter { it.hp>0 &&
+                abs(it.x-w.x)+abs(it.y-w.y)<=5 }.map {
+                JSONObject().put("x",it.x).put("y",it.y).put("hp",it.hp)
+            }))
             .put("nearby",JSONArray(nearby))
             .put("recentEvents",JSONArray(w.events.takeLast(10)))
             .put("playerSpeech",heard)
@@ -253,7 +279,7 @@ internal object IslandActorPlay {
             characterId=id,
             facts=facts(s,id,heard),
             instruction="""你是角色本人，正在与玩家一起玩方块小岛。
-像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。队友有危险时可以选择照顾、支援、救起倒地伙伴，也可以视局势选择先做其他事，不是强制保姆。可以独自去采矿探路、主动防守、和队友商量目标、调侃或保持沉默。
+像一个真正一起开黑的伙伴一样感知队伍，结合你自己的性格、关系、经历和此刻局势，自主决定下一步。你拥有可以实际执行的合作能力：保护玩家抵挡怪物攻击（自己会受伤）、遇到威胁时主动赶去支援、玩家与自己一起靠近怪物时选择合击、帮助回血、采集共享材料、建造共同家园、救起伙伴。请根据自己性格、关系、局势和玩家说的话，自主选择分工或改变打算，不要统一固定保姆动作，也不要只说要保护却没有实际行动。可以商量、调侃、邀请玩家协作，也可以沉默。
 options 给出真实可选操作。approach 是你自己选择的目的地，之后随已有游戏回合沿合法路径持续前往目标旁边，不代表已采集。currentTravel 是当前行程。
 start_house 是你本人决定开启一座小屋工程，不代表已经建好。已选工程会随真实游戏回合逐格施工，每一步验证木材、路线、实体占用；木材不足就暂停。houseProject 是真实持久进度；你可以结合玩家当前讲话和你的想法，选择 pause_house、resume_house 或 demolish_house 逐格拆除自己建的部分。玩家改变主意应由你理解，不靠程序关键词强行拆房。none 只交流或观察，stop_travel 停止行程；没有原计划不自动编造下一个目标。
 你也能注意伙伴位置、生命和最近事件。不要把上一轮行动当作新的成功，不编造资源、战斗或胜利。

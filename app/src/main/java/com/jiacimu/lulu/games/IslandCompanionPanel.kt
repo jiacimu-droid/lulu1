@@ -213,7 +213,7 @@ internal fun IslandCompanionPanel(
                 if(expanded) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    listOf("一起探路", "要不要一起盖个家？", "不盖了的话，我们把房子拆掉吧").forEach { ping ->
+                    listOf("一起去打怪吧！", "你能保护我一下吗？", "我们一起把房子建起来").forEach { ping ->
                         AssistChip(
                             onClick = { submitPlayerMessage(ping) },
                             label = { Text(ping, fontSize = 11.sp) },

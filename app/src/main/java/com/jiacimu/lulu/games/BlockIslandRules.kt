@@ -21,6 +21,7 @@ internal data class BlockIslandState(
     val supplyCaches: List<Int> = emptyList(),
     val openedSupplies: Set<Int> = emptySet(),
     val houseProject: IslandHouseProject? = null,
+    val guardedBy: String = "",
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -38,6 +39,7 @@ internal data class BlockIslandState(
         .put("supplyCaches", JSONArray(supplyCaches))
         .put("openedSupplies", JSONArray(openedSupplies.sorted()))
         .put("houseProject", houseProject?.json() ?: JSONObject.NULL)
+        .put("guardedBy",guardedBy)
         .toString()
 
     companion object {
@@ -80,7 +82,10 @@ internal data class BlockIslandState(
                 }.toSet()
             } ?: emptySet()
             base.copy(supplyCaches=caches, openedSupplies=opened,
-                houseProject=IslandHouseProject.read(json.optJSONObject("houseProject"),world))
+                houseProject=IslandHouseProject.read(json.optJSONObject("houseProject"),world),
+                guardedBy=json.optString("guardedBy","").takeIf { id ->
+                    world.friends.any { it.id==id }
+                } ?: "")
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -493,12 +498,19 @@ internal object BlockIslandRules {
                 world.friends.any { it.hp > 0 && it.x == next.first && it.y == next.second }) mob
             else mob.copy(x = next.first, y = next.second)
         }
-        val hp = (world.hp - playerHurt).coerceAtLeast(0)
+        val protector=world.friends.firstOrNull { it.id==s.guardedBy && it.hp>0 &&
+            distance(it.x,it.y,world.x,world.y)<=2 }
+        val blocked=if(playerHurt>0 && protector!=null)1 else 0
+        if(blocked>0)hurtFriends[protector!!.id]=(hurtFriends[protector.id]?:0)+1
+        val realHurt=playerHurt-blocked
+        val hp = (world.hp - realHurt).coerceAtLeast(0)
         val allies = world.friends.map { it.copy(hp = (it.hp - (hurtFriends[it.id] ?: 0)).coerceAtLeast(0)) }
         val logs = mutableListOf<String>()
-        if (playerHurt > 0) logs += "怪物攻击，生命 -$playerHurt"
+        if(blocked>0)logs += "队友"+protector!!.id+"挡住1点伤害，自己承受1点"
+        if(realHurt>0)logs += "怪物攻击，生命 -$realHurt"
         if (hurtFriends.isNotEmpty()) logs += "有队友受伤了"
-        var next = s.copy(world = world.copy(hp = hp, mobs = mobs, friends = allies,
+        var next = s.copy(guardedBy=if(blocked>0)"" else s.guardedBy,
+            world = world.copy(hp = hp, mobs = mobs, friends = allies,
             notice = world.notice + if (logs.isNotEmpty()) " · " + logs.joinToString() else "",
             events = (world.events + logs).takeLast(150)))
         if (hp == 0) {
