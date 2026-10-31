@@ -67,7 +67,8 @@ internal object IslandHouseProjects {
     }
 
     fun isChangeAction(actionId: String): Boolean =
-        actionId in setOf("pause_house","resume_house","demolish_house")
+        actionId.startsWith("start_house:") ||
+            actionId in setOf("pause_house","resume_house","demolish_house")
 
     fun choose(s: BlockIslandState,id: String,action: String,speech: String): BlockIslandState? {
         val w=s.world
@@ -82,7 +83,8 @@ internal object IslandHouseProjects {
                 IslandHouseProject(id,x,y)
             }
             old==null || old.ownerId!=id -> return null
-            action=="pause_house" && old.phase=="building" -> old.copy(phase="paused")
+            action=="pause_house" && old.phase in setOf("building","demolishing") ->
+                old.copy(phase="paused")
             action=="resume_house" && old.phase=="paused" -> old.copy(phase="building")
             action=="demolish_house" && old.phase!="demolishing" -> old.copy(phase="demolishing")
             else -> return null

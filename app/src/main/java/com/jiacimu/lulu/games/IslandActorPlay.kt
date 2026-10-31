@@ -27,20 +27,20 @@ internal object IslandActorPlay {
             result += IslandActorOption("stop_travel", "停止自己正在执行的行程，不再继续前往原目标", "stop_travel")
         val project=s.houseProject
         if(project?.ownerId==id) {
-            if(project.phase=="building")
-                result += IslandActorOption("pause_house","暂停自己的建房工程，保留已施工部分","pause_house")
+            if(project.phase in setOf("building","demolishing"))
+                result += IslandActorOption("pause_house","暂时停下当前建造或拆除工程","pause_house")
             if(project.phase=="paused")
                 result += IslandActorOption("resume_house","继续已暂停的建房工程","resume_house")
             if(project.phase!="demolishing")
                 result += IslandActorOption("demolish_house","逐步拆除自己建造的小屋","demolish_house")
         }
-        if (!canAct || w.finished) return result
-        if(project==null) {
+        if(project==null && !w.finished) {
             for((x,y) in IslandHouseProjects.sites(s,id).take(3)) {
                 result += IslandActorOption("start_house:"+x+":"+y,
                     "主动选择位置("+x+","+y+")建一座3×3小屋，约需17木；需要逐步施工","start_house",x,y)
             }
         }
+        if (!canAct || w.finished) return result
         if (s.fruit > 0 && w.hp < 12 &&
             abs(a.x - w.x) + abs(a.y - w.y) <= 1)
             result += IslandActorOption("help_player", "把一颗野果送给玩家，为他恢复生命", "help_player")
@@ -140,7 +140,6 @@ internal object IslandActorPlay {
         var fruit = s.fruit
         val outcome = when (a.kind) {
             "none" -> "观察现场"
-            "start_house" -> "自主选择开始一座可持续执行的小屋工程"
             "move" -> {
                 next = w.copy(friends=w.friends.map {
                     if (it.id==id) it.copy(x=a.x,y=a.y) else it
@@ -208,7 +207,6 @@ internal object IslandActorPlay {
         val event=eventPrefix(id,turn)+outcome+say+plan
         next=next.copy(events=(next.events+event).takeLast(150),notice=event)
         val applied = s.copy(world=next, fruit=fruit)
-        if(a.kind=="start_house")return IslandHouseProjects.choose(applied,id,a.id,"")
         return applied.copy(companionTravel=IslandTravel.afterChoice(s,applied,id,a))
     }
 
