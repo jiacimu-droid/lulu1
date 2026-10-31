@@ -184,6 +184,7 @@ internal object BlockIslandRules {
         val cell = w.cell(x, y)
         if (abs(w.x - x) + abs(w.y - y) > 1 ||
             (x == w.x && y == w.y) ||
+            IslandSupplyCaches.available(s, x, y) ||
             (action == "floor" && cell == 4) ||
             w.friends.any { it.hp > 0 && it.x == x && it.y == y } ||
             w.mobs.any { it.hp > 0 && it.x == x && it.y == y } ||
@@ -198,7 +199,6 @@ internal object BlockIslandRules {
     fun canBuild(s: BlockIslandState, action: String, x: Int, y: Int): Boolean {
         val (wood, stone) = buildingCost(action) ?: return false
         return canPlaceBuilding(s, action, x, y) &&
-            !IslandSupplyCaches.available(s, x, y) &&
             s.world.wood >= wood && s.world.stone >= stone
     }
 
@@ -237,11 +237,12 @@ internal object BlockIslandRules {
         val message: String
         when (action) {
             "salvage" -> {
-                if (!near() || !IslandSupplyCaches.available(s, tx, ty))
-                    return reject("需要靠近还未打开的漂流补给箱")
+                if (!near() || !IslandSupplyCaches.available(s, tx, ty) ||
+                    mob != null || w.friends.any { it.hp <= 0 && it.x == tx && it.y == ty })
+                    return reject("需要先靠近补给箱，并清理占用它的危险")
                 val woodFound = 2 + index % 3
                 val stoneFound = 1 + index % 2
-                val berryFound = if ((index xor w.seed) and 1 == 0) 1 else 0
+                val berryFound = if (((index xor w.seed) and 1) == 0) 1 else 0
                 next = s.copy(
                     openedSupplies = s.openedSupplies + index,
                     world = w.copy(wood = w.wood + woodFound, stone = w.stone + stoneFound),

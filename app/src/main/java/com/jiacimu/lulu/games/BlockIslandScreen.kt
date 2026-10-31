@@ -161,8 +161,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         toolsLabel = "背包 / 探险",
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
-            if (night) "☾ 夜晚" else "☀ 白天" +
-                " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
+            (if (night) "☾ 夜晚" else "☀ 白天") +
+            " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
         scene = {
             BlockIslandCanvas(island, target, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,

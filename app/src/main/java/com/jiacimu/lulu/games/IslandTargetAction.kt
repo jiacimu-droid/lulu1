@@ -19,11 +19,11 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
     val downed = w.friends.any { it.hp <= 0 && it.x == x && it.y == y }
     val mob = w.mobs.any { it.hp > 0 && it.x == x && it.y == y }
     return when {
-        near && IslandSupplyCaches.available(state, x, y) ->
-            IslandTargetAction("salvage", "打开补给", true, distance)
         near && downed -> IslandTargetAction(
             "revive", if (state.fruit >= 2) "救援队友" else "救援需2果", state.fruit >= 2, distance)
         near && mob -> IslandTargetAction("fight", "攻击", true, distance)
+        near && IslandSupplyCaches.available(state, x, y) ->
+            IslandTargetAction("salvage", "打开补给", true, distance)
         near && w.cell(x, y) in setOf(1, 2) -> IslandTargetAction("gather", "采集", true, distance)
         near && w.cell(x, y) == 8 -> IslandTargetAction(
             "fish", if ("rod" in state.tools) "钓鱼" else "需要鱼竿",
