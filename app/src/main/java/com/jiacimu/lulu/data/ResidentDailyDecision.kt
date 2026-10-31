@@ -83,6 +83,7 @@ internal object ResidentDailyDecision {
             "needs_recovery" -> "执行尚未完成"
             "partial_side_steps", "waiting_partial" -> "独立行动未全部完成"
             "finished_with_agenda_rejections" -> "本人已决定，但部分日程未能排入"
+            "finished_with_action_rejections" -> "决定已结算，部分即时行动遭拒绝"
             "source_unavailable" -> "原决定来源已撤回或版本失效，后续未执行"
             else -> "未完成：$phase"
         }
@@ -101,12 +102,13 @@ internal object ResidentDailyDecision {
         val unresolved = setOf("requesting", "uncertain", "repair_requesting",
             "invalid_output", "definite_rejected", "decided", "needs_recovery",
             "partial_side_steps", "waiting_partial", "finished_with_agenda_rejections",
-            "source_unavailable")
+            "finished_with_action_rejections", "source_unavailable")
         // A revoked decision or rejected agenda has no same-day recovery
         // control. Show its settled outcome immediately rather than hiding
         // it until midnight; active/uncertain requests keep their existing
         // same-day recovery UI and enter history on following days.
-        val sameDaySettled = setOf("source_unavailable", "finished_with_agenda_rejections")
+        val sameDaySettled = setOf("source_unavailable", "finished_with_agenda_rejections",
+            "finished_with_action_rejections")
         val keys = p.all.keys
         val dailyPrefix = "phase:$nativeId:"
         val daily = keys.asSequence().filter { it.startsWith(dailyPrefix) }
@@ -925,10 +927,11 @@ internal object ResidentDailyDecision {
      * connection. Real tools keep individual idempotent receipts. Side actions
      * are never allowed to inherit the due activity's planId.
      */
-    internal suspend fun executeWakeSteps(context: Context, role: String,
+    private suspend fun executeWakeStepsReport(context: Context, role: String,
         decision: JSONObject, turnId: String, initialCompleted: Boolean = true,
-        causeEvidenceId: String = ""): Int {
-        val original = decision.optJSONArray("steps") ?: return 0
+        causeEvidenceId: String = ""): OrderedCharacterActionReport {
+        val original = decision.optJSONArray("steps")
+            ?: return OrderedCharacterActionReport(emptyList(), false)
         val steps = JSONArray()
         for (i in 0 until original.length()) {
             val row = original.optJSONObject(i)
@@ -953,13 +956,16 @@ internal object ResidentDailyDecision {
             // Existing releases used these IDs; replay must recover the same
             // receipts instead of performing a second post/message/like.
             requestIdForStep = { index -> "$turnId-extra-$index" })
-        if (report.completedCount < steps.length()) {
-            com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                source = "居民手机与多步行动", title = "附加行动含未完成步骤",
-                message = report.notes.joinToString("\n"))
-        }
-        return report.completedCount
+        // Individual ToolRouter receipts already retain the original failure.
+        // Resuming a saved choice must not log the same aggregate error again.
+        return report
     }
+
+    internal suspend fun executeWakeSteps(context: Context, role: String,
+        decision: JSONObject, turnId: String, initialCompleted: Boolean = true,
+        causeEvidenceId: String = ""): Int =
+        executeWakeStepsReport(context, role, decision, turnId,
+            initialCompleted, causeEvidenceId).completedCount
 
     /** Validate only NEW model responses: previously saved choices keep their
      * original request IDs and never trigger another charge on replay.
@@ -1610,10 +1616,12 @@ internal object ResidentDailyDecision {
             .filter { it.authorType == MomentAuthorType.Character &&
                 it.authorCharacterId != characterId &&
                 it.authorCharacterId?.let(DigitalLifeProfileStore::isEnabled) == true }
+            .sortedByDescending { it.lastActivityAt }
             .take(8)
             .joinToString("\n") {
                 val author = it.authorCharacterId.orEmpty()
-                "${MigratedDomainStores.characters.get(author).displayName}：${it.content.take(200)}"
+                "postId=${it.id}；${MigratedDomainStores.characters.get(author).displayName}：" +
+                    "${it.content.take(200)}；本人已点赞=${characterId in it.likedCharacterIds}"
             }
         val mail = ResidentSocialMailbox.inbox(characterId, 8).joinToString("\n") {
             val speaker = MigratedDomainStores.characters.get(it.fromId).displayName
@@ -1735,7 +1743,8 @@ internal object ResidentDailyDecision {
         } else null
         if (savedDecision != null) {
             if (p.getString(phaseKey, "") in setOf("finished",
-                    "finished_with_agenda_rejections", "source_unavailable") ||
+                    "finished_with_agenda_rejections", "finished_with_action_rejections",
+                    "source_unavailable") ||
                 p.getInt(recoveriesKey, 0) >= MAX_SAVED_DECISION_RECOVERIES) return false
             check(p.edit().putInt(recoveriesKey, p.getInt(recoveriesKey, 0) + 1).commit()) {
                 "原住民有效决定的恢复次数未保存"
@@ -1956,8 +1965,10 @@ internal object ResidentDailyDecision {
                 requestId = "$eventId-message", causeEvidenceId = decisionEvidenceId)))
         } else true
         val sideTotal = json.optJSONArray("steps")?.length() ?: 0
-        val sideComplete = executeWakeSteps(app, id, json, eventId,
-            causeEvidenceId = decisionEvidenceId) == sideTotal
+        val sideReport = executeWakeStepsReport(app, id, json, eventId,
+            causeEvidenceId = decisionEvidenceId)
+        val sideComplete = sideReport.completedCount == sideTotal
+        val sideSettled = sideReport.settledCount == sideTotal
         check(CharacterPhoneInbox.acknowledgeObserved(id, unread)) {
             "已感知的手机未读动态尚未记录"
         }
@@ -1976,13 +1987,22 @@ internal object ResidentDailyDecision {
         // inspectable rejection, not permission to buy another model reply
         // or blindly reissue an expired scheduled action.
         val finalPhase = when {
+            // Replaying an immutable, durably rejected step will only return
+            // the same refusal. Preserve it for the next role decision.
+            postComplete && messageComplete && sideSettled && !sideComplete ->
+                "finished_with_action_rejections"
             !immediateComplete -> "partial_side_steps"
             agendaRejected > 0 -> "finished_with_agenda_rejections"
             else -> "finished"
         }
         val phaseEdit = p.edit().putString(phaseKey, finalPhase)
-        if (agendaRejected > 0) phaseEdit.putString("last-error:${native.id}:$today",
-            "有$agendaRejected 项本人选择的日程未排入；原始事件中保留了每项拒绝原因")
+        val issueDetails = listOf(
+            if (agendaRejected > 0) "有$agendaRejected 项日程未排入" else "",
+            if (!sideComplete) sideReport.notes.joinToString("；") else "",
+            if (!postComplete || !messageComplete) "即时发帖或私信尚未确认成功" else "",
+        ).filter(String::isNotBlank).joinToString("；").take(700)
+        if (issueDetails.isNotBlank())
+            phaseEdit.putString("last-error:${native.id}:$today", issueDetails)
         check(phaseEdit.commit()) {
             "原住民本次决定的完成状态没有保存"
         }
