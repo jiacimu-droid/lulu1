@@ -52,9 +52,7 @@ internal object IslandHouseProjects {
         return (2 until w.width-4).flatMap { left ->
             (2 until w.height-4).mapNotNull { top ->
                 val d=abs(left+1-actor.x)+abs(top+1-actor.y)
-                if(d>11 || (abs(actor.x-left-1)+abs(actor.y-top-1)>1 &&
-                        BlockIslandRules.nextStep(s,actor.x,actor.y,left+1,top+1)==null) ||
-                    parts(w,left,top).any { (index,_) ->
+                if(d>11 || parts(w,left,top).any { (index,_) ->
                     w.tiles[index]!=0 || index in s.structures || index in s.supplyCaches ||
                     index==w.index(w.x,w.y) ||
                     w.friends.any { w.index(it.x,it.y)==index } ||
@@ -63,7 +61,10 @@ internal object IslandHouseProjects {
             }
         }.sortedWith(compareBy<Triple<Int,Int,Int>> { it.third }
             .thenBy { it.second }.thenBy { it.first })
-            .take(4).map { it.first to it.second }
+            .asSequence().filter { (left,top,distance) ->
+                distance<=1 || BlockIslandRules.nextStep(
+                    s,actor.x,actor.y,left+1,top+1)!=null
+            }.take(4).map { it.first to it.second }.toList()
     }
 
     fun isChangeAction(actionId: String): Boolean =
