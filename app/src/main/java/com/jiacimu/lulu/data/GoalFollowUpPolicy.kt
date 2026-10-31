@@ -11,7 +11,6 @@ import java.time.Instant
  */
 internal object GoalFollowUpPolicy {
     private const val FIVE_MINUTES = 300L
-    private const val MAX_UNANSWERED_CONTACTS = 2
 
     fun outwardAction(action: String): Boolean = action.lowercase() in setOf(
         "message", "phone_reply", "send_private_message", "start_call",
@@ -38,10 +37,11 @@ internal object GoalFollowUpPolicy {
         return at.plusSeconds(FIVE_MINUTES)
     }
 
+    /** Only the role decides what to do next. Lack of a reply never terminates a live goal. */
+    @Suppress("UNUSED_PARAMETER")
     fun afterReceipt(action: String, success: Boolean, priorUnanswered: Int,
                      now: Instant): Instant? {
-        if (!success || !outwardAction(action) || priorUnanswered >= MAX_UNANSWERED_CONTACTS)
-            return null
+        if (!success || !outwardAction(action)) return null
         return now.plusSeconds(FIVE_MINUTES)
     }
 

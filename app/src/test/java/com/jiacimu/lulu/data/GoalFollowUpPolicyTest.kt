@@ -18,7 +18,8 @@ class GoalFollowUpPolicyTest {
             JSONObject().put("nextStep", "好好解释自己刚才伤人的话"), now))
         assertNull(GoalFollowUpPolicy.initialReview(JSONObject(), now))
         assertEquals(now.plusSeconds(300), GoalFollowUpPolicy.afterReceipt("message", true, 1, now))
-        assertNull(GoalFollowUpPolicy.afterReceipt("message", true, 2, now))
+        assertEquals(now.plusSeconds(300), GoalFollowUpPolicy.afterReceipt("message", true, 2, now))
+        assertEquals(now.plusSeconds(300), GoalFollowUpPolicy.afterReceipt("message", true, 99, now))
         assertNull(GoalFollowUpPolicy.afterReceipt("message", false, 0, now))
         assertNull(GoalFollowUpPolicy.afterReceipt("read_book", true, 0, now))
     }

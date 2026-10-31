@@ -15,9 +15,9 @@ enum class PerceptionIntervalUnit(val label: String) {
 data class ProactivePerceptionPolicy(
     val enabled: Boolean = true,
     val adaptiveFrequency: Boolean = true,
-    val quietHoursEnabled: Boolean = true,
+    val quietHoursEnabled: Boolean = false,
     val rememberedAdaptiveFrequency: Boolean = true,
-    val rememberedQuietHoursEnabled: Boolean = true,
+    val rememberedQuietHoursEnabled: Boolean = false,
     val quietStartMinutesOfDay: Int = 23 * 60,
     val quietEndMinutesOfDay: Int = 7 * 60,
     val intervalValue: Int = 2,
@@ -48,6 +48,7 @@ data class ProactivePerceptionPolicy(
 object ProactivePerceptionPolicyStore {
     private const val PREFS_NAME = "lulu_proactive_perception_policies"
     private const val KEY_POLICIES = "policies_v1"
+    private const val CONTACT_FREEDOM_MIGRATION = "owner_proactive_contact_2026_10"
 
     private val mutablePolicies = MutableStateFlow<Map<String, ProactivePerceptionPolicy>>(emptyMap())
     val policies: StateFlow<Map<String, ProactivePerceptionPolicy>> = mutablePolicies.asStateFlow()
@@ -59,7 +60,21 @@ object ProactivePerceptionPolicyStore {
         if (prefs != null) return
         appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        mutablePolicies.value = decode(prefs?.getString(KEY_POLICIES, null))
+        val previous = decode(prefs?.getString(KEY_POLICIES, null))
+        // One-time owner request: lift earlier generic do-not-contact/quiet defaults.
+        // A later explicit switch in settings always remains authoritative.
+        val migrate = prefs?.getBoolean(CONTACT_FREEDOM_MIGRATION, false) != true
+        mutablePolicies.value = if (migrate) previous.mapValues { (role, policy) ->
+            if (role.startsWith("resident:")) policy else policy.copy(
+                enabled = true, quietHoursEnabled = false, rememberedQuietHoursEnabled = false,
+            ).normalized()
+        } else previous
+        if (migrate) {
+            persist()
+            check(prefs?.edit()?.putBoolean(CONTACT_FREEDOM_MIGRATION, true)?.commit() == true) {
+                "主动联系偏好迁移未保存"
+            }
+        }
     }
 
     fun get(characterId: String): ProactivePerceptionPolicy {
@@ -83,11 +98,12 @@ object ProactivePerceptionPolicyStore {
             )
         }
         return ProactivePerceptionPolicy(
-            enabled = legacy.enabled,
+            // An absent new policy is not an old butler-era veto.
+            enabled = true,
             adaptiveFrequency = legacy.adaptiveFrequency,
-            quietHoursEnabled = legacy.quietHoursEnabled,
+            quietHoursEnabled = false,
             rememberedAdaptiveFrequency = legacy.adaptiveFrequency,
-            rememberedQuietHoursEnabled = legacy.quietHoursEnabled,
+            rememberedQuietHoursEnabled = false,
             quietStartMinutesOfDay = legacy.quietStartHour * 60,
             quietEndMinutesOfDay = legacy.quietEndHour * 60,
         )
