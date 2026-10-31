@@ -73,7 +73,11 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                     val snapshot = currentRun()
                     if (snapshot.allies.none { it.id == id && it.hp > 0 }) continue
                     val message=unread.forRole(id).joinToString("\n")
-                    if (message.isBlank() && RelicActorPlay.acted(snapshot,id)) continue
+                    val urgentDown=snapshot.events.any {
+                        it.who=="player" && it.action=="down" && it.turn==snapshot.turns
+                    }
+                    if (message.isBlank() && RelicActorPlay.acted(snapshot,id) && !urgentDown)
+                        continue
                     val result = runCatching { RelicActorPlay.decide(snapshot,id,message) }
                         .getOrElse { if(it is CancellationException)throw it else Result.failure(it) }
                     coroutineContext.ensureActive()

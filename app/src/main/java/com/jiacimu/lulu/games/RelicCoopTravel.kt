@@ -17,7 +17,7 @@ internal object RelicCoopTravel {
                 RelicCoopPlan(j.getString("kind"),j.optInt("targetId",-1),
                     j.optInt("lastStepTurn",-1))
             }.getOrNull() ?:return@mapNotNull null
-            if(plan.kind !in setOf("support","regroup","chest") ||
+            if(plan.kind !in setOf("support","regroup","chest","rescue") ||
                 plan.lastStepTurn !in -1..s.turns ||
                 (plan.kind!="regroup" && plan.targetId<0))null
             else actor.id to plan
@@ -29,6 +29,7 @@ internal object RelicCoopTravel {
         "chest"->s.chests.firstOrNull { it.id==p.targetId && !it.opened &&
             it.id !in s.playerChestMarks }?.let { it.x to it.y }
         "regroup"->s.hero.takeIf { it.hp>0 }?.let { it.x to it.y }
+        "rescue"->s.hero.takeIf { it.hp<=0 }?.let { it.x to it.y }
         else->null
     }
     fun afterChoice(before:RelicRun,after:RelicRun,id:String,option:IslandActorOption):RelicRun {
@@ -39,6 +40,7 @@ internal object RelicCoopTravel {
                 it.x==option.x && it.y==option.y && !it.opened
             }?.let { RelicCoopPlan("chest",it.id,after.turns) }
             "regroup"->RelicCoopPlan("regroup",lastStepTurn=after.turns)
+            "rush_rescue"->RelicCoopPlan("rescue",lastStepTurn=after.turns)
             "none","reserve"->return after
             else->null
         }
@@ -69,6 +71,12 @@ internal object RelicCoopTravel {
                 } ?:return null
                 RelicCoopPlan("support",enemy.id,s.turns)
             }
+            "plan_rescue" -> {
+                if(parts.size!=1 || actor.kits<=0 || s.hero.hp>0 ||
+                    RelicEscapeRules.distance(actor.x,actor.y,s.hero.x,s.hero.y)<=1)
+                    return null
+                RelicCoopPlan("rescue",lastStepTurn=s.turns)
+            }
             "plan_chest" -> {
                 if(parts.size!=2)return null
                 val chest=parts[1].toIntOrNull()?.let { key ->
@@ -83,7 +91,8 @@ internal object RelicCoopTravel {
         if(existing!=null && existing.kind==plan.kind && existing.targetId==plan.targetId)
             return null
         val label=when(plan.kind) {
-            "support"->"支援敌人";"chest"->"探查宝箱";else->"与你集合"
+            "support"->"支援战斗";"chest"->"探查宝箱"
+            "rescue"->"赶来救你";else->"与你集合"
         }
         return s.copy(coopPlans=s.coopPlans+(id to plan))
             .log(id,"travel","重新决定下一步目标："+label+
@@ -122,6 +131,13 @@ internal object RelicCoopTravel {
                 plan.lastStepTurn>=s.turns || RelicActorPlay.acted(s,id))continue
             val a=s.allies.firstOrNull { it.id==id && it.hp>0 }
             if(a==null) { s=s.copy(coopPlans=s.coopPlans-id);continue }
+            // Downing the player invalidates an old scavenging/combat route.
+            // Stop that physical continuation, but let the same actor choose rescue.
+            if(s.hero.hp<=0 && plan.kind!="rescue") {
+                s=s.copy(coopPlans=s.coopPlans-id)
+                    .log(id,"travel","玩家倒地，旧路线暂停，等待本人重新考虑救援")
+                continue
+            }
             val goal=target(s,plan)
             if(goal==null) {
                 s=s.copy(coopPlans=s.coopPlans-id)
@@ -157,7 +173,8 @@ internal object RelicCoopTravel {
                 (id to plan.copy(lastStepTurn=stepState.turns))
                 else stepState.coopPlans-id)
                 .log(id,"decision","沿自己决定的"+when(plan.kind) {
-                    "support"->"支援";"chest"->"找宝箱";else->"集合"
+                    "support"->"支援";"chest"->"找宝箱"
+                    "rescue"->"救援";else->"集合"
                 }+"目标前进一步，到("+actor.x+","+actor.y+")"+
                     if(hurt>0)"；碰到危险地形，受伤"+hurt else "")
         }
