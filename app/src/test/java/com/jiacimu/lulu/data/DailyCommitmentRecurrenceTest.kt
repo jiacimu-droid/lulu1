@@ -72,6 +72,40 @@ class DailyCommitmentRecurrenceTest {
         assertEquals(1, next.atZone(zone).dayOfMonth)
     }
 
+    @Test fun pendingReviewSurvivesMidnightAndCodecWithoutRollingToTomorrow() {
+        val now = at(2026, 11, 1, 0, 39)
+        val nightly = CommitmentTask(characterId = "role", goal = "每天23:30监督睡觉",
+            createdAt = at(2026, 10, 30, 20, 0),
+            dueAt = at(2026, 10, 31, 23, 30),
+            nextCheckAt = at(2026, 11, 1, 0, 45),
+            linkedAlarmId = "review-1", followUpKind = "verification",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            repeat = "daily", lastAlarmReceivedAt = at(2026, 10, 31, 23, 30))
+        assertTrue(nightly.hasPendingOutcomeReview(now))
+        assertFalse(nightly.hasPendingOutcomeReview(at(2026, 11, 1, 0, 46)))
+        val saved = decodeCommitmentTasks(encodeCommitmentTasks(listOf(nightly))).single()
+        assertTrue(saved.hasPendingOutcomeReview(now))
+        assertTrue(saved.visibleOnScheduleDate(
+            java.time.LocalDate.of(2026, 11, 1), shanghai, java.time.LocalDate.of(2026, 11, 1)))
+    }
+
+    @Test fun calendarKeepsDailyPastAttemptAndOverduePromiseVisible() {
+        val today = java.time.LocalDate.of(2026, 11, 1)
+        val yesterday = today.minusDays(1)
+        val rolled = CommitmentTask(characterId = "role", goal = "每天23:30监督睡觉",
+            createdAt = at(2026, 10, 29, 16, 0),
+            dueAt = at(2026, 11, 1, 23, 30), repeat = "daily",
+            status = CommitmentTaskStatus.Scheduled,
+            lastAlarmScheduledAt = at(2026, 10, 31, 23, 30))
+        assertTrue(rolled.visibleOnScheduleDate(yesterday, shanghai, today))
+        assertTrue(rolled.visibleOnScheduleDate(today, shanghai, today))
+        assertFalse(rolled.visibleOnScheduleDate(today.minusDays(5), shanghai, today))
+        val outstanding = rolled.copy(repeat = "once",
+            dueAt = at(2026, 10, 31, 23, 30), status = CommitmentTaskStatus.WaitingForFeedback)
+        assertTrue(outstanding.visibleOnScheduleDate(today, shanghai, today))
+        assertFalse(outstanding.visibleOnScheduleDate(today.plusDays(1), shanghai, today))
+    }
+
     @Test fun bedtimeSupervisionIsNotAnAlarmToWakeTheUser() {
         assertFalse(CommitmentTask(characterId = "role",
             goal = "每天晚上十一点半打电话叫我睡觉").isWakeResponsibility())

@@ -174,6 +174,7 @@ object CommitmentTaskStore {
     private fun restoreMissedDailyCalls(context: Context, now: Instant) {
         val overdue = mutableTasks.value.filter { task ->
             task.repeat == "daily" && task.dueAt != null &&
+                !task.hasPendingOutcomeReview(now) &&
                 task.status !in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.NeedsClarification) &&
                 !task.dueAt.isAfter(now.minusSeconds(120)) &&
                 (task.executionToken == null || inFlight[task.id] != task.executionToken)
@@ -309,7 +310,12 @@ object CommitmentTaskStore {
         taskId: String,
         executionToken: String?,
         now: Instant = Instant.now(),
+        outcomeReview: Boolean = false,
     ) {
+        // This callback belongs to the ongoing occurrence. Never replace its
+        // still-unverified outcome with tomorrow's clock before the role has
+        // evaluated the observation and chosen its next step.
+        if (outcomeReview) return
         val task = mutableTasks.value.firstOrNull { it.id == taskId } ?: return
         if (task.repeat != "daily" || task.executionToken == null ||
             task.executionToken != executionToken ||
@@ -318,9 +324,10 @@ object CommitmentTaskStore {
         val previousDue = task.dueAt ?: return
         // Keep the same task's one pending outcome-review callback before
         // moving a daily bedside promise to tomorrow. No second task/store.
-        if (task.followUpKind in setOf("verification", "retry") &&
-            task.status == CommitmentTaskStatus.WaitingForFeedback &&
-            task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true) return
+        if (task.hasPendingOutcomeReview(now) ||
+            (task.followUpKind == "retry" &&
+                task.status == CommitmentTaskStatus.WaitingForFeedback &&
+                task.linkedAlarmId != null && task.nextCheckAt?.isAfter(now) == true)) return
         val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
             ?: java.time.ZoneId.systemDefault()
         // Same anchor rule as the missed-call restore above.

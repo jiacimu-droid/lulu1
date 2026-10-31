@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.RoleDayPlan
 import com.jiacimu.lulu.data.CommitmentTask
+import com.jiacimu.lulu.data.visibleOnScheduleDate
 import com.jiacimu.lulu.data.RoleDayScheduleStore
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.isActive
@@ -71,17 +72,8 @@ fun ScheduleFeatureScreen(
     val promiseNotes by LuluRepositories.lexicon.observeEntries(selectedCharacterId, LexiconSection.Promise)
         .collectAsState(initial = emptyList())
     val tasks = commitments.filter { task ->
-        if (task.characterId != selectedCharacterId) false
-        else if (task.repeat == "daily" && task.dueAt != null && task.status.isActive()) {
-            // One repeating record, visible on each relevant day rather than
-            // creating a separate stored task for every date.
-            !selectedDate.isBefore(task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate()) &&
-                !selectedDate.isBefore(task.dueAt.atZone(ZoneId.systemDefault()).toLocalDate())
-        } else {
-            val targetDate = task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
-                ?: task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate()
-            targetDate == selectedDate
-        }
+        task.characterId == selectedCharacterId &&
+            task.visibleOnScheduleDate(selectedDate, ZoneId.systemDefault(), LocalDate.now())
     }
     val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
     val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&

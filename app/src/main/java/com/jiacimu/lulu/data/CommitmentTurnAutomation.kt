@@ -119,7 +119,9 @@ object CommitmentTurnAutomation {
         val changed = CommitmentDecisionRuntime.applyModelRecovery(
             context, characterId, sourceTurnId, evidenceIds, drafts,
         )
-        markProcessed(signature)
+        // Empty extraction is not proof that a spoken commitment was saved.
+        // Preserve the existing bounded recovery opportunity.
+        if (changed.isNotEmpty()) markProcessed(signature)
         changed.firstOrNull { it.isWakeResponsibility() } ?:
             CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
                 task.isWakeResponsibility() && evidenceIds.any(task.sourceEventIds::contains)

@@ -336,6 +336,11 @@ object ToolRouter {
                                         linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
                                     )
                                 }
+                                if (verified?.status == CommitmentTaskStatus.Completed && verified.repeat == "daily") {
+                                    // Tonight's confirmed outcome should restore tomorrow's daily clock.
+                                    CommitmentTaskStore.advanceDailyAfterAttempt(
+                                        context, verified.id, verified.executionToken)
+                                }
                                 JSONObject().put("success", verified?.status == CommitmentTaskStatus.Completed)
                                     .put("taskId", task.id)
                                     .put("evidenceIds", org.json.JSONArray(proof.evidenceIds))

@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.UUID
 
 data class CommitmentTask(
@@ -59,6 +61,27 @@ internal fun CommitmentTask.readableLastResult(): String = lastActionResult
 
 internal fun CommitmentTask.isOutcomeReview(): Boolean =
     followUpKind == "verification"
+
+/** A queued outcome review still owns tonight's occurrence across midnight. */
+internal fun CommitmentTask.hasPendingOutcomeReview(now: Instant): Boolean =
+    status == CommitmentTaskStatus.WaitingForFeedback &&
+        followUpKind == "verification" && linkedAlarmId != null &&
+        nextCheckAt?.isAfter(now) == true
+
+/** Calendar projection keeps past unverified duties visible without duplicating them. */
+internal fun CommitmentTask.visibleOnScheduleDate(
+    date: LocalDate, zone: ZoneId, today: LocalDate,
+): Boolean {
+    val scheduledDate = (dueAt ?: createdAt).atZone(zone).toLocalDate()
+    if (repeat == "daily" && dueAt != null && status.isActive()) {
+        if (date.isBefore(createdAt.atZone(zone).toLocalDate())) return false
+        return !date.isBefore(scheduledDate) ||
+            lastAlarmScheduledAt?.atZone(zone)?.toLocalDate() == date ||
+            lastAlarmReceivedAt?.atZone(zone)?.toLocalDate() == date
+    }
+    if (date == scheduledDate) return true
+    return date == today && dueAt != null && scheduledDate.isBefore(today) && status.isActive()
+}
 
 /** An undated responsibility still needs a model-owned next-step review.
  * NeedsClarification is not permission to assume the missing user condition,

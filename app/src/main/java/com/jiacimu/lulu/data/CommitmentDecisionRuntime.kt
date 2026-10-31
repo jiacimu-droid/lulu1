@@ -105,6 +105,14 @@ internal object CommitmentDecisionRuntime {
                 it.id in completed && it.status == CommitmentTaskStatus.Completed &&
                     before[it.id]?.status != CommitmentTaskStatus.Completed && it.isWakeResponsibility()
             }) WakeMusicCoordinator.onModelConfirmedWake(context, characterId)
+        // Once the model verifies a nightly occurrence, keep the original
+        // recurring promise alive without adding another independent task.
+        CommitmentTaskStore.snapshot(characterId).filter { task ->
+            task.id in completed && task.repeat == "daily" &&
+                task.status == CommitmentTaskStatus.Completed
+        }.forEach { task ->
+            CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken)
+        }
         val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id]?.revision != it.revision }
         scheduleUndatedFollowThroughIfNeeded(context, characterId, changed)
         if (evidenceIds.isNotEmpty()) {

@@ -14,6 +14,7 @@ import com.jiacimu.lulu.data.CommitmentExecutor
 import com.jiacimu.lulu.data.CommitmentTask
 import com.jiacimu.lulu.data.CommitmentTaskStatus
 import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.isOutcomeReview
 import com.jiacimu.lulu.data.ProactiveIncomingCallStore
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
@@ -121,7 +122,8 @@ internal object CommitmentAlarmDelivery {
         } finally {
             // Roll a recurring task after its real, uniquely claimed attempt.
             // It remains one record and must not leave today's retry alarm armed.
-            CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken)
+            CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken,
+                outcomeReview = task.isOutcomeReview())
             CommitmentTaskStore.finishAlarmExecution(task.id, task.executionToken)
         }
     }
