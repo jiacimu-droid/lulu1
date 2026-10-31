@@ -80,7 +80,8 @@ internal object RelicCoopTravel {
             else -> return null
         }
         val existing=s.coopPlans[id]
-        if(existing?.kind==plan.kind && existing.targetId==plan.targetId)return null
+        if(existing!=null && existing.kind==plan.kind && existing.targetId==plan.targetId)
+            return null
         val label=when(plan.kind) {
             "support"->"支援敌人";"chest"->"探查宝箱";else->"与你集合"
         }

@@ -86,6 +86,40 @@ class CoopRouteContinuationTest {
         assertEquals(5,later.allies.first().x)
     }
 
+    @Test fun companionCanSwitchFromCombatToRegroupAfterItAlreadyMoved() {
+        val base=relic().copy(mobs=listOf(RelicMob(9,9,2,7,0)))
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("support:9","我先去打怪"))!!
+        val before=started.allies.first()
+        assertTrue(RelicActorPlay.acted(started,"alice"))
+        assertTrue(RelicActorPlay.options(started,"alice").any { it.id=="plan_regroup" })
+        val switched=RelicActorPlay.apply(started,"alice",
+            IslandActorChoice("plan_regroup","那我回来找你"))!!
+        assertEquals("regroup",switched.coopPlans["alice"]?.kind)
+        assertEquals(before,switched.allies.first())
+        assertEquals(started.turns,switched.turns)
+        val next=nextRelic(switched)
+        assertEquals(1,RelicEscapeRules.distance(
+            before.x,before.y,next.allies.first().x,next.allies.first().y))
+        assertTrue(RelicEscapeRules.distance(next.allies.first().x,next.allies.first().y,
+            next.hero.x,next.hero.y) <
+            RelicEscapeRules.distance(before.x,before.y,next.hero.x,next.hero.y))
+    }
+
+    @Test fun midTurnRedirectionToChestDoesNotDuplicatePhysicalMove() {
+        val base=relic().copy(mobs=listOf(RelicMob(9,8,2,7,0)),
+            chests=listOf(RelicChest(2,9,4,RelicTier.RARE)))
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("support:9","我先去帮忙"))!!
+        val originalPosition=started.allies.first()
+        val redirect=RelicActorPlay.apply(started,"alice",
+            IslandActorChoice("plan_chest:2","先去看看那个宝箱"))!!
+        assertEquals(originalPosition,redirect.allies.first())
+        assertEquals(started.turns,redirect.turns)
+        assertEquals("chest",redirect.coopPlans["alice"]?.kind)
+        assertEquals(2,redirect.coopPlans["alice"]?.targetId)
+    }
+
     @Test fun oldRelicSaveAndInvalidPlansRestoreWithoutASecondWorld() {
         val base=relic()
         val raw=JSONObject(base.json().toString())
@@ -126,6 +160,25 @@ class CoopRouteContinuationTest {
             moved.world.friends.first().x)+kotlin.math.abs(started.world.friends.first().y-
             moved.world.friends.first().y))
         assertEquals(7,moved.world.y)
+    }
+
+    @Test fun islandCanSwitchToRegroupAfterAlreadyStartingCombatRoute() {
+        val b=island()
+        val mob=BlockIslandRules.newWorld(27,listOf("alice")).world.mobs.first()
+        val s=b.copy(world=b.world.copy(mobs=listOf(mob.copy(id=91,x=17,y=5))))
+        val started=IslandActorPlay.apply(s,"alice",s.world.turns,
+            IslandActorChoice("approach:17:5","我去打怪"))!!
+        val before=started.world.friends.first()
+        assertTrue(IslandActorPlay.options(started,"alice",false)
+            .any { it.id=="plan_regroup" })
+        val changed=IslandActorPlay.apply(started,"alice",started.world.turns,
+            IslandActorChoice("plan_regroup","等等，我先回你身边"))!!
+        assertEquals(-2,changed.companionTravel["alice"]?.targetMobId)
+        assertEquals(before,changed.world.friends.first())
+        assertEquals(started.world.turns,changed.world.turns)
+        val moved=nextIsland(changed)
+        assertEquals(1,kotlin.math.abs(before.x-moved.world.friends.first().x)+
+            kotlin.math.abs(before.y-moved.world.friends.first().y))
     }
 
     @Test fun islandChaseDoesNotDropGoalWhenOriginalMonsterWalks() {
