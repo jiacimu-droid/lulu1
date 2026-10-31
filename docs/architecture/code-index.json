@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:50:31.489468+00:00",
-  "commit": "36220cb205e41f659ca0b5707991742223db5ab5",
+  "generatedAt": "2026-10-31T16:51:38.090927+00:00",
+  "commit": "81f90a27db24624aa3123f9b9a460412b46d31c1",
   "branch": "main",
-  "sourceFingerprint": "64aca60ba468730fd53e133231c8aa6a292448bfa28d002f3aad319678c750f8",
+  "sourceFingerprint": "5a0f66737e9d9321d6b73d651e9583ed9c9c4c321894cd28262b3ee706e65084",
   "summary": {
     "files": 1134,
-    "lines": 233418,
+    "lines": 233472,
     "symbols": 3303
   },
   "symbolIndex": {
@@ -233,7 +233,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 91
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -4661,7 +4661,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 115
+        "line": 116
       }
     ],
     "watchedThrough": [
@@ -13715,7 +13715,7 @@
     "moveStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 98
+        "line": 99
       }
     ],
     "syncExperiences": [
@@ -32512,8 +32512,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 166,
-      "sha256": "dd2434628b63b1ee22462633af045da8a0fd53866e0ca972104d2a60aa9c9a04",
+      "lines": 167,
+      "sha256": "43592a291fff7669b4da4a9734fb30e9e811cc8f1f25a110705d61e0b264aa06",
       "symbols": [
         {
           "name": "json",
@@ -32537,15 +32537,15 @@
         },
         {
           "name": "cancel",
-          "line": 91
+          "line": 92
         },
         {
           "name": "moveStep",
-          "line": 98
+          "line": 99
         },
         {
           "name": "advance",
-          "line": 115
+          "line": 116
         }
       ]
     },
@@ -38949,8 +38949,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt",
-      "lines": 149,
-      "sha256": "794d5aedad262f06bb892ab840c28937ca76d311db0476ca4dec3d20eefeb97f",
+      "lines": 202,
+      "sha256": "187baeb55c6914e4fc0751834903e1807efb9cb9fcaec576a6f820b865c8480c",
       "symbols": [
         {
           "name": "CoopRouteContinuationTest",
