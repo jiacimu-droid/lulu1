@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T13:08:04.428586+00:00",
-  "commit": "8d6f0d498855afef4a47b6c55a69539b6a9646bc",
+  "generatedAt": "2026-10-31T13:08:48.561683+00:00",
+  "commit": "14255dd499800d11fbd41999116c78f23ee3453e",
   "branch": "main",
-  "sourceFingerprint": "e8683edd71f9e6b5880da137b531c2e8b9dec72de749ae7591a4210f212407ec",
+  "sourceFingerprint": "2bc8b8609da8be0f8d470704fe379877d1a92f949faf4a90f880f290be211802",
   "summary": {
     "files": 1124,
-    "lines": 231612,
+    "lines": 231652,
     "symbols": 3269
   },
   "symbolIndex": {
@@ -461,7 +461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1127
+        "line": 1129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1195,7 +1195,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 357
+        "line": 359
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -6625,7 +6625,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1087
+        "line": 1089
       }
     ],
     "cue": [
@@ -6767,31 +6767,31 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 367
+        "line": 369
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 368
+        "line": 370
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 370
+        "line": 372
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 546
+        "line": 548
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1058
+        "line": 1060
       }
     ],
     "current": [
@@ -24367,8 +24367,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1176,
-      "sha256": "e713f4b1b0bdb8dbc6cb2a0fdad9a254be6c7cc2242aad4977ea185476b927c8",
+      "lines": 1178,
+      "sha256": "db6669d739e46d627153caa2945551e3070a6eded2961ad8cee1040be781e966",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -24376,35 +24376,35 @@
         },
         {
           "name": "state",
-          "line": 357
+          "line": 359
         },
         {
           "name": "bodyStorageReady",
-          "line": 367
+          "line": 369
         },
         {
           "name": "bodyState",
-          "line": 368
-        },
-        {
-          "name": "lastBodyChange",
           "line": 370
         },
         {
+          "name": "lastBodyChange",
+          "line": 372
+        },
+        {
           "name": "afterglowContext",
-          "line": 546
+          "line": 548
         },
         {
           "name": "profileContext",
-          "line": 1058
+          "line": 1060
         },
         {
           "name": "compactContext",
-          "line": 1087
+          "line": 1089
         },
         {
           "name": "context",
-          "line": 1127
+          "line": 1129
         }
       ]
     },
@@ -24784,8 +24784,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 456,
-      "sha256": "9c7dbb0c206c440b1d6323f4eed16faaf9343fbd53f1299cae4d0fa1e9c95312",
+      "lines": 483,
+      "sha256": "888fdc85e9a9d658d76eb94dfd09d371e81993884af877e2ba8dd15dc7dc3360",
       "symbols": [
         {
           "name": "groupedFields",
@@ -35567,8 +35567,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 510,
-      "sha256": "4c5212d64d3ed3562776c8380b12f6fc225abd94f6b47b0454356453d4346ae9",
+      "lines": 521,
+      "sha256": "320f4781ce60845ce1f4ad2eee575898d5102da50b1620af24f928cd2d2e4be0",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
