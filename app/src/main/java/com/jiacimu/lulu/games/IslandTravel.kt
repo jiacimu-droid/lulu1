@@ -30,7 +30,7 @@ internal object IslandTravel {
             }.getOrNull() ?: continue
             // A bad optional movement instruction must not erase the actual island save.
             if (world.inBounds(plan.x,plan.y) && plan.targetTile in 0..8 &&
-                plan.targetMobId >= -1 && plan.selectedTurn in 0..world.turns &&
+                plan.targetMobId >= -2 && plan.selectedTurn in 0..world.turns &&
                 plan.lastStepTurn in plan.selectedTurn..world.turns)
                 restored[id] = plan
         }
@@ -40,12 +40,18 @@ internal object IslandTravel {
     fun afterChoice(s: BlockIslandState, next: BlockIslandState, id: String,
                     option: IslandActorOption): Map<String,IslandTravelPlan> {
         if (option.kind == "none") return next.companionTravel
-        if (option.kind != "approach") return next.companionTravel - id
-        val a = next.world.friends.first { it.id == id }
-        if (abs(a.x-option.x)+abs(a.y-option.y) <= 1) return next.companionTravel - id
-        val mob = s.world.mobs.firstOrNull { it.hp > 0 && it.x == option.x && it.y == option.y }
-        return next.companionTravel + (id to IslandTravelPlan(option.x,option.y,
-            s.world.cell(option.x,option.y),mob?.id ?: -1,s.world.turns,next.world.turns))
+        if (option.kind !in setOf("approach","regroup")) return next.companionTravel - id
+        val a=next.world.friends.first { it.id==id }
+        val (tx,ty)=if(option.kind=="regroup")next.world.x to next.world.y
+            else option.x to option.y
+        if(abs(a.x-tx)+abs(a.y-ty)<=1)return next.companionTravel-id
+        val mob=if(option.kind=="regroup")null else s.world.mobs.firstOrNull {
+            it.hp>0 && it.x==tx && it.y==ty
+        }
+        return next.companionTravel+(id to IslandTravelPlan(tx,ty,
+            s.world.cell(tx,ty),
+            if(option.kind=="regroup")-2 else mob?.id ?: -1,
+            s.world.turns,next.world.turns))
     }
 
     fun cancel(s: BlockIslandState, id: String, speech: String = ""): BlockIslandState? {
@@ -81,25 +87,34 @@ internal object IslandTravel {
             }
             if (plan.lastStepTurn >= w.turns ||
                 w.events.any { it.startsWith(IslandActorPlay.eventPrefix(id,w.turns)) }) continue
-            val targetExists = if (plan.targetMobId >= 0)
-                w.mobs.any { it.id == plan.targetMobId && it.hp > 0 && it.x == plan.x && it.y == plan.y }
-                else w.cell(plan.x,plan.y) == plan.targetTile
+            val enemy=if(plan.targetMobId>=0)
+                w.mobs.firstOrNull { it.id==plan.targetMobId && it.hp>0 } else null
+            val (tx,ty)=when {
+                plan.targetMobId==-2 -> w.x to w.y
+                enemy!=null -> enemy.x to enemy.y
+                else -> plan.x to plan.y
+            }
+            val targetExists=when {
+                plan.targetMobId==-2 -> w.hp>0
+                plan.targetMobId>=0 -> enemy!=null
+                else -> w.cell(plan.x,plan.y)==plan.targetTile
+            }
             if (!targetExists) {
                 next = finish(next,id,"原目标已改变，行程停止")
                 continue
             }
-            if (abs(actor.x-plan.x)+abs(actor.y-plan.y) <= 1) {
+            if (abs(actor.x-tx)+abs(actor.y-ty) <= 1) {
                 next = finish(next,id,"已抵达原目标旁边")
                 continue
             }
-            val step = BlockIslandRules.nextStep(next,actor.x,actor.y,plan.x,plan.y)
+            val step = BlockIslandRules.nextStep(next,actor.x,actor.y,tx,ty)
             if (step == null) {
                 next = finish(next,id,"通路受阻，未能抵达")
                 continue
             }
-            val arrived = abs(step.first-plan.x)+abs(step.second-plan.y) <= 1
+            val arrived = abs(step.first-tx)+abs(step.second-ty) <= 1
             val event = IslandActorPlay.eventPrefix(id,w.turns) +
-                "沿自己选定的路线前往(${plan.x},${plan.y})，走到(${step.first},${step.second})" +
+                "沿自己选定的路线前往("+tx+","+ty+")，走到(${step.first},${step.second})" +
                 if (arrived) "；已到达目标旁边" else ""
             next = next.copy(world=w.copy(friends=w.friends.map {
                 if (it.id == id) it.copy(x=step.first,y=step.second) else it

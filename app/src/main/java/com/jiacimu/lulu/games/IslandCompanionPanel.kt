@@ -199,7 +199,9 @@ internal fun IslandCompanionPanel(
                     val travel=island.companionTravel[friend.id]
                     AssistChip(onClick={currentPing((travel?.x ?: friend.x) to (travel?.y ?: friend.y))},
                         label={ Text(name+" · "+friend.hp+"❤"+
-                            (travel?.let { " → (${it.x},${it.y})" } ?: ""),fontSize=11.sp) },
+                            (travel?.let { if(it.targetMobId==-2)" · 来找你"
+                                else if(it.targetMobId>=0)" · 追怪中"
+                                else " → ("+it.x+","+it.y+")" } ?: ""),fontSize=11.sp) },
                         colors=AssistChipDefaults.assistChipColors(containerColor=Color(0xFF254752),
                             labelColor=Color(0xFFD7F6E5)),
                         border=BorderStroke(1.dp,Color(0xFF46786E)))
