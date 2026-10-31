@@ -22,6 +22,7 @@ object CharacterLifeStore {
     // One-time bundled template, not a shadow personality store or a new shared character.
     internal const val BUNDLED_JIANG_DU_ID = "bundled-jiangdu"
     private const val BUNDLED_JIANG_DU_IMPORTED = "bundled_jiangdu_imported_v1"
+    private const val AUTONOMOUS_CONTACT_UNLOCKED = "owner_unlocked_bundled_contact_2026_10"
 
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
@@ -53,6 +54,27 @@ object CharacterLifeStore {
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
         syncBundledExpressionPresets()
+        unlockBundledAutonomousContactOnce()
+    }
+
+    /** The original 'lulu' butler contact retained disabled calls/quiet preferences
+     * even after becoming Xing He. Honor the owner's explicit request once,
+     * without rewriting other characters or undoing future UI choices. */
+    @Synchronized private fun unlockBundledAutonomousContactOnce() {
+        val preferences = prefs ?: return
+        if (preferences.getBoolean(AUTONOMOUS_CONTACT_UNLOCKED, false)) return
+        val characters = MigratedDomainStores.characters
+        listOf("lulu" to "星禾", BUNDLED_JIANG_DU_ID to "江渡").forEach { (id, expectedName) ->
+            val character = characters.settings.value[id] ?: return@forEach
+            if (character.displayName != expectedName) return@forEach
+            val policy = character.contactPolicy
+            characters.update(character.copy(contactPolicy = policy.copy(
+                enabled = true, quietHoursEnabled = false, proactiveCallsEnabled = true,
+            )))
+        }
+        check(preferences.edit().putBoolean(AUTONOMOUS_CONTACT_UNLOCKED, true).commit()) {
+            "角色主动联系授权迁移未保存"
+        }
     }
 
     /**

@@ -226,6 +226,11 @@ class BundledJiangDuImportTest {
             state.getJSONObject("profile").getString("speechHabits"))
         assertEquals("natural",
             state.getJSONObject("expressionPreferences").getString("kaomoji"))
+        assertTrue("主人已经允许星禾主动联系", friend.contactPolicy.enabled)
+        assertTrue("主人已经允许星禾主动来电", friend.contactPolicy.proactiveCallsEnabled)
+        assertFalse("旧露露的安静时间不应继续限制星禾", friend.contactPolicy.quietHoursEnabled)
+        val jiangContact = MigratedDomainStores.characters.get(CharacterLifeStore.BUNDLED_JIANG_DU_ID)
+        assertTrue(jiangContact.contactPolicy.proactiveCallsEnabled)
 
         CharacterLifeStore.setProfile("lulu", "speechHabits", "我自己改过的说话方式")
         CharacterLifeStore.initialize(context)
