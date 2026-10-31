@@ -11,7 +11,7 @@ class PositiveExpressionGuidanceTest {
         for (prompt in listOf(decision, renderer)) {
             assertTrue(prompt.contains("日常接话以有来有回为自然节奏"))
             assertTrue(prompt.contains("不替对方编造下一句话"))
-            assertTrue(prompt.contains("表达足够时"))
+            assertTrue(prompt.contains("表达已经足够时"))
             assertTrue(prompt.contains("交还话轮"))
             assertTrue(prompt.contains("分泡本身不会减少内容"))
             assertTrue(prompt.contains("复杂问题、多项需求"))
