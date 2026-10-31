@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T15:49:42.888137+00:00",
-  "commit": "1293842c4ee99312d931af9f81e62e46ee146623",
+  "generatedAt": "2026-10-31T15:51:25.954447+00:00",
+  "commit": "f89d2aa55343b5e69671d1589c2d43d2972746ea",
   "branch": "main",
-  "sourceFingerprint": "363d9c39607358e98ab99aa4fb714aa0892c5a17727e1a0373d1952ac8bf3301",
+  "sourceFingerprint": "7da7b3304588d5db5c137c9bd952c8b2af8a094cebeebb1cf2af5d5bf2a979a9",
   "summary": {
     "files": 1128,
-    "lines": 232050,
+    "lines": 232051,
     "symbols": 3276
   },
   "symbolIndex": {
@@ -12967,7 +12967,7 @@
     "canBuild": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 197
+        "line": 198
       }
     ],
     "canPlantAt": [
@@ -13009,19 +13009,19 @@
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 551
+        "line": 552
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 557
+        "line": 558
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 595
+        "line": 596
       }
     ],
     "perform": [
@@ -31440,8 +31440,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 602,
-      "sha256": "0c5ae2f0714d998d0ad218b0d76225057cf97c0633f7c8f1706aa7927d4ababc",
+      "lines": 603,
+      "sha256": "e3f137bb417bba20edda2157a388a1f89a38731537deb91ebd44f4f712cdbd74",
       "symbols": [
         {
           "name": "toJson",
@@ -31477,7 +31477,7 @@
         },
         {
           "name": "canBuild",
-          "line": 197
+          "line": 198
         },
         {
           "name": "canPlantAt",
@@ -31501,22 +31501,22 @@
         },
         {
           "name": "nextStep",
-          "line": 551
+          "line": 552
         },
         {
           "name": "occupiedByOther",
-          "line": 557
+          "line": 558
         },
         {
           "name": "actionName",
-          "line": 595
+          "line": 596
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
       "lines": 604,
-      "sha256": "35a2c55195ffcee1ee0811762a3c39d30b6a12bc9a2a9fc94674aa6e24dbe33f",
+      "sha256": "c092c833313593cf82fdcdf0439a49a06bd3bdc9afdbf1224d31a544f2e89b53",
       "symbols": [
         {
           "name": "save",
@@ -31987,7 +31987,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt",
       "lines": 35,
-      "sha256": "36fd4a0d561396c656aa96a405d5ce353281b136f6dec939e6edd0842098d69a",
+      "sha256": "9f6f22feec58591da567977082f50d3603af43b94afb27858f540f280b07a4e0",
       "symbols": []
     },
     {
