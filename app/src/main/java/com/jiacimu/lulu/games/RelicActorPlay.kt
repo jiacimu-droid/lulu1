@@ -33,12 +33,6 @@ internal object RelicActorPlay {
             result += IslandActorOption("guard_player","主动保护玩家；遇到守卫攻击时自己承担1点伤害，为玩家抵消伤害","guard_player")
         if (RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y) in 3..9) {
             val step=RelicEscapeRules.path(s,a.x,a.y,s.hero.x,s.hero.y)
-            if(step!=null && s.walk(step.first,step.second) &&
-                s.hero.x!=step.first || false) {
-                if(step!=null && s.hero.x!=step.first || false) {
-                    // No target is selected by the executor; the actor chooses regroup.
-                }
-            }
             if(step!=null && !(step.first==s.hero.x && step.second==s.hero.y) &&
                 s.mobs.none { it.hp>0 && it.x==step.first && it.y==step.second } &&
                 s.allies.none { it.id!=id && it.hp>0 &&
@@ -130,7 +124,9 @@ internal object RelicActorPlay {
                     s.mobs.any { it.hp>0 && it.x==step.first && it.y==step.second } ||
                     s.allies.any { it.id!=id && it.hp>0 &&
                         it.x==step.first && it.y==step.second })return null
-                actor=a.copy(x=step.first,y=step.second)
+                val moved=RelicCoopTravel.moveStep(s,id,step.first,step.second) ?:return null
+                next=moved
+                actor=moved.allies.first { it.id==id }
                 "自己走向玩家，前进一步到("+step.first+","+step.second+")"
             }
             "approach_chest" -> {
@@ -141,7 +137,9 @@ internal object RelicActorPlay {
                     s.mobs.any { it.hp>0 && it.x==step.first && it.y==step.second } ||
                     s.allies.any { it.id!=id && it.hp>0 &&
                         it.x==step.first && it.y==step.second })return null
-                actor=a.copy(x=step.first,y=step.second)
+                val moved=RelicCoopTravel.moveStep(s,id,step.first,step.second) ?:return null
+                next=moved
+                actor=moved.allies.first { it.id==id }
                 "自己选择去找宝箱，前进到("+step.first+","+step.second+")"
             }
             "support" -> {
@@ -151,17 +149,19 @@ internal object RelicActorPlay {
                 if(s.mobs.any { it.hp>0 && it.x==step.first && it.y==step.second } ||
                     s.allies.any { it.id!=id && it.hp>0 && it.x==step.first && it.y==step.second } ||
                     s.hero.x==step.first && s.hero.y==step.second)return null
-                actor=a.copy(x=step.first,y=step.second)
+                val moved=RelicCoopTravel.moveStep(s,id,step.first,step.second) ?:return null
+                next=moved
+                actor=moved.allies.first { it.id==id }
                 "主动去支援围攻"+RelicArsenal.monsterName(enemy.kind)+
                     "，前进到("+step.first+","+step.second+")"
             }
             "move" -> {
-                val trap = s.sites.firstOrNull { !it.spent && it.kind == "trap" && it.x == option.x && it.y == option.y }
-                val damage = (if (s.tile(option.x,option.y) == 2) 1 else 0) + (if (trap != null) 2 else 0)
-                actor = a.copy(x=option.x,y=option.y,hp=(a.hp-damage).coerceAtLeast(0),
-                    downs=a.downs + if (a.hp <= damage) 1 else 0)
-                if (trap != null) next = next.copy(sites=next.sites.map { if (it.id == trap.id) it.copy(spent=true) else it })
-                "前进到(${option.x},${option.y})" + if (damage > 0) "，地形伤害$damage" else ""
+                val moved=RelicCoopTravel.moveStep(s,id,option.x,option.y) ?:return null
+                actor=moved.allies.first { it.id==id }
+                next=moved
+                val damage=(a.hp-actor.hp).coerceAtLeast(0)
+                "前进到("+option.x+","+option.y+")"+
+                    if(damage>0)"，地形伤害"+damage else ""
             }
             "attack" -> {
                 next = s.copy(mobs=s.mobs.map { if (it.hp > 0 && it.x == option.x && it.y == option.y)

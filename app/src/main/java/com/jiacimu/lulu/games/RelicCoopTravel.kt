@@ -55,6 +55,23 @@ internal object RelicCoopTravel {
             "停止自己选定的合作行程"+
                 if(speech.isEmpty())"" else "；他说：「"+speech+"」")
     }
+    /** One authoritative movement check for AI actor steps and continued routes. */
+    fun moveStep(s:RelicRun,id:String,x:Int,y:Int):RelicRun? {
+        val a=s.allies.firstOrNull { it.id==id && it.hp>0 } ?:return null
+        if(!s.bounds(x,y) || !s.walk(x,y) ||
+            RelicEscapeRules.distance(a.x,a.y,x,y)!=1 ||
+            s.hero.x==x && s.hero.y==y ||
+            s.allies.any { it.id!=id && it.hp>0 && it.x==x && it.y==y } ||
+            s.mobs.any { it.hp>0 && it.x==x && it.y==y })return null
+        val trap=s.sites.firstOrNull { it.kind=="trap" && !it.spent && it.x==x && it.y==y }
+        val damage=(if(s.tile(x,y)==2)1 else 0)+(if(trap!=null)2 else 0)
+        return s.copy(allies=s.allies.map { if(it.id==id)it.copy(x=x,y=y,
+            hp=(it.hp-damage).coerceAtLeast(0),
+            downs=it.downs+if(it.hp>0 && it.hp<=damage)1 else 0)else it },
+            sites=if(trap==null)s.sites else s.sites.map {
+                if(it.id==trap.id)it.copy(spent=true)else it
+            })
+    }
     /** Advance once using the actual board, not a free teleport or new AI decision. */
     fun advance(original:RelicRun,autonomousIds:Set<String>):RelicRun {
         var s=original
@@ -86,25 +103,23 @@ internal object RelicCoopTravel {
                     .log(id,"travel","路线受阻，停止原行程等待本人调整")
                 continue
             }
-            val trap=s.sites.firstOrNull { it.kind=="trap" && !it.spent &&
-                it.x==step.first && it.y==step.second }
-            val damage=(if(s.tile(step.first,step.second)==2)1 else 0)+
-                (if(trap!=null)2 else 0)
-            val actor=a.copy(x=step.first,y=step.second,
-                hp=(a.hp-damage).coerceAtLeast(0),
-                downs=a.downs+if(a.hp>0 && a.hp<=damage)1 else 0)
+            val stepState=moveStep(s,id,step.first,step.second)
+            if(stepState==null) {
+                s=s.copy(coopPlans=s.coopPlans-id)
+                    .log(id,"travel","路线不可通行，停止旧目标等待本人重新决定")
+                continue
+            }
+            val actor=stepState.allies.first { it.id==id }
+            val hurt=(a.hp-actor.hp).coerceAtLeast(0)
             val remaining=RelicEscapeRules.distance(actor.x,actor.y,
                 goal.first,goal.second)>1 && actor.hp>0
-            s=s.copy(allies=s.allies.map { if(it.id==id)actor else it },
-                sites=if(trap==null)s.sites else s.sites.map {
-                    if(it.id==trap.id)it.copy(spent=true)else it
-                },
-                coopPlans=if(remaining)s.coopPlans+(id to plan.copy(lastStepTurn=s.turns))
-                    else s.coopPlans-id)
+            s=stepState.copy(coopPlans=if(remaining)stepState.coopPlans+
+                (id to plan.copy(lastStepTurn=stepState.turns))
+                else stepState.coopPlans-id)
                 .log(id,"decision","沿自己决定的"+when(plan.kind) {
                     "support"->"支援";"chest"->"找宝箱";else->"集合"
                 }+"目标前进一步，到("+actor.x+","+actor.y+")"+
-                    if(damage>0)"；踩到危险地形，受伤"+damage else "")
+                    if(hurt>0)"；碰到危险地形，受伤"+hurt else "")
         }
         return s
     }
