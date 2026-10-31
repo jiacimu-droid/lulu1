@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:31:08.600461+00:00",
-  "commit": "1829c0f7a65d50f423ce4d3322c07fa8e781b786",
+  "generatedAt": "2026-10-31T16:32:22.950530+00:00",
+  "commit": "19fbbdfdd97cc2018ec82a8ab3200c66a03a27b8",
   "branch": "main",
-  "sourceFingerprint": "500015742c5fcf45bcf23e7ef03a809bd1fad5de591257fe273e873d36ab43f7",
+  "sourceFingerprint": "6b4ce65757c3f67f6386983406b7a4bdec6dfce8d9fa1a66bdc1c718058be4c7",
   "summary": {
-    "files": 1131,
-    "lines": 232810,
-    "symbols": 3292
+    "files": 1132,
+    "lines": 232946,
+    "symbols": 3293
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18201,6 +18201,12 @@
     "BlockIslandRulesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
+        "line": 12
+      }
+    ],
+    "CompanionCoopCombatTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt",
         "line": 12
       }
     ],
@@ -38837,6 +38843,17 @@
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt",
+      "lines": 136,
+      "sha256": "2e512f0b0b8c0e82283efa15e7b8670eb7b813973fbb62197cfc045e0aec9093",
+      "symbols": [
+        {
+          "name": "CompanionCoopCombatTest",
           "line": 12
         }
       ]
