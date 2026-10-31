@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:58:38.737816+00:00",
-  "commit": "8099afed6fae3c1033840010e0775067a8fd91b9",
+  "generatedAt": "2026-10-31T16:59:22.806299+00:00",
+  "commit": "3246324ae192b8e7aece5f80057e0a196c702fe4",
   "branch": "main",
-  "sourceFingerprint": "39a32a4906b192e82ffb1469f1218177983173e73ac5dba9e5e37c250b6c2ec8",
+  "sourceFingerprint": "21c6874213f7de16a41ad19b01a66a30a46f5573c54ee1ebea602e58707d620e",
   "summary": {
     "files": 1134,
     "lines": 233686,
@@ -38950,7 +38950,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt",
       "lines": 269,
-      "sha256": "ff463f621226554317469155d3364b0b34b7b68eeea080514d9b22ad30882a08",
+      "sha256": "4c480f1e9687713d41404c50cb03010f96921aadeecdc9905dcb347426f922be",
       "symbols": [
         {
           "name": "CoopRouteContinuationTest",
