@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:47:03.922698+00:00",
-  "commit": "d06a2c9510e5478f6b329a3c9627a7f9d3d9d3bc",
+  "generatedAt": "2026-10-31T16:48:37.424923+00:00",
+  "commit": "17ad5b20aec0f875e368c602b77cc055b4366224",
   "branch": "main",
-  "sourceFingerprint": "4c1596ff5d416ef364abf1629dc7502d9125818c1ed6601663cbb2a8d989dc65",
+  "sourceFingerprint": "8885935713d5b0c9b46ffdd61fa2bd8fe4eb70f6380ac3438b8f2a781c92b7b3",
   "summary": {
-    "files": 1133,
-    "lines": 233172,
-    "symbols": 3300
+    "files": 1134,
+    "lines": 233321,
+    "symbols": 3301
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18240,6 +18240,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt",
         "line": 12
+      }
+    ],
+    "CoopRouteContinuationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt",
+        "line": 13
       }
     ],
     "ExpeditionRulesTest": [
@@ -38922,6 +38928,17 @@
         {
           "name": "CompanionCoopCombatTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt",
+      "lines": 149,
+      "sha256": "794d5aedad262f06bb892ab840c28937ca76d311db0476ca4dec3d20eefeb97f",
+      "symbols": [
+        {
+          "name": "CoopRouteContinuationTest",
+          "line": 13
         }
       ]
     },
