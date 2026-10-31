@@ -88,15 +88,17 @@ object CharacterLifeStore {
             var updated = false
             val existingExamples = profile.optString("dialogueExamples")
             if (!profile.has("dialogueExamples") ||
-                (id == "lulu" && existingExamples == CharacterProfileSchema.xingHeDialogueExamplesV1)) {
+                (id == "lulu" && existingExamples in setOf(
+                    CharacterProfileSchema.xingHeDialogueExamplesV1,
+                    CharacterProfileSchema.xingHeDialogueExamplesV2))) {
                 profile.put("dialogueExamples", examples)
                 updated = true
             }
-            if (id == "lulu" &&
-                profile.optString("speechHabits") == CharacterProfileSchema.xingHeSpeechHabitsV6) {
-                // Only the exact bundled former style gets the livelier wording.
-                // Explicitly customized or emptied speech habits are untouched.
-                profile.put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV7)
+            if (id == "lulu" && profile.optString("speechHabits") in setOf(
+                    CharacterProfileSchema.xingHeSpeechHabitsV6,
+                    CharacterProfileSchema.xingHeSpeechHabitsV7)) {
+                // Old program-authored defaults only. Never overwrite personal edits.
+                profile.put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV8)
                 updated = true
             }
             if (updated) {

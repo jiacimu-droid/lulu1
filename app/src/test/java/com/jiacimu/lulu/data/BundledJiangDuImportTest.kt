@@ -97,12 +97,23 @@ class BundledJiangDuImportTest {
             val upgraded = CharacterLifeStore.state(xingId).getJSONObject("profile")
             assertEquals(CharacterProfileSchema.xingHeDialogueExamples,
                 upgraded.getString("dialogueExamples"))
-            assertEquals(CharacterProfileSchema.xingHeSpeechHabitsV7,
+            assertEquals(CharacterProfileSchema.xingHeSpeechHabitsV8,
                 upgraded.getString("speechHabits"))
             assertTrue(upgraded.getString("dialogueExamples").contains("星禾："))
             assertFalse(CharacterLifeStore.profileContext(xingId)
                 .contains("星禾：啊啊啊"))
             assertEquals(jiangBefore.toString(), CharacterLifeStore.state(jiangId).toString())
+
+            // Already-installed v7/V2 bundled defaults must upgrade as well.
+            val shipped = JSONObject(before.toString())
+            shipped.getJSONObject("profile")
+                .put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV7)
+                .put("dialogueExamples", CharacterProfileSchema.xingHeDialogueExamplesV2)
+            save.invoke(CharacterLifeStore, xingId, shipped)
+            CharacterLifeStore.initialize(context)
+            val refreshed = CharacterLifeStore.state(xingId).getJSONObject("profile")
+            assertEquals(CharacterProfileSchema.xingHeSpeechHabitsV8, refreshed.getString("speechHabits"))
+            assertEquals(CharacterProfileSchema.xingHeDialogueExamples, refreshed.getString("dialogueExamples"))
 
             // Owner's chosen tone and authored dialogue take precedence over
             // this or any future bundled preset, including intentional blanks.
