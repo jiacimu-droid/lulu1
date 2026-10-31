@@ -17,16 +17,18 @@ internal object RelicActorPlay {
         val a = s.allies.firstOrNull { it.id == id && it.hp > 0 } ?: return emptyList()
         if (s.phase !in live) return emptyList()
         val result = mutableListOf(IslandActorOption("none", "观察或交谈", "none"))
-        if (acted(s, id)) return result
-        if (s.hero.hp>0 && RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=2 &&
-            s.guardedBy!=id)
-            result += IslandActorOption("guard_player","主动保护玩家；遇到守卫攻击时自己承担1点伤害，为玩家抵消伤害","guard_player")
+        // Marking a chest for the player is a conversation-level promise, not an
+        // extra physical move. The player may ask even after this turn's move.
         for (chest in s.chests.filter { !it.opened && s.visible(it.x,it.y) &&
                 it.id !in s.playerChestMarks }.take(8)) {
             result += IslandActorOption("reserve:"+chest.id,
                 "把坐标("+chest.x+","+chest.y+")的"+chest.tier.label+"宝箱标记留给玩家亲自开启","reserve",
                 chest.x,chest.y)
         }
+        if (acted(s, id)) return result
+        if (s.hero.hp>0 && RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=2 &&
+            s.guardedBy!=id)
+            result += IslandActorOption("guard_player","主动保护玩家；遇到守卫攻击时自己承担1点伤害，为玩家抵消伤害","guard_player")
         if (RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=1) {
             for (item in a.bag.filter { item ->
                 s.hero.load+item.weight<=RelicEscapeRules.CAPACITY }.take(4))
@@ -66,7 +68,7 @@ internal object RelicActorPlay {
     }
 
     fun apply(s: RelicRun, id: String, choice: IslandActorChoice): RelicRun? {
-        if (acted(s, id)) return null
+        if (acted(s, id) && !choice.actionId.startsWith("reserve:")) return null
         val a = s.allies.firstOrNull { it.id == id && it.hp > 0 } ?: return null
         val option = options(s,id).firstOrNull { it.id == choice.actionId } ?: return null
         var actor = a

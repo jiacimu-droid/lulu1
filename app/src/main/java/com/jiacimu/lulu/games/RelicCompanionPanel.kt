@@ -89,7 +89,8 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                         failure = "局势已变化，伙伴选择的操作未执行"
                         continue
                     }
-                    if (!alreadyActed && !latestChoice(id,choice)) {
+                    val canApply = !alreadyActed || choice.actionId.startsWith("reserve:")
+                    if (canApply && !latestChoice(id,choice)) {
                         failure = "伙伴行动未能保存，请在行囊中查看错误"
                         continue
                     }
