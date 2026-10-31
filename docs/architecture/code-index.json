@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:52:10.455989+00:00",
-  "commit": "0f90d34dbc31be84eb06c7e726ad9127b99d08c4",
+  "generatedAt": "2026-10-31T16:54:07.642357+00:00",
+  "commit": "c872e2d95b9d538eaf411a4032b6e453fac69a52",
   "branch": "main",
-  "sourceFingerprint": "529b8132a1c63a315636f4eb76a82c677e0166102386e469091dc2a5ba19d17b",
+  "sourceFingerprint": "f5c9f7985ab4c538713645ded3dacbda24c73c3424696a42719504e54d8c4b8a",
   "summary": {
     "files": 1134,
-    "lines": 233548,
+    "lines": 233570,
     "symbols": 3303
   },
   "symbolIndex": {
@@ -221,7 +221,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 279
+        "line": 291
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -1113,7 +1113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 379
+        "line": 391
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -6259,7 +6259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 420
+        "line": 432
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7847,13 +7847,13 @@
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 220
+        "line": 232
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 413
+        "line": 425
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -25704,8 +25704,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 143,
-      "sha256": "893be9f38a21bf88380832d7ef909b947c6e16eb784c44e7b6b1b2cac92baf50",
+      "lines": 149,
+      "sha256": "f2d95c564c63ddfb59d959f18f9113a6961cb1c4f2512d2a69e6deaa39227174",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -25761,8 +25761,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 433,
-      "sha256": "222766e1eb90a1c17ba63aceb8f86c61f0d1f906082b06a2503af0ec09eebb05",
+      "lines": 445,
+      "sha256": "c6ea0459ddff311a4bc1e874118cdb359f1eb682fd4b64858c211bf0d5988456",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -25794,23 +25794,23 @@
         },
         {
           "name": "claimAlarmExecution",
-          "line": 220
+          "line": 232
         },
         {
           "name": "cancel",
-          "line": 279
+          "line": 291
         },
         {
           "name": "remove",
-          "line": 379
+          "line": 391
         },
         {
           "name": "removeBySourceEvent",
-          "line": 413
+          "line": 425
         },
         {
           "name": "clearCharacter",
-          "line": 420
+          "line": 432
         }
       ]
     },
@@ -37035,8 +37035,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
-      "lines": 143,
-      "sha256": "4f7236b4836f28fa77ff78f9324ecbfd4ab68e7621a02ddd3b319add3f1713f5",
+      "lines": 147,
+      "sha256": "ab2239a51455a7a878e234f2afad71b5e2e6db5fa2337350ef80a943714420a8",
       "symbols": [
         {
           "name": "DailyCommitmentRecurrenceTest",

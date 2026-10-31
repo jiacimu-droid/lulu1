@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0f90d34dbc31be84eb06c7e726ad9127b99d08c4`
+- 基准提交：`c872e2d95b9d538eaf411a4032b6e453fac69a52`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233548
+- 已索引代码/文本行：233570
 - 已发现符号：3303
 
 | 文件 | 行数 | 符号数 |
@@ -416,14 +416,14 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 91 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 143 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 149 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 127 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 433 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 445 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 406 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1651 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
@@ -967,7 +967,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt` | 143 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt` | 41 | 1 |
