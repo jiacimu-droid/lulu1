@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:12:34.109039+00:00",
-  "commit": "f20f2b8645ef299483594a76fd8cc2cc7dbd6916",
+  "generatedAt": "2026-10-31T16:14:43.730085+00:00",
+  "commit": "d65c620068782d14593e498bde0acb47507bb817",
   "branch": "main",
-  "sourceFingerprint": "8597e577118ea3822b0fed990989dee88f172be473b709996c12d17b8bb51b2e",
+  "sourceFingerprint": "7e8210c2563f3bed4c62bffc5c43ef93ea0beb70fb184508a5664f100a383d51",
   "summary": {
     "files": 1130,
     "lines": 232460,
@@ -2099,7 +2099,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 71
+        "line": 72
       }
     ],
     "prepare": [
@@ -4633,7 +4633,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 129
+        "line": 131
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -13241,13 +13241,13 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 216
+        "line": 214
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 222
+        "line": 220
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -31925,8 +31925,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 271,
-      "sha256": "523a62dd0625d5673f1a833f4b624d82c4c17ab3ca2626437747ff27813a7292",
+      "lines": 269,
+      "sha256": "c5ddc89414123fcd1ea879093a6ec6df0742822c6f70893d820a74419bbacdc3",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -31946,11 +31946,11 @@
         },
         {
           "name": "applyLive",
-          "line": 216
+          "line": 214
         },
         {
           "name": "facts",
-          "line": 222
+          "line": 220
         }
       ]
     },
@@ -32005,8 +32005,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 195,
-      "sha256": "835a46f2241a47b31f9a2b0215eb63851423411de426528b4e2dfb58fb2e62ce",
+      "lines": 197,
+      "sha256": "9f36fc03fe13f112f585443af1a469fedbe8c3ae03932d87058ccf32bda9266d",
       "symbols": [
         {
           "name": "json",
@@ -32030,11 +32030,11 @@
         },
         {
           "name": "choose",
-          "line": 71
+          "line": 72
         },
         {
           "name": "advance",
-          "line": 129
+          "line": 131
         }
       ]
     },
