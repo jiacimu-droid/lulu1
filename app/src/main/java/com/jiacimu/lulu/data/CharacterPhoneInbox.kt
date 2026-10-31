@@ -168,12 +168,21 @@ internal object CharacterPhoneInbox {
 
     fun requestContext(characterId: String): String = buildString {
         val pending = CharacterFriendRequests.pendingFor(characterId)
+        val outgoing = CharacterFriendRequests.historyFor(characterId).filter {
+            it.fromId == characterId && it.status == "pending"
+        }
         appendLine("【聊天软件 · 好友申请】")
-        if (pending.isEmpty()) appendLine("没有待处理好友申请")
+        if (pending.isEmpty()) appendLine("没有收到待处理好友申请")
         else pending.forEach { request ->
             val from = MigratedDomainStores.characters.get(request.fromId).displayName
             appendLine("requestId=${request.id}；${from} (${request.fromId}) 向你申请好友；" +
                 "招呼=${request.greeting.ifBlank { "无" }}；是否同意只由你决定。")
+        }
+        if (outgoing.isEmpty()) appendLine("没有自己已发出且仍待回应的好友申请")
+        else outgoing.forEach { request ->
+            val to = MigratedDomainStores.characters.get(request.toId).displayName
+            appendLine("你已经向$to (${request.toId}) 发出申请，requestId=${request.id}；状态=pending；" +
+                "只能等待对方自己决定，不再对同一人重复发申请，也不能替对方 respond_friend_request。")
         }
     }
 
