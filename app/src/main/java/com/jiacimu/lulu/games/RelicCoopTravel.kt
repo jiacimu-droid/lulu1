@@ -49,6 +49,45 @@ internal object RelicCoopTravel {
         return after.copy(coopPlans=if(keep)after.coopPlans+(id to plan!!)
             else after.coopPlans-id)
     }
+    /** Change an existing plan after the actor already moved, without an extra action. */
+    fun choose(s:RelicRun,id:String,action:String,speech:String):RelicRun? {
+        val actor=s.allies.firstOrNull { it.id==id && it.hp>0 } ?:return null
+        if(s.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
+            return null
+        val parts=action.split(":")
+        val plan=when(parts.firstOrNull()) {
+            "plan_regroup" -> {
+                if(parts.size!=1 || s.hero.hp<=0 ||
+                    RelicEscapeRules.distance(actor.x,actor.y,s.hero.x,s.hero.y)<=1)
+                    return null
+                RelicCoopPlan("regroup",lastStepTurn=s.turns)
+            }
+            "plan_support" -> {
+                if(parts.size!=2)return null
+                val enemy=parts[1].toIntOrNull()?.let { key ->
+                    s.mobs.firstOrNull { it.id==key && it.hp>0 && s.visible(it.x,it.y) }
+                } ?:return null
+                RelicCoopPlan("support",enemy.id,s.turns)
+            }
+            "plan_chest" -> {
+                if(parts.size!=2)return null
+                val chest=parts[1].toIntOrNull()?.let { key ->
+                    s.chests.firstOrNull { it.id==key && !it.opened &&
+                        it.id !in s.playerChestMarks && s.visible(it.x,it.y) }
+                } ?:return null
+                RelicCoopPlan("chest",chest.id,s.turns)
+            }
+            else -> return null
+        }
+        val existing=s.coopPlans[id]
+        if(existing?.kind==plan.kind && existing.targetId==plan.targetId)return null
+        val label=when(plan.kind) {
+            "support"->"支援敌人";"chest"->"探查宝箱";else->"与你集合"
+        }
+        return s.copy(coopPlans=s.coopPlans+(id to plan))
+            .log(id,"travel","重新决定下一步目标："+label+
+                if(speech.isBlank())"" else "；他说：「"+speech+"」")
+    }
     fun cancel(s:RelicRun,id:String,speech:String=""):RelicRun? {
         if(id !in s.coopPlans)return null
         return s.copy(coopPlans=s.coopPlans-id).log(id,"travel",

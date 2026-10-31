@@ -137,6 +137,7 @@ internal fun IslandCompanionPanel(
                 }
                 val name = MigratedDomainStores.characters.get(id).displayName
                 if (!alreadyActed || choice.actionId == "stop_travel" ||
+                    choice.actionId.startsWith("plan_") ||
                     IslandHouseProjects.isChangeAction(choice.actionId)) {
                     val applied = IslandActorPlay.applyLive(latest, snapshot, id, choice)
                     if (applied == null) {

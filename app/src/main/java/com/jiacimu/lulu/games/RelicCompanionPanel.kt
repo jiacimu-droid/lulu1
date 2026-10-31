@@ -90,7 +90,7 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
                         continue
                     }
                     val canApply = !alreadyActed || choice.actionId.startsWith("reserve:") ||
-                        choice.actionId=="stop_travel"
+                        choice.actionId=="stop_travel" || choice.actionId.startsWith("plan_")
                     if (canApply && !latestChoice(id,choice)) {
                         failure = "伙伴行动未能保存，请在行囊中查看错误"
                         continue

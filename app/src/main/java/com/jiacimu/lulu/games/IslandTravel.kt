@@ -54,6 +54,34 @@ internal object IslandTravel {
             s.world.turns,next.world.turns))
     }
 
+    /** Character-selected replan without granting a second movement in this turn. */
+    fun choose(s:BlockIslandState,id:String,action:String,speech:String):BlockIslandState? {
+        val w=s.world
+        val actor=w.friends.firstOrNull { it.id==id && it.hp>0 } ?:return null
+        if(w.finished)return null
+        val parts=action.split(":")
+        val (tx,ty,mobId)=when(parts.firstOrNull()) {
+            "plan_regroup"->{
+                if(parts.size!=1 || abs(actor.x-w.x)+abs(actor.y-w.y)<=1)return null
+                Triple(w.x,w.y,-2)
+            }
+            "plan_support"->{
+                if(parts.size!=2)return null
+                val monster=parts[1].toIntOrNull()?.let { key ->
+                    w.mobs.firstOrNull { it.id==key && it.hp>0 &&
+                        abs(it.x-w.x)+abs(it.y-w.y)<=8 }
+                } ?:return null
+                Triple(monster.x,monster.y,monster.id)
+            }
+            else ->return null
+        }
+        if(s.companionTravel[id]?.targetMobId==mobId)return null
+        val plan=IslandTravelPlan(tx,ty,w.cell(tx,ty),mobId,w.turns,w.turns)
+        val event="行程["+id+"] 第"+w.turns+"回合：决定更换下一步合作目标"+
+            if(speech.isBlank())"" else "；他说：「"+speech+"」"
+        return s.copy(companionTravel=s.companionTravel+(id to plan),
+            world=w.copy(events=(w.events+event).takeLast(150),notice=event))
+    }
     fun cancel(s: BlockIslandState, id: String, speech: String = ""): BlockIslandState? {
         if (id !in s.companionTravel) return null
         return finish(s,id,"已取消前往原目标" + if(speech.isBlank()) "" else "；他说：「$speech」")
