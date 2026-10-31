@@ -262,7 +262,7 @@ private fun GameDirectionKey(
                         currentAction.value()
                         coroutineScope {
                             val repeating = launch {
-                                delay(420L)
+                                delay(repeatMs)
                                 while (isActive) {
                                     currentAction.value()
                                     delay(repeatMs)

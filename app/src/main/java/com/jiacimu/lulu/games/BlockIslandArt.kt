@@ -39,6 +39,7 @@ internal object BlockIslandArt {
         playerVisual: Offset? = null,
         companionVisuals: Map<String,Offset> = emptyMap(),
         camera: IslandFollowCamera,
+        navigationStep: Pair<Int, Int>? = null,
         night: Boolean,
         phase: Float,
         impact: BlockIslandImpact? = null,
@@ -100,6 +101,29 @@ internal object BlockIslandArt {
                     }
                 }
             }
+        }
+        // Only immediately interactable targets glow; no invented objectives or world changes.
+        for ((x, y) in listOf(w.x - 1 to w.y, w.x + 1 to w.y, w.x to w.y - 1, w.x to w.y + 1)) {
+            if (!w.inBounds(x, y)) continue
+            val actionable = when {
+                w.mobs.any { it.hp > 0 && it.x == x && it.y == y } -> Color(0xFFFFA78C)
+                w.friends.any { it.hp <= 0 && it.x == x && it.y == y } &&
+                    island.fruit >= 2 -> Color(0xFFA9F4E8)
+                w.cell(x, y) in 1..2 -> Color(0xFFA9EDAD)
+                w.cell(x, y) == 8 && "rod" in island.tools -> Color(0xFF8EDCF2)
+                else -> null
+            } ?: continue
+            drawCircle(actionable.copy(alpha = .36f + .12f * sin(phase * 6.28318f)),
+                radius = tile * .42f, center = center(x, y),
+                style = Stroke((tile * .065f).coerceAtLeast(1.5f)))
+        }
+        if (navigationStep != null) {
+            val next = center(navigationStep.first, navigationStep.second)
+            val from = actorCenter(playerVisual, w.x, w.y)
+            drawLine(Color(0xB3C8FFE2), from, next,
+                strokeWidth = (tile * .075f).coerceAtLeast(1.5f))
+            drawCircle(Color(0xFFCDFFEA).copy(alpha = .6f + .2f * sin(phase * 6.28318f)),
+                radius = tile * .18f, center = next)
         }
         w.mobs.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
             .forEach { mob ->

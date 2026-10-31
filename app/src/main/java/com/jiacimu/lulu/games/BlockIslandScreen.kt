@@ -95,6 +95,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         if (result.world.turns > island.world.turns) {
             impact = BlockIslandImpact(x, y, action, result.world.turns)
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            GameSoundEffects.play(when (action) {
+                "move" -> GameSoundEffect.Move
+                "gather", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
+                "fight" -> GameSoundEffect.Objective
+                else -> GameSoundEffect.Interact
+            })
+        } else {
+            GameSoundEffects.play(GameSoundEffect.Bump)
         }
         save(result)
     }
@@ -114,12 +122,21 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         val step = BlockIslandRules.nextStep(island, world.x, world.y, destination.first, destination.second)
         if (step == null) {
             navigateTo = null
-            save(island.copy(world = world.copy(notice = "已抵达目标附近，或路线被树林、矿石挡住")))
+            val nearby = world.adjacent(destination.first, destination.second)
+            save(island.copy(world = world.copy(notice =
+                if (nearby) "已靠近目标，可以进行采集、战斗或建造"
+                else "前往失败：路线被阻挡，换个目标或清理障碍试试")))
+            if (!nearby) GameSoundEffects.play(GameSoundEffect.Bump)
             return@LaunchedEffect
         }
         delay(145)
         val next = BlockIslandRules.act(island, "move", step.first, step.second, autonomousIds)
-        if (next.world.x == world.x && next.world.y == world.y) navigateTo = null
+        if (next.world.x == world.x && next.world.y == world.y) {
+            navigateTo = null
+            GameSoundEffects.play(GameSoundEffect.Bump)
+        } else {
+            GameSoundEffects.play(GameSoundEffect.Move)
+        }
         save(next)
     }
 
@@ -128,6 +145,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val selectedStructure = island.structures[world.index(target.first, target.second)]
     val nearTarget = world.adjacent(target.first, target.second)
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
+    val primaryAction = islandTargetAction(island, target)
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -144,8 +162,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             if (night) "☾ 夜晚" else "☀ 白天",
         scene = {
             BlockIslandCanvas(island, target, zoomed, night, impact, impactProgress.value,
+                navigationTarget = navigateTo,
                 onSelect = { x, y -> target = x to y; navigateTo = null },
-                onNavigate = { x, y -> target = x to y; navigateTo = x to y },
+                onNavigate = { x, y ->
+                    target = x to y
+                    navigateTo = (x to y).takeUnless { it == (world.x to world.y) }
+                    if (navigateTo != null) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                },
                 fullscreen = true, companionPing = companionPing)
         },
         companionAvailable = game.playWithCharacter && world.friends.isNotEmpty() &&
@@ -167,6 +190,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
+            Text(
+                if (navigateTo != null) "正在前往 · ${islandCellTitle(selectedCell, selectedStructure)} · 距离${primaryAction.distance}格"
+                else "目标 · ${islandCellTitle(selectedCell, selectedStructure)} · ${if (primaryAction.distance <= 1) "身边" else "距离${primaryAction.distance}格"}",
+                color = Color(0xFFF0FFE9), fontSize = 10.sp, maxLines = 1,
+            )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 GameHudQuickAction("采集", Color(0xFFA9E5BD),
                     enabled = nearTarget && selectedCell in listOf(1, 2),
@@ -186,19 +214,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         actions = {
-            val action = when {
-                nearTarget && isMobSelected -> "fight"
-                nearTarget && selectedCell in listOf(1, 2) -> "gather"
-                nearTarget && selectedCell == 8 && "rod" in island.tools -> "fish"
-                else -> "move"
-            }
             Button(onClick = {
-                if (action == "move") navigateTo = target else perform(action)
-            }, enabled = target != (world.x to world.y), modifier = Modifier.weight(1f),
+                if (navigateTo != null) navigateTo = null
+                else if (primaryAction.action == "move") {
+                    navigateTo = target
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                } else perform(primaryAction.action)
+            }, enabled = navigateTo != null || primaryAction.enabled,
+                modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA9D8B9),
                     contentColor = Color(0xFF17342F))) {
-                Text(when(action) { "fight" -> "攻击"; "gather" -> "采集"; "fish" -> "钓鱼"; else -> "前往" } +
-                    " · " + islandCellTitle(selectedCell, selectedStructure), maxLines = 1, fontSize = 12.sp)
+                Text(if (navigateTo != null) "■ 停止前往" else primaryAction.label +
+                    " · " + islandCellTitle(selectedCell, selectedStructure),
+                    maxLines = 1, fontSize = 12.sp)
             }
             TextButton(onClick = { zoomed = !zoomed }) {
                 Text(if (zoomed) "远景" else "近景", color = Color.White)
@@ -231,7 +259,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("在岛上活下去，慢慢建造自己的家", color = Color.White, fontWeight = FontWeight.Bold)
                     Text("① 点地图上的树或石头，选中附近目标后点「采集」。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
-                    Text("② 远处的格子点「前往」；也可以双击地图自动寻路。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                    Text("② 长按或双击地图自动前往；途中按「停止前往」即可取消。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                     Text("③ 用采到的材料造墙、篝火和床；遇见野怪记得战斗或绕开。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                 }
             }
@@ -463,6 +491,7 @@ private fun BlockIslandCanvas(
     night: Boolean,
     impact: BlockIslandImpact?,
     impactProgress: Float,
+    navigationTarget: Pair<Int, Int>? = null,
     onSelect: (Int, Int) -> Unit,
     onNavigate: (Int, Int) -> Unit,
     fullscreen: Boolean = false,
@@ -491,6 +520,11 @@ private fun BlockIslandCanvas(
     // The player and camera share the same interpolated position. Even at the world edge,
     // keep the actor in the clear center instead of sliding beneath the thumb controls.
     val latestPlayerVisual by rememberUpdatedState(playerVisual)
+    val navigationStep = remember(island, navigationTarget) {
+        navigationTarget?.let {
+            BlockIslandRules.nextStep(island, w.x, w.y, it.first, it.second)
+        }
+    }
     val latestSelect by rememberUpdatedState(onSelect)
     val latestNavigate by rememberUpdatedState(onNavigate)
     Canvas(
@@ -504,6 +538,7 @@ private fun BlockIslandCanvas(
                 detectTapGestures(
                     onTap = { point -> targetFor(point)?.let { (x, y) -> latestSelect(x, y) } },
                     onDoubleTap = { point -> targetFor(point)?.let { (x, y) -> latestNavigate(x, y) } },
+                    onLongPress = { point -> targetFor(point)?.let { (x, y) -> latestNavigate(x, y) } },
                 )
             },
     ) {
@@ -515,6 +550,7 @@ private fun BlockIslandCanvas(
             paint(
                 island = island, selected = target, companionPing = companionPing,
                 playerVisual = playerVisual, companionVisuals = companionVisuals, camera = camera,
+                navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
             )
         }
