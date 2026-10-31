@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T03:47:47.385818+00:00",
-  "commit": "fe34f6d9e8441f7dff3c2b9efde8156d3c5a9637",
+  "generatedAt": "2026-10-31T03:49:16.287113+00:00",
+  "commit": "77aacacef3eaefc7b2fd1e4a01371f995e9a0d33",
   "branch": "main",
-  "sourceFingerprint": "03174bc45b16a634ad6b858a8f1b79cf7f808a200f3d2f3ab7fdcf195b89465b",
+  "sourceFingerprint": "9486b9a440a4174944a08d3bdde2e45bee8c9660af4dc2f67334f5bbade27d03",
   "summary": {
     "files": 1120,
-    "lines": 231313,
+    "lines": 231370,
     "symbols": 3264
   },
   "symbolIndex": {
@@ -5353,13 +5353,13 @@
     "normalizeStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 55
+        "line": 60
       }
     ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 171
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -23098,16 +23098,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 265,
-      "sha256": "d954f32dd3eff8e23b58e757c75fdbb9e67f1f8b3f8d5839585eabdb2bda403b",
+      "lines": 278,
+      "sha256": "54f32dfec1fc2a1ab4c39cb1df02b0bb5abd34ff2094fbeb26da04a87df6ab03",
       "symbols": [
         {
           "name": "normalizeStep",
-          "line": 55
+          "line": 60
         },
         {
           "name": "normalize",
-          "line": 171
+          "line": 176
         }
       ]
     },
@@ -35349,8 +35349,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 245,
-      "sha256": "0e696cdaa0a357b960b28748fafeeffcf6f2700088775f1a2e0b073a7f791f5d",
+      "lines": 289,
+      "sha256": "eb54ae4e37a1ae83cd3fd742200fdcf713aa48bddf04345b56bdc144f3873bfa",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
