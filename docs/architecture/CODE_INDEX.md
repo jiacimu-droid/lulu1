@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a263995aec5f246959b8affbc1dd30aeaa17a2ac`
+- 基准提交：`b53833605c30da30727239d342131bc8eee93eb6`
 - 分支：`main`
-- 已索引文件：1129
-- 已索引代码/文本行：232293
-- 已发现符号：3283
+- 已索引文件：1130
+- 已索引代码/文本行：232435
+- 已发现符号：3284
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -663,7 +663,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 300 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 193 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
@@ -1104,6 +1104,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt` | 57 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamInboxTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |

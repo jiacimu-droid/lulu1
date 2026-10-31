@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:07:43.543427+00:00",
-  "commit": "a263995aec5f246959b8affbc1dd30aeaa17a2ac",
+  "generatedAt": "2026-10-31T16:10:29.265436+00:00",
+  "commit": "b53833605c30da30727239d342131bc8eee93eb6",
   "branch": "main",
-  "sourceFingerprint": "f890a573e6ad823eedada69b21bda8403c0c491b20d3a74df505eb35a1dea39e",
+  "sourceFingerprint": "9361ec48577cc98b49ade07b67b539a0b04395472aad39685f0b2542c14edd1b",
   "summary": {
-    "files": 1129,
-    "lines": 232293,
-    "symbols": 3283
+    "files": 1130,
+    "lines": 232435,
+    "symbols": 3284
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2099,7 +2099,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 69
+        "line": 71
       }
     ],
     "prepare": [
@@ -4633,7 +4633,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 127
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -13331,7 +13331,7 @@
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 66
+        "line": 68
       }
     ],
     "generate": [
@@ -18194,6 +18194,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt",
         "line": 5
+      }
+    ],
+    "IslandHouseProjectsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt",
+        "line": 12
       }
     ],
     "IslandTargetActionTest": [
@@ -31999,8 +32005,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 193,
-      "sha256": "2bc55df56fc6860fc9a3373f49c9dc9f465185770cfb353833a99d39bce2863f",
+      "lines": 195,
+      "sha256": "835a46f2241a47b31f9a2b0215eb63851423411de426528b4e2dfb58fb2e62ce",
       "symbols": [
         {
           "name": "json",
@@ -32020,15 +32026,15 @@
         },
         {
           "name": "isChangeAction",
-          "line": 66
+          "line": 68
         },
         {
           "name": "choose",
-          "line": 69
+          "line": 71
         },
         {
           "name": "advance",
-          "line": 127
+          "line": 129
         }
       ]
     },
@@ -38814,6 +38820,17 @@
         {
           "name": "IslandFollowCameraTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandHouseProjectsTest.kt",
+      "lines": 140,
+      "sha256": "decf5035d26a695d323fe71d9419c2d1d5e82e61bc6aafa97c8276d8e446d632",
+      "symbols": [
+        {
+          "name": "IslandHouseProjectsTest",
+          "line": 12
         }
       ]
     },
