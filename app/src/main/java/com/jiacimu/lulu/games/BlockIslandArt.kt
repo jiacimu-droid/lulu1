@@ -165,6 +165,22 @@ internal object BlockIslandArt {
                 Size(tile*.13f,tile*.46f))
             drawCircle(Color(0xFFFFE6A8),tile*.10f,c + Offset(0f,tile*.04f))
         }
+        // Build-plan footprints are only a projection of the saved character project;
+        // empty tiles remain empty until actual wood is consumed and a real action succeeds.
+        island.houseProject?.let { plan ->
+            val outline = if (plan.phase=="demolishing") Color(0xFFD3A8F2)
+                else Color(0xFF9FE5CC)
+            for ((index, _) in IslandHouseProjects.parts(w, plan.left, plan.top)) {
+                val x=index%w.width
+                val y=index/w.width
+                if(x !in left until left+cols || y !in top until top+rows)continue
+                val built=index in plan.placed
+                drawRoundRect(outline.copy(alpha=if(built).21f else .65f),
+                    origin(x,y)+Offset(tile*.10f,tile*.10f),
+                    Size(tile*.80f,tile*.80f),CornerRadius(tile*.11f),
+                    style=Stroke((tile*.055f).coerceAtLeast(1.5f)))
+            }
+        }
         // A teammate's actual selected destination, distinct from the player's yellow selection.
         // Cyan pulses are painted from verified actions, never generated decorative targets.
         if (companionPing != null &&
