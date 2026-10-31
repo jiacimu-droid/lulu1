@@ -147,6 +147,24 @@ internal object BlockIslandArt {
             drawPerson(actorCenter(playerVisual,w.x,w.y), tile,
                 Color(0xFFEEA87C), Color(0xFF715047), phase, true)
         }
+        // Real once-per-island salvage stashes, drawn directly from persisted locations.
+        for (index in island.supplyCaches) {
+            if (index in island.openedSupplies) continue
+            val x = index % w.width
+            val y = index / w.width
+            if (x !in left until left + cols || y !in top until top + rows) continue
+            val p = origin(x,y)
+            val c = center(x,y)
+            drawCircle(Color(0xFFD8EFC0).copy(alpha = .12f + .12f * sin(phase * 6.28318f)),
+                tile * .48f, c)
+            drawRoundRect(Color(0xFF403B38), p + Offset(tile*.15f,tile*.30f),
+                Size(tile*.72f,tile*.54f),CornerRadius(tile*.11f))
+            drawRoundRect(Color(0xFFD9AD72), p + Offset(tile*.17f,tile*.26f),
+                Size(tile*.66f,tile*.48f),CornerRadius(tile*.09f))
+            drawRect(Color(0xFF76594C), p + Offset(tile*.43f,tile*.27f),
+                Size(tile*.13f,tile*.46f))
+            drawCircle(Color(0xFFFFE6A8),tile*.10f,c + Offset(0f,tile*.04f))
+        }
         // A teammate's actual selected destination, distinct from the player's yellow selection.
         // Cyan pulses are painted from verified actions, never generated decorative targets.
         if (companionPing != null &&

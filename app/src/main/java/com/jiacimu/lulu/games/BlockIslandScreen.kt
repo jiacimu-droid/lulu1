@@ -97,7 +97,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             GameSoundEffects.play(when (action) {
                 "move" -> GameSoundEffect.Move
-                "gather", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
+                "gather", "salvage", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
                 "fight" -> GameSoundEffect.Objective
                 else -> GameSoundEffect.Interact
             })
@@ -146,6 +146,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val nearTarget = world.adjacent(target.first, target.second)
     val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
     val primaryAction = islandTargetAction(island, target)
+    val supplySelected = IslandSupplyCaches.available(island, target.first, target.second)
+    val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell, selectedStructure)
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -156,10 +158,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
 
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
-        toolsLabel = "背包 / 建造",
+        toolsLabel = "背包 / 探险",
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
-            if (night) "☾ 夜晚" else "☀ 白天",
+            if (night) "☾ 夜晚" else "☀ 白天" +
+                " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
         scene = {
             BlockIslandCanvas(island, target, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -191,8 +194,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         },
         quickActions = {
             Text(
-                if (navigateTo != null) "正在前往 · ${islandCellTitle(selectedCell, selectedStructure)} · 距离${primaryAction.distance}格"
-                else "目标 · ${islandCellTitle(selectedCell, selectedStructure)} · ${if (primaryAction.distance <= 1) "身边" else "距离${primaryAction.distance}格"}",
+                if (navigateTo != null) "正在前往 · ${targetTitle} · 距离${primaryAction.distance}格"
+                else "目标 · ${targetTitle} · ${if (primaryAction.distance <= 1) "身边" else "距离${primaryAction.distance}格"}",
                 color = Color(0xFFF0FFE9), fontSize = 10.sp, maxLines = 1,
             )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -205,9 +208,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
             Spacer(Modifier.height(4.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction("造墙", Color(0xFFA9E5BD),
-                    enabled = BlockIslandRules.canBuild(island, "wall", target.first, target.second),
-                    modifier = Modifier.weight(1f)) { perform("wall") }
+                GameHudQuickAction(if (supplySelected) "打开补给" else "造墙", Color(0xFFA9E5BD),
+                    enabled = if (supplySelected) nearTarget else
+                        BlockIslandRules.canBuild(island, "wall", target.first, target.second),
+                    modifier = Modifier.weight(1f)) {
+                    if (supplySelected) perform("salvage") else perform("wall")
+                }
                 GameHudQuickAction("吃果", Color(0xFFA9E5BD),
                     enabled = island.fruit > 0 && world.hp < 12,
                     modifier = Modifier.weight(1f)) { perform("eat", world.x, world.y) }
@@ -225,7 +231,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA9D8B9),
                     contentColor = Color(0xFF17342F))) {
                 Text(if (navigateTo != null) "■ 停止前往" else primaryAction.label +
-                    " · " + islandCellTitle(selectedCell, selectedStructure),
+                    " · " + targetTitle,
                     maxLines = 1, fontSize = 12.sp)
             }
             TextButton(onClick = { zoomed = !zoomed }) {
@@ -260,8 +266,32 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Text("在岛上活下去，慢慢建造自己的家", color = Color.White, fontWeight = FontWeight.Bold)
                     Text("① 点地图上的树或石头，选中附近目标后点「采集」。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                     Text("② 长按或双击地图自动前往；途中按「停止前往」即可取消。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
-                    Text("③ 用采到的材料造墙、篝火和床；遇见野怪记得战斗或绕开。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                    Text("③ 沿路找到漂流补给箱，靠近后领取一次性物资；再建造家园。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                 }
+            }
+        }
+        Surface(shape = RoundedCornerShape(16.dp),
+            color = Color(0xFF1C4445),
+            border = BorderStroke(1.dp, Color(0xFF8FD9BE).copy(alpha = .35f))) {
+            Column(Modifier.fillMaxWidth().padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("✦ 野外补给探索", color = Color(0xFFF0FFF3),
+                        fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("${island.openedSupplies.size} / ${island.supplyCaches.size}",
+                        color = Color(0xFFB1F2D4), fontWeight = FontWeight.Bold)
+                }
+                LinearProgressIndicator(
+                    progress = { if (island.supplyCaches.isEmpty()) 1f
+                        else island.openedSupplies.size.toFloat() / island.supplyCaches.size },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFF95E8C8),
+                    trackColor = Color(0xFF355C57),
+                )
+                Text(if (IslandSupplyCaches.remaining(island) == 0)
+                    "全部找齐啦！补给已经放入背包，可以继续建设家园。"
+                    else "沿着小岛探索发光的补给箱，走近后点「打开补给」领取木材、石料，有时还有野果。",
+                    color = Color(0xFFB9DDCC), fontSize = 11.sp, lineHeight = 16.sp)
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

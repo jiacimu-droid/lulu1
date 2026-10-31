@@ -124,7 +124,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         quickActions = {
             if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
                 val hero = run.hero
-                Text("方向键移动 · 点地图选目标", color = Color.White, fontSize = 10.sp)
+                Text("已探明 ${run.seen.size * 100 / (run.w * run.h)}% · 宝箱 ${run.chests.count{it.opened}}/${run.chests.size} · 动作会推进回合",
+                    color = Color.White, fontSize = 10.sp, maxLines = 1)
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(onClick = { cameraFocus = null; selected = hero.x to hero.y }) {
@@ -175,8 +176,15 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text(if(run == null) "进入遗迹" else if(run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT))
                     "再次出发" else quick?.label ?: "点选地图目标",fontSize=12.sp,maxLines=1)
             }
-            if(run != null && run.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
-                TextButton(onClick={action("wait")}) { Text("等待",color=Color.White) }
+            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) {
+                TextButton(onClick = { action("survey") },
+                    enabled = RelicEscapeRules.canSurvey(run)) {
+                    Text("◉ 侦察", color = if (RelicEscapeRules.canSurvey(run)) relicGreen else relicMuted,
+                        fontSize = 11.sp)
+                }
+            } else if (run?.phase == RelicPhase.DOWNED) {
+                TextButton(onClick = { action("wait") }) { Text("等待救援",color=Color.White) }
+            }
         },
         tools = {
     Column(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(
@@ -259,6 +267,11 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                         fontWeight=FontWeight.Bold,fontSize=13.sp,modifier=Modifier.weight(1f))
                     Text("层级 "+run.level,color=relicMuted,fontSize=12.sp)
                 }
+                Text("已探明 ${run.seen.size * 100 / (run.w * run.h)}%   ·   宝箱 ${run.chests.count { it.opened }}/${run.chests.size}",
+                    color = relicGreen, fontSize = 11.sp)
+                LinearProgressIndicator(progress={run.seen.size.toFloat()/(run.w*run.h)},
+                    modifier=Modifier.fillMaxWidth(), color=relicGreen,
+                    trackColor=Color(0xFF3D4654))
                 if(run.phase==RelicPhase.EXTRACT)
                     LinearProgressIndicator(progress={run.extraction/3f},
                         modifier=Modifier.fillMaxWidth(),color=relicGold)
@@ -281,7 +294,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     if (showGuide) {
                         Text("① 轻点地图选择目标  ② 点下方主按钮执行",
                             color = Color.White, fontSize = 12.sp, lineHeight = 19.sp)
-                        Text("开箱拿宝物 → 找绿色撤离门 → 守住三回合。每次行动都会推进时间，怪物会反击。",
+                        Text("用「侦察」扩大已探明区域，但会惊动守卫。潜行、诱饵、开箱和撤离需要权衡行动回合。",
                             color = relicMuted, fontSize = 11.sp, lineHeight = 17.sp)
                     }
                 }
@@ -368,6 +381,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
                 Text("遗迹战术",color=relicGold,fontWeight=FontWeight.Bold,fontSize=13.sp)
+                RelicCommand("侦察迷雾 · 消耗1回合", Modifier.fillMaxWidth(),
+                    enabled=RelicEscapeRules.canSurvey(run)) { action("survey") }
+                Text("探索附近两圈迷雾，无需消耗道具，但声响会吸引守卫。",
+                    color=relicMuted,fontSize=11.sp)
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     RelicCommand("照明弹 · "+run.flares,Modifier.weight(1f),enabled=run.flares>0) {
                         action("flare")

@@ -130,6 +130,15 @@ internal object RelicEscapeRules {
                 seen+=s.index(s.flareX+dx,s.flareY+dy)
         return s.copy(seen=seen)
     }
+    /** Reusable but costly reconnaissance: expands fog knowledge, spends a turn and makes noise. */
+    fun canSurvey(s: RelicRun): Boolean =
+        s.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT) &&
+            (-5..5).any { dy -> (-5..5).any { dx ->
+                val x = s.hero.x + dx
+                val y = s.hero.y + dy
+                abs(dx)+abs(dy) in 4..5 && s.bounds(x,y) && !s.visible(x,y)
+            } }
+
     fun treasure(s:RelicRun,c:RelicChest):RelicLoot {
         val names=when(c.tier) {
             RelicTier.COMMON->listOf("旧王银币","石刻铭牌","锈蚀铜杯")
@@ -147,6 +156,19 @@ internal object RelicEscapeRules {
         val hero=s.hero
         val mob=s.mobs.firstOrNull{it.hp>0 && it.x==x && it.y==y}
         when(action) {
+            "survey" -> {
+                if (!canSurvey(s)) return s.copy(notice="附近迷雾已经探明，继续前进再侦察")
+                val explored = s.seen.toMutableSet()
+                for (dy in -5..5) for (dx in -5..5) {
+                    val px = hero.x+dx
+                    val py = hero.y+dy
+                    if (abs(dx)+abs(dy)<=5 && s.bounds(px,py)) explored+=s.index(px,py)
+                }
+                val count = explored.size-s.seen.size
+                next=s.copy(seen=explored).log("player","survey",
+                    "侦察发现$count 格新地形，动静可能惊动附近守卫")
+                noise=2
+            }
             "move","sneak"->{
                 if(distance(hero.x,hero.y,x,y)!=1 || !s.walk(x,y) || mob!=null)
                     return s.copy(notice="只能向相邻的通路移动")

@@ -18,6 +18,8 @@ internal data class BlockIslandState(
     val fish: Int = 0,
     val lastFishTurn: Int = -20,
     val companionTravel: Map<String, IslandTravelPlan> = emptyMap(),
+    val supplyCaches: List<Int> = emptyList(),
+    val openedSupplies: Set<Int> = emptySet(),
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -32,6 +34,8 @@ internal data class BlockIslandState(
         })
         .put("lastRestTurn", lastRestTurn)
         .put("fish", fish).put("lastFishTurn", lastFishTurn)
+        .put("supplyCaches", JSONArray(supplyCaches))
+        .put("openedSupplies", JSONArray(openedSupplies.sorted()))
         .toString()
 
     companion object {
@@ -60,13 +64,28 @@ internal data class BlockIslandState(
             val fruit = json.optInt("fruit")
             val fish = json.optInt("fish", 0)
             if (fruit < 0 || fish < 0) return@runCatching null
-            BlockIslandState(world, fruit, tools, positions,
+            val base = BlockIslandState(world, fruit, tools, positions,
                 json.optInt("lastRestTurn", -20), fish, json.optInt("lastFishTurn", -20),
                 IslandTravel.restore(json.optJSONObject("companionTravel"),world))
+            val rawCaches = json.optJSONArray("supplyCaches")
+            val caches = if (rawCaches == null) IslandSupplyCaches.generate(base)
+                else (0 until rawCaches.length()).mapNotNull { i ->
+                    rawCaches.optInt(i, -1).takeIf { it in world.tiles.indices }
+                }.distinct()
+            val opened = json.optJSONArray("openedSupplies")?.let { a ->
+                (0 until a.length()).mapNotNull { i ->
+                    a.optInt(i, -1).takeIf { it in caches }
+                }.toSet()
+            } ?: emptySet()
+            base.copy(supplyCaches=caches, openedSupplies=opened)
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
-            legacy.takeIf { it.mode == ExpeditionMode.HOMESTEAD }?.let(::BlockIslandState)
+            legacy.takeIf { it.mode == ExpeditionMode.HOMESTEAD }?.let {
+                BlockIslandState(it).let { base ->
+                    base.copy(supplyCaches=IslandSupplyCaches.generate(base))
+                }
+            }
     }
 }
 
@@ -114,7 +133,9 @@ internal object BlockIslandRules {
                 mobs = mobs,
                 events = listOf("来到方块小岛，新的家园从这里开始"),
             ),
-        ).withPartners(partners)
+        ).let { base ->
+            base.copy(supplyCaches=IslandSupplyCaches.generate(base))
+        }.withPartners(partners)
     }
 
     fun BlockIslandState.withPartners(ids: List<String>): BlockIslandState {
@@ -177,6 +198,7 @@ internal object BlockIslandRules {
     fun canBuild(s: BlockIslandState, action: String, x: Int, y: Int): Boolean {
         val (wood, stone) = buildingCost(action) ?: return false
         return canPlaceBuilding(s, action, x, y) &&
+            !IslandSupplyCaches.available(s, x, y) &&
             s.world.wood >= wood && s.world.stone >= stone
     }
 
@@ -184,7 +206,8 @@ internal object BlockIslandRules {
         val w = s.world
         if (w.finished || !w.inBounds(x, y)) return false
         return abs(w.x - x) + abs(w.y - y) <= 1 && w.cell(x, y) == 0 &&
-            w.index(x, y) !in s.structures && !(x == w.x && y == w.y) &&
+            w.index(x, y) !in s.structures &&
+            !IslandSupplyCaches.available(s, x, y) && !(x == w.x && y == w.y) &&
             w.friends.none { it.hp > 0 && it.x == x && it.y == y } &&
             w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
     }
@@ -213,6 +236,20 @@ internal object BlockIslandRules {
         var next = s
         val message: String
         when (action) {
+            "salvage" -> {
+                if (!near() || !IslandSupplyCaches.available(s, tx, ty))
+                    return reject("需要靠近还未打开的漂流补给箱")
+                val woodFound = 2 + index % 3
+                val stoneFound = 1 + index % 2
+                val berryFound = if ((index xor w.seed) and 1 == 0) 1 else 0
+                next = s.copy(
+                    openedSupplies = s.openedSupplies + index,
+                    world = w.copy(wood = w.wood + woodFound, stone = w.stone + stoneFound),
+                    fruit = s.fruit + berryFound,
+                )
+                message = "找到野外补给：木材+$woodFound、石料+$stoneFound" +
+                    if (berryFound > 0) "、野果+$berryFound" else ""
+            }
             "move" -> {
                 if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) ||
                     mob != null || w.friends.any { it.x == tx && it.y == ty })
@@ -496,6 +533,7 @@ internal object BlockIslandRules {
         }
         val place = spots.firstOrNull { (x, y) ->
             w.cell(x, y) == 0 && w.index(x, y) !in s.structures &&
+                !IslandSupplyCaches.available(s, x, y) &&
                 distance(x, y, w.x, w.y) > 5 &&
                 w.friends.none { it.x == x && it.y == y } &&
                 w.mobs.none { it.hp > 0 && it.x == x && it.y == y }
