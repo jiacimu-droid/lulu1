@@ -93,6 +93,9 @@ internal object RelicActorPlay {
         .put("game","迷雾摸金").put("turn",s.turns).put("phase",s.phase.name)
         .put("self",s.allies.first { it.id == id }.json())
         .put("player",s.hero.json()).put("exit",JSONArray(listOf(s.exitX,s.exitY)))
+        .put("playerArsenal",JSONObject().put("equipped",s.equipped)
+            .put("weapons",JSONArray(s.weapons.sorted())).put("bolts",s.bolts))
+        .put("sites",JSONArray(s.sites.filter{s.visible(it.x,it.y) && !it.spent}.map{it.json()}))
         .put("map",JSONArray(s.seen.sorted().map { index ->
             JSONObject().put("x",index%s.w).put("y",index/s.w).put("tile",s.tiles[index]) }))
         .put("chests",JSONArray(s.chests.filter { s.visible(it.x,it.y) }.map { it.json() }))

@@ -67,7 +67,9 @@ internal data class RelicRun(
     val sites:List<RelicSite> = emptyList(),
     val flares:Int=2,val lures:Int=1,val tools:Int=2,
     val flareX:Int=-1,val flareY:Int=-1,val flareTurns:Int=0,
-    val lureX:Int=-1,val lureY:Int=-1,val lureTurns:Int=0
+    val lureX:Int=-1,val lureY:Int=-1,val lureTurns:Int=0,
+    val weapons:Set<String> = setOf("blade"),val equipped:String="blade",
+    val bolts:Int=5,val guarding:Boolean=false
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -92,6 +94,8 @@ internal data class RelicRun(
         .put("flares",flares).put("lures",lures).put("tools",tools)
         .put("flareX",flareX).put("flareY",flareY).put("flareTurns",flareTurns)
         .put("lureX",lureX).put("lureY",lureY).put("lureTurns",lureTurns)
+        .put("weapons",JSONArray(weapons.sorted())).put("equipped",equipped)
+        .put("bolts",bolts).put("guarding",guarding)
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
             if(j.getInt("v")!=2)return@runCatching null
@@ -111,7 +115,17 @@ internal data class RelicRun(
                 j.optJSONArray("sites")?.sites()?:emptyList(),
                 j.optInt("flares",2),j.optInt("lures",1),j.optInt("tools",2),
                 j.optInt("flareX",-1),j.optInt("flareY",-1),j.optInt("flareTurns"),
-                j.optInt("lureX",-1),j.optInt("lureY",-1),j.optInt("lureTurns"))
+                j.optInt("lureX",-1),j.optInt("lureY",-1),j.optInt("lureTurns"),
+                j.optJSONArray("weapons")?.let { a -> 
+                    (0 until a.length()).mapNotNull { i ->
+                        a.optString(i).takeIf { it in RelicArsenal.weapons }
+                    }.toSet() + "blade"
+                } ?: setOf("blade"),
+                j.optString("equipped","blade").takeIf { it in RelicArsenal.weapons &&
+                    (j.optJSONArray("weapons")?.let { a ->
+                        (0 until a.length()).any { i -> a.optString(i)==it }
+                    } ?: (it=="blade")) } ?: "blade",
+                j.optInt("bolts",5).coerceIn(0,12),j.optBoolean("guarding",false))
         }.getOrNull()
     }
 }
@@ -152,6 +166,13 @@ internal object RelicEscapeRules {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return s.copy(notice="当前不能继续行动")
         if(s.phase==RelicPhase.DOWNED && action!="wait")return s.copy(notice="倒地了，等待同伴救援")
+        if(action=="equip") {
+            if(lootId !in s.weapons || lootId !in RelicArsenal.weapons)
+                return s.copy(notice="尚未获得这把武器")
+            return if(s.equipped==lootId)s else s.copy(equipped=lootId)
+                .log("player","equip","切换为"+RelicArsenal.label(lootId)+
+                    " · "+RelicArsenal.description(lootId))
+        }
         var next=s;var noise=0
         val hero=s.hero
         val mob=s.mobs.firstOrNull{it.hp>0 && it.x==x && it.y==y}
@@ -190,11 +211,17 @@ internal object RelicEscapeRules {
                     ?:return s.copy(notice="宝箱已经打开，或这里没有宝箱")
                 if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="先接近宝箱")
                 val loot=treasure(s,chest);val fits=hero.load+loot.weight<=CAPACITY
+                val unlocked=RelicArsenal.chestUnlock(chest)?.takeUnless { it in s.weapons }
+                val ammo=if(chest.tier==RelicTier.COMMON)1 else 2
                 next=s.copy(chests=s.chests.map{if(it.id==chest.id)it.copy(opened=true) else it},
                     hero=if(fits)hero.copy(bag=hero.bag+loot) else hero,
-                    drops=if(fits)s.drops else s.drops+RelicDrop(x,y,loot))
+                    drops=if(fits)s.drops else s.drops+RelicDrop(x,y,loot),
+                    weapons=if(unlocked==null)s.weapons else s.weapons+unlocked,
+                    bolts=(s.bolts+ammo).coerceAtMost(12))
                     .log("player","open",chest.tier.label+"宝箱开启："+loot.name+
-                        if(fits)"（入包）" else "（背包已满，留在原地）")
+                        if(fits)"（入包）" else "（背包已满，留在原地）"+
+                        if(unlocked!=null)" · 解锁"+RelicArsenal.label(unlocked) else ""+
+                        " · 弩箭+$ammo")
                 noise=2
             }
             "invoke"->{
@@ -216,6 +243,25 @@ internal object RelicEscapeRules {
                         (s.mobs.maxOfOrNull{it.id}?:0)+1,spawn.first,spawn.second,6+s.level,2,alert=4))
                     .log("player","invoke","祭坛苏醒！获得珍贵封印之心"+if(fits)"（已入包）" else "（掉落在地）")
                 noise=3
+            }
+            "resupply"->{
+                val station=s.sites.firstOrNull{it.x==x && it.y==y && it.kind=="supply" && !it.spent}
+                    ?:return s.copy(notice="这处补给站已搜刮")
+                if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="先靠近补给站")
+                next=s.copy(hero=hero.copy(kits=(hero.kits+1).coerceAtMost(5)),
+                    bolts=(s.bolts+3).coerceAtMost(12),
+                    sites=s.sites.map { if(it.id==station.id)it.copy(spent=true) else it })
+                    .log("player","resupply","找到战地补给：药剂+1，弩箭+3（有上限）")
+                noise=1
+            }
+            "fountain"->{
+                val spring=s.sites.firstOrNull{it.x==x && it.y==y && it.kind=="fountain" && !it.spent}
+                    ?:return s.copy(notice="灵泉力量已经耗尽")
+                if(!near(hero,x,y) || !s.visible(x,y))return s.copy(notice="靠近恢复灵泉")
+                if(hero.hp>=10)return s.copy(notice="生命已满，先保留灵泉")
+                next=s.copy(hero=hero.copy(hp=(hero.hp+4).coerceAtMost(10)),
+                    sites=s.sites.map { if(it.id==spring.id)it.copy(spent=true) else it })
+                    .log("player","fountain","灵泉治愈，生命恢复")
             }
             "disarm"->{
                 val trap=s.sites.firstOrNull{it.x==x && it.y==y && it.kind=="trap" && !it.spent}
@@ -252,11 +298,24 @@ internal object RelicEscapeRules {
                     drops=s.drops+RelicDrop(hero.x,hero.y,item)).log("player","drop","丢下 "+item.name)
             }
             "attack"->{
-                if(mob==null || !near(hero,x,y))return s.copy(notice="靠近怪物才能攻击")
-                val damage=if(s.weapon>=2)4 else 2
-                next=s.copy(mobs=s.mobs.map{if(it.id==mob.id)it.copy(hp=(it.hp-damage).coerceAtLeast(0)) else it})
-                    .log("player","attack",if(mob.hp<=damage)"击败敌人" else "命中敌人，伤害 "+damage)
-                noise=3
+                if(mob==null || !RelicArsenal.canHit(s,x,y))
+                    return s.copy(notice="目标不在"+RelicArsenal.label(s.equipped)+"的有效射程，或被阻挡")
+                val damage=RelicArsenal.damage(s,mob)
+                val defeated=mob.hp<=damage
+                next=s.copy(mobs=s.mobs.map{if(it.id==mob.id)it.copy(
+                    hp=(it.hp-damage).coerceAtLeast(0),
+                    windup=if(s.equipped=="blade")false else it.windup) else it},
+                    bolts=if(s.equipped=="bow")s.bolts-1 else s.bolts,
+                    drops=if(defeated)s.drops+RelicDrop(x,y,RelicArsenal.monsterDrop(s,mob)) else s.drops)
+                    .log("player","attack",
+                        RelicArsenal.label(s.equipped)+"造成"+damage+"伤害"+
+                        if(defeated)" · 击败"+RelicArsenal.monsterName(mob.kind)+"，掉落战利品！"
+                        else if(mob.windup && s.equipped=="blade")" · 打断蓄力！" else "")
+                noise=if(s.equipped=="bow")3 else 2
+            }
+            "defend"->{
+                next=s.copy(guarding=true).log("player","defend","举盾防御，抵消本回合一次来自守卫的伤害")
+                noise=0
             }
             "heal"->{
                 if(hero.kits<=0 || hero.hp>=10)return s.copy(notice="没有可用的药剂，或生命已满")
@@ -285,7 +344,7 @@ internal object RelicEscapeRules {
         next=alliesTurn(next,autonomousIds)
         next=enemyTurn(next,noise)
         next=next.copy(flareTurns=(next.flareTurns-1).coerceAtLeast(0),
-            lureTurns=(next.lureTurns-1).coerceAtLeast(0))
+            lureTurns=(next.lureTurns-1).coerceAtLeast(0),guarding=false)
         if(next.hero.hp<=0 && next.phase!=RelicPhase.DOWNED) {
             next=next.copy(phase=RelicPhase.DOWNED,extraction=0,downTurns=0,hero=next.hero.copy(downs=next.hero.downs+1))
                 .log("player","down","玩家倒地！等待队友救援")
@@ -370,12 +429,17 @@ internal object RelicEscapeRules {
                     continue
                 }
                 if(d<=1) {
-                    val damage=m.kind+1
-                    if(target.id=="player")s=s.copy(hero=s.hero.copy(hp=(s.hero.hp-damage).coerceAtLeast(0)))
+                    val rawDamage=m.kind+1
+                    val damage=if(target.id=="player" && s.guarding)
+                        (rawDamage-3).coerceAtLeast(0) else rawDamage
+                    if(target.id=="player")s=s.copy(hero=s.hero.copy(hp=(s.hero.hp-damage).coerceAtLeast(0)),
+                        guarding=false)
                     else s=s.copy(allies=s.allies.map{if(it.id==target.id)
                         it.copy(hp=(it.hp-damage).coerceAtLeast(0),
                             downs=it.downs+if(it.hp>0 && it.hp<=damage)1 else 0) else it})
-                    s=s.log(target.id,"hurt","敌人击中 "+target.id+"，伤害"+damage)
+                    s=s.log(target.id,if(damage==0)"block" else "hurt",
+                        if(damage==0)"成功格挡"+RelicArsenal.monsterName(m.kind)+"的攻击"
+                        else "敌人击中 "+target.id+"，伤害"+damage)
                 }
                 alive+=m.copy(windup=false,alert=3)
                 continue

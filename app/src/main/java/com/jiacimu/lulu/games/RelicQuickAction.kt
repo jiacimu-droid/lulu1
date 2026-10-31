@@ -18,10 +18,12 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         return RelicQuickAction("wait", "等待伙伴救援", "倒地期间无法移动，等待伙伴靠近")
     if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
     val near = RelicEscapeRules.distance(hero.x, hero.y, x, y) <= 1
+    val mob = run.mobs.firstOrNull { it.hp > 0 && it.x == x && it.y == y }
+    if (mob != null && RelicArsenal.canHit(run,x,y))
+        return RelicQuickAction("attack", RelicArsenal.label(run.equipped)+"攻击 · "+mob.hp+"生命",
+            RelicArsenal.monsterName(mob.kind)+" · "+RelicArsenal.description(run.equipped)+
+                if(run.equipped=="bow")" · 剩余"+run.bolts+"箭" else "", x, y)
     if (run.visible(x, y) && near) {
-        val mob = run.mobs.firstOrNull { it.hp > 0 && it.x == x && it.y == y }
-        if (mob != null) return RelicQuickAction("attack", "攻击怪物 · 剩余 ${mob.hp} 生命",
-            "推进一回合，敌人也可能反击", x, y)
         val ally = run.allies.firstOrNull { it.hp <= 0 && it.x == x && it.y == y }
         if (ally != null && hero.kits > 0) return RelicQuickAction("revive", "使用药剂救援队友",
             "消耗一瓶药剂救起附近倒地伙伴", id = ally.id)
@@ -33,6 +35,10 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
             "解除附近机关", "消耗一份拆解工具，避免触发陷阱", x, y)
         if (site?.kind == "altar") return RelicQuickAction("invoke", "唤醒古老祭坛",
             "可获取珍宝，也会惊动守卫", x, y)
+        if (site?.kind == "supply") return RelicQuickAction("resupply", "搜寻战地补给",
+            "拾取药剂和弩箭，储备有限", x, y)
+        if (site?.kind == "fountain" && hero.hp<10) return RelicQuickAction("fountain", "汲取恢复灵泉",
+            "回复生命，灵泉仅能使用一次", x, y)
         val drop = run.drops.firstOrNull {
             it.x == x && it.y == y && hero.load + it.loot.weight <= RelicEscapeRules.CAPACITY
         }

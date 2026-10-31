@@ -76,8 +76,9 @@ internal object RelicEscapeWorld {
             if(candidates.isEmpty())break
             val (x,y)=candidates[rng.nextInt(candidates.size)]
             occupied+=x to y
-            val kind=if(level<=1)index%2 else rng.nextInt(3)
-            mobs+=RelicMob(index,x,y,2+kind*2+level/2,kind)
+            val kind=if(level>=2 && index==(2+level.coerceIn(1,5))-1)3
+                else if(level<=1)index%2 else rng.nextInt(3)
+            mobs+=RelicMob(index,x,y,if(kind==3)9+level else 2+kind*2+level/2,kind)
         }
         // Optional danger rooms and one-use traps are world entities, not narrative rewards.
         val possibleSites=(2 until w-2).flatMap { x->(2 until h-2).map{y->x to y} }
@@ -92,6 +93,15 @@ internal object RelicEscapeWorld {
         }
         val traps=possibleSites.filter{it !in occupied}.take((1+level/2).coerceAtMost(4))
         traps.forEachIndexed { index,(x,y)->sites+=RelicSite(index+1,x,y,"trap") }
+        occupied+=traps
+        possibleSites.firstOrNull { it !in occupied }?.let { (x,y)->
+            occupied+=x to y
+            sites+=RelicSite(sites.size,x,y,"supply")
+        }
+        possibleSites.firstOrNull { it !in occupied }?.let { (x,y)->
+            occupied+=x to y
+            sites+=RelicSite(sites.size,x,y,"fountain")
+        }
         val allies=companions.distinct().filter{it.isNotBlank()}.take(3).mapIndexed{index,id->
             val positions=listOf(3 to 2,2 to 3,3 to 3)
             val (x,y)=positions[index]
