@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T03:46:33.966657+00:00",
-  "commit": "33f27c09b885a533a8d567352dc32bbe32340f8b",
+  "generatedAt": "2026-10-31T03:47:28.698810+00:00",
+  "commit": "734b55c3f3fb87f49fd0a272fb5a543a52319289",
   "branch": "main",
-  "sourceFingerprint": "3259cd6c18e049c69dd2eb31797eccbe13953124fa7638a5fe0c03c7525e64bc",
+  "sourceFingerprint": "03174bc45b16a634ad6b858a8f1b79cf7f808a200f3d2f3ab7fdcf195b89465b",
   "summary": {
     "files": 1120,
-    "lines": 231284,
+    "lines": 231313,
     "symbols": 3264
   },
   "symbolIndex": {
@@ -1711,7 +1711,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2030
+        "line": 2050
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -4541,7 +4541,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 179
+        "line": 188
       }
     ],
     "recent": [
@@ -11483,85 +11483,85 @@
     "historicalAttempts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 96
+        "line": 97
       }
     ],
     "SavedDayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 208
+        "line": 210
       }
     ],
     "hasPartialDayActions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 212
+        "line": 214
       }
     ],
     "savedDayRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 220
+        "line": 222
       }
     ],
     "DueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 257
+        "line": 259
       }
     ],
     "dueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 259
+        "line": 261
       }
     ],
     "SavedDueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 274
+        "line": 276
       }
     ],
     "savedDueRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 276
+        "line": 278
       }
     ],
     "SavedIndependentSideRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 323
+        "line": 325
       }
     ],
     "savedIndependentSideRecoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 328
+        "line": 330
       }
     ],
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 624
+        "line": 626
       }
     ],
     "attemptedToday": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 633
+        "line": 635
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 636
+        "line": 638
       }
     ],
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 707
+        "line": 709
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11571,7 +11571,7 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1533
+        "line": 1539
       }
     ],
     "plan": [
@@ -24739,8 +24739,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 188,
-      "sha256": "8469dce9a1dc3c88d65de351f462f3acaab09049c769227f199aa5627fa68c93",
+      "lines": 197,
+      "sha256": "8e69958c8b1ec28d2eb049ec0857c7055505ae125362e698e85768b91b0ad85c",
       "symbols": [
         {
           "name": "modelContext",
@@ -24752,7 +24752,7 @@
         },
         {
           "name": "summary",
-          "line": 179
+          "line": 188
         }
       ]
     },
@@ -29445,8 +29445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2094,
-      "sha256": "16052230bdefbec95f792dd9deb0837204ed3a807904277ec466b07d78d2b3aa",
+      "lines": 2114,
+      "sha256": "6eb2825f3502f285b8dc52bb1b6f39d2f0945d8a900b9a00896d1435c5818f4b",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29462,67 +29462,67 @@
         },
         {
           "name": "historicalAttempts",
-          "line": 96
+          "line": 97
         },
         {
           "name": "SavedDayRecovery",
-          "line": 208
+          "line": 210
         },
         {
           "name": "hasPartialDayActions",
-          "line": 212
+          "line": 214
         },
         {
           "name": "savedDayRecovery",
-          "line": 220
+          "line": 222
         },
         {
           "name": "DueRecovery",
-          "line": 257
-        },
-        {
-          "name": "dueRecovery",
           "line": 259
         },
         {
-          "name": "SavedDueRecovery",
-          "line": 274
+          "name": "dueRecovery",
+          "line": 261
         },
         {
-          "name": "savedDueRecovery",
+          "name": "SavedDueRecovery",
           "line": 276
         },
         {
+          "name": "savedDueRecovery",
+          "line": 278
+        },
+        {
           "name": "SavedIndependentSideRecovery",
-          "line": 323
+          "line": 325
         },
         {
           "name": "savedIndependentSideRecoveries",
-          "line": 328
+          "line": 330
         },
         {
           "name": "planForApp",
-          "line": 624
+          "line": 626
         },
         {
           "name": "attemptedToday",
-          "line": 633
+          "line": 635
         },
         {
           "name": "planFor",
-          "line": 636
+          "line": 638
         },
         {
           "name": "reject",
-          "line": 707
+          "line": 709
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1533
+          "line": 1539
         },
         {
           "name": "schedule",
-          "line": 2030
+          "line": 2050
         }
       ]
     },
