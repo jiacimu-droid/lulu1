@@ -488,38 +488,34 @@ private fun BlockIslandCanvas(
     val rows = if (fullscreen) (cols * ((config.screenHeightDp - 54).coerceAtLeast(160).toFloat() /
         config.screenWidthDp.coerceAtLeast(1))).toInt().coerceIn(6, 32)
         else if (landscape) { if (zoomed) 7 else 10 } else { if (zoomed) 11 else 16 }
-    val left = (w.x - cols / 2).coerceIn(0, (w.width - cols).coerceAtLeast(0))
-    val top = (w.y - rows / 2).coerceIn(0, (w.height - rows).coerceAtLeast(0))
+    // The player and camera share the same interpolated position. Even at the world edge,
+    // keep the actor in the clear center instead of sliding beneath the thumb controls.
+    val latestPlayerVisual by rememberUpdatedState(playerVisual)
     val latestSelect by rememberUpdatedState(onSelect)
     val latestNavigate by rememberUpdatedState(onNavigate)
     Canvas(
         (if (fullscreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth().aspectRatio(cols.toFloat() / rows))
-            .pointerInput(left, top, cols, rows) {
-                fun targetFor(tap: Offset): Pair<Int, Int>? {
-                    val tile = kotlin.math.min(size.width / cols.toFloat(), size.height / rows.toFloat())
-                    val padX = (size.width - tile * cols) / 2f
-                    val padY = (size.height - tile * rows) / 2f
-                    val tx = left + ((tap.x - padX) / tile).toInt()
-                    val ty = top + ((tap.y - padY) / tile).toInt()
-                    return (tx to ty).takeIf {
-                        tap.x >= padX && tap.x < padX + cols * tile &&
-                            tap.y >= padY && tap.y < padY + rows * tile &&
-                            w.inBounds(tx, ty) && tx in left until left + cols &&
-                            ty in top until top + rows
-                    }
-                }
+            .pointerInput(cols, rows, w.width, w.height, w.seed) {
+                fun targetFor(tap: Offset): Pair<Int, Int>? =
+                    islandFollowCamera(
+                        size.width.toFloat(), size.height.toFloat(), cols, rows,
+                        latestPlayerVisual.x, latestPlayerVisual.y, w.width, w.height,
+                    ).tileAt(tap.x, tap.y, w.width, w.height)
                 detectTapGestures(
                     onTap = { point -> targetFor(point)?.let { (x, y) -> latestSelect(x, y) } },
                     onDoubleTap = { point -> targetFor(point)?.let { (x, y) -> latestNavigate(x, y) } },
                 )
             },
     ) {
+        val camera = islandFollowCamera(
+            size.width, size.height, cols, rows,
+            playerVisual.x, playerVisual.y, w.width, w.height,
+        )
         with(BlockIslandArt) {
             paint(
                 island = island, selected = target, companionPing = companionPing,
-                playerVisual = playerVisual, companionVisuals = companionVisuals, left = left, top = top,
-                cols = cols, rows = rows, night = night, phase = phase,
-                impact = impact, impactProgress = impactProgress,
+                playerVisual = playerVisual, companionVisuals = companionVisuals, camera = camera,
+                night = night, phase = phase, impact = impact, impactProgress = impactProgress,
             )
         }
     }
