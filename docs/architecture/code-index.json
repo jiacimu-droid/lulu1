@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:14:43.730085+00:00",
-  "commit": "d65c620068782d14593e498bde0acb47507bb817",
+  "generatedAt": "2026-10-31T16:16:05.300772+00:00",
+  "commit": "ee0236f5aa9cf7c2e0313c34f7324f32dfce613b",
   "branch": "main",
-  "sourceFingerprint": "7e8210c2563f3bed4c62bffc5c43ef93ea0beb70fb184508a5664f100a383d51",
+  "sourceFingerprint": "5e9eff077266a79f8a53852b0c707d5b521f0faa3709f47d8259462db119c283",
   "summary": {
     "files": 1130,
-    "lines": 232460,
+    "lines": 232461,
     "symbols": 3284
   },
   "symbolIndex": {
@@ -2099,7 +2099,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 72
+        "line": 73
       }
     ],
     "prepare": [
@@ -4633,7 +4633,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 131
+        "line": 132
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -13331,7 +13331,7 @@
     "isChangeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-        "line": 68
+        "line": 69
       }
     ],
     "generate": [
@@ -32005,8 +32005,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
-      "lines": 197,
-      "sha256": "9f36fc03fe13f112f585443af1a469fedbe8c3ae03932d87058ccf32bda9266d",
+      "lines": 198,
+      "sha256": "63c44a3ed77221ba4726da0e898b0944ef8343777501f071e22be616002dc306",
       "symbols": [
         {
           "name": "json",
@@ -32026,15 +32026,15 @@
         },
         {
           "name": "isChangeAction",
-          "line": 68
+          "line": 69
         },
         {
           "name": "choose",
-          "line": 72
+          "line": 73
         },
         {
           "name": "advance",
-          "line": 131
+          "line": 132
         }
       ]
     },
