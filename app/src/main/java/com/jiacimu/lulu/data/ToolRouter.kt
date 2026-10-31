@@ -45,6 +45,13 @@ internal object ToolExecutionStatus {
      */
     fun primaryAllowsDependentSteps(primaryTool: String, primaryResult: JSONObject): Boolean =
         primaryTool.isBlank() || completed(primaryResult)
+
+    /** A durable terminal ToolRouter refusal cannot become success when
+     * the same immutable request ID is replayed. Unrecorded and pending work
+     * still needs recovery and must never be called settled. */
+    fun terminalRejection(result: JSONObject, hasDurableReceipt: Boolean): Boolean =
+        hasDurableReceipt && !result.optBoolean("success") &&
+            result.optString("status").trim().lowercase() in setOf("", "failed", "denied")
 }
 
 /** The same persisted routing and evidence path is used by foreground, voice and background. */

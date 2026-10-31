@@ -1,6 +1,9 @@
 package com.jiacimu.lulu.data
 
+import org.json.JSONArray
 import org.json.JSONObject
+import kotlinx.coroutines.runBlocking
+import org.robolectric.RuntimeEnvironment
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +55,35 @@ class ToolExecutionStatusTest {
         assertFalse(ToolExecutionStatus.primaryAllowsDependentSteps("web_search",
             JSONObject().put("success", false).put("status", "failed")))
         assertTrue(ToolExecutionStatus.primaryAllowsDependentSteps("web_search", verified))
+    }
+
+    @Test fun durableTerminalFailuresAreSettledButPendingOrUnrecordedOnesAreNot() {
+        val failed = JSONObject().put("success", false).put("status", "failed")
+        val denied = JSONObject().put("success", false).put("status", "denied")
+        val waiting = JSONObject().put("success", false).put("status", "waiting_user")
+        assertTrue(ToolExecutionStatus.terminalRejection(failed, true))
+        assertTrue(ToolExecutionStatus.terminalRejection(denied, true))
+        assertTrue(ToolExecutionStatus.terminalRejection(
+            JSONObject().put("success", false).put("error", "旧执行器未给状态"), true))
+        assertFalse(ToolExecutionStatus.terminalRejection(failed, false))
+        assertFalse(ToolExecutionStatus.terminalRejection(waiting, true))
+        assertFalse(ToolExecutionStatus.terminalRejection(
+            JSONObject().put("success", true).put("status", "succeeded"), true))
+    }
+
+    @Test fun malformedStepDoesNotRetryItsDependentStepsForever() = runBlocking {
+        val steps = JSONArray()
+            .put(JSONObject().put("tool", "missing_tool_for_test").put("args", JSONObject()))
+            .put(JSONObject().put("tool", "like_moment").put("args",
+                JSONObject().put("postId", "unreached_post"))
+                .put("requiresPreviousSuccess", true))
+        val report = OrderedCharacterActions.execute(
+            RuntimeEnvironment.getApplication(), "resident:test-settlement",
+            steps, requestId = "test-settlement", sceneAllowedTools = setOf("like_moment"))
+        assertEquals(0, report.completedCount)
+        assertEquals(2, report.settledCount)
+        assertEquals(2, report.terminalFailureCount)
+        assertEquals(2, report.notes.size)
     }
 
     @Test fun actuallyCompletedOperationsAllowTheNextAction() {

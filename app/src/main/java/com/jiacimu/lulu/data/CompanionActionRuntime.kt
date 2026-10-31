@@ -1312,6 +1312,8 @@ internal data class OrderedCharacterActionReport(
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
     val anyCompleted: Boolean = false,
     val completedCount: Int = 0,
+    val settledCount: Int = 0,
+    val terminalFailureCount: Int = 0,
 )
 internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
@@ -1443,6 +1445,9 @@ internal object OrderedCharacterActions {
         var anyAccepted = false
         var anyCompleted = false
         var completedCount = 0
+        var settledCount = 0
+        var terminalFailureCount = 0
+        var previousTerminalFailure = false
         for (index in 0 until steps.length()) {
             if (shouldDeferRemaining?.invoke() == true) {
                 for (pending in index until steps.length()) {
@@ -1456,6 +1461,9 @@ internal object OrderedCharacterActions {
             if (step == null) {
                 notes += "第${index + 1}步未执行：动作格式无效"
                 previousCompleted = false
+                previousTerminalFailure = true
+                settledCount++
+                terminalFailureCount++
                 continue
             }
             // Defensive boundary for saved plans and non-model callers too:
@@ -1467,16 +1475,28 @@ internal object OrderedCharacterActions {
                     "第${index + 1}步未执行：未填写可执行的工具或动作名称"
                 else "第${index + 1}步未执行：未知工具${name.take(40)}"
                 previousCompleted = false
+                previousTerminalFailure = true
+                settledCount++
+                terminalFailureCount++
                 continue
             }
             if (sceneAllowedTools != null && name !in sceneAllowedTools) {
                 notes += "第${index + 1}步${name}未执行：当前场景不提供此工具"
                 previousCompleted = false
+                previousTerminalFailure = true
+                settledCount++
+                terminalFailureCount++
                 continue
             }
             if (normalized.optBoolean("requiresPreviousSuccess", false) && !previousCompleted) {
                 notes += "第${index + 1}步${name}未执行：前一步尚未成功"
                 previousCompleted = false
+                // Terminally rejected predecessor makes dependent steps
+                // unreachable; a pending predecessor does not.
+                if (previousTerminalFailure) {
+                    settledCount++
+                    terminalFailureCount++
+                }
                 continue
             }
             val args = JSONObject((normalized.optJSONObject("args") ?: JSONObject()).toString())
@@ -1517,6 +1537,10 @@ internal object OrderedCharacterActions {
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
             previousCompleted = ToolExecutionStatus.completed(result)
+            previousTerminalFailure = ToolExecutionStatus.terminalRejection(result,
+                SearchReceiptFeedback.recordedReceiptId(characterId, stepRequestId).isNotBlank())
+            if (previousCompleted || previousTerminalFailure) settledCount++
+            if (previousTerminalFailure) terminalFailureCount++
             anyCompleted = anyCompleted || previousCompleted
             if (previousCompleted) completedCount++
             anyAccepted = anyAccepted || accepted
@@ -1528,7 +1552,8 @@ internal object OrderedCharacterActions {
                 }
             }.take(160)
         }
-        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts, anyCompleted, completedCount)
+        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts,
+            anyCompleted, completedCount, settledCount, terminalFailureCount)
     }
 }
 
