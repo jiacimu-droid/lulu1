@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:48:37.424923+00:00",
-  "commit": "17ad5b20aec0f875e368c602b77cc055b4366224",
+  "generatedAt": "2026-10-31T16:50:31.489468+00:00",
+  "commit": "36220cb205e41f659ca0b5707991742223db5ab5",
   "branch": "main",
-  "sourceFingerprint": "8885935713d5b0c9b46ffdd61fa2bd8fe4eb70f6380ac3438b8f2a781c92b7b3",
+  "sourceFingerprint": "64aca60ba468730fd53e133231c8aa6a292448bfa28d002f3aad319678c750f8",
   "summary": {
     "files": 1134,
-    "lines": 233321,
-    "symbols": 3301
+    "lines": 233418,
+    "symbols": 3303
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -229,11 +229,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 56
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 52
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -2112,6 +2112,14 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 73
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
+        "line": 53
       }
     ],
     "prepare": [
@@ -3265,11 +3273,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 154
+        "line": 163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 92
+        "line": 108
       }
     ],
     "userDeparted": [
@@ -4649,11 +4657,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 70
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 76
+        "line": 115
       }
     ],
     "watchedThrough": [
@@ -5509,7 +5517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 138
+        "line": 147
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -13261,17 +13269,17 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 243
+        "line": 254
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 249
+        "line": 260
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 198
+        "line": 216
       }
     ],
     "submitPlayerMessage": [
@@ -13389,7 +13397,7 @@
     "stopAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 61
+        "line": 89
       }
     ],
     "GameModelConnectionStatus": [
@@ -13707,7 +13715,7 @@
     "moveStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-        "line": 59
+        "line": 98
       }
     ],
     "syncExperiences": [
@@ -32013,8 +32021,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 308,
-      "sha256": "90331fafcf5bda1b130c2361d2ff61fc5c5308cdc5b1d5d0ccfe1a9b8b6dacb2",
+      "lines": 319,
+      "sha256": "66a39cbec98d0d12f0f775ca7d577a7e369fc959beb5d3e5f2b7b7986cabf150",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -32026,26 +32034,26 @@
         },
         {
           "name": "parse",
-          "line": 138
+          "line": 147
         },
         {
           "name": "apply",
-          "line": 154
+          "line": 163
         },
         {
           "name": "applyLive",
-          "line": 243
+          "line": 254
         },
         {
           "name": "facts",
-          "line": 249
+          "line": 260
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 302,
-      "sha256": "a56a495bf305999c7986e1c4714889fa637f1162cbc12f51784cba03edb4ddea",
+      "lines": 303,
+      "sha256": "a410affb6814b9f8fe97c3ff72f85601d90f7353b2896c8a78bc85a0952fb6de",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -32184,8 +32192,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-      "lines": 128,
-      "sha256": "cacfd8f25bc4b2a9934ce5d7fe86ec30a2601c8b51e0ffe47ab7a7250707de0f",
+      "lines": 156,
+      "sha256": "bb86e3362693222230091dcafd6e87e042b73463b1b24cd52d9d1f648fb94bba",
       "symbols": [
         {
           "name": "json",
@@ -32200,16 +32208,20 @@
           "line": 39
         },
         {
+          "name": "choose",
+          "line": 58
+        },
+        {
           "name": "cancel",
-          "line": 56
+          "line": 85
         },
         {
           "name": "stopAll",
-          "line": 61
+          "line": 89
         },
         {
           "name": "advance",
-          "line": 70
+          "line": 98
         }
       ]
     },
@@ -32425,8 +32437,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 227,
-      "sha256": "bf258957297e2456a83bdfd56a1256118d4509325fc73a05bbe37dea0d73225e",
+      "lines": 245,
+      "sha256": "765cb088dec2ba4f8479bdfe7ea4ef7d429770c95eb8a51cd0f070234f8d0ffd",
       "symbols": [
         {
           "name": "acted",
@@ -32438,11 +32450,11 @@
         },
         {
           "name": "apply",
-          "line": 92
+          "line": 108
         },
         {
           "name": "facts",
-          "line": 198
+          "line": 216
         }
       ]
     },
@@ -32490,7 +32502,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
       "lines": 159,
-      "sha256": "3c662224c861832546afd4c417ea54d2a12afcdab68d65abac62dfbbd1474a89",
+      "sha256": "6a73938f7349fa7c0163086fc0e43ce02d149cf9a7efa9503506e7177064abbb",
       "symbols": [
         {
           "name": "send",
@@ -32500,8 +32512,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
-      "lines": 127,
-      "sha256": "db182824371707b0b77fe1fa81e3ebba0fe21e7e95727377577946f08e4f1346",
+      "lines": 166,
+      "sha256": "dd2434628b63b1ee22462633af045da8a0fd53866e0ca972104d2a60aa9c9a04",
       "symbols": [
         {
           "name": "json",
@@ -32520,16 +32532,20 @@
           "line": 34
         },
         {
+          "name": "choose",
+          "line": 53
+        },
+        {
           "name": "cancel",
-          "line": 52
+          "line": 91
         },
         {
           "name": "moveStep",
-          "line": 59
+          "line": 98
         },
         {
           "name": "advance",
-          "line": 76
+          "line": 115
         }
       ]
     },
