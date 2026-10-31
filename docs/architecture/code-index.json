@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T13:11:06.197076+00:00",
-  "commit": "7c91f09c1cb4e934b2113d877b2444ecf3fa724e",
+  "generatedAt": "2026-10-31T13:13:48.103915+00:00",
+  "commit": "de36eb2bbf6d0f6df4f200cace1adb461e8c526d",
   "branch": "main",
-  "sourceFingerprint": "f4cfffecfb2527d0583ede165b47f875e55d7728b1db95bbf69f4cd66ecb480d",
+  "sourceFingerprint": "0617ed09c9e08e0919130db813b14d058298e20d966523a9d0ba8f4cd52896e2",
   "summary": {
     "files": 1124,
-    "lines": 231679,
+    "lines": 231648,
     "symbols": 3269
   },
   "symbolIndex": {
@@ -8195,7 +8195,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 89
+        "line": 79
       }
     ],
     "recentOwnReplies": [
@@ -10857,67 +10857,67 @@
     "ProactiveGateReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "ProactiveGatePolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 31
+        "line": 27
       }
     ],
     "ProactiveAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 44
+        "line": 34
       }
     ],
     "ProactiveThoughtMeta": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 51
+        "line": 41
       }
     ],
     "ProactiveGateInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 62
+        "line": 52
       }
     ],
     "ProactiveGateDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 80
+        "line": 70
       }
     ],
     "ProactiveMessageGate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 87
+        "line": 77
       }
     ],
     "isQuiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 113
+        "line": 93
       }
     ],
     "topicKeyFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 123
+        "line": 103
       }
     ],
     "recordAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 130
+        "line": 110
       }
     ],
     "expireIfDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-        "line": 140
+        "line": 120
       }
     ],
     "PerceptionIntervalUnit": [
@@ -17448,7 +17448,7 @@
         "line": 115
       }
     ],
-    "rejectDuringCooldown": [
+    "recentDeliveryIsNotAContactVeto": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
         "line": 123
@@ -17460,7 +17460,7 @@
         "line": 131
       }
     ],
-    "rejectWhenUnansweredOutstanding": [
+    "unansweredMessageDoesNotBlockAnotherAutonomousChoice": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
         "line": 139
@@ -17472,19 +17472,19 @@
         "line": 145
       }
     ],
-    "rejectAtDailyCap": [
+    "highDailyCountDoesNotBlockAnotherChoice": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
         "line": 151
       }
     ],
-    "rejectSameTopicRecent": [
+    "sameTopicAgainIsNotAProgrammaticRefusal": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
         "line": 157
       }
     ],
-    "rejectSameTopicAtMaxAttemptsEvenIfOld": [
+    "repeatedAttemptsNeverOverrideRoleChoice": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
         "line": 171
@@ -28866,56 +28866,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
-      "lines": 156,
-      "sha256": "3869d74720796999ff48badf4fc7b480be275fecc926cc2b283069d92be08be6",
+      "lines": 125,
+      "sha256": "8d2366fc390103b97adb702452c56d0a7e32ec72bae7397c972a8a1ccfe3d990",
       "symbols": [
         {
           "name": "ProactiveGateReason",
-          "line": 20
+          "line": 21
         },
         {
           "name": "ProactiveGatePolicy",
-          "line": 31
+          "line": 27
         },
         {
           "name": "ProactiveAttempt",
-          "line": 44
+          "line": 34
         },
         {
           "name": "ProactiveThoughtMeta",
-          "line": 51
+          "line": 41
         },
         {
           "name": "ProactiveGateInput",
-          "line": 62
+          "line": 52
         },
         {
           "name": "ProactiveGateDecision",
-          "line": 80
+          "line": 70
         },
         {
           "name": "ProactiveMessageGate",
-          "line": 87
+          "line": 77
         },
         {
           "name": "evaluate",
-          "line": 89
+          "line": 79
         },
         {
           "name": "isQuiet",
-          "line": 113
+          "line": 93
         },
         {
           "name": "topicKeyFor",
-          "line": 123
+          "line": 103
         },
         {
           "name": "recordAttempt",
-          "line": 130
+          "line": 110
         },
         {
           "name": "expireIfDue",
-          "line": 140
+          "line": 120
         }
       ]
     },
@@ -37623,7 +37623,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt",
       "lines": 317,
-      "sha256": "ada5a5cf2a3fa4b6c4b07474247b51630264b82f6744f927493f445e375b32ef",
+      "sha256": "0a52b83c942f50c29e9c679b913a3effd010bd3e67543aaf725dac02a4f4c667",
       "symbols": [
         {
           "name": "ProactiveMessageGateTest",
@@ -37654,7 +37654,7 @@
           "line": 115
         },
         {
-          "name": "rejectDuringCooldown",
+          "name": "recentDeliveryIsNotAContactVeto",
           "line": 123
         },
         {
@@ -37662,7 +37662,7 @@
           "line": 131
         },
         {
-          "name": "rejectWhenUnansweredOutstanding",
+          "name": "unansweredMessageDoesNotBlockAnotherAutonomousChoice",
           "line": 139
         },
         {
@@ -37670,15 +37670,15 @@
           "line": 145
         },
         {
-          "name": "rejectAtDailyCap",
+          "name": "highDailyCountDoesNotBlockAnotherChoice",
           "line": 151
         },
         {
-          "name": "rejectSameTopicRecent",
+          "name": "sameTopicAgainIsNotAProgrammaticRefusal",
           "line": 157
         },
         {
-          "name": "rejectSameTopicAtMaxAttemptsEvenIfOld",
+          "name": "repeatedAttemptsNeverOverrideRoleChoice",
           "line": 171
         },
         {
