@@ -18,6 +18,31 @@ internal object RelicActorPlay {
         if (s.phase !in live) return emptyList()
         val result = mutableListOf(IslandActorOption("none", "观察或交谈", "none"))
         if (acted(s, id)) return result
+        if (s.hero.hp>0 && RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=2 &&
+            s.guardedBy!=id)
+            result += IslandActorOption("guard_player","主动保护玩家；遇到守卫攻击时自己承担1点伤害，为玩家抵消伤害","guard_player")
+        for (chest in s.chests.filter { !it.opened && s.visible(it.x,it.y) &&
+                it.id !in s.playerChestMarks }.take(8)) {
+            result += IslandActorOption("reserve:"+chest.id,
+                "把坐标("+chest.x+","+chest.y+")的"+chest.tier.label+"宝箱标记留给玩家亲自开启","reserve",
+                chest.x,chest.y)
+        }
+        if (RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)<=1) {
+            for (item in a.bag.filter { item ->
+                s.hero.load+item.weight<=RelicEscapeRules.CAPACITY }.take(4))
+                result += IslandActorOption("share:"+item.id,
+                    "将自己背包的"+item.name+"交给玩家，真实转移背包物品","share")
+        }
+        for(mob in s.mobs.filter { it.hp>0 && s.visible(it.x,it.y) &&
+            RelicEscapeRules.distance(a.x,a.y,it.x,it.y) in 2..6 }.take(5)) {
+            val step=RelicEscapeRules.path(s,a.x,a.y,mob.x,mob.y)
+            if(step!=null && !(step.first==s.hero.x && step.second==s.hero.y) &&
+                s.mobs.none { it.hp>0 && it.x==step.first && it.y==step.second } &&
+                s.allies.none { it.id!=id && it.hp>0 && it.x==step.first && it.y==step.second })
+                result += IslandActorOption("support:"+mob.id,
+                    "赶去帮助玩家围攻"+RelicArsenal.monsterName(mob.kind)+"，仅走合法一步","support",
+                    mob.x,mob.y)
+        }
         for ((x, y) in listOf(a.x+1 to a.y, a.x-1 to a.y, a.x to a.y+1, a.x to a.y-1)) {
             if (!s.bounds(x, y)) continue
             if (s.mobs.any { it.hp > 0 && it.x == x && it.y == y }) {
@@ -27,7 +52,7 @@ internal object RelicActorPlay {
                 result += IslandActorOption("move:$x:$y", "走到($x,$y)", "move", x, y)
             }
         }
-        s.chests.filter { !it.opened && s.visible(it.x,it.y) &&
+        s.chests.filter { !it.opened && it.id !in s.playerChestMarks && s.visible(it.x,it.y) &&
             RelicEscapeRules.distance(a.x,a.y,it.x,it.y) <= 1 &&
             a.load + it.tier.weight <= RelicEscapeRules.CAPACITY }.forEach {
             result += IslandActorOption("open:${it.x}:${it.y}", "打开${it.tier.label}宝箱(${it.x},${it.y})", "open", it.x, it.y)
@@ -48,6 +73,35 @@ internal object RelicActorPlay {
         var next = s
         val outcome = when (option.kind) {
             "none" -> "观察现场"
+            "guard_player" -> {
+                next=s.copy(guardedBy=id)
+                "决定保护玩家，下一次受到有效攻击时代为格挡"
+            }
+            "reserve" -> {
+                val chest=s.chests.firstOrNull { !it.opened && it.x==option.x && it.y==option.y }
+                    ?:return null
+                next=s.copy(playerChestMarks=s.playerChestMarks+chest.id)
+                "将"+chest.tier.label+"宝箱留给玩家开启"
+            }
+            "share" -> {
+                val item=a.bag.firstOrNull { "share:"+it.id==option.id } ?:return null
+                if(RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1 ||
+                    s.hero.load+item.weight>RelicEscapeRules.CAPACITY)return null
+                actor=a.copy(bag=a.bag.filterNot { it.id==item.id })
+                next=s.copy(hero=s.hero.copy(bag=s.hero.bag+item))
+                "亲手将"+item.name+"交给玩家背包"
+            }
+            "support" -> {
+                val enemy=s.mobs.firstOrNull { it.hp>0 && it.x==option.x && it.y==option.y }
+                    ?:return null
+                val step=RelicEscapeRules.path(s,a.x,a.y,enemy.x,enemy.y) ?:return null
+                if(s.mobs.any { it.hp>0 && it.x==step.first && it.y==step.second } ||
+                    s.allies.any { it.id!=id && it.hp>0 && it.x==step.first && it.y==step.second } ||
+                    s.hero.x==step.first && s.hero.y==step.second)return null
+                actor=a.copy(x=step.first,y=step.second)
+                "主动去支援围攻"+RelicArsenal.monsterName(enemy.kind)+
+                    "，前进到("+step.first+","+step.second+")"
+            }
             "move" -> {
                 val trap = s.sites.firstOrNull { !it.spent && it.kind == "trap" && it.x == option.x && it.y == option.y }
                 val damage = (if (s.tile(option.x,option.y) == 2) 1 else 0) + (if (trap != null) 2 else 0)
@@ -93,6 +147,8 @@ internal object RelicActorPlay {
         .put("game","迷雾摸金").put("turn",s.turns).put("phase",s.phase.name)
         .put("self",s.allies.first { it.id == id }.json())
         .put("player",s.hero.json()).put("exit",JSONArray(listOf(s.exitX,s.exitY)))
+        .put("playerGuardedBy",s.guardedBy)
+        .put("playerChestMarks",JSONArray(s.playerChestMarks.sorted()))
         .put("playerArsenal",JSONObject().put("equipped",s.equipped)
             .put("weapons",JSONArray(s.weapons.sorted())).put("bolts",s.bolts))
         .put("sites",JSONArray(s.sites.filter{s.visible(it.x,it.y) && !it.spent}.map{it.json()}))
@@ -108,7 +164,7 @@ internal object RelicActorPlay {
     suspend fun decide(s: RelicRun,id: String,heard: String): Result<IslandActorChoice> =
         LuluAiServices.gateway.generate(characterId=id,facts=facts(s,id,heard),
             instruction="""你是角色本人，正在陪玩家合作探索遗迹。按自己的性格、关系与现场自主选择操作，可以分头搜宝、战斗、救援、撤退或观察；不必等玩家命令或固定跟随。
-只选options中的真实id。未探索的地图内容未知，台词不能冒充执行成功。可以自然交流也可以沉默。
+只选options中的真实id。你可以自主和玩家一起围攻敌人、主动赶去支援、救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
 只输出JSON：{"actionId":"options中的id","speech":"愿意说出口的话；沉默则为空字符串"}。实际执行结果由游戏返回。""",
             source="游戏 · 迷雾摸金自主同行",title="摸金伙伴自主决策",usage=ModelUsage.Game,
             contextMode=CompanionContextMode.CharacterAndScenario,maxTokens=260)

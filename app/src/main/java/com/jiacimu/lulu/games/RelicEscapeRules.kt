@@ -69,7 +69,9 @@ internal data class RelicRun(
     val flareX:Int=-1,val flareY:Int=-1,val flareTurns:Int=0,
     val lureX:Int=-1,val lureY:Int=-1,val lureTurns:Int=0,
     val weapons:Set<String> = setOf("blade"),val equipped:String="blade",
-    val bolts:Int=5,val guarding:Boolean=false
+    val bolts:Int=5,val guarding:Boolean=false,
+    val playerChestMarks:Set<Int> = emptySet(),
+    val guardedBy:String = ""
 ) {
     fun index(x:Int,y:Int)=y*w+x
     fun bounds(x:Int,y:Int)=x in 0 until w && y in 0 until h
@@ -96,6 +98,8 @@ internal data class RelicRun(
         .put("lureX",lureX).put("lureY",lureY).put("lureTurns",lureTurns)
         .put("weapons",JSONArray(weapons.sorted())).put("equipped",equipped)
         .put("bolts",bolts).put("guarding",guarding)
+        .put("playerChestMarks",JSONArray(playerChestMarks.sorted()))
+        .put("guardedBy",guardedBy)
     companion object {
         fun read(j:JSONObject):RelicRun?=runCatching {
             if(j.getInt("v")!=2)return@runCatching null
@@ -125,7 +129,15 @@ internal data class RelicRun(
                     (j.optJSONArray("weapons")?.let { a ->
                         (0 until a.length()).any { i -> a.optString(i)==it }
                     } ?: (it=="blade")) } ?: "blade",
-                j.optInt("bolts",5).coerceIn(0,12),j.optBoolean("guarding",false))
+                j.optInt("bolts",5).coerceIn(0,12),j.optBoolean("guarding",false),
+                j.optJSONArray("playerChestMarks")?.let { a ->
+                    (0 until a.length()).mapNotNull { i -> a.optInt(i,-1).takeIf { it>=0 } }.toSet()
+                } ?: emptySet(),
+                j.optString("guardedBy","").takeIf { id ->
+                    j.getJSONArray("allies").let { a ->
+                        (0 until a.length()).any { a.getJSONObject(it).optString("id")==id }
+                    }
+                } ?: "")
         }.getOrNull()
     }
 }
@@ -430,15 +442,26 @@ internal object RelicEscapeRules {
                 }
                 if(d<=1) {
                     val rawDamage=m.kind+1
-                    val damage=if(target.id=="player" && s.guarding)
+                    val protector=if(target.id=="player")s.allies.firstOrNull { ally ->
+                        ally.id==s.guardedBy && ally.hp>0 &&
+                            distance(ally.x,ally.y,s.hero.x,s.hero.y)<=2
+                    } else null
+                    val blocked=s.guarding || protector!=null
+                    val damage=if(target.id=="player" && blocked)
                         (rawDamage-3).coerceAtLeast(0) else rawDamage
-                    if(target.id=="player")s=s.copy(hero=s.hero.copy(hp=(s.hero.hp-damage).coerceAtLeast(0)),
-                        guarding=false)
-                    else s=s.copy(allies=s.allies.map{if(it.id==target.id)
+                    if(target.id=="player") {
+                        s=s.copy(hero=s.hero.copy(hp=(s.hero.hp-damage).coerceAtLeast(0)),
+                            guarding=false,guardedBy="")
+                        if(protector!=null)s=s.copy(allies=s.allies.map { ally ->
+                            if(ally.id==protector.id)ally.copy(hp=(ally.hp-1).coerceAtLeast(0))
+                            else ally
+                        })
+                    } else s=s.copy(allies=s.allies.map{if(it.id==target.id)
                         it.copy(hp=(it.hp-damage).coerceAtLeast(0),
                             downs=it.downs+if(it.hp>0 && it.hp<=damage)1 else 0) else it})
                     s=s.log(target.id,if(damage==0)"block" else "hurt",
-                        if(damage==0)"成功格挡"+RelicArsenal.monsterName(m.kind)+"的攻击"
+                        if(protector!=null)protector.id+"挡在玩家前面，自己受伤1点，玩家受到"+damage+"点伤害"
+                        else if(damage==0)"成功格挡"+RelicArsenal.monsterName(m.kind)+"的攻击"
                         else "敌人击中 "+target.id+"，伤害"+damage)
                 }
                 alive+=m.copy(windup=false,alert=3)
