@@ -147,6 +147,50 @@ class AutonomousActionWireProtocolTest {
         assertEquals("原木书架", step.getJSONObject("args").getString("name"))
     }
 
+    @Test fun socialStepAndPrimaryToolKeepAuthoredIdsAndDecisionFields() {
+        val acceptedStep = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("tool", "respond_friend_request")
+                .put("requestId", "incoming-42").put("decision", "accept"))
+        assertEquals("respond_friend_request", acceptedStep.optString("tool"))
+        assertEquals("incoming-42", acceptedStep.getJSONObject("args").getString("requestId"))
+        assertEquals("accept", acceptedStep.getJSONObject("args").getString("decision"))
+
+        val nestedWins = AutonomousActionWireProtocol.normalizeStep(
+            JSONObject().put("tool", "respond_friend_request")
+                .put("requestId", "stale-outer").put("decision", "accept")
+                .put("args", JSONObject().put("requestId", "actual-incoming")
+                    .put("decision", "decline")))
+        assertEquals("actual-incoming", nestedWins.getJSONObject("args").getString("requestId"))
+        assertEquals("decline", nestedWins.getJSONObject("args").getString("decision"))
+
+        val socialActions = listOf(
+            JSONObject().put("tool", "like_moment").put("postId", "real-post"),
+            JSONObject().put("tool", "comment_moment").put("postId", "another-post")
+                .put("text", "我自己的评论").put("replyToCommentId", "comment-1"),
+            JSONObject().put("tool", "send_friend_request")
+                .put("targetCharacterId", "resident:neighbor").put("greeting", "你好"),
+            JSONObject().put("tool", "create_group_chat").put("groupName", "书友会")
+                .put("memberIds", org.json.JSONArray().put("resident:neighbor")),
+        )
+        socialActions.forEach { original ->
+            val normalized = AutonomousActionWireProtocol.normalizeStep(original)
+            val args = normalized.getJSONObject("args")
+            listOf("postId", "text", "replyToCommentId", "targetCharacterId",
+                "greeting", "groupName", "memberIds").forEach { key ->
+                if (original.has(key)) assertEquals(key, original.get(key).toString(),
+                    args.get(key).toString())
+            }
+        }
+
+        val primary = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "respond_friend_request")
+                .put("requestId", "incoming-43").put("decision", "decline"))
+        assertEquals("tool", primary.optString("action"))
+        assertEquals("respond_friend_request", primary.optString("tool"))
+        assertEquals("incoming-43", primary.getJSONObject("args").getString("requestId"))
+        assertEquals("decline", primary.getJSONObject("args").getString("decision"))
+    }
+
     @Test fun genuineSilenceIsNeverReplacedWithMandatoryAction() {
         val original = JSONObject().put("action", "silent")
             .put("reason", "我现在只想一个人慢慢整理这段心情")
