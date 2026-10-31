@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`81f90a27db24624aa3123f9b9a460412b46d31c1`
+- 基准提交：`0f90d34dbc31be84eb06c7e726ad9127b99d08c4`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233472
+- 已索引代码/文本行：233548
 - 已发现符号：3303
 
 | 文件 | 行数 | 符号数 |
@@ -264,7 +264,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 180 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 374 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
@@ -411,20 +411,20 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 79 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt` | 68 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 138 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 508 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 146 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 511 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 91 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 120 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 143 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 127 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 426 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 404 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 433 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 406 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1651 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 988 | 22 |
@@ -559,7 +559,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 535 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 540 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 302 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -739,7 +739,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt` | 199 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 165 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 167 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
@@ -967,7 +967,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEvidenceTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt` | 109 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt` | 41 | 1 |
