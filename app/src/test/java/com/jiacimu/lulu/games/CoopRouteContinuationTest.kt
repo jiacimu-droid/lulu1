@@ -19,7 +19,7 @@ class CoopRouteContinuationTest {
         }
         return base.copy(tiles=tiles,seen=tiles.indices.toSet(),
             hero=base.hero.copy(x=2,y=2),
-            allies=listOf(RelicActor("alice",3,2)),
+            allies=listOf(RelicActor("alice",3,2,kits=1)),
             mobs=emptyList(),chests=emptyList(),sites=emptyList(),events=emptyList())
     }
 
