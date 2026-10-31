@@ -68,6 +68,12 @@ internal fun CommitmentTask.hasPendingOutcomeReview(now: Instant): Boolean =
         followUpKind == "verification" && linkedAlarmId != null &&
         nextCheckAt?.isAfter(now) == true
 
+/** Unverified nightly results remain responsibilities after the first reminder fires. */
+internal fun CommitmentTask.needsUnverifiedDailyRecovery(now: Instant): Boolean =
+    repeat == "daily" && status == CommitmentTaskStatus.WaitingForFeedback &&
+        dueAt?.isBefore(now) == true && !hasPendingOutcomeReview(now) &&
+        !(followUpKind == "retry" && linkedAlarmId != null && nextCheckAt?.isAfter(now) == true)
+
 /** Calendar projection keeps past unverified duties visible without duplicating them. */
 internal fun CommitmentTask.visibleOnScheduleDate(
     date: LocalDate, zone: ZoneId, today: LocalDate,

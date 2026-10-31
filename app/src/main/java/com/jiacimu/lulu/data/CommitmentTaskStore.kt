@@ -153,6 +153,15 @@ object CommitmentTaskStore {
         appContext?.let {
             RoleDayScheduleStore.mergeMatchingDailyCallPlans(it)
             restoreMissedDailyCalls(it, now)
+            // A delivered nightly reminder with unknown outcome cannot be
+            // silently treated as the next day's already-covered obligation.
+            // Wake the SAME role for a bounded recovery choice, not an
+            // automatic new message, call, or invented sleep confirmation.
+            mutableTasks.value.filter { task ->
+                task.needsUnverifiedDailyRecovery(now)
+            }.map(CommitmentTask::characterId).distinct().forEach { role ->
+                ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(it, role)
+            }
             missedByRole.forEach { (characterId, missedAt) ->
                 runCatching {
                     ProactivePerceptionScheduler.scheduleMissedCommitmentReview(
@@ -174,7 +183,10 @@ object CommitmentTaskStore {
     private fun restoreMissedDailyCalls(context: Context, now: Instant) {
         val overdue = mutableTasks.value.filter { task ->
             task.repeat == "daily" && task.dueAt != null &&
-                !task.hasPendingOutcomeReview(now) &&
+                // A pending effect-verification has not finished this night.
+                // Only a completed/expired initial attempt may advance the
+                // daily clock; otherwise the original responsibility vanishes.
+                task.status != CommitmentTaskStatus.WaitingForFeedback &&
                 task.status !in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.NeedsClarification) &&
                 !task.dueAt.isAfter(now.minusSeconds(120)) &&
                 (task.executionToken == null || inFlight[task.id] != task.executionToken)

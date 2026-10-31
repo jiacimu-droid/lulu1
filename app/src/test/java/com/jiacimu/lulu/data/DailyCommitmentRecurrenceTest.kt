@@ -83,6 +83,10 @@ class DailyCommitmentRecurrenceTest {
             repeat = "daily", lastAlarmReceivedAt = at(2026, 10, 31, 23, 30))
         assertTrue(nightly.hasPendingOutcomeReview(now))
         assertFalse(nightly.hasPendingOutcomeReview(at(2026, 11, 1, 0, 46)))
+        assertFalse(nightly.needsUnverifiedDailyRecovery(now))
+        assertTrue(nightly.needsUnverifiedDailyRecovery(at(2026, 11, 1, 0, 46)))
+        assertTrue(nightly.copy(linkedAlarmId = null, nextCheckAt = null,
+            followUpKind = "").needsUnverifiedDailyRecovery(now))
         val saved = decodeCommitmentTasks(encodeCommitmentTasks(listOf(nightly))).single()
         assertTrue(saved.hasPendingOutcomeReview(now))
         assertTrue(saved.visibleOnScheduleDate(
