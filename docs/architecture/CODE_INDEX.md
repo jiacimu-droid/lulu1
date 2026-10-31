@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`884628077ac74764229f144763f742896cdeab35`
+- 基准提交：`d06a2c9510e5478f6b329a3c9627a7f9d3d9d3bc`
 - 分支：`main`
 - 已索引文件：1133
-- 已索引代码/文本行：233142
+- 已索引代码/文本行：233172
 - 已发现符号：3300
 
 | 文件 | 行数 | 符号数 |
@@ -659,15 +659,15 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 313 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 295 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 300 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 308 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt` | 302 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 198 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandSupplyCaches.kt` | 55 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTargetAction.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt` | 66 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 113 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt` | 128 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 601 | 27 |

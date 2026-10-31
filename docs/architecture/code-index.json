@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T16:45:17.196366+00:00",
-  "commit": "884628077ac74764229f144763f742896cdeab35",
+  "generatedAt": "2026-10-31T16:47:03.922698+00:00",
+  "commit": "d06a2c9510e5478f6b329a3c9627a7f9d3d9d3bc",
   "branch": "main",
-  "sourceFingerprint": "40ee2f6f965b1c5ad5f8f45ba5772355c1f526312929617c21b523e89f2607b0",
+  "sourceFingerprint": "4c1596ff5d416ef364abf1629dc7502d9125818c1ed6601663cbb2a8d989dc65",
   "summary": {
     "files": 1133,
-    "lines": 233142,
+    "lines": 233172,
     "symbols": 3300
   },
   "symbolIndex": {
@@ -229,7 +229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 50
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -3265,7 +3265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 146
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -4649,7 +4649,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 64
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
@@ -5509,7 +5509,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 130
+        "line": 138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -13261,13 +13261,13 @@
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 235
+        "line": 243
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 241
+        "line": 249
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -13389,7 +13389,7 @@
     "stopAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-        "line": 55
+        "line": 61
       }
     ],
     "GameModelConnectionStatus": [
@@ -32007,8 +32007,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 295,
-      "sha256": "b69a9483e8083fa69614fdb632807acab8c37b92b76c0e57b0994c7cb33df746",
+      "lines": 308,
+      "sha256": "90331fafcf5bda1b130c2361d2ff61fc5c5308cdc5b1d5d0ccfe1a9b8b6dacb2",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -32020,26 +32020,26 @@
         },
         {
           "name": "parse",
-          "line": 130
+          "line": 138
         },
         {
           "name": "apply",
-          "line": 146
+          "line": 154
         },
         {
           "name": "applyLive",
-          "line": 235
+          "line": 243
         },
         {
           "name": "facts",
-          "line": 241
+          "line": 249
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 300,
-      "sha256": "487832d0e930a62946772853fcb275b3042a6fd30836ca53c7525b52b20f09a8",
+      "lines": 302,
+      "sha256": "a56a495bf305999c7986e1c4714889fa637f1162cbc12f51784cba03edb4ddea",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -32178,8 +32178,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
-      "lines": 113,
-      "sha256": "270682e402e70d78549d497cea83e12fee8eb49fbedebb8ee21d8010954ebeb1",
+      "lines": 128,
+      "sha256": "cacfd8f25bc4b2a9934ce5d7fe86ec30a2601c8b51e0ffe47ab7a7250707de0f",
       "symbols": [
         {
           "name": "json",
@@ -32195,15 +32195,15 @@
         },
         {
           "name": "cancel",
-          "line": 50
+          "line": 56
         },
         {
           "name": "stopAll",
-          "line": 55
+          "line": 61
         },
         {
           "name": "advance",
-          "line": 64
+          "line": 70
         }
       ]
     },
