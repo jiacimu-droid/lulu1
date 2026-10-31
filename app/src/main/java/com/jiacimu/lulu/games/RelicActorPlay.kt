@@ -29,21 +29,25 @@ internal object RelicActorPlay {
         }
         // Choosing a future goal is a conversation decision, not a second
         // physical move; the player may change plans even after this turn's action.
-        if(s.hero.hp>0 && RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1)
+        if(s.hero.hp>0 && s.coopPlans[id]?.kind!="regroup" &&
+            RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1)
             result += IslandActorOption("plan_regroup",
                 "现在决定下回合起向玩家集合，停止原来的同行路线","plan_regroup")
-        for(mob in s.mobs.filter { it.hp>0 && s.visible(it.x,it.y) }.take(7)) {
+        for(mob in s.mobs.filter { it.hp>0 && s.visible(it.x,it.y) &&
+            !(s.coopPlans[id]?.kind=="support" && s.coopPlans[id]?.targetId==it.id) }.take(7)) {
             result += IslandActorOption("plan_support:"+mob.id,
                 "现在改为追踪"+RelicArsenal.monsterName(mob.kind)+"，下一回合开始支援玩家",
                 "plan_support",mob.x,mob.y)
         }
         for(chest in s.chests.filter { !it.opened && s.visible(it.x,it.y) &&
-            it.id !in s.playerChestMarks }.take(7)) {
+            it.id !in s.playerChestMarks &&
+            !(s.coopPlans[id]?.kind=="chest" && s.coopPlans[id]?.targetId==it.id)
+            }.take(7)) {
             result += IslandActorOption("plan_chest:"+chest.id,
                 "现在决定去查看"+chest.tier.label+"宝箱，之后亲自判断是否开箱",
                 "plan_chest",chest.x,chest.y)
         }
-        if(s.hero.hp<=0 && a.kits>0 &&
+        if(s.hero.hp<=0 && a.kits>0 && s.coopPlans[id]?.kind!="rescue" &&
             RelicEscapeRules.distance(a.x,a.y,s.hero.x,s.hero.y)>1)
             result += IslandActorOption("plan_rescue",
                 "玩家倒地，你决定下回合开始赶去救援，但本回合不会多移动","plan_rescue")

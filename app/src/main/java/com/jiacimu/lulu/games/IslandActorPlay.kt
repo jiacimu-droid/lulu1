@@ -40,10 +40,12 @@ internal object IslandActorPlay {
                     "主动选择位置("+x+","+y+")建一座3×3小屋，约需17木；需要逐步施工","start_house",x,y)
             }
         }
-        if(!w.finished && abs(a.x-w.x)+abs(a.y-w.y)>1)
+        if(!w.finished && s.companionTravel[id]?.targetMobId!=-2 &&
+            abs(a.x-w.x)+abs(a.y-w.y)>1)
             result += IslandActorOption("plan_regroup",
                 "改为下一回合去和玩家集合，不立刻多走一步","plan_regroup")
         if(!w.finished)for(mob in w.mobs.filter { it.hp>0 &&
+                s.companionTravel[id]?.targetMobId!=it.id &&
                 abs(it.x-w.x)+abs(it.y-w.y)<=8 }.take(6)) {
             result += IslandActorOption("plan_support:"+mob.id,
                 "改为下回合跟踪这只怪物，支援玩家共同战斗",

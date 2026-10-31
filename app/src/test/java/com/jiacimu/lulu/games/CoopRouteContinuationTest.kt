@@ -132,6 +132,73 @@ class CoopRouteContinuationTest {
         assertEquals(base.tiles,reread.tiles)
     }
 
+    @Test fun downedPlayerInterruptsOldRouteAndAllowsOwnRescueDecision() {
+        val base=relic().copy(mobs=listOf(RelicMob(21,9,2,6,0)))
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("support:21","我去那边"))!!
+        val actor=started.allies.first()
+        val down=started.copy(hero=started.hero.copy(hp=0),
+            phase=RelicPhase.DOWNED,turns=started.turns+1)
+        val stopped=RelicCoopTravel.advance(down,setOf("alice"))
+        assertTrue(stopped.coopPlans.isEmpty())
+        assertEquals(actor,stopped.allies.first())
+        assertFalse(RelicActorPlay.acted(stopped,"alice"))
+        assertTrue(RelicActorPlay.options(stopped,"alice")
+            .any { it.id=="rush_rescue" })
+    }
+
+    @Test fun dyingPlayerMayRedirectCompanionAfterItAlreadyMovedThisTurn() {
+        val base=relic().copy(mobs=listOf(RelicMob(21,9,2,6,0)))
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("support:21","我去打怪"))!!
+        val down=started.copy(hero=started.hero.copy(hp=0),
+            phase=RelicPhase.DOWNED)
+        assertTrue(RelicActorPlay.acted(down,"alice"))
+        assertTrue(RelicActorPlay.options(down,"alice")
+            .any { it.id=="plan_rescue" })
+        val rerouted=RelicActorPlay.apply(down,"alice",
+            IslandActorChoice("plan_rescue","我来救你"))!!
+        assertEquals(started.allies.first(),rerouted.allies.first())
+        assertEquals(started.turns,rerouted.turns)
+        assertEquals("rescue",rerouted.coopPlans["alice"]?.kind)
+        val restored=RelicRun.read(JSONObject(rerouted.json().toString()))!!
+        assertEquals(rerouted.coopPlans,restored.coopPlans)
+    }
+
+    @Test fun roleApproachesDownedPlayerAndMustActuallySpendMedicine() {
+        val base=relic().copy(hero=relic().hero.copy(hp=0),
+            phase=RelicPhase.DOWNED,allies=listOf(RelicActor("alice",5,2,kits=1)))
+        assertTrue(RelicActorPlay.options(base,"alice")
+            .any { it.id=="rush_rescue" })
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("rush_rescue","我来啦"))!!
+        assertEquals("rescue",started.coopPlans["alice"]?.kind)
+        val approached=nextRelic(started)
+        assertEquals(1,RelicEscapeRules.distance(approached.hero.x,approached.hero.y,
+            approached.allies.first().x,approached.allies.first().y))
+        assertEquals(0,approached.hero.hp)
+        val ready=approached.copy(turns=approached.turns+1)
+        assertTrue(RelicActorPlay.options(ready,"alice").any { it.id=="rescue" })
+        val rescued=RelicActorPlay.apply(ready,"alice",
+            IslandActorChoice("rescue","起来啦"))!!
+        assertEquals(4,rescued.hero.hp)
+        assertEquals(0,rescued.allies.first().kits)
+        assertTrue(rescued.coopPlans.isEmpty())
+    }
+
+    @Test fun rescueTargetDisappearsAfterPlayerRecoveredWithoutFakingRescue() {
+        val base=relic().copy(hero=relic().hero.copy(hp=0),
+            phase=RelicPhase.DOWNED,allies=listOf(RelicActor("alice",5,2,kits=1)))
+        val started=RelicActorPlay.apply(base,"alice",
+            IslandActorChoice("rush_rescue","我来了"))!!
+        val recovered=started.copy(hero=started.hero.copy(hp=4),
+            phase=RelicPhase.EXPLORE)
+        val result=nextRelic(recovered)
+        assertTrue(result.coopPlans.isEmpty())
+        assertEquals(recovered.allies.first(),result.allies.first())
+        assertEquals(4,result.hero.hp)
+    }
+
     private fun island():BlockIslandState {
         val base=BlockIslandRules.newWorld(27,listOf("alice"))
         val w=base.world
