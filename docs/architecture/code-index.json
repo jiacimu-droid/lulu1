@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T12:58:57.817380+00:00",
-  "commit": "f93894352c0d40cd9cff381148140c5bea19ba24",
+  "generatedAt": "2026-10-31T13:08:04.428586+00:00",
+  "commit": "8d6f0d498855afef4a47b6c55a69539b6a9646bc",
   "branch": "main",
-  "sourceFingerprint": "3157885fe38cd0e9611339fe219efa9dd3040fe66a7a86ea0124ef76410fbc18",
+  "sourceFingerprint": "e8683edd71f9e6b5880da137b531c2e8b9dec72de749ae7591a4210f212407ec",
   "summary": {
     "files": 1124,
-    "lines": 231595,
+    "lines": 231612,
     "symbols": 3269
   },
   "symbolIndex": {
@@ -333,7 +333,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 97
+        "line": 113
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -963,7 +963,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 58
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
@@ -6455,7 +6455,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 64
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -9073,25 +9073,25 @@
     "outwardAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 15
+        "line": 14
       }
     ],
     "contactBlockReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 23
+        "line": 22
       }
     ],
     "initialReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 33
+        "line": 32
       }
     ],
     "afterReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 40
+        "line": 42
       }
     ],
     "reviewMatches": [
@@ -26956,23 +26956,23 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
       "lines": 72,
-      "sha256": "b457c7d610327b4c6c7f9ebc1c87d6f2f1d50c3a211d302d2583df0de492223a",
+      "sha256": "c15b9907e067b4ce0cc1b28c421c7ad95cf804c195c8e625bc97532a1d25d6c0",
       "symbols": [
         {
           "name": "outwardAction",
-          "line": 15
+          "line": 14
         },
         {
           "name": "contactBlockReason",
-          "line": 23
+          "line": 22
         },
         {
           "name": "initialReview",
-          "line": 33
+          "line": 32
         },
         {
           "name": "afterReceipt",
-          "line": 40
+          "line": 42
         },
         {
           "name": "reviewMatches",
@@ -28921,8 +28921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 158,
-      "sha256": "961d63e4b68720bd6a511b9722040f41f1a5993e57a76a0ef3b44d726784b50e",
+      "lines": 174,
+      "sha256": "d3fa6d2e01164562f30194ca1bef52e7537bc35be6e58038618fc33500de2e8d",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -28946,15 +28946,15 @@
         },
         {
           "name": "initialize",
-          "line": 58
+          "line": 59
         },
         {
           "name": "get",
-          "line": 64
+          "line": 79
         },
         {
           "name": "update",
-          "line": 97
+          "line": 113
         }
       ]
     },
@@ -36946,8 +36946,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt",
-      "lines": 67,
-      "sha256": "1a6aef6611f5e535aeeae7a30045f2158b0c6d775870db131db45f08fb0f381d",
+      "lines": 68,
+      "sha256": "5a4bfe8f90c6f58edbb18ddc0886dc06f294b72fcd876c1a61974664531b8ec6",
       "symbols": [
         {
           "name": "GoalFollowUpPolicyTest",
