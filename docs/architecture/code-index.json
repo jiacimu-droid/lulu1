@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T05:22:47.369849+00:00",
-  "commit": "6f039044c3e536ab27d7b61eeb99542652ed3bf6",
+  "generatedAt": "2026-10-31T12:58:57.817380+00:00",
+  "commit": "f93894352c0d40cd9cff381148140c5bea19ba24",
   "branch": "main",
-  "sourceFingerprint": "828562630104bf636b7794931398eeaf96b04112004f053416bf99f2736c05af",
+  "sourceFingerprint": "3157885fe38cd0e9611339fe219efa9dd3040fe66a7a86ea0124ef76410fbc18",
   "summary": {
-    "files": 1122,
-    "lines": 231500,
-    "symbols": 3267
+    "files": 1124,
+    "lines": 231595,
+    "symbols": 3269
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12907,13 +12907,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 54
+        "line": 53
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 58
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -12927,7 +12927,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 59
+        "line": 58
       }
     ],
     "newWorld": [
@@ -13037,7 +13037,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 498
+        "line": 499
       }
     ],
     "saveTurn": [
@@ -13244,6 +13244,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
         "line": 49
+      }
+    ],
+    "tileAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt",
+        "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
+        "line": 8
       }
     ],
     "forRole": [
@@ -13646,12 +13656,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
         "line": 17
-      }
-    ],
-    "tileAt": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-        "line": 8
       }
     ],
     "walkable": [
@@ -18120,6 +18124,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt",
         "line": 12
+      }
+    ],
+    "IslandFollowCameraTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt",
+        "line": 5
       }
     ],
     "IslandTeamInboxTest": [
@@ -31373,20 +31383,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 428,
-      "sha256": "ea3015f1abc3e825e1a8b6321e62b3dc757dc0c2b5bd5ef9d47c6a414abf5670",
+      "lines": 429,
+      "sha256": "63d22a75a252d3956c6371f06993e3093bea1b775799acf2785c041e57076154",
       "symbols": [
         {
           "name": "origin",
-          "line": 54
+          "line": 53
         },
         {
           "name": "center",
-          "line": 58
+          "line": 57
         },
         {
           "name": "actorCenter",
-          "line": 59
+          "line": 58
         }
       ]
     },
@@ -31467,8 +31477,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 542,
-      "sha256": "a42c90830893a6c299880de67b3e5716358f1c26b3730da265b47ddb558f7563",
+      "lines": 538,
+      "sha256": "efb2f237bcf26cbd85f1c7860bd5127a57311f3c8a3b3b7342e1cfb9eed9168d",
       "symbols": [
         {
           "name": "save",
@@ -31480,7 +31490,7 @@
         },
         {
           "name": "targetFor",
-          "line": 498
+          "line": 499
         }
       ]
     },
@@ -31903,6 +31913,17 @@
         {
           "name": "close",
           "line": 106
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt",
+      "lines": 47,
+      "sha256": "fd2449d35c24d6337f567d9d9b57afad097ab90c375c6c92bc7e19fb59bf9378",
+      "symbols": [
+        {
+          "name": "tileAt",
+          "line": 21
         }
       ]
     },
@@ -38637,6 +38658,17 @@
         {
           "name": "IslandActorPlayTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/IslandFollowCameraTest.kt",
+      "lines": 51,
+      "sha256": "10cd4ee7bac384a533e19cdbd69246481544c1caa728df0fbea307fb28c24c7a",
+      "symbols": [
+        {
+          "name": "IslandFollowCameraTest",
+          "line": 5
         }
       ]
     },
