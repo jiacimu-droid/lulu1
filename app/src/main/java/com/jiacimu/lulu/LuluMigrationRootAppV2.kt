@@ -382,7 +382,6 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Wishes -> StarWishTheaterApp(onBack = ::popRoute)
                                 MigrationRoute.Study -> PostgraduateExamApp(
                                     onBack = ::popRoute,
-                                    onOpenConversation = ::openConversation,
                                     openPomodoroRequest = openPomodoroRequest,
                                     onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
                                 )
@@ -464,12 +463,8 @@ private fun PomodoroRuntimeOverlay(
         val studyStore = PostgraduateExamStores.main
         while (studyStore.state.value.pomodoro.running) {
             delay(500)
-            val beforeSync = studyStore.state.value.pomodoro
             if (studyStore.syncPomodoroClock()) {
-                PomodoroCompanionSessions.handleNaturalCompletion(
-                    studyStore = studyStore,
-                    actualMinutes = beforeSync.selectedMinutes,
-                )
+                PomodoroCompanionSessions.handleNaturalCompletion()
                 break
             }
         }
