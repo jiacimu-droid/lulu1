@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T17:18:51.440527+00:00",
-  "commit": "f795f0192daa8f5f65fe8d028549a49f7109cd51",
+  "generatedAt": "2026-11-01T17:19:11.059366+00:00",
+  "commit": "d0c65af2259c2d9d240074b96890f44358dd829e",
   "branch": "main",
-  "sourceFingerprint": "29cc6b81acfce2a501145d41c4596728691e74dea774b391acd8157cc725c736",
+  "sourceFingerprint": "ee068a5abdda4aa382bf1a62d058fcb6ba24d36b8d73fc8a8a84173a9fc6ee37",
   "summary": {
     "files": 1119,
-    "lines": 228545,
+    "lines": 228559,
     "symbols": 3229
   },
   "symbolIndex": {
@@ -11023,7 +11023,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2974
+        "line": 2985
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11161,43 +11161,43 @@
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 765
+        "line": 768
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 792
+        "line": 795
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 819
+        "line": 822
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 836
+        "line": 839
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 850
+        "line": 853
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1082
+        "line": 1085
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1090
+        "line": 1093
       }
     ],
     "ProactiveSendReceipt": [
@@ -28719,8 +28719,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3041,
-      "sha256": "f4326bf19e605d56e6f1ad95d8bd46b51453a3d1843f3a791287039ffd30bab5",
+      "lines": 3052,
+      "sha256": "36653822f39d51d88b616fd72851952dac948c8e3a7864e3705fa82fb3ade135",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28752,14 +28752,14 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2974
+          "line": 2985
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1146,
-      "sha256": "edf290a1b53bc9c1b96d7ad9362ad3b53a8b817c66d063667aad0cc9db193c11",
+      "lines": 1149,
+      "sha256": "ea8c74a90bd175b1ba15e198da385a58253bacc0e2548328fbfa844d8b5baac5",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -28855,31 +28855,31 @@
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 765
+          "line": 768
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 792
+          "line": 795
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 819
+          "line": 822
         },
         {
           "name": "cancelOnline",
-          "line": 836
+          "line": 839
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 850
+          "line": 853
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1082
+          "line": 1085
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1090
+          "line": 1093
         }
       ]
     },
