@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:18:37.276213+00:00",
-  "commit": "4f40824201a21c8eb2e038b5e49cab9127b4d066",
+  "generatedAt": "2026-11-01T04:19:00.685485+00:00",
+  "commit": "6fc941d6710ef595aa6bf478e3d8804ca24ef4ea",
   "branch": "main",
-  "sourceFingerprint": "8f93bdaa285249019f4cb0191750b4a1eb9c262a9b6de812afb797c89d3ab841",
+  "sourceFingerprint": "7978e0fccdc48f58184f8b4683452e4d0ed57b96ea1efff906119cd80af06cb9",
   "summary": {
     "files": 1134,
-    "lines": 233527,
+    "lines": 233596,
     "symbols": 3297
   },
   "symbolIndex": {
@@ -1409,7 +1409,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 155
+        "line": 185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -4029,19 +4029,19 @@
     "readStrict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 67
+        "line": 70
       }
     ],
     "persist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 88
+        "line": 91
       }
     ],
     "SelfPrefaceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 130
+        "line": 133
       }
     ],
     "day": [
@@ -20844,8 +20844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 517,
-      "sha256": "58d751ae539485a14fa4766a7e39b2a50ee0165f802fefea0fad71167ce3d1b2",
+      "lines": 520,
+      "sha256": "09d1f50cf838b93856a2b56e7fe50df223fecf52f56428549d33188113d9a9a6",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -22074,24 +22074,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 527,
-      "sha256": "dab007e1fabb9bcecf104e73fe5e39243a3e407a27db9ace2d0539c2e8ce763f",
+      "lines": 593,
+      "sha256": "f6b87ed9a693775619c83ab73c35855c7b6e17159504aea41900ede55ae1a308",
       "symbols": [
         {
           "name": "readStrict",
-          "line": 67
+          "line": 70
         },
         {
           "name": "persist",
-          "line": 88
+          "line": 91
         },
         {
           "name": "SelfPrefaceScreen",
-          "line": 130
+          "line": 133
         },
         {
           "name": "save",
-          "line": 155
+          "line": 185
         }
       ]
     },
