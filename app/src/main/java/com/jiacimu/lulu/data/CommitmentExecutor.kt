@@ -293,14 +293,17 @@ internal object CommitmentExecutor {
                     else "定时提醒未显示：${JSONObject(popupResult).optString("error")}；没有伪造角色回复",
                 )
             }
-            // Use the same character perception/decision path as normal
-            // autonomous dialogue. The model may speak naturally, perform
-            // allowed actions, or remain silent; never pre-commit fake prose.
+            // The notification is a device receipt, never fulfillment of the
+            // character's accepted responsibility. The SAME role still chooses
+            // contact, observation, or an explicit deferred follow-up.
             CompanionOnlineStore.wakeCharacter(
                 claimedTask.characterId, CompanionOnlineReason.ScheduledCommitment,
                 "已接受的定时约定刚到期：${claimedTask.goal}。" +
                     "这是系统提供的时间事实，不是你说过的话。" +
-                    "结合本人真实关系与上下文，自主决定是否说话或行动；" +
+                    "弹窗仅证明提醒请求已执行，不能代表你已经亲自哄睡、监督或确认结果。" +
+                    "主人明确授权过的主动监督不能因她暂时没回复、或你猜提示音会吵到她而自行取消。" +
+                    "请根据本人真实关系、任务ID、执行权限和最新证据，选择真实消息/来电/核实动作；" +
+                    "如果确实选择暂缓，也要保留本任务并登记真实的下一次复查，不要只写心声。" +
                     "绝不可把系统执行文字照抄给用户。",
                 perceiveNow = true, now = now,
             )
