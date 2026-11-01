@@ -74,7 +74,8 @@ class LuluStudyWatchTest {
         prefs.edit().remove("study_watch_pending").putString("study_watch_active",
             JSONObject().put("id", "approved").put("characterId", "role-a")
                 .put("startedAt", now).put("endsAt", now + 600_000L).toString()).commit()
-        assertTrue(LuluStudyWatch.requestSlotBlocker(context, now)!!.contains("正在进行"))
+        assertEquals("已经有一段学习监督在进行，先结束当前时段",
+            LuluStudyWatch.requestSlotBlocker(context, now))
         assertNull(LuluStudyWatch.requestSlotBlocker(context, now + 600_000L))
     }
 
