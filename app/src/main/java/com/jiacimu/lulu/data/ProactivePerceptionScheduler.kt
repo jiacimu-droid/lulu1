@@ -18,7 +18,6 @@ import androidx.work.WorkerParameters
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishStores
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -1140,7 +1139,6 @@ internal fun initializeBackgroundRuntime(context: Context) {
     LuluAiServices.initialize(context)
     MemoryModelRuntime.initialize(context)
     ProactivePerceptionPolicyStore.initialize(context)
-    PostgraduateExamStores.initialize(context)
     StarWishStores.initialize(context)
     GadgetbridgeHealthStore.initialize(context)
     LuluExternalMcp.scheduleHealth(context)
