@@ -31,6 +31,16 @@ class PomodoroCompanionStore private constructor(context: Context) {
     private val mutable = MutableStateFlow(load())
     val state: StateFlow<PomodoroCompanionPreferences> = mutable.asStateFlow()
 
+    init {
+        prefs.edit()
+            .remove("active_character_id")
+            .remove("automatic_dialogue")
+            .remove("session_message_start")
+            .remove("session_started_at")
+            .remove("opening_handled")
+            .apply()
+    }
+
     fun updateTask(task: String) = update { it.copy(task = task.trim().take(200)) }
     fun updateTimerMode(mode: PomodoroTimerMode) = update { current ->
         if (current.activeSessionId.isNotBlank() && !current.completionHandled) current else current.copy(timerMode = mode)
