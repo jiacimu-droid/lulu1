@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun PostgraduateExamApp(
     onBack: () -> Unit,
-    onOpenConversation: (String) -> Unit,
     openPomodoroRequest: Int = 0,
     onPomodoroVisibilityChanged: (Boolean) -> Unit = {},
 ) {
@@ -72,7 +71,6 @@ fun PostgraduateExamApp(
                 state = state,
                 store = store,
                 onBack = { pomodoroOpen = false },
-                onOpenConversation = onOpenConversation,
             )
             else -> Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
