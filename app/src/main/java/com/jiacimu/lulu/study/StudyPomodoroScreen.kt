@@ -24,13 +24,11 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun StudyPomodoroScreen(
-    state: StudyState,
-    store: PostgraduateExamStore,
     onBack: () -> Unit,
 ) {
     val companion by PomodoroCompanionSessions.store.state.collectAsState()
     var task by remember(companion.task) { mutableStateOf(companion.task) }
-    var minutesText by remember(state.pomodoro.selectedMinutes) { mutableStateOf(state.pomodoro.selectedMinutes.toString()) }
+    var minutesText by remember(companion.selectedMinutes) { mutableStateOf(companion.selectedMinutes.toString()) }
     var notice by remember { mutableStateOf("") }
     var noticeError by remember { mutableStateOf(false) }
 
@@ -39,12 +37,12 @@ internal fun StudyPomodoroScreen(
     val enteredWithCompletedSession = remember { completed }
     val mode = companion.timerMode
     val palette = remember(companion.skin) { pomodoroPalette(companion.skin) }
-    val countdownTotal = (state.pomodoro.selectedMinutes * 60).coerceAtLeast(1)
-    val countdownRemaining = state.pomodoro.remainingSeconds.coerceAtLeast(0)
+    val countdownTotal = (companion.selectedMinutes * 60).coerceAtLeast(1)
+    val countdownRemaining = companion.countdownRemainingSeconds.coerceAtLeast(0)
     val countUpElapsed = companion.countUpElapsedSeconds.coerceAtLeast(0)
     val elapsedSeconds = if (mode == PomodoroTimerMode.CountUp) countUpElapsed else (countdownTotal - countdownRemaining).coerceAtLeast(0)
     val displaySeconds = if (mode == PomodoroTimerMode.CountUp) countUpElapsed else countdownRemaining
-    val running = if (mode == PomodoroTimerMode.CountUp) companion.countUpRunning else state.pomodoro.running
+    val running = if (mode == PomodoroTimerMode.CountUp) companion.countUpRunning else companion.countdownRunning
     val progress = if (mode == PomodoroTimerMode.Countdown) {
         elapsedSeconds.toFloat() / countdownTotal.toFloat()
     } else {
@@ -53,7 +51,6 @@ internal fun StudyPomodoroScreen(
 
     LaunchedEffect(completed) {
         if (!completed) return@LaunchedEffect
-        store.resetPomodoro()
         PomodoroCompanionSessions.clearSession()
         if (!enteredWithCompletedSession) onBack()
     }
@@ -73,20 +70,14 @@ internal fun StudyPomodoroScreen(
         }
 
         PomodoroCompanionSessions.store.updateTask(cleanTask)
-        if (mode == PomodoroTimerMode.Countdown) {
-            store.setPomodoroDuration(minutes ?: 25)
-            if (!store.state.value.pomodoro.running) store.togglePomodoro()
-        } else {
-            store.resetPomodoro()
-        }
+        if (mode == PomodoroTimerMode.Countdown) PomodoroCompanionSessions.store.setDuration(minutes ?: 25)
         PomodoroCompanionSessions.beginSession(cleanTask, mode)
         notice = ""
         noticeError = false
     }
 
     fun finishPomodoro() {
-        PomodoroCompanionSessions.finishActiveSession(store)
-        store.resetPomodoro()
+        PomodoroCompanionSessions.finishActiveSession()
         PomodoroCompanionSessions.clearSession()
         onBack()
     }
@@ -108,7 +99,7 @@ internal fun StudyPomodoroScreen(
                 )
             },
             onPauseResume = {
-                if (mode == PomodoroTimerMode.CountUp) PomodoroCompanionSessions.toggleCountUp() else store.togglePomodoro()
+                if (mode == PomodoroTimerMode.CountUp) PomodoroCompanionSessions.toggleCountUp() else PomodoroCompanionSessions.toggleCountdown()
             },
             onFinish = ::finishPomodoro,
         )
@@ -150,7 +141,7 @@ internal fun StudyPomodoroScreen(
                         OutlinedTextField(
                             value = task,
                             onValueChange = { task = it.take(200) },
-                            placeholder = { Text("例如：刑法第14章课程") },
+                            placeholder = { Text("这段时间准备做什么？") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
