@@ -35,10 +35,7 @@ import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.health.HealthCycleStore
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
-import com.jiacimu.lulu.study.PostgraduateExamStores
-import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
 import com.jiacimu.lulu.study.StarWishStores
-import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 
 class MigrationActivity : ComponentActivity() {
@@ -146,10 +143,8 @@ class MigrationActivity : ComponentActivity() {
             com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
             CommitmentTaskStore.reconcileAfterRestart()
         }
-        resumePeripheral("学习计时与番茄钟") {
-            val studyStore = PostgraduateExamStores.main
-            if (studyStore.syncPomodoroClock())
-                PomodoroCompanionSessions.handleNaturalCompletion()
+        resumePeripheral("自序计时器") {
+            PomodoroCompanionSessions.syncCountdownClock()
             PomodoroCompanionSessions.syncCountUpClock()
         }
     }
@@ -225,16 +220,12 @@ class MigrationActivity : ComponentActivity() {
         LuluDeviceToolBridge.initialize(appContext)
         ChatAutoVoicePlayback.initialize(appContext)
         LuluGames.initialize(appContext)
-        StudyRemovedFeatureMigration.migrate(appContext)
-        StartupFailureRecovery.stage("学习记录与番茄钟")
-        PostgraduateExamStores.initialize(appContext)
-        SelfDirectedStudyPlanSeed.migrate(appContext, PostgraduateExamStores.main)
-        StarWishStores.initialize(appContext)
+        StartupFailureRecovery.stage("自序计时与旧考研数据退出")
         PomodoroCompanionSessions.initialize(appContext)
-
-        if (PostgraduateExamStores.main.syncPomodoroClock()) {
-            PomodoroCompanionSessions.handleNaturalCompletion()
-        }
+        // The old exam app is retired; do not reset self-preface or character stores.
+        appContext.getSharedPreferences("lulu_study_complete", MODE_PRIVATE).edit().clear().commit()
+        StarWishStores.initialize(appContext)
+        PomodoroCompanionSessions.syncCountdownClock()
 
         RoleReadablePerformanceBridge.retireAutomaticSharing()
         ChatTurnConsistencyAutomation.initialize(appContext)
