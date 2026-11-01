@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cf5dd86015430dc8b7d8db03393423f2fe5c27eb`
+- 基准提交：`d0812c892315884dd06cad86bbf2fbf4d70fa493`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233796
+- 已索引代码/文本行：233782
 - 已发现符号：3298
 
 | 文件 | 行数 | 符号数 |
@@ -565,7 +565,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 251 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 237 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 116 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 95 | 5 |

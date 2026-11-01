@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:20:31.988659+00:00",
-  "commit": "cf5dd86015430dc8b7d8db03393423f2fe5c27eb",
+  "generatedAt": "2026-11-01T04:20:46.819488+00:00",
+  "commit": "d0812c892315884dd06cad86bbf2fbf4d70fa493",
   "branch": "main",
-  "sourceFingerprint": "47860d2e75d63cdc4aa5839c17717dfaea6080523c8e9d8af8c64e2ac541a71f",
+  "sourceFingerprint": "df9fc5c34cadb4dea3be1e7db211122bfc447a03e5cb51684e6a8351c8e3ffa8",
   "summary": {
     "files": 1134,
-    "lines": 233796,
+    "lines": 233782,
     "symbols": 3298
   },
   "symbolIndex": {
@@ -7933,7 +7933,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-        "line": 145
+        "line": 141
       }
     ],
     "CompanionOnlineReason": [
@@ -30238,12 +30238,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 251,
-      "sha256": "cf4d5743912e3d8b9af474feb4efa0ab056718f930d28517dc280de3861ee413",
+      "lines": 237,
+      "sha256": "1dfe37622e05fccc0b39618b72bd42d6223265606b4d03f84489c48186e39216",
       "symbols": [
         {
           "name": "age",
-          "line": 145
+          "line": 141
         }
       ]
     },
