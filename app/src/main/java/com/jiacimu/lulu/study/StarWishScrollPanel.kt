@@ -28,12 +28,15 @@ import java.time.format.DateTimeFormatter
 @Composable
 internal fun StarWishScrollContent(
     state: StarWishState,
-    studyState: StudyState,
+    characterId: String,
     store: StarWishStore,
     context: Context,
 ) {
-    val character = MigratedDomainStores.characters.get(studyState.profile.selectedCharacterId)
-    val unlocked = studyState.inventory.unlockedScrolls
+    val character = MigratedDomainStores.characters.get(characterId)
+    // Gallery themes are gallery-owned, not gated by retired exam draws.
+    val unlocked = (listOf("星愿画卷") +
+        state.customPrompts.keys + state.imageLaunches.map { it.outfit })
+        .filter(String::isNotBlank).distinct()
     var selectedOutfit by rememberSaveable(unlocked) { mutableStateOf(unlocked.firstOrNull().orEmpty()) }
     var interaction by rememberSaveable { mutableStateOf(false) }
     val defaults = remember(selectedOutfit, character.displayName) {
@@ -58,15 +61,22 @@ internal fun StarWishScrollContent(
         item {
             StudyCard {
                 Text("星愿画卷", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("集齐同名蓝色碎片后解锁主题；生成只使用设置中的独立生图接口与生图模型。", color = StudyDesign.muted)
+                Text("自选画卷主题；生成使用设置中的独立生图接口与生图模型。", color = StudyDesign.muted)
                 if (unlocked.isEmpty()) {
-                    Text("还没有解锁画卷，先在考研抽卡中收集 10 枚同名碎片。", color = StudyDesign.error)
+                    Text("画卷主题可以自由创建。", color = StudyDesign.muted)
                 } else {
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         unlocked.forEach { outfit ->
                             FilterChip(selected = selectedOutfit == outfit, onClick = { selectedOutfit = outfit }, label = { Text(outfit) })
                         }
                     }
+                    OutlinedTextField(
+                        value = selectedOutfit,
+                        onValueChange = { selectedOutfit = it.take(40) },
+                        label = { Text("画卷主题") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !interaction, onClick = { interaction = false }, label = { Text("角色单人") }, modifier = Modifier.weight(1f))
                         FilterChip(selected = interaction, onClick = { interaction = true }, label = { Text("与用户互动") }, modifier = Modifier.weight(1f))
