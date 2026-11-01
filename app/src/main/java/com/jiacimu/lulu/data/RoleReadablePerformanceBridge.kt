@@ -10,7 +10,7 @@ import com.jiacimu.lulu.LuluRepositories
  * timer is no longer a source of character memories or unsolicited messaging.
  */
 object RoleReadablePerformanceBridge {
-    fun retireAutomaticSharing() {
+    suspend fun retireAutomaticSharing() {
         MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
             LuluRepositories.memory.delete("system-duration-$characterId")
         }
