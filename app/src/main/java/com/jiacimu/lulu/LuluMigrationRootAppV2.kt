@@ -171,7 +171,7 @@ fun LuluMigrationRootAppV2(
 
     fun openActivePomodoro() {
         openPomodoroRequest += 1
-        if (route != MigrationRoute.Study) pushRoute(MigrationRoute.Study)
+        if (route != MigrationRoute.SelfPreface) pushRoute(MigrationRoute.SelfPreface)
     }
 
     ChatUnreadVisibilityEffect(
@@ -370,7 +370,11 @@ fun LuluMigrationRootAppV2(
                                     initialCharacterId = selectedCharacterId,
                                     onBack = ::popRoute,
                                 )
-                                MigrationRoute.SelfPreface -> SelfPrefaceScreen(::popRoute)
+                                MigrationRoute.SelfPreface -> SelfPrefaceScreen(
+                                    onBack = ::popRoute,
+                                    openPomodoroRequest = openPomodoroRequest,
+                                    onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
+                                )
                                 MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                                 MigrationRoute.Health -> HealthFeatureScreen(::popRoute)
                                 MigrationRoute.Reading -> StarWishTheaterApp(
@@ -490,7 +494,6 @@ private fun PomodoroRuntimeOverlay(
             onEnd = {
                 PomodoroCompanionSessions.finishActiveSession(
                     studyStore = PostgraduateExamStores.main,
-                    reason = "用户从番茄钟小窗结束",
                 )
             },
         )
