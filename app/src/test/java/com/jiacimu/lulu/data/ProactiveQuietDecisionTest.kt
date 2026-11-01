@@ -34,6 +34,44 @@ class ProactiveQuietDecisionTest {
         assertTrue(privateChat.contains("必须获得新时段的主人明确许可"))
     }
 
+    @Test fun acceptedBedtimeSupervisionIsNotReducedToUnspokenConcern() {
+        val now = java.time.Instant.parse("2026-11-01T16:31:00Z")
+        val promise = CommitmentTask(
+            id = "bedtime-commitment",
+            characterId = "role",
+            goal = "每天晚上主动哄睡并确认她是否准备休息",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = now.minusSeconds(61 * 60L),
+            completionCondition = "睡眠状态获得真实可追溯核实",
+            lastActionResult = "23:30 已展示弹窗，尚无入睡证据",
+            repeat = "daily",
+        )
+        val cue = ActiveCommitmentAttention.render(listOf(promise), now)
+        assertTrue(cue.contains("taskId=bedtime-commitment"))
+        assertTrue(cue.contains("真实效果尚未证实"))
+        assertTrue(cue.contains("未安排"))
+        assertTrue(cue.contains("不能因她暂时没回复"))
+        assertTrue(cue.contains("schedule_commitment_review"))
+        assertTrue(cue.contains("弹窗"))
+        // Only a future one-shot reminder is not a demand for another immediate
+        // message; do not create a generic night-time conversation mandate.
+        val future = promise.copy(
+            status = CommitmentTaskStatus.Scheduled,
+            dueAt = now.plusSeconds(3600),
+            nextCheckAt = now.plusSeconds(3600),
+        )
+        assertEquals("", ActiveCommitmentAttention.render(listOf(future), now))
+        assertEquals("", ActiveCommitmentAttention.render(emptyList(), now))
+    }
+
+    @Test fun autonomyPromptPreservesExplicitSupervisionWithoutForcingEveryRoleToTalk() {
+        val instruction = proactiveDecisionInstruction("bedtime-prompt-test")
+        assertTrue(instruction.contains("已接受的责任与普通心事不同"))
+        assertTrue(instruction.contains("不能仅凭猜测替她撤回约定"))
+        assertTrue(instruction.contains("如果此刻选择 silent 且没有有效后续闹钟"))
+        assertTrue(instruction.contains("真实拒绝与权限不足继续遵守"))
+    }
+
     @Test fun validSilentChoiceIsParsedAndKeepsItsReason() {
         val parsed = parse("""{"action":"silent","reason":"今晚真的想一个人消化刚才的经历","mood":"平静"}""")
         assertNotNull(parsed)
