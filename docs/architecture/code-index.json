@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:29:05.906734+00:00",
-  "commit": "611bb82780f31bd4303eccffb65143b64542cafe",
+  "generatedAt": "2026-11-01T04:29:26.522997+00:00",
+  "commit": "19351ac838b998383dac343a9877cdc59aa34fb8",
   "branch": "main",
-  "sourceFingerprint": "7b1635cbbea119dc16cbf93cd0395516e09869ac28f844d31ce8cf0c01083a60",
+  "sourceFingerprint": "1b3c5f514ef0fa81ed0d4fec546f4dc9a1f7e9803b33931dbb48b386e3a30446",
   "summary": {
     "files": 1135,
-    "lines": 233833,
+    "lines": 233816,
     "symbols": 3302
   },
   "symbolIndex": {
@@ -1405,7 +1405,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 186
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -4021,19 +4021,19 @@
     "readStrict": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 70
+        "line": 69
       }
     ],
     "persist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 91
+        "line": 90
       }
     ],
     "SelfPrefaceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 133
+        "line": 132
       }
     ],
     "day": [
@@ -14757,13 +14757,13 @@
     "startPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 60
+        "line": 57
       }
     ],
     "finishPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 86
+        "line": 78
       }
     ],
     "StudyRemovedFeatureMigration": [
@@ -22104,24 +22104,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 594,
-      "sha256": "f9d5c8ad1e74dba387061e0558b3cc5108c06827bbf9d10933224b4eae6e7c60",
+      "lines": 587,
+      "sha256": "3d82983157dbdc1a2cfc31852912c57c0ffaea87de7f52a1c8a9ce51983f911b",
       "symbols": [
         {
           "name": "readStrict",
-          "line": 70
+          "line": 69
         },
         {
           "name": "persist",
-          "line": 91
+          "line": 90
         },
         {
           "name": "SelfPrefaceScreen",
-          "line": 133
+          "line": 132
         },
         {
           "name": "save",
-          "line": 186
+          "line": 179
         }
       ]
     },
@@ -33051,8 +33051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt",
-      "lines": 182,
-      "sha256": "e889e886c82a3946e66182e3e72cf5063a87f7e085acef925a1fac42b8a46fa2",
+      "lines": 181,
+      "sha256": "00cbc5287585850d689d72443e795243b7993db618d534de665f68e7b3db6094",
       "symbols": []
     },
     {
@@ -33732,16 +33732,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-      "lines": 404,
-      "sha256": "d0aebed4bc9cac4819600209e2aa2543ea5e99eb6a08d4137ac44b63be8e46e7",
+      "lines": 395,
+      "sha256": "a61c7d8608aa24bdafe508eb31526dca966cf33415a38c36887bfd43c8fe6f5e",
       "symbols": [
         {
           "name": "startPomodoro",
-          "line": 60
+          "line": 57
         },
         {
           "name": "finishPomodoro",
-          "line": 86
+          "line": 78
         }
       ]
     },

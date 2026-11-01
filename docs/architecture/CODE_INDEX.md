@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`611bb82780f31bd4303eccffb65143b64542cafe`
+- 基准提交：`19351ac838b998383dac343a9877cdc59aa34fb8`
 - 分支：`main`
 - 已索引文件：1135
-- 已索引代码/文本行：233833
+- 已索引代码/文本行：233816
 - 已发现符号：3302
 
 | 文件 | 行数 | 符号数 |
@@ -271,7 +271,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceKeyboard.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefacePalette.kt` | 28 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 594 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 587 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 445 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 333 | 0 |
@@ -696,7 +696,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 222 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 265 | 29 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 182 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 124 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 1168 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
@@ -722,7 +722,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 421 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt` | 298 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 990 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 404 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 395 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 69 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
