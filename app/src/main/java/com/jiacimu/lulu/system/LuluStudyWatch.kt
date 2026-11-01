@@ -19,9 +19,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.jiacimu.lulu.data.CommitmentTaskStore
-import com.jiacimu.lulu.data.CharacterInnerLifeStore
-import com.jiacimu.lulu.data.CharacterMotiveState
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -46,10 +43,6 @@ internal object LuluStudyWatch {
     private const val PENDING = "study_watch_pending"
     private const val ACTIVE = "study_watch_active"
     private const val LATEST = "study_watch_latest"
-    private const val LAST_REQUEST_AT = "study_watch_last_request_at"
-    private const val LAST_DENIAL_AT = "study_watch_last_denial_at"
-    private const val REQUEST_GAP_MS = 90L * 60_000L
-    private const val DENIAL_GAP_MS = 12L * 60 * 60_000L
     private const val CHANNEL = "lulu_study_watch"
     private const val REQUEST_CHANNEL = "lulu_study_watch_requests"
     private const val REQUEST_NOTICE = 42061
@@ -66,6 +59,18 @@ internal object LuluStudyWatch {
 
     private fun pending(context: Context) = parse(prefs(context).getString(PENDING, "{}"))
     private fun rawActive(context: Context) = parse(prefs(context).getString(ACTIVE, "{}"))
+
+    /** Only a genuinely overlapping session/request is blocked, not earlier owner choices. */
+    internal fun requestSlotBlocker(context: Context, now: Long = System.currentTimeMillis()): String? {
+        val current = rawActive(context)
+        if (current.optString("id").isNotBlank() && current.optLong("endsAt") > now)
+            return "已经有一段学习监督在进行，先结束当前时段"
+        val waiting = pending(context)
+        if (waiting.optString("id").isNotBlank() &&
+            now - waiting.optLong("at") in 0..CONSENT_LIFETIME_MS)
+            return "已有学习监督授权请求等待主人回应"
+        return null
+    }
 
     private fun notificationsAllowed(context: Context, needRequestChannel: Boolean = true): Boolean {
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -138,36 +143,20 @@ internal object LuluStudyWatch {
             now - waiting.optLong("at") in 0..CONSENT_LIFETIME_MS)
             return "正在等待主人确认授权，尚未看到画面"
         observationBlocker(context, requestChannel = true)?.let { return "未开始：$it" }
-        if (now - prefs(context).getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS)
-            return "未开始：主人近期拒绝过，请勿再次请求"
-        if (now - prefs(context).getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS)
-            return "未开始：近期已请求过，暂不重复"
+        requestSlotBlocker(context, now)?.let { return "未开始：$it" }
         return "可申请一次限时监督授权；主人确认之前不得查看屏幕"
     }
 
-    /** An opportunity for the same character's OWN decision, not an automatic request.
-     * Source evidence is the person's own ongoing goal and accepted commitments.
+    /** A model-visible option, not a mandatory action or a developer topic filter.
+     * A past refusal is evidence for the character, not a lasting executor veto.
      */
     fun proactiveOpportunity(context: Context, role: String, now: Long = System.currentTimeMillis()): String {
-        if (role.isBlank() || role.startsWith("resident:") || active(context, role, now) != null)
-            return ""
-        val studyWords = listOf("学习", "备考", "背书", "复习", "刷题", "考试")
-        val accepted = CommitmentTaskStore.active(role).any { task ->
-            studyWords.any(task.goal::contains)
-        }
-        val hasOwnConcern = CharacterMotiveState.active(
-            CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")).any { motive ->
-            studyWords.any(motive.optString("aim")::contains)
-        }
-        if (!accepted && !hasOwnConcern) return ""
-        val p = prefs(context)
-        if (now - p.getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS ||
-            now - p.getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS) return ""
-        return "【可选的本人主动照顾】你确实曾接受学习责任，" +
-            "或自己仍挂念她的学习。现在没有她的新命令也可以自行判断要不要来看看；" +
-            "若真实想在这段时间陪她并能尊重她的时间和隐私，可以主动以" +
-            "steps选择start_study_watch申请一次限时监督。主人只负责许可，不负责催你想起；" +
-            "你也完全可以选择先聊天、稍后安排或暂时不打扰，不要机械打卡。"
+        if (role.isBlank() || role.startsWith("resident:") || active(context, role, now) != null ||
+            requestSlotBlocker(context, now) != null) return ""
+        return "【学习陪伴的可选行动】若你自己现在挂念主人的学习，可以按当下情境决定联系、" +
+            "安排稍后的关心，或以steps选择start_study_watch申请一次限时监督许可。" +
+            "先前某一次拒绝或申请是供你理解的经历，不是禁止你之后自主提出邀请的系统规则。" +
+            "申请不等于已获许可；真实截图仍须本次授权及设备能力就绪。"
     }
 
     @Synchronized
@@ -178,25 +167,13 @@ internal object LuluStudyWatch {
             return response(false, "学习监督未启动：$it")
         }
         val now = System.currentTimeMillis()
-        val p = prefs(context)
-        if (now - p.getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS)
-            return response(false, "主人近期已拒绝学习监督，暂时不要重复打扰")
-        if (now - p.getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS)
-            return response(false, "近期已经申请过学习监督，暂不重复请求")
-        val old = rawActive(context)
-        if (old.optString("id").isNotBlank() && old.optLong("endsAt") > now)
-            return response(false, "已经有一段学习监督在进行，先结束当前时段")
-        val outstanding = pending(context)
-        if (outstanding.optString("id").isNotBlank() &&
-            now - outstanding.optLong("at") in 0..CONSENT_LIFETIME_MS)
-            return response(false, "已有学习监督授权请求等待主人回应")
+        requestSlotBlocker(context, now)?.let { return response(false, it) })
         val minutes = requestedMinutes.coerceIn(
             (MIN_AGE_MS / 60_000L).toInt(), (MAX_AGE_MS / 60_000L).toInt())
         val id = UUID.randomUUID().toString()
         val payload = JSONObject().put("id", id).put("characterId", role)
             .put("minutes", minutes).put("at", now)
-        if (!prefs(context).edit().putString(PENDING, payload.toString())
-                .putLong("$LAST_REQUEST_AT:$role", now).commit())
+        if (!prefs(context).edit().putString(PENDING, payload.toString()).commit())
             return response(false, "学习监督请求无法保存")
         val manager = context.getSystemService(NotificationManager::class.java)
         val title = "${label(role)}想监督你学习"
@@ -240,7 +217,6 @@ internal object LuluStudyWatch {
         val accepted = granted && !expired && blocker == null
         val role = entry.optString("characterId")
         if (!accepted) {
-            if (!granted) prefs(context).edit().putLong("$LAST_DENIAL_AT:$role", now).commit()
             val reason = authorizationFailureReason(granted, expired, blocker)
             SharedExperienceTimeline.record("study-watch-denied-$id", role, "屏幕监督授权", "手机",
                 reason, source = "study-watch-consent",
@@ -251,7 +227,7 @@ internal object LuluStudyWatch {
             .put("endsAt", now + entry.optInt("minutes") * 60_000L)
             .put("ordinal", 0)
         if (!prefs(context).edit().putString(ACTIVE, session.toString()).remove(LATEST)
-                .remove("$LAST_REQUEST_AT:$role").commit()) return
+                .commit()) return
         showActiveNotification(context, session)
         LuluStudyWatchOverlay.show(context, session)
         SharedExperienceTimeline.record("study-watch-approved-$id", role, "屏幕监督授权", "手机",
@@ -360,10 +336,7 @@ internal object LuluStudyWatch {
         if (session.optString("id").isBlank() ||
             (id.isNotBlank() && session.optString("id") != id)) return false
         val role = session.optString("characterId")
-        val write = prefs(context).edit().remove(ACTIVE).remove(LATEST)
-        if (reason.contains("主人主动停止"))
-            write.putLong("$LAST_DENIAL_AT:$role", System.currentTimeMillis())
-        if (!write.commit()) return false
+        if (!prefs(context).edit().remove(ACTIVE).remove(LATEST).commit()) return false
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("lulu-study-watch-${session.optString("id")}")
         context.getSystemService(NotificationManager::class.java).cancel(ACTIVE_NOTICE)
