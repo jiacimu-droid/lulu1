@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:33:45.742343+00:00",
-  "commit": "10ddab3d0f979049e8e5faa4c2c5499f87d3bc07",
+  "generatedAt": "2026-11-01T04:34:00.950448+00:00",
+  "commit": "ab3ee23accb0bd2fa638d22e70931f2147a5006f",
   "branch": "main",
-  "sourceFingerprint": "19c57d3621671e856bcb8e02054add23f3ff255d39d2e6a3e53520edc119716c",
+  "sourceFingerprint": "f6efa96d91814f16c7ff0d7e8b7d9484c7db5dfea0870eda7ebcb7079c106d28",
   "summary": {
-    "files": 1130,
-    "lines": 231734,
-    "symbols": 3235
+    "files": 1128,
+    "lines": 231133,
+    "symbols": 3234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -14150,12 +14150,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
         "line": 116
-      }
-    ],
-    "itemsFor": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-        "line": 22
       }
     ],
     "promptText": [
@@ -32764,23 +32758,6 @@
           "line": 13
         }
       ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-      "lines": 249,
-      "sha256": "f421adf9ccc78a9c7088186545ebc92f01435fcc9dffee5a8c9851e77ee07e3d",
-      "symbols": [
-        {
-          "name": "itemsFor",
-          "line": 22
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 352,
-      "sha256": "d98c087c9c0f40130fa44083e0bfbc71bb30c76f1875b2df0418fd09dbcc439f",
-      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",

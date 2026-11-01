@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`10ddab3d0f979049e8e5faa4c2c5499f87d3bc07`
+- 基准提交：`ab3ee23accb0bd2fa638d22e70931f2147a5006f`
 - 分支：`main`
-- 已索引文件：1130
-- 已索引代码/文本行：231734
-- 已发现符号：3235
+- 已索引文件：1128
+- 已索引代码/文本行：231133
+- 已发现符号：3234
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -701,8 +701,6 @@
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt` | 150 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt` | 78 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 249 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 352 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 575 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 67 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 185 | 9 |
