@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:17:07.526771+00:00",
-  "commit": "ad0eabc776794317f51c961a962298ca2217524c",
+  "generatedAt": "2026-11-01T04:17:32.867243+00:00",
+  "commit": "84dc6b75fe56742378e00ee709b12c0a7c03f932",
   "branch": "main",
-  "sourceFingerprint": "f0d10f1c3464b677cd6a5152c1c8a622d909e77af19027a5eb3cd98ba104c2aa",
+  "sourceFingerprint": "03df2e0f098ab37952f5a965370edfc6add04ea994434b5bcfcd6d32940c803c",
   "summary": {
     "files": 1134,
-    "lines": 233605,
-    "symbols": 3298
+    "lines": 233537,
+    "symbols": 3297
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13655,7 +13655,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 32
+        "line": 31
       }
     ],
     "LuluGamesAppV2": [
@@ -14730,22 +14730,16 @@
         "line": 93
       }
     ],
-    "privateConversationId": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 55
-      }
-    ],
     "startPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 68
+        "line": 60
       }
     ],
     "finishPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 100
+        "line": 86
       }
     ],
     "StudyRemovedFeatureMigration": [
@@ -33017,8 +33011,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-      "lines": 126,
-      "sha256": "22ccc7d394d7b1059fd862292db561d1c786e65ff47ab36be757c7e5b568e67e",
+      "lines": 124,
+      "sha256": "f2df3e9afb800faef3f3c4b67f3d8a3d832cd23ce7c8f79a63b6c9ebc84d7aad",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
@@ -33026,7 +33020,7 @@
         },
         {
           "name": "stepBack",
-          "line": 32
+          "line": 31
         }
       ]
     },
@@ -33692,20 +33686,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-      "lines": 470,
-      "sha256": "3993845933896b2caa3f2ae6b2493aa8be64861efb9c1d61cd7b9d7b32e796b0",
+      "lines": 404,
+      "sha256": "d0aebed4bc9cac4819600209e2aa2543ea5e99eb6a08d4137ac44b63be8e46e7",
       "symbols": [
         {
-          "name": "privateConversationId",
-          "line": 55
-        },
-        {
           "name": "startPomodoro",
-          "line": 68
+          "line": 60
         },
         {
           "name": "finishPomodoro",
-          "line": 100
+          "line": 86
         }
       ]
     },

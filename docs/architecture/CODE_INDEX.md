@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ad0eabc776794317f51c961a962298ca2217524c`
+- 基准提交：`84dc6b75fe56742378e00ee709b12c0a7c03f932`
 - 分支：`main`
 - 已索引文件：1134
-- 已索引代码/文本行：233605
-- 已发现符号：3298
+- 已索引代码/文本行：233537
+- 已发现符号：3297
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -697,7 +697,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 196 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 210 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 182 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 126 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 124 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 1168 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 177 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 75 | 6 |
@@ -722,7 +722,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 421 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt` | 298 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 990 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 470 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 404 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 69 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
