@@ -849,6 +849,8 @@ object ProactivePerceptionRuntime {
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
                 appendLine(com.jiacimu.lulu.ai.JevDirections.context())
                 val openCommitments = CommitmentTaskStore.active(characterId)
+                ActiveCommitmentAttention.render(openCommitments, now)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (openCommitments.isNotEmpty()) {
                     appendLine("【当前已承担的目标与统一验收入口】")
                     openCommitments.take(12).forEach { task ->
@@ -2354,6 +2356,15 @@ object ProactivePerceptionRuntime {
         if (decision.action != Action.SILENT && !execution.success) {
             // Keep the previous factual presence intact. Failure details belong to perception history.
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "动作未完成：${execution.summary}", now)
+        }
+        // A silent, step-free turn cannot silently dispose of an accepted,
+        // still-uncovered responsibility. Re-open the SAME role's ordinary
+        // decision once on the existing bounded handoff lane. This scheduler
+        // chooses no message/call or new deadline on the character's behalf.
+        if (decision.action == Action.SILENT && !choseOnlySteps &&
+            ActiveCommitmentAttention.render(CommitmentTaskStore.active(characterId), now).isNotBlank() &&
+            CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now()).isNotEmpty()) {
+            ProactivePerceptionScheduler.scheduleUnfinishedSleepHandoff(appContext, characterId)
         }
         // No spoken primary action is not the same as "did nothing".
         // One decision can intentionally stay silent while selecting steps;
