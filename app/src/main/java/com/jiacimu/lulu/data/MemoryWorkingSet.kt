@@ -54,12 +54,7 @@ internal object MemoryWorkingSet {
             context.ownedSourceEvents.forEach { event ->
                 if (deliveredEventIds.add(event.id)) evidence(event, false)
             }
-            auxiliary.forEachIndexed { group, (label, text) ->
-                // Complete lines are units. Never cut a negation, condition or evidence ID in half.
-                text.lineSequence().filter(String::isNotBlank).forEachIndexed { index, line ->
-                    add(MemoryPromptCandidate("state:$group:$index", label, line, 900 - group * 35))
-                }
-            }
+            addAll(MemoryWorkingSetPolicy.auxiliaryCandidates(auxiliary))
             context.ownedMemories.forEach { memory ->
                 add(MemoryPromptCandidate("memory:${memory.id}", SUMMARY,
                     "- [${memory.occurredAt ?: memory.createdAt}] [${CharacterAssociativeRecall.memoryLane(memory).label}] memoryId=${memory.id} ${memory.content}" +

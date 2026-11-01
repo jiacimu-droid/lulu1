@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`634e16287fd3857b2deb2b15b6cbf2ff7663827b`
+- 基准提交：`c8c37d30dcea36bf482ddea2266a9d116af901f0`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：228757
-- 已发现符号：3231
+- 已索引代码/文本行：228818
+- 已发现符号：3233
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -508,8 +508,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 199 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 100 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 95 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1159 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |
@@ -914,7 +914,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 81 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 980 | 19 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 982 | 19 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 226 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
@@ -945,7 +945,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 391 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 443 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 444 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
@@ -996,7 +996,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt` | 58 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 346 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt` | 309 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt` | 43 | 1 |

@@ -22,6 +22,29 @@ internal data class MemoryWorkingSelection(
 
 /** One budget for the memory family. Core and executable responsibilities are never silently cut. */
 internal object MemoryWorkingSetPolicy {
+    /** State headers carry authority/time scope. Select their complete blocks,
+     * never independent lines that can outlive the qualification above them. */
+    fun auxiliaryCandidates(auxiliary: List<Pair<String, String>>): List<MemoryPromptCandidate> = buildList {
+        auxiliary.forEachIndexed { group, (label, text) ->
+            val block = mutableListOf<String>()
+            var index = 0
+            fun flush() {
+                val body = block.joinToString("\n").trim()
+                if (body.isNotBlank()) {
+                    add(MemoryPromptCandidate("state:$group:${index++}", label, body, 900 - group * 35))
+                }
+                block.clear()
+            }
+            text.lineSequence().forEach { line ->
+                // Authored renderers delimit context sections with these
+                // headings; this is structure, not interpretation of intent.
+                if (line.startsWith("【") && line.contains('】')) flush()
+                block += line
+            }
+            flush()
+        }
+    }
+
     fun select(candidates: List<MemoryPromptCandidate>, budget: Int, protectedCharacters: Int = 0,
                sectionLimits: Map<String, Int> = emptyMap()): MemoryWorkingSelection {
         val sections = linkedMapOf<String, MutableList<String>>()

@@ -309,8 +309,10 @@ class CharacterLifeStoreTest {
         assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("care"), state.getJSONObject("profile").getString("care"))
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV24,
             state.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
-        assertTrue(CharacterRuntime.definition(jiang.characterId).persona.contains(
-            CharacterProfileSchema.jiangDuOwnerRelationContextV24))
+        val definition = CharacterRuntime.definition(jiang.characterId)
+        assertTrue(definition.relationships.contains(CharacterProfileSchema.jiangDuOwnerRelationContextV24))
+        assertFalse(definition.persona.contains(CharacterProfileSchema.jiangDuOwnerRelationContextV24))
+        assertTrue(definition.promptSection().contains(CharacterProfileSchema.jiangDuOwnerRelationContextV24))
         assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("interests"), state.getJSONObject("profile").getString("interests"))
         CharacterLifeStore.setProfile(jiang.characterId, "care", "后来自己改的")
         CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
