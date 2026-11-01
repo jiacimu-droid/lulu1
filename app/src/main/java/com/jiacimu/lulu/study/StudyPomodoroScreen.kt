@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.data.MigratedDomainStores
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +27,6 @@ internal fun StudyPomodoroScreen(
     state: StudyState,
     store: PostgraduateExamStore,
     onBack: () -> Unit,
-    onOpenConversation: (String) -> Unit,
 ) {
     val companion by PomodoroCompanionSessions.store.state.collectAsState()
     var task by remember(companion.task) { mutableStateOf(companion.task) }
@@ -53,12 +51,6 @@ internal fun StudyPomodoroScreen(
         (countUpElapsed % 3600).toFloat() / 3600f
     }
 
-    fun privateConversationId(): String {
-        val characterId = companion.activeCharacterId.ifBlank { state.profile.selectedCharacterId }
-        val character = MigratedDomainStores.characters.get(characterId)
-        return MigratedDomainStores.chat.ensureConversation(characterId, character.displayName).id
-    }
-
     LaunchedEffect(completed) {
         if (!completed) return@LaunchedEffect
         store.resetPomodoro()
@@ -80,11 +72,6 @@ internal fun StudyPomodoroScreen(
             return
         }
 
-        val characterId = state.profile.selectedCharacterId
-        val character = MigratedDomainStores.characters.get(characterId)
-        val conversationId = MigratedDomainStores.chat.ensureConversation(characterId, character.displayName).id
-        val messageStart = MigratedDomainStores.chat.messages(conversationId).value.size
-
         PomodoroCompanionSessions.store.updateTask(cleanTask)
         if (mode == PomodoroTimerMode.Countdown) {
             store.setPomodoroDuration(minutes ?: 25)
@@ -92,10 +79,9 @@ internal fun StudyPomodoroScreen(
         } else {
             store.resetPomodoro()
         }
-        PomodoroCompanionSessions.beginSession(characterId, cleanTask, messageStart, mode)
+        PomodoroCompanionSessions.beginSession(cleanTask, mode)
         notice = ""
         noticeError = false
-        PomodoroCompanionSessions.requestOpeningLine(store.state.value)
     }
 
     fun finishPomodoro() {
@@ -125,7 +111,6 @@ internal fun StudyPomodoroScreen(
                 if (mode == PomodoroTimerMode.CountUp) PomodoroCompanionSessions.toggleCountUp() else store.togglePomodoro()
             },
             onFinish = ::finishPomodoro,
-            onOpenConversation = { onOpenConversation(privateConversationId()) },
         )
         return
     }
@@ -213,29 +198,6 @@ internal fun StudyPomodoroScreen(
             }
 
             item {
-                Surface(
-                    color = Color.White,
-                    shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(1.dp, StudyDesign.border),
-                ) {
-                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("陪伴设置", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
-                        SettingSwitchRow(
-                            title = "角色开场消息",
-                            checked = companion.automaticDialogueEnabled,
-                            onCheckedChange = PomodoroCompanionSessions.store::updateAutomaticDialogue,
-                        )
-                        HorizontalDivider(color = StudyDesign.border)
-                        SettingSwitchRow(
-                            title = "角色语音",
-                            checked = state.pomodoro.voiceEnabled,
-                            onCheckedChange = { store.togglePomodoroVoice() },
-                        )
-                    }
-                }
-            }
-
-            item {
                 Button(
                     onClick = ::startPomodoro,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -302,7 +264,6 @@ private fun PomodoroFocusScreen(
     onToggleSkin: () -> Unit,
     onPauseResume: () -> Unit,
     onFinish: () -> Unit,
-    onOpenConversation: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(palette.background)),
@@ -399,35 +360,8 @@ private fun PomodoroFocusScreen(
                     Text("结束")
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            TextButton(onClick = onOpenConversation, colors = ButtonDefaults.textButtonColors(contentColor = palette.primaryText)) {
-                Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("去角色私聊")
-            }
             Spacer(Modifier.weight(1f))
         }
-    }
-}
-
-@Composable
-private fun SettingSwitchRow(
-    title: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = StudyDesign.ink)
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = StudyDesign.ink,
-                checkedTrackColor = StudyDesign.wheat,
-                uncheckedThumbColor = StudyDesign.muted,
-                uncheckedTrackColor = Color(0xFFF0EEE8),
-            ),
-        )
     }
 }
 
