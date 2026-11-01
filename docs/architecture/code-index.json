@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-31T17:48:46.654551+00:00",
-  "commit": "f4272534c1a78851acee783da46b2cfe85eb2b72",
+  "generatedAt": "2026-11-01T03:06:30.325011+00:00",
+  "commit": "b218b1188279bc85f425eba221ef0044bb2a880d",
   "branch": "main",
-  "sourceFingerprint": "38535df3fecaef40f7962102eba5357b4a3d2c3078ff0eed21afa881e620033a",
+  "sourceFingerprint": "a0a30f472e43e6bf19d9d808410d3a10a19377747cd34040309d60db175ac65a",
   "summary": {
     "files": 1134,
-    "lines": 233701,
+    "lines": 233804,
     "symbols": 3303
   },
   "symbolIndex": {
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 69
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -787,7 +787,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 58
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -1057,7 +1057,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 31
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -5437,13 +5437,13 @@
     "parseChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 61
+        "line": 102
       }
     ],
     "AutonomousEncounterChaptersWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 199
+        "line": 257
       }
     ],
     "Outcome": [
@@ -6127,25 +6127,25 @@
     "CharacterDevelopmentRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 37
+        "line": 41
       }
     ],
     "lastStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 43
+        "line": 47
       }
     ],
     "resumePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 55
+        "line": 59
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 209
+        "line": 222
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -23337,20 +23337,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 243,
-      "sha256": "41df59a2ab00af0b3758a12acd03844d4ca9ea1139ee1b36404f2ccb34ce0061",
+      "lines": 301,
+      "sha256": "4f5466b7148bdf43c407be61661157fb574170429e4bce763562a0b0df88a7d0",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 31
+          "line": 32
         },
         {
           "name": "parseChapters",
-          "line": 61
+          "line": 102
         },
         {
           "name": "AutonomousEncounterChaptersWorker",
-          "line": 199
+          "line": 257
         }
       ]
     },
@@ -23926,8 +23926,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 250,
-      "sha256": "9275b2a61b01dfe998f8ad1b17d87df2b7203211b255b54605a34bf6515de21b",
+      "lines": 265,
+      "sha256": "470a657adc51549f39fbc2969a3ee4822288076243ccad31cded6a43b3fe52fa",
       "symbols": [
         {
           "name": "snapshot",
@@ -23935,27 +23935,27 @@
         },
         {
           "name": "CharacterDevelopmentRuntime",
-          "line": 37
+          "line": 41
         },
         {
           "name": "lastStatus",
-          "line": 43
+          "line": 47
         },
         {
           "name": "resumePending",
-          "line": 55
+          "line": 59
         },
         {
           "name": "initialize",
-          "line": 58
+          "line": 65
         },
         {
           "name": "request",
-          "line": 69
+          "line": 76
         },
         {
           "name": "ids",
-          "line": 209
+          "line": 222
         }
       ]
     },
@@ -35753,8 +35753,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt",
-      "lines": 43,
-      "sha256": "1155910d7bb1f5ebdf837996ffb1c736a8e304bf8d9d25ffb6d4405bebe5efe4",
+      "lines": 59,
+      "sha256": "41967bdf143d1ebc74891e664f8e8e8ed2ba8aad252ff56cd0103f8bf7cb1aad",
       "symbols": [
         {
           "name": "AutonomousEncounterChaptersTest",
@@ -37068,8 +37068,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt",
-      "lines": 41,
-      "sha256": "a9a23c850617ed8b619c87fbf4a028e20de3d6accc21a737211e8e8e48e6a4b2",
+      "lines": 55,
+      "sha256": "d4ba41e6ac97474b705559e686ee649c884b81326e6b6f3bf5b1a8a71de0f875",
       "symbols": [
         {
           "name": "DevelopmentReflectionGenerationTest",
