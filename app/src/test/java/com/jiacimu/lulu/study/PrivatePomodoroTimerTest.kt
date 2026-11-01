@@ -58,10 +58,10 @@ class PrivatePomodoroTimerTest {
         store.beginSession("只属于自己的计时", PomodoroTimerMode.Countdown)
         assertFalse(store.state.value.completionHandled)
         assertEquals("只属于自己的计时", store.state.value.activeTask)
-        // Old keys may remain for backward compatibility but must not be
-        // consulted or refreshed by this timer-only store.
-        assertEquals("lulu", prefs.getString("active_character_id", ""))
-        assertFalse(prefs.getBoolean("opening_handled", true))
+        // Legacy character-related keys are purged, not carried into 自序.
+        assertFalse(prefs.contains("active_character_id"))
+        assertFalse(prefs.contains("automatic_dialogue"))
+        assertFalse(prefs.contains("opening_handled"))
     }
     @Test fun countdownCanPauseResumeAndFinishWithoutExamStore() {
         val context = RuntimeEnvironment.getApplication() as Context
