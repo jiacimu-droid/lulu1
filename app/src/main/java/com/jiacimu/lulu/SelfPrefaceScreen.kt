@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StudyPomodoroScreen
 import org.json.JSONArray
 import org.json.JSONObject
@@ -147,8 +146,6 @@ fun SelfPrefaceScreen(
     var error by remember { mutableStateOf("") }
     var pomodoroOpen by remember { mutableStateOf(false) }
     val activeTimer by PomodoroCompanionSessions.store.state.collectAsState()
-    val studyStore = remember { PostgraduateExamStores.main }
-    val studyState by studyStore.state.collectAsState()
 
     LaunchedEffect(openPomodoroRequest) {
         if (openPomodoroRequest > 0 &&
@@ -162,11 +159,7 @@ fun SelfPrefaceScreen(
     }
     BackHandler(enabled = pomodoroOpen) { pomodoroOpen = false }
     if (pomodoroOpen) {
-        StudyPomodoroScreen(
-            state = studyState,
-            store = studyStore,
-            onBack = { pomodoroOpen = false },
-        )
+        StudyPomodoroScreen(onBack = { pomodoroOpen = false })
         return
     }
     BackHandler(enabled = overview) { onBack() }
