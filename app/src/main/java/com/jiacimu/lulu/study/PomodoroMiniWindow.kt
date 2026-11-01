@@ -37,7 +37,6 @@ import kotlin.math.roundToInt
  */
 @Composable
 internal fun PomodoroMiniWindow(
-    studyState: StudyState,
     companion: PomodoroCompanionPreferences,
     onOpen: () -> Unit,
     onPauseResume: () -> Unit,
@@ -61,12 +60,12 @@ internal fun PomodoroMiniWindow(
     val running = if (companion.timerMode == PomodoroTimerMode.CountUp) {
         companion.countUpRunning
     } else {
-        studyState.pomodoro.running
+        companion.countdownRunning
     }
     val displaySeconds = if (companion.timerMode == PomodoroTimerMode.CountUp) {
         companion.countUpElapsedSeconds.coerceAtLeast(0)
     } else {
-        studyState.pomodoro.remainingSeconds.coerceAtLeast(0)
+        companion.countdownRemainingSeconds.coerceAtLeast(0)
     }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
