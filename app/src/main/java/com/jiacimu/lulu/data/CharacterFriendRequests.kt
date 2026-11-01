@@ -87,12 +87,15 @@ internal object CharacterFriendRequests {
         }
         // The sender already chose to act. The receiver needs a real chance
         // to inspect/respond, while acceptance/decline should notify the sender.
-        // Native residents keep using their own cheaper daily decision route.
+        // Native citizens have their own phone/model route too. Waiting for the
+        // next morning's plan used to strand new applications for hours.
         val recipient = if (kind == "requested") record.toId else record.fromId
-        if (!recipient.startsWith("resident:")) applicationContext?.let { app ->
+        applicationContext?.let { app ->
             runCatching {
                 ProactivePerceptionScheduler.scheduleSocialNoticeReview(
                     app, recipient, "friend-request-${record.id}-$kind-$recipient")
+            }.onFailure { error ->
+                android.util.Log.w("ResidentSocial", "Friend notice wake failed", error)
             }
         }
     }
