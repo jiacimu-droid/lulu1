@@ -70,7 +70,8 @@ internal fun CommitmentTask.hasPendingOutcomeReview(now: Instant): Boolean =
 
 /** Unverified nightly results remain responsibilities after the first reminder fires. */
 internal fun CommitmentTask.needsUnverifiedDailyRecovery(now: Instant): Boolean =
-    repeat == "daily" && status == CommitmentTaskStatus.WaitingForFeedback &&
+    repeat == "daily" && status in setOf(
+        CommitmentTaskStatus.WaitingForFeedback, CommitmentTaskStatus.Blocked) &&
         dueAt?.isBefore(now) == true && !hasPendingOutcomeReview(now) &&
         !(followUpKind == "retry" && linkedAlarmId != null && nextCheckAt?.isAfter(now) == true)
 

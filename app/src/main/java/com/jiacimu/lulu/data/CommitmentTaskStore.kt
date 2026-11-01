@@ -186,8 +186,7 @@ object CommitmentTaskStore {
                 // A pending effect-verification has not finished this night.
                 // Only a completed/expired initial attempt may advance the
                 // daily clock; otherwise the original responsibility vanishes.
-                task.status != CommitmentTaskStatus.WaitingForFeedback &&
-                task.status !in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.NeedsClarification) &&
+                task.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Expired) &&
                 !task.dueAt.isAfter(now.minusSeconds(120)) &&
                 (task.executionToken == null || inFlight[task.id] != task.executionToken)
         }
@@ -312,9 +311,9 @@ object CommitmentTaskStore {
     }
 
     /**
-     * A daily incoming-call promise is ONE durable task. A completed attempt
-     * advances its local clock to tomorrow, independently of whether the user
-     * answered; it does not replay today's missed phone call.
+     * A daily promise is ONE durable task. Only its verified completion moves
+     * the clock to tomorrow. Delivery, silence and failure keep this occurrence
+     * open for its owner's next choice; they never replay the original call.
      */
     @Synchronized
     internal fun advanceDailyAfterAttempt(
@@ -331,8 +330,7 @@ object CommitmentTaskStore {
         val task = mutableTasks.value.firstOrNull { it.id == taskId } ?: return
         if (task.repeat != "daily" || task.executionToken == null ||
             task.executionToken != executionToken ||
-            task.status in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.Expired,
-                CommitmentTaskStatus.NeedsClarification)) return
+            task.status != CommitmentTaskStatus.Completed) return
         val previousDue = task.dueAt ?: return
         // Keep the same task's one pending outcome-review callback before
         // moving a daily bedside promise to tomorrow. No second task/store.

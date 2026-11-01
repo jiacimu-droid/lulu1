@@ -320,6 +320,53 @@ class CommitmentAlarmRecoveryTest {
         assertFalse(current(task).lastActionResult.contains("已确认醒来"))
     }
 
+    @Test fun dailyAttemptWithoutReviewCannotEraseTonightsUnverifiedResponsibility() {
+        val now = Instant.now()
+        for (status in listOf(CommitmentTaskStatus.WaitingForFeedback, CommitmentTaskStatus.Blocked)) {
+            val task = CommitmentTaskStore.save(CommitmentTask(
+                characterId = "role", goal = "每天23:30监督入睡",
+                repeat = "daily", status = status,
+                dueAt = now.minusSeconds(3600), executionToken = "attempt-$status",
+                deliveryAction = "send_private_message", attemptCount = 1,
+                lastActionResult = "提醒已尝试；尚无入睡证据"))
+            // The real delivery finally block invokes this even when no model
+            // review was scheduled, or when the notification failed.
+            CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken, now)
+            assertEquals(task, current(task))
+            assertTrue(CompanionSleepHandoff.uncovered(context, "role", now).any { it.id == task.id })
+            assertTrue(task.needsUnverifiedDailyRecovery(now))
+            // Restart recovery must not roll Blocked (or WaitingForFeedback)
+            // forward and make tomorrow's alarm look like coverage for tonight.
+            detach(CommitmentTaskStore, "prefs")
+            CommitmentTaskStore.initialize(context)
+            CommitmentTaskStore.reconcileAfterRestart(now)
+            assertEquals(task.dueAt, current(task).dueAt)
+            assertEquals(status, current(task).status)
+            assertEquals(task.executionToken, current(task).executionToken)
+            assertEquals(1, current(task).attemptCount)
+            assertTrue(ActiveCommitmentAttention.render(listOf(current(task)), now).contains(task.id))
+        }
+    }
+
+    @Test fun verifiedDailyOccurrenceStillSchedulesTomorrowUsingOriginalClock() {
+        val now = Instant.now()
+        val task = CommitmentTaskStore.save(CommitmentTask(
+            characterId = "role", goal = "每天23:30监督入睡", repeat = "daily",
+            dueAt = now.minusSeconds(3600), dailyBaseDueAt = now.minusSeconds(7200),
+            timezone = "Asia/Shanghai", status = CommitmentTaskStatus.Completed,
+            deliveryAction = "send_private_message", executionToken = "confirmed-attempt",
+            completionEvidenceIds = listOf("real-outcome"), attemptCount = 1))
+        CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken, now)
+        val next = current(task)
+        assertEquals(CommitmentTaskStatus.Scheduled, next.status)
+        assertEquals(nextDailyCommitmentDue(task.dailyBaseDueAt!!, now,
+            java.time.ZoneId.of("Asia/Shanghai")), next.dueAt)
+        assertEquals(task.id, next.id)
+        assertEquals(task.dailyBaseDueAt, next.dailyBaseDueAt)
+        assertTrue(LuluAlarmSystem.list().any { it.id == next.linkedAlarmId && it.commitmentTaskId == task.id })
+        assertNull(next.executionToken)
+    }
+
     private fun saveTask(due: Instant, role: String = "role") = CommitmentTaskStore.save(CommitmentTask(
         characterId = role, goal = "09:30 打电话叫醒", status = CommitmentTaskStatus.Scheduled,
         dueAt = due, nextCheckAt = due, linkedAlarmId = "alarm", deliveryAction = "start_call"))

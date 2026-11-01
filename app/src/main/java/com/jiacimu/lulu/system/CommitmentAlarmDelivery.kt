@@ -120,8 +120,8 @@ internal object CommitmentAlarmDelivery {
             ) }
             if (error is CancellationException) throw error
         } finally {
-            // Roll a recurring task after its real, uniquely claimed attempt.
-            // It remains one record and must not leave today's retry alarm armed.
+            // Attempt completion is not goal completion. The store advances
+            // only a verified occurrence; unresolved care retains tonight's ID.
             CommitmentTaskStore.advanceDailyAfterAttempt(context, task.id, task.executionToken,
                 outcomeReview = task.isOutcomeReview())
             CommitmentTaskStore.finishAlarmExecution(task.id, task.executionToken)

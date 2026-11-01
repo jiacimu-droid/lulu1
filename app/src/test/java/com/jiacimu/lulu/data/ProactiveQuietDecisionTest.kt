@@ -68,7 +68,8 @@ class ProactiveQuietDecisionTest {
         val instruction = proactiveDecisionInstruction("bedtime-prompt-test")
         assertTrue(instruction.contains("已接受的责任与普通心事不同"))
         assertTrue(instruction.contains("不能仅凭猜测替她撤回约定"))
-        assertTrue(instruction.contains("如果此刻选择 silent 且没有有效后续闹钟"))
+        assertTrue(instruction.contains("无论本轮说过话、用了其他工具还是选择 silent"))
+        assertTrue(instruction.contains("不自动变成取消监督或必须等她主动报备"))
         assertTrue(instruction.contains("真实拒绝与权限不足继续遵守"))
     }
 
