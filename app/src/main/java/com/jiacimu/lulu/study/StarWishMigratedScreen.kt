@@ -12,35 +12,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun StarWishScrollApp(onBack: () -> Unit) {
+internal fun StarWishScrollApp(onBack: () -> Unit, characterId: String = "lulu") {
     val context = LocalContext.current
     val store = remember { StarWishStores.main }
-    val studyStore = remember { PostgraduateExamStores.main }
     val state by store.state.collectAsState()
-    val studyState by studyStore.state.collectAsState()
 
     BackHandler(onBack = onBack)
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             StarWishBackOnlyBar(onBack)
-            StarWishScrollContent(state, studyState, store, context)
+            StarWishScrollContent(state, characterId, store, context)
         }
     }
 }
 
 @Composable
-internal fun StarWishTheaterApp(onBack: () -> Unit, initialReadingTarget: String? = null) {
+internal fun StarWishTheaterApp(onBack: () -> Unit, initialReadingTarget: String? = null, characterId: String = "lulu") {
     val store = remember { StarWishStores.main }
-    val studyStore = remember { PostgraduateExamStores.main }
     val state by store.state.collectAsState()
-    val studyState by studyStore.state.collectAsState()
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             StarWishTheaterContentV2(
                 state = state,
-                studyState = studyState,
+                characterId = characterId,
                 store = store,
                 onExit = onBack,
                 initialReadingTarget = initialReadingTarget,
