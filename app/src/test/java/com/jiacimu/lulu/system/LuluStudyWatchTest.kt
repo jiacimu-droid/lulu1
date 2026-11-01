@@ -50,6 +50,34 @@ class LuluStudyWatchTest {
             .startsWith("监督会话已启动"))
     }
 
+    @Test fun previousDenialOrRequestCannotVetoANewCharacterDecision() {
+        val now = System.currentTimeMillis()
+        // Old installations may still retain obsolete cooldown timestamps.
+        prefs.edit().putLong("study_watch_last_denial_at:role-a", now)
+            .putLong("study_watch_last_request_at:role-a", now).commit()
+        assertNull(LuluStudyWatch.requestSlotBlocker(context, now))
+        assertTrue(LuluStudyWatch.proactiveOpportunity(context, "role-a", now)
+            .contains("start_study_watch"))
+        assertFalse(LuluStudyWatch.decisionStatus(context, "role-a", now)
+            .contains("近期"))
+        assertTrue(LuluStudyWatch.proactiveOpportunity(context, "resident:local", now).isBlank())
+    }
+
+    @Test fun onlyAnOutstandingOrActiveSessionBlocksDuplicateRequests() {
+        val now = System.currentTimeMillis()
+        val pending = JSONObject().put("id", "asked")
+            .put("characterId", "role-a").put("at", now)
+        prefs.edit().putString("study_watch_pending", pending.toString()).commit()
+        assertTrue(LuluStudyWatch.requestSlotBlocker(context, now)!!.contains("等待主人回应"))
+        assertTrue(LuluStudyWatch.proactiveOpportunity(context, "role-a", now).isBlank())
+        assertNull(LuluStudyWatch.requestSlotBlocker(context, now + 121_000L))
+        prefs.edit().remove("study_watch_pending").putString("study_watch_active",
+            JSONObject().put("id", "approved").put("characterId", "role-a")
+                .put("startedAt", now).put("endsAt", now + 600_000L).toString()).commit()
+        assertTrue(LuluStudyWatch.requestSlotBlocker(context, now)!!.contains("正在进行"))
+        assertNull(LuluStudyWatch.requestSlotBlocker(context, now + 600_000L))
+    }
+
     @Test fun approvalFailureNeverRewritesOwnerConsentAsDenial() {
         assertTrue(LuluStudyWatch.authorizationFailureReason(true, false, "无障碍未连接")
             .contains("主人点击了允许"))
