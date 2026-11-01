@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:20:46.819488+00:00",
-  "commit": "d0812c892315884dd06cad86bbf2fbf4d70fa493",
+  "generatedAt": "2026-11-01T04:21:05.349733+00:00",
+  "commit": "a4e2f3d9027d3c217dbce825859bedb8e4cac847",
   "branch": "main",
-  "sourceFingerprint": "df9fc5c34cadb4dea3be1e7db211122bfc447a03e5cb51684e6a8351c8e3ffa8",
+  "sourceFingerprint": "70143a4dc991658b9927d41c60c8070140924b05699d47f13724e42bc0edb123",
   "summary": {
     "files": 1134,
-    "lines": 233782,
-    "symbols": 3298
+    "lines": 233712,
+    "symbols": 3297
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -980,10 +980,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
         "line": 78
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -2802,10 +2798,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
         "line": 301
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 63
       }
     ],
     "LuluCapabilitiesScreen": [
@@ -11799,7 +11791,13 @@
     "RoleReadablePerformanceBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 26
+        "line": 12
+      }
+    ],
+    "retireAutomaticSharing": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+        "line": 13
       }
     ],
     "needsFollowThrough": [
@@ -21330,7 +21328,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
       "lines": 294,
-      "sha256": "c7fcca9f548e7ad0d8df3fcded01b9e7147136e6851b311f5d4f35491b569dc5",
+      "sha256": "245356e7f101f4e8bca21cd28a07bc4664261881aecac1a711068ed46a44a68a",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -29845,20 +29843,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-      "lines": 89,
-      "sha256": "2157d2f6b70d58c80f248cc6f7ab2df73539f92962df163b06d4ca07d731ff2f",
+      "lines": 19,
+      "sha256": "032b7c65917db458ab3f08434fc735119cf2148926cadaa8ce1cf5e67f0c500a",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
-          "line": 26
+          "line": 12
         },
         {
-          "name": "initialize",
-          "line": 28
-        },
-        {
-          "name": "shutdown",
-          "line": 63
+          "name": "retireAutomaticSharing",
+          "line": 13
         }
       ]
     },
