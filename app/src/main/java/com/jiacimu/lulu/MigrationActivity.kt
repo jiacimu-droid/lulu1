@@ -148,9 +148,8 @@ class MigrationActivity : ComponentActivity() {
         }
         resumePeripheral("学习计时与番茄钟") {
             val studyStore = PostgraduateExamStores.main
-            val minutes = studyStore.state.value.pomodoro.selectedMinutes
             if (studyStore.syncPomodoroClock())
-                PomodoroCompanionSessions.handleNaturalCompletion(studyStore, minutes)
+                PomodoroCompanionSessions.handleNaturalCompletion()
             PomodoroCompanionSessions.syncCountUpClock()
         }
     }
@@ -233,12 +232,8 @@ class MigrationActivity : ComponentActivity() {
         StarWishStores.initialize(appContext)
         PomodoroCompanionSessions.initialize(appContext)
 
-        val restoredMinutes = PostgraduateExamStores.main.state.value.pomodoro.selectedMinutes
         if (PostgraduateExamStores.main.syncPomodoroClock()) {
-            PomodoroCompanionSessions.handleNaturalCompletion(
-                studyStore = PostgraduateExamStores.main,
-                actualMinutes = restoredMinutes,
-            )
+            PomodoroCompanionSessions.handleNaturalCompletion()
         }
 
         RoleReadablePerformanceBridge.initialize()
