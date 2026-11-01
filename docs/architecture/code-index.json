@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:34:53.056101+00:00",
-  "commit": "acc1abd63e3f195b37140a8dd5f809e17ae7e354",
+  "generatedAt": "2026-11-01T04:36:04.468100+00:00",
+  "commit": "44098d331e461228b5545f0292c3fd186cb8df1e",
   "branch": "main",
-  "sourceFingerprint": "360a6d5027b92f0420e4435406abbc2255405024362fbb6848440a0fe00ea15c",
+  "sourceFingerprint": "11cc9849c6c62d85ca5b5134d47b14795e1cee72908c468f6aa7141573155123",
   "summary": {
     "files": 1119,
-    "lines": 228548,
+    "lines": 228558,
     "symbols": 3228
   },
   "symbolIndex": {
@@ -3335,7 +3335,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 40
+        "line": 43
       }
     ],
     "gridTop": [
@@ -11775,7 +11775,7 @@
     "RoleReadablePerformanceBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 12
+        "line": 10
       }
     ],
     "needsFollowThrough": [
@@ -20923,12 +20923,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 285,
-      "sha256": "139e64bc0832cd89626fa242b5ef60745e2e1cc02770d3a3832c6adef475e1ef",
+      "lines": 290,
+      "sha256": "d3ed43a8f683589ceac4cd2090425f1801df256463fb7b5d38955a50f9c907b3",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 40
+          "line": 43
         }
       ]
     },
@@ -29439,12 +29439,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-      "lines": 19,
-      "sha256": "491f5cfc39baa16b7aa2c45234e8f750bee5836c2e1ce0faf40e52e957a3a25b",
+      "lines": 24,
+      "sha256": "b925cf3f9a21230c7e157062b24a3368bfab517e72cc89e162c3249e963ef345",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
-          "line": 12
+          "line": 10
         }
       ]
     },

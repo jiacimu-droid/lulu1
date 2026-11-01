@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`acc1abd63e3f195b37140a8dd5f809e17ae7e354`
+- 基准提交：`44098d331e461228b5545f0292c3fd186cb8df1e`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：228548
+- 已索引代码/文本行：228558
 - 已发现符号：3228
 
 | 文件 | 行数 | 符号数 |
@@ -216,7 +216,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 686 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 285 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 290 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 643 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
@@ -551,7 +551,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 146 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 230 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 893 | 23 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 19 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 884 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 269 | 16 |
