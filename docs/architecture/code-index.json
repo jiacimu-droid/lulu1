@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T13:02:36.367772+00:00",
-  "commit": "dc2dd408835ced12b456bc6a7744d20e585c7d24",
+  "generatedAt": "2026-11-01T17:18:51.440527+00:00",
+  "commit": "f795f0192daa8f5f65fe8d028549a49f7109cd51",
   "branch": "main",
-  "sourceFingerprint": "1d091067cea694954ba9f03661715e9c741bf703266fc095b06b9a88741b45bb",
+  "sourceFingerprint": "29cc6b81acfce2a501145d41c4596728691e74dea774b391acd8157cc725c736",
   "summary": {
     "files": 1119,
-    "lines": 228509,
-    "symbols": 3228
+    "lines": 228545,
+    "symbols": 3229
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3798,6 +3798,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
         "line": 94
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -25268,12 +25272,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 149,
-      "sha256": "f2d95c564c63ddfb59d959f18f9113a6961cb1c4f2512d2a69e6deaa39227174",
+      "lines": 185,
+      "sha256": "10bec3a8f1e17b384cdfd19cc089bd100ca4bf854f5d924f7a2b238ace2457ef",
       "symbols": [
         {
           "name": "CommitmentTask",
           "line": 7
+        },
+        {
+          "name": "render",
+          "line": 150
         }
       ]
     },

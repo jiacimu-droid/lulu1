@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dc2dd408835ced12b456bc6a7744d20e585c7d24`
+- 基准提交：`f795f0192daa8f5f65fe8d028549a49f7109cd51`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：228509
-- 已发现符号：3228
+- 已索引代码/文本行：228545
+- 已发现符号：3229
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -416,7 +416,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 91 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 149 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
