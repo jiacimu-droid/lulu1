@@ -1,6 +1,9 @@
 package com.jiacimu.lulu
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -227,7 +230,9 @@ class MigrationActivity : ComponentActivity() {
         StarWishStores.initialize(appContext)
         PomodoroCompanionSessions.syncCountdownClock()
 
-        RoleReadablePerformanceBridge.retireAutomaticSharing()
+        lifecycleScope.launch(Dispatchers.IO) {
+            RoleReadablePerformanceBridge.retireAutomaticSharing()
+        }
         ChatTurnConsistencyAutomation.initialize(appContext)
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize(appContext)
