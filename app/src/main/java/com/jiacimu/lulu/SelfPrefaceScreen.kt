@@ -27,6 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.study.PomodoroCompanionSessions
+import com.jiacimu.lulu.study.PostgraduateExamStores
+import com.jiacimu.lulu.study.StudyPomodoroScreen
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -127,7 +130,11 @@ private object SelfPageStore {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelfPrefaceScreen(onBack: () -> Unit) {
+fun SelfPrefaceScreen(
+    onBack: () -> Unit,
+    openPomodoroRequest: Int = 0,
+    onPomodoroVisibilityChanged: (Boolean) -> Unit = {},
+) {
     val context = LocalContext.current
     val initialRead = remember { SelfPageStore.readStrict(context) }
     var records by remember { mutableStateOf(initialRead ?: emptyList()) }
@@ -138,6 +145,29 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var error by remember { mutableStateOf("") }
+    var pomodoroOpen by remember { mutableStateOf(false) }
+    val activeTimer by PomodoroCompanionSessions.store.state.collectAsState()
+    val studyStore = remember { PostgraduateExamStores.main }
+    val studyState by studyStore.state.collectAsState()
+
+    LaunchedEffect(openPomodoroRequest) {
+        if (openPomodoroRequest > 0 &&
+            activeTimer.activeSessionId.isNotBlank() && !activeTimer.completionHandled) {
+            pomodoroOpen = true
+        }
+    }
+    LaunchedEffect(pomodoroOpen) { onPomodoroVisibilityChanged(pomodoroOpen) }
+    DisposableEffect(Unit) {
+        onDispose { onPomodoroVisibilityChanged(false) }
+    }
+    if (pomodoroOpen) {
+        StudyPomodoroScreen(
+            state = studyState,
+            store = studyStore,
+            onBack = { pomodoroOpen = false },
+        )
+        return
+    }
     BackHandler(enabled = overview) { onBack() }
 
     // The five sections have independent screens and no shared switcher.
@@ -300,6 +330,42 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         Modifier.weight(1f)) { area = "所愿"; overview = false }
                     SelfPrefaceCategory("所行", "待办 · 目标 · 行动", Icons.Outlined.CheckCircleOutline,
                         Modifier.weight(1f)) { area = "所行"; overview = false }
+                }
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { pomodoroOpen = true },
+                    shape = RoundedCornerShape(22.dp),
+                    color = SelfPrefacePalette.paperBright,
+                    border = BorderStroke(1.dp, SelfPrefacePalette.outline),
+                    shadowElevation = 1.dp,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 17.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(13.dp),
+                    ) {
+                        Surface(
+                            color = SelfPrefacePalette.sageLight,
+                            shape = RoundedCornerShape(13.dp),
+                        ) {
+                            Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Outlined.Timer, null,
+                                    tint = SelfPrefacePalette.sageDeep)
+                            }
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("专注计时", color = SelfPrefacePalette.ink,
+                                fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                if (activeTimer.activeSessionId.isNotBlank() && !activeTimer.completionHandled)
+                                    "正在进行 · 返回计时"
+                                else "一段只属于自己的时间",
+                                color = SelfPrefacePalette.muted, fontSize = 12.sp,
+                            )
+                        }
+                        Icon(Icons.Outlined.ChevronRight, null,
+                            tint = SelfPrefacePalette.muted)
+                    }
                 }
             }
         } else Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
