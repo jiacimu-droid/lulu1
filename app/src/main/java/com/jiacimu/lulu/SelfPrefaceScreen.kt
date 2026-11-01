@@ -160,6 +160,7 @@ fun SelfPrefaceScreen(
     DisposableEffect(Unit) {
         onDispose { onPomodoroVisibilityChanged(false) }
     }
+    BackHandler(enabled = pomodoroOpen) { pomodoroOpen = false }
     if (pomodoroOpen) {
         StudyPomodoroScreen(
             state = studyState,
