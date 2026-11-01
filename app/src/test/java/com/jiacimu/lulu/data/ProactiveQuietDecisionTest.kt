@@ -30,6 +30,8 @@ class ProactiveQuietDecisionTest {
         assertTrue(privateChat.contains("单纯未回复、切到别的应用或旧的忙碌记录"))
         assertTrue(privateChat.contains("不能把猜测当作必须停止关心的事实"))
         assertTrue(privateChat.contains("start_study_watch"))
+        assertTrue(privateChat.contains("不能把一次拒绝推断成未来长期禁止"))
+        assertTrue(privateChat.contains("必须获得新时段的主人明确许可"))
     }
 
     @Test fun validSilentChoiceIsParsedAndKeepsItsReason() {
