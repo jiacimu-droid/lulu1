@@ -93,7 +93,7 @@ internal fun resolveTheaterReadingDestination(
 @Composable
 internal fun StarWishTheaterContentV2(
     state: StarWishState,
-    studyState: StudyState,
+    characterId: String,
     store: StarWishStore,
     onExit: () -> Unit,
     initialReadingTarget: String? = null,
@@ -227,7 +227,7 @@ internal fun StarWishTheaterContentV2(
                     store.setStoryPlan(openedSeed.title, guide, plans)
                     planGenerationManager.enqueue(
                         theater = openedSeed.title,
-                        characterId = studyState.profile.selectedCharacterId,
+                        characterId = characterId,
                         chapterCount = plans.size,
                     )
                 },
@@ -245,7 +245,7 @@ internal fun StarWishTheaterContentV2(
                 onGenerate = {
                     planGenerationManager.enqueue(
                         theater = openedSeed.title,
-                        characterId = studyState.profile.selectedCharacterId,
+                        characterId = characterId,
                         chapterCount = maxOf(state.theaterPlans[openedSeed.title].orEmpty().size,
                             state.theaterChapters[openedSeed.title].orEmpty().size, 12)
                             .coerceAtMost(StarWishRules.MAX_CHAPTERS_PER_THEATER),
@@ -271,7 +271,7 @@ internal fun StarWishTheaterContentV2(
             mode = TheaterV2Mode.BOOKSHELF
         }
         TheaterV2Mode.GENERATOR -> TheaterPlotGeneratorV2(
-            characterId = studyState.profile.selectedCharacterId,
+            characterId = characterId,
             existingTitle = openedSeed?.title,
             existingGuide = openedSeed?.let { state.theaterGuides[it.title].orEmpty().ifBlank { it.prompt } },
             worldBooks = availableWorldBooks,
