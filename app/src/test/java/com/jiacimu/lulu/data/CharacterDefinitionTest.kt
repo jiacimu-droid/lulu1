@@ -14,6 +14,27 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterDefinitionTest {
+    @Test fun stablePersonaAndObjectSpecificAgreementsHaveSeparateAuthorityAndRefreshTogether() {
+        val app = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.characters.initialize(app)
+        CharacterIdentityStore.initialize(app)
+        CharacterLifeStore.initialize(app)
+        DigitalLifeProfileStore.initialize(app)
+        val role = MigratedDomainStores.characters.create("本人", "外冷内热，有自己的判断")
+        val before = CharacterRuntime.definition(role.characterId)
+        CharacterSocialRelationship.setAgreement(role.characterId, "user", "恋人",
+            "只对这个对象约定主动关心与监督，不向其他人套用")
+        val after = CharacterRuntime.definition(role.characterId)
+        assertEquals(before.persona, after.persona)
+        assertFalse(after.personaPromptSection().contains("只对这个对象"))
+        assertTrue(after.relationshipPromptSection().contains("只对这个对象"))
+        assertTrue(after.promptSection().contains("只对这个对象"))
+        assertFalse(after.promptSection(includeRelationships = false).contains("只对这个对象"))
+        assertFalse(before.hasSameConfiguration(after))
+        val peer = MigratedDomainStores.characters.create("另一人", "寡言直接")
+        assertFalse(CharacterRuntime.definition(peer.characterId).promptSection().contains("只对这个对象"))
+    }
+
     @Test fun changingApprovedDialogueExamplesRefreshesRoleWithoutTurningSampleIntoPersonaFact() {
         val app = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.characters.initialize(app)

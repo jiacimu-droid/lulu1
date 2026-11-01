@@ -4,6 +4,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class RelayRequestPressurePolicyTest {
+    @Test fun separatedNativeRelationshipsRemainWholeUnderRequestPressure() {
+        val relationship = "只针对当前对象的关系约定与具体条件\n".repeat(500) +
+            "最后的条件：明确拒绝本次以后再调整，不能推断全局拒绝主动关心"
+        val sections = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            "角色人设" to "独立稳定人格", "当前人物关系" to relationship))
+        assertEquals(relationship, sections.single { it.first == "当前人物关系" }.second)
+    }
+
     @Test fun onlyExplicitRelayMemory503MayUseOneSmallerBackgroundRequest() {
         assertTrue(RelayRequestPressurePolicy.isMemoryGuard(503,
             "模型请求失败（503）：Relay 请求体内存保护已触发"))

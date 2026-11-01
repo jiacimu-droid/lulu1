@@ -27,6 +27,42 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ConversationExpressionGatewayTest {
+    @Test fun nativeDecisionsAndRenderingKeepRelationshipsSeparateWhileCrossWorldKeepsOnlyPersona() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        MigratedDomainStores.initialize(context)
+        val role = MigratedDomainStores.characters.create("独立人格", "冷静但主动负责")
+        CharacterSocialRelationship.setAgreement(role.characterId, "user", "本世界专属约定",
+            "原世界中我答应主动跟进的关系标记-837")
+        val server = MockWebServer()
+        repeat(3) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"测试输出"},"finish_reason":"stop"}]}""")) }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val cases = listOf("聊天工具规划" to CompanionContextMode.Full,
+                "聊天表达渲染" to CompanionContextMode.Full,
+                "独立跨世界场景" to CompanionContextMode.PersonaAndScenario)
+            for ((source, mode) in cases) {
+                LuluAiServices.gateway.generate(role.characterId, "此刻的明确场景", "延续本人的选择",
+                    source, "test", connectionOverride = connection, contextMode = mode,
+                    memoryRequest = UnifiedMemoryRequest(currentInput = "你好", sceneContext = "私聊"))
+                    .getOrThrow()
+                val system = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                    .getJSONArray("messages").getJSONObject(0).getString("content")
+                assertTrue(system.contains("冷静但主动负责"))
+                assertEquals(mode != CompanionContextMode.PersonaAndScenario,
+                    system.contains("原世界中我答应主动跟进的关系标记-837"))
+                if (source == "聊天表达渲染") {
+                    assertTrue(system.contains("理解和行动取舍以本轮决策交接为准"))
+                    assertFalse(system.contains(CharacterExpressionGuide.personalityOrigin))
+                }
+            }
+        } finally { server.shutdown() }
+    }
+
     @Test fun dedicatedWriterChangesOnlyExistingExpressionRequestsAndCanBeCleared() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

@@ -12,6 +12,30 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterExpressionGuideTest {
+    @Test fun rendererReceivesTheSelectedPersonRatherThanAnInvitationToPlanAgain() {
+        for (source in listOf("聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复")) {
+            val guide = CharacterExpressionGuide.forGeneration(source)
+            assertFalse(guide.contains(CharacterExpressionGuide.personalityOrigin))
+            assertTrue(guide.contains("理解和行动取舍以本轮决策交接为准"))
+            assertTrue(guide.contains("本轮已选的交流意图"))
+        }
+        assertTrue(CharacterExpressionGuide.forGeneration("后台主动感知")
+            .contains(CharacterExpressionGuide.personalityOrigin))
+    }
+
+    @Test fun expressionHandoffPreservesCompleteStanceIncludingLateNegationAndConditions() {
+        val stance = "具体立场与缘由".repeat(60) + "；但我不打算取消原来的约定"
+        val restraint = "当前真实分寸".repeat(60) + "；除非她明确拒绝，否则仍会自己跟进"
+        val uncertain = "仍缺少的事实".repeat(60) + "；不能认定她已经睡着"
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            JSONObject().put("uncertainty", uncertain).put("expression",
+                JSONObject().put("stance", stance).put("restraint", restraint)),
+            null, "", "", "", includeAppraisalDetails = false)
+        assertTrue(handoff.contains(stance))
+        assertTrue(handoff.contains(restraint))
+        assertTrue(handoff.contains(uncertain))
+    }
+
     @Test fun sharedLanguageGuideKeepsPrivateStateSeparateAndPersonaInControl() {
         listOf("聊天表达渲染", "聊天表达自然度修复", "普通聊天").forEach { source ->
             val prompt = CharacterExpressionGuide.forGeneration(source)

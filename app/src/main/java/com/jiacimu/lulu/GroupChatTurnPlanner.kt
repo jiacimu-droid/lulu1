@@ -135,7 +135,7 @@ internal object GroupChatTurnPlanner {
             val id = member.characterId
             val label = member.groupNickname.ifBlank { names[id].orEmpty() }
             val authoredPersona = com.jiacimu.lulu.data.CharacterRuntime
-                .personaConstraintSnapshot(id).replace("\n", " ").take(1_000)
+                .personaConstraintSnapshot(id).replace("\n", " ")
             val ownerTie = if (group.ownerIncluded)
                 com.jiacimu.lulu.data.CharacterSocialRelationship.agreement(id, "user")
                     ?.title.orEmpty().take(90) else ""

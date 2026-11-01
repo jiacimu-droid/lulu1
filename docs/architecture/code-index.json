@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T17:36:19.584488+00:00",
-  "commit": "a51fab0d17f9d660d34b9f662f3cea70da865c2b",
+  "generatedAt": "2026-11-01T17:44:30.625975+00:00",
+  "commit": "634e16287fd3857b2deb2b15b6cbf2ff7663827b",
   "branch": "main",
-  "sourceFingerprint": "45c1a4dac08a79637be4cc6592b396ab58a67b6f81df7179429575f31a79184d",
+  "sourceFingerprint": "7b841dbabbad315fa8970af3aac6f77f949ad1887f223051534dad3a7c95d366",
   "summary": {
     "files": 1119,
-    "lines": 228648,
-    "symbols": 3229
+    "lines": 228757,
+    "symbols": 3231
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -779,7 +779,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1340
+        "line": 1341
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4913,19 +4913,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1147
+        "line": 1148
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1159
+        "line": 1160
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1330
+        "line": 1331
       }
     ],
     "configured": [
@@ -5765,7 +5765,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 14
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
@@ -6397,13 +6397,13 @@
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 48
+        "line": 54
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 61
+        "line": 68
       }
     ],
     "relationships": [
@@ -7233,55 +7233,67 @@
     "hasSameConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 13
+        "line": 15
+      }
+    ],
+    "personaPromptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 16
+      }
+    ],
+    "relationshipPromptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 21
       }
     ],
     "CharacterRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 24
+        "line": 36
       }
     ],
     "definition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 26
+        "line": 38
       }
     ],
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 46
+        "line": 58
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 74
+        "line": 86
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 84
+        "line": 96
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 169
+        "line": 181
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 174
+        "line": 186
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 178
+        "line": 190
       }
     ],
     "offer": [
@@ -16419,17 +16431,17 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 38
+        "line": 74
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 262
+        "line": 298
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 265
+        "line": 301
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -19534,7 +19546,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt",
       "lines": 201,
-      "sha256": "3a865692f0dd6fba5ae1dec00e7b31ea2d1056bd5f1868e0a15404e96399c0f6",
+      "sha256": "8a7b92afcdfd1743dca4ff59faf8a8132de4ca4c76fc83c4e321ddcaf18198c7",
       "symbols": [
         {
           "name": "hintFor",
@@ -22314,8 +22326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1348,
-      "sha256": "814977f2ba094db204f332847ff8a5dfe97b3d7f3d3d33a45ef854fea34c957e",
+      "lines": 1349,
+      "sha256": "f9a7dcfff15f4fccb860fa4b539c877d9b786d88232066ece800d310cf5fad2e",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -22415,19 +22427,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1147
+          "line": 1148
         },
         {
           "name": "consumeEvent",
-          "line": 1159
+          "line": 1160
         },
         {
           "name": "LuluAiServices",
-          "line": 1330
+          "line": 1331
         },
         {
           "name": "initialize",
-          "line": 1340
+          "line": 1341
         }
       ]
     },
@@ -22547,7 +22559,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
       "lines": 133,
-      "sha256": "8a8c8a5cdd1fc6d2c87d84b158a5dee2a79b4b8a5b7318a8d1ef4c9be03e9541",
+      "sha256": "2efebd059e8356dda5dfd3d958b59ee5170526fb4b35c9e81c4a27f0cec882d1",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -23442,7 +23454,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "88d942d2b9bdf977bcb308ca453894f2ed15b1309380c8584f41a82583da971d",
+      "sha256": "ce000d10ce7c14d4262ba6acab69ea019f98c1fe6332a16b76e74b861207cb5b",
       "symbols": [
         {
           "name": "expressionContext",
@@ -23715,8 +23727,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 80,
-      "sha256": "6140b7e8a5bbb6e3dd0875c8bf697e12e99848dd3fe35b3d267bf7c723c7ddec",
+      "lines": 87,
+      "sha256": "e1a79706ef5101159df8c682cb1a4654df1e4e2bb9784490b9c39c04684906b5",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -23728,11 +23740,11 @@
         },
         {
           "name": "forGeneration",
-          "line": 48
+          "line": 54
         },
         {
           "name": "channelNote",
-          "line": 61
+          "line": 68
         }
       ]
     },
@@ -24615,8 +24627,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 182,
-      "sha256": "f9a28476d3db3f1f99c3b2f16996cef6d6b3bc12bbe05c7f083375024279965d",
+      "lines": 194,
+      "sha256": "eabf38d8ac01680a53fb585ec2a98de609ed7b27527ab44f1596873ed922d280",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -24624,43 +24636,51 @@
         },
         {
           "name": "hasSameConfiguration",
-          "line": 13
+          "line": 15
+        },
+        {
+          "name": "personaPromptSection",
+          "line": 16
+        },
+        {
+          "name": "relationshipPromptSection",
+          "line": 21
         },
         {
           "name": "promptSection",
-          "line": 14
+          "line": 25
         },
         {
           "name": "CharacterRuntime",
-          "line": 24
+          "line": 36
         },
         {
           "name": "definition",
-          "line": 26
+          "line": 38
         },
         {
           "name": "definitionChanges",
-          "line": 46
+          "line": 58
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 74
+          "line": 86
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 84
+          "line": 96
         },
         {
           "name": "learningContext",
-          "line": 169
+          "line": 181
         },
         {
           "name": "leanExpressionContext",
-          "line": 174
+          "line": 186
         },
         {
           "name": "developmentContext",
-          "line": 178
+          "line": 190
         }
       ]
     },
@@ -34813,8 +34833,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 147,
-      "sha256": "f92ae84c4512ec34003ed8bd71899d491a57a45a96bef852822501269188565d",
+      "lines": 155,
+      "sha256": "abd08402db61beb1bbd90f3bea7d89d34b6cd95d26e69c4c34053030a10fa4a4",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
@@ -35346,8 +35366,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
-      "lines": 84,
-      "sha256": "9402b1a2927b647157256afd4e2477919b05c480f60cc88ac9f2fe76cbbf3471",
+      "lines": 105,
+      "sha256": "a22ff8c7059cbd460226e7add46c67b184e58573c12142a01a924ca193dac73a",
       "symbols": [
         {
           "name": "CharacterDefinitionTest",
@@ -35439,8 +35459,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 474,
-      "sha256": "9924e9082ca67155d31010a31359f417bf4ad5be212b0b29a566446de6f69aff",
+      "lines": 498,
+      "sha256": "f6a79cf3e5b26dd0e34061193020038d83dd9525d57ff89cdf10ccab0a4f1f0e",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -36120,8 +36140,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 407,
-      "sha256": "8c66d15207bf619c15fb47d5a14de8500326c2fb29f76d3ad84e0d099f59fc90",
+      "lines": 443,
+      "sha256": "538c4040f2be2823052a309de9eedff38749de995577bfa85d39f3a4be41f636",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -36129,15 +36149,15 @@
         },
         {
           "name": "response",
-          "line": 38
+          "line": 74
         },
         {
           "name": "response",
-          "line": 262
+          "line": 298
         },
         {
           "name": "bubbles",
-          "line": 265
+          "line": 301
         }
       ]
     },

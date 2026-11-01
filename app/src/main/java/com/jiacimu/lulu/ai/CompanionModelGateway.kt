@@ -677,10 +677,10 @@ class CompanionModelGateway(
                 if (ownerAvatar != null) appendLine(ownerAvatar.promptNote)
             }.trim()
             val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "身份与背景事实（客观层）：\n$it" }.orEmpty()
-            val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let {
-                "人物核心简介与分层稳定人格（行为先验层）：\n$it\n" +
-                    "解释优先级：明确身份/背景事实约束客观事实；分层人格字段约束长期行为倾向；核心简介只作概览。当前情绪、当轮互动和成长记录只能调节表现，不能反向改写前两层。"
-            }.orEmpty()
+            val personaSection = definition.personaPromptSection()
+                .takeIf { fullContext || personaContext }.orEmpty()
+            val relationshipSection = definition.relationshipPromptSection()
+                .takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }.orEmpty()
             // One persisted source of truth; placement changes only where active
             // entries appear inside the actual system message, not their scope or order.
             fun worldBookSection(
@@ -776,6 +776,7 @@ class CompanionModelGateway(
             val fixedSections = listOf(
                 "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
+                "当前人物关系" to relationshipSection,
                 "角色视频能力和通话实况" to live2dCapabilitySection,
                 "数字世界权威状态" to currentWorld)
             val conversationMaterials = if (dialogueRequest) listOf("本轮背景依据" to buildString {

@@ -115,7 +115,7 @@ internal object CharacterDecisionProtocol {
     ): String = buildString {
         appendLine("【决策层传给表达层的当下状态｜只影响说法，不逐项复述】")
         if (includeAppraisalDetails) appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
-            appendLine("对这轮输入的理解：${it.take(240)}")
+            appendLine("对这轮输入的理解：$it")
         }
         // In a focused handoff, keep a response aim only when the planner
         // deliberately supplied actual expression cues. A bare, potentially
@@ -127,33 +127,33 @@ internal object CharacterDecisionProtocol {
         } == true
         if (includeAppraisalDetails || hasExpressionCues)
             appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
-            appendLine("表达目的：${it.take(180)}")
+            appendLine("表达目的：$it")
         }
         if (includeAppraisalDetails) appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
-            appendLine("这轮共同语境更新：${it.take(220)}")
+            appendLine("这轮共同语境更新：$it")
         }
         appraisal?.optString("uncertainty")?.takeIf(String::isNotBlank)?.let {
-            appendLine("仍需保留的不确定性：${it.take(180)}")
+            appendLine("仍需保留的不确定性：$it")
         }
         appraisal?.optString("tension")?.takeIf(String::isNotBlank)?.let {
-            appendLine("心里权衡着的分寸：${it.take(140)}")
+            appendLine("心里权衡着的分寸：$it")
         }
         appraisal?.optString("interactionMove")?.takeIf(String::isNotBlank)?.let {
-            appendLine("这轮互动动作：${it.take(80)}")
+            appendLine("这轮互动动作：$it")
         }
         appraisal?.optJSONObject("spontaneousBid")?.let { bid ->
             val spark = bid.optString("spark").trim()
             val wanted = bid.optString("wantedMove").trim()
             if (spark.isNotBlank() && wanted.isNotBlank()) {
-                appendLine("角色临场真正想发起的一次小互动：${wanted.take(160)}；眼前缘由=${spark.take(130)}。这是可收住的意图，不是必须复述的台词或已执行的动作。")
+                appendLine("角色临场真正想发起的一次小互动：$wanted；眼前缘由=$spark。这是可收住的意图，不是必须复述的台词或已执行的动作。")
             }
         }
         appraisal?.optJSONObject("expression")?.let { expression ->
             val cues = listOfNotNull(
-                expression.optString("stance").trim().takeIf { it.isNotBlank() }?.let { "主导态度：${it.take(130)}" },
-                expression.optString("subtext").trim().takeIf { it.isNotBlank() }?.let { "想留在话外的情绪：${it.take(180)}" },
-                expression.optString("device").trim().takeIf { it.isNotBlank() }?.let { "表达倾向：${it.take(80)}" },
-                expression.optString("restraint").trim().takeIf { it.isNotBlank() }?.let { "有意留白：${it.take(130)}" },
+                expression.optString("stance").trim().takeIf { it.isNotBlank() }?.let { "主导态度：$it" },
+                expression.optString("subtext").trim().takeIf { it.isNotBlank() }?.let { "想留在话外的情绪：$it" },
+                expression.optString("device").trim().takeIf { it.isNotBlank() }?.let { "表达倾向：$it" },
+                expression.optString("restraint").trim().takeIf { it.isNotBlank() }?.let { "有意留白：$it" },
             )
             if (cues.isNotEmpty()) appendLine(
                 "角色自选的情绪表达线索（仅影响说法，不能照抄标签）：${cues.joinToString("；")}。",
@@ -161,11 +161,11 @@ internal object CharacterDecisionProtocol {
         }
         val emotion = innerLife?.optJSONObject("emotion")
         if (emotion != null) {
-            appendLine("本轮感受：${emotion.optString("feeling").take(120)}；缘由=${emotion.optString("cause").take(180)}")
-            appendLine("并存=${emotion.optString("otherFeeling").take(100)}；克制=${emotion.optString("restraint").take(150)}")
-        } else if (mood.isNotBlank()) appendLine("本轮心情：${mood.take(120)}")
-        if (continuousState.isNotBlank()) appendLine(continuousState.take(1_800))
-        if (relationshipState.isNotBlank()) appendLine(relationshipState.take(1_200))
+            appendLine("本轮感受：${emotion.optString("feeling")}；缘由=${emotion.optString("cause")}")
+            appendLine("并存=${emotion.optString("otherFeeling")}；克制=${emotion.optString("restraint")}")
+        } else if (mood.isNotBlank()) appendLine("本轮心情：$mood")
+        if (continuousState.isNotBlank()) appendLine(continuousState)
+        if (relationshipState.isNotBlank()) appendLine(relationshipState)
         appendLine("这里交接本人的理解、立场、感受和事实边界；称呼、句式、停顿、玩笑与修辞由表达层结合本人的习惯现场决定。")
         appendLine("私人状态影响语气与分寸，正文取本人此刻愿意分享的意思；必要答案与条件完整保留，余意可以留白。表达到位便可以停下来，后续依据真实回应再选择。")
     }.trim()

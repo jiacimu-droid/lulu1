@@ -9,14 +9,26 @@ data class CharacterDefinitionSnapshot(
     val identity: String,
     val persona: String,
     val configurationKey: List<String>,
+    /** Object-specific agreements are not the person's stable temperament. */
+    val relationships: String = "",
 ) {
     fun hasSameConfiguration(other: CharacterDefinitionSnapshot): Boolean = configurationKey == other.configurationKey
 
-    fun promptSection(): String = listOf(
+    fun personaPromptSection(): String = persona.takeIf(String::isNotBlank)?.let {
+        "人物核心简介与分层稳定人格（行为先验层）：\n$it\n" +
+            "解释优先级：明确身份/背景事实约束客观事实；分层人格字段约束长期行为倾向；核心简介只作概览。当前情绪、当轮互动和成长记录只能调节表现，不能反向改写前两层。"
+    }.orEmpty()
+
+    fun relationshipPromptSection(): String = relationships.takeIf(String::isNotBlank)?.let {
+        "【当前人物关系｜只适用于相应对象与原世界，不是对所有人的共同性格】\n$it"
+    }.orEmpty()
+
+    fun promptSection(includeRelationships: Boolean = true): String = listOf(
         "【当前角色设定｜以本次读取的用户设定为准，旧台词、记忆摘要与成长记录不得覆盖或补回旧设定】",
         "角色名称：$displayName",
         identity.takeIf(String::isNotBlank)?.let { "身份与背景事实：\n$it" }.orEmpty(),
-        persona.takeIf(String::isNotBlank)?.let { "人物核心简介与稳定人格：\n$it" }.orEmpty(),
+        personaPromptSection(),
+        relationshipPromptSection().takeIf { includeRelationships }.orEmpty(),
     ).filter(String::isNotBlank).joinToString("\n\n")
 }
 
@@ -30,8 +42,8 @@ object CharacterRuntime {
         val persona = listOf(
             character.persona,
             CharacterLifeStore.profileContext(characterId),
-            CharacterSocialRelationship.promptSection(characterId),
         ).filter(String::isNotBlank).joinToString("\n\n")
+        val relationships = CharacterSocialRelationship.promptSection(characterId)
         val life = DigitalLifeProfileStore.get(characterId)
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,
             listOf(character.displayName, CharacterIdentityStore.identities.value[characterId].orEmpty(), persona,
@@ -41,7 +53,7 @@ object CharacterRuntime {
                 // biographical facts; nevertheless updating them invalidates
                 // the same role's live configuration snapshot.
                 CharacterLifeStore.state(characterId).optJSONObject("profile")
-                    ?.optString("dialogueExamples").orEmpty()))
+                    ?.optString("dialogueExamples").orEmpty(), relationships), relationships)
     }
 
     fun definitionChanges(characterId: String): Flow<CharacterDefinitionSnapshot> = combine(

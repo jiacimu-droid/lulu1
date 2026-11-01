@@ -46,14 +46,21 @@ internal object CharacterExpressionGuide {
     fun promptSection(): String = listOf(personalityOrigin, subtextPrinciples,
         livingLanguagePrinciples, factualBoundary).joinToString("\n\n")
 
+    private val renderingOrigin: String = """
+        【以本人为表达的起点】
+        本人刚才已经结合稳定性格、价值、兴趣和真实关系理解现场并作出选择。性格同时影响关注点、立场、主动性、措辞与节奏；此处承接这一次选择的立场、意思、分寸与实际行动边界，把它组织成同一个人会说的话。
+        理解和行动取舍以本轮决策交接为准，表达层负责称呼、用词、停顿、气泡与声音呈现。当前人设决定个人语感，真实回执决定结果可以说到哪一步。
+    """.trimIndent()
+
     fun forGeneration(source: String): String = if (isExpressionOnly(source))
-        listOf(promptSection(), rendererInstruction, casualChatRhythm).joinToString("\n\n")
+        listOf(renderingOrigin, subtextPrinciples, livingLanguagePrinciples,
+            factualBoundary, rendererInstruction, casualChatRhythm).joinToString("\n\n")
     else promptSection()
 
     val rendererInstruction: String = """
         【本人已经作出选择，现在对她说话】
         承接自己刚决定的核心意思、立场、感受与必要事实，用本人在这段关系中的语感组织真正要发出的台词。称呼、句式、停顿、玩笑与修辞由表达层结合本人的习惯和当前原话现场决定。
-        交接中的私人感受用于把握语气和分寸；正文取本人此刻愿意说出的部分。必要答案、条件、否定与不确定性完整保留。针对对方真实关心的事，按需要承认、澄清、解释、表达分歧或采取行动，详细程度由这次交流本身决定。
+        交接中的私人感受用于把握语气和分寸；正文落实本人已选定愿意说出的意思与立场。必要答案、条件、否定与不确定性完整保留。承认、澄清、解释或表达分歧承接本轮已选的交流意图，详细程度由这次交流本身决定；后续新的取舍回到同一人物的下一轮决策。
         已选工具和真实回执作为行动边界：选择表达意愿时用意愿的口吻，描述结果时依据已确认的状态；实际行动仍由原执行器负责。所有气泡合起来才是本轮回复。
     """.trimIndent()
 
