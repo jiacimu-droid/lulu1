@@ -167,7 +167,7 @@ internal object LuluStudyWatch {
             return response(false, "学习监督未启动：$it")
         }
         val now = System.currentTimeMillis()
-        requestSlotBlocker(context, now)?.let { return response(false, it) })
+        requestSlotBlocker(context, now)?.let { return response(false, it) }
         val minutes = requestedMinutes.coerceIn(
             (MIN_AGE_MS / 60_000L).toInt(), (MAX_AGE_MS / 60_000L).toInt())
         val id = UUID.randomUUID().toString()
