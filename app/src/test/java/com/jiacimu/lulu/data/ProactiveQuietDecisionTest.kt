@@ -50,7 +50,7 @@ class ProactiveQuietDecisionTest {
         assertTrue(cue.contains("taskId=bedtime-commitment"))
         assertTrue(cue.contains("真实效果尚未证实"))
         assertTrue(cue.contains("未安排"))
-        assertTrue(cue.contains("不能因她暂时没回复"))
+        assertTrue(cue.contains("没有新回复"))
         assertTrue(cue.contains("schedule_commitment_review"))
         assertTrue(cue.contains("弹窗"))
         // Only a future one-shot reminder is not a demand for another immediate
