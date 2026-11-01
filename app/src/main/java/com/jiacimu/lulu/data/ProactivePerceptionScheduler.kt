@@ -676,7 +676,10 @@ object ProactivePerceptionScheduler {
         // or Android continues to reject the same malformed/offline plan.
         if (last > 0L && now - last in 0L until (60L * 60_000L)) return
         val task = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
-            .setInitialDelay(2L, TimeUnit.MINUTES)
+            // A silent autonomous turn may still have a live five-minute online
+            // lease. A two-minute worker was skipped as "already online" and
+            // never retried, stranding the uncovered responsibility.
+            .setInitialDelay(6L, TimeUnit.MINUTES)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("trigger",
