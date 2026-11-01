@@ -49,6 +49,22 @@ class ResidentPhoneWakeIntegrationTest {
         return person.characterId
     }
 
+    @Test fun nativeMailAndFriendNoticesUseResidentPhoneRoute() = runBlocking {
+        val native = "resident:real-citizen"
+        assertTrue(ResidentDailyDecision.handlesResidentSocialWake(
+            native, "数字人物新私信：来自真实联系人；本人可回复、晚些联系或不回复"))
+        assertTrue(ResidentDailyDecision.handlesResidentSocialWake(
+            native, "数字社交真实通知：按本人收到的好友申请或结果"))
+        assertFalse(ResidentDailyDecision.handlesResidentSocialWake(
+            "ordinary-character", "数字人物新私信：来自真实联系人"))
+        assertFalse(ResidentDailyDecision.handlesResidentSocialWake(
+            native, "角色时间间隔"))
+        // A forged or deleted notification must not buy a model reply or
+        // fabricate an incoming social event for a native account.
+        assertFalse(ResidentDailyDecision.runSocialWake(
+            app, native, "does-not-exist"))
+    }
+
     @Test fun wakeDecisionUsesOnlyExecutableResidentToolContracts() {
         val lines = CompanionActionRuntime.capabilityContext(app, "resident:catalog-test")
         val projected = ResidentDailyDecision.wakeToolContext(lines)
