@@ -45,6 +45,13 @@ internal object ResidentDailyDecision {
     /** Shared local planning hour. WorkManager is durable but Android may defer its exact delivery. */
     internal val DAILY_PLANNING_TIME: LocalTime = LocalTime.of(8, 0)
     private val dayRequests = KeyedWorkMutex()
+    private val socialRequests = KeyedWorkMutex()
+
+    /** Phone stimuli must not be routed through the owner's private-chat conversation list:
+     * native residents have a real characterId and phone, but no owner chat thread. */
+    internal fun handlesResidentSocialWake(characterId: String, trigger: String): Boolean =
+        characterId.startsWith("resident:") &&
+            (trigger.startsWith("数字人物新私信") || trigger.startsWith("数字社交真实通知"))
 
     data class DayRecovery(val day: String, val phase: String, val revision: Int) {
         val label: String get() = when (phase) {
@@ -2007,6 +2014,171 @@ internal object ResidentDailyDecision {
             "原住民本次决定的完成状态没有保存"
         }
         return allComplete
+    }
+
+
+    /**
+     * One real delivered mail/friend notice -> one independent resident decision.
+     * Reuse resident model, character context, shared tools and original timeline;
+     * never create an owner's private conversation just to wake a citizen.
+     * The paid claim precedes generation, and the exact model choice is saved
+     * before tools so an interruption cannot buy or send the same turn twice.
+     */
+    internal suspend fun runSocialWake(context: Context, characterId: String,
+        evidenceId: String, now: Instant = Instant.now()): Boolean {
+        if (!characterId.startsWith("resident:") || evidenceId.isBlank()) return false
+        return socialRequests.withLock("$characterId:$evidenceId") {
+            val app = context.applicationContext
+            initializeBackgroundRuntime(app)
+            ResidentCharacterBridge.sync(app, now)
+            ResidentSocialMailbox.initialize(app)
+            CharacterPhoneInbox.initialize(app)
+            val native = ResidentCharacterBridge.nativeResident(characterId)
+                ?: return@withLock false
+            val stimulus = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+                .singleOrNull { event ->
+                    event.revision == 1L &&
+                        event.evidenceKind == EventEvidenceKind.Observation &&
+                        event.source in setOf("character-message", "owner-on-behalf", "phone:friend")
+                } ?: return@withLock false
+            val p = prefs(app)
+            val key = "resident-social:$characterId:$evidenceId"
+            val choiceKey = "$key:choice"
+            val phaseKey = "$key:phase"
+            val phase = p.getString(phaseKey, "").orEmpty()
+            if (phase in setOf("finished", "settled_with_rejections", "source_unavailable"))
+                return@withLock false
+            val saved = p.getString(choiceKey, null)?.let {
+                runCatching { JSONObject(it) }.getOrNull()
+            }
+            // An interrupted charge may already have succeeded at the provider.
+            // Leave unread mail/request available to the next real daily wake
+            // instead of automatically buying a duplicate inference.
+            if (saved == null && phase.isNotBlank()) return@withLock false
+            val pending = ResidentSocialMailbox.pendingIncoming(characterId)
+            val unread = CharacterPhoneInbox.unreadMoments(characterId)
+            val decided = if (saved != null) saved else {
+                val connection = runCatching {
+                    ScopedModelSelections.residentSocialConnection()
+                }.onFailure { error ->
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字人物社交", title = "${native.name}未能处理社交通知",
+                        message = "居民社交模型不可用：${error.message.orEmpty().take(160)}")
+                }.getOrNull() ?: return@withLock false
+                check(p.edit().putString(phaseKey, "requesting").commit()) {
+                    "居民社交通知的模型请求状态未保存"
+                }
+                val facts = decisionFacts(native, now, pending, unread) +
+                    "\n【本轮真实送达的社交通知】evidenceId=$evidenceId；" +
+                    "${stimulus.occurredAt}；${stimulus.content.take(400)}"
+                val instruction = """
+                    你是${native.name}，这是你本人数字手机新送达的真实社交通知。
+                    只根据你的性格、关系、最近真实经历、未读私信和好友申请决定怎么做。
+                    你可以回信、继续旧话题、发朋友圈、回应好友申请、点赞评论、
+                    与真实熟人群聊、安排活动，也可以选择暂时不做任何事。
+                    不要替别人答应好友，不把已发的申请当成已成为好友。
+                    可以一次选择多项独立动作，各自由工具核验；不要求凑数量，
+                    也不因为收件就必须回复。所有收件人、帖子和申请必须用实际ID。
+                    只输出JSON：{"steps":[{"tool":"send_character_message|send_friend_request|respond_friend_request|publish_moment|like_moment|comment_moment|send_group_message|create_group_chat|digital_world_action|play_solo_game|reschedule_personal_activity|cancel_personal_activity","args":{},"requiresPreviousSuccess":false}]}
+                    没有要执行的动作时输出 {"steps":[]}。工具参数按上方本人可用能力目录填写。
+                    不得编造已见面、已发信、已发帖或对方已经回应。
+                """.trimIndent()
+                val initial = LuluAiServices.gateway.generate(
+                    characterId = characterId, facts = facts, instruction = instruction,
+                    source = "数字人物社交通知", title = "${native.name} · 收到手机通知",
+                    connectionOverride = connection,
+                    contextMode = CompanionContextMode.CharacterAndScenario,
+                    maxTokens = 1_400,
+                ).onFailure { error ->
+                    com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                        source = "数字人物社交", title = "${native.name}社交决策未完成",
+                        message = error.message.orEmpty().take(180))
+                }.getOrNull()
+                var choice = initial?.text?.let(ModelStructuredOutput::objectOrNull)
+                fun errorOf(value: JSONObject?): String? = when {
+                    value == null -> "未返回有效JSON对象"
+                    value.optJSONArray("steps") == null -> "缺少steps数组"
+                    else -> residentStepsContractError(value.optJSONArray("steps"))
+                }
+                var error = errorOf(choice)
+                if (initial != null && error != null) {
+                    // One bounded repair only for a genuine wire-contract error.
+                    val repaired = LuluAiServices.gateway.generate(
+                        characterId = characterId,
+                        facts = facts + "\n【上轮结构错误】$error；仅补正结构，不改变真实事件与人物身份。",
+                        instruction = instruction,
+                        source = "数字人物社交通知·结构补正",
+                        title = "${native.name} · 补正社交动作",
+                        connectionOverride = connection,
+                        contextMode = CompanionContextMode.CharacterAndScenario,
+                        maxTokens = 1_400,
+                    ).getOrNull()
+                    choice = repaired?.text?.let(ModelStructuredOutput::objectOrNull)
+                    error = errorOf(choice)
+                }
+                if (error != null || choice == null) {
+                    p.edit().putString(phaseKey,
+                        if (initial == null) "uncertain" else "invalid_output")
+                        .putString("$key:error", error ?: "模型请求未完成").commit()
+                    return@withLock false
+                }
+                check(p.edit().putString(choiceKey, choice.toString())
+                    .putString(phaseKey, "decided").commit()) {
+                    "居民社交决定尚未保存，不得执行"
+                }
+                choice
+            }
+            val decisionId = "resident-social-choice-$evidenceId"
+            val decisionSource = synchronized(SharedExperienceTimeline) {
+                val previous = SharedExperienceTimeline.eventsByIds(
+                    characterId, listOf(decisionId)).firstOrNull()
+                if (previous == null &&
+                    !SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(decisionId)) {
+                    val steps = decided.optJSONArray("steps") ?: JSONArray()
+                    val selected = (0 until steps.length()).mapNotNull { index ->
+                        steps.optJSONObject(index)?.optString("tool")?.takeIf(String::isNotBlank)
+                    }
+                    SharedExperienceTimeline.record(
+                        eventId = decisionId, characterId = characterId,
+                        channel = "原住民·社交通知自主决定", speaker = native.name,
+                        source = "resident-social-decision",
+                        evidenceKind = EventEvidenceKind.CharacterStatement,
+                        occurredAt = now, triggerExtraction = false,
+                        content = "收到通知=$evidenceId；本人选择的工具=${selected.joinToString("、").take(260).ifBlank { "无" }}。选择不等于执行成功。",
+                    )
+                }
+                SharedExperienceTimeline.eventsByIds(characterId, listOf(decisionId))
+                    .firstOrNull {
+                        it.source == "resident-social-decision" && it.revision == 1L
+                    }
+            }
+            if (decisionSource == null ||
+                !SharedExperienceTimeline.commitIfEvidenceUnchanged(
+                    characterId, listOf(stimulus, decisionSource)) {}) {
+                p.edit().putString(phaseKey, "source_unavailable").commit()
+                return@withLock false
+            }
+            val report = executeWakeStepsReport(app, characterId, decided, decisionId,
+                causeEvidenceId = decisionSource.id)
+            check(CharacterPhoneInbox.acknowledgeObserved(characterId, unread)) {
+                "居民真实看过的朋友圈未读回执没有保存"
+            }
+            pending.lastOrNull()?.let {
+                check(ResidentSocialMailbox.acknowledgeIncoming(characterId, it.id)) {
+                    "居民收到的私信处理进度没有保存"
+                }
+            }
+            val count = decided.optJSONArray("steps")?.length() ?: 0
+            val finalPhase = when {
+                report.completedCount == count -> "finished"
+                report.settledCount == count -> "settled_with_rejections"
+                else -> "partial_side_steps"
+            }
+            check(p.edit().putString(phaseKey, finalPhase).commit()) {
+                "居民社交动作结果状态没有保存"
+            }
+            report.completedCount == count
+        }
     }
 
     suspend fun tick(context: Context, now: Instant = Instant.now()): Int {
