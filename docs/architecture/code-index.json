@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:29:26.522997+00:00",
-  "commit": "19351ac838b998383dac343a9877cdc59aa34fb8",
+  "generatedAt": "2026-11-01T04:29:47.134129+00:00",
+  "commit": "13c78c9eb528280bb674edb690d4d7388f86995b",
   "branch": "main",
-  "sourceFingerprint": "1b3c5f514ef0fa81ed0d4fec546f4dc9a1f7e9803b33931dbb48b386e3a30446",
+  "sourceFingerprint": "bd2e369903007e2ef69581243076845243046910342b8666940e1dc0785ee3fb",
   "summary": {
     "files": 1135,
-    "lines": 233816,
+    "lines": 233793,
     "symbols": 3302
   },
   "symbolIndex": {
@@ -2885,55 +2885,55 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 41
+        "line": 39
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 134
+        "line": 132
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 140
+        "line": 138
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 144
+        "line": 142
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 148
+        "line": 146
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 155
+        "line": 153
       }
     ],
     "closeChatDetail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 159
+        "line": 157
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 167
+        "line": 165
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 171
+        "line": 169
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -3347,7 +3347,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 43
+        "line": 40
       }
     ],
     "gridTop": [
@@ -20874,44 +20874,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 520,
-      "sha256": "09d1f50cf838b93856a2b56e7fe50df223fecf52f56428549d33188113d9a9a6",
+      "lines": 506,
+      "sha256": "554795610281c3f30e2d1c613fcc56f0b61b2392aba8bf26e42dfb37e2931da9",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 41
+          "line": 39
         },
         {
           "name": "characterIdForConversation",
-          "line": 134
+          "line": 132
         },
         {
           "name": "selectConversationCharacter",
-          "line": 140
+          "line": 138
         },
         {
           "name": "pushRoute",
-          "line": 144
+          "line": 142
         },
         {
           "name": "openConversation",
-          "line": 148
+          "line": 146
         },
         {
           "name": "popRoute",
-          "line": 155
+          "line": 153
         },
         {
           "name": "closeChatDetail",
-          "line": 159
+          "line": 157
         },
         {
           "name": "replaceTop",
-          "line": 167
+          "line": 165
         },
         {
           "name": "openActivePomodoro",
-          "line": 171
+          "line": 169
         }
       ]
     },
@@ -21353,12 +21353,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 294,
-      "sha256": "245356e7f101f4e8bca21cd28a07bc4664261881aecac1a711068ed46a44a68a",
+      "lines": 285,
+      "sha256": "139e64bc0832cd89626fa242b5ef60745e2e1cc02770d3a3832c6adef475e1ef",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 43
+          "line": 40
         }
       ]
     },
