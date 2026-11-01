@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:32:19.475535+00:00",
-  "commit": "20ffe610bf0561c5569e6e2470a20de6e6361562",
+  "generatedAt": "2026-11-01T04:32:43.809654+00:00",
+  "commit": "e162e166d167bc4033066d9cc1c1dff401fa11dc",
   "branch": "main",
-  "sourceFingerprint": "2bb009e2740196ef26d373c01111e6d81a9c4898c9cfb56beae601287f538639",
+  "sourceFingerprint": "cc2648e23e2de68633387d4b7aaed952bc235d4cd94530574bce29fe78db3f17",
   "summary": {
     "files": 1135,
-    "lines": 233776,
+    "lines": 233772,
     "symbols": 3302
   },
   "symbolIndex": {
@@ -16849,13 +16849,13 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 263
+        "line": 262
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 266
+        "line": 265
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -23490,7 +23490,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 132,
-      "sha256": "76444d8356859aa8440030db57b0987505a219ce177d05efeb3019f4575e2be2",
+      "sha256": "531b2d2067bb968deba6f20577c2582d64e1ddf332c7b63748ad44bf3c9ee042",
       "symbols": [
         {
           "name": "Capability",
@@ -34043,8 +34043,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2191,
-      "sha256": "a72f5e0c7438a1acee0d0913658c34308e20347059768ba99b59139bcb805225",
+      "lines": 2190,
+      "sha256": "4583df65cf0bf3de942ba95a5ed44688235ffa4c6d415a5c33d27464a3d1ed4b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -36910,8 +36910,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 392,
-      "sha256": "5de95f911661aea70a16e52e04982c715e43a5d04f45915e7a59d436b533a31f",
+      "lines": 391,
+      "sha256": "c5b5f5a914a7f06a37b8c30f7c2b16b952ffd55cb167ba85f7a5f6abd77db1ab",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
@@ -36943,8 +36943,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 409,
-      "sha256": "e76aee6cc8489a079a8b2bff8ef5d80e655e721da54d0d4add38066d14080561",
+      "lines": 407,
+      "sha256": "8c66d15207bf619c15fb47d5a14de8500326c2fb29f76d3ad84e0d099f59fc90",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -36956,11 +36956,11 @@
         },
         {
           "name": "response",
-          "line": 263
+          "line": 262
         },
         {
           "name": "bubbles",
-          "line": 266
+          "line": 265
         }
       ]
     },
