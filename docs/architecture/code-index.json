@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:34:00.950448+00:00",
-  "commit": "ab3ee23accb0bd2fa638d22e70931f2147a5006f",
+  "generatedAt": "2026-11-01T04:34:35.176185+00:00",
+  "commit": "e58a5d83591b596f86a0702620b047825f912dd0",
   "branch": "main",
-  "sourceFingerprint": "f6efa96d91814f16c7ff0d7e8b7d9484c7db5dfea0870eda7ebcb7079c106d28",
+  "sourceFingerprint": "6316421f99b0832b4f13ba18f4451f1482161fe65512bc65d2f71b20e4567930",
   "summary": {
-    "files": 1128,
-    "lines": 231133,
-    "symbols": 3234
+    "files": 1120,
+    "lines": 228963,
+    "symbols": 3228
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1474,10 +1474,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 176
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 85
       }
     ],
     "sceneLabel": [
@@ -14334,24 +14330,6 @@
         "line": 72
       }
     ],
-    "updateRow": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 68
-      }
-    ],
-    "addCustom": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 73
-      }
-    ],
-    "draw": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-        "line": 93
-      }
-    ],
     "startPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
@@ -14362,18 +14340,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
         "line": 78
-      }
-    ],
-    "StudyRemovedFeatureMigration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-        "line": 8
-      }
-    ],
-    "migrate": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-        "line": 12
       }
     ],
     "planningText": [
@@ -32976,60 +32942,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt",
-      "lines": 93,
-      "sha256": "81316e224cfc0b44c13db5ae00999de4e98742c115b17c35e689e65e743cf7f9",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt",
-      "lines": 211,
-      "sha256": "9786a603e930ecda01fccde26587ba49ff0cfb28131cc74f2613a77fd42f25bc",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt",
-      "lines": 280,
-      "sha256": "89e4431563d3d73f020bbc8cee22a3f9d2e67566d5f30c902d8dff315fa0751e",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt",
-      "lines": 82,
-      "sha256": "b1142279ca02719a39a4daaf706027a62776332c323d0dbd1189b6c5871c0b93",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-      "lines": 298,
-      "sha256": "4c23e3861e57f3926f8932d6efbcf751579f8fc92c76011b01824a1500a97318",
-      "symbols": [
-        {
-          "name": "updateRow",
-          "line": 68
-        },
-        {
-          "name": "addCustom",
-          "line": 73
-        },
-        {
-          "name": "save",
-          "line": 85
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 990,
-      "sha256": "5ee60a41b8d591c3af84c4eee6a0cbd7ea9c6d314cbae5b5e5f639b5a29f2dec",
-      "symbols": [
-        {
-          "name": "draw",
-          "line": 93
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
       "lines": 395,
       "sha256": "a61c7d8608aa24bdafe508eb31526dca966cf33415a38c36887bfd43c8fe6f5e",
@@ -33045,21 +32957,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-      "lines": 69,
-      "sha256": "3ad7c6d587cfec2499a637bc49925e9734aeb86b66f300a98471cea8b05bd293",
-      "symbols": [
-        {
-          "name": "StudyRemovedFeatureMigration",
-          "line": 8
-        },
-        {
-          "name": "migrate",
-          "line": 12
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt",
       "lines": 8,
       "sha256": "dce680e4a1eec27ef5c13105e8349560e2e90833bf97da242c24d0213a225616",
@@ -33069,12 +32966,6 @@
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt",
       "lines": 13,
       "sha256": "a647d6bb94e17b4fb82cf12df1d18349ab3ab3af2c4c0a9a9d9048cbd01649f0",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyShopScreenV2.kt",
-      "lines": 147,
-      "sha256": "f94547432ff143c7e770e2b8c0cfcbd227fc1f099c4564e1c63114108a42474f",
       "symbols": []
     },
     {
