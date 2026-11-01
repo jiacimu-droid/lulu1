@@ -27,6 +27,10 @@ internal object DevelopmentReflectionGeneration {
     fun snapshot(p: android.content.SharedPreferences, characterId: String): Long =
         p.getLong("generation:$characterId", 0L)
 
+    /** Querying pending work on wake is read-only: a wake is not new evidence. */
+    @Synchronized fun pendingGeneration(p: android.content.SharedPreferences, characterId: String): Long? =
+        snapshot(p, characterId).takeIf { p.getBoolean("pending:$characterId", false) }
+
     @Synchronized fun acknowledge(p: android.content.SharedPreferences, characterId: String, observed: Long): Boolean {
         if (snapshot(p, characterId) != observed) return false
         return p.edit().putBoolean("pending:$characterId", false).commit()
@@ -51,9 +55,12 @@ object CharacterDevelopmentRuntime {
         statusChanges.value += 1
     }
 
-    /** A sleeping role never buys a second reflection call; resume on its next real wake. */
+    /** Resume the existing pending generation, never create another generation on wake. */
     fun resumePending(characterId: String) {
-        if (prefs?.getBoolean("pending:$characterId", false) == true) request(characterId)
+        val p = prefs ?: return
+        if (characterId.isNotBlank() &&
+            DevelopmentReflectionGeneration.pendingGeneration(p, characterId) != null)
+            schedulePending(characterId)
     }
 
     fun initialize(context: android.content.Context) {
@@ -70,6 +77,10 @@ object CharacterDevelopmentRuntime {
     fun request(characterId: String) {
         if (characterId.isBlank() || prefs == null) return
         DevelopmentReflectionGeneration.request(checkNotNull(prefs), characterId)
+        schedulePending(characterId)
+    }
+
+    private fun schedulePending(characterId: String) {
         synchronized(waitingLock) {
             if (waitingJobs[characterId]?.isActive == true) return
             val job = scope.launch {
@@ -196,8 +207,10 @@ object CharacterDevelopmentRuntime {
             source = "增量成长反思", title = "角色成长", maxTokens = 1400,
             contextMode = CompanionContextMode.Isolated,
             connectionOverride = MemoryModelRuntime.extractionConnection()).getOrNull() ?: run {
-                p.edit().putLong("attempt:$characterId", now - 3_300_000).commit()
-                note(characterId, "模型请求失败")
+                // A down local proxy must not become a paid reflection attempt
+                // every five minutes. Keep the existing hourly attempt budget,
+                // pending generation and evidence unchanged for the next wake.
+                note(characterId, "模型请求失败，经历仍待整理")
                 return
             }
         runCatching {
@@ -242,8 +255,10 @@ object CharacterDevelopmentRuntime {
                 else -> "这次没有可靠变化"
             })
         }.onFailure {
-            p.edit().putLong("attempt:$characterId", now - 3_300_000).commit()
-            note(characterId, "反思结果解析失败")
+            // A possibly billed, malformed response is not an invitation to
+            // regenerate the same evidence immediately. Leave pending work
+            // intact so the next eligible real wake may reconcile it.
+            note(characterId, "反思结果解析失败，经历仍待整理")
         }
     }
 }

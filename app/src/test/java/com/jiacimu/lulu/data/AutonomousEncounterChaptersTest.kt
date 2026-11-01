@@ -30,6 +30,22 @@ class AutonomousEncounterChaptersTest {
         assertFalse(parsed.containsKey("not-present"))
     }
 
+    @Test fun salvagesOnlyClosedChaptersWhenTheEnvelopeIsTruncated() {
+        val finished = JSONObject().put("characterId", "person-a")
+            .put("title", "雨停后的小谈话")
+            .put("scene", "两个人站在廊下，认真谈起刚才记录的事。对方的话刚说完，雨点还在屋檐上响着。谈话终于有了一个停顿。")
+        val raw = "{\"chapters\":[" + finished.toString() +
+            ",{\"characterId\":\"person-b\",\"title\":\"未完成\",\"scene\":\"只有前半"
+        val parsed = AutonomousEncounterChapters.parseChapters(raw, listOf("person-a", "person-b"))
+        assertEquals(setOf("person-a"), parsed.keys)
+        assertEquals("雨停后的小谈话", parsed["person-a"]?.title)
+    }
+
+    @Test fun truncatedChapterWithoutAClosedEntryCannotBecomeAnEpisode() {
+        val raw = "{\"chapters\":[{\"characterId\":\"a\",\"scene\":\"只有不完整的"
+        assertTrue(AutonomousEncounterChapters.parseChapters(raw, listOf("a")).isEmpty())
+    }
+
     @Test fun rejectsUnknownViewerAndIncompleteProse() {
         val entries = JSONArray()
             .put(JSONObject().put("characterId", "intruder")

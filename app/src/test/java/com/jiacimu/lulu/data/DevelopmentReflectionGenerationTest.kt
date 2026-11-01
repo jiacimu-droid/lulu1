@@ -26,6 +26,20 @@ class DevelopmentReflectionGenerationTest {
         assertFalse(prefs.getBoolean("pending:$characterId", true))
     }
 
+    @Test fun wakingWithPendingWorkDoesNotInventAnotherExperienceGeneration() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("development-wake-version-test", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        val role = "growth-wake"
+        val original = DevelopmentReflectionGeneration.request(prefs, role)
+        repeat(4) {
+            assertEquals(original, DevelopmentReflectionGeneration.pendingGeneration(prefs, role))
+            assertEquals(original, DevelopmentReflectionGeneration.snapshot(prefs, role))
+        }
+        assertTrue(DevelopmentReflectionGeneration.acknowledge(prefs, role, original))
+        assertNull(DevelopmentReflectionGeneration.pendingGeneration(prefs, role))
+    }
+
     @Test fun pendingGenerationSurvivesProcessPreferenceReopen() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("development-generation-restart-test", Context.MODE_PRIVATE)

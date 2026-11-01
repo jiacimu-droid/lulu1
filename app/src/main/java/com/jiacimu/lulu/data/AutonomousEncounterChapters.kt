@@ -14,6 +14,7 @@ import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -59,9 +60,49 @@ internal object AutonomousEncounterChapters {
             ExistingWorkPolicy.KEEP, request)
     }
 
+    /**
+     * A model may exhaust its output budget after finishing some chapters but
+     * before closing the containing JSON array/object. Preserve only complete,
+     * individually valid chapter objects; never invent unfinished prose.
+     */
+    private fun completedChaptersFromPartialEnvelope(raw: String): JSONArray? {
+        val marker = Regex(""""chapters"\s*:\s*\[""").find(raw) ?: return null
+        val arrayStart = raw.indexOf('[', marker.range.first)
+        val completed = JSONArray()
+        var objectStart = -1
+        var depth = 0
+        var quoted = false
+        var escaped = false
+        for (index in arrayStart + 1 until raw.length) {
+            val char = raw[index]
+            if (quoted) {
+                if (escaped) escaped = false
+                else when (char) {
+                    '\\' -> escaped = true
+                    '"' -> quoted = false
+                }
+                continue
+            }
+            when (char) {
+                '"' -> quoted = true
+                '{' -> { if (depth == 0) objectStart = index; depth++ }
+                '}' -> if (depth > 0) {
+                    depth--
+                    if (depth == 0 && objectStart >= 0) {
+                        runCatching { JSONObject(raw.substring(objectStart, index + 1)) }
+                            .getOrNull()?.let(completed::put)
+                        objectStart = -1
+                    }
+                }
+                ']' -> if (depth == 0) break
+            }
+        }
+        return completed.takeIf { it.length() > 0 }
+    }
+
     fun parseChapters(raw: String, participantIds: List<String>): Map<String, WorldLifeSceneDraft> {
-        val json = ModelStructuredOutput.objectOrNull(raw) ?: return emptyMap()
-        val entries = json.optJSONArray("chapters") ?: return emptyMap()
+        val entries = ModelStructuredOutput.objectOrNull(raw)?.optJSONArray("chapters")
+            ?: completedChaptersFromPartialEnvelope(raw) ?: return emptyMap()
         val allowed = participantIds.toSet()
         val result = linkedMapOf<String, WorldLifeSceneDraft>()
         for (index in 0 until minOf(entries.length(), allowed.size * 3)) {
@@ -155,15 +196,32 @@ internal object AutonomousEncounterChapters {
                 message = error.message.orEmpty().take(150))
             return
         }
-        val raw = result.getOrNull()?.text.orEmpty()
+        // A failed transport / HTTP request is NOT a malformed literary reply.
+        // The shared gateway already records the detailed, private-safe transport
+        // diagnostics; do not replace them with a misleading JSON error.
+        val reply = result.getOrElse { error ->
+            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "生活小剧场", title = "合场文学模型请求失败",
+                message = WorldLifeEpisodeComposer.failureSummary(error) +
+                    "；公共事实已保存，未自动重发付费请求")
+            return
+        }
+        val raw = reply.text
         if (WorldLifeNarrativeGuide.skipReason(raw) != null) return
         val chapters = parseChapters(raw, ids)
         if (chapters.isEmpty()) {
             com.jiacimu.lulu.LuluRepositories.performance.recordError(
                 source = "生活小剧场", title = "合场文学格式不可用",
-                message = result.exceptionOrNull()?.message?.take(150)
-                    ?: "公共事实仍保存；文学正文没有生成有效的每人章节")
+                message = "模型返回 " + raw.length + " 字；结束原因=" +
+                    (reply.finishReason ?: "未提供") +
+                    "；未找到完整有效的角色章节，公共事实已保存")
             return
+        }
+        if (chapters.size < ids.size) {
+            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "生活小剧场", title = "合场文学部分章节未完成",
+                message = "可用章节 " + chapters.size + "/" + ids.size +
+                    "；仅保留完整的真实视角，未重新付费生成")
         }
         WorldLifeEpisodeStore.initialize(context)
         ids.forEach { id ->
