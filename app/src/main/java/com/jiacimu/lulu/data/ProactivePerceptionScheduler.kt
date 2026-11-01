@@ -1020,6 +1020,16 @@ class ProactivePerceptionWorker(
                 kotlinx.coroutines.delay(1_000L)
             }
         }
+        // A native resident has a real personal phone but no owner-private chat.
+        // Its mail/friend event must use the resident's own inexpensive model and
+        // shared tool receipts, not the protagonist conversation selector.
+        if (characterId != null &&
+            ResidentDailyDecision.handlesResidentSocialWake(characterId, trigger)) {
+            ResidentDailyDecision.runSocialWake(
+                applicationContext, characterId, interactionId)
+            ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
+            return@runCatching Result.success()
+        }
         ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,
             trigger = trigger,
