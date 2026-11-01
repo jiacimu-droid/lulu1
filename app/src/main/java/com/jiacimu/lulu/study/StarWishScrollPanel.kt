@@ -62,9 +62,6 @@ internal fun StarWishScrollContent(
             StudyCard {
                 Text("星愿画卷", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text("自选画卷主题；生成使用设置中的独立生图接口与生图模型。", color = StudyDesign.muted)
-                if (unlocked.isEmpty()) {
-                    Text("画卷主题可以自由创建。", color = StudyDesign.muted)
-                } else {
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         unlocked.forEach { outfit ->
                             FilterChip(selected = selectedOutfit == outfit, onClick = { selectedOutfit = outfit }, label = { Text(outfit) })
@@ -121,7 +118,6 @@ internal fun StarWishScrollContent(
                             Text(if (generating) "生成中" else "生成画卷")
                         }
                     }
-                }
                 if (message.isNotBlank()) StudyMessage(message, error = message.contains("失败"))
             }
         }
