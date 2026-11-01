@@ -11,8 +11,6 @@ import android.location.Geocoder
 import android.os.BatteryManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.health.HealthRolePerception
-import com.jiacimu.lulu.study.PostgraduateExamStores
-import com.jiacimu.lulu.study.roleStudyContext
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluScreenAwareness
@@ -24,7 +22,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -63,7 +60,6 @@ internal object UserDevicePerception {
         LuluMusicSensoryRuntime.roleContext(context, characterId, now)
             .takeIf(String::isNotBlank)?.let(::appendLine)
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
-        appendLine("用户学习状态：${studyContext(characterId)}")
     }.trim() }
 
     /** Minimal, local device samples; not a user sleep state or a character memory. */
@@ -235,16 +231,6 @@ internal object UserDevicePerception {
             .ifBlank { "近3小时没有可读通知" }
     }
 
-    private fun studyContext(characterId: String): String {
-        val state = PostgraduateExamStores.main.state.value
-        if (state.profile.selectedCharacterId != characterId) {
-            return "当前角色不是学习 App 的陪同角色，无权读取学习状态"
-        }
-        val pomodoro = state.pomodoro
-        val current = if (pomodoro.running) {
-            "番茄钟进行中，剩余约${max(0, pomodoro.remainingSeconds) / 60}分钟"
-        } else "当前没有进行中的番茄钟"
-        return "$current；${state.roleStudyContext().replace("\n", "；")}"
-    }
+
 
 }
