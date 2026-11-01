@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f2301d89786d1fe463471d2fe458901f0f0b3f9a`
+- 基准提交：`ef5b9b60adeecf03ba1780d8613e1481949220ed`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：228461
+- 已索引代码/文本行：228489
 - 已发现符号：3228
 
 | 文件 | 行数 | 符号数 |
@@ -704,7 +704,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 575 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 67 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 185 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 164 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 160 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1525 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 853 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 696 | 4 |
@@ -1101,7 +1101,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt` | 19 | 1 |

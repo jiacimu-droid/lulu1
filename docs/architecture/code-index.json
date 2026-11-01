@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:36:38.797127+00:00",
-  "commit": "f2301d89786d1fe463471d2fe458901f0f0b3f9a",
+  "generatedAt": "2026-11-01T04:37:55.049796+00:00",
+  "commit": "ef5b9b60adeecf03ba1780d8613e1481949220ed",
   "branch": "main",
-  "sourceFingerprint": "a0b3f4e524e4fe7d6a41f3047a1409adfa45491789da7779b78fcf585bd59c3c",
+  "sourceFingerprint": "95e9febf4f78cfbd7fe57e61eef63e718a0c3fdb745e7fb568881838d40cc136",
   "summary": {
     "files": 1119,
-    "lines": 228461,
+    "lines": 228489,
     "symbols": 3228
   },
   "symbolIndex": {
@@ -32843,8 +32843,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt",
-      "lines": 164,
-      "sha256": "567049b2d9c26b391ac9ba204bf7bf7a56fab57d6fad5ac3a4c5d186860d0bb7",
+      "lines": 160,
+      "sha256": "93986b58f84c85745154b80a3243968e3e7f839f2b8bc60c6a441e9fb33e6b2a",
       "symbols": []
     },
     {
@@ -38284,8 +38284,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt",
-      "lines": 67,
-      "sha256": "72a7cc05be96fd3506df111978a7ced9ef5a3e59599072d53c0691d4e5257760",
+      "lines": 99,
+      "sha256": "1427a5d1a67807aed4d27b82d50018691eb44f97e1d155307dff9d933f20a356",
       "symbols": [
         {
           "name": "PrivatePomodoroTimerTest",
