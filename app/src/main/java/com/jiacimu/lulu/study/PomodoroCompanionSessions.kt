@@ -14,6 +14,10 @@ data class PomodoroCompanionPreferences(
     val task: String = "完成当前最重要的一项学习任务",
     val activeSessionId: String = "",
     val activeTask: String = "",
+    val selectedMinutes: Int = 25,
+    val countdownRemainingSeconds: Int = 1500,
+    val countdownRunning: Boolean = false,
+    val countdownEndAtEpochMillis: Long = 0L,
     val completionHandled: Boolean = false,
     val timerMode: PomodoroTimerMode = PomodoroTimerMode.Countdown,
     val skin: PomodoroSkin = PomodoroSkin.Light,
@@ -32,6 +36,13 @@ class PomodoroCompanionStore private constructor(context: Context) {
         if (current.activeSessionId.isNotBlank() && !current.completionHandled) current else current.copy(timerMode = mode)
     }
     fun updateSkin(skin: PomodoroSkin) = update { it.copy(skin = skin) }
+    fun setDuration(minutes: Int) {
+        val safe = minutes.coerceIn(1, 180)
+        update { current ->
+            if (current.activeSessionId.isNotBlank() && !current.completionHandled) current
+            else current.copy(selectedMinutes = safe, countdownRemainingSeconds = safe * 60)
+        }
+    }
 
     fun beginSession(
         task: String,
@@ -44,6 +55,10 @@ class PomodoroCompanionStore private constructor(context: Context) {
                 task = cleanTask,
                 activeSessionId = UUID.randomUUID().toString(),
                 activeTask = cleanTask,
+                countdownRemainingSeconds = it.selectedMinutes * 60,
+                countdownRunning = mode == PomodoroTimerMode.Countdown,
+                countdownEndAtEpochMillis = if (mode == PomodoroTimerMode.Countdown)
+                    startedAtEpochMillis + it.selectedMinutes * 60_000L else 0L,
                 completionHandled = false,
                 timerMode = mode,
                 countUpRunning = mode == PomodoroTimerMode.CountUp,
@@ -54,7 +69,39 @@ class PomodoroCompanionStore private constructor(context: Context) {
     }
 
     fun markCompletionHandled() = update {
-        it.copy(completionHandled = true, countUpRunning = false, countUpAnchorEpochMillis = 0L)
+        it.copy(completionHandled = true, countUpRunning = false, countUpAnchorEpochMillis = 0L,
+            countdownRunning = false, countdownEndAtEpochMillis = 0L)
+    }
+
+    fun syncCountdownClock(nowMillis: Long = System.currentTimeMillis()): Boolean {
+        val current = mutable.value
+        if (!current.countdownRunning || current.activeSessionId.isBlank() || current.completionHandled)
+            return false
+        val seconds = ((current.countdownEndAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L)
+            .div(1000L).toInt()
+        if (seconds <= 0) {
+            markCompletionHandled()
+            return true
+        }
+        mutable.value = current.copy(countdownRemainingSeconds = seconds)
+        return false
+    }
+
+    fun toggleCountdown(nowMillis: Long = System.currentTimeMillis()) {
+        val current = mutable.value
+        if (current.timerMode != PomodoroTimerMode.Countdown ||
+            current.activeSessionId.isBlank() || current.completionHandled) return
+        if (current.countdownRunning) {
+            val remaining = ((current.countdownEndAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L)
+                .div(1000L).toInt()
+            update { it.copy(countdownRunning = false,
+                countdownRemainingSeconds = remaining, countdownEndAtEpochMillis = 0L) }
+        } else if (current.countdownRemainingSeconds > 0) {
+            update { it.copy(countdownRunning = true,
+                countdownEndAtEpochMillis = nowMillis + it.countdownRemainingSeconds * 1000L) }
+        } else {
+            markCompletionHandled()
+        }
     }
 
     fun currentCountUpSeconds(nowMillis: Long = System.currentTimeMillis()): Int {
@@ -100,6 +147,9 @@ class PomodoroCompanionStore private constructor(context: Context) {
                 activeSessionId = "",
                 activeTask = "",
                 completionHandled = false,
+                countdownRemainingSeconds = it.selectedMinutes * 60,
+                countdownRunning = false,
+                countdownEndAtEpochMillis = 0L,
                 countUpRunning = false,
                 countUpElapsedSeconds = 0,
                 countUpAnchorEpochMillis = 0L,
@@ -114,6 +164,10 @@ class PomodoroCompanionStore private constructor(context: Context) {
             .putString(KEY_TASK, next.task)
             .putString(KEY_ACTIVE_SESSION_ID, next.activeSessionId)
             .putString(KEY_ACTIVE_TASK, next.activeTask)
+            .putInt(KEY_SELECTED_MINUTES, next.selectedMinutes)
+            .putInt(KEY_COUNTDOWN_REMAINING, next.countdownRemainingSeconds)
+            .putBoolean(KEY_COUNTDOWN_RUNNING, next.countdownRunning)
+            .putLong(KEY_COUNTDOWN_END, next.countdownEndAtEpochMillis)
             .putBoolean(KEY_COMPLETION_HANDLED, next.completionHandled)
             .putString(KEY_TIMER_MODE, next.timerMode.name)
             .putString(KEY_SKIN, next.skin.name)
@@ -127,6 +181,11 @@ class PomodoroCompanionStore private constructor(context: Context) {
         task = prefs.getString(KEY_TASK, null).orEmpty().ifBlank { "完成当前最重要的一项学习任务" },
         activeSessionId = prefs.getString(KEY_ACTIVE_SESSION_ID, "").orEmpty(),
         activeTask = prefs.getString(KEY_ACTIVE_TASK, "").orEmpty(),
+        selectedMinutes = prefs.getInt(KEY_SELECTED_MINUTES, 25).coerceIn(1, 180),
+        countdownRemainingSeconds = prefs.getInt(KEY_COUNTDOWN_REMAINING,
+            prefs.getInt(KEY_SELECTED_MINUTES, 25).coerceIn(1, 180) * 60).coerceAtLeast(0),
+        countdownRunning = prefs.getBoolean(KEY_COUNTDOWN_RUNNING, false),
+        countdownEndAtEpochMillis = prefs.getLong(KEY_COUNTDOWN_END, 0L),
         completionHandled = prefs.getBoolean(KEY_COMPLETION_HANDLED, false),
         timerMode = runCatching { PomodoroTimerMode.valueOf(prefs.getString(KEY_TIMER_MODE, PomodoroTimerMode.Countdown.name).orEmpty()) }
             .getOrDefault(PomodoroTimerMode.Countdown),
@@ -142,6 +201,10 @@ class PomodoroCompanionStore private constructor(context: Context) {
         private const val KEY_TASK = "task"
         private const val KEY_ACTIVE_SESSION_ID = "active_session_id"
         private const val KEY_ACTIVE_TASK = "active_task"
+        private const val KEY_SELECTED_MINUTES = "selected_minutes"
+        private const val KEY_COUNTDOWN_REMAINING = "countdown_remaining"
+        private const val KEY_COUNTDOWN_RUNNING = "countdown_running"
+        private const val KEY_COUNTDOWN_END = "countdown_end"
         private const val KEY_COMPLETION_HANDLED = "completion_handled"
         private const val KEY_TIMER_MODE = "timer_mode"
         private const val KEY_SKIN = "skin"
@@ -171,39 +234,31 @@ object PomodoroCompanionSessions {
     fun beginSession(task: String, mode: PomodoroTimerMode) {
         store.beginSession(task, mode)
     }
-
     fun clearSession() = store.clearSession()
     fun toggleCountUp() = store.toggleCountUp()
+    fun toggleCountdown() = store.toggleCountdown()
     fun syncCountUpClock(): Int = store.syncCountUpClock()
+    fun syncCountdownClock(): Boolean = store.syncCountdownClock()
     fun currentCountUpSeconds(): Int = store.currentCountUpSeconds()
 
-    fun finishActiveSession(studyStore: PostgraduateExamStore): Pair<Int, String> {
-        val pomodoro = store.state.value
-        if (pomodoro.activeSessionId.isBlank() || pomodoro.completionHandled) return 0 to "本轮已经结束"
-
-        val elapsedSeconds = if (pomodoro.timerMode == PomodoroTimerMode.CountUp) {
+    fun finishActiveSession(): Pair<Int, String> {
+        val timer = store.state.value
+        if (timer.activeSessionId.isBlank() || timer.completionHandled) return 0 to "本轮已经结束"
+        val elapsed = if (timer.timerMode == PomodoroTimerMode.CountUp) {
             store.stopCountUp()
         } else {
-            val timer = studyStore.state.value.pomodoro
-            if (timer.running) studyStore.togglePomodoro()
-            val latest = studyStore.state.value.pomodoro
-            (latest.selectedMinutes * 60 - latest.remainingSeconds).coerceAtLeast(0)
+            val remain = if (timer.countdownRunning) {
+                ((timer.countdownEndAtEpochMillis - System.currentTimeMillis()).coerceAtLeast(0L) + 999L)
+                    .div(1000L).toInt()
+            } else timer.countdownRemainingSeconds
+            (timer.selectedMinutes * 60 - remain).coerceAtLeast(0)
         }
-        val actualMinutes = ceil(elapsedSeconds / 60.0).toInt()
-        if (actualMinutes <= 0) {
-            if (pomodoro.timerMode == PomodoroTimerMode.Countdown) studyStore.resetPomodoro()
-            store.markCompletionHandled()
-            return 0 to "未满1分钟，本次不记录"
-        }
-
-        val reward = studyStore.completePomodoro(actualMinutes)
         store.markCompletionHandled()
-        return actualMinutes to reward
+        val minutes = ceil(elapsed / 60.0).toInt()
+        return minutes to if (minutes > 0) "本轮专注 $minutes 分钟" else "本轮计时已结束"
     }
 
     fun handleNaturalCompletion() {
-        if (store.state.value.activeSessionId.isNotBlank() && !store.state.value.completionHandled) {
-            store.markCompletionHandled()
-        }
+        store.syncCountdownClock()
     }
 }
