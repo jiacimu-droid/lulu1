@@ -7,7 +7,6 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.health.HealthRolePerception
 import com.jiacimu.lulu.games.LuluGames
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import org.json.JSONObject
 import kotlinx.coroutines.Dispatchers
@@ -287,12 +286,6 @@ internal object CompanionActionRuntime {
                     appendLine("- targetCharacterId=$targetId；${target.displayName}；${relation.shortContext()}")
                 }
             }
-        }
-        val studyState = runCatching { PostgraduateExamStores.main.state.value }.getOrNull()
-        val sleep = HealthRolePerception.latestSleep()
-        if (allowSleepReward && studyState?.profile?.selectedCharacterId == characterId && sleep != null) {
-            appendLine("- grant_sleep_reward，args={\"grantSleep\":true|false,\"grantWake\":true|false,\"reason\":\"角色的真实理由\"}：作为当前学习陪伴角色，对健康 App 最近一次真实睡眠记录发放尚未领取的早睡/早起奖励。每项只能到账一次，但之前被否决的项目可在私聊协商后补发；已经发放的奖励不能撤回。")
-            appendLine("当前可协商作息：${PostgraduateExamStores.main.sleepRewardContext(sleep).replace("\n", "；")}")
         }
         appendLine("可用游戏ID：${gameTitles.entries.joinToString("、") { "${it.key}=${it.value}" }}")
         val groups = MigratedDomainStores.chat.conversations.value.filter { conversation ->
@@ -1021,21 +1014,6 @@ internal object CompanionActionRuntime {
                     )
                 }
                 CompanionActionResult(worldResult.success, worldResult.summary, evidenceId = worldResult.evidenceId)
-            }
-            "grant_sleep_reward" -> {
-                val observation = HealthRolePerception.recordLatestSleep(characterId)
-                    ?: error("健康 App 没有可用的睡眠记录")
-                val grantSleep = args.optBoolean("grantSleep", false)
-                val grantWake = args.optBoolean("grantWake", false)
-                val reason = args.optString("reason").trim().take(600)
-                val summary = PostgraduateExamStores.main.grantSleepRewardFromChat(
-                    characterId = characterId,
-                    observation = observation,
-                    grantSleep = grantSleep,
-                    grantWake = grantWake,
-                    reason = reason,
-                ).getOrThrow()
-                CompanionActionResult(true, summary)
             }
             else -> error("未知露露机动作：$action")
         }
