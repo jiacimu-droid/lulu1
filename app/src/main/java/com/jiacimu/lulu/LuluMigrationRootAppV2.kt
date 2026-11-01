@@ -378,10 +378,11 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Reading -> StarWishTheaterApp(
                                     onBack = ::popRoute,
                                     initialReadingTarget = readingInitialTitle,
+                                    characterId = selectedCharacterId,
                                 )
-                                MigrationRoute.Scroll -> StarWishScrollApp(onBack = ::popRoute)
-                                MigrationRoute.Theater -> StarWishTheaterApp(onBack = ::popRoute)
-                                MigrationRoute.Wishes -> StarWishTheaterApp(onBack = ::popRoute)
+                                MigrationRoute.Scroll -> StarWishScrollApp(onBack = ::popRoute, characterId = selectedCharacterId)
+                                MigrationRoute.Theater -> StarWishTheaterApp(onBack = ::popRoute, characterId = selectedCharacterId)
+                                MigrationRoute.Wishes -> StarWishTheaterApp(onBack = ::popRoute, characterId = selectedCharacterId)
                                 MigrationRoute.Study -> SelfPrefaceScreen(onBack = ::popRoute)
                                 MigrationRoute.Schedule -> ScheduleFeatureScreen(
                                     onBack = ::popRoute,
