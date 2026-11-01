@@ -141,6 +141,42 @@ internal fun nextDailyCommitmentDue(
 
 
 
+/**
+ * Facts for the SAME character decision, not a second planner or personality rule.
+ * An accepted duty differs from a passing personal thought: unverified work must
+ * remain visible even when the most recent user message was quiet.
+ */
+internal object ActiveCommitmentAttention {
+    fun render(tasks: List<CommitmentTask>, now: Instant): String {
+        val active = tasks.filter { it.status.isActive() }
+        val needsAttention = active.filter { task ->
+            task.status == CommitmentTaskStatus.WaitingForFeedback ||
+                task.status == CommitmentTaskStatus.Blocked ||
+                task.dueAt == null ||
+                !task.dueAt.isAfter(now)
+        }
+        if (needsAttention.isEmpty()) return ""
+        return buildString {
+            appendLine("【已接受且尚待履行或核实的主人约定｜比普通关心的猜测更有依据】")
+            needsAttention.take(12).forEach { task ->
+                val phase = when (task.status) {
+                    CommitmentTaskStatus.WaitingForFeedback -> "已尝试一步，真实效果尚未证实"
+                    CommitmentTaskStatus.Blocked -> "执行受阻，仍需本人处理失败"
+                    CommitmentTaskStatus.NeedsClarification -> "尚待决定可执行的下一步"
+                    CommitmentTaskStatus.Running -> "执行中，先等真实执行回执"
+                    else -> "约定已到期或尚无具体行动时刻"
+                }
+                val next = task.nextCheckAt?.takeIf { it.isAfter(now) }
+                appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
+                    "nextReview=${next ?: "未安排"}; last=${task.readableLastResult().take(150)}")
+            }
+            appendLine("用户明确要求过的主动提醒、陪伴或监督，是已授权的关系约定，不是你临时猜她是否想聊天。没有新回复、担心提示音或猜测她可能困了，都不足以替她撤销原约定。")
+            appendLine("对仍待落实的责任，由你依据真实时间、原约定和权限选择：现在用真实消息/来电/已授权设备观察推进，或确有理由暂缓并用现有 schedule_commitment_review / 个人日程工具登记下一次行动。不要把弹窗、心声、端水等待、电话挂断或用户沉默当成哄睡成功，也不要机械连续打扰。")
+            appendLine("若某项责任已有仍有效的下一步执行或复查闹钟，应先继承它，不重复建；没有真实后续安排的沉默不等于完成了监督。执行是否成功仍以独立回执为准。")
+        }.trim()
+    }
+}
+
 /** Answering is delivery evidence, not cancellation of the pending result check.
  * Declining stops retry calls, while an observation-only check remains valid. */
 internal fun CommitmentTask.keepsFollowUpAfterCallResponse(answered: Boolean): Boolean =
