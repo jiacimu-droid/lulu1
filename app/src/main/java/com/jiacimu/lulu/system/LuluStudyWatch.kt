@@ -22,7 +22,6 @@ import androidx.work.WorkerParameters
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.CharacterMotiveState
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -147,12 +146,11 @@ internal object LuluStudyWatch {
     }
 
     /** An opportunity for the same character's OWN decision, not an automatic request.
-     * Source evidence is the existing study-partner role, goal and ongoing promises.
+     * Source evidence is the person's own ongoing goal and accepted commitments.
      */
     fun proactiveOpportunity(context: Context, role: String, now: Long = System.currentTimeMillis()): String {
         if (role.isBlank() || role.startsWith("resident:") || active(context, role, now) != null)
             return ""
-        val studyPartner = PostgraduateExamStores.main.state.value.profile.selectedCharacterId == role
         val studyWords = listOf("学习", "备考", "背书", "复习", "刷题", "考试")
         val accepted = CommitmentTaskStore.active(role).any { task ->
             studyWords.any(task.goal::contains)
@@ -161,11 +159,11 @@ internal object LuluStudyWatch {
             CharacterInnerLifeStore.snapshot(role).optJSONArray("motives")).any { motive ->
             studyWords.any(motive.optString("aim")::contains)
         }
-        if (!studyPartner && !accepted && !hasOwnConcern) return ""
+        if (!accepted && !hasOwnConcern) return ""
         val p = prefs(context)
         if (now - p.getLong("$LAST_REQUEST_AT:$role", 0L) in 0 until REQUEST_GAP_MS ||
             now - p.getLong("$LAST_DENIAL_AT:$role", 0L) in 0 until DENIAL_GAP_MS) return ""
-        return "【可选的本人主动照顾】你确实是她的学习陪伴角色、曾接受学习责任，" +
+        return "【可选的本人主动照顾】你确实曾接受学习责任，" +
             "或自己仍挂念她的学习。现在没有她的新命令也可以自行判断要不要来看看；" +
             "若真实想在这段时间陪她并能尊重她的时间和隐私，可以主动以" +
             "steps选择start_study_watch申请一次限时监督。主人只负责许可，不负责催你想起；" +
