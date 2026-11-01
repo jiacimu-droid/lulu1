@@ -236,7 +236,7 @@ class MigrationActivity : ComponentActivity() {
             PomodoroCompanionSessions.handleNaturalCompletion()
         }
 
-        RoleReadablePerformanceBridge.initialize()
+        RoleReadablePerformanceBridge.retireAutomaticSharing()
         ChatTurnConsistencyAutomation.initialize(appContext)
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize(appContext)
