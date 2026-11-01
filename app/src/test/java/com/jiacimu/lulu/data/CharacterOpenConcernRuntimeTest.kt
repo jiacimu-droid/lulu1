@@ -12,6 +12,60 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOpenConcernRuntimeTest {
+    @Test fun olderUnresolvedConcernsSurviveNewConcernsRevisionsAndReceiptWriteback() {
+        var saved = JSONArray()
+        repeat(20) { index ->
+            saved = CharacterOpenConcernRuntime.update(saved,
+                JSONObject().put("pendingConcern", JSONObject().put("status", "open")
+                    .put("topicKey", "independent_$index").put("focus", "独立心事$index")
+                    .put("whyItMatters", "不同的真实缘由$index")), "source-$index", now.plusSeconds(index.toLong()))
+        }
+        assertEquals(20, saved.length())
+        val oldest = saved.getJSONObject(0).getString("id")
+        val paused = saved.getJSONObject(1).getString("id")
+        saved = CharacterOpenConcernRuntime.update(saved,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "pause").put("threadId", paused)),
+            "pause-old", now.plusSeconds(30))
+        saved = CharacterOpenConcernRuntime.update(saved,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "revise").put("threadId", oldest)
+                .put("possibleNextStep", "根据新事实自行选择下一步")), "revise-old", now.plusSeconds(40))
+        val receiptId = "tool-receipt-" + "source-component-".repeat(20)
+        saved = CharacterOpenConcernRuntime.recordOutcome(saved, oldest, receiptId,
+            "capture_screen", false, "锁屏，不能判断主人是否入睡", now.plusSeconds(50))
+        val restored = JSONArray(saved.toString())
+        assertEquals(20, restored.length())
+        assertEquals(20, CharacterOpenConcernRuntime.unresolved(restored).size)
+        assertEquals(19, CharacterOpenConcernRuntime.active(restored, now.plusSeconds(60)).size)
+        val old = CharacterOpenConcernRuntime.unresolved(restored).single { it.optString("id") == oldest }
+        assertEquals(receiptId, old.getJSONObject("lastOutcome").getString("id"))
+        assertEquals("根据新事实自行选择下一步", old.getString("possibleNextStep"))
+        val closed = CharacterOpenConcernRuntime.update(restored,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "settled").put("threadId", oldest)),
+            "closed-by-owner", now.plusSeconds(70))
+        assertEquals(19, closed.length())
+        assertFalse(CharacterOpenConcernRuntime.unresolved(closed).any { it.optString("id") == oldest })
+        // A receipt for an already removed thread cannot resurrect it or trim its peers.
+        assertEquals(closed.toString(), CharacterOpenConcernRuntime.recordOutcome(
+            closed, oldest, "late-receipt", "send_private_message", true, "晚到回执").toString())
+    }
+
+    @Test fun authoredConditionsAndClosureRemainCompleteAcrossPersistence() {
+        val fields = listOf("focus", "whyItMatters", "hesitation", "possibleNextStep")
+            .associateWith { key -> "$key 的前提与缘由".repeat(60) + "；但不取消原约定，除非本人明确改变决定" }
+        val proposal = JSONObject().put("status", "open")
+        fields.forEach { (key, value) -> proposal.put(key, value) }
+        val saved = CharacterOpenConcernRuntime.update(null,
+            JSONObject().put("pendingConcern", proposal), "real-source", now)
+        val restored = JSONArray(saved.toString())
+        fields.forEach { (key, value) -> assertEquals(value, restored.getJSONObject(0).getString(key)) }
+        val id = restored.getJSONObject(0).getString("id")
+        val resolution = "我理解到的完整变化".repeat(60) + "；只是这次解决，不表示以后不再关心"
+        val closure = CharacterOpenConcernRuntime.closure(restored,
+            JSONObject().put("pendingConcern", JSONObject().put("status", "settled")
+                .put("threadId", id).put("resolution", resolution)), "closure-source", now.plusSeconds(30))!!
+        assertEquals(resolution, closure.getString("resolution"))
+    }
+
     @Test fun concernMayLinkAnExistingGoalButNeverCreatesOne() {
         val at = java.time.Instant.parse("2026-10-16T09:00:00Z")
         val proposal = org.json.JSONObject().put("pendingConcerns",

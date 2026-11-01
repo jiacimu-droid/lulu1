@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T19:39:58.024573+00:00",
-  "commit": "c8c37d30dcea36bf482ddea2266a9d116af901f0",
+  "generatedAt": "2026-11-01T21:41:37.243053+00:00",
+  "commit": "e61f0f5a02bb0e27d49fb1e0c4b67e1e1e944113",
   "branch": "main",
-  "sourceFingerprint": "b83ffda2454edf033f2dbf7db63afaddd86e207c76ec7ce53c311c51823b444a",
+  "sourceFingerprint": "8c26ff6e28d6c4c290cd5648908458d0a7ea80544f88aabdcac3a0d2ba0d1254",
   "summary": {
     "files": 1119,
-    "lines": 228818,
+    "lines": 228873,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -317,7 +317,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 42
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -473,7 +473,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 288
+        "line": 289
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
@@ -4583,7 +4583,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 210
+        "line": 211
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -6049,7 +6049,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 260
+        "line": 261
       }
     ],
     "pendingDecisionCues": [
@@ -6171,7 +6171,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 208
+        "line": 209
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6339,7 +6339,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 29
+        "line": 28
       }
     ],
     "canGroundQuestion": [
@@ -6429,7 +6429,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 62
+        "line": 61
       }
     ],
     "feedbackTopic": [
@@ -7043,49 +7043,49 @@
     "hasProposals": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 40
+        "line": 39
       }
     ],
     "recordOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 162
+        "line": 163
       }
     ],
     "unresolved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 219
+        "line": 220
       }
     ],
     "meritsOneFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 224
+        "line": 225
       }
     ],
     "closures": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 233
+        "line": 234
       }
     ],
     "closure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "dependsOnEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 258
+        "line": 259
       }
     ],
     "closureContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 268
+        "line": 269
       }
     ],
     "integrate": [
@@ -24387,68 +24387,68 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 350,
-      "sha256": "2bca8a20cc381917bf092040dceffcc67d607ca6a5c8291a23343100dfe51a71",
+      "lines": 351,
+      "sha256": "2ea5d9530b908fbbf68e09e090828a8f816642eb2c9c75a1819d55c0d73152ab",
       "symbols": [
         {
           "name": "proposals",
-          "line": 29
+          "line": 28
         },
         {
           "name": "hasProposals",
-          "line": 40
+          "line": 39
         },
         {
           "name": "update",
-          "line": 42
+          "line": 41
         },
         {
           "name": "result",
-          "line": 62
+          "line": 61
         },
         {
           "name": "recordOutcome",
-          "line": 162
+          "line": 163
         },
         {
           "name": "active",
-          "line": 208
+          "line": 209
         },
         {
           "name": "recent",
-          "line": 210
+          "line": 211
         },
         {
           "name": "unresolved",
-          "line": 219
+          "line": 220
         },
         {
           "name": "meritsOneFollowThrough",
-          "line": 224
+          "line": 225
         },
         {
           "name": "closures",
-          "line": 233
+          "line": 234
         },
         {
           "name": "closure",
-          "line": 238
+          "line": 239
         },
         {
           "name": "dependsOnEvidence",
-          "line": 258
+          "line": 259
         },
         {
           "name": "matches",
-          "line": 260
+          "line": 261
         },
         {
           "name": "closureContext",
-          "line": 268
+          "line": 269
         },
         {
           "name": "context",
-          "line": 288
+          "line": 289
         }
       ]
     },
@@ -35793,8 +35793,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
-      "lines": 334,
-      "sha256": "45bbd299e1749911d11ec081b9850c9790ca7cde5a1983562b29a069be8a20ac",
+      "lines": 388,
+      "sha256": "c1034aa80481154329c8f763dd2825a94769ae00b7e98571db36bfa5aabafb60",
       "symbols": [
         {
           "name": "CharacterOpenConcernRuntimeTest",

@@ -17,7 +17,6 @@ import java.time.Instant
 internal object CharacterOpenConcernRuntime {
     private val activeWindow = Duration.ofHours(48)
     private val acceptedStatuses = setOf("open", "revise", "pause", "resume", "settled", "dismissed")
-    private const val MAX_OPEN = 12
     private const val MAX_CHANGES_PER_EVENT = 4
 
     /**
@@ -59,10 +58,10 @@ internal object CharacterOpenConcernRuntime {
         activeMotiveIds: Set<String>,
     ): JSONArray {
         val existing = retained(previous).toMutableList()
-        fun result() = JSONArray().apply { existing.takeLast(MAX_OPEN).forEach(::put) }
+        fun result() = JSONArray().apply { existing.forEach(::put) }
         val status = proposal.optString("status", "open").trim().lowercase()
         if (status !in acceptedStatuses || evidenceId.isBlank()) return result()
-        val requestedId = proposal.optString("threadId").trim().take(100)
+        val requestedId = proposal.optString("threadId").trim()
         val topic = proposal.optString("topicKey").trim().lowercase()
             .replace(Regex("[^a-z0-9_-]"), "").take(70)
         val focusKey = proposal.optString("focus").trim()
@@ -95,14 +94,16 @@ internal object CharacterOpenConcernRuntime {
             "revise" -> if (prior?.optString("lifecycleState") == "paused") "paused" else "active"
             else -> "active"
         }
-        val focus = proposal.optString("focus").trim().take(180)
+        // These are canonical authored meanings, not display previews. Cutting
+        // the tail can erase a negation, condition or the intended next step.
+        val focus = proposal.optString("focus").trim()
             .ifBlank { prior?.optString("focus").orEmpty() }
-        val why = proposal.optString("whyItMatters").trim().take(180)
+        val why = proposal.optString("whyItMatters").trim()
             .ifBlank { prior?.optString("whyItMatters").orEmpty() }
         if (focus.isBlank() || why.isBlank()) return result()
-        val hesitation = if (proposal.has("hesitation")) proposal.optString("hesitation").trim().take(170)
+        val hesitation = if (proposal.has("hesitation")) proposal.optString("hesitation").trim()
             else prior?.optString("hesitation").orEmpty()
-        val nextStep = if (proposal.has("possibleNextStep")) proposal.optString("possibleNextStep").trim().take(170)
+        val nextStep = if (proposal.has("possibleNextStep")) proposal.optString("possibleNextStep").trim()
             else prior?.optString("possibleNextStep").orEmpty()
         val priority = if (proposal.has("priority")) proposal.optInt("priority", 2).coerceIn(1, 3)
             else prior?.optInt("priority", 2) ?: 2
@@ -174,22 +175,22 @@ internal object CharacterOpenConcernRuntime {
                     if (previousReceipt?.optString("id") == receiptId) {
                         put(original)
                     } else put(JSONObject(original.toString()).put("lastOutcome", JSONObject()
-                        .put("id", receiptId.take(120)).put("action", action.take(70))
-                        .put("success", success).put("summary", summary.take(230))
+                        .put("id", receiptId).put("action", action)
+                        .put("success", success).put("summary", summary)
                         .put("at", now.toString())))
                 }
             }
         }
     }
 
-    /** All unresolved threads survive idle time. Bounded count and revisions prevent
-     * unbounded storage; old threads are *dormant*, never permanent traits.
+    /** Persistent ownership is independent of this turn's attention budget.
+     * Only the character's explicit lifecycle choices remove/settle a concern;
+     * context() and the shared working set bound the outgoing model view.
      */
     private fun retained(previous: JSONArray?): List<JSONObject> =
         if (previous == null) emptyList() else (0 until previous.length())
             .mapNotNull(previous::optJSONObject)
             .filter { it.optString("id").isNotBlank() && it.optString("focus").isNotBlank() }
-            .takeLast(MAX_OPEN)
 
     private fun isActive(entry: JSONObject, now: Instant): Boolean = when (entry.optString("lifecycleState")) {
         "active" -> true
@@ -248,7 +249,7 @@ internal object CharacterOpenConcernRuntime {
         return JSONObject(prior.toString())
             .put("closureEvidenceId", evidenceId)
             .put("closedAt", now.toString())
-            .put("resolution", proposal.optString("resolution").trim().take(200))
+            .put("resolution", proposal.optString("resolution").trim())
             .put("closedAs", status)
     }
 
