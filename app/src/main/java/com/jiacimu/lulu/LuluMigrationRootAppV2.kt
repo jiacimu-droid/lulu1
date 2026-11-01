@@ -31,8 +31,6 @@ import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
 import com.jiacimu.lulu.study.PomodoroMiniWindow
 import com.jiacimu.lulu.study.PomodoroTimerMode
-import com.jiacimu.lulu.study.PostgraduateExamApp
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishScrollApp
 import com.jiacimu.lulu.study.StarWishTheaterApp
 import kotlinx.coroutines.delay
@@ -384,11 +382,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Scroll -> StarWishScrollApp(onBack = ::popRoute)
                                 MigrationRoute.Theater -> StarWishTheaterApp(onBack = ::popRoute)
                                 MigrationRoute.Wishes -> StarWishTheaterApp(onBack = ::popRoute)
-                                MigrationRoute.Study -> PostgraduateExamApp(
-                                    onBack = ::popRoute,
-                                    openPomodoroRequest = openPomodoroRequest,
-                                    onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
-                                )
+                                MigrationRoute.Study -> SelfPrefaceScreen(onBack = ::popRoute)
                                 MigrationRoute.Schedule -> ScheduleFeatureScreen(
                                     onBack = ::popRoute,
                                     initialCharacterId = selectedCharacterId,
@@ -461,16 +455,11 @@ private fun PomodoroRuntimeOverlay(
     focusVisible: Boolean,
     onOpen: () -> Unit,
 ) {
-    val studyState by PostgraduateExamStores.main.state.collectAsState()
     val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
-    LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
-        val studyStore = PostgraduateExamStores.main
-        while (studyStore.state.value.pomodoro.running) {
+    LaunchedEffect(pomodoroCompanion.countdownRunning, pomodoroCompanion.countdownEndAtEpochMillis) {
+        while (PomodoroCompanionSessions.store.state.value.countdownRunning) {
             delay(500)
-            if (studyStore.syncPomodoroClock()) {
-                PomodoroCompanionSessions.handleNaturalCompletion()
-                break
-            }
+            if (PomodoroCompanionSessions.syncCountdownClock()) break
         }
     }
     LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
@@ -483,18 +472,15 @@ private fun PomodoroRuntimeOverlay(
         !pomodoroCompanion.completionHandled
     if (active && !focusVisible) {
         PomodoroMiniWindow(
-            studyState = studyState,
             companion = pomodoroCompanion,
             onOpen = onOpen,
             onPauseResume = {
                 if (pomodoroCompanion.timerMode == PomodoroTimerMode.CountUp)
                     PomodoroCompanionSessions.toggleCountUp()
-                else PostgraduateExamStores.main.togglePomodoro()
+                else PomodoroCompanionSessions.toggleCountdown()
             },
             onEnd = {
-                PomodoroCompanionSessions.finishActiveSession(
-                    studyStore = PostgraduateExamStores.main,
-                )
+                PomodoroCompanionSessions.finishActiveSession()
             },
         )
     }
