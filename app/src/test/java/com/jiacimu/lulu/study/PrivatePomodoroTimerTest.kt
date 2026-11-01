@@ -63,4 +63,36 @@ class PrivatePomodoroTimerTest {
         assertEquals("lulu", prefs.getString("active_character_id", ""))
         assertFalse(prefs.getBoolean("opening_handled", true))
     }
+    @Test fun countdownCanPauseResumeAndFinishWithoutExamStore() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE)
+            .edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(3)
+        timer.beginSession("独立计时", PomodoroTimerMode.Countdown, startedAtEpochMillis = 100_000L)
+        assertEquals(3, timer.state.value.selectedMinutes)
+        assertTrue(timer.state.value.countdownRunning)
+        assertEquals(180, timer.state.value.countdownRemainingSeconds)
+
+        assertFalse(timer.syncCountdownClock(nowMillis = 160_000L))
+        assertEquals(120, timer.state.value.countdownRemainingSeconds)
+
+        timer.toggleCountdown(nowMillis = 170_000L)
+        assertFalse(timer.state.value.countdownRunning)
+        assertEquals(110, timer.state.value.countdownRemainingSeconds)
+        timer.toggleCountdown(nowMillis = 220_000L)
+        assertTrue(timer.state.value.countdownRunning)
+        assertEquals(330_000L, timer.state.value.countdownEndAtEpochMillis)
+
+        // Persistence reconstructs the same clock from the absolute end instant.
+        val restored = PomodoroCompanionStore.create(context)
+        assertTrue(restored.state.value.countdownRunning)
+        assertEquals(330_000L, restored.state.value.countdownEndAtEpochMillis)
+        assertFalse(restored.syncCountdownClock(nowMillis = 329_000L))
+        assertEquals(1, restored.state.value.countdownRemainingSeconds)
+        assertTrue(restored.syncCountdownClock(nowMillis = 330_000L))
+        assertTrue(restored.state.value.completionHandled)
+        assertFalse(restored.state.value.countdownRunning)
+    }
+
 }
