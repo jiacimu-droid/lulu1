@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-01T04:21:39.372397+00:00",
-  "commit": "f4123a21462ba172b7fc81de18e047c117491ea6",
+  "generatedAt": "2026-11-01T04:22:04.829179+00:00",
+  "commit": "5e3f69859f4930beb2493d2a2fa56c1ca641b719",
   "branch": "main",
-  "sourceFingerprint": "de3695040f1026444b5d7e556ecab0181d1b8b29564dc8f9dcb6d52cbf9c0c2c",
+  "sourceFingerprint": "c7c4cb5bbd6219ad911945fbd42a773eeb97183dbc0da88db0a79a3a27ef3962",
   "summary": {
-    "files": 1134,
-    "lines": 233711,
-    "symbols": 3297
+    "files": 1135,
+    "lines": 233778,
+    "symbols": 3298
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18312,6 +18312,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt",
         "line": 11
+      }
+    ],
+    "PrivatePomodoroTimerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt",
+        "line": 13
       }
     ],
     "ReadingGrowthTheaterTest": [
@@ -39068,6 +39074,17 @@
         {
           "name": "MiniTheaterLibraryTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt",
+      "lines": 67,
+      "sha256": "72a7cc05be96fd3506df111978a7ced9ef5a3e59599072d53c0691d4e5257760",
+      "symbols": [
+        {
+          "name": "PrivatePomodoroTimerTest",
+          "line": 13
         }
       ]
     },
