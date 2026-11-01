@@ -32,7 +32,7 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
     var libraryVersion by remember { mutableIntStateOf(0) }
     val books = remember(star.theaterChapters, libraryVersion) { ReadingBackgroundBridge.books(context) }
     var selectedId by remember { mutableStateOf<String?>(null) }
-    var characterId by remember { mutableStateOf(PostgraduateExamStores.main.state.value.profile.selectedCharacterId) }
+    var characterId by remember { mutableStateOf(characters.values.firstOrNull()?.characterId ?: "lulu") }
     var notice by remember { mutableStateOf("") }
     var reading by remember { mutableStateOf(false) }
     val targetId = initialBookTitle?.takeIf { it.startsWith("reading-record:") }?.removePrefix("reading-record:")
