@@ -226,12 +226,18 @@ class MigrationActivity : ComponentActivity() {
         StartupFailureRecovery.stage("自序计时与旧考研数据退出")
         PomodoroCompanionSessions.initialize(appContext)
         // The old exam app is retired; do not reset self-preface or character stores.
-        appContext.getSharedPreferences("lulu_study_complete", MODE_PRIVATE).edit().clear().commit()
+        appContext.deleteSharedPreferences("lulu_study_complete")
         StarWishStores.initialize(appContext)
         PomodoroCompanionSessions.syncCountdownClock()
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            RoleReadablePerformanceBridge.retireAutomaticSharing()
+        val retiredExam = appContext.getSharedPreferences("lulu_retired_exam_cleanup_v1", MODE_PRIVATE)
+        if (!retiredExam.getBoolean("generated_history_purged", false)) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                runCatching {
+                    RoleReadablePerformanceBridge.retireAutomaticSharing()
+                    check(retiredExam.edit().putBoolean("generated_history_purged", true).commit())
+                }.onFailure { android.util.Log.w("RetiredExamCleanup", "Legacy exam cleanup needs retry", it) }
+            }
         }
         ChatTurnConsistencyAutomation.initialize(appContext)
         DeterministicMemoryAutomation.initialize(appContext)
