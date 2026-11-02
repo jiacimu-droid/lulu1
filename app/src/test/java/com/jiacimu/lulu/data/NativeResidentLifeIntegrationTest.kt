@@ -38,7 +38,14 @@ class NativeResidentLifeIntegrationTest {
         val midday = ResidentDailyRoutine.plan(worker, Instant.parse("2026-10-23T12:50:00Z"), ZoneOffset.UTC)
         val home = ResidentDailyRoutine.plan(worker, Instant.parse("2026-10-23T22:30:00Z"), ZoneOffset.UTC)
         assertEquals(DigitalWorldPublicPlaces.COURTYARD, morning.location)
-        assertEquals(DigitalWorldPublicPlaces.CAFE, midday.location)
+        // Without this resident's saved leisure choice, the world clock may
+        // assign duty and rest slots but cannot invent a cafe visit.
+        assertEquals(worker.homeLocationCode, midday.location)
+        val chosenCafe = ResidentDailyRoutine.planWithDaily(worker,
+            Instant.parse("2026-10-23T12:50:00Z"), ZoneOffset.UTC,
+            org.json.JSONObject().put("lunch", "cafe"))
+        assertEquals("lunch", chosenCafe.slot)
+        assertEquals(DigitalWorldPublicPlaces.CAFE, chosenCafe.location)
         assertEquals(worker.homeLocationCode, home.location)
         assertNotEquals(morning.slot, midday.slot)
         assertTrue(ResidentDailyRoutine.plan(worker,

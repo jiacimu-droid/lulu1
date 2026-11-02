@@ -58,6 +58,10 @@ class PositiveExpressionGuidanceTest {
         assertFalse(casual.contains("杀了你"))
         assertTrue(casual.contains("复杂求助"))
         assertTrue(casual.contains("多个执行动作"))
-        assertTrue(casual.contains("有真实兴致时也可以继续"))
+        // An authored conversational beat may be short without converting
+        // the role's knowledge into an exhaustive report.
+        assertTrue(casual.contains("选择此刻真正想说出口的那一拍"))
+        assertTrue(casual.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
+        assertFalse(casual.contains("逐项回应清单"))
     }
 }
