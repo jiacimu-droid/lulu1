@@ -298,6 +298,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(buildMode==null) {
                         buildMode=lastBuildMode
                         mapAim=false
+                        navigateTo=null
                     } else buildMode=null
                 }
             }
@@ -462,6 +463,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             buildMode=recipe.action
                             lastBuildMode=recipe.action
                             mapAim=false
+                            navigateTo=null
                         }
                     }
                 }
