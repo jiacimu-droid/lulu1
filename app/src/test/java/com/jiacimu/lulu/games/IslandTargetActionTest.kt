@@ -109,6 +109,46 @@ class IslandTargetActionTest {
         assertEquals(4,placedAgain.world.cell(3,5))
     }
 
+    @Test fun buildPreviewExplainsRangeMaterialAndObstructionWithoutChangingTheWorld() {
+        val start = BlockIslandRules.newWorld(61, emptyList())
+        val empty = start.copy(world=start.world.copy(x=4,y=4,wood=0,stone=0,
+            tiles=List(start.world.tiles.size){0}))
+        val shortage=IslandBuildingControls.preview(empty,"wall",5,4)!!
+        assertFalse(shortage.allowed)
+        assertTrue(shortage.message.contains("材料不足"))
+        assertEquals(0,empty.world.turns)
+        assertEquals(0,empty.world.wood)
+
+        val far=IslandBuildingControls.preview(empty,"wall",7,4)!!
+        assertFalse(far.allowed)
+        assertTrue(far.message.contains("1格"))
+        val ready=empty.copy(world=empty.world.copy(wood=9,stone=9))
+        val legal=IslandBuildingControls.preview(ready,"wall",5,4)!!
+        assertTrue(legal.allowed)
+        assertEquals(BlockIslandRules.canBuild(ready,"wall",5,4),legal.allowed)
+        assertTrue(legal.message.contains("可放置"))
+        val obstructed=ready.copy(world=ready.world.setTile(5,4,1))
+        val blocked=IslandBuildingControls.preview(obstructed,"wall",5,4)!!
+        assertFalse(blocked.allowed)
+        assertTrue(blocked.message.contains("占用"))
+    }
+
+    @Test fun browsingConstructionHotbarWrapsBothWaysWithoutSpendingATurn() {
+        val recipes=IslandBuildingControls.recipes
+        assertEquals(recipes.last().action,
+            IslandBuildingControls.cycle(recipes.first().action,-1))
+        assertEquals(recipes.first().action,
+            IslandBuildingControls.cycle(recipes.last().action,1))
+        for(i in recipes.indices) {
+            assertEquals(recipes[(i+1)%recipes.size].action,
+                IslandBuildingControls.cycle(recipes[i].action,1))
+        }
+        val unchanged=BlockIslandRules.newWorld(63,emptyList())
+        val action=IslandBuildingControls.cycle("wall",1)
+        assertNotNull(IslandBuildingControls.preview(unchanged,action,5,5))
+        assertEquals(0,unchanged.world.turns)
+    }
+
     @Test fun nearbyResourcesAndMonstersAreImmediatelyActionable() {
         val s = scene()
         assertEquals("gather", islandTargetAction(s, 5 to 4).action)
