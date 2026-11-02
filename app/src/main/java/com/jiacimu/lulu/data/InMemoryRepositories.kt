@@ -275,7 +275,26 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             folders.value = decodeFolders(prefs?.getString(KEY_FOLDERS, null))
-            entries.value = decode(prefs?.getString(KEY_ENTRIES, null))
+            val stored = decode(prefs?.getString(KEY_ENTRIES, null))
+            val storage = checkNotNull(prefs)
+            if (!storage.getBoolean(KEY_HUMAN_CHAT_SEEDED, false)) {
+                // One editable world-book entry. Owner edits/deletions never re-seed.
+                val initial = if (stored.any {
+                    it.id == HUMAN_CHAT_BOOK_ID || it.title == HUMAN_CHAT_BOOK_TITLE
+                }) stored else stored + WorldBookEntry(
+                    id = HUMAN_CHAT_BOOK_ID,
+                    title = HUMAN_CHAT_BOOK_TITLE,
+                    content = HUMAN_CHAT_BOOK_CONTENT.trimIndent(),
+                    globalEnabled = true,
+                    characterOverrides = emptyMap(),
+                    promptPosition = WorldBookPromptPosition.BOTTOM,
+                )
+                check(storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
+                    .putBoolean(KEY_HUMAN_CHAT_SEEDED, true).commit()) {
+                    "现代聊天世界书初始化保存失败"
+                }
+                entries.value = initial
+            } else entries.value = stored
         }
     }
 
@@ -550,6 +569,23 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         const val PREFS_NAME = "lulu_world_book"
         const val KEY_ENTRIES = "entries_v1"
         const val KEY_FOLDERS = "folders_v1"
+        const val KEY_HUMAN_CHAT_SEEDED = "human_chat_world_book_seeded_v1"
+        const val HUMAN_CHAT_BOOK_ID = "built-in-modern-chat-expression-v1"
+        const val HUMAN_CHAT_BOOK_TITLE = "现代聊天与自然表达"
+        val HUMAN_CHAT_BOOK_CONTENT = """
+            【现代日常聊天的语用参考｜不是角色身份或新任务】
+            现代人跟熟人发消息，不是在逐项答题。一个人可以了解事情的全部经过，却只说此刻最想让对方听见的那一小部分；对方有兴趣再往下聊。知道得多不等于每次要讲得多。随口聊天常先给直觉、态度或一个具体发现，不必把原因、背景、后果和建议一次说尽；对方认真询问原因、技术细节或寻求完整帮助时，则可以讲清。
+            
+            【情绪怎样进入语言】
+            真正的感受会改变词语、语序、节奏、标点和停顿：惊讶时可能先蹦出短短一声；着急时可能重复或说话打结；得意时可能故意卖关子；害羞时可能忽然改口，认真时则干净明白。比如“等等等等！”和“等我一下，好不好”传达的是不同的情绪。重复、口头禅、拟声、半句话、突然的自我修正都可能自然出现，但出自这一次真实心情，不当成每轮必演的套路；平淡地说句“嗯，我知道了”也完全正常。
+            
+            【即时通讯的气泡与文字动作】
+            气泡是一次次自然的说话动作，不是把同一篇说明书切成多段。可以一个短反应就独立成泡；下一泡若没有新反应、新意思或情绪转折，可以不写。连续气泡可以依次惊讶、改口、笑、补上一句，彼此有推进；也可以仅有一个气泡。分句依照本人会在哪里停、哪里换气、哪里想让对方先看到一句，不按字数或标点机械切割。
+            熟人聊天偶尔用“（假装镇定）”“（把脸埋进枕头）”等括号来做文字里的玩笑或虚拟表演，也会发独立表情包。这只是文本里的表达，不证明真实身体或设备动作；不需要每次加括号。
+            
+            【每个人有自己的声音】
+            本书描述可用的现代口语习惯，不要求所有人物说流行语、卖萌、重复、撒娇或使用同一个节奏。人物自己的性格、语言偏好、当下关系、共同经历和情绪决定要选哪一种。清冷而风趣的人可以嘴角带笑地简短回应，热烈的人可以连发几句；认真或有重要事项时可以详细。不要把知道的事实藏起来，但也不用把知道的一切主动汇报。
+        """
     }
 }
 
