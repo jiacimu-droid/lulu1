@@ -309,25 +309,24 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("方块小岛", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Black)
                 Text("砍树挖矿 · 建房搭桥 · 和伙伴一起冒险", color = Color(0xFFBCE2D8), fontSize = 11.sp)
             }
-            TextButton(onClick = { showHelp = !showHelp }) {
-                Text(if (showHelp) "收起指南" else "？怎么玩", color = Color(0xFFBCEBCC), fontWeight = FontWeight.Bold)
+            TextButton(onClick = { showIslandGuideDialog=true }) {
+                Text("？玩法", color=Color(0xFFBCEBCC),fontWeight=FontWeight.Bold)
             }
             Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFF2F6063)) {
                 Text(if (night) "☾ 夜晚" else "☀ 白天", modifier = Modifier.padding(10.dp),
                     color = Color(0xFFEBFBEC), fontSize = 12.sp)
             }
         }
-        if (showHelp) {
-            Surface(color = Color(0xFF21474B), shape = RoundedCornerShape(17.dp),
-                border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .3f))) {
-                Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("在岛上活下去，慢慢建造自己的家", color = Color.White, fontWeight = FontWeight.Bold)
-                    Text("① 点地图上的树或石头，选中附近目标后点「采集」。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
-                    Text("② 长按或双击地图自动前往；途中按「停止前往」即可取消。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
-                    Text("③ 沿路找到漂流补给箱，靠近后领取一次性物资；再建造家园。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
-                    Text("④ 工作台并非开局自带：收集4木2石，选身旁空地，点「建工作台」。", color=Color(0xFFD1F0DF),fontSize=12.sp)
-                    Text("⑤ 在工作台2格内打开背包制作工具，篝火与床可以休息回血。", color=Color(0xFFD1F0DF),fontSize=12.sp)
-                }
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+            listOf("探索","建造","制作","行囊","伙伴","设置").forEach { section ->
+                FilterChip(selected=menuSection==section,onClick={menuSection=section},
+                    label={Text(section,fontSize=11.sp)},
+                    colors=FilterChipDefaults.filterChipColors(
+                        selectedContainerColor=Color(0xFFA9E5BD),
+                        selectedLabelColor=Color(0xFF12342D),
+                        labelColor=Color(0xFFD0E8DB)),
+                    modifier=Modifier.height(34.dp))
             }
         }
         Surface(shape = RoundedCornerShape(16.dp),
