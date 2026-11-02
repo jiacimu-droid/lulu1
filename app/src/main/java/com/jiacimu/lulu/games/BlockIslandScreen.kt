@@ -72,6 +72,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
     var showHelp by remember { mutableStateOf(false) }
+    var showIslandGuideDialog by remember { mutableStateOf(false) }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
@@ -148,6 +149,12 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val primaryAction = islandTargetAction(island, target)
     val supplySelected = IslandSupplyCaches.available(island, target.first, target.second)
     val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell, selectedStructure)
+    val workbench = island.structures.entries.filter { it.value == "workbench" }
+        .minByOrNull { entry ->
+            abs(world.x - entry.key % world.width) + abs(world.y - entry.key / world.width)
+        }
+    val workbenchNear = workbench != null &&
+        abs(world.x - workbench.key % world.width) + abs(world.y - workbench.key / world.width) <= 2
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -193,6 +200,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
+            Text(if (workbench == null) "先造工作台：选身旁空地 · 需要4木2石"
+                else if (workbenchNear) "工作台已在附近 · 背包可制作工具"
+                else "工作台在 ("+(workbench.key % world.width)+","+
+                    (workbench.key / world.width)+") · 靠近2格制作工具",
+                color=Color(0xFFA9E5BD), fontSize=10.sp, maxLines=2)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween) {
+                TextButton(onClick={showIslandGuideDialog=true}) {
+                    Text("玩法",color=Color.White,fontSize=11.sp)
+                }
+                TextButton(onClick={confirmReset=true}) {
+                    Text("↻ 新岛屿",color=Color(0xFFA9E5BD),fontSize=11.sp)
+                }
+            }
             if(island.guardedBy.isNotBlank()) {
                 val protector=world.friends.firstOrNull { it.id==island.guardedBy && it.hp>0 }
                 if(protector!=null)Text(
@@ -223,11 +243,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
             Spacer(Modifier.height(4.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction(if (supplySelected) "打开补给" else "造墙", Color(0xFFA9E5BD),
+                GameHudQuickAction(if (supplySelected) "打开补给" else
+                        if (workbench == null) "建工作台" else "造墙", Color(0xFFA9E5BD),
                     enabled = if (supplySelected) nearTarget else
-                        BlockIslandRules.canBuild(island, "wall", target.first, target.second),
+                        BlockIslandRules.canBuild(island,
+                            if (workbench == null) "workbench" else "wall", target.first, target.second),
                     modifier = Modifier.weight(1f)) {
-                    if (supplySelected) perform("salvage") else perform("wall")
+                    if (supplySelected) perform("salvage")
+                    else perform(if (workbench == null) "workbench" else "wall")
                 }
                 GameHudQuickAction("吃果", Color(0xFFA9E5BD),
                     enabled = island.fruit > 0 && world.hp < 12,
@@ -282,6 +305,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     Text("① 点地图上的树或石头，选中附近目标后点「采集」。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                     Text("② 长按或双击地图自动前往；途中按「停止前往」即可取消。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
                     Text("③ 沿路找到漂流补给箱，靠近后领取一次性物资；再建造家园。", color = Color(0xFFD1F0DF), fontSize = 12.sp)
+                    Text("④ 工作台并非开局自带：收集4木2石，选身旁空地，点「建工作台」。", color=Color(0xFFD1F0DF),fontSize=12.sp)
+                    Text("⑤ 在工作台2格内打开背包制作工具，篝火与床可以休息回血。", color=Color(0xFFD1F0DF),fontSize=12.sp)
                 }
             }
         }
@@ -386,16 +411,18 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         if (showRecipes) {
             Surface(color = Color(0xFF213D41), shape = RoundedCornerShape(17.dp)) {
                 Column(Modifier.fillMaxWidth().padding(11.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("靠近工作台制作工具 · 制作后永久放在背包", fontSize = 11.sp,
-                        color = Color(0xFFBFDCD0))
+                    Text(if (workbench == null) "没有工作台：先在空地建造，消耗4木2石"
+                        else if (!workbenchNear) "离工作台太远：靠近到2格内才能制作"
+                        else "已靠近工作台 · 制作工具后存入本岛背包", fontSize = 11.sp,
+                        color = if(workbenchNear) Color(0xFFB8F0D4) else Color(0xFFFFD2A8))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        IslandAction(if ("axe" in island.tools) "✓ 木斧" else "制作木斧", enabled = "axe" !in island.tools,
+                        IslandAction(if ("axe" in island.tools) "✓ 木斧" else "制作木斧", enabled = workbenchNear && "axe" !in island.tools && world.wood >= 2 && world.stone >= 1,
                             Modifier.weight(1f)) { perform("craft_axe", world.x, world.y) }
-                        IslandAction(if ("pickaxe" in island.tools) "✓ 石镐" else "制作石镐", enabled = "pickaxe" !in island.tools,
+                        IslandAction(if ("pickaxe" in island.tools) "✓ 石镐" else "制作石镐", enabled = workbenchNear && "pickaxe" !in island.tools && world.wood >= 2 && world.stone >= 2,
                             Modifier.weight(1f)) { perform("craft_pickaxe", world.x, world.y) }
-                        IslandAction(if ("sword" in island.tools) "✓ 石剑" else "制作石剑", enabled = "sword" !in island.tools,
+                        IslandAction(if ("sword" in island.tools) "✓ 石剑" else "制作石剑", enabled = workbenchNear && "sword" !in island.tools && world.wood >= 1 && world.stone >= 3,
                             Modifier.weight(1f)) { perform("craft_sword", world.x, world.y) }
-                        IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = "rod" !in island.tools,
+                        IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = workbenchNear && "rod" !in island.tools && world.wood >= 2 && world.stone >= 1,
                             Modifier.weight(1f)) { perform("craft_rod", world.x, world.y) }
                     }
                     Text("木斧 2木1石 · 石镐 2木2石 · 石剑 1木3石 · 鱼竿 2木1石",
@@ -483,6 +510,21 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         },
     )
 
+    if (showIslandGuideDialog) AlertDialog(
+        onDismissRequest = { showIslandGuideDialog = false },
+        title = { Text("方块小岛 · 怎么玩") },
+        text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
+            Text("开局只是一片可建设的空地，不是已经拥有房子。")
+            Text("① 方向键移动；点树木、石矿后靠近采集，长按地图可自动走向目标。")
+            Text("② 积攒4木2石，选中自己附近的空地，点「建工作台」。")
+            Text("③ 站在工作台2格内，打开「背包／探险」制作斧、镐、剑或鱼竿。")
+            Text("④ 收集物资建墙、地板、门、篝火与床；篝火或床旁可以休息回血。")
+            Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
+        }},
+        containerColor=Color(0xFF1A3439),
+        titleContentColor=Color.White, textContentColor=Color(0xFFBDD5CC),
+        confirmButton={TextButton(onClick={showIslandGuideDialog=false}){Text("明白啦")}},
+    )
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
