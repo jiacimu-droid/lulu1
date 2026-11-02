@@ -414,18 +414,31 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Text("朝向决定建造方向，选面前空地；也可点地图精确选位置。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            IslandBuildChip("♣ 种树", "1木", world.wood > 0 &&
-                BlockIslandRules.canPlantAt(island, aimedCell.first, aimedCell.second)) { perform("plant",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("▤ 地板", "1木", BlockIslandRules.canBuild(island, "floor", aimedCell.first, aimedCell.second)) { perform("floor",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("▥ 木墙", "2木", BlockIslandRules.canBuild(island, "wall", aimedCell.first, aimedCell.second)) { perform("wall",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("▣ 木门", "2木", BlockIslandRules.canBuild(island, "door", aimedCell.first, aimedCell.second)) { perform("door",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("⚒ 工作台", "4木2石", BlockIslandRules.canBuild(island, "workbench", aimedCell.first, aimedCell.second)) { perform("workbench",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("♨ 篝火", "2木1石", BlockIslandRules.canBuild(island, "campfire", aimedCell.first, aimedCell.second)) { perform("campfire",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("▱ 木床", "3木1石", BlockIslandRules.canBuild(island, "bed", aimedCell.first, aimedCell.second)) { perform("bed",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("▦ 木桥", "3木", BlockIslandRules.canBuild(island, "bridge", aimedCell.first, aimedCell.second)) { perform("bridge",aimedCell.first,aimedCell.second) }
-            IslandBuildChip("↶ 拆除", "退部分材料",
-                BlockIslandRules.canRemoveAt(island, aimedCell.first, aimedCell.second)) { perform("remove",aimedCell.first,aimedCell.second) }
+        val buildings = listOf(
+            Triple("⚒ 工作台","4木2石","workbench"), Triple("♨ 篝火","2木1石","campfire"),
+            Triple("▱ 木床","3木1石","bed"), Triple("▦ 木桥","3木","bridge"),
+            Triple("▥ 木墙","2木","wall"), Triple("▤ 地板","1木","floor"),
+            Triple("▣ 木门","2木","door"), Triple("♣ 种树","1木","plant"),
+            Triple("↶ 拆除","退部分材料","remove"),
+        )
+        Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
+            buildings.chunked(2).forEach { line ->
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    line.forEach { (label,cost,building) ->
+                        val canDo = when(building) {
+                            "plant" -> world.wood>0 && BlockIslandRules.canPlantAt(
+                                island,aimedCell.first,aimedCell.second)
+                            "remove" -> BlockIslandRules.canRemoveAt(
+                                island,aimedCell.first,aimedCell.second)
+                            else -> BlockIslandRules.canBuild(island,building,
+                                aimedCell.first,aimedCell.second)
+                        }
+                        IslandBuildChip(label,cost,canDo) {
+                            perform(building,aimedCell.first,aimedCell.second)
+                        }
+                    }
+                }
+            }
         }
         }
         if(menuSection=="制作") {
