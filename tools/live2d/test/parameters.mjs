@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
+import { kissCameraFrame, KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
@@ -20,7 +21,7 @@ const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
   /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
-  Array.from({ length: 48 }, (_, index) => String(index).padStart(2, '0')),
+  Array.from({ length: 49 }, (_, index) => String(index).padStart(2, '0')),
   'wolf motion indices are stable and contiguous across releases')
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
@@ -78,6 +79,22 @@ for (const filename of wolfMotionFiles) {
   assert.equal(motion.Meta.TotalSegmentCount, totalSegments, filename)
   assert.equal(motion.Meta.TotalPointCount, totalPoints, filename)
 }
+
+// The same action must be available in the standalone playground and real
+// character video decisions, with a pronounced close-up and neutral release.
+assert.equal(WOLF_KISS_MOTION_INDEX, 48)
+const kissMotion = JSON.parse(readFileSync(
+  new URL('48_kiss_close.motion3.json', wolfMotionDir), 'utf8'))
+assert.equal(kissMotion.Meta.Duration * 1000, KISS_CAMERA_DURATION_MS)
+assert.ok(kissMotion.Curves.some(c => c.Id === 'ParamBodyAngleY'))
+assert.ok(kissMotion.Curves.some(c => c.Id === 'ParamAngleZ'))
+assert.equal(kissCameraFrame(0).zoom, 1)
+assert.ok(kissCameraFrame(1200).zoom > 1.8, 'kiss approaches the camera closely')
+assert.ok(kissCameraFrame(2150).zoom > 1.8, 'kiss lingers close to the screen')
+assert.ok(kissCameraFrame(3000).zoom < 1.25, 'kiss withdraws smoothly')
+assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).zoom, 1)
+assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).finished, true)
+assert.equal(kissCameraFrame(Number.NaN).finished, true)
 
 // Opposite directions must mirror every controlled angle rather than
 // accidentally moving the body in the same direction. It is easy for a

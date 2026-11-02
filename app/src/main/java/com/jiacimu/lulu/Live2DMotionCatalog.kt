@@ -2,7 +2,7 @@ package com.jiacimu.lulu
 
 /**
  * Names, fits, suggested expression pairings and default face presets for
- * the shipped wolf motion pack (LuluWolf group, indices 00..47).
+ * the shipped wolf motion pack (LuluWolf group, indices 00..48).
  *
  * Every fits text first says when the clip fits, then, after
  * “；动作是”, exactly what the body does, so two clips sharing one
@@ -224,6 +224,16 @@ internal object Live2DMotionCatalog {
         47 to Entry(
             "疑惑双歪头", "没听懂、疑惑、满脸问号时；动作是头先歪向一边，没想通又歪向另一边（比01、02的单次歪头更懵）",
             face = curiousFace, faceNote = "先歪一边再歪另一边、满脸问号",
+        ),
+        48 to Entry(
+            "贴屏亲亲",
+            "亲昵地想亲一下对方时；动作是先注视对方，微歪头、上身缓缓前倾，真正贴近镜头轻轻嘟嘴闭眼亲一下，稍作停顿，再慢慢退回原位；无须手部动作",
+            expression = "脸红",
+            face = mapOf(
+                "pout" to 0.9f, "eyeOpen" to 0.12f, "eyeSmile" to 0.25f,
+                "smile" to 0.18f, "browY" to 0.06f,
+            ),
+            faceNote = "轻闭眼、嘟嘴、脸红，镜头贴近后自然退开",
         ),
     )
 

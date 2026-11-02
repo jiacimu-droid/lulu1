@@ -445,7 +445,14 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                         fontSize = 12.sp)
                 }
                 if (!touchCalibrationMode) {
-                    TextButton(onClick = ::reset) { Text("复位", color = Color.White, fontSize = 12.sp) }
+                    if (("LuluWolf" to 48) in controls.motions) {
+                        // Only the standalone playground exposes a manual kiss audition.
+                        TextButton(onClick = { playMotion("LuluWolf", 48) }) {
+                            Text("试亲亲", color = Color(0xFFFFD5E8), fontSize = 12.sp)
+                        }
+                    } else {
+                        TextButton(onClick = ::reset) { Text("复位", color = Color.White, fontSize = 12.sp) }
+                    }
                 }
             }
             if (touchCalibrationMode) {

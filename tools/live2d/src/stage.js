@@ -1,4 +1,5 @@
 import { installPhysicsFrameControl } from './physics-frame-control.mjs'
+import { kissCameraFrame, WOLF_KISS_MOTION_INDEX } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
 import { isScenePixel, hasAvatarPixels } from './scene-pixels.mjs'
@@ -213,6 +214,8 @@ let faceRequest = null
 let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
 let authoredMotion = null
+let kissCameraLease = null
+let cameraBasePose = null
 // A model-authored sequence for the CURRENT audible TTS fragment only.
 // Never loop an arbitrary clip or manufacture another character gesture.
 let speechMotionFollowUps = []
@@ -324,7 +327,34 @@ function fit() {
   model.scale.set(Math.min(widthTarget / originalWidth, heightTarget / originalHeight))
   model.anchor.set(.5, .5)
   model.position.set(viewWidth / 2, viewHeight * (isPortrait ? 1.00 : .49))
+  cameraBasePose = {
+    model, width: viewWidth, height: viewHeight,
+    scale: model.scale.x, x: model.position.x, y: model.position.y,
+  }
+  applyKissCameraPose()
   drawCalibrationGuide()
+}
+// Keep the original camera framing as the sole baseline. A genuine Motion3
+// starts the close-up; neither a queued cue nor a rejected clip may zoom.
+function applyKissCameraPose(now = performance.now()) {
+  const base = cameraBasePose
+  if (!base || !model || base.model !== model) return
+  const active = kissCameraLease?.model === model ? kissCameraLease : null
+  const frame = active ? kissCameraFrame(now - active.startedAt) :
+    { zoom: 1, finished: true }
+  if (frame.finished) kissCameraLease = null
+  const zoom = frame.zoom
+  // Zoom around the face/mouth, not the torso or screen bottom.
+  const focusX = base.width * 0.5
+  const focusY = base.height * 0.42
+  model.scale.set(base.scale * zoom)
+  model.position.set(focusX + (base.x - focusX) * zoom,
+    focusY + (base.y - focusY) * zoom)
+}
+function cancelKissCamera() {
+  if (!kissCameraLease) return
+  kissCameraLease = null
+  applyKissCameraPose()
 }
 function setFramingMode(nextMode) {
   framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
@@ -689,6 +719,7 @@ function ensureApp() {
   app.ticker.add(() => {
     const started = performance.now()
     try {
+      applyKissCameraPose(started)
       app.render()
       recordRenderTick(performance.now() - started, performance.now())
     } catch (error) {
@@ -809,6 +840,8 @@ async function load(modelURL) {
       app.stage.removeChild(model)
       model.destroy({ texture: true, baseTexture: true })
       model = null
+      kissCameraLease = null
+      cameraBasePose = null
     }
     // A new moc3 has different parameter indices and visual state.
     // Neither a prior call's eye/pose interpolation nor its queued speech
@@ -1670,6 +1703,7 @@ function resetSpeechExpression() {
   activeExpressionIsPreview = false
 }
 function clearSpeechMoment() {
+  cancelKissCamera()
   motionTransition.cancel()
   resetSpeechExpression()
   mouthExpressionGate.reset()
@@ -1858,6 +1892,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       authoredMotion.index === index &&
       (!authoredMotion.started ||
         target.internalModel?.motionManager?.isFinished?.() !== true)) return
+  cancelKissCamera()
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source,
     visualSequence: scoreVisualSequence, segmentId: options.segmentId || '' }
@@ -1876,6 +1911,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     if (revision !== motionRevision || target !== model ||
         authoredMotion !== chosen) return
     authoredMotion = null
+    cancelKissCamera()
     speechMotionFollowUps = []
     if (source === 'character') notify('motion-failed', JSON.stringify({
       sequence: chosen.visualSequence, group, index,
@@ -1908,11 +1944,15 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       segmentId: chosen.segmentId, source })
     if (ok === false) {
       authoredMotion = null
+      cancelKissCamera()
       speechMotionFollowUps = []
       if (source === 'character') notify('motion-failed', receipt)
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
     } else {
       chosen.started = true
+      if (wolfRigActive && group === 'LuluWolf' && index === WOLF_KISS_MOTION_INDEX) {
+        kissCameraLease = { model: target, revision, startedAt: performance.now() }
+      }
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
       if (source === 'character') notify('motion-started', receipt)
       notify('diagnostic', 'Motion3 已启动：' + group + '#' + index)

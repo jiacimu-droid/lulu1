@@ -142,6 +142,11 @@ internal fun Live2DFullscreenVideoCall(
     val actualSpeech by Live2DSpeechTimeline.events.collectAsState()
     val avatarPresentations by AvatarController.states.collectAsState()
     val avatarPresentation = avatarPresentations[characterId]
+    // The intimate kiss clip is a character-chosen video action, not a manual
+    // command from the in-call motion audition. The playground can test it.
+    val manualMotionOptions = availableAnimations.motions.filterNot {
+        it.first == "LuluWolf" && it.second == 48
+    }
     val cue = cues[characterId]?.takeIf { it.callId == state.callExperienceId }
     DisposableEffect(characterId, state.callExperienceId) {
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
@@ -555,7 +560,7 @@ internal fun Live2DFullscreenVideoCall(
         if (motionPickerExpanded) {
             AlertDialog(
                 onDismissRequest = { motionPickerExpanded = false },
-                title = { Text("模型动作 · ${availableAnimations.motions.size}") },
+                title = { Text("模型动作 · ${manualMotionOptions.size}") },
                 text = {
                     Column(Modifier.heightIn(max = 420.dp)
                         .verticalScroll(rememberScrollState())) {
@@ -567,7 +572,7 @@ internal fun Live2DFullscreenVideoCall(
                             "微微抬下巴", "身体向左轻晃", "身体向右轻晃",
                             "好奇探身", "开心弹跳", "左右换重心",
                         )
-                        availableAnimations.motions.forEach { selected ->
+                        manualMotionOptions.forEach { selected ->
                             val label = if (selected.first == "LuluWolf")
                                 names.getOrNull(selected.second) ?: "动作 ${selected.second + 1}"
                             else "${selected.first} · ${selected.second + 1}"
@@ -726,9 +731,9 @@ internal fun Live2DFullscreenVideoCall(
                                 leadingIcon = { Icon(Icons.Outlined.Face, null) },
                             )
                         }
-                        if (availableAnimations.motions.isNotEmpty()) {
+                        if (manualMotionOptions.isNotEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("模型动作 · ${availableAnimations.motions.size}") },
+                                text = { Text("模型动作 · ${manualMotionOptions.size}") },
                                 onClick = {
                                     videoMenuExpanded = false
                                     motionPickerExpanded = true
