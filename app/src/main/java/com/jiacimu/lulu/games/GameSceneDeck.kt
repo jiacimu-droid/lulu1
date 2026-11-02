@@ -76,23 +76,32 @@ internal fun GameSceneDeck(
         Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(
             Color(0x7909151D), Color.Transparent, Color.Transparent, Color(0x7909151D),
         ))))
-        Surface(
-            modifier = Modifier.align(Alignment.TopStart).padding(start = 9.dp, top = 5.dp)
-                .widthIn(max = if (wide) maxWidth * .48f else maxWidth * .59f),
-            color = Color(0xD9132932), shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, accent.copy(alpha = .30f)),
+        // Measure the HUD naturally: on narrow screens and with large fonts,
+        // status can wrap to two lines. A fixed 44dp notice offset overlapped it.
+        Column(
+            modifier = Modifier.align(Alignment.TopStart)
+                .padding(start = 9.dp, top = 5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            Text(status, color = Color.White, fontSize = 12.sp, maxLines = 2,
-                modifier = Modifier.padding(horizontal = 9.dp, vertical = 7.dp))
-        }
-        if (notice.isNotBlank()) {
             Surface(
-                modifier = Modifier.align(Alignment.TopStart).padding(start = 9.dp, top = 44.dp)
-                    .widthIn(max = if (wide) maxWidth * .42f else maxWidth * .56f),
-                color = Color(0xA0102630), shape = RoundedCornerShape(9.dp),
+                modifier = Modifier.widthIn(
+                    max = if (wide) maxWidth * .48f else maxWidth * .59f),
+                color = Color(0xD9132932), shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, accent.copy(alpha = .30f)),
             ) {
-                Text(notice, color = Color(0xFFE5EEE9), fontSize = 11.sp,
-                    maxLines = 2, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+                Text(status, color = Color.White, fontSize = 12.sp, maxLines = 2,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 7.dp))
+            }
+            if (notice.isNotBlank()) {
+                Surface(
+                    modifier = Modifier.widthIn(
+                        max = if (wide) maxWidth * .42f else maxWidth * .56f),
+                    color = Color(0xA0102630), shape = RoundedCornerShape(9.dp),
+                ) {
+                    Text(notice, color = Color(0xFFE5EEE9), fontSize = 11.sp,
+                        maxLines = 2,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+                }
             }
         }
         if (companionAvailable) {
