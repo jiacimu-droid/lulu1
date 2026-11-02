@@ -289,11 +289,11 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                     characterOverrides = emptyMap(),
                     promptPosition = WorldBookPromptPosition.BOTTOM,
                 )
-                check(storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
-                    .putBoolean(KEY_HUMAN_CHAT_SEEDED, true).commit()) {
-                    "现代聊天世界书初始化保存失败"
-                }
-                entries.value = initial
+                // Optional reference must not prevent the entire app from opening
+                // if Android temporarily rejects a preferences write.
+                val saved = storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
+                    .putBoolean(KEY_HUMAN_CHAT_SEEDED, true).commit()
+                entries.value = if (saved) initial else stored
             } else entries.value = stored
         }
     }
