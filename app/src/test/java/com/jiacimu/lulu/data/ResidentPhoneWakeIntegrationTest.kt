@@ -243,6 +243,15 @@ class ResidentPhoneWakeIntegrationTest {
         assertTrue(event.content.contains("你们已成为好友"))
         assertEquals(1, CharacterFriendRequests.historyFor(from)
             .count { it.id == requested.id }) // one durable evolving application
+        val worldReceipts = DigitalWorldBulletin.collect(
+            DigitalWorldState(), emptyList(), emptyList(),
+            CharacterFriendRequests.acceptedForWorld())
+        val acceptance = worldReceipts.single { it.id == "friend-accepted:${requested.id}" }
+        assertEquals(accepted.resolvedAt, acceptance.occurredAt)
+        assertTrue(acceptance.title.contains("好友已添加"))
+        val updatedContext = CharacterEverydaySocialContext.render(from)
+        assertTrue(updatedContext.contains("最近确认的好友关系"))
+        assertTrue(updatedContext.contains("targetCharacterId=$to"))
     }
 
     @Test fun failedPredecessorSkipsOnlyDependentStepsAndPreservesLegacyReceiptIds() = runBlocking {
