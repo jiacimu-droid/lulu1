@@ -53,6 +53,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         mutableStateOf<Pair<Int, Int>?>(null)
     }
     var confirmAbandon by remember{mutableStateOf(false)}
+    var confirmRestart by remember{mutableStateOf(false)}
+    var showRulesDialog by remember{mutableStateOf(false)}
     var showGuide by remember(run?.id){mutableStateOf(true)}
     var showAdvanced by remember(run?.id){mutableStateOf(false)}
     var showBag by remember(run?.id){mutableStateOf(false)}
@@ -131,6 +133,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     TextButton(onClick = { cameraFocus = null; selected = hero.x to hero.y }) {
                         Text("定位你", color = relicGold, fontSize = 11.sp)
                     }
+                    TextButton(onClick = { showRulesDialog = true }) {
+                        Text("玩法", color = relicGreen, fontSize = 11.sp)
+                    }
+                    TextButton(onClick = { action("survey") },
+                        enabled = RelicEscapeRules.canSurvey(run)) {
+                        Text("侦察", color = relicGreen, fontSize = 11.sp)
+                    }
                     run.allies.forEach { ally ->
                         val name = MigratedDomainStores.characters.get(ally.id).displayName
                         TextButton(onClick = {
@@ -155,19 +164,22 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
                 val quickHint = relicQuickAction(run, selected)?.hint
+                val attackTarget = relicAttackTarget(run, selected)
                 Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
+                if (attackTarget == null) Text(relicAttackHint(run, selected),
+                    color = relicMuted, fontSize = 10.sp, maxLines = 2)
                 val sx = selected.first
                 val sy = selected.second
                 val visible = run.visible(sx, sy)
                 val adjacent = RelicEscapeRules.distance(hero.x, hero.y, sx, sy) <= 1
-                val enemy = run.mobs.any { it.hp > 0 && it.x == sx && it.y == sy }
                 val chest = run.chests.any { !it.opened && it.x == sx && it.y == sy }
-                val moveStep = if (visible) RelicEscapeRules.path(run, hero.x, hero.y, sx, sy) else null
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    GameHudQuickAction(RelicArsenal.label(run.equipped)+"攻击", relicGold,
-                        run.phase != RelicPhase.DOWNED && enemy && RelicArsenal.canHit(run,sx,sy),
-                        Modifier.weight(1f)) { action("attack", sx, sy) }
+                    GameHudQuickAction(if (attackTarget != null && selected != (attackTarget.x to attackTarget.y))
+                            "攻击近敌" else RelicArsenal.label(run.equipped)+"攻击", relicGold,
+                        attackTarget != null, Modifier.weight(1f)) {
+                        attackTarget?.let { action("attack", it.x, it.y) }
+                    }
                     GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && chest,
                         Modifier.weight(1f)) { action("open", sx, sy) }
                 }
@@ -192,14 +204,10 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text(if(run == null) "进入遗迹" else if(run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT))
                     "再次出发" else quick?.label ?: "点选地图目标",fontSize=12.sp,maxLines=1)
             }
-            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) {
-                TextButton(onClick = { action("survey") },
-                    enabled = RelicEscapeRules.canSurvey(run)) {
-                    Text("◉ 侦察", color = if (RelicEscapeRules.canSurvey(run)) relicGreen else relicMuted,
-                        fontSize = 11.sp)
+            if (run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
+                TextButton(onClick = { confirmRestart = true }) {
+                    Text("↻ 重开", color = relicGold, fontSize = 11.sp)
                 }
-            } else if (run?.phase == RelicPhase.DOWNED) {
-                TextButton(onClick = { action("wait") }) { Text("等待救援",color=Color.White) }
             }
         },
         tools = {
@@ -514,6 +522,36 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         }
     }
         },
+    )
+    if(showRulesDialog)AlertDialog(
+        onDismissRequest={showRulesDialog=false}, containerColor=relicInk,
+        titleContentColor=Color.White, textContentColor=relicMuted,
+        title={Text("迷雾摸金 · 怎么玩")},
+        text={Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
+            Text("移动：左侧方向键每次走一格，点地图可选目标；点「定位你」回到自己。")
+            Text("战斗：附近有可攻击的敌人会自动显示「攻击近敌」，无需反复点怪。短剑只打上下左右1格；长矛直线2格，弩弓直线4格并消耗弩箭。")
+            Text("探索：靠近宝箱开箱，侦察会消耗一回合；敌人也会随你的行动移动或攻击。")
+            Text("撤离：到绿门附近启动撤离，守住3回合才能带走战利品；没赶到门附近的伙伴可能掉队。")
+            Text("重开：点画面右下「重开」并确认；会失去当前未撤离的宝物和已消耗的补给，永久仓库不清空。")
+        }},
+        confirmButton={TextButton(onClick={showRulesDialog=false}) { Text("开始探索",color=relicGold) }},
+    )
+    if(confirmRestart)AlertDialog(
+        onDismissRequest={confirmRestart=false}, containerColor=relicInk,
+        titleContentColor=Color.White, textContentColor=relicMuted,
+        title={Text("重新开始这局摸金？")},
+        text={Text("当前局将按中途撤离失败结算，失去未带出的战利品和已消耗补给；永久仓库与铜币保留。新局将随机生成地图。")},
+        confirmButton={TextButton(onClick={
+            change {
+                val ended=ledger.perform("abandon")
+                snapshot=ended
+                ledger.syncExperiences(ended,store)
+                ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),
+                    kits.coerceAtMost(ended.kits))
+            }
+            confirmRestart=false
+        }){Text("放弃并重开",color=relicGold)}},
+        dismissButton={TextButton(onClick={confirmRestart=false}){Text("继续本局",color=relicMuted)}},
     )
     if(confirmAbandon)AlertDialog(onDismissRequest={confirmAbandon=false},
         containerColor=relicInk,titleContentColor=Color.White,textContentColor=relicMuted,
