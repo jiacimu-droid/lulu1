@@ -13,8 +13,15 @@ class Live2DMotionCatalogTest {
     )
 
     @Test fun catalogCoversWholeWolfPackExactlyOnce() {
-        assertEquals((0..47).toSet(), Live2DMotionCatalog.entries.keys)
-        assertEquals(48, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
+        assertEquals((0..48).toSet(), Live2DMotionCatalog.entries.keys)
+        assertEquals(49, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
+    }
+
+    @Test fun kissIsAnExplicitCharacterSelectableWolfMotion() {
+        val kiss = Live2DMotionCatalog.entries[48]
+        assertEquals("贴屏亲亲", kiss?.name)
+        assertTrue(kiss?.fits?.contains("镜头") == true)
+        assertTrue((kiss?.face?.get("pout") ?: 0f) > 0.8f)
     }
 
     @Test fun everyEntryHasUsableNameFitsAndRealReferences() {
