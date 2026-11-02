@@ -42,6 +42,36 @@ class RelicQuickActionTest {
         assertEquals("wait", relicQuickAction(map, map.hero.x to map.hero.y)?.action)
     }
 
+    @Test fun adjacentEnemyCanBeAttackedWithoutMovingCursorOffPlayer() {
+        val original = run()
+        val x = original.hero.x + 1
+        val y = original.hero.y
+        val map = RelicEscapeRules.reveal(original.copy(
+            mobs = listOf(RelicMob(81, x, y, 5, 0))))
+        val cursor = map.hero.x to map.hero.y
+        assertEquals(81, relicAttackTarget(map, cursor)?.id)
+        val primary = relicQuickAction(map, cursor)!!
+        assertEquals("attack", primary.action)
+        assertEquals(x, primary.x)
+        assertEquals(y, primary.y)
+        val after = RelicEscapeRules.act(map, primary.action, primary.x, primary.y)
+        assertTrue(after.turns > map.turns)
+        assertTrue(after.mobs.first().hp < map.mobs.first().hp)
+    }
+
+    @Test fun selectedHittableEnemyWinsButDistantMonsterIsNotAttacked() {
+        val original = run()
+        val h = original.hero
+        val near = RelicMob(82, h.x + 1, h.y, 5, 0)
+        val another = RelicMob(83, h.x, h.y + 1, 5, 0)
+        val map = RelicEscapeRules.reveal(original.copy(mobs = listOf(near, another)))
+        assertEquals(83, relicAttackTarget(map, another.x to another.y)?.id)
+        assertEquals(82, relicAttackTarget(map, h.x to h.y)?.id)
+        val far = map.copy(mobs = listOf(RelicMob(84, h.x + 3, h.y, 5, 0)))
+        assertNull(relicAttackTarget(far, far.hero.x to far.hero.y))
+        assertFalse(relicAttackHint(far, h.x + 3 to h.y).isBlank())
+    }
+
     @Test fun enemyCanBeAttackedOnlyWhenCloseAndSeen() {
         val original = run()
         val x = original.hero.x + 1
