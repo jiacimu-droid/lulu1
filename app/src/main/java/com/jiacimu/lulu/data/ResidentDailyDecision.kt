@@ -2033,6 +2033,7 @@ internal object ResidentDailyDecision {
             ResidentCharacterBridge.sync(app, now)
             ResidentSocialMailbox.initialize(app)
             CharacterPhoneInbox.initialize(app)
+            CharacterInnerLifeStore.initialize(app)
             val native = ResidentCharacterBridge.nativeResident(characterId)
                 ?: return@withLock false
             val stimulus = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
@@ -2079,8 +2080,14 @@ internal object ResidentDailyDecision {
                     不要替别人答应好友，不把已发的申请当成已成为好友。
                     可以一次选择多项独立动作，各自由工具核验；不要求凑数量，
                     也不因为收件就必须回复。所有收件人、帖子和申请必须用实际ID。
+                    如果这条真实来信或好友确认令你产生了新的心情、想法或对对方的印象，
+                    可以在同一份决定里附带 innerLife，例如 emotion(feeling,cause)、
+                    social(targetId,interpretation,reason,dimensions)。只填写自己真实产生的感受，
+                    social.targetId 必须是本轮确实见证的来信者或好友申请对方的ID；
+                    没有变化时不必填写。不能替对方写心理或宣告双方关系升级。
                     只输出JSON：{"steps":[{"tool":"send_character_message|send_friend_request|respond_friend_request|publish_moment|like_moment|comment_moment|send_group_message|create_group_chat|digital_world_action|play_solo_game|reschedule_personal_activity|cancel_personal_activity","args":{},"requiresPreviousSuccess":false}]}
-                    没有要执行的动作时输出 {"steps":[]}。工具参数按上方本人可用能力目录填写。
+                    可选同时附带 "innerLife":{"emotion":{"feeling":"本人感受","cause":"真实触发"},"social":{"targetId":"真实对方ID","interpretation":"自己的印象","reason":"亲眼见证的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same"}}}}。
+                    没有要执行的动作时输出 {"steps":[]}；没有心理变化时省略 innerLife。工具参数按上方本人可用能力目录填写。
                     不得编造已见面、已发信、已发帖或对方已经回应。
                 """.trimIndent()
                 val initial = LuluAiServices.gateway.generate(
@@ -2157,6 +2164,16 @@ internal object ResidentDailyDecision {
                     characterId, listOf(stimulus, decisionSource)) {}) {
                 p.edit().putString(phaseKey, "source_unavailable").commit()
                 return@withLock false
+            }
+            // The phone stimulus is evidence of what this person really saw.
+            // Reuse the exact inner-life authority used by daily decisions;
+            // a social-notice decision must not become an action-only dead end.
+            // Only a witnessed counterpart can own a new subjective impression.
+            decided.optJSONObject("innerLife")?.let { innerLife ->
+                val witnessed = CharacterPerceptionContext.stimulus(stimulus)
+                CharacterInnerLifeStore.observe(
+                    characterId, stimulus.id, witnessed.description, innerLife,
+                    witnessed.socialIds, now)
             }
             val report = executeWakeStepsReport(app, characterId, decided, decisionId,
                 causeEvidenceId = decisionSource.id)
