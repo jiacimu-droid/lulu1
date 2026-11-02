@@ -681,6 +681,7 @@ private fun BlockIslandCanvas(
     onNavigate: (Int, Int) -> Unit,
     fullscreen: Boolean = false,
     companionPing: Pair<Int, Int>? = null,
+    buildPreview: IslandBuildPreview? = null,
 ) {
     val w = island.world
     val playerVisual = islandActorPosition(w.seed,"player",w.x,w.y)
@@ -737,6 +738,7 @@ private fun BlockIslandCanvas(
                 playerVisual = playerVisual, companionVisuals = companionVisuals, camera = camera,
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
+                buildPreview = buildPreview,
             )
         }
     }
