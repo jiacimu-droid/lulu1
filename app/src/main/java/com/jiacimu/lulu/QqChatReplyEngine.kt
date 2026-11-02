@@ -161,6 +161,8 @@ internal data class CharacterReplyPresentation(
     val bubbleDeliveryModes: List<String> = emptyList(),
     /** Same order as bubbles; distinct from the public text and memory. */
     val bubbleSpeechTracks: List<String> = emptyList(),
+    /** Validated structured bubbles have already been deliberately paced by the model. */
+    val preserveAuthoredBubbleBoundaries: Boolean = false,
 )
 
 internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresentation = CharacterReplyPresentation(
@@ -278,7 +280,12 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
     val legacyVoiced = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
     return authored.flatMapIndexed { sourceIndex, sourceText ->
         // Step 1: ordinary chat presentation, independent of "voice" or "text".
-        val textBubbles = semanticReplyBubbles(sourceText)
+        val textBubbles = if (presentation.preserveAuthoredBubbleBoundaries) {
+            // The model already decided these are distinct speaking acts.
+            // Do not divide an authored line into extra messages by punctuation
+            // or length after the model has chosen its exact rhythm.
+            listOf(sourceText)
+        } else semanticReplyBubbles(sourceText)
         // Step 2: apply the character's original mode selection to those bubbles.
         val legacyIndex = legacyVoiced.indexOfFirst { it == sourceText }
         val voice = if (positionAligned) {
