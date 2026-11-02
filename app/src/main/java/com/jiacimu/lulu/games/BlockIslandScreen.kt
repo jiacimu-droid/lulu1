@@ -316,16 +316,19 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     color = Color(0xFFEBFBEC), fontSize = 12.sp)
             }
         }
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement=Arrangement.spacedBy(7.dp)) {
-            listOf("探索","建造","制作","行囊","伙伴","设置").forEach { section ->
-                FilterChip(selected=menuSection==section,onClick={menuSection=section},
-                    label={Text(section,fontSize=11.sp)},
-                    colors=FilterChipDefaults.filterChipColors(
-                        selectedContainerColor=Color(0xFFA9E5BD),
-                        selectedLabelColor=Color(0xFF12342D),
-                        labelColor=Color(0xFFD0E8DB)),
-                    modifier=Modifier.height(34.dp))
+        Column(verticalArrangement=Arrangement.spacedBy(2.dp)) {
+            listOf("探索","建造","制作","行囊","伙伴","设置").chunked(3).forEach { sections ->
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+                    sections.forEach { section ->
+                        FilterChip(selected=menuSection==section,onClick={menuSection=section},
+                            label={Text(section,fontSize=11.sp)},
+                            colors=FilterChipDefaults.filterChipColors(
+                                selectedContainerColor=Color(0xFFA9E5BD),
+                                selectedLabelColor=Color(0xFF12342D),
+                                labelColor=Color(0xFFD0E8DB)),
+                            modifier=Modifier.height(34.dp))
+                    }
+                }
             }
         }
         if (menuSection=="探索" || menuSection=="行囊") {
