@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T17:51:47.046396+00:00",
-  "commit": "3dcc648f4dd450e863882ab8a289b5199f555220",
+  "generatedAt": "2026-11-02T17:56:22.504461+00:00",
+  "commit": "4e8362cffb2bc88510d5c07975fe5af28ffdc7cf",
   "branch": "main",
-  "sourceFingerprint": "9fc0f4cf0615a38866ba70479fec0409ece10b99a0b06be21e282375f8489e6a",
+  "sourceFingerprint": "678b653b77c501dfc11b2cd779c67e0a8e297a95f7ddca60ae11b2ed2cbec545",
   "summary": {
     "files": 1121,
-    "lines": 230356,
+    "lines": 230360,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -31614,8 +31614,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 325,
-      "sha256": "2d1394a2f05c3a6dc62a2d86687554c16ad05fba31e34ab9758cd3e322b03fd6",
+      "lines": 329,
+      "sha256": "28d312a3494953ea7ddcb7c7074ecf5c2962d84f8dcdce4d696843c98d4044ca",
       "symbols": []
     },
     {
