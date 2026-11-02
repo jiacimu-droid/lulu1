@@ -1768,8 +1768,10 @@ object LuluDeviceToolBridge {
                     onCharacterHangup?.invoke()
             }
             val displayedText = if (!sceneContext.contains("电话")) {
+                // A valid tool-result reply may have many distinct speaking beats.
+                // Never fuse all messages after the eighth into a giant tail bubble.
                 com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
-                    listOf(checkedResultText), maxBubbles = 8,
+                    listOf(checkedResultText), maxBubbles = Int.MAX_VALUE,
                 ).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
             } else checkedResultText
             result.copy(
