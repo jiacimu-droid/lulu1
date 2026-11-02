@@ -79,6 +79,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var menuSection by rememberSaveable { mutableStateOf("探索") }
     var buildMode by remember(world.seed) { mutableStateOf<String?>(null) }
     var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
+    // A recipe may be tapped again; an integer event always dismisses the tools panel.
+    var dismissToolsVersion by remember { mutableIntStateOf(0) }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
@@ -222,7 +224,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
         toolsLabel = "☰ 游戏菜单",
-        closeToolsSignal = buildMode,
+        closeToolsSignal = dismissToolsVersion,
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
@@ -234,8 +236,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 onNavigate = { x, y ->
                     target = x to y
                     mapAim = true
-                    navigateTo = (x to y).takeUnless { it == (world.x to world.y) }
-                    if (navigateTo != null && hapticsEnabled)
+                    // Long-press must only aim while building. It must not walk away
+                    // from the work area or spend a turn on an unexpected move.
+                    navigateTo = if(buildMode!=null) null
+                        else (x to y).takeUnless { it == (world.x to world.y) }
+                    if (hapticsEnabled)
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
@@ -273,9 +278,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         },
         quickActions = {
             val statusHint = if (buildMode != null) {
-                val condition = if (buildReady) "绿色可放置 · 移动后继续建造"
-                    else "红色不可放置 · 检查材料或位置"
-                IslandBuildingControls.label(buildMode) + " · " + condition
+                val colorHint = if(buildReady) "绿色" else "红色"
+                IslandBuildingControls.label(buildMode) + " · " + colorHint + " · " +
+                    (buildPreview?.message ?: "请选择地图中的位置")
             } else {
                 val interaction = if(mapAim) "已选中 $targetTitle"
                     else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"
@@ -301,23 +306,37 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
                 color=Color(0xFFF0FFE9),fontSize=10.sp,maxLines=1)
-            // One thumb-friendly action row; building stays selected across placements.
+            // Keep the world visible while browsing recipes with the right thumb.
+            // Browsing never calls the game rules or spends a turn.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                GameHudQuickAction("采集", Color(0xFFA9E5BD),
-                    enabled = nearbyGather != null, modifier = Modifier.weight(1f)) {
-                    nearbyGather?.let { perform(it.action,it.x,it.y) }
-                }
-                GameHudQuickAction("攻击", Color(0xFFFFC9AE),
-                    enabled = nearbyFight != null, modifier = Modifier.weight(1f)) {
-                    nearbyFight?.let { perform(it.action,it.x,it.y) }
-                }
-                GameHudQuickAction(if(buildMode==null) "建造" else "退出建造",
-                    Color(0xFFE7D59C), modifier=Modifier.weight(1f)) {
-                    if(buildMode==null) {
+                if(buildMode!=null) {
+                    GameHudQuickAction("◀ 上个",Color(0xFFA9E5BD),
+                        modifier=Modifier.weight(1f)) {
+                        buildMode=IslandBuildingControls.cycle(buildMode,-1)
+                        lastBuildMode=buildMode!!
+                    }
+                    GameHudQuickAction("下个 ▶",Color(0xFFA9E5BD),
+                        modifier=Modifier.weight(1f)) {
+                        buildMode=IslandBuildingControls.cycle(buildMode,1)
+                        lastBuildMode=buildMode!!
+                    }
+                    GameHudQuickAction("退出",Color(0xFFE7D59C),
+                        modifier=Modifier.weight(1f)) { buildMode=null }
+                } else {
+                    GameHudQuickAction("采集", Color(0xFFA9E5BD),
+                        enabled = nearbyGather != null, modifier = Modifier.weight(1f)) {
+                        nearbyGather?.let { perform(it.action,it.x,it.y) }
+                    }
+                    GameHudQuickAction("攻击", Color(0xFFFFC9AE),
+                        enabled = nearbyFight != null, modifier = Modifier.weight(1f)) {
+                        nearbyFight?.let { perform(it.action,it.x,it.y) }
+                    }
+                    GameHudQuickAction("建造", Color(0xFFE7D59C),
+                        modifier=Modifier.weight(1f)) {
                         buildMode=lastBuildMode
                         mapAim=false
                         navigateTo=null
-                    } else buildMode=null
+                    }
                 }
             }
         },
@@ -472,7 +491,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="建造") {
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text("先选建筑，再看地图绿色落点；关闭菜单后点击「放置」。方向键移动，连续放置无需重复选建筑。",
+        Text("选好建材会直接回到地图。绿色可建、红色不能建；右手快捷栏可换建材，长按地图只选位置、不自动走路。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
             IslandBuildingControls.recipes.chunked(2).forEach { line ->
@@ -485,6 +504,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                             lastBuildMode=recipe.action
                             mapAim=false
                             navigateTo=null
+                            dismissToolsVersion++
                         }
                     }
                 }
@@ -631,7 +651,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Text("① 方向键移动并决定朝向，走到树、矿或怪物旁，直接用右手采集或攻击，不必点地图。")
             Text("② 收集4木2石，从「游戏菜单 → 建造」选工作台。地图绿色表示可放，红色表示位置或材料不满足。")
             Text("③ 站在工作台2格内，打开「游戏菜单 → 制作」制造斧、镐、剑或鱼竿。")
-            Text("④ 选中的建筑会一直保留，可以移动后继续放置；点「退出建造」恢复普通交互。篝火、床旁可休息。")
+            Text("④ 建造模式可用「上个／下个」切换材料；点或长按地图选位置，确认后实际扣材料。退出建造恢复采集与攻击。")
             Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
         containerColor=Color(0xFF1A3439),
