@@ -287,12 +287,33 @@ internal object BlockIslandArt {
             val fade = (1f - impactProgress).coerceIn(0f, 1f)
             drawCircle(color.copy(alpha = fade * .8f), tile * (.22f + impactProgress * .85f),
                 point, style = Stroke((tile * .075f * fade).coerceAtLeast(.8f)))
-            repeat(6) { i ->
+            repeat(if (impact.action == "fight") 9 else 6) { i ->
                 val angle = i * 1.04719f + phase
                 val radius = tile * (.18f + .77f * impactProgress)
                 val particle = point + Offset(cos(angle) * radius, sin(angle) * radius)
-                drawRect(color.copy(alpha = fade), particle,
-                    Size(tile * .10f * fade, tile * .10f * fade))
+                if(impact.action=="fight") {
+                    drawLine(color.copy(alpha=fade),particle,
+                        particle+Offset(cos(angle)*tile*.13f,sin(angle)*tile*.13f),
+                        strokeWidth=(tile*.06f*fade).coerceAtLeast(.8f))
+                } else {
+                    drawRect(color.copy(alpha = fade), particle,
+                        Size(tile * .10f * fade, tile * .10f * fade))
+                }
+            }
+            // Actual material/health delta from the successfully applied game action.
+            // Text floats above the hit tile; a rejected action never creates this effect.
+            if(impact.label.isNotBlank()) {
+                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                    color = (if(impact.action=="fight") Color(0xFFFFD3B8)
+                        else Color(0xFFE8FFE1)).copy(alpha=fade).toArgb()
+                    textAlign=android.graphics.Paint.Align.CENTER
+                    typeface=android.graphics.Typeface.create(
+                        android.graphics.Typeface.DEFAULT,android.graphics.Typeface.BOLD)
+                    textSize=(tile*.34f).coerceAtLeast(13f)
+                    setShadowLayer(tile*.06f,0f,2f,Color(0xFF112B27).copy(alpha=fade).toArgb())
+                }
+                drawContext.canvas.nativeCanvas.drawText(impact.label,
+                    point.x,point.y-tile*(.36f+impactProgress*.65f),paint)
             }
         }
     }
