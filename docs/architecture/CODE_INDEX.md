@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ec253513b79fcdb053deb2174cbf8a530d8e7a37`
+- 基准提交：`e0fc8a89bef7c7c2ea24bf273f8c508549f5b973`
 - 分支：`main`
-- 已索引文件：1120
-- 已索引代码/文本行：230017
+- 已索引文件：1121
+- 已索引代码/文本行：230287
 - 已发现符号：3239
 
 | 文件 | 行数 | 符号数 |
@@ -60,6 +60,7 @@
 | `app/src/main/assets/live2d/wolf-motions/45_nervous_fidget.motion3.json` | 127 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/46_resigned_sigh.motion3.json` | 142 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/47_confused_double_tilt.motion3.json` | 120 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/48_kiss_close.motion3.json` | 248 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -163,16 +164,16 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DDialoguePlan.kt` | 98 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 989 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 994 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DGpuSurfacePresentation.kt` | 300 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 427 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 241 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 251 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionMetadata.kt` | 22 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 215 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 566 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 573 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt` | 107 | 4 |

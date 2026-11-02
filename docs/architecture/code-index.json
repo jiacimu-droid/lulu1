@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T17:09:21.652645+00:00",
-  "commit": "ec253513b79fcdb053deb2174cbf8a530d8e7a37",
+  "generatedAt": "2026-11-02T17:20:20.632646+00:00",
+  "commit": "e0fc8a89bef7c7c2ea24bf273f8c508549f5b973",
   "branch": "main",
-  "sourceFingerprint": "60208f27a165e0da5c446dc7a719ef8ea05cc87d850ccc1b18c25d8c3b76915e",
+  "sourceFingerprint": "3b09dae183b5837c09bc7804b486177494fb971265d81a61086f715fb2f2d78d",
   "summary": {
-    "files": 1120,
-    "lines": 230017,
+    "files": 1121,
+    "lines": 230287,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -2081,7 +2081,7 @@
     "toggleSelfCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-        "line": 200
+        "line": 205
       }
     ],
     "isBackdropPixel": [
@@ -2207,7 +2207,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 229
+        "line": 239
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -18397,6 +18397,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/assets/live2d/wolf-motions/48_kiss_close.motion3.json",
+      "lines": 248,
+      "sha256": "471ba99b99dfd44326bc3746a26c5dfd3aa2c6053a03da4c934795a6b10c90c8",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/assets/stickers/animals.json",
       "lines": 1,
       "sha256": "27d1c0b2f0decd7a4344f2e2aeb9904168acdaa100a6b7e3e8e803a3a737bfc2",
@@ -19873,12 +19879,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 989,
-      "sha256": "183813c86b874e3419831efc44d4343fb2156f3acde0829227481439b0fa8202",
+      "lines": 994,
+      "sha256": "fe836ecb56697893983419310895d23d7a077569d2dcf729f8df16f7cfa3355d",
       "symbols": [
         {
           "name": "toggleSelfCamera",
-          "line": 200
+          "line": 205
         }
       ]
     },
@@ -19948,8 +19954,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 241,
-      "sha256": "935af73683196a0a5c5615fa11e8a2c2c4695494ea8a59b2c529c1b3ad81dc51",
+      "lines": 251,
+      "sha256": "601cd8a306fe4b8b47da8cbb3e34d1558c610832eab6f8f13f2d723ecb05f78d",
       "symbols": [
         {
           "name": "Entry",
@@ -19957,7 +19963,7 @@
         },
         {
           "name": "describe",
-          "line": 229
+          "line": 239
         }
       ]
     },
@@ -19995,8 +20001,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-      "lines": 566,
-      "sha256": "c10e584943da5d649bf01df69ba5ad4ca796dd9a42e66afbb4feedec415432f7",
+      "lines": 573,
+      "sha256": "d4d1e1b2c8cfbd4d980412b74fb8e537168efa63662095b051eb5e093b3604d8",
       "symbols": [
         {
           "name": "playMotion",
