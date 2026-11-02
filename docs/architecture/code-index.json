@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T16:51:56.700553+00:00",
-  "commit": "698f5bee3927ceffdacf1ffcd4da6404fb9500ee",
+  "generatedAt": "2026-11-02T17:06:26.978076+00:00",
+  "commit": "9460be1631b271ffd8f6772f98ca76714ecf80c6",
   "branch": "main",
-  "sourceFingerprint": "d5f4aec07cab2975fe8e69fe5817b2628855ef58793be99fc75fecdda3fa9340",
+  "sourceFingerprint": "b354d05a166a16605a122eb62cb6a244b9edf20c4b8f23be99e8865e4dd02e5d",
   "summary": {
     "files": 1120,
-    "lines": 229870,
-    "symbols": 3238
+    "lines": 229895,
+    "symbols": 3239
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -677,7 +677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 35
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -1665,7 +1665,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-        "line": 24
+        "line": 29
       }
     ],
     "commit": [
@@ -13308,6 +13308,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
         "line": 241
+      }
+    ],
+    "cycle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
+        "line": 55
       }
     ],
     "submitPlayerMessage": [
@@ -31692,16 +31698,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
-      "lines": 39,
-      "sha256": "e00bbc7aae772dbb9549265a2811b5cc7a25f704191e5dd7399a6a626ff58285",
+      "lines": 64,
+      "sha256": "c1751d30721b5747a2bbb75cad7c7ccd9ee9740539faa5bec33efb25d4bd49a7",
       "symbols": [
         {
           "name": "preview",
-          "line": 24
+          "line": 29
+        },
+        {
+          "name": "cycle",
+          "line": 55
         },
         {
           "name": "label",
-          "line": 35
+          "line": 60
         }
       ]
     },
