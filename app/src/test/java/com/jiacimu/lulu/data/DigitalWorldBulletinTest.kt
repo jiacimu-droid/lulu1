@@ -24,6 +24,28 @@ class DigitalWorldBulletinTest {
         assertTrue(notices[1].detail.contains("书籍收藏"))
     }
 
+    @Test fun onlyAcceptedFriendRequestProducesDatedWorldReceipt() {
+        val acceptedAt = Instant.parse("2026-11-02T06:00:00Z")
+        val accepted = CharacterFriendRequest(
+            id = "confirmed-a", fromId = "a", toId = "b", greeting = "",
+            status = "accepted", createdAt = acceptedAt.minusSeconds(600),
+            resolvedAt = acceptedAt,
+        )
+        val pending = CharacterFriendRequest(
+            id = "pending-b", fromId = "b", toId = "c", greeting = "",
+            status = "pending", createdAt = acceptedAt,
+        )
+        val receipts = DigitalWorldBulletin.collect(
+            DigitalWorldState(), emptyList(), emptyList(), listOf(pending, accepted),
+        )
+        assertEquals(1, receipts.size)
+        assertEquals("friend-accepted:confirmed-a", receipts.single().id)
+        assertEquals(acceptedAt, receipts.single().occurredAt)
+        assertEquals("社交", receipts.single().category)
+        assertTrue(receipts.single().detail.contains("同意"))
+        assertFalse(receipts.any { it.id.contains("pending-b") })
+    }
+
     @Test fun ambientAndOrdinaryMovementDoNotFloodTheAnnouncementBoard() {
         val at = Instant.parse("2026-10-11T08:00:00Z")
         val world = DigitalWorldState(events = listOf(
