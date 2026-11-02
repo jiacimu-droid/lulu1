@@ -42,6 +42,8 @@ const bridge = {
   touchExpressionNames: ['star', 'heart'],
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
+  // Stage camera is renderer-only; this VM exercises the same audio/motion bridge.
+  cancelKissCamera: () => {},
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
   pendingExpressionName: null, pendingSpeechParts: null,
