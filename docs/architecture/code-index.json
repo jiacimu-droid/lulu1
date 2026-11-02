@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T06:36:48.071898+00:00",
-  "commit": "b87cbaeb14496fe7a8d668c887978e7685319092",
+  "generatedAt": "2026-11-02T06:56:55.917759+00:00",
+  "commit": "e0370ec870ca2026e618ede0d4f79ec4246954a0",
   "branch": "main",
-  "sourceFingerprint": "c6e4ebdb704a93fa800be78a677b7c11db750f1d1a4045192b9bdb428d1b751b",
+  "sourceFingerprint": "d21556fc52d1e59c9d499134c2f0b9acb6f1f1ac4b1f374778829c426bb49fd5",
   "summary": {
     "files": 1119,
-    "lines": 229163,
+    "lines": 229197,
     "symbols": 3234
   },
   "symbolIndex": {
@@ -3773,7 +3773,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 653
+        "line": 664
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -21470,12 +21470,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 679,
-      "sha256": "5ea34634eb1f794d51c9d716207569270278b67ec17fb7be7011e9e0650a9a66",
+      "lines": 690,
+      "sha256": "5373aff218a55be130f1c2c571e05015ff1ebdfce8bfc5229a0e5c1c68d0df2f",
       "symbols": [
         {
           "name": "render",
-          "line": 653
+          "line": 664
         }
       ]
     },
@@ -21511,8 +21511,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1106,
-      "sha256": "1941c0f352a5151bb7e373d43289e1d8a5e555d4880a5742e527188f1fd6b243",
+      "lines": 1109,
+      "sha256": "d9160e577a00263ea634220effc92219897158f425122b50e4346e268d534430",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -28259,7 +28259,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
       "lines": 322,
-      "sha256": "da3d06140e8f8bf88a76f6e9b885384d016312ea013d00a6cbb9c85aeca39e17",
+      "sha256": "adcbb7648c81e945600d42e50e81ab497ef5a8c30dc2eebdddcf4bd4615d4914",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -34401,8 +34401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 141,
-      "sha256": "4b37a0f695102bd2f11efa390e3f070ca12f2f05cf8d40adae4febd28029868d",
+      "lines": 152,
+      "sha256": "e52413b15833077d1853980e7586d6fff04890581b7b7dc908ecbfe56a55803d",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
@@ -36924,8 +36924,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 392,
-      "sha256": "4202dacdb9232c81b87bcf4a339277459ffd8935b7c419cf4385a8270a6d325d",
+      "lines": 401,
+      "sha256": "2d2018add981ed6a330aca9a0164a8d953ba194d489e02e44ec8a9dac088e6a3",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
