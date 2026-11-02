@@ -1542,16 +1542,21 @@ internal object ResidentDailyDecision {
         return originalHandled && sideStepsComplete
     }
 
-    /** Optional leisure choices are bounded by real public locations. */
-    fun allowedLeisureLocation(value: String): String? = when (value) {
-        "home", "cafe", "games", "courtyard" -> value
-        else -> null
-    }
+    /** Only places already present in the saved world can be chosen.
+     * Discovered public locations become real leisure options without
+     * pretending that a story's invented location is traversable. */
+    internal fun leisureLocationOptions(): List<String> =
+        listOf("home", "cafe", "games", "courtyard") +
+            DigitalWorldPublicPlaces.explorationPlaces().map { it.code }
+
+    fun allowedLeisureLocation(value: String): String? =
+        value.takeIf { it in leisureLocationOptions() }
 
     internal fun publicPlace(option: String, nativeHome: String): String = when (option) {
         "cafe" -> DigitalWorldPublicPlaces.CAFE
         "games" -> DigitalWorldPublicPlaces.GAME_HALL
         "courtyard" -> DigitalWorldPublicPlaces.COURTYARD
+        in DigitalWorldPublicPlaces.explorationPlaces().map { it.code } -> option
         else -> nativeHome
     }
 
@@ -1773,6 +1778,7 @@ internal object ResidentDailyDecision {
             instruction = """
                 你是生活在这个世界中的${native.name}。只根据自己的现状、个人性格、兴趣和已知交往自主安排今天。
                 保留已有工作职责，自己选择午休和晚间的活动，允许无聊、独处、想玩、约人或突然有点小心思。
+                你也可以选择当天真正已经开放的扩展公共地点，地点码必须是下面合法选项中存在的值。想去哪里是你的决定，营业和休息仍以现实执行结果为准。
                 这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
                 注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
                 更重要的是：你活在有人际交往的真实小世界里。想见熟人、与另一位居民聊共同话题、约朋友玩、回复真实来信、参与群聊、组织自己认识的好友建群或结识新朋友，都可以成为具体行程；不是每天只有喝水和独处。
@@ -1790,8 +1796,8 @@ internal object ResidentDailyDecision {
                 去公共地点是去找接触机会，不保证见到目标；要真正交流须执行当下可证实的互动或私信。人际对象可能后来改期或拒绝。
                 仅输出 JSON，不能替别人发言：
                 {"agenda":[{"at":"HH:mm","title":"计划中的一件具体活动","intent":"本人为什么想做","activityAction":"send_character_message|send_friend_request|respond_friend_request|digital_world_action|publish_moment|play_solo_game|send_group_message","targetCharacterId":"真实认识的ID或留空","locationCode":"公共地点码或留空","activityArgs":{}}],
-                 "lunch":"cafe|home|courtyard|games",
-                 "evening":"cafe|home|courtyard|games",
+                 "lunch":"${leisureLocationOptions().joinToString("|")}",
+                 "evening":"${leisureLocationOptions().joinToString("|")}",
                  "cafeOrderLunch":"none|${DigitalCafeMenu.offerings.joinToString("|") { it.id }}",
                  "cafeOrderEvening":"none|${DigitalCafeMenu.offerings.joinToString("|") { it.id }}",
                  "eveningActivity":"一件自己愿意做的短活动",
@@ -1833,7 +1839,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 home/cafe/games/courtyard；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
