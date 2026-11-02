@@ -252,10 +252,14 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
-            Text("朝向 $directionLabel · "+
-                if (mapAim) "地图选中 $targetTitle" else
-                    (nearbyPrimary?.let { "附近可"+it.label } ?: "方向键靠近树、矿石或怪物"),
-                color=Color(0xFFBDF4D3), fontSize=11.sp, maxLines=2)
+            Text(if(buildMode!=null)
+                    IslandBuildingControls.label(buildMode)+" · "+
+                        if(buildReady) "绿色可放置 · 换方向连续建造" else "红色不可放置 · 检查材料或位置"
+                else "朝向 $directionLabel · "+
+                    (if(mapAim) "已选中 $targetTitle"
+                        else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"),
+                color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
+                    else Color(0xFFBDF4D3),fontSize=11.sp,maxLines=2)
             if(island.guardedBy.isNotBlank()) {
                 val protector=world.friends.firstOrNull { it.id==island.guardedBy && it.hp>0 }
                 if(protector!=null)Text(
@@ -273,48 +277,48 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
             if (navigateTo != null) Text("正在前往 · "+targetTitle,
                 color=Color(0xFFF0FFE9),fontSize=10.sp,maxLines=1)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction(nearbyGather?.label ?: "采集", Color(0xFFA9E5BD),
-                    enabled = nearbyGather != null,
-                    modifier = Modifier.weight(1f)) {
+            // One thumb-friendly action row; building stays selected across placements.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                GameHudQuickAction("采集", Color(0xFFA9E5BD),
+                    enabled = nearbyGather != null, modifier = Modifier.weight(1f)) {
                     nearbyGather?.let { perform(it.action,it.x,it.y) }
                 }
                 GameHudQuickAction("攻击", Color(0xFFFFC9AE),
-                    enabled = nearbyFight != null,
-                    modifier = Modifier.weight(1f)) {
+                    enabled = nearbyFight != null, modifier = Modifier.weight(1f)) {
                     nearbyFight?.let { perform(it.action,it.x,it.y) }
                 }
-            }
-            Spacer(Modifier.height(4.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction(nearbyRescue?.label ?: "救援", Color(0xFFA9E5BD),
-                    enabled = nearbyRescue != null,
-                    modifier = Modifier.weight(1f)) {
-                    nearbyRescue?.let { perform(it.action,it.x,it.y) }
+                GameHudQuickAction(if(buildMode==null) "建造" else "退出建造",
+                    Color(0xFFE7D59C), modifier=Modifier.weight(1f)) {
+                    if(buildMode==null) {
+                        buildMode=lastBuildMode
+                        mapAim=false
+                    } else buildMode=null
                 }
-                GameHudQuickAction("吃果", Color(0xFFA9E5BD),
-                    enabled = island.fruit > 0 && world.hp < 12,
-                    modifier = Modifier.weight(1f)) { perform("eat", world.x, world.y) }
             }
         },
         actions = {
+            val mainAction = nearbyRescue ?: nearbyPrimary ?: if(island.fruit>0 && world.hp<12)
+                IslandNearbyAction("eat","吃野果",world.x,world.y) else null
             Button(onClick = {
-                if (navigateTo != null) navigateTo = null
-                else if (mapAim && primaryAction.enabled && primaryAction.action == "move") {
-                    navigateTo = target
+                if(navigateTo!=null) navigateTo=null
+                else if(buildMode!=null) {
+                    if(buildReady) perform(buildMode!!,aimedCell.first,aimedCell.second)
+                } else if(mapAim && primaryAction.enabled && primaryAction.action=="move") {
+                    navigateTo=target
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                } else if (mapAim && primaryAction.enabled) {
+                } else if(mapAim && primaryAction.enabled) {
                     perform(primaryAction.action,aimedCell.first,aimedCell.second)
-                } else nearbyPrimary?.let { perform(it.action,it.x,it.y) }
-            }, enabled = navigateTo != null ||
-                (if (mapAim) primaryAction.enabled else nearbyPrimary != null),
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA9D8B9),
-                    contentColor = Color(0xFF17342F))) {
-                Text(if (navigateTo != null) "■ 停止前往"
-                    else if (mapAim) primaryAction.label+" · "+targetTitle
-                    else nearbyPrimary?.label ?: "靠近后操作",
-                    maxLines = 1, fontSize = 12.sp)
+                } else mainAction?.let { perform(it.action,it.x,it.y) }
+            }, enabled = navigateTo!=null || if(buildMode!=null) buildReady
+                else (if(mapAim) primaryAction.enabled else mainAction!=null),
+                modifier=Modifier.weight(1f),
+                colors=ButtonDefaults.buttonColors(containerColor=Color(0xFFA9D8B9),
+                    contentColor=Color(0xFF17342F))) {
+                Text(if(navigateTo!=null) "■ 停止前往"
+                    else if(buildMode!=null) "放置 · "+IslandBuildingControls.label(buildMode)
+                    else if(mapAim) primaryAction.label+" · "+targetTitle
+                    else mainAction?.label ?: "靠近后操作",
+                    maxLines=1,fontSize=12.sp)
             }
             TextButton(onClick = { zoomed = !zoomed }) {
                 Text(if (zoomed) "远景" else "近景", color = Color.White)
