@@ -226,7 +226,9 @@ internal object BlockIslandArt {
                 style = Stroke((tile * .085f).coerceAtLeast(1.5f)))
             drawCircle(Color.White, tile * .09f, c)
         }
-        if (selected.first in left until left + cols && selected.second in top until top + rows) {
+        if (buildPreview == null &&
+            selected.first in left until left + cols &&
+            selected.second in top until top + rows) {
             val c = center(selected.first, selected.second)
             val ring = tile * (.42f + .035f * sin(phase * 6.28318f))
             val color = Color(0xFFFFE19A)
@@ -523,14 +525,21 @@ internal object BlockIslandArt {
             Size(t * .09f, t * .13f))
     }
 
-    private fun DrawScope.drawSlime(c: Offset, t: Float, hp: Int, phase: Float, seed: Int) {
+    private fun DrawScope.drawSlime(
+        c: Offset, t: Float, hp: Int, phase: Float, seed: Int, hit: Float = 0f,
+    ) {
         val bob = sin(phase * 6.28318f + seed) * t * .05f
+        val shake = if(hit>0f) sin(hit*31f)*t*.08f else 0f
         drawOval(Color.Black.copy(alpha = .25f), c + Offset(-t * .34f, t * .23f),
             Size(t * .69f, t * .17f))
-        val p = c + Offset(-t * .32f, -t * .22f + bob)
+        val p = c + Offset(-t * .32f+shake, -t * .22f + bob)
         drawRect(Color(0xFF4D3A5B), p + Offset(0f, t * .12f), Size(t * .65f, t * .40f))
         drawRect(Color(0xFF84658D), p + Offset(t * .09f, 0f), Size(t * .48f, t * .42f))
         drawRect(Color(0xFFAE8AAF), p + Offset(t * .17f, t * .04f), Size(t * .23f, t * .10f))
+        if(hit>0f) {
+            drawRect(Color(0xFFFFD9CC).copy(alpha=hit*.64f),
+                p+Offset(t*.08f,t*.02f),Size(t*.5f,t*.48f))
+        }
         drawRect(Color.White, p + Offset(t * .16f, t * .23f), Size(t * .09f, t * .10f))
         drawRect(Color.White, p + Offset(t * .43f, t * .23f), Size(t * .09f, t * .10f))
         drawRect(Color(0xFF31293A), p + Offset(t * .19f, t * .26f), Size(t * .04f, t * .06f))
@@ -539,16 +548,25 @@ internal object BlockIslandArt {
             Size(t * .62f * (hp / 4f).coerceIn(0f, 1f), t * .045f))
     }
 
-    private fun DrawScope.drawPerson(c: Offset, t: Float, coat: Color, hair: Color, phase: Float, user: Boolean) {
-        val bob = sin(phase * 6.28318f) * t * .035f
+    private fun DrawScope.drawPerson(
+        c: Offset, t: Float, coat: Color, hair: Color, phase: Float,
+        user: Boolean, walking: Boolean = false,
+    ) {
+        val stride = if(walking) sin(phase * 6.28318f * 13f)*t*.10f else 0f
+        val bob = sin(phase * 6.28318f)*t*.023f +
+            if(walking) abs(stride)*.23f else 0f
         val p = c + Offset(0f, bob)
         drawOval(Color.Black.copy(alpha = .25f), p + Offset(-t * .26f, t * .24f),
             Size(t * .52f, t * .14f))
-        drawRect(Color(0xFF49465B), p + Offset(-t * .20f, t * .08f), Size(t * .15f, t * .24f))
-        drawRect(Color(0xFF49465B), p + Offset(t * .05f, t * .08f), Size(t * .15f, t * .24f))
+        drawRect(Color(0xFF49465B), p + Offset(-t * .20f,t*.08f-stride),
+            Size(t*.15f,t*.24f))
+        drawRect(Color(0xFF49465B), p + Offset(t*.05f,t*.08f+stride),
+            Size(t*.15f,t*.24f))
         drawRect(coat, p + Offset(-t * .24f, -t * .12f), Size(t * .48f, t * .32f))
-        drawRect(coat.copy(alpha = .75f), p + Offset(-t * .32f, -t * .05f), Size(t * .09f, t * .23f))
-        drawRect(coat.copy(alpha = .75f), p + Offset(t * .23f, -t * .05f), Size(t * .09f, t * .23f))
+        drawRect(coat.copy(alpha = .75f), p + Offset(-t*.32f,-t*.05f+stride*.5f),
+            Size(t*.09f,t*.23f))
+        drawRect(coat.copy(alpha = .75f), p + Offset(t*.23f,-t*.05f-stride*.5f),
+            Size(t*.09f,t*.23f))
         drawRect(Color(0xFFF5D7B1), p + Offset(-t * .21f, -t * .40f), Size(t * .42f, t * .32f))
         drawRect(hair, p + Offset(-t * .25f, -t * .44f), Size(t * .50f, t * .13f))
         drawRect(hair, p + Offset(-t * .25f, -t * .34f), Size(t * .08f, t * .14f))
