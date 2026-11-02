@@ -304,7 +304,7 @@ internal object BlockIslandArt {
             // Text floats above the hit tile; a rejected action never creates this effect.
             if(impact.label.isNotBlank()) {
                 val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-                    color = (if(impact.action=="fight") Color(0xFFFFD3B8)
+                    this.color = (if(impact.action=="fight") Color(0xFFFFD3B8)
                         else Color(0xFFE8FFE1)).copy(alpha=fade).toArgb()
                     textAlign=android.graphics.Paint.Align.CENTER
                     typeface=android.graphics.Typeface.create(
