@@ -302,7 +302,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             Button(onClick = {
                 if(navigateTo!=null) navigateTo=null
                 else if(buildMode!=null) {
-                    if(buildReady) perform(buildMode!!,aimedCell.first,aimedCell.second)
+                    if(buildReady) buildMode?.let { perform(it,aimedCell.first,aimedCell.second) }
                 } else if(mapAim && primaryAction.enabled && primaryAction.action=="move") {
                     navigateTo=target
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -451,7 +451,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     line.forEach { recipe ->
                         IslandBuildChip(recipe.name,recipe.cost,true,
-                            selected=buildMode==recipe.action) {
+                            selected=buildMode==recipe.action,
+                            modifier=Modifier.weight(1f)) {
                             buildMode=recipe.action
                             lastBuildMode=recipe.action
                             mapAim=false
@@ -642,13 +643,13 @@ private fun IslandAction(label: String, enabled: Boolean, modifier: Modifier = M
 @Composable
 private fun IslandBuildChip(
     label: String, cost: String, enabled: Boolean,
-    selected: Boolean = false, onClick: () -> Unit,
+    selected: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit,
 ) {
-    Surface(color = if(selected) Color(0xFF345F53) else Color(0xFF284B4E),
+    Surface(modifier=modifier, color = if(selected) Color(0xFF345F53) else Color(0xFF284B4E),
         border=BorderStroke(if(selected) 2.dp else 1.dp,
             if(selected) Color(0xFFA9E5BD) else Color(0xFF578277)),
         shape=RoundedCornerShape(13.dp)) {
-        Column(Modifier.width(106.dp).padding(4.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxWidth().padding(4.dp),horizontalAlignment=Alignment.CenterHorizontally) {
             TextButton(onClick=onClick,enabled=enabled,contentPadding=PaddingValues(0.dp),
                 modifier=Modifier.height(33.dp)) {
                 Text(if(selected) "✓ "+label else label,
