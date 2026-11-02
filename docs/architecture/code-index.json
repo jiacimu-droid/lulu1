@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T17:20:20.632646+00:00",
-  "commit": "e0fc8a89bef7c7c2ea24bf273f8c508549f5b973",
+  "generatedAt": "2026-11-02T17:21:05.924109+00:00",
+  "commit": "cb830ac6afcf2a007946f54a5e5880071c4fe863",
   "branch": "main",
-  "sourceFingerprint": "3b09dae183b5837c09bc7804b486177494fb971265d81a61086f715fb2f2d78d",
+  "sourceFingerprint": "096db82f17c2ec5a8810e9f88a84d78227caebeeb8b4a3716deffad9dd7bba31",
   "summary": {
     "files": 1121,
-    "lines": 230287,
+    "lines": 230294,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -34148,8 +34148,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 58,
-      "sha256": "2ef39f704b66ce84ba58d10ab865a6cfa5ae3d20c4f54a385f21f4be80fac518",
+      "lines": 65,
+      "sha256": "c9814f252f0602cb9ef3dc5ead00d06fc1f4cb653d569ecadb1a3e7b973ce5c5",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
