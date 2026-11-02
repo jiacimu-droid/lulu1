@@ -66,6 +66,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         )
     }
     val world = island.world
+    var soundEnabled by remember { mutableStateOf(preferences.getBoolean("island_sound_enabled",true)) }
+    var hapticsEnabled by remember { mutableStateOf(preferences.getBoolean("island_haptics_enabled",true)) }
+    fun playSound(effect: GameSoundEffect) {
+        if(soundEnabled) GameSoundEffects.play(effect)
+    }
     var target by remember { mutableStateOf(world.x to world.y) }
     // The D-pad turns the player even when movement is blocked by a tree or monster.
     // Map selection is an optional precise command, not a prerequisite for gathering.
@@ -119,16 +124,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 else -> ""
             }
             impact = BlockIslandImpact(x, y, action, result.world.turns, label)
-            haptics.performHapticFeedback(
+            if(hapticsEnabled) haptics.performHapticFeedback(
                 if(action=="fight") HapticFeedbackType.LongPress else HapticFeedbackType.TextHandleMove)
-            GameSoundEffects.play(when (action) {
+            playSound(when (action) {
                 "move" -> GameSoundEffect.Move
                 "gather", "salvage", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
                 "fight" -> GameSoundEffect.Objective
                 else -> GameSoundEffect.Interact
             })
         } else {
-            GameSoundEffects.play(GameSoundEffect.Bump)
+            playSound(GameSoundEffect.Bump)
         }
         save(result)
     }
@@ -152,7 +157,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             save(island.copy(world = world.copy(notice =
                 if (nearby) "已靠近目标，可以进行采集、战斗或建造"
                 else "前往失败：路线被阻挡，换个目标或清理障碍试试")))
-            if (!nearby) GameSoundEffects.play(GameSoundEffect.Bump)
+            if (!nearby) playSound(GameSoundEffect.Bump)
             return@LaunchedEffect
         }
         delay(145)
@@ -160,9 +165,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         val next = BlockIslandRules.act(island, "move", step.first, step.second, autonomousIds)
         if (next.world.x == world.x && next.world.y == world.y) {
             navigateTo = null
-            GameSoundEffects.play(GameSoundEffect.Bump)
+            playSound(GameSoundEffect.Bump)
         } else {
-            GameSoundEffects.play(GameSoundEffect.Move)
+            playSound(GameSoundEffect.Move)
         }
         save(next)
     }
@@ -217,7 +222,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     target = x to y
                     mapAim = true
                     navigateTo = (x to y).takeUnless { it == (world.x to world.y) }
-                    if (navigateTo != null) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (navigateTo != null && hapticsEnabled)
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
                 buildPreview = buildPreview)
@@ -305,7 +311,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if(buildReady) buildMode?.let { perform(it,aimedCell.first,aimedCell.second) }
                 } else if(mapAim && primaryAction.enabled && primaryAction.action=="move") {
                     navigateTo=target
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if(hapticsEnabled) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 } else if(mapAim && primaryAction.enabled) {
                     perform(primaryAction.action,aimedCell.first,aimedCell.second)
                 } else mainAction?.let { perform(it.action,it.x,it.y) }
@@ -535,6 +541,20 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="设置") {
         Text("自动存档已开启 · 建筑和道具不会在退出时消失",color=Color(0xFFD0E8DB),fontSize=12.sp)
+        Row(verticalAlignment=Alignment.CenterVertically) {
+            Text("游戏音效",color=Color.White,modifier=Modifier.weight(1f))
+            Switch(checked=soundEnabled,onCheckedChange={
+                soundEnabled=it
+                preferences.edit().putBoolean("island_sound_enabled",it).apply()
+            })
+        }
+        Row(verticalAlignment=Alignment.CenterVertically) {
+            Text("操作震动",color=Color.White,modifier=Modifier.weight(1f))
+            Switch(checked=hapticsEnabled,onCheckedChange={
+                hapticsEnabled=it
+                preferences.edit().putBoolean("island_haptics_enabled",it).apply()
+            })
+        }
         OutlinedButton(onClick={showIslandGuideDialog=true}) { Text("查看玩法",color=Color.White) }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onClick = {
