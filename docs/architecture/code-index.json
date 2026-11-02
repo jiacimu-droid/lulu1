@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T12:17:57.592123+00:00",
-  "commit": "ac300434bda4698e8d6f87d9b17ba29f36d47572",
+  "generatedAt": "2026-11-02T12:19:04.716701+00:00",
+  "commit": "94fc6af239ecc5c69db8957f98b828af2a33db89",
   "branch": "main",
-  "sourceFingerprint": "031ae1f77e9878fbee3c15e6c79bbe74cd2d0703e8a6794e5e8eaeba9dc3e641",
+  "sourceFingerprint": "ef9ff6ba241a92a838d436962ff6be8edaaecd61ed375466d188aae94b95785f",
   "summary": {
     "files": 1119,
-    "lines": 229407,
+    "lines": 229427,
     "symbols": 3234
   },
   "symbolIndex": {
@@ -1457,7 +1457,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 88
+        "line": 93
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13079,7 +13079,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 93
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13093,7 +13093,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 643
+        "line": 663
       }
     ],
     "saveTurn": [
@@ -31261,20 +31261,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 684,
-      "sha256": "c1142262076dda0569374e6c715e564fae012f41d92a8793dcef165eee8575d0",
+      "lines": 704,
+      "sha256": "bd4a93cbc60f50e4d5a675a7f63a6d1b8489dad15a2b0b2d10402aa8ff62077a",
       "symbols": [
         {
           "name": "save",
-          "line": 88
-        },
-        {
-          "name": "perform",
           "line": 93
         },
         {
+          "name": "perform",
+          "line": 98
+        },
+        {
           "name": "targetFor",
-          "line": 643
+          "line": 663
         }
       ]
     },
