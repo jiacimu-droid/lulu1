@@ -76,6 +76,10 @@ internal fun GameSceneDeck(
         Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(
             Color(0x7909151D), Color.Transparent, Color.Transparent, Color(0x7909151D),
         ))))
+        // Capture BoxWithConstraints dimensions before entering ColumnScope:
+        // nested layout scopes cannot resolve BoxWithConstraints.maxWidth directly.
+        val hudStatusWidth = if (wide) maxWidth * .48f else maxWidth * .59f
+        val hudNoticeWidth = if (wide) maxWidth * .42f else maxWidth * .56f
         // Measure the HUD naturally: on narrow screens and with large fonts,
         // status can wrap to two lines. A fixed 44dp notice offset overlapped it.
         Column(
@@ -85,7 +89,7 @@ internal fun GameSceneDeck(
         ) {
             Surface(
                 modifier = Modifier.widthIn(
-                    max = if (wide) maxWidth * .48f else maxWidth * .59f),
+                    max = hudStatusWidth),
                 color = Color(0xD9132932), shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, accent.copy(alpha = .30f)),
             ) {
@@ -95,7 +99,7 @@ internal fun GameSceneDeck(
             if (notice.isNotBlank()) {
                 Surface(
                     modifier = Modifier.widthIn(
-                        max = if (wide) maxWidth * .42f else maxWidth * .56f),
+                        max = hudNoticeWidth),
                     color = Color(0xA0102630), shape = RoundedCornerShape(9.dp),
                 ) {
                     Text(notice, color = Color(0xFFE5EEE9), fontSize = 11.sp,
