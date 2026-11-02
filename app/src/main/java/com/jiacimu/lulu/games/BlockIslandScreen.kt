@@ -444,29 +444,17 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="建造") {
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text("朝向决定建造方向，选面前空地；也可点地图精确选位置。",
+        Text("先选建筑，再看地图绿色落点；关闭菜单后点击「放置」。方向键移动，连续放置无需重复选建筑。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
-        val buildings = listOf(
-            Triple("⚒ 工作台","4木2石","workbench"), Triple("♨ 篝火","2木1石","campfire"),
-            Triple("▱ 木床","3木1石","bed"), Triple("▦ 木桥","3木","bridge"),
-            Triple("▥ 木墙","2木","wall"), Triple("▤ 地板","1木","floor"),
-            Triple("▣ 木门","2木","door"), Triple("♣ 种树","1木","plant"),
-            Triple("↶ 拆除","退部分材料","remove"),
-        )
         Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
-            buildings.chunked(2).forEach { line ->
+            IslandBuildingControls.recipes.chunked(2).forEach { line ->
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    line.forEach { (label,cost,building) ->
-                        val canDo = when(building) {
-                            "plant" -> world.wood>0 && BlockIslandRules.canPlantAt(
-                                island,aimedCell.first,aimedCell.second)
-                            "remove" -> BlockIslandRules.canRemoveAt(
-                                island,aimedCell.first,aimedCell.second)
-                            else -> BlockIslandRules.canBuild(island,building,
-                                aimedCell.first,aimedCell.second)
-                        }
-                        IslandBuildChip(label,cost,canDo) {
-                            perform(building,aimedCell.first,aimedCell.second)
+                    line.forEach { recipe ->
+                        IslandBuildChip(recipe.name,recipe.cost,true,
+                            selected=buildMode==recipe.action) {
+                            buildMode=recipe.action
+                            lastBuildMode=recipe.action
+                            mapAim=false
                         }
                     }
                 }
@@ -597,9 +585,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
             Text("开局只是一片可建设的空地，不是已经拥有房子。")
             Text("① 方向键移动并决定朝向，走到树、矿或怪物旁，直接用右手采集或攻击，不必点地图。")
-            Text("② 收集4木2石，打开「游戏菜单 → 建造」，面向空地后放置工作台；也可以点选精确位置。")
+            Text("② 收集4木2石，从「游戏菜单 → 建造」选工作台。地图绿色表示可放，红色表示位置或材料不满足。")
             Text("③ 站在工作台2格内，打开「游戏菜单 → 制作」制造斧、镐、剑或鱼竿。")
-            Text("④ 收集物资建墙、地板、门、篝火与床；篝火或床旁可以休息回血。")
+            Text("④ 选中的建筑会一直保留，可以移动后继续放置；点「退出建造」恢复普通交互。篝火、床旁可休息。")
             Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
         containerColor=Color(0xFF1A3439),
@@ -652,15 +640,21 @@ private fun IslandAction(label: String, enabled: Boolean, modifier: Modifier = M
 }
 
 @Composable
-private fun IslandBuildChip(label: String, cost: String, enabled: Boolean, onClick: () -> Unit) {
-    Surface(color = Color(0xFF284B4E), border = BorderStroke(1.dp, Color(0xFF578277)),
-        shape = RoundedCornerShape(13.dp)) {
-        Column(Modifier.width(94.dp).padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            TextButton(onClick = onClick, enabled = enabled, contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.height(31.dp)) {
-                Text(label, color = if (enabled) Color.White else Color.Gray, fontSize = 12.sp)
+private fun IslandBuildChip(
+    label: String, cost: String, enabled: Boolean,
+    selected: Boolean = false, onClick: () -> Unit,
+) {
+    Surface(color = if(selected) Color(0xFF345F53) else Color(0xFF284B4E),
+        border=BorderStroke(if(selected) 2.dp else 1.dp,
+            if(selected) Color(0xFFA9E5BD) else Color(0xFF578277)),
+        shape=RoundedCornerShape(13.dp)) {
+        Column(Modifier.width(106.dp).padding(4.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+            TextButton(onClick=onClick,enabled=enabled,contentPadding=PaddingValues(0.dp),
+                modifier=Modifier.height(33.dp)) {
+                Text(if(selected) "✓ "+label else label,
+                    color=if(enabled) Color.White else Color.Gray,fontSize=12.sp)
             }
-            Text(cost, color = Color(0xFFC1D8D1), fontSize = 9.sp)
+            Text(cost,color=Color(0xFFC1D8D1),fontSize=10.sp)
         }
     }
 }
