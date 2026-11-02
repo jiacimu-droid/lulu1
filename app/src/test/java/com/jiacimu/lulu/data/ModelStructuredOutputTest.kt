@@ -199,6 +199,14 @@ class ModelStructuredOutputTest {
         assertEquals("今天好冷\n记得穿外套", ModelStructuredOutput.completedReplyText(response))
     }
 
+    @Test fun twelveIndependentBubblesSurviveWithoutSilentTruncation() {
+        val expected = (1..12).map { "第${it}次反应！" }
+        val raw = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().apply { expected.forEach(::put) }).toString()
+        assertEquals(expected, ModelStructuredOutput.authoredReplyBubbles(raw))
+        assertEquals(expected, ModelStructuredOutput.completedReplyBubbles(raw))
+    }
+
     @Test fun structuredObjectBubblesPreserveInteractionBoundaries() {
         val response = """{"action":"reply","bubbles":[{"text":"啊？我会错意了？"},{"text":"那你说的超时是指什么？"}]}"""
         assertEquals(
