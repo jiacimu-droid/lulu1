@@ -81,6 +81,45 @@ class ResidentAutonomyBoundaryTest {
         assertNull(ResidentDailyDecision.allowedLeisureLocation("secret-phone"))
     }
 
+    @Test fun cafeWorkerCanTakeChosenBreaksWithoutFakingOutings() {
+        val worker = DigitalWorldResident(
+            id = "barista-plan", name = "岑灯", templateName = "岑灯",
+            identity = "咖啡角店员", homeLocationCode = "resident-home:barista-plan",
+        )
+        val chosen = org.json.JSONObject()
+            .put("lunch", "courtyard").put("evening", "games")
+        val zone = ZoneOffset.UTC
+        fun planAt(hourMinute: String, daily: org.json.JSONObject? = chosen): ResidentDailyRoutine.Plan =
+            ResidentDailyRoutine.planWithDaily(
+                worker, Instant.parse("2026-11-02T${hourMinute}:00Z"), zone, daily)
+        assertEquals(DigitalWorldPublicPlaces.CAFE, planAt("10:00").location)
+        assertEquals(DigitalWorldPublicPlaces.COURTYARD, planAt("12:40").location)
+        assertEquals("lunch", planAt("12:40").slot)
+        assertEquals(DigitalWorldPublicPlaces.GAME_HALL, planAt("18:40").location)
+        assertEquals("evening", planAt("18:40").slot)
+        assertEquals(DigitalWorldPublicPlaces.CAFE, planAt("20:00").location)
+        assertEquals(worker.homeLocationCode, planAt("12:40", null).location)
+        assertEquals(worker.homeLocationCode, planAt("18:40", null).location)
+    }
+
+    @Test fun dailyLeisureChoicesRecognizeOnlySavedNewPublicPlaces() {
+        val app = RuntimeEnvironment.getApplication()
+        DigitalWorldExpansionStore.initialize(app)
+        val code = "shared:discovered:" + UUID.randomUUID()
+        val place = DigitalWorldDiscoveredPlace(
+            code = code, label = "自由逛逛-" + UUID.randomUUID().toString().take(8),
+            subtitle = "散步", purpose = "相遇与散步",
+            connectedTo = listOf(DigitalWorldPublicPlaces.COURTYARD),
+            createdByCharacterId = "test",
+        )
+        DigitalWorldExpansionStore.registerPlace(place)
+        assertEquals(code, ResidentDailyDecision.allowedLeisureLocation(code))
+        assertEquals(code, ResidentDailyDecision.publicPlace(code, "resident-home:test"))
+        assertNull(ResidentDailyDecision.allowedLeisureLocation("shared:discovered:not-created"))
+        val chosen = org.json.JSONObject().put("lunch", code).put("evening", "home")
+        assertNull(ResidentDailyDecision.dayContractError(chosen, now))
+    }
+
     @Test fun confirmedFriendsCanStartTheirFirstPrivateMessageWithoutProximity() {
         val context = RuntimeEnvironment.getApplication()
         MigratedDomainStores.initialize(context)
