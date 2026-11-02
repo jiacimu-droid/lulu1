@@ -212,7 +212,7 @@ internal object ModelStructuredOutput {
         val json = objectOrNull(raw) ?: return null
         if (json.optString("action", "reply").lowercase() != "reply") return null
         val bubbles = json.optJSONArray("bubbles") ?: return null
-        return (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
+        return (0 until bubbles.length()).mapNotNull { index ->
             val entry = bubbles.opt(index)
             val text = (if (entry is JSONObject) entry.optString("text")
                 else bubbles.optString(index)).trim().take(2_000)
@@ -242,11 +242,11 @@ internal object ModelStructuredOutput {
                     }.replace("\r\n", "\n").trim()
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
-            }.take(8)
+            }
             // The model owns the conversational moves. The renderer may split a
             // long move at complete sentence/clause punctuation for readability,
             // but must never cut an unfinished word or discard the spoken text.
-            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = 8)
+            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = Int.MAX_VALUE)
         }
 
         return smoothInlineBreaks(json.optString("text"))
