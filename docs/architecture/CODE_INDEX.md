@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`598dcab24e2fd1050fb20f0560fdf7d60a2595b9`
+- 基准提交：`4e628f475b3479db50d43c2f8f9f02b92155247d`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：229089
+- 已索引代码/文本行：229098
 - 已发现符号：3234
 
 | 文件 | 行数 | 符号数 |
@@ -1039,7 +1039,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 364 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 373 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 466 | 3 |
