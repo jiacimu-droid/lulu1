@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T06:56:55.917759+00:00",
-  "commit": "e0370ec870ca2026e618ede0d4f79ec4246954a0",
+  "generatedAt": "2026-11-02T07:07:21.715594+00:00",
+  "commit": "6f22cb5f54e7a55f25f3a2d747a88b528dd0f83b",
   "branch": "main",
-  "sourceFingerprint": "d21556fc52d1e59c9d499134c2f0b9acb6f1f1ac4b1f374778829c426bb49fd5",
+  "sourceFingerprint": "8f1f422012c71ffaa779d579de16f2b5bfcaa36079fd3104ec7344c471897144",
   "summary": {
     "files": 1119,
-    "lines": 229197,
+    "lines": 229208,
     "symbols": 3234
   },
   "symbolIndex": {
@@ -36990,8 +36990,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
-      "lines": 97,
-      "sha256": "fc2583651fabf46bfbf5c1227fd981a2dc89e94a26c18191ff3894fa35e7be52",
+      "lines": 104,
+      "sha256": "8637c1597467067601d970ce6a3dca79f31003f8cbf051d9ed16cd6083060168",
       "symbols": [
         {
           "name": "NativeResidentLifeIntegrationTest",
@@ -37126,8 +37126,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 64,
-      "sha256": "b96e14dd729b45f88333e5836e72730fd03ad1a5d4d4845458403f16b92e2b39",
+      "lines": 68,
+      "sha256": "188a926d91d6fdfd9c8784a39cac1218a00870f5d23525055066aeccd002b322",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",
