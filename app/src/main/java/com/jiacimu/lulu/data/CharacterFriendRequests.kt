@@ -66,6 +66,13 @@ internal object CharacterFriendRequests {
     @Synchronized fun historyFor(characterId: String): List<CharacterFriendRequest> =
         all().filter { it.fromId == characterId || it.toId == characterId }
 
+    /** Read-only, persisted acceptance receipts for the owner's world bulletin.
+     * An invitation or a literary encounter is never proof of a confirmed link.
+     * Retain historic acceptance even if friendship is later removed.
+     */
+    @Synchronized fun acceptedForWorld(): List<CharacterFriendRequest> =
+        all().filter { it.status == "accepted" && it.resolvedAt != null }
+
     /** Resolve only notices concerning this role's actual stored request. */
     @Synchronized fun counterpartForNotice(characterId: String, evidenceId: String): String? =
         historyFor(characterId).firstOrNull { request ->
