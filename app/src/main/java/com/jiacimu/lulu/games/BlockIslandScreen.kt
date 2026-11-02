@@ -72,6 +72,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var facing by remember(world.seed) { mutableStateOf(0 to 1) }
     var mapAim by remember(world.seed) { mutableStateOf(false) }
     var menuSection by rememberSaveable { mutableStateOf("探索") }
+    var buildMode by remember(world.seed) { mutableStateOf<String?>(null) }
+    var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
@@ -98,8 +100,27 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         navigateTo = null
         val result = BlockIslandRules.act(island, action, x, y, autonomousIds)
         if (result.world.turns > island.world.turns) {
-            impact = BlockIslandImpact(x, y, action, result.world.turns)
-            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            val label = when(action) {
+                "gather" -> if(island.world.cell(x,y)==1)
+                    "+${result.world.wood-island.world.wood} 木"
+                    else "+${result.world.stone-island.world.stone} 石"
+                "fight" -> {
+                    val enemy = island.world.mobs.firstOrNull {
+                        it.hp>0 && it.x==x && it.y==y
+                    }
+                    val remaining = result.world.mobs.firstOrNull { it.id==enemy?.id }?.hp ?: 0
+                    enemy?.let { "-${(it.hp-remaining).coerceAtLeast(0)} ❤" } ?: ""
+                }
+                "salvage" -> "+${result.world.wood-island.world.wood} 木 · +${result.world.stone-island.world.stone} 石"
+                "revive", "eat", "eat_fish", "rest" ->
+                    "+${(result.world.hp-island.world.hp).coerceAtLeast(0)} ❤"
+                "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
+                "bridge", "remove" -> "✓"
+                else -> ""
+            }
+            impact = BlockIslandImpact(x, y, action, result.world.turns, label)
+            haptics.performHapticFeedback(
+                if(action=="fight") HapticFeedbackType.LongPress else HapticFeedbackType.TextHandleMove)
             GameSoundEffects.play(when (action) {
                 "move" -> GameSoundEffect.Move
                 "gather", "salvage", "eat", "eat_fish", "fish", "revive" -> GameSoundEffect.Collect
@@ -157,6 +178,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val primaryAction = islandTargetAction(island,aimedCell)
     val supplySelected = IslandSupplyCaches.available(island,aimedCell.first,aimedCell.second)
     val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell,selectedStructure)
+    val buildPreview = IslandBuildingControls.preview(island,buildMode,aimedCell.first,aimedCell.second)
+    val buildReady = buildPreview?.allowed == true
     val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish"))
     val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
     val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
@@ -181,6 +204,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
         toolsLabel = "☰ 游戏菜单",
+        closeToolsSignal = buildMode,
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
@@ -195,7 +219,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     navigateTo = (x to y).takeUnless { it == (world.x to world.y) }
                     if (navigateTo != null) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
-                fullscreen = true, companionPing = companionPing)
+                fullscreen = true, companionPing = companionPing,
+                buildPreview = buildPreview)
         },
         companionAvailable = game.playWithCharacter && world.friends.isNotEmpty() &&
             world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3),
