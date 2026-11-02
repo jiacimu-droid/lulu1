@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T16:32:58.965300+00:00",
-  "commit": "ae91a4655c2ce2c99312073ed584b06cbf83a7aa",
+  "generatedAt": "2026-11-02T16:33:31.536487+00:00",
+  "commit": "b74ea9d10595dd9cca0df09f924d23a5cc45e427",
   "branch": "main",
-  "sourceFingerprint": "e355841d3df96d9e3e74c3f260365d63e8c59ef6525cdda00c011c09e19624e2",
+  "sourceFingerprint": "0c7eb187641b854370e6ecc99bec0d848152c05edbc4892f83cb1ffbfa8ff6a8",
   "summary": {
     "files": 1120,
-    "lines": 229667,
-    "symbols": 3236
+    "lines": 229687,
+    "symbols": 3237
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1461,7 +1461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 94
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13084,10 +13084,16 @@
         "line": 612
       }
     ],
+    "playSound": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
+        "line": 71
+      }
+    ],
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 99
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13101,7 +13107,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 720
+        "line": 740
       }
     ],
     "saveTurn": [
@@ -31269,20 +31275,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 762,
-      "sha256": "dcb9f444d1d4cb62b0897cf7c8b20d819ea7745ea3191afe68b21b21ccacbe02",
+      "lines": 782,
+      "sha256": "02f5c0048ae7e6dcab3778bc7bc4b95940830de71f5b4e7b8ec1b795d2d4e2a6",
       "symbols": [
         {
-          "name": "save",
-          "line": 94
+          "name": "playSound",
+          "line": 71
         },
         {
-          "name": "perform",
+          "name": "save",
           "line": 99
         },
         {
+          "name": "perform",
+          "line": 104
+        },
+        {
           "name": "targetFor",
-          "line": 720
+          "line": 740
         }
       ]
     },
