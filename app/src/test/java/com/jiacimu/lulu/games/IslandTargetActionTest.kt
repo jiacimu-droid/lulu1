@@ -127,7 +127,10 @@ class IslandTargetActionTest {
         assertTrue(legal.allowed)
         assertEquals(BlockIslandRules.canBuild(ready,"wall",5,4),legal.allowed)
         assertTrue(legal.message.contains("可放置"))
-        val obstructed=ready.copy(world=ready.world.setTile(5,4,1))
+        val blockedTiles = ready.world.tiles.toMutableList().also {
+            it[ready.world.index(5,4)] = 1
+        }
+        val obstructed=ready.copy(world=ready.world.copy(tiles=blockedTiles))
         val blocked=IslandBuildingControls.preview(obstructed,"wall",5,4)!!
         assertFalse(blocked.allowed)
         assertTrue(blocked.message.contains("占用"))
