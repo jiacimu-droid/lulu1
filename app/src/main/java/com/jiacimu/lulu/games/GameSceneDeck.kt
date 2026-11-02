@@ -44,6 +44,8 @@ internal fun GameSceneDeck(
     status: String,
     notice: String = "",
     toolsLabel: String = "行囊 / 更多",
+    /** An explicit selection change can dismiss the tools panel without changing other games. */
+    closeToolsSignal: Any? = null,
     scene: @Composable () -> Unit,
     companion: @Composable () -> Unit,
     companionAvailable: Boolean = false,
@@ -53,6 +55,7 @@ internal fun GameSceneDeck(
     tools: @Composable () -> Unit,
 ) {
     var drawer by remember { mutableStateOf(false) }
+    LaunchedEffect(closeToolsSignal) { drawer = false }
     var teamExpanded by remember { mutableStateOf(true) }
     BackHandler(enabled = drawer) { drawer = false }
     BoxWithConstraints(Modifier.fillMaxSize().imePadding().background(Color(0xFF09151D))) {
