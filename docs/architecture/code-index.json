@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T16:47:09.513825+00:00",
-  "commit": "643747a1cc16a57876104d294d6362dfe37350a0",
+  "generatedAt": "2026-11-02T16:47:33.526555+00:00",
+  "commit": "583b7dbab8e2a45fc1efe13e7f5a0423e9964158",
   "branch": "main",
-  "sourceFingerprint": "65d7acaab2e7251104edd281e745f252112ed774fef05b9e00f658bb6f0d9a6b",
+  "sourceFingerprint": "81e91d88397dd5e96805492181a9d5621cfad6d4b4670623caf0e8e7fc36a8fb",
   "summary": {
     "files": 1120,
-    "lines": 229702,
+    "lines": 229730,
     "symbols": 3237
   },
   "symbolIndex": {
@@ -12971,13 +12971,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 59
+        "line": 62
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 63
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -12991,7 +12991,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 64
+        "line": 67
       }
     ],
     "newWorld": [
@@ -31181,20 +31181,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 542,
-      "sha256": "6c17714c49d7dee151465f10f8d1a4bff87b0c31b3cedf6abc89eb84057634b0",
+      "lines": 570,
+      "sha256": "66e841c94872da11a7ef5a42d9c612a7ba3e98a2c4de06f7f5d56bc877425f37",
       "symbols": [
         {
           "name": "origin",
-          "line": 59
+          "line": 62
         },
         {
           "name": "center",
-          "line": 63
+          "line": 66
         },
         {
           "name": "actorCenter",
-          "line": 64
+          "line": 67
         }
       ]
     },
