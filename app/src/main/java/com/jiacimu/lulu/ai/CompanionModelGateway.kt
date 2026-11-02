@@ -1181,7 +1181,12 @@ class CompanionModelGateway(
                 }
                 if (chunk.has("error")) error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "模型流式请求失败" })
                 val choice = chunk.optJSONArray("choices")?.optJSONObject(0)
-                choice?.optString("finish_reason")?.takeIf(String::isNotBlank)?.let { finishReason = it }
+                // JSONObject.NULL is not a completion signal. Some Android
+                // JSON implementations stringify it as the literal "null".
+                val terminalChoiceReason = choice?.takeIf {
+                    it.has("finish_reason") && !it.isNull("finish_reason")
+                }?.optString("finish_reason")?.trim()?.takeIf(String::isNotBlank)
+                terminalChoiceReason?.let { finishReason = it }
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {
                     content.append(modelTextValue(delta.opt("content")))
@@ -1202,7 +1207,7 @@ class CompanionModelGateway(
                 // omit [DONE] or keep the SSE connection open. Once that final
                 // choice arrives, waiting for EOF strands an already billed reply
                 // until the read timeout. Claude still finishes on message_stop.
-                if (choice?.optString("finish_reason")?.isNotBlank() == true) {
+                if (terminalChoiceReason != null) {
                     streamFinished = true
                 }
                 return true
