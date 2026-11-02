@@ -613,9 +613,18 @@ object ProactivePerceptionScheduler {
      * loop; a pending application is never automatic consent. Multiple notices
      * coalesce, and all unhandled events remain in that role's own timeline.
      */
+    /** Event-driven delivery to a resident's phone is NOT the optional
+     * generic paid perception interval. Native citizens have periodic
+     * perception off by default but must still receive real friend requests,
+     * just like real incoming private mail. Non-native roles honor their
+     * configured perception switch. */
+    internal fun socialNoticeWakeAllowed(characterId: String, intervalEnabled: Boolean): Boolean =
+        characterId.startsWith("resident:") || intervalEnabled
+
     fun scheduleSocialNoticeReview(context: Context, characterId: String, evidenceId: String) {
         if (characterId.isBlank() || evidenceId.isBlank() ||
-            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+            !socialNoticeWakeAllowed(characterId,
+                ProactivePerceptionPolicyStore.get(characterId).enabled)) return
         val witnessed = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .singleOrNull() ?: return
         if (witnessed.source != "phone:friend" ||
