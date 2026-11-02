@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import kotlin.math.sin
 import kotlin.math.cos
 import kotlin.math.min
@@ -16,7 +18,9 @@ import kotlin.math.min
  * Visuals are always derived from real BlockIslandState tiles and positions.
  * Paint only the visible viewport to keep this affordable on low-end Android GPUs.
  */
-internal data class BlockIslandImpact(val x: Int, val y: Int, val action: String, val turn: Int)
+internal data class BlockIslandImpact(
+    val x: Int, val y: Int, val action: String, val turn: Int, val label: String = "",
+)
 
 internal object BlockIslandArt {
     private val grassA = Color(0xFF628E62)
@@ -44,6 +48,7 @@ internal object BlockIslandArt {
         phase: Float,
         impact: BlockIslandImpact? = null,
         impactProgress: Float = 1f,
+        buildPreview: IslandBuildPreview? = null,
     ) {
         val w = island.world
         val tile = camera.tileSize
@@ -203,6 +208,35 @@ internal object BlockIslandArt {
             listOf(-1f to -1f, 1f to -1f, -1f to 1f, 1f to 1f).forEach { (dx, dy) ->
                 drawRect(cream, topLeft = c + Offset(dx * ring, dy * ring) -
                     Offset(tile * .05f, tile * .05f), size = Size(tile * .10f, tile * .10f))
+            }
+        }
+        // Placement ghost, based on the SAME validation as the rule engine.
+        // It never changes the world, consumes inventory or advances a turn.
+        if (buildPreview != null &&
+            buildPreview.x in left until left + cols &&
+            buildPreview.y in top until top + rows) {
+            val p = origin(buildPreview.x, buildPreview.y)
+            val ok = buildPreview.allowed
+            val tint = if (ok) Color(0xFF91F0B3) else Color(0xFFFF9588)
+            drawRoundRect(tint.copy(alpha = if(ok) .26f else .20f),
+                topLeft = p + Offset(tile*.06f,tile*.06f),
+                size = Size(tile*.88f,tile*.88f), cornerRadius = CornerRadius(tile*.11f))
+            drawRoundRect(tint.copy(alpha = .94f),
+                topLeft = p + Offset(tile*.06f,tile*.06f),
+                size = Size(tile*.88f,tile*.88f), cornerRadius = CornerRadius(tile*.11f),
+                style = Stroke((tile*.07f).coerceAtLeast(1.4f)))
+            if (ok) {
+                // A tiny outline of the planned structure, not a fake placed building.
+                val weight = if (buildPreview.action == "wall") .27f else .37f
+                drawRoundRect(tint.copy(alpha = .47f),
+                    topLeft = p + Offset(tile*weight,tile*.27f),
+                    size = Size(tile*(1f-2f*weight),tile*.46f),
+                    cornerRadius = CornerRadius(tile*.05f))
+            } else {
+                drawLine(tint,p+Offset(tile*.29f,tile*.29f),
+                    p+Offset(tile*.71f,tile*.71f),strokeWidth=tile*.07f)
+                drawLine(tint,p+Offset(tile*.71f,tile*.29f),
+                    p+Offset(tile*.29f,tile*.71f),strokeWidth=tile*.07f)
             }
         }
         // Sparse foreground details are deterministic decorations, never collectible rewards.
