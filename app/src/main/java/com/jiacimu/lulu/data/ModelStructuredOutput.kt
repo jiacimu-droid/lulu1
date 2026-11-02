@@ -243,10 +243,10 @@ internal object ModelStructuredOutput {
                     if (text.isNotBlank()) add(text)
                 }
             }
-            // The model owns the conversational moves. The renderer may split a
-            // long move at complete sentence/clause punctuation for readability,
-            // but must never cut an unfinished word or discard the spoken text.
-            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = Int.MAX_VALUE)
+            // Structured bubbles are already the person's chosen speaking beats.
+            // Only reconnect unmistakably broken grammatical fragments; do not
+            // re-segment an authored message by character count or punctuation.
+            if (values.isNotEmpty()) return stabilizeReplyBubbles(values)
         }
 
         return smoothInlineBreaks(json.optString("text"))
@@ -287,7 +287,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)
-                            }.let { readableReplyBubbles(it, maxBubbles = Int.MAX_VALUE) }.takeIf { it.isNotEmpty() }
+                            }.let(::stabilizeReplyBubbles).takeIf { it.isNotEmpty() }
                         }
                     }
                 }

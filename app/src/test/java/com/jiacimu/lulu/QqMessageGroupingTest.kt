@@ -25,6 +25,17 @@ class QqMessageGroupingTest {
         assertFalse(parsed.content.contains("⟪BUBBLE⟫⟪BUBBLE⟫"))
     }
 
+    @Test fun structuredReanswerPreservesTheCharactersChosenMessageBoundaries() {
+        val full = "宝宝，好像是系统出了毛病诶……我刚才其实有点懵。先让我看看。"
+        val followUp = "（假装镇定）"
+        val raw = full + SemanticBubbleSeparator + followUp
+        assertEquals(listOf(full, followUp), modelAuthoredReplyBubbles(raw))
+        assertEquals(listOf(full), modelAuthoredReplyBubbles(full))
+        // The separate legacy formatter may still split unstructured
+        // paragraphs, but a structured role response must not be re-paced.
+        assertEquals(full + followUp, modelAuthoredReplyBubbles(raw).joinToString(""))
+    }
+
     @Test fun heartVoiceUsesReadableParagraphsWithoutChangingAuthoredWords() {
         val original = "学了两个小时跑回来喊累，还冷不丁甩了个张大嘴巴的震惊猫猫头。" +
             "估计算是学到脑袋发懵了。" +

@@ -505,7 +505,10 @@ fun QqStyleChatDetailScreen(
                     "\n不得再次执行旧工具，不重复发送系统回执。模型自己重新判断表达及真正有变化的心声。",
                 onReconsiderationDraft = { stagedState = it },
             ).onSuccess { reply ->
-                val bubbles = semanticReplyBubbles(reply.text)
+                // This response came from the structured character-expression
+                // route, not a legacy unstructured paragraph. Re-splitting it
+                // by punctuation would overwrite the role's chosen chat rhythm.
+                val bubbles = modelAuthoredReplyBubbles(reply.text)
                 if (bubbles.isEmpty()) {
                     reportError("这次没有生成替代消息，原消息已保留")
                     return@onSuccess

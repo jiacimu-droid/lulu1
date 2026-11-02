@@ -138,6 +138,17 @@ internal fun semanticReplyBubbles(text: String): List<String> {
     )
 }
 
+/**
+ * A structured model turn already chose its exact IM message boundaries.
+ * Re-answer must preserve these beats just like normal delivery, including a
+ * single long bubble. Legacy freeform text can still use semanticReplyBubbles.
+ */
+internal fun modelAuthoredReplyBubbles(text: String): List<String> =
+    normalizeLegacyBubbleTokens(stripCharacterReplyDirective(text))
+        .split(SemanticBubbleSeparator)
+        .map(::sanitizePersistedChatText)
+        .filter(String::isNotBlank)
+
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = normalizeLegacyBubbleTokens(text).trim()
     if (raw.isBlank()) return ""

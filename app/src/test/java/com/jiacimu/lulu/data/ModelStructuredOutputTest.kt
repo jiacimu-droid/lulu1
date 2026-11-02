@@ -234,6 +234,17 @@ class ModelStructuredOutputTest {
         assertEquals(small, ModelStructuredOutput.replyBubblesWithPartialState(unfinishedState))
     }
 
+    @Test fun structuredEmotionPacingPreservesRepeatsPausesAndDistinctBubbles() {
+        val expected = listOf("等，等等等等！", "（假装镇定）", "不分不分不分嘛……",
+            "宝宝，好像是系统出了毛病诶……")
+        val raw = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().apply { expected.forEach(::put) }).toString()
+        assertEquals(expected, ModelStructuredOutput.completedReplyBubbles(raw))
+        assertEquals(expected, ModelStructuredOutput.replyBubblesWithPartialState(
+            raw.dropLast(1) + ",\"innerLife\":{\"unfinished\":"
+        ))
+    }
+
     @Test fun structuredObjectBubblesPreserveInteractionBoundaries() {
         val response = """{"action":"reply","bubbles":[{"text":"啊？我会错意了？"},{"text":"那你说的超时是指什么？"}]}"""
         assertEquals(
@@ -295,7 +306,7 @@ class ModelStructuredOutputTest {
         assertTrue(paced.dropLast(1).all { it.last() in "。！？!?；;" })
     }
 
-    @Test fun structuredLongBubbleAlsoSplitsAtFullSentenceBoundaries() {
+    @Test fun structuredLongBubbleKeepsItsAuthoredBoundary() {
         val text = "这篇帖子挺有意思，不过我想先看看原文再跟你聊。" +
             "我没有看到图片时不会假装已经看清楚了。" +
             "你要是分享给我，我会先确认真正拿到的内容。" +
@@ -304,9 +315,7 @@ class ModelStructuredOutputTest {
             org.json.JSONObject().put("action", "reply")
                 .put("bubbles", org.json.JSONArray().put(text)).toString()
         )!!
-        assertTrue(result.size in 2..5)
-        assertEquals(text, result.joinToString(""))
-        assertTrue(result.dropLast(1).all { it.endsWith("。") })
+        assertEquals(listOf(text), result)
     }
 
     @Test fun oneShortReplyAndOneLongSingleSentenceNeverSplitMidword() {
