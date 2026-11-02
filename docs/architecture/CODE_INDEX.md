@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd234cee827de5bf8bf4c70da49fbd48ddbf3647`
+- 基准提交：`83abae0ec5e43910588748cc0df192bcf01abd46`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：228965
+- 已索引代码/文本行：228983
 - 已发现符号：3233
 
 | 文件 | 行数 | 符号数 |
@@ -351,7 +351,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 265 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 318 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 124 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 153 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 126 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |

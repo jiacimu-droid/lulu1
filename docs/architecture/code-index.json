@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T06:19:46.793085+00:00",
-  "commit": "fd234cee827de5bf8bf4c70da49fbd48ddbf3647",
+  "generatedAt": "2026-11-02T06:20:06.368969+00:00",
+  "commit": "83abae0ec5e43910588748cc0df192bcf01abd46",
   "branch": "main",
-  "sourceFingerprint": "57f615fbc0dd108bd18b2fc170e2dc86d050ced79f9611b9b9780d6012aa182f",
+  "sourceFingerprint": "11e8eb2c2d3566e28a5b3f89ed34c283f3284a67ed76519cc1960944043472b7",
   "summary": {
     "files": 1119,
-    "lines": 228965,
+    "lines": 228983,
     "symbols": 3233
   },
   "symbolIndex": {
@@ -23629,8 +23629,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 124,
-      "sha256": "68a0e31963f06e32cc644aedb8e599b9735e7b51d86c94848b01d4b4f81a03ff",
+      "lines": 142,
+      "sha256": "49377d0527f673c1b5ee5a4adf4e4869815e51ef2498e732b6681fe47c0b2cdb",
       "symbols": [
         {
           "name": "render",
@@ -28597,7 +28597,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 153,
-      "sha256": "80463ded4030d7294b89fd02e52fcdaa5c24ef3d416d8313e7a905085eb12cb5",
+      "sha256": "9e5832588539fb02e9fd4db6a712b299e75712d96e4131ed66e13779ee53b451",
       "symbols": []
     },
     {
