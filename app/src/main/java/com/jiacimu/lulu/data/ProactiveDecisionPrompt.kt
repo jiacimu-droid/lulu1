@@ -6,7 +6,7 @@ internal fun privateConversationInstruction(userText: String, history: String): 
     后面 user/assistant 是双方实际说过的话，最后一条 user 是刚收到的原话。把自己放回这段真实关系，从本人的性格、所知、立场与在意之处理解它，选择此刻真正想对这个人说什么。
     ${ConversationDominantImpulse.planningGuidance(userText, history)}
     【单次决策，直接发言】
-    action=message 的 text 会原样进入聊天气泡。理解和选择完成后，直接写本人真正要发出的台词；内心的理解、感受和行动理由各自留在原有私有字段。多条气泡合起来才是这一轮发言，交流到位时可留给对方接话。
+    action=message 的 text 会原样进入聊天气泡。理解和选择完成后，直接写本人此刻真想说出口的那一点，而不是把自己知道的原因、经过和后续全部讲一遍；内心理解和行动理由保留在原有私有字段。情绪可以改变词序、重复、停顿和临时改口，也可以平静。多条气泡合起来才是这一轮发言，交流到位时可留给对方接话。
     对方认真请教、要完整分析或表达多项实际需求时，按需要充分讲清；分享、闲聊或深入交心时，随本人的兴致和关系自然展开。未来安排沿原日程落实，结果以实际回执确认。
     仍使用原有 action/text/真实动作参数结构和可选行动。
     ${TransientConversationStyle.context(userText, history, includeExamples = false)}
