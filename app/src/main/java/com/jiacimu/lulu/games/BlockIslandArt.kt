@@ -45,6 +45,7 @@ internal object BlockIslandArt {
         playerVisual: Offset? = null,
         companionVisuals: Map<String,Offset> = emptyMap(),
         mobVisuals: Map<Int,Offset> = emptyMap(),
+        companionLabels: Map<String,String> = emptyMap(),
         playerFacing: Pair<Int,Int> = 0 to 1,
         camera: IslandFollowCamera,
         navigationStep: Pair<Int, Int>? = null,
@@ -156,11 +157,33 @@ internal object BlockIslandArt {
                 val visual = companionVisuals[friend.id]
                 val walking = visual != null &&
                     abs(visual.x-friend.x)+abs(visual.y-friend.y)>.025f
+                val head=actorCenter(visual,friend.x,friend.y)
                 if (friend.hp > 0) drawPerson(
-                    actorCenter(visual,friend.x,friend.y), tile,
+                    head,tile,
                     companionOutfits[look], companionHair[look], phase + look * .13f, false,
                     walking = walking,
-                ) else drawFallen(actorCenter(visual,friend.x,friend.y), tile)
+                ) else drawFallen(head,tile)
+                // Directly label real party members in-world so their palette color is
+                // not the only way to distinguish them in a two-/three-person adventure.
+                val name=companionLabels[friend.id]?.take(4).orEmpty()
+                if(name.isNotBlank() && tile>=22f) {
+                    val plateWidth=(tile*.34f*name.length).coerceAtLeast(tile*.70f)+tile*.19f
+                    drawRoundRect(Color(0xC512343A),
+                        topLeft=head+Offset(-plateWidth*.5f,-tile*.80f),
+                        size=Size(plateWidth,tile*.28f),
+                        cornerRadius=CornerRadius(tile*.09f))
+                    val namePaint=android.graphics.Paint(
+                        android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                        this.color=Color(0xFFE5FFF1).toArgb()
+                        textAlign=android.graphics.Paint.Align.CENTER
+                        textSize=(tile*.23f).coerceIn(9f,15f)
+                        typeface=android.graphics.Typeface.create(
+                            android.graphics.Typeface.DEFAULT,
+                            android.graphics.Typeface.BOLD)
+                    }
+                    drawContext.canvas.nativeCanvas.drawText(name,
+                        head.x,head.y-tile*.59f,namePaint)
+                }
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
             val playerCenter=actorCenter(playerVisual,w.x,w.y)
