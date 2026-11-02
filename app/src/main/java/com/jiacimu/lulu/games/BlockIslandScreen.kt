@@ -89,6 +89,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     val autonomousIds = if (autonomousCompanions) world.friends.map { it.id }.toSet() else emptySet()
     var impact by remember { mutableStateOf<BlockIslandImpact?>(null) }
     val impactProgress = remember { Animatable(1f) }
+    var previousHp by remember(world.seed) { mutableIntStateOf(world.hp) }
+    val hurtProgress = remember(world.seed) { Animatable(1f) }
+    LaunchedEffect(world.seed,world.hp) {
+        val lost = previousHp-world.hp
+        previousHp=world.hp
+        if(lost>0) {
+            hurtProgress.snapTo(0f)
+            hurtProgress.animateTo(1f,tween(520))
+        }
+    }
     LaunchedEffect(impact) {
         if (impact != null) {
             impactProgress.snapTo(0f)
@@ -123,7 +133,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 "bridge", "remove" -> "✓"
                 else -> ""
             }
-            impact = BlockIslandImpact(x, y, action, result.world.turns, label)
+            val targetMobId = if(action=="fight") island.world.mobs.firstOrNull {
+                it.hp>0 && it.x==x && it.y==y
+            }?.id else null
+            impact = BlockIslandImpact(x,y,action,result.world.turns,label,targetMobId)
             if(hapticsEnabled) haptics.performHapticFeedback(
                 if(action=="fight") HapticFeedbackType.LongPress else HapticFeedbackType.TextHandleMove)
             playSound(when (action) {
@@ -226,7 +239,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
-                buildPreview = buildPreview, facing = facing)
+                buildPreview = buildPreview, facing = facing,
+                hurtProgress = hurtProgress.value)
         },
         companionAvailable = game.playWithCharacter && world.friends.isNotEmpty() &&
             world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3),
@@ -710,6 +724,7 @@ private fun BlockIslandCanvas(
     companionPing: Pair<Int, Int>? = null,
     buildPreview: IslandBuildPreview? = null,
     facing: Pair<Int, Int> = 0 to 1,
+    hurtProgress: Float = 1f,
 ) {
     val w = island.world
     val playerVisual = islandActorPosition(w.seed,"player",w.x,w.y)
@@ -774,7 +789,7 @@ private fun BlockIslandCanvas(
                 mobVisuals = mobVisuals, playerFacing = facing, camera = camera,
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
-                buildPreview = buildPreview,
+                buildPreview = buildPreview, hurtProgress = hurtProgress,
             )
         }
     }
