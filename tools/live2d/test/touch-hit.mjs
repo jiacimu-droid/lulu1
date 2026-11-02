@@ -421,6 +421,8 @@ const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
     model: loadedModel, playing: true, pendingSpeechParts: null,
     scoreVisualSequence: 4101,
     motionRevision: 0, authoredMotion: null,
+    // This VM verifies Cubism motion ownership, not the Pixi camera stage.
+    cancelKissCamera: () => {}, wolfRigActive: false,
     motionTransition: { begin: () => {} },
     notify: (kind, payload) => motionNotices.push({ kind, payload }),
   }
