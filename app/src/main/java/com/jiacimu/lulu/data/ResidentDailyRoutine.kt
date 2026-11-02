@@ -38,28 +38,48 @@ internal object ResidentDailyRoutine {
 
     fun plan(person: DigitalWorldResident, at: Instant,
         zone: ZoneId = ZoneId.systemDefault(), context: Context? = null): Plan {
-        val local = at.atZone(zone)
-        val minute = local.hour * 60 + local.minute
-        if (person.isCafeBarista) return if (minute in 9 * 60 until 21 * 60)
-            Plan("shift", DigitalWorldPublicPlaces.CAFE, "经营咖啡角、接待真实在场的顾客")
-        else Plan("home", person.homeLocationCode, "下班休息")
-        // The same local-day decision can adjust leisure without overriding
-        // the worker's fixed job. Missing plan preserves the old stable shift.
-        // Cold-start world ticks have an application Context but may not have
-        // initialized the daily planner singleton. Read the same persisted plan
-        // directly rather than silently reverting every resident to default leisure.
+        // A cold-start worker still reads the *persisted* decision rather than
+        // replacing the resident's chosen location with a script fallback.
         val daily = context?.let { ResidentDailyDecision.planFor(it, person.id, at) }
             ?: ResidentDailyDecision.planForApp(person.id, at)
+        return planWithDaily(person, at, zone, daily)
+    }
+
+    /** Pure planner used by the world clock and tests. Duty is a world fact,
+     * leisure belongs to the resident. An absent decision cannot invent
+     * a wish to visit the cafe or create an encounter. */
+    internal fun planWithDaily(person: DigitalWorldResident, at: Instant,
+        zone: ZoneId, daily: JSONObject?): Plan {
+        val local = at.atZone(zone)
+        val minute = local.hour * 60 + local.minute
         val lunchPlace = daily?.optString("lunch")?.let(ResidentDailyDecision::allowedLeisureLocation)
             ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
-            ?: DigitalWorldPublicPlaces.CAFE
+            ?: person.homeLocationCode
         val eveningPlace = daily?.optString("evening")?.let(ResidentDailyDecision::allowedLeisureLocation)
             ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
-            ?: DigitalWorldPublicPlaces.CAFE
+            ?: person.homeLocationCode
         val eveningActivity = daily?.optString("eveningActivity").orEmpty().trim()
-        // Different residents stagger the breaks, allowing simultaneous
-        // visitors instead of rerolling a crowd per encounter.
         val offset = Math.floorMod(person.id.hashCode(), 35)
+        if (person.isCafeBarista) {
+            // A barista still has real working hours. Her own saved decisions
+            // may now select a lunch break or evening outing instead of being
+            // discarded by the all-day-shift early return.
+            return when {
+                minute < 9 * 60 -> Plan("home", person.homeLocationCode, "下班休息")
+                minute < 12 * 60 + offset -> Plan("morning", DigitalWorldPublicPlaces.CAFE,
+                    "经营咖啡角、接待真实在场的顾客")
+                minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
+                minute < 18 * 60 -> Plan("afternoon", DigitalWorldPublicPlaces.CAFE,
+                    "继续经营咖啡角")
+                minute < 19 * 60 + offset -> Plan("evening", eveningPlace,
+                    "进入下班后的自由活动时段", intendedActivity = eveningActivity)
+                minute < 21 * 60 -> Plan("late_shift", DigitalWorldPublicPlaces.CAFE,
+                    "回到咖啡角继续工作")
+                else -> Plan("home", person.homeLocationCode, "下班休息")
+            }
+        }
+        // Stable duty hours coexist with self-chosen leisure; different
+        // resident breaks remain staggered without simulating extra dialogue.
         return when {
             minute < 8 * 60 -> Plan("night", person.homeLocationCode, "在家休息")
             minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), "履行${person.identity}的日常职责")
@@ -95,7 +115,7 @@ internal object ResidentDailyRoutine {
             var activity = plan.activity
             if (plan.slot in setOf("home", "night")) {
                 body = body.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
-            } else if (plan.slot in setOf("morning", "afternoon", "shift")) {
+            } else if (plan.slot in setOf("morning", "afternoon", "shift", "late_shift")) {
                 body = body.copy(energy = (body.energy - 3.0).coerceAtLeast(0.0),
                     comfort = (body.comfort - 1.5).coerceAtLeast(0.0))
             }
