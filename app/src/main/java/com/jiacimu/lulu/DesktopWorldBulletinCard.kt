@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CharacterFriendRequests
 import com.jiacimu.lulu.data.DigitalWorldBulletin
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.DigitalWorldNotice
@@ -45,6 +46,7 @@ internal fun DesktopWorldBulletinCard() {
     LaunchedEffect(context) {
         DigitalWorldStore.initialize(context)
         DigitalWorldExpansionStore.initialize(context)
+        CharacterFriendRequests.initialize(context)
         while (true) {
             refresh++
             delay(20_000L)
