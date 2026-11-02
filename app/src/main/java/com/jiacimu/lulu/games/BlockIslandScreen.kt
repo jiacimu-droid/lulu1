@@ -365,15 +365,18 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 color = Color(0xFFDDF7ED), fontSize = 12.sp, lineHeight = 17.sp)
         }
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                IslandAction("采集资源", enabled = nearTarget && selectedCell in listOf(1, 2),
-                    Modifier.fillMaxWidth()) { perform("gather") }
-                if (selectedCell == 8) IslandAction("水边钓鱼", enabled = nearTarget && "rod" in island.tools,
-                    Modifier.fillMaxWidth()) { perform("fish") }
-                IslandAction("攻击野怪", enabled = nearTarget && isMobSelected,
-                    Modifier.fillMaxWidth()) { perform("fight") }
-                val downed = world.friends.any { it.hp <= 0 && it.x == target.first && it.y == target.second }
-                if (downed) IslandAction("救援队友 · 2果", enabled = nearTarget && island.fruit >= 2,
-                    Modifier.fillMaxWidth()) { perform("revive") }
+                IslandAction(nearbyGather?.label ?: "周围暂无资源",
+                    enabled = nearbyGather != null, Modifier.fillMaxWidth()) {
+                    nearbyGather?.let { perform(it.action,it.x,it.y) }
+                }
+                IslandAction("攻击附近怪物",enabled=nearbyFight!=null,
+                    Modifier.fillMaxWidth()) {
+                    nearbyFight?.let { perform(it.action,it.x,it.y) }
+                }
+                if(nearbyRescue!=null) IslandAction("救援队友 · 2果",
+                    enabled=true,Modifier.fillMaxWidth()) {
+                    nearbyRescue.let { perform(it.action,it.x,it.y) }
+                }
                 IslandAction("吃野果 · 回血", enabled = island.fruit > 0 && world.hp < 12,
                     Modifier.fillMaxWidth()) { perform("eat", world.x, world.y) }
                 if (island.fish > 0) IslandAction("篝火烤鱼 · +5❤",
@@ -427,7 +430,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
         if(menuSection=="制作") {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("背包与工具", color = Color(0xFFF0FCF4), fontWeight = FontWeight.Bold,
+            Text("工作台 · 工具制作", color = Color(0xFFF0FCF4), fontWeight = FontWeight.Bold,
                 fontSize = 16.sp, modifier = Modifier.weight(1f))
             TextButton(onClick = { showRecipes = !showRecipes }) {
                 Text(if (showRecipes) "收起配方" else "查看配方", color = Color(0xFFB9EACB), fontSize = 12.sp)
