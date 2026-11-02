@@ -10,6 +10,37 @@ internal data class RelicQuickAction(
     val id: String = "",
 )
 
+/** Deterministic target for the combat key and the primary action.
+ * The selected enemy wins when attackable; otherwise a hittable nearby threat is used.
+ * This never spends a turn or attacks automatically.
+ */
+internal fun relicAttackTarget(run: RelicRun, selected: Pair<Int, Int>): RelicMob? {
+    if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
+    val chosen = run.mobs.firstOrNull {
+        it.hp > 0 && it.x == selected.first && it.y == selected.second &&
+            RelicArsenal.canHit(run, it.x, it.y)
+    }
+    if (chosen != null) return chosen
+    return run.mobs.filter { it.hp > 0 && RelicArsenal.canHit(run, it.x, it.y) }
+        .minWithOrNull(compareBy<RelicMob> {
+            RelicEscapeRules.distance(run.hero.x, run.hero.y, it.x, it.y)
+        }.thenBy { it.id })
+}
+
+/** Explain a disabled attack key without inventing a successful hit. */
+internal fun relicAttackHint(run: RelicRun, selected: Pair<Int, Int>): String {
+    if (run.phase == RelicPhase.DOWNED) return "已倒地，无法攻击；等待伙伴救援"
+    if (relicAttackTarget(run, selected) != null) return "敌人进入射程，点攻击即可出手"
+    val mob = run.mobs.firstOrNull {
+        it.hp > 0 && it.x == selected.first && it.y == selected.second
+    }
+    return when {
+        mob != null && !run.visible(mob.x, mob.y) -> "目标在迷雾中，需要先探索"
+        mob != null -> "当前"+RelicArsenal.label(run.equipped)+"："+RelicArsenal.description(run.equipped)+"；靠近或换武器"
+        else -> "没有进入武器射程的怪物；短剑只能打上下左右相邻1格"
+    }
+}
+
 /** Selecting a tile never spends a turn; the player must explicitly tap the action button. */
 internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuickAction? {
     val (x, y) = target
@@ -47,6 +78,15 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
         if (x == run.exitX && y == run.exitY && run.phase == RelicPhase.EXPLORE)
             return RelicQuickAction("extract", "启动撤离 · 守住三回合",
                 "守在出口附近，经过三回合才真正带走宝物")
+    }
+    // Initial selection is the hero; still allow a touching monster to be attacked.
+    if (target == (hero.x to hero.y)) {
+        val threat = relicAttackTarget(run, target)
+        if (threat != null) return RelicQuickAction(
+            "attack", RelicArsenal.label(run.equipped)+"攻击附近怪物 · "+threat.hp+"生命",
+            RelicArsenal.monsterName(threat.kind)+" · "+RelicArsenal.description(run.equipped),
+            threat.x, threat.y,
+        )
     }
     if (run.phase == RelicPhase.EXTRACT)
         return RelicQuickAction("wait", "原地守住撤离门", "留在出口附近，推进撤离倒数")
