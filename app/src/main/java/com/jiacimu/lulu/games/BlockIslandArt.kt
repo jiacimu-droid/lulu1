@@ -76,7 +76,8 @@ internal object BlockIslandArt {
                 val cell = w.cell(x, y)
                 val base = origin(x, y)
                 drawGround(cell, base, tile, x, y, phase, w.seed,
-                    w.cell(x, y - 1) == 8, w.cell(x - 1, y) == 8)
+                    w.cell(x, y - 1) == 8, w.cell(x - 1, y) == 8,
+                    w.cell(x, y + 1) == 8, w.cell(x + 1, y) == 8)
             }
         }
         // Scenery rendered in a separate pass so tree crowns can overhang adjacent tiles.
@@ -282,18 +283,53 @@ internal object BlockIslandArt {
                 topLeft = p + Offset(tile*.06f,tile*.06f),
                 size = Size(tile*.88f,tile*.88f), cornerRadius = CornerRadius(tile*.11f),
                 style = Stroke((tile*.07f).coerceAtLeast(1.4f)))
-            if (ok) {
-                // A tiny outline of the planned structure, not a fake placed building.
-                val weight = if (buildPreview.action == "wall") .27f else .37f
-                drawRoundRect(tint.copy(alpha = .47f),
-                    topLeft = p + Offset(tile*weight,tile*.27f),
-                    size = Size(tile*(1f-2f*weight),tile*.46f),
-                    cornerRadius = CornerRadius(tile*.05f))
-            } else {
-                drawLine(tint,p+Offset(tile*.29f,tile*.29f),
-                    p+Offset(tile*.71f,tile*.71f),strokeWidth=tile*.07f)
-                drawLine(tint,p+Offset(tile*.71f,tile*.29f),
-                    p+Offset(tile*.29f,tile*.71f),strokeWidth=tile*.07f)
+            // Different recipes get distinct translucent footprints. They are
+            // still only previews, not additional placed or saved world objects.
+            when(buildPreview.action) {
+                "wall", "door" -> {
+                    drawRect(tint.copy(alpha=.66f),p+Offset(tile*.24f,tile*.23f),
+                        Size(tile*.10f,tile*.55f))
+                    drawRect(tint.copy(alpha=.66f),p+Offset(tile*.67f,tile*.23f),
+                        Size(tile*.10f,tile*.55f))
+                    if(buildPreview.action=="wall")
+                        drawRect(tint.copy(alpha=.45f),p+Offset(tile*.27f,tile*.36f),
+                            Size(tile*.48f,tile*.15f))
+                }
+                "floor", "bridge" -> repeat(3) { row ->
+                    drawRect(tint.copy(alpha=.60f),
+                        p+Offset(tile*.19f,tile*(.24f+row*.21f)),
+                        Size(tile*.63f,tile*.13f))
+                }
+                "campfire" -> {
+                    drawCircle(tint.copy(alpha=.70f),tile*.20f,
+                        p+Offset(tile*.50f,tile*.53f))
+                    drawCircle(tint.copy(alpha=.36f),tile*.30f,
+                        p+Offset(tile*.50f,tile*.53f),style=Stroke(tile*.06f))
+                }
+                "plant" -> {
+                    drawRect(tint.copy(alpha=.6f),p+Offset(tile*.47f,tile*.38f),
+                        Size(tile*.07f,tile*.42f))
+                    drawCircle(tint.copy(alpha=.64f),tile*.24f,
+                        p+Offset(tile*.50f,tile*.39f))
+                }
+                "bed", "workbench" -> {
+                    drawRoundRect(tint.copy(alpha=.52f),
+                        p+Offset(tile*.20f,tile*.22f),
+                        Size(tile*.62f,tile*.57f),CornerRadius(tile*.07f))
+                    drawRect(tint.copy(alpha=.72f),
+                        p+Offset(tile*.24f,tile*.27f),
+                        Size(tile*.54f,tile*.10f))
+                }
+                "remove" -> {
+                    drawLine(tint,p+Offset(tile*.28f,tile*.28f),
+                        p+Offset(tile*.72f,tile*.72f),strokeWidth=tile*.10f)
+                    drawLine(tint,p+Offset(tile*.72f,tile*.28f),
+                        p+Offset(tile*.28f,tile*.72f),strokeWidth=tile*.10f)
+                }
+            }
+            if(!ok && buildPreview.action!="remove") {
+                drawLine(Color(0xFFFFF0DE),p+Offset(tile*.28f,tile*.72f),
+                    p+Offset(tile*.72f,tile*.28f),strokeWidth=tile*.06f)
             }
         }
         // Sparse foreground details are deterministic decorations, never collectible rewards.
@@ -387,6 +423,7 @@ internal object BlockIslandArt {
     private fun DrawScope.drawGround(
         kind: Int, p: Offset, t: Float, x: Int, y: Int, phase: Float, seed: Int,
         waterAbove: Boolean, waterLeft: Boolean,
+        waterBelow: Boolean, waterRight: Boolean,
     ) {
         val hash = ((x * 73856093) xor (y * 19349663) xor seed) and Int.MAX_VALUE
         val g = when (hash % 5) { 0 -> grassB; 1 -> grassC; else -> grassA }
@@ -403,6 +440,10 @@ internal object BlockIslandArt {
                 size = Size(t, t * .11f))
             if (!waterLeft) drawRect(Color(0xFF8CC5BE).copy(alpha = .4f),
                 topLeft = p, size = Size(t * .07f, t))
+            if (!waterRight) drawRect(Color(0xFFB8DCE0).copy(alpha = .34f),
+                topLeft = p + Offset(t*.91f,0f), size = Size(t*.09f,t))
+            if (!waterBelow) drawRect(Color(0xFFB8DCE0).copy(alpha = .34f),
+                topLeft = p + Offset(0f,t*.91f), size = Size(t,t*.09f))
             val drift = ((phase * t * .28f + hash % 7) % (t * .26f))
             drawRect(waterLight.copy(alpha = .6f), p + Offset(t * .14f + drift, t * .36f),
                 Size(t * .20f, t * .07f))
@@ -426,6 +467,16 @@ internal object BlockIslandArt {
             return
         }
         if (kind == 3 || kind == 7) return
+        // Shoreline highlights follow the real land/water boundaries. No new
+        // terrain, items or separate tile state are introduced by this shading.
+        if (waterAbove || waterLeft || waterBelow || waterRight) {
+            val sand=Color(0xFFDEC28F).copy(alpha=.57f)
+            val width=t*.11f
+            if(waterAbove)drawRect(sand,p,Size(t,width))
+            if(waterLeft)drawRect(sand,p,Size(width,t))
+            if(waterBelow)drawRect(sand,p+Offset(0f,t-width),Size(t,width))
+            if(waterRight)drawRect(sand,p+Offset(t-width,0f),Size(width,t))
+        }
         // Deterministic grasses/flowers: no random calls inside the rendering loop.
         if (hash % 4 == 0) {
             drawRect(Color(0xFF2E674C), p + Offset(t * .22f, t * .51f),
