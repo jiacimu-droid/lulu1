@@ -76,7 +76,6 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
     var showRecipes by remember { mutableStateOf(true) }
-    var showHelp by remember { mutableStateOf(false) }
     var showIslandGuideDialog by remember { mutableStateOf(false) }
     var companionPing by remember(world.seed) { mutableStateOf<Pair<Int, Int>?>(null) }
     var autonomousCompanions by rememberSaveable { mutableStateOf(true) }
@@ -414,16 +413,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             IslandBuildChip("♣ 种树", "1木", world.wood > 0 &&
-                BlockIslandRules.canPlantAt(island, target.first, target.second)) { perform("plant") }
-            IslandBuildChip("▤ 地板", "1木", BlockIslandRules.canBuild(island, "floor", target.first, target.second)) { perform("floor") }
-            IslandBuildChip("▥ 木墙", "2木", BlockIslandRules.canBuild(island, "wall", target.first, target.second)) { perform("wall") }
-            IslandBuildChip("▣ 木门", "2木", BlockIslandRules.canBuild(island, "door", target.first, target.second)) { perform("door") }
-            IslandBuildChip("⚒ 工作台", "4木2石", BlockIslandRules.canBuild(island, "workbench", target.first, target.second)) { perform("workbench") }
-            IslandBuildChip("♨ 篝火", "2木1石", BlockIslandRules.canBuild(island, "campfire", target.first, target.second)) { perform("campfire") }
-            IslandBuildChip("▱ 木床", "3木1石", BlockIslandRules.canBuild(island, "bed", target.first, target.second)) { perform("bed") }
-            IslandBuildChip("▦ 木桥", "3木", BlockIslandRules.canBuild(island, "bridge", target.first, target.second)) { perform("bridge") }
+                BlockIslandRules.canPlantAt(island, aimedCell.first, aimedCell.second)) { perform("plant",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("▤ 地板", "1木", BlockIslandRules.canBuild(island, "floor", aimedCell.first, aimedCell.second)) { perform("floor",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("▥ 木墙", "2木", BlockIslandRules.canBuild(island, "wall", aimedCell.first, aimedCell.second)) { perform("wall",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("▣ 木门", "2木", BlockIslandRules.canBuild(island, "door", aimedCell.first, aimedCell.second)) { perform("door",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("⚒ 工作台", "4木2石", BlockIslandRules.canBuild(island, "workbench", aimedCell.first, aimedCell.second)) { perform("workbench",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("♨ 篝火", "2木1石", BlockIslandRules.canBuild(island, "campfire", aimedCell.first, aimedCell.second)) { perform("campfire",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("▱ 木床", "3木1石", BlockIslandRules.canBuild(island, "bed", aimedCell.first, aimedCell.second)) { perform("bed",aimedCell.first,aimedCell.second) }
+            IslandBuildChip("▦ 木桥", "3木", BlockIslandRules.canBuild(island, "bridge", aimedCell.first, aimedCell.second)) { perform("bridge",aimedCell.first,aimedCell.second) }
             IslandBuildChip("↶ 拆除", "退部分材料",
-                BlockIslandRules.canRemoveAt(island, target.first, target.second)) { perform("remove") }
+                BlockIslandRules.canRemoveAt(island, aimedCell.first, aimedCell.second)) { perform("remove",aimedCell.first,aimedCell.second) }
         }
         }
         if(menuSection=="制作") {
@@ -549,9 +548,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         title = { Text("方块小岛 · 怎么玩") },
         text = { Column(verticalArrangement=Arrangement.spacedBy(7.dp)) {
             Text("开局只是一片可建设的空地，不是已经拥有房子。")
-            Text("① 方向键移动；点树木、石矿后靠近采集，长按地图可自动走向目标。")
-            Text("② 积攒4木2石，选中自己附近的空地，点「建工作台」。")
-            Text("③ 站在工作台2格内，打开「背包／探险」制作斧、镐、剑或鱼竿。")
+            Text("① 方向键移动并决定朝向，走到树、矿或怪物旁，直接用右手采集或攻击，不必点地图。")
+            Text("② 收集4木2石，打开「游戏菜单 → 建造」，面向空地后放置工作台；也可以点选精确位置。")
+            Text("③ 站在工作台2格内，打开「游戏菜单 → 制作」制造斧、镐、剑或鱼竿。")
             Text("④ 收集物资建墙、地板、门、篝火与床；篝火或床旁可以休息回血。")
             Text("⑤ 世界、建筑、背包退出后会保存；右侧「新岛屿」重新生成并清空当前家园。")
         }},
