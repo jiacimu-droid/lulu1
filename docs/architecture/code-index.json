@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T16:29:56.448313+00:00",
-  "commit": "cfeb7f64ec42d038544d35218d41b2cae01c38d3",
+  "generatedAt": "2026-11-02T16:30:25.042484+00:00",
+  "commit": "be3d4ef221b151037430665d3ad749f2929df5c1",
   "branch": "main",
-  "sourceFingerprint": "3072235320fecd5ada65d9e260ab83a3fd555636fecca46abc0b6813ce297885",
+  "sourceFingerprint": "e70b28bfc3806357010077116a7d19eb87702d660f53521b70890b09978e466b",
   "summary": {
     "files": 1120,
-    "lines": 229591,
+    "lines": 229619,
     "symbols": 3236
   },
   "symbolIndex": {
@@ -1461,7 +1461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 92
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -13087,7 +13087,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 97
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -13101,7 +13101,7 @@
     "targetFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-        "line": 695
+        "line": 720
       }
     ],
     "saveTurn": [
@@ -31269,20 +31269,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt",
-      "lines": 736,
-      "sha256": "1b18677f67f265e64ddafec26b0d8d2fc3414ad11ab3a645a26cf079df5f5ee7",
+      "lines": 761,
+      "sha256": "daff758155ef4aa78f54cecaa952cf8bdb7392926698e364d369fcd8fcd48405",
       "symbols": [
         {
           "name": "save",
-          "line": 92
+          "line": 94
         },
         {
           "name": "perform",
-          "line": 97
+          "line": 99
         },
         {
           "name": "targetFor",
-          "line": 695
+          "line": 720
         }
       ]
     },
@@ -31582,8 +31582,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 313,
-      "sha256": "57eb0ad56890adf11ace289e883f075ffea2b7a144cc573393dae057569c4bad",
+      "lines": 316,
+      "sha256": "c981004cbb37a49fda9e587bbb0fe6125c102d35a2209408c3fcb44794113955",
       "symbols": []
     },
     {
