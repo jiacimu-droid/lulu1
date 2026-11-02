@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T06:27:38.015400+00:00",
-  "commit": "addac0b652723d9465fea6ce3359f6e37707ff74",
+  "generatedAt": "2026-11-02T06:28:10.856195+00:00",
+  "commit": "52edc0e6e9d5d67b14bfa3aa873dd1b7463cbbe8",
   "branch": "main",
-  "sourceFingerprint": "b3ce1bd960f7830b6f7e098a486f99d45f15724312daa13351a939908a147267",
+  "sourceFingerprint": "2c7bd868520428b21a96a5e278c059ea18526ebb4cd00a0fd2d71b304e3ace80",
   "summary": {
     "files": 1119,
-    "lines": 229050,
-    "symbols": 3233
+    "lines": 229089,
+    "symbols": 3234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17400,6 +17400,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
         "line": 15
+      }
+    ],
+    "planAt": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
+        "line": 92
       }
     ],
     "ResidentDailyContinuityTest": [
@@ -37437,12 +37443,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 139,
-      "sha256": "53f472934aa4919fe7281c19200b1760a0da95ce73c760431c674364afaa3375",
+      "lines": 178,
+      "sha256": "8199b8f07137454e92033a319cc378f622b9d3426e1a1eb12908637e91145403",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
           "line": 15
+        },
+        {
+          "name": "planAt",
+          "line": 92
         }
       ]
     },
