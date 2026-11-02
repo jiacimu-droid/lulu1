@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2cf86ac5aa6f44b2de36371a4f99b28a26252904`
+- 基准提交：`2f31c2b0005f3ba1e7f6eddc6b5407224716a94c`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：229150
+- 已索引代码/文本行：229152
 - 已发现符号：3234
 
 | 文件 | 行数 | 符号数 |
@@ -728,7 +728,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2181 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2183 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
