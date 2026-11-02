@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`42800ba1ebc6f27c428a3fe1a0bd464223448f40`
+- 基准提交：`3431bd6fcc15ca65252c589f930c4d46133cac30`
 - 分支：`main`
 - 已索引文件：1119
-- 已索引代码/文本行：229350
+- 已索引代码/文本行：229380
 - 已发现符号：3234
 
 | 文件 | 行数 | 符号数 |
@@ -1099,7 +1099,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 265 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 55 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
