@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.toArgb
 import kotlin.math.sin
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.abs
 
 /**
  * Hand-authored procedural pixel-style art. No third-party sprites or copyrighted game assets.
@@ -42,6 +43,8 @@ internal object BlockIslandArt {
         companionPing: Pair<Int, Int>? = null,
         playerVisual: Offset? = null,
         companionVisuals: Map<String,Offset> = emptyMap(),
+        mobVisuals: Map<Int,Offset> = emptyMap(),
+        playerFacing: Pair<Int,Int> = 0 to 1,
         camera: IslandFollowCamera,
         navigationStep: Pair<Int, Int>? = null,
         night: Boolean,
@@ -132,7 +135,10 @@ internal object BlockIslandArt {
         }
         w.mobs.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
             .forEach { mob ->
-                drawSlime(center(mob.x, mob.y), tile, mob.hp, phase, mob.id)
+                val hit = impact?.takeIf { it.action=="fight" &&
+                    it.x==mob.x && it.y==mob.y && impactProgress<1f }
+                drawSlime(actorCenter(mobVisuals[mob.id],mob.x,mob.y),tile,mob.hp,phase,mob.id,
+                    hit?.let { 1f-impactProgress } ?: 0f)
             }
         val companionOutfits = listOf(
             Color(0xFF71BBD0), Color(0xFFE1B783), Color(0xFFA8A4D5), Color(0xFFB7D38C),
@@ -143,14 +149,36 @@ internal object BlockIslandArt {
         w.friends.filter { it.x in left until left + cols && it.y in top until top + rows }
             .forEach { friend ->
                 val look = (friend.id.hashCode() and Int.MAX_VALUE) % companionOutfits.size
+                val visual = companionVisuals[friend.id]
+                val walking = visual != null &&
+                    abs(visual.x-friend.x)+abs(visual.y-friend.y)>.025f
                 if (friend.hp > 0) drawPerson(
-                    actorCenter(companionVisuals[friend.id],friend.x,friend.y), tile,
+                    actorCenter(visual,friend.x,friend.y), tile,
                     companionOutfits[look], companionHair[look], phase + look * .13f, false,
-                ) else drawFallen(actorCenter(companionVisuals[friend.id],friend.x,friend.y), tile)
+                    walking = walking,
+                ) else drawFallen(actorCenter(visual,friend.x,friend.y), tile)
             }
         if (w.x in left until left + cols && w.y in top until top + rows) {
-            drawPerson(actorCenter(playerVisual,w.x,w.y), tile,
-                Color(0xFFEEA87C), Color(0xFF715047), phase, true)
+            val playerCenter=actorCenter(playerVisual,w.x,w.y)
+            val walking=playerVisual != null &&
+                abs(playerVisual.x-w.x)+abs(playerVisual.y-w.y)>.025f
+            drawPerson(playerCenter,tile,
+                Color(0xFFEEA87C),Color(0xFF715047),phase,true,walking=walking)
+            // Clear directional cue beneath the feet: turning does not spend a game turn.
+            val heading=Offset(playerFacing.first.toFloat(),playerFacing.second.toFloat())
+            if(abs(playerFacing.first)+abs(playerFacing.second)==1) {
+                val tip=playerCenter+heading*tile*.39f
+                val side=Offset(-heading.y,heading.x)
+                drawCircle(Color(0xFFDFF6D4).copy(alpha=.22f),tile*.17f,tip)
+                drawLine(Color(0xFFFFE09C),tip-heading*tile*.14f,tip,
+                    strokeWidth=(tile*.09f).coerceAtLeast(1.5f))
+                drawLine(Color(0xFFFFE09C),tip,
+                    tip-heading*tile*.11f+side*tile*.08f,
+                    strokeWidth=(tile*.055f).coerceAtLeast(1f))
+                drawLine(Color(0xFFFFE09C),tip,
+                    tip-heading*tile*.11f-side*tile*.08f,
+                    strokeWidth=(tile*.055f).coerceAtLeast(1f))
+            }
         }
         // Real once-per-island salvage stashes, drawn directly from persisted locations.
         for (index in island.supplyCaches) {
