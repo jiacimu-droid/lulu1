@@ -118,9 +118,13 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         val result = BlockIslandRules.act(island, action, x, y, autonomousIds)
         if (result.world.turns > island.world.turns) {
             val label = when(action) {
-                "gather" -> if(island.world.cell(x,y)==1)
-                    "+${result.world.wood-island.world.wood} 木"
-                    else "+${result.world.stone-island.world.stone} 石"
+                "gather" -> {
+                    val resource=if(island.world.cell(x,y)==1)
+                        "+${result.world.wood-island.world.wood} 木"
+                        else "+${result.world.stone-island.world.stone} 石"
+                    val fruitGain=result.fruit-island.fruit
+                    resource + if(fruitGain>0) " · +$fruitGain 果" else ""
+                }
                 "fight" -> {
                     val enemy = island.world.mobs.firstOrNull {
                         it.hp>0 && it.x==x && it.y==y
@@ -128,9 +132,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     val remaining = result.world.mobs.firstOrNull { it.id==enemy?.id }?.hp ?: 0
                     enemy?.let { "-${(it.hp-remaining).coerceAtLeast(0)} ❤" } ?: ""
                 }
-                "salvage" -> "+${result.world.wood-island.world.wood} 木 · +${result.world.stone-island.world.stone} 石"
-                "revive", "eat", "eat_fish", "rest" ->
-                    "+${(result.world.hp-island.world.hp).coerceAtLeast(0)} ❤"
+                "salvage" -> {
+                    val fruitGain=result.fruit-island.fruit
+                    "+${result.world.wood-island.world.wood} 木 · +${result.world.stone-island.world.stone} 石" +
+                        if(fruitGain>0) " · +$fruitGain 果" else ""
+                }
+                "revive" -> "队友已救起"
+                "eat", "eat_fish", "rest" -> {
+                    val hpGain=(result.world.hp-island.world.hp).coerceAtLeast(0)
+                    if(hpGain>0) "+$hpGain ❤" else "已休息"
+                }
                 "plant", "wall", "floor", "door", "workbench", "campfire", "bed",
                 "bridge", "remove" -> "✓"
                 else -> ""
@@ -226,7 +237,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         toolsLabel = "☰ 游戏菜单",
         closeToolsSignal = dismissToolsVersion,
         notice = worldNotice,
-        status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
+        status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
             " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
         scene = {
