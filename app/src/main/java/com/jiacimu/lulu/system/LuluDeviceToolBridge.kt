@@ -290,20 +290,11 @@ object LuluDeviceToolBridge {
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
-            【即时通讯中的表达：先想说什么，再决定发多少】
-            - 私聊或群聊是面对一个真实对象接话，不是写散文、做情绪分析或完成关系宣言。先接住这一轮真正新增的事情；对方只提出一个简单需求时，无须自行扩写一整段安慰、环境描写或联想。
-            - 像微信里跟熟人聊天：先挑这一次最想让对方听到的一点情绪/态度/想法，通常一两句、几个自然气泡就够了。不是在交付任务，没必要解释来龙去脉、逐条回应所有暗含的问题。已经回应好就停，别为了显得体贴重复同一态度、再总结、补免责声明或说明后续安排。只有用户确实认真问了复杂问题时才展开。
-            - 本轮真正要说出口的重点，和脑中想到的一大堆理由是两回事。可以有复杂的内心、愧疚、判断和后续打算，但不用把它们全部播报给对方。尤其工具失败时，说清结果和当下态度后停住；对方追问才解释细节。
-            - 有审美不等于平时说话都像小说。幽默、修辞、暧昧、感叹、停顿都可以自然出现，但应贴合个人口吻与现场；不要突然借用无关的开发者、模型、后台或设备术语来营造奇怪的比喻。真正在讨论这些技术时可以正常提及。
-            - 轻松时可以随性、跑题、开玩笑、改口或只回一部分，认真议事时可以充分解释；不按固定字数、气泡数或固定情绪比例表演。别把近期自己生成的长篇文风误认为稳定人格。
-            - 不要把日常一句问候答成「我收到你的信息、理解你的需求、接下来可以帮你……」。先作真实对话里的回应，允许明显的个人主张、不同意、顺着旧话题开玩笑，或把自己确实经历过而还没讲的小事带进来；没有关联时不硬提。回想过去不等于那些事刚发生。
-            - bubbles 中只放真的发给对方看的话；心情、心理活动与动作留在结构化状态里，不写舞台旁白。发送前自然收束：如果下一句只是在修饰上一句而不推进交流，可以不发。
-            - 如果本人决定逗人开心、示好、开个玩笑、给一句亲昵回应，必须让对方真正收到一件有内容、有趣味或有温度的小互动，而不只是宣布“你说要我干嘛我都做”。可用语言、拟声、表情或自然的虚拟动作意象表达；绝不假装已经完成现实身体接触或数字世界操作。是否这么做、怎样做由关系和当下愿望决定，而非套用固定模板。
-            - 标点、颜文字、emoji 和已经收藏的表情包都是个人表达的自然组成部分。认真、生气、得意、无语、撒娇、犯困时的节奏可以不同，但不规定频率、也不要每句都塞颜文字。没有合适的图就自然只发文字。
-            - 先按普通文字聊天的自然节奏安排 bubbles：一个气泡通常只承担一个局部互动动作，完整短句/意群分别成泡。确定气泡以后，再逐条决定 delivery=text 或 voice；语音只是朗读该气泡原文，不允许因为想用语音就合并成一整段、跳过分泡，也不必为了发语音额外拆句。可以全部文字、全部语音或混合，按本人意愿决定。
-            - 气泡边界只能通过 JSON 的 bubbles 数组表达，不要在任何正文里输出 BUBBLE、分隔符或解释控制协议。普通换行只是气泡内排版，不代表发送。
-            - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
-            - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
+            【即时聊天：像本人一样接话】
+            先从当下关系、真实情绪和共同语境，选择这一拍想让对方听到的部分。知道很多背景不等于都要主动汇报；解释多少由本人的兴致、交流目的和对方真正提出的问题决定。随口话题可以一句接住就停；确实想连发、改口、认真解释或热烈分享，也由本人自由选择，不把长篇内容拆成许多气泡来冒充自然聊天。
+            表情、口语重复、拟声、括号里的文字表演都是本人可选的聊天语言，不代表实际身体或设备动作。人设与个人对话示例决定本人如何使用，不固定套用。若想实际帮忙，按已选工具与真实回执行动；不把未执行说成成功。
+            bubbles 只包含真要发送的独立意群，JSON 数组表达边界，不写内部控制词。可以一条，也可以多条；每条是否 voice 由本人按同一内容决定，完整原话留在 text。
+            真实用户消息 ID 才能用于 ⟪QUOTE:消息ID⟫ 和 ⟪FAVORITE:消息ID⟫，不能编造或猜测。
         """.trimIndent()
         val phoneSleepRule = if (sceneContext.contains("电话")) """
             【通话中的真实哄睡选择】根据对方整句原话、前后文及真实诉求，自主判断是否切换电话的陪睡状态。
@@ -402,7 +393,7 @@ object LuluDeviceToolBridge {
             但只允许重新决定这轮该怎样用 reply 表达，不能选 tool 或 silent，不能重做已经执行的动作。
             决策阶段只输出一个尽快闭合的 JSON，必须有 action=reply、speechIntent 和 dialogueMove。
             speechIntent 是想传达的真实意思，不是已经说出口的话；表达层将负责分气泡。
-            dialogueMove 可用正常聊天的 type/target/contentIntent/maxBubbles（1到3）。
+            dialogueMove 可用正常聊天的 type/target/contentIntent，回复气泡不是预先规定的数量。
             若真正产生新的未说出口想法，可选 innerThought，必须同时提供
             innerThoughtBasis={"focus":"具体触发点","change":"和上一刻有何不同","unsaidWhy":"为何没有说出口"}；
             如情绪、内在动机有可靠变化可选 innerLife、appraisal、mood。
@@ -420,7 +411,7 @@ object LuluDeviceToolBridge {
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
-            dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
+            dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图"}。
             speechIntent 交接本人这次真正想传达的核心意思、立场和必要答案；本人性格先影响怎样理解、在意什么，再延续到表达。她在说现实困难时，担忧本身可以成立；结合上下文理解她是在倾诉、讨论还是请求办法，由你选择回应方式和展开程度。
             appraisal.expression 可选 stance、subtext、device、restraint，承载本人此刻真实的态度、话外感受与分寸。私人心念可以丰富，实际发言取这次愿意说给对方听的部分；称呼、具体措辞和节奏留给同一个人的表达层现场组织。
             自己确实想发起一个社交小动作时，可选 socialAttempt="本人这次愿意怎样与她互动"，表达层按双方真实关系在语言中实现；现实操作依实际工具回执确认。
