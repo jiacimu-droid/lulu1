@@ -105,7 +105,7 @@ internal object ModelStructuredOutput {
      * A model-selected bubble may contain several complete sentences; this
      * changes only the send pacing, never the character's decided content.
      */
-    fun readableReplyBubbles(values: List<String>, maxBubbles: Int = 8): List<String> {
+    fun readableReplyBubbles(values: List<String>, maxBubbles: Int = Int.MAX_VALUE): List<String> {
         val stable = stabilizeReplyBubbles(values)
         val pieces = mutableListOf<String>()
         stable.forEach { bubble ->

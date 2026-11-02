@@ -342,6 +342,12 @@ class ModelStructuredOutputTest {
             ModelStructuredOutput.readableReplyBubbles(listOf(oneSentence)))
     }
 
+    @Test fun defaultBubbleReadabilityNeverFusesNinthAndLaterBeats() {
+        val authored = (1..12).map { "第${it}句都想单独说完这一层意思，后面还要接一句自己的反应。" }
+        val result = ModelStructuredOutput.readableReplyBubbles(listOf(authored.joinToString("")))
+        assertEquals(authored, result)
+    }
+
     @Test fun toolResultWithManyCompleteBeatsNeverFusesItsTail() {
         val beats = (1..12).map {
             "第${it}句解释各自有一层完整意思，而且下一句还会继续推进。"
