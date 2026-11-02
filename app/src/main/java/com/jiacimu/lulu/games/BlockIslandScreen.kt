@@ -226,7 +226,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 fullscreen = true, companionPing = companionPing,
-                buildPreview = buildPreview)
+                buildPreview = buildPreview, facing = facing)
         },
         companionAvailable = game.playWithCharacter && world.friends.isNotEmpty() &&
             world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3),
@@ -709,11 +709,19 @@ private fun BlockIslandCanvas(
     fullscreen: Boolean = false,
     companionPing: Pair<Int, Int>? = null,
     buildPreview: IslandBuildPreview? = null,
+    facing: Pair<Int, Int> = 0 to 1,
 ) {
     val w = island.world
     val playerVisual = islandActorPosition(w.seed,"player",w.x,w.y)
     val companionVisuals = w.friends.associate { friend ->
         key(friend.id) { friend.id to islandActorPosition(w.seed,friend.id,friend.x,friend.y) }
+    }
+    // Monsters use the exact same tile-to-tile interpolation as real players.
+    // This is render-only; pathfinding, combat and authoritative positions stay in Rules.
+    val mobVisuals = w.mobs.filter { it.hp>0 }.associate { mob ->
+        key("mob-${mob.id}") {
+            mob.id to islandActorPosition(w.seed,"mob-${mob.id}",mob.x,mob.y)
+        }
     }
     // Only the Canvas recomposes for breeze/water/fire; controls & saved state stay stable.
     val scenery = rememberInfiniteTransition(label = "island-weather")
@@ -762,7 +770,8 @@ private fun BlockIslandCanvas(
         with(BlockIslandArt) {
             paint(
                 island = island, selected = target, companionPing = companionPing,
-                playerVisual = playerVisual, companionVisuals = companionVisuals, camera = camera,
+                playerVisual = playerVisual, companionVisuals = companionVisuals,
+                mobVisuals = mobVisuals, playerFacing = facing, camera = camera,
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
                 buildPreview = buildPreview,
