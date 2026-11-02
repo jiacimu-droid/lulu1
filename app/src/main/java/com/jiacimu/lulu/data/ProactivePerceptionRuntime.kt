@@ -1460,7 +1460,14 @@ object ProactivePerceptionRuntime {
             "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
             "居民小事到了",
         ).any { trigger.startsWith(it) }
-        val shouldReview = followThroughReview ||
+        // A live user's unread turn takes priority over optional independent
+        // life reflection. That extra paid model call used to happen BEFORE
+        // sending the already completed answer, making chat appear stuck even
+        // after the relay finished. Existing independent-life opportunities
+        // remain available on later, message-free perceptions.
+        val hasPendingUserTurn = onlineUnread.text.isNotBlank() || onlineUnread.messageIds.isNotEmpty() ||
+            privateDialogue.isNotEmpty()
+        val shouldReview = !hasPendingUserTurn && (followThroughReview ||
             (!routineHeartbeat && !alreadyChoseSteps &&
                 !ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
                 now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
@@ -1469,7 +1476,7 @@ object ProactivePerceptionRuntime {
                     reason = parsed.reason,
                     recentActions = recentAutonomousActions,
                     hasPendingUserMessage = onlineUnread.text.isNotBlank(),
-                ))
+                )))
         val independentChoice = if (shouldReview) {
             prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli())
                 .putString("last_impulse_review_key_$characterId", followThroughKey)
