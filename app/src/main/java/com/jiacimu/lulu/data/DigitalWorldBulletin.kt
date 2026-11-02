@@ -18,6 +18,7 @@ internal object DigitalWorldBulletin {
         world: DigitalWorldState,
         residents: List<DigitalWorldResident>,
         places: List<DigitalWorldDiscoveredPlace>,
+        friendships: List<CharacterFriendRequest> = CharacterFriendRequests.acceptedForWorld(),
     ): List<DigitalWorldNotice> {
         val notices = mutableListOf<DigitalWorldNotice>()
         residents.forEach { resident ->
@@ -37,6 +38,27 @@ internal object DigitalWorldBulletin {
                 occurredAt = place.createdAt,
                 category = "地点",
             )
+        }
+        // Friend requests are private to the two people, but the completed
+        // relationship is a real owner-visible world event, not a fiction in
+        // the literary theater. Only persisted acceptance produces a receipt.
+        if (friendships.isNotEmpty()) {
+            val names = MigratedDomainStores.characters.settings.value
+            friendships.asSequence()
+                .filter { it.status == "accepted" && it.resolvedAt != null }
+                .forEach { request ->
+                    val from = names[request.fromId]?.displayName?.takeIf(String::isNotBlank)
+                        ?: "已移除的角色"
+                    val to = names[request.toId]?.displayName?.takeIf(String::isNotBlank)
+                        ?: "已移除的角色"
+                    notices += DigitalWorldNotice(
+                        id = "friend-accepted:${request.id}",
+                        title = "好友已添加 · $from与$to",
+                        detail = "$to 同意了 $from 的好友申请，两人当时正式成为好友。朋友圈可见权限以当前好友关系为准。",
+                        occurredAt = checkNotNull(request.resolvedAt),
+                        category = "社交",
+                    )
+                }
         }
         world.events.asSequence()
             .filter { event ->
