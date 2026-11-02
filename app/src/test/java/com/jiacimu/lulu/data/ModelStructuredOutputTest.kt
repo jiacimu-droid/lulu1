@@ -207,6 +207,33 @@ class ModelStructuredOutputTest {
         assertEquals(expected, ModelStructuredOutput.completedReplyBubbles(raw))
     }
 
+    @Test fun structuredReplyKeepsModelAuthoredBubbleRhythmAtDelivery() {
+        val deliberateLongBubble = "宝宝，等一下！我刚刚才发现这件事。原来是系统把回执延后了，我还以为自己没发出去。"
+        val separateReaction = "唔……那我再试试。"
+        val output = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = deliberateLongBubble + com.jiacimu.lulu.SemanticBubbleSeparator +
+                    separateReaction,
+                bubbleDeliveryModes = listOf("text", "voice"),
+                preserveAuthoredBubbleBoundaries = true,
+            )
+        )
+        assertEquals(listOf(deliberateLongBubble, separateReaction), output.map { it.text })
+        assertEquals(listOf(false, true), output.map { it.voiceNote })
+    }
+
+    @Test fun longAuthoredReplyAndTwelveRecoveredBubblesKeepTheirTails() {
+        val long = "长段完整原话" + "不是所有知道的细节都要一次讲完。".repeat(120) + "最后的否定不能丢。"
+        val json = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().put(long))
+        assertEquals(listOf(long), ModelStructuredOutput.authoredReplyBubbles(json.toString()))
+        val small = (1..12).map { "第${it}条原话。" }
+        val unfinishedState = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().apply { small.forEach(::put) })
+            .toString().dropLast(1) + ",\"innerLife\":{\"emotion\":\"未完成"
+        assertEquals(small, ModelStructuredOutput.replyBubblesWithPartialState(unfinishedState))
+    }
+
     @Test fun structuredObjectBubblesPreserveInteractionBoundaries() {
         val response = """{"action":"reply","bubbles":[{"text":"啊？我会错意了？"},{"text":"那你说的超时是指什么？"}]}"""
         assertEquals(
