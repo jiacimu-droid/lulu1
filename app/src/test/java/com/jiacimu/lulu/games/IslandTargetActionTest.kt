@@ -62,6 +62,53 @@ class IslandTargetActionTest {
             1 to 0, setOf("gather","fight")))
     }
 
+    @Test fun buildPreviewUsesRealPlacementAndNeverConsumesMaterialsUntilConfirmed() {
+        val start = BlockIslandRules.newWorld(41, emptyList())
+        val ready = start.copy(world=start.world.copy(wood=8,stone=4))
+        val preview = IslandBuildingControls.preview(ready, "workbench", 5, 5)
+        assertNotNull(preview)
+        assertTrue(preview!!.allowed)
+        assertEquals("workbench", preview.action)
+        assertFalse(ready.structures.containsKey(ready.world.index(5,5)))
+        assertEquals(8,ready.world.wood)
+        assertEquals(4,ready.world.stone)
+
+        val built = BlockIslandRules.act(ready,preview.action,preview.x,preview.y)
+        assertEquals("workbench",built.structures[built.world.index(5,5)])
+        assertEquals(4,built.world.wood)
+        assertEquals(2,built.world.stone)
+        assertEquals(ready.world.turns+1,built.world.turns)
+        assertFalse(IslandBuildingControls.preview(built,"workbench",5,5)!!.allowed)
+    }
+
+    @Test fun redPreviewRejectsOccupiedFarOrUnaffordableTilesWithoutAdvancingTurn() {
+        val start = BlockIslandRules.newWorld(42, emptyList())
+        assertFalse(IslandBuildingControls.preview(start,"wall",5,5)!!.allowed)
+        val stocked = start.copy(world=start.world.copy(wood=8,stone=4))
+        assertFalse(IslandBuildingControls.preview(stocked,"wall",4,5)!!.allowed)
+        assertFalse(IslandBuildingControls.preview(stocked,"wall",15,15)!!.allowed)
+        assertNull(IslandBuildingControls.preview(stocked,"nonexistent",5,5))
+        assertNull(IslandBuildingControls.preview(stocked,"wall",-1,-1))
+        val denied=BlockIslandRules.act(stocked,"wall",15,15)
+        assertEquals(stocked.world.turns,denied.world.turns)
+        assertEquals(stocked.world.wood,denied.world.wood)
+    }
+
+    @Test fun selectedBuildModeCanPlaceOnAnotherLegalCellWithoutExtraRecipePurchase() {
+        val start = BlockIslandRules.newWorld(43, emptyList())
+        val ready = start.copy(world=start.world.copy(wood=8,stone=4))
+        val first=IslandBuildingControls.preview(ready,"floor",5,5)!!
+        assertTrue(first.allowed)
+        val placed=BlockIslandRules.act(ready,first.action,first.x,first.y)
+        val second=IslandBuildingControls.preview(placed,"floor",3,5)!!
+        assertTrue(second.allowed)
+        val placedAgain=BlockIslandRules.act(placed,second.action,second.x,second.y)
+        assertEquals(6,placedAgain.world.wood)
+        assertEquals(ready.world.turns+2,placedAgain.world.turns)
+        assertEquals(4,placedAgain.world.cell(5,5))
+        assertEquals(4,placedAgain.world.cell(3,5))
+    }
+
     @Test fun nearbyResourcesAndMonstersAreImmediatelyActionable() {
         val s = scene()
         assertEquals("gather", islandTargetAction(s, 5 to 4).action)
