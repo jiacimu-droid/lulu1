@@ -798,6 +798,9 @@ private fun BlockIslandCanvas(
     val companionVisuals = w.friends.associate { friend ->
         key(friend.id) { friend.id to islandActorPosition(w.seed,friend.id,friend.x,friend.y) }
     }
+    val companionLabels=w.friends.associate { friend ->
+        friend.id to MigratedDomainStores.characters.get(friend.id).displayName
+    }
     // Monsters use the exact same tile-to-tile interpolation as real players.
     // This is render-only; pathfinding, combat and authoritative positions stay in Rules.
     val mobVisuals = w.mobs.filter { it.hp>0 }.associate { mob ->
@@ -853,7 +856,8 @@ private fun BlockIslandCanvas(
             paint(
                 island = island, selected = target, companionPing = companionPing,
                 playerVisual = playerVisual, companionVisuals = companionVisuals,
-                mobVisuals = mobVisuals, playerFacing = facing, camera = camera,
+                mobVisuals = mobVisuals, companionLabels = companionLabels,
+                playerFacing = facing, camera = camera,
                 navigationStep = navigationStep,
                 night = night, phase = phase, impact = impact, impactProgress = impactProgress,
                 buildPreview = buildPreview, hurtProgress = hurtProgress,
