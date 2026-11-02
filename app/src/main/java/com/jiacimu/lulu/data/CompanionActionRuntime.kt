@@ -671,6 +671,7 @@ internal object CompanionActionRuntime {
                             content = authoredText,
                             bubbleDeliveryModes = bubbleModes,
                             bubbleSpeechTracks = speechTracks.takeIf { it.size == bubbleModes.size }.orEmpty(),
+                            preserveAuthoredBubbleBoundaries = true,
                         )
                     } else parsed.copy(content = authoredText, voiceBubbleTexts = voiceTexts)
                 }
