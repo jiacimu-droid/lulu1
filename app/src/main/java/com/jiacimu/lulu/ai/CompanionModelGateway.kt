@@ -1198,6 +1198,13 @@ class CompanionModelGateway(
                         ?: cachedTokens
                 }
                 publishVisibleProgress()
+                // Some OpenAI-compatible relays emit a terminal finish_reason but
+                // omit [DONE] or keep the SSE connection open. Once that final
+                // choice arrives, waiting for EOF strands an already billed reply
+                // until the read timeout. Claude still finishes on message_stop.
+                if (choice?.optString("finish_reason")?.isNotBlank() == true) {
+                    streamFinished = true
+                }
                 return true
             }
 
