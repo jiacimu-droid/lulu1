@@ -65,6 +65,37 @@ class ModelVisibleOutputTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun terminalSseChoiceCompletesWithoutDoneOrSocketEof() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        // The relay has already emitted the model's terminal choice but never
+        // sends [DONE]. Anything after that terminal event must not keep the
+        // paid request pending or invalidate its completed response.
+        val first = """data: {"choices":[{"index":0,"delta":{"content":"已经回答。"},"finish_reason":null}]}"""
+        val terminal = """data: {"choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":7}}"""
+        val late = """data: {"error":{"message":"unexpected relay event after model completion"}}"""
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("$first\n\n$terminal\n\n$late\n\n"))
+        server.start()
+        try {
+            val partial = mutableListOf<String>()
+            val result = gateway.generate(
+                "finish-without-done", "", "回应", "后台主动感知", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+                onStreamText = { partial += it },
+            ).getOrThrow()
+            assertEquals("已经回答。", result.text)
+            assertEquals("stop", result.finishReason)
+            assertEquals(7, result.outputTokens)
+            assertTrue(partial.any { it == "已经回答。" })
+            assertEquals("Already charged generation must not be replayed", 1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun jsonReasoningFieldsCannotSubstituteForMissingContent() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
