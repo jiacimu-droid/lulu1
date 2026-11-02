@@ -19,7 +19,35 @@ class WorldBookFolderRepositoryTest {
     private val context: Context get() = RuntimeEnvironment.getApplication()
 
     @Before fun resetWorldBook() {
-        context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE).edit()
+            .clear().putBoolean("human_chat_world_book_seeded_v1", true).commit()
+    }
+
+    @Test fun modernChatBookSeedsOnceAndRespectsOwnerDisableAndDeletion() = runBlocking {
+        val storage = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+        storage.edit().remove("human_chat_world_book_seeded_v1").commit()
+        val original = InMemoryWorldBookRepository().also { it.initialize(context) }
+        val seeded = original.snapshot().single()
+        assertEquals("现代聊天与自然表达", seeded.title)
+        assertTrue(seeded.globalEnabled)
+        assertEquals(WorldBookPromptPosition.BOTTOM, seeded.promptPosition)
+        assertTrue(seeded.content.contains("知道得多不等于每次要讲得多"))
+        original.setGlobalEnabled(seeded.id, false)
+        assertFalse(InMemoryWorldBookRepository().also { it.initialize(context) }
+            .snapshot().single().globalEnabled)
+        original.delete(seeded.id)
+        assertTrue(InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().isEmpty())
+    }
+
+    @Test fun modernChatBookNeverOverwritesExistingOwnerEntry() {
+        val storage = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+        storage.edit().putString("entries_v1",
+            """[{"id":"my-entry","title":"现代聊天与自然表达","content":"主人自己的版本","globalEnabled":false}]"""
+        ).remove("human_chat_world_book_seeded_v1").commit()
+        val saved = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot()
+        assertEquals(1, saved.size)
+        assertEquals("主人自己的版本", saved.single().content)
+        assertFalse(saved.single().globalEnabled)
     }
 
     private fun entry(id: String) = WorldBookEntry(
