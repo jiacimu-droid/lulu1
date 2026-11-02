@@ -13,6 +13,14 @@ internal object CharacterEverydaySocialContext {
             val relationship = CharacterSocialRelationship.snapshot(characterId, id)
             if (!relationship.knowsEachOther) null else id to relationship
         }
+        // A confirmed request is a relationship change worth bringing into
+        // the person's next normal decision, not an automatic obligation to chat.
+        val newlyConfirmedFriends = CharacterFriendRequests.historyFor(characterId)
+            .filter { request -> request.status == "accepted" &&
+                request.resolvedAt != null &&
+                MomentFriendAccess.areFriends(request.fromId, request.toId) }
+            .sortedByDescending { it.resolvedAt }
+            .take(4)
         val groups = MigratedDomainStores.chat.conversations.value
             .filter { chat -> chat.groupChat?.members?.any { it.characterId == characterId } == true }
             .take(6)
@@ -69,6 +77,16 @@ internal object CharacterEverydaySocialContext {
                     }
                     appendLine("若本人确实想进一步结识，且没有重复申请，可用 send_friend_request(targetCharacterId,greeting)；申请送达≠已经成为好友。是否发、是否同意，由双方各自决定。")
                 }
+            }
+            if (newlyConfirmedFriends.isNotEmpty()) {
+                appendLine("【最近确认的好友关系｜已同意才算好友】")
+                newlyConfirmedFriends.forEach { request ->
+                    val peerId = if (request.fromId == characterId) request.toId else request.fromId
+                    val peer = MigratedDomainStores.characters.settings.value[peerId]?.displayName
+                        ?: peerId
+                    appendLine("- ${request.resolvedAt}；$peer($peerId) 与我正式成为QQ好友；此前申请已被对方接受，不是剧情里的口头约定。")
+                }
+                appendLine("关系确认后，可以自己决定找新朋友聊聊、分享真正想说的动态、提议一起活动，或者先不联系；申请已通过不等于双方已实际聊天或产生了好感。")
             }
             if (contacts.isNotEmpty()) {
                 appendLine("【本人手机里确实可以联系的对象｜模型可自由选择联系或不联系】")
