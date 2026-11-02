@@ -442,6 +442,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
         }
         }
+        if(menuSection=="探索") {
+            IslandMiniMap(island)
+        }
         if(menuSection=="探索" || menuSection=="建造") {
         island.houseProject?.let { project ->
             Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFF244950),
@@ -653,6 +656,70 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             },
             dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("取消") } },
         )
+    }
+}
+
+/** A lightweight read-only overview of the authoritative, saved world.
+ * Unlike another world-map store, every marker reflects the actual current game state.
+ * The overview lives inside Exploration, not on top of the moving game scene.
+ */
+@Composable
+private fun IslandMiniMap(island: BlockIslandState) {
+    val w=island.world
+    Surface(shape=RoundedCornerShape(15.dp),color=Color(0xFF1A3B42),
+        border=BorderStroke(1.dp,Color(0xFF719C8D).copy(alpha=.45f))) {
+        Column(Modifier.fillMaxWidth().padding(11.dp),
+            verticalArrangement=Arrangement.spacedBy(7.dp)) {
+            Row(verticalAlignment=Alignment.CenterVertically) {
+                Text("小岛概览",color=Color.White,fontWeight=FontWeight.Bold,
+                    fontSize=13.sp,modifier=Modifier.weight(1f))
+                Text("当前位置（${w.x}, ${w.y}）",color=Color(0xFFB8D6CA),
+                    fontSize=10.sp)
+            }
+            Canvas(Modifier.fillMaxWidth().height(144.dp)) {
+                val unit=minOf(size.width/w.width.toFloat(),
+                    size.height/w.height.toFloat())
+                val left=(size.width-unit*w.width)*.5f
+                val top=(size.height-unit*w.height)*.5f
+                val tiles=w.tiles
+                for(y in 0 until w.height) for(x in 0 until w.width) {
+                    val cell=tiles[w.index(x,y)]
+                    val shade=when(cell) {
+                        8 -> Color(0xFF347D9F)
+                        1 -> Color(0xFF215A40)
+                        2 -> Color(0xFF899B98)
+                        3 -> Color(0xFF9C7650)
+                        4 -> Color(0xFFBB9B6F)
+                        7 -> Color(0xFFCFB279)
+                        else -> Color(0xFF669465)
+                    }
+                    val structure=island.structures[w.index(x,y)]
+                    val tint=when(structure) {
+                        "wall","door","workbench","campfire","bed" -> Color(0xFFE0BB80)
+                        "bridge" -> Color(0xFFC69B74)
+                        else -> shade
+                    }
+                    drawRect(tint,topLeft=Offset(left+x*unit,top+y*unit),
+                        size=Size(unit+.3f,unit+.3f))
+                }
+                fun dot(x:Int,y:Int,color:Color,scale:Float=1f) {
+                    if(!w.inBounds(x,y))return
+                    drawCircle(Color(0xFF142C32).copy(alpha=.70f),
+                        radius=(unit*.82f*scale).coerceAtLeast(2.4f),
+                        center=Offset(left+(x+.5f)*unit,top+(y+.5f)*unit))
+                    drawCircle(color,radius=(unit*.56f*scale).coerceAtLeast(1.8f),
+                        center=Offset(left+(x+.5f)*unit,top+(y+.5f)*unit))
+                }
+                island.supplyCaches.filter { it !in island.openedSupplies }.forEach {
+                    dot(it%w.width,it/w.width,Color(0xFFFFD992))
+                }
+                w.mobs.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFFFF918B)) }
+                w.friends.filter { it.hp>0 }.forEach { dot(it.x,it.y,Color(0xFF8BDAF3)) }
+                dot(w.x,w.y,Color(0xFFFFF0B1),1.35f)
+            }
+            Text("黄：你／补给　蓝：伙伴　红：怪物　浅褐：已建建筑",
+                color=Color(0xFFC5E0D3),fontSize=10.sp,maxLines=2)
+        }
     }
 }
 
