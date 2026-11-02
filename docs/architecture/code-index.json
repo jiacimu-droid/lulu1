@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T17:21:05.924109+00:00",
-  "commit": "cb830ac6afcf2a007946f54a5e5880071c4fe863",
+  "generatedAt": "2026-11-02T17:24:24.256469+00:00",
+  "commit": "b4f1e5a0d90fa57e5c6807f420b56b6c3fd0739d",
   "branch": "main",
-  "sourceFingerprint": "096db82f17c2ec5a8810e9f88a84d78227caebeeb8b4a3716deffad9dd7bba31",
+  "sourceFingerprint": "87d243f9c9bec1e1bd20c10ee22aca5bb0940951854d8f1a43c98b9b78f488b2",
   "summary": {
     "files": 1121,
-    "lines": 230294,
+    "lines": 230297,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -38307,8 +38307,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
-      "lines": 182,
-      "sha256": "e302c4219f83d57d19a5f09de4f75ed3d8dc2199d5b82a812964f161f836da05",
+      "lines": 185,
+      "sha256": "e09ac003b111adfbc3cf26889bbf667630fa7e6afee7206372d26b830d223802",
       "symbols": [
         {
           "name": "IslandTargetActionTest",
