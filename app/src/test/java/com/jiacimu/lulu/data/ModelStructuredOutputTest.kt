@@ -317,6 +317,17 @@ class ModelStructuredOutputTest {
             ModelStructuredOutput.readableReplyBubbles(listOf(oneSentence)))
     }
 
+    @Test fun toolResultWithManyCompleteBeatsNeverFusesItsTail() {
+        val beats = (1..12).map {
+            "第${it}句解释各自有一层完整意思，而且下一句还会继续推进。"
+        }
+        val full = beats.joinToString("")
+        val paced = ModelStructuredOutput.readableReplyBubbles(
+            listOf(full), maxBubbles = Int.MAX_VALUE)
+        assertEquals(beats, paced)
+        assertEquals(full, paced.joinToString(""))
+    }
+
     @Test fun visualBubbleLimitNeverDropsTheTailOfASpeech() {
         val longText = "先解释清楚第一件事。接着谈谈第二件事。然后再说第三件事。" +
             "还有第四件要认真说明。最后一句不能丢掉。"
