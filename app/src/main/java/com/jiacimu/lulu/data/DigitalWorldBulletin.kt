@@ -53,7 +53,7 @@ internal object DigitalWorldBulletin {
                         ?: "已移除的角色"
                     notices += DigitalWorldNotice(
                         id = "friend-accepted:${request.id}",
-                        title = "好友已添加 · $from与$to",
+                        title = "好友已添加 · ${from}与${to}",
                         detail = "$to 同意了 $from 的好友申请，两人当时正式成为好友。朋友圈可见权限以当前好友关系为准。",
                         occurredAt = checkNotNull(request.resolvedAt),
                         category = "社交",
