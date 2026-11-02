@@ -124,7 +124,7 @@ android {
             // Keep all SDK variants and assertions enabled, never mask the
             // failure by skipping tests or changing the tested Android API.
             it.systemProperty("robolectric.dependency.repo.url",
-                "https://repo.maven.apache.org/maven2")
+                System.getenv("ROBOLECTRIC_REPOSITORY_URL") ?: "https://repo.maven.apache.org/maven2")
             it.systemProperty("robolectric.dependency.repo.id", "mavenCentral")
         }
     }
