@@ -197,7 +197,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
             val quick = run?.let { relicQuickAction(it,selected) }
             Button(onClick = {
                 if (run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT)) {
-                    change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits) }
+                    change { ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits.coerceAtMost(snapshot.kits)) }
                 } else quick?.let { action(it.action,it.x,it.y,it.id) }
             },enabled = run == null || run.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE,RelicPhase.SETTLEMENT) || quick != null,
                 modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor=relicGold,contentColor=relicInk)) {
@@ -237,14 +237,14 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text("本次同行："+(if(game.playWithCharacter)game.selectedCharacterIds.distinct().take(3).size else 0)+
                     "位伙伴（每人自带1份救援药剂）",color=relicGreen,fontSize=12.sp)
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Text("药剂 "+kits+" / 库存"+snapshot.kits,color=Color.White,modifier=Modifier.weight(1f))
+                    Text("药剂 "+kits.coerceAtMost(snapshot.kits)+" / 库存"+snapshot.kits,color=Color.White,modifier=Modifier.weight(1f))
                     OutlinedButton(onClick={kits=(kits-1).coerceAtLeast(0)}){Text("−")}
                     OutlinedButton(onClick={kits=(kits+1).coerceAtMost(min(3,snapshot.kits))}){Text("+")}
                 }
                 Text("武器："+if(snapshot.weapon==2)"锋刃长枪（伤害4）" else "旧式短剑（伤害2）",
                     color=relicGold,fontSize=12.sp)
                 Button(onClick={
-                    change{ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits)}
+                    change{ledger.begin(if(game.playWithCharacter)game.selectedCharacterIds else emptyList(),kits.coerceAtMost(snapshot.kits))}
                 },modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=relicGold,
                     contentColor=relicInk)) {Text("进入遗迹 · 第"+(snapshot.successes+1).coerceAtMost(5)+"层")}
             }
