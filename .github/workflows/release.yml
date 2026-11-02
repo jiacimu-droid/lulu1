@@ -80,6 +80,36 @@ jobs:
             sleep "$((attempt * 5))"
           done
 
+      # Robolectric resolves SDK jars itself at test runtime, outside Gradle's
+      # repository/cache retry logic. On 2026-11-02 Maven Central returned HTTP
+      # 502 for SDK 30 and failed the only affected class out of 2249 tests.
+      # Preload the exact tested SDK, preserving all assertions and Android API.
+      - name: Fetch Robolectric Android 11 test SDK with retries
+        run: |
+          set -euo pipefail
+          version='11-robolectric-6757853-i7'
+          repo_path="org/robolectric/android-all-instrumented/${version}"
+          destination="${HOME}/.m2/repository/${repo_path}"
+          mkdir -p "$destination"
+          for extension in pom jar; do
+            artifact="android-all-instrumented-${version}.${extension}"
+            target="${destination}/${artifact}"
+            if test -s "$target"; then continue; fi
+            temporary="${target}.partial"
+            rm -f "$temporary"
+            if ! curl --fail --location --silent --show-error \
+                --connect-timeout 20 --max-time 480 \
+                --retry 6 --retry-delay 4 --retry-all-errors \
+                "https://repo.maven.apache.org/maven2/${repo_path}/${artifact}" \
+                --output "$temporary"; then
+              rm -f "$temporary"
+              echo "::error::Robolectric SDK 30 artifact could not be fetched: $artifact"
+              exit 1
+            fi
+            test -s "$temporary"
+            mv "$temporary" "$target"
+          done
+
       - name: Test and build phone APK
         run: |
           set -o pipefail
