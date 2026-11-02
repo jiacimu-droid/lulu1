@@ -329,6 +329,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     modifier=Modifier.height(34.dp))
             }
         }
+        if (menuSection=="探索" || menuSection=="行囊") {
         Surface(shape = RoundedCornerShape(16.dp),
             color = Color(0xFF1C4445),
             border = BorderStroke(1.dp, Color(0xFF8FD9BE).copy(alpha = .35f))) {
@@ -381,6 +382,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     perform("eat_fish", world.x, world.y)
                 }
         }
+        }
+        if(menuSection=="探索" || menuSection=="建造") {
         island.houseProject?.let { project ->
             Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFF244950),
                 border = BorderStroke(1.dp, Color(0xFF9EE8BF).copy(alpha = .4f))) {
@@ -404,8 +407,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
             }
         }
+        }
+        if(menuSection=="建造") {
         Text("自由建造", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text("选中身边的空地，再选择建筑。拆除会返还部分材料。",
+        Text("朝向决定建造方向，选面前空地；也可点地图精确选位置。",
             color = Color(0xFFAAC7C5), fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             IslandBuildChip("♣ 种树", "1木", world.wood > 0 &&
@@ -420,6 +425,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             IslandBuildChip("↶ 拆除", "退部分材料",
                 BlockIslandRules.canRemoveAt(island, target.first, target.second)) { perform("remove") }
         }
+        }
+        if(menuSection=="制作") {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("背包与工具", color = Color(0xFFF0FCF4), fontWeight = FontWeight.Bold,
                 fontSize = 16.sp, modifier = Modifier.weight(1f))
