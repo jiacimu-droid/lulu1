@@ -215,7 +215,7 @@ internal object ModelStructuredOutput {
         return (0 until bubbles.length()).mapNotNull { index ->
             val entry = bubbles.opt(index)
             val text = (if (entry is JSONObject) entry.optString("text")
-                else bubbles.optString(index)).trim().take(2_000)
+                else bubbles.optString(index)).trim()
             text.takeIf(String::isNotBlank)
         }.takeIf { it.isNotEmpty() }
     }
@@ -240,7 +240,7 @@ internal object ModelStructuredOutput {
                         is JSONObject -> item.optString("text")
                         else -> bubbles.optString(i)
                     }.replace("\r\n", "\n").trim()
-                    if (text.isNotBlank()) add(text.take(2_000))
+                    if (text.isNotBlank()) add(text)
                 }
             }
             // The model owns the conversational moves. The renderer may split a
@@ -286,8 +286,8 @@ internal object ModelStructuredOutput {
                                 val value = array.opt(index)
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
-                                bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
-                            }.let { readableReplyBubbles(it, maxBubbles = 8) }.takeIf { it.isNotEmpty() }
+                                bubble.trim().takeIf(String::isNotBlank)
+                            }.let { readableReplyBubbles(it, maxBubbles = Int.MAX_VALUE) }.takeIf { it.isNotEmpty() }
                         }
                     }
                 }
