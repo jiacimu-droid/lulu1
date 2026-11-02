@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T17:50:08.986158+00:00",
-  "commit": "303a8971dc166637a3386a59718696e7a5fcab85",
+  "generatedAt": "2026-11-02T17:50:36.735444+00:00",
+  "commit": "d786df69fd0f43a230846ffaf3a47447d31285f0",
   "branch": "main",
-  "sourceFingerprint": "b4e28b4a059f803a3f068d87539ad45bdc47566a6d074dfae21170d65e40d3be",
+  "sourceFingerprint": "77b1614d860775f8591c9f053ec052522d0c92be4ccbe6e230191c04594e14ed",
   "summary": {
     "files": 1121,
-    "lines": 230335,
+    "lines": 230351,
     "symbols": 3239
   },
   "symbolIndex": {
@@ -11053,7 +11053,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2985
+        "line": 2992
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -28795,8 +28795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3052,
-      "sha256": "483290746bccb4397793d9e600bfcd5c4ab0acf7709c02a0939f664fc39316e1",
+      "lines": 3059,
+      "sha256": "44fb8a16f2c0a5adc579e608e03e3f07bfdc6985f7a43afb2af0d39eba2b5155",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28828,7 +28828,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2985
+          "line": 2992
         }
       ]
     },
@@ -31614,8 +31614,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 316,
-      "sha256": "c981004cbb37a49fda9e587bbb0fe6125c102d35a2209408c3fcb44794113955",
+      "lines": 325,
+      "sha256": "2d1394a2f05c3a6dc62a2d86687554c16ad05fba31e34ab9758cd3e322b03fd6",
       "symbols": []
     },
     {

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`303a8971dc166637a3386a59718696e7a5fcab85`
+- 基准提交：`d786df69fd0f43a230846ffaf3a47447d31285f0`
 - 分支：`main`
 - 已索引文件：1121
-- 已索引代码/文本行：230335
+- 已索引代码/文本行：230351
 - 已发现符号：3239
 
 | 文件 | 行数 | 符号数 |
@@ -532,7 +532,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3052 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3059 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1158 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
@@ -654,7 +654,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 316 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 325 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
