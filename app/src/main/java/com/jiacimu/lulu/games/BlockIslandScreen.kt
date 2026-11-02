@@ -463,6 +463,9 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
             }
         }
+        }
+        if(menuSection=="伙伴") {
+        if(world.friends.isEmpty()) Text("当前是单人探索，可在游戏馆选择同行角色。",color=Color(0xFFB9DDCC),fontSize=12.sp)
         if (world.friends.isNotEmpty()) {
             Text("同行伙伴", color = Color(0xFFF0FCF4), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             world.friends.forEach { friend ->
@@ -493,6 +496,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 }
             }
         }
+        }
+        if(menuSection=="设置") {
+        Text("自动存档已开启 · 建筑和道具不会在退出时消失",color=Color(0xFFD0E8DB),fontSize=12.sp)
+        OutlinedButton(onClick={showIslandGuideDialog=true}) { Text("查看玩法",color=Color.White) }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onClick = {
                 val details = island.toJson()
@@ -528,9 +535,10 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("新建岛屿", color = Color(0xFFE8F8EB))
             }
         }
-        Text("家园自动存档 · 建筑与背包会随下次进入恢复",
+        Text("创建新岛屿会清空当前家园，记录旅程不会清空。",
             modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
             fontSize = 10.sp, color = Color(0xFF9AC0BA))
+        }
     }
 
         },
