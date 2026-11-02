@@ -24,6 +24,44 @@ class IslandTargetActionTest {
         ))
     }
 
+    @Test fun gatheringAndCombatUseNearbyTargetsWithoutMapSelection() {
+        val s = scene()
+        val tree = islandNearbyAction(s, 1 to 0, setOf("gather"))
+        assertNotNull(tree)
+        assertEquals("gather", tree!!.action)
+        assertEquals(5, tree.x)
+        assertEquals(4, tree.y)
+        val chopped = BlockIslandRules.act(s, tree.action, tree.x, tree.y)
+        assertEquals(0, chopped.world.cell(5,4))
+        assertEquals(s.world.wood + 2, chopped.world.wood)
+        assertEquals(s.world.turns + 1, chopped.world.turns)
+
+        // Even if the last facing points at wood, the dedicated attack key
+        // finds an adjacent monster instead of requiring a precision map tap.
+        val enemy = islandNearbyAction(s, 1 to 0, setOf("fight"))
+        assertNotNull(enemy)
+        assertEquals(3, enemy!!.x)
+        assertEquals(4, enemy.y)
+        val struck = BlockIslandRules.act(s, enemy.action, enemy.x, enemy.y)
+        assertTrue(struck.world.mobs.first().hp < s.world.mobs.first().hp)
+    }
+
+    @Test fun facingPrioritizesFrontAndNeverTeleportsToDistantResources() {
+        val s = scene()
+        val cells = s.world.tiles.toMutableList()
+        cells[s.world.index(3,4)] = 1
+        val noEnemy = s.copy(world = s.world.copy(tiles = cells,mobs=emptyList()))
+        val left = islandNearbyAction(noEnemy, -1 to 0, setOf("gather"))!!
+        val right = islandNearbyAction(noEnemy, 1 to 0, setOf("gather"))!!
+        assertEquals(3, left.x)
+        assertEquals(5, right.x)
+        val blank = noEnemy.copy(world=noEnemy.world.copy(
+            tiles=List(noEnemy.world.tiles.size) { 0 }, friends=emptyList()))
+        assertNull(islandNearbyAction(blank, 1 to 0, setOf("gather","fight")))
+        assertNull(islandNearbyAction(blank.copy(world=blank.world.copy(finished=true)),
+            1 to 0, setOf("gather","fight")))
+    }
+
     @Test fun nearbyResourcesAndMonstersAreImmediatelyActionable() {
         val s = scene()
         assertEquals("gather", islandTargetAction(s, 5 to 4).action)
