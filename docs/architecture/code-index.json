@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T06:30:37.925039+00:00",
-  "commit": "4e628f475b3479db50d43c2f8f9f02b92155247d",
+  "generatedAt": "2026-11-02T06:32:33.410059+00:00",
+  "commit": "454b0234f28e2edffdf8bc1a1c173441bcaf0562",
   "branch": "main",
-  "sourceFingerprint": "710e3302122a49844df26ab19d2733203953364ea953213680552c7fd5ee0a22",
+  "sourceFingerprint": "be43dfa3f9179e2cdbe0fd6de92ab830d4810ff87f9adf8a8d7e179cb664bf3b",
   "summary": {
     "files": 1119,
-    "lines": 229098,
+    "lines": 229115,
     "symbols": 3234
   },
   "symbolIndex": {
@@ -11165,61 +11165,61 @@
     "scheduleSocialNoticeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 616
+        "line": 623
       }
     ],
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 641
+        "line": 650
       }
     ],
     "scheduleUnfinishedSleepHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 668
+        "line": 677
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 768
+        "line": 777
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 795
+        "line": 804
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 822
+        "line": 831
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 839
+        "line": 848
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 853
+        "line": 862
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1085
+        "line": 1094
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1093
+        "line": 1102
       }
     ],
     "ProactiveSendReceipt": [
@@ -28802,8 +28802,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1149,
-      "sha256": "ea8c74a90bd175b1ba15e198da385a58253bacc0e2548328fbfa844d8b5baac5",
+      "lines": 1158,
+      "sha256": "dae09b0c6958385cfd40f3821cb2ec16f6131a9e954e3a4c380c73967dbcf1d2",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -28887,43 +28887,43 @@
         },
         {
           "name": "scheduleSocialNoticeReview",
-          "line": 616
+          "line": 623
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 641
+          "line": 650
         },
         {
           "name": "scheduleUnfinishedSleepHandoff",
-          "line": 668
+          "line": 677
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 768
+          "line": 777
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 795
+          "line": 804
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 822
+          "line": 831
         },
         {
           "name": "cancelOnline",
-          "line": 839
+          "line": 848
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 853
+          "line": 862
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1085
+          "line": 1094
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1093
+          "line": 1102
         }
       ]
     },
@@ -37590,8 +37590,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 373,
-      "sha256": "20aaa4344acfd8970f437398604978a4db1d86b4539ae8c78a4c545013f73d25",
+      "lines": 381,
+      "sha256": "bc870b4870d50621791e74ea4f362a3c37119d2fba4d51f9a2d96b97ff919b5d",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
