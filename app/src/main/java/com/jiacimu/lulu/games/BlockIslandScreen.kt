@@ -67,6 +67,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
     val world = island.world
     var target by remember { mutableStateOf(world.x to world.y) }
+    // The D-pad turns the player even when movement is blocked by a tree or monster.
+    // Map selection is an optional precise command, not a prerequisite for gathering.
+    var facing by remember(world.seed) { mutableStateOf(0 to 1) }
+    var mapAim by remember(world.seed) { mutableStateOf(false) }
+    var menuSection by rememberSaveable { mutableStateOf("探索") }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
@@ -131,6 +136,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             return@LaunchedEffect
         }
         delay(145)
+        facing = (step.first-world.x) to (step.second-world.y)
         val next = BlockIslandRules.act(island, "move", step.first, step.second, autonomousIds)
         if (next.world.x == world.x && next.world.y == world.y) {
             navigateTo = null
@@ -142,13 +148,23 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     }
 
     val night = world.turns % 48 >= 30
-    val selectedCell = world.cell(target.first, target.second)
-    val selectedStructure = island.structures[world.index(target.first, target.second)]
-    val nearTarget = world.adjacent(target.first, target.second)
-    val isMobSelected = world.mobs.any { it.hp > 0 && it.x == target.first && it.y == target.second }
-    val primaryAction = islandTargetAction(island, target)
-    val supplySelected = IslandSupplyCaches.available(island, target.first, target.second)
-    val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell, selectedStructure)
+    val ahead = (world.x+facing.first) to (world.y+facing.second)
+    val aimedCell = if (mapAim && world.inBounds(target.first,target.second)) target
+        else if (world.inBounds(ahead.first,ahead.second)) ahead else world.x to world.y
+    val selectedCell = world.cell(aimedCell.first,aimedCell.second)
+    val selectedStructure = island.structures[world.index(aimedCell.first,aimedCell.second)]
+    val nearTarget = world.adjacent(aimedCell.first,aimedCell.second)
+    val isMobSelected = world.mobs.any { it.hp > 0 && it.x == aimedCell.first && it.y == aimedCell.second }
+    val primaryAction = islandTargetAction(island,aimedCell)
+    val supplySelected = IslandSupplyCaches.available(island,aimedCell.first,aimedCell.second)
+    val targetTitle = if (supplySelected) "漂流补给箱" else islandCellTitle(selectedCell,selectedStructure)
+    val nearbyGather = islandNearbyAction(island,facing,setOf("gather","salvage","fish"))
+    val nearbyFight = islandNearbyAction(island,facing,setOf("fight"))
+    val nearbyRescue = islandNearbyAction(island,facing,setOf("revive"))
+    val nearbyPrimary = nearbyFight ?: nearbyRescue ?: nearbyGather
+    val directionLabel = when(facing) {
+        0 to -1 -> "↑"; 1 to 0 -> "→"; -1 to 0 -> "←"; else -> "↓"
+    }
     val workbench = island.structures.entries.filter { it.value == "workbench" }
         .minByOrNull { entry ->
             abs(world.x - entry.key % world.width) + abs(world.y - entry.key / world.width)
@@ -165,17 +181,18 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
 
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
-        toolsLabel = "背包 / 探险",
+        toolsLabel = "☰ 游戏菜单",
         notice = worldNotice,
         status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
             " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
         scene = {
-            BlockIslandCanvas(island, target, zoomed, night, impact, impactProgress.value,
+            BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
-                onSelect = { x, y -> target = x to y; navigateTo = null },
+                onSelect = { x, y -> target = x to y; mapAim=true; navigateTo = null },
                 onNavigate = { x, y ->
                     target = x to y
+                    mapAim = true
                     navigateTo = (x to y).takeUnless { it == (world.x to world.y) }
                     if (navigateTo != null) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
@@ -196,23 +213,25 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         movement = {
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 420L,
                 stopWhen = world.hp to world.seed) { dx, dy ->
-                perform("move", world.x + dx, world.y + dy)
+                facing = dx to dy
+                mapAim = false
+                navigateTo = null
+                val x = world.x + dx
+                val y = world.y + dy
+                // Pressing into a tree or an enemy only turns toward it;
+                // the action key gathers or attacks, with no false movement turn.
+                if (BlockIslandRules.isWalkable(island,x,y) &&
+                    world.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
+                    world.friends.none { it.x==x && it.y==y }) {
+                    perform("move",x,y)
+                }
             }
         },
         quickActions = {
-            Text(if (workbench == null) "先造工作台：选身旁空地 · 需要4木2石"
-                else if (workbenchNear) "工作台已在附近 · 背包可制作工具"
-                else "工作台在 ("+(workbench.key % world.width)+","+
-                    (workbench.key / world.width)+") · 靠近2格制作工具",
-                color=Color(0xFFA9E5BD), fontSize=10.sp, maxLines=2)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween) {
-                TextButton(onClick={showIslandGuideDialog=true}) {
-                    Text("玩法",color=Color.White,fontSize=11.sp)
-                }
-                TextButton(onClick={confirmReset=true}) {
-                    Text("↻ 新岛屿",color=Color(0xFFA9E5BD),fontSize=11.sp)
-                }
-            }
+            Text("朝向 $directionLabel · "+
+                if (mapAim) "地图选中 $targetTitle" else
+                    (nearbyPrimary?.let { "附近可"+it.label } ?: "方向键靠近树、矿石或怪物"),
+                color=Color(0xFFBDF4D3), fontSize=11.sp, maxLines=2)
             if(island.guardedBy.isNotBlank()) {
                 val protector=world.friends.firstOrNull { it.id==island.guardedBy && it.hp>0 }
                 if(protector!=null)Text(
@@ -228,29 +247,26 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                 Text("⌂ "+owner+" "+progress+" · "+project.placed.size+"/9",
                     color=Color(0xFFAFF5D4),fontSize=10.sp,maxLines=1)
             }
-            Text(
-                if (navigateTo != null) "正在前往 · ${targetTitle} · 距离${primaryAction.distance}格"
-                else "目标 · ${targetTitle} · ${if (primaryAction.distance <= 1) "身边" else "距离${primaryAction.distance}格"}",
-                color = Color(0xFFF0FFE9), fontSize = 10.sp, maxLines = 1,
-            )
+            if (navigateTo != null) Text("正在前往 · "+targetTitle,
+                color=Color(0xFFF0FFE9),fontSize=10.sp,maxLines=1)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction("采集", Color(0xFFA9E5BD),
-                    enabled = nearTarget && selectedCell in listOf(1, 2),
-                    modifier = Modifier.weight(1f)) { perform("gather") }
+                GameHudQuickAction(nearbyGather?.label ?: "采集", Color(0xFFA9E5BD),
+                    enabled = nearbyGather != null,
+                    modifier = Modifier.weight(1f)) {
+                    nearbyGather?.let { perform(it.action,it.x,it.y) }
+                }
                 GameHudQuickAction("攻击", Color(0xFFFFC9AE),
-                    enabled = nearTarget && isMobSelected,
-                    modifier = Modifier.weight(1f)) { perform("fight") }
+                    enabled = nearbyFight != null,
+                    modifier = Modifier.weight(1f)) {
+                    nearbyFight?.let { perform(it.action,it.x,it.y) }
+                }
             }
             Spacer(Modifier.height(4.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                GameHudQuickAction(if (supplySelected) "打开补给" else
-                        if (workbench == null) "建工作台" else "造墙", Color(0xFFA9E5BD),
-                    enabled = if (supplySelected) nearTarget else
-                        BlockIslandRules.canBuild(island,
-                            if (workbench == null) "workbench" else "wall", target.first, target.second),
+                GameHudQuickAction(nearbyRescue?.label ?: "救援", Color(0xFFA9E5BD),
+                    enabled = nearbyRescue != null,
                     modifier = Modifier.weight(1f)) {
-                    if (supplySelected) perform("salvage")
-                    else perform(if (workbench == null) "workbench" else "wall")
+                    nearbyRescue?.let { perform(it.action,it.x,it.y) }
                 }
                 GameHudQuickAction("吃果", Color(0xFFA9E5BD),
                     enabled = island.fruit > 0 && world.hp < 12,
@@ -260,16 +276,20 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         actions = {
             Button(onClick = {
                 if (navigateTo != null) navigateTo = null
-                else if (primaryAction.action == "move") {
+                else if (mapAim && primaryAction.enabled && primaryAction.action == "move") {
                     navigateTo = target
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                } else perform(primaryAction.action)
-            }, enabled = navigateTo != null || primaryAction.enabled,
+                } else if (mapAim && primaryAction.enabled) {
+                    perform(primaryAction.action,aimedCell.first,aimedCell.second)
+                } else nearbyPrimary?.let { perform(it.action,it.x,it.y) }
+            }, enabled = navigateTo != null ||
+                (if (mapAim) primaryAction.enabled else nearbyPrimary != null),
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA9D8B9),
                     contentColor = Color(0xFF17342F))) {
-                Text(if (navigateTo != null) "■ 停止前往" else primaryAction.label +
-                    " · " + targetTitle,
+                Text(if (navigateTo != null) "■ 停止前往"
+                    else if (mapAim) primaryAction.label+" · "+targetTitle
+                    else nearbyPrimary?.label ?: "靠近后操作",
                     maxLines = 1, fontSize = 12.sp)
             }
             TextButton(onClick = { zoomed = !zoomed }) {
