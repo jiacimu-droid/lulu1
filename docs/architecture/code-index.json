@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T12:25:12.983332+00:00",
-  "commit": "e18bdb7f90530604878bca83251ce65d67145ba0",
+  "generatedAt": "2026-11-02T16:29:10.108010+00:00",
+  "commit": "ad98f5e59cbe728311c788e7ea762d1c9dbaf50b",
   "branch": "main",
-  "sourceFingerprint": "2a9fbe41ed3f7cc7bb0fc39d494cafcfd61db335ca2b9140ccae881d0dcae502",
+  "sourceFingerprint": "40bdea0e519c7a49fd3824b71f7e13ecd290046dc121a90294d5f63177fae96a",
   "summary": {
-    "files": 1119,
-    "lines": 229497,
-    "symbols": 3234
+    "files": 1120,
+    "lines": 229570,
+    "symbols": 3236
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -674,6 +674,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt",
@@ -1658,6 +1662,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
         "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
+        "line": 24
       }
     ],
     "commit": [
@@ -12963,13 +12971,13 @@
     "origin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 54
+        "line": 59
       }
     ],
     "center": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 58
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -12983,7 +12991,7 @@
     "actorCenter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-        "line": 59
+        "line": 64
       }
     ],
     "newWorld": [
@@ -31167,20 +31175,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt",
-      "lines": 487,
-      "sha256": "fb1b78511905fbe81681e57a44270f1dadd7effe806b6c5715049001ad4ab9d3",
+      "lines": 521,
+      "sha256": "215164d348f0c3e960a477727d92e971b7d19a4869de819bc5c5a67ecee0b94a",
       "symbols": [
         {
           "name": "origin",
-          "line": 54
+          "line": 59
         },
         {
           "name": "center",
-          "line": 58
+          "line": 63
         },
         {
           "name": "actorCenter",
-          "line": 59
+          "line": 64
         }
       ]
     },
@@ -31659,6 +31667,21 @@
         {
           "name": "facts",
           "line": 262
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt",
+      "lines": 39,
+      "sha256": "e00bbc7aae772dbb9549265a2811b5cc7a25f704191e5dd7399a6a626ff58285",
+      "symbols": [
+        {
+          "name": "preview",
+          "line": 24
+        },
+        {
+          "name": "label",
+          "line": 35
         }
       ]
     },
