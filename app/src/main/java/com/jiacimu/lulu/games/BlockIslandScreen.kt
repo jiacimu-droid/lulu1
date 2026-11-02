@@ -258,12 +258,16 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         quickActions = {
-            Text(if(buildMode!=null)
-                    IslandBuildingControls.label(buildMode)+" · "+
-                        if(buildReady) "绿色可放置 · 换方向连续建造" else "红色不可放置 · 检查材料或位置"
-                else "朝向 $directionLabel · "+
-                    (if(mapAim) "已选中 $targetTitle"
-                        else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"),
+            val statusHint = if (buildMode != null) {
+                val condition = if (buildReady) "绿色可放置 · 移动后继续建造"
+                    else "红色不可放置 · 检查材料或位置"
+                IslandBuildingControls.label(buildMode) + " · " + condition
+            } else {
+                val interaction = if(mapAim) "已选中 $targetTitle"
+                    else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"
+                "朝向 $directionLabel · " + interaction
+            }
+            Text(statusHint,
                 color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
                     else Color(0xFFBDF4D3),fontSize=11.sp,maxLines=2)
             if(island.guardedBy.isNotBlank()) {
