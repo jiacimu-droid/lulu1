@@ -21,6 +21,7 @@ import kotlin.math.abs
  */
 internal data class BlockIslandImpact(
     val x: Int, val y: Int, val action: String, val turn: Int, val label: String = "",
+    val targetMobId: Int? = null,
 )
 
 internal object BlockIslandArt {
@@ -52,6 +53,7 @@ internal object BlockIslandArt {
         impact: BlockIslandImpact? = null,
         impactProgress: Float = 1f,
         buildPreview: IslandBuildPreview? = null,
+        hurtProgress: Float = 1f,
     ) {
         val w = island.world
         val tile = camera.tileSize
@@ -135,8 +137,10 @@ internal object BlockIslandArt {
         }
         w.mobs.filter { it.hp > 0 && it.x in left until left + cols && it.y in top until top + rows }
             .forEach { mob ->
+                // Monsters can move after the player's real attack in the same turn.
+                // Identify the hit by stable mob ID, not by its old target coordinate.
                 val hit = impact?.takeIf { it.action=="fight" &&
-                    it.x==mob.x && it.y==mob.y && impactProgress<1f }
+                    it.targetMobId==mob.id && impactProgress<1f }
                 drawSlime(actorCenter(mobVisuals[mob.id],mob.x,mob.y),tile,mob.hp,phase,mob.id,
                     hit?.let { 1f-impactProgress } ?: 0f)
             }
@@ -304,6 +308,15 @@ internal object BlockIslandArt {
         if (!night) repeat(3) { i ->
             val at = Offset(size.width*((phase*.25f+i*.42f)%1.4f-.2f),size.height*(.16f+i*.31f))
             drawOval(Color(0xFF1C4354).copy(alpha=.055f),at,Size(tile*7f,tile*2.8f))
+        }
+        // A health drop is a real game event; briefly tint the world edges without
+        // obscuring movement controls or showing damage on rejected actions.
+        if(hurtProgress<1f) {
+            val intensity=(1f-hurtProgress)*.29f
+            drawRect(Brush.radialGradient(
+                colors=listOf(Color.Transparent,Color(0xFFB6333D).copy(alpha=intensity)),
+                center=Offset(size.width*.5f,size.height*.5f),
+                radius=kotlin.math.max(size.width,size.height)*.71f))
         }
         if (impact != null && impactProgress < 1f &&
             impact.x in left until left + cols && impact.y in top until top + rows) {
