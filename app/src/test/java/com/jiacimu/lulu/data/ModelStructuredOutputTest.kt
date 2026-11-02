@@ -287,7 +287,7 @@ class ModelStructuredOutputTest {
         assertEquals(original, ModelStructuredOutput.authoredReplyBubbles(raw))
         assertEquals(original, ModelStructuredOutput.completedReplyBubbles(raw))
         assertEquals(original, ModelStructuredOutput.replyBubblesWithPartialState(
-            raw.dropLast(1) + ",\\"innerLife\\":{"
+            raw.dropLast(1) + ",\"innerLife\":{"
         ))
     }
 
