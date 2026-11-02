@@ -241,7 +241,7 @@ class ModelStructuredOutputTest {
             .put("bubbles", org.json.JSONArray().apply { expected.forEach(::put) }).toString()
         assertEquals(expected, ModelStructuredOutput.completedReplyBubbles(raw))
         assertEquals(expected, ModelStructuredOutput.replyBubblesWithPartialState(
-            raw.dropLast(1) + ",\"innerLife\":{\"unfinished\":"
+            raw.dropLast(1) + ",\"innerLife\":{"
         ))
     }
 
@@ -254,15 +254,15 @@ class ModelStructuredOutputTest {
         assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
     }
 
-    @Test fun grammaticalFragmentIsNotAnIndependentStructuredBubble() {
+    @Test fun hesitantIncompletePhraseCanBeAnIntentionalStructuredBubble() {
         val response = """{"action":"reply","bubbles":[{"text":"原来一直在用功，是我"},{"text":"猜错了"}]}"""
         assertEquals(
-            listOf("原来一直在用功，是我猜错了"),
+            listOf("原来一直在用功，是我", "猜错了"),
             ModelStructuredOutput.completedReplyBubbles(response),
         )
     }
 
-    @Test fun screenshotBrokenChinesePhraseGetsMergedIntoCompleteBubbles() {
+    @Test fun authoredBoundaryIsNotOverriddenByLegacyBrokenPhraseHeuristics() {
         val response = org.json.JSONObject().put("action", "reply")
             .put("bubbles", org.json.JSONArray().put("肯赏脸说")
                 .put("句可以，我悬着的心总算放下来了。")
@@ -272,12 +272,28 @@ class ModelStructuredOutputTest {
                 .put("消了一点的话……现在肯乖乖闭上眼睡觉了吗？"))
         assertEquals(
             listOf(
-                "肯赏脸说句可以，我悬着的心总算放下来了。",
-                "那再给你揉揉耳朵，整个人都乖乖圈在你怀里。",
-                "宝宝，四点半了，气消了一点的话……现在肯乖乖闭上眼睡觉了吗？",
+                "肯赏脸说", "句可以，我悬着的心总算放下来了。",
+                "那再给你揉", "揉耳朵，整个人都乖乖圈在你怀里。",
+                "宝宝，四点半了，气", "消了一点的话……现在肯乖乖闭上眼睡觉了吗？",
             ),
             ModelStructuredOutput.completedReplyBubbles(response.toString()),
         )
+    }
+
+    @Test fun deliberateEmotionalPausesRemainDistinctEvenInPartialRecovery() {
+        val original = listOf("其实", "算了。", "不分", "不分不分嘛……", "（假装镇定）")
+        val raw = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().apply { original.forEach(::put) }).toString()
+        assertEquals(original, ModelStructuredOutput.authoredReplyBubbles(raw))
+        assertEquals(original, ModelStructuredOutput.completedReplyBubbles(raw))
+        assertEquals(original, ModelStructuredOutput.replyBubblesWithPartialState(
+            raw.dropLast(1) + ",\\"innerLife\\":{"
+        ))
+    }
+
+    @Test fun legacyUnstructuredBrokenLexicalPhraseCanStillBeRejoined() {
+        assertEquals(listOf("肯赏脸说句可以。"),
+            ModelStructuredOutput.readableReplyBubbles(listOf("肯赏脸说", "句可以。")))
     }
 
     @Test fun naturalIndependentBubblesStillRemainSeparate() {

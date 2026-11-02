@@ -243,10 +243,10 @@ internal object ModelStructuredOutput {
                     if (text.isNotBlank()) add(text)
                 }
             }
-            // Structured bubbles are already the person's chosen speaking beats.
-            // Only reconnect unmistakably broken grammatical fragments; do not
-            // re-segment an authored message by character count or punctuation.
-            if (values.isNotEmpty()) return stabilizeReplyBubbles(values)
+            // Authored JSON bubble boundaries are intentional speech decisions:
+            // a hesitant phrase, repetition or self-correction can be a full beat.
+            // Legacy unstructured output alone uses grammatical stabilization.
+            if (values.isNotEmpty()) return values
         }
 
         return smoothInlineBreaks(json.optString("text"))
@@ -287,7 +287,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)
-                            }.let(::stabilizeReplyBubbles).takeIf { it.isNotEmpty() }
+                            }.takeIf { it.isNotEmpty() }
                         }
                     }
                 }
