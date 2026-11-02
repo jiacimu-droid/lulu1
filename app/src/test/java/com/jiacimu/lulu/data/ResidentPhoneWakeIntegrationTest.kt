@@ -59,6 +59,14 @@ class ResidentPhoneWakeIntegrationTest {
             "ordinary-character", "数字人物新私信：来自真实联系人"))
         assertFalse(ResidentDailyDecision.handlesResidentSocialWake(
             native, "角色时间间隔"))
+        // The resident's default "no periodic paid sweeps" must NOT mute a
+        // genuine QQ friend event. Ordinary characters keep their switch.
+        assertTrue(ProactivePerceptionScheduler.socialNoticeWakeAllowed(native, false))
+        assertTrue(ProactivePerceptionScheduler.socialNoticeWakeAllowed(native, true))
+        assertFalse(ProactivePerceptionScheduler.socialNoticeWakeAllowed(
+            "ordinary-character", false))
+        assertTrue(ProactivePerceptionScheduler.socialNoticeWakeAllowed(
+            "ordinary-character", true))
         // A forged or deleted notification must not buy a model reply or
         // fabricate an incoming social event for a native account.
         assertFalse(ResidentDailyDecision.runSocialWake(
