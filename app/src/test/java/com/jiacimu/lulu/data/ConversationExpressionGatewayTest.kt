@@ -202,7 +202,7 @@ class ConversationExpressionGatewayTest {
                 assertFalse(system.contains("别人的私有规则丙"))
                 if (CharacterExpressionGuide.isExpressionOnly(source)) {
                     assertTrue(system.contains("【本人已经作出选择，现在对她说话】"))
-                    assertTrue(system.contains("正文落实本人已选定愿意说出的意思与立场"))
+                    assertTrue(system.contains("正文只说本人这一刻真正愿意让对方听见的内容"))
                     assertFalse(system.contains(CharacterExpressionGuide.personalityOrigin))
                     assertTrue(system.contains("熟悉时说话干脆，会接冷笑话"))
                     assertFalse(system.contains("【统一角色决策协议】"))
