@@ -32,3 +32,30 @@ internal fun islandTargetAction(state: BlockIslandState, target: Pair<Int, Int>)
         else -> IslandTargetAction("move", "前往", true, distance)
     }
 }
+
+/** Lightweight HUD target; no map tap or extra game turn is required to choose it.
+ * Direction (last D-pad input) wins, with the other three neighboring cells as fallback.
+ * Only real, currently enabled rules actions can be returned.
+ */
+internal data class IslandNearbyAction(val action: String, val label: String, val x: Int, val y: Int)
+
+internal fun islandNearbyAction(
+    state: BlockIslandState,
+    facing: Pair<Int, Int>,
+    allowed: Set<String> = setOf("fight", "revive", "salvage", "gather", "fish"),
+): IslandNearbyAction? {
+    val w = state.world
+    if (w.finished) return null
+    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
+        .filter { (dx,dy) -> kotlin.math.abs(dx)+kotlin.math.abs(dy)==1 }
+        .distinct()
+    for ((dx,dy) in directions) {
+        val x=w.x+dx
+        val y=w.y+dy
+        if (!w.inBounds(x,y)) continue
+        val candidate=islandTargetAction(state,x to y)
+        if (candidate.enabled && candidate.action in allowed)
+            return IslandNearbyAction(candidate.action,candidate.label,x,y)
+    }
+    return null
+}
