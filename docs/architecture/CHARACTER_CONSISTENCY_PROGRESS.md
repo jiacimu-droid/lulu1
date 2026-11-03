@@ -475,3 +475,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实改及范围**：`91d5960` 初版曾同时放开经历事实预览；核对 `SharedExperienceTimeline.record` 后发现来源可能是很长的网页正文，于 `a6bff5e` 恢复原有经历预览预算，仅对**本人已作出的私有分享理由**保留完整原文，并使现有三个决策投影完整交接。最多仍只选既有候选数；没有新模型轮次、影子人格、自动发帖或按关键词替本人决定对象。旧记录若已在保存时截短，无法从已丢失的 `why` 还原；原经历仍以事件 ID 指向权威时间线。极长模型理由对提示词大小的影响待实测。
 - **回归**：`CharacterLifeFollowThroughStoreTest.heldSharingKeepsLateFactsAndPersonalConditionsAcrossDecisions` 用超过旧限制且末尾明确限制分享对象的本人理由，核对存档、后台 cue、设备短提示与在线上下文均保留原条件；短经历事实仍走原预算。以上只证明组装/保存契约，不证明角色真实会按条件行动。
 - **待验**：`a6bff5e` 的 Android 单测/APK [run 41704140299](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140299) 与索引 [run 41704140592](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140592) 查询时 pending；先核实最终结果。再在获授权真机用真实模型检查“想告诉好友但暂不公开”在后台复查、私聊和实际社交发送中的取舍与送达回执。P-08 保持 [ ]。
+
+
+## 2026-11-04 · P-08 held 分享意愿再次确认时丢失原条件（main `6f6189f2`／`68ce0fa7`）
+
+- **先验 CI**：上一轮 `a6bff5e` 的 [Lulu APK/JVM run 41704140299](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140299) 与 [索引 run 41704140592](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140592) 均为 `completed/success`；真机本人表达/社交选择仍未验收。
+- **本轮实查的跨轮根因**：`CharacterLifeFollowThroughStore.recordShareWish` 在已是 `held` 的本人愿望再次被模型选择 `held` 时，无条件执行 `shareWhy = wish.optString("why").trim()`。而 `why` 是可选字段：本轮只确认“仍想分享”且省略理由，就把上一轮完整保存的收件人、保密/暂缓条件清空；之后后台、私聊和在线三个已修复的无截断投影也只能拿到空理由。这是持久状态覆写缺口，不是人物说话风格。
+- **源码 `6f6189f2`**：若本轮确实提供新的非空理由，仍以本人新判断替换；若省略/空白且已有旧理由，则保留旧理由，不推断本人取消了条件。不新增 Store、模型调用、社交自动发送或全局台词。明确 `released` 状态仍由模型控制。
+- **回归 `68ce0fa7`**：`CharacterLifeFollowThroughStoreTest.reaffirmingHeldWishWithoutNewWhyDoesNotEraseEarlierRecipientConditions` 覆盖“明确好友范围/暂不公开”→下一轮无 `why`→空白 `why`→后台/私聊/在线投影保留→本人提供新理由时替换旧理由。仅单测候选，不能代替真实模型选择及送达。
+- **Actions/下一步**：旧 `6f6189f2` [APK run 41708385085](https://github.com/jiacimu-droid/lulu1/actions/runs/41708385085) 与 [索引 run 41708385080](https://github.com/jiacimu-droid/lulu1/actions/runs/41708385080) 在本轮查询时 `in_progress`；随后新增测试 `68ce0fa7`，须以包含测试的后继 SHA/run 的完整编译、testPhoneUnitTest 与 APK 结果为准，不能把旧 run 成功或取消算本轮通过。下轮先取最新 Actions 真实结论；成功后真机对照持续愿望是否跨场景保留、模型是否自主决定对象及是否收到实际社交发送回执。P-08 保持 `[ ]`。
