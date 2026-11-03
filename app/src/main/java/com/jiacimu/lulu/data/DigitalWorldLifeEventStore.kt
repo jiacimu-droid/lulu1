@@ -66,8 +66,8 @@ internal object DigitalWorldLifeEventStore {
     internal fun socialOpportunityKinds(location: String, withCompany: Boolean): List<String> {
         if (!withCompany) return emptyList()
         return when (location) {
-            DigitalWorldPublicPlaces.GAME_HALL -> listOf("arcade_social_challenge", "arcade_social_challenge")
-            DigitalWorldPublicPlaces.CAFE -> listOf("cafe_social_choice", "cafe_social_choice")
+            DigitalWorldPublicPlaces.GAME_HALL -> listOf("arcade_social_challenge")
+            DigitalWorldPublicPlaces.CAFE -> listOf("cafe_social_choice")
             DigitalWorldPublicPlaces.COURTYARD -> listOf("courtyard_social_glimpse")
             DigitalWorldStore.CLOUD_MEADOW -> listOf("cloud_social_ripple")
             else -> emptyList()
