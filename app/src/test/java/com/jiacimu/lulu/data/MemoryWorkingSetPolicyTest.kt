@@ -83,6 +83,26 @@ class MemoryWorkingSetPolicyTest {
         assertEquals(300, overflow.protectedCharacters)
     }
 
+    @Test fun sameWordsFromDistinctOriginalEventsMustKeepSeparateProvenance() {
+        val words = "明天再联系"
+        val rows = listOf(
+            MemoryPromptCandidate("first", "原始证据", "用户在周一说：$words",
+                100, payload = words, sources = setOf("user-monday"), originalEvidence = true),
+            MemoryPromptCandidate("second", "原始证据", "角色在周二说：$words",
+                90, payload = words, sources = setOf("character-tuesday"), originalEvidence = true),
+            MemoryPromptCandidate("duplicate", "原始证据", "同源重复：$words",
+                80, payload = words, sources = setOf("user-monday"), originalEvidence = true),
+            MemoryPromptCandidate("summary", "往事", "周一用户曾说：$words",
+                70, payload = "提取的结论", sources = setOf("user-monday"), derivedSummary = true),
+        )
+        val result = MemoryWorkingSetPolicy.select(rows, 2_000)
+        assertEquals(listOf("first", "second"), result.selected)
+        assertTrue(result.omitted.containsKey("duplicate"))
+        assertTrue(result.omitted.containsKey("summary"))
+        assertTrue(result.sections.values.single().contains("用户在周一说"))
+        assertTrue(result.sections.values.single().contains("角色在周二说"))
+    }
+
     @Test fun categoryQuotaCannotConsumeOtherCategoriesAndExactDuplicatesAreReported() {
         val rows = listOf(
             MemoryPromptCandidate("huge", "日记", "一".repeat(300), 100),
