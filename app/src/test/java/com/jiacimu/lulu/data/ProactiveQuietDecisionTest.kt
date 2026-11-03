@@ -110,6 +110,13 @@ class ProactiveQuietDecisionTest {
         assertTrue(facts, facts.contains("距离现在还有20分钟"))
         assertFalse(facts.contains("睡觉"))
         assertFalse(facts.contains("催"))
+        val futureDue = task.copy(status = CommitmentTaskStatus.Scheduled,
+            dueAt = now.plusSeconds(30 * 60), nextCheckAt = null)
+        assertTrue(CommitmentClockFacts.render(futureDue, now, zone)
+            .contains("距离现在还有30分钟"))
+        // An upcoming task has factual timing but does not cause an alarm or
+        // an automatic conversational decision in the passive attention policy.
+        assertEquals("", ActiveCommitmentAttention.render(listOf(futureDue), now))
         val undated = task.copy(dueAt = null, nextCheckAt = null)
         assertEquals("", CommitmentClockFacts.render(undated, now, zone))
         val expired = task.copy(status = CommitmentTaskStatus.Completed)
