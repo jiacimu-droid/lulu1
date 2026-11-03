@@ -75,6 +75,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     // The D-pad turns the player even when movement is blocked by a tree or monster.
     // Map selection is an optional precise command, not a prerequisite for gathering.
     var facing by remember(world.seed) { mutableStateOf(0 to 1) }
+    var joystickHeld by remember(world.seed) { mutableStateOf(false) }
     var mapAim by remember(world.seed) { mutableStateOf(false) }
     var menuSection by rememberSaveable { mutableStateOf("探索") }
     var buildMode by remember(world.seed) { mutableStateOf<String?>(null) }
@@ -274,7 +275,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         companion = {
             if (game.playWithCharacter && world.friends.isNotEmpty() &&
                 world.friends.map { it.id } == game.selectedCharacterIds.distinct().take(3)) {
-                IslandCompanionPanel(island, navigateTo != null, autonomousCompanions,
+                IslandCompanionPanel(island, navigateTo != null || joystickHeld, autonomousCompanions,
                     { enabled ->
                         autonomousCompanions = enabled
                         if (!enabled) save(IslandTravel.stopAll(island))
@@ -291,6 +292,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     if (workstationAction) "使用工作台制作" else center?.label ?: "附近互动",
                 interactEnabled = if (buildMode != null) buildReady
                     else center != null || workbenchNear,
+                onHoldChange = { joystickHeld = it },
                 onInteract = {
                     when {
                         buildMode != null -> if (buildReady)
