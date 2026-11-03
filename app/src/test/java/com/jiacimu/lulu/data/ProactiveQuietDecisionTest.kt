@@ -53,6 +53,11 @@ class ProactiveQuietDecisionTest {
         assertTrue(cue.contains("没有新回复"))
         assertTrue(cue.contains("schedule_commitment_review"))
         assertTrue(cue.contains("弹窗"))
+        assertTrue("Review is not a free delay", cue.contains("等待代价"))
+        assertTrue("The model should consider acting now, without a forced interval",
+            cue.contains("现在做与以后再做"))
+        assertTrue("A stored alarm cannot unconditionally silence an independent decision",
+            cue.contains("闹钟当成停止判断的理由"))
         // Only a future one-shot reminder is not a demand for another immediate
         // message; do not create a generic night-time conversation mandate.
         val future = promise.copy(
