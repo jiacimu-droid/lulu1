@@ -261,6 +261,35 @@ class CharacterLifeFollowThroughStoreTest {
         assertTrue(text.contains("输掉了一场真实对局"))
         CharacterLifeFollowThroughStore.invalidateEvidence(id)
     }
+    @Test fun roleCanReconsiderReleasedWishButOldRefusalDoesNotBecomeNewSharingReason() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "released-wish-reconsideration"
+        val id = "released-wish-reconsideration-event"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        assertTrue(CharacterLifeFollowThroughStore.register(
+            role, id, "真实生活", "真实发生过的小事", now))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "released")
+            .put("why", "当时决定不告诉任何人"))
+        assertTrue(CharacterLifeFollowThroughStore.sharingCandidates(role, now).isEmpty())
+        // A later autonomous, explicit change of mind must not be vetoed by
+        // the previous private choice. It must not auto-post anything either.
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held"))
+        val renewed = CharacterLifeFollowThroughStore.pendingDecisionCues(role, now).single()
+        assertTrue(renewed.contains("自己明确想分享"))
+        assertFalse(renewed.contains("当时决定不告诉任何人"))
+        assertTrue(CharacterLifeFollowThroughStore.briefContext(role, now).contains(id))
+        assertFalse(CharacterLifeFollowThroughStore.context(role, now).contains("已分享，勿重复"))
+        // The new first-person reason is the only authoritative held rationale.
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held")
+            .put("why", "现在想告诉一个熟悉的朋友"))
+        assertTrue(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .single().contains("现在想告诉一个熟悉的朋友"))
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
     @Test fun reaffirmingHeldWishWithoutNewWhyDoesNotEraseEarlierRecipientConditions() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "held-rationale-reaffirmation"
