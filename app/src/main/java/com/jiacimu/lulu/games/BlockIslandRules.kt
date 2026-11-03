@@ -444,11 +444,17 @@ internal object BlockIslandRules {
                     distance(result.world.x, result.world.y,
                         index % result.world.width, index / result.world.width) <= 2
             }) {
-            val reward = if (result.nightsSurvived < 3) 2 else 1
-            val news = "守住了第${result.nightsSurvived + 1}夜 · 营地补给：野果+$reward、石料+1"
+            val thirdNight = result.nightsSurvived == 2
+            val fruitReward = if (result.nightsSurvived < 3) 2 else 1
+            val woodReward = if (thirdNight) 8 else 0
+            val stoneReward = if (thirdNight) 6 else 1
+            val news = if (thirdNight)
+                "★ 第三夜守岛挑战完成！营地获得木材+8、石料+6、野果+2，可继续自由建造"
+                else "守住了第${result.nightsSurvived + 1}夜 · 营地补给：野果+$fruitReward、石料+$stoneReward"
             result = result.copy(nightsSurvived = result.nightsSurvived + 1,
-                fruit = result.fruit + reward,
-                world = result.world.copy(stone = result.world.stone + 1,
+                fruit = result.fruit + fruitReward,
+                world = result.world.copy(wood = result.world.wood + woodReward,
+                    stone = result.world.stone + stoneReward,
                     notice = result.world.notice + " · " + news,
                     events = (result.world.events + news).takeLast(150)))
         }
