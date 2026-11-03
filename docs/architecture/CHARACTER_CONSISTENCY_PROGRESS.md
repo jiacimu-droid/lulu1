@@ -393,3 +393,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实际源码**：`22b8ced` 在 `CharacterProfileSchema` 新增 `jiangDuV25Overrides`（motives/perception/conflict/care/expression），沿用 v24 核心 persona，`jiangDuDialogueExamplesV24` 留作历史精确匹配基准，在原有个人示范后仅新增一段活泼且有原则的学习对话；没有给公共提示词增加江渡个性。 `53441cc` 使 `CharacterLifeStore.applyJiangDuPreset` 仅对 v24 未编辑默认字段升级，原本内置样例也只在精确匹配时更新；用户自定义及显式空白原文不动，关系、目标、实际聊天和其他角色不变。
 - **测试**：`4fe25fa`、`407c1db`、`09dd863` 更新既有 v25 预期；`d1c9e38` 在 `BundledJiangDuImportTest` 检查 v24→v25 默认升级、只新增一段新场景、实际语言提示可见、主人手动编辑/空白保留和星禾隔离。源码级断言已检查，不能替代实际 JVM 运行。
 - **验证边界与下次入口**：初次相关 APK run `41679478175` 已被后继提交取消，不是失败或成功。按包含全部提交的后继 main 查 `app:testPhoneUnitTest` 与 APK 产物；真机用真实江渡模型比较“既定目标中临时不想继续”在情绪理解、温柔而坚定的表达、本人自己选择跟进时刻、实际调度/回执与下轮复议是否同时成立。现有公共 `CommitmentTaskStore`、`schedule_commitment_review` 功能只作复用，本轮没有证明真实唤醒体验修好。P-08 保持待验。
+
+
+## 2026-11-04 · P-08b 真正发给模型的记忆证据（源码与回归已提交，待 Android CI）
+
+- **接手验证**：上一轮 P-08d `8db8767` 的 Lulu APK [run 41667560828](https://github.com/jiacimu-droid/lulu1/actions/runs/41667560828) 与 Refresh code index `41667560647` 已双双 `completed/success`，证明相关 JVM/打包通过；真实模型对话质量/真机跨轮仍待验证。此前主干另有角色专属配置并行修改，不重复覆盖。
+- **P-08b 已证根因**：`MemoryWorkingSet.assemble` 之前在候选通过本地选择时立即调用 `MemoryInspectionStore.recordInjection`、标记 `promptRecorded=true`。但真实 `CompanionModelGateway` 之后可能因网络失败没有模型回复，或为降低 Relay 负载使用 `compactSectionPairs` 精简掉整条旧时间线/摘要。于是“记忆调试卡”会把**仅仅选中**误写成**实际成功注入**，无法精准诊断“为何本轮角色没带上正确事实”。P-08a 已有 `turnTraceId`，但原本缺记忆最终注入这一层的同回合审计。
+- **实际源码**：`398a6e6` 给现有 `MemoryWorkingSelection` 增加仅在内存中保留的“已选 ID→完整呈现片段及所属节”映射，用 `actuallyInjectedIds` 对照实际最终发送 section，防止只按候选/字数猜测；`a05accf` 移除工作集组装时过早的“已注入”标记；`a31a76f` 把真实注入登记移到网关**成功取得模型回复之后**，并在可能的 Relay 精简之后核对传输内容，区分预算遗漏与 Relay 额外省略。附上同一次 `turnTraceId` 的 `P08b实际注入` 性能诊断，只保存注入 ID 和数量、模式、是否精简、核心 ID，不保存提示词/聊天原文，也不向模型额外注入资料或新增收费轮次。跨世界/隔离入口原有记忆权限不变，正常请求的身份证据与必要核心记忆照旧。
+- **回归提交**：`aeab590` 的 `MemoryWorkingSetPolicyTest.actualInjectionAuditFollowsFinalRelayPayloadNotBudgetCandidates` 核对普通传输 ID 全部一致、压力精简后只留下实际完整片段而不能把旧候选算作注入；`9e2d09e` 的 `ConversationExpressionGatewayTest.memoryAuditRecordsOnlySuccessfulActualGatewayInputUnderSameTurnTrace` 用 MockWebServer 模拟 503 后正常返回，检验失败不确认注入、成功才留下带同一回合 ID 的无明文日志。原有源/人物归属、撤回机制和提示词预算测试保留。
+- **真实验收边界**：最新 `9e2d09e` 的 Lulu APK [run 41679836338](https://github.com/jiacimu-droid/lulu1/actions/runs/41679836338)、索引 `41679836331` 查询时尚未结束；源码/测试提交不等于 CI 绿灯。暂无用户授权的那一轮原始模型规划与表达 JSON，静态注入审计不证明对话已经自然。下一次先读这次 CI 最终编译/测试失败点并修复；再用本地获授权的脱敏回合把 `P08a角色规划`→`P08b实际注入`→`P08a表达结果`→`P08a气泡入库`→下轮真实行为按 `turnTraceId` 对齐，区分记忆没选中、Relay 省略、人物本轮自选不说、表达越权或消息未送达。P-08 不打勾。
