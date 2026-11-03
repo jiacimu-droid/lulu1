@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:07:26.141103+00:00",
-  "commit": "cd5a24a4831c193d92e63075659f11734077014a",
+  "generatedAt": "2026-11-03T06:07:47.259416+00:00",
+  "commit": "896325b08b4c9d713b3556a56378687f5f53d06f",
   "branch": "main",
-  "sourceFingerprint": "a70e8266b2b12b645bd1908cec6610128ea70b84b9af1865d7c7f2469fd4a225",
+  "sourceFingerprint": "76f297e18540a36eea8c9b7fa48a949836288135a5cf0aaab42bf3038abee35a",
   "summary": {
     "files": 1123,
-    "lines": 231515,
+    "lines": 231521,
     "symbols": 3248
   },
   "symbolIndex": {
@@ -32456,8 +32456,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicMapCamera.kt",
-      "lines": 24,
-      "sha256": "976dee10dfbdadf209fdbd4495cf5b9e628a169af86e7b00498e92ff055d5f02",
+      "lines": 30,
+      "sha256": "5a1d2e7940f5baba7d421b418c29a4f401ba0e6832f3436dff411474a1791fe3",
       "symbols": [
         {
           "name": "tileAt",
