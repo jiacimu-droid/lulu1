@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.InMemoryLuluChatStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
+import com.jiacimu.lulu.data.ToolRouter
+import com.jiacimu.lulu.data.verifiedRoleDeliveries
 import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -327,6 +329,51 @@ class QqReplySourceWatermarkTest {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         })
         assertFalse(isReplySourceWatermarkCurrent(watermark, store))
+    }
+
+
+    @Test fun actualToolReplyReturnsOnlyItsPersistedBubbleIds() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("精确消息回执角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "回执并发检查")
+        val unrelated = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "属于另一次行动的消息", role)
+        val source = MigratedDomainStores.chat.sendUserMessage(conversation.id, "请回应这一条")
+        val args = JSONObject().put("text", "第一泡。⟪BUBBLE⟫第二泡。")
+            .put("_replyEvidenceIds", JSONArray().put(source.id))
+        val receipt = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            args, requestId = "exact-message-proof-" + java.util.UUID.randomUUID().toString()))
+        assertTrue(receipt.toString(), receipt.optBoolean("success"))
+        val ids = receipt.getJSONArray("deliveredMessageIds")
+            .let { array -> (0 until array.length()).map(array::getString) }
+        assertEquals(2, ids.size)
+        assertEquals(ids.last(), receipt.getString("evidenceId"))
+        assertFalse(ids.contains(unrelated.id))
+        val actual = verifiedRoleDeliveries(conversation.id, role, ids)
+        assertEquals(ids, actual.map { it.id })
+        assertEquals(listOf("第一泡。", "第二泡。"), actual.map { it.content })
+    }
+
+    @Test fun deliveryBindingUsesAllExactIdsEvenBeyondEightAndRejectsOtherTurns() {
+        val role = MigratedDomainStores.characters.create("长回复消息归属角色").characterId
+        val outsider = MigratedDomainStores.characters.create("另一角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "精确绑定")
+        val messages = (1..10).map { index ->
+            MigratedDomainStores.chat.appendCharacterMessage(
+                conversation.id, "第${index}条真实消息", role)
+        }
+        val unrelatedSameActor = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "同角色另一轮", role)
+        val unrelatedOtherActor = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "其他角色的消息", outsider)
+        val ids = messages.map { it.id }
+        val exact = verifiedRoleDeliveries(conversation.id, role,
+            ids + unrelatedOtherActor.id + ids.first() + "不存在的消息")
+        assertEquals(ids, exact.map { it.id })
+        assertEquals(10, exact.size)
+        assertFalse(exact.any { it.id == unrelatedSameActor.id || it.id == unrelatedOtherActor.id })
+        assertTrue(verifiedRoleDeliveries("wrong-conversation", role, ids).isEmpty())
+        assertTrue(verifiedRoleDeliveries(conversation.id, outsider, ids).isEmpty())
     }
 
     @Test fun correctionBetweenTwoBubblesKeepsFirstReceiptButStopsSecond() = runBlocking {
