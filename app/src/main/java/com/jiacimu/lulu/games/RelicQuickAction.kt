@@ -102,3 +102,24 @@ internal fun relicQuickAction(run: RelicRun, target: Pair<Int, Int>): RelicQuick
     return RelicQuickAction("move", "朝目标前进一步",
         "只移动一格，之后可以重新选择行动", step.first, step.second)
 }
+
+/**
+ * Nearby-object interaction for the D-pad. Direction wins, then the other
+ * adjacent cells. Combat remains explicit so holding movement cannot spam it.
+ */
+internal fun relicNearbyAction(run: RelicRun, facing: Pair<Int, Int>): RelicQuickAction? {
+    if (run.phase !in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)) return null
+    val h = run.hero
+    val directions = listOf(facing, 0 to -1, 1 to 0, 0 to 1, -1 to 0)
+        .filter { (dx, dy) -> kotlin.math.abs(dx) + kotlin.math.abs(dy) == 1 }.distinct()
+    val interactions = setOf("open", "pickup", "resupply", "fountain",
+        "disarm", "invoke", "revive", "extract")
+    for ((dx, dy) in directions) {
+        val x = h.x + dx
+        val y = h.y + dy
+        if (!run.visible(x, y)) continue
+        val action = relicQuickAction(run, x to y)
+        if (action?.action in interactions) return action
+    }
+    return relicQuickAction(run, h.x to h.y)?.takeIf { it.action == "pickup" }
+}
