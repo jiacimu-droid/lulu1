@@ -26,8 +26,6 @@ jobs:
     # A hung Gradle/test step must not occupy the runner/queue for hours.
     # Normal full-phone builds are much shorter; failures still retain logs.
     timeout-minutes: 65
-    # Prevent a stuck runner from holding the single APK concurrency slot for hours.
-    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
 
