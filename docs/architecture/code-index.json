@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:32:07.982157+00:00",
-  "commit": "df7047d4bfbf57ce2f715cc7120565f8148ee3cf",
+  "generatedAt": "2026-11-03T06:33:32.430097+00:00",
+  "commit": "e63379a055f438c96387874a5ed1b3f18f7c4033",
   "branch": "main",
-  "sourceFingerprint": "f112e1e9f951c1578aeb4141c02b7529735fcf8509d53a13c2c5d1361959ad58",
+  "sourceFingerprint": "dce38ced454f34eb726b759c2b87cda03f5984482acc6300a269fc37b6b5d776",
   "summary": {
     "files": 1125,
-    "lines": 231773,
+    "lines": 231775,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -27841,8 +27841,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-      "lines": 56,
-      "sha256": "ba3aa7bec1ce213513649cf45989e6d9a1c9b4ea1e2ad197a3dbb90afcc82d70",
+      "lines": 58,
+      "sha256": "84541f7a78711f0aef332ec522c3d9e3640fa92c9ce711d0144e67768482086d",
       "symbols": [
         {
           "name": "expand",
@@ -28111,7 +28111,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
       "lines": 104,
-      "sha256": "ad2810ac28529eeb62d14b5e15be5fa1418dfd4ffebb8e65e092d2408929ffcd",
+      "sha256": "417ba4d1b4498c417f548d5a04d7368f35cb1024c5e9661fce8a0a3ac5323701",
       "symbols": [
         {
           "name": "assemble",
@@ -28585,7 +28585,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
       "lines": 44,
-      "sha256": "efbe1f4cb4300c2aa79dfd140494c88f0c484d0a3142215f85a7923a2b31a37f",
+      "sha256": "66e64ca59f36443840621393b00abfcb20a90c25b065fa6360918a94cb63422d",
       "symbols": [
         {
           "name": "ranked",
