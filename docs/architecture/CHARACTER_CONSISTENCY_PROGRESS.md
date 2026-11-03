@@ -492,3 +492,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **新确认根因**：`CharacterLifeFollowThroughStore.recordShareWish` 在状态为 `released` 时无条件拒绝以后模型明确给出的 `held`，使“曾经决定不分享”被程序永久提升为“本人永远不能改变主意”。此外若仅解除拒绝，旧的“不告诉任何人”理由会误作为新分享理由，造成跨轮相反意图串线。这里是公共角色自主决策/持久化契约错误，不是某个特定人物的性格。
 - **实改**：`53cf99073d` 允许本人明确给出 `held` 重新考虑，`shared` 仍要求真实已发送回执且不自动重发；`d9593452ff` 在 `released→held` 且未提供新理由时清空旧拒绝理由，保留已持有 `held→held` 无新理由时旧条件不丢的上一轮修复。没有自动发朋友圈、额外模型调用、关键词重解释或新增 Store。
 - **回归**：`a4e429374e` 测试 `released→held` 后恢复可选候选、旧拒绝理由不混入新意愿、新理由可以由本人明确补充，仍未有发送回执。当前查询的 `53cf99073d` APK run `41717125205` / 索引 `41717125264` in_progress，`d9593452ff` APK `41717142547` / 索引 `41717142612` cancelled，均不能当成包含 `a4e429374e` 的通过。下轮查后继完整 Android APK/JVM/索引，失败按真实 job 日志修；成功后真机核实同一角色是否真的能改变心意，并且不能把念头当成发送。P-08 仍 [ ]。
+
+## 2026-11-04 · P-08 对话锚点被后台事件挤出（main `0d827c3`，待 CI／真机）
+
+- **前轮 CI**：`a6bff5e` 的 Android 单测/APK [41704140299](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140299) 与索引 [41704140592](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140592) 均已 completed/success。包含后继分享意愿变更测试的 `a4e4293` Android [41717166612](https://github.com/jiacimu-droid/lulu1/actions/runs/41717166612) 与索引 [41717166931](https://github.com/jiacimu-droid/lulu1/actions/runs/41717166931) 也已 completed/success；真机人物选择仍未验证。
+- **已证根因**：`CharacterContinuityRuntime.snapshot` 先读取 `SharedExperienceTimeline.recentEvents(characterId, 160)` 的所有事件，再筛用户／本人发言。大量后台观察、阅读及工具回执会先占满固定窗口，把仍然真实的上一句对话排除，角色的跨场景时间感、自己说过什么与用户上次原话因此可能消失。此处为查询顺序和证据类型契约问题，与具体哄睡或单一人设无关。
+- **实改**：`0d827c33bda8a1d33a72df6a8fb540e479bea38f` 在原权威时间线 SQL 查询中先按 UserStatement／CharacterStatement 和当前时间筛选，再取最多 160 条对话候选；继续用既有 `TimelineStatementOwnership` 核实本人群聊作者，并保持出生时间边界。观察、工具回执仍在原时间线，不新增 Store、模型调用或主动联系规则。查询沿现有 `character_id, occurred_at` 索引，实际性能仍需手机测量。
+- **回归**：`CharacterContinuitySnapshotTest.backgroundEventsDoNotEvictLastActualExchange` 录入真实用户／角色原话后再写入 170 条观察，确认普通 160 条窗口已看不到原话，但人物快照和渲染仍能得到两句及原互动时间。单测只能证明数据投影契约，不能证明真实模型自然承接。
+- **待验**：本提交 Android 单测/APK [41722574278](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574278) 和原索引生成器 [41722574160](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574160) 查询时 in_progress；先核实最终结果，失败查首个真实日志。然后用获授权真机跨私聊、电话、群聊和大量后台事件验证正确归属、最后原话、当前目标与下轮行动。P-08 仍 [ ]。
