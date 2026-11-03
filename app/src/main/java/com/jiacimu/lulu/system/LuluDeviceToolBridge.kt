@@ -1761,6 +1761,7 @@ object LuluDeviceToolBridge {
         requestId: String,
         userEvidenceIds: Set<String>,
         userText: String,
+        diagnosticTurnTraceId: String = "",
     ): com.jiacimu.lulu.data.OrderedCharacterActionReport? {
         val app = context ?: return null
         val parsed = runCatching { org.json.JSONArray(steps ?: return null) }.getOrNull()
@@ -1768,6 +1769,7 @@ object LuluDeviceToolBridge {
         return com.jiacimu.lulu.data.OrderedCharacterActions.execute(
             app, characterId, parsed, requestId = requestId,
             userEvidenceIds = userEvidenceIds, userText = userText,
+            turnTraceId = diagnosticTurnTraceId,
         )
     }
 
