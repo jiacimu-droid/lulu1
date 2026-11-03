@@ -3,6 +3,8 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import org.json.JSONObject
+import org.json.JSONArray
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -43,6 +45,83 @@ class CharacterLifeSelfReviewTest {
         assertTrue(CharacterLifeSelfReview.isDue("2026-10-25", now, zone))
         assertFalse(CharacterLifeSelfReview.isDue("2026-10-26", now, zone))
         assertEquals("2026-10-26", CharacterLifeSelfReview.localDay(now, zone))
+    }
+
+    @Test fun olderHeldThoughtsRotateWithoutAutoRetiringOrPromotingThem() {
+        val thoughts = JSONArray()
+        val at = Instant.parse("2026-11-01T12:00:00Z")
+        repeat(27) { index ->
+            thoughts.put(JSONObject()
+                .put("thought", "我还在考虑自己的事-$index")
+                .put("at", at.minusSeconds((index + 1) * 3_600L).toString())
+                .put("status", if (index == 15) "discarded" else "held"))
+        }
+        val state = JSONObject().put("thoughts", thoughts)
+        val first = CharacterLifeSelfReview.thoughtCandidates(
+            state, at, ZoneId.of("Asia/Tokyo")).map { it.getString("thought") }
+        val next = CharacterLifeSelfReview.thoughtCandidates(
+            state, at.plusSeconds(86_400), ZoneId.of("Asia/Tokyo"))
+            .map { it.getString("thought") }
+        assertTrue(first.size in 4..11)
+        assertTrue(next.size in 4..11)
+        assertNotEquals(first, next)
+        assertFalse(first.any { it.endsWith("-15") })
+        assertFalse(next.any { it.endsWith("-15") })
+        assertTrue(first.contains("我还在考虑自己的事-26"))
+        assertTrue(next.contains("我还在考虑自己的事-26"))
+        // Selection does not write a status, erase history or create a task.
+        assertEquals(27, state.getJSONArray("thoughts").length())
+        assertEquals("held", state.getJSONArray("thoughts").getJSONObject(0).getString("status"))
+    }
+
+    @Test fun ownLearnedGrowthCanBeRetiredWithReceiptButNotOwnersFactsOrOtherRoles() = runBlocking {
+        CharacterDevelopmentStore.initialize(context)
+        val global = CharacterDevelopmentStore.javaClass.getDeclaredField("records")
+            .apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        val before = (global.get(CharacterDevelopmentStore) as List<DevelopmentRecord>).toList()
+        val save = CharacterDevelopmentStore.javaClass.getDeclaredMethod(
+            "save", List::class.java).apply { isAccessible = true }
+        val persona = CharacterRuntime.personaConstraintSnapshot(role)
+        val at = Instant.now().minusSeconds(100)
+        val learned = DevelopmentRecord(
+            id = "growth-review-subjective", characterId = role, slot = "self-taste",
+            kind = DevelopmentKind.Interest, content = "以前喜欢在夜里阅读",
+            confidence = 0.8, evidence = emptyMap(), counterEvidence = emptyMap(),
+            version = 3, createdAt = at, personaSnapshot = persona,
+        )
+        val ownerFact = learned.copy(id = "growth-review-owner-fact", slot = "owner-fact",
+            kind = DevelopmentKind.UserFact, content = "主人明确说过的事情")
+        try {
+            save.invoke(CharacterDevelopmentStore, before + learned + ownerFact)
+            val review = CharacterLifeSelfReview.context(context, role)
+            assertTrue(review.contains("growth-review-subjective"))
+            assertTrue(review.contains("retire_development_record"))
+            assertFalse(CharacterDevelopmentStore.retireSelfAssessment(
+                "unrelated-character", learned.id, learned.version))
+            assertFalse(CharacterDevelopmentStore.retireSelfAssessment(
+                role, learned.id, learned.version - 1))
+            assertFalse(CharacterDevelopmentStore.retireSelfAssessment(
+                role, ownerFact.id, ownerFact.version))
+            val requestId = "self-review-retire-test"
+            val result = JSONObject(ToolRouter.execute(
+                context, role, "retire_development_record",
+                JSONObject().put("developmentId", learned.id)
+                    .put("version", learned.version)
+                    .put("reason", "真实新经历让我不再认同这条旧倾向"),
+                requestId = requestId,
+            ))
+            assertTrue(result.optString("summary"), result.optBoolean("success"))
+            assertFalse(CharacterDevelopmentStore.active(role).any { it.id == learned.id })
+            assertTrue(CharacterDevelopmentStore.active(role).any { it.id == ownerFact.id })
+            assertTrue(CharacterDevelopmentStore.history(role).any {
+                it.id == learned.id && !it.active
+            })
+            assertTrue(SharedExperienceTimeline.eventsByIds(role,
+                listOf("tool-$role-$requestId")).isNotEmpty())
+        } finally {
+            save.invoke(CharacterDevelopmentStore, before)
+        }
     }
 
     @Test fun roleCanSeeAllSavedQuestionsAndChooseSeveralSchedulesInOneDecision() {
