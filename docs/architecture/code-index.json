@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T16:58:15.600620+00:00",
-  "commit": "398a6e616e0db868b3021ac1274f907bdb66a72d",
+  "generatedAt": "2026-11-03T16:58:49.636331+00:00",
+  "commit": "604434d6dc583a6b929375db49125e65d32d5756",
   "branch": "main",
-  "sourceFingerprint": "523c9be0e488369b8e59597e7cfddd9355e4c96d5c5440d6b3c89fb0d4970375",
+  "sourceFingerprint": "d23d5c3baeee015ec94cb09919317a24cdd525250e83d385cdcf70f2b8c6187b",
   "summary": {
     "files": 1125,
-    "lines": 233573,
+    "lines": 233572,
     "symbols": 3254
   },
   "symbolIndex": {
@@ -28132,8 +28132,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 104,
-      "sha256": "417ba4d1b4498c417f548d5a04d7368f35cb1024c5e9661fce8a0a3ac5323701",
+      "lines": 103,
+      "sha256": "bd53e0af23456dc02662c5583b299d7532f9dd657e0335304e1dc95038a598eb",
       "symbols": [
         {
           "name": "assemble",
