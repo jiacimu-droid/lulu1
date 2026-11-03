@@ -41,6 +41,7 @@ class PerformanceAuditPersistenceTest {
             reducedRequest = false,
             contextMode = "Full",
             streamedRequest = true,
+            turnTraceId = "opaque-turn-test-7",
         )
         val reloaded = LocalPerformanceRepository(app)
         val saved = reloaded.consoleRecords.first().first()
@@ -55,6 +56,7 @@ class PerformanceAuditPersistenceTest {
         assertEquals("聊天", saved.requestSource)
         assertEquals("Full", saved.contextMode)
         assertTrue(saved.streamedRequest)
+        assertEquals("opaque-turn-test-7", saved.turnTraceId)
         assertEquals(1, saved.breakdown.size)
     }
 
@@ -97,5 +99,6 @@ class PerformanceAuditPersistenceTest {
         assertEquals(0, saved.auditVersion)
         assertEquals(0, saved.textCharacters)
         assertEquals(0L, saved.requestBodyBytes)
+        assertEquals("", saved.turnTraceId)
     }
 }
