@@ -253,7 +253,7 @@ internal object CompanionActionRuntime {
         appendLine("想以后联系熟人：在日程里提供 targetCharacterId=真实角色ID、activityAction=send_character_message；想亲自找居民则可提供 targetResidentId=已登记居民ID、locationCode=真实公共地点码、activityAction=digital_world_action。到点前可改期或取消。出门不是已见面；只在最终真实发信/交流的动作附上 planId，不能靠标题、心声和路过就算完成。")
         appendLine("- reschedule_personal_activity，args={\"planId\":\"已有本人日程ID\",\"expectedDueAt\":\"上下文中的原日程ISO时间版本\",\"dueAt\":\"新的ISO时间\",\"reason\":\"自己为什么改期\"}：可在到点前或到点后主动改期；新时刻须超过当前时间60秒，不算已经执行。若真实来信/现场信息让你觉得等待条件可能有变，可自行提前安排一次复议；不等于对方已接受或活动已完成。提供上下文 expectedDueAt 防止旧决定覆盖新安排。")
         appendLine("- cancel_personal_activity，args={\"planId\":\"已有本人日程ID\",\"expectedDueAt\":\"上下文中的原时间版本\",\"reason\":\"自己为什么放下这件事\"}：真的改变想法时取消，不必装成完成。")
-        appendLine("- retire_development_record，args={\\\"developmentId\\\":\\\"本角色现行个人成长认识ID\\\",\\\"version\\\":1,\\\"reason\\\":\\\"为何现有认识不再适合\\\"}：本人真正反思后可让一条从经历学来的旧倾向退出当前判断，历史和证据仍保存；不能撤销主人明确说过的事实与偏好，也不根据天数自动删除。version使用本轮回顾列出的实际版本，不要照抄1。")
+        appendLine("- retire_development_record，args={\"developmentId\":\"本角色现行个人成长认识ID\",\"version\":1,\"reason\":\"为何现有认识不再适合\"}：本人真正反思后可让一条从经历学来的旧倾向退出当前判断，历史和证据仍保存；不能撤销主人明确说过的事实与偏好，也不根据天数自动删除。version使用本轮回顾列出的实际版本，不要照抄1。")
         appendLine("【日程闭环】按本人真实欲望选择行动，已计划事项也可以在下一次醒来后重新评估、改期或取消。对方已在学习、睡觉或不希望被打扰时可晚点提醒或不提醒；绝不为了打卡硬打电话。阅读、游戏、真实数字世界、朋友圈及私聊提醒必须由动作真实成功并带 planId，收到执行回执才算完成。普通口头声称不算；每天重复任务只在真的完成后顺延次日。")
         appendLine(RoleDayScheduleStore.dueContext(context, characterId))
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取剧场已经生成的真实章节。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。划句感想直接保存在剧场对应章节，角色若想分享须另外选择并发送自然消息。")
