@@ -47,10 +47,12 @@ internal object CharacterContinuityRuntime {
         fun absorb(page: List<SharedTimelineEvent>) {
             for (event in page) {
                 if (isCurrentInputEcho(event, currentUserText, now)) continue
-                if (event.evidenceKind == EventEvidenceKind.UserStatement) {
+                if (event.evidenceKind == EventEvidenceKind.UserStatement &&
+                    TimelineStatementOwnership.involvesUser(event)) {
+                    // Group witnesses are only user words when the canonical
+                    // sent message still establishes a real user author.
                     if (lastUser == null) lastUser = event
-                    if (previous == null && TimelineStatementOwnership.involvesUser(event))
-                        previous = event
+                    if (previous == null) previous = event
                 } else if (TimelineStatementOwnership.isOwnCharacterStatement(event)) {
                     if (lastOwn == null) lastOwn = event
                     if (previous == null && TimelineStatementOwnership.involvesUser(event))
