@@ -35,6 +35,25 @@ class WorldLifeEpisodeParagraphsTest {
         assertTrue(pieces.all { it.kind == WorldLifeParagraphKind.NARRATION })
     }
 
+    @Test fun namedDialogueSeparatesTheSpeakerFromTheirActualWords() {
+        val scene = "江渡：“好呀，我们下次一起去游戏馆。”\\n星禾：“我先把这关打完！”"
+            .replace("\\n", "\n")
+        val parts = WorldLifeEpisodeParagraphs.parse(scene)
+        assertEquals(2, parts.size)
+        assertEquals(listOf("江渡", "星禾"), parts.map { it.speaker })
+        assertTrue(parts.all { it.kind == WorldLifeParagraphKind.SPEECH })
+        assertEquals("“我先把这关打完！”", parts.last().text)
+    }
+
+    @Test fun labelledDialogueCanShowSpeakerWithoutInventingNewSpeech() {
+        val parts = WorldLifeEpisodeParagraphs.parse(
+            "【对白】江渡：我先去看看。\\n\\n【叙述】他转身离开。".replace("\\n", "\n"))
+        assertEquals("江渡", parts.first().speaker)
+        assertEquals("我先去看看。", parts.first().text)
+        assertEquals(WorldLifeParagraphKind.NARRATION, parts.last().kind)
+        assertEquals("", parts.last().speaker)
+    }
+
     @Test fun naturallyQuotedParagraphIsDialogueButInlineQuoteStaysNarration() {
         val paragraphs = WorldLifeEpisodeParagraphs.parse("他说：“好吧。”\n\n“要试试看吗？”")
         assertEquals(WorldLifeParagraphKind.NARRATION, paragraphs.first().kind)
