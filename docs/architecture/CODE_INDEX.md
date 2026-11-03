@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7e8d9497e9faaaf3a0bad0b128c9b639d28be507`
+- 基准提交：`d55b8af16cd0464fb9524071bbfd3c7ae70adb4b`
 - 分支：`main`
 - 已索引文件：1121
-- 已索引代码/文本行：230456
+- 已索引代码/文本行：230468
 - 已发现符号：3240
 
 | 文件 | 行数 | 符号数 |
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 231 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 580 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 589 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
@@ -217,7 +217,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 686 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 296 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 299 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 643 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |

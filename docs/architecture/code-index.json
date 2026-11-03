@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T02:49:09.128999+00:00",
-  "commit": "7e8d9497e9faaaf3a0bad0b128c9b639d28be507",
+  "generatedAt": "2026-11-03T02:49:50.404430+00:00",
+  "commit": "d55b8af16cd0464fb9524071bbfd3c7ae70adb4b",
   "branch": "main",
-  "sourceFingerprint": "e9326cf3ede49ea7f323364ae2282a0f9e666e1f6f2ab1f2e6fe000f03a161f2",
+  "sourceFingerprint": "2cffd014604ff4fe1f8a4b1bb6b8c990a6a62298f0fea672e5f5779d99a13942",
   "summary": {
     "files": 1121,
-    "lines": 230456,
+    "lines": 230468,
     "symbols": 3240
   },
   "symbolIndex": {
@@ -2229,7 +2229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 431
+        "line": 440
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -20436,8 +20436,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 580,
-      "sha256": "99a408401a91def0957670fd30c14c71ec65f66d89561cd67941834e505c09f3",
+      "lines": 589,
+      "sha256": "44f4db11e161d1f4511565064397e199c7e85599d2c885452603d378c243b07f",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -20453,7 +20453,7 @@
         },
         {
           "name": "read",
-          "line": 431
+          "line": 440
         }
       ]
     },
@@ -20993,8 +20993,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 296,
-      "sha256": "2255fc6a8b2e19f5ccce10d0239bfa9815279a3712cffc458db1cbad8ca34e72",
+      "lines": 299,
+      "sha256": "94afd7796d6903b1d850565acb3758390fa8c3dfb70883ddf556c9f480d80d11",
       "symbols": [
         {
           "name": "MigrationActivity",
