@@ -73,6 +73,10 @@ class UserInteractionPresenceTest {
         assertTrue(cue.contains("约 10 分钟前确实收到用户发言"))
         assertTrue(cue.contains("尚不确定用户有没有睡过"))
         assertTrue(cue.contains("不是必须劝睡"))
+        assertTrue("A general late-night social cue cannot cancel an existing commitment",
+            cue.contains("一般社交克制不能替代原承诺的履行判断"))
+        assertTrue(cue.contains("获授权的观察"))
+        assertTrue(cue.contains("不能凭空认定她正在入睡就推迟目标"))
         assertTrue(cue.contains("已表达的关心和用户回应"))
     }
 
