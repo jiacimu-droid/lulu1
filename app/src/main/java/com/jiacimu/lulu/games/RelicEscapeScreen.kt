@@ -49,6 +49,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     var kits by remember{mutableIntStateOf(1)}
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
     var facing by remember(run?.id){mutableStateOf(0 to 1)}
+    var joystickHeld by remember(run?.id){mutableStateOf(false)}
     // Movement returns the camera to the player; looking at teammates spends no turn.
     var cameraFocus by remember(run?.id, run?.hero?.x, run?.hero?.y) {
         mutableStateOf<Pair<Int, Int>?>(null)
@@ -110,7 +111,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         companion = {
             if (run != null && run.allies.isNotEmpty() && run.phase in
                 setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) {
-                RelicCompanionPanel(run,readRun={snapshot.run ?: run}) { id,choice ->
+                RelicCompanionPanel(run,continuousTravel=joystickHeld,
+                    readRun={snapshot.run ?: run}) { id,choice ->
                     var saved = false
                     change { ledger.companion(run.id,id,choice).also { saved = true } }
                     saved
@@ -124,6 +126,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 stopWhen = run?.hero?.hp to run?.phase,
                 interactLabel = adjacentAction?.label ?: "附近互动",
                 interactEnabled = adjacentAction != null,
+                onHoldChange = { joystickHeld = it },
                 onInteract = { adjacentAction?.let { action(it.action, it.x, it.y, it.id) } }) { dx, dy ->
                 facing = dx to dy
                 run?.hero?.let { hero ->
