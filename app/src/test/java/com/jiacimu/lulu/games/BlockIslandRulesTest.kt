@@ -291,4 +291,42 @@ class BlockIslandRulesTest {
         assertEquals(old.events, restored.world.events)
         assertNull(BlockIslandState.fromLegacy(ExpeditionRules.start(ExpeditionMode.RELIC_RUN, 315, emptyList())))
     }
+
+    @Test fun foodHungerAndCampNightRewardAreRealPersistedState() {
+        val start = BlockIslandRules.newWorld(1101, emptyList())
+        val ready = start.copy(
+            world = start.world.copy(turns = 47, hp = 8, mobs = emptyList()),
+            fruit = 1, hunger = 6,
+            structures = mapOf(start.world.index(5, 5) to "campfire"),
+        )
+        val night = BlockIslandRules.act(ready, "eat")
+        assertEquals(48, night.world.turns)
+        assertEquals(9, night.hunger) // food +4, one hunger tick at dawn
+        assertEquals(1, night.nightsSurvived)
+        assertEquals(2, night.fruit) // one eaten, two earned for defending camp
+        assertEquals(ready.world.stone + 1, night.world.stone)
+        val reread = BlockIslandState.fromJson(night.toJson())!!
+        assertEquals(9, reread.hunger)
+        assertEquals(1, reread.nightsSurvived)
+        assertEquals(0, reread.defeatedMonsters)
+        val next = BlockIslandRules.act(reread, "eat")
+        assertEquals(1, next.nightsSurvived) // no duplicate same-day reward
+
+        val unsheltered = BlockIslandRules.act(ready.copy(structures = emptyMap()), "eat")
+        assertEquals(0, unsheltered.nightsSurvived)
+        assertEquals(0, unsheltered.fruit)
+    }
+
+    @Test fun monsterDefenseGivesFoodAndARecordedMilestone() {
+        val start = BlockIslandRules.newWorld(1102, emptyList())
+        val atRisk = start.copy(world = start.world.copy(
+            mobs = listOf(ExpeditionMob(97, 5, 5, hp = 2)),
+        ))
+        val won = BlockIslandRules.act(atRisk, "fight", 5, 5)
+        assertEquals(1, won.defeatedMonsters)
+        assertEquals(2, won.fruit)
+        val saved = BlockIslandState.fromJson(won.toJson())!!
+        assertEquals(1, saved.defeatedMonsters)
+        assertEquals(2, saved.fruit)
+    }
 }
