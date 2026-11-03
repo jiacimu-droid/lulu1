@@ -74,3 +74,12 @@
 - 修复提交：`f8048352` 把持按重复协程创建移到受限事件作用域外（事件读取仍在作用域内）；`1654a783` 将镜头最新位置改用 `State.value` 并清除重复导入。#7439（run 41598168249）的日志不再出现 `GameSceneDeck` 两条编译错误，仅报修复前提交中的 `RelicEscapeArt` 状态委托错误，提供了一次局部验证；这不等于最终 APK 通过。
 - 工作流提交 `686152ca` 将手动 `workflow_dispatch` 与自动 `push` 并发组分离，既保持频繁提交时的单个运行保护，也不让手动发起的构建被旧自动任务永久堵住；为 `build` 设置 65 分钟上限，避免默认长时间挂死。其他并行提交一度导致 `timeout-minutes` 重复声明，已在 `c355f8a1` 删除重复键。
 - #7443（run 41598389134，源提交 `c355f8a1`）已进入实际 Job 执行；**截至本轮记录，尚未获得最终成功/失败结论，更没有新的完整 APK/真机验收证据。** 必须读取该 run 最终日志与产物后才能在总看板标记 CI 已通过；不重启失败的历史旧 SHA 假装是新版本。
+
+
+### 2026-11-03 追加：CI 失效根因和实际修复交接
+
+- 完整读取 #7438 job `125783563587` 原始日志，确认唯一真正的编译错误为 `GameSceneDeck.kt:259:21`、`:269:45`（restricted pointer-event suspend context）以及 `RelicEscapeArt.kt:66:31`（Compose State 委托 getter）。这些不是 VPN、NDK 或缓存错误。源码层分别已有同日 main 修复提交 `f804835` 和 `1654a78`。
+- #7439 `f804835` 在第二份修复提交前已启动，日志仅剩 `RelicEscapeArt.kt:66:31`，符合提交时间线；不能把它当作完整修复后的失败。
+- 旧 #7393 原日志表明 `:app:compileDebugKotlin`、`:app:compileDebugUnitTestKotlin` 均通过，随后在 `:app:testDebugUnitTest` 无输出长时间滞留，直到取消；卡住的具体测试尚未可证实定位。为排查此类无输出挂起，已在现有 `app/build.gradle.kts` 的 `unitTests.all` 添加 Gradle `testLogging.events("started", "failed")`（`3d6cc7b`），不跳过任何测试，未来运行日志可以看到进入哪条测试。
+- `release.yml` 后续同日提交采用按 `github.event_name` 分开的手动/自动并发组；保留 `cancel-in-progress: false` 和已增加的 65 分钟整任务、40 分钟编译测试步骤上限。手动请求不必等待旧 push 构建释放通道，但可能与自动构建并发消耗两个 runner；不认定并发本身造成代码错误。
+- 最近检查：#7441（完整两处 Kotlin 修复及超时配置）正在 `Test and build phone APK`；#7443 同样正在该步骤；#7447 是更新后 `main` 的待运行自动构建。三轮截至此处**均无成功 APK 和 Release 证据**，旧失败/取消不算通过。后续看最新完整成功运行的 Gradle 测试、APK 校验与产物并按证据更新进度。
