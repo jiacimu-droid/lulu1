@@ -500,3 +500,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实改**：`0d827c33bda8a1d33a72df6a8fb540e479bea38f` 在原权威时间线 SQL 查询中先按 UserStatement／CharacterStatement 和当前时间筛选，再取最多 160 条对话候选；继续用既有 `TimelineStatementOwnership` 核实本人群聊作者，并保持出生时间边界。观察、工具回执仍在原时间线，不新增 Store、模型调用或主动联系规则。查询沿现有 `character_id, occurred_at` 索引，实际性能仍需手机测量。
 - **回归**：`CharacterContinuitySnapshotTest.backgroundEventsDoNotEvictLastActualExchange` 录入真实用户／角色原话后再写入 170 条观察，确认普通 160 条窗口已看不到原话，但人物快照和渲染仍能得到两句及原互动时间。单测只能证明数据投影契约，不能证明真实模型自然承接。
 - **待验**：本提交 Android 单测/APK [41722574278](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574278) 和原索引生成器 [41722574160](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574160) 查询时 in_progress；先核实最终结果，失败查首个真实日志。然后用获授权真机跨私聊、电话、群聊和大量后台事件验证正确归属、最后原话、当前目标与下轮行动。P-08 仍 [ ]。
+
+
+## 2026-11-04 · P-08 对话锚点的第二层群聊归属窗口（待新 CI/真机）
+
+- **先核对前轮**：`0d827c33bd` 的 [Lulu APK/JVM 41722574278](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574278) 和 [索引 41722574160](https://github.com/jiacimu-droid/lulu1/actions/runs/41722574160) 均已 completed/success；真机跨场景对话承接仍未验收。
+- **新证实的结构缺口**：前轮虽然在 SQL 先筛 Statement，再取最近 160 条，但共享群聊的权威时间线记录了其他成员的发言作为当前角色的见证事件。只有随后在 `CharacterContinuityRuntime.snapshot` 才用 `TimelineStatementOwnership.isOwnCharacterStatement` 核实真正作者。若最近 160 条全是其他群成员发言，真正属于本人和用户的上一句对话仍在**归属校验前**被挤出；不是模型遗忘，也不能凭名字猜作者。
+- **实改**：`06a8f7d455` 在原 `SharedExperienceTimeline` 增加按 (occurred_at,id) 倒序稳定翻页的旧 Statement 候选读取，`ded728f940` 使首批时间戳相同时的排序也稳定；`77df484233` 先筛原有作者归属与当前输入 echo，再从必要的旧页寻找本人的最近发言和用户最近原话，最多额外 12 页，保持原始事件、来源、权限与角色独立。仅当缺少锚点时读取旧页，不增加模型调用、不新建 Store、不把群聊他人发言冒充本人的话。
+- **回归**：`17db8eea8c` 在 `CharacterContinuitySnapshotTest` 录入两句真实私聊，再录入 175 条没有原始本人发送凭据的其他群成员见证发言，要求连续性仍能承接原私聊而不把其他人的话归给本人。
+- **验证边界**：前轮的 APK 与索引成功不能替代本轮新测试。新增源码的中间 run `41726238812` cancelled，不能算成功；以含 `17db8eea8c` 的后继 APK/JVM、索引 run 最终结果为准。下轮先查编译与真实单测，失败看第一条日志并修复；成功后真机检验群聊热闹期间私聊、电话与自主感知对同一角色最后原话的承接。大量群消息下最多 12 页的成本及历史极长的边界仍待测。P-08 保持 [ ]。
