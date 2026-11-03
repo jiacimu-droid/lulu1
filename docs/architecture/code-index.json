@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:05:53.995288+00:00",
-  "commit": "5f6b2f84de40dd7c3002e0eef9ed272550fd9eed",
+  "generatedAt": "2026-11-03T08:06:27.746264+00:00",
+  "commit": "e9a34b2f22607de5a9041dff8c82dfd42ee50f65",
   "branch": "main",
-  "sourceFingerprint": "5b56034d5ee28514a12e2f7c30b0cb178839284253a4e5be7e3f23a935fd3c5f",
+  "sourceFingerprint": "2221238034d8fdee662e3b9376f9b4be965affccd50150a0db26ed3e12721b20",
   "summary": {
     "files": 1125,
-    "lines": 232062,
+    "lines": 232080,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -37280,8 +37280,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 100,
-      "sha256": "e5cf3681e4b50ab14634023572e5815c9910d4a1a0131a8bf9d6c1afec63bd8d",
+      "lines": 118,
+      "sha256": "986196adbbf9af5a36b541f714042cc2c965c3f326b03db1b0a967c35884da30",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",

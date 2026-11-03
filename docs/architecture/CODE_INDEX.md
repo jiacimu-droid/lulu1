@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f6b2f84de40dd7c3002e0eef9ed272550fd9eed`
+- 基准提交：`e9a34b2f22607de5a9041dff8c82dfd42ee50f65`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232062
+- 已索引代码/文本行：232080
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
@@ -1018,7 +1018,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 100 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 118 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
