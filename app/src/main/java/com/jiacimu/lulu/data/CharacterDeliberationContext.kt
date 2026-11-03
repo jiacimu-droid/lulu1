@@ -106,7 +106,7 @@ internal object CharacterDeliberationContext {
                     append("；当时察觉的变化：").append(it)
                 }
                 basis?.optString("conflict")?.takeIf(String::isNotBlank)?.let {
-                    append("；当时纠结/冲突：").append(it)
+                    append("；当时冲突：").append(it)
                 }
                 basis?.optString("unsaidWhy")?.takeIf(String::isNotBlank)?.let {
                     append("；当时没说出的缘由：").append(it)
