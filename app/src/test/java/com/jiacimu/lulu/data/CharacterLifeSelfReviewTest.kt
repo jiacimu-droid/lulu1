@@ -74,7 +74,7 @@ class CharacterLifeSelfReviewTest {
         assertEquals("held", state.getJSONArray("thoughts").getJSONObject(0).getString("status"))
     }
 
-    @Test fun ownLearnedGrowthCanBeRetiredWithReceiptButNotOwnersFactsOrOtherRoles() = runBlocking {
+    @Test fun ownLearnedGrowthCanBeRetiredWithReceiptButNotOwnersFactsOrOtherRoles() = runBlocking<Unit> {
         CharacterDevelopmentStore.initialize(context)
         val global = CharacterDevelopmentStore.javaClass.getDeclaredField("records")
             .apply { isAccessible = true }
@@ -103,7 +103,7 @@ class CharacterLifeSelfReviewTest {
                 role, learned.id, learned.version - 1))
             assertFalse(CharacterDevelopmentStore.retireSelfAssessment(
                 role, ownerFact.id, ownerFact.version))
-            val requestId = "self-review-retire-test"
+            val requestId = "self-review-retire-${java.util.UUID.randomUUID()}"
             val result = JSONObject(ToolRouter.execute(
                 context, role, "retire_development_record",
                 JSONObject().put("developmentId", learned.id)
