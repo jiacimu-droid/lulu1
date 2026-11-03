@@ -757,7 +757,7 @@ object SharedExperienceTimeline {
         sourceLike: String? = null, after: Instant? = null,
         until: Instant? = null, statementOnly: Boolean = false): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
-        val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
+        val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC, id DESC"
         val birth = DigitalLifeProfileStore.birthAt(characterId)
         val selection = buildList {
             add("character_id = ?")
