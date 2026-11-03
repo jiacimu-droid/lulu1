@@ -521,6 +521,54 @@ object SharedExperienceTimeline {
             until = now, statementOnly = true).sortedBy(SharedTimelineEvent::occurredAt)
 
     /**
+     * Read older statement candidates without skipping same-millisecond rows.
+     * Group witnesses can include other people's speech; the caller verifies
+     * canonical authorship before treating a statement as the role's own.
+     */
+    internal fun statementPageBefore(
+        characterId: String, now: Instant,
+        beforeTime: Instant, beforeId: String, limit: Int = 160,
+    ): List<SharedTimelineEvent> {
+        val database = helper?.readableDatabase ?: return emptyList()
+        val birth = DigitalLifeProfileStore.birthAt(characterId)
+        val selection = buildList {
+            add("character_id = ?")
+            add("occurred_at <= ?")
+            add("(occurred_at < ? OR (occurred_at = ? AND id < ?))")
+            add("evidence_kind IN (?, ?)")
+            if (birth != null) add("occurred_at >= ?")
+        }.joinToString(" AND ")
+        val args = buildList {
+            add(characterId)
+            add(now.toEpochMilli().toString())
+            add(beforeTime.toEpochMilli().toString())
+            add(beforeTime.toEpochMilli().toString())
+            add(beforeId)
+            add(EventEvidenceKind.UserStatement.name)
+            add(EventEvidenceKind.CharacterStatement.name)
+            if (birth != null) add(birth.toEpochMilli().toString())
+        }.toTypedArray()
+        return database.query("timeline_events", EVENT_COLUMNS, selection, args,
+            null, null, "occurred_at DESC, id DESC", limit.coerceIn(1, 256).toString()).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(SharedTimelineEvent(
+                        id = cursor.getString(0), characterId = cursor.getString(1),
+                        channel = cursor.getString(2), speaker = cursor.getString(3),
+                        content = cursor.getString(4),
+                        occurredAt = Instant.ofEpochMilli(cursor.getLong(5)),
+                        sessionId = cursor.getString(6), source = cursor.getString(7),
+                        evidenceKind = runCatching {
+                            EventEvidenceKind.valueOf(cursor.getString(8))
+                        }.getOrDefault(EventEvidenceKind.Legacy),
+                        taskId = cursor.getString(9), revision = cursor.getLong(10),
+                    ))
+                }
+            }
+        }
+    }
+
+    /**
      * Read real perceptible evidence in chronological pages, including older
      * unacknowledged events. The caller checks the existing exact perception
      * ledger before placing a small batch in the model prompt.
