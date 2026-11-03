@@ -28,6 +28,45 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ConversationExpressionGatewayTest {
+    @Test(timeout = 60_000) fun memoryAuditRecordsOnlySuccessfulActualGatewayInputUnderSameTurnTrace() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        val role = MigratedDomainStores.characters.create("真实记忆审计测试", "有自己的判断")
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(503).setBody("server busy"))
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"我听见了。"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            LuluRepositories.performance.clearTimings()
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            val trace = "test-p08b-actual-injection"
+            val req = UnifiedMemoryRequest(currentInput = "这句话只应在模型原始请求里",
+                sceneContext = "私聊")
+            val failed = LuluAiServices.gateway.generate(role.characterId,
+                "真实背景", "按本人设定接话", "聊天工具规划", "test",
+                connectionOverride = connection, memoryRequest = req,
+                turnTraceId = trace)
+            assertTrue(failed.isFailure)
+            assertFalse(MemoryInspectionStore.snapshot(role.characterId)?.promptRecorded == true)
+            val success = LuluAiServices.gateway.generate(role.characterId,
+                "真实背景", "按本人设定接话", "聊天工具规划", "test",
+                connectionOverride = connection, memoryRequest = req,
+                turnTraceId = trace)
+            assertTrue(success.exceptionOrNull()?.message.orEmpty(), success.isSuccess)
+            assertTrue(MemoryInspectionStore.snapshot(role.characterId)?.promptRecorded == true)
+            val actual = LuluRepositories.performance.timingRecords.first()
+                .filter { it.stage == "P08b实际注入" && it.detail.contains("trace=$trace") }
+            assertEquals(1, actual.size)
+            assertTrue(actual.single().detail.contains("selected="))
+            assertTrue(actual.single().detail.contains("injected="))
+            assertFalse(actual.single().detail.contains("这句话只应在模型原始请求里"))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun nativeDecisionsAndRenderingKeepRelationshipsSeparateWhileCrossWorldKeepsOnlyPersona() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
