@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import java.time.Instant
+import java.time.Duration
+import java.time.format.DateTimeFormatter
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
@@ -143,6 +145,36 @@ internal fun nextDailyCommitmentDue(
 
 
 /**
+ * A promise's original action clock and its outcome-review clock are different
+ * facts. A review at 01:30 cannot silently redefine the original 23:30 promise
+ * as a 01:30 bedtime. Present arithmetic, never decide whether to contact,
+ * claim sleep, or set a default bedtime on behalf of the character or user.
+ */
+internal object CommitmentClockFacts {
+    fun render(task: CommitmentTask, now: Instant, zone: ZoneId = ZoneId.systemDefault()): String {
+        val format = DateTimeFormatter.ofPattern("M月d日 HH:mm")
+        fun local(at: Instant): String = at.atZone(zone).format(format)
+        fun elapsed(seconds: Long): String =
+            if (seconds < 60) "不足1分钟" else "${seconds / 60}分钟"
+        fun clock(label: String, at: Instant): String {
+            val delta = Duration.between(at, now).seconds
+            val relation = when {
+                delta > 0 -> "已过去${elapsed(delta)}"
+                delta < 0 -> "距离现在还有${elapsed(-delta)}"
+                else -> "正是此刻"
+            }
+            return "$label=${local(at)}（$relation）"
+        }
+        val original = task.dueAt?.let { clock("原定行动时间", it) }
+        val review = task.nextCheckAt?.let { clock("结果复查时间", it) }
+        return (listOfNotNull(original, review) +
+            if (original != null && review != null)
+                listOf("结果复查只是查证下一步，原定行动时间没有因此被改写")
+            else emptyList()).joinToString("；")
+    }
+}
+
+/**
  * Facts for the SAME character decision, not a second planner or personality rule.
  * An accepted duty differs from a passing personal thought: unverified work must
  * remain visible even when the most recent user message was quiet.
@@ -169,8 +201,10 @@ internal object ActiveCommitmentAttention {
                 }
                 val next = task.nextCheckAt?.takeIf { it.isAfter(now) }
                 appendLine("taskId=${task.id}; goal=${task.goal.take(140)}; phase=$phase; " +
-                    "nextReview=${next ?: "未安排"}; last=${task.readableLastResult().take(150)}")
+                    "nextReview=${next ?: "未安排"}; last=${task.readableLastResult().take(150)};" +
+                    " ${CommitmentClockFacts.render(task, now)}")
             }
+            appendLine("【原定行动与目标结果的时间感】提醒开始的原定时刻、对方希望达到的实际目标，以及后续复查时刻是不同事实。当前时间已经推进，须结合原始目标和上述已过/剩余时间判断紧迫性；定了下次静默复查，不代表原目标自然延期或已经实现。夜间的等待也在消耗时间，但无证据仍不能推断对方已经睡着或仍然醒着。")
             appendLine("用户明确要求过的主动提醒、陪伴或监督，是已授权的关系约定，不是你临时猜她是否想聊天。没有新回复、担心提示音或猜测她可能困了，都不足以替她撤销原约定。")
             appendLine("对仍待落实的责任，由你依据真实时间、原约定和权限选择：现在用真实消息/来电/已授权设备观察推进，或确有理由暂缓并用现有 schedule_commitment_review / 个人日程工具登记下一次行动。不要把弹窗、心声、端水等待、电话挂断或用户沉默当成哄睡成功，也不要机械连续打扰。")
             appendLine("若某项责任已有仍有效的下一步执行或复查闹钟，应先继承它，不重复建；没有真实后续安排的沉默不等于完成了监督。执行是否成功仍以独立回执为准。")
