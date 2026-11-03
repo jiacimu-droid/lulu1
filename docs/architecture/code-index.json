@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T22:52:01.609603+00:00",
-  "commit": "148386b0104d57077d9c27503e89bc40e30ed82e",
+  "generatedAt": "2026-11-03T23:38:33.340239+00:00",
+  "commit": "16a4d6bc1ab877446f4982ce2e0d7af12b60c164",
   "branch": "main",
-  "sourceFingerprint": "9465b97428d7e7589648dab67d83bfb701a1a90122e79a260816aab8c777ac72",
+  "sourceFingerprint": "085a2dbfa4ff2e6b6052e2146a0ae8c2455eb155dc54421910384a257d63b3e3",
   "summary": {
     "files": 1126,
-    "lines": 234526,
-    "symbols": 3261
+    "lines": 234577,
+    "symbols": 3262
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12082,10 +12082,16 @@
         "line": 19
       }
     ],
+    "isOwnDialogueStatement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
+        "line": 47
+      }
+    ],
     "involvesUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
-        "line": 36
+        "line": 54
       }
     ],
     "groups": [
@@ -23542,7 +23548,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
       "lines": 171,
-      "sha256": "2cf6ff76fbf5c69411ff9a84105eddb4f5ed230ba83fdf605bd5720813ec5122",
+      "sha256": "4cb0466ea58c09094b869218dad1f84093c2aab0822a4851fa034a3f12efa4d3",
       "symbols": [
         {
           "name": "snapshot",
@@ -29910,16 +29916,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
-      "lines": 47,
-      "sha256": "21ab1d5997f2dfbdd6e66c023f512b76283482eb3c0de6e71d081a687390ddf1",
+      "lines": 65,
+      "sha256": "5cb40411c9e2ebd11bcf939f10ec6aa0db705b02e510438252286b2cd0748e13",
       "symbols": [
         {
           "name": "isOwnCharacterStatement",
           "line": 19
         },
         {
+          "name": "isOwnDialogueStatement",
+          "line": 47
+        },
+        {
           "name": "involvesUser",
-          "line": 36
+          "line": 54
         }
       ]
     },
@@ -35569,8 +35579,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt",
-      "lines": 70,
-      "sha256": "881dae47cc21c9c2799c960f78ed1d5490ad7d8049175c1e2077a44ca8fb0e42",
+      "lines": 103,
+      "sha256": "f034a132bd51f71b953102b454fae259520ecfdb82f1a09137d4de62ab21d342",
       "symbols": [
         {
           "name": "CharacterContinuitySnapshotTest",

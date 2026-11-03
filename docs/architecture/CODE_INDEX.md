@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`148386b0104d57077d9c27503e89bc40e30ed82e`
+- 基准提交：`16a4d6bc1ab877446f4982ce2e0d7af12b60c164`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234526
-- 已发现符号：3261
+- 已索引代码/文本行：234577
+- 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -560,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 47 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 576 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
@@ -893,7 +893,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 1038 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt` | 70 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt` | 131 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
