@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:41:08.089008+00:00",
-  "commit": "e53ef5cfcfe770df44c215ee9481c312fa7b4cb1",
+  "generatedAt": "2026-11-03T17:41:53.215182+00:00",
+  "commit": "1278679d4efcb54fde1be08a9bdc76a1bf2aa526",
   "branch": "main",
-  "sourceFingerprint": "273190a7ba9636ddd1ed319d4cea2d7bbe1052128cf34bcbb46c058533d6722e",
+  "sourceFingerprint": "b2ba756ea8f7a1f31bb9a97a1746f67ffc07bc07fc9f97d55293dd49d0fff88f",
   "summary": {
     "files": 1125,
-    "lines": 234112,
+    "lines": 234113,
     "symbols": 3259
   },
   "symbolIndex": {
@@ -2607,7 +2607,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1385
+        "line": 1386
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7923,43 +7923,43 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1283
+        "line": 1284
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1347
+        "line": 1348
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1354
+        "line": 1355
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1368
+        "line": 1369
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1378
+        "line": 1379
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1424
+        "line": 1425
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1644
+        "line": 1645
       }
     ],
     "age": [
@@ -25596,8 +25596,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1692,
-      "sha256": "46049167af42196c7fcc04659f925aa24f2a1f8821f75affce7e8747860e2bbf",
+      "lines": 1693,
+      "sha256": "76d218936ceb7619177850895d19bac0e686419e309f40a9377024868a448bd7",
       "symbols": [
         {
           "name": "asJson",
@@ -25613,35 +25613,35 @@
         },
         {
           "name": "world",
-          "line": 1283
+          "line": 1284
         },
         {
           "name": "recordedReceiptId",
-          "line": 1347
+          "line": 1348
         },
         {
           "name": "completedEvidence",
-          "line": 1354
+          "line": 1355
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1368
+          "line": 1369
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1378
+          "line": 1379
         },
         {
           "name": "from",
-          "line": 1385
+          "line": 1386
         },
         {
           "name": "requiresCompletion",
-          "line": 1424
+          "line": 1425
         },
         {
           "name": "availableContext",
-          "line": 1644
+          "line": 1645
         }
       ]
     },
