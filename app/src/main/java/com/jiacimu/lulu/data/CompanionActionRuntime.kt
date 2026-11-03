@@ -711,7 +711,9 @@ internal object CompanionActionRuntime {
                 val complete = delivery.complete
                 CompanionActionResult(complete,
                     if (complete) "已在私聊中发送消息"
-                    else if (deliveredId.isNotBlank()) "部分气泡已送达，后续因来源变更或中断而停止"
+                    else if (deliveredId.isNotBlank() && delivery.superseded)
+                        "部分气泡已送达，后续因用户消息变化而停止"
+                    else if (deliveredId.isNotBlank()) "部分气泡已送达，但整轮尚未完成"
                     else "原用户消息已变化、被撤回或发送中断；本轮没有送达消息",
                     conversation.id, deliveredId, deliveredMessageIds = delivery.messageIds)
             }
@@ -733,7 +735,9 @@ internal object CompanionActionRuntime {
                 val complete = delivery.complete
                 CompanionActionResult(complete,
                     if (complete) "已在群聊《${conversation.groupChat?.name}》发言"
-                    else if (deliveredId.isNotBlank()) "部分群聊气泡已送达，后续因来源变更或中断而停止"
+                    else if (deliveredId.isNotBlank() && delivery.superseded)
+                        "部分群聊气泡已送达，后续因用户消息变化而停止"
+                    else if (deliveredId.isNotBlank()) "部分群聊气泡已送达，但整轮尚未完成"
                     else "群聊原消息已变化、被撤回或发送中断；本轮没有送达消息",
                     conversation.id, deliveredId, deliveredMessageIds = delivery.messageIds)
             }
