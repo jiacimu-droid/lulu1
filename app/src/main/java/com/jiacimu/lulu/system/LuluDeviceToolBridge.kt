@@ -162,7 +162,9 @@ object LuluDeviceToolBridge {
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
         onLive2DAction: ((JSONObject) -> Unit)? = null,
         onLive2DStatus: ((String) -> Unit)? = null,
+        diagnosticTurnTraceId: String = "",
     ): Result<ModelReply> {
+        val turnTraceId = diagnosticTurnTraceId.ifBlank { java.util.UUID.randomUUID().toString() }
         val preparationStartedNanos = System.nanoTime()
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
@@ -641,6 +643,7 @@ object LuluDeviceToolBridge {
             """.trimIndent(),
             source = if (sceneContext.contains("电话")) "电话回复" else "聊天工具规划",
             title = title,
+            turnTraceId = turnTraceId,
             // Phone speech should be a natural turn, not an essay. Keep enough
             // headroom for the JSON state without paying for runaway monologues.
             maxTokens = when {
@@ -701,6 +704,7 @@ object LuluDeviceToolBridge {
                 """.trimIndent(),
                 source = "聊天决策结构补全",
                 title = title,
+                turnTraceId = turnTraceId,
                 maxTokens = 1_300,
                 connectionOverride = connection,
                 memoryRequest = UnifiedMemoryRequest(
@@ -961,6 +965,13 @@ object LuluDeviceToolBridge {
         if (choiceBasis != null) plan = plan.copy(reason = choiceBasis.reason)
         val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
             plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
+        )
+        // Diagnostic facts only: no raw chat, world-book contents or private thoughts.
+        com.jiacimu.lulu.LuluRepositories.performance.recordTiming(
+            "P08a角色规划", (System.nanoTime() - plannerCompletedNanos) / 1_000_000L,
+            "trace=$turnTraceId;session=$currentSessionId;source=${userEvidenceIds.lastOrNull().orEmpty()};" +
+                "action=${plan.action};move=${dialoguePlan.type.wire};intentChars=${plan.speechIntent.length};" +
+                "plannerJson=${firstParsedPlan != null};repair=${plannerRepair != null}",
         )
         if (groundingEvidenceId.isNotBlank() && !rewriting) {
             com.jiacimu.lulu.data.ConversationGroundingEngine.afterDecision(
@@ -1376,6 +1387,7 @@ object LuluDeviceToolBridge {
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
+                    turnTraceId = turnTraceId,
                     // Model chooses how much is necessary; user keyword/length
                     // must never silently reduce the expression token budget.
                     maxTokens = 1_400,
@@ -1402,6 +1414,12 @@ object LuluDeviceToolBridge {
                 // Keep deterministic safety/receipt validation below.
                 val chosenResult = generated
                 val chosenBubbles = firstBubbles
+                com.jiacimu.lulu.LuluRepositories.performance.recordTiming(
+                    "P08a表达结果", 0,
+                    "trace=$turnTraceId;session=$currentSessionId;source=${userEvidenceIds.lastOrNull().orEmpty()};" +
+                        "move=${dialoguePlan.type.wire};bubbles=${chosenBubbles.size};" +
+                        "textChars=${chosenBubbles.sumOf(String::length)};structured=${structuredBubbles != null}",
+                )
                 // dialoguePlan.maxBubbles is a count of *conversation moves*,
                 // not a visual clamp. A single thought may need two complete
                 // sentences in separate chat bubbles. Never discard the rest.
