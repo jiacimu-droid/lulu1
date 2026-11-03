@@ -3,7 +3,6 @@ package com.jiacimu.lulu.games
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -63,7 +62,7 @@ internal fun RelicEscapeWorldMap(
     }
     val renderFocus = if (focus == (run.hero.x to run.hero.y)) heroVisual.value
         else Offset(focus.first.toFloat(), focus.second.toFloat())
-    val currentRenderFocus by rememberUpdatedState(renderFocus)
+    val currentRenderFocus = rememberUpdatedState(renderFocus)
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
@@ -80,7 +79,7 @@ internal fun RelicEscapeWorldMap(
                 .pointerInput(run.id, run.w, run.h, fullscreen, focus, onSelect) {
                     detectTapGestures { tap->
                         val camera = relicMapCamera(size.width.toFloat(), size.height.toFloat(),
-                            run.w, run.h, fullscreen, currentRenderFocus.x, currentRenderFocus.y)
+                            run.w, run.h, fullscreen, currentRenderFocus.value.x, currentRenderFocus.value.y)
                         camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> onSelect(x, y) }
                     }
                 }
