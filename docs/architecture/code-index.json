@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:08:45.289373+00:00",
-  "commit": "ff6fa47815288e91050342b18f016b9bc50ba2a7",
+  "generatedAt": "2026-11-03T06:09:07.587836+00:00",
+  "commit": "693ddc539349f8266d943a844c7ffa9269fb1ced",
   "branch": "main",
-  "sourceFingerprint": "c7ab4e0872b94b00d7b8425f2fcd5063ba93249a63b8ce4c246b3128bcda531b",
+  "sourceFingerprint": "dcb6697fb56f27f0ca0cb7162992324c32f55daa571c50e087952c226b41619a",
   "summary": {
     "files": 1124,
-    "lines": 231583,
+    "lines": 231592,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -38481,8 +38481,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt",
-      "lines": 29,
-      "sha256": "2b7681df3c2efce1cde2a103cad6d2d87614989d34e6290a225393ffd80c7a21",
+      "lines": 38,
+      "sha256": "d55dea5ef1ee50f2e16c692696edeeb99a8f0b6f39970451c06eb89cf8cdcf57",
       "symbols": [
         {
           "name": "RelicMapCameraTest",
