@@ -64,6 +64,58 @@ class ProactiveQuietDecisionTest {
         assertEquals("", ActiveCommitmentAttention.render(emptyList(), now))
     }
 
+    @Test fun overnightReviewMustNotEraseHowLateOriginalCommitmentAlreadyIs() {
+        val zone = java.time.ZoneId.of("Asia/Shanghai")
+        val now = java.time.Instant.parse("2026-11-03T17:00:00Z") // 11/04 01:00
+        val original = java.time.Instant.parse("2026-11-03T15:30:00Z") // 11/03 23:30
+        val review = java.time.Instant.parse("2026-11-03T17:30:00Z") // 11/04 01:30
+        val task = CommitmentTask(
+            id = "overnight-check", characterId = "role",
+            goal = "在约定时间开始睡前提醒，后来持续核实入睡结果",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = original, nextCheckAt = review, timezone = zone.id,
+            followUpKind = "verification", linkedAlarmId = "review-alarm",
+            lastActionResult = "原定提醒已发送，入睡结果尚无可靠证据",
+        )
+        val facts = CommitmentClockFacts.render(task, now, zone)
+        assertTrue(facts, facts.contains("原定行动时间=11月3日 23:30（已过去90分钟）"))
+        assertTrue(facts, facts.contains("结果复查时间=11月4日 01:30（距离现在还有30分钟）"))
+        assertTrue(facts, facts.contains("原定行动时间没有因此被改写"))
+        val autonomy = ActiveCommitmentAttention.render(listOf(task), now)
+        assertTrue(autonomy, autonomy.contains("原定行动时间="))
+        assertTrue(autonomy, autonomy.contains("结果复查时间="))
+        assertTrue(autonomy, autonomy.contains("复查时刻是不同事实"))
+        assertTrue(autonomy, autonomy.contains("无证据仍不能推断对方已经睡着或仍然醒着"))
+        // The same factual distinction reaches the normal commitment model:
+        // no program branch chooses call/silent or extends the original goal.
+        val decision = CommitmentDecisionProtocol.context(listOf(task), now, zone)
+        assertTrue(decision, decision.contains("已过去90分钟"))
+        assertTrue(decision, decision.contains("距离现在还有30分钟"))
+        assertEquals(original, task.dueAt)
+        assertEquals(review, task.nextCheckAt)
+    }
+
+    @Test fun pendingReviewOrOtherDaytimeGoalUsesSameClockWithoutInventingBedtime() {
+        val zone = java.time.ZoneId.of("Asia/Shanghai")
+        val now = java.time.Instant.parse("2026-11-04T05:00:00Z") // 13:00 local
+        val task = CommitmentTask(
+            id = "daytime-task", characterId = "role",
+            goal = "午后核查项目审核结果",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = now.minusSeconds(60 * 40),
+            nextCheckAt = now.plusSeconds(60 * 20),
+        )
+        val facts = CommitmentClockFacts.render(task, now, zone)
+        assertTrue(facts, facts.contains("已过去40分钟"))
+        assertTrue(facts, facts.contains("距离现在还有20分钟"))
+        assertFalse(facts.contains("睡觉"))
+        assertFalse(facts.contains("催"))
+        val undated = task.copy(dueAt = null, nextCheckAt = null)
+        assertEquals("", CommitmentClockFacts.render(undated, now, zone))
+        val expired = task.copy(status = CommitmentTaskStatus.Completed)
+        assertEquals("", ActiveCommitmentAttention.render(listOf(expired), now))
+    }
+
     @Test fun autonomyPromptPreservesExplicitSupervisionWithoutForcingEveryRoleToTalk() {
         val instruction = proactiveDecisionInstruction("bedtime-prompt-test")
         assertTrue(instruction.contains("已接受的责任与普通心事不同"))
