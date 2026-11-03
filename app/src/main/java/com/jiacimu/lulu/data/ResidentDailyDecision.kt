@@ -711,7 +711,13 @@ internal object ResidentDailyDecision {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
         val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
-        val agendaLimit = ResidentDailyPolicy.maxAgendaItems(context)
+        // The owner may change the global budget after this day's paid
+        // decision. Replay must use the budget accepted WITH that decision,
+        // rather than reject a formerly valid saved row as a new violation.
+        val decisionBudgetKey = "agenda-budget:${native.id}:${date(decisionAt)}"
+        val agendaLimit = prefs(context)
+            .getInt(decisionBudgetKey, ResidentDailyPolicy.maxAgendaItems(context))
+            .coerceIn(0, MAX_AGENDA_ITEMS)
         val saved = mutableListOf<RoleDayPlan>()
         val decisionId = "native-daily-${native.id}-${date(at)}"
         fun reject(index: Int, row: JSONObject?, reason: String) {
@@ -1900,6 +1906,7 @@ internal object ResidentDailyDecision {
         if (savedDecision == null) {
             check(p.edit().putString(decisionKey, json.toString())
                 .putString("decision-at:${native.id}:$today", now.toString())
+                .putInt("agenda-budget:${native.id}:$today", agendaLimit)
                 .putString(phaseKey, "decided").commit()) {
                 "原住民有效模型决定尚未持久化，不能开始副作用"
             }
