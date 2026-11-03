@@ -315,3 +315,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **候选实现**：群聊遇已完成的结构化 `⟪BUBBLE⟫` 边界时，解析与发送都保留原消息顺序；旧自由正文仍使用原可读性回退。`QqMessageGroupingTest` 覆盖第一条泡含两句而后有第二条独立泡，不得额外拆成三条。前台私聊表达契约与自主聊天指引把 JSON 元素解释为真实发送的一条短消息，允许短反应/追问独立成泡；仍由角色决定内容与必要详解，无固定行数、截字或新增模型轮次。聊天 UI 对普通文字泡缩小内边距、行距及同消息内间距，不改旧消息内容/来源、语音原文和真实送达协议。
 - **提交与验证**：源码和回归在 main [`9fcbf49`](https://github.com/jiacimu-droid/lulu1/commit/9fcbf495735c7d6df9cfdf2d8c996becb5b21703)；本地 `git diff --check` 与原 `scripts/generate_code_index.py` 已通过。本地仓库无 Gradle 启动器，JVM 单测/APK 需以 [Lulu APK run 41639440211](https://github.com/jiacimu-droid/lulu1/actions/runs/41639440211) 为准，查询时 pending；索引 [run 41639440065](https://github.com/jiacimu-droid/lulu1/actions/runs/41639440065) completed/success，后继索引提交 `7d808bb`。先前 `a3d0daa` 的 Android run 41635019825 已被后继构建取消，不能算通过。未获得真机安装与真实两阶段模型输出，普通聊天是否更像本人、长答是否保留、跨场景目标接续均未验收；P-08 保持 [ ]。
 - **下轮入口**：先核对这两项 CI 及索引工作流是否真正成功；在真机分别看短接话、严肃求助、混合语音气泡和群聊的视觉分泡。随后按路线 P-08a 取可诊断的真实回合，比较规划 `dialogueMove/speechIntent`、表达 JSON 与实际落库文本，定位过度说教发生在哪一层；没有原始证据不再叠通用短句提示词。
+
+## 2026-11-03 P-08 私聊心声显示缺失：真实反馈与重复后台心理分流（待 CI／真机）
+
+- **反馈**：用户明确表示角色之前的长篇解释令眼睛不舒服，角色回复了简短道歉，却未见新的心声。截图并不包括该轮模型原始 JSON，不能断言模型一定写出或没写出私人心理。
+- **源码确认两个拦截**：在线私聊由 ProactivePerceptionRuntime 执行时，更新 CompanionPresenceStore 一律标成后台/持续感知；后者对无“聊天”来源、15 分钟以内只有不同心声但没有新心情/动作的更新不存历史卡片。另 PrivateStateDeltaEngine 以前在没有 mood / appraisal / tool 的情况下会把角色本人写了新焦点及转变的纯私人变化判定为缺乏 residue，从而由 CharacterHeartVoicePolicy 清空。
+- **正式改动**：真实未读用户消息引起的心理快照标注“聊天回复·在线感知”，不同新心声立刻进入可见历史；无消息的常规后台感知仍沿用限频，同因同句仍去重。PrivateStateDeltaEngine 增加明确的 hasFreshUserMessage 来源事实，仅当角色自己写了新的 focus/change 和非空 innerThought 才允许纯私人变化保留。不根据用户说“烦”硬编心情、道歉或心声，不额外付费模型调用，不新增状态中心。
+- **提交和测试状态**：main 源码 462ba17、35dcba0、868e3e2；回归 a472509、57d72e0。测试覆盖：四分钟内真实用户反馈生成的不同心声可见、重复心声不新增、无新消息后台仍节流，以及纯私人转念不需要伪造情绪/完整评估。测试为已经提交的契约，尚未取得对应 Android/JVM CI 通过及新版 APK 真机证据，P-08 仍待验。
+- **下轮核查**：先查这轮 CI，随后用新 APK 比较“无反馈的重复心理”与“用户当面纠正后角色新写出的不同心声”。若仍缺失，采集同一轮模型实际输出的 innerThought / innerThoughtBasis / appraisal、delta 和存储/展示结果，确认是模型未生成、程序过滤、历史未保存还是 UI 未显示；不要用强制心声或通用道歉模板掩盖真正原因。
