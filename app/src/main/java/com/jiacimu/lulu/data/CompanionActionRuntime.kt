@@ -1301,6 +1301,19 @@ internal data class VerifiedSearchReceipt(
     // This is provenance for a subsequent spoken feedback, never permission.
     val receiptEvidenceId: String = "",
 )
+/** Message evidence follows the actual destination and persisted ID across N chosen steps. */
+internal data class DeliveredRoleMessageRef(val conversationId: String, val messageId: String)
+
+internal fun deliveredRoleMessageRefs(result: JSONObject): List<DeliveredRoleMessageRef> {
+    val conversationId = result.optString("conversationId").trim()
+    val ids = result.optJSONArray("deliveredMessageIds") ?: return emptyList()
+    if (conversationId.isBlank()) return emptyList()
+    return (0 until ids.length()).mapNotNull { index ->
+        ids.optString(index).trim().takeIf(String::isNotBlank)
+            ?.let { DeliveredRoleMessageRef(conversationId, it) }
+    }.distinct()
+}
+
 internal data class OrderedCharacterActionReport(
     val notes: List<String>, val anyAccepted: Boolean,
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
@@ -1308,6 +1321,7 @@ internal data class OrderedCharacterActionReport(
     val completedCount: Int = 0,
     val settledCount: Int = 0,
     val terminalFailureCount: Int = 0,
+    val deliveredMessageRefs: List<DeliveredRoleMessageRef> = emptyList(),
 )
 internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
@@ -1431,10 +1445,12 @@ internal object OrderedCharacterActions {
         sceneAllowedTools: Set<String>? = null,
         goalReviewMode: Boolean = false,
         requestIdForStep: (Int) -> String = { "$requestId:step:$it" },
+        turnTraceId: String = "",
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
         val searchReceipts = mutableListOf<VerifiedSearchReceipt>()
+        val deliveredMessageRefs = mutableListOf<DeliveredRoleMessageRef>()
         var previousCompleted = initialCompleted
         var anyAccepted = false
         var anyCompleted = false
@@ -1504,6 +1520,11 @@ internal object OrderedCharacterActions {
                 userEvidenceIds.isNotEmpty()) {
                 args.put("_replyEvidenceIds", org.json.JSONArray(userEvidenceIds.toList()))
             }
+            // Correlation is executor-owned, never copied from model-authored args.
+            args.remove("_turnTraceId")
+            if (turnTraceId.isNotBlank() &&
+                name in setOf("send_private_message", "send_group_message"))
+                args.put("_turnTraceId", turnTraceId)
             // Resolve once: the same stable step request must own both the
             // real ToolRouter effect and its later feedback provenance.
             val stepRequestId = requestIdForStep(index)
@@ -1524,6 +1545,7 @@ internal object OrderedCharacterActions {
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
             }
+            deliveredMessageRefs += deliveredRoleMessageRefs(result)
             SearchReceiptFeedback.from(name, args, result)?.let { feedback ->
                 searchReceipts += feedback.copy(receiptEvidenceId =
                     SearchReceiptFeedback.recordedReceiptId(characterId, stepRequestId))
@@ -1547,7 +1569,8 @@ internal object OrderedCharacterActions {
             }.take(160)
         }
         return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts,
-            anyCompleted, completedCount, settledCount, terminalFailureCount)
+            anyCompleted, completedCount, settledCount, terminalFailureCount,
+            deliveredMessageRefs)
     }
 }
 
