@@ -258,7 +258,10 @@ internal object CharacterLifeFollowThroughStore {
         if (id.isBlank() || status !in setOf("held", "released")) return@synchronized
         val all = records(characterId)
         val item = all.firstOrNull { it.optString("id") == id } ?: return@synchronized
-        if (item.optString("shareStatus") in setOf("shared", "released")) return@synchronized
+        // "shared" is backed by a real outbound receipt. A previous "released"
+        // is only the role's earlier private choice, not a permanent veto over
+        // a new explicit decision. Never resurrect it automatically.
+        if (item.optString("shareStatus") == "shared") return@synchronized
         val newlyHeld = status == "held" && item.optString("shareStatus") != "held"
         item.put("shareStatus", status)
         // A later decision can reaffirm an existing held wish without
