@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T03:35:36.950146+00:00",
-  "commit": "fcfe48dcb16c96764dfd2111496ce6d702a9a128",
+  "generatedAt": "2026-11-03T03:50:29.169569+00:00",
+  "commit": "9e830a02e1b3c25be60dfc1f090c18cd5f3eca83",
   "branch": "main",
-  "sourceFingerprint": "554cc4d4e6385b84d55b9dfa9dc56dae6c657f95f35a56d564d8f9e8fd9f36c0",
+  "sourceFingerprint": "d7279002c339fed3a400de9be2b8d05de68df58e9304838cb7c83cf590d91770",
   "summary": {
     "files": 1121,
     "lines": 230661,
@@ -23541,7 +23541,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
       "lines": 136,
-      "sha256": "dc48c574eb0a05df7d1accfefd40d996e82fb96e9cd79eca731be3d54f6985df",
+      "sha256": "01781552551529379197a6dbb21f362e3d8672c988ad92104d758f5fcfe4fa53",
       "symbols": [
         {
           "name": "conciseAppraisal",
