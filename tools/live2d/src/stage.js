@@ -1,5 +1,5 @@
 import { installPhysicsFrameControl } from './physics-frame-control.mjs'
-import { kissCameraFrame, WOLF_KISS_MOTION_INDEX } from './kiss-camera.mjs'
+import { kissCameraFrame, kissFaceFrame, WOLF_KISS_MOTION_INDEX } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
 import { isScenePixel, hasAvatarPixels } from './scene-pixels.mjs'
@@ -512,6 +512,15 @@ function advanceSpeechMotionIfFinished() {
     })
     return true
   }
+  // The final Cubism sample and the first idle sample may be separated by
+  // a dropped Android display frame. Hold the last actually drawn joints
+  // briefly, then yield to the existing spring/idle without a one-frame cut.
+  const channels = current.motionParameterIds?.length
+    ? current.motionParameterIds
+    : current.group === 'LuluWolf'
+      ? ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
+        'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'] : []
+  motionTransition.release(channels)
   speechMotionFollowUps = []
   return false
 }
@@ -571,15 +580,21 @@ function applyFinalParameters(core, deltaMs) {
     eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
     eyeLeftOpen: undefined, eyeRightOpen: undefined,
   } : faceRequest
+  // Only the verified wolf's actual kiss clip can acquire this temporary
+  // physical close-eye/pursed-lip score. It shares the camera's real clock.
+  const kissFrame = wolfRigActive && kissCameraLease?.model === model
+    ? kissFaceFrame(tactileNow - kissCameraLease.startedAt) : null
+  const stagedFace = kissFrame
+    ? { ...(visibleFace || {}), ...kissFrame.face } : visibleFace
   // Keep an already-chosen sequence alive after its first clip naturally
   // finishes. The next Motion3 is NOT scheduled by guessed speech speed.
   advanceSpeechMotionIfFinished()
   const manager = model?.internalModel?.motionManager
-  motionTransition.update(core)
+  motionTransition.update(core, 'before')
   const motionActive = !!authoredMotion?.started && authoredMotion.model === model &&
     manager?.isFinished?.() === false
   visualLayers.update(core, {
-    deltaMs, head: headRequest, body: bodyRequest, face: visibleFace,
+    deltaMs, head: headRequest, body: bodyRequest, face: stagedFace,
     authoredMotion: motionActive,
     touchReflex: tactilePose, eyeShapeLocked: eyesLocked, physical: physicalState,
     touchMotionActive: motionActive && authoredMotion?.source === 'touch',
@@ -590,12 +605,15 @@ function applyFinalParameters(core, deltaMs) {
   // Keep authored torso deformation and screen-space recoil together.
   // The latter is restricted to the verified wolf rig and never overwrites
   // other models' authored transform/motion.
+  // This handoff must run AFTER the ordinary pose springs, otherwise they
+  // would overwrite the preserved last frame during a clip's natural exit.
+  motionTransition.update(core, 'after')
   if (wolfRigActive) wolfImpactPresentation.update(model, tactilePose, deltaMs)
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
   const eyePoseBusy = eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked ||
-    (faceRequest?.eyeOpen != null && faceRequest.eyeOpen < .25) ||
+    (stagedFace?.eyeOpen != null && stagedFace.eyeOpen < .25) ||
     (touchReflex?.face?.eyeOpen != null && touchReflex.face.eyeOpen < .7) ||
     touchReflex?.face?.eyeLeftOpen != null || touchReflex?.face?.eyeRightOpen != null
   if (eyePoseBusy && blinkProgress >= 0) {
@@ -638,9 +656,14 @@ function applyFinalParameters(core, deltaMs) {
     deltaMs, speaking: playing, pcmAvailable, level: mouth,
     elapsedMs: Math.max(0, timeNow - speakingBeganAt), seed: fallbackSpeechSeed,
     blocked: mouthExpressionGate.state().active, wolf: wolfRigActive,
-    jawOverride: tactilePose?.face?.jawOpen ?? visibleFace?.jawOpen,
-    poutOverride: tactilePose?.face?.pout ?? visibleFace?.pout,
+    jawOverride: tactilePose?.face?.jawOpen ?? stagedFace?.jawOpen,
+    poutOverride: tactilePose?.face?.pout ?? stagedFace?.pout,
   })
+  // The wolf's modeled lip narrowing is independent from ParamMouthForm:
+  // a smile-shaped mouth with closed eyes still looks like a zoomed photo.
+  // During audible speech TTS retains authority over lip articulation.
+  if (kissFrame && !playing && hasParameter(core, 'ParamMouthPuckerWiden'))
+    setParameter(core, 'ParamMouthPuckerWiden', -.38 * kissFrame.pucker)
   motionTransition.capture(core, core.getModel?.()?.parameters?.ids || [])
 }
 function installFinalParameterControl(loadedModel) {
@@ -1895,7 +1918,9 @@ function motion(group, index, immediatePreview = false, source = 'character', op
   cancelKissCamera()
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source,
-    visualSequence: scoreVisualSequence, segmentId: options.segmentId || '' }
+    visualSequence: scoreVisualSequence, segmentId: options.segmentId || '',
+    motionParameterIds: Array.isArray(options.motionParameterIds)
+      ? options.motionParameterIds.filter(id => typeof id === 'string') : [] }
   authoredMotion = chosen
   // Pixi/Cubism normally starts clips at NORMAL priority. An idle clip or
   // an earlier normal speech clip can then silently reject the next sentence.
