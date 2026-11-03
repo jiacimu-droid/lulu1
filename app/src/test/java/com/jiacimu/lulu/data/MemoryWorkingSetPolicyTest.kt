@@ -2,8 +2,36 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import com.jiacimu.lulu.ai.RelayRequestPressurePolicy
 
 class MemoryWorkingSetPolicyTest {
+    @Test fun actualInjectionAuditFollowsFinalRelayPayloadNotBudgetCandidates() {
+        val label = MemoryWorkingSet.SUMMARY
+        val rows = (1..24).map { index ->
+            MemoryPromptCandidate("memory:test-$index", label,
+                "- [原始来源] memoryId=test-$index " + "日常经历".repeat(75),
+                500 - index, payload = "source-$index", sources = setOf("event-$index"))
+        }
+        val working = MemoryWorkingSetPolicy.select(rows, 30_000)
+        val originalSections = working.sections.toList()
+        assertEquals(24, working.selected.size)
+        assertEquals(working.selected,
+            MemoryWorkingSetPolicy.actuallyInjectedIds(working, originalSections))
+        // The transport keeps complete lines but drops the later summaries.
+        // The diagnostics must not keep claiming every selected ID was sent.
+        val reducedSections = RelayRequestPressurePolicy.compactSectionPairs(originalSections)
+        val injected = MemoryWorkingSetPolicy.actuallyInjectedIds(working, reducedSections)
+        assertTrue(injected.isNotEmpty())
+        assertTrue(injected.size < working.selected.size)
+        assertTrue("memory:test-1" in injected)
+        assertFalse("memory:test-24" in injected)
+        assertTrue(injected.all { id ->
+            val (section, snippet) = working.selectedFragments.getValue(id)
+            reducedSections.any { it.first == section && it.second.contains(snippet) }
+        })
+        assertTrue(MemoryWorkingSetPolicy.actuallyInjectedIds(working, emptyList()).isEmpty())
+    }
+
     @Test fun longMiddleConditionIsInjectedAsSourcedRangeInsteadOfHeadTailPreview() {
         val original = "开头".repeat(600) + "没说完".repeat(350) +
             "只有用户确认后才能执行，未确认绝对不要发送" + "结尾".repeat(750)
