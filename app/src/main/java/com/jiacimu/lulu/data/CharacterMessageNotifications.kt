@@ -125,6 +125,45 @@ internal object CharacterMessageNotifications {
         }
     }
 
+    /**
+     * Explicit, labeled diagnostic posted through the very same channel as
+     * real messages. It never creates a chat message or changes unread state.
+     * A successful notify() means Android accepted the request, NOT that an
+     * OEM displayed the heads-up (floating notifications remain a user setting).
+     */
+    fun sendHeadsUpTest(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return false
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val channel = channelId(context)
+        if ((manager.getNotificationChannel(channel)?.importance ?: NotificationManager.IMPORTANCE_NONE)
+            < NotificationManager.IMPORTANCE_HIGH) return false
+        val open = PendingIntent.getActivity(context, TEST_ID,
+            Intent(context, MigrationActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val notification = NotificationCompat.Builder(context, channel)
+            .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
+            .setContentTitle("露露机 · 横幅测试")
+            .setContentText("这是一条测试提醒，不是角色发来的消息")
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setTimeoutAfter(15_000L)
+            .setContentIntent(open)
+            .build()
+        return runCatching {
+            manager.notify(TEST_ID, notification)
+            true
+        }.getOrElse {
+            android.util.Log.w("LuluMessages", "Heads-up test notification unavailable", it)
+            false
+        }
+    }
+
+    private const val TEST_ID = 915734
+
     fun cancel(context: Context, conversationId: String) {
         if (mutableInAppBanner.value?.conversationId == conversationId) dismissInApp()
         context.getSystemService(NotificationManager::class.java).cancel(notificationId(conversationId))
