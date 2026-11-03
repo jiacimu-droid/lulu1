@@ -129,7 +129,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 run?.hero?.let { hero ->
                     val x = hero.x + dx
                     val y = hero.y + dy
-                    val nearby = relicQuickAction(run, x to y)
+                    val nearby = run?.let { relicQuickAction(it, x to y) }
                     // Stepping toward usable objects interacts; fighting requires attack.
                     if (nearby?.action in setOf("open", "pickup", "resupply",
                             "fountain", "disarm", "invoke", "revive", "extract")) {
