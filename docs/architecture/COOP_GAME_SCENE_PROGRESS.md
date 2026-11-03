@@ -91,3 +91,11 @@
 - 精确差异：第 19 号 LuluWolf “咯咯笑”动作已经从机械左右晃动改成下巴轻点、肩膀随后细颤，生产目录 `Live2DMotionCatalog.kt` 反映主人希望的自然轻颤，但 `Live2DMotionCatalogTest.kt` 仍断言旧动作说明。此前修复 Kotlin 触控与 State 编译问题本轮已经得到进阶验证。
 - 已按**现行真实动作契约**更新正式测试对第 19 号动作的精确预期值，保留第 20 号难过动作、目录覆盖与全部测试；不还原旧机械摇晃，不跳过或放宽测试。源码提交：`3c00ae39bbdc856f2c9023de6214e8fa5769e67c`。
 - 此提交自动触发 Lulu APK #7448（run 41599481697）；检查时尚为 pending（之前的 #7447 在 in_progress）。**尚无 #7448 的新测试、APK 收集和 Release 成功结果**；不能将“已修好一项确定失败”标为 APK 已完成。后续以 #7448 或更晚**包含该源码提交**的完整 Actions 成功、实际 APK 与真机体验为验收依据。
+
+
+### 2026-11-03：APK 全量测试耗时核算与消除跨变体双编译
+
+- 真实成功样本为 [Lulu APK #7452](https://github.com/jiacimu-droid/lulu1/actions/runs/41599835451)，源 SHA `812f52925ba5b497e423adcc619a730dd3fdb49c`，`testDebugUnitTest` 成功、`assemblePhone` 成功、上传/发布成功，Release [lulu-v7452](https://github.com/jiacimu-droid/lulu1/releases/tag/lulu-v7452) 含 29,254,884 字节的 ARM64 APK。这是正式构建通过，不代表后续 main 版本或实机验通。
+- 该 Job 原始日志约 2296 条单元测试 `STARTED` 事件、约 370 个测试类；`:app:testDebugUnitTest` 从 08:04:25Z 到最后一条 `STARTED` 08:06:41Z，约 2 分 16 秒；Gradle `BUILD SUCCESSFUL in 12m 12s`。同一工作流先编译 `:app:compileDebugKotlin`（08:01:50Z），后编译 `:app:compilePhoneKotlin`（08:07:14Z），测试只占完整发布耗时一小部分；直接删除大量测试难有对应大幅收益，反而损失覆盖。
+- 2026-11-03 在现有 `.github/workflows/release.yml` 原工作流中将 `:app:verifyArtSafeVariants :app:testDebugUnitTest :app:assemblePhone` 改为 `:app:verifyArtSafeVariants :app:testPhoneUnitTest :app:assemblePhone`；仍运行**同一份完整 JVM/Robolectric 测试源码，不删测试、不缩短断言**，使测试与最终安装包共享 `phone` 编译任务，避免先 Debug 后 Phone 两套编译图。
+- 优化提交 `33016229328e7128a819ea83280432d7f8f709e1`，触发 [Lulu APK #7464](https://github.com/jiacimu-droid/lulu1/actions/runs/41602005363)；检查时 #7464 仍 pending，前一次 #7462 正运行。**这一优化尚无完整 Android 运行验证，也没有可证实的节省分钟数**。必须以 #7464 或包含上述优化提交的后续成功构建确认 Gradle 确实执行 `testPhoneUnitTest`、单测数、APK 产物与发布一致性；若测试变体不兼容，应依据真实日志修正规则而不是跳过测试。
