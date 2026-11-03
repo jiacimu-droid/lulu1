@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T02:54:04.893217+00:00",
-  "commit": "a29385cff3a6f4b78c0387bee1f9a5071f9f0062",
+  "generatedAt": "2026-11-03T02:55:49.118614+00:00",
+  "commit": "c26b699fc36fc91d2f1796ebce2cc1189133a2e3",
   "branch": "main",
-  "sourceFingerprint": "9a2088342f440f95e6b5dc0fcb51e5eea9ee3089105b54e735cd0f918f1136c0",
+  "sourceFingerprint": "21bfd4d33b39b0f4963781b8b58d212aa5ccc583d82b0b5efdda534809dddd47",
   "summary": {
     "files": 1121,
-    "lines": 230530,
+    "lines": 230562,
     "symbols": 3240
   },
   "symbolIndex": {
@@ -217,7 +217,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 109
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -24258,8 +24258,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-      "lines": 117,
-      "sha256": "b950fdd87796c821e73bf948af76407406649ca1ee91f4a2a3366bc84f75bf17",
+      "lines": 135,
+      "sha256": "f8df3bd42c7ee7e7fe1a97ecb49c7fb3ae20969bef55c1d16cba9fd2c735fc50",
       "symbols": [
         {
           "name": "dismissInApp",
@@ -24275,7 +24275,7 @@
         },
         {
           "name": "cancel",
-          "line": 109
+          "line": 127
         }
       ]
     },
@@ -35136,8 +35136,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt",
-      "lines": 187,
-      "sha256": "d2529c940874c24c705ee742a4e99c61377b1fc6f45f69c94f863f5ba7910799",
+      "lines": 201,
+      "sha256": "11e3c58c78a30904814bbc66432027cf7c8b178240e2c98005036f9be84db086",
       "symbols": [
         {
           "name": "BackgroundMessageDeliveryTest",

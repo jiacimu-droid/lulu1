@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a29385cff3a6f4b78c0387bee1f9a5071f9f0062`
+- 基准提交：`c26b699fc36fc91d2f1796ebce2cc1189133a2e3`
 - 分支：`main`
 - 已索引文件：1121
-- 已索引代码/文本行：230530
+- 已索引代码/文本行：230562
 - 已发现符号：3240
 
 | 文件 | 行数 | 符号数 |
@@ -374,7 +374,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1200 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 233 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 117 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 135 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 46 | 1 |
@@ -872,7 +872,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 332 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousSharingWakeContractTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 146 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 187 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 201 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt` | 526 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
