@@ -205,4 +205,65 @@ class AutonomousActionBoundaryIntegrationTest {
         }
     }
 
+    @Test(timeout = 60_000)
+    fun modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved() = runBlocking {
+        val actor = role()
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "本人日程实际补正")
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "你自己安排一件以后要做的事吧。")
+        OnlineChatBatchStore.cancel(app, actor)
+        val batch = OnlineChatBatchStore.onUserBubble(app, actor,
+            atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+        val chosenTitle = "明天下午读一会儿书"
+        val chosenIntent = "自己想看看最近的新书"
+        val dueAt = java.time.OffsetDateTime.now().plusHours(4)
+            .format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val original = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("title", chosenTitle).put("intent", chosenIntent))
+            .put("reason", "想在将来留个时间继续读")
+            .put("replyChoice", "silent")
+            .put("onlineDecision", JSONObject().put("choice", "continue")
+                .put("reason", "我想把原本选的活动安排下来"))
+        val repaired = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("dueAt", dueAt)
+                .put("title", "不得替换原本的标题")
+                .put("intent", "不得替换原本的动机"))
+        val requests = java.util.concurrent.atomic.AtomicInteger(0)
+        val server = okhttp3.mockwebserver.MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
+                val selected = if (requests.getAndIncrement() == 0) original else repaired
+                return okhttp3.mockwebserver.MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                        .put("message", JSONObject().put("content", selected.toString()))
+                        .put("finish_reason", "stop"))).toString())
+            }
+        }
+        server.start()
+        try {
+            val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "repair-dueAt-${UUID.randomUUID()}",
+                server.url("/").toString(), "test")
+            store.addArchive(config.id, "test")
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = batch.revision, requiresUnread = true)
+            assertTrue("必须真的向同一角色请求缺失时间", requests.get() >= 2)
+            val plans = RoleDayScheduleStore.plans(app, actor)
+            assertEquals("补正时间后必须只保存一次原日程", 1, plans.size)
+            assertEquals(chosenTitle, plans.single().title)
+            assertEquals(chosenIntent, plans.single().intent)
+            assertEquals(java.time.OffsetDateTime.parse(dueAt).toInstant(), plans.single().dueAt)
+            val receipts = SharedExperienceTimeline.all(actor)
+                .filter { it.channel == "实际工具执行" }
+                .mapNotNull { runCatching { JSONObject(it.content) }.getOrNull() }
+                .filter { it.optString("tool") == "plan_personal_activity" }
+            assertEquals("补正只执行一次真实排程", 1, receipts.size)
+            assertTrue(JSONObject(receipts.single().getString("result")).optBoolean("success"))
+        } finally {
+            server.shutdown()
+        }
+    }
+
 }
