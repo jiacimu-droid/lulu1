@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:50:49.036092+00:00",
-  "commit": "8e3bd55c0d1dc05535b759ee118859bfeff04400",
+  "generatedAt": "2026-11-03T04:51:05.506855+00:00",
+  "commit": "e9bb72cb32aeb8e92d58f0370ff4c025351277c1",
   "branch": "main",
-  "sourceFingerprint": "4116a58807fef8907e9926fd73054ec2f34493f8f37cdd9e4ad681372764d2ca",
+  "sourceFingerprint": "0cf47813421eaca73092b7436658ccd811c0a6647cfbe3edbe610c44381e2054",
   "summary": {
     "files": 1125,
-    "lines": 231137,
+    "lines": 231150,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -581,7 +581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 105
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
@@ -2229,7 +2229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 440
+        "line": 453
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -2809,7 +2809,7 @@
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 144
+        "line": 145
       }
     ],
     "setEnabled": [
@@ -20488,8 +20488,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 589,
-      "sha256": "44f4db11e161d1f4511565064397e199c7e85599d2c885452603d378c243b07f",
+      "lines": 602,
+      "sha256": "e3063bcf67748312787f06aaada0f20aaa12131be8c4263ff544007b2ecf4a7d",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -20497,15 +20497,15 @@
         },
         {
           "name": "open",
-          "line": 105
+          "line": 106
         },
         {
           "name": "refreshLocation",
-          "line": 144
+          "line": 145
         },
         {
           "name": "read",
-          "line": 440
+          "line": 453
         }
       ]
     },
