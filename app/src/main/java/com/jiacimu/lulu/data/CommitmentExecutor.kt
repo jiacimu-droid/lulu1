@@ -29,13 +29,13 @@ internal object CommitmentExecutor {
         // a second reminder or an invitation to call again.
         if (claimedTask.isOutcomeReview()) {
             val observation = runCatching {
-                UserDevicePerception.context(appContext, claimedTask.characterId, now)
+                UserDevicePerception.commitmentReviewContext(appContext, claimedTask.characterId, now)
             }.getOrElse { error ->
                 "设备状态读取失败：${error.javaClass.simpleName}，不能推断完成"
             }
             val summary = "约定的结果核查；目标：${claimedTask.goal}；完成标准：${claimedTask.completionCondition}。" +
                 "初始行动已发生，但目的是否实现仍未确认。以下是近期实际设备线索，并不自动构成达标证据：\n" +
-                observation.take(2_500)
+                observation
             val reviewEventId = "commitment:verification:${claimedTask.id}:${claimedTask.executionToken}"
             SharedExperienceTimeline.record(
                 eventId = reviewEventId,
@@ -75,8 +75,11 @@ internal object CommitmentExecutor {
                     "\n请结合原始承诺和实际经历自行选择下一步。如果目前证据不充分，可在原有权限内选择恰当工具、等待或调整计划。" +
                     "不可把设备息屏、短暂停用、挂断电话、单条用户声明或角色自己说过的话当作外部目标完成的证据。" +
                     "如需补充核实，可以自己行动：在已有授权下可选择 capture_screen 查看真实画面；" +
-                    "亮屏、前台使用记录与主人没回复都不能证明睡着或没睡。" +
-                    "尚无达标证据时可为原 taskId 选择 schedule_commitment_review，" +
+                    "亮屏本身无法证明是否醒着，但确有近期使用/触摸事件就证明那时手机发生过交互，" +
+                    "不能编成‘一直没动、应该快睡了’；没有可用事件也不等于睡了。" +
+                    "优先综合事件时刻、原目标时效与目前可行步骤，决定现在观察、联系或等待。" +
+                    "若继续等待，要说明下一次能得到何种新增证据，以及这段等待对原目标的影响；" +
+                    "尚无达标证据才能为原 taskId 选择 schedule_commitment_review，" +
                     "或者根据真实情况改变联系方式、暂缓；不要重复创建约定或机械刷屏。",
                 perceiveNow = true, now = now,
             )
