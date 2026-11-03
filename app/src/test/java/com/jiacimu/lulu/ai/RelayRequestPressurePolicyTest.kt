@@ -157,6 +157,14 @@ class RelayRequestPressurePolicyTest {
         assertFalse(summaryWire.contains(latestSummary))
         assertTrue(evidenceWire.contains(newerEvidence))
         assertFalse(evidenceWire.contains(olderEvidence))
+        // A genuine section heading is retained; the first evidence bullet is
+        // not a heading and must not be pinned ahead of newer facts.
+        val withHeading = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            MemoryWorkingSet.EVIDENCE to ("【来源清单】\n" + evidence)
+        )).toMap().getValue(MemoryWorkingSet.EVIDENCE)
+        assertTrue(withHeading.startsWith("【来源清单】"))
+        assertTrue(withHeading.contains(newerEvidence))
+        assertFalse(withHeading.contains(olderEvidence))
     }
 
     @Test fun compactProjectionRetainsSourceLabelsAndExactWireBytes() {
