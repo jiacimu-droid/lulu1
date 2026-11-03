@@ -159,6 +159,9 @@ class MigrationActivity : ComponentActivity() {
         }
         com.jiacimu.lulu.data.XhsReadingEngine.pause(this)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(false)
+        // A foreground banner must never reappear as a stale message after
+        // returning from another app; Android retains the real notification.
+        com.jiacimu.lulu.data.CharacterMessageNotifications.dismissInApp()
         ProactivePerceptionScheduler.stopForegroundChecks()
         super.onPause()
     }
