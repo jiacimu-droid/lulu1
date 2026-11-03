@@ -9,6 +9,7 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MemoryTestEnvironment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
@@ -159,6 +160,34 @@ class QqReplySourceWatermarkTest {
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.none {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         })
+    }
+
+    @Test fun tracedBubbleDeliveryRecordsOnlyActualMessagesAndCompletion() = runBlocking {
+        val role = MigratedDomainStores.characters.create("回合诊断测试角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "回合诊断")
+        val user = MigratedDomainStores.chat.sendUserMessage(conversation.id, "接一下话")
+        LuluRepositories.performance.clearTimings()
+        val trace = "opaque-test-turn"
+        val delivered = appendRoleReplyWithPacing(
+            conversation.id, role, "回合诊断测试角色",
+            parseCharacterReplyPresentation("第一句。⟪BUBBLE⟫第二句。"),
+            actionableUserMessageIds = setOf(user.id),
+            diagnosticTurnTraceId = trace,
+        )
+        assertTrue(delivered, delivered.isNotBlank())
+        val sent = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character }
+        assertEquals(2, sent.size)
+        val records = LuluRepositories.performance.timingRecords.first()
+            .filter { it.detail.contains("trace=$trace") }
+        val bubbles = records.filter { it.stage == "P08a气泡入库" }
+        assertEquals(2, bubbles.size)
+        sent.forEach { message ->
+            assertTrue(bubbles.any { it.detail.contains("message=${message.id}") })
+        }
+        assertTrue(records.any { it.stage == "P08a发送结局" &&
+            it.detail.contains("status=complete") && it.detail.contains("delivered=2") })
+        assertFalse(records.any { it.detail.contains("第一句") || it.detail.contains("第二句") })
     }
 
     @Test fun actionExecutorDoesNotReportSuccessWhenCorrectedReplyWasNeverSent() = runBlocking {
