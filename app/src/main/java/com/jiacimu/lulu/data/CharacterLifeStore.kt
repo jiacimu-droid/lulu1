@@ -111,7 +111,10 @@ object CharacterLifeStore {
             val existingExamples = profile.optString("dialogueExamples")
             if (!profile.has("dialogueExamples") ||
                 (id == BUNDLED_JIANG_DU_ID &&
-                    existingExamples == CharacterProfileSchema.jiangDuDialogueExamplesV24) ||
+                    existingExamples in setOf(
+                        CharacterProfileSchema.jiangDuDialogueExamplesV24,
+                        CharacterProfileSchema.jiangDuDialogueExamplesV25,
+                    )) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
                     CharacterProfileSchema.xingHeDialogueExamplesV2))) {
