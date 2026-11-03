@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T19:01:00.362185+00:00",
-  "commit": "498893f363aef5eff6c0307df266c0b09603ee0c",
+  "generatedAt": "2026-11-03T19:32:49.473769+00:00",
+  "commit": "6a4fa0785fa4084e5de1eed08b8e3a7f9073547f",
   "branch": "main",
-  "sourceFingerprint": "0e7d2634f1039ab8e60ffdf1638a6fc2662e7d1d2b67ed77a62812505459c0fa",
+  "sourceFingerprint": "3260e555e012505da789dabfe49cdf9bd17facbd8e42a576a35e7cab62e45e33",
   "summary": {
     "files": 1125,
-    "lines": 234219,
+    "lines": 234245,
     "symbols": 3259
   },
   "symbolIndex": {
@@ -24206,7 +24206,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
       "lines": 316,
-      "sha256": "0a85c2ee5e2d4c72fbe918eab5442a51d943c9b0fed9ae849f01b77188aabe09",
+      "sha256": "c64fcebea8031115e6d91143b01d892c6845545602a5a8fbae2ece357f67decb",
       "symbols": [
         {
           "name": "initialize",
@@ -35842,8 +35842,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 265,
-      "sha256": "15704410cefe0686672efceb001691346c0d9b2c6f6506b180631619997afada",
+      "lines": 291,
+      "sha256": "543c804108ac4bc79f3ac4eb781f57d95eb89153485de18df116fa5a1032f8f6",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
