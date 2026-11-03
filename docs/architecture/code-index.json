@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:41:55.027155+00:00",
-  "commit": "local",
-  "branch": "local",
-  "sourceFingerprint": "4408e18dc5c2759ae4d12dcb56d5222ec2d6dba7e32b16665c118a4352df0275",
+  "generatedAt": "2026-11-03T04:43:31.215460+00:00",
+  "commit": "9c18fab5659aa05441f0ee28ebbe8eea4b8036f0",
+  "branch": "main",
+  "sourceFingerprint": "2425f6f8ae858c92423733988522ebeec2dcad9635585f75678093491c489ec3",
   "summary": {
     "files": 1125,
-    "lines": 231091,
+    "lines": 231098,
     "symbols": 3248
   },
   "symbolIndex": {
@@ -1723,7 +1723,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2265
+        "line": 2272
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -11629,7 +11629,7 @@
     "reject": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 717
+        "line": 723
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
@@ -11639,13 +11639,13 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1554
+        "line": 1560
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2131
+        "line": 2138
       }
     ],
     "maxAgendaItems": [
@@ -29347,8 +29347,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2329,
-      "sha256": "0134d46d32ab3fe835019a89fbe3e8bb66af397ade62bb20cacf6908d977537b",
+      "lines": 2336,
+      "sha256": "15f8d02f96e4f7b825b45e1942a44a3f2f94beb8a04fbcfabb0c05eb3fd40b90",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -29416,19 +29416,19 @@
         },
         {
           "name": "reject",
-          "line": 717
+          "line": 723
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1554
+          "line": 1560
         },
         {
           "name": "errorOf",
-          "line": 2131
+          "line": 2138
         },
         {
           "name": "schedule",
-          "line": 2265
+          "line": 2272
         }
       ]
     },
