@@ -31,6 +31,20 @@ class MemoryWorkingSetPolicyTest {
         assertTrue(updatedText.contains("用户已确认周五执行"))
         assertFalse(updatedText.contains("未确认绝对不要发送"))
         assertTrue(updatedText.contains("eventId=source-100@5"))
+        val tightBudget = budget.copy(evidenceCharacters = 1_600, workingSetCharacters = 2_000)
+        val underPressure = MemoryWorkingSet.assemble(context, emptyList(), emptyList(),
+            tightBudget, "")
+        val visible = underPressure.sections.values.joinToString("\n")
+        assertTrue(visible.contains("只有用户确认后才能执行，未确认绝对不要发送"))
+        assertTrue(underPressure.omitted.keys.any { it.startsWith("event:source-100@4:") })
+        assertTrue(underPressure.usedCharacters <= tightBudget.workingSetCharacters)
+        val deletedSource = MemoryWorkingSet.assemble(
+            context.copy(sourceEvents = emptyList()), emptyList(), emptyList(), budget, "")
+        assertFalse(deletedSource.sections.values.joinToString("\n").contains("source-100"))
+        val otherRole = MemoryWorkingSet.assemble(
+            context.copy(sourceEvents = listOf(event.copy(characterId = "stranger"))),
+            emptyList(), emptyList(), budget, "")
+        assertFalse(otherRole.sections.values.joinToString("\n").contains("source-100"))
     }
 
     @Test fun budgetCannotSeparateAnOldInterpretationFromItsTimeAndUncertainty() {
