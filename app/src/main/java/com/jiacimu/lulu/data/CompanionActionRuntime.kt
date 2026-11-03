@@ -337,7 +337,7 @@ internal object CompanionActionRuntime {
         }
         return CompanionActionResult(true,
             "已下载并在私聊真实发送${if (hit.provider == "giphy") " GIF" else "图片"}：${hit.title}；来源=${hit.sourceUrl}",
-            conversation.id, delivered.id)
+            conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
     }
 
     suspend fun execute(
@@ -643,7 +643,8 @@ internal object CompanionActionRuntime {
                     CompanionOnlineStore.acknowledgeDeliveredReply(
                         characterId, conversation.id, replyEvidenceIds)
                 }
-                CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id, delivered.id)
+                CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id,
+                    delivered.id, deliveredMessageIds = listOf(delivered.id))
             }
             "share_xiaohongshu" -> XhsRoleShare.deliver(
                 characterId, args, privateConversation(characterId, character.displayName),
@@ -741,12 +742,13 @@ internal object CompanionActionRuntime {
                 val title = gameTitles[gameId] ?: error("未知游戏ID")
                 val text = args.optString("text").trim().ifBlank { "要不要一起玩《$title》？" }.take(240)
                 val conversation = privateConversation(characterId, character.displayName)
-                MigratedDomainStores.chat.appendCharacterMessage(
+                val delivered = MigratedDomainStores.chat.appendCharacterMessage(
                     conversation.id,
                     "[游戏邀约|$gameId|$title] $text",
                     characterId,
                 )
-                CompanionActionResult(true, "已在私聊中发送《$title》游戏邀请", conversation.id)
+                CompanionActionResult(true, "已在私聊中发送《$title》游戏邀请",
+                    conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
             }
             "send_world_invite" -> {
                 require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命可以从数字世界发起见面邀请" }
@@ -763,7 +765,7 @@ internal object CompanionActionRuntime {
                     message = text,
                     now = now,
                 )
-                MigratedDomainStores.chat.appendCharacterMessage(
+                val delivered = MigratedDomainStores.chat.appendCharacterMessage(
                     conversation.id,
                     "[见面邀约|$characterId|$location|${invitation.id}] $text",
                     characterId,
@@ -778,7 +780,8 @@ internal object CompanionActionRuntime {
                     now = now,
                     provenanceId = "meeting-invite-${invitation.id}",
                 )
-                CompanionActionResult(true, "已邀请你到${location}见面", conversation.id)
+                CompanionActionResult(true, "已邀请你到${location}见面",
+                    conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
             }
             "publish_moment" -> {
                 val text = args.optString("text").trim()
@@ -1653,15 +1656,16 @@ internal object XhsRoleShare {
         val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
             val card = MigratedDomainStores.chat.appendCharacterMessage(
                 conversation.id, payload, characterId)
-            if (comment.isNotBlank()) {
+            val commentMessage = if (comment.isNotBlank())
                 MigratedDomainStores.chat.appendCharacterMessage(conversation.id, comment, characterId)
-            }
-            card
+            else null
+            listOfNotNull(card, commentMessage)
         }
         if (replyIds.isNotEmpty()) {
             CompanionOnlineStore.acknowledgeDeliveredReply(characterId, conversation.id, replyIds)
         }
         return CompanionActionResult(true, "已在私聊真正发送已读小红书卡片《${note.title.take(90)}》",
-            conversation.id, delivered.id)
+            conversation.id, delivered.first().id,
+            deliveredMessageIds = delivered.map(LuluChatMessage::id))
     }
 }
