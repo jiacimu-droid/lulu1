@@ -329,4 +329,22 @@ class BlockIslandRulesTest {
         assertEquals(1, saved.defeatedMonsters)
         assertEquals(2, saved.fruit)
     }
+
+    @Test fun thirdDefendedNightAwardsBuildMaterialsExactlyOnce() {
+        val start = BlockIslandRules.newWorld(3131, emptyList())
+        val ready = start.copy(world = start.world.copy(
+            turns = 47, wood = 1, stone = 0, mobs = emptyList(), hp = 12),
+            fruit = 1, hunger = 9, nightsSurvived = 2,
+            structures = mapOf(start.world.index(5, 5) to "campfire"),
+        )
+        val won = BlockIslandRules.act(ready, "eat")
+        assertEquals(3, won.nightsSurvived)
+        assertEquals(9, won.world.wood)
+        assertEquals(6, won.world.stone)
+        assertTrue(won.world.events.any { it.contains("第三夜守岛挑战完成") })
+        val next = BlockIslandRules.act(won, "eat")
+        assertEquals(3, next.nightsSurvived)
+        assertEquals(9, next.world.wood)
+        assertEquals(6, next.world.stone)
+    }
 }
