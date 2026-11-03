@@ -965,8 +965,13 @@ function activatePendingSpeechMoment() {
   const parts = pendingSpeechParts
   pendingExpressionName = null
   pendingSpeechParts = null
-  if (parts?.replace) clearSpeechMoment()
-  if (parts?.motion) motion(parts.motion.group, parts.motion.index, true)
+  // An audible next clip should take over the *current* physical motion,
+  // not force Cubism to an idle frame before the next authored clip loads.
+  // Explicit interruption, model disposal and motionless replies still stop it.
+  if (parts?.replace) clearSpeechMoment({ preserveCurrentMotion: !!(
+    parts?.motion || parts?.hasMotionBeats) })
+  if (parts?.motion) motion(parts.motion.group, parts.motion.index, true,
+    'character', parts.motionOptions || {})
   if (selected) startSpeechExpression(selected)
   if (parts?.head) head(parts.head)
   if (parts?.body) body(parts.body)
@@ -1738,7 +1743,13 @@ function resetSpeechExpression() {
   activeExpressionStartedAt = 0
   activeExpressionIsPreview = false
 }
-function clearSpeechMoment() {
+function clearSpeechMoment({ preserveCurrentMotion = false } = {}) {
+  // Only the already-started, same-model character motion may survive a
+  // planned motion-to-motion handoff. Never preserve touch, stale async load,
+  // finished motion or an unvalidated new decision by accident.
+  const carryMotion = preserveCurrentMotion && authoredMotion?.started &&
+    authoredMotion.model === model && authoredMotion.source === 'character' &&
+    model?.internalModel?.motionManager?.isFinished?.() !== true
   cancelKissCamera()
   motionTransition.cancel()
   resetSpeechExpression()
@@ -1749,7 +1760,7 @@ function clearSpeechMoment() {
   faceRequest = null
   motionRevision++
   speechMotionFollowUps = []
-  if (authoredMotion) {
+  if (authoredMotion && !carryMotion) {
     try { authoredMotion.model?.internalModel?.motionManager?.stopAllMotions?.() } catch (_) {}
     authoredMotion = null
   }
@@ -1877,7 +1888,10 @@ function perform(cue, immediatePreview = false) {
   pendingSpeechParts = null
   const awaitingOwnVoice = !immediatePreview && scoreVisualSequence > 0 &&
     scoreVisualSequence !== audioVisualSequence
-  if (playing || immediatePreview) clearSpeechMoment()
+  const hasChosenNextMotion = !!cue.motion ||
+    (Array.isArray(cue.beats) && cue.beats.some(beat => !!beat?.motion))
+  if (playing || immediatePreview)
+    clearSpeechMoment({ preserveCurrentMotion: hasChosenNextMotion })
   else speechMotionFollowUps = []
   if (!playing && !immediatePreview) pendingSpeechParts = { queuedAt: Date.now(), replace: true }
   if (awaitingOwnVoice) {
@@ -1885,7 +1899,11 @@ function perform(cue, immediatePreview = false) {
     // Stage its top-level Motion3/face too, not just the scored beats: the
     // old utterance's coarse 'playing' flag does not authorize this action.
     pendingSpeechParts = { queuedAt: Date.now(), replace: true }
-    if (cue.motion) pendingSpeechParts.motion = cue.motion
+    if (cue.motion) {
+      pendingSpeechParts.motion = cue.motion
+      pendingSpeechParts.motionOptions = cue
+    }
+    pendingSpeechParts.hasMotionBeats = hasChosenNextMotion
     if (cue.head) pendingSpeechParts.head = cue.head
     if (cue.body) pendingSpeechParts.body = cue.body
     if (cue.face) pendingSpeechParts.face = cue.face
@@ -1893,7 +1911,8 @@ function perform(cue, immediatePreview = false) {
       name: cue.expression, queuedAt: Date.now(),
     }
   } else {
-    if (cue.motion) motion(cue.motion.group, cue.motion.index, immediatePreview)
+    if (cue.motion) motion(cue.motion.group, cue.motion.index,
+      immediatePreview, 'character', cue)
     if (cue.expression) expression(cue.expression, immediatePreview)
     if (cue.head) head(cue.head, immediatePreview)
     if (cue.body) body(cue.body, immediatePreview)
