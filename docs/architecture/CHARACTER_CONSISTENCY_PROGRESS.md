@@ -354,3 +354,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **main 代码提交**：`07313be`（主动作补正失败仍留执行回执和其他独立动作）、`28a019a`（补正失败集成回归）、`affc432`（补正成功真实持久化回归）。原有 Code Index 工作流会基于最新 main 生成索引；`28a019a` 基准已可见，最新后继 `affc432` 的索引与 Android APK 最终成功状态需复核。当前 GitHub 连接只提供 PR 过滤的工作流查询，返回空列表不代表 push 工作流已通过或失败，不能据此宣布单测/构建成功。
 - **真机边界**：需在含此提交的新 APK 检查真实角色选定日程→缺字段补正→`own-plan-...` 成功证据／真实到点唤醒与后续执行；补正失败时仅出现失败回执且不损失独立行动。P-08d 保持待验；不更改单个角色人格、日程预设或咖啡馆交易规则。
 
+
+## 2026-11-03 P-08c Issue 续验：2317 项 Android 单测中的 3 项表达契约失败
+
+- **真实 CI 根因证据**：在最新 main 接手时，Lulu APK run [41642717269](https://github.com/jiacimu-droid/lulu1/actions/runs/41642717269)（head `affc432`）的 build job `125940640848` 于 `:app:testPhoneUnitTest` 失败：`2317 tests completed, 3 failed`，不是 SDK、VPN、Gradle 依赖或打包签名故障。三项分别是 `ConversationExpressionGatewayTest.renderAndRepairKeepTheSameVoiceWithoutReceivingASecondPlannerContract`、`PositiveExpressionGuidanceTest.everyGatewayModeHasOneCommonPersonalityGuide`、`PositiveExpressionGuidanceTest.privateDecisionAndRenderingShareTurnTakingInsteadOfOnlyBubbleSplitting`；更早的 run `41641876046` 也是这三项，说明不应继续追加其他日程补丁来解决。
+- **逐项追到正式源码**：`CharacterExpressionGuide` 的当前语言段把“连续长说明拆成多泡仍是一段独白”写成否定式“也不要……”，而表述单泡是消息时写成“不要求……”，触犯已有“正向表达引导不写‘不要’”的测试。更关键的是，最新聊天节奏指南实际遗漏了原定的“分泡本身不会减少内容”契约句；哄睡长故事的语义虽被保留为“仍按实际需要说清”，但跨场景请求测试约定“哄睡连续故事按实际需要充分表达”，该正向保障也没在正式网关出现。此处没有证明真实人物会不会说教，修的是模型实际收到的共同聊天契约与测试之间已经确认的偏差。
+- **源码修改**：[ `6013cbb`](https://github.com/jiacimu-droid/lulu1/commit/6013cbbbc428446647a17581e1d794d42b52a7e0) 将“长文本分泡”写成正向因果，补齐“分泡本身不会减少内容”与“哄睡连续故事按实际需要充分表达”，既不让短气泡掩盖长独白，也不牺牲必要长答；[ `80aa8ac`](https://github.com/jiacimu-droid/lulu1/commit/80aa8ac323037d03f93d3d474c34ac091b4efb58) 将“每泡不要求完整段落”改成“短反应或半句话也是独立消息”。保留既有 `CharacterExpressionGuide` 和全部原测试，不新建人格中心，不加模型调用、不按字数自动删正文。
+- **验证边界**：前述 3 项在两个已完成的旧 run 中实际失败。修后的完整源码正向语句与现有测试断言已静态逐项核对（`CharacterExpressionGuide.kt` 现无“不要”字面）；但修复后 `80aa8ac` 的 Android [run 41644363040](https://github.com/jiacimu-droid/lulu1/actions/runs/41644363040) 在交接查询时仍未完成，索引 run `41644363641` 亦尚未有最终结论。后继任务可能取消旧构建；不得以静态检查宣称 2317 项全部通过。
+- **下一入口**：检查包含 `80aa8ac` 或其后继 main 的 APK `:app:testPhoneUnitTest` 与产物最终结果。若失败读取首个失败断言/步骤，精准修源码并保持测试约束；若通过再推进 P-08a 同一 `turnTraceId` 的真机模型规划、表达与逐泡送达盲评，而不是拿 CI 绿灯宣告“活人感已经好了”。P-08 不勾选。
