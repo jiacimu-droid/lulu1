@@ -285,7 +285,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             val center = islandNearbyAction(island, facing)
             // Workbench interaction should remain discoverable near resources.
             val workstationAction = workbenchNear && center?.action !in setOf("fight", "revive")
-            GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 420L,
+            GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 195L,
                 stopWhen = world.hp to world.seed,
                 interactLabel = if (buildMode != null) "确认建造" else
                     if (workstationAction) "使用工作台制作" else center?.label ?: "附近互动",
