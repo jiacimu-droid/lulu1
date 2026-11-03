@@ -237,6 +237,54 @@ internal object Live2DMotionCatalog {
         ),
     )
 
+    /**
+     * A character chooses an expressive intention, not one of 49 near-mirror
+     * directions. Keep all original Motion3 indices available for existing
+     * clips, save compatibility and manual audition; this is a recommended
+     * everyday repertoire, never an executor-side semantic decision.
+     *
+     * The authored wolf clips animate mainly six neck/torso angles. Too many
+     * directional permutations look nearly identical in portrait view, so
+     * only one representative per similar movement stays in the main menu.
+     */
+    internal data class MotionSection(
+        val title: String,
+        val motions: List<Pair<String, Int>>,
+        val supplementary: Boolean = false,
+    )
+
+    private val everydayIntents = linkedMapOf(
+        "情绪·开心与亲近" to listOf(17, 19, 28, 35, 42, 48),
+        "情绪·惊讶与不安" to listOf(9, 12, 20, 23, 36, 37, 40, 41, 43, 45, 46),
+        "交流·倾听与回应" to listOf(0, 8, 16, 26, 29, 34, 38, 47),
+        "状态·休息与放松" to listOf(24, 32, 39, 44),
+    )
+    internal val everydayIds: Set<Int> = everydayIntents.values.flatten().toSet()
+
+    /** The complete actual model manifest is authoritative, never a fake menu. */
+    internal fun selectionSections(available: List<Pair<String, Int>>): List<MotionSection> {
+        val actual = available.distinct()
+        val present = actual.toSet()
+        val daily = everydayIntents.mapNotNull { (name, indices) ->
+            val motions = indices.map { "LuluWolf" to it }.filter { it in present }
+            motions.takeIf { it.isNotEmpty() }?.let { MotionSection(name, it) }
+        }
+        val supplemental = actual.filterNot { it.first == "LuluWolf" && it.second in everydayIds }
+        return daily + supplemental.takeIf { it.isNotEmpty() }?.let {
+            listOf(MotionSection("补充·方向镜像、轻微姿态与导入动作", it, supplementary = true))
+        }.orEmpty()
+    }
+
+    internal fun selectionGuide(available: List<Pair<String, Int>>): String =
+        selectionSections(available).joinToString("\\n") { section ->
+            val clips = section.motions.joinToString("、") { (group, index) ->
+                if (section.supplementary && group == "LuluWolf") {
+                    "$group#$index=${entries[index]?.name ?: "原动作"}"
+                } else describe(group, index) ?: "$group#$index"
+            }
+            "${section.title}：$clips"
+        }
+
     fun describe(group: String, index: Int): String? {
         if (group != "LuluWolf") return null
         val entry = entries[index] ?: return null
