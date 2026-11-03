@@ -36,7 +36,7 @@ internal object CharacterContinuityRuntime {
         currentUserText: String = "",
         now: Instant = Instant.now(),
     ): Snapshot {
-        val interactions = SharedExperienceTimeline.recentEvents(characterId, 160)
+        val interactions = SharedExperienceTimeline.recentStatementEvents(characterId, now, 160)
             .filter {
                 it.evidenceKind == EventEvidenceKind.UserStatement ||
                     TimelineStatementOwnership.isOwnCharacterStatement(it)

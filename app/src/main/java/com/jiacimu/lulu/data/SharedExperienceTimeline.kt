@@ -511,6 +511,15 @@ object SharedExperienceTimeline {
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Read dialogue anchors from the authoritative timeline before applying the
+     * limit. Background observations and tool receipts must not evict the last
+     * actual exchange from a character's continuity snapshot. */
+    internal fun recentStatementEvents(
+        characterId: String, now: Instant, limit: Int,
+    ): List<SharedTimelineEvent> =
+        if (limit <= 0) emptyList() else query(characterId, limit,
+            until = now, statementOnly = true).sortedBy(SharedTimelineEvent::occurredAt)
+
     /**
      * Read real perceptible evidence in chronological pages, including older
      * unacknowledged events. The caller checks the existing exact perception
@@ -697,7 +706,8 @@ object SharedExperienceTimeline {
     }
 
     private fun query(characterId: String, limit: Int?, sessionId: String? = null,
-        sourceLike: String? = null, after: Instant? = null): List<SharedTimelineEvent> {
+        sourceLike: String? = null, after: Instant? = null,
+        until: Instant? = null, statementOnly: Boolean = false): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
         val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
         val birth = DigitalLifeProfileStore.birthAt(characterId)
@@ -707,6 +717,8 @@ object SharedExperienceTimeline {
             if (sessionId != null) add("session_id = ?")
             if (sourceLike != null) add("source LIKE ?")
             if (after != null) add("occurred_at >= ?")
+            if (until != null) add("occurred_at <= ?")
+            if (statementOnly) add("evidence_kind IN (?, ?)")
         }.joinToString(" AND ")
         val args = buildList {
             add(characterId)
@@ -714,6 +726,11 @@ object SharedExperienceTimeline {
             if (sessionId != null) add(sessionId)
             if (sourceLike != null) add(sourceLike)
             if (after != null) add(after.toEpochMilli().toString())
+            if (until != null) add(until.toEpochMilli().toString())
+            if (statementOnly) {
+                add(EventEvidenceKind.UserStatement.name)
+                add(EventEvidenceKind.CharacterStatement.name)
+            }
         }.toTypedArray()
         return database.query(
             "timeline_events",
