@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:18:13.486807+00:00",
-  "commit": "67fb99fd894b71c400c1f3648dc7747f4415cf55",
+  "generatedAt": "2026-11-03T17:18:51.655382+00:00",
+  "commit": "c678bbf62a67bca8b3228df22c6ae1bb0835bd40",
   "branch": "main",
-  "sourceFingerprint": "ef8ba27514251497ff12f58e41d2b1e9abe9b52c9168a751deaa9611a381657a",
+  "sourceFingerprint": "531dab596b82925b111ec0d213d435afb65bb0e8c2d56970bffb5f03cbf3571f",
   "summary": {
     "files": 1125,
-    "lines": 233846,
+    "lines": 233847,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -4699,7 +4699,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 130
+        "line": 131
       }
     ],
     "restore": [
@@ -12145,37 +12145,37 @@
     "UnifiedMemoryRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "retrievalQuery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "legacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 109
+        "line": 110
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 128
+        "line": 129
       }
     ],
     "Attachment": [
@@ -29972,36 +29972,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 308,
-      "sha256": "66f5e2514bae2bac9f6456522d2e35ad594280cd3976402cf2430a602619a9be",
+      "lines": 309,
+      "sha256": "fa8b75f53731fd6b44ba8e81e1a55d6b492c71c252050408d383eaa98bab5d37",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
-          "line": 5
+          "line": 6
         },
         {
           "name": "retrievalQuery",
-          "line": 17
+          "line": 18
         },
         {
           "name": "legacy",
-          "line": 26
+          "line": 27
         },
         {
           "name": "UnifiedMemoryContext",
-          "line": 32
+          "line": 33
         },
         {
           "name": "compactPromptSection",
-          "line": 109
+          "line": 110
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 128
+          "line": 129
         },
         {
           "name": "empty",
-          "line": 130
+          "line": 131
         }
       ]
     },
