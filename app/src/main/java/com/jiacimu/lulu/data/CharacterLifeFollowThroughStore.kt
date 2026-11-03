@@ -261,7 +261,14 @@ internal object CharacterLifeFollowThroughStore {
         if (item.optString("shareStatus") in setOf("shared", "released")) return@synchronized
         val newlyHeld = status == "held" && item.optString("shareStatus") != "held"
         item.put("shareStatus", status)
-        item.put("shareWhy", wish.optString("why").trim())
+        // A later decision can reaffirm an existing held wish without
+        // restating its entire rationale. An omitted/blank optional "why"
+        // must not silently erase earlier recipient or privacy conditions.
+        // A real newly supplied rationale still replaces the old one.
+        val suppliedWhy = wish.optString("why").trim()
+        if (suppliedWhy.isNotEmpty() || item.optString("shareWhy").isBlank()) {
+            item.put("shareWhy", suppliedWhy)
+        }
         // Optional first-person assessment of how strongly THIS experience
         // makes them want to share. Never inferred from the user's feelings.
         if (status == "held" && wish.has("intensity")) {
