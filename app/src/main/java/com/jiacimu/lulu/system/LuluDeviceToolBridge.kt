@@ -1518,6 +1518,7 @@ object LuluDeviceToolBridge {
                 statusText = plan.statusText.takeIf(String::isNotBlank),
             ))
             return Result.success(expressed.copy(text = sendText,
+                diagnosticTurnTraceId = turnTraceId,
                 deferredActions = if (!rewriting && !sceneContext.contains("电话"))
                     plan.sideActions?.toString() else null,
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
@@ -1628,6 +1629,7 @@ object LuluDeviceToolBridge {
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
+            turnTraceId = turnTraceId,
             maxTokens = if (sceneContext.contains("电话")) 1_800 else 1_200,
             streamResponse = PhoneModelTransportPolicy.shouldStream(
                 sceneContext, separateExpression = false, disputeNeedsReview = disputeNeedsReview,
@@ -1739,6 +1741,7 @@ object LuluDeviceToolBridge {
             } else checkedResultText
             result.copy(
                 text = displayedText,
+                diagnosticTurnTraceId = turnTraceId,
                 sleepDecision = plan.sleepDecision.takeIf {
                     sceneContext.contains("电话") && it in setOf("enable", "disable")
                 },
