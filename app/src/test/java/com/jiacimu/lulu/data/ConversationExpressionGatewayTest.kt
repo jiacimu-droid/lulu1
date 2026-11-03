@@ -325,6 +325,7 @@ class ConversationExpressionGatewayTest {
                 it.turnTraceId == rendererAudit.turnTraceId }
             assertEquals(plannerAudit.turnTraceId, rendererAudit.turnTraceId)
             val trace = rendererAudit.turnTraceId
+            assertEquals(trace, reply.diagnosticTurnTraceId)
             val stages = LuluRepositories.performance.timingRecords.first()
                 .filter { it.detail.contains("trace=$trace") }
             assertTrue(stages.any { it.stage == "P08a角色规划" &&
