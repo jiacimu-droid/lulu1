@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T16:57:01.010246+00:00",
-  "commit": "53441ccb910c0f456158c02e72adfdbaed2949af",
+  "generatedAt": "2026-11-03T16:57:25.949887+00:00",
+  "commit": "09dd863b335a309b0d7ed752393890532cb1d12d",
   "branch": "main",
-  "sourceFingerprint": "2a3dba5c38ef25f0f6f208ac7e1807d9dafccd81a62e8d60079ee048292e63c7",
+  "sourceFingerprint": "26f341daf95395f0f6672f5ce2baa90d7f78af1b6fe8d4e1dca1320ab08b64e9",
   "summary": {
     "files": 1125,
     "lines": 233496,
@@ -35271,7 +35271,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
       "lines": 526,
-      "sha256": "3cf09ecd69a1e1104b131b1b3c887612749506f6f477ec7ab2f3699d92741de8",
+      "sha256": "5e826e00fae9f8105688b3d59c9d2eb4518e84fef8c759747eff535aaea2e200",
       "symbols": [
         {
           "name": "BundledJiangDuImportTest",
@@ -35809,7 +35809,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 982,
-      "sha256": "ed9dcb32e13304ecd68342b7481edc518e7e8cc582b7c8c6aea2d273e98cc864",
+      "sha256": "2ceac0e852ce83f3fbc5f8e5f5e39d5dbeb7ba0da5368b69518a8e0dee7140b1",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -37195,7 +37195,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 1014,
-      "sha256": "dfe194562ccba84000ea504d0223f6478c851639692f48e18cca6c19ab3870bd",
+      "sha256": "cf06b665c8f0c117f66f85899095acc4deceddef54dd4977362dcd10b9a80191",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
