@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:04:04.555363+00:00",
-  "commit": "84ade5c160797356146e18d96b34dded1a85e7ce",
+  "generatedAt": "2026-11-03T17:11:27.179249+00:00",
+  "commit": "53e3e4d27d6c0211a05cd3e28a25736c37de9fef",
   "branch": "main",
-  "sourceFingerprint": "ffa8ae05386559fab69700d07b70623bad6ab5f9211cb6800073ee5b33798295",
+  "sourceFingerprint": "11ab9a1781321fd0c27469a7f7c9db8ef952477be3bee5a103d98da75dfa5928",
   "summary": {
     "files": 1125,
-    "lines": 233708,
-    "symbols": 3254
+    "lines": 233743,
+    "symbols": 3258
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3813,7 +3813,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 151
+        "line": 154
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 183
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -7781,7 +7785,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "handled": [
@@ -7821,7 +7825,29 @@
     "CommitmentTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 7
+        "line": 9
+      }
+    ],
+    "local": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 156
+      }
+    ],
+    "elapsed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 157
+      }
+    ],
+    "clock": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 159
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
+        "line": 24
       }
     ],
     "CommitmentTaskDraft": [
@@ -13956,12 +13982,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
         "line": 177
-      }
-    ],
-    "clock": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 24
       }
     ],
     "durationLabel": [
@@ -25337,8 +25357,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 68,
-      "sha256": "b19e0aec0fb05357fc3ad6f62fbc9d48f059a63ec24f321ae7024b0409749d32",
+      "lines": 69,
+      "sha256": "7927ccaa9338dd29ef76dcffab5fbf5441d9dac5b17c8db276e74acdd2710473",
       "symbols": [
         {
           "name": "context",
@@ -25346,7 +25366,7 @@
         },
         {
           "name": "drafts",
-          "line": 55
+          "line": 56
         }
       ]
     },
@@ -25415,16 +25435,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 186,
-      "sha256": "27eea719d633e93f1e5b9748fad47c76ab2de90fdbefbcb8f4f8dcf1b1c7c3ec",
+      "lines": 220,
+      "sha256": "51eab8803f652828634255efd485a0da8ccc229a0d20063b9baca339786490b9",
       "symbols": [
         {
           "name": "CommitmentTask",
-          "line": 7
+          "line": 9
         },
         {
           "name": "render",
-          "line": 151
+          "line": 154
+        },
+        {
+          "name": "local",
+          "line": 156
+        },
+        {
+          "name": "elapsed",
+          "line": 157
+        },
+        {
+          "name": "clock",
+          "line": 159
+        },
+        {
+          "name": "render",
+          "line": 183
         }
       ]
     },
