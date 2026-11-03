@@ -53,7 +53,7 @@ class Live2DMotionCatalogTest {
         val available = (0..48).map { "LuluWolf" to it }
         val sections = Live2DMotionCatalog.selectionSections(available)
         val primary = sections.filterNot { it.supplementary }
-        assertEquals(4, primary.size)
+        assertEquals(5, primary.size)
         assertEquals(29, primary.sumOf { it.motions.size })
         assertEquals(29, Live2DMotionCatalog.everydayIds.size)
         assertEquals(49, sections.flatMap { it.motions }.distinct().size)
@@ -69,12 +69,14 @@ class Live2DMotionCatalogTest {
     @Test fun motionGuideDescribesEmotionAndStatesBeforeOptionalVariants() {
         val guide = Live2DMotionCatalog.selectionGuide((0..48).map { "LuluWolf" to it })
         assertTrue(guide.contains("情绪·开心与亲近："))
+        assertTrue(guide.contains("情绪·害羞、失落与担忧："))
+        assertTrue(guide.contains("情绪·受惊与抗拒："))
         assertTrue(guide.contains("交流·倾听与回应："))
         assertTrue(guide.contains("状态·休息与放松："))
         assertTrue(guide.contains("LuluWolf#34=认真侧耳倾听"))
         assertTrue(guide.contains("LuluWolf#18=缓慢重心移动"))
         assertTrue(guide.indexOf("情绪·开心与亲近") < guide.indexOf("补充·方向镜像"))
-        assertTrue(guide.contains("\\n"))
+        assertTrue(guide.contains("\n"))
     }
 
     @Test fun motionGroupingPreservesThirdPartyAndPartialModelManifest() {
