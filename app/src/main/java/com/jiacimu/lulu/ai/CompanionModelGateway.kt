@@ -121,6 +121,8 @@ data class ModelReply(
     /** Structured expression choice carried separately from user-visible words. */
     val voiceBubbleTexts: List<String> = emptyList(),
     val voiceBubbleSpeechTracks: List<String> = emptyList(),
+    /** Local-only correlation passed from the role decision to its real delivery. */
+    val diagnosticTurnTraceId: String = "",
 )
 
 class ModelConnectionStore private constructor(context: Context) {
