@@ -433,7 +433,7 @@ class QqReplySourceWatermarkTest {
         val requestId = "legacy-trace-" + java.util.UUID.randomUUID().toString()
         val prior = JSONObject().put("success", true).put("summary", "此前已完成的真实记录")
         val legacy = JSONObject()
-            .put("fingerprint", "send_private_message:{\\"_turnTraceId\\":\\"previous-turn\\",\\"text\\":\\"此前选择的内容\\"}")
+            .put("fingerprint", """send_private_message:{"_turnTraceId":"previous-turn","text":"此前选择的内容"}""")
             .put("status", "succeeded").put("result", prior.toString())
         val preferences = app.getSharedPreferences("lulu_tool_executions", android.content.Context.MODE_PRIVATE)
         assertTrue(preferences.edit().putString("$role:$requestId", legacy.toString()).commit())
