@@ -166,6 +166,20 @@ class BackgroundMessageDeliveryTest {
         assertEquals(1, MigratedDomainStores.chat.messages(conversation.id).value.size)
     }
 
+    @Test fun legacySoundChoiceDoesNotDisableHeadsUpButQuietChoicesRemainProtected() {
+        val policy = CharacterMessageNotifications::preserveLegacyChannel
+        assertFalse(policy(NotificationManager.IMPORTANCE_DEFAULT,
+            false, true, true)) // Only the ringtone was changed; preserve it on HIGH.
+        assertTrue(policy(NotificationManager.IMPORTANCE_DEFAULT,
+            false, true, false)) // Explicitly silent sound must not be overridden.
+        assertTrue(policy(NotificationManager.IMPORTANCE_DEFAULT,
+            true, false, true)) // Explicit notification importance is authoritative.
+        assertTrue(policy(NotificationManager.IMPORTANCE_LOW,
+            false, false, true)) // Quiet channels are never bypassed.
+        assertFalse(policy(NotificationManager.IMPORTANCE_DEFAULT,
+            false, false, true))
+    }
+
     @Test fun oldAppDefaultCanUpgradeToHeadsUpWithoutMutatingTheImmutableChannel() {
         manager.createNotificationChannel(NotificationChannel("lulu_proactive_messages", "旧消息", NotificationManager.IMPORTANCE_DEFAULT))
         MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "有新消息", role.characterId)
