@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T12:21:44.371117+00:00",
-  "commit": "a3d0daa455ab6912b2805187a1cbc96481bae8fe",
+  "generatedAt": "2026-11-03T12:53:11.372559+00:00",
+  "commit": "9fcbf495735c7d6df9cfdf2d8c996becb5b21703",
   "branch": "main",
-  "sourceFingerprint": "2f909f332a7f1b4f026ce086f96eeae0d3daee1702fc29524984db40f7a940e4",
+  "sourceFingerprint": "54eb109405d70bf3025de776ad2e4f8f23fc30119767a1c2feb6dfa8dfcdaaeb",
   "summary": {
     "files": 1125,
-    "lines": 232488,
+    "lines": 232509,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -3781,7 +3781,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 664
+        "line": 673
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
@@ -21541,7 +21541,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
       "lines": 1018,
-      "sha256": "b5f7bfa54a6466ac41aa3bb12a08c09f2998c746d768849e72eefd2e8b515ae5",
+      "sha256": "6137b3517ad06db8852ae98574b91a0431b08a044be9b1f5bbd176bf8448fe6f",
       "symbols": [
         {
           "name": "openReceiptLink",
@@ -21566,12 +21566,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 690,
-      "sha256": "5373aff218a55be130f1c2c571e05015ff1ebdfce8bfc5229a0e5c1c68d0df2f",
+      "lines": 699,
+      "sha256": "fce18f54fd99c7adb1197ac4ff6f3ed3b9bcf9076d05e7ce9dbc9b5dff3e014f",
       "symbols": [
         {
           "name": "render",
-          "line": 664
+          "line": 673
         }
       ]
     },
@@ -23840,7 +23840,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 96,
-      "sha256": "e8f80b97a9316c28575f2fed47dbe7c1a7540b829cf7b8bc8e7dc2b74119c04f",
+      "sha256": "c2a93bb2892026ae1766fbcf0771a501d9b0912e678479e2b9f1ff768e1d5606",
       "symbols": [
         {
           "name": "isExpressionOnly",
@@ -33422,7 +33422,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2128,
-      "sha256": "01495c2b18eb8911fdf817a9434587a919e0958d07786885f5685ccdc373bffc",
+      "sha256": "20d3660c927d543f089df57e38a6d593276684cd6080759ab48f37032669bdbf",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -34558,8 +34558,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 152,
-      "sha256": "e52413b15833077d1853980e7586d6fff04890581b7b7dc908ecbfe56a55803d",
+      "lines": 164,
+      "sha256": "fd1dc39e74a5b1342822f899b117a93dd76bbfcab17748bb539e59e137931530",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
