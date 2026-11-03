@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import org.json.JSONObject
+import org.json.JSONArray
 import java.time.Instant
 import java.time.ZoneId
 
@@ -17,11 +18,40 @@ internal object CharacterLifeSelfReview {
     fun isDue(lastReviewedDay: String, now: Instant, zone: ZoneId = ZoneId.systemDefault()): Boolean =
         lastReviewedDay != localDay(now, zone)
 
+    /** Rotate older, still-held thoughts through the existing daily review.
+     * Age is a visibility cue, never a reason to automatically retire one.
+     * Recent thoughts are also visible in the ordinary character context.
+     */
+    internal fun thoughtCandidates(mind: JSONObject, now: Instant,
+        zone: ZoneId = ZoneId.systemDefault()): List<JSONObject> {
+        val thoughts = mind.optJSONArray("thoughts") ?: JSONArray()
+        val held = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
+            .filter { item ->
+                item.optString("status").ifBlank { "held" } == "held" &&
+                    item.optString("thought").isNotBlank() &&
+                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { !it.isAfter(now) } == true
+            }
+        val recent = held.takeLast(3)
+        val older = held.dropLast(recent.size)
+        val pages = (older.size + 7) / 8
+        val selected = if (pages == 0) emptyList() else {
+            val day = now.atZone(zone).toLocalDate().toEpochDay()
+            older.drop(Math.floorMod(day, pages.toLong()).toInt() * 8).take(8)
+        }
+        return selected + recent
+    }
+
     fun context(context: Context, characterId: String, now: Instant = Instant.now()): String {
         val current = CharacterLifeVisibility.matters(
             characterId, now, plans = RoleDayScheduleStore.plans(context, characterId),
         )
         val mind = CharacterInnerLifeStore.snapshot(characterId)
+        val heldThoughts = thoughtCandidates(mind, now)
+        // Learned, evidence-backed traits are not immutable persona text.
+        // Project current examples for the role to reconsider; the original
+        // evidence and retired versions remain in their authoritative stores.
+        val learned = CharacterDevelopmentStore.active(characterId)
         val pausedMotives = CharacterMotiveState.paused(mind.optJSONArray("motives"))
         val pausedConcerns = mind.optJSONArray("openConcerns").let { records ->
             (0 until (records?.length() ?: 0)).mapNotNull { records?.optJSONObject(it) }
@@ -34,13 +64,23 @@ internal object CharacterLifeSelfReview {
         val dormant = CharacterCuriosityRuntime.snapshot(characterId).optJSONArray("dormantQuestions")
         val pastCuriosity = (0 until (dormant?.length() ?: 0)).mapNotNull { dormant?.optJSONObject(it) }
 
-        if (current.isEmpty() && pausedMotives.isEmpty() &&
-            pausedConcerns.isEmpty() && pausedLearning.isEmpty() && pastCuriosity.isEmpty()) return ""
+        if (current.isEmpty() && pausedMotives.isEmpty() && heldThoughts.isEmpty() &&
+            pausedConcerns.isEmpty() && pausedLearning.isEmpty() && pastCuriosity.isEmpty() &&
+            learned.isEmpty()) return ""
 
         return buildString {
             appendLine("【今天自己的心事整理｜仅这一次自主决策里的回顾，不是自动清理命令】")
             appendLine("此刻本地日期=${localDay(now)}。请真正回顾下列已存档的心事与具体日程，以自己目前的兴趣、责任、情绪、经历、已有真实尝试和时间精力判断：哪些想继续、哪些可以放下、哪些突然想起来值得今天或以后做。可以不安排，也可以在同一轮安排几件不同的事，数量和日期由你选择；不是每日打卡或给用户交作业。")
             appendLine("心事列表是尚未解决的本人想法，并非已做成的事。不要从过时的搜索标题臆造今日活动状态；不能仅靠经过七天或一次搜索就自动认定已解决。")
+            heldThoughts.forEach { thought ->
+                appendLine(JSONObject().put("category", "还没理清的私人念头")
+                    .put("thought", thought.optString("thought"))
+                    .put("at", thought.optString("at"))
+                    .put("lastSeenAt", thought.optString("lastSeenAt"))
+                    .put("hesitation", thought.optString("hesitation")).toString())
+            }
+            if (heldThoughts.isNotEmpty()) appendLine(
+                "上面是本日轮到回看的仍持有念头。已放下可用 innerLife.thoughtUpdates=[{thought:原文,op:discard}]；已想通用resolve；变化后用evolve并写newThought。状态改变后旧念头留在历史，不再挤占当前视野；只是年头久不等于过期。每次最多调整四条。")
             current.forEach { item ->
                 appendLine(JSONObject().put("category", item.category)
                     .put("id", item.sourceId).put("owner", item.sourceKind)
@@ -67,6 +107,19 @@ internal object CharacterLifeSelfReview {
                     .put("threadId", CharacterCuriosityRuntime.identity(q))
                     .put("title", q.optString("topic"))
                     .put("question", q.optString("question")).toString())
+            }
+            if (learned.isNotEmpty()) {
+                appendLine("【自己从经历中学到的倾向｜不是固定人设，保留真实来源】")
+                learned.takeLast(12).forEach { record ->
+                    appendLine(JSONObject().put("developmentId", record.id)
+                        .put("version", record.version)
+                        .put("kind", record.kind.label)
+                        .put("content", record.content.take(240))
+                        .put("evidenceCount", record.evidence.size)
+                        .put("counterEvidenceCount", record.counterEvidence.size)
+                        .toString())
+                }
+                appendLine("经历得出的临时认识可以随着新事实修正。若确实觉得某条个人学习形成的倾向已不适用，可决定调用retire_development_record指定developmentId、version和真实理由，原记录与证据仍保留；主人亲口告诉的事实与明确偏好不能由这一工具擅自撤销。也可保留等待新证据，不要求每天改成长。")
             }
             appendLine("【想法和执行如何真正联动】")
             appendLine("① 继续：沿用原ID修订，不要另开一个同义心事。放下已有持续意愿用innerLife.motives的release，恢复用resume；放下挂心用appraisal.pendingConcerns的dismissed，真有证据已解决才用settled，恢复用resume，均指定原threadId。学习事项可以在steps选learn_topic，args={op:pause|resume|drop,goalId:准确ID}；好奇可以用curiosity={threadId,topic,question,status:dropped}放下（topic和question须为原来的准确内容）。")
