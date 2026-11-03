@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7a1f36fd428e38c9ced367567d8138e29a5e48e2`
+- 基准提交：`f3ccb9f2c05721bb76f0529ec7d38ddb502d73b1`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：234022
-- 已发现符号：3258
+- 已索引代码/文本行：234094
+- 已发现符号：3259
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -350,7 +350,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 136 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 266 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 312 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 331 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 153 | 7 |
@@ -370,7 +370,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 316 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 133 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1214 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 233 | 2 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:38:45.260590+00:00",
-  "commit": "7a1f36fd428e38c9ced367567d8138e29a5e48e2",
+  "generatedAt": "2026-11-03T17:40:24.268303+00:00",
+  "commit": "f3ccb9f2c05721bb76f0529ec7d38ddb502d73b1",
   "branch": "main",
-  "sourceFingerprint": "ca6e131f4207efeb38f2f56f7846e5998dd97ddec25e4257e3823b3930fcfee0",
+  "sourceFingerprint": "970b3820d7d99907bf9ab0eb256faa85d2cae8ad4331d3563ef26277137eedab",
   "summary": {
     "files": 1125,
-    "lines": 234022,
-    "symbols": 3258
+    "lines": 234094,
+    "symbols": 3259
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -461,7 +461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 19
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -6218,16 +6218,22 @@
         "line": 243
       }
     ],
+    "retireSelfAssessment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
+        "line": 253
+      }
+    ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 252
+        "line": 271
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 284
+        "line": 303
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -6241,13 +6247,13 @@
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 289
+        "line": 308
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 294
+        "line": 313
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -6785,13 +6791,13 @@
     "localDay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "isDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-        "line": 16
+        "line": 17
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
@@ -23691,8 +23697,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 312,
-      "sha256": "7f583a1fb426a9e9bfd6a7dcb730405977fc487144167b8a9fdd232859e86cd6",
+      "lines": 331,
+      "sha256": "d9234ede8b6d3bd89e06cf6b9471eda0f48c4c223ae98e5309ea0e99eecc79fe",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -23727,20 +23733,24 @@
           "line": 243
         },
         {
+          "name": "retireSelfAssessment",
+          "line": 253
+        },
+        {
           "name": "retireSlotWithCounterEvidence",
-          "line": 252
+          "line": 271
         },
         {
           "name": "invalidateEvidence",
-          "line": 284
+          "line": 303
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 289
+          "line": 308
         },
         {
           "name": "clearCharacter",
-          "line": 294
+          "line": 313
         }
       ]
     },
@@ -24250,20 +24260,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-      "lines": 80,
-      "sha256": "d18b8cafd7f37b594245cc0b87760ae34059320676df15939c2b5cd28236603d",
+      "lines": 133,
+      "sha256": "17845adce6180f2ede2b83bcc72febdc0590d9cc73589864d6184ea423afa2b8",
       "symbols": [
         {
           "name": "localDay",
-          "line": 14
+          "line": 15
         },
         {
           "name": "isDue",
-          "line": 16
+          "line": 17
         },
         {
           "name": "context",
-          "line": 19
+          "line": 44
         }
       ]
     },
