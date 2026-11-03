@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:51:05.506855+00:00",
-  "commit": "e9bb72cb32aeb8e92d58f0370ff4c025351277c1",
+  "generatedAt": "2026-11-03T04:51:22.542276+00:00",
+  "commit": "07b365deb80f29e9024a59f92f23f4b950658411",
   "branch": "main",
-  "sourceFingerprint": "0cf47813421eaca73092b7436658ccd811c0a6647cfbe3edbe610c44381e2054",
+  "sourceFingerprint": "147aa4ec910b21a7babca57ec4987e21a8f92d215061beeee72e5dd0465e0cfd",
   "summary": {
     "files": 1125,
-    "lines": 231150,
+    "lines": 231171,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -35222,8 +35222,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt",
-      "lines": 201,
-      "sha256": "11e3c58c78a30904814bbc66432027cf7c8b178240e2c98005036f9be84db086",
+      "lines": 222,
+      "sha256": "d0c3ef31118f5120ac095dcb3ef58f1b55706e2c521ed4d782f7241737f184fc",
       "symbols": [
         {
           "name": "BackgroundMessageDeliveryTest",
