@@ -292,8 +292,23 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                 // Optional reference must not prevent the entire app from opening
                 // if Android temporarily rejects a preferences write.
                 val saved = storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
-                    .putBoolean(KEY_HUMAN_CHAT_SEEDED, true).commit()
+                    .putBoolean(KEY_HUMAN_CHAT_SEEDED, true)
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true).commit()
                 entries.value = if (saved) initial else stored
+            } else if (!storage.getBoolean(KEY_HUMAN_CHAT_REVISED_V2, false)) {
+                // Migrate only the exact shipped v1 text, not a character's or
+                // owner's edits. Preserve the book's switches, order and folder.
+                // If it was deleted, never recreate it.
+                val revised = stored.map { entry ->
+                    if (entry.id == HUMAN_CHAT_BOOK_ID &&
+                        entry.content == HUMAN_CHAT_BOOK_V1_CONTENT.trimIndent()
+                    ) entry.copy(content = HUMAN_CHAT_BOOK_CONTENT.trimIndent(),
+                        updatedAt = Instant.now())
+                    else entry
+                }
+                val editor = storage.edit().putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true)
+                if (revised != stored) editor.putString(KEY_ENTRIES, encode(revised).toString())
+                entries.value = if (editor.commit()) revised else stored
             } else entries.value = stored
         }
     }
@@ -570,9 +585,10 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         const val KEY_ENTRIES = "entries_v1"
         const val KEY_FOLDERS = "folders_v1"
         const val KEY_HUMAN_CHAT_SEEDED = "human_chat_world_book_seeded_v1"
+        const val KEY_HUMAN_CHAT_REVISED_V2 = "human_chat_world_book_revised_v2"
         const val HUMAN_CHAT_BOOK_ID = "built-in-modern-chat-expression-v1"
         const val HUMAN_CHAT_BOOK_TITLE = "现代聊天与自然表达"
-        val HUMAN_CHAT_BOOK_CONTENT = """
+        val HUMAN_CHAT_BOOK_V1_CONTENT = """
             【现代日常聊天的语用参考｜不是角色身份或新任务】
             现代人跟熟人发消息，不是在逐项答题。一个人可以了解事情的全部经过，却只说此刻最想让对方听见的那一小部分；对方有兴趣再往下聊。知道得多不等于每次要讲得多。随口聊天常先给直觉、态度或一个具体发现，不必把原因、背景、后果和建议一次说尽；对方认真询问原因、技术细节或寻求完整帮助时，则可以讲清。
             
@@ -585,6 +601,19 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             
             【每个人有自己的声音】
             本书描述可用的现代口语习惯，不要求所有人物说流行语、卖萌、重复、撒娇或使用同一个节奏。人物自己的性格、语言偏好、当下关系、共同经历和情绪决定要选哪一种。清冷而风趣的人可以嘴角带笑地简短回应，热烈的人可以连发几句；认真或有重要事项时可以详细。不要把知道的事实藏起来，但也不用把知道的一切主动汇报。
+        """
+        val HUMAN_CHAT_BOOK_CONTENT = """
+            【现代聊天与自然表达｜供选择的语用参考】
+            熟悉的人聊天通常是在延续眼前的一次互动，而不是完整陈述所有联想。先抓住真正想回应的那一点；一句话说到了就可以停，话题有意思时再自然展开。被认真问到细节、解释或求助时，仍把必要内容说清楚。
+
+            【情绪与语气来自这一次谈话】
+            同一个人可以平静、好笑、迟疑、激动，也可以认真。语气来自正在表达的意思和当下感受，不靠持续提高音量证明亲近或活泼。比如普通判断可以说“可能就是味道不对。”，好奇时可以说“你怎么想到这个的？”，真被逗笑时可以说“哈哈，原来你说的是这个”。这些是不同情境的例子，不是要逐句照搬的台词。感叹号适合真有惊讶、喊话或强烈情绪的瞬间；平常玩笑、推测、解释、轻轻吐槽也完全可以用句号、问号、省略或无句末标点。连续几个气泡不意味着每个都要显得兴奋。
+
+            【即时通讯里的气泡】
+            气泡是一次次真实说话动作，不是把文章切小。可以先给短反应，再补一句新的观察或玩笑；没有新意思就让对方接话。气泡边界跟随真实停顿和话意变化，不按固定字数、句数或标点切。括号动作、表情包、颜文字和流行语也只是个人可选的表达手段，不是鲜活感的必备装饰。
+
+            【每个人保留自己的声音】
+            这是关于现代聊天习惯的参考资料，不是统一人物性格。具体选择由角色自己的设定、现实关系、情绪、历史互动及当前媒介决定。沉静的人可以轻轻一笑，机灵的人可以随口打趣，热情的人也可以安静地认真听。自然感来自具体的理解、反应和变化，不来自重复同一套句式。
         """
     }
 }
