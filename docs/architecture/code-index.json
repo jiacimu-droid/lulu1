@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:13:01.517743+00:00",
-  "commit": "959981f2a58de2c358c44678de6c0fac6fcfa50d",
+  "generatedAt": "2026-11-03T08:13:35.302540+00:00",
+  "commit": "4020a8e629b201e5a326ef566667080358af58e1",
   "branch": "main",
-  "sourceFingerprint": "cabcd66e38936e78c0a4cdae65864f26ee3f253876fd2014f5c44abd66126198",
+  "sourceFingerprint": "d494dcaa1b2198f1707c6a012992b7d5a1b0be0bccdd0ffbcdc1cd65e55375e2",
   "summary": {
     "files": 1125,
-    "lines": 232084,
+    "lines": 232087,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -5761,7 +5761,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 50
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -6403,19 +6403,19 @@
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 44
+        "line": 46
       }
     ],
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 59
+        "line": 62
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 74
+        "line": 77
       }
     ],
     "relationships": [
@@ -23562,7 +23562,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "e2f078ac44512539849ef371e1627a582c3e368bbd61d0527ee183707f83ba69",
+      "sha256": "8a7dfb2c90cd89d3efb127eb5db15c4e070b363dfdbb03e957e84acffb721246",
       "symbols": [
         {
           "name": "expressionContext",
@@ -23835,24 +23835,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 93,
-      "sha256": "15ed5d0af6f765476f012a25e2f63659ea640189e8eaad8bfeb23ce502da0544",
+      "lines": 96,
+      "sha256": "e8f80b97a9316c28575f2fed47dbe7c1a7540b829cf7b8bc8e7dc2b74119c04f",
       "symbols": [
         {
           "name": "isExpressionOnly",
-          "line": 44
+          "line": 46
         },
         {
           "name": "promptSection",
-          "line": 50
+          "line": 52
         },
         {
           "name": "forGeneration",
-          "line": 59
+          "line": 62
         },
         {
           "name": "channelNote",
-          "line": 74
+          "line": 77
         }
       ]
     },
