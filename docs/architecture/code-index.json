@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T12:58:53.318730+00:00",
-  "commit": "3639b78ce3f708caa9760bc6af1674482ea7ebc7",
+  "generatedAt": "2026-11-03T13:01:46.664155+00:00",
+  "commit": "cee56d761068aad323d4aac2fdf0b4b76c523667",
   "branch": "main",
-  "sourceFingerprint": "993ec82f9ffd5d74402c8579c1df76518e70061fc7a8b3399a3e8b1d96156fa8",
+  "sourceFingerprint": "853817a9b3dc368794a5ccb973e6d2d7cafb0cdcfd2f4d67205ab2c1e6bd8134",
   "summary": {
     "files": 1125,
-    "lines": 232825,
+    "lines": 232834,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -783,7 +783,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1353
+        "line": 1356
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4913,31 +4913,31 @@
     "worldBookSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 686
+        "line": 688
       }
     ],
     "positionedBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 692
+        "line": 694
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1148
+        "line": 1151
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1160
+        "line": 1163
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1343
+        "line": 1346
       }
     ],
     "configured": [
@@ -9581,31 +9581,31 @@
     "PerformanceTimingRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 88
+        "line": 90
       }
     ],
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 96
+        "line": 98
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 106
+        "line": 108
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 119
+        "line": 121
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 320
+        "line": 324
       }
     ],
     "Key": [
@@ -22438,8 +22438,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1361,
-      "sha256": "991269ee1bd896f7503143f830ae431e7734886e1d1c5094307b116dd3aeb7bc",
+      "lines": 1364,
+      "sha256": "4f51fc25481d611c3a4a9a71cbae7cfebb95384bb64ed094ad15dba48d444b20",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -22531,27 +22531,27 @@
         },
         {
           "name": "worldBookSection",
-          "line": 686
+          "line": 688
         },
         {
           "name": "positionedBooks",
-          "line": 692
+          "line": 694
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1148
+          "line": 1151
         },
         {
           "name": "consumeEvent",
-          "line": 1160
+          "line": 1163
         },
         {
           "name": "LuluAiServices",
-          "line": 1343
+          "line": 1346
         },
         {
           "name": "initialize",
-          "line": 1353
+          "line": 1356
         }
       ]
     },
@@ -27247,8 +27247,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 548,
-      "sha256": "6fec7bdd9d3341b1202eb49773908749bf55e798b169f5aa88a3dc4e329cb07f",
+      "lines": 554,
+      "sha256": "7cd5fc1158ea1e67cc99cdd3c4ab5da8773f2644f0d4a8cba6caecf37d185a68",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -27276,23 +27276,23 @@
         },
         {
           "name": "PerformanceTimingRecord",
-          "line": 88
+          "line": 90
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 96
+          "line": 98
         },
         {
           "name": "List",
-          "line": 106
+          "line": 108
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 119
+          "line": 121
         },
         {
           "name": "updateDurations",
-          "line": 320
+          "line": 324
         }
       ]
     },
