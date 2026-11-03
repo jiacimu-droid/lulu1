@@ -35,6 +35,12 @@ internal object TimelineStatementOwnership {
      * An actual user statement can anchor that contact without guessing who read a reply. */
     fun involvesUser(event: SharedTimelineEvent): Boolean {
         if (!isGroup(event)) return true
-        return event.evidenceKind == EventEvidenceKind.UserStatement && event.source == "message"
+        if (event.evidenceKind != EventEvidenceKind.UserStatement ||
+            event.source != "message") return false
+        // A witnessed group row is not proof of a user message on its own.
+        // Resolve the original sent message, just as we do for character authorship.
+        // This also rejects deleted/failed/rewritten or orphaned witness records.
+        val (_, message) = original(event) ?: return false
+        return message.sender == LuluChatMessage.Sender.User
     }
 }
