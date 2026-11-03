@@ -303,10 +303,19 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             }
             item {
                 val channel = com.jiacimu.lulu.data.CharacterMessageNotifications.channelId(context)
-                val importance = context.getSystemService(android.app.NotificationManager::class.java)
-                    .getNotificationChannel(channel)?.importance ?: 0
-                CapabilityRow(Icons.Outlined.ChatBubbleOutline, "角色消息弹窗", "消息横幅、声音与锁屏提醒",
-                    snapshot.notifications && importance >= android.app.NotificationManager.IMPORTANCE_HIGH) {
+                val settings = context.getSystemService(android.app.NotificationManager::class.java)
+                    .getNotificationChannel(channel)
+                val importance = settings?.importance ?: 0
+                val headsUp = snapshot.notifications &&
+                    importance >= android.app.NotificationManager.IMPORTANCE_HIGH
+                val hint = when {
+                    !snapshot.notifications -> "通知权限未开启 · 点击允许角色消息提醒"
+                    importance < android.app.NotificationManager.IMPORTANCE_HIGH ->
+                        "当前仅通知栏提醒 · 点击打开系统设置，开启横幅"
+                    settings?.sound == null -> "横幅等级已开启 · 提示音未开启，点此调整"
+                    else -> "已设高优先级 · 若未弹出，请检查系统浮动通知开关"
+                }
+                CapabilityRow(Icons.Outlined.ChatBubbleOutline, "角色消息横幅", hint, headsUp) {
                     open(Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                         .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                         .putExtra(Settings.EXTRA_CHANNEL_ID, channel))
