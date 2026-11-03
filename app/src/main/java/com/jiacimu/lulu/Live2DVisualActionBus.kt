@@ -194,7 +194,7 @@ internal object Live2DVisualActionBus {
             结合你的性格、当下心情与每句话的语气，自主从真实目录选择最合适的 Motion3，不按关键词机械匹配。视频发言的输出契约：每个实际说话片段都必须对应你选择的真实动作，不能只给回复开头配动作；执行前会检查漏项。日常短句可选轻微动作，神态和力度仍由你自己决定。
             本次可见视频的 reply 使用 speech 数组作为唯一台词来源，取代普通电话的 text；不要重复输出 text 或 bubbles。
             {"action":"reply","speech":[
-               {"id":"s1","text":"你回来了！","motion":{"group":"LuluWolf","index":35},"transition":"blend"},
+               {"id":"s1","text":"你回来了！","motion":{"group":"LuluWolf","index":17},"transition":"blend"},
                {"id":"s2","text":"不过我可没一直等你。","motion":{"group":"LuluWolf","index":29},"transition":"blend"}
              ]}
             上面仅说明格式；必须自行从真实目录选动作，示例不是固定搭配。
