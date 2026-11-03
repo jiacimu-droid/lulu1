@@ -467,3 +467,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **根因**：`RelayRequestPressurePolicy.excerptWholeLines` 为最新优先的材料固定保留第一行（短于 160 字就当 header），而 `MemoryWorkingSet.EVIDENCE` 的第一行往往正是最旧的 `- eventId=...` 列表数据；因此压缩后同时带入最旧证据与最新尾部事件，违背原本完整连续最新证据窗口的设计，可能在 Relay 请求压力下混淆人物最近观察。此处属于数据边界，不是角色语义或风格。
 - **已实改**：`c2b683019081a503986fafc6d3ad8c910a8e8b2b` 不再把首行以 `- ` 开头的列表记录当成段落标题，保持真实标题仍可保留、最新证据优先、完整行与持久原文不变；`51e3adce3ea42ae45c0e39a8717093431556e411` 在同一回归测试中覆盖真正 `【来源清单】` 标题仍保留，而最旧 `eventId` 不会被错误拼回最新窗口。不增加模型调用、不另造 Store、不改变模型意图。
 - **接力验证**：修复后新的 Android Actions 和代码索引由既有 main push 自动触发；下一轮读取最新包含 `51e3adce` 的 run ID 与最终结论，若 failure 优先查看 job 原始日志；再做 P-08 真实人物整理、原始证据和跨场景回执真机验收。人物总任务维持 `[ ]`，不得用源码静态检查代替真实 APK 成功。
+
+## 2026-11-04 · P-08 自己想分享的理由跨轮保真（main `a6bff5e`，待 CI／真机）
+
+- **上轮 CI 核实**：包含前轮 Relay 证据标题修复的 `51e3adce`，[Lulu APK/JVM run 41699006280](https://github.com/jiacimu-droid/lulu1/actions/runs/41699006280) 与[索引 run 41699006407](https://github.com/jiacimu-droid/lulu1/actions/runs/41699006407) 均已 `completed/success`。旧失败 `9afa86b` 的两个断言已被后继真实测试覆盖，不把旧失败或取消当成当前结论。
+- **已证根因**：`CharacterLifeFollowThroughStore.recordShareWish` 保存本人已选的 `shareWish.why` 时只取前 180 字；以后后台的 `pendingDecisionCues` 再只取前 90 字，私聊/设备短提示与在线上下文又各取前 100/140 字。本人理由末尾若写了分享对象、暂不公开或其他条件，当前意愿就会在持久化和跨轮交接中被静默改义，尽管 `held/released` 状态仍在。
+- **实改及范围**：`91d5960` 初版曾同时放开经历事实预览；核对 `SharedExperienceTimeline.record` 后发现来源可能是很长的网页正文，于 `a6bff5e` 恢复原有经历预览预算，仅对**本人已作出的私有分享理由**保留完整原文，并使现有三个决策投影完整交接。最多仍只选既有候选数；没有新模型轮次、影子人格、自动发帖或按关键词替本人决定对象。旧记录若已在保存时截短，无法从已丢失的 `why` 还原；原经历仍以事件 ID 指向权威时间线。极长模型理由对提示词大小的影响待实测。
+- **回归**：`CharacterLifeFollowThroughStoreTest.heldSharingKeepsLateFactsAndPersonalConditionsAcrossDecisions` 用超过旧限制且末尾明确限制分享对象的本人理由，核对存档、后台 cue、设备短提示与在线上下文均保留原条件；短经历事实仍走原预算。以上只证明组装/保存契约，不证明角色真实会按条件行动。
+- **待验**：`a6bff5e` 的 Android 单测/APK [run 41704140299](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140299) 与索引 [run 41704140592](https://github.com/jiacimu-droid/lulu1/actions/runs/41704140592) 查询时 pending；先核实最终结果。再在获授权真机用真实模型检查“想告诉好友但暂不公开”在后台复查、私聊和实际社交发送中的取舍与送达回执。P-08 保持 [ ]。
