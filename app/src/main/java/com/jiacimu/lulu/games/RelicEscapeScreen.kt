@@ -48,6 +48,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
     val run=snapshot.run
     var kits by remember{mutableIntStateOf(1)}
     var selected by remember(run?.id){mutableStateOf((run?.hero?.x?:2) to (run?.hero?.y?:2))}
+    var facing by remember(run?.id){mutableStateOf(0 to 1)}
     // Movement returns the camera to the player; looking at teammates spends no turn.
     var cameraFocus by remember(run?.id, run?.hero?.x, run?.hero?.y) {
         mutableStateOf<Pair<Int, Int>?>(null)
@@ -118,9 +119,25 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
         },
         movement = {
             val active = run != null && run.phase in setOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT)
+            val adjacentAction = run?.let { relicNearbyAction(it, facing) }
             GameDirectionalPad(accent = relicGold, enabled = active, holdRepeatMs = 580L,
-                stopWhen = (run?.hero?.hp to run?.phase)) { dx, dy ->
-                run?.hero?.let { action("move", it.x + dx, it.y + dy) }
+                stopWhen = run?.hero?.hp to (run?.turns to run?.mobs?.map { it.hp }),
+                interactLabel = adjacentAction?.label ?: "附近互动",
+                interactEnabled = adjacentAction != null,
+                onInteract = { adjacentAction?.let { action(it.action, it.x, it.y, it.id) } }) { dx, dy ->
+                facing = dx to dy
+                run?.hero?.let { hero ->
+                    val x = hero.x + dx
+                    val y = hero.y + dy
+                    val nearby = relicQuickAction(run, x to y)
+                    // Stepping toward usable objects interacts; fighting requires attack.
+                    if (nearby?.action in setOf("open", "pickup", "resupply",
+                            "fountain", "disarm", "invoke", "revive", "extract")) {
+                        action(nearby!!.action, nearby.x, nearby.y, nearby.id)
+                    } else {
+                        action("move", x, y)
+                    }
+                }
             }
         },
         quickActions = {
@@ -164,6 +181,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                     }
                 }
                 val quickHint = relicQuickAction(run, selected)?.hint
+                val nearbyLoot = run.chests.firstOrNull { !it.opened &&
+                    RelicEscapeRules.distance(hero.x, hero.y, it.x, it.y) <= 1 &&
+                    run.visible(it.x, it.y) }
+                val objective = when (run.phase) {
+                    RelicPhase.EXTRACT -> "撤离中：守住剩余${(3-run.extraction).coerceAtLeast(0)}回合"
+                    else -> if (run.carried.isEmpty()) "目标：找到一件宝物，再去绿色撤离门"
+                        else "已带${run.carried.size}件宝物（估值${run.value}）→ 去绿色撤离门"
+                }
+                Text(objective, color=relicGold, fontWeight=FontWeight.Bold,
+                    fontSize=11.sp, maxLines=2)
                 val attackTarget = relicAttackTarget(run, selected)
                 Text(quickHint ?: "探索迷雾找宝箱 → 绿门撤离",
                     color = relicGold, fontSize = 10.sp, maxLines = 2)
@@ -174,14 +201,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 val visible = run.visible(sx, sy)
                 val adjacent = RelicEscapeRules.distance(hero.x, hero.y, sx, sy) <= 1
                 val chest = run.chests.any { !it.opened && it.x == sx && it.y == sy }
+                val chestAtHand = if (chest && visible && adjacent) sx to sy
+                    else nearbyLoot?.let { it.x to it.y }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     GameHudQuickAction(if (attackTarget != null && selected != (attackTarget.x to attackTarget.y))
                             "攻击近敌" else RelicArsenal.label(run.equipped)+"攻击", relicGold,
                         attackTarget != null, Modifier.weight(1f)) {
                         attackTarget?.let { action("attack", it.x, it.y) }
                     }
-                    GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && visible && adjacent && chest,
-                        Modifier.weight(1f)) { action("open", sx, sy) }
+                    GameHudQuickAction("开箱", relicGold, run.phase != RelicPhase.DOWNED && chestAtHand != null,
+                        Modifier.weight(1f)) { chestAtHand?.let { action("open", it.first, it.second) } }
                 }
                 Spacer(Modifier.height(4.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -234,6 +263,8 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Text("出发准备",color=Color.White,fontWeight=FontWeight.Black,fontSize=19.sp)
                 Text("出发自带2枚照明弹、1枚声响诱饵和2套机关工具。祭坛有更贵重的藏品，也会唤醒守卫。成功撤离才将宝物入库；倒地失败只丢失本局战利品。",
                     color=relicMuted,fontSize=12.sp)
+                Text("本层目标：摸宝撤离。仓库宝物可换铜币：70买药剂、350升级武器。",
+                    color=relicGold,fontSize=12.sp)
                 Text("本次同行："+(if(game.playWithCharacter)game.selectedCharacterIds.distinct().take(3).size else 0)+
                     "位伙伴（每人自带1份救援药剂）",color=relicGreen,fontSize=12.sp)
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -309,16 +340,16 @@ internal fun RelicEscapeScreen(store:LuluGameStore) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("先找宝物，再返回撤离门", modifier = Modifier.weight(1f),
+                        Text("本局目标 · 搜宝 → 生还 → 带出 → 升级", modifier = Modifier.weight(1f),
                             color = relicGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         TextButton(onClick = { showGuide = !showGuide }) {
                             Text(if (showGuide) "收起指引" else "怎么玩", color = relicGold, fontSize = 11.sp)
                         }
                     }
                     if (showGuide) {
-                        Text("① 轻点地图选择目标  ② 点下方主按钮执行",
+                        Text("① 方向键探索  ② 靠近宝箱按方向或✦  ③ 带宝物回出口",
                             color = Color.White, fontSize = 12.sp, lineHeight = 19.sp)
-                        Text("用「侦察」扩大已探明区域，但会惊动守卫。潜行、诱饵、开箱和撤离需要权衡行动回合。",
+                        Text("怪物用攻击键打，格挡可以防御蓄力攻击。宝物撤离后入库，可兑换铜币买药剂和升级武器。",
                             color = relicMuted, fontSize = 11.sp, lineHeight = 17.sp)
                     }
                 }
