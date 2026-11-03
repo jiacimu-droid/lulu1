@@ -419,3 +419,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **分层结果**：新版本 `69b7274` 的 Refresh code index run `41681957216` 已 `completed/success`；Lulu APK [run 41681957195](https://github.com/jiacimu-droid/lulu1/actions/runs/41681957195) 检查时为 `pending`，完整 Android JVM/APK 尚未通过验收。并行开发仍在 `main`，若被后继 push 取消必须改查包含提交的后继完整成功 run，取消不算失败或通过。
 - **后续补齐前置时间**：`4279225` 在 `ProactivePerceptionRuntime` 对**尚未到期的真实定时责任**也注入“距原定行动还有多久”，让本人能够提前规划，而不必非等到逾期后才意识到时间变化；并避免与逾期责任已经显示的 `ActiveCommitmentAttention` 重复。回归 `5393f6d` 确认未来 30 分钟的事实会被呈现，仍不会触发程序强制联系。包含全部源码的 [Lulu APK run 41682488780](https://github.com/jiacimu-droid/lulu1/actions/runs/41682488780)、索引 run `41682488837` 查询时 pending；较早构建不得被当成后继已通过。
 - **待验重点**：真机在含此改动的 APK，检查同一人物的夜间持续睡前监督、提前/迟到判断与一次静默复查；应该记住已经过晚、区别“减少打扰”与“按期达成”两种关心，但仍由本人根据真实目标与获准的设备观察选择联系/不联系，不能保证让用户在某时刻睡着。真实多轮心声、消息及执行回执对比后才能评价时间感是否变自然；P-08 保持未验收。
+
+## 2026-11-04 CI 校验：江渡 v25 升级及记忆/时间上下文（源码修复，后继 CI 待验）
+
+- **真失败证据**：[APK run 41680431146](https://github.com/jiacimu-droid/lulu1/actions/runs/41680431146) 已 completed/failure：2329 项 JVM 测试中 2 项失败；`CharacterLifeStoreTest.legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention` 仍把 `jiangDuV24Overrides` 当最终预期，实际已升级到 v25；`MemoryWorkingSetPolicyTest.actualInjectionAuditFollowsFinalRelayPayloadNotBudgetCandidates` 在第 26 行失败，压缩后的发送内容没有留下第一份高优先级摘要。
+- **实证根因与代码**：`f88ee2d` 更新旧存档迁移的最终预期，v25 默认字段排在 v24 前；未改人物迁移实现、更未删除测试。`48739a8` 修复 `RelayRequestPressurePolicy.compactSectionPairs` 的类别判断：摘要标题含“以原始依据为准”被 `contains("原始依据")` 误识成原始证据，导致本应保留摘要前缀却优先保留尾部。现在只有正式 `MemoryWorkingSet.RECENT`/`EVIDENCE` 和本轮背景依据按新近证据选尾，摘要按既有优先级保留前缀；`67fb99f` 增加摘要/原始证据相反方向的源级回归。
+- **后续独立失败**：[run 41681957195](https://github.com/jiacimu-droid/lulu1/actions/runs/41681957195) 在 `:app:compilePhoneKotlin` 报 `UnifiedMemoryOrchestrator.kt:230 Unresolved reference Instant`；`c678bbf` 仅补 `java.time.Instant` 导入，保留同轮责任时间事实功能。
+- **待验**：上述都是已提交的源码修复，不是通过证明。需查最新同时包含三个提交的 Lulu APK `:app:compilePhoneKotlin`、`:app:testPhoneUnitTest` 和打包结论；并行提交可能取消旧 run。原有江渡唯一新增的亲昵学习对话示例和自动精确匹配升级仍在 `main`；真机模型自然度与监督真实后续均待验。P-08 维持 [ ]。
