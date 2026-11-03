@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:31:21.483255+00:00",
-  "commit": "9713ab1e94e91336df383c18b223c97c9e46cd09",
+  "generatedAt": "2026-11-03T08:31:52.033920+00:00",
+  "commit": "82c5eb64eff9bd14b6d6fb13a5e44c3f68c2c004",
   "branch": "main",
-  "sourceFingerprint": "81378ee4adb06e36aaf1145084ab7ac617ebaa28f38bc4f8b7dbf9b9139e937d",
+  "sourceFingerprint": "ddf42d32706261993746537b9eac647b43fde3ec7c202096f494ba95ca010e42",
   "summary": {
     "files": 1125,
-    "lines": 232176,
+    "lines": 232202,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -2515,7 +2515,7 @@
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 233
+        "line": 234
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2533,7 +2533,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 277
+        "line": 278
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -2543,7 +2543,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 310
+        "line": 311
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
@@ -2557,37 +2557,37 @@
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 321
+        "line": 322
       }
     ],
     "headNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 378
+        "line": 379
       }
     ],
     "bodyNumber": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 388
+        "line": 389
       }
     ],
     "publishLivenessFloor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 488
+        "line": 489
       }
     ],
     "publishUnplannedSpeech": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 509
+        "line": 510
       }
     ],
     "bindSpeechAnchors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 521
+        "line": 522
       }
     ],
     "Model": [
@@ -20015,7 +20015,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
       "lines": 299,
-      "sha256": "88c79266dae6c681f164445279301d968ae83a356ceeb85565cb920ec6907718",
+      "sha256": "685bc80149d01f73faf48c5be8aea37baf233438981dad1050d838d5db03cbc8",
       "symbols": [
         {
           "name": "Entry",
@@ -20203,8 +20203,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 538,
-      "sha256": "b4d24f652328affaef5e0497d53b61ae19a12c4c77e4e1fa89e71085654d5021",
+      "lines": 539,
+      "sha256": "a6fbdc293438a53f8b69530ef388781bc1f1d428ade3611e9c89822cf41ff05c",
       "symbols": [
         {
           "name": "Head",
@@ -20260,39 +20260,39 @@
         },
         {
           "name": "normalized",
-          "line": 233
+          "line": 234
         },
         {
           "name": "publish",
-          "line": 277
+          "line": 278
         },
         {
           "name": "bounded",
-          "line": 310
+          "line": 311
         },
         {
           "name": "boundedBody",
-          "line": 321
+          "line": 322
         },
         {
           "name": "headNumber",
-          "line": 378
+          "line": 379
         },
         {
           "name": "bodyNumber",
-          "line": 388
+          "line": 389
         },
         {
           "name": "publishLivenessFloor",
-          "line": 488
+          "line": 489
         },
         {
           "name": "publishUnplannedSpeech",
-          "line": 509
+          "line": 510
         },
         {
           "name": "bindSpeechAnchors",
-          "line": 521
+          "line": 522
         }
       ]
     },
@@ -36440,8 +36440,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-      "lines": 84,
-      "sha256": "1926ff2dc190002e5021cb28d4239c394f7f956ca4ced623a87ce4bef682e9b1",
+      "lines": 109,
+      "sha256": "e4a5947d6cd4a780872900592dd4b225e5a7cf42b65ccdc635b20dbec3b0c3ce",
       "symbols": [
         {
           "name": "DialogueMoveEngineTest",

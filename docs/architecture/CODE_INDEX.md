@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9713ab1e94e91336df383c18b223c97c9e46cd09`
+- 基准提交：`82c5eb64eff9bd14b6d6fb13a5e44c3f68c2c004`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232176
+- 已索引代码/文本行：232202
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
@@ -181,7 +181,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpokenMotionContract.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchGesture.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 538 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 539 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 631 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
@@ -958,7 +958,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentReflectionGenerationTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActionIdTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldActivityTransitionTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt` | 20 | 1 |
