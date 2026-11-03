@@ -579,7 +579,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = workbenchNear && "rod" !in island.tools && world.wood >= 2 && world.stone >= 1,
                             Modifier.weight(1f)) { perform("craft_rod", world.x, world.y) }
                     }
-                    Text("木斧伐木+2 · 石镐采矿+2 · 石剑伤害4 · 鱼竿可钓鱼",
+                    Text("木斧2木1石（伐木+2） · 石镐2木2石（采矿+2）\n石剑1木3石（伤害4） · 鱼竿2木1石（可钓鱼）",
                         color = Color(0xFFB8D0C9), fontSize = 11.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("篝火或木床旁可以恢复体力", modifier = Modifier.weight(1f),
