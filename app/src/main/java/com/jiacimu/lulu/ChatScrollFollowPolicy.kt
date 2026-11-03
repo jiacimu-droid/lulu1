@@ -5,7 +5,6 @@ internal object ChatScrollFollowPolicy {
     fun shouldFollow(
         initial: Boolean,
         appended: Boolean,
-        keyboardVisible: Boolean,
         autoScroll: Boolean,
         nearEnd: Boolean,
     ): Boolean {
@@ -13,6 +12,6 @@ internal object ChatScrollFollowPolicy {
         // nearEnd would prevent the initial jump in long conversations.
         if (initial) return true
         if (!nearEnd) return false
-        return (autoScroll && appended) || keyboardVisible
+        return autoScroll && appended
     }
 }
