@@ -64,4 +64,36 @@ class PositiveExpressionGuidanceTest {
         assertTrue(casual.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
         assertFalse(casual.contains("逐项回应清单"))
     }
+    @Test fun sharedTurnTakingTreatsOneWordGameMovesAsCompleteAndLeavesOtherTasksOpen() {
+        val prompts = listOf(
+            CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT),
+            CharacterExpressionGuide.forGeneration("聊天表达渲染"),
+            proactiveDecisionInstruction("game-rhythm-contract", directPrivateChat = true),
+        )
+        prompts.forEach { prompt ->
+            assertTrue(prompt.contains("【共同活动的回合感】"))
+            assertTrue(prompt.contains("答案本身就可以是一轮完整的参与"))
+            assertTrue(prompt.contains("下一轮要等真实新输入"))
+            assertTrue(prompt.contains("对方在问规则、讨论策略"))
+            assertTrue(prompt.contains("认真请教、复杂问题、多项需求"))
+            assertFalse(prompt.contains("每条不超过"))
+            assertFalse(prompt.contains("一到三句"))
+        }
+        // The guide is not a user-text keyword classifier or a separate model.
+        assertEquals(
+            CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT),
+            CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT),
+        )
+    }
+
+    @Test fun identityOwnsExpressionAndWorldbookOnlySuppliesCulture() {
+        val plan = CharacterExpressionGuide.forGeneration("普通聊天")
+        val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        assertTrue(plan.contains("世界书提供文化、场景与交流习惯的背景知识"))
+        assertTrue(plan.contains("个人人格"))
+        assertTrue(renderer.contains("内部对照本人的完整分层人格"))
+        assertTrue(renderer.contains("这个核对过程留在内部"))
+        assertFalse(renderer.contains("重新选择行动"))
+    }
+
 }
