@@ -81,4 +81,33 @@ class RelicQuickActionTest {
         assertEquals("attack", relicQuickAction(map, x to y)?.action)
         assertNull(relicQuickAction(map.copy(seen = emptySet()), x to y))
     }
+
+    @Test fun dpadCanOpenAdjacentTreasureWithoutSelectingMapCell() {
+        val base = run()
+        val chest = base.chests.first()
+        val adjacent = RelicEscapeRules.reveal(base.copy(
+            hero = base.hero.copy(x = chest.x - 1, y = chest.y),
+            seen = (0 until base.w * base.h).toSet(),
+            sites = emptyList(),
+        ))
+        val quick = relicNearbyAction(adjacent, 1 to 0)!!
+        assertEquals("open", quick.action)
+        assertEquals(chest.x, quick.x)
+        assertEquals(chest.y, quick.y)
+        val opened = RelicEscapeRules.act(adjacent, quick.action, quick.x, quick.y)
+        assertTrue(opened.chests.first { it.id == chest.id }.opened)
+        assertNotEquals("open", relicNearbyAction(opened, 1 to 0)?.action)
+    }
+
+    @Test fun contextInteractionNeverAutoAttacksEnemyOrActsThroughFog() {
+        val base = run()
+        val h = base.hero
+        val enemy = RelicMob(667, h.x + 1, h.y, 5, 0)
+        val field = base.copy(chests = emptyList(), sites = emptyList(),
+            mobs = listOf(enemy), drops = emptyList())
+        assertNull(relicNearbyAction(field, 1 to 0))
+        assertNull(relicNearbyAction(field.copy(seen = emptySet()), 1 to 0))
+        assertEquals("attack", relicQuickAction(RelicEscapeRules.reveal(field),
+            enemy.x to enemy.y)?.action)
+    }
 }
