@@ -47,16 +47,34 @@ internal object CharacterMessageNotifications {
     fun channelId(context: Context): String {
         val manager = context.getSystemService(NotificationManager::class.java)
         val legacy = manager.getNotificationChannel(LEGACY_CHANNEL)
-        // Android cannot raise an existing default channel's importance. Upgrade the app's old
-        // default, while retaining explicit user choices, including disabled/quiet notifications.
-        val customized = legacy != null && (legacy.importance != NotificationManager.IMPORTANCE_DEFAULT ||
-            (Build.VERSION.SDK_INT >= 29 && legacy.hasUserSetImportance()) ||
-            (Build.VERSION.SDK_INT >= 30 && legacy.hasUserSetSound()))
-        if (customized) return LEGACY_CHANNEL
+        // Android cannot increase an existing channel's importance. An explicit
+        // quiet/importance choice stays on legacy. Changing ONLY the ringtone
+        // does not mean the user opted out of heads-up: migrate to HIGH and
+        // preserve that chosen ringtone instead of silently staying DEFAULT.
+        val userSetImportance = legacy != null && Build.VERSION.SDK_INT >= 29 &&
+            legacy.hasUserSetImportance()
+        val userSetSound = legacy != null && Build.VERSION.SDK_INT >= 30 &&
+            legacy.hasUserSetSound()
+        if (legacy != null && preserveLegacyChannel(
+                legacy.importance, userSetImportance, userSetSound, legacy.sound != null
+            )) return LEGACY_CHANNEL
         manager.createNotificationChannel(NotificationChannel(CHANNEL, "角色聊天消息",
-            NotificationManager.IMPORTANCE_HIGH).apply { enableVibration(true) })
+            NotificationManager.IMPORTANCE_HIGH).apply {
+            description = "角色聊天消息的顶部横幅与提示音"
+            if (userSetSound && legacy != null) {
+                setSound(legacy.sound, legacy.audioAttributes)
+                enableVibration(legacy.shouldVibrate())
+            } else enableVibration(true)
+        })
         return CHANNEL
     }
+
+    /** Only a deliberate importance/silence preference blocks the HIGH migration. */
+    internal fun preserveLegacyChannel(
+        importance: Int, userSetImportance: Boolean, userSetSound: Boolean,
+        hasSound: Boolean,
+    ): Boolean = importance != NotificationManager.IMPORTANCE_DEFAULT ||
+        userSetImportance || (userSetSound && !hasSound)
 
     @Synchronized fun onSaved(context: Context, conversation: LuluConversation, message: LuluChatMessage) {
         if (message.sender != LuluChatMessage.Sender.Character || message.status != LuluChatMessage.Status.Sent ||
