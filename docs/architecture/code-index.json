@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:07:11.528909+00:00",
-  "commit": "ffa59356d906639a5ffc9561b9aebb2caeb9e784",
+  "generatedAt": "2026-11-03T08:13:01.517743+00:00",
+  "commit": "959981f2a58de2c358c44678de6c0fac6fcfa50d",
   "branch": "main",
-  "sourceFingerprint": "47089e2605d4958d1a331bd79a9dd8dd078e2d2798247ab80dc4aa0a2b5a6ca2",
+  "sourceFingerprint": "cabcd66e38936e78c0a4cdae65864f26ee3f253876fd2014f5c44abd66126198",
   "summary": {
     "files": 1125,
-    "lines": 232080,
+    "lines": 232084,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -8167,7 +8167,7 @@
     "planningGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-        "line": 13
+        "line": 16
       }
     ],
     "turns": [
@@ -25784,12 +25784,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
-      "lines": 22,
-      "sha256": "f4aaa86bf7341270e37ebbf48f0b6a2a5d28917513338a01248bb600ef2c90d3",
+      "lines": 26,
+      "sha256": "72c89dba13a1235e939dd4140376ef2d8bbd74ce82c73c2987e9ca5ecc9bb178",
       "symbols": [
         {
           "name": "planningGuidance",
-          "line": 13
+          "line": 16
         }
       ]
     },
