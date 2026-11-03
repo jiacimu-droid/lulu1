@@ -36,14 +36,44 @@ internal object CharacterContinuityRuntime {
         currentUserText: String = "",
         now: Instant = Instant.now(),
     ): Snapshot {
-        val interactions = SharedExperienceTimeline.recentStatementEvents(characterId, now, 160)
-            .filter {
-                it.evidenceKind == EventEvidenceKind.UserStatement ||
-                    TimelineStatementOwnership.isOwnCharacterStatement(it)
+        // The first 160 statement rows can all be group witnesses of other
+        // characters. Filter ownership before choosing the last real exchange;
+        // otherwise a busy group silently erases the role's actual prior words.
+        val firstPage = SharedExperienceTimeline.recentStatementEvents(characterId, now, 160)
+        val newestFirst = firstPage.asReversed()
+        var lastUser: SharedTimelineEvent? = null
+        var lastOwn: SharedTimelineEvent? = null
+        var previous: SharedTimelineEvent? = null
+        fun absorb(page: List<SharedTimelineEvent>) {
+            for (event in page) {
+                if (isCurrentInputEcho(event, currentUserText, now)) continue
+                if (event.evidenceKind == EventEvidenceKind.UserStatement) {
+                    if (lastUser == null) lastUser = event
+                    if (previous == null && TimelineStatementOwnership.involvesUser(event))
+                        previous = event
+                } else if (TimelineStatementOwnership.isOwnCharacterStatement(event)) {
+                    if (lastOwn == null) lastOwn = event
+                    if (previous == null && TimelineStatementOwnership.involvesUser(event))
+                        previous = event
+                }
             }
-            .filter { !it.occurredAt.isAfter(now) }
-            .filterNot { isCurrentInputEcho(it, currentUserText, now) }
-        val previous = interactions.lastOrNull { TimelineStatementOwnership.involvesUser(it) }
+        }
+        absorb(newestFirst)
+        var cursor = newestFirst.lastOrNull()
+        // Bounded read-only fallback, only for an unusually busy shared group.
+        // No extra model call or duplicate timeline store.
+        repeat(12) {
+            if (cursor == null || (lastUser != null && lastOwn != null && previous != null))
+                return@repeat
+            val page = SharedExperienceTimeline.statementPageBefore(
+                characterId, now, cursor!!.occurredAt, cursor!!.id, 160)
+            if (page.isEmpty()) {
+                cursor = null
+                return@repeat
+            }
+            absorb(page)
+            cursor = if (page.size < 160) null else page.last()
+        }
         val minutes = previous?.occurredAt?.let {
             Duration.between(it, now).toMinutes().coerceAtLeast(0L)
         }
@@ -56,8 +86,8 @@ internal object CharacterContinuityRuntime {
         return Snapshot(
             previousInteractionAt = previous?.occurredAt,
             minutesSinceInteraction = minutes,
-            lastUserStatement = interactions.lastOrNull { it.evidenceKind == EventEvidenceKind.UserStatement },
-            lastCharacterStatement = interactions.lastOrNull { it.evidenceKind == EventEvidenceKind.CharacterStatement },
+            lastUserStatement = lastUser,
+            lastCharacterStatement = lastOwn,
             preferredAddress = CharacterAddressPreference.currentAddress(characterId),
             addressIsManual = social.optBoolean("preferredAddressManual", false),
             activeMotiveAims = aims,
