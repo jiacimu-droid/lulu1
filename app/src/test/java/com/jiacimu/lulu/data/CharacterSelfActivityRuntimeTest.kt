@@ -64,6 +64,41 @@ class CharacterSelfActivityRuntimeTest {
         assertEquals(900, game.args.getInt("targetScore"))
     }
 
+    @Test fun invitationIsTheCharactersExplicitChoiceAndUsesTheExistingChatTool() {
+        val game = JSONObject().put("stage", "decided").put("action", "game_invite")
+            .put("gameId", "block_island").put("text", "嘿，来我的小岛一起造房子？")
+            .put("whyNow", "想找她一起建东西")
+        val parsed = CharacterSelfActivityRuntime.parse(game, emptySet(), false)!!
+        assertEquals("send_game_invite", parsed.tool)
+        assertEquals("block_island", parsed.args.getString("gameId"))
+        assertEquals("嘿，来我的小岛一起造房子？", parsed.args.getString("text"))
+        // The invitation catalogue is wider than the two games supported offscreen.
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("action", "solo_game"), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("gameId", "invented_game"), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("text", ""), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(game.toString()).put("stage", "considering"), emptySet(), false))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject().put("action", "game_invite").put("gameId", "block_island")
+                .put("text", "没有明确决定"), emptySet(), false))
+    }
+
+    @Test fun invitationReceiptResolvesOnlyAnInvitationIdea() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        val role = "game-invite-consideration"
+        val idea = JSONObject().put("stage", "considering").put("action", "game_invite")
+            .put("whyNow", "想和她一起玩").put("createdAt", System.currentTimeMillis())
+        prefs.edit().putString("considering:$role", idea.toString()).commit()
+        CharacterSelfActivityRuntime.resolveConsideration(context, role, "play_solo_game")
+        assertNotNull(CharacterSelfActivityRuntime.latestConsideration(context, role))
+        CharacterSelfActivityRuntime.resolveConsideration(context, role, "send_game_invite")
+        assertNull(CharacterSelfActivityRuntime.latestConsideration(context, role))
+    }
+
     @Test fun realReceiptConsumesOnlyTheMatchingConsideration() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
