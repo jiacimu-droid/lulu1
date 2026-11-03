@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:15:50.897224+00:00",
+  "generatedAt": "2026-11-03T04:19:58.029693+00:00",
   "commit": "local",
   "branch": "local",
-  "sourceFingerprint": "82c397d0e664e3731c8631611a2598cfe72c01db40356609f07c2d85d05a8e1b",
+  "sourceFingerprint": "d4d7591d9bcba7047edd5d284bfcb7f60d11ec5a6d5aa67a0f0b2d60ddff2e83",
   "summary": {
     "files": 1123,
-    "lines": 230841,
+    "lines": 230853,
     "symbols": 3245
   },
   "symbolIndex": {
@@ -15851,7 +15851,7 @@
     "CharacterConversationAgencyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt",
-        "line": 13
+        "line": 15
       }
     ],
     "CharacterCreatedGroupTest": [
@@ -35432,12 +35432,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt",
-      "lines": 87,
-      "sha256": "88cc060fb1635513ee9475ea7deffb93409072578076a5bdaaf13a78df8aaba0",
+      "lines": 99,
+      "sha256": "4e431ca17b83e4cd8ef457a59a678f1ef90c32adbb33f667d819ba0f5dfc7af8",
       "symbols": [
         {
           "name": "CharacterConversationAgencyTest",
-          "line": 13
+          "line": 15
         }
       ]
     },

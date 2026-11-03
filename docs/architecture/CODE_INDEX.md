@@ -3,7 +3,7 @@
 - 基准提交：`local`
 - 分支：`local`
 - 已索引文件：1123
-- 已索引代码/文本行：230841
+- 已索引代码/文本行：230853
 - 已发现符号：3245
 
 | 文件 | 行数 | 符号数 |
@@ -892,7 +892,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt` | 1038 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 87 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCreatedGroupTest.kt` | 131 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 806 | 1 |

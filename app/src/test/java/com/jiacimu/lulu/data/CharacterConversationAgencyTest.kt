@@ -3,6 +3,8 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -11,6 +13,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterConversationAgencyTest {
+    @Before fun before() { MemoryTestEnvironment.release() }
+    @After fun after() { MemoryTestEnvironment.release() }
     @Test fun planningAloneDoesNotRecordDeliveredSpeechAndRepeatedPlaybackReceiptDoesNotDuplicate() {
         val context = RuntimeEnvironment.getApplication()
         val role = "agency-delivery-test"
@@ -38,18 +42,26 @@ class CharacterConversationAgencyTest {
     @Test fun groupMessageUsesMemberSpecificEvidenceForDeliveredEffects() {
         val context = RuntimeEnvironment.getApplication()
         val role = "agency-group-evidence-test"
+        val other = "agency-group-other-speaker"
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
         SharedExperienceTimeline.initialize(context)
         CharacterInnerLifeStore.initialize(context)
         CharacterInnerLifeStore.clear(role)
-        SharedExperienceTimeline.record("group-msg-1:group:$role", role, "群聊·朋友",
-            "角色", "发现一个有趣的想法", triggerExtraction = false, source = "message",
-            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val group = MigratedDomainStores.chat.createGroupConversation("朋友", listOf(role, other))
+        val peer = MigratedDomainStores.chat.appendCharacterMessage(group.id, "别人的想法", other)
         val receipt = CharacterConversationAgency.receipt("", "想和大家分享", "", "", null, "")
-        CharacterConversationAgency.delivered(role, receipt, "group-msg-1", "发现一个有趣的想法")
+        CharacterConversationAgency.delivered(role, receipt, peer.id, peer.content)
+        assertNull(CharacterInnerLifeStore.snapshot(role).optJSONArray("decisions"))
+        val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "发现一个有趣的想法", role)
+        CharacterConversationAgency.delivered(role, receipt, own.id, own.content)
+        CharacterConversationAgency.delivered(role, receipt, own.id, own.content)
         val trace = CharacterInnerLifeStore.snapshot(role).optJSONArray("decisions")
         assertEquals(1, trace?.length())
-        assertEquals("group-msg-1:group:$role", trace?.getJSONObject(0)?.optString("signature"))
-        SharedExperienceTimeline.deleteEvent("group-msg-1:group:$role")
+        assertEquals("${own.id}:group:$role", trace?.getJSONObject(0)?.optString("signature"))
+        SharedExperienceTimeline.deleteEvent("${own.id}:group:$role")
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role).getJSONArray("decisions").length())
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf("${peer.id}:group:$role")).isNotEmpty())
         CharacterInnerLifeStore.clear(role)
     }
 
