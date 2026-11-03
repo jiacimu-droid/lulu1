@@ -1266,6 +1266,7 @@ object LuluDeviceToolBridge {
                     requestId = chatSilentRequestId,
                     intentionId = plan.intentionId, userText = userText,
                     userEvidenceIds = userEvidenceIds.toSet(),
+                    turnTraceId = turnTraceId,
                 )
                 if (chatSilentHasSteps) {
                     com.jiacimu.lulu.data.CharacterInnerLifeStore.completeDecision(
@@ -1559,9 +1560,17 @@ object LuluDeviceToolBridge {
                 executionHasPrimary = true, executionState = "pending",
             )
         }
+        // Tool metadata belongs to the current executor turn, not to an
+        // untrusted model-authored request body. It is diagnostic only.
+        val actualToolArgs = if (plan.tool in setOf("send_private_message", "send_group_message"))
+            JSONObject(plan.args.toString()).apply {
+                remove("_turnTraceId")
+                put("_turnTraceId", turnTraceId)
+            }
+        else plan.args
         val toolResult = if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
             directXhsResult // The same real receipt: no second navigation/search.
-        } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
+        } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, actualToolArgs,
             requestId = requestId,
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId,
             learningApplication = plan.learningApplication,
