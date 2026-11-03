@@ -10,6 +10,36 @@ class MemoryEvidenceSelectionTest {
         SharedTimelineEvent(id, role, "见面", "用户", "原始内容$id".repeat(15), at.plusSeconds(seconds),
             sessionId = session, evidenceKind = EventEvidenceKind.UserStatement)
 
+    @Test fun compactRecallUsesExactRevisedMiddleRangeWithoutInventingContinuity() {
+        val long = "起始说明".repeat(150) + "普通经历".repeat(380) +
+            "只在星期三联系，其他时间不要打电话" + "后续记录".repeat(400)
+        val source = event("long").copy(content = long, revision = 7)
+        val focus = "星期三联系"
+        val span = OriginalEvidenceSpans.ranked(long, focus).first()
+        assertTrue(span.start > 0)
+        assertTrue(span.text.contains("只在星期三联系，其他时间不要打电话"))
+        val compact = MemoryEvidenceSelection.render(listOf(source), 1_450, focus)
+        assertTrue(compact.text.contains("只在星期三联系，其他时间不要打电话"))
+        assertTrue(compact.text.contains("eventId=long@7"))
+        assertTrue(compact.text.contains("其余未注入"))
+        assertEquals(listOf("long"), compact.truncatedIds)
+        val corrected = source.copy(revision = 8,
+            content = long.replace("只在星期三联系，其他时间不要打电话", "允许周四再讨论"))
+        val newer = MemoryEvidenceSelection.render(listOf(corrected), 1_450, "周四再讨论")
+        assertTrue(newer.text.contains("eventId=long@8"))
+        assertTrue(newer.text.contains("允许周四再讨论"))
+        assertFalse(newer.text.contains("只在星期三联系"))
+    }
+
+    @Test fun missingFocusStillPreservesMiddleAndEndAsSearchableSourceSpans() {
+        val content = "甲".repeat(2_000) + "中段不可忽略" + "乙".repeat(2_000)
+        val spans = OriginalEvidenceSpans.ranked(content, "", maxSpans = 5)
+        assertEquals(0, spans.first().start)
+        assertTrue(spans.any { it.text.contains("中段不可忽略") })
+        assertEquals(content.length, spans.last().endExclusive)
+        assertTrue(spans.all { content.substring(it.start, it.endExclusive) == it.text })
+    }
+
     @Test fun evidenceNeighborsPreserveBeforeAndAfterButCannotCrossSessionsOrOwners() {
         val before = event("before", -10)
         val hit = event("hit")

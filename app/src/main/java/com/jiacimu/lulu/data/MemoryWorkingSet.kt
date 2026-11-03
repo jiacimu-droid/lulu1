@@ -30,19 +30,28 @@ internal object MemoryWorkingSet {
                 context.ownedRecentEvents + context.ownedSourceEvents)
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
                 val content = event.evidenceContent.trim()
-                // A 1,200-character preview used to hide useful details even
-                // when the unified memory budget had room. Allow a fuller
-                // view without changing the durable original event.
-                val complete = content.length <= 3_000
-                val shown = if (complete) content else
-                    content.take(2_200) +
-                        "\n【原始事件过长：中段未注入，请凭 eventId 查原始时间线；前后内容不能直接视为连续】\n" +
-                        content.takeLast(650)
-                add(MemoryPromptCandidate("${if (recent) "recent" else "event"}:${event.id}",
-                    if (recent) RECENT else EVIDENCE,
-                    "- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}] eventId=${event.id}@${event.revision} ${event.speaker}${episodeHints[event.id].orEmpty()}：$shown",
-                    if (recent) 950 else 800, payload = content, sources = setOf(event.id),
-                    originalEvidence = complete))
+                val section = if (recent) RECENT else EVIDENCE
+                val basePriority = if (recent) 950 else 800
+                val identity = (if (recent) "recent:" else "event:") + event.id
+                OriginalEvidenceSpans.ranked(content, context.retrievalFocus).forEach { span ->
+                    val complete = span.start == 0 && span.endExclusive == content.length
+                    val range = if (complete) "" else "【原文片段字符" +
+                        (span.start + 1) + "-" + span.endExclusive + "/" + content.length +
+                        "；其余未注入，不能把不同片段视为连续原话】"
+                    add(MemoryPromptCandidate(
+                        if (complete) identity else identity + "@" + event.revision +
+                            ":" + span.start + "-" + span.endExclusive,
+                        section,
+                        "- [" + event.occurredAt + "] [" + event.channel + "] [" +
+                            event.evidenceKind + "] eventId=" + event.id + "@" + event.revision +
+                            " " + event.speaker + episodeHints[event.id].orEmpty() + "：" +
+                            range + span.text,
+                        basePriority + span.relevance.coerceAtMost(12) * 8 +
+                            if (span.start == 0) 4 else 0,
+                        payload = span.text, sources = setOf(event.id),
+                        originalEvidence = complete,
+                    ))
+                }
             }
             // Reverse only the working view: recent corrections must win budget pressure.
             // A recalled event may also be inside the recent window. Keep the

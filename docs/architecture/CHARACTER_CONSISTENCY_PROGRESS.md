@@ -217,3 +217,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 下轮入口：核实 P-04 的 CI，并优先继续 P-05 长记忆中段完整含义与 P-08 后台自主感知的原目标→真实回执交接，避免重做已有 P-01/P-02。
 
 - 本轮提交证据：实际功能/测试/接力大纲提交 [`e6f423d`](https://github.com/jiacimu-droid/lulu1/commit/e6f423d90e67b8862cf2e26b6c0fae00a45b432c)，修复提交 [`ba1b161`](https://github.com/jiacimu-droid/lulu1/commit/ba1b161d3b98ac35e849875751fcc93e86b9f3e7)。后继索引 run [41588367622](https://github.com/jiacimu-droid/lulu1/actions/runs/41588367622) completed/success，已按原生成器刷新 `CODE_INDEX.md` 和 `code-index.json`（索引基准 `ba1b161`）；对应 Android APK run [41588367637](https://github.com/jiacimu-droid/lulu1/actions/runs/41588367637) 后来被后继 main 新构建替换而 cancelled；不是构建成功或失败，仍须核实包含本修复的后继完整 CI，不能打勾或宣称 APK 成功。P-04 保持 `[ ]`，待该层真实结果。
+
+
+## 2026-11-03 接力续轮：P-05 长原始记忆中段证据（本轮源码候选，尚未 APK/真机验收）
+
+- 根因：完整网关 MemoryWorkingSet 在大于 3000 字时固定只传首 2200/末 650，紧凑网关 MemoryEvidenceSelection 固定只保留约 1200 字前缀；它们都在原有事件被检索后、本人判断前遗漏中部否定、条件及后续修订，不是长期时间线丢数据。
+- 实现：新增只读 OriginalEvidenceSpans，沿正式 UnifiedMemoryContext.retrievalFocus 复用当前输入/任务语境中的检索词，仅用于原始片段排序，绝不推断主人意图或代选动作。长事件保留精确字符区间、eventId@revision、说话者、来源种类和缺段提示；首/中/尾作为无相关词时的回退候选，原始持久记录不动。完整工作集按现有类别/总预算选择分段，未纳入的范围留在原时间线且有分段 omitted ID；紧凑入口对长事件选当前最相关的一段并明确其范围，不再只看无标记开头。无新增模型费用或存储权威。
+- 补源级单测：超过旧截断阈值的中部“未确认不得执行”、事件 revision 变化、紧凑版精确中段与缺段标记、无检索焦点时首中尾候选及原文 offset 恒等。单测/Android CI、索引与 APK 必须以实际提交后的 workflow 为准；已有 P-04 的旧取消 run 不能充作通过。
+- 尚未声称实现：完整自然语言指代消歧、把任意长消息一次全塞进模型、独立范围读取工具、所有场景真机召回正确性或 M2/M3 结构化查询。下一步核对 P-05 CI 与旧源撤回回归，再继续 P-08 后台感知→动作→真实回执跟进。

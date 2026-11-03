@@ -42,6 +42,8 @@ data class UnifiedMemoryContext(
     val inspectionId: String = "",
     /** A learned understanding is part of this person's memory, not a second biography. */
     val understandingContext: String = "",
+    /** Literal retrieval focus only; never a second interpretation of the user. */
+    val retrievalFocus: String = "",
 ) {
     // A context object is also passed between scenes and low-budget renderers.
     // Never trust the incoming lists as already scoped: even if an adapter
@@ -80,12 +82,12 @@ data class UnifiedMemoryContext(
 
     private fun evidenceRendered(budget: Int = evidenceCharacterBudget): RenderedMemorySection {
         val header = "召回记忆对应的原始时间线证据：\n事实、措辞和时间以这些原始记录为准；摘要只用于检索。\n"
-        val rendered = MemoryEvidenceSelection.render(ownedSourceEvents, (budget - header.length).coerceAtLeast(0))
+        val rendered = MemoryEvidenceSelection.render(ownedSourceEvents, (budget - header.length).coerceAtLeast(0), retrievalFocus)
         return if (rendered.text.isBlank()) rendered else rendered.copy(text = header + rendered.text)
     }
 
     private fun recentRendered(budget: Int = recentCharacterBudget): RenderedMemorySection =
-        MemoryEvidenceSelection.render(ownedRecentEvents.asReversed(), budget)
+        MemoryEvidenceSelection.render(ownedRecentEvents.asReversed(), budget, retrievalFocus)
 
     val sourceEvidence: String get() = evidenceRendered().text
     val recentTimeline: String get() = listOf(activeTaskContext, recentRendered().text)
@@ -191,6 +193,7 @@ object UnifiedMemoryOrchestrator {
             recentCharacterBudget = recentCharacterBudget,
             characterId = characterId,
             inspectionId = inspectionId,
+            retrievalFocus = request.currentInput.ifBlank { request.taskIntent.ifBlank { query } },
             understandingContext = CharacterLearningLedger.context(characterId, query,
                 compact = memoryCharacterBudget < 6_000),
         )

@@ -4,6 +4,35 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MemoryWorkingSetPolicyTest {
+    @Test fun longMiddleConditionIsInjectedAsSourcedRangeInsteadOfHeadTailPreview() {
+        val original = "开头".repeat(600) + "没说完".repeat(350) +
+            "只有用户确认后才能执行，未确认绝对不要发送" + "结尾".repeat(750)
+        val event = SharedTimelineEvent("source-100", "owner", "私聊", "用户", original,
+            java.time.Instant.parse("2026-11-03T00:00:00Z"), revision = 4,
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val context = UnifiedMemoryContext(characterId = "owner", sourceEvents = listOf(event),
+            retrievalFocus = "用户确认后才能执行")
+        val budget = PromptContextBudget(26, 2_000, 5_000, 3_800, false, false,
+            0, false, workingSetCharacters = 7_000)
+        val selection = MemoryWorkingSet.assemble(context, emptyList(), emptyList(), budget, "")
+        val text = selection.sections.values.joinToString("\n")
+        assertTrue(text.contains("只有用户确认后才能执行，未确认绝对不要发送"))
+        assertTrue(text.contains("eventId=source-100@4"))
+        assertTrue(text.contains("原文片段字符"))
+        assertTrue(selection.selected.any { it.startsWith("event:source-100@4:") })
+        assertTrue(selection.usedCharacters <= selection.budget)
+        val changed = event.copy(revision = 5,
+            content = original.replace("只有用户确认后才能执行，未确认绝对不要发送",
+                "用户已确认周五执行"))
+        val updated = MemoryWorkingSet.assemble(
+            context.copy(sourceEvents = listOf(changed), retrievalFocus = "周五执行"),
+            emptyList(), emptyList(), budget, "")
+        val updatedText = updated.sections.values.joinToString("\n")
+        assertTrue(updatedText.contains("用户已确认周五执行"))
+        assertFalse(updatedText.contains("未确认绝对不要发送"))
+        assertTrue(updatedText.contains("eventId=source-100@5"))
+    }
+
     @Test fun budgetCannotSeparateAnOldInterpretationFromItsTimeAndUncertainty() {
         val old = "【过去的主观判断｜不代表此刻事实】\n" +
             "曾经猜测她不希望被联系。\n" +
