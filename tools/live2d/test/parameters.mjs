@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
-import { kissCameraFrame, kissFaceFrame, KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
+import {
+  kissCameraFrame, kissFaceFrame, kissCameraHorizontalPosition,
+  kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
+  KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
+} from '../src/kiss-camera.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
@@ -126,6 +130,39 @@ assert.ok(kissFaceFrame(3100).face.eyeOpen > .85, 'eyes reopen on withdrawal')
 assert.ok(kissFaceFrame(3100).face.pout < .09, 'lips relax before the camera exits')
 assert.ok(Math.abs(kissCameraFrame(3349).zoom - 1) < .005,
   'camera must not cut back in its last rendered frame')
+
+// The wolf's screen-space lips are slightly right of the model pivot. When
+// zoomed 2.26x, the lip center must end up at viewport X=50%, not farther
+// right. On withdrawal the exact same transform returns to baseline.
+const cameraBase = { x: 350, y: 600, width: 700, scale: 2 }
+const mouthOffset = kissMouthLocalOffsetX(cameraBase, null, null)
+assert.ok(mouthOffset > 0, 'lips are not assumed to equal the torso pivot')
+const projectedLipX = (base, zoom, localOffset) =>
+  kissCameraHorizontalPosition(base, zoom, localOffset) +
+  zoom * base.scale * localOffset
+assert.equal(kissCameraHorizontalPosition(cameraBase, 1, mouthOffset), 350,
+  'ordinary framing is unchanged before and after the kiss')
+assert.ok(Math.abs(projectedLipX(cameraBase, KISS_CAMERA_PEAK_ZOOM,
+  mouthOffset) - 350) < .001, 'lips align to the screen center at contact')
+for (const fraction of [.2, .5, .8]) {
+  const zoom = 1 + fraction * (KISS_CAMERA_PEAK_ZOOM - 1)
+  const initialMouth = cameraBase.x + cameraBase.scale * mouthOffset
+  assert.ok(Math.abs(projectedLipX(cameraBase, zoom, mouthOffset) -
+    (initialMouth + fraction * (350 - initialMouth))) < .001,
+    'the mouth slides continuously with zoom rather than snapping')
+}
+const calibratedOffset = kissMouthLocalOffsetX(cameraBase,
+  { x: 140, width: 500 }, { u: .62 })
+assert.ok(Math.abs(calibratedOffset - 50) < .001,
+  'manual mouth calibration overrides the estimated offset')
+assert.ok(Math.abs(projectedLipX(cameraBase, KISS_CAMERA_PEAK_ZOOM,
+  calibratedOffset) - 350) < .001, 'calibrated mouth reaches exact screen center')
+const resizedBase = { ...cameraBase, width: 1000, x: 500, scale: 2.7 }
+assert.ok(Math.abs(projectedLipX(resizedBase, KISS_CAMERA_PEAK_ZOOM,
+  calibratedOffset) - 500) < .001, 'resizing preserves the model-local anchor')
+assert.equal(kissCameraHorizontalPosition(cameraBase, 1, calibratedOffset), 350)
+assert.ok(Number.isFinite(kissMouthLocalOffsetX(cameraBase, null, { u: 2 })),
+  'invalid calibration safely falls back')
 
 // A finished body motion keeps its last real rendered pose through the next
 // idle frame, then returns smoothly. Entrance and exit operate on opposite
