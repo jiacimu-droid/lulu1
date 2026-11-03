@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5b227a9503ce16daa06fecf0192a319d583f5c86`
+- 基准提交：`48ab4a4d6091a379d1217c8387908d277bf1e3e3`
 - 分支：`main`
 - 已索引文件：1124
-- 已索引代码/文本行：231627
+- 已索引代码/文本行：231629
 - 已发现符号：3249
 
 | 文件 | 行数 | 符号数 |
@@ -640,7 +640,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandArt.kt` | 675 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 665 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 948 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 950 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 605 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 813 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
