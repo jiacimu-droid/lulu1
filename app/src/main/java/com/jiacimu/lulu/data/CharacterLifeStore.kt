@@ -110,6 +110,8 @@ object CharacterLifeStore {
             var updated = false
             val existingExamples = profile.optString("dialogueExamples")
             if (!profile.has("dialogueExamples") ||
+                (id == BUNDLED_JIANG_DU_ID &&
+                    existingExamples == CharacterProfileSchema.jiangDuDialogueExamplesV24) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
                     CharacterProfileSchema.xingHeDialogueExamplesV2))) {
@@ -734,6 +736,15 @@ object CharacterLifeStore {
             val stock = CharacterProfileSchema.jiangDuV23Overrides[key]
                 ?: CharacterProfileSchema.jiangDuV22Overrides[key]
             if (!profile.has(key) || previous == stock) profile.put(key, value)
+        }
+        // v25: improve only Jiang Du's untouched personality defaults. This
+        // supplies a disposition, not a new hardcoded rule that sends messages
+        // or overrides his decision. User-edited and blank fields remain intact.
+        CharacterProfileSchema.jiangDuV25Overrides.forEach { (key, value) ->
+            if (!profile.has(key) ||
+                profile.optString(key) == CharacterProfileSchema.jiangDuV24Overrides[key]) {
+                profile.put(key, value)
+            }
         }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
