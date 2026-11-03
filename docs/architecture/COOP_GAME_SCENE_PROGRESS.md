@@ -83,3 +83,11 @@
 - 旧 #7393 原日志表明 `:app:compileDebugKotlin`、`:app:compileDebugUnitTestKotlin` 均通过，随后在 `:app:testDebugUnitTest` 无输出长时间滞留，直到取消；卡住的具体测试尚未可证实定位。为排查此类无输出挂起，已在现有 `app/build.gradle.kts` 的 `unitTests.all` 添加 Gradle `testLogging.events("started", "failed")`（`3d6cc7b`），不跳过任何测试，未来运行日志可以看到进入哪条测试。
 - `release.yml` 后续同日提交采用按 `github.event_name` 分开的手动/自动并发组；保留 `cancel-in-progress: false` 和已增加的 65 分钟整任务、40 分钟编译测试步骤上限。手动请求不必等待旧 push 构建释放通道，但可能与自动构建并发消耗两个 runner；不认定并发本身造成代码错误。
 - 最近检查：#7441（完整两处 Kotlin 修复及超时配置）正在 `Test and build phone APK`；#7443 同样正在该步骤；#7447 是更新后 `main` 的待运行自动构建。三轮截至此处**均无成功 APK 和 Release 证据**，旧失败/取消不算通过。后续看最新完整成功运行的 Gradle 测试、APK 校验与产物并按证据更新进度。
+
+
+### 2026-11-03：#7441／#7443 失败归因与 Wolf 咯咯笑测试修复
+
+- 核验完整 GitHub Actions 失败日志：#7441（run 41598258805）和 #7443（run 41598389134）均已通过此前的 Kotlin 编译环节，并在 `:app:testDebugUnitTest` 的 2291 项测试里仅有一项失败：`Live2DMotionCatalogTest.describeNamesWolfMotionsAndPassesOthersThrough`。
+- 精确差异：第 19 号 LuluWolf “咯咯笑”动作已经从机械左右晃动改成下巴轻点、肩膀随后细颤，生产目录 `Live2DMotionCatalog.kt` 反映主人希望的自然轻颤，但 `Live2DMotionCatalogTest.kt` 仍断言旧动作说明。此前修复 Kotlin 触控与 State 编译问题本轮已经得到进阶验证。
+- 已按**现行真实动作契约**更新正式测试对第 19 号动作的精确预期值，保留第 20 号难过动作、目录覆盖与全部测试；不还原旧机械摇晃，不跳过或放宽测试。源码提交：`3c00ae39bbdc856f2c9023de6214e8fa5769e67c`。
+- 此提交自动触发 Lulu APK #7448（run 41599481697）；检查时尚为 pending（之前的 #7447 在 in_progress）。**尚无 #7448 的新测试、APK 收集和 Release 成功结果**；不能将“已修好一项确定失败”标为 APK 已完成。后续以 #7448 或更晚**包含该源码提交**的完整 Actions 成功、实际 APK 与真机体验为验收依据。
