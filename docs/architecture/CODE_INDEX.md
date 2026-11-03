@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`local`
-- 分支：`local`
+- 基准提交：`49823bca8d4602e77e99b55542e6dc28cae8c484`
+- 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：231197
+- 已索引代码/文本行：231282
 - 已发现符号：3249
 
 | 文件 | 行数 | 符号数 |
@@ -31,7 +31,7 @@
 | `app/src/main/assets/live2d/wolf-motions/16_curiosity_bob.motion3.json` | 199 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/17_happy_bounce.motion3.json` | 234 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json` | 248 | 0 |
-| `app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json` | 156 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json` | 241 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/20_sad_droop.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/21_proud_chest.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/22_shy_turn_away.motion3.json` | 107 | 0 |

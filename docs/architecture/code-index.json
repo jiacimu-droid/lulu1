@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:52:52.245409+00:00",
-  "commit": "local",
-  "branch": "local",
-  "sourceFingerprint": "1cc9582c8290f7c09796f56ec87b8775ee1881ef0dc39bf04a7fad34e2469cb7",
+  "generatedAt": "2026-11-03T05:30:47.495474+00:00",
+  "commit": "49823bca8d4602e77e99b55542e6dc28cae8c484",
+  "branch": "main",
+  "sourceFingerprint": "bfc5dc1edac4c2bbc555ddfb126958ba92cceb4372c44f86135ed13e16be7cab",
   "summary": {
     "files": 1125,
-    "lines": 231197,
+    "lines": 231282,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -18282,8 +18282,8 @@
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json",
-      "lines": 156,
-      "sha256": "64d4c68135bddaf1fd545e7feeeffa383794d7a402b3b5c3b5cafd178307e602",
+      "lines": 241,
+      "sha256": "2378e7d5822843bfcfe5e4afff6507664ea17094068c6026c55acbe2516bd25c",
       "symbols": []
     },
     {
