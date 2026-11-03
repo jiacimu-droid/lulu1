@@ -461,7 +461,7 @@ internal object ResidentDailyDecision {
         }
     }
 
-    private const val MAX_AGENDA_ITEMS = 8
+    private const val MAX_AGENDA_ITEMS = ResidentDailyPolicy.MAX_AGENDA_ITEMS
     private const val MAX_MESSAGE = 500
     private const val MAX_SAVED_DECISION_RECOVERIES = 2
     // A rejected, non-generated request may be retried ONCE only after the
@@ -711,6 +711,7 @@ internal object ResidentDailyDecision {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
         val known = ResidentSocialMailbox.visibleContacts(actor).toSet()
+        val agendaLimit = ResidentDailyPolicy.maxAgendaItems(context)
         val saved = mutableListOf<RoleDayPlan>()
         val decisionId = "native-daily-${native.id}-${date(at)}"
         fun reject(index: Int, row: JSONObject?, reason: String) {
@@ -751,8 +752,8 @@ internal object ResidentDailyDecision {
             if (SharedExperienceTimeline.hasRecordedOrWithdrawnEvent(
                     "$decisionId-agenda-rejected-$index")) continue
             val row = agenda.optJSONObject(index)
-            if (index >= MAX_AGENDA_ITEMS) {
-                reject(index, row, "超过本次每日规划的${MAX_AGENDA_ITEMS}项排程上限")
+            if (index >= agendaLimit) {
+                reject(index, row, "超过主人设置的每位居民每日${agendaLimit}项排程上限")
                 continue
             }
             if (row == null) {
@@ -1053,10 +1054,11 @@ internal object ResidentDailyDecision {
         return null
     }
 
-    private fun agendaContractError(agenda: JSONArray?, at: Instant): String? {
+    private fun agendaContractError(agenda: JSONArray?, at: Instant, maxAgendaItems: Int): String? {
         if (agenda == null) return null
-        if (agenda.length() > MAX_AGENDA_ITEMS)
-            return "agenda 最多包含 ${MAX_AGENDA_ITEMS} 项，不能悄悄截断本人选择"
+        val limit = maxAgendaItems.coerceIn(0, MAX_AGENDA_ITEMS)
+        if (agenda.length() > limit)
+            return "agenda 最多包含 ${limit} 项（主人统一设置），不能悄悄截断本人选择"
         for (index in 0 until agenda.length()) {
             val row = agenda.optJSONObject(index)
                 ?: return "agenda[${index}] 必须是日程对象"
@@ -1132,7 +1134,8 @@ internal object ResidentDailyDecision {
         return null
     }
 
-    internal fun dayContractError(choice: JSONObject?, at: Instant = Instant.now()): String? {
+    internal fun dayContractError(choice: JSONObject?, at: Instant = Instant.now(),
+        maxAgendaItems: Int = MAX_AGENDA_ITEMS): String? {
         if (choice == null) return "没有可解析的 JSON 对象"
         if (allowedLeisureLocation(choice.optString("lunch")) == null ||
             allowedLeisureLocation(choice.optString("evening")) == null)
@@ -1161,7 +1164,7 @@ internal object ResidentDailyDecision {
             return "agenda 不是数组"
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
             return "steps 不是数组"
-        agendaContractError(choice.optJSONArray("agenda"), at)?.let { return it }
+        agendaContractError(choice.optJSONArray("agenda"), at, maxAgendaItems)?.let { return it }
         residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
         return null
     }
@@ -1735,6 +1738,7 @@ internal object ResidentDailyDecision {
         ScopedModelSelections.initialize(app)
         val today = date(now)
         val p = prefs(app)
+        val agendaLimit = ResidentDailyPolicy.maxAgendaItems(app)
         val decisionKey = dayDecisionKey(native.id, today)
         val phaseKey = dayPhaseKey(native.id, today)
         val recoveriesKey = dayRecoveriesKey(native.id, today)
@@ -1786,10 +1790,13 @@ internal object ResidentDailyDecision {
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
-                agenda 最多${MAX_AGENDA_ITEMS}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
+                今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
+                agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
                 可用：send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
+                各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
+                与熟人聊天并不要求去同一个地点：真实私信与群聊可以发生在本人当下所在的任何地方；只有实体偶遇和当面交谈才需要核实同场在场。遇到有意思的现实来信、此前没聊完的事、共同兴趣或者单纯想分享时，可以由本人考虑主动发一句；没有想说的也可以不发。不要把所有社交压缩成咖啡馆偶遇。
                 如果计划中午/傍晚到咖啡角，你可以为这两个时段分别决定点现有咖啡角菜单中的什么，或不点。cafeOrderLunch/cafeOrderEvening 选择 none 或 ${DigitalCafeMenu.offerings.joinToString("|") { it.id }}。
                 这只是本人预先选择的日常生活动作，只有届时真的身在咖啡角且有店员时才会尝试执行；不到店、没库存或执行失败不能伪造消费。
                 饥饿和口渴仅供自己判断；程序不能据此替你选吃喝。旧日程没有这两个字段时不会自动购买。
@@ -1826,7 +1833,7 @@ internal object ResidentDailyDecision {
         val firstPlan = reply?.text?.let(ModelStructuredOutput::objectOrNull)
         val originalInvalid = if (resumeInvalidOnly) p.getString("invalid:${native.id}:$today", null) else reply?.text
         val firstError = if (resumeInvalidOnly) p.getString("invalid-reason:${native.id}:$today", null)
-            else if (savedDecision == null && reply != null) dayContractError(firstPlan, now) else null
+            else if (savedDecision == null && reply != null) dayContractError(firstPlan, now, agendaLimit) else null
         val repairResult = if (firstError != null) {
             if (!resumeInvalidOnly) {
                 check(p.edit().putString("invalid:${native.id}:$today", checkNotNull(originalInvalid).take(8_000))
@@ -1839,7 +1846,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多8项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多${agendaLimit}项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
@@ -1854,7 +1861,7 @@ internal object ResidentDailyDecision {
         val json = savedDecision ?: if (firstError == null) firstPlan
             else repaired?.text?.let(ModelStructuredOutput::objectOrNull)
         val remainingError = if (savedDecision == null && (reply != null || resumeInvalidOnly))
-            dayContractError(json, now) else null
+            dayContractError(json, now, agendaLimit) else null
         if (json == null || remainingError != null) {
             // Only a provider's explicit rejection is provably non-generated.
             // A timeout or a failed correction may already have been charged.
@@ -1884,7 +1891,7 @@ internal object ResidentDailyDecision {
                 "原住民有效模型决定尚未持久化，不能开始副作用"
             }
         }
-        val lunch = allowedLeisureLocation(json.optString("lunch")) ?: "cafe"
+        val lunch = allowedLeisureLocation(json.optString("lunch")) ?: "home"
         val evening = allowedLeisureLocation(json.optString("evening")) ?: "home"
         val decisionAt = p.getString("decision-at:${native.id}:$today", null)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: now
