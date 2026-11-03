@@ -81,6 +81,24 @@ for (const filename of wolfMotionFiles) {
   assert.equal(motion.Meta.TotalPointCount, totalPoints, filename)
 }
 
+// Laughing should be a sequence of staggered chin/shoulder chuckles,
+// not two perfectly synchronized left-right head shakes.
+const giggle = JSON.parse(readFileSync(
+  new URL('19_giggle_wobble.motion3.json', wolfMotionDir), 'utf8'))
+const giggleHead = giggle.Curves.find(c => c.Id === 'ParamAngleY')
+const giggleTorso = giggle.Curves.find(c => c.Id === 'ParamBodyAngleY')
+const giggleRoll = giggle.Curves.find(c => c.Id === 'ParamAngleZ')
+assert.ok(giggleHead && giggleTorso && giggleRoll,
+  'giggle has expressive chin motion and slower shoulder follow-through')
+const keyValues = curve => curve.Segments.slice(2)
+  .filter((_, i) => i % 7 === 6)
+assert.ok(Math.max(...keyValues(giggleRoll).map(Math.abs)) < 2,
+  'laughing must not wag the full head side to side')
+assert.notDeepEqual(keyValues(giggleHead), keyValues(giggleTorso),
+  'head and shoulders may not wobble in rigid lockstep')
+assert.ok(keyValues(giggleHead).slice(0, -1).some(v => v < -2),
+  'the visible movement is a small chin dip, not a frozen torso')
+
 // The same action must be available in the standalone playground and real
 // character video decisions, with a pronounced close-up and neutral release.
 assert.equal(WOLF_KISS_MOTION_INDEX, 48)
