@@ -2,6 +2,7 @@ package com.jiacimu.lulu.ai
 
 import org.junit.Assert.*
 import org.junit.Test
+import com.jiacimu.lulu.data.MemoryWorkingSet
 
 class RelayRequestPressurePolicyTest {
     @Test fun separatedNativeRelationshipsRemainWholeUnderRequestPressure() {
@@ -133,6 +134,29 @@ class RelayRequestPressurePolicyTest {
         assertTrue(selected.startsWith(top))
         assertTrue(selected.endsWith(bottom))
         assertTrue(selected.contains("【本轮 Relay 请求压力保护"))
+    }
+
+    @Test fun titleMentioningRawEvidenceDoesNotTurnMemorySummariesIntoNewestFirst() {
+        val oldSummary = "- memoryId=oldest 之前的关键理解"
+        val latestSummary = "- memoryId=latest 后来才形成的摘要"
+        val summary = (listOf(oldSummary) +
+            (1..220).map { "- 来自不同事件的完整摘要$it；时间与来源独立" } +
+            listOf(latestSummary)).joinToString("\n")
+        val olderEvidence = "- eventId=first 最早的原始证据"
+        val newerEvidence = "- eventId=last 最近的原始证据"
+        val evidence = (listOf(olderEvidence) +
+            (1..220).map { "- 另一个原始证据$it；这里的事件与来源独立" } +
+            listOf(newerEvidence)).joinToString("\n")
+        val compacted = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            MemoryWorkingSet.SUMMARY to summary,
+            MemoryWorkingSet.EVIDENCE to evidence,
+        )).toMap()
+        val summaryWire = compacted.getValue(MemoryWorkingSet.SUMMARY)
+        val evidenceWire = compacted.getValue(MemoryWorkingSet.EVIDENCE)
+        assertTrue(summaryWire.contains(oldSummary))
+        assertFalse(summaryWire.contains(latestSummary))
+        assertTrue(evidenceWire.contains(newerEvidence))
+        assertFalse(evidenceWire.contains(olderEvidence))
     }
 
     @Test fun compactProjectionRetainsSourceLabelsAndExactWireBytes() {
