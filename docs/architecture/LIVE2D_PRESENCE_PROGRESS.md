@@ -174,3 +174,13 @@
 - **根因回归**：`tools/live2d/test/conversation-performance.mjs` 在真实 stage VM 的 `applyFinalParameters` 连续运行 15/30/60/120fps 一秒，核验呼吸时钟和眨眼倒计时各精确推进一秒；另验 600ms 停顿最多推进 250ms。新增测试必须以对应 GitHub Actions 实际执行结果为准，不能以测试文件存在宣称通过。
 - **协作/索引**：仅修改 `tools/live2d/src/stage.js`、本专项现有测试及本进度；`scripts/generate_code_index.py` 的原索引输入为 `app/scripts/preview`，本轮未改变其索引输入，沿现有 Refresh code index 工作流维护生成物，不手写 `CODE_INDEX.md`。开工已复读 Library 完整大纲、AGENTS、统一人物契约、成长框架、CODE_INDEX、10-28 连续性计划和基础/社交/内驱独立进度；提交前重新校验 main 与文件版本。
 - **验收边界**：本轮实际 JS、Android JVM、assemblePhone、APK 收集/发布以对应提交的原 CI 为准；真机帧率、发热、呼吸节律、自然度与实际音画差仍待设备验证。没有改其他专项的公共文件。
+
+
+## 2026-11-03：V-01 动作与状态连续性 / 桌面 A/B 实修
+
+- **最新验收分层**：本轮前最后可证实的成功 APK 为 [Lulu APK #7484](https://github.com/jiacimu-droid/lulu1/actions/runs/41612476493)，对应旧 SHA `fc9409985`，不含本轮补丁；首个本轮 stage 补丁的 #7485（`f93a074`）在更新时仍执行 Android JVM/APK，且其 `Build bundled Live2D stage` 步骤 success，但不包含后续测试与 UI 提交。完整候选 SHA `ae91a9d` 的 [Lulu APK #7491](https://github.com/jiacimu-droid/lulu1/actions/runs/41617409662) 更新时 **pending**，不能勾选 V-01 真机通过。源码索引 [#7121](https://github.com/jiacimu-droid/lulu1/actions/runs/41617057006) 已 success，覆盖本轮 app 文件改动。
+- **根因**：`tools/live2d/src/stage.js` 的 `perform` 和 `activatePendingSpeechMoment` 在新角色 Motion3 进入时统一调用 `clearSpeechMoment()`，该函数同步执行 `stopAllMotions()`，导致新的后继尚未开始加载/淡入，旧动作就先被强制停掉，实际画面出现瞬间中性帧。即使 `motion-transition.mjs` 已有通道淡入/退出逻辑，也无法修复已被硬切断的旧动画。此外 `Live2DCallStage` 顶层预览动作未传 `motionParameterIds/motionFadeInMs`，与 beats 动作不一致；通话提示词仍用已划入补充目录的 #35 作为日常例子。
+- **实际修复**：`f93a074` 在舞台仅当确实有新的角色 Motion3 且旧动作已启动/未完成、属于同一模型与角色来源时，交接保留原已播放动作，由新真实 Motion3 接管。对只有表情/无动作的选择、触摸动作、异步尚未启动动作、自然已经结束片段、隐藏/中断/更换模型仍停止并清理，**不为角色凭程序新增动作或延长收费模型链路**。`9f45b3b` 使 Android 顶层实际播放和手动预览也传真实 motion file 的参数掩码、fade 与 duration；舞台 queued TTS 路径完整保留这些 metadata，真实 onStarted 才播放。 `f64ddc6` 将示例 #35 改用日常主目录 #17。`f17b26c` 额外处理选择新动作却遇到真实 Cubism 拒绝/异常时的收尾：停止旧已带入片段，不能留下无主旧动作误装作角色成功表达。
+- **试验场**：`c03f694` 直接在原 `Live2DPreviewPlaygroundDialog` 动作面板加入 A/B 比较。先选动作 A、再选 B，反复“播放 A / 播放 B”且保持控制面板展开；仍调用既有 `playMotion` 与真实资源，不添加电话通话中的人工亲密动作按钮、不增加 AI 请求。不改变 49 原始 ID 与当前 24 日常优先目录。
+- **回归**：`b09cb2b`、`ae91a9d` 在原 `tools/live2d/test/conversation-performance.mjs` 用真实 stage VM 路径核对已有已启动旧 Motion3 被新角色动作承接不调用 `stopAllMotions`、top-level 和音频待开始的真实 metadata 传递、beats-only 下一片段不强停、真实 interrupted 清理以及新 Motion3 拒绝时不会留下旧动作。此前长期语音 followUps、老版 unversioned 兼容与低 FPS 模拟测试保留。以上回归是否完全通过要以最终 #7491 记录为准。
+- **真实体验验收仍缺**：小狼实机 A/B 测各情绪的脸/动作与回正、连读至少五句带 followUps、突然打断/从新音频启动、触摸打断和额外的官方 exp3、15/30 FPS p95 与最终 Android 实际可见性。不能用一次源码通过或 60 FPS JS ticker 冒充真机自然度。此前提出的任意时间的非中性表情姿态保持与词级 TTS 运动是可选增强，未在本轮实现；下一轮先按真实录屏排除节点叠加或节拍时序问题，再动 Motion3 骨骼。
