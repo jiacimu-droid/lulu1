@@ -91,7 +91,7 @@ internal object Live2DMotionCatalog {
             face = happyFace, faceNote = "大笑容、笑眼",
         ),
         18 to Entry("缓慢重心移动", "放松、换姿势、慢慢晃时；动作是整个人慢慢从一侧晃到另一侧，节奏很慢"),
-        19 to Entry("咯咯笑晃动", "忍不住笑、咯咯笑时；动作是头小幅度快速左右晃，像憋不住笑在抖", face = amusedFace, faceNote = "笑眯眯、眯起眼"),
+        19 to Entry("咯咯笑轻颤", "被逗笑、忍不住噗嗤笑时；动作是下巴轻轻点动几下，肩膀慢半拍跟着细颤，越笑越轻，头不机械地左右摇", face = amusedFace, faceNote = "笑眯眯、忍笑时眼角轻弯"),
         20 to Entry(
             "难过垂头", "难过、低落、叹气时；动作是头慢慢垂下去停住，半天才抬回来，幅度深", "流泪",
             face = sadFace, faceNote = "眉眼低垂、嘴角下压",
