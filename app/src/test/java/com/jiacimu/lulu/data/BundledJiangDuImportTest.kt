@@ -75,6 +75,65 @@ class BundledJiangDuImportTest {
         }
     }
 
+    @Test fun jiangDuV25DeepensResponsibilityButKeepsOwnerEditsAndOnlyOneNewScene() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val original = JSONObject(CharacterLifeStore.state(id).toString())
+        val otherBefore = CharacterLifeStore.state("lulu").toString()
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            // A prior installation has v24 stock fields and the old sample set.
+            val old = JSONObject(original.toString())
+                .put("jiangDuPresetVersion", 24)
+            val previous = old.getJSONObject("profile")
+            CharacterProfileSchema.jiangDuV25Overrides.keys.forEach { key ->
+                previous.put(key, CharacterProfileSchema.jiangDuV24Overrides.getValue(key))
+            }
+            previous.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamplesV24)
+            save.invoke(CharacterLifeStore, id, old)
+            CharacterLifeStore.initialize(context)
+            val upgraded = CharacterLifeStore.state(id)
+            val profile = upgraded.getJSONObject("profile")
+            assertEquals(25, upgraded.getInt("jiangDuPresetVersion"))
+            CharacterProfileSchema.jiangDuV25Overrides.forEach { (key, value) ->
+                assertEquals("Stock trait should upgrade: $key", value, profile.getString(key))
+            }
+            val dialogue = profile.getString("dialogueExamples")
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, dialogue)
+            assertEquals(1, Regex("【说好一起坚持").findAll(dialogue).count())
+            assertTrue(dialogue.contains("背到想跟书绝交了？"))
+            assertTrue(dialogue.contains("缓过来我陪你慢慢啃"))
+            assertFalse(dialogue.contains("【睡前责任"))
+            assertFalse(dialogue.contains("【认真关怀"))
+            assertTrue(CharacterSpeechIdentity.promptSection(id)
+                .contains("背到想跟书绝交了？"))
+            assertEquals(otherBefore, CharacterLifeStore.state("lulu").toString())
+
+            // Even intentional blanks and authored dialogues remain untouched.
+            val custom = JSONObject(old.toString())
+            custom.getJSONObject("profile")
+                .put("care", "主人亲自编辑的照顾方式")
+                .put("perception", "")
+                .put("dialogueExamples", "主人只要自己的示例")
+            save.invoke(CharacterLifeStore, id, custom)
+            CharacterLifeStore.initialize(context)
+            val personalized = CharacterLifeStore.state(id).getJSONObject("profile")
+            assertEquals("主人亲自编辑的照顾方式", personalized.getString("care"))
+            assertEquals("", personalized.getString("perception"))
+            assertEquals("主人只要自己的示例", personalized.getString("dialogueExamples"))
+            assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("motives"),
+                personalized.getString("motives"))
+            assertEquals(otherBefore, CharacterLifeStore.state("lulu").toString())
+        } finally {
+            save.invoke(CharacterLifeStore, id, original)
+        }
+    }
+
     @Test fun onlyOldStockXingHeDialogueAndStyleAreUpgradedAndManualChangesSurvive() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
