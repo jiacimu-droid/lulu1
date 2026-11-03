@@ -152,7 +152,7 @@ class BundledJiangDuImportTest {
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[id])
         val state = CharacterLifeStore.state(id)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, state.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("care"),
+        assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("care"),
             state.getJSONObject("profile").getString("care"))
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV24,
             state.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
