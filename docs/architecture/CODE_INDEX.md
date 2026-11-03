@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`2ebdca9a3719dec9a2c655869e744ac391827e2a`
+- 基准提交：`3d6cc7bbe41034a1fa91c17e67399038431072a3`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：231820
+- 已索引代码/文本行：231890
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 230 | 0 |
+| `app/build.gradle.kts` | 234 | 0 |
 | `app/src/main/AndroidManifest.xml` | 186 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
@@ -1071,7 +1071,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WanxiangCharacterContinuityTest.kt` | 200 | 5 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 208 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt` | 274 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt` | 121 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 163 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 114 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T07:48:12.076141+00:00",
-  "commit": "2ebdca9a3719dec9a2c655869e744ac391827e2a",
+  "generatedAt": "2026-11-03T07:49:05.117663+00:00",
+  "commit": "3d6cc7bbe41034a1fa91c17e67399038431072a3",
   "branch": "main",
-  "sourceFingerprint": "3f6ec8b0102c6c60b859e3b9ec85714d12cf77b31d4caf2821a5197e8e8a53a9",
+  "sourceFingerprint": "c6bd7d109cfb81149ae4f27633efbbb126170709973b66cd6ef3692b3a728602",
   "summary": {
     "files": 1125,
-    "lines": 231820,
+    "lines": 231890,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -17803,7 +17803,7 @@
     "WorldBookFolderRepositoryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
-        "line": 18
+        "line": 20
       }
     ],
     "WorldBookJsonImporterTest": [
@@ -18146,8 +18146,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 230,
-      "sha256": "cddf7238f3fda8061cd6906809bb9b5fb15d2b959afac57b8dc16f3b0b6b90e6",
+      "lines": 234,
+      "sha256": "c4ea7d3bae58a3e8c02c5fc89fca025d69cde510d6347df029385499a11e9165",
       "symbols": []
     },
     {
@@ -38127,12 +38127,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookFolderRepositoryTest.kt",
-      "lines": 208,
-      "sha256": "5187a977c2a085e024dbbb790d1d1156d39a65470c18794c8f5550280d21111e",
+      "lines": 274,
+      "sha256": "e68fbd9628104b78069b2a10bcf3aaacc34a03ffceb823b04eb639dbbb02ff69",
       "symbols": [
         {
           "name": "WorldBookFolderRepositoryTest",
-          "line": 18
+          "line": 20
         }
       ]
     },
