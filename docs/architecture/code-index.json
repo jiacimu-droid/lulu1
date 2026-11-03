@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T12:57:26.420137+00:00",
-  "commit": "35dcba0b2b2c0518db8f6ad0e5bf2e73a1b294f2",
+  "generatedAt": "2026-11-03T12:58:18.392598+00:00",
+  "commit": "57d72e0a758dfdd7a37af0ff7e4306d7322b2a85",
   "branch": "main",
-  "sourceFingerprint": "9bdca13f4dec2d909ae4e29c2ff5cb1736a6568591ee245fc356ebe0fa099143",
+  "sourceFingerprint": "32ab5eb53a525a0faf3edecf5a88d3182db6cbddf24ec81d636f0c347b6178a5",
   "summary": {
     "files": 1125,
-    "lines": 232717,
+    "lines": 232814,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -11059,7 +11059,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3067
+        "line": 3068
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -28863,8 +28863,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3134,
-      "sha256": "998c50714046c0853ecf1b358b2a89df878e5df8a298ee37542afd0a2c6b4e97",
+      "lines": 3135,
+      "sha256": "d8b72db23799efda73e91a5bed9e793132415ea44bb8653486ffbb374429e327",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28896,7 +28896,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3067
+          "line": 3068
         }
       ]
     },
@@ -35084,8 +35084,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 289,
-      "sha256": "eb54ae4e37a1ae83cd3fd742200fdcf713aa48bddf04345b56bdc144f3873bfa",
+      "lines": 358,
+      "sha256": "c0e0f6883fbba02e9ca5142fba5a87012f1d58e00071ec3babe230a00c118610",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
@@ -35536,8 +35536,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 290,
-      "sha256": "18542c0b175b793c7a63e0d7769859b694942d6ee0f63624049e90aef0f794cf",
+      "lines": 317,
+      "sha256": "cf248b776cba6ec0aecdbf74460640bba46c1eedc11fa056a54cd4d383b8dca7",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
