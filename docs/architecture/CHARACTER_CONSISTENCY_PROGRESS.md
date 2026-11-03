@@ -333,3 +333,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：新增缺少日期、无效时间、过去时间、独立 steps 的按 index 补正与不改写原定动机的测试。代码已提交 main：`883c18e`、`9bcc46f`、`43e8a30`、`3639b78`；索引工作流更新基准至 `3639b78`。实际 JVM 测试与 APK 尚未有验收回执，不能标已验通。
 - **待验**：新 APK 用真实角色自主选择主动作安排、聊天+附加日程、心事 nextAction 的漏 `dueAt` 情况验证，确认补正输出真实未来 ISO 时间、仅成功持久化才有计划 ID 和下一次到点唤醒；补正失败应保留失败回执并供下轮同一角色重试。不自动补写截图中已经失败的旧日程。
 
+
+## 2026-11-03 P-08a 接力：规划—表达—逐气泡实际送达的本地关联（源码候选，待 Android CI/真实模型）
+
+- **基准与根因**：从 main `02bed487f0bae54d712fb35f18e8eb1d1ac0438c` 和既有 AGENTS/统一人物契约/唯一路线图接手。已有 `PromptInputAudit` 记录实际模型输入尺寸及 `LocalPerformanceRepository` 的调用耗时、模型和 Token，用 `appendRoleReplyWithPacing` 保存独立气泡；但规划/表达两次模型请求、后台本人决定、发送器逐泡入库与发送中断没有同一个不可误配的诊断关联 ID。不能由“回了很长一段”猜是哪个阶段自行扩写。
+- **实际修改**：在现有 `TokenConsoleRecord` 增加可空缺（旧版默认空）的 `turnTraceId`，通过 `CompanionModelGateway.generate` 的纯本地可选参数传给既有审计，**不进入模型提示词、不增加网络请求、不写聊天明文**。前台 `LuluDeviceToolBridge.respond` 为本轮生成诊断 ID，规划/结构补正/表达同 ID；现有计时记录仅写本人选的 action、dialogueMove 类型、意图长度、实际气泡数/长度、结构解析结果。后台 `ProactivePerceptionRuntime` 一次感知决策及格式补正共享 ID，并将其关联原本独立的 `shadowRequestId` 与 `performAction` 真回执。私聊/群聊原发送器 `appendRoleReplyWithPacing` 在持久化成功后记录对应消息 ID、泡次序/数量、语音标记，以及整轮 complete/partial/superseded，不把“模型计划发送”和“已真实送达”混淆。`_turnTraceId` 属于执行器内部参数，后台强制覆盖模型传入同名值。
+- **本轮 main 源码提交**：`9ea5fa0`（已有模型审计追加可选关联）、`cee56d7`（网关关联）、`c867989`（前台规划/表达）、`a9cf2c7`（后台角色决定及真实执行）、`34f6789`（逐泡送达）、`834e791`（私聊与群聊发送适配）、`8bc1a8e`（后台发送透传）、`fcdbffb`（审计兼容测试）、`815ce4e`（真实发送器双气泡/明文隔离测试）、`87a7a74`（前台两阶段 MockWebServer 关联测试）。只更新既有 Store 与发送器，不设第二套人物中心。
+- **分层验证**：源码和测试断言已提交，不能把测试文件存在视为运行通过。索引 workflow `41641286987` 针对前序 `815ce4e` completed/success，最新 `87a7a74` 的索引 `41641495955` 截至本次检查 in_progress；同 SHA 的 Lulu APK `41641495908` 截至检查 pending。早期被后继 main 取消的 APK 不是失败断言也不是成功。原 `scripts/generate_code_index.py` 由仓库既有 Refresh code index workflow 从最新 main 执行，索引实际回写须核对完成结果；GitHub 连接下无整仓本地构建环境，本次未宣称本地 JVM/真机通过。
+- **范围与未证实事项**：P-08a 的“结构化阶段可关联”属候选实现，**还没有主人截图那轮原始规划/表达 JSON、手机端实际日志、真实模型设置/盲评样本**；不能由审计关联推导说教问题已经修复。此追踪仅有结构、尺寸及真实 ID，没有人设配置版本、最终注入证据 ID 的统一回合投影；后台其他工具后的追话、手机外部通知/阅读、撤回生命周期及跨日复查仍需 P-08b/d 实测。不要存私聊明文到日志，也不要私下替角色改决策。
+- **下一轮准确入口**：先查最新 `87a7a74` 后继 `Lulu APK` 的 `app:testPhoneUnitTest`、打包、发布真实结论及 Refresh code index 的生成结果，失败只修第一条真实报错。再以一段用户授权的脱敏对照回合查 `LocalPerformanceRepository.consoleRecords.turnTraceId`、`P08a角色规划`、`P08a表达结果`、`P08a在线决定`、`P08a气泡入库`、`P08a发送结局`、`P08a真实执行`，比对实际模型档案、完整规划与表达 JSON、原始消息及下轮使用的送达来源；针对真正扩写/遗漏处推进 P-08b/c/d，真实模型盲评留 P-08e。P-08 全部保持 `[ ]`。
