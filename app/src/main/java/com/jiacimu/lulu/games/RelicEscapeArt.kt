@@ -1,5 +1,9 @@
 package com.jiacimu.lulu.games
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -15,6 +19,8 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -43,6 +49,21 @@ internal fun RelicEscapeWorldMap(
         ally.id to MigratedDomainStores.characters.get(ally.id).displayName
     }
     val namePaint = remember { android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG) }
+    val start = Offset(run.hero.x.toFloat(), run.hero.y.toFloat())
+    val heroVisual = remember(run.id) { Animatable(start, Offset.VectorConverter) }
+    val previousHeroTile = remember(run.id) { arrayOf(start) }
+    LaunchedEffect(run.id, run.hero.x, run.hero.y) {
+        val dest = Offset(run.hero.x.toFloat(), run.hero.y.toFloat())
+        val distance = abs(previousHeroTile[0].x - dest.x) +
+            abs(previousHeroTile[0].y - dest.y)
+        previousHeroTile[0] = dest
+        // Display interpolation only; collision, loot and monster turns stay authoritative.
+        if (distance <= 1f) heroVisual.animateTo(dest, tween(175, easing = LinearEasing))
+        else heroVisual.snapTo(dest)
+    }
+    val renderFocus = if (focus == (run.hero.x to run.hero.y)) heroVisual.value
+        else Offset(focus.first.toFloat(), focus.second.toFloat())
+    val currentRenderFocus by rememberUpdatedState(renderFocus)
     val shimmer=rememberInfiniteTransition(label="ancient-ruins")
         .animateFloat(.35f,1f,infiniteRepeatable(tween(2000),RepeatMode.Reverse),label="rune-glow").value
     val flicker=rememberInfiniteTransition(label="relic-light")
@@ -59,12 +80,13 @@ internal fun RelicEscapeWorldMap(
                 .pointerInput(run.id, run.w, run.h, fullscreen, focus, onSelect) {
                     detectTapGestures { tap->
                         val camera = relicMapCamera(size.width.toFloat(), size.height.toFloat(),
-                            run.w, run.h, fullscreen, focus)
+                            run.w, run.h, fullscreen, currentRenderFocus.x, currentRenderFocus.y)
                         camera.tileAt(tap.x, tap.y, run.w, run.h)?.let { (x, y) -> onSelect(x, y) }
                     }
                 }
         ) {
-            val camera = relicMapCamera(size.width, size.height, run.w, run.h, fullscreen, focus)
+            val camera = relicMapCamera(size.width, size.height, run.w, run.h,
+                fullscreen, renderFocus.x, renderFocus.y)
             val t = camera.tileSize
             val ox = camera.offsetX
             val oy = camera.offsetY
@@ -274,7 +296,7 @@ internal fun RelicEscapeWorldMap(
                         p+Offset(t*.30f,t*.3f),strokeWidth=t*.075f)
                 }
             }
-            val hero=center(run.hero.x,run.hero.y)
+            val hero=Offset((heroVisual.value.x+.5f)*t,(heroVisual.value.y+.5f)*t)
             if(run.guardedBy.isNotBlank() && run.allies.any { it.id==run.guardedBy && it.hp>0 }) {
                 drawCircle(Color(0xFF98EFFF).copy(alpha=.22f+shimmer*.23f),
                     t*.57f,hero,style=Stroke(t*.074f))
@@ -291,8 +313,9 @@ internal fun RelicEscapeWorldMap(
             drawCircle(Color.White,t*.065f,hero+Offset(t*.11f,-t*.10f))
             // Actor labels are drawn last so terrain, monsters and overlapping actors
             // cannot erase identity. They are display projections of the real roster.
-            fun label(text: String, x: Int, y: Int, color: Int, below: Boolean = false) {
-                val p = center(x, y)
+            fun label(text: String, x: Int, y: Int, color: Int,
+                below: Boolean = false, visual: Offset? = null) {
+                val p = visual ?: center(x, y)
                 namePaint.textSize = 11.sp.toPx()
                 namePaint.textAlign = android.graphics.Paint.Align.CENTER
                 namePaint.isFakeBoldText = true
@@ -308,7 +331,8 @@ internal fun RelicEscapeWorldMap(
                     below = ally.x == run.hero.x && ally.y == run.hero.y)
             }
             drawCircle(Color(0xFFFFD894), t * .43f, hero, style = Stroke(2.dp.toPx()))
-            label("你", run.hero.x, run.hero.y, android.graphics.Color.rgb(255, 216, 148))
+            label("你", run.hero.x, run.hero.y,
+                android.graphics.Color.rgb(255, 216, 148), visual = hero)
             if (run.visible(run.exitX, run.exitY))
                 label("撤离门", run.exitX, run.exitY, android.graphics.Color.rgb(129, 232, 197), below = true)
             // Drifting dust and sparse fireflies soften the grid without masking real objects.
