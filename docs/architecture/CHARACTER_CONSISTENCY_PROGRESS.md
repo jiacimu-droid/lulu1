@@ -460,3 +460,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮真实代码**：`c8c5bd7` 和 `1a8564d` 在原 `CharacterLifeSelfReview` 引入每日轮换旧的仍持有想法、同时审阅近期+轮换的老成长条目；保留 exact `thought`、记录 id/version 和证据数量以便本人决定并明确指定目标。只做只读投影，不根据天数自动改、清理、删除；用户仍有自己的私聊/作息/任务归属。 `f3ccb9f` 在现有 `CharacterDevelopmentStore` 增加精确 ID+版本、本人归属、当前有效性核验的 `retireSelfAssessment`；拒绝通过该接口撤回用户明确事实/偏好/习惯，保留记录证据与历史。 `e5e99da` + `e53ef5c` 把 `retire_development_record` 接到原 `CapabilityRegistry` 和 `ToolRouter`，真正执行后的持久回执和因果投影沿原管线；`b377f6c` + `adb2174` 加入已有模型工具提示而非新 AI 轮次。
 - **回归候选**：`b16bab`、`af34bae`、`9afa86b` 的 `CharacterLifeSelfReviewTest` 测试旧念头跨日轮换、已放下不再出现、不自动制造任务；同一角色成长认识有效 ID/版本可归档，跨角色/旧版本不可撤回，用户事实不可撤回，原成长历史不删除，ToolRouter 有真实执行回执。测试源码已提交，尚未拿到本版完整 Android CI 成功结果。
 - **边界及下一轮入口**：当前没有新增定时轮询、费用或“自动删除旧心事”的无依据机制；成长度层的旧记录是归档退出当前倾向，不物理清除历史。原有个人日程继续由角色选择改期/取消，已接受的主人约定仍需真实完成/核验，不能被个人清理间接抹掉。先核对包含 `9afa86b` 的后继 APK/JVM CI，失败看精确断言；再用真实角色安静感知确认是否读到回顾、是否自然选择整理并保留已取消日程/旧念头/成长依据的真实回执。P-08 仍 [ ]，不宣称真机活人感已通过。
+
+## 2026-11-04 · P-08 接力：真实失败单测揭示 Relay 证据优先顺序破坏（待新 CI）
+
+- **验证旧 run**：[APK 41687156245](https://github.com/jiacimu-droid/lulu1/actions/runs/41687156245) 于 2026-11-03T18:54Z **failure**，非 pending；原 job `126131133790` 日志在 `:app:testPhoneUnitTest` 显示 `RelayRequestPressurePolicyTest.titleMentioningRawEvidenceDoesNotTurnMemorySummariesIntoNewestFirst` 第 159 行 `assertFalse(evidenceWire.contains(olderEvidence))` 失败。该 run 已跑到 JVM 单测，不能宣称 APK 成功。索引 `41687156516` success。
+- **根因**：`RelayRequestPressurePolicy.excerptWholeLines` 为最新优先的材料固定保留第一行（短于 160 字就当 header），而 `MemoryWorkingSet.EVIDENCE` 的第一行往往正是最旧的 `- eventId=...` 列表数据；因此压缩后同时带入最旧证据与最新尾部事件，违背原本完整连续最新证据窗口的设计，可能在 Relay 请求压力下混淆人物最近观察。此处属于数据边界，不是角色语义或风格。
+- **已实改**：`c2b683019081a503986fafc6d3ad8c910a8e8b2b` 不再把首行以 `- ` 开头的列表记录当成段落标题，保持真实标题仍可保留、最新证据优先、完整行与持久原文不变；`51e3adce3ea42ae45c0e39a8717093431556e411` 在同一回归测试中覆盖真正 `【来源清单】` 标题仍保留，而最旧 `eventId` 不会被错误拼回最新窗口。不增加模型调用、不另造 Store、不改变模型意图。
+- **接力验证**：修复后新的 Android Actions 和代码索引由既有 main push 自动触发；下一轮读取最新包含 `51e3adce` 的 run ID 与最终结论，若 failure 优先查看 job 原始日志；再做 P-08 真实人物整理、原始证据和跨场景回执真机验收。人物总任务维持 `[ ]`，不得用源码静态检查代替真实 APK 成功。
