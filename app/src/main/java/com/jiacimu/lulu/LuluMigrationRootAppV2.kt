@@ -3,10 +3,22 @@ package com.jiacimu.lulu
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CharacterMessageNotifications
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -425,6 +437,12 @@ fun LuluMigrationRootAppV2(
                         }
                     }
 
+                    // A real delivered message, not a second message store:
+                    // show it while Lulu is in another page and open the actual chat on tap.
+                    CharacterMessageHeadsUp { conversationId ->
+                        openConversation(conversationId)
+                    }
+
                     // Drawn above every route, including Theater, Games and Study.
                     LuluAppearanceTheme(appearanceLibrary.active("Phone")) {
                         InAppCallRuntimeOverlay()
@@ -440,6 +458,56 @@ fun LuluMigrationRootAppV2(
                     }
                 }
             }
+            }
+        }
+    }
+}
+
+/**
+ * Foreground companion-message heads-up. Outside Lulu, Android's HIGH channel
+ * owns system banners; inside Lulu, the same durably delivered message briefly
+ * appears above the current page without requesting draw-over-other-apps access.
+ */
+@Composable
+private fun CharacterMessageHeadsUp(onOpen: (String) -> Unit) {
+    val banner by CharacterMessageNotifications.inAppBanner.collectAsState()
+    val current = banner
+    LaunchedEffect(current?.messageId) {
+        if (current != null) {
+            delay(5_500)
+            CharacterMessageNotifications.dismissInApp(current.messageId)
+        }
+    }
+    if (current != null) {
+        Surface(
+            modifier = Modifier.fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .clickable {
+                    CharacterMessageNotifications.dismissInApp(current.messageId)
+                    onOpen(current.conversationId)
+                },
+            shape = RoundedCornerShape(16.dp),
+            color = Color(0xFFF9FCFB),
+            shadowElevation = 12.dp,
+        ) {
+            Row(
+                modifier = Modifier.padding(start = 14.dp, top = 7.dp, bottom = 7.dp, end = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("露露机 · " + current.title,
+                        color = Color(0xFF234A40), fontWeight = FontWeight.SemiBold,
+                        fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(current.text, color = Color(0xFF32433E),
+                        fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+                IconButton(onClick = {
+                    CharacterMessageNotifications.dismissInApp(current.messageId)
+                }) {
+                    Icon(Icons.Outlined.Close, contentDescription = "收起消息横幅",
+                        tint = Color(0xFF657772))
+                }
             }
         }
     }
