@@ -75,8 +75,13 @@ internal object RelayRequestPressurePolicy {
         val lines = text.lines()
         // The first line often carries the authority/source label. Retain it
         // when selecting from the tail, but leave the original line intact.
+        // A short first line is not necessarily a section heading: evidence
+        // projections often start immediately with "- eventId=..." records.
+        // Pinning that oldest record while keeping a newest-first suffix
+        // silently changes the evidence window and breaks its chronology.
         val header = lines.firstOrNull().orEmpty()
-            .takeIf { mostRecentFirst && it.length <= 160 }.orEmpty()
+            .takeIf { mostRecentFirst && it.length <= 160 &&
+                !it.trimStart().startsWith("- ") }.orEmpty()
         var remaining = (allowed - OMITTED.length - 2 -
             if (header.isNotEmpty()) header.length + 1 else 0).coerceAtLeast(0)
         val selected = mutableListOf<String>()
