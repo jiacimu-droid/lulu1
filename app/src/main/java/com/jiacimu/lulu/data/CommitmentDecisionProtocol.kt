@@ -39,6 +39,7 @@ internal object CommitmentDecisionProtocol {
         if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
         tasks.forEach { task ->
             appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; dailyBase=${task.dailyBaseDueAt}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}; verificationMode=${task.verificationMode}; nextReview=${task.nextCheckAt}; lastReceipt=${task.readableLastResult().take(170)}")
+            CommitmentClockFacts.render(task, now, zone).takeIf(String::isNotBlank)?.let { appendLine("任务时间进度：$it") }
         }
         if (tasks.isNotEmpty()) {
             appendLine("【结案证据候选（仅来源、时间和类型初筛，不等于目标完成）】")
