@@ -255,7 +255,8 @@ internal object Live2DMotionCatalog {
 
     private val everydayIntents = linkedMapOf(
         "情绪·开心与亲近" to listOf(17, 19, 28, 35, 42, 48),
-        "情绪·惊讶与不安" to listOf(9, 12, 20, 23, 36, 37, 40, 41, 43, 45, 46),
+        "情绪·害羞、失落与担忧" to listOf(12, 20, 36, 37, 41, 45, 46),
+        "情绪·受惊与抗拒" to listOf(9, 23, 40, 43),
         "交流·倾听与回应" to listOf(0, 8, 16, 26, 29, 34, 38, 47),
         "状态·休息与放松" to listOf(24, 32, 39, 44),
     )
