@@ -185,6 +185,33 @@ class CharacterDecisionProtocolTest {
         assertTrue(changed.emotionChanged)
     }
 
+    @Test fun freshlyAuthoredPrivateChangeAfterNewUserFeedbackNeedsNoFakeEmotionOrExtraModel() {
+        val previous = JSONObject().put("causalTransitions", org.json.JSONArray().put(
+            JSONObject().put("innerThoughtBasis", JSONObject()
+                .put("focus", "正在帮她解释题目")
+                .put("change", "想尽可能讲清楚"))))
+        val basis = JSONObject().put("focus", "她说我的回复太长让她眼睛不舒服")
+            .put("change", "才意识到自己忙着解释却没注意到她不想继续")
+        val thought = "她已经说得很清楚了，我刚才还在啰嗦什么呀。"
+        val oldGate = PrivateStateDeltaEngine.evaluate(previous, null, null, basis, thought)
+        assertFalse(oldGate.privateResidue)
+        val newMessage = PrivateStateDeltaEngine.evaluate(
+            previous, null, null, basis, thought, hasFreshUserMessage = true)
+        assertTrue(newMessage.focusChanged)
+        assertTrue(newMessage.privateResidue)
+        assertEquals(thought, CharacterHeartVoicePolicy.keepOrBlank(
+            thought, outward = "好，不讲长篇了。", basis = basis,
+            delta = newMessage, hasFreshEvidence = true))
+        // A repeated focus is not a new psychological event.
+        val repeated = PrivateStateDeltaEngine.evaluate(
+            JSONObject().put("causalTransitions", org.json.JSONArray().put(
+                JSONObject().put("innerThoughtBasis", basis))),
+            null, null, basis, thought, hasFreshUserMessage = true)
+        assertFalse(repeated.meaningful)
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought, basis = basis, delta = repeated, hasFreshEvidence = true))
+    }
+
     @Test fun aGroupIsQuietOnlyWhenSilenceIsExplicitlyChosen() {
         assertTrue(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"action":"silent","reason":"大家都在忙","turns":[]}"""))
         assertFalse(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"turns":[]}"""))
