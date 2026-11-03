@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:43:25.123895+00:00",
-  "commit": "b16babcf1997fde1a33f6bcb438d61369cab47b5",
+  "generatedAt": "2026-11-03T17:44:09.324143+00:00",
+  "commit": "af34bae66fe41ced67bc876adf96407570191d94",
   "branch": "main",
-  "sourceFingerprint": "8936f961a72a4b041ecb69a4a35d5865d1d58f79df811c38e5f5fa9be0971eb9",
+  "sourceFingerprint": "8c57d0128b3d00fa1d6197523622eda812f6307e172eced46f2c7b343f076af3",
   "summary": {
     "files": 1125,
     "lines": 234197,
@@ -35854,7 +35854,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt",
       "lines": 160,
-      "sha256": "bcbd2537d586e1b6c135347ac7cfc89989dc619b80d2cc411bd1e704b0ee0786",
+      "sha256": "dc7f4204d10987395a0e55e413634a52f91517aaf440260e4cde150ce8b7a73f",
       "symbols": [
         {
           "name": "CharacterLifeSelfReviewTest",
