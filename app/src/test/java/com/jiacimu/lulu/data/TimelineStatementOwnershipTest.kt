@@ -95,6 +95,39 @@ class TimelineStatementOwnershipTest {
             now = Instant.now().plusSeconds(1)).previousInteractionAt?.toEpochMilli())
     }
 
+    @Test fun orphanOrFailedGroupUserWitnessCannotOverwriteActualLastUserWords() {
+        val role = "group-user-witness-validation"
+        val peer = "group-user-witness-peer"
+        val at = Instant.now().minusSeconds(120)
+        SharedExperienceTimeline.record("prior-direct-user", role, "私聊", "用户",
+            "我先去吃饭，回来再聊。", at, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "可核验的群聊", listOf(role, peer), true)
+        val sent = MigratedDomainStores.chat.sendUserMessage(group.id, "我回来啦。")
+        val valid = event(sent, role)
+        assertTrue(TimelineStatementOwnership.involvesUser(valid))
+        assertEquals(valid.id, CharacterContinuityRuntime.snapshot(role,
+            now = Instant.now().plusSeconds(2)).lastUserStatement?.id)
+
+        val forged = valid.copy(id = "orphan:group:$role",
+            content = "这是没有真实消息来源的用户原话")
+        assertFalse(TimelineStatementOwnership.involvesUser(forged))
+        SharedExperienceTimeline.record(forged.id, role, forged.channel, "用户",
+            forged.content, Instant.now().plusSeconds(1),
+            sessionId = group.id, source = "message", triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.UserStatement)
+        assertEquals(valid.id, CharacterContinuityRuntime.snapshot(role,
+            now = Instant.now().plusSeconds(3)).lastUserStatement?.id)
+
+        MigratedDomainStores.chat.markFailed(sent.id)
+        assertFalse(TimelineStatementOwnership.involvesUser(valid))
+        val snapshot = CharacterContinuityRuntime.snapshot(role,
+            now = Instant.now().plusSeconds(3))
+        assertEquals("prior-direct-user", snapshot.lastUserStatement?.id)
+        assertEquals(at.toEpochMilli(), snapshot.previousInteractionAt?.toEpochMilli())
+    }
+
     @Test fun legacyDefaultAuthorAndOwnerOnBehalfKeepTheirActualMeaning() {
         val a = "legacy-speaker-a"
         val b = "legacy-speaker-b"
