@@ -93,7 +93,7 @@ class PositiveExpressionGuidanceTest {
         val rendering = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         val channel = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         assertTrue(decision.contains("共同推进而非单人完成"))
-        assertTrue(decision.contains("对方下一步反应仍是未知"))
+        assertTrue(decision.contains("对方的下一步反应仍是未知"))
         assertTrue(decision.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
         assertTrue(rendering.contains("以本人已选的交流动作是否在这一拍完成为准"))
         assertTrue(rendering.contains("不以“是否把整段话题的全部可能信息都说尽”为准"))
