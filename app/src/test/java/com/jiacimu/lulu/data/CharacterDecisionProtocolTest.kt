@@ -116,6 +116,13 @@ class CharacterDecisionProtocolTest {
         assertFalse(CharacterDecisionProtocol.usesSeparateExpression("正在电话中"))
     }
 
+    @Test fun expressionIntentKeepsThePlannersTailConditions() {
+        val intended = "甲".repeat(850) + "；但没有真正回执前不要说已经完成，也不要代替她确认。"
+        val plan = JSONObject().put("action", "reply").put("speechIntent", intended)
+        assertEquals(intended, CharacterDecisionProtocol.speechIntent(plan))
+        assertEquals("reply", CharacterDecisionProtocol.chatAction(plan))
+    }
+
     @Test fun semanticCorrectionBelongsToTheModelsSelectedMove() {
         val playfulProposal = JSONObject()
             .put("type", "tease")

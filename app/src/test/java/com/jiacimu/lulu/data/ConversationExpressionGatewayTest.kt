@@ -334,6 +334,78 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun privateChatExpressionReceivesFullChosenIntentIncludingTailBoundary() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("完整意图交接", "说话有分寸")
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
+        val current = MigratedDomainStores.chat.sendUserMessage(chat.id, "进展怎么样？")
+        val tail = "但没有真正回执前不要说已经完成，也不要代替她确认。"
+        val intent = "先回应当前进展。" + "这是独立判断的一部分。".repeat(100) + tail
+        val server = MockWebServer()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", content)).put("finish_reason", "stop"))).toString())
+        server.enqueue(response(JSONObject().put("action", "reply").put("speechIntent", intent)
+            .put("dialogueMove", JSONObject().put("type", "answer").put("contentIntent", "交代进展"))
+            .toString()))
+        server.enqueue(response("""{"action":"reply","bubbles":[{"text":"还没有实际完成，我再确认。"}]}"""))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            LuluAiServices.connectionStore.addArchive(config.id, "test")
+            LuluDeviceToolBridge.respond(role.characterId, "", current.content, "test",
+                userEvidenceIds = listOf(current.id)).getOrThrow()
+            server.takeRequest(5, TimeUnit.SECONDS)!!
+            val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            assertTrue(request.getJSONArray("messages").toString().contains(tail))
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun phoneThoughtDoesNotExecuteFavoriteButExplicitChoiceDoesWithoutForcedSpeech() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("电话意愿与行动", "独立判断")
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
+        val heard = MigratedDomainStores.chat.sendUserMessage(chat.id, "你上次讲的笑话我还记得")
+        val server = MockWebServer()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", content)).put("finish_reason", "stop"))).toString())
+        server.enqueue(response("""{"action":"reply","text":"我听见了。","innerThought":"我想收藏这句。"}"""))
+        server.enqueue(response(JSONObject().put("action", "reply").put("text", "那句我很喜欢。")
+            .put("phoneFavorite", JSONObject().put("messageId", heard.id)
+                .put("reason", "她记得我上次的笑话，我想留下这句"))
+            .toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val first = LuluDeviceToolBridge.respond(role.characterId, "", heard.content, "test",
+                sceneContext = "正在电话中", userEvidenceIds = listOf(heard.id),
+                phoneCallId = "phone-choice-test").getOrThrow()
+            assertEquals("我听见了。", first.text)
+            assertFalse(LuluRepositories.lexicon.snapshot(role.characterId).any {
+                it.id == CharacterMessageFavorites.entryId(role.characterId, heard.id) })
+            val second = LuluDeviceToolBridge.respond(role.characterId, "", heard.content, "test",
+                sceneContext = "正在电话中", userEvidenceIds = listOf(heard.id),
+                phoneCallId = "phone-choice-test").getOrThrow()
+            assertEquals("那句我很喜欢。", second.text)
+            assertTrue(LuluRepositories.lexicon.snapshot(role.characterId).any {
+                it.id == CharacterMessageFavorites.entryId(role.characterId, heard.id) })
+            assertEquals(2, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun expressionConversationKeepsRolesAndCurrentInputForBothApiFormats() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

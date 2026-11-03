@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e1a9cac48b7b5516cd4d8208ab3de9e913d89cd6`
-- 分支：`main`
-- 已索引文件：1125
-- 已索引代码/文本行：231542
-- 已发现符号：3249
+- 基准提交：`local`
+- 分支：`local`
+- 已索引文件：1123
+- 已索引代码/文本行：231472
+- 已发现符号：3248
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -384,7 +384,6 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 351 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 306 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 483 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
@@ -393,7 +392,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 194 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 381 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 83 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 56 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 427 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 54 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
@@ -732,7 +731,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2183 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2126 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
@@ -898,7 +897,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 806 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionArchiveTest.kt` | 158 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 283 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 290 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDevelopmentRecallTest.kt` | 53 | 1 |
@@ -930,11 +929,10 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 174 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 733 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt` | 59 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 578 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 229 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 201 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 257 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 332 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterTopicCandidatesTest.kt` | 251 | 8 |
@@ -949,7 +947,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 391 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 444 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 516 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |

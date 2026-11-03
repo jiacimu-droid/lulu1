@@ -193,5 +193,5 @@ internal object CharacterDecisionProtocol {
     }
 
     fun speechIntent(json: JSONObject): String = json.optString("speechIntent")
-        .ifBlank { json.optString("replyIntent") }.trim().take(800)
+        .ifBlank { json.optString("replyIntent") }.trim()
 }
