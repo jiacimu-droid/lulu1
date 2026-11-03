@@ -1352,25 +1352,25 @@ object CharacterInnerLifeStore {
         val action = selectedAction.trim().lowercase().take(80)
         val actionBasis = CharacterBehaviorMotivation.resolve(action, reason, appraisal, innerLife)
         val effectiveReason = actionBasis?.reason.orEmpty()
-        val thought = innerThought.replace(Regex("[ \\t]+"), " ").trim().take(680)
-        val focus = innerThoughtBasis?.optString("focus").orEmpty().trim().take(220)
-        val change = innerThoughtBasis?.optString("change").orEmpty().trim().take(220)
-        val conflict = innerThoughtBasis?.optString("conflict").orEmpty().trim().take(220)
-        val unsaidWhy = innerThoughtBasis?.optString("unsaidWhy").orEmpty().trim().take(220)
-        val spontaneousTurn = innerThoughtBasis?.optString("spontaneousTurn").orEmpty().trim().take(220)
+        val thought = innerThought.replace(Regex("[ \\t]+"), " ").trim()
+        val focus = innerThoughtBasis?.optString("focus").orEmpty().trim()
+        val change = innerThoughtBasis?.optString("change").orEmpty().trim()
+        val conflict = innerThoughtBasis?.optString("conflict").orEmpty().trim()
+        val unsaidWhy = innerThoughtBasis?.optString("unsaidWhy").orEmpty().trim()
+        val spontaneousTurn = innerThoughtBasis?.optString("spontaneousTurn").orEmpty().trim()
         val hasStateDelta = CharacterHeartVoicePolicy.hasStructuredDelta(innerLife)
-        val meaning = appraisal?.optString("meaning").orEmpty().trim().take(240)
-        val responseAim = appraisal?.optString("responseAim").orEmpty().trim().take(180)
+        val meaning = appraisal?.optString("meaning").orEmpty().trim()
+        val responseAim = appraisal?.optString("responseAim").orEmpty().trim()
         val move = appraisal?.optString("interactionMove").orEmpty().trim().lowercase().take(80)
-        val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim().take(180)
-        val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty().trim().take(240)
+        val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim()
+        val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty().trim()
         val interpreted = CharacterDeliberationContext.conciseAppraisal(appraisal)
         val expression = appraisal?.optJSONObject("expression")
         val hasExpression = listOf("stance", "subtext", "device", "restraint")
             .any { expression?.optString(it)?.isNotBlank() == true }
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
-            responseAim.isBlank() && effectiveReason.isBlank() &&
+            responseAim.isBlank() && move.isBlank() && effectiveReason.isBlank() &&
             interpreted == null && !hasExpression &&
             !CharacterOpenConcernRuntime.hasProposals(appraisal) &&
             appraisal?.optJSONObject("ownActivity") == null &&

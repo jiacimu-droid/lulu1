@@ -55,6 +55,82 @@ class CharacterInnerLifeStoreTest {
             }
         assertEquals(2, CharacterInnerLifeStore.snapshot(role).getJSONArray("causalTransitions").length())
     }
+
+    @Test fun authoredAppraisalAndThoughtKeepTheirMeaningfulTailsAcrossTheNextTurn() {
+        start()
+        val now = Instant.parse("2026-10-26T00:00:00Z")
+        val role = "inside-test-a"
+        fun longTail(prefix: String, tail: String) = prefix.repeat(36) + tail
+        val meaning = longTail("当时的理解", "；但她并没有取消让我主动跟进的约定")
+        val responseAim = longTail("希望下一轮达到的结果", "；不要把责任推回给她")
+        val uncertainty = longTail("仍然没有证实的部分", "；不能据此认定她已经睡着")
+        val commonGround = longTail("这轮新增的共同语境", "；之前的约定仍然有效")
+        val tension = longTail("当时并存的两种感受", "；最后仍决定主动确认")
+        val reading = longTail("可能的解释", "；但不能当成事实")
+        val idea = longTail("本人当时的另一个想法", "；还没有决定执行")
+        val focus = longTail("当时关注的重点", "；先看她是否需要帮助")
+        val change = longTail("当时察觉的变化", "；没有证据证明目标已完成")
+        val conflict = longTail("当时的内心冲突", "；不等于决定放弃")
+        val unsaidWhy = longTail("当时没说出口的缘由", "；仍愿意承担后续")
+        val spontaneousTurn = longTail("当时自然冒出的转念", "；没有因此改变原目标")
+        val thought = longTail("当时没说出口的完整想法", "；但这件事还没有结束")
+        val appraisal = JSONObject()
+            .put("meaning", meaning).put("responseAim", responseAim)
+            .put("interactionMove", "repair").put("uncertainty", uncertainty)
+            .put("commonGroundUpdate", commonGround).put("tension", tension)
+            .put("possibleReadings", JSONArray().put(reading))
+            .put("privateIdeas", JSONArray().put(idea))
+        val basis = JSONObject().put("focus", focus).put("change", change)
+            .put("conflict", conflict).put("unsaidWhy", unsaidWhy)
+            .put("spontaneousTurn", spontaneousTurn)
+        CharacterInnerLifeStore.recordCausalTransition(role, "long-appraisal-source",
+            appraisal, null, basis, "reply", thought, "", now)
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONArray("causalTransitions").getJSONObject(0)
+        val storedAppraisal = saved.getJSONObject("appraisal")
+        assertEquals(meaning, storedAppraisal.getString("meaning"))
+        assertEquals(responseAim, storedAppraisal.getString("responseAim"))
+        assertEquals(uncertainty, storedAppraisal.getString("uncertainty"))
+        assertEquals(commonGround, storedAppraisal.getString("commonGroundUpdate"))
+        assertEquals(tension, storedAppraisal.getString("tension"))
+        assertEquals(reading, storedAppraisal.getJSONArray("possibleReadings").getString(0))
+        assertEquals(idea, storedAppraisal.getJSONArray("privateIdeas").getString(0))
+        val storedBasis = saved.getJSONObject("innerThoughtBasis")
+        assertEquals(focus, storedBasis.getString("focus"))
+        assertEquals(change, storedBasis.getString("change"))
+        assertEquals(conflict, storedBasis.getString("conflict"))
+        assertEquals(unsaidWhy, storedBasis.getString("unsaidWhy"))
+        assertEquals(spontaneousTurn, storedBasis.getString("spontaneousTurn"))
+        assertEquals(thought, saved.getString("innerThought"))
+        listOf(CharacterInnerLifeStore.compactContext(role, now),
+            CharacterInnerLifeStore.context(role, now)).forEach { context ->
+            listOf("当时希望达到：$responseAim", "当时互动取向：repair",
+                "当时理解：$meaning", "当时未确定：$uncertainty",
+                "当时修正的语境：$commonGround", "当时纠结：$tension",
+                "当时想到的不同可能：$reading", "当时并存的想法：$idea",
+                "当时关注点：$focus", "当时察觉的变化：$change",
+                "当时冲突：$conflict", "当时没说出的缘由：$unsaidWhy",
+                "当时自然冒出的转念：$spontaneousTurn", "没说出口：$thought")
+                .forEach { assertTrue(context.contains(it)) }
+        }
+    }
+
+    @Test fun responseAimAndInteractionMoveAloneAreNotFilteredOutOfContinuity() {
+        start()
+        val now = Instant.parse("2026-10-26T00:00:00Z")
+        val role = "inside-test-a"
+        CharacterInnerLifeStore.recordCausalTransition(role, "aim-only",
+            JSONObject().put("responseAim", "下一轮仍要由我主动完成跟进"), null,
+            null, "silent", "", "", now)
+        CharacterInnerLifeStore.recordCausalTransition(role, "move-only",
+            JSONObject().put("interactionMove", "repair"), null,
+            null, "silent", "", "", now.plusSeconds(1))
+        val transitions = CharacterInnerLifeStore.snapshot(role).getJSONArray("causalTransitions")
+        assertEquals(2, transitions.length())
+        val context = CharacterDeliberationContext.summary(transitions, now.plusSeconds(2))
+        assertTrue(context.contains("当时希望达到：下一轮仍要由我主动完成跟进"))
+        assertTrue(context.contains("当时互动取向：repair"))
+    }
+
     private fun start() {
         CharacterInnerLifeStore.initialize(RuntimeEnvironment.getApplication() as Context)
         CharacterInnerLifeStore.clear("inside-test-a")

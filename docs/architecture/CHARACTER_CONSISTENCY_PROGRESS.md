@@ -76,3 +76,28 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 使用Kotlin 2.0.21、JUnit 4.13.2、org.json 20240303，把新增两个原测试方法及其相同now夹具复制到临时纯JVM测试类（不带Robolectric runner）运行生产源码。修改前2/2失败：实际20变12、长focus被截断；修改后2/2通过。原完整测试类另两项依赖Android协调器，不能把本地两项当成完整Robolectric回归；本轮完整Android/新APK以对应CI为准。
 - 无存储格式迁移，现有幸存记录保持；旧版已删掉或截断的内容没有凭空重建。积累大量未结心事后，索引规模、工作集召回完整性和多日真机表现仍待后续检查，不能宣称长期性能已经验收。
 - 下一轮先核实本轮CI，再查其他持久状态源是否仍混用展示预览与权威含义，及原目标/关心在跨场景结果后的延续。整体任务继续，已验通项不重复改动。
+
+
+## 2026-11-03 续轮：本人主观结论的持久化与下一轮交接完整性
+
+### 前轮 CI 核实
+
+- c8c37d3 初次 run `41333088808` 失败：2226 项测试中 2 项旧断言不匹配，未生成 APK；e61f0f5 修正测试契约后，run `41342908754` 的 build job 成功，包含测试、APK、产物和发布。
+- c63111f run `41353343520` 的 build job 成功。心事保存完整性已通过该次完整 Android CI；不重复修改。
+- 这些 CI 证明源码测试与 APK 构建，不代表真机或真实模型的 OOC 质量。
+
+### 本轮已证实的断点
+
+`CharacterInnerLifeStore.recordCausalTransition` 在保存本人主观记录前，对 meaning/responseAim/uncertainty/commonGroundUpdate、innerThought、innerThoughtBasis 多字段静默截断；`CharacterDeliberationContext.conciseAppraisal` 再次截断可能解释与并存想法，summary 又截短内容。关键否定、条件和后半句可能在持久化前已经消失。另一个交接缺口是 summary 没有输出已保存的 responseAim/interactionMove，也没有把 focus/change/unsaidWhy/spontaneousTurn 纳入可见主观历史；仅有这些字段的有效记录会被 hasPrivateContent 过滤。于是“当时如何理解、想达到什么、为什么犹豫”不能完整回到下一次同一人物决策。
+
+### 本轮源码修复
+
+- 对上述本人撰写的因果解释字段取消静默字符截断，保留原模型输出；结构化动作枚举仍保留字段校验。
+- 下一轮摘要补回 responseAim、interactionMove 和完整 innerThoughtBasis 维度；分别标明它们是过去的主观结论，不冒充用户事实或当前状态。
+- 每条主观事件独立成为一个工作集候选，按时间由新到旧选择。预算不足时整条事件可被省略，不再把同一条含否定/条件的记录切成残句，也不让一条超长旧记录拖掉其他近期记录。
+- 没有增加 Store、模型轮次、自动行动或角色性格规则；原始事件归属与撤回仍走现有来源门禁。
+
+### 回归与待验
+
+- 新增 Android/Robolectric 回归覆盖长字段末尾否定与条件在存储、compact/full 两类上下文中完整往返；另覆盖 responseAim-only 和 interactionMove-only 不再被过滤。源码测试已写入，需等待本次 main CI 执行。
+- 真机、真实模型是否因此更能连续承接本人意图仍待实测；工具/日程执行回执是否完整携带原 motive/concern/experience 关联 ID，是下一轮继续追踪的重点。

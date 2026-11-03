@@ -15,14 +15,14 @@ internal object CharacterDeliberationContext {
         val source = appraisal ?: return null
         val out = JSONObject()
         for (key in listOf("meaning", "uncertainty", "responseAim", "tension", "commonGroundUpdate")) {
-            source.optString(key).trim().take(180).takeIf(String::isNotBlank)
+            source.optString(key).trim().takeIf(String::isNotBlank)
                 ?.let { out.put(key, it) }
         }
         val possibilities = source.optJSONArray("possibleReadings")
         if (possibilities != null) {
             val valid = JSONArray()
             for (i in 0 until minOf(possibilities.length(), 3)) {
-                val candidate = possibilities.optString(i).trim().take(140)
+                val candidate = possibilities.optString(i).trim()
                 if (candidate.isNotBlank() && candidate !in (0 until valid.length()).map(valid::optString)) {
                     valid.put(candidate)
                 }
@@ -38,7 +38,7 @@ internal object CharacterDeliberationContext {
                 val idea = candidates.optString(i).trim()
                 if (idea.isNotBlank() && !(0 until ideas.length()).any {
                         CharacterHeartVoicePolicy.sameMeaning(ideas.optString(it), idea)
-                    }) ideas.put(idea.take(180))
+                    }) ideas.put(idea)
             }
             if (ideas.length() > 0) out.put("privateIdeas", ideas)
         }
@@ -52,61 +52,84 @@ internal object CharacterDeliberationContext {
                 val time = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
                 time != null && !time.isAfter(now) && Duration.between(time, now) <= Duration.ofHours(12)
             }
-            // Select psychological content BEFORE applying the existing working-set
-            // limit. A run of routine tool receipts must not evict a real thought.
+            // Select psychological content before the existing four-event view.
+            // Newest first means a complete newer appraisal is not crowded out by
+            // an older one; each event remains an atomic working-set candidate.
             .filter(::hasPrivateContent)
-            .sortedBy { Instant.parse(it.getString("at")) }
-            .takeLast(4)
+            .sortedByDescending { Instant.parse(it.getString("at")) }
+            .take(4)
         if (recent.isEmpty()) return ""
         return buildString {
-            appendLine("【近期曾经的主观考虑｜只是心理历史，不代表现在还在纠结】")
+            appendLine("【主观历史的使用边界】")
+            appendLine("以下是本人当时对真实事件的理解、取舍和念头，不代表用户事实，也不代表现在仍然纠结；新证据可以修正它们。")
             recent.forEach { entry ->
+                appendLine("【过去主观考虑｜${entry.optString("at")}｜不代表当前仍然纠结】")
                 val appraisal = entry.optJSONObject("appraisal")
                 val possibilities = appraisal?.optJSONArray("possibleReadings")
                 val ideas = appraisal?.optJSONArray("privateIdeas")
-                val tension = appraisal?.optString("tension").orEmpty()
-                val meaning = appraisal?.optString("meaning").orEmpty()
-                val uncertainty = appraisal?.optString("uncertainty").orEmpty()
-                val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty()
                 val basis = entry.optJSONObject("innerThoughtBasis")
-                val conflict = basis?.optString("conflict").orEmpty()
                 val thought = entry.optString("innerThought")
-                append("- [").append(entry.optString("at")).append("] ")
-                append(entry.optString("selectedAction").take(30))
+                append("- 当时选择=").append(entry.optString("selectedAction").take(30))
                 entry.optString("evidenceId").takeIf(String::isNotBlank)?.let {
                     append("；原始事件=").append(it)
                 }
-                if (meaning.isNotBlank()) append("；当时理解：").append(meaning.take(240))
-                if (commonGround.isNotBlank()) append("；当时修正的语境：").append(commonGround.take(240))
-                if (uncertainty.isNotBlank()) append("；当时未确定：").append(uncertainty.take(180))
+                appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时希望达到：").append(it)
+                }
+                appraisal?.optString("interactionMove")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时互动取向：").append(it)
+                }
+                appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时理解：").append(it)
+                }
+                appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时修正的语境：").append(it)
+                }
+                appraisal?.optString("uncertainty")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时未确定：").append(it)
+                }
                 if (ideas != null && ideas.length() > 0) {
                     append("；当时并存的想法：")
                     append((0 until ideas.length()).map(ideas::optString).joinToString("／"))
                 }
                 if (possibilities != null && possibilities.length() > 0) {
                     append("；当时想到的不同可能：")
-                    append((0 until minOf(possibilities.length(), 3))
-                        .map(possibilities::optString).joinToString("／").take(240))
+                    append((0 until possibilities.length()).map(possibilities::optString).joinToString("／"))
                 }
-                if (tension.isNotBlank()) append("；当时纠结：").append(tension.take(180))
-                else if (conflict.isNotBlank()) append("；当时纠结：").append(conflict.take(180))
-                if (thought.isNotBlank()) append("；没说出口：").append(thought.take(155))
+                appraisal?.optString("tension")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时纠结：").append(it)
+                }
+                basis?.optString("focus")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时关注点：").append(it)
+                }
+                basis?.optString("change")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时察觉的变化：").append(it)
+                }
+                basis?.optString("conflict")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时冲突：").append(it)
+                }
+                basis?.optString("unsaidWhy")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时没说出的缘由：").append(it)
+                }
+                basis?.optString("spontaneousTurn")?.takeIf(String::isNotBlank)?.let {
+                    append("；当时自然冒出的转念：").append(it)
+                }
+                if (thought.isNotBlank()) append("；没说出口：").append(thought)
                 appendLine()
             }
-            appendLine("以上只是你过去确实产生过的念头；时间已流逝，依据和愿望都可能改变。"
-                + "不需要把犹豫朗读给对方，只有真的想回应或做事才采取行动；"
-                + "不要把多个猜测合并成对用户的断言。")
         }.trim()
     }
 
     private fun hasPrivateContent(entry: JSONObject): Boolean {
         val appraisal = entry.optJSONObject("appraisal")
         val basis = entry.optJSONObject("innerThoughtBasis")
-        return listOf("meaning", "uncertainty", "commonGroundUpdate", "tension")
+        return listOf("meaning", "responseAim", "interactionMove", "uncertainty",
+            "commonGroundUpdate", "tension")
             .any { appraisal?.optString(it)?.isNotBlank() == true } ||
             (appraisal?.optJSONArray("possibleReadings")?.length() ?: 0) > 0 ||
             (appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0 ||
-            basis?.optString("conflict")?.isNotBlank() == true ||
+            listOf("focus", "change", "conflict", "unsaidWhy", "spontaneousTurn")
+                .any { basis?.optString(it)?.isNotBlank() == true } ||
             entry.optString("innerThought").isNotBlank()
     }
 }
