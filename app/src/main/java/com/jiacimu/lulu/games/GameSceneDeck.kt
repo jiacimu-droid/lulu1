@@ -4,6 +4,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
@@ -216,7 +219,11 @@ internal fun GameSceneDeck(
     }
 }
 
-/** Turn-based navigation: a tap is one tile, a hold repeats at a bounded cadence. */
+/**
+ * One continuous thumb zone, not four independent gesture detectors.
+ * Keeping the pressed pointer in one parent permits sliding between directions;
+ * the simulation still validates collisions, loot and combat on each actual step.
+ */
 @Composable
 internal fun GameDirectionalPad(
     accent: Color,
@@ -228,101 +235,138 @@ internal fun GameDirectionalPad(
     onInteract: (() -> Unit)? = null,
     onStep: (dx: Int, dy: Int) -> Unit,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        GameDirectionKey("↑", "向上移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(0, -1) }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            GameDirectionKey("←", "向左移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(-1, 0) }
-            Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
-                if (onInteract != null) {
-                    Surface(
-                        onClick = onInteract, enabled = interactEnabled,
-                        modifier = Modifier.size(46.dp).semantics { contentDescription = interactLabel },
-                        color = if (interactEnabled) Color(0xE3375158) else Color(0x8815222B),
-                        shape = CircleShape,
-                        border = BorderStroke(1.dp, accent.copy(alpha = if (interactEnabled) .8f else .2f)),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text("✦", color = if (interactEnabled) accent else Color.Gray,
-                                fontSize = 22.sp, fontWeight = FontWeight.Bold)
+    val latestStep by rememberUpdatedState(onStep)
+    val latestInteract by rememberUpdatedState(onInteract)
+    var activeDirection by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var centerPressed by remember { mutableStateOf(false) }
+    val repeatMs = holdRepeatMs.coerceAtLeast(135L)
+    Box(
+        modifier = Modifier.size(138.dp)
+            .pointerInput(enabled, repeatMs, stopWhen) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var direction = gameJoystickDirection(down.position.x, down.position.y,
+                        size.width.toFloat(), size.height.toFloat())
+                    var centerTap = direction == null
+                    activeDirection = direction
+                    centerPressed = centerTap
+                    direction?.let { latestStep(it.first, it.second) }
+                    coroutineScope {
+                        val repeating = launch {
+                            delay(repeatMs)
+                            while (isActive) {
+                                direction?.let { latestStep(it.first, it.second) }
+                                delay(repeatMs)
+                            }
                         }
-                    }
-                } else {
-                    Surface(modifier = Modifier.size(26.dp), color = Color(0x9615222B),
-                        shape = CircleShape, border = BorderStroke(1.dp, accent.copy(alpha = .3f))) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text("✦", color = accent, fontSize = 12.sp)
+                        try {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val pointer = event.changes.firstOrNull { it.id == down.id }
+                                    ?: break
+                                if (!pointer.pressed) {
+                                    if (centerTap && direction == null &&
+                                        interactEnabled) latestInteract?.invoke()
+                                    break
+                                }
+                                val next = gameJoystickDirection(pointer.position.x,
+                                    pointer.position.y,
+                                    size.width.toFloat(), size.height.toFloat())
+                                if (next != null) centerTap = false
+                                if (next != direction) {
+                                    direction = next
+                                    activeDirection = next
+                                    centerPressed = centerTap && next == null
+                                    next?.let { latestStep(it.first, it.second) }
+                                }
+                                pointer.consume()
+                            }
+                        } finally {
+                            repeating.cancel()
+                            activeDirection = null
+                            centerPressed = false
                         }
                     }
                 }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            GameDirectionCell("↑", "向上移动", accent, enabled,
+                activeDirection == (0 to -1)) { latestStep(0, -1) }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                GameDirectionCell("←", "向左移动", accent, enabled,
+                    activeDirection == (-1 to 0)) { latestStep(-1, 0) }
+                Surface(
+                    modifier = Modifier.size(46.dp).semantics {
+                        role = Role.Button
+                        contentDescription = interactLabel
+                        if (enabled && interactEnabled && onInteract != null) {
+                            onClick { latestInteract?.invoke(); true }
+                        } else disabled()
+                    },
+                    shape = CircleShape,
+                    color = if (enabled && interactEnabled) {
+                        if (centerPressed) accent.copy(alpha = .5f) else Color(0xE3375158)
+                    } else Color(0x8815222B),
+                    border = BorderStroke(1.dp, accent.copy(alpha =
+                        if (enabled && interactEnabled) .8f else .2f)),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("✦", color = if (enabled && interactEnabled) accent else Color.Gray,
+                            fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                GameDirectionCell("→", "向右移动", accent, enabled,
+                    activeDirection == (1 to 0)) { latestStep(1, 0) }
             }
-            GameDirectionKey("→", "向右移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(1, 0) }
+            GameDirectionCell("↓", "向下移动", accent, enabled,
+                activeDirection == (0 to 1)) { latestStep(0, 1) }
         }
-        GameDirectionKey("↓", "向下移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(0, 1) }
     }
 }
 
 @Composable
-private fun GameDirectionKey(
+private fun GameDirectionCell(
     text: String,
-    accessibilityLabel: String,
+    description: String,
     accent: Color,
     enabled: Boolean,
-    holdRepeatMs: Long,
-    stopWhen: Any?,
-    action: () -> Unit,
+    active: Boolean,
+    onActivate: () -> Unit,
 ) {
-    val currentAction = rememberUpdatedState(action)
-    var pressed by remember { mutableStateOf(false) }
-    val repeatMs = holdRepeatMs.coerceAtLeast(250L)
+    val currentActivate by rememberUpdatedState(onActivate)
     Surface(
-        modifier = Modifier
-            .size(46.dp)
-            .semantics {
-                role = Role.Button
-                contentDescription = accessibilityLabel
-                if (enabled) {
-                    onClick { currentAction.value(); true }
-                } else {
-                    disabled()
-                }
-            }
-            .pointerInput(enabled, repeatMs, stopWhen) {
-                if (!enabled) return@pointerInput
-                detectTapGestures(onPress = {
-                    pressed = true
-                    try {
-                        // Execute on down, never on release: a held move cannot gain a stray final turn.
-                        currentAction.value()
-                        coroutineScope {
-                            val repeating = launch {
-                                delay(repeatMs)
-                                while (isActive) {
-                                    currentAction.value()
-                                    delay(repeatMs)
-                                }
-                            }
-                            try {
-                                tryAwaitRelease()
-                            } finally {
-                                repeating.cancel()
-                            }
-                        }
-                    } finally {
-                        pressed = false
-                    }
-                })
-            },
+        modifier = Modifier.size(46.dp).semantics {
+            role = Role.Button
+            contentDescription = description
+            if (enabled) onClick { currentActivate(); true } else disabled()
+        },
         shape = RoundedCornerShape(13.dp),
         color = if (!enabled) Color(0x88101E26)
-            else if (pressed) accent.copy(alpha = .52f) else Color(0xD51C3540),
+            else if (active) accent.copy(alpha = .52f) else Color(0xD51C3540),
         border = BorderStroke(1.dp, accent.copy(alpha = if (enabled) .7f else .18f)),
-        shadowElevation = if (pressed) 1.dp else 3.dp,
+        shadowElevation = if (active) 1.dp else 3.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(text, color = if (enabled) Color.White else Color.Gray,
                 fontSize = 23.sp, fontWeight = FontWeight.Bold)
         }
     }
+}
+
+/** Pure hit testing for both touch down and finger dragging on the same joystick. */
+internal fun gameJoystickDirection(x: Float, y: Float, width: Float, height: Float):
+    Pair<Int, Int>? {
+    if (width <= 0f || height <= 0f) return null
+    val dx = x - width / 2f
+    val dy = y - height / 2f
+    val deadZone = minOf(width, height) * .155f
+    if (kotlin.math.max(kotlin.math.abs(dx), kotlin.math.abs(dy)) < deadZone) return null
+    return if (kotlin.math.abs(dx) >= kotlin.math.abs(dy))
+        (if (dx >= 0f) 1 else -1) to 0
+    else 0 to (if (dy >= 0f) 1 else -1)
 }
 
 @Composable
