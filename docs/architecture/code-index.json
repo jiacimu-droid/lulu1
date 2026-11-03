@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T16:59:22.206463+00:00",
-  "commit": "6a53af735e6e89aa557220c3dc1a7a9eae8de1a4",
+  "generatedAt": "2026-11-03T16:59:43.457414+00:00",
+  "commit": "aeab59048c200a548210c9f3b181d7c11db32b4d",
   "branch": "main",
-  "sourceFingerprint": "716b9fa41d5b77af7bd5788273a5729eca1bdebebfaac9087bab7f904c8e5b8e",
+  "sourceFingerprint": "e78eefc8f5b1eedd8f80b5731bf73dc24f4dd901e229c87c373b7c589b51a6ec",
   "summary": {
     "files": 1125,
-    "lines": 233609,
+    "lines": 233637,
     "symbols": 3254
   },
   "symbolIndex": {
@@ -17089,7 +17089,7 @@
     "MemoryWorkingSetPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "ModelStructuredOutputTest": [
@@ -37105,12 +37105,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt",
-      "lines": 161,
-      "sha256": "5fe669515cf6b27a8353f07d962c7dcb6336ebb9f191044cc0bc227e2d4b3294",
+      "lines": 189,
+      "sha256": "b75b71a666e978adbdf1d5ec3b6e7265b7c8555caa5926e64d9732e895b539b9",
       "symbols": [
         {
           "name": "MemoryWorkingSetPolicyTest",
-          "line": 5
+          "line": 6
         }
       ]
     },
