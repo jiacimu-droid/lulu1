@@ -26,6 +26,24 @@ class GoalDeadlinePerceptionPolicyTest {
         assertFalse(GoalDeadlinePerceptionPolicy.deferPassiveCheck(
             listOf(task.copy(status = CommitmentTaskStatus.Completed)), now))
     }
+    @Test fun scheduledReviewCannotSwallowFreshIndependentEvidence() {
+        val planned = CommitmentTask(characterId = "role", goal = "核实目标真实结果",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            dueAt = now.minusSeconds(90 * 60),
+            nextCheckAt = now.plusSeconds(30 * 60),
+            linkedAlarmId = "review-alarm", followUpKind = "verification")
+        assertTrue("A generic polling tick should coalesce with the existing alarm",
+            GoalDeadlinePerceptionPolicy.deferPassiveCheck(listOf(planned), now))
+        assertFalse("An actual new event can warrant the role's decision before that alarm",
+            GoalDeadlinePerceptionPolicy.deferPassiveCheck(listOf(planned), now,
+                hasIndependentEvidence = true))
+        assertEquals(now.plusSeconds(31 * 60),
+            GoalDeadlinePerceptionPolicy.passiveResumeAt(listOf(planned), now))
+        val expired = planned.copy(status = CommitmentTaskStatus.Completed)
+        assertFalse(GoalDeadlinePerceptionPolicy.deferPassiveCheck(listOf(expired), now))
+        assertNull(GoalDeadlinePerceptionPolicy.passiveResumeAt(listOf(expired), now))
+    }
+
     @Test fun protectedAlarmCannotDropNextAutonomousWakeOrPostponeItForever() {
         val tenMinutes = CommitmentTask(characterId = "role", goal = "十分钟后叫醒",
             status = CommitmentTaskStatus.Scheduled,
