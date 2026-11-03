@@ -21,8 +21,19 @@ internal object GoalDeadlinePerceptionPolicy {
                 Duration.between(now, it).seconds in 1L..(30L * 60L) }
         }
 
-    fun deferPassiveCheck(tasks: List<CommitmentTask>, now: Instant): Boolean =
-        protectedDeadlines(tasks, now).isNotEmpty()
+    /**
+     * A due alarm replaces a duplicate generic timer sweep, not a NEW
+     * independently witnessed interaction. Otherwise a review planned 30
+     * minutes away can suppress fresh owner input or verified world/device
+     * evidence until after that review; the appointment becomes an accidental
+     * "ignore everything until then" lock.
+     *
+     * This only authorizes the normal character decision path to run. It never
+     * chooses a message, overrides quiet-hours permissions or reschedules a task.
+     */
+    fun deferPassiveCheck(tasks: List<CommitmentTask>, now: Instant,
+                          hasIndependentEvidence: Boolean = false): Boolean =
+        !hasIndependentEvidence && protectedDeadlines(tasks, now).isNotEmpty()
 
     /** Keep a *durable* background resume time after the last protected alarm
      * instead of dropping this character from nextDueAt altogether.
