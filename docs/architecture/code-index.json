@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:09:46.849426+00:00",
-  "commit": "d06dd9d8dcddabc2f50144afc3c1eeed8df420a3",
+  "generatedAt": "2026-11-03T06:11:11.155267+00:00",
+  "commit": "e6f423d90e67b8862cf2e26b6c0fae00a45b432c",
   "branch": "main",
-  "sourceFingerprint": "1831c1e971aa9bee1df9e8bfecaf406111461766e1107c2cfd54b56502d64682",
+  "sourceFingerprint": "19f7d98a1d73299339f22eb68519a3a9ba6289c4e8b9a2bff0d3f8c1006f7c9b",
   "summary": {
     "files": 1124,
-    "lines": 231593,
+    "lines": 231613,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -28120,7 +28120,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
       "lines": 85,
-      "sha256": "3ae261b5da53df0d2fea334477e1185faa6d8d81b841eeea1e83520f5edb6efb",
+      "sha256": "8e1d25c80849deeca2fb1e1e2a2547eec3b9cb67871d16e51caafe8db6105a6a",
       "symbols": [
         {
           "name": "auxiliaryCandidates",
@@ -37050,8 +37050,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt",
-      "lines": 98,
-      "sha256": "6e6d9e08e179e430baa561e1bd72de0e257bdd7f1af882a8ccaf6f4a81a629d6",
+      "lines": 118,
+      "sha256": "3d4f93e696966c5000dd34a16645e3057d3a1fe339429df1c87e3c80eab8b9b4",
       "symbols": [
         {
           "name": "MemoryWorkingSetPolicyTest",
