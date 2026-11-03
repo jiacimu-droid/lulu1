@@ -626,6 +626,7 @@ internal suspend fun runGroupReplies(
                     pendingUserIds,
                     interactionReceipt = reply.interactionReceipt,
                     sourceWatermark = sourceWatermark,
+                    diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                 )
                 if ((shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) &&
                     (sourceWatermark == null || isReplySourceWatermarkCurrent(sourceWatermark))) {
