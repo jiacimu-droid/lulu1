@@ -2,6 +2,7 @@
 
 确认日期：2026-11-03。用户授权保存大纲并继续实现；当前优先级为**人物活人感第一，角色社交第二，游戏与视频体验随后**。人物连续性在任何场景中断，仍按第一优先级处理。本文件是长期路线，不是已实现或已验收的声明；每轮必须从最新 main 确认真实缺口。
 
+2026-11-04 P-08 接力：上一轮 `17db8eea8c` 的 APK/JVM `41726263095`、索引 `41726263117` 均 success；本轮进一步修正群聊 UserStatement 未核实原始已发送消息却可成为 lastUser 的证据归属断点：`caab606f7`、`840f25920`、测试 `ca5af41b6`。先验含本轮测试的完整 Actions，再真机验证失败/孤儿群聊消息不会冒充用户上次原话；P-08 不勾选。详见人物进度。
 2026-11-04 P-08 接力：`a6bff5e` 修复本人已决定的私人分享理由在保存与跨轮提示中被逐次截短；保留现有经历事实预算，完整 CI、真机社交取舍及提示词体积仍待验，P-08 不打勾。详见人物进度。
 
 人物专项的历史证据和逐轮结果见 [CHARACTER_CONSISTENCY_PROGRESS.md](CHARACTER_CONSISTENCY_PROGRESS.md)；公共边界见 [UNIFIED_CHARACTER_CONTRACT.md](UNIFIED_CHARACTER_CONTRACT.md) 和 [COMPANION_GROWTH_FRAMEWORK.md](COMPANION_GROWTH_FRAMEWORK.md)。后续窗口从 AGENTS.md 进入本文件即可续接，不依赖窗口自动记忆。
