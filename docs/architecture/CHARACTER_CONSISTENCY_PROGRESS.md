@@ -327,7 +327,7 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 ## 2026-11-03 · 自主个人日程缺失 dueAt 的执行契约修复（源码已提交，CI/真机待验）
 
-- **证据**：20:02:12 江渡后台 `plan_personal_activity` 请求进入工具执行，却因 `No value for dueAt` 拒绝；这是缺少模型明确选择的实际时间，不能将其记录成已安排日程。另一个 `digital_world_action` 地点动作拒绝属于独立故障，不能作为本次日程缺失的原因。
+- **证据**：20:02:12 江渡后台 `plan_personal_activity` 请求进入工具执行，却因 `No value for dueAt` 拒绝；这是缺少模型明确选择的实际时间，不能将其记录成已安排日程。另一个 `digital_world_action` 的咖啡角点单拒绝与本次日程缺失无关；已核对点三明治是有店员在场才开放的真实菜单能力，当时允许列表未包含它，不能凭截图宣称本次真实点单应成功。
 - **根因**：`CompanionActionRuntime.execute` 直接 `args.getString("dueAt")`；`ProactivePerceptionRuntime` 虽已对家具建设的主动作/嵌套步骤提供格式补正，却未对个人日程的关键参数做对应校验和同本人补正，导致有效意愿在执行前因漏字段而失败。
 - **源码**：`AutonomousActionWireProtocol` 共享顶层与 steps 的日程必填/未来时间校验和仅修改缺失字段的原动作修补；`ProactivePerceptionRuntime` 复用既有有界模型补正，不预先猜时间，不替角色取消原决定，不更改有效意愿/话语/其他动作；`CompanionActionRuntime` 缺时间返回明确失败而非 `No value` 原始异常。
 - **回归**：新增缺少日期、无效时间、过去时间、独立 steps 的按 index 补正与不改写原定动机的测试。代码已提交 main：`883c18e`、`9bcc46f`、`43e8a30`、`3639b78`；索引工作流更新基准至 `3639b78`。实际 JVM 测试与 APK 尚未有验收回执，不能标已验通。
@@ -344,3 +344,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **本轮补齐前台发送断点（续交）**：复核 `runGroupReplies` 后确认，前台聊天的规划与表达虽已记录同一 trace，但 `ModelReply` 还没有把该 trace 带到正式群聊逐泡发送器；若不补齐，仍不能由规划回溯已入库消息。后继源码提交 `82506b4` 为 `ModelReply` 加纯本地 `diagnosticTurnTraceId`；`7ac6afc` 让 `LuluDeviceToolBridge` 的正式回复和工具后回复携带同一 ID；`fca109f` 将群聊发言的 `reply.diagnosticTurnTraceId` 接入 `appendRoleReplyWithPacing`；`e904ea6` 的 MockWebServer 回归增加返回对象与规划/表达审计 trace 相等的断言。未更改用户可见正文、网络请求或发送判断，且角色群聊每位成员各有独立回合 ID。群聊及私聊重新生成后的替换、模型实际投入记忆源的精确列表仍需分别验收，不声明覆盖所有 UI 发送入口。
 - **索引/构建续证**：前序 `87a7a74` 的索引 run `41641495955` 最终 completed/success（早期 APK 因后续代码变更不代表最新版本）；包含发送透传的 `fca109f` 索引 `41641875943` completed/success。最终 `e904ea6` 的索引 `41641928579` 检查时运行中，Lulu APK `41641928666` 检查时 pending；不是测试通过。后继新 SHA 的构建结论必须以对应运行实际结果为准。
 - **下一轮准确入口**：先查最新 `e904ea6` 后继 `Lulu APK` 的 `app:testPhoneUnitTest`、打包、发布真实结论及 Refresh code index 的生成结果，失败只修第一条真实报错。再以一段用户授权的脱敏对照回合查 `LocalPerformanceRepository.consoleRecords.turnTraceId`、`P08a角色规划`、`P08a表达结果`、`P08a在线决定`、`P08a气泡入库`、`P08a发送结局`、`P08a真实执行`，比对实际模型档案、完整规划与表达 JSON、原始消息及下轮使用的送达来源；针对真正扩写/遗漏处推进 P-08b/c/d，真实模型盲评留 P-08e。P-08 全部保持 `[ ]`。
+
+
+## 2026-11-03 · 自主日程 dueAt 修复复核：补正失败不能吞独立行动（待 CI／真机）
+
+- **后继源码复核发现的真实缺口**：此前 `ProactivePerceptionRuntime` 已能请求同一角色修正缺失的 `dueAt`，但补正未成功时的 `initialDecision.takeUnless` 仍直接丢弃原本可解析的主动作，使其中明确选定且 `requiresPreviousSuccess=false` 的其他步骤无法抵达 `ToolRouter`，而失败日程本身也没获得可追踪的统一工具失败回执。
+- **修复**：保留原本已选择的 `plan_personal_activity` 到正式 ToolRouter。若补正成功，按原参数/原日程仅执行一次；若补正失败，执行器拒绝缺失时间并落真实失败回执，独立已选动作仍运行，依赖主动作成功的步骤则继续被挡住。程序不杜撰时间、不把失败视为主动取消、也不擅自补建过去失败的日程。
+- **回归已提交但尚未获运行结果**：现有 `AutonomousActionWireProtocolTest` 覆盖丢日期/非法与过去时间、仅补字段、steps 顺序；新增两条 `AutonomousActionBoundaryIntegrationTest` 通过原主动感知入口和 MockWebServer：一条让模型补正仍漏日期，核实原计划失败回执、独立朋友圈照常成功；另一条模型补出真实未来时间，核实原名称与动机不改且个人日程仅落库一次。测试源码存在≠已运行通过。
+- **main 代码提交**：`07313be`（主动作补正失败仍留执行回执和其他独立动作）、`28a019a`（补正失败集成回归）、`affc432`（补正成功真实持久化回归）。原有 Code Index 工作流会基于最新 main 生成索引；`28a019a` 基准已可见，最新后继 `affc432` 的索引与 Android APK 最终成功状态需复核。当前 GitHub 连接只提供 PR 过滤的工作流查询，返回空列表不代表 push 工作流已通过或失败，不能据此宣布单测/构建成功。
+- **真机边界**：需在含此提交的新 APK 检查真实角色选定日程→缺字段补正→`own-plan-...` 成功证据／真实到点唤醒与后续执行；补正失败时仅出现失败回执且不损失独立行动。P-08d 保持待验；不更改单个角色人格、日程预设或咖啡馆交易规则。
+
