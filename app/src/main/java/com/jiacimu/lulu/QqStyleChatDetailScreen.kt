@@ -584,6 +584,7 @@ fun QqStyleChatDetailScreen(
     }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
