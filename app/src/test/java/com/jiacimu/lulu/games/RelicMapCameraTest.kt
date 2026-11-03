@@ -25,4 +25,13 @@ class RelicMapCameraTest {
         assertEquals(20f, camera.tileSize, .001f)
         assertEquals(17 to 14, camera.tileAt(359f, 299f, 18, 15))
     }
+
+    @Test fun fractionalTrackingRemainsCenteredAndTouchMatchesRender() {
+        val camera = relicMapCamera(800f, 360f, 18, 15, true, 4.25f, 5.75f)
+        val x = camera.offsetX + (4.25f + .5f) * camera.tileSize
+        val y = camera.offsetY + (5.75f + .5f) * camera.tileSize
+        assertEquals(400f, x, .001f)
+        assertEquals(180f, y, .001f)
+        assertEquals(4 to 6, camera.tileAt(400f, 180f, 18, 15))
+    }
 }
