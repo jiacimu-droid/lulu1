@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:22:29.337466+00:00",
-  "commit": "f6a51854be8c3c632ec19851330e54e5581f40b9",
+  "generatedAt": "2026-11-03T17:23:12.021567+00:00",
+  "commit": "3fd5bae2da44f76da360a63ff168a17b9a8fa28d",
   "branch": "main",
-  "sourceFingerprint": "ba4b4c92f1f3e615a9599a0cd966119d54ad49e8accb3393eb5bc47ef86447b3",
+  "sourceFingerprint": "1a57ba04040940b7508854d92f19bd9edbbbcffde61ebb8c150c97aaa5404985",
   "summary": {
     "files": 1125,
     "lines": 233869,
@@ -25436,7 +25436,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
       "lines": 222,
-      "sha256": "afcc9d811ac8ae3aeddd5b3f5fd741377d5d021f105ba105f6a06c0dc0903505",
+      "sha256": "d2c8604c1333b2a0f9b4df76c4d6dbf111b054deebaf6dfa3ca4a1668ef8e09b",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -28922,7 +28922,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3224,
-      "sha256": "12c6c9417aa3e81ead1ae31ed7a575e04ec669436bd94e4c3f73ddfd913911e2",
+      "sha256": "c602b584b11cac9439737d0afdcc5a366df7106f3fd13422406c7f1ad8799ea5",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
