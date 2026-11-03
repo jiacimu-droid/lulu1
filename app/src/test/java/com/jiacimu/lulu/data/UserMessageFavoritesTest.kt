@@ -155,6 +155,59 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun distinctHeartVoiceFromNewChatFeedbackSurvivesAmbientFifteenMinuteWindow() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "new-feedback-heart-event"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-11-03T12:47:00Z")
+        val prior = "这道知识产权题值得多讲几句，她可能想听细一点。"
+        val changed = "她直接说我讲得太长，眼睛都不舒服了。我刚才完全没留意她的感受。"
+        CompanionPresenceStore.update(
+            role, "正在聊题", null, prior, "专注", "聊天回复·在线感知", start,
+            innerThoughtFingerprint = "study-explanation",
+        )
+        // Real user feedback arrives four minutes later. The role independently
+        // authors a different private interpretation; mood/status need not change.
+        CompanionPresenceStore.update(
+            role, null, null, changed, null, "聊天回复·在线感知",
+            start.plusSeconds(4 * 60), innerThoughtFingerprint = "feedback-changed-focus",
+        )
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(2, history.count { it.showInHistory })
+        assertEquals(changed, history.first().innerThought)
+        assertEquals(prior, history.last().innerThought)
+        // A third nearly identical appraisal is not an extra inner monologue.
+        CompanionPresenceStore.update(
+            role, null, null, changed, null, "聊天回复·在线感知",
+            start.plusSeconds(5 * 60), innerThoughtFingerprint = "feedback-changed-focus",
+        )
+        assertEquals(2, CompanionPresenceStore.histories.value[role].orEmpty().count { it.showInHistory })
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun ambientPerceptionStillThrottlesUnrelatedThoughtOnlyEvents() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "ambient-thought-throttle"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-11-03T12:47:00Z")
+        CompanionPresenceStore.update(
+            role, "独自整理思路", null, "这本书里的问题还挺有趣的", "平静",
+            "后台主动感知", start, innerThoughtFingerprint = "old-book-topic",
+        )
+        CompanionPresenceStore.update(
+            role, null, null, "等会儿想换本小说读一读", null,
+            "在线持续感知", start.plusSeconds(4 * 60),
+            innerThoughtFingerprint = "new-ambient-topic",
+        )
+        // No fresh user message: keep the previous anti-spam cadence.
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(1, history.size)
+        assertEquals("这本书里的问题还挺有趣的", history.single().innerThought)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun sameCausalHeartVoiceDoesNotResurfaceWhenModelParaphrasesIt() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
