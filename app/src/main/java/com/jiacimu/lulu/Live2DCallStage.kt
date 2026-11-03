@@ -456,7 +456,19 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 face.values.forEach { (key, value) -> values.put(key, value.toDouble()) }
             }
             previewExpression?.let { cue.put("expression", it) }
-            previewMotion?.let { cue.put("motion", JSONObject().put("group", it.first).put("index", it.second)) }
+            previewMotion?.let { selected ->
+                cue.put("motion", JSONObject().put("group", selected.first)
+                    .put("index", selected.second))
+                // Top-level/manual playback takes the same real Motion3
+                // transition metadata as speech beats. Otherwise only
+                // the later beats blend and the first clip can snap.
+                Live2DAssets.motionMetadata(context, characterId,
+                    selected.first, selected.second)?.let { metadata ->
+                    metadata.fadeInMs?.let { cue.put("motionFadeInMs", it) }
+                    metadata.durationMs?.let { cue.put("motionDurationMs", it) }
+                    cue.put("motionParameterIds", JSONArray(metadata.parameterIds))
+                }
+            }
             previewHead?.let { cue.put("head", angles(it.yaw, it.pitch, it.roll)) }
             previewBody?.let { cue.put("body", angles(it.yaw, it.pitch, it.roll)) }
             previewFace?.let { cue.put("face", faceValues(it)) }
