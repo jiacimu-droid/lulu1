@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:04:30.077487+00:00",
-  "commit": "0ff54453371eac5e6d3b9b4113d2cd6e8b0541a6",
+  "generatedAt": "2026-11-03T08:05:16.641090+00:00",
+  "commit": "fa5ce886e9a51e3962fceaedfcccd35cd8dc044d",
   "branch": "main",
-  "sourceFingerprint": "0c5ccf08c294def80d34a0ef514a4e4aed2596e6da9cc79f3d9eab83f57b26c8",
+  "sourceFingerprint": "baa2f0a46461773d5ac5bb5735a2bf945d0551d0395f481416ac07120954d100",
   "summary": {
     "files": 1125,
-    "lines": 231988,
+    "lines": 232008,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -5969,7 +5969,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 453
+        "line": 456
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -9261,7 +9261,7 @@
     "observeFolders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 322
+        "line": 325
       }
     ],
     "callEndDescription": [
@@ -26913,8 +26913,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 644,
-      "sha256": "17c9cabbb64d6f3132f1ac7f79d578d300d6426fc13e79b39584a7bfd74e944c",
+      "lines": 664,
+      "sha256": "b13eb33479ed92417507c89c2728a62b4dbbf21eaf3ab37315de3ae90bd69762",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -26966,11 +26966,11 @@
         },
         {
           "name": "observeFolders",
-          "line": 322
+          "line": 325
         },
         {
           "name": "snapshot",
-          "line": 453
+          "line": 456
         }
       ]
     },
