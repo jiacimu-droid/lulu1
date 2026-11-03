@@ -26,11 +26,9 @@ internal object RelationshipRhythmPerception {
         }
         fun formatMinute(value: Long): String =
             "%02d:%02d".format((value / 60L % 24L).toInt(), (value % 60L).toInt())
-        val userTalk = eligible.filter {
-            it.evidenceKind == EventEvidenceKind.UserStatement &&
-                (it.channel == "私聊" || it.channel.startsWith("群聊") ||
-                    it.channel.contains("电话") || it.channel.contains("见面"))
-        }
+        // Match the contact clock's verified provenance. Orphaned or failed
+        // group witnesses must not inflate the apparent relationship rhythm.
+        val userTalk = CompanionContactClock.verifiedUserContacts(eligible)
         val starts = eligible.filter {
             it.channel == "电话互动" && it.id.startsWith("interaction-call-start-") &&
                 it.source == InteractionSignalBridge.SOURCE &&
