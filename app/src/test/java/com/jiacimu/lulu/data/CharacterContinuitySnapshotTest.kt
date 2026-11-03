@@ -66,4 +66,37 @@ class CharacterContinuitySnapshotTest {
         assertTrue(rendered.contains("今晚先放下"))
         assertTrue(rendered.contains("明天再接着说"))
     }
+    @Test fun soloArtifactsAndPublicPostsDoNotResetActualUserContact() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val role = "solo-artifact-contact-boundary"
+        val base = Instant.parse("2026-11-04T04:00:00Z")
+        SharedExperienceTimeline.record("contact-user", role, "私聊", "用户",
+            "明天再聊。", base, triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record("contact-own", role, "私聊", "角色",
+            "好，明天见。", base.plusSeconds(1), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record("solo-practice", role, "自主学习·私人练习", "角色",
+            "{\"artifact\":\"私人练习稿\"}", base.plusSeconds(2),
+            triggerExtraction = false, source = "learning-practice:goal",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record("public-post", role, "朋友圈", "角色",
+            "今天看了一本书。", base.plusSeconds(3), triggerExtraction = false,
+            source = "moment:self", evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record("user-public-post", role, "朋友圈", "用户",
+            "随手发了一条动态。", base.plusSeconds(4), triggerExtraction = false,
+            source = "moment:user", evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record("resident-conversation", role,
+            "数字世界见面·咖啡馆", "角色", "我和居民聊了天气。",
+            base.plusSeconds(5), triggerExtraction = false, sessionId = "resident-session",
+            source = "meeting", evidenceKind = EventEvidenceKind.CharacterStatement)
+        val snapshot = CharacterContinuityRuntime.snapshot(role, now = base.plusSeconds(300))
+        assertEquals("contact-user", snapshot.lastUserStatement?.id)
+        assertEquals("contact-own", snapshot.lastCharacterStatement?.id)
+        assertEquals(base.plusSeconds(1), snapshot.previousInteractionAt)
+        assertFalse(CharacterContinuityRuntime.render(snapshot).contains("私人练习稿"))
+    }
+
+
 }

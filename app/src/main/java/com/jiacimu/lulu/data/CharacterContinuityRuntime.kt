@@ -53,7 +53,7 @@ internal object CharacterContinuityRuntime {
                     // sent message still establishes a real user author.
                     if (lastUser == null) lastUser = event
                     if (previous == null) previous = event
-                } else if (TimelineStatementOwnership.isOwnCharacterStatement(event)) {
+                } else if (TimelineStatementOwnership.isOwnDialogueStatement(event)) {
                     if (lastOwn == null) lastOwn = event
                     if (previous == null && TimelineStatementOwnership.involvesUser(event))
                         previous = event

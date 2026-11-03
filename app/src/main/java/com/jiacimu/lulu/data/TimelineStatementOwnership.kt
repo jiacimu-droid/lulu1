@@ -30,11 +30,29 @@ internal object TimelineStatementOwnership {
             (message.authorCharacterId ?: conversation.characterId) == event.characterId
     }
 
+    /** A spoken line in shared history is not necessarily a conversation with
+     * the user: moments, journals, solo learning and resident encounters are
+     * firsthand character statements with different audiences. */
+    private fun isDirectUserExchange(event: SharedTimelineEvent): Boolean = when (event.source) {
+        "message", "watch-together" -> true
+        "meeting" -> event.sessionId.isNotBlank() &&
+            DigitalWorldStore.state.value.meetings.any { session ->
+                session.id == event.sessionId &&
+                    session.participantIds.none { it.startsWith("resident:") }
+            }
+        // Older direct chat rows may lack a source but retain their channel.
+        "legacy" -> event.channel == "私聊"
+        else -> false
+    }
+
+    fun isOwnDialogueStatement(event: SharedTimelineEvent): Boolean =
+        isOwnCharacterStatement(event) && (isGroup(event) || isDirectUserExchange(event))
+
     /** A group statement alone does not establish contact with the user.
      * Current group membership is mutable and cannot prove historical audience.
      * An actual user statement can anchor that contact without guessing who read a reply. */
     fun involvesUser(event: SharedTimelineEvent): Boolean {
-        if (!isGroup(event)) return true
+        if (!isGroup(event)) return isDirectUserExchange(event)
         if (event.evidenceKind != EventEvidenceKind.UserStatement ||
             event.source != "message") return false
         // A witnessed group row is not proof of a user message on its own.
