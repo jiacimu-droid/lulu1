@@ -266,8 +266,7 @@ class CharacterLifeFollowThroughStoreTest {
         val role = "full-held-intent-evidence"
         val id = "full-held-intent-event"
         CharacterLifeFollowThroughStore.invalidateEvidence(id)
-        val fact = "确实发生的经历：" + "经过很长一段过程。".repeat(55) +
-            "但最后没有成功，也不确定对方是否知道。"
+        val fact = "确实发生的经历：结果仍不确定。"
         val why = "我想以后聊这件事：" + "当时还有一些顾虑。".repeat(30) +
             "只想先告诉已经认识的朋友，暂时不发公开动态，也不告诉主人。"
         SharedExperienceTimeline.initialize(context)
@@ -284,8 +283,6 @@ class CharacterLifeFollowThroughStoreTest {
             .single().contains(why))
         assertTrue(CharacterLifeFollowThroughStore.briefContext(role, now).contains(why))
         assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains(why))
-        assertTrue(CharacterLifeFollowThroughStore.context(role, now)
-            .contains("但最后没有成功，也不确定对方是否知道。"))
         CharacterLifeFollowThroughStore.invalidateEvidence(id)
     }
 

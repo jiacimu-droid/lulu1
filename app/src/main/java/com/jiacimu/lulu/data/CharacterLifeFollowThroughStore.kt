@@ -66,7 +66,7 @@ internal object CharacterLifeFollowThroughStore {
         val all = records(characterId).toMutableList()
         if (all.any { it.optString("id") == evidenceId }) return@synchronized false
         val event = JSONObject().put("id", evidenceId).put("channel", channel.take(90))
-            .put("fact", summary).put("occurredAt", at.toString())
+            .put("fact", summary.take(340)).put("occurredAt", at.toString())
             .put("shareStatus", "open").put("curiosityStatus", "open")
             .put("createdAt", Instant.now().toString())
             .put("sourceEvidenceId", sourceEvidenceId)
@@ -179,7 +179,7 @@ internal object CharacterLifeFollowThroughStore {
             sharingCandidates(characterId, now).map { item ->
                 val id = item.optString("id")
                 val held = item.optString("shareStatus") == "held"
-                "真实生活经历 experienceId=$id：" + item.optString("fact") + "；" +
+                "真实生活经历 experienceId=$id：" + item.optString("fact").take(115) + "；" +
                     (if (held) "自己明确想分享却尚未发送：" +
                         item.optString("shareWhy")
                     else "目前分享冲动累积较强；这一件是可选的真实素材，不代表已经想好要讲") +
@@ -208,7 +208,7 @@ internal object CharacterLifeFollowThroughStore {
         buildString {
             appendLine("【自己真实经历过、还未分享的生活｜有兴趣才自然带入当前话题】")
             pending.forEach { item ->
-                appendLine("- experienceId=${item.optString("id")}；[${item.optString("occurredAt")}] ${item.optString("fact")}")
+                appendLine("- experienceId=${item.optString("id")}；[${item.optString("occurredAt")}] ${item.optString("fact").take(200)}")
                 item.optString("shareWhy").takeIf(String::isNotBlank)?.let { appendLine("  当时想分享的理由：${it}") }
             }
             append("这是过去经历，不是现在又发生；不要为了说点自己的事打断对方，也不必等她主动问。")
