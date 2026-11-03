@@ -19,6 +19,8 @@
 
 ### 当前跨窗口续改入口（2026-11-03）
 
+- 记忆专项续改见 [体验大纲中的记忆系统核查与 eMEM 借鉴路线](docs/architecture/LULU_EXPERIENCE_ROADMAP.md#2026-11-03--记忆系统核查与-emem-借鉴路线检查与规划未新增实现)：先完整含义/来源与时空人物查询，再依据手机测量决定索引；已有记忆能力必须复用。
+
 - 主人已确认的完整体验大纲保存在 [LULU_EXPERIENCE_ROADMAP.md](docs/architecture/LULU_EXPERIENCE_ROADMAP.md)。**先人物活人感与整体因果一致性，其次角色之间的社交网络，再推进单人/双人游戏与视频陪伴体验**；涉及人物连续性的游戏、视频断点仍属于第一优先级。
 - 人物每轮源码证据、已修复项、CI 和待验边界继续记录在 [CHARACTER_CONSISTENCY_PROGRESS.md](docs/architecture/CHARACTER_CONSISTENCY_PROGRESS.md)。开始续改先读两份进度及最新 main，不能把大纲当成已实现清单，也不能重复开发已验通项。
 
