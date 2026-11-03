@@ -323,3 +323,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **正式改动**：真实未读用户消息引起的心理快照标注“聊天回复·在线感知”，不同新心声立刻进入可见历史；无消息的常规后台感知仍沿用限频，同因同句仍去重。PrivateStateDeltaEngine 增加明确的 hasFreshUserMessage 来源事实，仅当角色自己写了新的 focus/change 和非空 innerThought 才允许纯私人变化保留。不根据用户说“烦”硬编心情、道歉或心声，不额外付费模型调用，不新增状态中心。
 - **提交和测试状态**：main 源码 462ba17、35dcba0、868e3e2；回归 a472509、57d72e0。测试覆盖：四分钟内真实用户反馈生成的不同心声可见、重复心声不新增、无新消息后台仍节流，以及纯私人转念不需要伪造情绪/完整评估。测试为已经提交的契约，尚未取得对应 Android/JVM CI 通过及新版 APK 真机证据，P-08 仍待验。
 - **下轮核查**：先查这轮 CI，随后用新 APK 比较“无反馈的重复心理”与“用户当面纠正后角色新写出的不同心声”。若仍缺失，采集同一轮模型实际输出的 innerThought / innerThoughtBasis / appraisal、delta 和存储/展示结果，确认是模型未生成、程序过滤、历史未保存还是 UI 未显示；不要用强制心声或通用道歉模板掩盖真正原因。
+
+
+## 2026-11-03 · 自主个人日程缺失 dueAt 的执行契约修复（源码已提交，CI/真机待验）
+
+- **证据**：20:02:12 江渡后台 `plan_personal_activity` 请求进入工具执行，却因 `No value for dueAt` 拒绝；这是缺少模型明确选择的实际时间，不能将其记录成已安排日程。另一个 `digital_world_action` 地点动作拒绝属于独立故障，不能作为本次日程缺失的原因。
+- **根因**：`CompanionActionRuntime.execute` 直接 `args.getString("dueAt")`；`ProactivePerceptionRuntime` 虽已对家具建设的主动作/嵌套步骤提供格式补正，却未对个人日程的关键参数做对应校验和同本人补正，导致有效意愿在执行前因漏字段而失败。
+- **源码**：`AutonomousActionWireProtocol` 共享顶层与 steps 的日程必填/未来时间校验和仅修改缺失字段的原动作修补；`ProactivePerceptionRuntime` 复用既有有界模型补正，不预先猜时间，不替角色取消原决定，不更改有效意愿/话语/其他动作；`CompanionActionRuntime` 缺时间返回明确失败而非 `No value` 原始异常。
+- **回归**：新增缺少日期、无效时间、过去时间、独立 steps 的按 index 补正与不改写原定动机的测试。代码已提交 main：`883c18e`、`9bcc46f`、`43e8a30`、`3639b78`；索引工作流更新基准至 `3639b78`。实际 JVM 测试与 APK 尚未有验收回执，不能标已验通。
+- **待验**：新 APK 用真实角色自主选择主动作安排、聊天+附加日程、心事 nextAction 的漏 `dueAt` 情况验证，确认补正输出真实未来 ISO 时间、仅成功持久化才有计划 ID 和下一次到点唤醒；补正失败应保留失败回执并供下轮同一角色重试。不自动补写截图中已经失败的旧日程。
+
