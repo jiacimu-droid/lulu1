@@ -405,6 +405,51 @@ class QqReplySourceWatermarkTest {
         assertFalse(timings.any { it.detail.contains("trace=not-model-controlled") })
     }
 
+
+    @Test fun sameToolRequestReplaysAcrossNewDiagnosticTurnIdsWithoutSendingAgain() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("幂等诊断角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "幂等回执")
+        val requestId = "trace-retry-" + java.util.UUID.randomUUID().toString()
+        val original = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject().put("text", "这一条只应真实发送一次")
+                .put("_turnTraceId", "trace-before-retry"), requestId = requestId))
+        assertTrue(original.toString(), original.optBoolean("success"))
+        val replayed = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject().put("text", "这一条只应真实发送一次")
+                .put("_turnTraceId", "trace-after-retry"), requestId = requestId))
+        assertEquals(original.toString(), replayed.toString())
+        val actual = MigratedDomainStores.chat.messages(conversation.id).value.filter {
+            it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character &&
+                it.content == "这一条只应真实发送一次"
+        }
+        assertEquals(1, actual.size)
+        assertEquals(actual.single().id, replayed.getString("evidenceId"))
+    }
+
+    @Test fun oldPersistedFingerprintWithTraceIsStillRecognizedAsSameRequest() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("旧请求兼容角色").characterId
+        val requestId = "legacy-trace-" + java.util.UUID.randomUUID().toString()
+        val prior = JSONObject().put("success", true).put("summary", "此前已完成的真实记录")
+        val legacy = JSONObject()
+            .put("fingerprint", "send_private_message:{\\"_turnTraceId\\":\\"previous-turn\\",\\"text\\":\\"此前选择的内容\\"}")
+            .put("status", "succeeded").put("result", prior.toString())
+        val preferences = app.getSharedPreferences("lulu_tool_executions", android.content.Context.MODE_PRIVATE)
+        assertTrue(preferences.edit().putString("$role:$requestId", legacy.toString()).commit())
+        val replay = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject().put("text", "此前选择的内容")
+                .put("_turnTraceId", "brand-new-diagnostic"), requestId = requestId))
+        assertEquals(prior.toString(), replay.toString())
+        assertFalse(MigratedDomainStores.chat.conversations.value.any { it.characterId == role &&
+            MigratedDomainStores.chat.messages(it.id).value.any { msg ->
+                msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
+            } })
+        val changed = JSONObject(ToolRouter.execute(app, role, "send_private_message",
+            JSONObject().put("text", "被实质改写的内容"), requestId = requestId))
+        assertFalse(changed.optBoolean("success"))
+    }
+
     @Test fun correctionBetweenTwoBubblesKeepsFirstReceiptButStopsSecond() = runBlocking {
         val role = MigratedDomainStores.characters.create("气泡中途纠正角色").characterId
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "气泡中断")
