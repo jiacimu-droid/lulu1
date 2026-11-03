@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-02T18:01:44.768392+00:00",
-  "commit": "9592f4ec4e93329ff7c7fa1ce947687c1cfc0816",
+  "generatedAt": "2026-11-03T02:48:26.593651+00:00",
+  "commit": "d3d9f954e2815e9ae2c2c7621358b928bc656113",
   "branch": "main",
-  "sourceFingerprint": "7a16b784fa187b011f9b5d36f4bac667e7fcd52c7e8a11a3b280f44fe43dbc74",
+  "sourceFingerprint": "c1f507d21ccb6bf815ed986e9b0b056ba3f0eefddf1b7c98ad6066456996b8d7",
   "summary": {
     "files": 1121,
-    "lines": 230360,
-    "symbols": 3239
+    "lines": 230388,
+    "symbols": 3240
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -217,7 +217,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 80
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6888,16 +6888,22 @@
         "line": 95
       }
     ],
+    "dismissInApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
+        "line": 34
+      }
+    ],
     "visibleConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 22
+        "line": 42
       }
     ],
     "channelId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 26
+        "line": 46
       }
     ],
     "reflection": [
@@ -24252,20 +24258,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-      "lines": 87,
-      "sha256": "e8322ae99a00f85d2582f6ce150bd7bf7074c4ca5a7736a1caa6b5e950429593",
+      "lines": 115,
+      "sha256": "9b6a79369dd7025e3c54f5b00e65510c48e057a829d0828c00de93e6c75ea6bb",
       "symbols": [
         {
+          "name": "dismissInApp",
+          "line": 34
+        },
+        {
           "name": "visibleConversation",
-          "line": 22
+          "line": 42
         },
         {
           "name": "channelId",
-          "line": 26
+          "line": 46
         },
         {
           "name": "cancel",
-          "line": 80
+          "line": 107
         }
       ]
     },
