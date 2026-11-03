@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:12:22.917338+00:00",
+  "generatedAt": "2026-11-03T04:15:50.897224+00:00",
   "commit": "local",
   "branch": "local",
-  "sourceFingerprint": "7aacfaba8176dfb4b33e796fd3d9d7523c4e12a58811c2b783f85fcce081955e",
+  "sourceFingerprint": "82c397d0e664e3731c8631611a2598cfe72c01db40356609f07c2d85d05a8e1b",
   "summary": {
     "files": 1123,
-    "lines": 230817,
-    "symbols": 3244
+    "lines": 230841,
+    "symbols": 3245
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6137,7 +6137,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 222
+        "line": 223
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -6211,19 +6211,19 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 249
+        "line": 243
       }
     ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 258
+        "line": 252
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 290
+        "line": 284
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -6237,13 +6237,13 @@
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 295
+        "line": 289
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 300
+        "line": 294
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -17664,6 +17664,10 @@
         "line": 137
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
+        "line": 131
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 116
       }
@@ -23584,8 +23588,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 265,
-      "sha256": "470a657adc51549f39fbc2969a3ee4822288076243ccad31cded6a43b3fe52fa",
+      "lines": 266,
+      "sha256": "c3ebbd9660665d0e3ecf10aef28233daddcc0c70a702c1f9c1fc898bd106bf08",
       "symbols": [
         {
           "name": "snapshot",
@@ -23613,14 +23617,14 @@
         },
         {
           "name": "ids",
-          "line": 222
+          "line": 223
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 318,
-      "sha256": "b5e971005e2497c06c77e7a57a344c7eba5fc5fb95526d0c3f4c74820114f348",
+      "lines": 312,
+      "sha256": "7f583a1fb426a9e9bfd6a7dcb730405977fc487144167b8a9fdd232859e86cd6",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -23652,23 +23656,23 @@
         },
         {
           "name": "retire",
-          "line": 249
+          "line": 243
         },
         {
           "name": "retireSlotWithCounterEvidence",
-          "line": 258
+          "line": 252
         },
         {
           "name": "invalidateEvidence",
-          "line": 290
+          "line": 284
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 295
+          "line": 289
         },
         {
           "name": "clearCharacter",
-          "line": 300
+          "line": 294
         }
       ]
     },
@@ -37873,12 +37877,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
-      "lines": 113,
-      "sha256": "6828615b02c9c11d994dddd05f4b13044f8d082bc31a72f6d81d8966f216d5a8",
+      "lines": 142,
+      "sha256": "2e34230901610901b02161c097c71644795521df2db2c6c1b0f47a84b4cb85a7",
       "symbols": [
         {
           "name": "TimelineStatementOwnershipTest",
           "line": 17
+        },
+        {
+          "name": "propose",
+          "line": 131
         }
       ]
     },

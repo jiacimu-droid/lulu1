@@ -172,16 +172,10 @@ object CharacterDevelopmentStore {
             // at least two separately authored examples as well as three real
             // exposures, all attached to this role rather than a group bystander.
             val ownExpressions = events.filter { event ->
-                event.evidenceKind == EventEvidenceKind.CharacterStatement && when {
+                TimelineStatementOwnership.isOwnCharacterStatement(event) && when {
                     event.source in setOf("journal:own", "moment:self") -> true
                     event.channel == "私聊" -> true
-                    event.source == "message" && event.channel.startsWith("群聊") ->
-                        MigratedDomainStores.chat.conversations.value.any { chat ->
-                            chat.groupChat != null && chat.groupChat.members.any { it.characterId == characterId } &&
-                                MigratedDomainStores.chat.messages(chat.id).value.any { msg ->
-                                    msg.id == event.id && msg.authorCharacterId == characterId
-                                }
-                        }
+                    event.source == "message" && event.channel.startsWith("群聊") -> true
                     else -> false
                 }
             }.distinctBy { it.id }
@@ -192,7 +186,7 @@ object CharacterDevelopmentStore {
             // new nuances, routines or adjacent interests through witnessed experience.
             // Generated growth remains a separate, reversible evidence-backed layer.
             // Interest belongs to the character, not to whichever subject the user likes.
-            if (events.none { it.evidenceKind == EventEvidenceKind.CharacterStatement || it.channel.startsWith("独自阅读") }) return false
+            if (events.none { TimelineStatementOwnership.isOwnCharacterStatement(it) || it.channel.startsWith("独自阅读") }) return false
             if (counters.any { it.occurredAt > factual.maxOf { event -> event.occurredAt } }) return false
         }
         if (kind == DevelopmentKind.VerifiedMethod) {
@@ -200,7 +194,7 @@ object CharacterDevelopmentStore {
             // alone cannot establish interpersonal success. Validate the named
             // exchange against the original timeline, not the model's verdict.
             val claimedMessages = events.filter {
-                it.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                TimelineStatementOwnership.isOwnCharacterStatement(it) &&
                     it.source == "message" &&
                     (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面"))
             }
@@ -220,7 +214,7 @@ object CharacterDevelopmentStore {
                         // One conversational scene: do not credit a distant message
                         // when another character reply came in between.
                         timeline.none { later ->
-                            later.id != action.id && later.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                            later.id != action.id && TimelineStatementOwnership.isOwnCharacterStatement(later) &&
                                 later.source == "message" && later.channel == action.channel &&
                                 later.occurredAt.isAfter(action.occurredAt) &&
                                 later.occurredAt.isBefore(feedback.occurredAt)

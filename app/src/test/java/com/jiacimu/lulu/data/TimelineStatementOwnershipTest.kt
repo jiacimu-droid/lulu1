@@ -23,6 +23,7 @@ class TimelineStatementOwnershipTest {
         SharedExperienceTimeline.initialize(context)
         CharacterLifeStore.initialize(context)
         CharacterInnerLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
     }
     @After fun after() { MemoryTestEnvironment.release() }
 
@@ -108,5 +109,33 @@ class TimelineStatementOwnershipTest {
         val stale = event(legacy, a)
         MigratedDomainStores.chat.markFailed(legacy.id)
         assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(stale))
+    }
+
+    @Test fun growthAcceptsRealGroupExpressionsButCannotBorrowThePeersInterest() {
+        val a = "growth-speaker-a"
+        val b = "growth-speaker-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("成长来源", listOf(a, b), true)
+        val own = (1..2).map {
+            event(MigratedDomainStores.chat.appendCharacterMessage(group.id, "我喜欢研究不同星图，第${it}次感受。", a), a).id
+        }
+        val peer = (1..2).map {
+            event(MigratedDomainStores.chat.appendCharacterMessage(group.id, "我喜欢收藏硬币，第${it}次感受。", b), a).id
+        }
+        val exposures = (1..3).map { index ->
+            val id = "growth-exposure-$index"
+            SharedExperienceTimeline.record(id, a, "实际见闻", "观察", "第${index}次独立经历",
+                triggerExtraction = false, source = "test-observation", evidenceKind = EventEvidenceKind.Observation)
+            id
+        }
+        val persona = CharacterRuntime.personaConstraintSnapshot(a)
+        fun propose(kind: DevelopmentKind, speech: List<String>) = CharacterDevelopmentStore.applyProposal(
+            a, "ownership:${kind.name}", kind, "从实际经历形成的本人倾向", exposures + speech,
+            emptyList(), persona)
+        assertFalse(propose(DevelopmentKind.ExpressionHabit, peer))
+        assertTrue(propose(DevelopmentKind.ExpressionHabit, own))
+        assertFalse(propose(DevelopmentKind.Interest, peer))
+        assertTrue(propose(DevelopmentKind.Interest, own))
+        assertTrue(CharacterDevelopmentStore.active(a).all { record -> peer.none { it in record.evidence } })
+        assertTrue(CharacterDevelopmentStore.active(b).isEmpty())
     }
 }

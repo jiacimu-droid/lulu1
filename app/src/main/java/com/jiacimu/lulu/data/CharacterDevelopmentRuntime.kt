@@ -184,7 +184,8 @@ object CharacterDevelopmentRuntime {
                 UserRoutinePatterns.reflectionContext(routinePatterns) + "\n" +
                 events.joinToString("\n") {
                     "eventId=${it.id} revision=${it.revision} atLocal=${it.occurredAt.atZone(java.time.ZoneId.systemDefault())} source=${it.source} channel=${it.channel} " +
-                        "kind=${it.evidenceKind} ${CharacterExperienceLearning.evidenceText(it).take(700)}"
+                        "kind=${it.evidenceKind} ownStatement=${TimelineStatementOwnership.isOwnCharacterStatement(it)} " +
+                        CharacterExperienceLearning.evidenceText(it).take(700)
                 },
             instruction = """
                 ${CharacterExperienceLearning.reflectionInstruction}
@@ -198,7 +199,7 @@ object CharacterDevelopmentRuntime {
                 【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
                 【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
                 【情境反应倾向，不是硬规则】若至少3个彼此独立的真实事件反复显示“在某类情境下，这个角色更容易出现某种理解/应对方式”，可提出 SituationalPattern。content 写成“当……时，通常更倾向……；但会受当时情绪、关系、目标和新事实影响”，不能写“遇到X必须Y”。不同情境可以表现出相反状态，这不叫人设崩坏；真正稳定的是跨时间可重复的条件性模式。一次吵架、一次撒娇、一次模型生成失误绝不能形成该模式。
-                【个人表达与真实经历】标记为私人日记(journal:own)、自己朋友圈(moment:self)、CharacterStatement 的记录是角色确实写过或说过的话，可以证明当时有某种感受、判断或表达倾向，却绝不能单凭文字证明读了书、去了地点、玩了游戏或完成了补救。对成长的事实次数要求只能由 UserStatement/Observation/ToolResult/明确可核验的阅读及世界事件满足；日记和动态只是补充主观证据。即使作者写了十篇相同的心情，也不是十次实际经历。
+                【个人表达与真实经历】CharacterStatement 只表示某角色的发言；只有 ownStatement=true 才是当前本人确实写过或说过的话，包括私人日记(journal:own)、自己朋友圈(moment:self)。ownStatement=false 的角色发言属于见证他人或作者来源未核实，不能当成本人的感受、兴趣或口癖。本人表达可以证明当时有某种感受、判断或表达倾向，却绝不能单凭文字证明读了书、去了地点、玩了游戏或完成了补救。对成长的事实次数要求只能由 UserStatement/Observation/ToolResult/明确可核验的阅读及世界事件满足；日记和动态只是补充主观证据。即使作者写了十篇相同的心情，也不是十次实际经历。
                 ExpressionHabit 是角色逐渐形成的个人语言习惯，而不是要求所有人模仿网感、统一说话风格。至少需要三段不同、可核实的实际交流/接触或执行经历，并有该角色在聊天/私人日记/朋友圈中真实表达的具体体现，且内容符合其原始人设；可以学会适合自己的语气词、标点节奏、幽默手法或熟悉的真实社交梗，也可以随着环境改变。不能因为用户使用了某个梗就默认角色会用，不从无来源的互联网杜撰当下热词。已存在相同主题的成长应沿用同一 slot。
                 Interest 是角色自己的兴趣，不是用户的爱好：从真实阅读、游戏、探索、见面等实际接触，加上角色确实表达的感受，判断是否开始喜欢、加深、改变方向或逐渐失去兴趣。至少两次有独立原始依据的真实接触后，可以暂定为 Emerging（兴趣萌芽，尚非固定性格）；单次经历只保留当下的好奇，不写入长期人格。五次以上独立经验才可能升级为 Established；不要因为角色说了一句喜欢就凭空创建兴趣，不假装体验过正文里的虚构情节。好奇心记录中的单个问题、暂缓的探究和失败的尝试不是成熟兴趣，不能因为后台多次询问相同问题就凑齐成长证据；应以独立可核验行动和后续真实反应为依据。
                 同一兴趣的变化沿用同一个slot。新的反复体验足以说明方向改变时，可以更新或淡化旧兴趣，counterIds保留旧依据；最新反例晚于支持证据时不更新。兴趣内容写清当前倾向与变化原因，不靠随机数或固定轮换。\n                NarrativeMeaning 是“这些真实经历逐渐对我意味着什么”的主观解释，不是新事实也不是人设改写。至少引用2个不同真实事件，最好跨不同时间点；可以形成对自己、关系、选择或未来的理解，但不能凭空补童年、职业履历、共同回忆或未发生的转折。单句漂亮话、一次情绪、一本小说角色的经历都不能直接成为叙事身份；有新反例时应更新原 slot 或暂不形成。
