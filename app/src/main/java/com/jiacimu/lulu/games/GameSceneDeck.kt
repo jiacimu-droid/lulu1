@@ -246,7 +246,10 @@ internal fun GameDirectionalPad(
         modifier = Modifier.size(138.dp)
             .pointerInput(enabled, repeatMs, stopWhen) {
                 if (!enabled) return@pointerInput
-                awaitEachGesture {
+                // Launch the held-repeat coroutine outside the restricted
+                // AwaitPointerEventScope; pointer events stay on that scope.
+                coroutineScope {
+                    awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     var direction = gameJoystickDirection(down.position.x, down.position.y,
                         size.width.toFloat(), size.height.toFloat())
@@ -256,8 +259,7 @@ internal fun GameDirectionalPad(
                     activeDirection = direction
                     centerPressed = centerTap
                     direction?.let { latestStep(it.first, it.second) }
-                    coroutineScope {
-                        val repeating = launch {
+                    val repeating = launch {
                             delay(repeatMs)
                             while (isActive) {
                                 direction?.let { latestStep(it.first, it.second) }
