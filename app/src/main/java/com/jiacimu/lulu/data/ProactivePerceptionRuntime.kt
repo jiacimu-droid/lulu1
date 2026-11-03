@@ -796,8 +796,10 @@ object ProactivePerceptionRuntime {
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "角色=$characterId；批次=${onlineRevision ?: "自主"}")
+        val turnTraceId = java.util.UUID.randomUUID().toString()
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
+            turnTraceId = turnTraceId,
             facts = buildString {
                 if (unreadPhotos.promptNote.isNotBlank()) appendLine(unreadPhotos.promptNote)
                 // Persona is already supplied once by the gateway.
@@ -1256,6 +1258,7 @@ object ProactivePerceptionRuntime {
                 """.trimIndent(),
                 source = "同次自主决定·格式补正",
                 title = "${character.displayName}修正行动格式",
+                turnTraceId = turnTraceId,
                 maxTokens = 1_200,
                 connectionOverride = connection,
             ).onFailure { failure ->
@@ -1792,6 +1795,11 @@ object ProactivePerceptionRuntime {
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
                 onlineSpeech.innerThought,
             ))
+        LuluRepositories.performance.recordTiming("P08a在线决定", 0,
+            "trace=$turnTraceId;batch=${onlineRevision ?: "independent"};" +
+                "source=${onlineUnread.messageIds.lastOrNull().orEmpty()};" +
+                "action=${decision.action.name};bubbles=${decision.text.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank)};" +
+                "textChars=${decision.text.length};plannerJson=${initialDecision != null};repaired=${recoveredDecision != null}")
         // The very SAME autonomous decision chooses attention and outward action.
         // Commit the online choice first so a chosen message is sent while awake;
         // a new user wake or call supersedes this older expiry atomically.
@@ -2263,6 +2271,12 @@ object ProactivePerceptionRuntime {
                 requestId = shadowRequestId,
             )
         }
+        // This is the executor's independent result, not the model's claim of delivery.
+        LuluRepositories.performance.recordTiming("P08a真实执行", 0,
+            "trace=$turnTraceId;request=$shadowRequestId;action=${decision.action.name};" +
+                "success=${execution.success};primarySuccess=${execution.primarySuccess};" +
+                "delivered=${execution.deliveredReply};conversation=${execution.conversationId.orEmpty()};" +
+                "evidence=${execution.evidenceId}")
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.primarySuccess) {
             // ToolRouter provides the exact authored bubble/post/diary ID where
