@@ -174,6 +174,83 @@ internal object AutonomousActionWireProtocol {
         return copied.takeIf { missingWorldBuildStepFields(it).isEmpty() }
     }
 
+
+    /**
+     * A personal schedule is executable only with a role-authored title, intent
+     * and a concrete future clock time. The executor must never guess dueAt.
+     * This contract is shared by top-level and nested autonomous decisions.
+     */
+    internal fun missingPersonalPlanArgs(
+        args: JSONObject, now: java.time.Instant = java.time.Instant.now(),
+    ): List<String> = buildList {
+        if (args.optString("title").trim().length !in 2..100) add("title")
+        if (args.optString("intent").trim().length !in 3..300) add("intent")
+        val due = runCatching {
+            java.time.OffsetDateTime.parse(args.optString("dueAt").trim()).toInstant()
+        }.getOrNull()
+        if (due == null || !due.isAfter(now.plusSeconds(60))) add("dueAt")
+    }
+
+    internal fun missingPersonalPlanFields(
+        normalized: JSONObject, now: java.time.Instant = java.time.Instant.now(),
+    ): List<String> =
+        if (normalized.optString("action") == "tool" &&
+            normalized.optString("tool") == "plan_personal_activity")
+            missingPersonalPlanArgs(normalized.optJSONObject("args") ?: JSONObject(), now)
+        else emptyList()
+
+    internal fun missingPersonalPlanStepFields(
+        steps: org.json.JSONArray?, now: java.time.Instant = java.time.Instant.now(),
+    ): List<String> = buildList {
+        for (index in 0 until (steps?.length() ?: 0)) {
+            val step = steps?.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "plan_personal_activity") continue
+            val args = step.optJSONObject("args") ?: JSONObject()
+            missingPersonalPlanArgs(args, now).forEach { add("steps[$index].$it") }
+        }
+    }
+
+    /** Only missing/invalid values can be replaced by the SAME character's
+     * explicit correction. A valid time, intention or action is never rewritten. */
+    internal fun repairPersonalPlanArgs(
+        original: JSONObject, patch: JSONObject,
+        now: java.time.Instant = java.time.Instant.now(),
+    ): JSONObject? {
+        val missing = missingPersonalPlanArgs(original, now)
+        if (missing.isEmpty()) return JSONObject(original.toString())
+        val fixed = JSONObject(original.toString())
+        missing.forEach { key ->
+            if (patch.has(key) && patch.opt(key) is String)
+                fixed.put(key, patch.getString(key).trim())
+        }
+        return fixed.takeIf { missingPersonalPlanArgs(it, now).isEmpty() }
+    }
+
+    /** Index-scoped field-only corrections: unrelated steps, order, links and
+     * successful preexisting arguments stay exactly as the role authored them. */
+    internal fun repairPersonalPlanSteps(
+        original: org.json.JSONArray?, correction: JSONObject,
+        now: java.time.Instant = java.time.Instant.now(),
+    ): org.json.JSONArray? {
+        if (original == null) return null
+        if (missingPersonalPlanStepFields(original, now).isEmpty())
+            return org.json.JSONArray(original.toString())
+        val patches = correction.optJSONArray("repairs") ?: return null
+        val copied = org.json.JSONArray(original.toString())
+        for (patchIndex in 0 until patches.length()) {
+            val patch = patches.optJSONObject(patchIndex) ?: continue
+            val index = patch.optInt("index", -1)
+            if (index !in 0 until copied.length()) continue
+            val step = copied.optJSONObject(index)?.let(::normalizeStep) ?: continue
+            if (step.optString("tool") != "plan_personal_activity") continue
+            val previousArgs = step.optJSONObject("args") ?: JSONObject()
+            val fixedArgs = repairPersonalPlanArgs(previousArgs, patch, now) ?: continue
+            step.put("args", fixedArgs)
+            copied.put(index, step)
+        }
+        return copied.takeIf { missingPersonalPlanStepFields(it, now).isEmpty() }
+    }
+
     fun normalize(original: JSONObject): JSONObject {
         val result = JSONObject(original.toString())
         val specified = result.optString("action").trim().lowercase()
