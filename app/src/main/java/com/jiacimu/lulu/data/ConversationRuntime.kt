@@ -198,6 +198,7 @@ internal object PrivateStateDeltaEngine {
         basis: JSONObject?,
         thought: String,
         hasChosenToolAction: Boolean = false,
+        hasFreshUserMessage: Boolean = false,
     ): PrivateStateDelta {
         val previousEmotion = previous.optJSONObject("emotion")
         val proposedEmotion = proposal?.optJSONObject("emotion")
@@ -240,11 +241,13 @@ internal object PrivateStateDeltaEngine {
             basis?.optString("unsaidWhy").orEmpty().isNotBlank() ||
                 basis?.optString("conflict").orEmpty().isNotBlank() ||
                 emotionChanged || motiveChanged || conflictChanged ||
-                // An actually new conversational focus can change the
-                // character's unspoken interpretation without changing their
-                // mood or adding a permanent motive. Require an authored
-                // causal change as well: fresh input alone is insufficient.
-                (focusChanged && (appraisalChanged || hasChosenToolAction) &&
+                // A new user utterance may change a private interpretation
+                // without a new emotion, motive, tool, or verbose appraisal.
+                // Require the character to author both a new focus and HOW
+                // their private view changed; the user's message alone never
+                // manufactures a thought. Ambient ticks keep the stricter gate.
+                (focusChanged && (appraisalChanged || hasChosenToolAction ||
+                    hasFreshUserMessage) &&
                     basis?.optString("change").orEmpty().isNotBlank())
             )
 
