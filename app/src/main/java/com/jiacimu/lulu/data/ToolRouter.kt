@@ -125,14 +125,18 @@ object ToolRouter {
             // An unfinished retry-safe request still needs today's permission.
             val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
             val key = "$characterId:$requestId"
-            val fingerprint = "$name:${canonical(args)}"
+            val fingerprint = requestFingerprint(name, args)
             val old = prefs.getString(key, null)?.let(::JSONObject)
             val cap = CapabilityRegistry.find(name)
             if (old != null) {
                 // Rejected reuse is an observable fact too. Keep the original
                 // completed receipt untouched; a separate rejection timeline
                 // event explains why a stale request was not executed.
-                if (old.optString("fingerprint") != fingerprint) return@withLock rejected("同一执行ID的参数发生变化，请重新确认", "waiting_user")
+                // Diagnostic IDs change on retries and must not redefine a
+                // previously chosen action. Old persisted fingerprints can
+                // contain that field: normalize them without re-executing.
+                if (normalizeStoredFingerprint(old.optString("fingerprint")) != fingerprint)
+                    return@withLock rejected("同一执行ID的参数发生变化，请重新确认", "waiting_user")
                 if (old.optString("motiveId") != motiveId || old.optString("concernId") != concernId ||
                     old.optString("experienceId") != experienceId)
                     return@withLock rejected("同一执行ID的关联事项发生变化，请使用新的行动ID", "waiting_user")
@@ -528,6 +532,20 @@ object ToolRouter {
     }
 
     private fun failure(message: String, status: String = "failed"): String = JSONObject().put("success", false).put("status", status).put("error", message).toString()
+
+    /** Only business parameters identify an effect; _turnTraceId is local telemetry. */
+    internal fun requestFingerprint(name: String, args: JSONObject): String =
+        "$name:${canonical(JSONObject(args.toString()).apply { remove("_turnTraceId") })}"
+
+    /** Read old durable rows that included the pre-fix trace, without mutating history. */
+    private fun normalizeStoredFingerprint(stored: String): String {
+        val action = stored.substringBefore(':')
+        if (action == stored) return stored
+        val storedArgs = runCatching { JSONObject(stored.substringAfter(':')) }.getOrNull()
+            ?: return stored
+        return requestFingerprint(action, storedArgs)
+    }
+
     private fun canonical(value: Any?): String = when (value) {
         is JSONObject -> value.keys().asSequence().toList().sorted().joinToString(",", "{", "}") { JSONObject.quote(it) + ":" + canonical(value.get(it)) }
         is org.json.JSONArray -> (0 until value.length()).joinToString(",", "[", "]") { canonical(value.get(it)) }
