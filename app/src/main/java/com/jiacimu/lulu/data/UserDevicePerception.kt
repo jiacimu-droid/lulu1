@@ -62,6 +62,67 @@ internal object UserDevicePerception {
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
     }.trim() }
 
+    /**
+     * The commitment alarm uses a small, evidence-first observation, not the
+     * first N characters of the generic long device report. Previously that
+     * truncation could remove the actual usage events and health source after
+     * the lengthy conversation/presence preamble.
+     *
+     * Only permitted Android/health signals; no screenshot is taken and no
+     * user sleep or intention is inferred by the system.
+     */
+    suspend fun commitmentReviewContext(
+        context: Context, characterId: String, now: Instant = Instant.now(),
+    ): String = withContext(Dispatchers.IO) {
+        UserInteractionPresenceStore.initialize(context)
+        HealthRolePerception.initialize(context)
+        HealthRolePerception.recordLatestSleep(characterId)
+        val screen = (context.getSystemService(Context.POWER_SERVICE)
+            as? android.os.PowerManager)?.isInteractive
+        val tracking = LuluScreenAwareness.appTracking(context)
+        val interaction = if (tracking)
+            runCatching { recentInteractionContext(context, now) }
+                .getOrDefault("Android 使用事件暂时不可用，活动未知")
+        else "主人未授权应用使用感知，近期交互未知"
+        val foreground = if (tracking)
+            runCatching { foregroundAppContext(context, now) }
+                .getOrDefault("前台应用暂不可读")
+        else "未开启应用使用感知"
+        val lastTouch = UserInteractionPresenceStore.state.value.lastTouchAt
+            ?.takeIf { !it.isAfter(now) && Duration.between(it, now).toMinutes() in 0..30 }
+            ?.let { "露露机确有触摸事件；距今${Duration.between(it, now).toMinutes()}分钟" }
+            ?: "近30分钟无可核实的露露机触摸记录（不等于没有操作其他应用）"
+        val health = HealthRolePerception.context(now).ifBlank { "未连接健康 App" }
+        commitmentReviewEvidenceCue(
+            now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+            screen, interaction, foreground, lastTouch, health,
+        )
+    }
+
+    /** Pure and bounded projection: strong time-stamped facts go first. */
+    internal fun commitmentReviewEvidenceCue(
+        time: String, screenInteractive: Boolean?, usage: String,
+        foreground: String, appTouch: String, health: String,
+    ): String = buildString {
+        appendLine("【约定结果复查｜真实观测；不等同于用户睡眠鉴定】")
+        appendLine("观测时刻=$time")
+        appendLine("当前屏幕=${when (screenInteractive) {
+            true -> "设备报告可交互/亮屏（不能单独证明仍醒着）"
+            false -> "设备报告不可交互/可能熄屏（不能证明已经睡着）"
+            null -> "无法取得屏幕状态"
+        }}")
+        appendLine("真实使用事件=${usage.take(500)}")
+        appendLine("露露机实际触摸=${appTouch.take(160)}")
+        appendLine("最近前台应用=${foreground.take(210)}")
+        appendLine("健康/穿戴来源=${health.take(550)}")
+        appendLine("判断边界：近期真实交互或触摸是该时段手机被操作的正向线索，" +
+            "与‘没有任何使用活动’相矛盾；前台切换只证明切换。屏幕亮、手机在用" +
+            "仍无法单独判定是谁操作、此刻是否还醒着；无事件或息屏也不能当作入睡成功。")
+        appendLine("若已有仍待达成的时间性承诺，角色须结合这些实际时间线索、原目标、" +
+            "上次行动及真实权限选择继续做、取得新证据、明确暂缓或复查；" +
+            "不能只凭猜测‘正在入睡所以不要打扰’就宣告目标改善。")
+    }.trim()
+
     /** Minimal, local device samples; not a user sleep state or a character memory. */
     private fun batteryContext(context: Context, now: Instant): String {
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
