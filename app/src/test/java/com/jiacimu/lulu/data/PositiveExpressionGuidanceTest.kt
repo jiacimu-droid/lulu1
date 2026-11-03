@@ -86,6 +86,24 @@ class PositiveExpressionGuidanceTest {
         )
     }
 
+    @Test fun conversationIsJointlyBuiltAndEachTurnHasItsOwnCompletionPoint() {
+        // Model selects the dialogue move. The renderer only realizes that
+        // same move in the person's own voice, not an assistant-style essay.
+        val decision = CharacterDecisionProtocol.causalPrinciples
+        val rendering = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val channel = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        assertTrue(decision.contains("共同推进而非单人完成"))
+        assertTrue(decision.contains("对方下一步反应仍是未知"))
+        assertTrue(decision.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
+        assertTrue(rendering.contains("一句话的完成点").not()) // No fixed-sentence completion rule.
+        assertTrue(rendering.contains("不以“是否把整段话题的全部可能信息都说尽”为准"))
+        assertTrue(channel.contains("整个话题还远远没有聊完也没关系"))
+        assertTrue(channel.contains("反馈共同建立理解"))
+        assertTrue(channel.contains("下一轮要等真实新输入"))
+        assertFalse(channel.contains("最多回复"))
+        assertFalse(channel.contains("每条不得超过"))
+    }
+
     @Test fun identityOwnsExpressionAndWorldbookOnlySuppliesCulture() {
         val plan = CharacterExpressionGuide.forGeneration("普通聊天")
         val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
