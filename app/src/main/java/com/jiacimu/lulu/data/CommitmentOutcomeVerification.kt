@@ -58,13 +58,17 @@ internal object CommitmentOutcomeVerification {
             .filter { eligibleEvidence(task, it) }
             .sortedByDescending(SharedTimelineEvent::occurredAt)
             .take(maxItems.coerceAtLeast(0)).toList()
-        appendLine("任务ID=${task.id}；完成条件=${task.completionCondition.ifBlank { task.goal }.take(140)}；证据模式=${task.verificationMode}")
+        // The model owns the semantic verdict. A prefix can omit the final
+        // exception or negation while the executor below checks only source
+        // and type. Keep the selected condition and evidence complete here;
+        // the original timeline remains the authority.
+        appendLine("任务ID=${task.id}；完成条件=${task.completionCondition.ifBlank { task.goal }}；证据模式=${task.verificationMode}")
         if (possible.isEmpty()) {
             appendLine("当前检索窗口没有类型合格的结案候选；不能把其他行动、声明或推测当作成功证据。可以先观察、求证、继续履行或安排后续复查，不需要空试验收工具。")
         } else {
             appendLine("以下只是来源/时序/类型通过初筛的候选，仍需你判断是否真的证明上述目标；不相关就不要结案：")
             possible.forEach { event ->
-                appendLine("id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; content=${event.content.replace('\n', ' ').take(170)}")
+                appendLine("id=${event.id}; at=${event.occurredAt}; type=${event.evidenceKind}; source=${event.source}; content=${event.content.replace('\n', ' ')}")
             }
         }
     }.trim()

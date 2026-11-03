@@ -105,6 +105,18 @@ class CommitmentOutcomeVerificationTest {
         assertTrue(subjective.contains("id=observed"))
     }
 
+    @Test fun completionDecisionSeesLateConditionsAndLateObservedCaveats() {
+        val conditionEnd = "但只有用户亲口确认最终完成才算结案"
+        val observationEnd = "屏幕仍显示正在学习，目标尚未完成"
+        val longTask = task.copy(completionCondition = "依据双方原定目标继续核实。" + "阶段进度；".repeat(34) + conditionEnd)
+        val observation = event("long-observation", EventEvidenceKind.Observation, "screen-consent")
+            .copy(content = "实际设备观察：" + "已显示若干页面；".repeat(28) + observationEnd)
+        val context = CommitmentOutcomeVerification.candidateContext(longTask, listOf(observation))
+        assertTrue(context.contains(conditionEnd))
+        assertTrue(context.contains(observationEnd))
+        assertTrue(context.contains("id=${observation.id}"))
+    }
+
     @Test fun noQualifiedCandidateMustNotBeAdvertisedAsCompletionProof() {
         val action = event("only-action", EventEvidenceKind.ToolResult, "tool-router")
             .copy(content = """{"status":"succeeded","result":"{\"success\":true}","tool":"create_alarm"}""")
