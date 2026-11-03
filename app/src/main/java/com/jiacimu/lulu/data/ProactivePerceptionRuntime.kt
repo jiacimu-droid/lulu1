@@ -2269,6 +2269,7 @@ object ProactivePerceptionRuntime {
                 userText = onlineUnread.text,
                 acceptedOnlineRevision = onlineRevision,
                 requestId = shadowRequestId,
+                turnTraceId = turnTraceId,
             )
         }
         // This is the executor's independent result, not the model's claim of delivery.
@@ -2546,6 +2547,7 @@ object ProactivePerceptionRuntime {
         replyConversationIds: Set<String> = emptySet(),
         userText: String = "",
         acceptedOnlineRevision: Long? = null,
+        turnTraceId: String = "",
     ): ActionExecution {
         if (decision.action == Action.SILENT && (decision.sideActions?.length() ?: 0) == 0)
             return ActionExecution(false, "角色选择保持安静")
@@ -2623,6 +2625,10 @@ object ProactivePerceptionRuntime {
         // model for the delivery receipt. Keep unrelated chat turns untouched.
         decision.appraisal?.optJSONObject("activityExpectation")?.let { args.put("expectation", it) }
         args.remove("_replyEvidenceIds")
+        // Internal metadata is always overwritten, never trusted from model-authored args.
+        args.remove("_turnTraceId")
+        if (turnTraceId.isNotBlank() && tool in setOf("send_private_message", "send_group_message"))
+            args.put("_turnTraceId", turnTraceId)
         if (tool in setOf("send_private_message", "send_group_message",
                 "send_private_sticker", "send_group_sticker") &&
             responseEvidenceIds.isNotEmpty()) {
@@ -2738,6 +2744,7 @@ object ProactivePerceptionRuntime {
                     .put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
                     .put("bubbleSpeechTracks", org.json.JSONArray(decision.bubbleSpeechTracks))
                     .put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
+                    .put("_turnTraceId", turnTraceId)
                 val replyResult = runCatching {
                     JSONObject(ToolRouter.execute(appContext, character.characterId,
                         "send_private_message", responseArgs,
