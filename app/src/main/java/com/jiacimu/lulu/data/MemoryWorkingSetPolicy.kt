@@ -50,14 +50,17 @@ internal object MemoryWorkingSetPolicy {
         val sections = linkedMapOf<String, MutableList<String>>()
         val omitted = linkedMapOf<String, String>()
         val selected = mutableListOf<String>()
-        // Identical words from two different event IDs are two independent facts.\n        // Only collapse a payload when its provenance set is also identical.\n        val payloadSources = mutableMapOf<String, MutableSet<Set<String>>>()
+        // Identical words from two different event IDs are two independent facts.
+        // Only collapse a payload when its provenance set is also identical.
+        val payloadSources = mutableMapOf<String, MutableSet<Set<String>>>()
         val originals = mutableSetOf<String>()
         val sectionCosts = mutableMapOf<String, Int>()
         var used = 0
         val available = (budget - protectedCharacters).coerceAtLeast(0)
         candidates.sortedByDescending { it.priority }.distinctBy { it.id }.forEach { candidate ->
             val key = candidate.payload.trim().replace(Regex("\\s+"), " ")
-            val duplicate = (candidate.sources in (payloadSources[key] ?: emptySet())) ||\n                (candidate.derivedSummary && candidate.sources.isNotEmpty() &&
+            val duplicate = (candidate.sources in (payloadSources[key] ?: emptySet())) ||
+                (candidate.derivedSummary && candidate.sources.isNotEmpty() &&
                 candidate.sources.all(originals::contains))
             val sectionCost = candidate.text.length + if (candidate.section in sections) 1 else candidate.section.length + 1
             val cost = sectionCost + if (candidate.section !in sections && sections.isNotEmpty()) 2 else 0
