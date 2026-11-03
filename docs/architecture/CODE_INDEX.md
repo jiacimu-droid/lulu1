@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b34df2ecc812e62cd7c6c7997fa30538d5ac6d74`
+- 基准提交：`163e0fc4aafc3117bb6daa3ff33f340352267fa4`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232496
+- 已索引代码/文本行：232482
 - 已发现符号：3251
 
 | 文件 | 行数 | 符号数 |
@@ -112,7 +112,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatReceiptRuns.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 28 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt` | 19 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ChatScrollFollowPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |
@@ -257,7 +257,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1109 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1096 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
