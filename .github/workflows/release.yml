@@ -113,6 +113,9 @@ jobs:
           echo "::warning::No test SDK mirror verified; trying configured default at test runtime"
 
       - name: Test and build phone APK
+        # Run the full JVM/Robolectric suite against the same phone variant we ship.
+        # Testing debug then assembling phone compiled the large Kotlin app twice.
+        # No tests are removed; both tasks share the phone compilation graph.
         # Normal builds finish well before this; treat a silent hour-long stall as a failure.
         timeout-minutes: 40
         run: |
@@ -120,7 +123,7 @@ jobs:
           mkdir -p ci-logs
           node scripts/test_xhs_reader.js
           python scripts/test_timeline_migration.py
-          gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:verifyArtSafeVariants :app:testDebugUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
+          gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:verifyArtSafeVariants :app:testPhoneUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |
