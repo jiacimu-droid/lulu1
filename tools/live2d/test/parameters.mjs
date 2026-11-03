@@ -103,6 +103,34 @@ assert.notDeepEqual(keyValues(giggleHead), keyValues(giggleTorso),
 assert.ok(keyValues(giggleHead).slice(0, -1).some(v => v < -2),
   'the visible movement is a small chin dip, not a frozen torso')
 
+// The emotional choreography must be physically different, not just
+// five different names for the same six-axis head wobble.
+// Preserve all 49 authored indices for saved speeches and manual preview.
+const readWolf = name => JSON.parse(readFileSync(new URL(name, wolfMotionDir), 'utf8'))
+const valuesOf = (motion, axis) => {
+  const curve = motion.Curves.find(c => c.Id === axis)
+  return curve ? keyValues(curve) : []
+}
+const bodyTilt = name => valuesOf(readWolf(name), 'ParamBodyAngleY')
+const warm = readWolf('28_warm_lean.motion3.json')
+const worried = readWolf('41_worried_lean.motion3.json')
+assert.ok(Math.min(...valuesOf(warm, 'ParamBodyAngleY')) < -5,
+  'comfort actually leans toward the person, rather than away')
+assert.ok(Math.min(...valuesOf(worried, 'ParamBodyAngleY')) < -8,
+  'urgent concern leans farther forward than gentle comfort')
+assert.ok(Math.min(...valuesOf(worried, 'ParamAngleX')) < -4,
+  'urgent concern actually searches the other face')
+assert.ok(Math.max(...valuesOf(readWolf('18_slow_weight_shift.motion3.json'),
+  'ParamBodyAngleX').map(Math.abs)) < 4,
+  'restful posture adjustment must not repeat large left/right swaying')
+assert.ok(Math.max(...valuesOf(readWolf('35_bright_ear_bounce.motion3.json'),
+  'ParamAngleY')) >= 8,
+  'playful acknowledgement needs discernible head beats')
+assert.ok(Math.max(...valuesOf(readWolf('35_bright_ear_bounce.motion3.json'),
+  'ParamBodyAngleY')) < Math.max(...valuesOf(readWolf('17_happy_bounce.motion3.json'),
+  'ParamBodyAngleY')),
+  'a small playful nod must not duplicate the bigger celebratory motion')
+
 // The same action must be available in the standalone playground and real
 // character video decisions, with a pronounced close-up and neutral release.
 assert.equal(WOLF_KISS_MOTION_INDEX, 48)

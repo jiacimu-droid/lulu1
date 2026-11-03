@@ -87,11 +87,11 @@ internal object Live2DMotionCatalog {
         15 to Entry("右摇晃", "摇晃、心情好、晃悠时；动作是身子带着头向右晃过去，慢慢荡回来"),
         16 to Entry("好奇点动", "好奇、点动、真的吗时；动作是头向前下方点动两下，还偏着头像在确认", face = curiousFace, faceNote = "好奇抬眉、眼睛睁大"),
         17 to Entry(
-            "开心蹦跳", "开心、好耶、蹦跳时；动作是头和身子一起上下蹦跶好几下，幅度大", "星星眼", "chest:tap",
+            "开心昂头雀跃", "开心、庆祝、想要欢呼时；动作是头昂起又轻快点下，躯干跟着大幅起伏几下；不是真正离地跳跃", "星星眼", "chest:tap",
             face = happyFace, faceNote = "大笑容、笑眼",
         ),
-        18 to Entry("缓慢重心移动", "放松、换姿势、慢慢晃时；动作是整个人慢慢从一侧晃到另一侧，节奏很慢"),
-        19 to Entry("咯咯笑轻颤", "被逗笑、忍不住噗嗤笑时；动作是下巴轻轻点动几下，肩膀慢半拍跟着细颤，越笑越轻，头不机械地左右摇", face = amusedFace, faceNote = "笑眯眯、忍笑时眼角轻弯"),
+        18 to Entry("舒展换姿势", "久站后舒展、放松调整站姿时；动作是上身轻轻前后舒展、稍微换重心后安稳回正，不来回摇摆"),
+        19 to Entry("咯咯笑轻颤", "被逗笑、忍不住噗嗤笑时；动作是下巴轻轻点动几下，躯干慢半拍跟着细颤，越笑越轻，头不机械地左右摇", face = amusedFace, faceNote = "笑眯眯、忍笑时眼角轻弯"),
         20 to Entry(
             "难过垂头", "难过、低落、叹气时；动作是头慢慢垂下去停住，半天才抬回来，幅度深", "流泪",
             face = sadFace, faceNote = "眉眼低垂、嘴角下压",
@@ -128,7 +128,7 @@ internal object Live2DMotionCatalog {
             face = shyFace, faceNote = "含笑低眼、视线偏开",
         ),
         28 to Entry(
-            "温柔靠近", "温柔、安慰、靠近你时；动作是上身慢慢向你靠近，头微微侧着，停住陪着你", "星星眼", "cheek:stroke",
+            "温柔靠近", "温柔、安慰、靠近你时；动作是上身缓缓向前微倾，头轻轻侧过来，停住看着你后温和回正", "星星眼", "cheek:stroke",
             face = mapOf(
                 "smile" to 0.46f, "eyeSmile" to 0.35f, "eyeOpen" to 0.82f,
                 "browY" to 0.16f, "gazeX" to 0.0f,
@@ -155,7 +155,7 @@ internal object Live2DMotionCatalog {
             faceNote = "抬眉、睁眼回望"),
         34 to Entry("认真侧耳倾听", "侧耳细听、温柔地关注对方时；动作是头微微侧过去像在侧耳听，动得很轻、很专注（听完点头回应用30）",
             face = curiousFace, faceNote = "目光专注、轻抬眉"),
-        35 to Entry("耳朵欢快点弹", "轻快开心、被逗笑、雀跃回应时；动作是头轻轻快快地小点动，带着雀跃的弹跳感",
+        35 to Entry("雀跃轻点头", "轻快开心、会意一笑时；动作是头两次短促地抬起再点下，躯干慢半拍轻轻起伏；比17号更轻快，没有直接驱动耳朵的动作",
             face = happyFace, faceNote = "眼睛发亮、笑意明显"),
         36 to Entry("害羞偷看回眸", "不好意思却忍不住回头看时；动作是头先转开，又忍不住慢慢转回来偷看你", "脸红",
             face = shyFace, faceNote = "视线先移开再偷偷回望"),
@@ -175,7 +175,7 @@ internal object Live2DMotionCatalog {
             faceNote = "嘟着嘴、眉头微压、斜着眼看你",
         ),
         41 to Entry(
-            "担忧前倾", "担心你、关切地问你怎么了时；动作是上身向你探近，头微微低着凑近看你",
+            "担忧前倾", "担心对方、着急确认情况时；动作是上身迅速前探、低头并短暂侧目确认，紧张停住后才退回（不同于28号慢慢靠近）",
             face = mapOf(
                 "smile" to -0.2f, "eyeOpen" to 0.95f, "browY" to 0.42f,
                 "browAngle" to 0.26f, "gazeY" to -0.12f,
@@ -254,11 +254,11 @@ internal object Live2DMotionCatalog {
     )
 
     private val everydayIntents = linkedMapOf(
-        "情绪·开心与亲近" to listOf(17, 19, 28, 35, 42, 48),
-        "情绪·害羞、失落与担忧" to listOf(12, 20, 36, 37, 41, 45, 46),
+        "情绪·开心与亲近" to listOf(17, 19, 28, 42, 48),
+        "情绪·害羞、失落与担忧" to listOf(12, 20, 36, 41, 45, 46),
         "情绪·受惊与抗拒" to listOf(9, 23, 40, 43),
-        "交流·倾听与回应" to listOf(0, 8, 16, 26, 29, 34, 38, 47),
-        "状态·休息与放松" to listOf(24, 32, 39, 44),
+        "交流·倾听与回应" to listOf(0, 8, 26, 29, 34, 38),
+        "状态·休息与放松" to listOf(32, 39, 44),
     )
     internal val everydayIds: Set<Int> = everydayIntents.values.flatten().toSet()
 
