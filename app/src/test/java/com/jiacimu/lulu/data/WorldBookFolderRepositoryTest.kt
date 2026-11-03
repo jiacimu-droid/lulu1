@@ -33,8 +33,9 @@ class WorldBookFolderRepositoryTest {
         assertEquals("现代聊天与自然表达", seeded.title)
         assertTrue(seeded.globalEnabled)
         assertEquals(WorldBookPromptPosition.BOTTOM, seeded.promptPosition)
-        assertTrue(seeded.content.contains("文化背景，不是人物性格"))
+        assertTrue(seeded.content.contains("背景知识，不是人物设定"))
         assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v4", false))
         original.setGlobalEnabled(seeded.id, false)
         assertFalse(InMemoryWorldBookRepository().also { it.initialize(context) }
             .snapshot().single().globalEnabled)
@@ -234,22 +235,25 @@ class WorldBookFolderRepositoryTest {
         storage.edit().putString("entries_v1", JSONArray().put(original).toString())
             .putBoolean("human_chat_world_book_seeded_v1", true)
             .remove("human_chat_world_book_revised_v2")
-            .remove("human_chat_world_book_revised_v3").commit()
+            .remove("human_chat_world_book_revised_v3")
+            .remove("human_chat_world_book_revised_v4").commit()
 
         val upgraded = InMemoryWorldBookRepository().also { it.initialize(context) }
         val book = upgraded.snapshot().single()
         assertNotEquals(previousText, book.content)
-        assertTrue(book.content.contains("一次参与可能只需要一个词"))
+        assertTrue(book.content.contains("接词、猜谜、共同游戏可能只需一个词"))
         assertFalse(book.globalEnabled)
         assertEquals(true, book.characterOverrides["role-a"])
         assertEquals(WorldBookPromptPosition.TOP, book.promptPosition)
         assertTrue(storage.getBoolean("human_chat_world_book_revised_v2", false))
         assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v4", false))
         assertEquals(book, InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single())
 
         // Owner edits are never silently upgraded, even on a later boot.
         upgraded.save(book.copy(content = "主人自己写的聊天指导"))
-        storage.edit().remove("human_chat_world_book_revised_v2").commit()
+        storage.edit().remove("human_chat_world_book_revised_v2")
+            .remove("human_chat_world_book_revised_v4").commit()
         val kept = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single()
         assertEquals("主人自己写的聊天指导", kept.content)
         assertFalse(kept.globalEnabled)
@@ -258,7 +262,8 @@ class WorldBookFolderRepositoryTest {
     @Test fun modernChatRevisionNeverResurrectsDeletedOrRetitledBook() {
         val storage = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
         storage.edit().putBoolean("human_chat_world_book_seeded_v1", true)
-            .remove("human_chat_world_book_revised_v2").commit()
+            .remove("human_chat_world_book_revised_v2")
+            .remove("human_chat_world_book_revised_v4").commit()
         assertTrue(InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().isEmpty())
 
         storage.edit().putString("entries_v1", JSONArray().put(JSONObject()
@@ -266,11 +271,58 @@ class WorldBookFolderRepositoryTest {
             .put("title", "主人重命名的聊天书")
             .put("content", "主人自己写的内容")
             .put("globalEnabled", false)).toString())
-            .remove("human_chat_world_book_revised_v2").commit()
+            .remove("human_chat_world_book_revised_v2")
+            .remove("human_chat_world_book_revised_v4").commit()
         val custom = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single()
         assertEquals("主人重命名的聊天书", custom.title)
         assertEquals("主人自己写的内容", custom.content)
         assertFalse(custom.globalEnabled)
+    }
+
+
+    @Test fun shippedModernChatV3UpgradesToJointConversationAndRespectsOwnerChanges() = runBlocking {
+        val storage = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+        val previousText = """
+            【现代即时通讯的社会观察｜文化背景，不是人物性格】
+            现代人通过即时消息交流时，既会说完整句子，也会发短词、表情、停顿、图片；对同一件事可以冷静、兴奋、含蓄或幽默。社会交流方式没有统一的人格或口吻，具体说法取决于说话者本人、对象、场合及所处关系。
+
+            【轮流交流与共同活动】
+            日常交谈通常由参与者共同推进。一个人有时只回答眼前的问题，有时补充细节，有时把话轮交给对方。轮流猜词、接龙或其他小游戏中，一次参与可能只需要一个词、一个选择或者一句话；规则解释、纠正和策略讨论则是另外的互动。交接话轮并不意味着冷淡，也不是所有对话只能短答。
+
+            【语气、标点与含蓄】
+            句号、问号、感叹号、省略号、断句和不写句末标点都见于当代聊天；标点和语气通常与当时表达的意思及情绪程度相呼应。真实惊喜与平常打趣有时用不同力度，普通推测、低声吐槽和认真倾听也属于自然交流。说话者常会留下一些尚未展开的想法，让下一轮的真实回应决定是否继续。
+
+            【资料范围】
+            本书只提供社会交流习惯的观察，帮助角色理解别人如何说话、游戏怎样轮流推进；它不是角色专属的说话示例、个性设定、情绪命令或篇幅配额。具体角色的价值、性格不同侧面、关系与个人语言习惯仍来自其本人设定及真实经历。
+        """.trimIndent()
+        val old = JSONObject()
+            .put("id", "built-in-modern-chat-expression-v1")
+            .put("title", "现代聊天与自然表达")
+            .put("content", previousText)
+            .put("globalEnabled", false)
+            .put("promptPosition", "TOP")
+            .put("characterOverrides", JSONObject().put("role-a", true).put("role-b", false))
+        storage.edit().putString("entries_v1", JSONArray().put(old).toString())
+            .putBoolean("human_chat_world_book_seeded_v1", true)
+            .putBoolean("human_chat_world_book_revised_v3", true)
+            .remove("human_chat_world_book_revised_v4").commit()
+        val repo = InMemoryWorldBookRepository().also { it.initialize(context) }
+        val updated = repo.snapshot().single()
+        assertNotEquals(previousText, updated.content)
+        assertTrue(updated.content.contains("下一轮若出现误会、兴趣或新信息"))
+        assertFalse(updated.globalEnabled)
+        assertEquals(WorldBookPromptPosition.TOP, updated.promptPosition)
+        assertEquals(true, updated.characterOverrides["role-a"])
+        assertEquals(false, updated.characterOverrides["role-b"])
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v4", false))
+
+        // An owner-edited body does not become replaceable just because its
+        // title and ID still match the bundled copy.
+        repo.save(updated.copy(content = "主人自己调整的社会习惯介绍"))
+        storage.edit().remove("human_chat_world_book_revised_v4").commit()
+        val saved = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single()
+        assertEquals("主人自己调整的社会习惯介绍", saved.content)
+        assertFalse(saved.globalEnabled)
     }
 
     @Test fun shippedModernChatV2UpgradesToCultureReferenceWithoutOverridingAnOwnersScope() {
@@ -298,14 +350,16 @@ class WorldBookFolderRepositoryTest {
         storage.edit().putString("entries_v1", JSONArray().put(custom).toString())
             .putBoolean("human_chat_world_book_seeded_v1", true)
             .putBoolean("human_chat_world_book_revised_v2", true)
-            .remove("human_chat_world_book_revised_v3").commit()
+            .remove("human_chat_world_book_revised_v3")
+            .remove("human_chat_world_book_revised_v4").commit()
         val book = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single()
         assertNotEquals(previousText, book.content)
-        assertTrue(book.content.contains("社会交流习惯的观察"))
+        assertTrue(book.content.contains("参与者共同完成的互动"))
         assertFalse(book.globalEnabled)
         assertEquals(true, book.characterOverrides["jiangdu"])
         assertEquals(WorldBookPromptPosition.BOTTOM, book.promptPosition)
         assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v4", false))
     }
 
 }
