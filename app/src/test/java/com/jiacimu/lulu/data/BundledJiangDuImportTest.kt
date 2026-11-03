@@ -105,13 +105,27 @@ class BundledJiangDuImportTest {
             }
             val dialogue = profile.getString("dialogueExamples")
             assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, dialogue)
-            assertEquals(1, Regex("【说好一起坚持").findAll(dialogue).count())
-            assertTrue(dialogue.contains("背到想跟书绝交了？"))
-            assertTrue(dialogue.contains("缓过来我陪你慢慢啃"))
+            assertEquals(1, Regex("【学习时").findAll(dialogue).count())
+            assertTrue(dialogue.contains("江渡：哎哟，书又欺负你了？"))
+            assertTrue(dialogue.contains("江渡：来，抱抱。"))
+            assertTrue(dialogue.contains("江渡：又没说不许我先亲你一下。"))
+            assertFalse(dialogue.contains("缓过来我陪你慢慢啃"))
             assertFalse(dialogue.contains("【睡前责任"))
             assertFalse(dialogue.contains("【认真关怀"))
             assertTrue(CharacterSpeechIdentity.promptSection(id)
-                .contains("背到想跟书绝交了？"))
+                .contains("江渡：哎哟，书又欺负你了？"))
+            assertEquals(otherBefore, CharacterLifeStore.state("lulu").toString())
+
+            // v25 shipped sample also upgrades without affecting the trait fields.
+            val lastShipped = JSONObject(old.toString())
+                .put("jiangDuPresetVersion", 25)
+            lastShipped.getJSONObject("profile")
+                .put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamplesV25)
+            save.invoke(CharacterLifeStore, id, lastShipped)
+            CharacterLifeStore.initialize(context)
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples,
+                CharacterLifeStore.state(id).getJSONObject("profile")
+                    .getString("dialogueExamples"))
             assertEquals(otherBefore, CharacterLifeStore.state("lulu").toString())
 
             // Even intentional blanks and authored dialogues remain untouched.
