@@ -790,7 +790,18 @@ internal object CompanionActionRuntime {
                 error("角色日记已停用；可以选择朋友圈、私聊或真正的数字世界活动来表达")
             }
             "plan_personal_activity" -> {
-                val due = java.time.Instant.parse(args.getString("dueAt").trim())
+                // Model-owned time is required. An absent value must remain a
+                // failed, repairable request; never silently schedule "now".
+                val authoredDueAt = args.optString("dueAt").trim()
+                require(authoredDueAt.isNotBlank()) {
+                    "个人日程未保存：缺少 dueAt（本人选择的未来ISO8601日期时间）"
+                }
+                val due = runCatching { java.time.OffsetDateTime.parse(authoredDueAt).toInstant() }
+                    .getOrElse {
+                        throw IllegalArgumentException(
+                            "个人日程未保存：dueAt 时间格式无效，请提供含时区偏移的ISO8601未来时间"
+                        )
+                    }
                 val actionName = args.optString("activityAction").trim().lowercase()
                 val proposed = RoleDayPlan(
                     id = "", characterId = characterId,
