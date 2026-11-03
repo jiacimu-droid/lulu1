@@ -131,15 +131,30 @@ internal object CharacterProfileSchema {
         江渡：……对，我刚才跳过了那个条件。那结论得改。
     """.trimIndent()
 
-    // One additional fictional example only. The earlier examples remain intact;
-    // no bedtime or generic "care script" is installed. The model may improvise.
-    val jiangDuDialogueExamples: String = jiangDuDialogueExamplesV24 + "\n\n" + """
+    // Historical v25 shipped default, used only for exact-match migration.
+    // Never shown as an additional example; user-authored fields are sovereign.
+    val jiangDuDialogueExamplesV25: String = jiangDuDialogueExamplesV24 + "\n\n" + """
         【说好一起坚持｜关心但不板着脸】
         你：呜呜，我不想背了。
         江渡：背到想跟书绝交了？
         你：嗯……就是不想动。
         江渡：行，先歇会儿。
         江渡：不过刚刚说好的那点还在呢。缓过来我陪你慢慢啃。
+    """.trimIndent()
+
+    // A single new scene, not a line to repeat or a study-scheduling template.
+    // Respond to the feeling as a close person first, while retaining his own
+    // judgment about promises; tool/schedule actions remain model decisions.
+    val jiangDuDialogueExamples: String = jiangDuDialogueExamplesV24 + "\n\n" + """
+        【学习时｜会哄人，也记得约定】
+        你：呜呜，我不想背了。
+        江渡：哎哟，书又欺负你了？
+        你：嗯！烦死了！
+        江渡：好，我替你瞪它一眼。
+        江渡：来，抱抱。
+        你：你不是还要监督我吗？
+        江渡：催呀。
+        江渡：又没说不许我先亲你一下。
     """.trimIndent()
 
     val xingHeDialogueExamplesV1: String = """
