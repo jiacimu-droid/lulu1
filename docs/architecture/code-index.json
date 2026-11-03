@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:26:43.977247+00:00",
-  "commit": "66d80536e5ffbee474fd5590cfeb275e1dcdec00",
+  "generatedAt": "2026-11-03T04:27:10.453841+00:00",
+  "commit": "50336442b76715c3eb28b69975cfae2005bfa5c2",
   "branch": "main",
-  "sourceFingerprint": "a61481c18f79fadedbb46cab43c8afb11642376d757baa73bee78d4c920ee718",
+  "sourceFingerprint": "743d81514134489000a563697ccb83c86266bbcd0f4f9617ce5970be0191c82e",
   "summary": {
     "files": 1124,
-    "lines": 230889,
+    "lines": 230931,
     "symbols": 3247
   },
   "symbolIndex": {
@@ -2945,25 +2945,25 @@
     "LuluSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 34
+        "line": 37
       }
     ],
     "loadConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 68
+        "line": 71
       }
     ],
     "clearEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 80
+        "line": 83
       }
     ],
     "saveCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 92
+        "line": 95
       }
     ],
     "speak": [
@@ -20614,24 +20614,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-      "lines": 337,
-      "sha256": "e50ba6ce277aa9d179f9e51ceb539700ffb4a6573afe7b46e10b91ef9bf0cbdb",
+      "lines": 379,
+      "sha256": "16470b6460a1d361cde106b83f9c20353d795b02e5df3e431f9049d056647be6",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
-          "line": 34
+          "line": 37
         },
         {
           "name": "loadConfiguration",
-          "line": 68
+          "line": 71
         },
         {
           "name": "clearEditor",
-          "line": 80
+          "line": 83
         },
         {
           "name": "saveCurrent",
-          "line": 92
+          "line": 95
         }
       ]
     },
