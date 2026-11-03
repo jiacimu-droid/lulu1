@@ -24,13 +24,19 @@ internal data class CompanionActionResult(
     val evidenceId: String = "",
     /** Null for non-call operations; a call can be pending while notification is blocked. */
     val callNotificationShown: Boolean? = null,
+    /** Persisted messages authored by THIS execution, not a chat-history diff. */
+    val deliveredMessageIds: List<String> = emptyList(),
 ) {
     fun asJson(): String = JSONObject()
         .put("success", success)
         .put("summary", summary)
         .put("conversationId", conversationId.orEmpty())
         .put("evidenceId", evidenceId)
-        .apply { callNotificationShown?.let { put("callNotificationShown", it) } }
+        .apply {
+            callNotificationShown?.let { put("callNotificationShown", it) }
+            if (deliveredMessageIds.isNotEmpty())
+                put("deliveredMessageIds", org.json.JSONArray(deliveredMessageIds))
+        }
         .toString()
 }
 
@@ -653,7 +659,6 @@ internal object CompanionActionRuntime {
                 val text = args.optString("text").trim().take(if (bubbleModes.isEmpty()) 2_000 else 16_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
-                val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 val voiceTexts = args.optJSONArray("voiceBubbles")?.let { notes ->
                     (0 until notes.length()).mapNotNull { notes.optString(it).trim().takeIf(String::isNotBlank) }
                 }.orEmpty()
@@ -676,13 +681,12 @@ internal object CompanionActionRuntime {
                     } else parsed.copy(content = authoredText, voiceBubbleTexts = voiceTexts)
                 }
                 val targetUserIds = replyUserMessageIdsForDestination(conversation.id, characterId, replyEvidenceIds)
-                val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
-                    com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
+                val delivery = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                    com.jiacimu.lulu.appendRoleReplyWithPacingReceipt(conversation.id, characterId, character.displayName,
                         presentation, actionableUserMessageIds = targetUserIds,
                         diagnosticTurnTraceId = args.optString("_turnTraceId"))
                 }
-                val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
-                    .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
+                val deliveredId = delivery.messageIds.lastOrNull().orEmpty()
                 // This is an actual scheduled owner-facing reminder, not an
                 // arbitrary chat message. Show a user-operated overlay in
                 // addition to the genuine role-authored text. No model content
@@ -703,12 +707,12 @@ internal object CompanionActionRuntime {
                 // A newer user correction can invalidate a paced reply before
                 // its first bubble or between bubbles. A partial send is real
                 // history, but NOT a completed whole-turn delivery receipt.
-                val complete = deliveredText.isNotBlank() && deliveredId.isNotBlank()
+                val complete = delivery.complete
                 CompanionActionResult(complete,
                     if (complete) "已在私聊中发送消息"
                     else if (deliveredId.isNotBlank()) "部分气泡已送达，后续因来源变更或中断而停止"
                     else "原用户消息已变化、被撤回或发送中断；本轮没有送达消息",
-                    conversation.id, deliveredId)
+                    conversation.id, deliveredId, deliveredMessageIds = delivery.messageIds)
             }
             "send_group_message" -> {
                 val groupId = args.optString("groupId").trim()
@@ -717,22 +721,20 @@ internal object CompanionActionRuntime {
                     candidate.id == groupId && candidate.groupChat?.members?.any { it.characterId == characterId } == true
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
-                val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 val targetUserIds = replyUserMessageIdsForDestination(conversation.id, characterId, replyEvidenceIds)
-                val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
-                    com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
+                val delivery = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                    com.jiacimu.lulu.appendRoleReplyWithPacingReceipt(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text),
                         actionableUserMessageIds = targetUserIds,
                         diagnosticTurnTraceId = args.optString("_turnTraceId"))
                 }
-                val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
-                    .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
-                val complete = deliveredText.isNotBlank() && deliveredId.isNotBlank()
+                val deliveredId = delivery.messageIds.lastOrNull().orEmpty()
+                val complete = delivery.complete
                 CompanionActionResult(complete,
                     if (complete) "已在群聊《${conversation.groupChat?.name}》发言"
                     else if (deliveredId.isNotBlank()) "部分群聊气泡已送达，后续因来源变更或中断而停止"
                     else "群聊原消息已变化、被撤回或发送中断；本轮没有送达消息",
-                    conversation.id, deliveredId)
+                    conversation.id, deliveredId, deliveredMessageIds = delivery.messageIds)
             }
             "send_game_invite" -> {
                 val gameId = args.optString("gameId").trim()
