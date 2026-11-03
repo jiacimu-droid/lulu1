@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:14:16.371711+00:00",
-  "commit": "3e7d1c4c38d24ab2f49e2f8fcccdd72142bcad3e",
+  "generatedAt": "2026-11-03T06:32:07.982157+00:00",
+  "commit": "df7047d4bfbf57ce2f715cc7120565f8148ee3cf",
   "branch": "main",
-  "sourceFingerprint": "459210d362756710f306a2aabe5b488be5ff126addecfd378cde7d0d7313bd78",
+  "sourceFingerprint": "f112e1e9f951c1578aeb4141c02b7529735fcf8509d53a13c2c5d1361959ad58",
   "summary": {
-    "files": 1124,
-    "lines": 231644,
-    "symbols": 3249
+    "files": 1125,
+    "lines": 231773,
+    "symbols": 3250
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4695,7 +4695,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 128
+        "line": 130
       }
     ],
     "restore": [
@@ -10824,6 +10824,12 @@
         "line": 42
       }
     ],
+    "ranked": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
+        "line": 18
+      }
+    ],
     "shouldUpdateVisibleState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
@@ -12131,13 +12137,13 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 107
+        "line": 109
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 126
+        "line": 128
       }
     ],
     "Attachment": [
@@ -27835,8 +27841,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-      "lines": 42,
-      "sha256": "05931a3d8acf923f19267ba629082e1af52d54a1c24576c1f179195664bf5556",
+      "lines": 56,
+      "sha256": "ba3aa7bec1ce213513649cf45989e6d9a1c9b4ea1e2ad197a3dbb90afcc82d70",
       "symbols": [
         {
           "name": "expand",
@@ -28104,8 +28110,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 95,
-      "sha256": "339e2e57ed2b9c6aa37677e708b18c6c37d6ca55ff400fca7be4c46b8042b751",
+      "lines": 104,
+      "sha256": "ad2810ac28529eeb62d14b5e15be5fa1418dfd4ffebb8e65e092d2408929ffcd",
       "symbols": [
         {
           "name": "assemble",
@@ -28573,6 +28579,17 @@
         {
           "name": "permits",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
+      "lines": 44,
+      "sha256": "efbe1f4cb4300c2aa79dfd140494c88f0c484d0a3142215f85a7923a2b31a37f",
+      "symbols": [
+        {
+          "name": "ranked",
+          "line": 18
         }
       ]
     },
@@ -29893,8 +29910,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 302,
-      "sha256": "263f9cd02de0da3fc03c55fee2dd6719d4fc3a8d84503e4b3d0e39763ded0dcc",
+      "lines": 305,
+      "sha256": "d2af501941eb73304a59f49bd7e8c93b93715e8a14a3d3843fd6bf8dddc6cef5",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -29914,15 +29931,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 107
+          "line": 109
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 126
+          "line": 128
         },
         {
           "name": "empty",
-          "line": 128
+          "line": 130
         }
       ]
     },
@@ -36890,8 +36907,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt",
-      "lines": 154,
-      "sha256": "cae6862b8a259e2aaee7631c90438e09a30542a4b19e0093aa272a73a69228e5",
+      "lines": 184,
+      "sha256": "dfb54e2745525c5442aed58aed3d9ecbe4b5c693c086cb05fd485ae5280253d6",
       "symbols": [
         {
           "name": "MemoryEvidenceSelectionTest",
@@ -37050,8 +37067,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt",
-      "lines": 118,
-      "sha256": "3d4f93e696966c5000dd34a16645e3057d3a1fe339429df1c87e3c80eab8b9b4",
+      "lines": 147,
+      "sha256": "76e1c8596d2ae23570f4d2b0a8875c5ce0f7df118f2c1d7c8e27ebe4de736200",
       "symbols": [
         {
           "name": "MemoryWorkingSetPolicyTest",
