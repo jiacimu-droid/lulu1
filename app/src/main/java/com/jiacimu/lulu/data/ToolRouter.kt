@@ -353,6 +353,24 @@ object ToolRouter {
                                     .toString()
                             }
                         }
+                    } else if (name == "retire_development_record") {
+                        CharacterDevelopmentStore.initialize(context)
+                        val id = args.optString("developmentId").trim()
+                        val version = args.optInt("version", -1)
+                        val explanation = args.optString("reason").trim()
+                        if (id.isBlank() || version < 1 || explanation.isBlank()) {
+                            failure("整理成长认识需要原记录ID、当前version和本人决定放下的理由")
+                        } else {
+                            val retired = CharacterDevelopmentStore.retireSelfAssessment(
+                                characterId, id, version)
+                            JSONObject().put("success", retired)
+                                .put("status", if (retired) "succeeded" else "failed")
+                                .put("developmentId", id)
+                                .put("summary", if (retired)
+                                    "这条个人成长认识已退出当前有效倾向，原记录和依据保留；理由：${explanation.take(200)}"
+                                else "未找到本角色当前版本的可归档成长倾向；主人亲口事实或偏好不可通过此工具撤销")
+                                .toString()
+                        }
                     } else if (name == "summon_lulu") {
                         LuluScreenAwareness.summon(context, characterId)
                     } else if (activeCap.domain == "phone") {
