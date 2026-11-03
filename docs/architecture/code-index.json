@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T10:05:59.317185+00:00",
-  "commit": "9f45b3b82f2926216d08eb97c69f489d1e4f62d1",
+  "generatedAt": "2026-11-03T10:07:29.328165+00:00",
+  "commit": "f64ddc6a9a25d6566f30a5fcda1dabc6fa7163fe",
   "branch": "main",
-  "sourceFingerprint": "05a16240d852f32eacd6f2a394cc15819707fd74bc70703cf8ffc4f875e008e6",
+  "sourceFingerprint": "b3bf58f4702744237e167f02fc85d6ed211077abbfd9d93b255f5747facc5a71",
   "summary": {
     "files": 1125,
     "lines": 232443,
@@ -20208,7 +20208,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
       "lines": 539,
-      "sha256": "109b68d89cdabafee949dc297411a62b54c648a8d286aafe577f25e59b4353fc",
+      "sha256": "1b52fca6b117c0713eb2db1780046ce6f4b72345a602b615d0009cc14a456591",
       "symbols": [
         {
           "name": "Head",
