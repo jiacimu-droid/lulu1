@@ -334,6 +334,42 @@ class ConversationExpressionGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun missingPlannerMoveReachesWriterWithoutInventingAnswer() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("即兴接话回归", "性格机灵而克制")
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
+        val incoming = MigratedDomainStores.chat.sendUserMessage(chat.id, "你故意逗我吧")
+        val server = MockWebServer()
+        fun response(content: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+                JSONObject().put("content", content)).put("finish_reason", "stop"))).toString())
+        // A valid choice of reply with speechIntent remains meaningful even if
+        // an optional dialogueMove was omitted by the planner model.
+        server.enqueue(response("""{"action":"reply","speechIntent":"被逗得笑了一下，顺口反问"}"""))
+        server.enqueue(response("""{"action":"reply","bubbles":[{"text":"你才发现啊。"}]}"""))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "impulse-test",
+                server.url("/").toString(), "test-only")
+            LuluAiServices.connectionStore.addArchive(config.id, "test")
+            val reply = LuluDeviceToolBridge.respond(role.characterId, "", incoming.content, "test",
+                userEvidenceIds = listOf(incoming.id)).getOrThrow()
+            assertEquals("你才发现啊。", reply.text)
+            assertEquals(2, server.requestCount)
+            server.takeRequest(5, TimeUnit.SECONDS)!!
+            val rendering = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+                .getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(rendering.contains("被逗得笑了一下，顺口反问"))
+            assertTrue(rendering.contains("本轮未提供明确的会话动作"))
+            assertFalse(rendering.contains("已选择的会话动作】answer"))
+            assertTrue(rendering.contains("性格机灵而克制"))
+        } finally { server.shutdown() }
+    }
+
     @Test(timeout = 60_000) fun privateChatExpressionReceivesFullChosenIntentIncludingTailBoundary() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
