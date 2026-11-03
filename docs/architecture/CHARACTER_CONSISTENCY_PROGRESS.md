@@ -426,3 +426,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实证根因与代码**：`f88ee2d` 更新旧存档迁移的最终预期，v25 默认字段排在 v24 前；未改人物迁移实现、更未删除测试。`48739a8` 修复 `RelayRequestPressurePolicy.compactSectionPairs` 的类别判断：摘要标题含“以原始依据为准”被 `contains("原始依据")` 误识成原始证据，导致本应保留摘要前缀却优先保留尾部。现在只有正式 `MemoryWorkingSet.RECENT`/`EVIDENCE` 和本轮背景依据按新近证据选尾，摘要按既有优先级保留前缀；`67fb99f` 增加摘要/原始证据相反方向的源级回归。
 - **后续独立失败**：[run 41681957195](https://github.com/jiacimu-droid/lulu1/actions/runs/41681957195) 在 `:app:compilePhoneKotlin` 报 `UnifiedMemoryOrchestrator.kt:230 Unresolved reference Instant`；`c678bbf` 仅补 `java.time.Instant` 导入，保留同轮责任时间事实功能。
 - **待验**：上述都是已提交的源码修复，不是通过证明。需查最新同时包含三个提交的 Lulu APK `:app:compilePhoneKotlin`、`:app:testPhoneUnitTest` 和打包结论；并行提交可能取消旧 run。原有江渡唯一新增的亲昵学习对话示例和自动精确匹配升级仍在 `main`；真机模型自然度与监督真实后续均待验。P-08 维持 [ ]。
+
+
+## 2026-11-04 · P-08d 长战线根因：复查闹钟不能吞掉独立证据，等待不是免费的行动（待 CI/真机）
+
+- **用户观察**：某角色已经在夜间认真安排了后续复查，但面对目标未确认与时间不断推移，选出半小时后继续静默检查，真实体验是把一个对时间敏感的目标越拖越远。此前仅把原始时间/复查时间差展示出来，仍未解决“为什么要等这么久、现在不能做什么”的取舍缺口。单凭截图不能认定具体模型决策原因，更不能替对方编造睡眠结果。
+- **进一步追源码发现的公共阻断**：`GoalDeadlinePerceptionPolicy.deferPassiveCheck` 只要已有未来 30 分钟内的定时任务/结果复查闹钟，立即抑制 `ProactivePerceptionRuntime.runDueCycle` 的普通轮次，即使有另一条**刚刚独立到来的证据或用户手动唤醒**也没有检查理由。这条本为节流重复普通轮询的 30 分钟保护，错误地把一个未来闹钟升级成对所有新信息的沉默许可；`runDueCycle` 的常规 `dueAtFor` 还可能再次挡住该独立唤醒。
+- **实改**：`974b8f6` 让 `deferPassiveCheck` 只拦截没有独立新证据的普通被动轮询；`6b10fcb` 让 `runDueCycle` 对已有用户直接唤醒、真实 `requiredInteractionEvidenceId` 和原有重要事件触发，在不新建唤醒轮次/不重复模型调用的前提下越过旧闹钟、普通间隔门禁。现有通话独占、授权、角色控制权、静默时段约束仍不改；无新事情的普通定时轮询仍可合并到已有闹钟。**并非每 5 分钟自动催睡**。
+- **主观决策层修正**：`1bf3850`、`3fd5bae` 将原本会让角色偏向“既然排了复查就等”的一般目标提示改为权衡“目标仍未实现、时间继续经过的损失、此刻可行步骤 vs 继续等到下一次到底能获得什么新事实”，不规定默认 5/30 分钟频次、也不强制问候；提示区分手机静默/白噪音/关屏与有证据的真实入睡状态，并保持已验证的既有 prompt 契约。 `6d2acfd` 同步原自主模型的 `schedule_commitment_review` 与 `onlineDecision.nextChecks` 选择入口：如果要延迟，必须本人判断等待的价值及目标时间成本，而不是把写入日程当作目标已落实。未添加新的收费模型调用或额外 Store。
+- **测试**：`0489264` 的 `GoalDeadlinePerceptionPolicyTest.scheduledReviewCannotSwallowFreshIndependentEvidence` 证明 30 分钟复查仍合并普通轮询、不会阻塞独立新事件，也不更改原闹钟或完成结果；`3e7eb01` 的 `ProactiveQuietDecisionTest` 检查已承担责任的模型输入确实保留机会成本、比较当前行为与等待、不会把闹钟视为停止判断的理由。覆盖普通时间敏感目标，不为某一角色加脚本。
+- **验证与接力**：截至记录时 `3e7eb01` 的 [Lulu APK run 41683821826](https://github.com/jiacimu-droid/lulu1/actions/runs/41683821826) 与 Refresh code index `41683821788` 仍 pending；此前多个中间构建被新 push 取消不能算失败或通过。下一轮首先抓最新包含这些提交的完整 Android 编译/2300+ 项单测/APK 结果，针对真正失败继续修；成功后在获准的真机样本中比较旧目标逾期、未来复查、其间收到真实新信息、本人是否重新衡量行动机会及完成证据。模型最终是否聪明选出恰当的复查间隔尚无真实输出对照，不应宣称解决了每次夜间行为。P-08 保持 `[ ]`。
