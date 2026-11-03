@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.data.InMemoryLuluChatStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.ToolRouter
+import com.jiacimu.lulu.data.OrderedCharacterActions
 import com.jiacimu.lulu.data.verifiedRoleDeliveries
 import com.jiacimu.lulu.data.ChatGenerationActivity
 import com.jiacimu.lulu.data.LuluGroupMember
@@ -374,6 +375,34 @@ class QqReplySourceWatermarkTest {
         assertFalse(exact.any { it.id == unrelatedSameActor.id || it.id == unrelatedOtherActor.id })
         assertTrue(verifiedRoleDeliveries("wrong-conversation", role, ids).isEmpty())
         assertTrue(verifiedRoleDeliveries(conversation.id, outsider, ids).isEmpty())
+    }
+
+
+    @Test fun sideActionReplyReceiptsKeepTheirOwnConversationAndTrace() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val role = MigratedDomainStores.characters.create("多动作回执角色").characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "多动作")
+        val source = MigratedDomainStores.chat.sendUserMessage(conversation.id, "你可以发两句话")
+        LuluRepositories.performance.clearTimings()
+        val trace = "side-action-trace-proof"
+        val steps = JSONArray().put(JSONObject()
+            .put("tool", "send_private_message")
+            .put("args", JSONObject().put("text", "附加第一泡⟪BUBBLE⟫附加第二泡")
+                .put("_turnTraceId", "not-model-controlled")))
+        val report = OrderedCharacterActions.execute(app, role, steps,
+            requestId = "side-action-message-" + java.util.UUID.randomUUID().toString(),
+            userEvidenceIds = setOf(source.id), turnTraceId = trace)
+        assertEquals(1, report.completedCount)
+        assertEquals(2, report.deliveredMessageRefs.size)
+        assertTrue(report.deliveredMessageRefs.all { it.conversationId == conversation.id })
+        val actual = verifiedRoleDeliveries(conversation.id, role,
+            report.deliveredMessageRefs.map { it.messageId })
+        assertEquals(listOf("附加第一泡", "附加第二泡"), actual.map { it.content })
+        val timings = LuluRepositories.performance.timingRecords.first()
+        assertTrue(timings.any { it.stage == "P08a发送结局" &&
+            it.detail.contains("trace=$trace") &&
+            it.detail.contains("status=complete") })
+        assertFalse(timings.any { it.detail.contains("trace=not-model-controlled") })
     }
 
     @Test fun correctionBetweenTwoBubblesKeepsFirstReceiptButStopsSecond() = runBlocking {
