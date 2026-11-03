@@ -99,10 +99,10 @@ internal object CharacterContinuityRuntime {
                 }
             }
             state.lastUserStatement?.let {
-                appendLine("用户上一次真实说过：${it.content.replace(Regex("\\s+"), " ").take(180)}")
+                appendLine("用户上一次真实说过：${it.content.replace(Regex("\\s+"), " ")}")
             }
             state.lastCharacterStatement?.let {
-                appendLine("角色自己上一次真实说过：${it.content.replace(Regex("\\s+"), " ").take(180)}（场景：${it.channel}）")
+                appendLine("角色自己上一次真实说过：${it.content.replace(Regex("\\s+"), " ")}（场景：${it.channel}）")
                 appendLine("自己已经说出口的话属于自己的历史，要承接并负责，不能下一轮当成用户说的或完全失忆。")
                 appendLine("发言场景以原记录为准；在其他群里说过，不代表已经向当前交谈对象说过。")
             }

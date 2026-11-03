@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T05:40:33.956916+00:00",
-  "commit": "0d0a0b7736b19bc63425f67e093a1fada83aae83",
-  "branch": "main",
-  "sourceFingerprint": "4a5818f61a9c484a01fbeb4712ad4cc3346b58a36200fdaf959ebcccbb1a8cf9",
+  "generatedAt": "2026-11-03T05:41:38.201148+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "819433735567f4c81b5d87bea52328bfd5cdeaa66c4c7f63cb35a7828e496c81",
   "summary": {
     "files": 1125,
-    "lines": 231392,
+    "lines": 231407,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -23480,7 +23480,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
       "lines": 139,
-      "sha256": "ed00bd458a05b2faf8d67f317adc47e0459a63bf339a4305c26d0738fd5499a8",
+      "sha256": "2989767e11145918c00a15150294aaa44a61c29bb67ad040cfe1fdb55fe5f397",
       "symbols": [
         {
           "name": "snapshot",
@@ -35464,8 +35464,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
-      "lines": 57,
-      "sha256": "55f24ccfc51721e8138a3abf1a05e93d558aa7fb8df7a4a7aba506eaff0da9f7",
+      "lines": 72,
+      "sha256": "bd2532d7fb47a699ed580f78f8a568edcf58a81d1531a8096d42bd28c638ad9f",
       "symbols": [
         {
           "name": "CharacterContinuityRuntimeTest",

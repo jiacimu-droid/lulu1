@@ -53,4 +53,19 @@ class CharacterContinuityRuntimeTest {
         assertTrue(text.contains("同一段近期关系流"))
         assertTrue(text.contains("不要把它当久别重逢"))
     }
+
+    @Test fun lastWordsRetainConditionsAndNegationsBeyondPreviewLength() {
+        val user = "请记住这些背景。".repeat(35) + "但不要把这当成永久许可。"
+        val own = "我会考虑这些细节。".repeat(35) + "如果条件改变，我会重新问你。"
+        val state = CharacterContinuityRuntime.Snapshot(
+            previousInteractionAt = Instant.parse("2026-10-10T12:00:00Z"),
+            minutesSinceInteraction = 18,
+            lastUserStatement = event("long-u", user, EventEvidenceKind.UserStatement, "2026-10-10T11:59:00Z"),
+            lastCharacterStatement = event("long-c", own, EventEvidenceKind.CharacterStatement, "2026-10-10T12:00:00Z"),
+            preferredAddress = "", addressIsManual = false, activeMotiveAims = emptyList(),
+        )
+        val text = CharacterContinuityRuntime.render(state)
+        assertTrue(text.contains(user))
+        assertTrue(text.contains(own))
+    }
 }
