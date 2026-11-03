@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.ai
 
+import com.jiacimu.lulu.data.MemoryWorkingSet
+
 /**
  * Bounded transport recovery for a relay that refused to hold a large request body.
  * This never interprets what the user means or changes a character decision.
@@ -119,8 +121,13 @@ internal object RelayRequestPressurePolicy {
             if (content.isBlank()) return@mapNotNull null
             val selected = if (label in protected) content
                 else excerptWholeLines(content, limit(label),
+                    // Direction follows the *actual* section identity. The
+                    // summary title says "以原始依据为准" as a caution, but is not
+                    // raw evidence; substring matching silently evicted its
+                    // highest-priority entries from the final relay request.
                     mostRecentFirst = label == "本轮背景依据" ||
-                        label.contains("时间线") || label.contains("原始依据"))
+                        label == MemoryWorkingSet.RECENT ||
+                        label == MemoryWorkingSet.EVIDENCE)
             selected.takeIf(String::isNotBlank)?.let { label to it }
         }
 
