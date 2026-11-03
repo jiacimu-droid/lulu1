@@ -41,7 +41,7 @@ internal object WorldLifeEpisodeParagraphs {
     private val namedQuote = Regex("""^([\p{L}\p{N}·]{1,18})[：:]\s*(“[^”]+”|「[^」]+」|"[^"]+")\s*$""")
     private val namedSpeech = Regex("""^([\p{L}\p{N}·]{1,18})[：:]\s*(.+)$""")
 
-    internal fun parse(raw: String): List<WorldLifeParagraph> {
+    internal fun parse(raw: String, speakerNames: Set<String> = emptySet()): List<WorldLifeParagraph> {
         val text = raw.replace("\r\n", "\n").trim()
         if (text.isEmpty()) return emptyList()
         return text.split(Regex("""\n{2,}""")).flatMap { block ->
@@ -63,11 +63,13 @@ internal object WorldLifeEpisodeParagraphs {
                 if (clean.isEmpty()) emptyList() else {
                     val named = if (marker in setOf("对白", "台词", "说话"))
                         namedSpeech.matchEntire(clean) else namedQuote.matchEntire(clean)
+                            ?.takeIf { it.groupValues[1] in speakerNames }
                     val speaker = named?.groupValues?.get(1).orEmpty()
                     val speechText = named?.groupValues?.get(2)?.trim() ?: clean
                     val kind = when (marker) {
                         "心声", "心理", "内心" -> WorldLifeParagraphKind.THOUGHT
                         "对白", "台词", "说话" -> WorldLifeParagraphKind.SPEECH
+                        "叙述", "环境", "动作" -> WorldLifeParagraphKind.NARRATION
                         else -> if (named != null || (clean.startsWith('“') && clean.endsWith('”')))
                             WorldLifeParagraphKind.SPEECH else WorldLifeParagraphKind.NARRATION
                     }
@@ -102,7 +104,12 @@ private val StoryAccent = Color(0xFFA38B74)
 
 @Composable
 internal fun WorldLifeEpisodeReader(scene: String) {
-    val paragraphs = remember(scene) { WorldLifeEpisodeParagraphs.parse(scene) }
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    // These names only style text already present in the saved story. They do
+    // not create observations, dialogue or relationships for any character.
+    val speakerNames = characters.values.map { it.displayName }.toSet() +
+        com.jiacimu.lulu.data.DigitalWorldExpansionStore.residents().map { it.name }
+    val paragraphs = remember(scene, speakerNames) { WorldLifeEpisodeParagraphs.parse(scene, speakerNames) }
     Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
         paragraphs.forEach { paragraph ->
             // Chinese literary typesetting: real paragraph breaks and first-line

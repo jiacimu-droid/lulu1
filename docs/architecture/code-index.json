@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:51:40.181001+00:00",
-  "commit": "92b93c37615f5f0b6a9f5f8777cabaa04df915ee",
-  "branch": "main",
-  "sourceFingerprint": "147aa4ec910b21a7babca57ec4987e21a8f92d215061beeee72e5dd0465e0cfd",
+  "generatedAt": "2026-11-03T04:52:52.245409+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "1cc9582c8290f7c09796f56ec87b8775ee1881ef0dc39bf04a7fad34e2469cb7",
   "summary": {
     "files": 1125,
-    "lines": 231171,
+    "lines": 231197,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -22385,8 +22385,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt",
-      "lines": 264,
-      "sha256": "9f8e7b0ed6f3177416b806094feb5be43b1168e2fdd6407d4f073eb2ad270ddb",
+      "lines": 271,
+      "sha256": "6763af2b35827274974610afdf9f329f2dfe6b415d64702df1d0abd7b888ce06",
       "symbols": []
     },
     {
@@ -34890,8 +34890,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
-      "lines": 63,
-      "sha256": "48afbf09c798c4e7cc0c5d7ac84bdc4260a41312b21b94a953395047911a53fd",
+      "lines": 82,
+      "sha256": "f9d1510d998597fd86348f037fca7008dbb8402593b066f9effe7c2fc4a6ff7d",
       "symbols": [
         {
           "name": "WorldLifeEpisodeParagraphsTest",
