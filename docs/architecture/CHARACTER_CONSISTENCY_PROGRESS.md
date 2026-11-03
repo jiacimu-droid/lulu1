@@ -362,3 +362,13 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码修改**：[ `6013cbb`](https://github.com/jiacimu-droid/lulu1/commit/6013cbbbc428446647a17581e1d794d42b52a7e0) 将“长文本分泡”写成正向因果，补齐“分泡本身不会减少内容”与“哄睡连续故事按实际需要充分表达”，既不让短气泡掩盖长独白，也不牺牲必要长答；[ `80aa8ac`](https://github.com/jiacimu-droid/lulu1/commit/80aa8ac323037d03f93d3d474c34ac091b4efb58) 将“每泡不要求完整段落”改成“短反应或半句话也是独立消息”。保留既有 `CharacterExpressionGuide` 和全部原测试，不新建人格中心，不加模型调用、不按字数自动删正文。
 - **验证边界**：前述 3 项在两个已完成的旧 run 中实际失败。修后的完整源码正向语句与现有测试断言已静态逐项核对（`CharacterExpressionGuide.kt` 现无“不要”字面）；但修复后 `80aa8ac` 的 Android [run 41644363040](https://github.com/jiacimu-droid/lulu1/actions/runs/41644363040) 在交接查询时仍未完成，索引 run `41644363641` 亦尚未有最终结论。后继任务可能取消旧构建；不得以静态检查宣称 2317 项全部通过。
 - **下一入口**：检查包含 `80aa8ac` 或其后继 main 的 APK `:app:testPhoneUnitTest` 与产物最终结果。若失败读取首个失败断言/步骤，精准修源码并保持测试约束；若通过再推进 P-08a 同一 `turnTraceId` 的真机模型规划、表达与逐泡送达盲评，而不是拿 CI 绿灯宣告“活人感已经好了”。P-08 不勾选。
+
+
+## 2026-11-03 P-08d 续改：多动作消息回执归属不再靠时间猜（待 CI/真机）
+
+- **接手事实**：上一轮 P-08c 表达契约修复 `80aa8ac` 的 [Lulu APK run 41644363040](https://github.com/jiacimu-droid/lulu1/actions/runs/41644363040) 与索引 run `41644363641` 均最终 completed/success；早期 `affc432` 的三项失败已被后继完整构建覆盖。这里仅证实 JVM/构建通过，未证实真实对话质量。
+- **本轮源码根因**：正式 `appendRoleReplyWithPacing` 之前只返回显示字符串；`CompanionActionRuntime` 在发送后通过聊天全记录“新出现的最后一条角色消息”推测本次成功和来源，即使另一轮同时落库也可能串绑。后台 `ProactivePerceptionRuntime` 把 `actionStartedAt` 之后、同一角色发的最后 8 条都绑定到本轮心理快照，既会误纳并发/独立消息，也会漏掉长回复前面的真实气泡。主动作失败但已经部分送达时，不能说整轮成功，也不能抹掉第一泡真实存在的事实。
+- **改动**：新 `RoleReplyDeliveryReceipt` 由唯一正式发送器提供这次确实落库的 `messageIds`、`complete`、`superseded`，旧返回字符串 API 保持兼容；ToolRouter `CompanionActionResult` 返回 `deliveredMessageIds`，无须全历史前后扫描猜最后一条消息。自主执行只按**精确ID＋会话ID＋人物作者**绑定后续 `CompanionPresenceStore` 心理与消息，去除时间扫描与 8 泡截断，失败的部分发送仍按实际存在的消息入证，未伪称整轮完成。独立副步骤统一从 `OrderedCharacterActions` 回收其会话/消息 ID，正向联通 0/1/N，前台群聊副动作和后台主/副动作共享 P-08a 本地 trace，模型伪造 `_turnTraceId` 被执行器丢弃。表情包、真实搜图、游戏/见面邀约和已读小红书卡片等已有直接落库消息也回传实际 ID，未改文案/模型动作选择或增加 API 调用。
+- **main 实际提交**：`86dac68`、`7ca8beb`（发送器真实结构回执）；`5ad5fd2`（工具从真实发送器回收 ID）、`bccb1c5`（后台心理精确绑定）、`4c14b08`／`075574a`（副动作真实证据，主/副动作统一交接）、`8f058ef`／`03ce92e`（前台群聊副动作 trace）；`3f107c6`（其他真实聊天素材/邀请同归属）、`9a3977a`（区分部分送达/来源变更），`df11737`、`b902783`、`2a27bb0`（测试）。
+- **回归契约**：`QqReplySourceWatermarkTest` 新增主工具两泡回执的确切 ID、前后无关同角色气泡不得混入、10 泡仍逐条归属、不同作者/会话剔除、独立步骤和 trace（模型附带的假 trace 不得生效）、已送第一泡后用户纠正则返回 `complete=false/superseded=true` 以及确切第一泡 ID。既有单泡/群聊/水位与旧字符串调用不删除。
+- **验证与后续**：本轮新源码测试已提交但尚未得到对应 `app:testPhoneUnitTest` 完整回执。最新 `2a27bb0` 的 [Lulu APK run 41666751177](https://github.com/jiacimu-droid/lulu1/actions/runs/41666751177) 与索引 `41666751200` 检查时 pending；中间因推送取消的 runs 不算失败或通过。接力先核对测试与 APK，失败只修真实失败处；通过后真机复核并发群聊/私聊、模型自主 0/1/N 真实发送与心理记录的一一归属、长泡/语音/撤回、下轮目标承接。P-08 尚未获得真实模型多轮对比与跨日验收，维持 `[ ]`。
