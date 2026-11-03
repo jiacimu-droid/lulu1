@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T12:18:59.982518+00:00",
-  "commit": "a2da5206b5e1615c9e5053a0a34c8b3c5e6f9c6d",
+  "generatedAt": "2026-11-03T12:20:00.677142+00:00",
+  "commit": "a18bcf9ca67c51d2b5b7d5a513ee19f049f9dbf8",
   "branch": "main",
-  "sourceFingerprint": "04b347706c48122be352d8bfbb410c6258b037def6f5a6a27526d739a9a94731",
+  "sourceFingerprint": "552ba5b3e3705d71f1ede87528d83f12272a56cc9094b9ba755e529ff43808e4",
   "summary": {
     "files": 1125,
-    "lines": 232482,
+    "lines": 232486,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -20572,8 +20572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 575,
-      "sha256": "9df5d45f6d4cbb13b00809abe9131928bc9bdfd51f9cc476fbf9be268b12a991",
+      "lines": 578,
+      "sha256": "69fe3a819d76c0e292ea68c9745c3a03c72c027fa3f2422a360fb70c5098bf76",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -21607,8 +21607,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1096,
-      "sha256": "da420b0de3ee5a3b710df4b2c559542f8bb2ecaa690adf18833da9b9da559bcf",
+      "lines": 1097,
+      "sha256": "37c1895c3110323e383487d0c5ceb3183b9d599d2a9ce6974cb6e685575ddc31",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
