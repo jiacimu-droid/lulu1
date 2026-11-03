@@ -94,10 +94,9 @@ internal object MemoryWorkingSet {
         val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, protected,
             mapOf(RECENT to budget.recentCharacters, EVIDENCE to budget.evidenceCharacters,
                 SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters))
-        MemoryInspectionStore.recordInjection(context.characterId, context.inspectionId,
-            context.ownedCoreMemories.map { "core:${it.id}" } + result.selected, result.omitted,
-            extraNotes = listOf("统一记忆工作集：弹性 ${result.usedCharacters} 字符；常驻核心/责任 ${result.protectedCharacters} 字符；预算 ${result.budget} 字符。") +
-                if (result.protectedCharacters > result.budget) listOf("核心与未结责任超过预算，完整保留；请在记忆页整理，未静默截断。") else emptyList())
+        // Selection is still a draft: the model request may fail or the relay
+        // may compact older evidence before transmission. Only the gateway
+        // records the final injected IDs AFTER a successful provider response.
         return result
     }
 }
