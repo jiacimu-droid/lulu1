@@ -61,9 +61,9 @@ internal object CharacterDeliberationContext {
         if (recent.isEmpty()) return ""
         return buildString {
             appendLine("【主观历史的使用边界】")
-            appendLine("以下是本人当时对真实事件的理解、取舍和念头，不代表用户事实，也不代表现在仍然纠结；新证据可以修正它们。")
+            appendLine("以下是本人当时对真实事件的理解、取舍和念头，不代表用户事实，也不代表现在仍然纠结；新证据可以修正它们。不要把多个猜测合并成对用户的断言，也不必把犹豫朗读给对方。")
             recent.forEach { entry ->
-                appendLine("【过去主观考虑｜${entry.optString("at")}｜不代表当前仍然纠结】")
+                appendLine("【过去主观考虑｜${entry.optString("at")}｜只是心理历史，不代表当前仍然纠结】")
                 val appraisal = entry.optJSONObject("appraisal")
                 val possibilities = appraisal?.optJSONArray("possibleReadings")
                 val ideas = appraisal?.optJSONArray("privateIdeas")
@@ -106,7 +106,7 @@ internal object CharacterDeliberationContext {
                     append("；当时察觉的变化：").append(it)
                 }
                 basis?.optString("conflict")?.takeIf(String::isNotBlank)?.let {
-                    append("；当时冲突：").append(it)
+                    append("；当时纠结/冲突：").append(it)
                 }
                 basis?.optString("unsaidWhy")?.takeIf(String::isNotBlank)?.let {
                     append("；当时没说出的缘由：").append(it)
