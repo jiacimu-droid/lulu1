@@ -498,6 +498,8 @@ class CompanionModelGateway(
         onStreamText: ((String) -> Unit)? = null,
         imageDataUrls: List<String> = emptyList(),
         conversation: List<ModelConversationMessage> = emptyList(),
+        /** Diagnostic-only correlation, never sent to the provider or the persona. */
+        turnTraceId: String = "",
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -935,6 +937,7 @@ class CompanionModelGateway(
                 reducedRequest = actualAudit.reduced,
                 contextMode = effectiveMode.name,
                 streamedRequest = streamResponse,
+                turnTraceId = turnTraceId,
             )
             reply
         }.onFailure { error ->
