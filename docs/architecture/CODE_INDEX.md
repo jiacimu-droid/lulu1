@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e6f423d90e67b8862cf2e26b6c0fae00a45b432c`
+- 基准提交：`ba1b161d3b98ac35e849875751fcc93e86b9f3e7`
 - 分支：`main`
 - 已索引文件：1124
-- 已索引代码/文本行：231613
+- 已索引代码/文本行：231616
 - 已发现符号：3249
 
 | 文件 | 行数 | 符号数 |
@@ -509,7 +509,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 95 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 85 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1166 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 322 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |

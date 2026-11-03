@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:11:11.155267+00:00",
-  "commit": "e6f423d90e67b8862cf2e26b6c0fae00a45b432c",
+  "generatedAt": "2026-11-03T06:12:06.080568+00:00",
+  "commit": "ba1b161d3b98ac35e849875751fcc93e86b9f3e7",
   "branch": "main",
-  "sourceFingerprint": "19f7d98a1d73299339f22eb68519a3a9ba6289c4e8b9a2bff0d3f8c1006f7c9b",
+  "sourceFingerprint": "550e887181d933c0a1f30efa1eec32cffe442fd35bf9563922cf20dbac01b26a",
   "summary": {
     "files": 1124,
-    "lines": 231613,
+    "lines": 231616,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -28119,8 +28119,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-      "lines": 85,
-      "sha256": "8e1d25c80849deeca2fb1e1e2a2547eec3b9cb67871d16e51caafe8db6105a6a",
+      "lines": 88,
+      "sha256": "88285a4773fff1c7b5eb7a7e1cbfa5edf8123c4579b3cff03d083d4daa86c877",
       "symbols": [
         {
           "name": "auxiliaryCandidates",
