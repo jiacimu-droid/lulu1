@@ -668,6 +668,7 @@ internal suspend fun runGroupReplies(
                             member.characterId, reply.deferredActions,
                             requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
                             userEvidenceIds = pendingUserIds, userText = pendingText,
+                            diagnosticTurnTraceId = reply.diagnosticTurnTraceId,
                         )
                     }
                     afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)
