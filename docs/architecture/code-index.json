@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:34:04.062727+00:00",
-  "commit": "4a2a833ef866e1bfb7f3293676bb52e21d25f86c",
+  "generatedAt": "2026-11-03T17:34:53.092551+00:00",
+  "commit": "14c0ac31eefe553303a3c0d2d18acd4cb40b2a6e",
   "branch": "main",
-  "sourceFingerprint": "e91e8d09d4cce7f6a7e5147d528ae506b5e556ade73cac816c092e0d72669ca2",
+  "sourceFingerprint": "8ddb1da34e54f2a0e49f8a7a9d25cc68b3f4aa768a0699c4c07df52fc2cba38c",
   "summary": {
     "files": 1125,
-    "lines": 233956,
+    "lines": 233958,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -28922,7 +28922,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3224,
-      "sha256": "c602b584b11cac9439737d0afdcc5a366df7106f3fd13422406c7f1ad8799ea5",
+      "sha256": "b6a7bc51d03fb8dfae12056fd05746e002e928e5dde06df3b669142948070a2a",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -30064,8 +30064,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 298,
-      "sha256": "e46361676606a9b1f6bef72f5d63ce5240aaf3bd91f0e8600e9a5763867306ce",
+      "lines": 300,
+      "sha256": "ece0a0b58bf5265e66ea510cc5dc85fb2c021e4c22063a9b1b3fa59b67a43bb3",
       "symbols": [
         {
           "name": "age",
