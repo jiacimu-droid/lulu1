@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`df1f20c449d494820dfbfe86b9f60af7e7825137`
+- 基准提交：`2ebdca9a3719dec9a2c655869e744ac391827e2a`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：231819
+- 已索引代码/文本行：231820
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
@@ -469,7 +469,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 72 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 625 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 626 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 308 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
