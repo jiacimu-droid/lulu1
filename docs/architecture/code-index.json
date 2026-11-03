@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T10:07:29.328165+00:00",
-  "commit": "f64ddc6a9a25d6566f30a5fcda1dabc6fa7163fe",
+  "generatedAt": "2026-11-03T10:10:52.479167+00:00",
+  "commit": "c03f694cb9deb7cdb7a4670774eb8ed7096b4666",
   "branch": "main",
-  "sourceFingerprint": "b3bf58f4702744237e167f02fc85d6ed211077abbfd9d93b255f5747facc5a71",
+  "sourceFingerprint": "1679fd09302fe70aefe626e831d81579933d2239b7de1f3b26a302cc0825955b",
   "summary": {
     "files": 1125,
-    "lines": 232443,
+    "lines": 232493,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -2271,19 +2271,19 @@
     "playMotion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 233
+        "line": 237
       }
     ],
     "playExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 248
+        "line": 252
       }
     ],
     "reset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-        "line": 255
+        "line": 259
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -20065,20 +20065,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-      "lines": 586,
-      "sha256": "234537edbe6e222e4c608020a3a3d1ff86a5bdf409ec9ce1c771cdc29821fa89",
+      "lines": 636,
+      "sha256": "10ecf277d21edfadc04937a0ca619a7a603c41f7d762b1732f68194872f0c7ef",
       "symbols": [
         {
           "name": "playMotion",
-          "line": 233
+          "line": 237
         },
         {
           "name": "playExpression",
-          "line": 248
+          "line": 252
         },
         {
           "name": "reset",
-          "line": 255
+          "line": 259
         }
       ]
     },
