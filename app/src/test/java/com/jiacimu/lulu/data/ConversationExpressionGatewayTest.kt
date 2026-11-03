@@ -9,6 +9,7 @@ import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.core.WorldBookPromptPosition
 import com.jiacimu.lulu.ai.ModelConversationMessage
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -316,6 +317,21 @@ class ConversationExpressionGatewayTest {
             assertEquals(ConversationNaturalnessFixtures.screenshotComfort
                 .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator), reply.text)
             assertEquals(2, server.requestCount) // Planner and model-authored expression only.
+            val audited = LuluRepositories.performance.consoleRecords.first()
+                .filter { it.turnTraceId.isNotBlank() &&
+                    it.requestSource in setOf("聊天工具规划", "聊天表达渲染") }
+            val rendererAudit = audited.first { it.requestSource == "聊天表达渲染" }
+            val plannerAudit = audited.first { it.requestSource == "聊天工具规划" &&
+                it.turnTraceId == rendererAudit.turnTraceId }
+            assertEquals(plannerAudit.turnTraceId, rendererAudit.turnTraceId)
+            val trace = rendererAudit.turnTraceId
+            val stages = LuluRepositories.performance.timingRecords.first()
+                .filter { it.detail.contains("trace=$trace") }
+            assertTrue(stages.any { it.stage == "P08a角色规划" &&
+                it.detail.contains("move=reassure") })
+            assertTrue(stages.any { it.stage == "P08a表达结果" &&
+                it.detail.contains("structured=true") })
+            assertTrue(stages.none { it.detail.contains("不读书就没钱") })
             val requests = (1..2).map { JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()) }
             val planner = requests[0].getJSONArray("messages").toString()
             val expression = requests[1].getJSONArray("messages").toString()
