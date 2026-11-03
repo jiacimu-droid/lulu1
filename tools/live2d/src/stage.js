@@ -348,7 +348,8 @@ function applyKissCameraPose(now = performance.now()) {
     // Complete only this exact clip's short facial lease.
     if (active && authoredMotion?.model === model &&
         authoredMotion.revision === active.revision &&
-        authoredMotion.index === WOLF_KISS_MOTION_INDEX)
+        authoredMotion.index === WOLF_KISS_MOTION_INDEX &&
+        faceRequestStartedAt <= active.faceIssuedAt)
       faceRequest = null
     kissCameraLease = null
   }
@@ -1985,7 +1986,8 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     } else {
       chosen.started = true
       if (wolfRigActive && group === 'LuluWolf' && index === WOLF_KISS_MOTION_INDEX) {
-        kissCameraLease = { model: target, revision, startedAt: performance.now() }
+        kissCameraLease = { model: target, revision,
+          startedAt: performance.now(), faceIssuedAt: Date.now() }
       }
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
       if (source === 'character') notify('motion-started', receipt)
