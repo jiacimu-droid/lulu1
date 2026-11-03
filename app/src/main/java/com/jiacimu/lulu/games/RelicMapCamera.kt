@@ -13,11 +13,17 @@ internal data class RelicMapCamera(val tileSize: Float, val offsetX: Float, val 
 }
 
 internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int,
-    fullscreen: Boolean, focus: Pair<Int, Int>): RelicMapCamera {
+    fullscreen: Boolean, focus: Pair<Int, Int>): RelicMapCamera =
+    relicMapCamera(width, height, columns, rows, fullscreen,
+        focus.first.toFloat(), focus.second.toFloat())
+
+/** Smooth camera projection of the real integer-grid movement state. */
+internal fun relicMapCamera(width: Float, height: Float, columns: Int, rows: Int,
+    fullscreen: Boolean, focusX: Float, focusY: Float): RelicMapCamera {
     val tile = if (fullscreen) maxOf(width / (if (width > height) 20f else 12f), height / rows)
         else min(width / columns, height / rows)
     // Permit space beyond board edges: clamping put the spawn beneath the top-left HUD.
     return if (fullscreen) RelicMapCamera(tile,
-        width / 2f - (focus.first + .5f) * tile, height / 2f - (focus.second + .5f) * tile)
+        width / 2f - (focusX + .5f) * tile, height / 2f - (focusY + .5f) * tile)
     else RelicMapCamera(tile, 0f, 0f)
 }
