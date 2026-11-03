@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T15:38:20.833320+00:00",
-  "commit": "55f0d9caeba3f3e9a11060ff3777aedb473e61e8",
+  "generatedAt": "2026-11-03T15:39:06.553690+00:00",
+  "commit": "9a561c38c332459419de4102c6c71a23f42f704a",
   "branch": "main",
-  "sourceFingerprint": "1b642f6a4720334a8925552d4ecb7c1f03529ec9587ddf82ca2a1f523588fd77",
+  "sourceFingerprint": "bddce6b7e7836e31ff5233572600102d8f671fb163f57883bf3039208279d600",
   "summary": {
     "files": 1125,
-    "lines": 233145,
+    "lines": 233232,
     "symbols": 3253
   },
   "symbolIndex": {
@@ -6459,7 +6459,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 117
+        "line": 118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -6943,13 +6943,13 @@
     "latestVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 88
+        "line": 89
       }
     ],
     "latestReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 102
+        "line": 103
       }
     ],
     "canonicalInnerLife": [
@@ -15323,7 +15323,7 @@
     "QqReplySourceWatermarkTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-        "line": 28
+        "line": 30
       }
     ],
     "QqXhsShareCodecTest": [
@@ -23015,8 +23015,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 112,
-      "sha256": "0f8c462976d4c1e182dfc6c08050af9e97b6aaaa7757f78d9ed5e3c45791eca3",
+      "lines": 113,
+      "sha256": "bef5cd71b1880878a4c63983b7cb2b7fa5d03d5165231ac04725b3cb4dae8e2e",
       "symbols": [
         {
           "name": "render",
@@ -23578,7 +23578,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "2727f780f456b8b0d74e91365445b2649ccd480aa497f0cb02f0abde47c47408",
+      "sha256": "174202b6913a830598f7b0ba6b5c3629288ce06eef9f603478a6ca86f3338119",
       "symbols": [
         {
           "name": "expressionContext",
@@ -24355,8 +24355,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 135,
-      "sha256": "03324391e42ad13b690e258b907169b12674eed7f4eff035452a5313103477ba",
+      "lines": 136,
+      "sha256": "e44238206745251f094baa2da2c0fe114364d19cfd1be41b4f32a38e27576903",
       "symbols": [
         {
           "name": "reflection",
@@ -24368,15 +24368,15 @@
         },
         {
           "name": "latestVoice",
-          "line": 88
+          "line": 89
         },
         {
           "name": "latestReflection",
-          "line": 102
+          "line": 103
         },
         {
           "name": "entries",
-          "line": 117
+          "line": 118
         }
       ]
     },
@@ -34581,12 +34581,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 357,
-      "sha256": "02027adb3e7dd9f1bbde2e3d00f3a99a7c2407104cc9bf0f31f7df228862a1bf",
+      "lines": 404,
+      "sha256": "ecd12a13246e9b99158f8c8ff15d24ca247cbc803c720c0bcfea7540933a0fcf",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
-          "line": 28
+          "line": 30
         }
       ]
     },
@@ -35115,8 +35115,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 155,
-      "sha256": "4be8b9ad6bd719e8ae24d9012b5f9f923d47f03e465cb47128cc0c823e4d04b5",
+      "lines": 158,
+      "sha256": "1fb363d5ab50432812a02b4e00714ae7dbcc9ba1de2c0b624224dae1d0f44ee8",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -36086,8 +36086,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 229,
-      "sha256": "c71e9c8ca3c002d7c289a463e5b8608cf506c481ed4058542faf8745dc76c76f",
+      "lines": 264,
+      "sha256": "ac3a45b7a013070c976a090f4eb76df4ce94ef962e5be8c90de766be103887a1",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
