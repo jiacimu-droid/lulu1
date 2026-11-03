@@ -78,9 +78,10 @@ internal object AutonomousEncounterDirector {
                     ideas += "阶段$phase：${item.optString("direction")}"
             }
         }
-        val moment = json.optJSONObject("moment")?.takeIf {
-            it.optString("kind") in setOf("social_stumble", "social_frame_crossing")
-        }
-        return Plan(ideas.joinToString("；"), moment, turns)
+        // A director may suggest an interaction, but has no authority to
+        // materialize a physical incident. Only the world event executor can
+        // produce witnessed, persisted facts. Older director JSON with a
+        // "moment" field is parsed without staging it again.
+        return Plan(ideas.joinToString("；"), moment = null, turns = turns)
     }
 }
