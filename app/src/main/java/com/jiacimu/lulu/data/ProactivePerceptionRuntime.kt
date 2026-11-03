@@ -166,7 +166,8 @@ object ProactivePerceptionRuntime {
         // Aggregate activity never proves that this particular primary succeeded.
         val primarySuccess: Boolean = success, val primarySummary: String = summary,
         val stepsCompleted: Boolean = false,
-        val deliveredMessageIds: List<String> = emptyList())
+        val deliveredMessageIds: List<String> = emptyList(),
+        val sideDeliveredMessages: List<DeliveredRoleMessageRef> = emptyList())
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -2304,7 +2305,7 @@ object ProactivePerceptionRuntime {
             "trace=$turnTraceId;request=$shadowRequestId;action=${decision.action.name};" +
                 "success=${execution.success};primarySuccess=${execution.primarySuccess};" +
                 "delivered=${execution.deliveredReply};conversation=${execution.conversationId.orEmpty()};" +
-                "evidence=${execution.evidenceId};messageCount=${execution.deliveredMessageIds.size}")
+                "evidence=${execution.evidenceId};messageCount=${execution.deliveredMessageIds.size + execution.sideDeliveredMessages.size}")
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.primarySuccess) {
             // ToolRouter provides the exact authored bubble/post/diary ID where
@@ -2451,12 +2452,18 @@ object ProactivePerceptionRuntime {
         // A partially sent turn is still real history; its explicit IDs are
         // bindable even when the executor correctly reports that the whole
         // action did not complete. No time-based inference or eight-bubble cap.
-        verifiedRoleDeliveries(execution.conversationId, characterId,
-            execution.deliveredMessageIds).forEach { message ->
-            CompanionPresenceStore.bindDeliveredMessage(
-                characterId, message.id, message.createdAt, refreshAfterDelivery = true,
-            )
-        }
+        val deliveredRefs = (execution.deliveredMessageIds.mapNotNull { id ->
+            execution.conversationId?.let { DeliveredRoleMessageRef(it, id) }
+        } + execution.sideDeliveredMessages).distinct()
+        deliveredRefs.groupBy(DeliveredRoleMessageRef::conversationId)
+            .forEach { (conversationId, refs) ->
+                verifiedRoleDeliveries(conversationId, characterId,
+                    refs.map(DeliveredRoleMessageRef::messageId)).forEach { message ->
+                    CompanionPresenceStore.bindDeliveredMessage(
+                        characterId, message.id, message.createdAt, refreshAfterDelivery = true,
+                    )
+                }
+            }
         if (onlineExpiryAtMillis > 0L && decision.action != Action.SILENT &&
             !execution.success && CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) {
             // The expiry decision preceded the executor receipt. A failed
@@ -2717,6 +2724,7 @@ object ProactivePerceptionRuntime {
                     autonomousLifeTurn = !hasFreshUserMessage,
                     shouldDeferRemaining = supersededByNewMessage,
                     goalReviewMode = goalReviewMode,
+                    turnTraceId = turnTraceId,
                 )
             }
         } else OrderedCharacterActions.execute(
@@ -2728,6 +2736,7 @@ object ProactivePerceptionRuntime {
             autonomousLifeTurn = !hasFreshUserMessage,
             shouldDeferRemaining = supersededByNewMessage,
             goalReviewMode = goalReviewMode,
+            turnTraceId = turnTraceId,
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
@@ -2812,7 +2821,8 @@ object ProactivePerceptionRuntime {
             return ActionExecution(false, combinedSummary,
                 conversationId = extraConversationId ?: result.conversationId,
                 evidenceId = result.evidenceId,
-                deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct())
+                deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct(),
+                sideDeliveredMessages = stepReport.deliveredMessageRefs)
         // start_call itself owns the persisted offer AND notification now.
         // Do not post a second invitation here for primary actions while
         // sideActions and scheduled calls take a different route.
@@ -2823,7 +2833,8 @@ object ProactivePerceptionRuntime {
                 result.conversationId in replyConversationIds),
             primarySuccess = result.success && decision.action != Action.SILENT,
             primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted,
-            deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct())
+            deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct(),
+            sideDeliveredMessages = stepReport.deliveredMessageRefs)
     }
 
     /**
