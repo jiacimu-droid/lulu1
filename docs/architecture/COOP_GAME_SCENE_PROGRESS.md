@@ -56,3 +56,12 @@
 - 新增 `GameJoystickDirectionTest`：中心死区、四方向连续拖动、对角线优势方向、越过摇杆边界的拖动方向；扩展 `RelicMapCameraTest` 检查分数格镜头居中与点击命中。保留方向键长按到墙/怪物时的合法拒绝机制，不自动打怪或绕过地形。
 - 边界：本轮是连续操作与视觉插值，而**非**把底层地图和所有行动改成每帧连续的自由坐标。完全无格子的像素级移动需要与碰撞、怪物行动时钟、拾取半径和实时战斗一起改；旧存档/回合规则本轮保持不动。
 - 已写入正式 main 并让原有 code-index 工作流接手索引；**尚未获得本轮完整 Android 编译、Robolectric 运行和实体手机触控验收证据**，不能称为已验通。
+
+
+## 2026-11-03：Lulu APK 连续排队与 Kotlin 编译失败（CI 待验）
+
+- 实查 Actions：#7393（run 41583980021）在同一 `lulu-apk-refs/heads/main` 并发组长期执行，其工作停在 `Test and build phone APK`；`release.yml` 当时使用 `cancel-in-progress: false`，导致较新的 #7438 挂在 pending（无任何 build job）。频繁新提交使 #7434～#7437 等待运行被替换并显示 cancelled；**取消不是编译失败**。#7393 最终于 2026-11-03T07:23:59Z 取消，不能宣称它已打包成功。
+- #7438（run 41593792883，源提交 `665675f`）随后真正运行到 `:app:compileDebugKotlin`，2026-11-03T07:28:16Z 结束为 failure。日志三条真实错误：`GameSceneDeck.kt:259:21` 与 `:269:45` 的 restricted suspending scope；`RelicEscapeArt.kt:66:31` 的 Compose `State<Offset>` 委托 getter。该轮 Live2D、SDK/NDK 安装已过，且尚未走到 APK 收集/发布。
+- 同一 main 上已针对三条编译错误修正摇杆重复动作的 coroutine scope 和 Relic 镜头的 Compose state 读取（`f804835`、`1654a78`）。前一项的修复分支没有另开，直接落 main；不得仅凭源码判断 Gradle 已通过。
+- 工作流增加 `jobs.build.timeout-minutes: 65` 与 `Test and build phone APK.timeout-minutes: 40`（提交 `34dd405`）。保留原本“不打断正在正常构建的那次”的并发语义，但限制异常挂起时间，不让一个 runner 无限占用发布队列；没有绕过单测和签名/发布步骤。
+- #7439 先于全部修复启动；#7441（run 41598258805，提交 `34dd405`）包含这两处编译修复及超时配置，在记录时尚为 pending，**未经 CI 通过、APK 产物、真机验收**。验收以 #7441 或其后同源 main 的实际完整构建日志、Release 和 APK 哈希为准；任何 cancelled/failure 均不得标记通过。
