@@ -38,7 +38,7 @@ class Live2DMotionCatalogTest {
 
     @Test fun describeNamesWolfMotionsAndPassesOthersThrough() {
         assertEquals(
-            "LuluWolf#19=咯咯笑晃动（忍不住笑、咯咯笑时；动作是头小幅度快速左右晃，像憋不住笑在抖；神态：笑眯眯、眯起眼）",
+            "LuluWolf#19=咯咯笑轻颤（被逗笑、忍不住噗嗤笑时；动作是下巴轻轻点动几下，肩膀慢半拍跟着细颤，越笑越轻，头不机械地左右摇；神态：笑眯眯、忍笑时眼角轻弯）",
             Live2DMotionCatalog.describe("LuluWolf", 19),
         )
         assertEquals(
