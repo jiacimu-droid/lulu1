@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:14:41.872712+00:00",
-  "commit": "0506c230e7a2d68dc7d66c055e0b64c996c8563f",
+  "generatedAt": "2026-11-03T08:30:32.170125+00:00",
+  "commit": "c9867baf4524ffa0eff75d4486cfb5bdc819ea46",
   "branch": "main",
-  "sourceFingerprint": "a23dcac02a6313223124c17a57ea6b8a736980add6d245aee64a066bd9f5f649",
+  "sourceFingerprint": "111b29036c7ce9983bb9260dcd403c9984cae5425fefb2327f03ef6ee70ee521",
   "summary": {
     "files": 1125,
-    "lines": 232125,
+    "lines": 232128,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -493,7 +493,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 185
+        "line": 188
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
@@ -5691,7 +5691,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 72
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
@@ -8215,31 +8215,31 @@
     "fromWire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 25
+        "line": 27
       }
     ],
     "plannerConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 62
+        "line": 63
       }
     ],
     "expressionConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 114
+        "line": 115
       }
     ],
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 155
+        "line": 158
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 191
+        "line": 194
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
@@ -25841,36 +25841,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 341,
-      "sha256": "4ebccb0fb0161d41062c76ceb4d3a8407f0da817f40185485f3e47bbf3c117f9",
+      "lines": 344,
+      "sha256": "9b6325f1b124c59a3ae0e60b4805e93249cc9791d0d1f4e92a044b6ed9250b08",
       "symbols": [
         {
           "name": "fromWire",
-          "line": 25
+          "line": 27
         },
         {
           "name": "plannerConstraint",
-          "line": 62
+          "line": 63
         },
         {
           "name": "resolve",
-          "line": 72
+          "line": 73
         },
         {
           "name": "expressionConstraint",
-          "line": 114
+          "line": 115
         },
         {
           "name": "afterDecision",
-          "line": 155
+          "line": 158
         },
         {
           "name": "context",
-          "line": 185
+          "line": 188
         },
         {
           "name": "evaluate",
-          "line": 191
+          "line": 194
         }
       ]
     },
