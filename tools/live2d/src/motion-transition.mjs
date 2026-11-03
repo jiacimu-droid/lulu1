@@ -1,5 +1,7 @@
 /** Crossfade only channels actually authored by the selected Motion3.
- * Runs before touch/face/PCM composition, so those layers retain ownership. */
+ * The entrance runs before touch/face composition. On a natural finish the
+ * exit runs AFTER those layers, bridging the last rendered pose to their
+ * current target without snapping to the Cubism idle pose. */
 export function createMotionTransition({ read, write, now = () => performance.now() }) {
   const last = new Map()
   let active = null
@@ -13,10 +15,22 @@ export function createMotionTransition({ read, write, now = () => performance.no
   function begin(ids, fadeInMs) {
     const duration = Number.isFinite(fadeInMs) && fadeInMs > 0 ? fadeInMs : 0
     const from = new Map((ids || []).filter(id => last.has(id)).map(id => [id, last.get(id)]))
-    active = duration > 0 && from.size ? { from, duration, at: now() } : null
+    active = duration > 0 && from.size
+      ? { kind: 'entrance', from, duration, at: now() } : null
   }
-  function update(core) {
-    if (!active) return
+  function release(ids, durationMs = 440) {
+    // Never include unrelated eyes, lips, or physics outputs in a body
+    // motion's release. A missing/failed clip does not claim this lease.
+    const from = new Map((ids || []).filter(id => last.has(id))
+      .map(id => [id, last.get(id)]))
+    active = from.size ? {
+      kind: 'exit', from, at: now(),
+      duration: Number.isFinite(durationMs) && durationMs > 0 ? durationMs : 440,
+    } : null
+  }
+  function update(core, phase = 'before') {
+    if (!active || (active.kind === 'exit' ? phase !== 'after' : phase !== 'before'))
+      return
     const ratio = Math.min(1, Math.max(0, (now() - active.at) / active.duration))
     const mix = ratio * ratio * (3 - 2 * ratio)
     for (const [id, from] of active.from) {
@@ -26,5 +40,5 @@ export function createMotionTransition({ read, write, now = () => performance.no
     if (ratio >= 1) active = null
   }
   function cancel() { active = null }
-  return { capture, begin, update, reset, cancel }
+  return { capture, begin, release, update, reset, cancel }
 }
