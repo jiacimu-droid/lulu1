@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c58f351a4c8ec84cf0cfa0021912f1fc7a538582`
+- 基准提交：`53441ccb910c0f456158c02e72adfdbaed2949af`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：233461
+- 已索引代码/文本行：233496
 - 已发现符号：3253
 
 | 文件 | 行数 | 符号数 |
@@ -371,7 +371,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 316 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 80 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1200 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 1211 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 228 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 233 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 174 | 5 |
@@ -385,7 +385,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 306 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt` | 197 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 483 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 507 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 56 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
