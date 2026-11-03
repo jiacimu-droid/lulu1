@@ -236,6 +236,7 @@ internal fun GameDirectionalPad(
 ) {
     val latestStep by rememberUpdatedState(onStep)
     val latestInteract by rememberUpdatedState(onInteract)
+    val latestInteractEnabled by rememberUpdatedState(interactEnabled)
     var activeDirection by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var centerPressed by remember { mutableStateOf(false) }
     val repeatMs = holdRepeatMs.coerceAtLeast(135L)
@@ -266,7 +267,7 @@ internal fun GameDirectionalPad(
                                     ?: break
                                 if (!pointer.pressed) {
                                     if (centerTap && direction == null &&
-                                        interactEnabled) latestInteract?.invoke()
+                                        latestInteractEnabled) latestInteract?.invoke()
                                     break
                                 }
                                 val next = gameJoystickDirection(pointer.position.x,
