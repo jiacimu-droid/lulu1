@@ -84,10 +84,18 @@ class CharacterLifeSelfReviewTest {
             "save", List::class.java).apply { isAccessible = true }
         val persona = CharacterRuntime.personaConstraintSnapshot(role)
         val at = Instant.now().minusSeconds(100)
+        val sourceId = "self-review-growth-${java.util.UUID.randomUUID()}"
+        SharedExperienceTimeline.record(sourceId, role, "角色生活", "角色",
+            "此前确实尝试过这种个人兴趣", at,
+            triggerExtraction = false, source = "self-review-test",
+            evidenceKind = EventEvidenceKind.Observation)
+        val originalEvidence = SharedExperienceTimeline.eventsByIds(
+            role, listOf(sourceId)).single()
         val learned = DevelopmentRecord(
             id = "growth-review-subjective", characterId = role, slot = "self-taste",
             kind = DevelopmentKind.Interest, content = "以前喜欢在夜里阅读",
-            confidence = 0.8, evidence = emptyMap(), counterEvidence = emptyMap(),
+            confidence = 0.8,
+            evidence = mapOf(sourceId to originalEvidence.revision), counterEvidence = emptyMap(),
             version = 3, createdAt = at, personaSnapshot = persona,
         )
         val ownerFact = learned.copy(id = "growth-review-owner-fact", slot = "owner-fact",
@@ -121,6 +129,7 @@ class CharacterLifeSelfReviewTest {
                 listOf("tool-$role-$requestId")).isNotEmpty())
         } finally {
             save.invoke(CharacterDevelopmentStore, before)
+            SharedExperienceTimeline.deleteEvent(sourceId)
         }
     }
 
