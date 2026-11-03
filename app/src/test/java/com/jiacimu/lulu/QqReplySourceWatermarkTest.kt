@@ -411,7 +411,7 @@ class QqReplySourceWatermarkTest {
         val first = MigratedDomainStores.chat.sendUserMessage(conversation.id, "最初的问题")
         val captured = captureReplySourceWatermark(conversation.id, role, setOf(first.id))!!
         val pending = async {
-            appendRoleReplyWithPacing(conversation.id, role, "气泡中途纠正角色",
+            appendRoleReplyWithPacingReceipt(conversation.id, role, "气泡中途纠正角色",
                 parseCharacterReplyPresentation("第一句已送达。⟪BUBBLE⟫第二句不该再发。"),
                 actionableUserMessageIds = setOf(first.id),
                 sourceWatermark = captured)
@@ -422,11 +422,15 @@ class QqReplySourceWatermarkTest {
                 }) delay(25)
         }
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "停一下，我改问题了")
-        assertEquals("", pending.await())
+        val receipt = pending.await()
+        assertFalse(receipt.complete)
+        assertTrue(receipt.superseded)
+        assertEquals("", receipt.text)
         val actual = MigratedDomainStores.chat.messages(conversation.id).value.filter {
             it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character
         }
         assertEquals(1, actual.size)
+        assertEquals(listOf(actual.single().id), receipt.messageIds)
         assertEquals("第一句已送达。", actual.single().content)
     }
 }
