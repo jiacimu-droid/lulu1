@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.MemoryEntry
+import java.time.Instant
 
 data class UnifiedMemoryRequest(
     val currentInput: String = "",
