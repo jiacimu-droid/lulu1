@@ -13,9 +13,29 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.MigrationActivity
 import com.jiacimu.lulu.qqForwardContextText
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+/** A real delivered message preview, never generated from a draft or a model intention. */
+internal data class CharacterMessageBanner(
+    val messageId: String,
+    val conversationId: String,
+    val title: String,
+    val text: String,
+)
 
 /** All real character chat deliveries share this entry, including ToolRouter's generic tool action. */
 internal object CharacterMessageNotifications {
+    private val mutableInAppBanner = MutableStateFlow<CharacterMessageBanner?>(null)
+    val inAppBanner: StateFlow<CharacterMessageBanner?> = mutableInAppBanner.asStateFlow()
+
+    /** Do not remove a newer message when an older preview times out. */
+    fun dismissInApp(messageId: String? = null) {
+        if (messageId == null || mutableInAppBanner.value?.messageId == messageId)
+            mutableInAppBanner.value = null
+    }
+
     private const val LEGACY_CHANNEL = "lulu_proactive_messages"
     private const val CHANNEL = "lulu_companion_messages_v2"
     private const val PREFS = "lulu_character_message_notifications"
@@ -58,6 +78,13 @@ internal object CharacterMessageNotifications {
         val title = conversation.groupChat?.name?.let { "$actor · $it" } ?: actor
         val text = qqForwardContextText(message.content)
             .replace(Regex("^\\[(?:游戏邀约|见面邀约)\\|[^]]+]\\s*"), "").take(600)
+        // When another Lulu page is open, show a compact in-app preview too:
+        // OEMs can suppress system heads-up banners even for HIGH channels.
+        // Keep the normal system notification for the shade, tone and lockscreen.
+        if (UserInteractionPresenceStore.state.value.appVisible == true) {
+            mutableInAppBanner.value = CharacterMessageBanner(
+                message.id, conversation.id, title, text.take(180))
+        }
         val open = PendingIntent.getActivity(context, conversation.id.hashCode(),
             Intent(context, MigrationActivity::class.java)
                 .putExtra("open_conversation_id", conversation.id)
@@ -79,6 +106,7 @@ internal object CharacterMessageNotifications {
     }
 
     fun cancel(context: Context, conversationId: String) {
+        if (mutableInAppBanner.value?.conversationId == conversationId) dismissInApp()
         context.getSystemService(NotificationManager::class.java).cancel(notificationId(conversationId))
     }
 
