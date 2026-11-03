@@ -24,6 +24,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Prevent a stuck runner from holding the single APK concurrency slot for hours.
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
 
@@ -111,6 +113,8 @@ jobs:
           echo "::warning::No test SDK mirror verified; trying configured default at test runtime"
 
       - name: Test and build phone APK
+        # Normal builds finish well before this; treat a silent hour-long stall as a failure.
+        timeout-minutes: 40
         run: |
           set -o pipefail
           mkdir -p ci-logs
