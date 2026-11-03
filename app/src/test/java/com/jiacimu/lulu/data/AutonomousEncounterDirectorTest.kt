@@ -44,6 +44,17 @@ class AutonomousEncounterDirectorTest {
         assertNotNull(AutonomousEncounterDirector.contractError(JSONObject().put("moment", JSONObject()
             .put("kind", "social_stumble").put("actorId", "a").put("otherId", "outsider")), people))
     }
+    @Test fun directorCannotStageARepeatedPhotoAccidentAsAWorldFact() {
+        val plan = AutonomousEncounterDirector.parse(JSONObject()
+            .put("angle", "因为共同兴趣自然接上昨天的话题")
+            .put("moment", JSONObject().put("kind", "social_frame_crossing")
+                .put("actorId", "a").put("otherId", "b"))
+            .put("turns", JSONArray().put(cue("a", 1)).put(cue("b", 1))), people)!!
+        assertNull(plan.moment)
+        assertEquals(2, plan.turns.size)
+        assertTrue(plan.idea.contains("共同兴趣"))
+    }
+
     @Test fun legacyIdeaDoesNotInventAnExecutionOrder() {
         val plan = AutonomousEncounterDirector.parse(JSONObject().put("angle", "已有话题"), people)!!
         assertNotNull(AutonomousEncounterDirector.contractError(JSONObject().put("angle", "已有话题"), people, requireTurns = true))
