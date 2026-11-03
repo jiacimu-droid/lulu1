@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:08:08.132193+00:00",
-  "commit": "4754d209312b72535d8195a50759683aab0b6387",
+  "generatedAt": "2026-11-03T06:08:45.289373+00:00",
+  "commit": "ff6fa47815288e91050342b18f016b9bc50ba2a7",
   "branch": "main",
-  "sourceFingerprint": "f0fda72e85a972aeadd2aaf067370975e37c696d3d9414b1b87fd57babf4d4bc",
+  "sourceFingerprint": "c7ab4e0872b94b00d7b8425f2fcd5063ba93249a63b8ce4c246b3128bcda531b",
   "summary": {
-    "files": 1123,
-    "lines": 231545,
-    "symbols": 3248
+    "files": 1124,
+    "lines": 231583,
+    "symbols": 3249
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17936,6 +17936,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
         "line": 16
+      }
+    ],
+    "GameJoystickDirectionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt",
+        "line": 8
       }
     ],
     "GameOrientationPolicyTest": [
@@ -38356,6 +38362,17 @@
         {
           "name": "GameInvitationContinuityTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt",
+      "lines": 38,
+      "sha256": "6bdbec8f8d5a32b084fd1910c7b84ab88816ec6356c0b5906f74c0d96ef6532a",
+      "symbols": [
+        {
+          "name": "GameJoystickDirectionTest",
+          "line": 8
         }
       ]
     },
