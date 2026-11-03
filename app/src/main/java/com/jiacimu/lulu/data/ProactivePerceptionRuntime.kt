@@ -1335,9 +1335,14 @@ object ProactivePerceptionRuntime {
             return null
         }
         if (batchSuperseded()) return deferSupersededDecision()
+        // An unrepaired personal schedule is still a real, explicit tool
+        // choice. Let the ordinary ToolRouter persist its failed execution
+        // receipt, while independent side steps continue. Rejecting the WHOLE
+        // decision here would lose the character's other selected actions and
+        // hide the original wish as if they had abandoned it. Only the actual
+        // schedule effect must fail until its dueAt is valid.
         var parsed = (recoveredDecision ?: initialDecision?.takeUnless {
-            invalidTool || emptySpeech || missingBuildFields.isNotEmpty() ||
-                missingPlanFields.isNotEmpty()
+            invalidTool || emptySpeech || missingBuildFields.isNotEmpty()
         }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
