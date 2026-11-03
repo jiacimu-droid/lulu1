@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8bc1a8e491ac23c4b59606f26faf466dc55128c7`
+- 基准提交：`fcdbffb7ed33833ae8943887a6f619db105ab553`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232892
+- 已索引代码/文本行：232895
 - 已发现符号：3251
 
 | 文件 | 行数 | 符号数 |
@@ -1014,7 +1014,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 102 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
