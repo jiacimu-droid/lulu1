@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:19:58.029693+00:00",
-  "commit": "local",
-  "branch": "local",
-  "sourceFingerprint": "d4d7591d9bcba7047edd5d284bfcb7f60d11ec5a6d5aa67a0f0b2d60ddff2e83",
+  "generatedAt": "2026-11-03T04:26:01.751904+00:00",
+  "commit": "1b6370704812949d2d6cc152296485d880b15d44",
+  "branch": "main",
+  "sourceFingerprint": "13a981f6f0f1708cf92dec14bb7d8881bbb3ceeda399080c217ce92e34ed4dea",
   "summary": {
-    "files": 1123,
-    "lines": 230853,
-    "symbols": 3245
+    "files": 1124,
+    "lines": 230882,
+    "symbols": 3247
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11646,6 +11646,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
         "line": 2111
+      }
+    ],
+    "maxAgendaItems": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 17
+      }
+    ],
+    "setMaxAgendaItems": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+        "line": 23
       }
     ],
     "plan": [
@@ -29411,6 +29423,21 @@
         {
           "name": "schedule",
           "line": 2245
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt",
+      "lines": 29,
+      "sha256": "509966d5a03644a3b7a9d7f395591473cab738569e7f6af6d9096cf0a5d8a85a",
+      "symbols": [
+        {
+          "name": "maxAgendaItems",
+          "line": 17
+        },
+        {
+          "name": "setMaxAgendaItems",
+          "line": 23
         }
       ]
     },
