@@ -114,4 +114,39 @@ class PositiveExpressionGuidanceTest {
         assertFalse(renderer.contains("重新选择行动"))
     }
 
+    @Test fun immediateAndReflectiveReactionsBothBelongToOnePersonWithoutQuotas() {
+        val ordinary = CharacterExpressionGuide.forGeneration("普通聊天")
+        val expression = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val directPrivate = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
+        val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
+        val protocol = CharacterDecisionProtocol.runtimePrinciples
+        val privateLife = spontaneousInnerVoiceGuide
+
+        assertTrue(ordinary.contains("并非总是完成一整套审慎推演之后"))
+        assertTrue(ordinary.contains("复杂问题、现实行动或重要关系分歧"))
+        assertTrue(expression.contains("保留临场反应的简洁"))
+        assertTrue(expression.contains("对已选定的审慎回应"))
+        assertTrue(directPrivate.contains("顺势脱口而出的自然接话"))
+        assertTrue(phone.contains("沿用本人的判断"))
+        assertTrue(protocol.contains("顺口接话、惊讶、吐槽或停顿"))
+        assertTrue(protocol.contains("不为每个即时反应强制填心理字段"))
+        assertTrue(privateLife.contains("第一反应可以直接说出口"))
+        assertTrue(privateLife.contains("已经说出去的直觉不需要重复记录成心声"))
+        assertFalse(expression.contains("必须先写心声"))
+        assertFalse(directPrivate.contains("每句话必须先思考"))
+    }
+
+    @Test fun spontaneousReplyIsNotFakeTwoBrainsOrExtraModelCall() {
+        val planner = ConversationDominantImpulse.planningGuidance("真的吗")
+        val renderer = ConversationDominantImpulse.expressionRule
+        assertTrue(planner.contains("直觉反应与审慎回应，都出自同一人物"))
+        assertTrue(planner.contains("不要求每轮出现冲动"))
+        assertTrue(planner.contains("权限、伪造事实"))
+        assertTrue(renderer.contains("若本轮已选的是脱口而出的短反应"))
+        assertTrue(renderer.contains("事实、条件与分寸"))
+        assertFalse(planner.contains("左脑"))
+        assertFalse(planner.contains("右脑"))
+        assertEquals(planner, ConversationDominantImpulse.planningGuidance("请完整讲解法律问题"))
+    }
+
 }
