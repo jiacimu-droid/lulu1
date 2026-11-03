@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:50:43.627280+00:00",
-  "commit": "1dda540ea188452981a03c3cc519c97f3fd1b5d5",
-  "branch": "main",
-  "sourceFingerprint": "48dfc9b4053dd3b245e5a7d8941ecb67e5c51b01f82cd50126d37de9c2f4ddb1",
+  "generatedAt": "2026-11-03T09:33:44.275755+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "8af035fbef8f340ba63544b38e974f7b1a4aea33c27ebf1f1ae6a3e01a737303",
   "summary": {
     "files": 1125,
-    "lines": 232408,
+    "lines": 232431,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -21282,7 +21282,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt",
       "lines": 907,
-      "sha256": "cc16cbad962c66e62e41b9a15f52b9204d836ff24f1bd694360b18224a404804",
+      "sha256": "6de331538d24eb0caf2ecda5aece11679fc9b7df06ec93abe38f1704a8c1d025",
       "symbols": [
         {
           "name": "PhoneInspectionScreen",
@@ -23732,7 +23732,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
       "lines": 142,
-      "sha256": "49377d0527f673c1b5ee5a4adf4e4869815e51ef2498e732b6681fe47c0b2cdb",
+      "sha256": "57c6c43c8879ced51d287a3a6a652fd6ab89ba286e688a4214c0c3f76f5be5a8",
       "symbols": [
         {
           "name": "render",
@@ -25533,7 +25533,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 1630,
-      "sha256": "391ae92a0cb03725ea3690cd14df57cfe7a511f616a7a0caba13e7aabba28e4f",
+      "sha256": "914e910e00ec9200055f5acd93585bc714589e34d80708839f5a80e9a76c0e26",
       "symbols": [
         {
           "name": "asJson",
@@ -29476,8 +29476,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 230,
-      "sha256": "41e628a880f6023bd0ab30719e611b51339861bc243693701aa504a35b3943df",
+      "lines": 232,
+      "sha256": "1c8e57e4d00ef33f4f1f1ee2536ad66dd2a5a4b71b3aac5af3149cc8aadfdb42",
       "symbols": [
         {
           "name": "contactsOf",
@@ -37763,8 +37763,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 381,
-      "sha256": "bc870b4870d50621791e74ea4f362a3c37119d2fba4d51f9a2d96b97ff919b5d",
+      "lines": 402,
+      "sha256": "bd28e016a13c037908db55ae451acb1651aa3ceff33c8ed3f817b9a53f501066",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",

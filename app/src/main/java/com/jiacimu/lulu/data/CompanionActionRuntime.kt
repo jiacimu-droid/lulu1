@@ -558,7 +558,7 @@ internal object CompanionActionRuntime {
             "send_character_message" -> {
                 ResidentSocialMailbox.initialize(context)
                 val target = args.optString("targetCharacterId").trim()
-                val words = args.optString("text").trim().take(650)
+                val words = args.optString("text").trim()
                 val sent = ResidentSocialMailbox.send(characterId, target, words)
                 CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
                     evidenceId = "native-mail-${sent.id}-viewer-$characterId")

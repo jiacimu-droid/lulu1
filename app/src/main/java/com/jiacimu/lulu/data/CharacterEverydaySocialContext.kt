@@ -39,7 +39,7 @@ internal object CharacterEverydaySocialContext {
                 pending.forEach { message ->
                     val sender = MigratedDomainStores.characters.get(message.fromId).displayName
                     appendLine("- mailId=${message.id}；${message.createdAt}；${sender}(${message.fromId})：" +
-                        message.content.take(230) +
+                        message.content +
                         if (message.author == "owner-on-behalf") "；这条由主人代发，并非角色自己作出的选择" else "")
                 }
                 appendLine("收到消息不等于必须回。若愿意回，可一次行动调用 send_character_message 并用真实 targetCharacterId；成功回执之前不能自称已回复。")

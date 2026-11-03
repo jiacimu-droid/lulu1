@@ -286,3 +286,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **main 提交**：[7b72264](https://github.com/jiacimu-droid/lulu1/commit/7b72264685eb91ba95cbcf9f4d813ec727efc063)、[f42ac41](https://github.com/jiacimu-droid/lulu1/commit/f42ac41637dfb255bfff6386bf22921d2f20aafe)、[01e4853](https://github.com/jiacimu-droid/lulu1/commit/01e48532f70edeb49a815cc6c2279eed0b005d78)、[1dda540](https://github.com/jiacimu-droid/lulu1/commit/1dda540ea188452981a03c3cc519c97f3fd1b5d5)。
 - **验证状态**：已对照真实 push Actions API，而不是只能返回 PR 的 commit workflow wrapper。旧 7bfd373 的 APK 在查询时运行中，f42ac41 的 [run 41606057097](https://github.com/jiacimu-droid/lulu1/actions/runs/41606057097) 在查询时 pending；后继 1dda540 的最终 Android 单测、APK 产物及真机自然度仍须真实验证，不能把静态校验当作运行通过，P-08 继续保持 [ ]。
 - **下一轮**：先读取包含 1dda540 的后继 Actions 最终结论、若失败则精确追第一失败日志；若 CI 通过再核对 APK 及真实角色即兴接话、接词、详细求助、自主分享的对照效果，确保无程序代决定和统一人设风格。
+
+## 2026-11-03 P-08/S-01 续轮：本人选定私信的完整语义到收件人
+
+- **基线及前轮 CI**：本轮从 main `100128c` 开始。`1dda540` 的 push [Lulu APK run 41606278395](https://github.com/jiacimu-droid/lulu1/actions/runs/41606278395) 状态 success，含前轮四项失败后的代码修正；索引 run `41606278301` success。此层级证明 Android 工作流完成，尚无真机真实模型自然度证据。
+- **根因**：`CompanionActionRuntime.execute(send_character_message)` 对模型明确选定的 `args.text` 取前 650 字，`ResidentSocialMailbox.send` 再对所有发送者取前 650 字并把残句持久化为真实私信和双方时间线观察。`CharacterEverydaySocialContext.render` 对待处理信只给收件人前 230 字，却让其决定是否回复。用户代发手机编辑器还静默拒收第 651 字。后半段的否定、时间条件或问题可能没有送达/没有进入本人决策；属于公共内容所有权与证据边界错误，不是单个角色不够热情。
+- **候选修复**：执行器与唯一邮箱保留发信人完整原话，双方的真实时间线仍由原邮箱写入，ToolRouter 权限、联系人可见性、消息 ID、撤回、收件唤醒不改；待处理来信在既有本人社交上下文完整交接，旧最近通信仍只是预览；用户代发编辑器也不静默切断输入。未新增 Store、模型调用、自动社交或统一语气。
+- **回归及边界**：`ResidentPhoneWakeIntegrationTest` 通过正式 `send_character_message` 发出超过旧阈值、末尾有否定和条件的信，断言双方邮箱、收件人原时间线与下一轮本人待处理上下文均保留尾部。原索引生成器及 `git diff --check` 已运行。本轮 Android 单测/APK、手机收件和真实模型如何理解仍待提交后的实际结果；大规模多年邮箱存储/上下文预算需另作测量，不能以本次测试宣称长期性能验收。下一入口仍追 P-08 的目标 ID、多步骤回执与工具后本人表达。

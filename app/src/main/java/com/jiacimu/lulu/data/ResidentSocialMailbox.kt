@@ -167,7 +167,9 @@ internal object ResidentSocialMailbox {
     fun send(from: String, to: String, content: String,
         author: String = "character", at: Instant = Instant.now()): ResidentDirectMessage {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
-        val text = content.trim().take(650)
+        // This is the delivered, durable letter. Prompt previews may be
+        // budgeted, but they must not rewrite what the sender actually sent.
+        val text = content.trim()
         require(text.isNotBlank() && canContact(from, to)) { "双方尚未真实认识或同处现场，不能凭空通信" }
         // Timeline persistence rejects pre-birth experiences. Enforce the same
         // factual boundary before committing mail or reporting delivery, also

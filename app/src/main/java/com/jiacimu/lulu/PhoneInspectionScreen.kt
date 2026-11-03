@@ -583,7 +583,7 @@ internal fun rolePhoneSendOnBehalf(
 ): String {
     require(roleId.isNotBlank()) { "先选择角色的手机" }
     val words = raw.trim()
-    require(words.isNotBlank() && words.length <= 650) { "消息需要填写，最多650字" }
+    require(words.isNotBlank()) { "请填写消息" }
     if (thread.conversationId == null) {
         val recipient = thread.peerId.orEmpty()
         val sent = ResidentSocialMailbox.send(
@@ -626,7 +626,7 @@ private fun RolePhoneOnBehalfComposer(
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = draft,
-                    onValueChange = { draft = it.take(650) },
+                    onValueChange = { draft = it },
                     placeholder = { Text("发送消息…") }, maxLines = 4,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(20.dp),

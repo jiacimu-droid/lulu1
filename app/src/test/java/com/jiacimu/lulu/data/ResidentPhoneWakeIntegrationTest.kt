@@ -227,6 +227,27 @@ class ResidentPhoneWakeIntegrationTest {
         assertTrue(MomentFriendAccess.areFriends(sender, recipient))
     }
 
+    @Test fun chosenLongLetterKeepsTailConditionThroughDeliveryAndRecipientsDecision() = runBlocking {
+        val sender = role()
+        val recipient = role()
+        assertTrue(DigitalWorldStore.performAction(sender, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        assertTrue(DigitalWorldStore.performAction(recipient, "visit_public_place",
+            JSONObject().put("locationCode", DigitalWorldPublicPlaces.COURTYARD)).success)
+        val ending = "但今天不要过去；等我确认后再约。"
+        val chosen = "关于旧地图的想法。".repeat(90) + ending
+        val result = CompanionActionRuntime.execute(app, sender, "send_character_message",
+            JSONObject().put("targetCharacterId", recipient).put("text", chosen))
+        assertTrue(result.summary, result.success)
+        val delivered = ResidentSocialMailbox.inbox(recipient).last()
+        assertEquals(chosen, delivered.content)
+        assertEquals(chosen, ResidentSocialMailbox.historyForInspection(sender).last().content)
+        assertTrue(SharedExperienceTimeline.eventsByIds(recipient,
+            listOf(ResidentSocialMailbox.evidenceId(delivered, recipient))).single().content.contains(ending))
+        assertTrue(CharacterEverydaySocialContext.render(recipient).contains(ending))
+        assertFalse(CharacterEverydaySocialContext.render(sender).contains("尚未由本人决定如何处理的私信：\n- mailId=${delivered.id}"))
+    }
+
     @Test fun requestAndConsentAreSeparateEventsAndLeaveQQThreadNotices() {
         val from = role()
         val to = role()
