@@ -145,4 +145,64 @@ class AutonomousActionBoundaryIntegrationTest {
         assertNull(GoalFollowUpPolicy.contactBlockReason(CharacterLifeStore.state(actor)
             .getJSONObject("intention"), "send_private_message", false, goalId))
     }
+    @Test(timeout = 60_000)
+    fun invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost() = runBlocking {
+        val actor = role()
+        val chat = MigratedDomainStores.chat.ensureConversation(actor, "个人日程补正失败回执")
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "你可以自己安排明天的活动。")
+        OnlineChatBatchStore.cancel(app, actor)
+        val batch = OnlineChatBatchStore.onUserBubble(app, actor,
+            atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+        val post = "这是自己真实选择的另一项独立活动-${UUID.randomUUID()}"
+        val invalidSelection = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("title", "明天出去走一走")
+                .put("intent", "想自己找个时间看看风景"))
+            .put("reason", "想为自己安排一件事")
+            .put("replyChoice", "silent")
+            .put("onlineDecision", JSONObject().put("choice", "continue")
+                .put("reason", "我想把这项安排落实"))
+            .put("steps", JSONArray().put(JSONObject()
+                .put("tool", "publish_moment")
+                .put("requiresPreviousSuccess", false)
+                .put("args", JSONObject().put("text", post))))
+        // The test model also fails its single field-correction attempt.
+        // The exact original choice must reach ToolRouter as a FAILED receipt,
+        // without losing the independent, explicitly selected social post.
+        val server = okhttp3.mockwebserver.MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest) =
+                okhttp3.mockwebserver.MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                        .put("message", JSONObject().put("content", invalidSelection.toString()))
+                        .put("finish_reason", "stop"))).toString())
+        }
+        server.start()
+        try {
+            val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+            val config = store.saveConfiguration(null, "missing-dueAt-${UUID.randomUUID()}",
+                server.url("/").toString(), "test")
+            store.addArchive(config.id, "test")
+            ProactivePerceptionRuntime.runDueCycle(app, "私聊新消息", actor, force = true,
+                onlineRevision = batch.revision, requiresUnread = true)
+            assertTrue("独立的朋友圈动作不能被未补齐的日程吞掉",
+                MomentsStore.posts.value.any { it.authorCharacterId == actor && it.content == post })
+            assertTrue("没有本人选定的真实时间就不得落库",
+                RoleDayScheduleStore.plans(app, actor).isEmpty())
+            val receipts = SharedExperienceTimeline.all(actor)
+                .filter { it.channel == "实际工具执行" }
+                .mapNotNull { runCatching { JSONObject(it.content) }.getOrNull() }
+                .filter { it.optString("tool") == "plan_personal_activity" }
+            assertTrue("日程失败必须有持久执行回执", receipts.isNotEmpty())
+            assertTrue("日程缺时间不能算成功", receipts.all {
+                val result = JSONObject(it.getString("result"))
+                !result.optBoolean("success") &&
+                    (result.optString("summary") + result.optString("error")).contains("dueAt")
+            })
+        } finally {
+            server.shutdown()
+        }
+    }
+
 }
