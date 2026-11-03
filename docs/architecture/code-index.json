@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T16:57:53.738021+00:00",
-  "commit": "d1c9e387f120444a7b863791a20c9f2590614fc1",
+  "generatedAt": "2026-11-03T16:58:15.600620+00:00",
+  "commit": "398a6e616e0db868b3021ac1274f907bdb66a72d",
   "branch": "main",
-  "sourceFingerprint": "8c93a97ca4b4660c99966b07f3ece2308bfaacaddc984b951f87368c1c8b37c7",
+  "sourceFingerprint": "523c9be0e488369b8e59597e7cfddd9355e4c96d5c5440d6b3c89fb0d4970375",
   "summary": {
     "files": 1125,
-    "lines": 233555,
-    "symbols": 3253
+    "lines": 233573,
+    "symbols": 3254
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1565,7 +1565,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "anchorForActivity": [
@@ -3985,7 +3985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 47
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
@@ -10341,7 +10341,13 @@
     "auxiliaryCandidates": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 27
+        "line": 29
+      }
+    ],
+    "actuallyInjectedIds": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
+        "line": 96
       }
     ],
     "LuluChatMessage": [
@@ -28141,20 +28147,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-      "lines": 88,
-      "sha256": "88285a4773fff1c7b5eb7a7e1cbfa5edf8123c4579b3cff03d083d4daa86c877",
+      "lines": 106,
+      "sha256": "b5f6310df651740b998e7b243e2dd83fb22ca9fc7a0646c2771b8ce80dc018d5",
       "symbols": [
         {
           "name": "auxiliaryCandidates",
-          "line": 27
+          "line": 29
         },
         {
           "name": "flush",
-          "line": 31
+          "line": 33
         },
         {
           "name": "select",
-          "line": 47
+          "line": 49
+        },
+        {
+          "name": "actuallyInjectedIds",
+          "line": 96
         }
       ]
     },
