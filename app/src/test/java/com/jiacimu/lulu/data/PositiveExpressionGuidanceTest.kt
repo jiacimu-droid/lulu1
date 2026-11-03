@@ -149,4 +149,14 @@ class PositiveExpressionGuidanceTest {
         assertEquals(planner, ConversationDominantImpulse.planningGuidance("请完整讲解法律问题"))
     }
 
+    @Test fun onlineChatSchemaDoesNotTeachThreeBubblesOrOneDefaultReaction() {
+        val prompt = proactiveDecisionInstruction("style-example-check", directPrivateChat = true)
+        assertTrue(prompt.contains("message 可直接用 text"))
+        assertTrue(prompt.contains("其元素数量由这次真实表达决定"))
+        assertTrue(prompt.contains("只有本人此刻确实想分成多个独立意群"))
+        assertFalse(prompt.contains("第三句"))
+        assertFalse(prompt.contains("bubbles=[{\"text\":\"第一句\""))
+        assertTrue(prompt.contains("复杂问题、多项需求"))
+    }
+
 }
