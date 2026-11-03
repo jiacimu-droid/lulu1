@@ -67,6 +67,27 @@ class BackgroundMessageDeliveryTest {
         assertEquals(1, MigratedDomainStores.chat.messages(conversation.id).value.size)
     }
 
+    @Test fun manuallyRequestedHeadsUpTestUsesRealMessageChannelWithoutForgingChat() {
+        assertTrue(CharacterMessageNotifications.sendHeadsUpTest(context))
+        val notification = notifications().single()
+        assertEquals("露露机 · 横幅测试",
+            notification.extras.getString(Notification.EXTRA_TITLE))
+        assertEquals("这是一条测试提醒，不是角色发来的消息",
+            notification.extras.getString(Notification.EXTRA_TEXT))
+        assertEquals(NotificationManager.IMPORTANCE_HIGH,
+            manager.getNotificationChannel(notification.channelId).importance)
+        assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.isEmpty())
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
+    }
+
+    @Test fun explicitQuietChannelAlsoDisablesManualHeadsUpTest() {
+        manager.createNotificationChannel(NotificationChannel(
+            "lulu_proactive_messages", "旧消息静音", NotificationManager.IMPORTANCE_LOW))
+        assertFalse(CharacterMessageNotifications.sendHeadsUpTest(context))
+        assertTrue(notifications().isEmpty())
+        assertNull(manager.getNotificationChannel("lulu_companion_messages_v2"))
+    }
+
     @Test fun otherVisibleAppPageShowsRealMessageBannerAndClickTarget() {
         UserInteractionPresenceStore.setAppVisible(true)
         UserInteractionPresenceStore.setConversation(null)
