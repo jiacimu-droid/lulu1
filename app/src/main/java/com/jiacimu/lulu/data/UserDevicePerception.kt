@@ -89,7 +89,7 @@ internal object UserDevicePerception {
                 .getOrDefault("前台应用暂不可读")
         else "未开启应用使用感知"
         val lastTouch = UserInteractionPresenceStore.state.value.lastTouchAt
-            ?.takeIf { !it.isAfter(now) && Duration.between(it, now).toMinutes() in 0..30 }
+            ?.takeIf { !it.isAfter(now) && Duration.between(it, now).toMinutes() in 0L..30L }
             ?.let { "露露机确有触摸事件；距今${Duration.between(it, now).toMinutes()}分钟" }
             ?: "近30分钟无可核实的露露机触摸记录（不等于没有操作其他应用）"
         val health = HealthRolePerception.context(now).ifBlank { "未连接健康 App" }
@@ -210,6 +210,8 @@ internal object UserDevicePerception {
                 append("约$switchAge 分钟前发生应用前台切换")
             }
             if (isEmpty()) append("近30分钟没有可用的应用交互/切换事件记录（可能无权限、系统未上报或应用持续打开）")
+            if (interactionAge != null)
+                append("；这意味着上述时刻确有应用交互活动，不能把那一时刻描写成完全没有手机活动或已确认进入睡眠")
             append("；这些是设备事件，不等于持续使用、屏幕内容或用户睡眠状态；没有事件不代表主人睡了")
         }
     }
