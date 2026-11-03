@@ -909,7 +909,7 @@ class OnlineChatExperienceTest {
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV24Persona, MigratedDomainStores.characters.get(role.characterId).persona)
-        assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
+        assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
         assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals("用户自定义的人设", upgraded.getJSONObject("jiangDuV9Backup").getString("persona"))
@@ -943,7 +943,7 @@ class OnlineChatExperienceTest {
         assertEquals(CharacterProfileSchema.jiangDuV24Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
-        assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
         assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").toString())
@@ -969,7 +969,7 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         assertEquals(CharacterProfileSchema.jiangDuPresetVersion, upgraded.optInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV24Overrides.getValue("expression"),
+        assertEquals(CharacterProfileSchema.jiangDuV25Overrides.getValue("expression"),
             upgraded.getJSONObject("profile").getString("expression"))
         assertEquals("用户自己写的语言习惯，不可覆盖",
             upgraded.getJSONObject("profile").getString("speechHabits"))
