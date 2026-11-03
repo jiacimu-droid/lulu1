@@ -258,7 +258,10 @@ fun LuluMigrationRootAppV2(
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
                     if (chatSessionStarted && route == MigrationRoute.ChatDetail) {
-                        Box(modifier = Modifier.fillMaxSize().imePadding()) {
+                        // Keep the navigator and global overlays at a stable size during IME animation.
+                        // Only the chat Scaffold needs to avoid the keyboard; resizing this
+                        // root Box also remeasured unrelated phone/timer/banner overlays.
+                        Box(modifier = Modifier.fillMaxSize()) {
                             chatUiStateHolder.SaveableStateProvider(selectedConversationId) {
                                 key(selectedConversationId) {
                                 QqStyleChatDetailScreen(
