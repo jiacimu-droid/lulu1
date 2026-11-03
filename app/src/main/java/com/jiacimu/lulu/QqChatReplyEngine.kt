@@ -328,7 +328,33 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
     }
 }
 
+/**
+ * The sender alone knows which bubbles were persisted by this attempt.
+ * A conversation-wide before/after scan is not an ownership receipt: another
+ * turn can persist messages while our paced delivery is still in progress.
+ */
+internal data class RoleReplyDeliveryReceipt(
+    val text: String = "",
+    val messageIds: List<String> = emptyList(),
+    val complete: Boolean = false,
+    val superseded: Boolean = false,
+)
+
 internal suspend fun appendRoleReplyWithPacing(
+    conversationId: String,
+    characterId: String,
+    characterLabel: String,
+    presentation: CharacterReplyPresentation,
+    actionableUserMessageIds: Set<String>? = null,
+    interactionReceipt: String? = null,
+    sourceWatermark: ReplySourceWatermark? = null,
+    diagnosticTurnTraceId: String = "",
+): String = appendRoleReplyWithPacingReceipt(
+    conversationId, characterId, characterLabel, presentation,
+    actionableUserMessageIds, interactionReceipt, sourceWatermark, diagnosticTurnTraceId,
+).text
+
+internal suspend fun appendRoleReplyWithPacingReceipt(
     conversationId: String,
     characterId: String,
     characterLabel: String,
@@ -341,11 +367,11 @@ internal suspend fun appendRoleReplyWithPacing(
     val watermark = sourceWatermark ?: if (!actionableUserMessageIds.isNullOrEmpty())
         captureReplySourceWatermark(conversationId, characterId, actionableUserMessageIds)
     else null
-    if (!actionableUserMessageIds.isNullOrEmpty() && watermark == null) return ""
-    if (watermark != null && !isReplySourceWatermarkCurrent(watermark)) return ""
+    if (!actionableUserMessageIds.isNullOrEmpty() && watermark == null) return RoleReplyDeliveryReceipt(superseded = true)
+    if (watermark != null && !isReplySourceWatermarkCurrent(watermark)) return RoleReplyDeliveryReceipt(superseded = true)
     val plannedBubbles = characterOutgoingBubblePlan(presentation)
     val bubbles = plannedBubbles.map(CharacterOutgoingBubble::text)
-    if (bubbles.isEmpty()) return ""
+    if (bubbles.isEmpty()) return RoleReplyDeliveryReceipt()
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val allowed = actionableUserMessageIds ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)
     val quoteId = presentation.quoteMessageId?.takeIf { id -> id in allowed && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User } }
@@ -434,7 +460,8 @@ internal suspend fun appendRoleReplyWithPacing(
         if (diagnosticTurnTraceId.isNotBlank()) LuluRepositories.performance.recordTiming(
             "P08a发送结局", 0, "trace=$diagnosticTurnTraceId;batch=$replyBatchId;" +
                 "delivered=${spoken.size};planned=${bubbles.size};status=superseded")
-        return ""
+        return RoleReplyDeliveryReceipt(messageIds = spoken.map(LuluChatMessage::id),
+            superseded = true)
     }
     if (diagnosticTurnTraceId.isNotBlank()) LuluRepositories.performance.recordTiming(
         "P08a发送结局", 0, "trace=$diagnosticTurnTraceId;batch=$replyBatchId;" +
@@ -455,7 +482,11 @@ internal suspend fun appendRoleReplyWithPacing(
     // A sticker is a real visual message, never raw base64 read aloud by TTS.
     spoken.filter { !it.voiceNote && decodeQqChatImage(it.content) == null }
         .forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
-    return spoken.joinToString("\n", transform = LuluChatMessage::content)
+    return RoleReplyDeliveryReceipt(
+        text = spoken.joinToString("\n", transform = LuluChatMessage::content),
+        messageIds = spoken.map(LuluChatMessage::id),
+        complete = spoken.size == bubbles.size,
+    )
 }
 
 internal data class GroupReplyFlow(
