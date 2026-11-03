@@ -52,6 +52,7 @@ internal object CharacterMomentSnapshot {
             val name = when (intent.optString("action")) {
                 "reading" -> "想翻翻书"
                 "solo_game" -> "想自己玩一局"
+                "game_invite" -> "想邀对方一起玩"
                 "digital_world" -> "想去数字世界转转"
                 else -> ""
             }
