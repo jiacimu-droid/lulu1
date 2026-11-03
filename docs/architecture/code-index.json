@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:37:20.083060+00:00",
-  "commit": "f5bc6a38b451ff54cc0bfc7d66f158ad437b1362",
+  "generatedAt": "2026-11-03T17:37:53.766032+00:00",
+  "commit": "11263148fe54d0a92eec28ea5ca52d72198e2109",
   "branch": "main",
-  "sourceFingerprint": "d364109f3a977c91a47c3e415c026c8630f226327ccfe8bb0f4291b6fc3541b3",
+  "sourceFingerprint": "ca6e131f4207efeb38f2f56f7846e5998dd97ddec25e4257e3823b3930fcfee0",
   "summary": {
     "files": 1125,
-    "lines": 234018,
+    "lines": 234022,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -38081,8 +38081,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-      "lines": 112,
-      "sha256": "c42cf3e9c405448f4ebdd0966f8e27889e16bb4c394592d348bdb38cefb5d39a",
+      "lines": 116,
+      "sha256": "3c2f870957a715a04820f617dde9790d0a4333d40a35101de75280fcbbf4ef54",
       "symbols": [
         {
           "name": "UserInteractionPresenceTest",
