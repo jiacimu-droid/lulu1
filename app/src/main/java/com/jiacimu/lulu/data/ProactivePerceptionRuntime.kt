@@ -43,6 +43,28 @@ internal fun shouldDeferSleepingLifeReview(
 ): Boolean = sleeping && deferredReview && onlineExpiryAtMillis == 0L &&
     !explicitUserWake && !preserveOffline
 
+/**
+ * Only message IDs returned by the actual QQ sender can belong to this action's
+ * private afterthought. A timestamp scan can adopt a different concurrent turn
+ * (and a takeLast limit silently drops the early bubbles of a long real turn).
+ */
+internal fun verifiedRoleDeliveries(
+    conversationId: String?,
+    characterId: String,
+    persistedMessageIds: List<String>,
+): List<LuluChatMessage> {
+    if (conversationId.isNullOrBlank() || persistedMessageIds.isEmpty()) return emptyList()
+    val conversation = MigratedDomainStores.chat.conversations.value
+        .firstOrNull { it.id == conversationId } ?: return emptyList()
+    val actual = MigratedDomainStores.chat.messages(conversation.id).value.associateBy(LuluChatMessage::id)
+    return persistedMessageIds.distinct().mapNotNull(actual::get).filter { message ->
+        message.sender == LuluChatMessage.Sender.Character &&
+            (message.authorCharacterId == characterId ||
+                (message.authorCharacterId == null && conversation.groupChat == null &&
+                    conversation.characterId == characterId))
+    }
+}
+
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
@@ -143,7 +165,8 @@ object ProactivePerceptionRuntime {
         val deliveredReply: Boolean = false,
         // Aggregate activity never proves that this particular primary succeeded.
         val primarySuccess: Boolean = success, val primarySummary: String = summary,
-        val stepsCompleted: Boolean = false)
+        val stepsCompleted: Boolean = false,
+        val deliveredMessageIds: List<String> = emptyList())
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -2092,7 +2115,6 @@ object ProactivePerceptionRuntime {
             decision.toolArgs.toString(), decision.sideActions?.toString().orEmpty(),
         ).joinToString("|").hashCode().toUInt().toString(16)
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
-        val actionStartedAt = Instant.now()
         AutonomousPerceptionAttempts.beforeAction(appContext, characterId)
         if (batchSuperseded()) return deferSupersededDecision()
         // The initial supersession guard above protects against stale decisions.
@@ -2282,7 +2304,7 @@ object ProactivePerceptionRuntime {
             "trace=$turnTraceId;request=$shadowRequestId;action=${decision.action.name};" +
                 "success=${execution.success};primarySuccess=${execution.primarySuccess};" +
                 "delivered=${execution.deliveredReply};conversation=${execution.conversationId.orEmpty()};" +
-                "evidence=${execution.evidenceId}")
+                "evidence=${execution.evidenceId};messageCount=${execution.deliveredMessageIds.size}")
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.primarySuccess) {
             // ToolRouter provides the exact authored bubble/post/diary ID where
@@ -2426,27 +2448,14 @@ object ProactivePerceptionRuntime {
         // Proactive messages are delivered *inside* the action executor, before
         // the post-action private presence is saved. Rebind only bubbles
         // actually delivered by THIS execution to the finalized mind snapshot.
-        if (execution.primarySuccess && execution.conversationId != null && decision.action in setOf(
-                Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
-                Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
-            )) {
-            MigratedDomainStores.chat.messages(execution.conversationId).value
-                .asSequence()
-                .filter { message ->
-                    message.sender == LuluChatMessage.Sender.Character &&
-                        (message.authorCharacterId == characterId ||
-                            (message.authorCharacterId == null &&
-                                MigratedDomainStores.chat.conversations.value.any { conversation ->
-                                    conversation.id == execution.conversationId &&
-                                        conversation.groupChat == null &&
-                                        conversation.characterId == characterId
-                                })) &&
-                        !message.createdAt.isBefore(actionStartedAt)
-                }.toList().takeLast(8).forEach { message ->
-                    CompanionPresenceStore.bindDeliveredMessage(
-                        characterId, message.id, message.createdAt, refreshAfterDelivery = true,
-                    )
-                }
+        // A partially sent turn is still real history; its explicit IDs are
+        // bindable even when the executor correctly reports that the whole
+        // action did not complete. No time-based inference or eight-bubble cap.
+        verifiedRoleDeliveries(execution.conversationId, characterId,
+            execution.deliveredMessageIds).forEach { message ->
+            CompanionPresenceStore.bindDeliveredMessage(
+                characterId, message.id, message.createdAt, refreshAfterDelivery = true,
+            )
         }
         if (onlineExpiryAtMillis > 0L && decision.action != Action.SILENT &&
             !execution.success && CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) {
@@ -2662,6 +2671,9 @@ object ProactivePerceptionRuntime {
             if (hasFreshUserMessage && tool in resultBearingTools)
                 withContext(NonCancellable) { runTool() } else runTool()
         }
+        val primaryDeliveredIds = resultJson.optJSONArray("deliveredMessageIds")?.let { ids ->
+            (0 until ids.length()).mapNotNull { ids.optString(it).takeIf(String::isNotBlank) }
+        }.orEmpty()
         val result = CompanionActionResult(
             resultJson.optBoolean("success"),
             resultJson.optString("summary").ifBlank {
@@ -2735,6 +2747,7 @@ object ProactivePerceptionRuntime {
         // second personality/model call after tool execution.
         var deliveredExtra = false
         var extraConversationId: String? = null
+        var extraDeliveredIds = emptyList<String>()
         if (decision.action == Action.TOOL && decision.text.isNotBlank() &&
             tool !in setOf("send_private_message", "send_group_message") &&
             hasFreshUserMessage && replyConversationIds.isNotEmpty() &&
@@ -2758,6 +2771,9 @@ object ProactivePerceptionRuntime {
                     .put("error", it.message.orEmpty().ifBlank { "消息发送失败" }) }
                 deliveredExtra = replyResult.optBoolean("success")
                 extraConversationId = replyResult.optString("conversationId").takeIf(String::isNotBlank)
+                extraDeliveredIds = replyResult.optJSONArray("deliveredMessageIds")?.let { ids ->
+                    (0 until ids.length()).mapNotNull { ids.optString(it).takeIf(String::isNotBlank) }
+                }.orEmpty()
                 if (!deliveredExtra) effectNotes += "回复未送达：" +
                     replyResult.optString("error").take(150)
             }
@@ -2793,7 +2809,10 @@ object ProactivePerceptionRuntime {
         val combinedSummary = effectNotes.joinToString("；").take(350)
             .ifBlank { "工具执行未返回具体状态" }
         if ((!result.success || decision.action == Action.SILENT) && !deliveredExtra && !sideActionSucceeded)
-            return ActionExecution(false, combinedSummary)
+            return ActionExecution(false, combinedSummary,
+                conversationId = extraConversationId ?: result.conversationId,
+                evidenceId = result.evidenceId,
+                deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct())
         // start_call itself owns the persisted offer AND notification now.
         // Do not post a second invitation here for primary actions while
         // sideActions and scheduled calls take a different route.
@@ -2803,7 +2822,8 @@ object ProactivePerceptionRuntime {
                 result.success && result.conversationId != null &&
                 result.conversationId in replyConversationIds),
             primarySuccess = result.success && decision.action != Action.SILENT,
-            primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted)
+            primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted,
+            deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct())
     }
 
     /**
