@@ -336,6 +336,7 @@ internal suspend fun appendRoleReplyWithPacing(
     actionableUserMessageIds: Set<String>? = null,
     interactionReceipt: String? = null,
     sourceWatermark: ReplySourceWatermark? = null,
+    diagnosticTurnTraceId: String = "",
 ): String {
     val watermark = sourceWatermark ?: if (!actionableUserMessageIds.isNullOrEmpty())
         captureReplySourceWatermark(conversationId, characterId, actionableUserMessageIds)
@@ -417,12 +418,28 @@ internal suspend fun appendRoleReplyWithPacing(
                 )
             }
         }
+        if (diagnosticTurnTraceId.isNotBlank()) {
+            // A persisted bubble is an individual fact; a retracted one is not a delivered turn.
+            LuluRepositories.performance.recordTiming("P08a气泡入库", 0,
+                "trace=$diagnosticTurnTraceId;conversation=$conversationId;batch=$replyBatchId;" +
+                    "index=${index + 1};planned=${bubbles.size};message=${created.id};" +
+                    "retained=${presentation.recallBubbleNumber != index + 1};voice=${created.voiceNote}")
+        }
         if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
     }
     // A newer correction may arrive between paced bubbles. Already sent
     // bubbles remain real history; do not claim the whole turn was delivered
     // or run its deferred favorite/poke/side effects after the source changed.
-    if (stale || watermark != null && !isReplySourceWatermarkCurrent(watermark)) return ""
+    if (stale || watermark != null && !isReplySourceWatermarkCurrent(watermark)) {
+        if (diagnosticTurnTraceId.isNotBlank()) LuluRepositories.performance.recordTiming(
+            "P08a发送结局", 0, "trace=$diagnosticTurnTraceId;batch=$replyBatchId;" +
+                "delivered=${spoken.size};planned=${bubbles.size};status=superseded")
+        return ""
+    }
+    if (diagnosticTurnTraceId.isNotBlank()) LuluRepositories.performance.recordTiming(
+        "P08a发送结局", 0, "trace=$diagnosticTurnTraceId;batch=$replyBatchId;" +
+            "delivered=${spoken.size};planned=${bubbles.size};" +
+            "status=${if (spoken.size == bubbles.size) "complete" else "partial"}")
     if (spoken.size == bubbles.size) spoken.lastOrNull()?.let { last ->
         com.jiacimu.lulu.data.CharacterConversationAgency.delivered(characterId, interactionReceipt,
             last.id, spoken.joinToString("\n", transform = LuluChatMessage::content))
