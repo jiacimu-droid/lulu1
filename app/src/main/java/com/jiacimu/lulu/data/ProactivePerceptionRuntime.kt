@@ -1204,14 +1204,18 @@ object ProactivePerceptionRuntime {
         val missingBuildFields = ModelStructuredOutput.objectOrNull(result.text)
             ?.let(AutonomousActionWireProtocol::normalize)
             ?.let(AutonomousActionWireProtocol::missingWorldBuildFields).orEmpty()
+        val missingPlanFields = ModelStructuredOutput.objectOrNull(result.text)
+            ?.let(AutonomousActionWireProtocol::normalize)
+            ?.let { AutonomousActionWireProtocol.missingPersonalPlanFields(it, Instant.now()) }.orEmpty()
         val needsCorrection = initialDecision == null || invalidTool || emptySpeech ||
-            missingBuildFields.isNotEmpty()
+            missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()
         // Diagnostics contain only format categories, never the user's message
         // or the model's private/possibly sensitive unparsed response.
         val firstFailure = when {
             invalidTool -> "工具名未注册"
             emptySpeech -> "消息缺少正文"
             missingBuildFields.isNotEmpty() -> "建设家具缺少实际参数：" + missingBuildFields.joinToString("、")
+            missingPlanFields.isNotEmpty() -> "个人日程缺少或填错实际参数：" + missingPlanFields.joinToString("、")
             result.text.isBlank() -> "模型没有返回内容"
             ModelStructuredOutput.objectOrNull(result.text) == null -> "JSON不完整"
             initialDecision == null -> "action字段无法识别"
@@ -1219,7 +1223,8 @@ object ProactivePerceptionRuntime {
         }
         var correctionFailure = ""
         val recoveredDecision = if (needsCorrection &&
-            (onlineUnread.text.isNotBlank() || missingBuildFields.isNotEmpty())) {
+            (onlineUnread.text.isNotBlank() || missingBuildFields.isNotEmpty() ||
+                missingPlanFields.isNotEmpty())) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
@@ -1230,6 +1235,7 @@ object ProactivePerceptionRuntime {
                         invalidTool -> "失败原因：工具名称未注册或为空。"
                         emptySpeech -> "失败原因：模型选择了发消息，却没有给出可发送的正文。"
                         missingBuildFields.isNotEmpty() -> "失败原因：build_home_item 真正必填的 ${missingBuildFields.joinToString("、")} 缺失。保留本人的原行动意愿，只修复执行参数。"
+                        missingPlanFields.isNotEmpty() -> "失败原因：plan_personal_activity 的 ${missingPlanFields.joinToString("、")} 缺失或无效。日程尚未保存；仅补正你原本的时间、活动名称和动机。"
                         else -> "失败原因：上一轮没有解析出合法的顶层 action 或完整 JSON。"
                     })
                     appendLine("当前角色真正可以选择的操作：")
@@ -1240,6 +1246,7 @@ object ProactivePerceptionRuntime {
                     保持你上一轮真正想做的事、原本的态度和对用户的具体回应；不要复述错误、道歉或编造已经完成的动作。
                     只返回一个短而完整的顶层 JSON 对象，第一项必须是 action，随后是对应的实际参数。
                     如果上一轮已决定 build_home_item，只补齐参数，不改动原来的行为意愿与其他动作。建设必须提供 name=家具名称、appearance=具体材质/颜色/外形（非空），以及本人选定的 itemType 和 position；例如 {"action":"digital_world","worldAction":"build_home_item","itemType":"lamp","name":"窗边小灯","appearance":"木质底座与乳白色玻璃灯罩","position":"窗台边"}，也可以 action=tool、tool=digital_world_action、args 内写这些字段。不要编造已建好，不能用心声替代参数。
+                    如果上一轮已决定 plan_personal_activity，必须保持 action=tool、tool=plan_personal_activity，只补齐原 args 中缺失/无效的 title(2-100字)、intent(3-300字)、dueAt(本人真正选择的未来ISO8601含时区时间)。返回完整顶层 JSON，原本有效的标题、意愿、时间和任何其他行动都不许改。不要把计划已经安排好当成事实；必须取得执行回执。
                     如果确实想回应当前消息：{"action":"message","text":"自然完整的实际回复","reason":"你的真实理由"}。
                     如果想先保持安静：{"action":"silent","reason":"你确实选择安静的本人理由"}。
                     如果真正要操作获授权的设备或生活能力：{"action":"tool","tool":"实际注册的工具名","args":{},"reason":"真实缘由"}，参数按能力说明填写。
@@ -1270,6 +1277,20 @@ object ProactivePerceptionRuntime {
                                     (original.action != Action.TOOL || fixed.tool == original.tool)
                             } == true
                     }
+                } else if (missingPlanFields.isNotEmpty()) {
+                    val proposed = ModelStructuredOutput.objectOrNull(rawCorrection)
+                        ?.let(AutonomousActionWireProtocol::normalize)
+                    val original = initialDecision
+                    val fixedArgs = if (proposed?.optString("action") == "tool" &&
+                        proposed.optString("tool") == "plan_personal_activity" &&
+                        original?.action == Action.TOOL &&
+                        original.tool == "plan_personal_activity") {
+                        AutonomousActionWireProtocol.repairPersonalPlanArgs(
+                            original.toolArgs, proposed.optJSONObject("args") ?: JSONObject(),
+                            Instant.now())
+                    } else null
+                    if (original != null && fixedArgs != null)
+                        original.copy(toolArgs = fixedArgs) else null
                 } else candidate
             }
             correction?.takeUnless {
@@ -1283,9 +1304,9 @@ object ProactivePerceptionRuntime {
                 if (initialDecision == null) validCorrection else validCorrection.copy(
                     // A missing construction field is not permission to
                     // rewrite the spoken reply or independent side effects.
-                    text = if (missingBuildFields.isNotEmpty()) initialDecision.text else validCorrection.text,
-                    reason = if (missingBuildFields.isNotEmpty()) initialDecision.reason else validCorrection.reason,
-                    sideActions = if (missingBuildFields.isNotEmpty()) initialDecision.sideActions else validCorrection.sideActions,
+                    text = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.text else validCorrection.text,
+                    reason = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.reason else validCorrection.reason,
+                    sideActions = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.sideActions else validCorrection.sideActions,
                     innerLife = initialDecision.innerLife,
                     appraisal = initialDecision.appraisal,
                     innerThought = initialDecision.innerThought,
@@ -1293,11 +1314,11 @@ object ProactivePerceptionRuntime {
                     intention = initialDecision.intention,
                     afterglow = initialDecision.afterglow,
                     mood = initialDecision.mood,
-                    motiveId = if (missingBuildFields.isNotEmpty()) initialDecision.motiveId else validCorrection.motiveId,
-                    concernId = if (missingBuildFields.isNotEmpty()) initialDecision.concernId else validCorrection.concernId,
-                    experienceId = if (missingBuildFields.isNotEmpty()) initialDecision.experienceId else validCorrection.experienceId,
-                    onlineChoice = if (missingBuildFields.isNotEmpty()) initialDecision.onlineChoice else validCorrection.onlineChoice,
-                    onlineChoiceReason = if (missingBuildFields.isNotEmpty()) initialDecision.onlineChoiceReason else validCorrection.onlineChoiceReason,
+                    motiveId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.motiveId else validCorrection.motiveId,
+                    concernId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.concernId else validCorrection.concernId,
+                    experienceId = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.experienceId else validCorrection.experienceId,
+                    onlineChoice = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.onlineChoice else validCorrection.onlineChoice,
+                    onlineChoiceReason = if (missingBuildFields.isNotEmpty() || missingPlanFields.isNotEmpty()) initialDecision.onlineChoiceReason else validCorrection.onlineChoiceReason,
                 )
             }
         } else null
@@ -1312,7 +1333,8 @@ object ProactivePerceptionRuntime {
         }
         if (batchSuperseded()) return deferSupersededDecision()
         var parsed = (recoveredDecision ?: initialDecision?.takeUnless {
-            invalidTool || emptySpeech || missingBuildFields.isNotEmpty()
+            invalidTool || emptySpeech || missingBuildFields.isNotEmpty() ||
+                missingPlanFields.isNotEmpty()
         }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
@@ -1668,6 +1690,50 @@ object ProactivePerceptionRuntime {
         } else null
         val executableDecision = if (repairedBuildSteps != null)
             completedDecision.copy(sideActions = repairedBuildSteps) else completedDecision
+        // Personal activity plans need an actual future timestamp. A role may
+        // choose one in steps/nextAction while its main message is perfectly
+        // valid, so the primary correction gate never sees these nested args.
+        val incompletePlanSteps = AutonomousActionWireProtocol
+            .missingPersonalPlanStepFields(executableDecision.sideActions, Instant.now())
+        val repairedPlanSteps = if (incompletePlanSteps.isNotEmpty()) {
+            val patch = try {
+                LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = "本机当前时间：" +
+                        java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME) +
+                        "\\n你本人刚选定、尚未执行的 steps：" +
+                        executableDecision.sideActions.toString().take(3_200) +
+                        "\\n需要补齐的字段：" + incompletePlanSteps.joinToString("、"),
+                    instruction = """
+                        这是同一角色原本就选定的个人日程，只补正执行参数，不重新规划，
+                        不修改已选动作、已有合法字段、消息文本、心理、动作顺序或其他步骤。
+                        仅对 plan_personal_activity 提交缺失或无效字段的修正：
+                        {"repairs":[{"index":0,"dueAt":"本人选择的未来ISO8601日期时间，带时区偏移"}]}
+                        如对应步骤还缺 title(2-100字) 或 intent(3-300字)，也在该 index 的修正中填写。
+                        index 必须是原 steps 中的真实下标；不能凭空新增活动或猜测主人要求的时间。
+                        请根据自己原本的计划与真实本机时间明确决定何时做。
+                        未安排成功前不能声称保存了日程。只输出 JSON。
+                    """.trimIndent(),
+                    source = "同次自主决定·个人日程字段补正",
+                    title = "${character.displayName}补齐自己选定的日程参数",
+                    maxTokens = 480,
+                    connectionOverride = connection,
+                ).getOrThrow().text.let(ModelStructuredOutput::objectOrNull)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                CompanionPresenceStore.recordPerceptionAttempt(
+                    characterId, "个人日程字段补正失败：" +
+                        failure::class.java.simpleName, Instant.now())
+                null
+            }
+            patch?.let {
+                AutonomousActionWireProtocol.repairPersonalPlanSteps(
+                    executableDecision.sideActions, it, Instant.now())
+            }
+        } else null
+        val scheduledDecision = if (repairedPlanSteps != null)
+            executableDecision.copy(sideActions = repairedPlanSteps) else executableDecision
         if (missingPromisedSearch && repairedSearchAction == null) {
             (onlineUnread.conversationIds + conversation.id).forEach { id ->
                 com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
@@ -1685,16 +1751,16 @@ object ProactivePerceptionRuntime {
         // guide; a flagged draft is logged, not replaced, and the model's
         // own chosen action and wording stand.
         val onlineSpeech = if (privateDialogue.isNotEmpty() &&
-            onlineUnread.text.isNotBlank() && executableDecision.action == Action.MESSAGE) {
-            val beforeBubbles = executableDecision.text
+            onlineUnread.text.isNotBlank() && scheduledDecision.action == Action.MESSAGE) {
+            val beforeBubbles = scheduledDecision.text
                 .split(com.jiacimu.lulu.SemanticBubbleSeparator)
                 .map(String::trim).filter(String::isNotBlank)
             val originalQuality = ConversationNaturalnessGate.onlinePrivateReview(
                 userText = privateInput.ifBlank { onlineUnread.text },
                 bubbles = beforeBubbles,
-                hasVoice = executableDecision.voiceBubbleTexts.isNotEmpty() ||
-                    executableDecision.bubbleDeliveryModes.any { it.equals("voice", true) },
-                hasLinkedActions = (executableDecision.sideActions?.length() ?: 0) > 0,
+                hasVoice = scheduledDecision.voiceBubbleTexts.isNotEmpty() ||
+                    scheduledDecision.bubbleDeliveryModes.any { it.equals("voice", true) },
+                hasLinkedActions = (scheduledDecision.sideActions?.length() ?: 0) > 0,
             )
             if (originalQuality != null) {
                 android.util.Log.d(
@@ -1703,8 +1769,8 @@ object ProactivePerceptionRuntime {
                         "reasons=${originalQuality.reasons}",
                 )
             }
-            executableDecision
-        } else executableDecision
+            scheduledDecision
+        } else scheduledDecision
         // A newer private message or call may arrive during the optional repair.
         // Never deliver an obsolete batch just because its first model call was valid.
         currentCoroutineContext().ensureActive()
