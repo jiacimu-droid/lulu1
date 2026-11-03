@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:19:33.414122+00:00",
-  "commit": "f19a1f98bd4e76815cdf887749e9b9f99b0310ac",
+  "generatedAt": "2026-11-03T17:21:53.063148+00:00",
+  "commit": "1bf385036f3814feb0d7438fb146334738b4b338",
   "branch": "main",
-  "sourceFingerprint": "531dab596b82925b111ec0d213d435afb65bb0e8c2d56970bffb5f03cbf3571f",
+  "sourceFingerprint": "ba4b4c92f1f3e615a9599a0cd966119d54ad49e8accb3393eb5bc47ef86447b3",
   "summary": {
     "files": 1125,
-    "lines": 233847,
+    "lines": 233869,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -9135,13 +9135,13 @@
     "deferPassiveCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
-        "line": 23
+        "line": 34
       }
     ],
     "passiveResumeAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
-        "line": 30
+        "line": 41
       }
     ],
     "outwardAction": [
@@ -11079,19 +11079,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 642
+        "line": 651
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 644
+        "line": 653
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3148
+        "line": 3157
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -25435,8 +25435,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 220,
-      "sha256": "51eab8803f652828634255efd485a0da8ccc229a0d20063b9baca339786490b9",
+      "lines": 222,
+      "sha256": "afcc9d811ac8ae3aeddd5b3f5fd741377d5d021f105ba105f6a06c0dc0903505",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -26863,16 +26863,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
-      "lines": 33,
-      "sha256": "8c7b0caa9e801e40116de41bf10fc9bbfa2a7e64644d0896d8e8707e309be04c",
+      "lines": 44,
+      "sha256": "06f08b383e0d16af2e097c3b83ae64230ceb932e1a9e63868e4de109917d350c",
       "symbols": [
         {
           "name": "deferPassiveCheck",
-          "line": 23
+          "line": 34
         },
         {
           "name": "passiveResumeAt",
-          "line": 30
+          "line": 41
         }
       ]
     },
@@ -28921,8 +28921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3215,
-      "sha256": "b3a104ee9dbbd6f740725597bbe43770f85ceadb01e8c872a7aec8c3f35541e8",
+      "lines": 3224,
+      "sha256": "12c6c9417aa3e81ead1ae31ed7a575e04ec669436bd94e4c3f73ddfd913911e2",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -28946,15 +28946,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 642
+          "line": 651
         },
         {
           "name": "deferSupersededDecision",
-          "line": 644
+          "line": 653
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3148
+          "line": 3157
         }
       ]
     },
