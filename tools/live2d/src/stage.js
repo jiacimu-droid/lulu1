@@ -1,5 +1,8 @@
 import { installPhysicsFrameControl } from './physics-frame-control.mjs'
-import { kissCameraFrame, kissFaceFrame, WOLF_KISS_MOTION_INDEX } from './kiss-camera.mjs'
+import {
+  kissCameraFrame, kissFaceFrame, kissCameraHorizontalPosition,
+  kissMouthLocalOffsetX, WOLF_KISS_MOTION_INDEX,
+} from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
 import { isScenePixel, hasAvatarPixels } from './scene-pixels.mjs'
@@ -354,12 +357,12 @@ function applyKissCameraPose(now = performance.now()) {
     kissCameraLease = null
   }
   const zoom = frame.zoom
-  // Zoom around the face/mouth, not the torso or screen bottom.
-  const focusX = base.width * 0.5
+  // Zoom and slide around the lips, not the torso pivot. The anchor comes
+  // from the model's calibrated mouth, or the wolf-specific visual fallback.
   const focusY = base.height * 0.42
   model.scale.set(base.scale * zoom)
-  model.position.set(focusX + (base.x - focusX) * zoom,
-    focusY + (base.y - focusY) * zoom)
+  model.position.set(kissCameraHorizontalPosition(base, zoom,
+    active?.mouthLocalX ?? 0), focusY + (base.y - focusY) * zoom)
 }
 function cancelKissCamera() {
   if (!kissCameraLease) return
@@ -1986,8 +1989,15 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     } else {
       chosen.started = true
       if (wolfRigActive && group === 'LuluWolf' && index === WOLF_KISS_MOTION_INDEX) {
+        const base = cameraBasePose
+        const mouthCalibration = touchCalibration.mouth
+        let bounds = null
+        if (mouthCalibration) {
+          try { bounds = target.getBounds() } catch (_) { /* use wolf fallback */ }
+        }
         kissCameraLease = { model: target, revision,
-          startedAt: performance.now(), faceIssuedAt: Date.now() }
+          startedAt: performance.now(), faceIssuedAt: Date.now(),
+          mouthLocalX: kissMouthLocalOffsetX(base, bounds, mouthCalibration) }
       }
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
       if (source === 'character') notify('motion-started', receipt)
