@@ -51,6 +51,16 @@ internal object CharacterSelfActivityRuntime {
                 if (id.isBlank() || id !in realBookIds) null
                 else Proposal("read_book", JSONObject().put("readingBookId", id), "读一本真正可读的书")
             }
+            "game_invite" -> {
+                val gameId = input.optString("gameId").trim().lowercase()
+                val title = com.jiacimu.lulu.games.GameInvitationCatalog.title(gameId) ?: return null
+                // Unlike a solo game, an invitation reaches another person.
+                // Require the role's actual words rather than generating a template.
+                val text = input.optString("text").trim()
+                if (text.isBlank()) null
+                else Proposal("send_game_invite", JSONObject().put("gameId", gameId)
+                    .put("text", text.take(240)), "邀请主人一起玩$title")
+            }
             "solo_game" -> {
                 val gameId = input.optString("gameId").trim().lowercase()
                 val gameTitle = com.jiacimu.lulu.games.AutonomousGameCatalog.title(gameId)
@@ -206,7 +216,7 @@ internal object CharacterSelfActivityRuntime {
                          intent: JSONObject, evidenceId: String, motiveId: String): Boolean {
         val action = intent.optString("action").trim().lowercase()
         val reason = intent.optString("whyNow").trim().take(180)
-        if (action !in setOf("reading", "solo_game", "digital_world") ||
+        if (action !in setOf("reading", "solo_game", "game_invite", "digital_world") ||
             !hasRealReason(reason)) return false
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val old = prefs.getString("considering:$characterId", null)
@@ -217,6 +227,14 @@ internal object CharacterSelfActivityRuntime {
             .put("stage", "considering").put("action", action)
             .put("whyNow", reason).put("createdAt", now)
             .put("evidenceId", evidenceId.take(180)).put("motiveId", motiveId)
+        // Preserve an explicitly imagined game without choosing one for the role.
+        if (action == "game_invite") {
+            val gameId = intent.optString("gameId").trim().lowercase()
+            if (gameId.isNotBlank()) {
+                if (com.jiacimu.lulu.games.GameInvitationCatalog.title(gameId) == null) return false
+                record.put("gameId", gameId)
+            }
+        }
         if (!prefs.edit().putString("considering:$characterId", record.toString()).commit()) return false
         ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
         return true
@@ -236,6 +254,7 @@ internal object CharacterSelfActivityRuntime {
         val actual = when (action) {
             "read_book" -> "reading"
             "play_solo_game" -> "solo_game"
+            "send_game_invite" -> "game_invite"
             "digital_world_action" -> "digital_world"
             else -> action
         }
