@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:36:25.670999+00:00",
-  "commit": "6fd81da120ef86dee3824d9c2caed315225272e3",
+  "generatedAt": "2026-11-03T17:37:20.083060+00:00",
+  "commit": "f5bc6a38b451ff54cc0bfc7d66f158ad437b1362",
   "branch": "main",
-  "sourceFingerprint": "ea492d1a14f0360b59eddce8389838f1bbda16279088376b40f746d6aec8adc3",
+  "sourceFingerprint": "d364109f3a977c91a47c3e415c026c8630f226327ccfe8bb0f4291b6fc3541b3",
   "summary": {
     "files": 1125,
-    "lines": 234001,
+    "lines": 234018,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -25413,8 +25413,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
-      "lines": 91,
-      "sha256": "f93a1867365c26e255b9dcba7bae3154bab9b30d558bf5cead9bf3bee365e7dd",
+      "lines": 95,
+      "sha256": "95f0f186a82592e2a42c2c1aff4701947d381d33e8e11e09e3be699a775c4fb5",
       "symbols": [
         {
           "name": "Result",
@@ -30075,8 +30075,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-      "lines": 116,
-      "sha256": "d138b074b97e48ef47042085e81d64a1b649a7ec7fd1cb66a0e8f2583bf1e388",
+      "lines": 117,
+      "sha256": "4f14ef97d4ad5bf2dcefffa27a6418225527808997c123df68522463647fc769",
       "symbols": [
         {
           "name": "UserInteractionPresence",
@@ -36336,8 +36336,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt",
-      "lines": 145,
-      "sha256": "114e06e2d74df2ab242f74eb1181700fa852308f57fcfe3e0f740cf27aa56aa7",
+      "lines": 157,
+      "sha256": "574a66a400c0394e472da620887d60b555779d4f487dbb722b0c67f7a216871a",
       "symbols": [
         {
           "name": "CommitmentOutcomeVerificationTest",
