@@ -81,6 +81,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     var lastBuildMode by remember(world.seed) { mutableStateOf("wall") }
     // A recipe may be tapped again; an integer event always dismisses the tools panel.
     var dismissToolsVersion by remember { mutableIntStateOf(0) }
+    var craftMenuSignal by remember { mutableStateOf<Int?>(null) }
     var navigateTo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var zoomed by remember { mutableStateOf(true) }
     var confirmReset by remember { mutableStateOf(false) }
@@ -224,6 +225,15 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         }
     val workbenchNear = workbench != null &&
         abs(world.x - workbench.key % world.width) + abs(world.y - workbench.key / world.width) <= 2
+    val hasShelter = island.structures.values.any { it == "campfire" || it == "bed" }
+    val survivalGoal = when {
+        workbench == null -> "目标1/5：收集4木2石，建工作台"
+        "sword" !in island.tools -> "目标2/5：在工作台做一把石剑"
+        !hasShelter -> "目标3/5：建造篝火或床铺"
+        island.defeatedMonsters == 0 -> "目标4/5：击退野怪，收集食物"
+        island.nightsSurvived < 3 -> "目标5/5：守住3夜（${island.nightsSurvived}/3）"
+        else -> "守岛挑战完成！继续自由建造、捕鱼、探索"
+    }
 
     val worldNotice = remember(world.notice,world.friends.map { it.id }) {
         world.friends.fold(world.notice) { line,friend ->
@@ -236,10 +246,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         accent = Color(0xFFA9E5BD),
         toolsLabel = "☰ 游戏菜单",
         closeToolsSignal = dismissToolsVersion,
+        openToolsSignal = craftMenuSignal,
         notice = worldNotice,
-        status = "❤ ${world.hp}/12   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
+        status = "❤ ${world.hp}/12   饱 ${island.hunger}/10   木 ${world.wood}   石 ${world.stone}   果 ${island.fruit}   " +
             (if (night) "☾ 夜晚" else "☀ 白天") +
-            " · 补给 ${island.openedSupplies.size}/${island.supplyCaches.size}",
+            " · 守夜 ${island.nightsSurvived}/3",
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
                 navigationTarget = navigateTo,
@@ -271,16 +282,35 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         movement = {
+            val center = islandNearbyAction(island, facing)
             GameDirectionalPad(accent = Color(0xFFA9E5BD), holdRepeatMs = 420L,
-                stopWhen = world.hp to world.seed) { dx, dy ->
+                stopWhen = world.hp to world.seed,
+                interactLabel = if (buildMode != null) "确认建造" else
+                    center?.label ?: if (workbenchNear) "使用工作台" else "附近互动",
+                interactEnabled = if (buildMode != null) buildReady
+                    else center != null || workbenchNear,
+                onInteract = {
+                    when {
+                        buildMode != null -> if (buildReady)
+                            buildMode?.let { perform(it, aimedCell.first, aimedCell.second) }
+                        center != null -> perform(center.action, center.x, center.y)
+                        workbenchNear -> {
+                            menuSection = "制作"
+                            craftMenuSignal = (craftMenuSignal ?: 0) + 1
+                        }
+                    }
+                }) { dx, dy ->
                 facing = dx to dy
                 mapAim = false
                 navigateTo = null
                 val x = world.x + dx
                 val y = world.y + dy
-                // Pressing into a tree or an enemy only turns toward it;
-                // the action key gathers or attacks, with no false movement turn.
-                if (BlockIslandRules.isWalkable(island,x,y) &&
+                val front = islandTargetAction(island, x to y)
+                // Walking into resources directly collects; combat remains deliberate.
+                if (buildMode == null && front.enabled &&
+                    front.action in setOf("gather", "salvage")) {
+                    perform(front.action, x, y)
+                } else if (BlockIslandRules.isWalkable(island,x,y) &&
                     world.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
                     world.friends.none { it.x==x && it.y==y }) {
                     perform("move",x,y)
@@ -297,6 +327,8 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                     else nearbyPrimary?.let { "附近可"+it.label } ?: "靠近资源或怪物"
                 "朝向 $directionLabel · " + interaction
             }
+            Text(survivalGoal, color=Color(0xFFFFE3A7),
+                fontWeight=FontWeight.Bold, fontSize=11.sp, maxLines=2)
             Text(statusHint,
                 color=if(buildMode!=null && !buildReady) Color(0xFFFFD0B6)
                     else Color(0xFFBDF4D3),fontSize=11.sp,maxLines=2)
@@ -352,7 +384,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
             }
         },
         actions = {
-            val mainAction = nearbyRescue ?: nearbyPrimary ?: if(island.fruit>0 && world.hp<12)
+            val mainAction = nearbyRescue ?: nearbyPrimary ?: if(island.fruit>0 && (world.hp<12 || island.hunger<8))
                 IslandNearbyAction("eat","吃野果",world.x,world.y) else null
             Button(onClick = {
                 if(navigateTo!=null) navigateTo=null
@@ -547,7 +579,7 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
                         IslandAction(if ("rod" in island.tools) "✓ 鱼竿" else "制作鱼竿", enabled = workbenchNear && "rod" !in island.tools && world.wood >= 2 && world.stone >= 1,
                             Modifier.weight(1f)) { perform("craft_rod", world.x, world.y) }
                     }
-                    Text("木斧 2木1石 · 石镐 2木2石 · 石剑 1木3石 · 鱼竿 2木1石",
+                    Text("木斧伐木+2 · 石镐采矿+2 · 石剑伤害4 · 鱼竿可钓鱼",
                         color = Color(0xFFB8D0C9), fontSize = 11.sp)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("篝火或木床旁可以恢复体力", modifier = Modifier.weight(1f),
