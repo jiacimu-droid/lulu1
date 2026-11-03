@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9fcbf495735c7d6df9cfdf2d8c996becb5b21703`
+- 基准提交：`a4725094a5251182f87ea391858f4a6dca6382f2`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232509
+- 已索引代码/文本行：232571
 - 已发现符号：3251
 
 | 文件 | 行数 | 符号数 |
@@ -532,7 +532,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3059 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3068 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1158 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 107 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
@@ -1064,7 +1064,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 112 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 376 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 429 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 183 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
