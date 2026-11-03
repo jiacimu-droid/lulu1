@@ -350,11 +350,20 @@ object ProactivePerceptionRuntime {
                     if (shouldDeferSleepingLifeReview(sleeping, sleepDeferredReview,
                             onlineExpiryAtMillis, explicitUserWake, preserveOffline)) continue
                     if (!force) {
+                        // An existing promise alarm owns its own scheduled
+                        // callback, but never eats a separate *new* source event.
+                        // No new recurring wake or extra model round is created;
+                        // this permits the already-triggered perception to decide.
+                        val independentEvidence = explicitUserWake ||
+                            !requiredInteractionEvidenceId.isNullOrBlank() ||
+                            trigger.startsWith("重要事件")
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
-                                CommitmentTaskStore.snapshot(characterId), now)) continue
+                                CommitmentTaskStore.snapshot(characterId), now,
+                                hasIndependentEvidence = independentEvidence)) continue
                         val due = dueAtFor(appContext, conversation, policy, prefs, now)
-                        if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
-                        if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                        if (!independentEvidence && due.isAfter(now.plusSeconds(15))) continue
+                        if (!explicitUserWake &&
+                            isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                     }
                     // A single expensive model owns subjective continuity. Repeated low-priority
                     // life, thought and activity follow-through calls share its next eligible slot.
