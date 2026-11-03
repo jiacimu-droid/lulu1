@@ -550,19 +550,32 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                             if (controls.motions.isEmpty()) item {
                                 Text("该皮套没有动作", color = Color.White, fontSize = 12.sp)
                             }
-                            items(controls.motions.chunked(3).size) { row ->
-                                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                                    for ((group, index) in controls.motions.chunked(3)[row]) {
-                                        val label = if (group == "LuluWolf") {
-                                            Live2DMotionCatalog.entries[index]?.name ?: "$group#$index"
-                                        } else "$group#$index"
-                                        Button(onClick = { playMotion(group, index) },
-                                            modifier = Modifier.weight(1f)) {
-                                            Text(label, fontSize = 12.sp)
+                            // The actual 49 clips remain auditionable. Organize the
+                            // first screen by feeling / speaking / body state; preserve
+                            // rare directional variants under a separate expansion.
+                            Live2DMotionCatalog.selectionSections(controls.motions)
+                                .forEach { section ->
+                                    item {
+                                        Text(section.title + " · " + section.motions.size,
+                                            color = if (section.supplementary)
+                                                Color(0xFFB7C6D5) else Color(0xFFB8E6FF),
+                                            fontSize = 12.sp)
+                                    }
+                                    val rows = section.motions.chunked(3)
+                                    items(rows.size) { row ->
+                                        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                                            for ((group, index) in rows[row]) {
+                                                val label = if (group == "LuluWolf") {
+                                                    Live2DMotionCatalog.entries[index]?.name ?: "$group#$index"
+                                                } else "$group#$index"
+                                                Button(onClick = { playMotion(group, index) },
+                                                    modifier = Modifier.weight(1f)) {
+                                                    Text(label, fontSize = 12.sp)
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
                         }
                     }
                 }
