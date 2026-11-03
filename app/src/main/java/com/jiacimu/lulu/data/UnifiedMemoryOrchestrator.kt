@@ -227,6 +227,7 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             return@buildString
         }
         appendLine("以下是当前全部未完成责任，直接来自任务 Store，不依赖语义召回或生活记录条目数量：")
+        val observationAt = Instant.now()
         tasks.forEach { task ->
             append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}；动作=${task.deliveryAction}；系统闹钟=${if (task.linkedAlarmId == null) "无当前记录" else "有记录"}")
             task.dueAt?.let { append("；dueAt=$it") }
@@ -236,6 +237,8 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             if (task.attemptCount > 0) append("；attempts=${task.attemptCount}")
             if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition.take(220)}")
             if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.readableLastResult().take(260)}")
+            CommitmentClockFacts.render(task, observationAt)
+                .takeIf(String::isNotBlank)?.let { append("；时限进度=$it") }
             when (task.status) {
                 CommitmentTaskStatus.NeedsClarification -> append("；下一步=由本人区分用户必须确认的条件与自己可以制定的监督步骤；必要时自然询问，也可自主安排不依赖该条件的后续行动；不能编造用户决定")
                 CommitmentTaskStatus.WaitingForFeedback -> append("；下一步=仍可自主选择可执行的跟进步骤或以后具体时间；按真实结果核验，不得把沉默当作完成")
