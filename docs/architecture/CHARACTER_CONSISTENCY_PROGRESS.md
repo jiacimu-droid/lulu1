@@ -484,3 +484,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码 `6f6189f2`**：若本轮确实提供新的非空理由，仍以本人新判断替换；若省略/空白且已有旧理由，则保留旧理由，不推断本人取消了条件。不新增 Store、模型调用、社交自动发送或全局台词。明确 `released` 状态仍由模型控制。
 - **回归 `68ce0fa7`**：`CharacterLifeFollowThroughStoreTest.reaffirmingHeldWishWithoutNewWhyDoesNotEraseEarlierRecipientConditions` 覆盖“明确好友范围/暂不公开”→下一轮无 `why`→空白 `why`→后台/私聊/在线投影保留→本人提供新理由时替换旧理由。仅单测候选，不能代替真实模型选择及送达。
 - **Actions/下一步**：旧 `6f6189f2` [APK run 41708385085](https://github.com/jiacimu-droid/lulu1/actions/runs/41708385085) 与 [索引 run 41708385080](https://github.com/jiacimu-droid/lulu1/actions/runs/41708385080) 在本轮查询时 `in_progress`；随后新增测试 `68ce0fa7`，须以包含测试的后继 SHA/run 的完整编译、testPhoneUnitTest 与 APK 结果为准，不能把旧 run 成功或取消算本轮通过。下轮先取最新 Actions 真实结论；成功后真机对照持续愿望是否跨场景保留、模型是否自主决定对象及是否收到实际社交发送回执。P-08 保持 `[ ]`。
+
+
+## 2026-11-04 · P-08 已放下的分享念头无法由本人重新改变（待新 CI/真机）
+
+- **前轮结果**：包含 `68ce0fa78c19` 的 [APK/JVM 41708414111](https://github.com/jiacimu-droid/lulu1/actions/runs/41708414111) 与 [代码索引 41708413982](https://github.com/jiacimu-droid/lulu1/actions/runs/41708413982) 均为 completed/success。仅证实原有代码及回归构建，未证实真机角色实际选择。
+- **新确认根因**：`CharacterLifeFollowThroughStore.recordShareWish` 在状态为 `released` 时无条件拒绝以后模型明确给出的 `held`，使“曾经决定不分享”被程序永久提升为“本人永远不能改变主意”。此外若仅解除拒绝，旧的“不告诉任何人”理由会误作为新分享理由，造成跨轮相反意图串线。这里是公共角色自主决策/持久化契约错误，不是某个特定人物的性格。
+- **实改**：`53cf99073d` 允许本人明确给出 `held` 重新考虑，`shared` 仍要求真实已发送回执且不自动重发；`d9593452ff` 在 `released→held` 且未提供新理由时清空旧拒绝理由，保留已持有 `held→held` 无新理由时旧条件不丢的上一轮修复。没有自动发朋友圈、额外模型调用、关键词重解释或新增 Store。
+- **回归**：`a4e429374e` 测试 `released→held` 后恢复可选候选、旧拒绝理由不混入新意愿、新理由可以由本人明确补充，仍未有发送回执。当前查询的 `53cf99073d` APK run `41717125205` / 索引 `41717125264` in_progress，`d9593452ff` APK `41717142547` / 索引 `41717142612` cancelled，均不能当成包含 `a4e429374e` 的通过。下轮查后继完整 Android APK/JVM/索引，失败按真实 job 日志修；成功后真机核实同一角色是否真的能改变心意，并且不能把念头当成发送。P-08 仍 [ ]。
