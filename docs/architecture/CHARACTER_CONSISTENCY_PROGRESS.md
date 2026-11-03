@@ -516,3 +516,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 新证实：`CharacterContinuityRuntime.snapshot` 对群聊 UserStatement 在校验 `involvesUser` 之前就写入 `lastUser`，而旧 `involvesUser` 只看 source/kind、不查原始已发送消息。孤儿、失败群聊见证可以冒充用户最近原话和互动时间。
 - 修复 `caab606f7`：复用 canonical chat message 的 Sent 与 sender=User 来源核验；`840f25920`：先通过归属校验再更新 lastUser/previous；`ca5af41b6`：补正常用户群聊、孤儿伪造见证、原消息失败后退回真实私聊的回归测试。无额外模型调用、Store 或统一角色话术。
 - 最新 APK/JVM 和索引需按含 `ca5af41b6` 的实际 run 验证；待真机跨私聊/群聊/电话验证，P-08 保持 [ ]。
+
+## 2026-11-04 · P-08 独处记录误当与用户互动（main `16a4d6b`，待 CI／真机）
+
+- **前轮核验**：包含 `ca5af41b6` 群聊用户原话来源核验的 [Android 单测/APK 41734387814](https://github.com/jiacimu-droid/lulu1/actions/runs/41734387814) 和 [索引 41734387797](https://github.com/jiacimu-droid/lulu1/actions/runs/41734387797) 均 completed/success；其前的 `0d827c3` 也由后继成功 run 覆盖。代码通过不证明真实人设体验。
+- **已证根因**：`TimelineStatementOwnership.involvesUser` 对所有非群聊事件直接返回 true；但原时间线把角色发朋友圈（`moment:self`）、私人学习练习稿（`learning-*`）、收藏及仅与居民交谈的台词也标为 CharacterStatement，用户公开动态则可能是 UserStatement。于是 `CharacterContinuityRuntime.snapshot` 会把未与主人接触的独处行为更新为“距最近一次真实双方互动”，并把私人练习／朋友圈文案当成角色上次对人说的话，影响前台、电话和后台的连续性与主动联系节律。
+- **实改**：`16a4d6bc1ab877446f4982ce2e0d7af12b60c164` 将“本人说过”与“面向用户的真实互动”分开：私聊/电话沿原 `message` 来源，一起看沿实际同看来源；见面从原数字世界会话核对真实参与者并排除居民会话；原有无来源的私聊记录保留兼容。群聊仍走先前 canonical 已发送消息的作者核验，群内本人的真发言可作“自己说过”的锚点，但不会仅因群存在就算双方直接互动。其他独处和公开记录仍保留在原权威时间线，只不冒充对话锚点。无新人格 Store、硬编码联系频率或额外模型调用。
+- **回归与边界**：`CharacterContinuitySnapshotTest.soloArtifactsAndPublicPostsDoNotResetActualUserContact` 以实际时间线顺序写入私聊原话、私人练习、角色／用户公开动态及无主人在场的居民见面，要求上次用户接触时间和双方原话仍指向私聊。测试覆盖投影边界；真实见面会话、旧资料及真机前台/后台节律仍待核查。
+- **Actions**：本轮 [Android 单测/APK 41740733303](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733303) 与[索引 41740733580](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733580) 查询时 queued；先看最终结果及首个实质失败，再用获授权真机确认角色独处一段时间后不会误以为刚联系主人。P-08 仍 [ ]。
