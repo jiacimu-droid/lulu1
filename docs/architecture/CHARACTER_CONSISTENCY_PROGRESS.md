@@ -372,3 +372,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **main 实际提交**：`86dac68`、`7ca8beb`（发送器真实结构回执）；`5ad5fd2`（工具从真实发送器回收 ID）、`bccb1c5`（后台心理精确绑定）、`4c14b08`／`075574a`（副动作真实证据，主/副动作统一交接）、`8f058ef`／`03ce92e`（前台群聊副动作 trace）；`3f107c6`（其他真实聊天素材/邀请同归属）、`9a3977a`（区分部分送达/来源变更），`df11737`、`b902783`、`2a27bb0`（测试）。
 - **回归契约**：`QqReplySourceWatermarkTest` 新增主工具两泡回执的确切 ID、前后无关同角色气泡不得混入、10 泡仍逐条归属、不同作者/会话剔除、独立步骤和 trace（模型附带的假 trace 不得生效）、已送第一泡后用户纠正则返回 `complete=false/superseded=true` 以及确切第一泡 ID。既有单泡/群聊/水位与旧字符串调用不删除。
 - **验证与后续**：本轮新源码测试已提交但尚未得到对应 `app:testPhoneUnitTest` 完整回执。最新 `2a27bb0` 的 [Lulu APK run 41666751177](https://github.com/jiacimu-droid/lulu1/actions/runs/41666751177) 与索引 `41666751200` 检查时 pending；中间因推送取消的 runs 不算失败或通过。接力先核对测试与 APK，失败只修真实失败处；通过后真机复核并发群聊/私聊、模型自主 0/1/N 真实发送与心理记录的一一归属、长泡/语音/撤回、下轮目标承接。P-08 尚未获得真实模型多轮对比与跨日验收，维持 `[ ]`。
+
+## 2026-11-03 P-08d 续轮：居民回信失败后保留原来信（main `5e90390`，待 Android CI／真机）
+
+- **链路与根因**：本人收到 `ResidentSocialMailbox.pendingIncoming` 原私信 → `CharacterEverydaySocialContext` 交同一角色决定 → `ToolRouter` 实际发送 → 下一轮再看来信。此前 `ProactivePerceptionRuntime` 不论选定的 `send_character_message` 是否真正送达，都把整批来信游标推到末尾。发送失败后角色下一轮只能看到缩短的旧通信预览，待处理原文与“回信未成功”的因果对齐丢失；单个独立步骤成功还会掩盖同轮回信失败。
+- **结构修复**：`OrderedCharacterActions` 分别回报选定与实际完成送达的目标，主动作同样使用真实 `ToolExecutionStatus`；游标只越过连续已处理的来信前缀。发送失败或尚未执行的回信及其后的信留给同一角色下轮重新判断；实际送达或本人选择沉默可正常推进。原私信仍由既有 Mailbox/Timeline 保存，没有新人格中心、自动代回、固定催促或额外模型调用。
+- **提交与回归**：main `5e9039049e2b2b86766af4ae6bf3ba29d314e18e`；`ResidentMailCausalIntegrationTest` 覆盖失败的已选回信、随后真实送达、多封信的连续游标边界。`git diff --check` 通过，运行原 `scripts/generate_code_index.py`；该 SHA 的索引 run `41666897432` 已成功，Lulu APK run `41666897609` 查询时 pending。旧 `2a27bb0` 的 APK run `41666751177` 已 cancelled，不算通过。本地无 Gradle wrapper/Java，未运行本地 JVM/APK。
+- **待验与下一轮**：先核实本轮或包含它的后继 Android 单测/APK；若失败读首个具体断言。随后真机用一次角色回信发送失败、另一独立动作成功的真实场景确认下轮仍看原信和失败回执，并确认本人可选择改口、暂不回或重试。真实模型是否自然承接多轮、跨日社交与人物表达质量尚无证据，P-08／S-01 仍为 `[ ]`。继续查电话、日程和工具回执是否同样被过早标已处理；已验通的 QQ 精确气泡回执不重复改。
