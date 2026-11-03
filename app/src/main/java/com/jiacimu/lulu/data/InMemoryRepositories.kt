@@ -301,6 +301,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                 // If it was deleted, never recreate it.
                 val revised = stored.map { entry ->
                     if (entry.id == HUMAN_CHAT_BOOK_ID &&
+                        entry.title == HUMAN_CHAT_BOOK_TITLE &&
                         entry.content == HUMAN_CHAT_BOOK_V1_CONTENT.trimIndent()
                     ) entry.copy(content = HUMAN_CHAT_BOOK_CONTENT.trimIndent(),
                         updatedAt = Instant.now())
