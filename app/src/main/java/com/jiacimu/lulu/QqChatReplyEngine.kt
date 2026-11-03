@@ -363,7 +363,7 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     interactionReceipt: String? = null,
     sourceWatermark: ReplySourceWatermark? = null,
     diagnosticTurnTraceId: String = "",
-): String {
+): RoleReplyDeliveryReceipt {
     val watermark = sourceWatermark ?: if (!actionableUserMessageIds.isNullOrEmpty())
         captureReplySourceWatermark(conversationId, characterId, actionableUserMessageIds)
     else null
