@@ -285,4 +285,73 @@ class AutonomousActionWireProtocolTest {
         assertEquals("", nameless.optString("tool"))
     }
 
+    @Test fun personalScheduleMissingDueAtIsRepairableWithoutChangingOriginalDecision() {
+        val now = java.time.Instant.parse("2026-11-03T12:00:00Z")
+        val original = JSONObject().put("action", "tool")
+            .put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("title", "下午读一本书")
+                .put("intent", "想接着读上次没看完的章节"))
+        val normalized = AutonomousActionWireProtocol.normalize(original)
+        assertEquals(listOf("dueAt"),
+            AutonomousActionWireProtocol.missingPersonalPlanFields(normalized, now))
+        assertNull(AutonomousActionWireProtocol.repairPersonalPlanArgs(
+            normalized.getJSONObject("args"), JSONObject().put("dueAt", "随便过会儿"), now))
+        val patched = AutonomousActionWireProtocol.repairPersonalPlanArgs(
+            normalized.getJSONObject("args"), JSONObject()
+                .put("title", "不要改写我的标题")
+                .put("dueAt", "2026-11-04T15:00:00+08:00"), now)!!
+        assertEquals("下午读一本书", patched.getString("title"))
+        assertEquals("想接着读上次没看完的章节", patched.getString("intent"))
+        assertEquals("2026-11-04T15:00:00+08:00", patched.getString("dueAt"))
+        assertTrue(AutonomousActionWireProtocol.missingPersonalPlanArgs(patched, now).isEmpty())
+        assertEquals("", normalized.getJSONObject("args").optString("dueAt"))
+    }
+
+    @Test fun personalScheduleNestedStepRepairPreservesOtherIndependentActions() {
+        val now = java.time.Instant.parse("2026-11-03T12:00:00Z")
+        val chat = JSONObject().put("tool", "send_character_message")
+            .put("args", JSONObject().put("targetCharacterId", "friend")
+                .put("text", "今晚聊聊？"))
+        val unscheduled = JSONObject().put("tool", "plan_personal_activity")
+            .put("args", JSONObject().put("title", "喝杯热茶")
+                .put("intent", "想在读完书后休息一下"))
+            .put("requiresPreviousSuccess", false)
+        val steps = org.json.JSONArray().put(chat).put(unscheduled)
+        assertEquals(listOf("steps[1].dueAt"),
+            AutonomousActionWireProtocol.missingPersonalPlanStepFields(steps, now))
+        assertNull(AutonomousActionWireProtocol.repairPersonalPlanSteps(
+            steps, JSONObject().put("repairs", org.json.JSONArray()
+                .put(JSONObject().put("index", 0)
+                    .put("dueAt", "2026-11-04T20:00:00+08:00"))), now))
+        val correction = JSONObject().put("repairs", org.json.JSONArray()
+            .put(JSONObject().put("index", 1)
+                .put("dueAt", "2026-11-04T20:00:00+08:00")
+                .put("intent", "不允许替换我原本的动机")))
+        val fixed = AutonomousActionWireProtocol.repairPersonalPlanSteps(
+            steps, correction, now)!!
+        assertEquals(steps.getJSONObject(0).toString(), fixed.getJSONObject(0).toString())
+        assertEquals("喝杯热茶", fixed.getJSONObject(1)
+            .getJSONObject("args").getString("title"))
+        assertEquals("想在读完书后休息一下", fixed.getJSONObject(1)
+            .getJSONObject("args").getString("intent"))
+        assertEquals("2026-11-04T20:00:00+08:00", fixed.getJSONObject(1)
+            .getJSONObject("args").getString("dueAt"))
+        assertTrue(AutonomousActionWireProtocol.missingPersonalPlanStepFields(fixed, now).isEmpty())
+        assertEquals("", steps.getJSONObject(1).getJSONObject("args").optString("dueAt"))
+    }
+
+    @Test fun personalScheduleRejectsPastTimesAndRequestsActualRoleChoice() {
+        val now = java.time.Instant.parse("2026-11-03T12:00:00Z")
+        val args = JSONObject().put("title", "午后散步")
+            .put("intent", "想去外面转转")
+            .put("dueAt", "2026-11-03T10:00:00Z")
+        assertEquals(listOf("dueAt"),
+            AutonomousActionWireProtocol.missingPersonalPlanArgs(args, now))
+        assertNull(AutonomousActionWireProtocol.repairPersonalPlanArgs(
+            args, JSONObject().put("dueAt", "2026-11-03T12:00:30Z"), now))
+        assertTrue(AutonomousActionWireProtocol.missingPersonalPlanArgs(
+            JSONObject(args.toString()).put("dueAt", "2026-11-03T14:30:00+08:00"), now)
+            .contains("dueAt"))
+    }
+
 }
