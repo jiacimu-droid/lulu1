@@ -179,15 +179,16 @@ internal object Live2DVisualActionBus {
         if (controls.expressions.isEmpty() && controls.motions.isEmpty()) return ""
         if (controls.motions.isEmpty()) return "当前视频模型没有 Motion3；正常输出 text，可选 live2d.expression，真实表情：${controls.expressions.joinToString("、")}。不得虚构身体动作。"
         val expressions = controls.expressions.take(20).joinToString("、").ifBlank { "无" }
-        val motions = controls.motions.joinToString("、") { (group, index) ->
-            Live2DMotionCatalog.describe(group, index) ?: "$group#$index"
-        }.ifBlank { "无" }
+        val motions = Live2DMotionCatalog.selectionGuide(controls.motions).ifBlank { "无" }
         return """
             【当前 Live2D 视频通话：同一次回复里由你亲自选择动作】
             这是已导入模型真实的动作资源目录，即使画面仍在加载，你也可以先自主选择每句话的 Motion3；程序按实际音频与视频加载状态执行。选择不等于播放成功。
             你的角色可以自己决定说什么、什么时候做出什么神态或动作；说话时默认要有动作陪着，不要站着干说。
             最重要的是使用真正存在的 Motion3 动作，不要自己编造头部/身体角度或指望文字描述让角色动起来。
-            真实动作目录（group#index=动作描述）：
+            先感受当下真实的情绪、身体状态、关系和说话意图，再选择身体表达，而不是先挑一个左右摇头的动作来套台词。
+            下面是按用途整理的真实 Motion3。日常优先考虑情绪、倾听回应和身体状态里辨识度高的动作；“补充”组仍可由你自主选用，但左右镜像、幅度变体和小幅晃动不是为了凑不同动作而反复切换。
+            两个姿态看起来相近时，选最贴合当前感受的一个；同一感受可以自然延续，不必每句话换一种头部动作。脸部情绪与动作一起考虑，不能用单纯左右转头代替伤心、害羞、紧张或惊喜。
+            真实动作目录（group#index=动作描述，保留原编号）：
             $motions
             真实表情资源：$expressions
             结合你的性格、当下心情与每句话的语气，自主从真实目录选择最合适的 Motion3，不按关键词机械匹配。视频发言的输出契约：每个实际说话片段都必须对应你选择的真实动作，不能只给回复开头配动作；执行前会检查漏项。日常短句可选轻微动作，神态和力度仍由你自己决定。
