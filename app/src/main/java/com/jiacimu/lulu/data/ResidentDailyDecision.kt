@@ -1643,6 +1643,17 @@ internal object ResidentDailyDecision {
             val recipient = MigratedDomainStores.characters.get(it.toId).displayName
             "$speaker → $recipient: ${it.content.take(220)}"
         }
+        // The last-eight inbox tail can be dominated by one chatty contact,
+        // making other real relationships disappear from the daily model's
+        // view even though the mailbox still stores them. Reuse the existing
+        // per-contact read projection; never invent unread/reply status.
+        val lastByContact = ResidentSocialMailbox.latestByContact(characterId)
+            .entries.sortedByDescending { it.value.createdAt }.take(12)
+            .joinToString("\n") { (peerId, letter) ->
+                val person = MigratedDomainStores.characters.get(peerId).displayName
+                val side = if (letter.fromId == characterId) "我上次发给对方" else "对方上次发给我"
+                "$person ($peerId)；${letter.createdAt}；$side：${letter.content.take(130)}"
+            }
         val witnesses = DigitalWorldExpansionStore.residentsAt(native.currentLocationCode)
             .filter { it.id != native.id }.take(8)
             .joinToString("、") { "${it.name} (resident:${it.id})" }
@@ -1663,6 +1674,8 @@ internal object ResidentDailyDecision {
             ${publicMoments.ifBlank { "暂无" }}
             只属于你本人的最近通信：
             ${mail.ifBlank { "无" }}
+            和每位真实通信过的联系人最近一封信（不代表未读、需要回复或对方已看过）：
+            ${lastByContact.ifBlank { "暂无通信" }}
             ${CharacterEverydaySocialContext.render(characterId, at, pending)}
             自己确实经历过的事情与工具结果（失败也是真实经历；计划未执行不算）：
             ${recentOwnExperience(characterId).ifBlank { "暂未积累" }}
