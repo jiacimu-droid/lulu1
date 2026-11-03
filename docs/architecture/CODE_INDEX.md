@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`16a4d6bc1ab877446f4982ce2e0d7af12b60c164`
+- 基准提交：`13d6e55d593a3b24ee71a620ba8b82410611f161`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234577
+- 已索引代码/文本行：234610
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -426,7 +426,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 443 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 406 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1693 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 63 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 988 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 664 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
@@ -543,7 +543,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 96 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 602 | 6 |
@@ -1034,7 +1034,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 124 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt` | 58 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |

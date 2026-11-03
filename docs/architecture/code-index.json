@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T23:38:33.340239+00:00",
-  "commit": "16a4d6bc1ab877446f4982ce2e0d7af12b60c164",
+  "generatedAt": "2026-11-03T23:55:38.934296+00:00",
+  "commit": "13d6e55d593a3b24ee71a620ba8b82410611f161",
   "branch": "main",
-  "sourceFingerprint": "085a2dbfa4ff2e6b6052e2146a0ae8c2455eb155dc54421910384a257d63b3e3",
+  "sourceFingerprint": "453998d0ef8987da0546d73f2f6764a0782941ae37b949e4630e7490576ca121",
   "summary": {
     "files": 1126,
-    "lines": 234577,
+    "lines": 234610,
     "symbols": 3262
   },
   "symbolIndex": {
@@ -489,7 +489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 10
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
@@ -2215,7 +2215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 20
+        "line": 31
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
@@ -7971,7 +7971,7 @@
     "age": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 24
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
@@ -11495,7 +11495,7 @@
     "durations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
-        "line": 72
+        "line": 70
       }
     ],
     "draftsFor": [
@@ -25669,20 +25669,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-      "lines": 52,
-      "sha256": "8ea5814d61c8e3d4f02e00e4153e1a2a594a3595c88b571e34753c8e117b2f91",
+      "lines": 63,
+      "sha256": "05cace03b9c774f1de685fdd25233c50670e8c9b1c02af5857460ed5e38ab53c",
       "symbols": [
         {
           "name": "context",
-          "line": 10
+          "line": 24
         },
         {
           "name": "describe",
-          "line": 20
+          "line": 31
         },
         {
           "name": "age",
-          "line": 24
+          "line": 35
         }
       ]
     },
@@ -29334,8 +29334,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
-      "lines": 96,
-      "sha256": "4c275c8d7e95e46cc821e513c1a30aafd3cdaed36082d548458ab69c7b61adfe",
+      "lines": 94,
+      "sha256": "812ff17e0bec1a577ef6f697c53b1513be1e4e6d6f877bf7013f33237a0b949b",
       "symbols": [
         {
           "name": "isOld",
@@ -29355,7 +29355,7 @@
         },
         {
           "name": "durations",
-          "line": 72
+          "line": 70
         }
       ]
     },
@@ -37674,8 +37674,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt",
-      "lines": 58,
-      "sha256": "8cf6c152fdce2811eaf9e04c7f67f26bf32a5ccfd358e698e58d70187dde5e7c",
+      "lines": 82,
+      "sha256": "701e8b832f0b0059333f18265b1c819221ae8c6dde3639596c1f535d602d66b0",
       "symbols": [
         {
           "name": "RelationshipRhythmPerceptionTest",
