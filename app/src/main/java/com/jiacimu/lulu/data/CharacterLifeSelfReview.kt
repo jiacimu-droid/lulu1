@@ -32,8 +32,13 @@ internal object CharacterLifeSelfReview {
                     runCatching { Instant.parse(item.optString("at")) }.getOrNull()
                         ?.let { !it.isAfter(now) } == true
             }
-        val recent = held.takeLast(3)
-        val older = held.dropLast(recent.size)
+        return rotatingReview(held, now, zone)
+    }
+
+    private fun <T> rotatingReview(entries: List<T>, now: Instant,
+        zone: ZoneId = ZoneId.systemDefault()): List<T> {
+        val recent = entries.takeLast(3)
+        val older = entries.dropLast(recent.size)
         val pages = (older.size + 7) / 8
         val selected = if (pages == 0) emptyList() else {
             val day = now.atZone(zone).toLocalDate().toEpochDay()
@@ -110,7 +115,7 @@ internal object CharacterLifeSelfReview {
             }
             if (learned.isNotEmpty()) {
                 appendLine("【自己从经历中学到的倾向｜不是固定人设，保留真实来源】")
-                learned.takeLast(12).forEach { record ->
+                rotatingReview(learned, now).forEach { record ->
                     appendLine(JSONObject().put("developmentId", record.id)
                         .put("version", record.version)
                         .put("kind", record.kind.label)
