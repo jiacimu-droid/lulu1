@@ -27,6 +27,7 @@ class BackgroundMessageDeliveryTest {
 
     @Before fun before() {
         reset()
+        CharacterMessageNotifications.dismissInApp()
         context = RuntimeEnvironment.getApplication()
         manager = context.getSystemService(NotificationManager::class.java)
         LuluRepositories.initialize(context)
@@ -41,7 +42,10 @@ class BackgroundMessageDeliveryTest {
         manager.cancelAll()
     }
 
-    @After fun after() { reset() }
+    @After fun after() {
+        CharacterMessageNotifications.dismissInApp()
+        reset()
+    }
 
     @Test fun genericToolMessageFromColdBackgroundIsDurableAndPostsOneHighPriorityNotification() = runBlocking {
         assertNull(UserInteractionPresenceStore.state.value.appVisible)
@@ -61,6 +65,50 @@ class BackgroundMessageDeliveryTest {
             JSONObject().put("text", "刚看完，想听听你的看法。"), requestId = "background-message")
         assertEquals(1, notifications().size)
         assertEquals(1, MigratedDomainStores.chat.messages(conversation.id).value.size)
+    }
+
+    @Test fun otherVisibleAppPageShowsRealMessageBannerAndClickTarget() {
+        UserInteractionPresenceStore.setAppVisible(true)
+        UserInteractionPresenceStore.setConversation(null)
+        val first = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "吃饭啦，快看看我的消息", role.characterId)
+        val banner = CharacterMessageNotifications.inAppBanner.value
+        assertNotNull(banner)
+        assertEquals(first.id, banner!!.messageId)
+        assertEquals(conversation.id, banner.conversationId)
+        assertEquals(role.displayName, banner.title)
+        assertEquals("吃饭啦，快看看我的消息", banner.text)
+        assertEquals(1, notifications().size)
+
+        val newer = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "我又找到一个好玩的地方", role.characterId)
+        CharacterMessageNotifications.dismissInApp(first.id)
+        assertEquals(newer.id, CharacterMessageNotifications.inAppBanner.value?.messageId)
+        MigratedDomainStores.chat.markConversationRead(conversation.id)
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
+        assertTrue(notifications().isEmpty())
+    }
+
+    @Test fun backgroundAndMutedGroupNeverShowForegroundBanner() {
+        MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "后台保留系统通知", role.characterId)
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
+        assertEquals(1, notifications().size)
+        UserInteractionPresenceStore.setAppVisible(true)
+        val friend = MigratedDomainStores.characters.create("群聊朋友")
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "晚间聊天", listOf(role.characterId, friend.characterId))
+        MigratedDomainStores.chat.updateGroupConversation(
+            group.id, group.groupChat!!.copy(muted = true))
+        MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "静音群不弹窗", role.characterId)
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
+        MigratedDomainStores.chat.updateGroupConversation(
+            group.id, group.groupChat!!.copy(muted = false))
+        MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "有人找你", role.characterId)
+        assertEquals("${role.displayName} · 晚间聊天",
+            CharacterMessageNotifications.inAppBanner.value?.title)
     }
 
     @Test fun currentVisibleChatAndPhoneTranscriptsDoNotCreateMessagePopups() {
@@ -102,6 +150,7 @@ class BackgroundMessageDeliveryTest {
         manager.createNotificationChannel(NotificationChannel("lulu_proactive_messages", "旧消息", NotificationManager.IMPORTANCE_NONE))
         MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "已保存，但不越过通知关闭设置", role.characterId)
         assertTrue(notifications().isEmpty())
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
         assertNull(manager.getNotificationChannel("lulu_companion_messages_v2"))
         assertEquals(1, MigratedDomainStores.chat.messages(conversation.id).value.size)
     }
