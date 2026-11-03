@@ -109,6 +109,13 @@ internal object ResidentSocialMailbox {
         return incoming.drop(if (index >= 0) index + 1 else 0).take(max.coerceAtLeast(1))
     }
 
+    /** A single durable cursor can only cross a contiguous decided prefix.
+     * A reply attempted without a completed delivery receipt leaves that
+     * letter and any later letters available for the role's next decision. */
+    internal fun consideredPrefix(pending: List<ResidentDirectMessage>,
+        incompleteReplyTargets: Set<String>): List<ResidentDirectMessage> =
+        pending.takeWhile { it.fromId !in incompleteReplyTargets }
+
     @Synchronized fun pendingIncoming(role: String, max: Int = 8): List<ResidentDirectMessage> {
         val incoming = messages.filter { it.toId == role }
         return liveMessages(role, unconsidered(incoming,

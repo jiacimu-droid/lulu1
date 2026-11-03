@@ -167,7 +167,8 @@ object ProactivePerceptionRuntime {
         val primarySuccess: Boolean = success, val primarySummary: String = summary,
         val stepsCompleted: Boolean = false,
         val deliveredMessageIds: List<String> = emptyList(),
-        val sideDeliveredMessages: List<DeliveredRoleMessageRef> = emptyList())
+        val sideDeliveredMessages: List<DeliveredRoleMessageRef> = emptyList(),
+        val incompleteMailTargets: Set<String> = emptySet())
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -2544,7 +2545,11 @@ object ProactivePerceptionRuntime {
                 )
             }
         }
-        pendingMail.lastOrNull()?.let { considered ->
+        // A chosen reply that failed delivery has not finished this letter's
+        // causal turn. Preserve it (and later letters) for the same person's
+        // next decision; a deliberate silent choice still advances normally.
+        ResidentSocialMailbox.consideredPrefix(pendingMail,
+            execution.incompleteMailTargets).lastOrNull()?.let { considered ->
             if (!ResidentSocialMailbox.acknowledgeIncoming(characterId, considered.id))
                 android.util.Log.w("ResidentMail", "Incoming letter decision cursor not saved")
         }
@@ -2740,6 +2745,12 @@ object ProactivePerceptionRuntime {
         )
         val sideActionSucceeded = stepReport.anyCompleted
         effectNotes.addAll(stepReport.notes)
+        val primaryMailTarget = if (tool == "send_character_message")
+            args.optString("targetCharacterId").takeIf(String::isNotBlank) else null
+        val attemptedMailTargets = stepReport.attemptedMailTargets + listOfNotNull(primaryMailTarget)
+        val completedMailTargets = stepReport.completedMailTargets +
+            listOfNotNull(primaryMailTarget?.takeIf { ToolExecutionStatus.completed(resultJson) })
+        val incompleteMailTargets = attemptedMailTargets - completedMailTargets
         // A pre-search "I'll look it up" bubble is NOT the final reply.
         // Feed exact executor results back to the SAME character only after
         // web/search steps finish. This costs one additional reply-model call
@@ -2822,7 +2833,8 @@ object ProactivePerceptionRuntime {
                 conversationId = extraConversationId ?: result.conversationId,
                 evidenceId = result.evidenceId,
                 deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct(),
-                sideDeliveredMessages = stepReport.deliveredMessageRefs)
+                sideDeliveredMessages = stepReport.deliveredMessageRefs,
+                incompleteMailTargets = incompleteMailTargets)
         // start_call itself owns the persisted offer AND notification now.
         // Do not post a second invitation here for primary actions while
         // sideActions and scheduled calls take a different route.
@@ -2834,7 +2846,8 @@ object ProactivePerceptionRuntime {
             primarySuccess = result.success && decision.action != Action.SILENT,
             primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted,
             deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct(),
-            sideDeliveredMessages = stepReport.deliveredMessageRefs)
+            sideDeliveredMessages = stepReport.deliveredMessageRefs,
+            incompleteMailTargets = incompleteMailTargets)
     }
 
     /**

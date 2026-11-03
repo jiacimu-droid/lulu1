@@ -1329,6 +1329,10 @@ internal data class OrderedCharacterActionReport(
     val settledCount: Int = 0,
     val terminalFailureCount: Int = 0,
     val deliveredMessageRefs: List<DeliveredRoleMessageRef> = emptyList(),
+    /** Selected recipient IDs and those with an actual completed mail receipt.
+     * The inbox cursor must not consume an attempted but unsent reply. */
+    val attemptedMailTargets: Set<String> = emptySet(),
+    val completedMailTargets: Set<String> = emptySet(),
 )
 internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
@@ -1465,11 +1469,17 @@ internal object OrderedCharacterActions {
         var settledCount = 0
         var terminalFailureCount = 0
         var previousTerminalFailure = false
+        val attemptedMailTargets = mutableSetOf<String>()
+        val completedMailTargets = mutableSetOf<String>()
         for (index in 0 until steps.length()) {
             if (shouldDeferRemaining?.invoke() == true) {
                 for (pending in index until steps.length()) {
-                    val name = steps.optJSONObject(pending)?.let(
-                        AutonomousActionWireProtocol::normalizeStep)?.optString("tool").orEmpty()
+                    val pendingStep = steps.optJSONObject(pending)?.let(
+                        AutonomousActionWireProtocol::normalizeStep)
+                    val name = pendingStep?.optString("tool").orEmpty()
+                    if (name == "send_character_message") pendingStep?.optJSONObject("args")
+                        ?.optString("targetCharacterId")?.takeIf(String::isNotBlank)
+                        ?.let(attemptedMailTargets::add)
                     notes += "第${pending + 1}步${name.take(60)}暂缓：出现更新的用户消息，需由同一角色重新判断；此步没有执行回执"
                 }
                 break
@@ -1487,6 +1497,9 @@ internal object OrderedCharacterActions {
             // every nested step shares the primary action vocabulary adapter.
             val normalized = AutonomousActionWireProtocol.normalizeStep(step)
             val name = normalized.optString("tool").trim()
+            if (name == "send_character_message") normalized.optJSONObject("args")
+                ?.optString("targetCharacterId")?.takeIf(String::isNotBlank)
+                ?.let(attemptedMailTargets::add)
             if (CapabilityRegistry.find(name) == null) {
                 notes += if (name.isBlank())
                     "第${index + 1}步未执行：未填写可执行的工具或动作名称"
@@ -1560,6 +1573,9 @@ internal object OrderedCharacterActions {
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
             previousCompleted = ToolExecutionStatus.completed(result)
+            if (name == "send_character_message" && previousCompleted)
+                args.optString("targetCharacterId").takeIf(String::isNotBlank)
+                    ?.let(completedMailTargets::add)
             previousTerminalFailure = ToolExecutionStatus.terminalRejection(result,
                 SearchReceiptFeedback.recordedReceiptId(characterId, stepRequestId).isNotBlank())
             if (previousCompleted || previousTerminalFailure) settledCount++
@@ -1577,7 +1593,7 @@ internal object OrderedCharacterActions {
         }
         return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts,
             anyCompleted, completedCount, settledCount, terminalFailureCount,
-            deliveredMessageRefs)
+            deliveredMessageRefs, attemptedMailTargets, completedMailTargets)
     }
 }
 

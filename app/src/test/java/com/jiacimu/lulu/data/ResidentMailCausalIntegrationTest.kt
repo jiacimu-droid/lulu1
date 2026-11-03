@@ -53,6 +53,49 @@ class ResidentMailCausalIntegrationTest {
         assertFalse(ResidentSocialMailbox.latestByContact(viewer).values.any { it.id == old.id })
     }
 
+    @Test(timeout = 60_000) fun failedChosenReplyKeepsIncomingLetterAndLaterLettersForNextDecision() = kotlinx.coroutines.runBlocking {
+        val (sender, receiver) = pair()
+        val (laterSender, _) = pair()
+        val first = ResidentSocialMailbox.send(sender, receiver, "你答应的事后来怎么样了？")
+        val later = ResidentSocialMailbox.send(laterSender, receiver, "另一件事，也想听听你的意见。")
+        val frozen = ResidentSocialMailbox.pendingIncoming(receiver)
+        val failed = OrderedCharacterActions.execute(app, receiver,
+            org.json.JSONArray().put(JSONObject().put("tool", "send_character_message")
+                .put("args", JSONObject().put("targetCharacterId", sender).put("text", ""))),
+            requestId = "mail-failed-${UUID.randomUUID()}")
+        assertEquals(setOf(sender), failed.attemptedMailTargets)
+        assertTrue(failed.completedMailTargets.isEmpty())
+        assertTrue(ResidentSocialMailbox.consideredPrefix(frozen,
+            failed.attemptedMailTargets - failed.completedMailTargets).isEmpty())
+        assertEquals(listOf(first.id, later.id), ResidentSocialMailbox.pendingIncoming(receiver).map { it.id })
+
+        val delivered = OrderedCharacterActions.execute(app, receiver,
+            org.json.JSONArray().put(JSONObject().put("tool", "send_character_message")
+                .put("args", JSONObject().put("targetCharacterId", sender)
+                    .put("text", "我还在核实，先告诉你目前的进展。"))),
+            requestId = "mail-sent-${UUID.randomUUID()}")
+        assertEquals(setOf(sender), delivered.completedMailTargets)
+        assertEquals(frozen.map { it.id }, ResidentSocialMailbox.consideredPrefix(frozen,
+            delivered.attemptedMailTargets - delivered.completedMailTargets).map { it.id })
+        assertTrue(ResidentSocialMailbox.acknowledgeIncoming(receiver, frozen.last().id))
+        assertTrue(ResidentSocialMailbox.pendingIncoming(receiver).isEmpty())
+        assertTrue(ResidentSocialMailbox.inbox(sender).any {
+            it.fromId == receiver && it.content == "我还在核实，先告诉你目前的进展。" })
+    }
+
+    @Test fun mailCursorNeverCrossesAnEarlierFailedReplyEvenWhenLaterOneSucceeded() {
+        val (sender, receiver) = pair()
+        val (other, _) = pair()
+        val first = ResidentSocialMailbox.send(sender, receiver, "第一封")
+        val second = ResidentSocialMailbox.send(other, receiver, "第二封")
+        assertEquals(emptyList<String>(), ResidentSocialMailbox.consideredPrefix(
+            listOf(first, second), setOf(sender)).map { it.id })
+        assertEquals(listOf(first.id), ResidentSocialMailbox.consideredPrefix(
+            listOf(first, second), setOf(other)).map { it.id })
+        assertEquals(listOf(first.id, second.id), ResidentSocialMailbox.consideredPrefix(
+            listOf(first, second), emptySet()).map { it.id })
+    }
+
     @Test fun realLetterEntersPerceptionAndOwnRelationshipWithoutCreatingAUserInteraction() {
         val (sender, receiver) = pair()
         val now = Instant.now()
