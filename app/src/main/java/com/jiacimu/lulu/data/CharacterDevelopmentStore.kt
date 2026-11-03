@@ -244,6 +244,25 @@ object CharacterDevelopmentStore {
         save(records.map { if (it.characterId == characterId && it.id == id) it.copy(active = false) else it })
     }
 
+    /** A character can retire its *own* outdated subjective learned habit,
+     * not an owner-authored identity or factual user knowledge. Keep the original
+     * version and evidence in history so the decision is reversible/auditable.
+     * The tool layer records the chosen reason and separate execution receipt.
+     */
+    @Synchronized
+    fun retireSelfAssessment(characterId: String, id: String,
+        expectedVersion: Int): Boolean {
+        if (prefs == null || characterId.isBlank() || id.isBlank() || expectedVersion < 1) return false
+        val record = active(characterId).firstOrNull {
+            it.id == id && it.version == expectedVersion &&
+                it.kind !in setOf(DevelopmentKind.UserFact, DevelopmentKind.UserPreference,
+                    DevelopmentKind.UserHabit)
+        } ?: return false
+        save(records.map { if (it.id == record.id && it.characterId == characterId)
+            it.copy(active = false) else it })
+        return true
+    }
+
     /**
      * A learned tendency may be withdrawn when repeated later events contradict it.
      * This never edits the user's stable persona; it only retires the derived adaptive layer.
