@@ -437,12 +437,6 @@ fun LuluMigrationRootAppV2(
                         }
                     }
 
-                    // A real delivered message, not a second message store:
-                    // show it while Lulu is in another page and open the actual chat on tap.
-                    CharacterMessageHeadsUp { conversationId ->
-                        openConversation(conversationId)
-                    }
-
                     // Drawn above every route, including Theater, Games and Study.
                     LuluAppearanceTheme(appearanceLibrary.active("Phone")) {
                         InAppCallRuntimeOverlay()
@@ -455,6 +449,12 @@ fun LuluMigrationRootAppV2(
                             focusVisible = pomodoroFocusVisible,
                             onOpen = ::openActivePomodoro,
                         )
+                    }
+
+                    // Message previews must be the last overlay: phone and timer
+                    // surfaces can otherwise cover the banner on other Lulu pages.
+                    CharacterMessageHeadsUp { conversationId ->
+                        openConversation(conversationId)
                     }
                 }
             }
