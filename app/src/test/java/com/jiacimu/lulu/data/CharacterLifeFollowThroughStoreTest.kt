@@ -261,6 +261,37 @@ class CharacterLifeFollowThroughStoreTest {
         assertTrue(text.contains("输掉了一场真实对局"))
         CharacterLifeFollowThroughStore.invalidateEvidence(id)
     }
+    @Test fun reaffirmingHeldWishWithoutNewWhyDoesNotEraseEarlierRecipientConditions() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "held-rationale-reaffirmation"
+        val id = "held-rationale-reaffirmation-event"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        assertTrue(CharacterLifeFollowThroughStore.register(
+            role, id, "真实生活", "一件真实发生的小事", now))
+        val first = "想讲给已经认识的好友，但暂时不发朋友圈，也不告诉主人。"
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held").put("why", first))
+        // The next model turn merely renews the existing intention. Previously
+        // optString("why") returned "" and destroyed the recipient restriction.
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held"))
+        assertTrue(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .single().contains(first))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held").put("why", "   "))
+        assertTrue(CharacterLifeFollowThroughStore.briefContext(role, now).contains(first))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains(first))
+        // An explicit new rationale is still the role's own decision and must win.
+        val revised = "现在只想把这件事留在自己心里，等以后再考虑。"
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held").put("why", revised))
+        assertTrue(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .single().contains(revised))
+        assertFalse(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .single().contains(first))
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
     @Test fun heldSharingKeepsLateFactsAndPersonalConditionsAcrossDecisions() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "full-held-intent-evidence"
