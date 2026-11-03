@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:13:23.737124+00:00",
-  "commit": "48ab4a4d6091a379d1217c8387908d277bf1e3e3",
+  "generatedAt": "2026-11-03T06:13:55.364604+00:00",
+  "commit": "b878377b6097b1db916d872f7a5544b0d7f498ad",
   "branch": "main",
-  "sourceFingerprint": "0d2f2935af8884450ec0e378b0b01f8f5da542356f6e07daaf89ae791d7d3916",
+  "sourceFingerprint": "459210d362756710f306a2aabe5b488be5ff126addecfd378cde7d0d7313bd78",
   "summary": {
     "files": 1124,
-    "lines": 231629,
+    "lines": 231644,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -1925,7 +1925,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "angles": [
@@ -13835,13 +13835,13 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "action": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 68
+        "line": 69
       }
     ],
     "carve": [
@@ -32249,12 +32249,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 164,
-      "sha256": "2d4f865412f88e3f79a7d1159daaca759fb5cfd15313fd7cc7e9a8a12a87f5c5",
+      "lines": 176,
+      "sha256": "fa8ce01157b7c47e9009375fd14954e538fdecd744d7e7ddaf38b9e119f93b16",
       "symbols": [
         {
           "name": "send",
-          "line": 43
+          "line": 44
         }
       ]
     },
@@ -32432,16 +32432,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 668,
-      "sha256": "37a982ac399411cc5c9125dcbeff5867db7e484d220323aa6caf69914dc28c4d",
+      "lines": 671,
+      "sha256": "faf9cbd22a468192d27418845ba0e9d089090efee8fefb70dc6b3e714701f7d2",
       "symbols": [
         {
           "name": "change",
-          "line": 63
+          "line": 64
         },
         {
           "name": "action",
-          "line": 68
+          "line": 69
         }
       ]
     },
