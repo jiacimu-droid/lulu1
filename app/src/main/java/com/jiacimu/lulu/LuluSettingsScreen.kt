@@ -13,6 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.jiacimu.lulu.data.ResidentDailyPolicy
+import kotlin.math.roundToInt
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -254,6 +257,13 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("数字世界 · 居民统一管理", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text("所有 NPC 共享以下每日活动预算，个人角色不受影响。", color = SettingsMuted, fontSize = 12.sp)
+                }
+            }
+            item { SettingsCardBox { ResidentActivityBudgetSettings() } }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     Text("所有模型存档与功能分工都在这里统一管理；角色私聊仍可单独选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
@@ -332,5 +342,37 @@ private fun ModelArchiveRow(archive: ModelArchive, label: String, selected: Bool
 private fun SettingsCardBox(content: @Composable ColumnScope.() -> Unit) {
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = SettingsCard), border = BorderStroke(1.dp, SettingsBorder), shape = RoundedCornerShape(22.dp)) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+    }
+}
+
+/** One global NPC budget, not a per-character personality or a new daily model. */
+@Composable
+private fun ResidentActivityBudgetSettings() {
+    val context = LocalContext.current
+    var limit by remember(context) {
+        mutableIntStateOf(ResidentDailyPolicy.maxAgendaItems(context))
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("每日自主行程", fontWeight = FontWeight.SemiBold, color = SettingsInk)
+        Text("每位居民每天最多安排 ${limit} 项", fontSize = 15.sp, color = SettingsInk)
+        Slider(
+            value = limit.toFloat(),
+            onValueChange = { value ->
+                val next = value.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_AGENDA_ITEMS)
+                if (next != limit && ResidentDailyPolicy.setMaxAgendaItems(context, next))
+                    limit = next
+            },
+            valueRange = 0f..ResidentDailyPolicy.MAX_AGENDA_ITEMS.toFloat(),
+            steps = ResidentDailyPolicy.MAX_AGENDA_ITEMS - 1,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("0 · 不排未来行程", fontSize = 11.sp, color = SettingsMuted)
+            Text("8 · 上限", fontSize = 11.sp, color = SettingsMuted)
+        }
+        Text(
+            "修改后用于新的每日规划。今天已保存的行程不会被悄悄删除；已排的活动和即时私信、好友回信、普通职责各自保留原有回执。每日规划模型仍会进行当天的正常选择。",
+            fontSize = 12.sp, color = SettingsMuted, lineHeight = 19.sp,
+        )
     }
 }
