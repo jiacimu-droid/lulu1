@@ -18,6 +18,8 @@ internal data class MemoryWorkingSelection(
     val usedCharacters: Int,
     val budget: Int,
     val protectedCharacters: Int,
+    /** Ephemeral exact rendered snippets; never persisted in diagnostic records. */
+    val selectedFragments: Map<String, Pair<String, String>> = emptyMap(),
 )
 
 /** One budget for the memory family. Core and executable responsibilities are never silently cut. */
@@ -50,6 +52,7 @@ internal object MemoryWorkingSetPolicy {
         val sections = linkedMapOf<String, MutableList<String>>()
         val omitted = linkedMapOf<String, String>()
         val selected = mutableListOf<String>()
+        val selectedFragments = linkedMapOf<String, Pair<String, String>>()
         // Identical words from two different event IDs are two independent facts.
         // Only collapse a payload when its provenance set is also identical.
         val payloadSources = mutableMapOf<String, MutableSet<Set<String>>>()
@@ -78,10 +81,25 @@ internal object MemoryWorkingSetPolicy {
                 payloadSources.getOrPut(key) { mutableSetOf() }.add(candidate.sources.toSet())
                 if (candidate.originalEvidence) originals.addAll(candidate.sources)
                 selected.add(candidate.id)
+                selectedFragments[candidate.id] = candidate.section to candidate.text
             }
         }
         return MemoryWorkingSelection(sections.mapValues { (title, lines) -> title + "\n" + lines.joinToString("\n") },
-            selected, omitted, used, budget, protectedCharacters)
+            selected, omitted, used, budget, protectedCharacters, selectedFragments)
+    }
+
+    /** Actual sections sent to the provider can differ from the working-set draft
+     * after relay memory-pressure reduction. Match intact candidate snippets in
+     * the exact outgoing sections: never infer delivery from ranking or budget.
+     * This returns opaque IDs only; source text stays transient in memory.
+     */
+    fun actuallyInjectedIds(selection: MemoryWorkingSelection,
+                            outgoingSections: List<Pair<String, String>>): List<String> {
+        val renderedBySection = outgoingSections.groupBy({ it.first }, { it.second })
+        return selection.selected.filter { id ->
+            val fragment = selection.selectedFragments[id] ?: return@filter false
+            renderedBySection[fragment.first]?.any { it.contains(fragment.second) } == true
+        }
     }
 }
 
