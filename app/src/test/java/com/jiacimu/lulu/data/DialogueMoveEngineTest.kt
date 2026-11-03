@@ -60,6 +60,28 @@ class DialogueMoveEngineTest {
         assertEquals(3, answer.maxBubbles)
     }
 
+    @Test fun omittedOrUnrecognizedDialogueMoveIsNotFabricatedAsAnswer() {
+        val absent = DialogueMoveEngine.resolve(null, "被逗得忍不住想笑", "你故意的？")
+        assertEquals(DialogueMoveType.UNSPECIFIED, absent.type)
+        assertEquals("被逗得忍不住想笑", absent.contentIntent)
+        val absentPrompt = DialogueMoveEngine.expressionConstraint(absent)
+        assertTrue(absentPrompt.contains("本轮未提供明确的会话动作"))
+        assertTrue(absentPrompt.contains("被逗得忍不住想笑"))
+        assertFalse(absentPrompt.contains("已选择的会话动作】answer"))
+
+        val malformed = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "unsupported_model_value"),
+            "我刚想笑", "真的吗")
+        assertEquals(DialogueMoveType.UNSPECIFIED, malformed.type)
+        // Legacy explicit user-authored interactionMove remains supported.
+        val legacy = DialogueMoveEngine.resolve(
+            JSONObject().put("interactionMove", "tease"), "想开个玩笑", "你说呢")
+        assertEquals(DialogueMoveType.TEASE, legacy.type)
+        val direct = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "answer"), "需要认真作答", "请解释完整")
+        assertEquals(DialogueMoveType.ANSWER, direct.type)
+    }
+
     @Test fun modelChosenBubbleCountIsNotCutByAProgramTypeTable() {
         val result = DialogueMoveEngine.resolve(
             JSONObject().put("type", "other_initiated_repair")
@@ -71,7 +93,10 @@ class DialogueMoveEngineTest {
         DialogueMoveType.values().forEach { type ->
             val plan = DialogueMovePlan(type, contentIntent = "这次自己的意思", maxBubbles = 4)
             val prompt = DialogueMoveEngine.expressionConstraint(plan)
-            assertTrue(prompt.contains(type.wire))
+            if (type == DialogueMoveType.UNSPECIFIED) {
+                assertTrue(prompt.contains("本轮未提供明确的会话动作"))
+                assertFalse(prompt.contains("已选择的会话动作】answer"))
+            } else assertTrue(prompt.contains(type.wire))
             assertTrue(prompt.contains("这次自己的意思"))
             assertTrue(prompt.contains("具体态度承接当前设定与感受"))
             assertFalse(prompt.contains("严禁"))
