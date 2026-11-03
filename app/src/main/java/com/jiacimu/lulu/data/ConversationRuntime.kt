@@ -4,6 +4,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 internal enum class DialogueMoveType(val wire: String) {
+    /** The model did not author a move; never pretend it chose ANSWER. */
+    UNSPECIFIED("unspecified"),
     ACKNOWLEDGE("acknowledge"),
     ANSWER("answer"),
     ASK("ask"),
@@ -49,9 +51,8 @@ internal data class DialogueMovePlan(
 /**
  * Conversation Analysis runtime.
  *
- * The model may propose a move, but a direct user correction is classified by program logic before
- * surface wording. This prevents a repair turn from expanding into apology + guessing + flirting +
- * another question merely because the language model tries to be maximally helpful.
+ * The model owns the conversational move. Runtime may parse a legacy enum but
+ * must not fabricate an ANSWER when the model left the field absent or unknown.
  */
 internal object DialogueMoveEngine {
     /**
@@ -90,7 +91,7 @@ internal object DialogueMoveEngine {
             "decline" -> DialogueMoveType.DECLINE
             "shift" -> DialogueMoveType.TOPIC_SHIFT
             "silent" -> DialogueMoveType.SILENCE
-            else -> DialogueMoveType.ANSWER
+            else -> DialogueMoveType.UNSPECIFIED
         }
         // Bubble guidance is itself a model decision. No type-specific
         // program ceiling silently shortens a serious explanation.
@@ -113,7 +114,9 @@ internal object DialogueMoveEngine {
     }
 
     fun expressionConstraint(plan: DialogueMovePlan): String = buildString {
-        appendLine("【角色模型已选择的会话动作】${plan.type.wire}")
+        if (plan.type == DialogueMoveType.UNSPECIFIED) {
+            appendLine("【本轮未提供明确的会话动作】保持原定 speechIntent 与人物表达，不能擅自推断角色选择了回答、劝告、修复或任何其他互动动作。")
+        } else appendLine("【角色模型已选择的会话动作】${plan.type.wire}")
         if (plan.target.isNotBlank()) appendLine("这次想回应的具体内容：${plan.target}")
         if (plan.contentIntent.isNotBlank()) appendLine("本人选择想传达的意思：${plan.contentIntent}")
         if (plan.repairFormat == RepairFormat.CANDIDATE && plan.candidate.isNotBlank()) {
