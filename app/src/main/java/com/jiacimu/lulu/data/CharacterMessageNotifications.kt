@@ -69,7 +69,8 @@ internal object CharacterMessageNotifications {
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         val manager = context.getSystemService(NotificationManager::class.java)
         val channel = channelId(context)
-        if (manager.getNotificationChannel(channel)?.importance == NotificationManager.IMPORTANCE_NONE) return
+        val importance = manager.getNotificationChannel(channel)?.importance ?: NotificationManager.IMPORTANCE_NONE
+        if (importance == NotificationManager.IMPORTANCE_NONE) return
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.getString("last_message_${conversation.id}", null) == message.id) return
         val sameBatch = !message.replyBatchId.isNullOrBlank() &&
@@ -81,7 +82,8 @@ internal object CharacterMessageNotifications {
         // When another Lulu page is open, show a compact in-app preview too:
         // OEMs can suppress system heads-up banners even for HIGH channels.
         // Keep the normal system notification for the shade, tone and lockscreen.
-        if (UserInteractionPresenceStore.state.value.appVisible == true) {
+        if (UserInteractionPresenceStore.state.value.appVisible == true &&
+            importance >= NotificationManager.IMPORTANCE_DEFAULT) {
             mutableInAppBanner.value = CharacterMessageBanner(
                 message.id, conversation.id, title, text.take(180))
         }
