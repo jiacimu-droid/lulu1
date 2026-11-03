@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:43:31.215460+00:00",
-  "commit": "9c18fab5659aa05441f0ee28ebbe8eea4b8036f0",
+  "generatedAt": "2026-11-03T04:50:49.036092+00:00",
+  "commit": "8e3bd55c0d1dc05535b759ee118859bfeff04400",
   "branch": "main",
-  "sourceFingerprint": "2425f6f8ae858c92423733988522ebeec2dcad9635585f75678093491c489ec3",
+  "sourceFingerprint": "4116a58807fef8907e9926fd73054ec2f34493f8f37cdd9e4ad681372764d2ca",
   "summary": {
     "files": 1125,
-    "lines": 231098,
-    "symbols": 3248
+    "lines": 231137,
+    "symbols": 3249
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -217,7 +217,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-        "line": 127
+        "line": 166
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -6904,6 +6904,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
         "line": 46
+      }
+    ],
+    "sendHeadsUpTest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
+        "line": 134
       }
     ],
     "reflection": [
@@ -20561,7 +20567,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 575,
-      "sha256": "bb828d96f22b91c6282cf6ba77b2538bbd935960937bc13d86daecb07f5d91e1",
+      "sha256": "9df5d45f6d4cbb13b00809abe9131928bc9bdfd51f9cc476fbf9be268b12a991",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -24304,8 +24310,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt",
-      "lines": 135,
-      "sha256": "f8df3bd42c7ee7e7fe1a97ecb49c7fb3ae20969bef55c1d16cba9fd2c735fc50",
+      "lines": 174,
+      "sha256": "3f626c898b48deea6ca3bf3cb4ad8021a720e3660f79e4ff817677d048283bad",
       "symbols": [
         {
           "name": "dismissInApp",
@@ -24320,8 +24326,12 @@
           "line": 46
         },
         {
+          "name": "sendHeadsUpTest",
+          "line": 134
+        },
+        {
           "name": "cancel",
-          "line": 127
+          "line": 166
         }
       ]
     },
