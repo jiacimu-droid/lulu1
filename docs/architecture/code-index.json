@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:49:01.582026+00:00",
-  "commit": "fa1d513a2bc53f0cc3d36329e8c3ec9c80860078",
+  "generatedAt": "2026-11-03T08:50:13.220833+00:00",
+  "commit": "01e48532f70edeb49a815cc6c2279eed0b005d78",
   "branch": "main",
-  "sourceFingerprint": "dd60d0369e6942e4df3ac75ccfb42df1dc373b6a3ba28274946c0f59d47db1b5",
+  "sourceFingerprint": "be2ee0ca277b5e8e2dc42d39db1ef67fb41c10345359136fb69022666830c342",
   "summary": {
     "files": 1125,
     "lines": 232408,
@@ -23566,7 +23566,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 198,
-      "sha256": "3b3a9d059b565adba6fc43a77127d146432ef880bcab43e68ed5a5a9d0ddd934",
+      "sha256": "34e2c411dc767fe534caee6342d543fb928502713fa30207be07d76c3de18490",
       "symbols": [
         {
           "name": "expressionContext",
