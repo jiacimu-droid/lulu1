@@ -47,6 +47,30 @@ class RelationshipRhythmPerceptionTest {
         assertTrue(report.contains("02:00") || report.contains("01:00"))
     }
 
+    @Test fun orphanGroupUserWitnessesDoNotInflateContactOrRelationshipRhythm() {
+        val orphan = (8L..19L).flatMap { d ->
+            (0..3).map { index ->
+                SharedTimelineEvent(
+                    "orphan-$d-$index:group:$role", role, "群聊·测试群",
+                    "用户", "一条已经失去原始消息的见证记录", day(d),
+                    sessionId = "missing-group-conversation",
+                    source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+            }
+        }
+        // Group timeline rows may outlive deleted/failed canonical messages.
+        // A witness label alone must not reset the last user contact or
+        // fabricate a 48-message relationship-frequency change.
+        assertTrue(CompanionContactClock.verifiedUserContacts(orphan).isEmpty())
+        assertEquals("", RelationshipRhythmPerception.context(
+            orphan + listOf(user("real-direct", 1)), now, ZoneId.of("UTC")))
+        val mixed = orphan + listOf(user("real-direct", 1))
+        assertEquals(listOf("real-direct"),
+            CompanionContactClock.verifiedUserContacts(mixed).map { it.id })
+        assertTrue(CompanionContactClock.describe(
+            CompanionContactClock.verifiedUserContacts(mixed).map { it.occurredAt }, now)
+            .contains("最近一次用户联系"))
+    }
+
     @Test fun oldNoiseAndCharacterActionsCannotBecomeUserContact() {
         val unrelated = (8L..19L).map { d ->
             SharedTimelineEvent("act-$d", role, "数字世界", "角色", "整理书架",
