@@ -30,10 +30,16 @@ import java.time.format.DateTimeFormatter
 
 /** Old tagged passages remain readable, but the literary page does not display parser labels. */
 internal enum class WorldLifeParagraphKind { NARRATION, THOUGHT, SPEECH }
-internal data class WorldLifeParagraph(val kind: WorldLifeParagraphKind, val text: String)
+internal data class WorldLifeParagraph(val kind: WorldLifeParagraphKind, val text: String,
+    val speaker: String = "")
 
 internal object WorldLifeEpisodeParagraphs {
     private val label = Regex("""^(?:【(叙述|环境|动作|心声|心理|内心|对白|台词|说话)】|\[(叙述|环境|动作|心声|心理|内心|对白|台词|说话)\])\s*""")
+
+    // Untagged stories often use “Name: ‘quoted line’” rather than 【对白】.
+    // Parsing these presentational cues never creates new dialogue or events.
+    private val namedQuote = Regex("""^([\p{L}\p{N}·]{1,18})[：:]\s*(“[^”]+”|「[^」]+」|"[^"]+")\s*$""")
+    private val namedSpeech = Regex("""^([\p{L}\p{N}·]{1,18})[：:]\s*(.+)$""")
 
     internal fun parse(raw: String): List<WorldLifeParagraph> {
         val text = raw.replace("\r\n", "\n").trim()
@@ -55,18 +61,23 @@ internal object WorldLifeEpisodeParagraphs {
                 val marker = label.find(chunk)?.groupValues?.drop(1)?.firstOrNull(String::isNotBlank)
                 val clean = chunk.replaceFirst(label, "").trim()
                 if (clean.isEmpty()) emptyList() else {
+                    val named = if (marker in setOf("对白", "台词", "说话"))
+                        namedSpeech.matchEntire(clean) else namedQuote.matchEntire(clean)
+                    val speaker = named?.groupValues?.get(1).orEmpty()
+                    val speechText = named?.groupValues?.get(2)?.trim() ?: clean
                     val kind = when (marker) {
                         "心声", "心理", "内心" -> WorldLifeParagraphKind.THOUGHT
                         "对白", "台词", "说话" -> WorldLifeParagraphKind.SPEECH
-                        else -> if (clean.startsWith('“') && clean.endsWith('”'))
+                        else -> if (named != null || (clean.startsWith('“') && clean.endsWith('”')))
                             WorldLifeParagraphKind.SPEECH else WorldLifeParagraphKind.NARRATION
                     }
                     // Every mode can arrive as an overlong unbroken block. Break only
                     // after complete Chinese/English sentences, preserving every word.
-                    val passages = if (clean.length > 155) {
+                    val passageText = if (kind == WorldLifeParagraphKind.SPEECH) speechText else clean
+                    val passages = if (passageText.length > 155) {
                         val output = mutableListOf<String>()
                         var part = ""
-                        Regex("(?<=[。！？!?])").split(clean).forEach { sentence ->
+                        Regex("(?<=[。！？!?])").split(passageText).forEach { sentence ->
                             if (part.length >= 92 && sentence.isNotBlank()) {
                                 output.add(part.trim())
                                 part = ""
@@ -75,8 +86,9 @@ internal object WorldLifeEpisodeParagraphs {
                         }
                         if (part.isNotBlank()) output.add(part.trim())
                         output
-                    } else listOf(clean)
-                    passages.filter(String::isNotBlank).map { WorldLifeParagraph(kind, it) }
+                    } else listOf(passageText)
+                    passages.filter(String::isNotBlank).map { WorldLifeParagraph(kind, it,
+                        if (kind == WorldLifeParagraphKind.SPEECH) speaker else "") }
                 }
             }
         }
@@ -109,9 +121,23 @@ internal fun WorldLifeEpisodeReader(scene: String) {
                             modifier = Modifier.weight(1f))
                     }
                 WorldLifeParagraphKind.SPEECH ->
-                    Text(displayed, color = Color(0xFF56483F), fontSize = 16.sp,
-                        lineHeight = 30.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth().padding(start = 3.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        shape = RoundedCornerShape(13.dp),
+                        color = Color(0xFFF0F1F3),
+                    ) {
+                        Column(Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (paragraph.speaker.isNotBlank()) {
+                                Text(paragraph.speaker, fontSize = 12.sp,
+                                    color = Color(0xFF666A70),
+                                    fontWeight = FontWeight.Bold)
+                            }
+                            Text(paragraph.text, color = Color(0xFF30343A),
+                                fontSize = 16.sp, lineHeight = 29.sp,
+                                fontWeight = FontWeight.Medium)
+                        }
+                    }
             }
         }
     }
