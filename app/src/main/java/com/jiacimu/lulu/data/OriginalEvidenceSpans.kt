@@ -37,7 +37,7 @@ internal object OriginalEvidenceSpans {
         val anchors = listOf(scored.first(), scored[scored.size / 2], scored.last())
         val matches = scored.filter { it.relevance > 0 }
             .sortedWith(compareByDescending<OriginalEvidenceSpan> { it.relevance }.thenBy { it.start })
-        return (matches.take((maxSpans - anchors.size).coerceAtLeast(0)) + anchors + matches + scored)
+        return (matches.take((maxSpans - anchors.size).coerceAtLeast(0)) + anchors + matches)
             .distinctBy { it.start }.take(maxSpans)
     }
 }

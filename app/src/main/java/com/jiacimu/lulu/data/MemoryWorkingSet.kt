@@ -29,7 +29,7 @@ internal object MemoryWorkingSet {
             val episodeHints = NarrativeEvidenceChain.annotations(
                 context.ownedRecentEvents + context.ownedSourceEvents)
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
-                val content = event.evidenceContent.trim()
+                val content = event.evidenceContent
                 val section = if (recent) RECENT else EVIDENCE
                 val basePriority = if (recent) 950 else 800
                 val identity = (if (recent) "recent:" else "event:") + event.id

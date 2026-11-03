@@ -22,8 +22,10 @@ internal object MemoryEvidenceSelection {
             val note = episodeHints[event.id].orEmpty()
             val plainPrefix = if (remaining - basePrefix.length - note.length - 1 >= 48)
                 basePrefix.dropLast(1) + note + "：" else basePrefix
-            val content = event.evidenceContent.trim().replace("\n", " ")
-            val span = OriginalEvidenceSpans.ranked(content, focus, maxSpans = 4).firstOrNull()
+            val content = event.evidenceContent
+            val span = (if (content.length <= 1_200)
+                listOf(OriginalEvidenceSpan(0, content.length, content, 0))
+            else OriginalEvidenceSpans.ranked(content, focus, maxSpans = 4)).firstOrNull()
                 ?: return@forEach
             val partial = span.start > 0 || span.endExclusive < content.length
             val line = if (!partial) {
