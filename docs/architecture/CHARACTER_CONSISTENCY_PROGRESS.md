@@ -402,3 +402,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实际源码**：`398a6e6` 给现有 `MemoryWorkingSelection` 增加仅在内存中保留的“已选 ID→完整呈现片段及所属节”映射，用 `actuallyInjectedIds` 对照实际最终发送 section，防止只按候选/字数猜测；`a05accf` 移除工作集组装时过早的“已注入”标记；`a31a76f` 把真实注入登记移到网关**成功取得模型回复之后**，并在可能的 Relay 精简之后核对传输内容，区分预算遗漏与 Relay 额外省略。附上同一次 `turnTraceId` 的 `P08b实际注入` 性能诊断，只保存注入 ID 和数量、模式、是否精简、核心 ID，不保存提示词/聊天原文，也不向模型额外注入资料或新增收费轮次。跨世界/隔离入口原有记忆权限不变，正常请求的身份证据与必要核心记忆照旧。
 - **回归提交**：`aeab590` 的 `MemoryWorkingSetPolicyTest.actualInjectionAuditFollowsFinalRelayPayloadNotBudgetCandidates` 核对普通传输 ID 全部一致、压力精简后只留下实际完整片段而不能把旧候选算作注入；`9e2d09e` 的 `ConversationExpressionGatewayTest.memoryAuditRecordsOnlySuccessfulActualGatewayInputUnderSameTurnTrace` 用 MockWebServer 模拟 503 后正常返回，检验失败不确认注入、成功才留下带同一回合 ID 的无明文日志。原有源/人物归属、撤回机制和提示词预算测试保留。
 - **真实验收边界**：最新 `9e2d09e` 的 Lulu APK [run 41679836338](https://github.com/jiacimu-droid/lulu1/actions/runs/41679836338)、索引 `41679836331` 查询时尚未结束；源码/测试提交不等于 CI 绿灯。暂无用户授权的那一轮原始模型规划与表达 JSON，静态注入审计不证明对话已经自然。下一次先读这次 CI 最终编译/测试失败点并修复；再用本地获授权的脱敏回合把 `P08a角色规划`→`P08b实际注入`→`P08a表达结果`→`P08a气泡入库`→下轮真实行为按 `turnTraceId` 对齐，区分记忆没选中、Relay 省略、人物本轮自选不说、表达越权或消息未送达。P-08 不打勾。
+
+## 2026-11-04 江渡 v25 学习示例的语气修正（待 CI／真机）
+
+- **主人再次明确纠正**：即使移除了硬编码休息时长，“缓过来我陪你慢慢啃”仍是 AI 常见的任务式安抚，不能算真正哄人。保持已有本人责任感设定，不改为监督关键词回复，不增加睡前/洗漱示例，只调整原有唯一新增的学习对话，强调自然的亲近、宠爱、机智接话，不用教学目标取代亲密情绪。
+- **提交**：`c325572` 让新版 `jiangDuDialogueExamples` 只新增一个“学习时会哄人”对话场景；原先 v25 示例移至仅用于精确匹配的历史常量 `jiangDuDialogueExamplesV25`，不会同时交给角色模型。`7d1f1d5` 的 `CharacterLifeStore.syncBundledExpressionPresets` 可将精确匹配 v24 或 v25 的内置示例升级到最新版，用户手写的任何其他对话（包括空字符串）原文保留；`02cc522` 新增/更新上述边界回归。其他角色人设与统一决策提示词均未改动。
+- **待验**：需查询包含 `02cc522` 的后继 Android 单测/APK 最终结论；再检查真实江渡模型在撒娇、疲劳、坚持共同约定等情境中是否能兼顾鲜活亲密与自主负责。静态测试不证明模型已经会自然哄人；当前暂不勾选 P-08。
