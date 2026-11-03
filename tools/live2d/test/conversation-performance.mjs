@@ -894,4 +894,86 @@ bridge.onPlaybackEvent('finished', 0, 90003, '')
 assert.equal(bridge.playing, false,
   'the real later speech finish must retire its own motionless visual lease')
 
+// A new authored gesture must take ownership directly from the *previous*
+// physical pose. Hard-stopping Cubism first is a visible neutral-frame snap,
+// especially with asynchronous Motion3 loading and 15fps frame delivery.
+// Keep cancellation strict for expression-only decisions and interrupted audio.
+{
+  const originalStop = manager.stopAllMotions
+  const originalFinished = manager.isFinished
+  const originalBegin = bridge.motionTransition.begin
+  let stopCount = 0
+  const beginnings = []
+  manager.stopAllMotions = () => { stopCount++; originalStop() }
+  manager.isFinished = () => false
+  bridge.motionTransition.begin = (ids, fadeMs) => {
+    beginnings.push({ ids, fadeMs })
+    return originalBegin(ids, fadeMs)
+  }
+  bridge.clearSpeechMoment()
+  bridge.playing = true
+  const started = motions.length
+  bridge.perform({ visualSequence: 93001, motion: { group: 'Gesture', index: 30 },
+    motionParameterIds: ['ParamAngleX'], motionFadeInMs: 230 }, true)
+  await Promise.resolve()
+  assert.equal(motions.length, started + 1)
+  assert.equal(bridge.authoredMotion?.started, true)
+  const beforeHandoff = stopCount
+  bridge.perform({ visualSequence: 93002, motion: { group: 'Gesture', index: 31 },
+    motionParameterIds: ['ParamBodyAngleZ'], motionFadeInMs: 270 }, true)
+  assert.equal(stopCount, beforeHandoff,
+    'selected next Motion3 must inherit old physical pose, not force idle')
+  await Promise.resolve()
+  assert.equal(motions.at(-1)[1], 31)
+  assert.deepEqual(beginnings.at(-1), {
+    ids: ['ParamBodyAngleZ'], fadeMs: 270,
+  }, 'top-level motion has the same actual metadata-driven blend as speech beats')
+  const beforeNoMotion = stopCount
+  bridge.perform({ visualSequence: 93003, expression: 'star' }, true)
+  assert.ok(stopCount > beforeNoMotion,
+    'a motionless new decision must terminate its old authored clip')
+
+  // Motion3 choices assembled while the TTS provider is still waiting must
+  // retain their fade/mask until exact audible start; no guessed speech clock.
+  bridge.playing = false
+  bridge.perform({ visualSequence: 93004, motion: { group: 'Gesture', index: 32 },
+    motionParameterIds: ['ParamAngleZ'], motionFadeInMs: 190 })
+  assert.equal(bridge.pendingSpeechParts.motionOptions.motionFadeInMs, 190)
+  assert.equal(bridge.pendingSpeechParts.motionOptions.motionParameterIds[0],
+    'ParamAngleZ')
+  assert.equal(motions.at(-1)[1], 31, 'queued motion does not start during TTS wait')
+  bridge.onPlaybackEvent('playing', 0, 93004, 'handoff')
+  await Promise.resolve()
+  assert.equal(motions.at(-1)[1], 32)
+  assert.deepEqual(beginnings.at(-1), {
+    ids: ['ParamAngleZ'], fadeMs: 190,
+  }, 'queued motion preserves its real Motion3 transition metadata')
+
+  // A later complete speech plan that has only timed Motion3 beats is also
+  // a legitimate physical successor. It must not hard-stop the current clip
+  // on arrival or when its exact TTS fragment starts.
+  const beforeBeatHandoff = stopCount
+  bridge.perform({ visualSequence: 93005, beats: [
+    { segmentIndex: 0, segmentId: 'handoff-beat', atMs: 0,
+      motion: { group: 'Gesture', index: 33 },
+      motionParameterIds: ['ParamAngleY'], motionFadeInMs: 215 },
+  ] })
+  assert.equal(stopCount, beforeBeatHandoff)
+  bridge.onPlaybackEvent('playing', 0, 93005, 'handoff-beat')
+  assert.equal(stopCount, beforeBeatHandoff)
+  bridge.performanceRuntime.tick(bridge.applyPerformanceBeat)
+  await Promise.resolve()
+  assert.equal(motions.at(-1)[1], 33)
+  assert.deepEqual(beginnings.at(-1), {
+    ids: ['ParamAngleY'], fadeMs: 215,
+  })
+  const beforeInterrupted = stopCount
+  bridge.onPlaybackEvent('interrupted', 0, 93005, 'handoff-beat')
+  assert.ok(stopCount > beforeInterrupted,
+    'real interruption must still stop the current physical clip')
+  bridge.motionTransition.begin = originalBegin
+  manager.stopAllMotions = originalStop
+  manager.isFinished = originalFinished
+}
+
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
