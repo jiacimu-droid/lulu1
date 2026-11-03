@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T13:26:04.455344+00:00",
-  "commit": "6013cbbbc428446647a17581e1d794d42b52a7e0",
+  "generatedAt": "2026-11-03T13:26:53.773497+00:00",
+  "commit": "80aa8ac323037d03f93d3d474c34ac091b4efb58",
   "branch": "main",
-  "sourceFingerprint": "fd44aaa0739863a3041018498798d75e69140dc6ae00d5b411dd2bb2284c9653",
+  "sourceFingerprint": "758811110ef28c2a7fc0dbe1dc343bb559d574cba40ebb94bf474077d749213d",
   "summary": {
     "files": 1125,
     "lines": 233073,
@@ -23852,7 +23852,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 96,
-      "sha256": "c19095e46d91a79cace2503fc5bd02da9596c33dab8ee58d1f1c84ed5cd8e663",
+      "sha256": "9b2f032327c3996abc316b01d5e286e533c6698cc6d08f756269f995bee408c9",
       "symbols": [
         {
           "name": "isExpressionOnly",
