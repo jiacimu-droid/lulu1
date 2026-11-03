@@ -971,6 +971,22 @@ assert.equal(bridge.playing, false,
   bridge.onPlaybackEvent('interrupted', 0, 93005, 'handoff-beat')
   assert.ok(stopCount > beforeInterrupted,
     'real interruption must still stop the current physical clip')
+  // A failed replacement must also release its previous carried clip.
+  // The failure is reported as such; no orphaned, unowned old gesture remains.
+  bridge.perform({ visualSequence: 93006,
+    motion: { group: 'Gesture', index: 34 } }, true)
+  await Promise.resolve()
+  assert.equal(bridge.authoredMotion?.started, true)
+  const originalModelMotion = bridge.model.motion
+  bridge.model.motion = () => false
+  const beforeRejected = stopCount
+  bridge.perform({ visualSequence: 93007,
+    motion: { group: 'Gesture', index: 35 } }, true)
+  await Promise.resolve()
+  assert.ok(stopCount > beforeRejected,
+    'a rejected new clip cannot leave the old carried clip running')
+  assert.equal(bridge.authoredMotion, null)
+  bridge.model.motion = originalModelMotion
   bridge.motionTransition.begin = originalBegin
   manager.stopAllMotions = originalStop
   manager.isFinished = originalFinished
