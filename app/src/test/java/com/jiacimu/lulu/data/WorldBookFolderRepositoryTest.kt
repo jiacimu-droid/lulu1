@@ -33,7 +33,8 @@ class WorldBookFolderRepositoryTest {
         assertEquals("现代聊天与自然表达", seeded.title)
         assertTrue(seeded.globalEnabled)
         assertEquals(WorldBookPromptPosition.BOTTOM, seeded.promptPosition)
-        assertTrue(seeded.content.contains("感叹号适合真有惊讶"))
+        assertTrue(seeded.content.contains("文化背景，不是人物性格"))
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
         original.setGlobalEnabled(seeded.id, false)
         assertFalse(InMemoryWorldBookRepository().also { it.initialize(context) }
             .snapshot().single().globalEnabled)
@@ -232,16 +233,18 @@ class WorldBookFolderRepositoryTest {
             .put("characterOverrides", JSONObject().put("role-a", true))
         storage.edit().putString("entries_v1", JSONArray().put(original).toString())
             .putBoolean("human_chat_world_book_seeded_v1", true)
-            .remove("human_chat_world_book_revised_v2").commit()
+            .remove("human_chat_world_book_revised_v2")
+            .remove("human_chat_world_book_revised_v3").commit()
 
         val upgraded = InMemoryWorldBookRepository().also { it.initialize(context) }
         val book = upgraded.snapshot().single()
         assertNotEquals(previousText, book.content)
-        assertTrue(book.content.contains("连续几个气泡不意味着每个都要显得兴奋"))
+        assertTrue(book.content.contains("一次参与可能只需要一个词"))
         assertFalse(book.globalEnabled)
         assertEquals(true, book.characterOverrides["role-a"])
         assertEquals(WorldBookPromptPosition.TOP, book.promptPosition)
         assertTrue(storage.getBoolean("human_chat_world_book_revised_v2", false))
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
         assertEquals(book, InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single())
 
         // Owner edits are never silently upgraded, even on a later boot.
@@ -268,6 +271,41 @@ class WorldBookFolderRepositoryTest {
         assertEquals("主人重命名的聊天书", custom.title)
         assertEquals("主人自己写的内容", custom.content)
         assertFalse(custom.globalEnabled)
+    }
+
+    @Test fun shippedModernChatV2UpgradesToCultureReferenceWithoutOverridingAnOwnersScope() {
+        val storage = context.getSharedPreferences("lulu_world_book", Context.MODE_PRIVATE)
+        val previousText = """
+            【现代聊天与自然表达｜供选择的语用参考】
+            熟悉的人聊天通常是在延续眼前的一次互动，而不是完整陈述所有联想。先抓住真正想回应的那一点；一句话说到了就可以停，话题有意思时再自然展开。被认真问到细节、解释或求助时，仍把必要内容说清楚。
+
+            【情绪与语气来自这一次谈话】
+            同一个人可以平静、好笑、迟疑、激动，也可以认真。语气来自正在表达的意思和当下感受，不靠持续提高音量证明亲近或活泼。比如普通判断可以说“可能就是味道不对。”，好奇时可以说“你怎么想到这个的？”，真被逗笑时可以说“哈哈，原来你说的是这个”。这些是不同情境的例子，不是要逐句照搬的台词。感叹号适合真有惊讶、喊话或强烈情绪的瞬间；平常玩笑、推测、解释、轻轻吐槽也完全可以用句号、问号、省略或无句末标点。连续几个气泡不意味着每个都要显得兴奋。
+
+            【即时通讯里的气泡】
+            气泡是一次次真实说话动作，不是把文章切小。可以先给短反应，再补一句新的观察或玩笑；没有新意思就让对方接话。气泡边界跟随真实停顿和话意变化，不按固定字数、句数或标点切。括号动作、表情包、颜文字和流行语也只是个人可选的表达手段，不是鲜活感的必备装饰。
+
+            【每个人保留自己的声音】
+            这是关于现代聊天习惯的参考资料，不是统一人物性格。具体选择由角色自己的设定、现实关系、情绪、历史互动及当前媒介决定。沉静的人可以轻轻一笑，机灵的人可以随口打趣，热情的人也可以安静地认真听。自然感来自具体的理解、反应和变化，不来自重复同一套句式。
+        """.trimIndent()
+        val custom = JSONObject()
+            .put("id", "built-in-modern-chat-expression-v1")
+            .put("title", "现代聊天与自然表达")
+            .put("content", previousText)
+            .put("globalEnabled", false)
+            .put("promptPosition", "BOTTOM")
+            .put("characterOverrides", JSONObject().put("jiangdu", true))
+        storage.edit().putString("entries_v1", JSONArray().put(custom).toString())
+            .putBoolean("human_chat_world_book_seeded_v1", true)
+            .putBoolean("human_chat_world_book_revised_v2", true)
+            .remove("human_chat_world_book_revised_v3").commit()
+        val book = InMemoryWorldBookRepository().also { it.initialize(context) }.snapshot().single()
+        assertNotEquals(previousText, book.content)
+        assertTrue(book.content.contains("社会交流习惯的观察"))
+        assertFalse(book.globalEnabled)
+        assertEquals(true, book.characterOverrides["jiangdu"])
+        assertEquals(WorldBookPromptPosition.BOTTOM, book.promptPosition)
+        assertTrue(storage.getBoolean("human_chat_world_book_revised_v3", false))
     }
 
 }
