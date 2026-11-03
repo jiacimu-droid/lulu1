@@ -276,7 +276,7 @@ internal object Live2DMotionCatalog {
     }
 
     internal fun selectionGuide(available: List<Pair<String, Int>>): String =
-        selectionSections(available).joinToString("\\n") { section ->
+        selectionSections(available).joinToString("\n") { section ->
             val clips = section.motions.joinToString("、") { (group, index) ->
                 if (section.supplementary && group == "LuluWolf") {
                     "$group#$index=${entries[index]?.name ?: "原动作"}"
