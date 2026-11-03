@@ -691,9 +691,9 @@ object LuluDeviceToolBridge {
                 },
                 instruction = """
                     继续作为同一角色重新思考本轮表达，不更改已发生事实，不执行工具、不选择 silent。
-                    只返回一个完整紧凑的 JSON 对象，采用与正常聊天相同的决策字段：
-                    {"action":"reply","speechIntent":"这一轮具体想表达的意思",
-                     "dialogueMove":{"type":"answer","target":"当前交流意图","contentIntent":"具体想表达什么","maxBubbles":2}}
+                    只返回一个完整紧凑的 JSON 对象，必须包含 action=reply、speechIntent（这次真正想传达的具体意思）及 dialogueMove 对象。
+                    dialogueMove.type 由本人根据当前对话从 acknowledge/answer/ask/backchannel/self_repair/other_initiated_repair/candidate_understanding/disagree/tease/reassure/topic_shift/defer/decline/close/share 中选择；再填写本轮实际的 target 和 contentIntent。
+                    这是结构补正，不预设角色这次正在回答问题；气泡数量和表达长短由本人原有选择与当前互动需要决定。
                     只有确实发生新的私有心理变化时才可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood。
                     若有 innerThought，basis 应提供 focus 以及 unsaidWhy/conflict/change，不重复对外说的话。
                     只规划思想和说话意图，下一阶段仍由正常聊天表达层生成气泡。
