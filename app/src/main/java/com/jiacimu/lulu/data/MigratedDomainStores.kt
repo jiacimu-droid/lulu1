@@ -115,7 +115,7 @@ interface LuluChatStore {
 /** Retains the old class name while using persistent local storage. */
 class InMemoryLuluChatStore : LuluChatStore {
     private val conversationState = MutableStateFlow(defaultConversations())
-    private val messageStates = mutableMapOf<String, MutableStateFlow<List<LuluChatMessage>>>()
+    private val messageStates = java.util.concurrent.ConcurrentHashMap<String, MutableStateFlow<List<LuluChatMessage>>>()
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private val lock = Any()
@@ -157,6 +157,13 @@ class InMemoryLuluChatStore : LuluChatStore {
             MutableStateFlow(defaultMessages(conversationId))
         }.asStateFlow()
     }
+
+    /** Read the existing authority without acquiring a mutation lease or creating defaults.
+     * Receipt/inner-life stores can already hold their own lock here; edits hold
+     * the chat lock while withdrawing those same stores' evidence. Concurrent map
+     * lookup + immutable StateFlow value avoids reversing that lock order. */
+    internal fun recordedMessage(conversationId: String, messageId: String): LuluChatMessage? =
+        messageStates[conversationId]?.value?.firstOrNull { it.id == messageId }
 
     override fun ensureConversation(characterId: String, title: String): LuluConversation {
         val cleanCharacterId = characterId.trim()

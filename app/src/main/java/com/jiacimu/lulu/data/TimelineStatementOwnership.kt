@@ -12,8 +12,8 @@ internal object TimelineStatementOwnership {
         val conversation = MigratedDomainStores.chat.conversations.value
             .firstOrNull { it.id == event.sessionId } ?: return null
         val id = event.id.removeSuffix(":group:${event.characterId}")
-        val message = MigratedDomainStores.chat.messages(conversation.id).value
-            .firstOrNull { it.id == id && it.status == LuluChatMessage.Status.Sent } ?: return null
+        val message = MigratedDomainStores.chat.recordedMessage(conversation.id, id)
+            ?.takeIf { it.status == LuluChatMessage.Status.Sent } ?: return null
         return conversation to message
     }
 

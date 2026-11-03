@@ -141,3 +141,19 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 `9cd62ec` 的 run `41576800640` / job `125722080458`：主源码及测试编译成功，2265 项单测中 1 项失败，APK 未生成；新加的三项来源回归通过。失败为原 `CharacterConversationAgencyTest.groupMessageUsesMemberSpecificEvidenceForDeliveredEffects`，其原夹具只手工写一条没有 sessionId/原始作者消息的群事件，却断言本人已送达。新作者契约要求真实群消息来源，不能为通过这条旧夹具重新接受无来源的群发言。
 
 将原测试改为正式 chat Store 建群、分别发送旁人和本人消息：先验证旁人不能产生本人的决策回执，再验证本人送达、重复回调幂等及成员专属 signature；删除本人来源后心理回执撤回，旁人的见证仍保留。保留原测试目的并增加负例，不删除/放宽断言。原每测试时间线资源释放也补齐，避免跨测试使用旧数据库。后续完整 CI 仍须核实。
+
+### 后续提交与验证跟踪
+
+- `7b8771b`（成长归属延伸）的 run `41577138787` / job `125723683715`：2266 项单测中 1 项失败，仍为上述旧群回执夹具；新增成长来源回归通过，APK 未生成。
+- `ea5e22b` 修正原回归夹具并保留原验证目标，run `41577543972` / job `125725920862` 已核实成功：完整 Android 单测、APK 打包上传和发布均成功，`BUILD SUCCESSFUL in 11m 37s`，发布 `lulu-v7370`。包含本轮发言归属及成长源码与四项新增来源回归。真机及真实模型质量仍待验。
+- 下一轮继续从原目标/回执关联及持久化/上下文的完整性追起；社交源码另已看到 `ResidentSocialMailbox.send` 保存前 `take(650)`，`CharacterEverydaySocialContext` 对待处理私信另有短预览。需要区分发送协议真实限制与展示预算，核实是否会丢失否定、条件与后半段语义；本轮没有宣称已解决此项，也不靠提高一组固定阈值冒充根因修复。
+
+### 同轮锁顺序复核：作者证明读取不拿聊天写锁
+
+源码复核发现本轮初版 `TimelineStatementOwnership.original` 复用了 `chat.messages`，后者会获取聊天 mutation lock。`CharacterInnerLifeStore.observe/recordActionResult` 等持心理锁时会校验行动证据；而 `chat.editMessage` 持聊天写锁调用时间线撤回，又需要心理锁，构成反向锁依赖。上一次 CI 通过不代表这个并发交错安全，不能把它留给真机暴露。
+
+沿原权威 messageStates 将容器改为 ConcurrentHashMap，原写入和存档流程继续使用既有 mutation lock；增加仅读取已存在消息的 `recordedMessage`，通过原 StateFlow 的不可变 List 快照读取，不创建默认会话/消息、不复制第二份缓存。作者校验改用此入口，避免持回执/心理锁时获取聊天写锁；失败/删除的源消息仍立即失去证明资格。
+
+新增有界并发回归：主线程持有实际聊天 mutation lock 时，另一线程仍必须完成作者核验；再验证编辑、失败和删除反映在原消息读取中。这验证读取不逆向取锁，不宣称覆盖整个项目全部并发时序。此项后续提交 CI 待验。
+
+提交前已同步保留其他窗口关于居民日活动预算、社交机会和文学呈现的 main 改动；它们的独立构建状态与本轮 `ea5e22b` 成功分开记录，不能以本轮 APK 代表之后新增源码都已验通。

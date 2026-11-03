@@ -3,6 +3,8 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import java.time.Instant
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -137,5 +139,31 @@ class TimelineStatementOwnershipTest {
         assertTrue(propose(DevelopmentKind.Interest, own))
         assertTrue(CharacterDevelopmentStore.active(a).all { record -> peer.none { it in record.evidence } })
         assertTrue(CharacterDevelopmentStore.active(b).isEmpty())
+    }
+
+    @Test fun ownershipReadDoesNotWaitForTheChatMutationLockHeldByAnEditor() {
+        val a = "concurrent-author-a"
+        val group = MigratedDomainStores.chat.createGroupConversation("并发来源", listOf(a, "concurrent-author-b"))
+        val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "真实发送的内容", a)
+        val proof = event(own, a)
+        val chat = MigratedDomainStores.chat
+        val mutationLock = chat.javaClass.getDeclaredField("lock").apply { isAccessible = true }.get(chat)
+        val worker = Executors.newSingleThreadExecutor()
+        try {
+            synchronized(mutationLock) {
+                // Receipt writers may hold an inner-life lock, while an editor
+                // holds this chat lock and awaits evidence withdrawal. A read
+                // must complete before the editor can release its mutation lease.
+                val read = worker.submit<Boolean> { TimelineStatementOwnership.isOwnCharacterStatement(proof) }
+                assertTrue(read.get(3, TimeUnit.SECONDS))
+            }
+            assertNull(chat.recordedMessage("missing-conversation", "missing-message"))
+            assertTrue(chat.editMessage(own.id, "编辑后的完整内容"))
+            assertEquals("编辑后的完整内容", chat.recordedMessage(group.id, own.id)?.content)
+            chat.markFailed(own.id)
+            assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(proof))
+            assertTrue(chat.deleteMessage(own.id))
+            assertNull(chat.recordedMessage(group.id, own.id))
+        } finally { worker.shutdownNow() }
     }
 }
