@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4020a8e629b201e5a326ef566667080358af58e1`
+- 基准提交：`3a4a7ecb83e1f2a58be747f7affc100a40122007`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232087
+- 已索引代码/文本行：232090
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
@@ -557,7 +557,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 884 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt` | 269 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 32 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 41 | 2 |
