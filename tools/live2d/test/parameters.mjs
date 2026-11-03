@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
-import { kissCameraFrame, KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
+import { kissCameraFrame, kissFaceFrame, KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
+import { createMotionTransition } from '../src/motion-transition.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
 import { resolveTouchRegion } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from '../src/touch-reflex.mjs'
@@ -95,6 +96,59 @@ assert.ok(kissCameraFrame(3000).zoom < 1.25, 'kiss withdraws smoothly')
 assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).zoom, 1)
 assert.equal(kissCameraFrame(KISS_CAMERA_DURATION_MS).finished, true)
 assert.equal(kissCameraFrame(Number.NaN).finished, true)
+assert.ok(kissCameraFrame(1650).zoom > 2.2,
+  'kiss contacts the glass more closely than a generic camera zoom')
+assert.equal(kissFaceFrame(-1), null)
+assert.equal(kissFaceFrame(KISS_CAMERA_DURATION_MS), null)
+assert.ok(kissFaceFrame(200).face.eyeOpen > .85, 'the character starts with eye contact')
+assert.ok(kissFaceFrame(1650).face.eyeOpen < .08, 'eyes close at contact')
+assert.ok(kissFaceFrame(1650).face.pout > .92, 'lips actually purse at contact')
+assert.ok(kissFaceFrame(1650).face.smile < 0, 'smiling mouth cannot override the kiss')
+assert.ok(kissFaceFrame(3100).face.eyeOpen > .85, 'eyes reopen on withdrawal')
+assert.ok(kissFaceFrame(3100).face.pout < .09, 'lips relax before the camera exits')
+assert.ok(Math.abs(kissCameraFrame(3349).zoom - 1) < .005,
+  'camera must not cut back in its last rendered frame')
+
+// A finished body motion keeps its last real rendered pose through the next
+// idle frame, then returns smoothly. Entrance and exit operate on opposite
+// sides of the face/touch composition so they cannot silently cancel it.
+let transitionTime = 0
+const transitionValues = new Map([['ParamAngleX', 16], ['ParamMouthForm', .25]])
+const transition = createMotionTransition({
+  now: () => transitionTime,
+  read: (_core, id) => transitionValues.get(id),
+  write: (_core, id, value) => transitionValues.set(id, value),
+})
+transition.capture({}, ['ParamAngleX', 'ParamMouthForm'])
+transition.release(['ParamAngleX'])
+transitionValues.set('ParamAngleX', 0)
+transition.update({}, 'before')
+assert.equal(transitionValues.get('ParamAngleX'), 0, 'exit cannot overwrite motion input')
+transition.update({}, 'after')
+assert.equal(transitionValues.get('ParamAngleX'), 16, 'first exit frame preserves prior pose')
+assert.equal(transitionValues.get('ParamMouthForm'), .25,
+  'non-authored facial channels remain untouched')
+transitionTime = 220
+transitionValues.set('ParamAngleX', 0)
+transition.update({}, 'after')
+assert.ok(transitionValues.get('ParamAngleX') > 7 &&
+  transitionValues.get('ParamAngleX') < 9, 'motion returns through a smooth midpoint')
+transitionTime = 440
+transitionValues.set('ParamAngleX', 0)
+transition.update({}, 'after')
+assert.equal(transitionValues.get('ParamAngleX'), 0)
+transition.reset()
+transitionValues.set('ParamAngleX', 6)
+transition.capture({}, ['ParamAngleX'])
+transition.begin(['ParamAngleX'], 200)
+transitionValues.set('ParamAngleX', -6)
+transition.update({}, 'before')
+assert.equal(transitionValues.get('ParamAngleX'), 6, 'motion entrance starts at prior frame')
+transitionTime += 100
+transitionValues.set('ParamAngleX', -6)
+transition.update({}, 'before')
+assert.ok(Math.abs(transitionValues.get('ParamAngleX')) < .01,
+  'a new authored motion fades into its own pose')
 
 // Opposite directions must mirror every controlled angle rather than
 // accidentally moving the body in the same direction. It is easy for a
