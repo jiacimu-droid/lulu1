@@ -524,3 +524,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实改**：`16a4d6bc1ab877446f4982ce2e0d7af12b60c164` 将“本人说过”与“面向用户的真实互动”分开：私聊/电话沿原 `message` 来源，一起看沿实际同看来源；见面从原数字世界会话核对真实参与者并排除居民会话；原有无来源的私聊记录保留兼容。群聊仍走先前 canonical 已发送消息的作者核验，群内本人的真发言可作“自己说过”的锚点，但不会仅因群存在就算双方直接互动。其他独处和公开记录仍保留在原权威时间线，只不冒充对话锚点。无新人格 Store、硬编码联系频率或额外模型调用。
 - **回归与边界**：`CharacterContinuitySnapshotTest.soloArtifactsAndPublicPostsDoNotResetActualUserContact` 以实际时间线顺序写入私聊原话、私人练习、角色／用户公开动态及无主人在场的居民见面，要求上次用户接触时间和双方原话仍指向私聊。测试覆盖投影边界；真实见面会话、旧资料及真机前台/后台节律仍待核查。
 - **Actions**：本轮 [Android 单测/APK 41740733303](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733303) 与[索引 41740733580](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733580) 查询时 queued；先看最终结果及首个实质失败，再用获授权真机确认角色独处一段时间后不会误以为刚联系主人。P-08 仍 [ ]。
+
+
+## 2026-11-04 · P-08 群聊孤儿见证仍污染真实联系时间与关系节律（`13d6e55`，待 CI/真机）
+
+- **先核验前轮**：上一轮 `16a4d6b` 的 [APK/JVM run 41740733303](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733303) 与 [索引 run 41740733580](https://github.com/jiacimu-droid/lulu1/actions/runs/41740733580) 均 completed/success，故未重复修复上一轮独处记录问题；成功不等于真机/真实模型质量验收。
+- **本轮已证根因**：`CharacterContinuityRuntime` 已用 `TimelineStatementOwnership.involvesUser` 核验群聊用户原话来源，但另一条仍正式注入模型的 `CompanionContactClock.context` 与 `RelationshipRhythmPerception.context` 只按 `UserStatement + 群聊 channel` 统计。群聊见证的角色归属是见证者，原聊天消息已删/失败/孤儿时仍可能在时间线上留下 UserStatement，于是关系时间线错误声称“最近联系过”，21 天关系节律还会错误统计“前14天 48 条”等假变化。这是同一原始证据在两个模型上下文入口采用不同来源门禁的公共事实一致性错误，不是某角色应更主动的性格问题。
+- **实改**：`4b5f1af` 在已有 `CompanionContactClock` 内统一投影 `verifiedUserContacts(events)`，仅对群聊见证复用已存在的原消息发送归属核验，不改变私聊、电话、见面旧记录的现有语义；`2f44d1c` 让关系节律调用同一投影，防止两份互相矛盾的“最近用户联系”输入；无新 Store、模型调用、硬编码台词或群聊私有数据跨脑广播。`13d6e55` 增加 48 条无原消息群聊见证+1 条真实私聊回归，验证孤儿记录既不重置用户联系，也不伪造关系节律突变；旧频率、通话时段和独处过滤测试保留。
+- **CI/验收**：此前最近完整成功 run 如上。本轮中间源码 `2f44d1c` 的 APK run `41742915426` 已 cancelled（不算通过）；测试 `13d6e55` 的完整 Android/JVM/APK 与索引 run 尚待最新 Actions 最终确认。下一轮先取含 `13d6e55` 的最终 run，失败定位首个真实编译/单测根因；再真机核对私聊、群聊删除/失败、电话、后台同一人物的“最后用户联系”和关系节律，确认没有因孤儿群聊见证产生假久别/假联系。P-08 仍 `[ ]`。
