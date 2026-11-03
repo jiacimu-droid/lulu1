@@ -84,6 +84,8 @@ data class TokenConsoleRecord(
     val requestSource: String = "",
     val contextMode: String = "",
     val streamedRequest: Boolean = false,
+    /** Opaque per-turn link to planner/expression/delivery. No private message content. */
+    val turnTraceId: String = "",
 )
 
 data class PerformanceTimingRecord(
@@ -231,6 +233,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         reducedRequest: Boolean = false,
         contextMode: String = "",
         streamedRequest: Boolean = false,
+        turnTraceId: String = "",
     ) {
         val effectiveInput = reportedInputTokens.takeIf { value -> value > 0 }
             ?: estimatedInputTokens.coerceAtLeast(0)
@@ -273,6 +276,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             requestSource = source,
             contextMode = contextMode,
             streamedRequest = streamedRequest,
+            turnTraceId = turnTraceId,
         )
         val timings = listOf(
             PerformanceTimingRecord(
@@ -447,6 +451,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("requestSource", value.requestSource)
         .put("contextMode", value.contextMode)
         .put("streamedRequest", value.streamedRequest)
+        .put("turnTraceId", value.turnTraceId)
         .put(
             "breakdown",
             JSONArray().apply {
@@ -486,6 +491,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         requestSource = item.optString("requestSource"),
         contextMode = item.optString("contextMode"),
         streamedRequest = item.optBoolean("streamedRequest"),
+        turnTraceId = item.optString("turnTraceId"),
         breakdown = item.optJSONArray("breakdown").decodeObjects { part ->
             TokenBreakdownItem(
                 label = part.optString("label"),
