@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7ef42f94ce42767ee0a535344c546573ec0c1dbd`
+- 基准提交：`638305d112fa7f450e280978325006d0e5590800`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232202
-- 已发现符号：3250
+- 已索引代码/文本行：232305
+- 已发现符号：3251
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -169,11 +169,11 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 427 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 71 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 299 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 300 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionMetadata.kt` | 22 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 215 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 573 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 586 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechAnchorPlan.kt` | 107 | 4 |
@@ -792,7 +792,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 95 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 65 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 92 | 1 |
@@ -948,7 +948,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 391 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 516 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 552 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
@@ -1018,7 +1018,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 153 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 163 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |

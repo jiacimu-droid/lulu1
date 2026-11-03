@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:32:09.708874+00:00",
-  "commit": "7ef42f94ce42767ee0a535344c546573ec0c1dbd",
+  "generatedAt": "2026-11-03T08:37:33.249676+00:00",
+  "commit": "638305d112fa7f450e280978325006d0e5590800",
   "branch": "main",
-  "sourceFingerprint": "ddf42d32706261993746537b9eac647b43fde3ec7c202096f494ba95ca010e42",
+  "sourceFingerprint": "6ccad9a348a6f88c40a357e2b17e78de5cebd7b99058f6a4c201c3f0ae06ae4f",
   "summary": {
     "files": 1125,
-    "lines": 232202,
-    "symbols": 3250
+    "lines": 232305,
+    "symbols": 3251
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2207,7 +2207,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 287
+        "line": 288
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -16505,11 +16505,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 349
+        "line": 347
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 380
+        "line": 385
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 416
       }
     ],
     "bubbles": [
@@ -20014,8 +20018,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 299,
-      "sha256": "685bc80149d01f73faf48c5be8aea37baf233438981dad1050d838d5db03cbc8",
+      "lines": 300,
+      "sha256": "1e4c2ff74102abc632e1411bdec2438e8b643be5c5f1877fb2471328c88841f6",
       "symbols": [
         {
           "name": "Entry",
@@ -20023,7 +20027,7 @@
         },
         {
           "name": "describe",
-          "line": 287
+          "line": 288
         }
       ]
     },
@@ -20061,8 +20065,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt",
-      "lines": 573,
-      "sha256": "d4d1e1b2c8cfbd4d980412b74fb8e537168efa63662095b051eb5e093b3604d8",
+      "lines": 586,
+      "sha256": "234537edbe6e222e4c608020a3a3d1ff86a5bdf409ec9ce1c771cdc29821fa89",
       "symbols": [
         {
           "name": "playMotion",
@@ -20204,7 +20208,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
       "lines": 539,
-      "sha256": "a6fbdc293438a53f8b69530ef388781bc1f1d428ade3611e9c89822cf41ff05c",
+      "sha256": "109b68d89cdabafee949dc297411a62b54c648a8d286aafe577f25e59b4353fc",
       "symbols": [
         {
           "name": "Head",
@@ -34242,8 +34246,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 65,
-      "sha256": "51522dc95319275be48cc52375773085ec0a3643cb92010432439a8c6f0a1111",
+      "lines": 108,
+      "sha256": "4c32e717648e8db30b3ffd3dcc2aa82445e370d1ca6bf08dcafbd998362825cd",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
@@ -36310,8 +36314,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 516,
-      "sha256": "3611f6fedd583ffa16e0c85dcf7a4f57d47db327f063c10483e18b4f95f04b95",
+      "lines": 552,
+      "sha256": "28f56382db1478449e267672d54feda310c65cdc7f3fc756f68e88245033992b",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -36331,11 +36335,15 @@
         },
         {
           "name": "response",
-          "line": 349
+          "line": 347
         },
         {
           "name": "response",
-          "line": 380
+          "line": 385
+        },
+        {
+          "name": "response",
+          "line": 416
         }
       ]
     },
@@ -37280,8 +37288,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 153,
-      "sha256": "b089f60d16b85726935a7947e154902c690b08df42537892f05d83855d954240",
+      "lines": 163,
+      "sha256": "23d5fb83cc3c2d82a69f1289c108a89d215170abacdbf74efc23d32adc98809d",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",
