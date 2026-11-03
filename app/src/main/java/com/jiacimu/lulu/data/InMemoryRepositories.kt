@@ -278,7 +278,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             val stored = decode(prefs?.getString(KEY_ENTRIES, null))
             val storage = checkNotNull(prefs)
             if (!storage.getBoolean(KEY_HUMAN_CHAT_SEEDED, false)) {
-                // One editable world-book entry. Owner edits/deletions never re-seed.
+                // Only seed once. An owner-edited or removed entry is never restored.
                 val initial = if (stored.any {
                     it.id == HUMAN_CHAT_BOOK_ID || it.title == HUMAN_CHAT_BOOK_TITLE
                 }) stored else stored + WorldBookEntry(
@@ -289,25 +289,29 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                     characterOverrides = emptyMap(),
                     promptPosition = WorldBookPromptPosition.BOTTOM,
                 )
-                // Optional reference must not prevent the entire app from opening
-                // if Android temporarily rejects a preferences write.
                 val saved = storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
                     .putBoolean(KEY_HUMAN_CHAT_SEEDED, true)
-                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true).commit()
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true)
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V3, true).commit()
                 entries.value = if (saved) initial else stored
-            } else if (!storage.getBoolean(KEY_HUMAN_CHAT_REVISED_V2, false)) {
-                // Migrate only the exact shipped v1 text, not a character's or
-                // owner's edits. Preserve the book's switches, order and folder.
-                // If it was deleted, never recreate it.
+            } else if (!storage.getBoolean(KEY_HUMAN_CHAT_REVISED_V3, false)) {
+                // A past v1 or v2 shipped body is a known stock reference.
+                // Only exact known text with the original ID AND title can upgrade;
+                // never change the owner's body, title, scopes, folder or position.
+                val stockBodies = setOf(
+                    HUMAN_CHAT_BOOK_V1_CONTENT.trimIndent(),
+                    HUMAN_CHAT_BOOK_V2_CONTENT.trimIndent(),
+                )
                 val revised = stored.map { entry ->
                     if (entry.id == HUMAN_CHAT_BOOK_ID &&
                         entry.title == HUMAN_CHAT_BOOK_TITLE &&
-                        entry.content == HUMAN_CHAT_BOOK_V1_CONTENT.trimIndent()
+                        entry.content in stockBodies
                     ) entry.copy(content = HUMAN_CHAT_BOOK_CONTENT.trimIndent(),
                         updatedAt = Instant.now())
                     else entry
                 }
                 val editor = storage.edit().putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true)
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V3, true)
                 if (revised != stored) editor.putString(KEY_ENTRIES, encode(revised).toString())
                 entries.value = if (editor.commit()) revised else stored
             } else entries.value = stored
@@ -587,6 +591,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         const val KEY_FOLDERS = "folders_v1"
         const val KEY_HUMAN_CHAT_SEEDED = "human_chat_world_book_seeded_v1"
         const val KEY_HUMAN_CHAT_REVISED_V2 = "human_chat_world_book_revised_v2"
+        const val KEY_HUMAN_CHAT_REVISED_V3 = "human_chat_world_book_revised_v3"
         const val HUMAN_CHAT_BOOK_ID = "built-in-modern-chat-expression-v1"
         const val HUMAN_CHAT_BOOK_TITLE = "现代聊天与自然表达"
         val HUMAN_CHAT_BOOK_V1_CONTENT = """
@@ -603,7 +608,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             【每个人有自己的声音】
             本书描述可用的现代口语习惯，不要求所有人物说流行语、卖萌、重复、撒娇或使用同一个节奏。人物自己的性格、语言偏好、当下关系、共同经历和情绪决定要选哪一种。清冷而风趣的人可以嘴角带笑地简短回应，热烈的人可以连发几句；认真或有重要事项时可以详细。不要把知道的事实藏起来，但也不用把知道的一切主动汇报。
         """
-        val HUMAN_CHAT_BOOK_CONTENT = """
+        val HUMAN_CHAT_BOOK_V2_CONTENT = """
             【现代聊天与自然表达｜供选择的语用参考】
             熟悉的人聊天通常是在延续眼前的一次互动，而不是完整陈述所有联想。先抓住真正想回应的那一点；一句话说到了就可以停，话题有意思时再自然展开。被认真问到细节、解释或求助时，仍把必要内容说清楚。
 
@@ -615,6 +620,19 @@ class InMemoryWorldBookRepository : WorldBookRepository {
 
             【每个人保留自己的声音】
             这是关于现代聊天习惯的参考资料，不是统一人物性格。具体选择由角色自己的设定、现实关系、情绪、历史互动及当前媒介决定。沉静的人可以轻轻一笑，机灵的人可以随口打趣，热情的人也可以安静地认真听。自然感来自具体的理解、反应和变化，不来自重复同一套句式。
+        """
+        val HUMAN_CHAT_BOOK_CONTENT = """
+            【现代即时通讯的社会观察｜文化背景，不是人物性格】
+            现代人通过即时消息交流时，既会说完整句子，也会发短词、表情、停顿、图片；对同一件事可以冷静、兴奋、含蓄或幽默。社会交流方式没有统一的人格或口吻，具体说法取决于说话者本人、对象、场合及所处关系。
+
+            【轮流交流与共同活动】
+            日常交谈通常由参与者共同推进。一个人有时只回答眼前的问题，有时补充细节，有时把话轮交给对方。轮流猜词、接龙或其他小游戏中，一次参与可能只需要一个词、一个选择或者一句话；规则解释、纠正和策略讨论则是另外的互动。交接话轮并不意味着冷淡，也不是所有对话只能短答。
+
+            【语气、标点与含蓄】
+            句号、问号、感叹号、省略号、断句和不写句末标点都见于当代聊天；标点和语气通常与当时表达的意思及情绪程度相呼应。真实惊喜与平常打趣有时用不同力度，普通推测、低声吐槽和认真倾听也属于自然交流。说话者常会留下一些尚未展开的想法，让下一轮的真实回应决定是否继续。
+
+            【资料范围】
+            本书只提供社会交流习惯的观察，帮助角色理解别人如何说话、游戏怎样轮流推进；它不是角色专属的说话示例、个性设定、情绪命令或篇幅配额。具体角色的价值、性格不同侧面、关系与个人语言习惯仍来自其本人设定及真实经历。
         """
     }
 }
