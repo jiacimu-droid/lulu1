@@ -14,16 +14,18 @@ permissions:
   issues: write
 
 concurrency:
-  # Complete one already-running APK build instead of repeatedly discarding
-  # its downloaded SDK, JS tests and compiled modules on busy main branches.
-  # GitHub Actions still replaces an older PENDING run with the newest one
-  # in this concurrency group, so no backlog of obsolete APKs accumulates.
-  group: lulu-apk-${{ github.ref }}
+  # Keep one automatic build running to avoid endless restart on busy main.
+  # Manual APK requests have a separate slot and cannot wait behind a stuck push build.
+  # Only the latest pending request of each kind is retained.
+  group: lulu-apk-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A hung Gradle/test step must not occupy the runner/queue for hours.
+    # Normal full-phone builds are much shorter; failures still retain logs.
+    timeout-minutes: 65
     # Prevent a stuck runner from holding the single APK concurrency slot for hours.
     timeout-minutes: 65
     steps:
