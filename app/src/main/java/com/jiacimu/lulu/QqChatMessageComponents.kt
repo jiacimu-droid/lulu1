@@ -238,7 +238,7 @@ internal fun QqMessageRow(
                     MessageLineWithTime(mine, showTime && isLastBubble, timeText) { bubbleModifier ->
                         val journal = LocalLuluAppearance.current.isJournal()
                         val bubbleContent: @Composable () -> Unit = {
-                            Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                            Column(Modifier.padding(horizontal = 12.dp, vertical = 7.dp)) {
                                 repliedMessageContent?.let { quoted ->
                                     Surface(
                                         color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
@@ -254,7 +254,7 @@ internal fun QqMessageRow(
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = if (message.voiceNote) 13.sp else 15.sp, lineHeight = 22.sp)
+                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = if (message.voiceNote) 13.sp else 15.sp, lineHeight = 21.sp)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
                                     Text("★ 已收藏", color = if (mine && !journal) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
@@ -299,7 +299,7 @@ internal fun QqMessageRow(
                             ) { bubbleContent() }
                         }
                     }
-                    if (!isLastBubble) Spacer(Modifier.height(5.dp))
+                    if (!isLastBubble) Spacer(Modifier.height(3.dp))
                 }
             }
             Spacer(Modifier.width(9.dp))

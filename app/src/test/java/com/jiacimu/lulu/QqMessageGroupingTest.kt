@@ -36,6 +36,18 @@ class QqMessageGroupingTest {
         assertEquals(full + followUp, modelAuthoredReplyBubbles(raw).joinToString(""))
     }
 
+    @Test fun groupReplyKeepsAuthoredChatMessagesInsteadOfRepackingAtPunctuation() {
+        val first = "我知道了。先让我想想。"
+        val second = "你刚才说的那句，我有点在意。"
+        val flow = parseGroupReplyFlow("⟪QUOTE:user-1⟫" + first + SemanticBubbleSeparator + second)
+        assertEquals("user-1", flow.quoteMessageId)
+        assertTrue(flow.authoredBubbleBoundaries)
+        assertEquals(listOf(first, second), characterOutgoingBubblePlan(
+            CharacterReplyPresentation(flow.content,
+                preserveAuthoredBubbleBoundaries = flow.authoredBubbleBoundaries)
+        ).map(CharacterOutgoingBubble::text))
+    }
+
     @Test fun heartVoiceUsesReadableParagraphsWithoutChangingAuthoredWords() {
         val original = "学了两个小时跑回来喊累，还冷不丁甩了个张大嘴巴的震惊猫猫头。" +
             "估计算是学到脑袋发懵了。" +

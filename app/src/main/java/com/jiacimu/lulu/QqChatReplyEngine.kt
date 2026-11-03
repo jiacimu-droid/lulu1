@@ -176,12 +176,18 @@ internal data class CharacterReplyPresentation(
     val preserveAuthoredBubbleBoundaries: Boolean = false,
 )
 
-internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresentation = CharacterReplyPresentation(
-    content = stripCharacterReplyDirective(normalizeSemanticBubbles(text)),
+internal fun parseCharacterReplyPresentation(
+    text: String,
+    preserveAuthoredBubbleBoundaries: Boolean = false,
+): CharacterReplyPresentation = CharacterReplyPresentation(
+    content = if (preserveAuthoredBubbleBoundaries)
+        stripCharacterReplyDirective(normalizeLegacyBubbleTokens(text)).trim()
+    else stripCharacterReplyDirective(normalizeSemanticBubbles(text)),
     quoteMessageId = characterReplyQuoteId(text),
     favoriteMessageId = characterFavoriteMessageId(text),
     recallBubbleNumber = characterRecallBubbleNumber(text),
     pokeUser = characterPokesUser(text),
+    preserveAuthoredBubbleBoundaries = preserveAuthoredBubbleBoundaries,
 )
 
 internal fun currentReplyTargetUserMessages(messages: List<LuluChatMessage>): List<LuluChatMessage> {
@@ -279,9 +285,9 @@ internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boo
  * The character's delivery choice then applies to each complete bubble, never to a
  * separately segmented audio paragraph. A turn can contain any text/voice combination.
  *
- * A model may author one long JSON bubble; the existing normal text-bubble rules still
- * turn its completed conversational beats into individual messages. Delivery mode and
- * optional performance track follow the source bubble into each resulting message.
+ * Structured messages keep their authored boundaries; legacy freeform replies use
+ * the grammatical readability fallback. Delivery mode and optional performance
+ * track follow the source bubble into each resulting message.
  */
 internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentation): List<CharacterOutgoingBubble> {
     val authored = presentation.content.split(SemanticBubbleSeparator)
@@ -435,7 +441,7 @@ internal suspend fun appendRoleReplyWithPacing(
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
 }
 
-private data class GroupReplyFlow(
+internal data class GroupReplyFlow(
     val content: String,
     val nextSpeakerName: String?,
     val shouldEnd: Boolean,
@@ -443,14 +449,16 @@ private data class GroupReplyFlow(
     val favoriteMessageId: String?,
     val recallBubbleNumber: Int?,
     val pokeUser: Boolean,
+    val authoredBubbleBoundaries: Boolean,
 )
 
-private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
+internal fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     val next = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
     val actionText = text.replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
         .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "").trim()
-    val p = parseCharacterReplyPresentation(actionText)
-    return GroupReplyFlow(p.content, next, text.contains("⟪END⟫", true), p.quoteMessageId, p.favoriteMessageId, p.recallBubbleNumber, p.pokeUser)
+    val authored = actionText.contains(SemanticBubbleSeparator)
+    val p = parseCharacterReplyPresentation(actionText, preserveAuthoredBubbleBoundaries = authored)
+    return GroupReplyFlow(p.content, next, text.contains("⟪END⟫", true), p.quoteMessageId, p.favoriteMessageId, p.recallBubbleNumber, p.pokeUser, authored)
 }
 
 internal suspend fun runGroupReplies(
@@ -596,7 +604,8 @@ internal suspend fun runGroupReplies(
             if (flow.content.isNotBlank()) {
                 val shown = appendRoleReplyWithPacing(
                     conversationId, member.characterId, label,
-                    CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser),
+                    CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser,
+                        preserveAuthoredBubbleBoundaries = flow.authoredBubbleBoundaries),
                     pendingUserIds,
                     interactionReceipt = reply.interactionReceipt,
                     sourceWatermark = sourceWatermark,
