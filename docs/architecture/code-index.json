@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:32:56.510823+00:00",
-  "commit": "0c331c5220d7472026ff04a6a911ee5d8b0d1e4e",
+  "generatedAt": "2026-11-03T04:33:15.803499+00:00",
+  "commit": "4f082370bf019afbda472cd49358dda30c8cee19",
   "branch": "main",
-  "sourceFingerprint": "c4ac3a83c891065363ae7a53259db059be2dab703b3c8a01280c4a4fa0e7c2f9",
+  "sourceFingerprint": "3833a290737e0f30f40c33a1a596e010365709c2da4417d6d17f617f2048f8ea",
   "summary": {
     "files": 1125,
-    "lines": 231042,
+    "lines": 231043,
     "symbols": 3248
   },
   "symbolIndex": {
@@ -12393,13 +12393,13 @@
     "skipReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "sourceFacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
-        "line": 21
+        "line": 22
       }
     ],
     "failureMessage": [
@@ -30325,16 +30325,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt",
-      "lines": 27,
-      "sha256": "e8432e8f9d72b7dabb4824d34b0787301c9e5301649c10be6f98679b8f4205b7",
+      "lines": 28,
+      "sha256": "5450f30344e554a8db78e5a2d8b35761de5b0195bf270d754a851f82102268c0",
       "symbols": [
         {
           "name": "skipReason",
-          "line": 15
+          "line": 16
         },
         {
           "name": "sourceFacts",
-          "line": 21
+          "line": 22
         }
       ]
     },
