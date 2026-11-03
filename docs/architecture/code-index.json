@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:37:33.249676+00:00",
-  "commit": "638305d112fa7f450e280978325006d0e5590800",
+  "generatedAt": "2026-11-03T08:45:37.853712+00:00",
+  "commit": "7bfd373ff87ad45f6f2c8797c21f1a7208626406",
   "branch": "main",
-  "sourceFingerprint": "6ccad9a348a6f88c40a357e2b17e78de5cebd7b99058f6a4c201c3f0ae06ae4f",
+  "sourceFingerprint": "4103668e301f488e1ad4f9455d02342153dfd6f446aa91ac8466b009217efb88",
   "summary": {
     "files": 1125,
-    "lines": 232305,
+    "lines": 232408,
     "symbols": 3251
   },
   "symbolIndex": {
@@ -18282,14 +18282,14 @@
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json",
-      "lines": 248,
-      "sha256": "abbc9c90e2d4366c0a80833bd7cd56a92c33fd9d5afc661ce69b19f41fa36766",
+      "lines": 164,
+      "sha256": "3656a2284336a91da21c4648252c84aaf3825ecae833ecf68a7f0c4079725ab1",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json",
-      "lines": 241,
-      "sha256": "2378e7d5822843bfcfe5e4afff6507664ea17094068c6026c55acbe2516bd25c",
+      "lines": 269,
+      "sha256": "cd3380926f03df24955a886c5b0e625fb356acaaa222fc809e7a38e086ae72f1",
       "symbols": []
     },
     {
@@ -18342,8 +18342,8 @@
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json",
-      "lines": 107,
-      "sha256": "384b47743d190db370e1aa3b34d062c307ac2318c5fcf982c9d9c1bdbea5b9ae",
+      "lines": 185,
+      "sha256": "8bc261d6d92638847363a53256a8b5459355d481b8710095860a146db2442743",
       "symbols": []
     },
     {
@@ -18385,7 +18385,7 @@
     {
       "path": "app/src/main/assets/live2d/wolf-motions/35_bright_ear_bounce.motion3.json",
       "lines": 220,
-      "sha256": "14ff722f687bf4cc0cd64df1c0da13dc4881c905a0eed4f27f79ae676561adeb",
+      "sha256": "67dc2a9c736d1dece1762bac838deea7505dae67042d9553eb76a7301808972c",
       "symbols": []
     },
     {
@@ -18420,8 +18420,8 @@
     },
     {
       "path": "app/src/main/assets/live2d/wolf-motions/41_worried_lean.motion3.json",
-      "lines": 142,
-      "sha256": "0df134e7298dc5170e6c27e09aa0df66ee384f9f5c58a4e7c9ec327e2429901b",
+      "lines": 221,
+      "sha256": "391efe9d4d7d6a25c450fd6f737a2e230e7f937a50dec8ec796cedb49f7adcc7",
       "symbols": []
     },
     {
@@ -20019,7 +20019,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
       "lines": 300,
-      "sha256": "1e4c2ff74102abc632e1411bdec2438e8b643be5c5f1877fb2471328c88841f6",
+      "sha256": "a53d4a4c5943a2b6fc076dcd68e9bda104addb8086e8d2f3e0287942646eb9ce",
       "symbols": [
         {
           "name": "Entry",
@@ -34246,8 +34246,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 108,
-      "sha256": "4c32e717648e8db30b3ffd3dcc2aa82445e370d1ca6bf08dcafbd998362825cd",
+      "lines": 110,
+      "sha256": "8cd1a8eb5c2fdb481d2a5749bcff6ccf90b8f350b303775cdf53567d1f212c64",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",

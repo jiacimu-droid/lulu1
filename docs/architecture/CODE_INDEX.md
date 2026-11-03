@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`638305d112fa7f450e280978325006d0e5590800`
+- 基准提交：`7bfd373ff87ad45f6f2c8797c21f1a7208626406`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：232305
+- 已索引代码/文本行：232408
 - 已发现符号：3251
 
 | 文件 | 行数 | 符号数 |
@@ -30,8 +30,8 @@
 | `app/src/main/assets/live2d/wolf-motions/15_sway_right.motion3.json` | 192 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/16_curiosity_bob.motion3.json` | 199 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/17_happy_bounce.motion3.json` | 234 | 0 |
-| `app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json` | 248 | 0 |
-| `app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json` | 241 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/18_slow_weight_shift.motion3.json` | 164 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/19_giggle_wobble.motion3.json` | 269 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/20_sad_droop.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/21_proud_chest.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/22_shy_turn_away.motion3.json` | 107 | 0 |
@@ -40,7 +40,7 @@
 | `app/src/main/assets/live2d/wolf-motions/25_excited_tremble.motion3.json` | 170 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/26_thoughtful_look_up.motion3.json` | 107 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/27_shy_tilt.motion3.json` | 107 | 0 |
-| `app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json` | 107 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/28_warm_lean.motion3.json` | 185 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/29_playful_dodge.motion3.json` | 156 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/30_listening_tilt.motion3.json` | 171 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/31_hesitant_turn.motion3.json` | 164 | 0 |
@@ -53,7 +53,7 @@
 | `app/src/main/assets/live2d/wolf-motions/38_curious_double_take.motion3.json` | 220 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/39_sleepy_nestle.motion3.json` | 192 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/40_pout_sulk.motion3.json` | 149 | 0 |
-| `app/src/main/assets/live2d/wolf-motions/41_worried_lean.motion3.json` | 142 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/41_worried_lean.motion3.json` | 221 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/42_coquettish_sway.motion3.json` | 120 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/43_annoyed_turn_away.motion3.json` | 135 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/44_zoning_out.motion3.json` | 135 | 0 |
@@ -792,7 +792,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DGpuSurfaceFrameCheckTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 95 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 108 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSpeechAnchorPlanTest.kt` | 92 | 1 |
