@@ -2296,7 +2296,16 @@ object ProactivePerceptionRuntime {
                     else -> null
                 },
                 mood = decision.mood.takeIf(String::isNotBlank),
-                source = if (awakeReflection) "在线持续感知" else "后台主动感知",
+                // A reply caused by a real unread user bubble is a chat turn,
+                // even though the online agent runs through the perception worker.
+                // Labeling it as background perception wrongly applies the 15-minute
+                // ambient-thought history throttle and hides distinct new heart voices.
+                // Mere online wakeups keep their original ambient throttling.
+                source = when {
+                    messageStimulus != null && onlineUnread.text.isNotBlank() -> "聊天回复·在线感知"
+                    awakeReflection -> "在线持续感知"
+                    else -> "后台主动感知"
+                },
                 now = Instant.now(),
                 // Do not let independent online/group psychological snapshots
                 // become anonymous rows that survive clearing their source chat.
