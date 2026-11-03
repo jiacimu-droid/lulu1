@@ -194,14 +194,14 @@ internal object Live2DVisualActionBus {
             结合你的性格、当下心情与每句话的语气，自主从真实目录选择最合适的 Motion3，不按关键词机械匹配。视频发言的输出契约：每个实际说话片段都必须对应你选择的真实动作，不能只给回复开头配动作；执行前会检查漏项。日常短句可选轻微动作，神态和力度仍由你自己决定。
             本次可见视频的 reply 使用 speech 数组作为唯一台词来源，取代普通电话的 text；不要重复输出 text 或 bubbles。
             {"action":"reply","speech":[
-               {"id":"s1","text":"你回来了！","motion":{"group":"LuluWolf","index":17},"transition":"blend"},
-               {"id":"s2","text":"不过我可没一直等你。","motion":{"group":"LuluWolf","index":6},"transition":"blend"}
+               {"id":"s1","text":"你回来了！","motion":{"group":"LuluWolf","index":35},"transition":"blend"},
+               {"id":"s2","text":"不过我可没一直等你。","motion":{"group":"LuluWolf","index":29},"transition":"blend"}
              ]}
             上面仅说明格式；必须自行从真实目录选动作，示例不是固定搭配。
             speech 每个片段的 id 唯一、text 非空，motion.group/index 必须与目录完全一致（索引从0开始），整轮最多16段。每段直接绑定字幕、语音与动作，不使用原文锚点或估算的 atMs；同一句话重复出现也用不同 id。
             按自然说话意图分段，避免为了动而拆成单字。声音标签直接保留在相应 text 中；整轮保持连贯情绪，不逐句随机变声。
             同一段 text 可能跨好几个逗号，首个短 Motion3 播完并不等于这段已经说完。角色可在一段 speech 内自主选后续动作 followUps（1至5个），不必把自然语音切碎：
-            {"id":"s1","text":"我想了想，其实也不是不行，不过先说好，我有个小条件。","motion":{"group":"LuluWolf","index":17},"followUps":[{"motion":{"group":"LuluWolf","index":6}},{"motion":{"group":"LuluWolf","index":16}}]}
+            {"id":"s1","text":"我想了想，其实也不是不行，不过先说好，我有个小条件。","motion":{"group":"LuluWolf","index":26},"followUps":[{"motion":{"group":"LuluWolf","index":0}},{"motion":{"group":"LuluWolf","index":29}}]}
             followUps 中每个 motion 都须来自本次真实目录；可选 transition=blend|continue。前一个真实 Motion3 演完、这段 TTS 还在发声时，再执行下一个；实际语音结束就取消未播动作。要符合当下本人想表达的神态，既不按逗号机械计数，也不强制全程不停挥手，不另调用模型。
             新动作 transition=blend，从当前真实姿态衔接；若下一段仍继续同一个动作，填相同 motion 并用 transition=continue，播放器不从头重播尚在进行的动作。
             不要为普通 Motion 使用 head/body/face 数值或 performance.movement；原生 Motion 包含自己完整的身体协调、节奏与回弹，唇形随真实声音独立变化。
