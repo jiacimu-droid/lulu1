@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:24:32.730964+00:00",
-  "commit": "ae6a5da391ae708ed0f4aa2c3b9765336cdaf88e",
+  "generatedAt": "2026-11-03T17:34:04.062727+00:00",
+  "commit": "4a2a833ef866e1bfb7f3293676bb52e21d25f86c",
   "branch": "main",
-  "sourceFingerprint": "0383b915c632a3e2123de6a9560ab56bd9d039852ba21e1a7ec0bc24f5002ec8",
+  "sourceFingerprint": "e91e8d09d4cce7f6a7e5147d528ae506b5e556ade73cac816c092e0d72669ca2",
   "summary": {
     "files": 1125,
-    "lines": 233892,
+    "lines": 233956,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -7797,13 +7797,13 @@
     "wakeSpeechContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 120
+        "line": 123
       }
     ],
     "selectionEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-        "line": 133
+        "line": 136
       }
     ],
     "CommitmentLexiconSync": [
@@ -7963,7 +7963,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-        "line": 141
+        "line": 202
       }
     ],
     "CompanionOnlineReason": [
@@ -25383,16 +25383,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 514,
-      "sha256": "15ab21f64f507269a40b13a712e4bdc36ae1a1887cc38b0e9bdf75339035efde",
+      "lines": 517,
+      "sha256": "090f313d40fe050490237647e724f1d39cc7279e98fcb11f5d784537b7aba405",
       "symbols": [
         {
           "name": "wakeSpeechContext",
-          "line": 120
+          "line": 123
         },
         {
           "name": "selectionEvidence",
-          "line": 133
+          "line": 136
         }
       ]
     },
@@ -30064,12 +30064,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 237,
-      "sha256": "1dfe37622e05fccc0b39618b72bd42d6223265606b4d03f84489c48186e39216",
+      "lines": 298,
+      "sha256": "e46361676606a9b1f6bef72f5d63ce5240aaf3bd91f0e8600e9a5763867306ce",
       "symbols": [
         {
           "name": "age",
-          "line": 141
+          "line": 202
         }
       ]
     },
