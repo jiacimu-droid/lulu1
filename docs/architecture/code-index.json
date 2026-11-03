@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T08:30:32.170125+00:00",
-  "commit": "c9867baf4524ffa0eff75d4486cfb5bdc819ea46",
+  "generatedAt": "2026-11-03T08:31:05.408312+00:00",
+  "commit": "c79f4c08bd43ec4dd03b746bc01c35da362e2307",
   "branch": "main",
-  "sourceFingerprint": "111b29036c7ce9983bb9260dcd403c9984cae5425fefb2327f03ef6ee70ee521",
+  "sourceFingerprint": "31c4c3a29c230bc6b506a7e6e4a4c2220abce1e47b85347f357b55dad664db5a",
   "summary": {
     "files": 1125,
-    "lines": 232128,
+    "lines": 232176,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -2207,7 +2207,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 239
+        "line": 287
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -20014,8 +20014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 251,
-      "sha256": "ca70473a4f19c6889159cd827a5c878d550ca2b423e2ff84c1cfae90a231a617",
+      "lines": 299,
+      "sha256": "88c79266dae6c681f164445279301d968ae83a356ceeb85565cb920ec6907718",
       "symbols": [
         {
           "name": "Entry",
@@ -20023,7 +20023,7 @@
         },
         {
           "name": "describe",
-          "line": 239
+          "line": 287
         }
       ]
     },
@@ -28699,7 +28699,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 153,
-      "sha256": "9e5832588539fb02e9fd4db6a712b299e75712d96e4131ed66e13779ee53b451",
+      "sha256": "268d44a74e4700e99866224630443c15d6777c4ac0398eba6afe6e34f45ecb8b",
       "symbols": []
     },
     {
