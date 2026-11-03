@@ -678,7 +678,8 @@ internal object CompanionActionRuntime {
                 val targetUserIds = replyUserMessageIdsForDestination(conversation.id, characterId, replyEvidenceIds)
                 val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        presentation, actionableUserMessageIds = targetUserIds)
+                        presentation, actionableUserMessageIds = targetUserIds,
+                        diagnosticTurnTraceId = args.optString("_turnTraceId"))
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
@@ -721,7 +722,8 @@ internal object CompanionActionRuntime {
                 val deliveredText = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text),
-                        actionableUserMessageIds = targetUserIds)
+                        actionableUserMessageIds = targetUserIds,
+                        diagnosticTurnTraceId = args.optString("_turnTraceId"))
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
