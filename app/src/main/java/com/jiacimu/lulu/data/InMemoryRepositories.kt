@@ -292,15 +292,17 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                 val saved = storage.edit().putString(KEY_ENTRIES, encode(initial).toString())
                     .putBoolean(KEY_HUMAN_CHAT_SEEDED, true)
                     .putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true)
-                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V3, true).commit()
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V3, true)
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V4, true).commit()
                 entries.value = if (saved) initial else stored
-            } else if (!storage.getBoolean(KEY_HUMAN_CHAT_REVISED_V3, false)) {
-                // A past v1 or v2 shipped body is a known stock reference.
+            } else if (!storage.getBoolean(KEY_HUMAN_CHAT_REVISED_V4, false)) {
+                // Prior v1-v3 bundled bodies are exact migration fixtures.
                 // Only exact known text with the original ID AND title can upgrade;
                 // never change the owner's body, title, scopes, folder or position.
                 val stockBodies = setOf(
                     HUMAN_CHAT_BOOK_V1_CONTENT.trimIndent(),
                     HUMAN_CHAT_BOOK_V2_CONTENT.trimIndent(),
+                    HUMAN_CHAT_BOOK_V3_CONTENT.trimIndent(),
                 )
                 val revised = stored.map { entry ->
                     if (entry.id == HUMAN_CHAT_BOOK_ID &&
@@ -312,6 +314,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                 }
                 val editor = storage.edit().putBoolean(KEY_HUMAN_CHAT_REVISED_V2, true)
                     .putBoolean(KEY_HUMAN_CHAT_REVISED_V3, true)
+                    .putBoolean(KEY_HUMAN_CHAT_REVISED_V4, true)
                 if (revised != stored) editor.putString(KEY_ENTRIES, encode(revised).toString())
                 entries.value = if (editor.commit()) revised else stored
             } else entries.value = stored
@@ -592,6 +595,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         const val KEY_HUMAN_CHAT_SEEDED = "human_chat_world_book_seeded_v1"
         const val KEY_HUMAN_CHAT_REVISED_V2 = "human_chat_world_book_revised_v2"
         const val KEY_HUMAN_CHAT_REVISED_V3 = "human_chat_world_book_revised_v3"
+        const val KEY_HUMAN_CHAT_REVISED_V4 = "human_chat_world_book_revised_v4"
         const val HUMAN_CHAT_BOOK_ID = "built-in-modern-chat-expression-v1"
         const val HUMAN_CHAT_BOOK_TITLE = "现代聊天与自然表达"
         val HUMAN_CHAT_BOOK_V1_CONTENT = """
@@ -621,7 +625,7 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             【每个人保留自己的声音】
             这是关于现代聊天习惯的参考资料，不是统一人物性格。具体选择由角色自己的设定、现实关系、情绪、历史互动及当前媒介决定。沉静的人可以轻轻一笑，机灵的人可以随口打趣，热情的人也可以安静地认真听。自然感来自具体的理解、反应和变化，不来自重复同一套句式。
         """
-        val HUMAN_CHAT_BOOK_CONTENT = """
+        val HUMAN_CHAT_BOOK_V3_CONTENT = """
             【现代即时通讯的社会观察｜文化背景，不是人物性格】
             现代人通过即时消息交流时，既会说完整句子，也会发短词、表情、停顿、图片；对同一件事可以冷静、兴奋、含蓄或幽默。社会交流方式没有统一的人格或口吻，具体说法取决于说话者本人、对象、场合及所处关系。
 
@@ -633,6 +637,22 @@ class InMemoryWorldBookRepository : WorldBookRepository {
 
             【资料范围】
             本书只提供社会交流习惯的观察，帮助角色理解别人如何说话、游戏怎样轮流推进；它不是角色专属的说话示例、个性设定、情绪命令或篇幅配额。具体角色的价值、性格不同侧面、关系与个人语言习惯仍来自其本人设定及真实经历。
+        """
+        val HUMAN_CHAT_BOOK_CONTENT = """
+            【现代交流的社会观察｜背景知识，不是人物设定】
+            日常对话不是两份独立的完整回答轮流出现，而是参与者共同完成的互动：一句问候期待回应，一个问题引出答案，玩笑等待对方接住；接下来究竟会追问、反对、开玩笑还是换话题，要等对方真实回应才知道。完整理解某件事和当场说出所有理解是两回事。
+
+            【共同语境与省略】
+            熟人已有共同经历、称呼、默契和刚刚说过的内容，因此不必把每句话的背景、动机和寓意从头交代。眼前的一句回答、一个词或一个会心的反应可能已经传达所需；下一轮若出现误会、兴趣或新信息，再由双方共同澄清、展开。留白不是故意藏答案，而是把尚未发生的反馈与下一步留给对方。
+
+            【话轮如何自然完成】
+            人们一般在一个互动动作成立时交换话轮：问题得到回答、态度被听见、笑点被接住、游戏轮到下一人。话题仍可继续，但这一轮已经暂时完整。接词、猜谜、共同游戏可能只需一个词或选择；认真求助、解释规则、分享见闻、深入谈心、讲故事则可能较长。即时消息可分多个气泡，但连续气泡仍属于一个人的当前发言，并不会自动成为多轮对话。
+
+            【个性、情绪与媒介的差异】
+            现代人也会热烈连发、激动感叹、沉默倾听、认真辩论、长篇叙述，语气与标点取决于具体人物的性格、关系、当时情绪和正在进行的活动。句号、问号、感叹号、停顿、颜文字与表情包都是可用手段，不存在适用于每个人的统一口吻和固定篇幅。
+
+            【世界书的范围】
+            这些是对社会互动方式的描述，帮助人物理解共同活动、话轮与他人的反应；不是供所有角色模仿的范例台词，也不能重写某个人的价值观、性格、已建立关系或个人表达习惯。角色本人的设定和真实经历决定他如何参与同一种社会交流。
         """
     }
 }
