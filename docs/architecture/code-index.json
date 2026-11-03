@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T20:57:22.402325+00:00",
-  "commit": "0127de66274b8fe3bbd30848d439ac7853546bbc",
+  "generatedAt": "2026-11-03T21:32:11.170125+00:00",
+  "commit": "0d827c33bda8a1d33a72df6a8fb540e479bea38f",
   "branch": "main",
-  "sourceFingerprint": "02d0882190448e5d18b8fd94c78d09f907673b8c5a8efc79113648ca18185832",
+  "sourceFingerprint": "6fba55b6eaa67213a5c387394f33ca802f490743431c16cf383bd1f7fbaabe87",
   "summary": {
-    "files": 1125,
-    "lines": 234320,
-    "symbols": 3259
+    "files": 1126,
+    "lines": 234380,
+    "symbols": 3260
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6337,7 +6337,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 649
+        "line": 658
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -6377,7 +6377,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 665
+        "line": 674
       }
     ],
     "informativeAction": [
@@ -9489,7 +9489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 770
+        "line": 787
       }
     ],
     "LegacyLuluImportResult": [
@@ -11965,25 +11965,25 @@
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 605
+        "line": 614
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 614
+        "line": 623
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 646
+        "line": 655
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 752
+        "line": 769
       }
     ],
     "Limits": [
@@ -15902,6 +15902,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
         "line": 6
+      }
+    ],
+    "CharacterContinuitySnapshotTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt",
+        "line": 14
       }
     ],
     "CharacterConversationAgencyTest": [
@@ -23530,7 +23536,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
       "lines": 139,
-      "sha256": "2989767e11145918c00a15150294aaa44a61c29bb67ad040cfe1fdb55fe5f397",
+      "sha256": "bd4058a1b26ce8896331616d33c49b39db3e8e758d7e2beb6282d5cab5707ab5",
       "symbols": [
         {
           "name": "snapshot",
@@ -29700,8 +29706,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 884,
-      "sha256": "01c935a0ae65f24f8d931873da278ce89c0c5512336aa6a04e267089348d2353",
+      "lines": 901,
+      "sha256": "a7becde3a591be37e3052dfe9220eab6c78da313feb961fa64cc171184d9d649",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -29765,31 +29771,31 @@
         },
         {
           "name": "recentUserActivities",
-          "line": 605
-        },
-        {
-          "name": "recentXhsReadings",
           "line": 614
         },
         {
+          "name": "recentXhsReadings",
+          "line": 623
+        },
+        {
           "name": "sessionEvents",
-          "line": 646
+          "line": 655
         },
         {
           "name": "recentContext",
-          "line": 649
+          "line": 658
         },
         {
           "name": "remember",
-          "line": 665
+          "line": 674
         },
         {
           "name": "exportBackup",
-          "line": 752
+          "line": 769
         },
         {
           "name": "importBackup",
-          "line": 770
+          "line": 787
         }
       ]
     },
@@ -35548,6 +35554,17 @@
         {
           "name": "CharacterContinuityRuntimeTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuitySnapshotTest.kt",
+      "lines": 43,
+      "sha256": "234bab5284fc8a107c2e525d5d526c5b8f75de73fe5b6d4698dff37a169f8b40",
+      "symbols": [
+        {
+          "name": "CharacterContinuitySnapshotTest",
+          "line": 14
         }
       ]
     },
