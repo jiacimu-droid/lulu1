@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7a5a7e326d127b08332e784a13e523ee072f65dd`
+- 基准提交：`ca5af41b655f69afac3dd8c52d88b46c9deb816a`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234485
+- 已索引代码/文本行：234526
 - 已发现符号：3261
 
 | 文件 | 行数 | 符号数 |
@@ -342,7 +342,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 217 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt` | 716 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 169 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 171 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 881 | 7 |
@@ -560,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 41 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 576 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
@@ -1057,7 +1057,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 170 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 203 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
