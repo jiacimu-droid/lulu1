@@ -900,6 +900,43 @@ class CompanionModelGateway(
                     connectionStore.appContext, characterId, ownerAvatar, reply.text,
                 )
             }
+            // The selected working set is NOT proof of model input. Large
+            // background turns may be reduced for the transport, or fail before
+            // a model reply exists. Only this post-response stage can certify
+            // which intact evidence snippets entered the actual request.
+            if (working != null) {
+                val injected = com.jiacimu.lulu.data.MemoryWorkingSetPolicy.actuallyInjectedIds(
+                    working, if (sentReduced) reducedSections else systemSections)
+                val omittedForTransport = if (sentReduced)
+                    working.selected.filterNot(injected.toSet()::contains).associateWith {
+                        "Relay 请求压力保护：本轮实际请求省略；原始证据仍在本地"
+                    } else emptyMap()
+                com.jiacimu.lulu.data.MemoryInspectionStore.recordInjection(
+                    characterId, unifiedMemory.inspectionId,
+                    deliveredCore.map { "core:${it.id}" } + injected,
+                    working.omitted + omittedForTransport,
+                    extraNotes = listOf(
+                        "实际成功传输记忆工作集：${injected.size}/${working.selected.size} 项；" +
+                            "弹性 ${working.usedCharacters} 字符；常驻核心/责任 ${working.protectedCharacters} 字符；" +
+                            "预算 ${working.budget} 字符；Relay精简=${sentReduced}。",
+                    ) + if (working.protectedCharacters > working.budget)
+                        listOf("核心与未结责任超过预算，完整保留；未静默截断。")
+                    else emptyList(),
+                )
+                if (turnTraceId.isNotBlank()) {
+                    // Opaque IDs and counts only: no recalled prose, persona
+                    // description, user messages or API credentials in logs.
+                    LuluRepositories.performance.recordTiming(
+                        "P08b实际注入", 0,
+                        "trace=$turnTraceId;mode=${effectiveMode.name};" +
+                            "reduced=$sentReduced;core=${deliveredCore.size};" +
+                            "selected=${working.selected.size};injected=${injected.size};" +
+                            "omitted=${working.omitted.size + omittedForTransport.size};" +
+                            "injectedIds=${injected.take(32).joinToString(",")};" +
+                            "coreIds=${deliveredCore.take(16).joinToString(",") { it.id }}"
+                    )
+                }
+            }
             // Record only after the request returned a valid model reply. The audit
             // reflects the exact core IDs included in this outgoing system prompt,
             // not the ordinary retrieval candidates or merely assembled text.
