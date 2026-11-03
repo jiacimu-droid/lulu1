@@ -413,6 +413,7 @@ object LuluDeviceToolBridge {
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图"}。
             speechIntent 交接本人这次真正想传达的核心意思、立场和必要答案；本人性格先影响怎样理解、在意什么，再延续到表达。她在说现实困难时，担忧本身可以成立；结合上下文理解她是在倾诉、讨论还是请求办法，由你选择回应方式和展开程度。
+            先选这一拍的交流动作，再写 speechIntent：它只承载本轮真要说出口的内容，不是把所有已知背景、可能的劝告和后续几轮话合成一份提纲。对方没有请你规划时，是否给建议仍由你按关系与现场决定；若只是想接住她的一句话，那个真实反应本身就可完成这一轮。认真求助、多项明确问题或自己确实想深谈时，则保留必要的完整说明。
             appraisal.expression 可选 stance、subtext、device、restraint，承载本人此刻真实的态度、话外感受与分寸。私人心念可以丰富，实际发言取这次愿意说给对方听的部分；称呼、具体措辞和节奏留给同一个人的表达层现场组织。
             自己确实想发起一个社交小动作时，可选 socialAttempt="本人这次愿意怎样与她互动"，表达层按双方真实关系在语言中实现；现实操作依实际工具回执确认。
             回复结构示意：{"action":"reply","speechIntent":"本人这次选择传达的意思","dialogueMove":{"type":"answer","target":"当前话题","contentIntent":"本人选择的内容意图"},"reason":"本人选择这次交流的缘由"}
@@ -1360,8 +1361,9 @@ object LuluDeviceToolBridge {
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
-                        appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
-                            includeExamples = false))
+                        // The renderer already receives the person's selected move and
+                        // CharacterExpressionGuide's chat rhythm. A second generic
+                        // style block here competes with that local choice.
                         appendLine("本人这次选择想让对方知道的意思（交接立场与必要答案，具体说法由本人组织）：${plan.speechIntent}")
                         if (plan.socialAttempt.isNotBlank()) {
                             appendLine("角色自己选中的具体小尝试：${plan.socialAttempt.take(200)}。这是虚拟聊天表达的意图，不是已发生的现实接触。")
