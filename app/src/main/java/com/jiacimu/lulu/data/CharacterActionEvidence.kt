@@ -30,7 +30,7 @@ internal object CharacterActionEvidence {
         return when (action.trim().lowercase()) {
             "message", "group_message", "phone_reply", "sticker", "group_sticker",
             "kaomoji", "group_kaomoji" ->
-                e.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                TimelineStatementOwnership.isOwnCharacterStatement(e) &&
                     e.source == "message" && (e.channel.contains("聊") || e.channel.contains("电话"))
             "moment" -> e.evidenceKind == EventEvidenceKind.CharacterStatement && e.source == "moment:self"
             "journal", "write_journal" -> e.evidenceKind == EventEvidenceKind.CharacterStatement && e.source == "journal:own"

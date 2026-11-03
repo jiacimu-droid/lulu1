@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T03:50:29.169569+00:00",
-  "commit": "9e830a02e1b3c25be60dfc1f090c18cd5f3eca83",
-  "branch": "main",
-  "sourceFingerprint": "d7279002c339fed3a400de9be2b8d05de68df58e9304838cb7c83cf590d91770",
+  "generatedAt": "2026-11-03T04:12:22.917338+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "7aacfaba8176dfb4b33e796fd3d9d7523c4e12a58811c2b783f85fcce081955e",
   "summary": {
-    "files": 1121,
-    "lines": 230661,
-    "symbols": 3241
+    "files": 1123,
+    "lines": 230817,
+    "symbols": 3244
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5983,7 +5983,7 @@
     "proactiveContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 118
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -12020,6 +12020,18 @@
         "line": 2
       }
     ],
+    "isOwnCharacterStatement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
+        "line": 19
+      }
+    ],
+    "involvesUser": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
+        "line": 36
+      }
+    ],
     "groups": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
@@ -17662,6 +17674,12 @@
         "line": 20
       }
     ],
+    "TimelineStatementOwnershipTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
+        "line": 17
+      }
+    ],
     "TokenConsolePresentationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
@@ -23210,7 +23228,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
       "lines": 59,
-      "sha256": "450720d16f14de016e4bc9fc602db45e094e35a02cf0c11cb9ad7c92f9b6540b",
+      "sha256": "67dce8ba3b73f030c8264a1993fe1ae01992b17dd7426f2746c989858ffd4b9d",
       "symbols": [
         {
           "name": "resolve",
@@ -23433,8 +23451,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-      "lines": 137,
-      "sha256": "9dff825d4435d7a3571cb7d7aec88ee7aee1895e4c821f1bb1980ff23f9ab1e9",
+      "lines": 139,
+      "sha256": "ed00bd458a05b2faf8d67f317adc47e0459a63bf339a4305c26d0738fd5499a8",
       "symbols": [
         {
           "name": "snapshot",
@@ -23446,7 +23464,7 @@
         },
         {
           "name": "proactiveContext",
-          "line": 118
+          "line": 120
         }
       ]
     },
@@ -25840,7 +25858,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
       "lines": 63,
-      "sha256": "4dedc2e27f2200ee10e67080be34fc2dc1b889aa24cfd830861d2814d9836e6a",
+      "sha256": "e7b3e69a2d5b79dfdf8b510d49d259497e452d10a70bc5ec449b5961ff17931d",
       "symbols": [
         {
           "name": "recentOwnReplies",
@@ -29754,6 +29772,21 @@
         {
           "name": "EventEvidenceKind",
           "line": 2
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt",
+      "lines": 41,
+      "sha256": "abaf900aae5d3bca9ec6c29f832a407625e033da71344048e3245034403f06d9",
+      "symbols": [
+        {
+          "name": "isOwnCharacterStatement",
+          "line": 19
+        },
+        {
+          "name": "involvesUser",
+          "line": 36
         }
       ]
     },
@@ -37835,6 +37868,17 @@
         {
           "name": "TimelinePrefixDeletionTest",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt",
+      "lines": 113,
+      "sha256": "6828615b02c9c11d994dddd05f4b13044f8d082bc31a72f6d81d8966f216d5a8",
+      "symbols": [
+        {
+          "name": "TimelineStatementOwnershipTest",
+          "line": 17
         }
       ]
     },

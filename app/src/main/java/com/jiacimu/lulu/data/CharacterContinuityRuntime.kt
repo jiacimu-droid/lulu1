@@ -39,11 +39,11 @@ internal object CharacterContinuityRuntime {
         val interactions = SharedExperienceTimeline.recentEvents(characterId, 160)
             .filter {
                 it.evidenceKind == EventEvidenceKind.UserStatement ||
-                    it.evidenceKind == EventEvidenceKind.CharacterStatement
+                    TimelineStatementOwnership.isOwnCharacterStatement(it)
             }
             .filter { !it.occurredAt.isAfter(now) }
             .filterNot { isCurrentInputEcho(it, currentUserText, now) }
-        val previous = interactions.lastOrNull()
+        val previous = interactions.lastOrNull { TimelineStatementOwnership.involvesUser(it) }
         val minutes = previous?.occurredAt?.let {
             Duration.between(it, now).toMinutes().coerceAtLeast(0L)
         }
@@ -80,7 +80,8 @@ internal object CharacterContinuityRuntime {
     ): String = render(snapshot(characterId, currentUserText, now), includeMotives)
 
     internal fun render(state: Snapshot, includeMotives: Boolean = true): String {
-        if (state.previousInteractionAt == null && state.preferredAddress.isBlank() &&
+        if (state.previousInteractionAt == null && state.lastCharacterStatement == null &&
+            state.lastUserStatement == null && state.preferredAddress.isBlank() &&
             (!includeMotives || state.activeMotiveAims.isEmpty())) return ""
         return buildString {
             appendLine("【人物连续性锚点｜程序提供的真实历史，不是要求你表演连续性】")
@@ -101,8 +102,9 @@ internal object CharacterContinuityRuntime {
                 appendLine("用户上一次真实说过：${it.content.replace(Regex("\\s+"), " ").take(180)}")
             }
             state.lastCharacterStatement?.let {
-                appendLine("角色自己上一次真实说过：${it.content.replace(Regex("\\s+"), " ").take(180)}")
+                appendLine("角色自己上一次真实说过：${it.content.replace(Regex("\\s+"), " ").take(180)}（场景：${it.channel}）")
                 appendLine("自己已经说出口的话属于自己的历史，要承接并负责，不能下一轮当成用户说的或完全失忆。")
+                appendLine("发言场景以原记录为准；在其他群里说过，不代表已经向当前交谈对象说过。")
             }
             if (state.preferredAddress.isNotBlank()) {
                 val source = if (state.addressIsManual) "用户/设置明确固定" else "由真实聊天观察得出"

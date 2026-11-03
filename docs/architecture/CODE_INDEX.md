@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9e830a02e1b3c25be60dfc1f090c18cd5f3eca83`
-- 分支：`main`
-- 已索引文件：1121
-- 已索引代码/文本行：230661
-- 已发现符号：3241
+- 基准提交：`local`
+- 分支：`local`
+- 已索引文件：1123
+- 已索引代码/文本行：230817
+- 已发现符号：3244
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -342,7 +342,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 217 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt` | 716 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 137 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 139 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 881 | 7 |
@@ -559,6 +559,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 41 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 540 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
@@ -1054,6 +1055,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 168 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 113 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |

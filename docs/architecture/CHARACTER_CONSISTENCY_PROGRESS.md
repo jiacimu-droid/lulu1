@@ -1,5 +1,7 @@
 # 人物一致性：整体因果链核查与修复
 
+完整跨窗口体验路线与优先级见 [LULU_EXPERIENCE_ROADMAP.md](LULU_EXPERIENCE_ROADMAP.md)：人物活人感第一，角色社交第二，再推进游戏与视频。本文件记录人物专项的真实证据与待验状态。
+
 ## 任务范围（2026-11-02 用户澄清）
 
 哄睡是暴露问题的场景之一，不是唯一开发目标。要让本人稳定人格、关系与经历参与理解、动机、取舍、行动和后续，而不是只有台词或心声像本人。不能把所有角色统一改为温柔/热情/强势监督，也不能用脚本替本人作决定。
@@ -101,3 +103,27 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - 新增 Android/Robolectric 回归覆盖长字段末尾否定与条件在存储、compact/full 两类上下文中完整往返；另覆盖 responseAim-only 和 interactionMove-only 不再被过滤。源码测试已写入，需等待本次 main CI 执行。
 - 真机、真实模型是否因此更能连续承接本人意图仍待实测；工具/日程执行回执是否完整携带原 motive/concern/experience 关联 ID，是下一轮继续追踪的重点。
+
+## 2026-11-03 续轮：群聊见证与本人发言的来源归属
+
+### 前轮结果与本轮范围
+
+- `fcfe48d` 的 Lulu APK run `41573104453` 失败：2262 项测试中 1 项失败，位置为 `CharacterInnerLifeStoreTest.authoredAppraisalAndThoughtKeepTheirMeaningfulTailsAcrossTheNextTurn`，未生成 APK。最新 main 已由另一轮 `9e830a0` 恢复稳定的冲突说明标签；本轮保留，不重复实现或削弱断言。
+- `9e830a0` 的 run `41574546147` / build job `125714905394` 已核实成功：原 Android 单测、APK 打包、上传和发布成功，`BUILD SUCCESSFUL`，发布 `lulu-v7367`。包含先前人物修复；不等于真机或真实模型质量验收。
+- 用户已授权保存整体体验大纲、在 AGENTS 增加续改入口并继续改代码。新路线文档区分已有能力、已证实缺口和待核查项目；后续按人物优先、社交其次推进。
+
+### 已证实根因与实际修改
+
+`SharedExperienceTimeline.recordConversationMessage` 为每位群成员写入见证事件，事件的 characterId 是见证者，CharacterStatement 只说明“某角色发言”，不保证作者就是这位见证者。原 `CharacterContinuityRuntime` 将任意此类事件标为“角色自己上一次真实说过”；`ConversationTurnEconomy.recentOwnReplies` 把它加入本人的表达参考；`CharacterActionEvidence.supports` 又可把它当成本人已发消息的证明。同一来源归属错误从理解上下文传到表达及真实行动归因，是公共机制缺口，不是某个人设不够热情。
+
+新增只读 `TimelineStatementOwnership`，沿已有 sessionId 与消息 ID 回到权威 chat Store，用原消息 sender/authorCharacterId/onBehalfByOwner 校验本人发言。三处消费者复用同一规则，不用昵称或内容猜作者，不新增 Store、人格中心或模型调用。无作者字段的旧消息沿原 conversation.characterId 语义兼容；群消息原件缺失、非正式消息或用户代发，不能冒充本人的自主发言。私聊等已有非群记录保持原语义。
+
+本人在群里真实说过的内容仍可进入连续性，但标明场景，不等于已向当前对象说过。群里某角色说话也不证明与用户发生了互动；用户真实发言可提供互动时距依据。只读投影不拿当前可变的 ownerIncluded 反推历史听众，避免用户后来入群改变旧联系时钟。没有用户联系记录时也保留自己的社交发言锚点。原见证时间线不删除，仍可召回别人的原话。
+
+### 回归、兼容与剩余边界
+
+- 新增 Robolectric 来源级回归，经正式 chat Store 写群消息再读取真实时间线，覆盖不同作者的相反表达、双方各自连续性、表达参考与行动证明、同昵称/改昵称、原件缺失、旧默认作者、用户代发、无用户群聊、用户后来加入和真正发言后的时距更新。
+- 本地 `git diff --check` 通过，运行原代码索引生成器。当前环境无 Gradle/Android SDK，本轮新增 Android 回归和 APK 须等待本提交 main CI；不得把测试已编写记成已通过。
+- 无数据库格式迁移，原始群聊历史与见证记录保留。此轮修正上述三条消费链；旧版已据错误作者形成的成长/关系内容没有凭空改写，其他将 CharacterStatement 当成本人表达的成长等消费点仍需继续逐项核查。
+- 连续性渲染原有短预览、固定最近事件窗口是否仍丢关键条件/长期相关经历，仍属于已见源码风险，未在本轮宣称解决。下一轮先核实本提交 CI，再沿同一来源语义与原目标/回执关联检查剩余消费者，避免换一个场景重复补丁。
+- 真机、多日表现与真实模型的人设一致性、自然主动性仍待验；本轮不宣称“活人感已修好”。

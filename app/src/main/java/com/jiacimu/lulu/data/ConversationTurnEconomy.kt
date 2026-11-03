@@ -8,7 +8,7 @@ internal object ConversationTurnEconomy {
                          sessionId: String, now: Instant): List<String> =
         if (sessionId.isBlank()) emptyList() else events.filter {
             it.characterId == characterId && it.sessionId == sessionId && it.source == "message" &&
-                it.evidenceKind == EventEvidenceKind.CharacterStatement && !it.occurredAt.isAfter(now)
+                TimelineStatementOwnership.isOwnCharacterStatement(it) && !it.occurredAt.isAfter(now)
         }.sortedBy { it.occurredAt }.takeLast(4).map { it.content }
 
     val principles: String = """

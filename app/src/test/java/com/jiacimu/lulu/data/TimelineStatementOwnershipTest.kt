@@ -1,0 +1,112 @@
+package com.jiacimu.lulu.data
+
+import android.content.Context
+import com.jiacimu.lulu.LuluRepositories
+import java.time.Instant
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
+class TimelineStatementOwnershipTest {
+    @Before fun before() {
+        MemoryTestEnvironment.release()
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+    }
+    @After fun after() { MemoryTestEnvironment.release() }
+
+    private fun event(message: LuluChatMessage, witness: String): SharedTimelineEvent =
+        SharedExperienceTimeline.eventsByIds(witness, listOf("${message.id}:group:$witness")).single()
+
+    @Test fun witnessedPeerSpeechCannotBecomeMyWordsStyleOrActionReceipt() {
+        val a = "speech-author-a"
+        val b = "speech-author-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("同名", listOf(a, b), true)
+        val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我想留在这里。", a)
+        val peer = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我决定离开。", b)
+        val mine = event(own, a)
+        val heard = event(peer, a)
+        assertTrue(TimelineStatementOwnership.isOwnCharacterStatement(mine))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(heard))
+        assertTrue(CharacterActionEvidence.supports(mine, "group_message"))
+        assertFalse(CharacterActionEvidence.supports(heard, "group_message"))
+        assertEquals(heard, CharacterActionEvidence.resolve(a, peer.id)) // Witness history is preserved.
+        val now = Instant.now().plusSeconds(1)
+        assertEquals(listOf(own.content), ConversationTurnEconomy.recentOwnReplies(
+            SharedExperienceTimeline.all(a), a, group.id, now))
+        assertEquals(own.id + ":group:$a", CharacterContinuityRuntime.snapshot(a, now = now)
+            .lastCharacterStatement?.id)
+        assertEquals(peer.id + ":group:$b", CharacterContinuityRuntime.snapshot(b, now = now)
+            .lastCharacterStatement?.id)
+        assertTrue(SharedExperienceTimeline.eventsByIds("not-a-member",
+            listOf("${peer.id}:group:not-a-member")).isEmpty())
+
+        // Display names are mutable and may collide; stable authorship does not.
+        MigratedDomainStores.chat.updateGroupConversation(group.id, group.groupChat!!.copy(
+            members = listOf(LuluGroupMember(a, "同名"), LuluGroupMember(b, "同名"))))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(heard.copy(speaker = "同名")))
+        assertTrue(TimelineStatementOwnership.isOwnCharacterStatement(mine.copy(speaker = "同名")))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(heard.copy(sessionId = "missing")))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(mine.copy(source = "legacy")))
+    }
+
+    @Test fun groupLifeRemainsVisibleWithoutInventingContactWithTheUser() {
+        val a = "independent-life-a"
+        val b = "independent-life-b"
+        val at = Instant.now().minusSeconds(3_600)
+        SharedExperienceTimeline.record("old-direct-user", a, "私聊", "用户", "此前的聊天",
+            occurredAt = at, triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val group = MigratedDomainStores.chat.createGroupConversation("自己的社交", listOf(a, b), false)
+        val own = MigratedDomainStores.chat.appendCharacterMessage(group.id, "我在和朋友讨论这本书。", a)
+        MigratedDomainStores.chat.appendCharacterMessage(group.id, "我有不同看法。", b)
+        val now = Instant.now().plusSeconds(1)
+        val snapshot = CharacterContinuityRuntime.snapshot(a, now = now)
+        assertEquals(at.toEpochMilli(), snapshot.previousInteractionAt?.toEpochMilli())
+        assertEquals(own.content, snapshot.lastCharacterStatement?.content)
+        assertFalse(TimelineStatementOwnership.involvesUser(event(own, a)))
+        // Adding the user later must not retrospectively turn old social speech into user contact.
+        MigratedDomainStores.chat.updateGroupConversation(group.id, group.groupChat!!.copy(ownerIncluded = true))
+        assertEquals(at.toEpochMilli(), CharacterContinuityRuntime.snapshot(a, now = now)
+            .previousInteractionAt?.toEpochMilli())
+        val rendered = CharacterContinuityRuntime.render(snapshot.copy(previousInteractionAt = null,
+            minutesSinceInteraction = null, lastUserStatement = null, preferredAddress = "",
+            activeMotiveAims = emptyList()))
+        assertTrue(rendered.contains(own.content))
+        assertTrue(rendered.contains("群聊·自己的社交"))
+        assertFalse(rendered.contains("距上一条真实双方互动"))
+        val user = MigratedDomainStores.chat.sendUserMessage(group.id, "我也加入讨论。")
+        assertTrue(TimelineStatementOwnership.involvesUser(event(user, a)))
+        assertEquals(user.createdAt.toEpochMilli(), CharacterContinuityRuntime.snapshot(a,
+            now = Instant.now().plusSeconds(1)).previousInteractionAt?.toEpochMilli())
+    }
+
+    @Test fun legacyDefaultAuthorAndOwnerOnBehalfKeepTheirActualMeaning() {
+        val a = "legacy-speaker-a"
+        val b = "legacy-speaker-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("兼容", listOf(a, b), true)
+        val legacy = MigratedDomainStores.chat.appendCharacterMessage(group.id, "默认作者的原话。")
+        assertTrue(TimelineStatementOwnership.isOwnCharacterStatement(event(legacy, a)))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(event(legacy, b)))
+        val delegated = MigratedDomainStores.chat.appendCharacterMessage(group.id,
+            "用户代发的内容。", a, onBehalfByOwner = true)
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(event(delegated, a)))
+        assertFalse(CharacterActionEvidence.supports(event(delegated, a), "message"))
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(event(legacy, a)
+            .copy(id = "unknown:group:$a")))
+        val stale = event(legacy, a)
+        MigratedDomainStores.chat.markFailed(legacy.id)
+        assertFalse(TimelineStatementOwnership.isOwnCharacterStatement(stale))
+    }
+}
