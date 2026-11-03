@@ -116,6 +116,10 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
     // A catalog opens temporarily, then closes as soon as an action is chosen.
     var panelExpanded by remember(characterId) { mutableStateOf(false) }
     var panelSection by remember(characterId) { mutableStateOf("motions") }
+    // Compare actual imported Motion3 without adding any in-call action controls.
+    var comparisonMode by remember(modelUrl) { mutableStateOf(false) }
+    var comparisonA by remember(modelUrl) { mutableStateOf<Pair<String, Int>?>(null) }
+    var comparisonB by remember(modelUrl) { mutableStateOf<Pair<String, Int>?>(null) }
     var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
     var interactionForce by remember(modelUrl) { mutableStateOf(.25f) }
     var touchCalibrationMode by remember(modelUrl) { mutableStateOf(false) }
@@ -231,7 +235,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
         )
     }
 
-    fun playMotion(group: String, index: Int) {
+    fun playMotion(group: String, index: Int, keepPanelOpen: Boolean = false) {
         previewMotion = group to index
         val entry = if (group == "LuluWolf") Live2DMotionCatalog.entries[index] else null
         previewExpression = entry?.expression?.let {
@@ -243,7 +247,7 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
             (entry?.expression?.let { "＋$it" } ?: "") +
             (entry?.faceNote?.let { "＋$it" } ?: "")
         motionRevision++
-        panelExpanded = false
+        if (!keepPanelOpen) panelExpanded = false
     }
 
     fun playExpression(name: String) {
@@ -488,6 +492,38 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                 }
             }
             if (panelExpanded && !touchCalibrationMode) {
+                if (panelSection == "motions" && controls.motions.isNotEmpty()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = {
+                            comparisonMode = !comparisonMode
+                            if (!comparisonMode) {
+                                comparisonA = null
+                                comparisonB = null
+                            }
+                        }) {
+                            Text(if (comparisonMode) "退出 A/B" else "A/B 对比",
+                                color = Color(0xFFB8E6FF), fontSize = 12.sp)
+                        }
+                        if (comparisonMode) {
+                            comparisonA?.let { selected ->
+                                TextButton(onClick = {
+                                    playMotion(selected.first, selected.second, keepPanelOpen = true)
+                                }) { Text("播放 A", color = Color.White, fontSize = 12.sp) }
+                            }
+                            comparisonB?.let { selected ->
+                                TextButton(onClick = {
+                                    playMotion(selected.first, selected.second, keepPanelOpen = true)
+                                }) { Text("播放 B", color = Color.White, fontSize = 12.sp) }
+                            }
+                        }
+                    }
+                    if (comparisonMode) Text(
+                        when {
+                            comparisonA == null -> "点一个动作选 A，再点另一个动作选 B"
+                            comparisonB == null -> "已选 A：继续点动作选 B"
+                            else -> "反复点「播放 A / B」比较；点第三个动作重新选 A"
+                        }, color = Color(0xFFDDE8F2), fontSize = 11.sp)
+                }
                 Text("当前：$lastPlayed · 触摸：$lastTouch",
                     color = Color(0xFFE7F0F6), fontSize = 11.sp, maxLines = 1)
                 LazyColumn(
@@ -568,9 +604,23 @@ internal fun Live2DPreviewPlaygroundContent(characterId: String, onClose: () -> 
                                                 val label = if (group == "LuluWolf") {
                                                     Live2DMotionCatalog.entries[index]?.name ?: "$group#$index"
                                                 } else "$group#$index"
-                                                Button(onClick = { playMotion(group, index) },
-                                                    modifier = Modifier.weight(1f)) {
-                                                    Text(label, fontSize = 12.sp)
+                                                Button(onClick = {
+                                                    if (!comparisonMode) {
+                                                        playMotion(group, index)
+                                                    } else {
+                                                        val selected = group to index
+                                                        if (comparisonA == null || comparisonB != null) {
+                                                            comparisonA = selected
+                                                            comparisonB = null
+                                                        } else if (comparisonA != selected) {
+                                                            comparisonB = selected
+                                                        }
+                                                    }
+                                                }, modifier = Modifier.weight(1f)) {
+                                                    val selected = group to index
+                                                    Text((if (comparisonMode && comparisonA == selected) "A·"
+                                                        else if (comparisonMode && comparisonB == selected) "B·"
+                                                        else "") + label, fontSize = 12.sp)
                                                 }
                                             }
                                         }
