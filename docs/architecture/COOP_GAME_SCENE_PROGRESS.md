@@ -65,3 +65,12 @@
 - 同一 main 上已针对三条编译错误修正摇杆重复动作的 coroutine scope 和 Relic 镜头的 Compose state 读取（`f804835`、`1654a78`）。前一项的修复分支没有另开，直接落 main；不得仅凭源码判断 Gradle 已通过。
 - 工作流增加 `jobs.build.timeout-minutes: 65` 与 `Test and build phone APK.timeout-minutes: 40`（提交 `34dd405`）。保留原本“不打断正在正常构建的那次”的并发语义，但限制异常挂起时间，不让一个 runner 无限占用发布队列；没有绕过单测和签名/发布步骤。
 - #7439 先于全部修复启动；#7441（run 41598258805，提交 `34dd405`）包含这两处编译修复及超时配置，在记录时尚为 pending，**未经 CI 通过、APK 产物、真机验收**。验收以 #7441 或其后同源 main 的实际完整构建日志、Release 和 APK 哈希为准；任何 cancelled/failure 均不得标记通过。
+
+
+## 2026-11-03：Lulu APK 堵队列与虚拟摇杆 Kotlin 编译故障复盘
+
+- Actions #7435–#7437 为 `cancelled`，不是 Kotlin 编译失败。#7393（run 41583980021）曾长时间停在 `Test and build phone APK`，旧工作流在 `lulu-apk-refs/heads/main` 共用并发组且 `cancel-in-progress: false`，使手动发起的 #7438 也一直 `pending`、无任何 Job；之后 #7393 被取消才放行。
+- #7438（run 41593792883）真正运行后在 `:app:compileDebugKotlin` 报三个编译错误：`GameSceneDeck.kt` 第 259、269 行在限制挂起作用域里使用 `coroutineScope/awaitPointerEvent`，及 `RelicEscapeArt.kt` 第 66 行 `State<Offset>` 缺少 `getValue` 委托支持。正式日志而非猜测证实本轮有源码编译问题。
+- 修复提交：`f8048352` 把持按重复协程创建移到受限事件作用域外（事件读取仍在作用域内）；`1654a783` 将镜头最新位置改用 `State.value` 并清除重复导入。#7439（run 41598168249）的日志不再出现 `GameSceneDeck` 两条编译错误，仅报修复前提交中的 `RelicEscapeArt` 状态委托错误，提供了一次局部验证；这不等于最终 APK 通过。
+- 工作流提交 `686152ca` 将手动 `workflow_dispatch` 与自动 `push` 并发组分离，既保持频繁提交时的单个运行保护，也不让手动发起的构建被旧自动任务永久堵住；为 `build` 设置 65 分钟上限，避免默认长时间挂死。其他并行提交一度导致 `timeout-minutes` 重复声明，已在 `c355f8a1` 删除重复键。
+- #7443（run 41598389134，源提交 `c355f8a1`）已进入实际 Job 执行；**截至本轮记录，尚未获得最终成功/失败结论，更没有新的完整 APK/真机验收证据。** 必须读取该 run 最终日志与产物后才能在总看板标记 CI 已通过；不重启失败的历史旧 SHA 假装是新版本。
