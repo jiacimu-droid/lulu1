@@ -169,7 +169,7 @@ object MomentsStore {
         val post = MomentPost(
             authorType = MomentAuthorType.Character,
             authorCharacterId = characterId,
-            content = clean.take(2_000),
+            content = clean,
             imageUri = cleanImage,
             imageDescription = cleanDescription,
             imageUnderstandingStatus = initialImageStatus(cleanImage, cleanDescription),

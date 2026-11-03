@@ -777,7 +777,7 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已邀请你到${location}见面", conversation.id)
             }
             "publish_moment" -> {
-                val text = args.optString("text").trim().take(2_000)
+                val text = args.optString("text").trim()
                 require(text.isNotBlank()) { "朋友圈正文不能为空" }
                 val post = MomentsStore.publishCharacter(characterId, text)
                     ?: error("朋友圈发布失败")

@@ -462,7 +462,6 @@ internal object ResidentDailyDecision {
     }
 
     private const val MAX_AGENDA_ITEMS = ResidentDailyPolicy.MAX_AGENDA_ITEMS
-    private const val MAX_MESSAGE = 500
     private const val MAX_SAVED_DECISION_RECOVERIES = 2
     // A rejected, non-generated request may be retried ONCE only after the
     // configured connection changes. A timeout/5xx never gets this permission.
@@ -1989,7 +1988,7 @@ internal object ResidentDailyDecision {
             appraisal = null, innerLife = scopedInnerLife, innerThoughtBasis = null,
             selectedAction = "plan_day", innerThought = plan.optString("thought"),
             reason = "本人作出的当天安排；尚未执行的活动不能算亲历", now = now)
-        val post = json.optString("post").trim().take(MAX_MESSAGE)
+        val post = json.optString("post").trim()
         val postComplete = if (post.isNotBlank()) {
             MomentsStore.initialize(app)
             ToolExecutionStatus.completed(JSONObject(ToolRouter.execute(app, id,
@@ -1997,7 +1996,7 @@ internal object ResidentDailyDecision {
                 requestId = "$eventId-post", causeEvidenceId = decisionEvidenceId)))
         } else true
         val messageTo = json.optString("messageTo").trim()
-        val message = json.optString("message").trim().take(MAX_MESSAGE)
+        val message = json.optString("message").trim()
         val messageComplete = if (message.isNotBlank() && messageTo.isNotBlank()) {
             ToolExecutionStatus.completed(JSONObject(ToolRouter.execute(app, id,
                 "send_character_message",

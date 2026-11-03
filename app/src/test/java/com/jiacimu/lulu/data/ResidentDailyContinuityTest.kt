@@ -935,11 +935,13 @@ class ResidentDailyContinuityTest {
         CharacterInnerLifeStore.observe(unrelated.characterId, "private-other", "旁人的私事",
             JSONObject().put("emotion", JSONObject().put("feeling", "OTHER_PRIVATE_SENTINEL")
                 .put("cause", "自己的私人经历")), now = now)
+        val chosenMessage = "关于旧地图河流。".repeat(80) + "但今天别过去，等我确认后再约。"
+        val chosenPost = "今天看到旧地图的一条河。".repeat(180) + "这只是猜测，尚未核对。"
         val output = JSONObject().put("lunch", "cafe").put("evening", "courtyard")
             .put("eveningActivity", "读完整本河流图册并与朋友聊一晚")
             .put("thought", "还想接着聊河流的事")
-            .put("messageTo", peer.characterId).put("message", "好呀，我们下次接着聊。")
-            .put("post", "今天看见旧地图上细细的一条河。")
+            .put("messageTo", peer.characterId).put("message", chosenMessage)
+            .put("post", chosenPost)
             .put("innerLife", JSONObject().put("social", JSONObject()
                 .put("targetId", peer.characterId).put("interpretation", "他也对旧地图有兴趣")
                 .put("reason", "收到他关于河流的来信")))
@@ -987,7 +989,9 @@ class ResidentDailyContinuityTest {
             assertTrue(trace.any { it.title.contains("publish_moment") })
             assertTrue(trace.any { it.title.contains("send_character_message") })
             assertTrue(ResidentSocialMailbox.inbox(peer.characterId).any {
-                it.fromId == id && it.content == "好呀，我们下次接着聊。" })
+                it.fromId == id && it.content == chosenMessage })
+            assertTrue(MomentsStore.posts.value.any {
+                it.authorCharacterId == id && it.content == chosenPost })
             // The daily plan's prose is an intention, not an executor receipt.
             ResidentDailyDecision.schedule(app)
             val evening = now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()

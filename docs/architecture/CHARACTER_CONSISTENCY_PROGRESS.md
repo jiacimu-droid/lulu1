@@ -294,3 +294,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **候选修复**：执行器与唯一邮箱保留发信人完整原话，双方的真实时间线仍由原邮箱写入，ToolRouter 权限、联系人可见性、消息 ID、撤回、收件唤醒不改；待处理来信在既有本人社交上下文完整交接，旧最近通信仍只是预览；用户代发编辑器也不静默切断输入。未新增 Store、模型调用、自动社交或统一语气。
 - **回归及边界**：`ResidentPhoneWakeIntegrationTest` 通过正式 `send_character_message` 发出超过旧阈值、末尾有否定和条件的信，断言双方邮箱、收件人原时间线与下一轮本人待处理上下文均保留尾部。原索引生成器及 `git diff --check` 已运行。本轮 Android 单测/APK、手机收件和真实模型如何理解仍待提交后的实际结果；大规模多年邮箱存储/上下文预算需另作测量，不能以本次测试宣称长期性能验收。下一入口仍追 P-08 的目标 ID、多步骤回执与工具后本人表达。
 - **提交与工作流接力**：源码与回归已在 main [`fc94099`](https://github.com/jiacimu-droid/lulu1/commit/fc9409985094175260c3d4559edc42efcca03afc)，索引后继提交 `b6b558f`。索引 [run 41612476419](https://github.com/jiacimu-droid/lulu1/actions/runs/41612476419) success；APK/单测 [run 41612476493](https://github.com/jiacimu-droid/lulu1/actions/runs/41612476493) 最终 completed/success，其 Test and build phone APK、Collect APK、Upload temporary APK、Publish Lulu release 步骤均 success。公开 API 一度限流，之后通过已授权仓库接口复核最终结论。真机、真实模型、跨日质量尚无本轮证据，P-08/S-01 继续 [ ]。
+
+## 2026-11-03 P-08/S-01 续轮：居民每日选择的完整社交正文
+
+- **最新源码证据**：上一轮修复了正式私信执行器与邮箱，但 `ResidentDailyDecision.runOnce` 在每日模型决定已经持久化之后，仍对直接 `message`、`post` 使用 `take(500)` 再交给正式 ToolRouter。动态路径还在 `CompanionActionRuntime.publish_moment` 和 `MomentsStore.publishCharacter` 二次截到 2000 字。居民本人选择若把否定、邀约条件或不确定性写在后半段，实际投递/时间线会变成另一句话；这是每日入口与公共执行/持久化职责断开，而非模型选择不主动。
+- **本轮改动与回归**：保留每日决定原本已保存的完整正文，交原 ToolRouter 执行；角色动态执行与唯一动态 Store 也保留角色实际选定的正文。沿已有 `ResidentDailyContinuityTest.dailyDecisionKeepsIdentityMotivesAndMailAndSavesIndependentReceipts` 的真实每日模型响应、收件/发圈/回执路径，把私信尾部条件和超过 2000 字动态的末尾不确定性一起断言。用户自己发动态的入口规则不在本轮修改。无新 Store、自动发言或常态模型调用。
+- **验证边界与下一轮**：前轮 `fc94099` 的索引及 Android APK 工作流均已核实 success。本轮静态检查、原索引生成器及 CI 结果以下方提交记录为准；假模型回归仅验证选定文本到真实投递的契约，不证明真实模型自然生成这些表达。真机长文、动态 UI、真实模型与跨日关系发展待验。继续查 P-08 目标 ID、逐步回执在前台/电话/后台的接续；P-08/S-01 仍 [ ]。
