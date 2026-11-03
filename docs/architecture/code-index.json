@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T06:35:34.127446+00:00",
-  "commit": "f739f79c1021d541a47ef04c9f68b6002757afb9",
+  "generatedAt": "2026-11-03T07:43:24.236423+00:00",
+  "commit": "1654a783d3ab64c17f32a84cea96fe7cabfea3ca",
   "branch": "main",
-  "sourceFingerprint": "ec5bc47568a01982d99726da10b6cf8bb7eadefa06a8be279a5fdea564aaacce",
+  "sourceFingerprint": "28cced6871fcd1bf2a06f16e9635f6ce7e697fb8b22e979cf81a0a95a318447b",
   "summary": {
     "files": 1125,
-    "lines": 231789,
+    "lines": 231790,
     "symbols": 3250
   },
   "symbolIndex": {
@@ -685,7 +685,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 316
+        "line": 315
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -13015,7 +13015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 95
+        "line": 94
       }
     ],
     "actorCenter": [
@@ -13273,7 +13273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 94
+        "line": 93
       }
     ],
     "adjacent": [
@@ -31708,8 +31708,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt",
-      "lines": 401,
-      "sha256": "d81d620e6f585f29972baa6ad93f2000ca5aed07a3abf9ff31e18797a5d99e19",
+      "lines": 403,
+      "sha256": "145ae6f23c5ba81b96ef5281d348d471fed32c652fa49ebe76fc875690f33d26",
       "symbols": []
     },
     {
@@ -32316,20 +32316,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-      "lines": 356,
-      "sha256": "39a7878cad808cd7de7b47b5e225e4dd0cb16d10b3565b6058c971aebcac977f",
+      "lines": 355,
+      "sha256": "3135fe9e0b7e7d960fd64467d27180ab7f0d41165abdfb1c1aa048ab554d2eb7",
       "symbols": [
         {
           "name": "cell",
-          "line": 94
+          "line": 93
         },
         {
           "name": "center",
-          "line": 95
+          "line": 94
         },
         {
           "name": "label",
-          "line": 316
+          "line": 315
         }
       ]
     },

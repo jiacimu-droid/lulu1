@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f739f79c1021d541a47ef04c9f68b6002757afb9`
+- 基准提交：`1654a783d3ab64c17f32a84cea96fe7cabfea3ca`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：231789
+- 已索引代码/文本行：231790
 - 已发现符号：3250
 
 | 文件 | 行数 | 符号数 |
@@ -656,7 +656,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 401 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 403 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
@@ -682,7 +682,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt` | 176 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt` | 184 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 356 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt` | 355 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt` | 533 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt` | 671 | 2 |
