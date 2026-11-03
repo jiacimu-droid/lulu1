@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T17:11:27.179249+00:00",
-  "commit": "53e3e4d27d6c0211a05cd3e28a25736c37de9fef",
+  "generatedAt": "2026-11-03T17:12:00.212472+00:00",
+  "commit": "6751ca318ee9a5679ece9c2fe0608c062e3d1f22",
   "branch": "main",
-  "sourceFingerprint": "11ab9a1781321fd0c27469a7f7c9db8ef952477be3bee5a103d98da75dfa5928",
+  "sourceFingerprint": "9caf1ecb4ee9a478ed7a0cbd2b7bd40d782bdfa01a1f758856f45161a18b1703",
   "summary": {
     "files": 1125,
-    "lines": 233743,
+    "lines": 233746,
     "symbols": 3258
   },
   "symbolIndex": {
@@ -29972,8 +29972,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 305,
-      "sha256": "d2af501941eb73304a59f49bd7e8c93b93715e8a14a3d3843fd6bf8dddc6cef5",
+      "lines": 308,
+      "sha256": "66f5e2514bae2bac9f6456522d2e35ad594280cd3976402cf2430a602619a9be",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
