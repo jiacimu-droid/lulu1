@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd897dbf663373c9c4c4135ea8f3ad5baee7c2ac`
+- 基准提交：`8077bb809d0e9786693a4e1db852e1e5cb3b0344`
 - 分支：`main`
 - 已索引文件：1125
-- 已索引代码/文本行：230986
+- 已索引代码/文本行：231031
 - 已发现符号：3248
 
 | 文件 | 行数 | 符号数 |
@@ -298,7 +298,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 849 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 264 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 193 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1361 | 28 |
@@ -846,7 +846,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WatchTogetherSubtitleTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldBookListPreviewTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 299 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
