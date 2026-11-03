@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T19:33:48.455823+00:00",
-  "commit": "e97fd8b54e41db8b008b593837238d64e7295f80",
+  "generatedAt": "2026-11-03T20:00:43.251784+00:00",
+  "commit": "030c52c7f74daf7476207cfbfca0d0f4a37a0945",
   "branch": "main",
-  "sourceFingerprint": "3260e555e012505da789dabfe49cdf9bd17facbd8e42a576a35e7cab62e45e33",
+  "sourceFingerprint": "510b6c7b5f30ee3e7fd021a57385010b00e67a471e5c11c347544a06995252a5",
   "summary": {
     "files": 1125,
-    "lines": 234245,
+    "lines": 234283,
     "symbols": 3259
   },
   "symbolIndex": {
@@ -6785,7 +6785,7 @@
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 284
+        "line": 291
       }
     ],
     "localDay": [
@@ -24205,8 +24205,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 316,
-      "sha256": "c64fcebea8031115e6d91143b01d892c6845545602a5a8fbae2ece357f67decb",
+      "lines": 323,
+      "sha256": "b09737a61858ff8573f499b520b9979f160bbc82fa5bb4fdc02c0077027941c8",
       "symbols": [
         {
           "name": "initialize",
@@ -24254,7 +24254,7 @@
         },
         {
           "name": "recordAction",
-          "line": 284
+          "line": 291
         }
       ]
     },
@@ -35842,8 +35842,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
-      "lines": 291,
-      "sha256": "543c804108ac4bc79f3ac4eb781f57d95eb89153485de18df116fa5a1032f8f6",
+      "lines": 322,
+      "sha256": "c15b1c43a03c2593d554010eaa180c87b577cb48aafd4b178b43517d6c5b65e7",
       "symbols": [
         {
           "name": "CharacterLifeFollowThroughStoreTest",
