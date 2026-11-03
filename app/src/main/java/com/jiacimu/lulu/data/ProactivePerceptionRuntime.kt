@@ -863,8 +863,8 @@ object ProactivePerceptionRuntime {
                     appendLine("【目标与行为严格区分】做出了道歉、安慰、叫醒、发消息等动作，只证明动作发生，并不证明和好、开心、醒来等最终目标已经达到。")
                     appendLine("判断是否已经收到明确且可信的目标结果证据；如果没有，保留目标，选择等待新的信号、五分钟后有理由地再次复盘、改变行动方法，或暂停。")
                     appendLine("没有回复不能证明用户仍在睡、仍在生气或不喜欢你；也不能用同一句话连续刷屏强迫回应。")
-                    appendLine("正在等待闹钟到期的目标有系统精确唤醒，不必为了证明还在乎而每几分钟空转。")
-                    appendLine("休眠前请检查未完成承诺是否已有真实后续闹钟或关联日程。没有的，onlineDecision.nextChecks=[{taskId:已有任务ID,at:本人选定的带时区偏移ISO时间,reason:本人的复查理由}]逐项安排静默复查。复查不会自动打电话，提醒送达也不等于目标完成。已经有闹钟的不用重复创建。")
+                    appendLine("已定的精确闹钟可以避免重复空转；但若这轮已出现新的真实证据、用户反馈，或目标的有效行动窗口正在收窄，不能因为有闹钟就忽略当前更有意义的选择。复查不等于完成，下一次检查会带来什么新事实需要本人解释。")
+                    appendLine("休眠前检查未完成责任是否已有真实后续闹钟或关联日程。没有的，onlineDecision.nextChecks=[{taskId:已有任务ID,at:本人选定的带时区偏移ISO时间,reason:为何可以等到那时、会新增何种可查证条件及目标延误的代价}]逐项安排静默复查。若原目标越拖越难实现，先考虑现在是否有真实可做的步骤；静默复查本身不会自动打电话，提醒送达也不等于目标完成。已登记闹钟不用重复创建。")
                     appendLine("你不是被要求讨好用户，不能凭用户沉默认定她还在生气。")
                     appendLine("在线决定与本轮 action 是两种不同选择：")
                     appendLine("""onlineDecision={"choice":"continue|sleep","reason":"具体原因"}。""")
@@ -908,7 +908,7 @@ object ProactivePerceptionRuntime {
                     openCommitments.take(12).forEach { task ->
                         appendLine(CommitmentOutcomeVerification.candidateContext(task, recentCommitmentEvidence))
                     }
-                    appendLine("若尚无完成证据且需要稍后继续核查，可在本轮 steps 选择 tool=schedule_commitment_review,args={taskId:原任务ID,at:本人选定的未来带时区ISO时间,reason:还缺什么证据及复查理由}。复查只唤醒同一角色重新判断，不会自动重拨电话或替代真正达标。")
+                    appendLine("若尚无完成证据，可自主选此刻行动、观察、暂缓或稍后复查。选择 tool=schedule_commitment_review,args={taskId:原任务ID,at:本人选定的未来带时区ISO时间,reason:还缺什么证据、为什么此刻等待而非行动、这段等待会不会挤压原目标} 时，依据真实行动/结果时效与届时可获得的新事实来选时间，别默认半小时或仅为了显得在关心而安排一次无变化的检查。复查只唤醒同一角色重新判断，不会自动重拨电话或替代真正达标。")
                 }
                 com.jiacimu.lulu.system.LuluStudyWatch.proactiveOpportunity(appContext, characterId, now.toEpochMilli())
                     .takeIf(String::isNotBlank)?.let(::appendLine)
@@ -1132,7 +1132,7 @@ object ProactivePerceptionRuntime {
                     想再保持五分钟在线可选择 continue；之后仍会重新考虑，不是永久在线。
                     当已有可参考的愉悦度或唤醒度时，结合个人习惯和真实活动考虑它们：低唤醒度可以休眠但不代表一定疲倦，高唤醒度也可以主动休眠；数值不设硬阈值、不替你选。缺少数值就依据已有情绪、动机和事实自己判断。
                     确实想休息或当下没有值得继续的行动，可选择 sleep；对方暂时没回复，不代表不欢迎你主动联系。
-                    选择 sleep 之前必须交接未完成责任：有实际未来闹钟/已关联日程的责任不用重复安排；没有的在 onlineDecision 里附 nextChecks 数组，每项写 taskId、at(带时区偏移的ISO时间)、reason。下次复查时间由你本人选择，执行器核实登记成功。自己想到「九点再看看」如果还没形成真正的任务，要在本轮 steps 通过 plan_personal_activity 登记日程；只写在心声里不是安排成功。不要因为已经提醒她睡觉，就假定她已入睡。
+                    选择 sleep 前交接未完成责任：有实际未来闹钟/已关联日程的责任不用重复安排；没有的在 onlineDecision 的 nextChecks 写 taskId、at(带时区偏移的ISO时间)、reason。先独立权衡原目标的时效、此刻可执行步骤和等待的机会成本；若等待就讲明为什么该时间更合适，以及到时能获取什么新事实。下次复查时间由你本人选择，执行器核实登记成功。自己想到「九点再看看」若还没形成真正任务，要在本轮 steps 通过 plan_personal_activity 登记；只写在心声里不算安排。提醒已送达不代表她已入睡。
                     你的同时行动由正常 action 决定，可以是发送消息或保持安静；不要重复道歉刷屏。
                     不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
                     动作完成不等于目标达成：给她发了道歉消息，不等于她已原谅；叫醒铃声响了，不等于她已醒。
