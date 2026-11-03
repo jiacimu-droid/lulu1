@@ -451,3 +451,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **实改**：`51be0e30d216900fdd358bae92b961d4c01eda14` 保留所选任务完整完成条件与最多五条类型合格候选的完整原文，不在结案语义边界制造无标记的前缀证据。仍由角色决定证据是否足以证明目标，执行器保留现有权限、来源、时序检查；没有固定剧情、自动结案、额外模型轮次或第二记忆中心。长证据可能增加该次提示词体积，真实手机／API 规模和成本需量测，不能凭静态源码声称无开销。
 - **回归和验证**：`CommitmentOutcomeVerificationTest.completionDecisionSeesLateConditionsAndLateObservedCaveats` 用超过旧界限、末尾明确写着尚未完成的条件与观察，证明两段原文进入候选。`git diff --check` 与原 `scripts/generate_code_index.py` 已运行。本提交 APK run `41685958857` 被后继 main 推送取消；后继完整 JVM／APK 尚未核实，不能报通过。较早 `8db8767` 的 APK run `41667560828` 已 success，但不包含此改动。
 - **下轮**：先查包含 `51be0e3` 的后继 Android 编译、单测与 APK；然后在真机用长条件末尾否定、长观察末尾仍未达成的真实样本，核对模型判断、工具验收、任务状态与下一轮角色表达。真实模型自然度和跨日目标仍未验收，P-08 保持 `[ ]`；若真实提示词体积显著增长，应使用现有可追溯分段/按需展开机制，不重新静默截断。
+
+
+## 2026-11-04 · 角色自主整理日程、心事与成长（代码已提交，待 CI／真机）
+
+- **现场与主诉**：日程中同时有每天重复的具体提醒与尚未安排固定时间的长期关怀责任。用户核心诉求是任意角色能自己整理生活：根据最新真实经历，在本人已有心事、日程、长期愿望、私人念头和学习形成的倾向中决定继续、修订、放下或改期，而不要求主人事事发话。具体提醒/长期责任是两个不同状态，不应靠关键词自动删除其中之一。
+- **核对已实现能力**：`CharacterLifeSelfReview.context` 已在安静自主感知中每日最多一次给同一人物回顾机会；`ProactivePerceptionRuntime` 只在有效人物决策后标记完成，现有 `innerLife.motives` 的 revise/pause/release、`appraisal.pendingConcerns` 的 revise/settled/dismissed、`thoughtUpdates` 的 resolve/discard/evolve、`RoleDayScheduleStore` 的改期/取消均有持久能力与执行器。此前没有把陈旧仍 held 的思想储备完整纳入每日回顾（普通上下文只给最近6条），也未提供自主处理不再适用的已形成成长倾向的模型工具。
+- **本轮真实代码**：`c8c5bd7` 和 `1a8564d` 在原 `CharacterLifeSelfReview` 引入每日轮换旧的仍持有想法、同时审阅近期+轮换的老成长条目；保留 exact `thought`、记录 id/version 和证据数量以便本人决定并明确指定目标。只做只读投影，不根据天数自动改、清理、删除；用户仍有自己的私聊/作息/任务归属。 `f3ccb9f` 在现有 `CharacterDevelopmentStore` 增加精确 ID+版本、本人归属、当前有效性核验的 `retireSelfAssessment`；拒绝通过该接口撤回用户明确事实/偏好/习惯，保留记录证据与历史。 `e5e99da` + `e53ef5c` 把 `retire_development_record` 接到原 `CapabilityRegistry` 和 `ToolRouter`，真正执行后的持久回执和因果投影沿原管线；`b377f6c` + `adb2174` 加入已有模型工具提示而非新 AI 轮次。
+- **回归候选**：`b16bab`、`af34bae`、`9afa86b` 的 `CharacterLifeSelfReviewTest` 测试旧念头跨日轮换、已放下不再出现、不自动制造任务；同一角色成长认识有效 ID/版本可归档，跨角色/旧版本不可撤回，用户事实不可撤回，原成长历史不删除，ToolRouter 有真实执行回执。测试源码已提交，尚未拿到本版完整 Android CI 成功结果。
+- **边界及下一轮入口**：当前没有新增定时轮询、费用或“自动删除旧心事”的无依据机制；成长度层的旧记录是归档退出当前倾向，不物理清除历史。原有个人日程继续由角色选择改期/取消，已接受的主人约定仍需真实完成/核验，不能被个人清理间接抹掉。先核对包含 `9afa86b` 的后继 APK/JVM CI，失败看精确断言；再用真实角色安静感知确认是否读到回顾、是否自然选择整理并保留已取消日程/旧念头/成长依据的真实回执。P-08 仍 [ ]，不宣称真机活人感已通过。
