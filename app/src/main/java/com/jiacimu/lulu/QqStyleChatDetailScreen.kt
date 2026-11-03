@@ -35,6 +35,8 @@ import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.ZoneId
@@ -50,7 +52,7 @@ internal val QqInk: Color @Composable get() = MaterialTheme.colorScheme.onSurfac
 internal val QqBorder: Color @Composable get() = MaterialTheme.colorScheme.outline
 internal val QqIconSurface: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, kotlinx.coroutines.FlowPreview::class)
 @Composable
 fun QqStyleChatDetailScreen(
     conversationId: String,
@@ -201,43 +203,28 @@ fun QqStyleChatDetailScreen(
     // context). The lambda below only reads the captured insets' height,
     // so the boolean still only flips on keyboard show/hide.
     val imeInsets = WindowInsets.ime
-    val keyboardVisible by remember {
+    val keyboardVisible by remember(imeInsets, density) {
         derivedStateOf { imeInsets.getBottom(density) > 0 }
     }
-    // Keyboard-open pinning: adjustResize shrinks the list viewport
-    // gradually while the keyboard animates in, but LazyColumn anchors
-    // scroll by first visible item, not by distance from the bottom. A
-    // single scroll when the keyboard first appears therefore ends up
-    // short of the bottom once the viewport finishes shrinking, and the
-    // newest messages sit below the fold. Pin once when the keyboard
-    // starts opening, then once more after the size settles. Scrolling
-    // on every viewport-size change fought the resize animation frame
-    // by frame and was itself a source of keyboard lag. Only pin if the
-    // user was near the end when the keyboard opened. Viewport size
-    // does not change on user scrolling, so a history reader keeps their
-    // place once the viewport settles, and the jump-to-latest button
-    // stays available for returning.
-    LaunchedEffect(keyboardVisible, visibleMessages) {
+    // Let the IME finish resizing before pinning the newest row. Previously
+    // two effects scrolled on the first IME frame, while a third job was
+    // cancelled/recreated on every intermediate viewport height. That forced
+    // extra LazyColumn measures during the keyboard animation. One settled
+    // pin preserves the newest-message behavior without fighting resize.
+    LaunchedEffect(conversationId, keyboardVisible) {
         if (!keyboardVisible) return@LaunchedEffect
-        val layout = listState.layoutInfo
-        val pinned = layout.visibleItemsInfo.lastOrNull()?.index
-            ?.let { it >= layout.totalItemsCount - 3 } ?: false
-        if (!pinned) return@LaunchedEffect
-        var first = true
-        var settleJob: kotlinx.coroutines.Job? = null
-        snapshotFlow { listState.layoutInfo.viewportSize }.collect {
-            val target = windowedRuns.lastIndex + chatListHeaderCount
-            if (first) {
-                first = false
-                listState.scrollToItem(target)
-            } else {
-                settleJob?.cancel()
-                settleJob = launch {
-                    kotlinx.coroutines.delay(120)
-                    listState.scrollToItem(target)
-                }
-            }
-        }
+        val initialLayout = listState.layoutInfo
+        val nearEnd = initialLayout.visibleItemsInfo.lastOrNull()?.index
+            ?.let { it >= initialLayout.totalItemsCount - 3 } ?: false
+        if (!nearEnd) return@LaunchedEffect
+        // A viewport-size emission is held until the animation stops changing
+        // size. IME dismissal cancels this effect, so it cannot scroll after
+        // the user has closed the keyboard.
+        snapshotFlow { listState.layoutInfo.viewportSize }
+            .debounce(160L)
+            .first()
+        val lastIndex = listState.layoutInfo.totalItemsCount - 1
+        if (lastIndex >= 0) listState.scrollToItem(lastIndex)
     }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
@@ -569,7 +556,7 @@ fun QqStyleChatDetailScreen(
             ChatReplyTaskManager.clearError(conversationId, id)
         }
     }
-    LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat, keyboardVisible) {
+    LaunchedEffect(conversationId, visibleMessages.size, preferences.autoScrollChat) {
         val count = visibleMessages.size
         if (count == 0) {
             previousVisibleCount = 0
@@ -584,7 +571,7 @@ fun QqStyleChatDetailScreen(
         val nearEnd = layout.visibleItemsInfo.lastOrNull()?.index
             ?.let { it >= layout.totalItemsCount - 3 } ?: initial
         if (ChatScrollFollowPolicy.shouldFollow(initial, appended,
-                keyboardVisible, preferences.autoScrollChat, nearEnd)) {
+                preferences.autoScrollChat, nearEnd)) {
             listState.scrollToItem(windowedRuns.lastIndex + chatListHeaderCount)
         }
         hasPositionedChat = true
