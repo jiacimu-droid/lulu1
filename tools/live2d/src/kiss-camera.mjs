@@ -13,7 +13,7 @@ export function kissCameraFrame(elapsedMs) {
   // One continuous approach, a tiny near-glass contact pulse, then a
   // smooth withdraw. Zoom changes alone must not pretend the lips kissed.
   const approach = smooth((elapsedMs - 140) / 1100)
-  const depart = 1 - smooth((elapsedMs - 2220) / 1130)
+  const depart = 1 - smooth((elapsedMs - 2160) / 1190)
   const contact = smooth((elapsedMs - 1350) / 220) *
     (1 - smooth((elapsedMs - 1890) / 260))
   return { zoom: 1 + (1.15 * approach + .11 * contact) * depart, finished: false }
