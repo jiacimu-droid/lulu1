@@ -342,7 +342,16 @@ function applyKissCameraPose(now = performance.now()) {
   const active = kissCameraLease?.model === model ? kissCameraLease : null
   const frame = active ? kissCameraFrame(now - active.startedAt) :
     { zoom: 1, finished: true }
-  if (frame.finished) kissCameraLease = null
+  if (frame.finished) {
+    // A preview's static face preset otherwise outlives its 3.35s Motion3
+    // and reappears for another second with frozen kiss lips/closed eyes.
+    // Complete only this exact clip's short facial lease.
+    if (active && authoredMotion?.model === model &&
+        authoredMotion.revision === active.revision &&
+        authoredMotion.index === WOLF_KISS_MOTION_INDEX)
+      faceRequest = null
+    kissCameraLease = null
+  }
   const zoom = frame.zoom
   // Zoom around the face/mouth, not the torso or screen bottom.
   const focusX = base.width * 0.5
