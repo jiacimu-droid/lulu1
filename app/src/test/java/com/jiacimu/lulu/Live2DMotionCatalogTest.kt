@@ -49,6 +49,47 @@ class Live2DMotionCatalogTest {
         assertNull(Live2DMotionCatalog.describe("Lulu", 0))
     }
 
+    @Test fun dailyRepertoireIsSmallAndKeepsAllOriginalMotionIdsAvailable() {
+        val available = (0..48).map { "LuluWolf" to it }
+        val sections = Live2DMotionCatalog.selectionSections(available)
+        val primary = sections.filterNot { it.supplementary }
+        assertEquals(4, primary.size)
+        assertEquals(29, primary.sumOf { it.motions.size })
+        assertEquals(29, Live2DMotionCatalog.everydayIds.size)
+        assertEquals(49, sections.flatMap { it.motions }.distinct().size)
+        assertEquals(available.toSet(), sections.flatMap { it.motions }.toSet())
+        assertTrue(sections.last().supplementary)
+        // "Change of head direction" alone is not an everyday emotional cue.
+        assertTrue(("LuluWolf" to 18) in sections.last().motions)
+        assertTrue(("LuluWolf" to 10) in sections.last().motions)
+        assertTrue(("LuluWolf" to 34) in primary.flatMap { it.motions })
+        assertTrue(("LuluWolf" to 48) in primary.flatMap { it.motions })
+    }
+
+    @Test fun motionGuideDescribesEmotionAndStatesBeforeOptionalVariants() {
+        val guide = Live2DMotionCatalog.selectionGuide((0..48).map { "LuluWolf" to it })
+        assertTrue(guide.contains("情绪·开心与亲近："))
+        assertTrue(guide.contains("交流·倾听与回应："))
+        assertTrue(guide.contains("状态·休息与放松："))
+        assertTrue(guide.contains("LuluWolf#34=认真侧耳倾听"))
+        assertTrue(guide.contains("LuluWolf#18=缓慢重心移动"))
+        assertTrue(guide.indexOf("情绪·开心与亲近") < guide.indexOf("补充·方向镜像"))
+        assertTrue(guide.contains("\\n"))
+    }
+
+    @Test fun motionGroupingPreservesThirdPartyAndPartialModelManifest() {
+        val available = listOf("Other" to 7, "LuluWolf" to 34,
+            "LuluWolf" to 48, "LuluWolf" to 10)
+        val sections = Live2DMotionCatalog.selectionSections(available)
+        assertEquals(available.toSet(), sections.flatMap { it.motions }.toSet())
+        assertTrue(sections.last().supplementary)
+        assertTrue(("Other" to 7) in sections.last().motions)
+        assertTrue(("LuluWolf" to 10) in sections.last().motions)
+        val unrelated = Live2DMotionCatalog.selectionGuide(listOf("Custom" to 2))
+        assertTrue(unrelated.contains("Custom#2"))
+        assertTrue(!unrelated.contains("LuluWolf"))
+    }
+
     @Test fun facePresetsOnlyUseRealChannelsInRangeAndMatchTheirNotes() {
         val positive = setOf("eyeOpen", "eyeSmile", "squint", "cheekPuff", "pout")
         val channels = Live2DVisualActionBus.faceChannels.keys
