@@ -22,6 +22,10 @@ internal data class BlockIslandState(
     val openedSupplies: Set<Int> = emptySet(),
     val houseProject: IslandHouseProject? = null,
     val guardedBy: String = "",
+    val hunger: Int = 10,
+    val nightsSurvived: Int = 0,
+    val defeatedMonsters: Int = 0,
+    val lastKnockoutTurn: Int = -100,
 ) {
     fun toJson(): String = JSONObject()
         .put("version", 2)
@@ -40,6 +44,9 @@ internal data class BlockIslandState(
         .put("openedSupplies", JSONArray(openedSupplies.sorted()))
         .put("houseProject", houseProject?.json() ?: JSONObject.NULL)
         .put("guardedBy",guardedBy)
+        .put("hunger",hunger).put("nightsSurvived",nightsSurvived)
+        .put("defeatedMonsters",defeatedMonsters)
+        .put("lastKnockoutTurn",lastKnockoutTurn)
         .toString()
 
     companion object {
@@ -85,7 +92,11 @@ internal data class BlockIslandState(
                 houseProject=IslandHouseProject.read(json.optJSONObject("houseProject"),world),
                 guardedBy=json.optString("guardedBy","").takeIf { id ->
                     world.friends.any { it.id==id }
-                } ?: "")
+                } ?: "",
+                hunger=json.optInt("hunger",10).coerceIn(0,10),
+                nightsSurvived=json.optInt("nightsSurvived",0).coerceAtLeast(0),
+                defeatedMonsters=json.optInt("defeatedMonsters",0).coerceAtLeast(0),
+                lastKnockoutTurn=json.optInt("lastKnockoutTurn",-100))
         }.getOrNull()
 
         fun fromLegacy(legacy: ExpeditionState): BlockIslandState? =
@@ -364,15 +375,17 @@ internal object BlockIslandRules {
                         distance(w.x, w.y, location % w.width, location / w.width) <= 2
                 }
                 if (!fireNear) return reject("到篝火附近才能烤鱼")
-                if (w.hp >= 12) return reject("生命值已满")
-                next = s.copy(world = w.copy(hp = (w.hp + 5).coerceAtMost(12)), fish = s.fish - 1)
-                message = "吃下烤鱼，恢复生命"
+                if (w.hp >= 12 && s.hunger >= 10) return reject("生命与饱食度已满")
+                next = s.copy(world = w.copy(hp = (w.hp + 5).coerceAtMost(12)),
+                    fish = s.fish - 1, hunger = (s.hunger + 6).coerceAtMost(10))
+                message = "吃下烤鱼，恢复生命和饱食度"
             }
             "eat" -> {
                 if (s.fruit < 1) return reject("背包里没有野果，砍树时可能找到")
-                if (w.hp >= 12) return reject("现在生命值是满的")
-                next = s.copy(world = w.copy(hp = (w.hp + 3).coerceAtMost(12)), fruit = s.fruit - 1)
-                message = "吃下野果，恢复生命"
+                if (w.hp >= 12 && s.hunger >= 10) return reject("生命与饱食度已满")
+                next = s.copy(world = w.copy(hp = (w.hp + 3).coerceAtMost(12)),
+                    fruit = s.fruit - 1, hunger = (s.hunger + 4).coerceAtMost(10))
+                message = "吃下野果，恢复生命和饱食度"
             }
             "rest" -> {
                 val campNear = s.structures.any { (location, kind) ->
@@ -393,9 +406,10 @@ internal object BlockIslandRules {
                     world = w.copy(mobs = w.mobs.map {
                         if (it.id == mob.id) it.copy(hp = (it.hp - damage).coerceAtLeast(0)) else it
                     }),
-                    fruit = s.fruit + if (dead) 1 else 0,
+                    fruit = s.fruit + if (dead) 2 else 0,
+                    defeatedMonsters = s.defeatedMonsters + if (dead) 1 else 0,
                 )
-                message = if (dead) "击退怪物，得到野果 +1" else "攻击怪物，造成${damage}点伤害"
+                message = if (dead) "击退怪物，得到野果 +2" else "攻击怪物，造成${damage}点伤害"
             }
             else -> return reject("未知操作")
         }
@@ -412,7 +426,32 @@ internal object BlockIslandRules {
         result = companionTurn(result, autonomousIds)
         result = IslandTravel.advance(result, autonomousIds)
         result = IslandHouseProjects.advance(result, autonomousIds)
+        // Hunger creates a real renewable food loop; old saves start fully fed.
+        if (result.world.turns % 12 == 0) {
+            val fed = (result.hunger - 1).coerceAtLeast(0)
+            val starving = fed == 0
+            result = result.copy(hunger = fed, world = result.world.copy(
+                hp = if (starving) (result.world.hp - 1).coerceAtLeast(0) else result.world.hp,
+                notice = result.world.notice + if (starving) " · 饥饿损失1生命" else " · 饱食度-1",
+            ))
+        }
         result = monstersTurn(result)
+        // One real survival milestone per completed night. A recent knockout voids it.
+        if (result.world.turns > 0 && result.world.turns % 48 == 0 &&
+            result.lastKnockoutTurn < result.world.turns - 18 &&
+            result.world.hp > 0 && result.structures.any { (index, kind) ->
+                kind in setOf("campfire", "bed") &&
+                    distance(result.world.x, result.world.y,
+                        index % result.world.width, index / result.world.width) <= 2
+            }) {
+            val reward = if (result.nightsSurvived < 3) 2 else 1
+            val news = "守住了第${result.nightsSurvived + 1}夜 · 营地补给：野果+$reward、石料+1"
+            result = result.copy(nightsSurvived = result.nightsSurvived + 1,
+                fruit = result.fruit + reward,
+                world = result.world.copy(stone = result.world.stone + 1,
+                    notice = result.world.notice + " · " + news,
+                    events = (result.world.events + news).takeLast(150)))
+        }
         result = respawnMonsters(result)
         result = replenishResources(result)
         return result
@@ -510,6 +549,7 @@ internal object BlockIslandRules {
         if(realHurt>0)logs += "怪物攻击，生命 -$realHurt"
         if (hurtFriends.isNotEmpty()) logs += "有队友受伤了"
         var next = s.copy(guardedBy=if(blocked>0)"" else s.guardedBy,
+            lastKnockoutTurn = if (hp == 0) world.turns else s.lastKnockoutTurn,
             world = world.copy(hp = hp, mobs = mobs, friends = allies,
             notice = world.notice + if (logs.isNotEmpty()) " · " + logs.joinToString() else "",
             events = (world.events + logs).takeLast(150)))
