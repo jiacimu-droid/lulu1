@@ -7,13 +7,24 @@ import java.time.format.DateTimeFormatter
 
 /** Real contact timestamps, not fabricated offline life or a permanent relationship score. */
 internal object CompanionContactClock {
-    fun context(characterId: String, now: Instant = Instant.now()): String {
-        val events = SharedExperienceTimeline.all(characterId)
-        val times = events.filter { event ->
+    /**
+     * Reuse canonical group-message attribution for *all* relationship clocks,
+     * not just the last-dialogue anchor. A group witness is owned by the
+     * observing character, but its UserStatement label alone is not proof that
+     * the user actually sent a surviving message.
+     */
+    internal fun verifiedUserContacts(events: List<SharedTimelineEvent>): List<SharedTimelineEvent> =
+        events.filter { event ->
             event.evidenceKind == EventEvidenceKind.UserStatement &&
                 (event.channel == "私聊" || event.channel.contains("群聊") ||
-                    event.channel.contains("电话") || event.channel.contains("见面"))
-        }.map { it.occurredAt }
+                    event.channel.contains("电话") || event.channel.contains("见面")) &&
+                (!event.channel.startsWith("群聊") ||
+                    TimelineStatementOwnership.involvesUser(event))
+        }
+
+    fun context(characterId: String, now: Instant = Instant.now()): String {
+        val events = SharedExperienceTimeline.all(characterId)
+        val times = verifiedUserContacts(events).map { it.occurredAt }
         val rhythm = RelationshipRhythmPerception.context(events, now)
         return listOf(describe(times, now), rhythm).filter(String::isNotBlank).joinToString("\n")
     }
