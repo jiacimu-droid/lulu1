@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T04:31:21.961847+00:00",
-  "commit": "55ad142ea15cdb04057076cd0f5d3b8494dc592d",
+  "generatedAt": "2026-11-03T04:32:56.510823+00:00",
+  "commit": "0c331c5220d7472026ff04a6a911ee5d8b0d1e4e",
   "branch": "main",
-  "sourceFingerprint": "45c0ecd4a952792c59d40d264ef629a9b408ee8650ecf8c54ffd5b4e5630e75d",
+  "sourceFingerprint": "c4ac3a83c891065363ae7a53259db059be2dab703b3c8a01280c4a4fa0e7c2f9",
   "summary": {
     "files": 1125,
-    "lines": 231031,
+    "lines": 231042,
     "symbols": 3248
   },
   "symbolIndex": {
@@ -26378,7 +26378,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
       "lines": 785,
-      "sha256": "f3f718b8a95fbbacb0ceda983298131679ef1841b1e74e709eb3af6988742622",
+      "sha256": "9ea48ba188819b7fede62af739254c8c4984e954e0f31ae98f33e6ce1ea2af96",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -35127,8 +35127,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt",
-      "lines": 54,
-      "sha256": "87d6b161c147217909336bf7d3419cbecb48464191f1d448f1dae93f3307f420",
+      "lines": 65,
+      "sha256": "650c8cc8b84a0d9dced2bf7f3422422d94144791c7b6788af1e3916128bfd954",
       "symbols": [
         {
           "name": "AutonomousEncounterDirectorTest",
