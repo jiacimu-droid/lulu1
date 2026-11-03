@@ -146,6 +146,17 @@ class BackgroundMessageDeliveryTest {
         assertEquals("${role.displayName} · 朋友们", notifications().single().extras.getString(Notification.EXTRA_TITLE))
     }
 
+    @Test fun explicitlyQuietLegacyChannelDoesNotTriggerForegroundHeadsUp() {
+        manager.createNotificationChannel(NotificationChannel(
+            "lulu_proactive_messages", "旧消息静音", NotificationManager.IMPORTANCE_LOW))
+        UserInteractionPresenceStore.setAppVisible(true)
+        UserInteractionPresenceStore.setConversation(null)
+        MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "静音渠道保留信息但不弹窗", role.characterId)
+        assertEquals("lulu_proactive_messages", notifications().single().channelId)
+        assertNull(CharacterMessageNotifications.inAppBanner.value)
+    }
+
     @Test fun disabledLegacyChannelIsRespectedInsteadOfBypassedByAnUpgrade() {
         manager.createNotificationChannel(NotificationChannel("lulu_proactive_messages", "旧消息", NotificationManager.IMPORTANCE_NONE))
         MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "已保存，但不越过通知关闭设置", role.characterId)
