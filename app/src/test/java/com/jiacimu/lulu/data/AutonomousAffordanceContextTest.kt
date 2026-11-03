@@ -124,6 +124,9 @@ class AutonomousAffordanceContextTest {
             digital = false, location = "", books = emptyList(), groups = emptyList(),
         )
         assertTrue(context.contains("action=game_invite"))
+        assertTrue(context.contains("appraisal.ownActivity={stage:decided,action:game_invite"))
+        assertTrue(context.contains("不必重复选择"))
+        assertTrue(context.contains("不会自动发消息"))
         assertTrue(context.contains("tool=send_game_invite"))
         assertTrue(context.indexOf("action=game_invite") < context.indexOf("想自己找消遣"))
         com.jiacimu.lulu.games.GameInvitationCatalog.titles.forEach { (id, title) ->
