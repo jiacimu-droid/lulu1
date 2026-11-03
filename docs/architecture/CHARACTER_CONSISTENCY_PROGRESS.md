@@ -215,3 +215,5 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 本轮源码候选：将去重键改为“文字 + 来源集合”；无来源的重复文本依旧去重；全来源已经由完整原文证明的派生摘要，仍保持现有去重策略。新增一条纯 Kotlin 单测覆盖同文不同事件、同源派生摘要与无来源重复。未修改心理、用户原始记录、工具执行和决定权限。
 - 验收分层：提交后等待索引自动工作流执行原 `scripts/generate_code_index.py` 并刷新两份索引；Android 单测及 APK 构建结果以对应提交 Actions 为准；真机/真实模型与跨日仍未验证。CI 通过后只代表 P-04 源码级边界验收，不代表人物活人感全线已验收。
 - 下轮入口：核实 P-04 的 CI，并优先继续 P-05 长记忆中段完整含义与 P-08 后台自主感知的原目标→真实回执交接，避免重做已有 P-01/P-02。
+
+- 本轮提交证据：实际功能/测试/接力大纲提交 [`e6f423d`](https://github.com/jiacimu-droid/lulu1/commit/e6f423d90e67b8862cf2e26b6c0fae00a45b432c)，修复提交 [`ba1b161`](https://github.com/jiacimu-droid/lulu1/commit/ba1b161d3b98ac35e849875751fcc93e86b9f3e7)。后继索引 run [41588367622](https://github.com/jiacimu-droid/lulu1/actions/runs/41588367622) completed/success，已按原生成器刷新 `CODE_INDEX.md` 和 `code-index.json`（索引基准 `ba1b161`）；对应 Android APK run [41588367637](https://github.com/jiacimu-droid/lulu1/actions/runs/41588367637) 本次查验仍 pending，不能打勾或宣称 APK 成功。P-04 保持 `[ ]`，待该层真实结果。
