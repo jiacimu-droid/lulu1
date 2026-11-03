@@ -71,6 +71,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     var freshLocationLabel by remember { mutableStateOf<String?>(null) }
     var locating by remember { mutableStateOf(false) }
     var musicTestReport by remember { mutableStateOf("") }
+    var messageBannerTestReport by remember { mutableStateOf("") }
     var wakeQueueStatus by remember { mutableStateOf("正在读取 Android 后台任务队列…") }
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
@@ -315,10 +316,22 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     settings?.sound == null -> "横幅等级已开启 · 提示音未开启，点此调整"
                     else -> "已设高优先级 · 若未弹出，请检查系统浮动通知开关"
                 }
-                CapabilityRow(Icons.Outlined.ChatBubbleOutline, "角色消息横幅", hint, headsUp) {
-                    open(Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        .putExtra(Settings.EXTRA_CHANNEL_ID, channel))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    CapabilityRow(Icons.Outlined.ChatBubbleOutline, "角色消息横幅", hint, headsUp) {
+                        open(Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            .putExtra(Settings.EXTRA_CHANNEL_ID, channel))
+                    }
+                    OutlinedButton(onClick = {
+                        val posted = com.jiacimu.lulu.data.CharacterMessageNotifications.sendHeadsUpTest(context)
+                        messageBannerTestReport = if (posted)
+                            "测试通知已交给 Android。如果只出现在通知栏，请点上方进入系统设置，开启浮动通知；这不等于关闭提示音。"
+                        else "系统未接受测试提醒。请先打开通知权限，并检查角色消息渠道是否允许高优先级提醒。"
+                        refreshKey++
+                    }) { Text("测试顶部消息横幅") }
+                    if (messageBannerTestReport.isNotBlank()) {
+                        Text(messageBannerTestReport, fontSize = 12.sp, color = CapabilityMuted)
+                    }
                 }
             }
             item {
