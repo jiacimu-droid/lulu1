@@ -232,11 +232,13 @@ internal fun GameDirectionalPad(
     interactLabel: String = "互动",
     interactEnabled: Boolean = true,
     onInteract: (() -> Unit)? = null,
+    onHoldChange: ((Boolean) -> Unit)? = null,
     onStep: (dx: Int, dy: Int) -> Unit,
 ) {
     val latestStep by rememberUpdatedState(onStep)
     val latestInteract by rememberUpdatedState(onInteract)
     val latestInteractEnabled by rememberUpdatedState(interactEnabled)
+    val latestHoldChange by rememberUpdatedState(onHoldChange)
     var activeDirection by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var centerPressed by remember { mutableStateOf(false) }
     val repeatMs = holdRepeatMs.coerceAtLeast(135L)
@@ -249,6 +251,8 @@ internal fun GameDirectionalPad(
                     var direction = gameJoystickDirection(down.position.x, down.position.y,
                         size.width.toFloat(), size.height.toFloat())
                     var centerTap = direction == null
+                    var moving = direction != null
+                    if (moving) latestHoldChange?.invoke(true)
                     activeDirection = direction
                     centerPressed = centerTap
                     direction?.let { latestStep(it.first, it.second) }
@@ -273,7 +277,13 @@ internal fun GameDirectionalPad(
                                 val next = gameJoystickDirection(pointer.position.x,
                                     pointer.position.y,
                                     size.width.toFloat(), size.height.toFloat())
-                                if (next != null) centerTap = false
+                                if (next != null) {
+                                    centerTap = false
+                                    if (!moving) {
+                                        moving = true
+                                        latestHoldChange?.invoke(true)
+                                    }
+                                }
                                 if (next != direction) {
                                     direction = next
                                     activeDirection = next
@@ -286,6 +296,7 @@ internal fun GameDirectionalPad(
                             repeating.cancel()
                             activeDirection = null
                             centerPressed = false
+                            if (moving) latestHoldChange?.invoke(false)
                         }
                     }
                 }
