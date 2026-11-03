@@ -27,7 +27,8 @@ import kotlin.coroutines.coroutineContext
 
 /** Event-driven scene adapter. No per-frame model calls, free-running paid timer or shadow identity. */
 @Composable
-internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run },
+internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = false,
+    readRun: () -> RelicRun = { run },
     onChoice: (String, IslandActorChoice) -> Boolean) {
     val context = LocalContext.current
     val prefs = remember(context) { context.getSharedPreferences("game_companion_audio",0) }
@@ -51,10 +52,20 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
     val latestChoice by rememberUpdatedState(onChoice)
     val latestInbox by rememberUpdatedState(inbox)
     val latestSpeech by rememberUpdatedState(speechVersion)
+    val latestTraveling by rememberUpdatedState(continuousTravel)
+    var notifiedSpeech by remember(run.id) { mutableIntStateOf(0) }
     val signals = remember(run.id) { Channel<Unit>(Channel.CONFLATED) }
     val members = run.allies.map { it.id }
     LaunchedEffect(voice) { speaker.setEnabled(voice) }
-    LaunchedEffect(run.id,run.turns,speechVersion) { signals.trySend(Unit) }
+    // Moving on a held joystick may create many local movement turns.
+    // Do not charge a fresh companion decision for every tile of one gesture.
+    // Explicit player messages still wake the real role while traveling.
+    LaunchedEffect(run.id,run.turns,speechVersion,continuousTravel) {
+        if (!continuousTravel || speechVersion > notifiedSpeech) {
+            notifiedSpeech = speechVersion
+            signals.trySend(Unit)
+        }
+    }
     LaunchedEffect(run.id,members) {
         var requestedTurn = -1
         var requestedSpeech = 0
@@ -62,6 +73,7 @@ internal fun RelicCompanionPanel(run: RelicRun, readRun: () -> RelicRun = { run 
             if (currentRun().phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) continue
             val turn = currentRun().turns
             val version = latestSpeech
+            if (latestTraveling && requestedSpeech == version) continue
             if (requestedTurn == turn && requestedSpeech == version) continue
             val unread = latestInbox
             requestedTurn = turn
