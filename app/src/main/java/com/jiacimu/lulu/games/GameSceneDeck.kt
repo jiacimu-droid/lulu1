@@ -220,6 +220,9 @@ internal fun GameDirectionalPad(
     enabled: Boolean = true,
     holdRepeatMs: Long = 340L,
     stopWhen: Any? = null,
+    interactLabel: String = "互动",
+    interactEnabled: Boolean = true,
+    onInteract: (() -> Unit)? = null,
     onStep: (dx: Int, dy: Int) -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -227,14 +230,25 @@ internal fun GameDirectionalPad(
         Row(verticalAlignment = Alignment.CenterVertically) {
             GameDirectionKey("←", "向左移动", accent, enabled, holdRepeatMs, stopWhen) { onStep(-1, 0) }
             Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
-                Surface(
-                    modifier = Modifier.size(26.dp),
-                    color = Color(0x9615222B),
-                    shape = CircleShape,
-                    border = BorderStroke(1.dp, accent.copy(alpha = .3f)),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text("✦", color = accent, fontSize = 12.sp)
+                if (onInteract != null) {
+                    Surface(
+                        onClick = onInteract, enabled = interactEnabled,
+                        modifier = Modifier.size(46.dp).semantics { contentDescription = interactLabel },
+                        color = if (interactEnabled) Color(0xE3375158) else Color(0x8815222B),
+                        shape = CircleShape,
+                        border = BorderStroke(1.dp, accent.copy(alpha = if (interactEnabled) .8f else .2f)),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text("✦", color = if (interactEnabled) accent else Color.Gray,
+                                fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                } else {
+                    Surface(modifier = Modifier.size(26.dp), color = Color(0x9615222B),
+                        shape = CircleShape, border = BorderStroke(1.dp, accent.copy(alpha = .3f))) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text("✦", color = accent, fontSize = 12.sp)
+                        }
                     }
                 }
             }
