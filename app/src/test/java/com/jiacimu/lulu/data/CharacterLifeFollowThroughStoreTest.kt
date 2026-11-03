@@ -261,4 +261,33 @@ class CharacterLifeFollowThroughStoreTest {
         assertTrue(text.contains("输掉了一场真实对局"))
         CharacterLifeFollowThroughStore.invalidateEvidence(id)
     }
+    @Test fun heldSharingKeepsLateFactsAndPersonalConditionsAcrossDecisions() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "full-held-intent-evidence"
+        val id = "full-held-intent-event"
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+        val fact = "确实发生的经历：" + "经过很长一段过程。".repeat(55) +
+            "但最后没有成功，也不确定对方是否知道。"
+        val why = "我想以后聊这件事：" + "当时还有一些顾虑。".repeat(30) +
+            "只想先告诉已经认识的朋友，暂时不发公开动态，也不告诉主人。"
+        SharedExperienceTimeline.initialize(context)
+        SharedExperienceTimeline.record(id, role, "真实生活", "事件", fact, now,
+            triggerExtraction = false, source = "verified-life",
+            evidenceKind = EventEvidenceKind.Observation)
+        assertTrue(CharacterLifeFollowThroughStore.register(role, id, "真实生活", fact, now))
+        CharacterLifeFollowThroughStore.recordShareWish(role, JSONObject()
+            .put("experienceId", id).put("status", "held").put("why", why))
+        val saved = CharacterLifeFollowThroughStore.auditSnapshot(role).single()
+        assertEquals(fact, saved.optString("fact"))
+        assertEquals(why, saved.optString("shareWhy"))
+        assertTrue(CharacterLifeFollowThroughStore.pendingDecisionCues(role, now)
+            .single().contains(why))
+        assertTrue(CharacterLifeFollowThroughStore.briefContext(role, now).contains(why))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains(why))
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now)
+            .contains("但最后没有成功，也不确定对方是否知道。"))
+        CharacterLifeFollowThroughStore.invalidateEvidence(id)
+    }
+
+
 }
