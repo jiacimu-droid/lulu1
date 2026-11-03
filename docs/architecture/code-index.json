@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-03T05:42:54.367090+00:00",
-  "commit": "18871d53690855fc51f23295b60a7f1e8f0dff3a",
+  "generatedAt": "2026-11-03T05:44:16.598702+00:00",
+  "commit": "dde27e1b35fcf2de4a174ad0555d01ae10a1e9cb",
   "branch": "main",
-  "sourceFingerprint": "47ab5e0cb512175c4d20593d5f971f2e0909a36e3ac0ae1343c4db3ebf119892",
+  "sourceFingerprint": "9cc87fbbe601662dffea0d629a1c516d557ad586be9aed28dc0784c5e0111cca",
   "summary": {
     "files": 1125,
-    "lines": 231438,
+    "lines": 231505,
     "symbols": 3249
   },
   "symbolIndex": {
@@ -38323,8 +38323,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt",
-      "lines": 295,
-      "sha256": "522d337f3b69d7077bdc7c84b2387cf5c70a5342aae5378ca1987627ee032b0d",
+      "lines": 333,
+      "sha256": "3938502591a74727b29e96db1292a12a11a994e7de4616888c755793b4902a1b",
       "symbols": [
         {
           "name": "BlockIslandRulesTest",
@@ -38503,8 +38503,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicQuickActionTest.kt",
-      "lines": 85,
-      "sha256": "ed08873292980150b5cd33f7775935de376bfb80c8ae260cceff8201075582d3",
+      "lines": 114,
+      "sha256": "6514278af56f3eb84edd225cee14b05cbd66b7c4c809b9c9971bf895f6ad9d17",
       "symbols": [
         {
           "name": "RelicQuickActionTest",
