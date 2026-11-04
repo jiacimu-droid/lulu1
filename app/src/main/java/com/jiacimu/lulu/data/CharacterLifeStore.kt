@@ -120,15 +120,17 @@ object CharacterLifeStore {
                     )) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
-                    CharacterProfileSchema.xingHeDialogueExamplesV2))) {
+                    CharacterProfileSchema.xingHeDialogueExamplesV2,
+                    CharacterProfileSchema.xingHeDialogueExamplesV3))) {
                 profile.put("dialogueExamples", examples)
                 updated = true
             }
             if (id == "lulu" && profile.optString("speechHabits") in setOf(
                     CharacterProfileSchema.xingHeSpeechHabitsV6,
-                    CharacterProfileSchema.xingHeSpeechHabitsV7)) {
+                    CharacterProfileSchema.xingHeSpeechHabitsV7,
+                    CharacterProfileSchema.xingHeSpeechHabitsV8)) {
                 // Old program-authored defaults only. Never overwrite personal edits.
-                profile.put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV8)
+                profile.put("speechHabits", CharacterProfileSchema.xingHeSpeechHabitsV9)
                 updated = true
             }
             if (updated) {
