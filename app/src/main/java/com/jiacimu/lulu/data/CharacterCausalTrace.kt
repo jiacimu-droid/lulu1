@@ -146,7 +146,21 @@ internal object CharacterCausalTrace {
             rows += CharacterCausalTraceLine("本人想法 · $state$provenance",
                 (warning + thought.optString("thought")).take(230))
         }
+        // A saved choice can carry the right source ID yet predate the source
+        // itself (for example after an out-of-order archive import). It is not
+        // evidence that this message prompted that choice. Preserve historical
+        // or undated choices as uncertain; only reject demonstrably impossible
+        // current-version attribution. This is read-only and does not erase
+        // the original decision from its owner archive.
         val relatedDecisions = decisionsForSource(characterId, current.id, mind)
+            .filter { decision ->
+                val revision = decision.optLong("causalEvidenceRevision", 0L)
+                val decidedAt = runCatching {
+                    java.time.Instant.parse(decision.optString("at"))
+                }.getOrNull()
+                revision != current.revision || decidedAt == null ||
+                    !decidedAt.isBefore(current.occurredAt)
+            }
         // The timeline card receives a bounded UI window. An older search
         // receipt can fall outside it even though the original model choice
         // preserved the exact ToolRouter request IDs. Recover ONLY those
