@@ -229,7 +229,7 @@ internal object CharacterLifeVisibility {
             add("日程负责具体行动；这里不代表角色已产生同名心理挂心，也不等于已完成。")
         }.joinToString("\n")
         CharacterLifeVisible(task.createdAt, "长期责任", task.goal, detail,
-            evidenceId = "commitment-${task.id}",
+            evidenceId = task.sourceEventIds.firstOrNull().orEmpty(),
             sourceKind = "commitment", sourceId = task.id)
     }
 
