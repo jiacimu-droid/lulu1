@@ -229,7 +229,8 @@ fun QqStyleChatDetailScreen(
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
 
-    var input by rememberSaveable(conversationId) { mutableStateOf("") }
+    // Keep draft writes in the composer snapshot: editing must not invalidate the entire chat screen.
+    val inputState = rememberSaveable(conversationId) { mutableStateOf("") }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
     var replyingToId by rememberSaveable(conversationId) { mutableStateOf<String?>(null) }
     val replyingTo = replyingToId?.let(messageById::get)
@@ -312,7 +313,7 @@ fun QqStyleChatDetailScreen(
             encodeQqChatImage(image, text, payload.imageDescription)
         } else text
         MigratedDomainStores.chat.sendUserMessage(conversationId, content, replyingTo?.id)
-        input = ""
+        inputState.value = ""
         replyingToId = null
         return true
     }
@@ -365,7 +366,7 @@ fun QqStyleChatDetailScreen(
         // the foreground screen: that races the background worker and forks the
         // very same character's language/decision pipeline.
         if (groupChat == null && LuluVoiceCallSession.isActiveForChat(conversationId)) {
-            if (includeDraft && input.isNotBlank()) appendDraft(QqComposerPayload(input))
+            if (includeDraft && inputState.value.isNotBlank()) appendDraft(QqComposerPayload(inputState.value))
             return
         }
         if (activeArchive == null) {
@@ -373,10 +374,10 @@ fun QqStyleChatDetailScreen(
             return
         }
         if (groupChat == null) {
-            if (includeDraft && input.isNotBlank()) {
+            if (includeDraft && inputState.value.isNotBlank()) {
                 // sendUserMessage -> onConversationMessage already schedules the
                 // debounced online decision. No extra model call or wake required.
-                appendDraft(QqComposerPayload(input))
+                appendDraft(QqComposerPayload(inputState.value))
                 return
             }
             val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
@@ -402,7 +403,7 @@ fun QqStyleChatDetailScreen(
         }
         if (ChatReplyTaskManager.state(conversationId).running ||
             ChatGenerationActivity.isRunning(conversationId)) return
-        if (includeDraft && input.isNotBlank()) appendDraft(QqComposerPayload(input))
+        if (includeDraft && inputState.value.isNotBlank()) appendDraft(QqComposerPayload(inputState.value))
         val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
         val lastCharacterIndex = latestMessages.indexOfLast {
             it.sender == LuluChatMessage.Sender.Character
@@ -731,8 +732,7 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                         QqChatComposer(
-                            input = input,
-                            onInputChange = { input = it },
+                            inputState = inputState,
                             groupMode = groupChat != null,
                             characterId = characterId,
                             receiving = receiving,
@@ -1031,7 +1031,7 @@ fun QqStyleChatDetailScreen(
                 Text("@群成员", color = QqInk, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text("选择要提醒的人", color = QqMuted, fontSize = 12.sp)
                 Surface(
-                    modifier = Modifier.fillMaxWidth().clickable { input += "@全体成员 "; mentionExpanded = false },
+                    modifier = Modifier.fillMaxWidth().clickable { inputState.value += "@全体成员 "; mentionExpanded = false },
                     color = QqIconSurface,
                     shape = RoundedCornerShape(16.dp),
                 ) {
@@ -1046,7 +1046,7 @@ fun QqStyleChatDetailScreen(
                     val memberCharacter = characters[member.characterId] ?: MigratedDomainStores.characters.get(member.characterId)
                     val displayName = member.groupNickname.ifBlank { memberCharacter.displayName }
                     Surface(
-                        modifier = Modifier.fillMaxWidth().clickable { input += "@$displayName "; mentionExpanded = false },
+                        modifier = Modifier.fillMaxWidth().clickable { inputState.value += "@$displayName "; mentionExpanded = false },
                         color = QqPage,
                         shape = RoundedCornerShape(16.dp),
                         border = BorderStroke(1.dp, QqBorder),
