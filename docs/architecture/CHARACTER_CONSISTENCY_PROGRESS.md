@@ -885,3 +885,7 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：[cb1bcf8](https://github.com/jiacimu-droid/lulu1/commit/cb1bcf891ad2fcdbdaaa5fe86acd0fab9f22a521) 的 GroupChatTurnPlannerTest.groupRoleAttemptNeverRetriesBlankToolOnlyOrFailedResults 用注入网关验证空正文、工具型、异常、正常回复均只调用一次且保留原始成功/失败及模型路由参数，不实际消耗 API。
 - **状态边界**：只完成源码/回归提交，尚未获得这两次提交的 JVM/APK CI 结果；不宣称测试通过或真机/真实模型验通。路线图 P-08c.1 标源码完成、待 CI，P-08c.2/3 仍待验。若 CI 编译失败，优先修首个真实错误。
 - **下一轮**：刷新 main 与本轮 Actions，验证单测与 APK；继续 P-08a 真实 trace 证据或 P-08c.2 的实际发送/失败回执回归。避免重做已存在的 bubbles 和旧隐藏重试修复。
+
+## 2026-11-04：P-10.6 新版番外世界书构建回归失败与修复
+- **证据**：GitHub [Issue #746](https://github.com/jiacimu-droid/lulu1/issues/746)，[APK/JVM workflow 41829654028](https://github.com/jiacimu-droid/lulu1/actions/runs/41829654028) 对应 `6e0b731`。检查 build job `126573321584` 完整日志：`:app:compilePhoneKotlin` 成功，`:app:testPhoneUnitTest` 2401 项 1 failed。唯一失败 `PersonalMiniTheaterTest.selectedWorldBookRulesAreIsolatedPersistedAndFrozenPerWork` 行 310，原因 `request.instructions` 实际文案「仅根据本篇明确选中的条目」，测试硬编码预期「只根据本篇明确选中的条目」，并非生成链路世界书注入断开。旧 `555f66c` run 41826440968 的 worldMode 编译失败为历史提交，已经被后续新增 `MiniTheaterItem.worldMode` 的代码取代；不能用旧结果判断当前源码。
+- **修复**：`2ced2582` 更新测试断言与当前唯一正式创作指令一致，并增加 `facts` 中选中世界书明确标题的断言；没有改写用户世界书、模型提示、已保存番外和人物资料。代码已推 main，修复后完整 APK/JVM 的实际 CI 状态和手机端质量待验，Issue #746 暂不能宣称已关闭。
