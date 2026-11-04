@@ -288,6 +288,43 @@ class PersonalMiniTheaterTest {
         assertFalse(ears.instructions.contains("所有动物元素都不许出现"))
     }
 
+    @Test fun selectedWorldBookRulesAreIsolatedPersistedAndFrozenPerWork() {
+        val library = MiniTheaterLibrary(context, emptyList())
+        val cast = PersonalMiniTheater.Cast("story-role", "角色", "稳重但爱开玩笑")
+        val books = listOf(
+            WorldBookEntry("sea", "水下城市", "海底的所有灯塔每天只在黎明鸣响。", false, emptyMap()),
+            WorldBookEntry("forest", "月亮森林", "这里的每棵树都能记录声音。", true, emptyMap()),
+        )
+        val id = library.addPersonal(cast, PersonalMiniTheater.ideas.first(),
+            selectedWorldBookIds = setOf("sea"), availableWorldBooks = books)
+        val noBookId = library.addPersonal(cast.copy(worldMode = "alternate"),
+            PersonalMiniTheater.customIdea("平行世界里第一次相遇"))
+        val work = library.items.value.first { it.id == id }
+        assertEquals(listOf("sea"), work.worldBookIds)
+        assertTrue(work.worldBookContext.contains("海底的所有灯塔"))
+        assertFalse(work.worldBookContext.contains("每棵树"))
+        val request = PersonalMiniTheater.request(work)
+        assertTrue(request.facts.contains("水下城市"))
+        assertFalse(request.facts.contains("月亮森林"))
+        assertTrue(request.instructions.contains("只根据本篇明确选中的条目"))
+        assertEquals("", library.items.value.first { it.id == noBookId }.worldBookContext)
+        val reopened = MiniTheaterLibrary(context, emptyList())
+        val frozen = reopened.items.value.first { it.id == id }
+        assertEquals(work.worldBookContext, frozen.worldBookContext)
+        // Rewrites use the original selected snapshot even if the source entry changes.
+        val token = reopened.begin(id, "", rewrite = false)
+        assertTrue(reopened.finish(id, token, "draft", text = "已有开篇"))
+        val rewrite = reopened.begin(id, "", rewrite = true)
+        val duringRewrite = reopened.items.value.first { it.id == id }
+        assertEquals(work.worldBookContext, duringRewrite.worldBookContext)
+        assertTrue(PersonalMiniTheater.request(duringRewrite).facts.contains("海底的所有灯塔"))
+        assertTrue(reopened.finish(id, rewrite, "complete", text = "新版完结"))
+        assertThrows(IllegalArgumentException::class.java) {
+            reopened.addPersonal(cast, PersonalMiniTheater.ideas.first(),
+                selectedWorldBookIds = setOf("deleted"), availableWorldBooks = books)
+        }
+    }
+
     @Test fun creativeIdeaBatchesAreSavedReusedAndFilteredAgainstExistingPremises() {
         val library = MiniTheaterLibrary(context, emptyList())
         val generated = PersonalMiniTheater.parseGeneratedIdeas(
