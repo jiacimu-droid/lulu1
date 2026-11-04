@@ -395,16 +395,14 @@ object CompanionPresenceStore {
             (earlierReflection.isBlank() ||
                 hasDifferentAuthoredThought(earlierReflection, next.momentReflection))
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
-        val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
-        val thoughtHistoryDue = lastRecordedAt == null ||
-            runCatching { Duration.between(lastRecordedAt, now).toMinutes() >= 15 }.getOrDefault(true)
-
-        // A sent chat message owns a concrete moment. Background perception is different: a role can
-        // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
-        // changes are recorded immediately; thought-only background changes are rate-limited and must
-        // contain different authored text. Identical repeats remain current state only.
+        // A fresh, causally validated private thought is a real change even
+        // during background perception. Suppressing it because another
+        // perception ran within fifteen minutes made current state disagree
+        // with both the visible history and the next-turn causal evidence.
+        // Exact authored repeats are already filtered above; do not impose a
+        // second time-only veto on distinct thoughts or add model calls.
         if (isChatTurn || visibleChanged || reflectionChanged ||
-            (heartVoiceEventChanged && thoughtHistoryDue)) {
+            heartVoiceEventChanged) {
             val historySnapshot = next.copy(
                 innerThought = uniqueHeartVoice,
                 momentReflection = if (reflectionChanged) next.momentReflection else "",
