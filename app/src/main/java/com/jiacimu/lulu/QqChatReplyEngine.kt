@@ -477,7 +477,7 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
     // Favorite/poke are turn-level side effects, not bubble-level receipts.
     // A cancelled turn, an empty sanitized bubble or a recalled bubble must
     // never act on the user's message merely because the model proposed it.
-    val turnDelivered = spoken.size == bubbles.size && spoken.isNotEmpty()
+    val turnDelivered = replyTurnSideEffectsMayRun(spoken.size, bubbles.size, stale = false)
     if (turnDelivered) favoriteTarget?.let {
         CharacterMessageFavorites.favorite(characterId, conversationId, it)
     }
@@ -494,6 +494,13 @@ internal suspend fun appendRoleReplyWithPacingReceipt(
         complete = turnDelivered,
     )
 }
+
+/** Turn-level favorite/poke actions must not outlive a partial, recalled or cancelled reply. */
+internal fun replyTurnSideEffectsMayRun(
+    persistedBubbleCount: Int,
+    plannedBubbleCount: Int,
+    stale: Boolean,
+): Boolean = !stale && plannedBubbleCount > 0 && persistedBubbleCount == plannedBubbleCount
 
 /** Deferred tools require a completed persisted turn, not a drafted or partial reply. */
 internal fun groupDeferredActionsMayRun(delivery: RoleReplyDeliveryReceipt, sourceCurrent: Boolean): Boolean =
