@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f6c5b4207d80c5cbcaeb1bd62b6234e9cbe5488a`
+- 基准提交：`b233ee2e280d5296f01fe590116fdfb0e27575fb`
 - 分支：`main`
 - 已索引文件：1133
-- 已索引代码/文本行：237680
+- 已索引代码/文本行：237751
 - 已发现符号：3302
 
 | 文件 | 行数 | 符号数 |
@@ -355,7 +355,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 155 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 126 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 129 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 96 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
@@ -909,7 +909,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDevelopmentRecallTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterEvaluationLedgerTest.kt` | 148 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 313 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 627 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 695 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 531 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |

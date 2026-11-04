@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T11:23:40.218023+00:00",
-  "commit": "f6c5b4207d80c5cbcaeb1bd62b6234e9cbe5488a",
+  "generatedAt": "2026-11-04T11:32:02.927432+00:00",
+  "commit": "b233ee2e280d5296f01fe590116fdfb0e27575fb",
   "branch": "main",
-  "sourceFingerprint": "ffe3c4734c5fb024fc477d5921ae3ee2db3a1fcd30c0fbff4b27872518e78923",
+  "sourceFingerprint": "4233fc788f672bfa9305e6cff48a3bdbad64fe468eec10771deba3e9caba1256",
   "summary": {
     "files": 1133,
-    "lines": 237680,
+    "lines": 237751,
     "symbols": 3302
   },
   "symbolIndex": {
@@ -441,7 +441,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 24
+        "line": 27
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
@@ -6381,7 +6381,7 @@
     "proposals": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 28
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -6391,13 +6391,13 @@
     "canGroundQuestion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 35
+        "line": 38
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 48
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
@@ -6411,13 +6411,13 @@
     "informativeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 90
+        "line": 93
       }
     ],
     "returned": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-        "line": 97
+        "line": 100
       }
     ],
     "guide": [
@@ -23835,7 +23835,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
       "lines": 881,
-      "sha256": "a9809e36a03dd9b865c5311ba92bfade3dabc79eeed1881662d4c45ebb6a019b",
+      "sha256": "8361d02c9a7b6f07df6af9fb7a121de00748c7b9a8b697da7971a30e7ff00746",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -24085,32 +24085,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt",
-      "lines": 126,
-      "sha256": "b5afd769cd1ef450c00034162691f67b57506bcc2ce4cd02c233ed9e3d3090db",
+      "lines": 129,
+      "sha256": "a65bec0a27fb7b0291089b42641e602c92e9397e5df92ca7429cbf2760da5e58",
       "symbols": [
         {
           "name": "context",
-          "line": 24
+          "line": 27
         },
         {
           "name": "proposals",
-          "line": 28
+          "line": 31
         },
         {
           "name": "canGroundQuestion",
-          "line": 35
+          "line": 38
         },
         {
           "name": "remember",
-          "line": 48
+          "line": 51
         },
         {
           "name": "informativeAction",
-          "line": 90
+          "line": 93
         },
         {
           "name": "returned",
-          "line": 97
+          "line": 100
         }
       ]
     },
@@ -36122,8 +36122,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 627,
-      "sha256": "08af6095384b91e081a7f61a9571bb340237241c2798303dc4be539b965dd379",
+      "lines": 695,
+      "sha256": "ae5b6f09e6fa94f45df9d1fc915145165436b92e2ca8335fc98bd92df590af1c",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
