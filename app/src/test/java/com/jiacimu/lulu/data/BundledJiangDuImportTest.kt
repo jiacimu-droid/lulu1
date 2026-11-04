@@ -770,4 +770,113 @@ class BundledJiangDuImportTest {
         }
     }
 
+
+    @Test fun ownerApprovedReplacementOverridesExistingEditsAndBlanksOnceForTheBoundCharacter() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val before = JSONObject(CharacterLifeStore.state(id).toString())
+        val character = MigratedDomainStores.characters.get(id)
+        val identity = CharacterIdentityStore.identities.value[id]
+        val other = CharacterLifeStore.state("lulu").toString()
+        val copy = MigratedDomainStores.characters.create("江渡")
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            // Even a v29 installation can still have all older owner-authored fields.
+            val prior = JSONObject(before.toString()).put("jiangDuPresetVersion", 29)
+            prior.remove("jiangDuApprovedReplacement20261104")
+            prior.remove("jiangDuApprovedReplacementBackup20261104")
+            val oldProfile = prior.getJSONObject("profile")
+            CharacterProfileSchema.jiangDuV29Overrides.keys.forEach {
+                oldProfile.put(it, "以前手写的" + it)
+            }
+            oldProfile.put("cognitiveStyle", "").put("care", "")
+                .put("dialogueExamples", "以前手写的示例")
+            prior.put("intention", JSONObject().put("aim", "仍在推进的真实安排"))
+            val oldProfileText = oldProfile.toString()
+            save.invoke(CharacterLifeStore, id, prior)
+            MigratedDomainStores.characters.update(character.copy(persona = "以前手写的核心简介"))
+            val unrelatedCopy = JSONObject().put("jiangDuPresetVersion", 29)
+                .put("profile", JSONObject().put("values", "同名人物自己的价值"))
+            save.invoke(CharacterLifeStore, copy.characterId, unrelatedCopy)
+
+            CharacterLifeStore.initialize(context)
+            val replaced = CharacterLifeStore.state(id)
+            val profile = replaced.getJSONObject("profile")
+            CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
+                assertEquals("Approved complete replacement: " + key, value, profile.getString(key))
+            }
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples, profile.getString("dialogueExamples"))
+            assertEquals(CharacterProfileSchema.jiangDuV29Persona,
+                MigratedDomainStores.characters.get(id).persona)
+            assertTrue(replaced.getBoolean("jiangDuApprovedReplacement20261104"))
+            val backup = replaced.getJSONObject("jiangDuApprovedReplacementBackup20261104")
+            assertEquals("以前手写的核心简介", backup.getString("persona"))
+            assertEquals(oldProfileText, backup.getJSONObject("profile").toString())
+            assertEquals(identity, CharacterIdentityStore.identities.value[id])
+            listOf("relationshipAgreements", "socialNames", "intention", "expressionPreferences").forEach {
+                assertEquals(it, prior.opt(it)?.toString(), replaced.opt(it)?.toString())
+            }
+            assertEquals(other, CharacterLifeStore.state("lulu").toString())
+            assertEquals(unrelatedCopy.toString(), CharacterLifeStore.state(copy.characterId).toString())
+            assertEquals(copy, MigratedDomainStores.characters.get(copy.characterId))
+            assertTrue(CharacterRuntime.definition(id).persona.contains(
+                CharacterProfileSchema.jiangDuV29Overrides.getValue("cognitiveStyle")))
+            assertTrue(CharacterSpeechIdentity.promptSection(id).contains(
+                CharacterProfileSchema.jiangDuDialogueExamples))
+
+            // This explicit replacement does not revoke editing after the approved upgrade.
+            CharacterLifeStore.setProfile(id, "care", "")
+            CharacterLifeStore.setProfile(id, "dialogueExamples", "应用新版之后的新示例")
+            MigratedDomainStores.characters.update(
+                MigratedDomainStores.characters.get(id).copy(persona = "应用新版之后的新简介"))
+            val stable = CharacterLifeStore.state(id).toString()
+            CharacterLifeStore.initialize(context)
+            assertEquals(stable, CharacterLifeStore.state(id).toString())
+            assertEquals("应用新版之后的新简介", MigratedDomainStores.characters.get(id).persona)
+        } finally {
+            save.invoke(CharacterLifeStore, id, before)
+            MigratedDomainStores.characters.update(character)
+            MigratedDomainStores.characters.delete(copy.characterId)
+        }
+    }
+
+    @Test fun interruptedApprovedReplacementRetriesWithoutLosingTheOriginalRecoveryCopy() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = CharacterLifeStore.BUNDLED_JIANG_DU_ID
+        val before = JSONObject(CharacterLifeStore.state(id).toString())
+        val character = MigratedDomainStores.characters.get(id)
+        val save = CharacterLifeStore.javaClass.getDeclaredMethod(
+            "save", String::class.java, JSONObject::class.java).apply { isAccessible = true }
+        try {
+            val recovery = JSONObject().put("persona", "中断前原来的完整简介")
+                .put("profile", JSONObject().put("care", "中断前原来的亲密设定"))
+                .put("previousPresetVersion", 29)
+            val partial = JSONObject(before.toString())
+                .put("jiangDuApprovedReplacementBackup20261104", recovery)
+            partial.remove("jiangDuApprovedReplacement20261104")
+            partial.getJSONObject("profile").put("care", "尚未完成的混合版本")
+            save.invoke(CharacterLifeStore, id, partial)
+            MigratedDomainStores.characters.update(character.copy(
+                persona = CharacterProfileSchema.jiangDuV29Persona))
+            CharacterLifeStore.initialize(context)
+            val restored = CharacterLifeStore.state(id)
+            assertEquals(recovery.toString(), restored
+                .getJSONObject("jiangDuApprovedReplacementBackup20261104").toString())
+            assertEquals(CharacterProfileSchema.jiangDuV29Overrides.getValue("care"),
+                restored.getJSONObject("profile").getString("care"))
+            assertEquals(CharacterProfileSchema.jiangDuDialogueExamples,
+                restored.getJSONObject("profile").getString("dialogueExamples"))
+            val stable = restored.toString()
+            CharacterLifeStore.initialize(context)
+            assertEquals(stable, CharacterLifeStore.state(id).toString())
+        } finally {
+            save.invoke(CharacterLifeStore, id, before)
+            MigratedDomainStores.characters.update(character)
+        }
+    }
 }

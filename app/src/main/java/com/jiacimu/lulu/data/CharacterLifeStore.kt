@@ -46,15 +46,53 @@ object CharacterLifeStore {
         appContext = application
         // 预设补跑不能只在第一次启动做一次：重装后主角可能先叫默认名、
         // 或之后才被改名叫江渡，错过那一次就永远装不上。补跑本身是幂等的
-        // （已到最新版直接返回、用户改过的字段一律不动），每次启动都跑才安全。
+        // （普通预设保留手改；主人明确批准的替换另有一次性标记），每次启动都跑才安全。
         // 恢复仓库内建的人设为独立联系人；仅首次升级导入。
         // 导入标记独立保存，之后用户删除/编辑角色都不会在启动时被反复逆转。
         ensureBundledJiangDu()
         migrateLegacyLuluToXingHe()
         MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
+        applyOwnerApprovedJiangDuProfileOnce()
         syncBundledExpressionPresets()
         unlockBundledAutonomousContactOnce()
+    }
+
+    /**
+     * The owner explicitly approved replacing the existing Jiang Du personality
+     * and sample, INCLUDING previously edited/blank fields (2026-11-04).
+     * This authorization is consumed once, separately from default-only upgrades.
+     * It belongs to this existing bundled person, never everybody named Jiang Du.
+     */
+    @Synchronized private fun applyOwnerApprovedJiangDuProfileOnce() {
+        if (prefs == null) return
+        val id = BUNDLED_JIANG_DU_ID
+        val character = MigratedDomainStores.characters.settings.value[id] ?: return
+        val root = state(id)
+        if (root.optBoolean("jiangDuApprovedReplacement20261104")) return
+        if (character.displayName !in CharacterProfileSchema.jiangDuNames ||
+            root.optInt("xingHeProfileVersion") > 0 ||
+            DigitalLifeProfileStore.lifeForm(id) == CharacterLifeForm.REAL_WORLD) return
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        if (!root.has("jiangDuApprovedReplacementBackup20261104")) {
+            root.put("jiangDuApprovedReplacementBackup20261104", JSONObject()
+                .put("persona", character.persona)
+                .put("profile", JSONObject(profile.toString()))
+                .put("previousPresetVersion", root.optInt("jiangDuPresetVersion")))
+            // Keep the original before either authoritative store changes.
+            // A partial launch retries without replacing this recovery copy.
+            save(id, root)
+        }
+        CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
+            profile.put(key, value)
+        }
+        profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
+        MigratedDomainStores.characters.update(character.copy(
+            persona = CharacterProfileSchema.jiangDuV29Persona))
+        root.put("profile", profile)
+            .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
+            .put("jiangDuApprovedReplacement20261104", true)
+        save(id, root)
     }
 
     /** The original 'lulu' butler contact retained disabled calls/quiet preferences
