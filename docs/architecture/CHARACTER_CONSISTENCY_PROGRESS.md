@@ -939,3 +939,5 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **必要回归**：CharacterCuriosityRuntimeTest.legacySchedulingStepsCannotBecomeResearchedMaterialAfterRestart覆盖九种已被写入端排除的工具；真实旧材料仍可召回、最新不合格步骤不能覆盖问题/下一步、仅元数据线程不借用材料、精确来源ID回退、跨角色不可见、briefContext和promptSection同时正确、初始化重读后原存量JSON不变，真实工具历史与独立未实践问题保留。回归通过与否须以本轮Actions为准，静态审查不是执行结果。
 - **优先级与边界**：P-08a追踪读端已有独立来源修订/请求ID校验与回归，本轮未凭空改trace；转入可实施的P-08b.2旧心理/探索存量→下轮投影缺口。人物→决策→实际送达的完整实机回合仍缺获授权样本；本轮无Android/Kotlin本地运行、真机、真实付费模型或跨日验收。提交后由原code-index workflow执行原生成器，后续补真实CI结果。
 - **下一轮**：先核本轮CI/索引，再继续P-08a.1或P-08b.1正式注入和P-08d逐步回执；不能把这次事实投影修复宣称为活人感已验收。
+
+- **本轮实际提交/验证**：源码与回归 [0df8e07](https://github.com/jiacimu-droid/lulu1/commit/0df8e075203a8cd80177c6982a37732be2c9eb87)。原生成器 [41859812905](https://github.com/jiacimu-droid/lulu1/actions/runs/41859812905) completed/success，自动索引98912e3，CODE_INDEX基准精确为0df8e07；源码提交前刷新main，索引后compare核对仅本轮四文件与生成索引。随后他窗6520ae5更新CompanionActionRuntime，刷新核对后保留，无冲突覆盖。JVM/APK [41859812891](https://github.com/jiacimu-droid/lulu1/actions/runs/41859812891) 当前in_progress，job126678201366正在Test and build phone APK，**尚无本轮单测/APK通过结论**。接手必须刷新该结果，失败则先修本轮回归；真机与真实模型仍未知。
