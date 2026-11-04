@@ -589,7 +589,8 @@ class CharacterCausalTraceTest {
         val searchRequest = "trace-feedback-request"
         val searchReceipt = "tool-$a-$searchRequest"
         source(a, origin, "先搜资料，再告诉我结果")
-        receipt(a, searchReceipt, origin, "web_search", "succeeded", true, "找到真实网页")
+        receipt(a, searchReceipt, origin, "web_search", "succeeded", true, "找到真实网页",
+            requestId = searchRequest)
         assertEquals(searchReceipt, SearchReceiptFeedback.recordedReceiptId(a, searchRequest))
         assertEquals("", SearchReceiptFeedback.recordedReceiptId(b, searchRequest))
 
