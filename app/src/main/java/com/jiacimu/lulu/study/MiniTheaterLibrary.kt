@@ -88,10 +88,18 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
             usedTitles.add(it.title.trim().lowercase())
             usedPremises.add(it.prompt.trim().lowercase())
         }
-        val fresh = candidates.filter {
-            it.title.isNotBlank() && it.premise.isNotBlank() &&
-                usedTitles.add(it.title.trim().lowercase()) &&
-                usedPremises.add(it.premise.trim().lowercase())
+        val fresh = candidates.filter { idea ->
+            val title = idea.title.trim().lowercase()
+            val premise = idea.premise.trim().lowercase()
+            // Reject duplicates without consuming the other key. A rejected
+            // premise must not prevent a later genuinely new candidate.
+            if (title.isBlank() || premise.isBlank() ||
+                title in usedTitles || premise in usedPremises) false
+            else {
+                usedTitles.add(title)
+                usedPremises.add(premise)
+                true
+            }
         }
         if (fresh.isEmpty()) return 0
         val all = previous + fresh
