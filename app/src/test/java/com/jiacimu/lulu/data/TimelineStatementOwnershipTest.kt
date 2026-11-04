@@ -120,6 +120,43 @@ class TimelineStatementOwnershipTest {
                 orphan, event(userMessage, a).copy(channel = migratedChannel))).map { it.id })
     }
 
+    @Test fun staleOrForeignGroupWitnessCannotBorrowARealMessageId() {
+        val a = "group-origin-a"
+        val b = "group-origin-b"
+        val group = MigratedDomainStores.chat.createGroupConversation("保留来源", listOf(a, b), true)
+        val sent = MigratedDomainStores.chat.sendUserMessage(group.id, "原本说的话")
+        val witnessed = event(sent, a)
+        assertTrue(TimelineStatementOwnership.involvesUser(witnessed))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            witnessed.copy(content = "从未说过的假话")))
+        assertFalse(TimelineStatementOwnership.involvesUser(
+            witnessed.copy(occurredAt = witnessed.occurredAt.plusSeconds(60))))
+
+        // Group-looking history cannot borrow an unrelated direct message.
+        val direct = MigratedDomainStores.chat.ensureConversation(a, "私人会话")
+        val privateMessage = MigratedDomainStores.chat.sendUserMessage(direct.id, "私人原话")
+        val spoofed = witnessed.copy(
+            id = privateMessage.id,
+            sessionId = direct.id,
+            channel = "手机群聊·假来源",
+            content = privateMessage.content,
+            occurredAt = privateMessage.createdAt,
+        )
+        assertFalse(TimelineStatementOwnership.involvesUser(spoofed))
+
+        // Editing updates the original timeline projection. An outdated copy
+        // cannot be silently reused after the authoritative message changes.
+        assertTrue(MigratedDomainStores.chat.editMessage(sent.id, "重新说明的原话"))
+        assertFalse(TimelineStatementOwnership.involvesUser(witnessed))
+        val revised = SharedExperienceTimeline.eventsByIds(a, listOf(witnessed.id)).single()
+        assertEquals("重新说明的原话", revised.content)
+        assertTrue(TimelineStatementOwnership.involvesUser(revised))
+        assertTrue(CompanionContactClock.verifiedUserContacts(listOf(witnessed, revised))
+            .map { it.content }.contains("重新说明的原话"))
+        assertFalse(CompanionContactClock.verifiedUserContacts(listOf(witnessed, revised))
+            .map { it.content }.contains("原本说的话"))
+    }
+
     @Test fun orphanOrFailedGroupUserWitnessCannotOverwriteActualLastUserWords() {
         val role = "group-user-witness-validation"
         val peer = "group-user-witness-peer"
