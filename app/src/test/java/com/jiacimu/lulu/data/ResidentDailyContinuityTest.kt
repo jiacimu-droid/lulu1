@@ -26,6 +26,10 @@ class ResidentDailyContinuityTest {
     private var savedResidents: List<DigitalWorldResident> = emptyList()
     private var savedResidentJson: String? = null
     private lateinit var residentPrefs: android.content.SharedPreferences
+    private lateinit var ownerPolicyPrefs: android.content.SharedPreferences
+    private var originalAutoSpawn: Boolean? = null
+    private var originalCap: Int? = null
+    private var originalModelLimit: Int? = null
 
     private fun residentField() = DigitalWorldExpansionStore::class.java
         .getDeclaredField("residents").apply { isAccessible = true }
@@ -35,6 +39,18 @@ class ResidentDailyContinuityTest {
         if (runCatching { androidx.work.WorkManager.getInstance(app) }.isFailure)
             androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build())
         DigitalWorldExpansionStore.initialize(app)
+        // Only this test fixture explicitly opts into new residents.
+        ownerPolicyPrefs = app.getSharedPreferences("lulu_resident_activity_policy_v1",
+            android.content.Context.MODE_PRIVATE)
+        originalAutoSpawn = if (ownerPolicyPrefs.contains("resident_auto_generation"))
+            ownerPolicyPrefs.getBoolean("resident_auto_generation", false) else null
+        originalCap = if (ownerPolicyPrefs.contains("resident_population_cap"))
+            ownerPolicyPrefs.getInt("resident_population_cap", 12) else null
+        originalModelLimit = if (ownerPolicyPrefs.contains("daily_model_decision_limit"))
+            ownerPolicyPrefs.getInt("daily_model_decision_limit", 2) else null
+        check(ResidentDailyPolicy.setAutoGenerationEnabled(app, true))
+        check(ResidentDailyPolicy.setMaxResidents(app, ResidentDailyPolicy.MAX_RESIDENTS))
+        check(ResidentDailyPolicy.setMaxModelDecisions(app, ResidentDailyPolicy.MAX_MODEL_DECISIONS))
         val prefsField = DigitalWorldExpansionStore::class.java
             .getDeclaredField("prefs").apply { isAccessible = true }
         residentPrefs = prefsField.get(DigitalWorldExpansionStore) as android.content.SharedPreferences
@@ -51,6 +67,14 @@ class ResidentDailyContinuityTest {
         if (savedResidentJson == null) edit.remove("residents")
         else edit.putString("residents", savedResidentJson)
         assertTrue(edit.commit())
+        val settings = ownerPolicyPrefs.edit()
+        if (originalAutoSpawn == null) settings.remove("resident_auto_generation")
+        else settings.putBoolean("resident_auto_generation", originalAutoSpawn!!)
+        if (originalCap == null) settings.remove("resident_population_cap")
+        else settings.putInt("resident_population_cap", originalCap!!)
+        if (originalModelLimit == null) settings.remove("daily_model_decision_limit")
+        else settings.putInt("daily_model_decision_limit", originalModelLimit!!)
+        assertTrue(settings.commit())
     }
 
 
