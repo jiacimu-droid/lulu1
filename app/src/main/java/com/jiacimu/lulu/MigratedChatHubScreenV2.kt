@@ -91,8 +91,8 @@ fun MigratedChatHubScreenV2(
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
     val unreadMoments by MomentsStore.unreadCharacterPosts.collectAsState()
-    val totalUnreadMessages = remember(conversations, unreadRevision) {
-        conversations.sumOf { conversation ->
+    val totalUnreadMessages = remember(conversations, characters, unreadRevision) {
+        ownerVisibleQqConversations(conversations, characters.keys).sumOf { conversation ->
             ChatUnreadStore.unreadCount(
                 conversationId = conversation.id,
                 messages = MigratedDomainStores.chat.messages(conversation.id).value,
@@ -206,8 +206,8 @@ internal fun ChatHubV2ConversationRow(
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(title, fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                    Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                        Text(title, modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.Bold, fontSize = 17.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (statusText.isNotBlank()) {
                             Spacer(Modifier.width(7.dp))
@@ -239,8 +239,18 @@ internal fun ChatHubV2ConversationRow(
 }
 
 /** A role's own private QQ group is not an owner's joined conversation. */
-internal fun ownerVisibleQqConversations(conversations: List<LuluConversation>): List<LuluConversation> =
-    conversations.filter { it.groupChat?.ownerIncluded != false }
+internal fun ownerVisibleQqConversations(
+    conversations: List<LuluConversation>,
+    existingCharacterIds: Set<String> = MigratedDomainStores.characters.settings.value.keys,
+): List<LuluConversation> = conversations.filter { conversation ->
+    // Retiring a native resident removes its live identity, NOT the historical
+    // chat or the other members' group messages. A leftover private thread
+    // must not resolve the removed actor via get()'s ID-only fallback.
+    conversation.groupChat?.ownerIncluded != false &&
+        (conversation.groupChat != null ||
+            !conversation.characterId.startsWith("resident:") ||
+            conversation.characterId in existingCharacterIds)
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -250,8 +260,8 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
     val lifeStates by CharacterLifeStore.states.collectAsState()
-    val sorted = remember(conversations) {
-        ownerVisibleQqConversations(conversations)
+    val sorted = remember(conversations, characters) {
+        ownerVisibleQqConversations(conversations, characters.keys)
             .sortedWith(compareByDescending<LuluConversation> { it.pinned }
                 .thenByDescending(LuluConversation::updatedAt))
     }
@@ -259,10 +269,10 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     // Do not subscribe to and scan entire message histories inside lazy rows
     // each time the list scrolls and reuses a composition.
     val unreadCounts by produceState<Map<String, Int>>(
-        initialValue = emptyMap(), conversations, unreadRevision
+        initialValue = emptyMap(), conversations, characters, unreadRevision
     ) {
         value = withContext(Dispatchers.Default) {
-            ownerVisibleQqConversations(conversations).associate { conversation ->
+            ownerVisibleQqConversations(conversations, characters.keys).associate { conversation ->
                 conversation.id to ChatUnreadStore.unreadCount(
                     conversation.id, MigratedDomainStores.chat.messages(conversation.id).value)
             }
