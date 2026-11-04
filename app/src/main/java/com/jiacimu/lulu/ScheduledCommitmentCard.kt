@@ -84,6 +84,7 @@ import java.time.format.DateTimeFormatter
     }
     val done = task.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Cancelled)
     val problem = task.status in setOf(CommitmentTaskStatus.Blocked, CommitmentTaskStatus.Expired)
+    val nextDaily = task.dailyNextDueAt?.atZone(ZoneId.systemDefault())
     val time = task.dueAt?.atZone(ZoneId.systemDefault())
     val method = when (task.deliveryAction) {
         "start_call" -> "角色来电"
@@ -103,9 +104,12 @@ import java.time.format.DateTimeFormatter
                 Text(task.goal, fontSize = 15.sp, lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium, color = Color(0xFF262629))
                 ScheduleStatusChip(label, warning = problem, complete = done)
-                if (task.repeat == "daily" && time != null)
-                    Text("下次 · " + time.format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
-                        color = Color(0xFF7A7A7E), fontSize = 12.sp)
+                if (task.repeat == "daily" && (nextDaily != null || time != null)) {
+                    val upcoming = nextDaily ?: time!!
+                    Text("下次每日执行 · " + upcoming.format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
+                        color = Color(0xFF5A6E65), fontSize = 12.sp)
+                    if (nextDaily != null) Text("上次结果尚未确认", color = Color(0xFF8A7770), fontSize = 12.sp)
+                }
                 if (method.isNotBlank() && (time != null || followUps.isEmpty()))
                     Text(method, fontSize = 12.sp, color = Color(0xFF7A7A7E))
                 if (followUps.isNotEmpty()) {
