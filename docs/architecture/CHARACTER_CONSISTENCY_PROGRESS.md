@@ -580,3 +580,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - 核实 `e6f423d`、`f739f79`、`c8c37d3` 均为完整成功 `a444e80` 的祖先；[Android/JVM/APK 41753840954](https://github.com/jiacimu-droid/lulu1/actions/runs/41753840954) 与索引 41753841122 success。现存 `MemoryWorkingSetPolicy` 来源敏感去重、`OriginalEvidenceSpans` 原文分段已复核，移除的是已完成开发待办，不表示全体验验收。
 - 新来源门禁的最新测试 `76254f68` [APK/JVM 41757668136](https://github.com/jiacimu-droid/lulu1/actions/runs/41757668136) 整理时仍 pending，索引 41757668267 success；该项保留待 CI。翻牌当前源码仍读取隐藏牌查配对，G-01 继续保留。
 - `AGENTS.md` 更新为新版看板/记忆范围锚点，明确“独立项完成写专项证据后从待办移除；部分完成仅保留剩余工作，固定 ID 不复用”。本进度保留历史证据以便追溯。
+
+## 2026-11-04 · P-08d 决策用责任契约被字段预览截断（main `5dc77d4`，待 CI／真机）
+
+- **基准与范围**：按清理后的看板接续，main `0adb55a9`；最近完整成功 Android 基线仍是 `a444e80` run 41753840954。先前 `76254f68` APK run 41757668136 已因后继源码取消，索引 41757668267 success，不能算人物来源门禁完整通过。
+- **源码根因**：`CommitmentTaskEncoder/Decoder` 保存完整 goal、completionCondition、lastActionResult，但 `UnifiedMemoryOrchestrator.renderActiveCommitmentTasks` 在交给模型前分别只保留前 300/220/260 字。该块用于正式 Full 网关的“未完成责任”保护区，以及 `UnifiedMemoryContext.compactPromptSection`；末尾的授权限制、尚未达成或失败说明可能在本人重新决定行动前丢失。前轮修正的是结案候选证据，这次是日常决策的责任输入。
+- **实改**：`5dc77d435725b513aa4bef34994b5df32a4f8978` 移除该责任块三处无标记字段截断，保留原 taskId、revision、状态、执行媒介和时限。只修原权威 Store 到现有决策的投影，没有新 Store／模型轮次／主动催促规则。责任本就是常驻保护区，长字段会增加该次提示词体积，需要后续规模和费用量测，不宣称零成本。
+- **回归**：`MemoryContinuityTest.activeResponsibilityKeepsLateConditionsAndFailedOutcomeInBothPromptViews` 从真实任务 Store 装配统一记忆，覆盖长目标末尾未经许可、长完成条件末尾仍未确认、长回执末尾失败，在 activeTaskContext、recentTimeline 和紧凑视图中均可见，并验证另一人物责任不进入本轮。未使用假台词验收真实模型。
+- **CI 与下一步**：包含回归的 [Android/JVM/APK 41759294383](https://github.com/jiacimu-droid/lulu1/actions/runs/41759294383) 查询时 pending，[原索引生成器 41759294507](https://github.com/jiacimu-droid/lulu1/actions/runs/41759294507) in_progress；以该 SHA 或含它的后继完整结果为准。先修首个真实失败，再用获授权长约定／工具失败的真实回合核对本人选择、实际参数和跨轮后续，并测量多个长责任的提示词大小。P-08d 仍待验。
