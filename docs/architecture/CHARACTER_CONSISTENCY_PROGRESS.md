@@ -597,3 +597,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **真实修复**：`e256d5bceeeae25214a38e0159b30444c3c1d91d` 更新前五个测试文件，以 `MigratedDomainStores.chat.ensureConversation/sendUserMessage/appendCharacterMessage/appendVoiceMessage` 实际创建正式私聊与电话原件并用真实消息 ID；保留无原件失败、用户代发、跨角色、历史删除、目标未达成等负例。 `555464ec1828b622a7c87934d5b7b2123ab1c361` 纠正工具回执测试“后继”必须晚于真正发送时间。 `7a5fbefdd5c9b7e129a4e7b90432c56d219ecca1` 更新其余三份回归，偏好/安慰反馈、失败群聊后退回真私聊、表达成长第二条原话全部来自正式消息 Store；同时保留孤儿消息拒绝与事件撤回检查。仅测试变化，没有更改正式人物、模型提示、Store、付费调用和权限。
 - **分层验证**：代码索引由原生成器运行 `41761363925` completed/success（针对 `7a5fbefd`）；Android/JVM/APK run `41761363900` 查询时 pending，**不能称新回归已通过**。旧中间 APK `41760982146` cancelled 不能计成功。真机真实角色聊天/通话、心事与日程承接、长期成本仍未验；P-08d/P-08e 维持未验收。
 - **下一轮入口**：先检查包含 `7a5fbefd` 的完整 APK/JVM run `41761363900`，若失败按首个具体测试断言修真实缺口；若成功，再核实真实聊天 Store、时间线、人物决策、执行回执、后台与电话后续以及模型自然表达的实际证据。不要重复以测试伪造“已送达”来代替真实来源，也不要把索引成功当 APK 通过。
+
+## 2026-11-04 · P-08d 继续收敛 JVM 两项失败（`811b428`，待新 CI）
+
+- **基准与结果**：按 AGENTS、代码索引、唯一看板、统一人物契约复查最新 main。`7a5fbefd` 的 [完整 Android/JVM/APK run 41761363900](https://github.com/jiacimu-droid/lulu1/actions/runs/41761363900) 已 completed/failure：2352 项 JVM 测试中 2 项失败，均为 `CharacterMotiveContinuityTest`，预期 `waiting_feedback` 实际 `active`；APK 阶段未完成。此前 12 项失败中其余 10 项已在该运行通过，不代表真机验收。
+- **修复**：`811b428732c805f2707ea0e503ef783ce007bf81` 只调整测试发送 fixture：成功行动通过正式 `appendCharacterMessage`，用户效果反馈通过正式 `sendUserMessage`，撤回用真实返回的 `feedback.id`。原测试用手写语音 ID 并未得到与当前消息时间线契约匹配的本人已送达证据，导致 `recordActionResult` 拒绝成功。未放宽 `CharacterActionEvidence`/来源核验，未更改正式人物或添加模型调用。
+- **验证边界**：本轮已提交源码测试修复，**尚未取得包含 `811b428` 的最终 JVM/APK/索引 run**，不宣称通过。下一轮先核对新 run，若仍失败查看具体断言和正式消息时间线；通过后再做真机、真实模型、跨轮目标与成本验收。P-08d/P-08e 继续待验。
