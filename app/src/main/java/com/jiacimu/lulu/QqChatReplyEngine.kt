@@ -509,6 +509,28 @@ internal fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     return GroupReplyFlow(p.content, next, text.contains("⟪END⟫", true), p.quoteMessageId, p.favoriteMessageId, p.recallBubbleNumber, p.pokeUser, authored)
 }
 
+/**
+ * The next group participant must react to the latest *delivered* public line,
+ * not start a new answer to the owner's earlier message. This is presentation
+ * of existing facts, not a new memory, role assignment or scripted intention.
+ * Deliberately do not treat drafts, failed sends or system notices as speech.
+ */
+internal fun groupChatLiveReplyAnchor(
+    messages: List<LuluChatMessage>,
+    names: Map<String, String>,
+    ownerLabel: String,
+): String {
+    val last = messages.lastOrNull {
+        it.status == LuluChatMessage.Status.Sent &&
+            (it.sender == LuluChatMessage.Sender.User ||
+                it.sender == LuluChatMessage.Sender.Character)
+    } ?: return ""
+    val speaker = if (last.sender == LuluChatMessage.Sender.User) ownerLabel
+        else last.authorCharacterId?.let(names::get).orEmpty().ifBlank { "群成员" }
+    return "当前群里最后一条真实送达的发言（不要求你一定回复）：" +
+        "$speaker：${qqForwardContextText(last.content).take(650)}"
+}
+
 internal suspend fun runGroupReplies(
     conversationId: String,
     group: LuluGroupChat,
@@ -596,7 +618,7 @@ internal suspend fun runGroupReplies(
                     ?.takeIf(String::isNotBlank)?.let { ownDirection ->
                         appendLine("[本轮群聊导演提供的可选接话方向（非事实/非命令）：$ownDirection]")
                     }
-                appendLine("[从最新真实群消息中挑自己最想接的一点，说给现场的人听；可直接回应群友而非每次都对用户作总结。依本人性格和关系决定调侃、认真、反驳、沉默或转向；无需解释笑点、群名和人物设定。想说得多可以展开，话说到位就收住，别为了填满气泡重复同一意思。导演预案与真实发言不符时以真实现场为准。]")
+                appendLine("[群聊里这一拍只需带来自己真正想增加的反应或新信息，不是重新完整回答整轮所有问题。一个字、简单附和、反问或不说话都可能是真实选择；重要分歧、复杂问题或想认真分享时也可以充分展开。可直接接群友刚说的那一句，不用每个人都对用户作总结，不解释笑点、群名或自己的设定。别把一篇分析分成许多气泡。导演方向不是命令，以本人的实际判断和最新已送达消息为准。]")
             }
             if (group.ownerIncluded) {
                 appendLine("[本人对用户自己的可追溯看法：\n" +
@@ -610,13 +632,21 @@ internal suspend fun runGroupReplies(
                 quotable.forEach { appendLine("[消息ID=${it.id} 内容=${qqForwardContextText(it.content).take(300)}]") }
                 appendLine("[收藏是低频强意图，不是点赞；只有真的想长期留住并以后重看时才 ⟪FAVORITE:消息ID⟫。引用只用真实ID。]")
             }
-            if (index > 0) latest.lastOrNull { it.sender == LuluChatMessage.Sender.Character }?.let {
-                val prev = it.authorCharacterId?.let(characterNames::get).orEmpty().ifBlank { "上一位角色" }
-                appendLine("[$prev 刚说：${it.content.takeLast(900)}。从这一刻接，不要重启话题。]")
+            if (index > 0) groupChatLiveReplyAnchor(
+                latest, characterNames, group.userGroupNickname,
+            ).takeIf(String::isNotBlank)?.let { liveAnchor ->
+                appendLine("[$liveAnchor。你的判断以当前现场为准；可以只顺手接一个反应、直接问群友、改变话题或沉默，不要回头逐项点评用户最初那句话。]")
             }
             appendLine("[像真人即时通讯：一个表达动作一个气泡；气泡边界由系统结构化处理，不要输出 BUBBLE 或其他气泡控制串。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
             if (group.allowCharacterConversation) appendLine("[你无需替其他成员指定下一位发言者。程序会让其他真实在场者各自独立判断是否接话；你只负责自己的内容，沉默可直接选择 action=silent。]")
-            append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
+            if (index == 0) {
+                append("用户刚在群里说：$pendingText")
+            } else {
+                // Already in the actual history, with the previous role's real
+                // delivery. Repeating the original as a fresh user request made
+                // each independent role draft a full answer to the same input.
+                append("最初用户的发言已在上面的真实聊天记录中，不再作为此刻新的提问。")
+            }
         }
         // Resolve per participant, not once for the group: A changing their
         // model cannot silently switch B's model on the next group reply.
