@@ -930,3 +930,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归提交**：[79e2c09](https://github.com/jiacimu-droid/lulu1/commit/79e2c099fae3de282269cb6703ea456c51e4ff8d) 为零泡、空送达、部分送达、取消和完整一/多泡添加门禁矩阵。该测试只覆盖判定函数，实际 Android 端到端仍需验证。
 - **验收边界**：GitHub 源码与测试已提交 main。本轮尚未取得这些提交的 JVM/APK CI 最终结果，未在当前环境运行 Android/Kotlin 构建；按 AGENTS.md 必须运行的 generate_code_index.py 在本轮 GitHub contents 接口环境不可直接执行，索引是否被仓库 Actions 自动更新须后续核对，不能称索引同步已通过。真机、真实模型、群聊收藏/戳一戳体验待验。
 - **下一轮**：先核 79e2c09 对应 CI 和 CODE_INDEX；继续 P-08a.1 真实 turnTraceId 关联、P-08c.2 的取消/部分发泡回执；有真实证据才修改其余链路。
+
+## 2026-11-04：P-08b.2a 旧探索记录的下轮读取不能把排程当材料
+
+- **接手**：main `1823302`；读取总纲、唯一看板、原索引、统一契约、成长框架及最新人物进度。核实79e2c09的APK/JVM/发布41851034430、原索引41851034417均completed/success，job126653917823的Test and build phone APK与Publish Lulu release均success。前轮cadd595单独APK41839212468已取消，但成功后继包含该源码与测试；群电话送达、部分回复副作用不再重复开发。
+- **链路与根因**：原问题/本人探索选择 → ToolRouter真实动作 → CharacterCuriosityRuntime.recordOutcome → 持久threads.steps → lastRealStep → activeThreads / previousResult / continuityEvidenceIds / ownedContinuityEvidenceId → briefContext与promptSection → 下轮本人判断。写入端已有supportsExploration，禁止排程、闹钟、备注等元数据成功伪装为研究；读旧steps时却只用supports。成功的旧排程于是仍可能被“最近真实行动结果/真正尝试过”注入下一轮，甚至覆盖更早真正读过的材料。这是公共事实投影失真，不是人物性格问题。
+- **修复**：lastRealStep复用与写入相同的supportsExploration。最新一步只是排程等元数据时退回仍有效的实际材料；只有这类旧动作而无材料的记录不再进入已探索工作集。原始持久记录和真实动作回执均保留，不把历史伪进度自动制造为新问题/新任务，不更改闭合状态、用户设定或本人下一步，不新增模型调用/Store。原有独立未实践问题仍正常可见。源数据缺乏原始问题时不凭程序猜测补建问题。
+- **必要回归**：CharacterCuriosityRuntimeTest.legacySchedulingStepsCannotBecomeResearchedMaterialAfterRestart覆盖九种已被写入端排除的工具；真实旧材料仍可召回、最新不合格步骤不能覆盖问题/下一步、仅元数据线程不借用材料、精确来源ID回退、跨角色不可见、briefContext和promptSection同时正确、初始化重读后原存量JSON不变，真实工具历史与独立未实践问题保留。回归通过与否须以本轮Actions为准，静态审查不是执行结果。
+- **优先级与边界**：P-08a追踪读端已有独立来源修订/请求ID校验与回归，本轮未凭空改trace；转入可实施的P-08b.2旧心理/探索存量→下轮投影缺口。人物→决策→实际送达的完整实机回合仍缺获授权样本；本轮无Android/Kotlin本地运行、真机、真实付费模型或跨日验收。提交后由原code-index workflow执行原生成器，后续补真实CI结果。
+- **下一轮**：先核本轮CI/索引，再继续P-08a.1或P-08b.1正式注入和P-08d逐步回执；不能把这次事实投影修复宣称为活人感已验收。

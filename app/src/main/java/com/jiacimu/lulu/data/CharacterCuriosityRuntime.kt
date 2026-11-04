@@ -135,13 +135,15 @@ internal object CharacterCuriosityRuntime {
         }.distinctBy(::identity)
     }
 
+    // Revalidate persisted legacy steps with the same material gate as recordOutcome.
+    // A successful schedule/metadata edit is still not explored material after restart.
     internal fun lastRealStep(role: String, thread: JSONObject): JSONObject? {
         val steps = thread.optJSONArray("steps") ?: return null
         for (i in steps.length() - 1 downTo 0) {
             val step = steps.optJSONObject(i) ?: continue
             val event = CharacterActionEvidence.resolve(role, step.optString("evidenceId")) ?: continue
             if (event.revision == step.optLong("revision", event.revision) &&
-                CharacterActionEvidence.supports(event, step.optString("action"))) return step
+                CharacterActionEvidence.supportsExploration(event, step.optString("action"))) return step
         }
         return null
     }

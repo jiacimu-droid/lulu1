@@ -85,6 +85,70 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+
+    @Test fun legacySchedulingStepsCannotBecomeResearchedMaterialAfterRestart() {
+        begin()
+        realRead("older-real-material", at.plusSeconds(10))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "确实读到的原始材料", "older-real-material", at.plusSeconds(10))
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_curiosity_threads_v1", Context.MODE_PRIVATE)
+        val original = CharacterCuriosityRuntime.snapshot(id)
+        val originalThread = original.getJSONArray("threads").getJSONObject(0)
+        val threadId = CharacterCuriosityRuntime.identity(originalThread)
+        val metadataTools = listOf("plan_personal_activity", "reschedule_personal_activity",
+            "cancel_personal_activity", "schedule_commitment_review", "create_alarm", "cancel_alarm",
+            "retire_development_record", "set_user_remark", "set_self_nickname")
+        metadataTools.forEachIndexed { index, tool ->
+            val evidenceId = "legacy-metadata-$index"
+            SharedExperienceTimeline.record(evidenceId, id, "实际工具执行", "执行器",
+                JSONObject().put("status", "succeeded").put("tool", tool)
+                    .put("result", JSONObject().put("success", true).toString()).toString(),
+                at.plusSeconds(20), triggerExtraction = false, source = "tool-router",
+                evidenceKind = EventEvidenceKind.ToolResult)
+            val step = JSONObject().put("evidenceId", evidenceId).put("revision", 1L)
+                .put("action", "tool").put("receipt", "旧排程不是真实材料")
+                .put("question", "旧排程不应覆盖真实问题").put("why", "旧元数据")
+                .put("nextStep", "旧排程不是读过").put("at", at.plusSeconds(20).toString())
+            val state = JSONObject(original.toString())
+            val thread = state.getJSONArray("threads").getJSONObject(0)
+            thread.getJSONArray("steps").put(step)
+            thread.put("question", step.getString("question")).put("nextStep", step.getString("nextStep"))
+            val metadataOnly = JSONObject(thread.toString()).put("threadId", "metadata-only")
+                .put("steps", org.json.JSONArray().put(JSONObject(step.toString())))
+            state.getJSONArray("threads").put(metadataOnly)
+            val stored = state.toString()
+            assertTrue(prefs.edit().putString(id, stored).commit())
+            CharacterCuriosityRuntime.initialize(context)
+
+            val active = CharacterCuriosityRuntime.activeThreads(id).single()
+            assertEquals(threadId, CharacterCuriosityRuntime.identity(active))
+            assertEquals(proposal().getString("question"), active.getString("question"))
+            assertEquals(proposal().getString("nextStep"), active.getString("nextStep"))
+            assertEquals("older-real-material",
+                CharacterCuriosityRuntime.lastRealStep(id, active)?.getString("evidenceId"))
+            assertEquals(listOf("older-real-material"), CharacterCuriosityRuntime.continuityEvidenceIds(id))
+            assertEquals("older-real-material", CharacterCuriosityRuntime.ownedContinuityEvidenceId(id, threadId))
+            assertNull(CharacterCuriosityRuntime.ownedContinuityEvidenceId(id, "metadata-only"))
+            assertNull(CharacterCuriosityRuntime.lastRealStep("another-person", thread))
+            for (projection in listOf(CharacterCuriosityRuntime.briefContext(id, at.plusSeconds(30)),
+                CharacterCuriosityRuntime.promptSection(id, "测试人物", emptyList(), at.plusSeconds(30)))) {
+                assertTrue(projection.contains("确实读到的原始材料"))
+                assertFalse(projection.contains("旧排程不是真实材料"))
+                assertFalse(projection.contains("旧排程不应覆盖真实问题"))
+            }
+            // Read-side verification preserves the original historical record and actual action.
+            assertEquals(stored, prefs.getString(id, null))
+            assertNotNull(SharedExperienceTimeline.eventsByIds(id, listOf(evidenceId)).firstOrNull())
+
+            assertTrue(CharacterCuriosityRuntime.recordInquiry(id,
+                proposal("这个独立问题仍然没有查过"), "source-1", "实际观察到的新问题", at.plusSeconds(30)))
+            assertEquals("这个独立问题仍然没有查过",
+                CharacterCuriosityRuntime.visibleQuestions(id).single().getString("question"))
+        }
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun ownerCanResumePreviousDormantQuestionWithItsOriginalIdentity() {
         begin()
         val archived = JSONObject().put("threadId", "archived-thread")
