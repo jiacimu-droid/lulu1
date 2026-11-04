@@ -1201,6 +1201,44 @@ class CharacterCausalTraceTest {
             assertTrue(CharacterCausalTrace.inspect(context, b, original, listOf(original), JSONObject()).isEmpty())
         }
     }
+    @Test fun exactReceiptCannotProveDecisionMadeBeforeItsSource() {
+        val sourceId = "trace-choice-chronology-source"
+        val requestId = "trace-choice-chronology-request"
+        SharedExperienceTimeline.record(sourceId, a, "私聊", "用户",
+            "这条消息十秒后才发生", at.plusSeconds(10),
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val receiptId = "tool-$a-$requestId"
+        SharedExperienceTimeline.record(receiptId, a, "实际工具执行", "执行器",
+            JSONObject().put("tool", "web_search").put("requestId", requestId)
+                .put("causeEvidenceId", sourceId).put("causeEvidenceRevision", 1L)
+                .put("status", "succeeded")
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "搜索确实执行过").toString()).toString(),
+            at.plusSeconds(20), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        val mind = JSONObject().put("decisions", JSONArray().put(
+            JSONObject().put("id", "trace-choice-too-early")
+                .put("causalEvidenceId", sourceId)
+                .put("causalEvidenceRevision", 1L)
+                .put("at", at.toString())
+                .put("selected", "tool")
+                .put("executionRequestId", requestId)
+                .put("executionHasPrimary", true)))
+        val lines = CharacterCausalTrace.inspect(context, a, event(a, sourceId),
+            listOf(event(a, sourceId)), mind)
+        assertTrue(lines.any { it.title.contains("主动作 · 回执归属未证实") &&
+            it.detail.contains("本人选择早于其原始依据") })
+        assertFalse(lines.any { it.title.contains("主动作 · 行动回执") &&
+            it.title.contains("执行器确认成功") })
+        // The independent receipt is real, but it cannot be evidence that
+        // the earlier decision was made in response to a future message.
+        assertFalse(lines.any { it.evidenceId == receiptId &&
+            it.title.contains("行动回执") })
+        assertTrue(CharacterCausalTrace.inspect(context, b, event(a, sourceId),
+            listOf(event(a, sourceId)), mind).isEmpty())
+    }
+
     @Test fun sharedTaskDoesNotAttachAnotherSourcesExplicitReceipt() {
         val task = "trace-shared-task-unique"
         val first = "trace-shared-task-first"
