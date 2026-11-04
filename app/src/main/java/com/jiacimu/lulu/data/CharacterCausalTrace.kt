@@ -136,14 +136,25 @@ internal object CharacterCausalTrace {
                 ?.optLong(current.id, 0L)?.takeIf { it > 0L }
                 ?: if (thought.optString("evidenceId") == current.id)
                     thought.optLong("evidenceRevision", 0L) else 0L
+            val thoughtAt = runCatching {
+                java.time.Instant.parse(thought.optString("at"))
+            }.getOrNull()
+            val premature = version == current.revision &&
+                thoughtAt?.isBefore(current.occurredAt) == true
             val provenance = when {
+                premature -> " · 来源时间不符"
                 version == 0L -> " · 来源版本未证实"
                 version != current.revision -> " · 历史版本 $version"
                 else -> ""
             }
-            val warning = if (version > 0L && version != current.revision)
-                "来源已编辑，不能用当前文字解释旧想法；" else ""
-            rows += CharacterCausalTraceLine("本人想法 · $state$provenance",
+            val warning = when {
+                premature -> "想法记录早于所引用的原始事件，不能认定由此事件触发；"
+                version > 0L && version != current.revision ->
+                    "来源已编辑，不能用当前文字解释旧想法；"
+                else -> ""
+            }
+            rows += CharacterCausalTraceLine(
+                if (premature) "本人想法 · 因果未证实$provenance" else "本人想法 · $state$provenance",
                 (warning + thought.optString("thought")).take(230))
         }
         // A saved choice can carry the right source ID yet predate the source
