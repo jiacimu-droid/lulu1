@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T12:27:23.080439+00:00",
-  "commit": "9fa75798e8845c56cb5d6b7039067996444dd311",
+  "generatedAt": "2026-11-04T12:28:04.603167+00:00",
+  "commit": "6b6d9f5c470120ac2a291dbb236dda0e4786b71a",
   "branch": "main",
-  "sourceFingerprint": "da1a680e012d87cd98fab9da1b88a7b4a738a629608d408b1f0a6eab552892a9",
+  "sourceFingerprint": "40e9e62e1f54655ebbdeb497658e07dbc4d2fceda1855716f68b11699e3290eb",
   "summary": {
     "files": 1133,
-    "lines": 238249,
+    "lines": 238250,
     "symbols": 3306
   },
   "symbolIndex": {
@@ -18337,7 +18337,7 @@
     "PersonalMiniTheaterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "PrivatePomodoroTimerTest": [
@@ -39117,12 +39117,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt",
-      "lines": 350,
-      "sha256": "78e2c79e1ca36dd1d2755246b4932d1ea2b37a0e073d22bd6bc4544b3d79d266",
+      "lines": 351,
+      "sha256": "03630c56a4f01958a892622f98da15998dec75a44fa3b1e3244a43ba47a61185",
       "symbols": [
         {
           "name": "PersonalMiniTheaterTest",
-          "line": 19
+          "line": 20
         }
       ]
     },
