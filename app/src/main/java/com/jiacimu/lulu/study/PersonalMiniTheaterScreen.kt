@@ -3,6 +3,7 @@ package com.jiacimu.lulu.study
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
@@ -35,6 +37,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     val context = LocalContext.current
     val library = remember(context) { MiniTheaterLibrary.get(context) }
     val all by library.items.collectAsState()
+    val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val freshIdeas by library.creativeIdeas.collectAsState()
     val availableIdeas = PersonalMiniTheater.ideas + freshIdeas
     val scope = rememberCoroutineScope()
@@ -45,6 +48,9 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
         Math.floorMod(LocalDate.now().toEpochDay(), PersonalMiniTheater.ideas.size.toLong()).toInt()) }
     var guidance by rememberSaveable(characterId) { mutableStateOf("") }
     var worldMode by rememberSaveable(characterId) { mutableStateOf("original") }
+    var chosenWorldBookIds by rememberSaveable(characterId) { mutableStateOf(listOf<String>()) }
+    var showWorldBookPicker by remember { mutableStateOf(false) }
+    var worldBookSearch by remember { mutableStateOf("") }
     var inspirationLoading by remember { mutableStateOf(false) }
     var background by rememberSaveable(opened) { mutableStateOf(
         all.firstOrNull { it.id == opened }?.sceneContext.orEmpty()) }
@@ -173,6 +179,14 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         else "保留原本的世界、身份和关系，展开另一种可能。",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("本篇世界书", style = MaterialTheme.typography.titleSmall)
+                        TextButton(onClick = { showWorldBookPicker = true }) {
+                            Text(if (chosenWorldBookIds.isEmpty()) "选择世界书（可不选）"
+                                else "已选 ${chosenWorldBookIds.size} 条 · 修改")
+                        }
+                    }
                     if (inspirationLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
                     val idea = availableIdeas[offset.coerceIn(0, availableIdeas.lastIndex)]
                     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
@@ -185,7 +199,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                                 lineHeight = 23.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Button(enabled = character != null, onClick = {
                                 runCatching {
-                                    val id = library.addPersonal(PersonalMiniTheater.capture(characterId, worldMode), idea)
+                                    val id = library.addPersonal(
+                                        PersonalMiniTheater.capture(characterId, worldMode), idea,
+                                        selectedWorldBookIds = chosenWorldBookIds.toSet(),
+                                        availableWorldBooks = worldBooks
+                                    )
                                     opened = id; background = ""; error = ""
                                     MiniTheaterJobs.enqueue(context, id, "")
                                 }.onFailure { error = it.message ?: "没有开始创作，请重试" }
@@ -207,7 +225,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     Button(enabled = character != null && guidance.isNotBlank(), onClick = {
                         runCatching {
                             val idea = PersonalMiniTheater.customIdea(guidance)
-                            val id = library.addPersonal(PersonalMiniTheater.capture(characterId, worldMode), idea)
+                            val id = library.addPersonal(
+                                        PersonalMiniTheater.capture(characterId, worldMode), idea,
+                                        selectedWorldBookIds = chosenWorldBookIds.toSet(),
+                                        availableWorldBooks = worldBooks
+                                    )
                             opened = id; background = ""; error = ""
                             MiniTheaterJobs.enqueue(context, id, "")
                         }.onFailure { error = it.message ?: "没有开始创作，请重试" }
@@ -252,6 +274,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         Text(if (showPremise) "收起本篇设定" else "查看本篇设定",
                             style = MaterialTheme.typography.labelMedium)
                     }
+                    if (work.worldBookIds.isNotEmpty()) {
+                        Text("本篇选用世界书 · ${work.worldBookIds.size} 条（创作时设定已保存）",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     if (showPremise) Text(work.prompt,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -287,6 +314,63 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
             }
         }
     }
+    if (showWorldBookPicker) AlertDialog(
+        onDismissRequest = { showWorldBookPicker = false },
+        shape = RoundedCornerShape(24.dp),
+        title = { Text("选择番外世界书") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("只用于接下来新建的番外。可多选；不选则不加入世界书。原有作品保持创建时的设定。",
+                    style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(
+                    value = worldBookSearch,
+                    onValueChange = { worldBookSearch = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("搜索标题或内容") },
+                    singleLine = true
+                )
+                val visibleBooks = worldBooks.filter {
+                    worldBookSearch.isBlank() ||
+                        it.title.contains(worldBookSearch, ignoreCase = true) ||
+                        it.content.contains(worldBookSearch, ignoreCase = true)
+                }
+                if (visibleBooks.isEmpty()) Text(
+                    if (worldBooks.isEmpty()) "世界书里还没有条目，可以先去世界书页面创建。"
+                    else "没有匹配的世界书",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 340.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    items(visibleBooks, key = { it.id }) { entry ->
+                        val checked = entry.id in chosenWorldBookIds
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                chosenWorldBookIds = if (checked) chosenWorldBookIds - entry.id
+                                    else chosenWorldBookIds + entry.id
+                            }.padding(vertical = 7.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(checked = checked, onCheckedChange = null)
+                            Column(Modifier.weight(1f)) {
+                                Text(entry.title, style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium)
+                                Text(entry.content.take(90).replace('\n', ' '),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 2,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { Button(onClick = { showWorldBookPicker = false }) { Text("确定") } },
+        dismissButton = {
+            TextButton(onClick = { chosenWorldBookIds = emptyList(); showWorldBookPicker = false }) {
+                Text("清空选择")
+            }
+        }
+    )
     if (rewrite && work != null) AlertDialog(onDismissRequest = { rewrite = false },
         shape = RoundedCornerShape(24.dp),
         containerColor = MaterialTheme.colorScheme.surface,
