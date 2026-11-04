@@ -77,6 +77,30 @@ class CompanionPresenceThoughtHistoryTest {
             it.source == "presence" && it.content.contains(qualified)
         })
     }
+    @Test fun distinctBackgroundThoughtsWithinFifteenMinutesAreNotSilentlyLost() {
+        val first = "我还想继续了解这件事。"
+        val revised = "我现在不想继续了，先处理刚才的约定。"
+        fun observe(text: String, seconds: Long) {
+            CompanionPresenceStore.update(role, statusText = "正在思考", gesture = null,
+                innerThought = text, mood = "平静", source = "后台感知",
+                now = now.plusSeconds(seconds), innerThoughtFingerprint = "same-appraisal")
+        }
+        observe(first, 0)
+        observe(revised, 20)
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(revised, history.first().innerThought)
+        assertTrue(history.any { it.innerThought == first })
+        assertTrue(SharedExperienceTimeline.all(role).any {
+            it.source == "presence" && it.content.contains("心声：" + revised)
+        })
+
+        // A repeated identical thought must not create another history row
+        // merely because another background observation took place.
+        val before = history.size
+        observe(revised, 30)
+        assertEquals(before, CompanionPresenceStore.histories.value[role].orEmpty().size)
+    }
+
     @Test fun changedResponseAimSurvivesSameCauseFingerprintIntoBothContinuityStores() {
         val positive = "我想继续和她聊下去。"
         val negative = "我不想继续和她聊下去。"
