@@ -17,7 +17,7 @@ internal object CharacterEverydaySocialContext {
         val group = conversation.groupChat ?: return emptyList()
         if (group.members.none { it.characterId == viewerId }) return emptyList()
         return MigratedDomainStores.chat.messages(conversation.id).value.asReversed()
-            .asSequence()
+            .asSequence().take(24) // Bound the SQLite evidence checks for very long group histories.
             .filter { it.status == LuluChatMessage.Status.Sent &&
                 it.sender != LuluChatMessage.Sender.System && it.content.isNotBlank() }
             .filter { message ->
