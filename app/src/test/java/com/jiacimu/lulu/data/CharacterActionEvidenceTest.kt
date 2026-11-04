@@ -9,7 +9,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -20,10 +19,10 @@ class CharacterActionEvidenceTest {
         MigratedDomainStores.initialize(ctx)
         SharedExperienceTimeline.initialize(ctx)
         val role = "action-source-cross-scene-test"
-        val at = Instant.parse("2026-10-12T03:00:00Z")
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "来源回执")
         val sent = MigratedDomainStores.chat.appendCharacterMessage(
             conversation.id, "真的发给了用户")
+        val at = sent.createdAt
         SharedExperienceTimeline.record("newer-tool-receipt", role, "实际工具执行", "执行器",
             JSONObject().put("status", "succeeded").put("tool", "send_private_message")
                 .put("result", JSONObject().put("success", true).toString()).toString(),
