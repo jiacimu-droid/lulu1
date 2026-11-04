@@ -655,18 +655,13 @@ internal suspend fun runGroupReplies(
         val memberLabel = com.jiacimu.lulu.ai.LuluAiServices.connectionStore.library.value.archives
             .firstOrNull { it.id == memberArchive }
             ?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel) ?: activeLabel
-        var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, memberLabel,
+        // A blank/non-silent response is a failed or incomplete attempt, not permission
+        // to silently buy a second model call with a different prompt. Preserve the
+        // original result for the existing error/receipt path below.
+        val result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, memberLabel,
             memberArchive, sceneContext,
             turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
             userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
-        if (result.getOrNull()?.text.isNullOrBlank() &&
-            result.getOrNull()?.disposition != "silent" && currentCoroutineContext().isActive) {
-            result = LuluDeviceToolBridge.respond(member.characterId, history,
-                "$prompt\n[如果你确实该接话，直接自然发言；不要替别人说话。]",
-                memberLabel, memberArchive, sceneContext,
-                turnContext = "群聊ID=$conversationId；当前只代表角色${member.characterId}；后续成员使用已落库的新记录独立判断",
-                userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
-        }
         if (!currentCoroutineContext().isActive) return
         if (sourceWatermark != null && !isReplySourceWatermarkCurrent(sourceWatermark)) {
             onSpeakerChange(null)
