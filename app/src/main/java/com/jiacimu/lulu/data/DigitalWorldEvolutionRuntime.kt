@@ -36,6 +36,8 @@ internal object DigitalWorldEvolutionRuntime {
     private data class ResidentTemplate(
         val name: String,
         val identity: String,
+        val gender: String,
+        val background: String,
     )
 
     private val placeTemplates = listOf(
@@ -65,18 +67,30 @@ internal object DigitalWorldEvolutionRuntime {
     )
 
     private val residentTemplates = listOf(
-        ResidentTemplate("闻澜", "数字世界公共区域维护员"),
-        ResidentTemplate("弥砂", "数字世界路线与指引整理员"),
-        ResidentTemplate("南汐", "公共空间值守居民"),
-        ResidentTemplate("椿铃", "数字世界园景照料员"),
-        ResidentTemplate("迟墨", "公共记录与公告整理员"),
-        ResidentTemplate("洛芽", "共享空间日常维护居民"),
-        ResidentTemplate("栖迟", "数字世界巡游居民"),
-        ResidentTemplate("青禾", "公共设施看护居民"),
-        ResidentTemplate("苏弦", "公共活动协助居民"),
-        ResidentTemplate("言溪", "数字世界路标维护居民"),
-        ResidentTemplate("岚序", "共享区域环境维护员"),
-        ResidentTemplate("照野", "公共空间巡查居民"),
+        ResidentTemplate("闻澜", "公共区域维护员", "女",
+            "从小在庭院附近长大，跟着长辈学习修理长椅。工作细致，却因太在乎完好无损，常常不肯把任务交给同伴；休息时会独自走远路。"),
+        ResidentTemplate("弥砂", "路线与指引整理员", "男",
+            "小时候迷过路，从此喜欢把陌生路径画成地图。能迅速记住岔路，却不喜欢别人一边求指路一边不听；正尝试教新来的邻居认路。"),
+        ResidentTemplate("南汐", "公共空间值守员", "女",
+            "在热闹街区生活多年，知道不少邻里小故事，也习惯主动问候。她能聊得热闹，但谈到自己的烦恼就转移话题，正在学会向熟人求助。"),
+        ResidentTemplate("椿铃", "园景照料员", "女",
+            "以前种坏过一片花圃，因此养成逐日观察植物的习惯。珍惜别人劳动成果，不会轻易原谅随手折枝的人；闲时收藏不同季节的种子。"),
+        ResidentTemplate("迟墨", "公共记录整理员", "男",
+            "继承了家中的旧公告册，对记错时间十分敏感。做事可靠又有点钻牛角尖，面对没有证据的传言总想追问来源，偶尔因此错过聚会。"),
+        ResidentTemplate("洛芽", "公共空间维护居民", "女",
+            "从外街搬来后靠帮人布置活动结识邻居，擅长色彩搭配。行动快、容易答应太多事，正在练习只接下真正有余力完成的工作。"),
+        ResidentTemplate("栖迟", "街巷巡游居民", "男",
+            "曾经长期守着固定岗位，后来选择每日走访不同街巷。喜欢独处也乐于偶遇，不爱被人追问计划；一直想找到能安静读书的小店。"),
+        ResidentTemplate("青禾", "公共设施看护员", "女",
+            "在旧修理铺学会给器物分类和修补，很在意物品原主留下的痕迹。说话慢、履约认真，但过分慎重时会耽误决定，最近开始练习独立判断。"),
+        ResidentTemplate("苏弦", "活动与游戏协助员", "男",
+            "小时候常组织邻里小游戏，擅长把新人带进活动。热情却不爱输，遇到争议会认真讲规则；正在学习接受不同人的玩耍方式。"),
+        ResidentTemplate("言溪", "路标维护居民", "女",
+            "住在常年起雾的旧街附近，熟悉弯弯绕绕的路。待人温和但对方向问题很执拗，业余喜欢和邻居交换地名谜题，想整理一份旧街故事。"),
+        ResidentTemplate("岚序", "光影环境维护员", "非二元",
+            "从事夜间灯光巡查，习惯用照片记录不同时间的光影变化。观察力细密、社交时略显疏离；最近想学会不只记录现场，也说出自己的感受。"),
+        ResidentTemplate("照野", "公共空间巡查员", "男",
+            "原本负责清晨开门和道路巡查，天亮前常已走过半个街区。办事果断却偶尔急躁，喜欢晨跑，正在尝试与做事节奏较慢的同事合作。"),
     )
 
     @Synchronized
@@ -108,7 +122,9 @@ internal object DigitalWorldEvolutionRuntime {
         // leave it empty for days. Bootstrap one real stored local resident;
         // meeting her still requires the character to walk to her location and
         // choose an actual interaction through the executor.
-        if (DigitalWorldExpansionStore.residents().isEmpty()) {
+        if (DigitalWorldExpansionStore.residents().isEmpty() &&
+            appContext?.let(ResidentDailyPolicy::allowNewResidents) == true &&
+            !DigitalWorldExpansionStore.isRetiredTemplate(residentTemplates.first().name)) {
             val initial = residentTemplates.first()
             val resident = runCatching {
                 DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
@@ -119,6 +135,8 @@ internal object DigitalWorldEvolutionRuntime {
                     createdAt = now,
                     temperament = npcQualities[initial.name]?.first.orEmpty(),
                     preferences = npcQualities[initial.name]?.second.orEmpty(),
+                    gender = initial.gender,
+                    background = initial.background,
                 ))
             }.getOrNull()
             if (resident != null) {
@@ -129,7 +147,10 @@ internal object DigitalWorldEvolutionRuntime {
         }
         DigitalWorldExpansionStore.residents().forEach { resident ->
             npcQualities[resident.templateName]?.let { (temperament, preferences) ->
-                DigitalWorldExpansionStore.fillResidentTraitsIfBlank(resident.id, temperament, preferences)
+                val template = residentTemplates.firstOrNull { it.name == resident.templateName }
+                DigitalWorldExpansionStore.fillResidentTraitsIfBlank(
+                    resident.id, temperament, preferences,
+                    gender = template?.gender.orEmpty(), background = template?.background.orEmpty())
             }
         }
         // Cafe employee is a world resident with an actual registered home.
@@ -205,7 +226,11 @@ internal object DigitalWorldEvolutionRuntime {
         if (daySlot > consumedResidentSlot) {
             p.edit().putLong(KEY_RESIDENT_SLOT, daySlot).commit()
             val existingResidents = DigitalWorldExpansionStore.residents()
-            val availableResidents = residentTemplates.filter { template -> existingResidents.none { it.templateName == template.name } }
+            val allowNewResidents = appContext?.let(ResidentDailyPolicy::allowNewResidents) == true
+            val availableResidents = if (!allowNewResidents) emptyList() else residentTemplates.filter { template ->
+                existingResidents.none { it.templateName == template.name } &&
+                    !DigitalWorldExpansionStore.isRetiredTemplate(template.name)
+            }
             val shouldCreate = availableResidents.isNotEmpty() &&
                 (roll("resident:$daySlot", 100) < if (existingResidents.isEmpty()) 30 else 18)
             if (shouldCreate) {
@@ -226,6 +251,8 @@ internal object DigitalWorldEvolutionRuntime {
                             homeLocationCode = neighborhood,
                             temperament = npcQualities[template.name]?.first.orEmpty(),
                             preferences = npcQualities[template.name]?.second.orEmpty(),
+                            gender = template.gender,
+                            background = template.background,
                             neighborhoodCode = neighborhood,
                             currentLocationCode = neighborhood,
                             createdAt = now,
