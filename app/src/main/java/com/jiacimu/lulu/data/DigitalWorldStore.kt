@@ -904,6 +904,21 @@ object DigitalWorldStore {
         }
     }.trim()
 
+    /** Remove a resident's live home and location without rewriting historical
+     * meetings or the other witnesses' records. A resident leaving is not a
+     * retroactive deletion of the time they actually spent together. */
+    fun retireResidentPresence(characterId: String) {
+        synchronized(lock) {
+            mutable.value = mutable.value.copy(
+                homes = mutable.value.homes - characterId,
+                items = mutable.value.items.filterNot { it.ownerCharacterId == characterId },
+                characterLocations = mutable.value.characterLocations - characterId,
+                // Historical events and meeting participant IDs remain intact.
+            )
+            persistLocked()
+        }
+    }
+
     fun clearCharacter(characterId: String) {
         WorldLifeEpisodeStore.clear(characterId)
         DigitalWorldActivityStateStore.clearCharacter(characterId)
