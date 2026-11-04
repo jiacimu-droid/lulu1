@@ -24,6 +24,9 @@ class ScheduledSocialEncounterVenueTest {
     private lateinit var actor: String
     private lateinit var native: DigitalWorldResident
     private lateinit var residentPrefs: SharedPreferences
+    private lateinit var policyPrefs: SharedPreferences
+    private var previousSpawn: Boolean? = null
+    private var previousCap: Int? = null
     private var savedResidents = emptyList<DigitalWorldResident>()
     private var savedResidentJson: String? = null
     private val plans = mutableListOf<String>()
@@ -44,6 +47,14 @@ class ScheduledSocialEncounterVenueTest {
             .set(DigitalWorldStore, null)
         DigitalWorldStore.initialize(app)
         DigitalWorldExpansionStore.initialize(app)
+        // Explicitly authorize fixture creation; production defaults stay disabled.
+        policyPrefs = app.getSharedPreferences("lulu_resident_activity_policy_v1", Context.MODE_PRIVATE)
+        previousSpawn = if (policyPrefs.contains("resident_auto_generation"))
+            policyPrefs.getBoolean("resident_auto_generation", false) else null
+        previousCap = if (policyPrefs.contains("resident_population_cap"))
+            policyPrefs.getInt("resident_population_cap", ResidentDailyPolicy.MAX_RESIDENTS) else null
+        assertTrue(ResidentDailyPolicy.setAutoGenerationEnabled(app, true))
+        assertTrue(ResidentDailyPolicy.setMaxResidents(app, ResidentDailyPolicy.MAX_RESIDENTS))
         @Suppress("UNCHECKED_CAST")
         savedResidents = residentField().get(DigitalWorldExpansionStore) as List<DigitalWorldResident>
         residentPrefs = DigitalWorldExpansionStore::class.java.getDeclaredField("prefs")
@@ -66,6 +77,12 @@ class ScheduledSocialEncounterVenueTest {
         val edit = residentPrefs.edit()
         if (savedResidentJson == null) edit.remove("residents") else edit.putString("residents", savedResidentJson)
         assertTrue(edit.commit())
+        val policy = policyPrefs.edit()
+        if (previousSpawn == null) policy.remove("resident_auto_generation")
+        else policy.putBoolean("resident_auto_generation", previousSpawn!!)
+        if (previousCap == null) policy.remove("resident_population_cap")
+        else policy.putInt("resident_population_cap", previousCap!!)
+        assertTrue(policy.commit())
         MemoryTestEnvironment.release()
     }
 
