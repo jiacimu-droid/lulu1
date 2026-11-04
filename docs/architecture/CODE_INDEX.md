@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e256d5bceeeae25214a38e0159b30444c3c1d91d`
+- 基准提交：`555464ec1828b622a7c87934d5b7b2123ab1c361`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234860
+- 已索引代码/文本行：234859
 - 已发现符号：3262
 
 | 文件 | 行数 | 符号数 |
@@ -880,7 +880,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 116 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 44 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
