@@ -600,8 +600,13 @@ internal object CharacterCausalTrace {
                 event.evidenceKind != EventEvidenceKind.ToolResult ||
                 event.occurredAt.isBefore(receipt.occurredAt)) return@filter false
             val body = objectValue(event.content) ?: return@filter false
+            // A shared search-result evidence ID is not sufficient to join
+            // another request's reply. Match the original decision request
+            // root as well, including when the search was an ordered step.
             body.optString("tool") == "send_private_message" &&
-                body.optString("requestId").endsWith(":verified-search-feedback") &&
+                rootRequestId.isNotBlank() &&
+                body.optString("requestId") ==
+                    "$rootRequestId:verified-search-feedback" &&
                 body.optString("causeEvidenceId") == receipt.id &&
                 body.optLong("causeEvidenceRevision", 0L) == receipt.revision
         }
