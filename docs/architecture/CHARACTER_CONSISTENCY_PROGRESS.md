@@ -686,3 +686,10 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **源码修复 `3871031903f6363aecf9a58f6b8461fd48ce3453`**：移除这层针对不同原句的固定 15 分钟历史否决；保留旧的 15 分钟完全相同原句去重、角色归属、既有源事件验证和历史数量上限，后台无新心声时不额外写入；不改变模型选择、增加 API 调用或额外 Store。
 - **回归 `9116325107d88e5c838de6c400fe8aabb27abfe6`**：在 `CompanionPresenceThoughtHistoryTest` 中同一后台场景 20 秒内本人从「想继续」转为「不想继续，先处理约定」，验证两个历史心声、后一条 timeline 以及原句重复不再新增。验证范围为源码/测试契约，不是已通过的 Android/JVM 或真实模型质量。
 - **后续 CI**：含生产修复的 `38710319` APK run `41782070882` 最后查询为 pending，索引 `41782070720` in_progress；新增回归 `91163251` 与本进度后继运行需重新查 main / Actions。优先看后继完整 JVM/APK 首个失败堆栈，继续核查 5 项居民请求重试；人物 P-08b/d/e 仍待真机与实际模型（需观察新心声数量是否有噪声）。未完成项不勾选。
+
+## 2026-11-04 · P-08b 旧测试仍否决真实不同后台心声：完整 CI 止损
+
+- **接手与真实结果**：核对最新 AGENTS、CODE_INDEX、唯一路线表、人物专项、统一契约与实际 `CompanionPresenceStore.update`、`UserMessageFavoritesTest`、`CompanionPresenceThoughtHistoryTest`。前轮 `9116325107d88e5c838de6c400fe8aabb27abfe6` 的 [APK/JVM run 41782081329](https://github.com/jiacimu-droid/lulu1/actions/runs/41782081329) 已完成且 **failure**：`2366 tests completed, 1 failed`，唯一失败 `UserMessageFavoritesTest.ambientPerceptionStillThrottlesUnrelatedThoughtOnlyEvents`；索引 run `41782081227` success。不能将索引通过视作 APK 成功。
+- **根因**：前轮正式源码 `3871031903f6363aecf9a58f6b8461fd48ce3453` 已取消“后台 15 分钟内不同心声不写历史”的旧时间否决，保留的是**完全相同原句** 15 分钟去重。旧 `UserMessageFavoritesTest` 还断言后台 4 分钟内两个不同文本只存第一条，与已更改的来源/心声因果契约矛盾；`CompanionPresenceThoughtHistoryTest` 已有前轮同条件不同意愿应保留的反向断言。对照源码确认问题是旧测试期望过时，不是为了过绿需要放宽生产心声逻辑。
+- **实改**：`0fb54a6d85fad3ff863fec10a2193356404d06b6` 将旧用例改为 `backgroundPerceptionRetainsChangedThoughtButCoalescesExactReplays`：断言两条真实不同后台原句皆留历史，且新一次感知完全重播同一句、即使 fingerprint 改变也不加新历史条。保留正式代码、既有原句去重、角色权限、模型决断和费用不变；没有新 Store、固定台词或常态额外模型调用。
+- **验收边界**：此 SHA 的 [Android/JVM/APK run 41788133290](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133290) 与 [原代码索引 run 41788133287](https://github.com/jiacimu-droid/lulu1/actions/runs/41788133287) 最后核查均 in_progress，未得出构建/单测成功结论。下一轮先查两个 run 与后继 main 的真实状态，若有失败取日志最先实质断言；通过后还需真机验证背景心声相反意愿入历史、不同近似表达是否引入噪声、下轮本人选择是否真正承接。P-08b/d/e 未完成真机、真实模型或跨日验收，均不勾选。
