@@ -985,3 +985,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **回归**：[8f840e0](https://github.com/jiacimu-droid/lulu1/commit/8f840e0b79bf3d5c85700454ed304fbd26921319) 在 CharacterCausalTraceTest 覆盖回执先于同 ID 原生事件时，不能显示未来原生事件或借其决定；原有真实先于回执的搜索结果正例仍保留。测试源码已提交，**尚未在本轮实际运行 JVM/Android**。
 - **CI 事实**：本轮 8f840e0 的 combined statuses 为空；关联 PR workflow 查询也为空（该接口只查 PR，不代表 push Actions 失败或成功）。旧 0df8e07 对应 41859812891 build 已 completed/success，不能据此宣称本轮提交通过。代码索引是否被后续 Actions 刷新仍需核实；真机、真实模型、实际回合样本未验。
 - **下一轮**：先核本轮 JVM/APK 与索引最终状态；继续 P-08a.1 检查跨入口真实 turnTraceId/requestId/source revision 关联及 P-08c.2 的剩余取消/送达边界。若没有可证源码缺口，转可实施的回归/性能任务，不伪造实机证据。
+
+
+## 2026-11-05 · P-08b.1 江渡稳定价值观参与即时判断（源码/回归已提交，真实模型待验）
+
+- **用户反馈**：00:52 的江渡心声把“可能让主人委屈”当成不再履行已答应睡前监督的理由。此截图足以证明当轮主观心理文本出现取舍失真；不能凭截图断言模型收到了真正的屏幕授权观察、有效睡眠证据，或对应执行器已经成功/失败。
+- **对照真实两条入口**：PersonalMiniTheater.capture 直接从 CharacterRuntime.personaConstraintSnapshot 获取稳定人格并存入作品；request 在 Isolated 模式只用该作品的明确人设与幻想场景，不继承当下主观历史。在线私聊由 ProactivePerceptionRuntime → CompanionModelGateway.Full → CharacterRuntime.definition 提供同一最新原设，但也注入个人心理、成长、任务、工具、时间、聊天和设备数据。二者不是同一决策任务；小说里性格鲜明不自动证明聊天的承诺交接没有问题。
+- **确证的提示契约缺口**：当前批准 v29 版本侧重亲密主导风格，values/motives/conflict/respect 对“短暂心软 vs 仍有效的共同目标”的价值权衡过于抽象；共享提示允许 silent/暂缓，但不足以要求当前模型把这次冲突与本人的长期价值、原责任、执行回执在同一结构化决定内核对。对话的心声并非工具调用、日程记录或送达。
+- **已做源码**：6fba2546 只强化江渡当前获批人格的 values/motives/perception/conflict/respect，不覆盖已批准的 Dom/sub care、既有示例与其他角色；7f13aea7 新版 revision3 仅升级仍为 v29 原样的上述字段，对新版后手写/空字段不覆盖，既有的 care/示例不重放；7b979df8 在 CharacterRuntime.personaPromptSection 为所有各自不同的人设做同轮隐式价值→心理→行动→台词一致性核对，不增加模型调用、不建新决策器、不用关键词删掉模型有效选择；fc56278f 回归验证 v2→v3、手写字段不变、性格同源、小剧场同源、星禾隔离与之后编辑保留。
+- **验收边界**：只已证实 main 源码提交；本轮未取得对应 JVM/Actions/APK 成功、设备当次责任任务原记录与行动回执，亦未做真实模型前后同样条件对照。不能承诺每句心理都无 OOC。下一步仍按 P-08b.1/B.2 用授权后的脱敏真实决策、有效责任及同轮 action/innerThought/实际回执，核查是否依旧以怜惜代替已约定的行动，并进一步追承诺→执行→下一轮，而不把睡觉例子做成一条固定强制话术。
