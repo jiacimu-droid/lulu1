@@ -55,23 +55,28 @@ internal object PersonalMiniTheater {
         val material = if (worldMode == "alternate") {
             // Prefer structured temperament; autobiography often mixes original-world facts.
             val profile = CharacterLifeStore.state(characterId).optJSONObject("profile")
-            val temperament = CharacterProfileSchema.fields.filter {
+            val temperamentEntries = CharacterProfileSchema.fields.filter {
                 it.key in setOf("values", "motives", "enneagram", "traits", "attachment",
                     "cognitiveStyle", "perception", "conflict", "care", "respect", "social",
                     "expression", "speechHabits", "interests")
             }.mapNotNull { field ->
                 profile?.optString(field.key)?.trim()?.takeIf(String::isNotBlank)
                     ?.let { "${field.label}：$it" }
-            }.joinToString("\n")
+            }
+            val temperament = temperamentEntries.joinToString("\n")
             buildString {
                 appendLine("角色姓名：${character.displayName}")
                 native?.gender?.takeIf(String::isNotBlank)?.let { appendLine("人物性别：$it") }
                 appendLine("【仅继承人格与亲密互动的行为倾向，不继承原世界身份、世界观或既定关系】")
+                if (temperamentEntries.size < 3 && character.persona.isNotBlank()) {
+                    // Few structured fields must not erase the user's authored core traits.
+                    appendLine("人物性格概要（只提取个性，原身份与关系均不继承）：")
+                    appendLine(character.persona)
+                }
                 if (temperament.isNotBlank()) {
                     appendLine("以下是人格与相处方式素材。凡提及原世界用户/主人/恋人/闺蜜或地点，只抽象出人物的意愿、反应和相处风格，不把这些具体关系、背景或称呼带进本篇：")
                     appendLine(temperament)
                 }
-                else appendLine("人物性格与表达素材（若含旧身份/关系，仅当作性格参考）：\n${character.persona}")
             }
         } else buildString {
             appendLine("角色姓名：${character.displayName}")
