@@ -204,12 +204,17 @@ internal object DigitalWorldExpansionStore {
 
     /** Enrich old residents only where their saved profile has no authored traits. */
     @Synchronized
-    fun fillResidentTraitsIfBlank(residentId: String, temperament: String, preferences: String) {
+    fun fillResidentTraitsIfBlank(
+        residentId: String, temperament: String, preferences: String,
+        gender: String = "", background: String = "",
+    ) {
         var changed = false
         residents = residents.map { person ->
             if (person.id != residentId || person.profileEdited) person else person.copy(
                 temperament = person.temperament.ifBlank { temperament },
                 preferences = person.preferences.ifBlank { preferences },
+                gender = person.gender.ifBlank { gender },
+                background = person.background.ifBlank { background },
             ).also { if (it != person) changed = true }
         }
         if (changed) persist()
