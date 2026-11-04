@@ -59,6 +59,55 @@ class CharacterCreatedGroupTest {
             listOf(notice.id + ":group:" + b.characterId)).isEmpty())
     }
 
+    @Test fun autonomousGroupSocialContextUsesOnlyActualWitnessedMessages() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val a = MigratedDomainStores.characters.create("群消息甲-" + UUID.randomUUID())
+        val b = MigratedDomainStores.characters.create("群消息乙-" + UUID.randomUUID())
+        val outsider = MigratedDomainStores.characters.create("群外角色-" + UUID.randomUUID())
+        listOf(a, b, outsider).forEach {
+            DigitalLifeProfileStore.registerNewLife(it.characterId, it.displayName, "数字生命")
+        }
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "花园里的计划", listOf(a.characterId, b.characterId), ownerIncluded = false)
+        val old = MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "最早的旧话题-不要反复触发", a.characterId)
+        val first = MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "我们继续聊那盆薄荷", b.characterId)
+        val second = MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "周六想给它换盆", a.characterId)
+        val withdrawn = MigratedDomainStores.chat.appendCharacterMessage(
+            group.id, "这条后来从乙的实际见证中撤回", a.characterId)
+
+        val seen = CharacterEverydaySocialContext.witnessedGroupDialogue(b.characterId, group)
+        assertEquals(3, seen.size)
+        assertFalse(seen.any { it.contains(old.content) })
+        assertTrue(seen.any { it.contains(first.content) })
+        assertTrue(seen.any { it.contains(second.content) })
+        assertTrue(seen.any { it.contains(withdrawn.content) })
+        assertTrue(seen.any { it.contains(a.displayName) })
+
+        val rendered = CharacterEverydaySocialContext.render(b.characterId)
+        assertTrue(rendered.contains("groupId=${group.id}"))
+        assertTrue(rendered.contains(first.content))
+        assertTrue(rendered.contains(second.content))
+        assertTrue(rendered.contains(withdrawn.content))
+        assertTrue(CharacterEverydaySocialContext.witnessedGroupDialogue(
+            outsider.characterId, group).isEmpty())
+        assertFalse(CharacterEverydaySocialContext.render(outsider.characterId)
+            .contains("groupId=${group.id}"))
+
+        SharedExperienceTimeline.deleteEvent("${withdrawn.id}:group:${b.characterId}")
+        val after = CharacterEverydaySocialContext.render(b.characterId)
+        assertTrue(after.contains(first.content))
+        assertTrue(after.contains(second.content))
+        assertFalse(after.contains(withdrawn.content))
+        assertEquals(3, CharacterEverydaySocialContext.witnessedGroupDialogue(
+            b.characterId, group).size)
+    }
+
     @Test fun retiredResidentPrivateThreadIsHiddenButSharedGroupAndStoredMessagesSurvive() {
         val residentId = "resident:retired-example"
         val normalId = "active-role"
