@@ -14,6 +14,11 @@ internal object TimelineStatementOwnership {
     private fun original(event: SharedTimelineEvent, group: Boolean):
         Pair<LuluConversation, LuluChatMessage>? {
         if (event.source != "message" || event.sessionId.isBlank()) return null
+        // SharedExperienceTimeline.recordConversationMessage always stamps the
+        // witness owner's suffix. A bare group message ID has no evidence that
+        // this particular character witnessed it (not even if the chat survives).
+        // Do not infer historical membership from today's mutable group roster.
+        if (group && !event.id.endsWith(":group:${event.characterId}")) return null
         val conversation = MigratedDomainStores.chat.conversations.value
             .firstOrNull { it.id == event.sessionId && (it.groupChat != null) == group &&
                 (group || it.characterId == event.characterId) } ?: return null
