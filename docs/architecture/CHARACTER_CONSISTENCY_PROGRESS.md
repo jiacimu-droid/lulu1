@@ -1068,3 +1068,11 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **修复**：[78089e7](https://github.com/jiacimu-droid/lulu1/commit/78089e7498035e7a56ffc32914678380b746b9eb) 在已有候选过滤中要求 evidenceKind=ToolResult 且 occurredAt 不早于当前来源；保留显式 cause 优先、旧 taskId 回退及其他独立精确 requestId 检索路径。不改角色状态、历史数据或模型调用。
 - **回归**：[a1e6ba9](https://github.com/jiacimu-droid/lulu1/commit/a1e6ba9c31f6ccedf08f49d192695edd61fdc97d) 新增同任务早于来源的真实工具回执、晚于来源但非 ToolResult 的记录、有效旧回执与跨角色隔离测试。
 - **验证边界**：两个提交已到 main，但未在本轮取得其 JVM/APK/索引成功证据；后继提交的 workflow 查询接口仅返回 PR 触发，空结果不代表未运行。先前 41898269295 查询仍 in_progress，不能证明本次代码。此运行环境没有仓库本地工作树，尚未手动运行 scripts/generate_code_index.py；应核自动索引是否在后继 main 生成并检查其基准 SHA，未完成前不得声称索引同步。真机/真实模型/跨日均未验。下一轮优先检查本次 CI/索引，继续 P-08a.1 的其他正式入口或 P-08c.2 取消与发泡链路。
+
+## 2026-11-05 · P-08a.2g 精确请求的来源—决定—回执时间校验
+
+- **证据**：本轮核最新 AGENTS、CODE_INDEX、ROADMAP、人物进度、统一人物契约和成长框架。前轮 APK/JVM [41898269295](https://github.com/jiacimu-droid/lulu1/actions/runs/41898269295) completed/failure，日志中 CharacterCausalTraceTest 的 searchResultHasSameFollowThroughFromOriginAndReceiptWithoutClaimingGoalCompletion 与 sharedTaskIdDoesNotClaimDirectCauseWithoutMatchingSourceId 失败；不能把旧成功基线冒充本轮通过，后继须重查。
+- **独立根因**：CharacterCausalTrace 的精确 requestId 恢复只核回执晚于选择，持久回执 provenanceProblem 同样未核 **选择本身是否早于其所声称的来源事件**；同 requestId、causeId 和版本齐全仍可能将来源出现之前的模型决定错误归因给后来的消息。
+- **实际源码**：[7c589ed](https://github.com/jiacimu-droid/lulu1/commit/7c589ed6d7755d4b64b766b4d98fed778863e5f2) 精确恢复要求 source <= decision <= receipt；[3494474](https://github.com/jiacimu-droid/lulu1/commit/3494474c0d99d4a0a9ae072bad267bb7f1514d80) 在持久回执归属复用相同时间边界，未删除真实回执、未改变角色决定或新增模型调用。
+- **回归**：[0c2b4a3](https://github.com/jiacimu-droid/lulu1/commit/0c2b4a31bde12431568a890c3d15b9726858590a) 新增未来来源、较早选择、后到真实回执的测试；精确回执不得被误作该选择的成功，跨角色隔离仍保留。
+- **验收边界**：本轮尚无 JVM/APK/索引成功证据；当前环境无本地仓库执行脚本，必须核原 Actions 索引是否生成并以源码 SHA 为基准，不手工伪造。真机/真实模型/跨日未验。先检查后继 CI 的首个失败及上述两条旧失败是否仍在，再续 P-08a.1 / P-08c.2。
