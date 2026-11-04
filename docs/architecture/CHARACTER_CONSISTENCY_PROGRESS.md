@@ -546,3 +546,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **已证缺口**：`069e1728` 在联系时钟把“频道包含群聊”的记录送入 `TimelineStatementOwnership.involvesUser`，但该权威门禁只认“以群聊开头”或带 `:group:角色ID` 的记录。故频道 `手机群聊·旧群`、不带后缀的孤儿记录会在门禁内误走非群聊 `message` 直通路径。新增 `43bb18bc` 测试覆盖了这个情况，却不能在 JVM 通过前宣称已修好。
 - **根因级修复**：`a99a9b3a517d215fbbdd11be20eeb8cc5d26f31c` 统一 `TimelineStatementOwnership.isGroup` 为频道包含“群聊”或真实见证后缀，使所有消费者使用同一原始群消息发送状态/作者核验；无新 Store、人格模板和模型请求。回归 `746883a9abffead3e7af474a9bd6c12431390f10` 用已有群聊消息 Store 同时验证真正的用户/本角色/同伴原话与缺失原消息的导入行：真实消息仍能被识别，假见证不能冒充联系。
 - **真实 CI**：旧 `41750883166` cancelled；含新回归的 APK/JVM `41751433717` 查询时 pending；代码索引 `41751433482` completed/success。pending/cancelled 均不可算通过，`P-08` 继续 `[ ]`。下一轮核对该 SHA 的全量 JVM 和 APK 首个失败步骤，并实机核查迁移旧群记录、真实私聊/群聊/电话与后台联系节律；再继续真实模型盲评与分页成本评估。此轮未执行真机/实际模型对话验证。
+
+## 2026-11-04 · P-08 群聊见证有效性补全：不是有同 ID 就是同一条话（main `a444e80`，APK 待验）
+
+- **交接起点**：上轮 `746883a9abffead3e7af474a9bd6c12431390f10` 的 APK/JVM run `41751433717` 最终 cancelled，索引 run `41751433482` success，不能当 APK 通过。先刷新 main 并复查 `AGENTS.md`、索引、唯一看板与统一人物契约及 `SharedExperienceTimeline.recordConversationMessage`、`MigratedDomainStores.chat.editMessage` 的原始数据链。
+- **真实根因**：`TimelineStatementOwnership.original` 只按历史 `sessionId` + `event.id` 找 `Sent` 原消息，没有验证会话本身确为群聊、发生时间与原消息是否一致、时间线见证正文是否与原消息当前正文一致。因此孤儿/导入/编辑前见证即使借用了一个真实 ID，仍可能被 `involvesUser` 和 `isOwnCharacterStatement` 当成真实最近发言，继而污染 `CharacterContinuityRuntime`、`CompanionContactClock` 与关系节律；单靠“群聊”频道判断不足以消除这种不一致。
+- **实改**：`8dd9317052722c4f8863a7d8094dd40859c35637` 校验同一真实群会话、原始正文与时间；`5e51136467ec973e383b170610f1f928bedc1329` 以 SQLite 实际保存的毫秒精度核对时间，避免 Java `Instant` 纳秒不同造成正常消息假阴性。仍复用唯一原始 chat 与时间线；没有新增状态中心、额外付费模型调用、群成员强行回溯或角色统一台词。此门禁只决定“能否宣称已核验”，不删除原时间线，不据此决定人物意愿。
+- **回归**：`a444e80eb78b0aba492a4adcc18e6f7f7b735cbb` 的 `TimelineStatementOwnershipTest.staleOrForeignGroupWitnessCannotBorrowARealMessageId` 覆盖可核验真群用户发言、伪造正文/伪造时间、以私聊 Sent 消息冒充群聊、群聊原话编辑后旧见证失效与新见证继续有效；已有真实群本人／同伴归属测试保留，不放宽断言。
+- **真实验证**：代码索引生成 run `41753841122` completed/success；包含回归测试的 Android/JVM/APK run `41753840954` 最后查询 pending（无完成的单测/产物，不可算通过）。尚未真机核对旧群导入、重启/编辑、私聊、电话与后台的连续性，也未做 P-08e 真模型盲评。**P-08 保持 [ ]**。
+- **下轮**：先核对 run `41753840954` 首个真实编译/JVM/打包结果；如失败按日志修。若成功，在实际安装版核对新旧消息编辑、群聊改名/真实联系时钟、不同角色之间的历史可见性；缺失原件的旧群聊见证仍只能作为未经核实的历史材料，不擅自恢复或虚构作者、不要把“当前群成员”倒推为历史在场者。继续监测群聊大量消息的分页与内存成本。
