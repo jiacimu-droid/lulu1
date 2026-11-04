@@ -5,6 +5,45 @@ import java.time.Instant
 /** Read-only social continuity drawn from real messages and meetings.
  * Never invent a friendship, a reaction to a letter or an activity. */
 internal object CharacterEverydaySocialContext {
+    /**
+     * Only actually delivered, role-witnessed group bubbles can inspire a
+     * new social action. A mutable lastMessage preview is not an ownership
+     * record: it can refer to a message from before someone joined, or to
+     * a later withdrawn observation.
+     */
+    internal fun witnessedGroupDialogue(
+        viewerId: String, conversation: LuluConversation,
+    ): List<String> {
+        val group = conversation.groupChat ?: return emptyList()
+        if (group.members.none { it.characterId == viewerId }) return emptyList()
+        return MigratedDomainStores.chat.messages(conversation.id).value.asReversed()
+            .asSequence()
+            .filter { it.status == LuluChatMessage.Status.Sent &&
+                it.sender != LuluChatMessage.Sender.System && it.content.isNotBlank() }
+            .filter { message ->
+                SharedExperienceTimeline.eventsByIds(
+                    viewerId, listOf("${message.id}:group:$viewerId"),
+                ).any { event ->
+                    event.sessionId == conversation.id && event.revision == 1L &&
+                        event.source in setOf("message", "owner-on-behalf")
+                }
+            }
+            .take(3).toList().asReversed().map { message ->
+                val speaker = when (message.sender) {
+                    LuluChatMessage.Sender.User -> group.userGroupNickname
+                    LuluChatMessage.Sender.Character -> {
+                        val id = message.authorCharacterId.orEmpty()
+                        group.members.firstOrNull { it.characterId == id }
+                            ?.groupNickname?.takeIf(String::isNotBlank)
+                            ?: MigratedDomainStores.characters.get(id).displayName
+                    }
+                    LuluChatMessage.Sender.System -> "系统"
+                }
+                val byOwner = if (message.onBehalfByOwner) "（主人代发）" else ""
+                "${message.createdAt} ${speaker}$byOwner：${message.content.replace(Regex("\\s+"), " ").take(200)}"
+            }
+    }
+
     fun render(characterId: String, now: Instant = Instant.now(),
         pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(characterId)): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
@@ -23,6 +62,7 @@ internal object CharacterEverydaySocialContext {
             .take(4)
         val groups = MigratedDomainStores.chat.conversations.value
             .filter { chat -> chat.groupChat?.members?.any { it.characterId == characterId } == true }
+            .sortedByDescending(LuluConversation::updatedAt)
             .take(6)
         val recentMessages = ResidentSocialMailbox.inbox(characterId, 8)
         val latestByContact = ResidentSocialMailbox.latestByContact(characterId)
@@ -100,9 +140,16 @@ internal object CharacterEverydaySocialContext {
                 appendLine("如果此刻想向某个熟人分享见闻、问一句近况、继续旧话题、开个玩笑或提出邀约，可从这些实际可联系对象中自己选 targetCharacterId，用 send_character_message 真正发送；不是必须先收到对方来信，也不是必须给主人发。")
             }
             if (groups.isNotEmpty()) {
-                appendLine("【自己已经加入的聊天群】")
+                appendLine("【自己已经加入的聊天群｜只看本人确实收到的群消息】")
                 groups.forEach { group ->
-                    appendLine("- groupId=${group.id}；${group.groupChat?.name}；最后一条=${group.lastMessage.take(95)}")
+                    val members = group.groupChat?.members.orEmpty()
+                    appendLine("- groupId=${group.id}；${group.groupChat?.name}；当前成员=" +
+                        members.take(8).joinToString("、") { member ->
+                            "${member.characterId}=${member.groupNickname.ifBlank {
+                                MigratedDomainStores.characters.get(member.characterId).displayName
+                            }}"
+                        })
+                    witnessedGroupDialogue(characterId, group).forEach { appendLine("  ${it}") }
                 }
                 appendLine("想和群友交流可用真实 groupId 选择 send_group_message，不需要先由主人开头，群聊成员身份并不赋予读取其他私聊的权限。")
             }
