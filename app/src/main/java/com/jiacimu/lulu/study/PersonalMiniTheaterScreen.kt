@@ -40,19 +40,27 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     var error by remember { mutableStateOf("") }
     var rewrite by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
+    var showPremise by rememberSaveable(opened) { mutableStateOf(false) }
     val work = all.firstOrNull { it.id == opened && it.characterId == characterId }
     val saved = all.filter { it.characterId == characterId }.asReversed()
     val busy = work?.status in setOf("queued", "running")
+    val storyTitle = remember(work?.title, work?.text) {
+        PersonalTheaterTypography.sections(work?.text.orEmpty())
+            .firstOrNull { it.kind == PersonalTheaterTypography.Kind.Title }
+            ?.text?.removePrefix("《")?.removeSuffix("》")
+            ?.takeIf(String::isNotBlank) ?: work?.title.orEmpty()
+    }
     BackHandler { if (work != null) { opened = null; error = "" } else onBack() }
 
-    Scaffold(topBar = {
+    Scaffold(containerColor = MaterialTheme.colorScheme.background, topBar = {
         TopAppBar(title = { Text("番外", maxLines = 1) },
             navigationIcon = { IconButton(onClick = {
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } })
     }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)) {
             item {
                 if (work == null) {
                     Text((character?.displayName ?: "已移除角色") + " × 用户",
@@ -61,11 +69,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
-                    Text(work.title, style = MaterialTheme.typography.headlineSmall,
+                    Text(storyTitle, style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center)
-                    Text((character?.displayName ?: work.characterName) + " × 用户 · 独立番外",
+                    Text((character?.displayName ?: work.characterName) + " × 你   ·   幻想番外",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
@@ -128,7 +136,15 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 }
             } else {
                 item {
-                    Text(work.prompt, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    TextButton(onClick = { showPremise = !showPremise },
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 3.dp)) {
+                        Text(if (showPremise) "收起本篇设定" else "查看本篇设定",
+                            style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (showPremise) Text(work.prompt,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 21.sp)
                     if (busy) {
                         LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 12.dp))
                         Text("正在写，离开页面后也会保存")
@@ -183,14 +199,19 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
 /** Reader-only presentation. Original generated text stays byte-for-byte in the library. */
 @Composable
 private fun PersonalMiniTheaterProse(source: String) {
-    val sections = remember(source) { PersonalTheaterTypography.sections(source) }
+    val sections = remember(source) {
+        // The generated chapter title is displayed once in the reader header.
+        PersonalTheaterTypography.sections(source).filterNot {
+            it.kind == PersonalTheaterTypography.Kind.Title
+        }
+    }
     val ink = MaterialTheme.colorScheme.onSurface
     SelectionContainer {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(19.dp),
         ) {
-            sections.forEachIndexed { index, section ->
+            sections.forEach { section ->
                 when (section.kind) {
                     PersonalTheaterTypography.Kind.Title -> Text(
                         section.text, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
