@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -395,22 +396,28 @@ internal fun MigrationHomeV2(
                         )
                     }
                 }
-                if (pageCount > 1) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 3.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        repeat(pageCount) { index ->
-                            Surface(
-                                modifier = Modifier.padding(horizontal = 3.dp)
-                                    .size(if (index == pagerState.currentPage) 7.dp else 5.dp),
-                                shape = CircleShape,
-                                color = if (index == pagerState.currentPage) DesktopAccent else DesktopLine,
-                            ) {}
-                        }
-                    }
-                }
+                // PagerState.currentPage changes during a swipe. The indicator must
+                // own that observation, not invalidate the entire desktop dashboard.
+                if (pageCount > 1) DesktopV2PageIndicator(pagerState, pageCount)
             }
+        }
+    }
+}
+
+@Composable
+private fun DesktopV2PageIndicator(pagerState: PagerState, pageCount: Int) {
+    val selectedPage = pagerState.currentPage
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 3.dp),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        repeat(pageCount) { index ->
+            Surface(
+                modifier = Modifier.padding(horizontal = 3.dp)
+                    .size(if (index == selectedPage) 7.dp else 5.dp),
+                shape = CircleShape,
+                color = if (index == selectedPage) DesktopAccent else DesktopLine,
+            ) {}
         }
     }
 }
