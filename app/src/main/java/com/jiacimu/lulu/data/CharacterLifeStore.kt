@@ -69,7 +69,8 @@ object CharacterLifeStore {
         val id = BUNDLED_JIANG_DU_ID
         val character = MigratedDomainStores.characters.settings.value[id] ?: return
         val root = state(id)
-        if (root.optBoolean("jiangDuApprovedReplacement20261104")) return
+        if (root.optInt("jiangDuApprovedReplacementRevision") >= 2) return
+        val appliedBefore = root.optBoolean("jiangDuApprovedReplacement20261104")
         if (character.displayName !in CharacterProfileSchema.jiangDuNames ||
             root.optInt("xingHeProfileVersion") > 0 ||
             DigitalLifeProfileStore.lifeForm(id) == CharacterLifeForm.REAL_WORLD) return
@@ -83,15 +84,19 @@ object CharacterLifeStore {
             // A partial launch retries without replacing this recovery copy.
             save(id, root)
         }
-        CharacterProfileSchema.jiangDuV29Overrides.forEach { (key, value) ->
-            profile.put(key, value)
-        }
+        // Revision 2 refines only the owner-approved intimacy field and sample.
+        // Already-applied profiles keep all unrelated edits made since revision 1.
+        val approved = if (appliedBefore) mapOf(
+            "care" to CharacterProfileSchema.jiangDuApprovedOverrides.getValue("care")
+        ) else CharacterProfileSchema.jiangDuApprovedOverrides
+        approved.forEach { (key, value) -> profile.put(key, value) }
         profile.put("dialogueExamples", CharacterProfileSchema.jiangDuDialogueExamples)
-        MigratedDomainStores.characters.update(character.copy(
+        if (!appliedBefore) MigratedDomainStores.characters.update(character.copy(
             persona = CharacterProfileSchema.jiangDuV29Persona))
         root.put("profile", profile)
             .put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
             .put("jiangDuApprovedReplacement20261104", true)
+            .put("jiangDuApprovedReplacementRevision", 2)
         save(id, root)
     }
 
@@ -155,6 +160,7 @@ object CharacterLifeStore {
                         CharacterProfileSchema.jiangDuDialogueExamplesV25Reviewed,
                         CharacterProfileSchema.jiangDuDialogueExamplesV26,
                         CharacterProfileSchema.jiangDuDialogueExamplesV28,
+                        CharacterProfileSchema.jiangDuDialogueExamplesV29,
                     )) ||
                 (id == "lulu" && existingExamples in setOf(
                     CharacterProfileSchema.xingHeDialogueExamplesV1,
