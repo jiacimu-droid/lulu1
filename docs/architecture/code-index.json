@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T17:25:27.093953+00:00",
-  "commit": "90206848845de46b8cc89567a518297db1b8a9e1",
+  "generatedAt": "2026-11-04T17:25:47.363374+00:00",
+  "commit": "26c9e72f0b947ab1c85f1da9a0ef15a1f7e0347d",
   "branch": "main",
-  "sourceFingerprint": "2e024c6bd9afbe70a4e3bc075abdd6edd5328a08560c760b3280049adcee8711",
+  "sourceFingerprint": "b46f542410d525acee80d9976f9993a1ed2b41c496d9e342b3ee79700b64ca4f",
   "summary": {
     "files": 1138,
-    "lines": 240501,
+    "lines": 240522,
     "symbols": 3317
   },
   "symbolIndex": {
@@ -12287,13 +12287,13 @@
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 82
+        "line": 85
       }
     ],
     "project": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 464
+        "line": 485
       }
     ],
     "allowsExpansion": [
@@ -30372,8 +30372,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 578,
-      "sha256": "65c2f9b8cfe9a9afe4d46bdb00de37c176b153b02595f9d5e8510d0c2a3f6baf",
+      "lines": 599,
+      "sha256": "d04b6786d38a348c3cd5ad99a2ad00e6740fd6477252e7cf3ca88b61f65ae9e1",
       "symbols": [
         {
           "name": "completed",
@@ -30397,11 +30397,11 @@
         },
         {
           "name": "rejected",
-          "line": 82
+          "line": 85
         },
         {
           "name": "project",
-          "line": 464
+          "line": 485
         }
       ]
     },
