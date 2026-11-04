@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import com.jiacimu.lulu.core.WorldBookEntry
 import androidx.work.*
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -24,6 +25,8 @@ internal data class MiniTheaterItem(
     val characterId: String = "", val characterName: String = "",
     val characterContext: String = "", val variationContext: String = "",
     val worldMode: String = "original",
+    /** Explicit entries frozen with each standalone work, independent of global activation. */
+    val worldBookIds: List<String> = emptyList(), val worldBookContext: String = "",
 )
 
 /** Single durable ownership for standalone theater templates, drafts and final text. */
@@ -54,13 +57,21 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
     }
 
     @Synchronized fun addPersonal(cast: PersonalMiniTheater.Cast,
-        idea: PersonalMiniTheater.Idea, variation: PersonalMiniTheater.Variation? = null): String {
+        idea: PersonalMiniTheater.Idea, variation: PersonalMiniTheater.Variation? = null,
+        selectedWorldBookIds: Set<String> = emptySet(),
+        availableWorldBooks: List<WorldBookEntry> = emptyList()): String {
         require(cast.characterId.isNotBlank() && cast.material.isNotBlank()) { "请先选择角色" }
+        val selection = TheaterWorldBookContext.capture(selectedWorldBookIds, availableWorldBooks)
+        require(selection.rules.map { it.id }.toSet() == selectedWorldBookIds) {
+            "选中的世界书已被删除，请重新选择"
+        }
         val item = MiniTheaterItem(id = "personal-" + UUID.randomUUID(),
             title = idea.title, prompt = idea.premise, characterId = cast.characterId,
             characterName = cast.name, characterContext = cast.material,
             variationContext = variation?.let { it.label + "：" + it.direction }.orEmpty(),
-            worldMode = cast.worldMode)
+            worldMode = cast.worldMode,
+            worldBookIds = selection.rules.map { it.id },
+            worldBookContext = selection.standalonePromptText())
         save(items.value + item)
         return item.id
     }
@@ -149,7 +160,8 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 .put("generationToken", it.generationToken)
                 .put("rewriting", it.rewriting).put("characterId", it.characterId)
                 .put("characterName", it.characterName).put("characterContext", it.characterContext)
-                .put("variationContext", it.variationContext).put("worldMode", it.worldMode))
+                .put("variationContext", it.variationContext).put("worldMode", it.worldMode)
+                .put("worldBookIds", JSONArray(it.worldBookIds)).put("worldBookContext", it.worldBookContext))
         }
         check(prefs.edit().putString("items", a.toString()).commit()) { "小剧场保存失败" }
         changes.value = all
@@ -166,7 +178,11 @@ internal class MiniTheaterLibrary(context: Context, initialTemplates: List<MiniT
                 o.optString("error"), o.optString("generationToken"),
                 o.optBoolean("rewriting"), o.optString("characterId"), o.optString("characterName"),
                 o.optString("characterContext"), o.optString("variationContext"),
-                o.optString("worldMode", "original"))
+                o.optString("worldMode", "original"),
+                o.optJSONArray("worldBookIds")?.let { ids ->
+                    (0 until ids.length()).mapNotNull { j -> ids.optString(j).takeIf(String::isNotBlank) }
+                }.orEmpty(),
+                o.optString("worldBookContext"))
         }
     }.getOrDefault(emptyList())
 
