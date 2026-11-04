@@ -1090,3 +1090,12 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 
 - **源码发布/原索引实证**：[ab1dac1](https://github.com/jiacimu-droid/lulu1/commit/ab1dac13d6a2d68c646724289c3319ccc9ab5862)已提交main，提交前刷新并比较无他窗冲突。原索引[41916963410](https://github.com/jiacimu-droid/lulu1/actions/runs/41916963410) completed/success，job126879072365日志明确执行python3 scripts/generate_code_index.py并从ab1dac1生成推送；自动索引61d553b，CODE_INDEX基准精确ab1dac1。新[APK/JVM41916963280](https://github.com/jiacimu-droid/lulu1/actions/runs/41916963280)实际in_progress，job126879071900的Test and build phone APK尚未完成，不能声称新增回归/构建通过。
 - **超时证据单独保留**：复查旧41908471007完整日志，三条断言之后测试仍继续，20:51:46 UTC最后可见ResidentDailyContinuityTest.withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects STARTED，21:26:30 UTC收到“Test and build phone APK has timed out after 40 minutes”。最后STARTED不等于已证明该测试是死锁源；缺线程栈/结束记录，不能只把失败归成三条断言。若新构建仍卡住，先取真实线程/测试进度证据再修，不随便延长超时、删除测试或改角色行为来掩盖。源码本轮未添加新的常态模型调用；真机、真实模型、跨日均未验。
+
+
+## 2026-11-05 · P-08a.2i：拒绝来源出现前的同版本本人决定（只读追踪）
+
+- **接手与既有 CI 核实**：先读最新 main 的 AGENTS、CODE_INDEX、路线图、人物进度及 CharacterCausalTrace/SharedExperienceTimeline/CharacterCausalTraceTest 正式代码。上一轮 ab1dac1 的 [41916963280](https://github.com/jiacimu-droid/lulu1/actions/runs/41916963280) build job126879071900 已 completed/success，Test and build phone APK、Collect APK、Publish Lulu release 均成功；原索引 [41916963410](https://github.com/jiacimu-droid/lulu1/actions/runs/41916963410) success。此前 41908471007 失败不再当作新版本失败，也不能用此成功证明本轮新提交。
+- **根因**：inspect 的精确请求回执匹配已校验决定时间不得早于原消息，但用于卡片展示的 relatedDecisions 只按 causalEvidenceId 从本人档案和最近窗口聚合，仍可能把「当前来源版本且时间早于来源发生」的旧归档选择直接显示成这条消息触发的本人选择。UI 只读投影与精确回执时间校验的因果契约不一致。
+- **正式代码**：[3420e794](https://github.com/jiacimu-droid/lulu1/commit/3420e794b3cea69baae23744b55aae5970865cfb) 在同一 CharacterCausalTrace.inspect 投影处仅过滤「明确当前 revision 且可解析时间严格早于当前来源」的决定；旧版决定仍按历史标记、无时间/无版本旧档案保留不确定性。原 CharacterInnerLifeStore/时间线不修改，不新增模型调用/任务或新 Store。
+- **回归**：[642b0df](https://github.com/jiacimu-droid/lulu1/commit/642b0df830e3f13e6fbfaff31f414bf22ffe4511) 增 CharacterCausalTraceTest.currentVersionChoiceCannotPredateItsSourceEvenWithExactEvidenceId：前于来源的当前版本选择不可显示；来源之后的决定可见；旧无时间无版本选择标记不确定；只读历史不变、跨角色隔离。测试源码已提交，但**本轮未获得针对 642b0df 的 JVM/APK 实际运行成功**，不能标为测试通过。
+- **下一步**：核 642b0df 的后继 APK/JVM 与索引，失败先看首个真实日志；之后 P-08a.1 查其他正式入口关联或 P-08c.2 的取消/部分送达边界。真机、真实模型与跨日因果质量仍未验。
