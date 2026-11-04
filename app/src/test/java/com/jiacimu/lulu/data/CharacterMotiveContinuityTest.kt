@@ -65,8 +65,8 @@ class CharacterMotiveContinuityTest {
 
     private fun delivered(at: Instant) {
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "睡前陪伴")
-        val sent = MigratedDomainStores.chat.appendVoiceMessage(
-            conversation.id, "sleep-story-delivered", "故事已经实际送达", character = true)
+        val sent = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "故事已经实际送达")
         CharacterInnerLifeStore.recordActionResult(role, goal().getString("id"), sent.id,
             "message", true, "实际发送了一段故事", at)
     }
@@ -128,12 +128,12 @@ class CharacterMotiveContinuityTest {
             assertEquals("waiting_feedback", goal().getString("status"))
         }
         val conversation = MigratedDomainStores.chat.ensureConversation(role, "睡前陪伴")
-        val feedback = MigratedDomainStores.chat.appendVoiceMessage(
-            conversation.id, "actual-sleep-feedback", "刚才那次睡得很好", character = false)
+        val feedback = MigratedDomainStores.chat.sendUserMessage(
+            conversation.id, "刚才那次睡得很好")
         change("achieve", now.plusSeconds(201), JSONObject().put("outcomeEvidenceId", feedback.id))
         assertEquals("achieved", goal().getString("status"))
         assertNull(CharacterMotiveReview.from(goal()))
-        SharedExperienceTimeline.deleteEvent("actual-sleep-feedback")
+        SharedExperienceTimeline.deleteEvent(feedback.id)
         assertEquals("active", goal().getString("status"))
     }
 
