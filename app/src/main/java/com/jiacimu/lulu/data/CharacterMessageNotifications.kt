@@ -23,6 +23,8 @@ internal data class CharacterMessageBanner(
     val conversationId: String,
     val title: String,
     val text: String,
+    val avatarUri: String? = null,
+    val avatarText: String = "",
 )
 
 /** All real character chat deliveries share this entry, including ToolRouter's generic tool action. */
@@ -93,7 +95,8 @@ internal object CharacterMessageNotifications {
         if (prefs.getString("last_message_${conversation.id}", null) == message.id) return
         val sameBatch = !message.replyBatchId.isNullOrBlank() &&
             prefs.getString("last_batch_${conversation.id}", null) == message.replyBatchId
-        val actor = MigratedDomainStores.characters.get(message.authorCharacterId ?: conversation.characterId).displayName
+        val sender = MigratedDomainStores.characters.get(message.authorCharacterId ?: conversation.characterId)
+        val actor = sender.displayName
         val title = conversation.groupChat?.name?.let { "$actor · $it" } ?: actor
         val text = qqForwardContextText(message.content)
             .replace(Regex("^\\[(?:游戏邀约|见面邀约)\\|[^]]+]\\s*"), "").take(600)
@@ -103,15 +106,22 @@ internal object CharacterMessageNotifications {
         if (UserInteractionPresenceStore.state.value.appVisible == true &&
             importance >= NotificationManager.IMPORTANCE_DEFAULT) {
             mutableInAppBanner.value = CharacterMessageBanner(
-                message.id, conversation.id, title, text.take(180))
+                message.id, conversation.id, title, text.take(180),
+                avatarUri = sender.avatarUri, avatarText = actor.take(2))
         }
         val open = PendingIntent.getActivity(context, conversation.id.hashCode(),
             Intent(context, MigrationActivity::class.java)
                 .putExtra("open_conversation_id", conversation.id)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        // Android requires an app-owned monochrome small icon, but messaging
+        // notifications can also present the actual sender's portrait as the
+        // large icon. Use the same bounded/cached avatar as Lulu's chat UI;
+        // never fetch remote media or incur network work while posting.
+        val avatar = com.jiacimu.lulu.luluNotificationAvatarBitmap(context, sender.avatarUri)
         val notification = NotificationCompat.Builder(context, channel)
             .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
+            .apply { if (avatar != null) setLargeIcon(avatar) }
             .setContentTitle(title).setContentText(text.take(180))
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setCategory(NotificationCompat.CATEGORY_MESSAGE).setPriority(NotificationCompat.PRIORITY_HIGH)
