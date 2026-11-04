@@ -2,6 +2,12 @@ package com.jiacimu.lulu.study
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -40,7 +46,7 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
     BackHandler { if (work != null) { opened = null; error = "" } else onBack() }
 
     Scaffold(topBar = {
-        TopAppBar(title = { Text(if (work == null) "番外" else work.title, maxLines = 1) },
+        TopAppBar(title = { Text("番外", maxLines = 1) },
             navigationIcon = { IconButton(onClick = {
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } })
@@ -48,11 +54,22 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
         LazyColumn(Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
-                Text((character?.displayName ?: work?.characterName ?: "已移除角色") + " × 用户",
-                    fontWeight = FontWeight.SemiBold)
-                Text("独立幻想番外 · 不计入角色记忆",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (work == null) {
+                    Text((character?.displayName ?: "已移除角色") + " × 用户",
+                        fontWeight = FontWeight.SemiBold)
+                    Text("独立幻想番外 · 不计入角色记忆",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    Text(work.title, style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center)
+                    Text((character?.displayName ?: work.characterName) + " × 用户 · 独立番外",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                }
                 if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
             }
             if (work == null) {
@@ -127,9 +144,11 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                     }) { Text(if (work.text.isBlank() || work.rewriting) "重试创作" else "继续写完") }
                 }
                 if (work.text.isNotBlank()) item {
-                    HorizontalDivider()
-                    if (work.rewriting) Text("上一版 · 新版本写完前保留")
-                    SelectionContainer { Text(work.text, style = MaterialTheme.typography.bodyLarge) }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    if (work.rewriting) Text("上一版 · 新版本写完前保留",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    PersonalMiniTheaterProse(work.text)
                 }
                 if (!busy) item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -159,4 +178,44 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
                 .onFailure { error = it.message ?: "删除失败" }
         }) { Text("删除") } },
         dismissButton = { TextButton(onClick = { deleting = false }) { Text("取消") } })
+}
+
+/** Reader-only presentation. Original generated text stays byte-for-byte in the library. */
+@Composable
+private fun PersonalMiniTheaterProse(source: String) {
+    val sections = remember(source) { PersonalTheaterTypography.sections(source) }
+    val ink = MaterialTheme.colorScheme.onSurface
+    SelectionContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(19.dp),
+        ) {
+            sections.forEachIndexed { index, section ->
+                when (section.kind) {
+                    PersonalTheaterTypography.Kind.Title -> Text(
+                        section.text, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                        textAlign = TextAlign.Center, fontSize = 21.sp,
+                        lineHeight = 30.sp, fontWeight = FontWeight.SemiBold, color = ink)
+                    PersonalTheaterTypography.Kind.End -> Text(
+                        "·  完  ·", modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                        textAlign = TextAlign.Center, fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    PersonalTheaterTypography.Kind.Dialogue -> Column(
+                        modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+                                RoundedCornerShape(14.dp))
+                            .padding(horizontal = 15.dp, vertical = 12.dp),
+                    ) {
+                        Text(section.text, fontSize = 16.sp, lineHeight = 28.sp,
+                            color = ink)
+                    }
+                    PersonalTheaterTypography.Kind.Narration -> Text(
+                        section.text,
+                        modifier = Modifier.fillMaxWidth(),
+                        fontSize = 16.sp, lineHeight = 29.sp,
+                        color = ink)
+                }
+            }
+        }
+    }
 }
