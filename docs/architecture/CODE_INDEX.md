@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7b634a6e0495e5dd358ba2338e7025170f331ab2`
+- 基准提交：`d6bf8cb8c0765ed6ce7a4b2eccb510a943d25f68`
 - 分支：`main`
 - 已索引文件：1126
-- 已索引代码/文本行：234994
+- 已索引代码/文本行：235010
 - 已发现符号：3271
 
 | 文件 | 行数 | 符号数 |
@@ -451,7 +451,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 297 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 228 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 403 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 785 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
