@@ -900,3 +900,9 @@ CharacterOpenConcernRuntime在updateOne结果和retained读取两处都使用最
 - **看板与下一步**：新增已提交P-08a.2a窄范围子项，完整P-08a.1/2仍需逐入口核对turnTraceId/sourceMessageId/taskId与真实阶段，P-08a.3外部样本待验。接手先查本轮CI，再继续P-08a或P-08b正式注入；不重复已经成功的群聊单次请求回归，也不把显示修正当作“角色更像活人”质量验收。
 
 - 本轮发布：源码/回归 [cadd595](https://github.com/jiacimu-droid/lulu1/commit/cadd5954b29bd709c70a69390e03e150881ff5d4)；原索引 [41839212471](https://github.com/jiacimu-droid/lulu1/actions/runs/41839212471) completed/success（0adfbe6）。APK/JVM [41839212468](https://github.com/jiacimu-droid/lulu1/actions/runs/41839212468) 提交后pending，未宣布测试通过。并行番外灵感更新均刷新比较后保留，未覆盖其代码；当前索引生成保持自动流程。完整trace关联、真机和真实模型仍待验。
+
+## 2026-11-04：P-10.4 新灵感 JSON 截断导致页面红字溢出
+- **实际故障证据**：用户手机截图，番外灵感 API 返回十条 JSON 数组时在第四条附近结束，客户端报告 `Unterminated array at character 1518 of {"ideas":[...]`，将异常里大段未闭合 JSON 直接渲染在页面，既没有新灵感入库又严重影响阅读。截图证明 JSON 截断与旧错误提示泄漏；不证明服务商为什么提前结束（可能是预算或服务端上限）。
+- **正式链路**：`PersonalMiniTheaterScreen.nextInspiration` 从 `CompanionContextMode.Isolated` 调用一个剧场模型，`PersonalMiniTheater.inspirationRequest` 要求一次十个提案，`parseGeneratedIdeas` 原以整段 JSONObject 解析，任何数组截断都会全批失败。已有另一路先提交 `06f5687` 恢复完整子对象、缩短提案，主屏代码把单次输出预算调为 3800 并阻止把原始 JSON 错误显示到正文区。保留一次模型调用，不对每个半成品额外收费重试。
+- **本轮交付**：`fd77d13` 为真实缺口补 Robolectric 回归：三条中第三条 JSON 截断，前两条正常解析入库并在创建新 library 时读取；不完整的一条不保存；完整 JSON 的转义引号与无可抢救对象均有覆盖。发现 `MiniTheaterLibrary.addCreativeIdeas` 的重复项过滤同时对 title/premise 做有副作用的短路集合插入：某候选标题首次出现但 premise 重复会提前污染标题集，后续同标题、真正不同 premise 被错误丢弃。`8b406ce` 令“两个键都未重复”后才同时登记，`fa9d57e` 增加回归防止漏掉可抢救的有效灵感。保留原历史、世界书、主模型人格与正文，不改 API 调用次数。
+- **验收分层**：代码/测试已提交 main；还没有本轮新提交的 JVM/APK 最终通过结论，没有本用户手机旧安装版自动升级证据，也没有真实付费模型返参成功率对照。P-10.4 继续待 CI、真机测试，不能以静态回归断言代替实际模型成功。
