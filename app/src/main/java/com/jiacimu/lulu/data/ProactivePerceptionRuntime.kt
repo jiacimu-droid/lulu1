@@ -631,6 +631,11 @@ object ProactivePerceptionRuntime {
         autonomousConversationAnchors(MigratedDomainStores.chat.conversations.value,
             MigratedDomainStores.characters.settings.value.keys)
 
+    /** Foreground service and durable worker must agree on the SAME role set. */
+    internal fun hasEnabledAutonomousRole(): Boolean = latestPrivateConversations().any {
+        ProactivePerceptionPolicyStore.get(it.characterId).enabled
+    }
+
     private suspend fun evaluateCharacter(
         appContext: Context, conversation: LuluConversation, trigger: String,
         now: Instant, requiredInteractionEvidenceId: String? = null,
