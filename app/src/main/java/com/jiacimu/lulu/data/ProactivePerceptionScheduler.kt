@@ -278,6 +278,51 @@ object ProactivePerceptionScheduler {
             "lulu-native-mail-$characterId", ExistingWorkPolicy.REPLACE, request)
     }
 
+    /**
+     * An actual role-authored group bubble offers existing peers ONE bounded
+     * independent decision opportunity. Group responses do not re-enqueue the
+     * same kind of work, so there is no A→B→A automatic payment loop.
+     * WorkManager keeps the cue through a normal background process restart.
+     */
+    fun scheduleGroupMessageReview(context: Context, senderId: String,
+        groupId: String, messageId: String) {
+        val app = context.applicationContext
+        val group = MigratedDomainStores.chat.conversations.value.firstOrNull {
+            it.id == groupId && it.groupChat?.members
+                ?.any { member -> member.characterId == senderId } == true
+        } ?: return
+        val sent = MigratedDomainStores.chat.messages(groupId).value.firstOrNull {
+            it.id == messageId && it.sender == LuluChatMessage.Sender.Character &&
+                it.authorCharacterId == senderId && it.status == LuluChatMessage.Status.Sent &&
+                !it.onBehalfByOwner
+        } ?: return
+        val names = MigratedDomainStores.characters.settings.value.keys
+        val members = GroupSocialOpportunity.recipients(
+            group.groupChat ?: return, senderId, names, sent.id)
+        val manager = WorkManager.getInstance(app)
+        members.forEach { memberId ->
+            val policy = ProactivePerceptionPolicyStore.get(memberId)
+            if (!memberId.startsWith("resident:") && !policy.enabled) return@forEach
+            if (memberId.startsWith("resident:") &&
+                ResidentDailyPolicy.modelDecisionsUsed(app, memberId) >=
+                    ResidentDailyPolicy.maxModelDecisions(app)) return@forEach
+            val evidenceId = "${messageId}:group:$memberId"
+            if (!GroupSocialOpportunity.witnessed(memberId, evidenceId)) return@forEach
+            val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+                .setConstraints(Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setInitialDelay(12_000L, TimeUnit.MILLISECONDS)
+                .setInputData(Data.Builder()
+                    .putString("trigger", GroupSocialOpportunity.WAKE_TRIGGER)
+                    .putString("characterId", memberId)
+                    .putString("interactionEvidenceId", evidenceId)
+                    .putBoolean("force", true).build())
+                .build()
+            manager.enqueueUniqueWork("lulu-group-social-$groupId-$memberId",
+                ExistingWorkPolicy.KEEP, work)
+        }
+    }
+
     /** Legacy API kept only so old code can compile; it never creates an event-triggered model run. */
     fun scheduleSoon(context: Context, trigger: String) {
         scheduleNextDue(context.applicationContext)
@@ -1029,6 +1074,20 @@ class ProactivePerceptionWorker(
                 }
                 if (pending == null && !busy) break
                 kotlinx.coroutines.delay(1_000L)
+            }
+        }
+        // Only the recipient's own persisted group witness may buy this
+        // one-hop opportunity. Recheck after process death/deletion, and never
+        // treat an unverified group bubble as a new user private message.
+        if (trigger == GroupSocialOpportunity.WAKE_TRIGGER) {
+            if (characterId == null ||
+                !GroupSocialOpportunity.witnessed(characterId, interactionId)) {
+                return@runCatching Result.success()
+            }
+            if (characterId.startsWith("resident:")) {
+                ResidentDailyDecision.runSocialWake(applicationContext, characterId, interactionId)
+                ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
+                return@runCatching Result.success()
             }
         }
         // A native resident has a real personal phone but no owner-private chat.
