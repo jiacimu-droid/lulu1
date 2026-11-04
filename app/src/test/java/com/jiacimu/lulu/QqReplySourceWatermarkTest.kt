@@ -445,6 +445,31 @@ class QqReplySourceWatermarkTest {
         assertFalse(selected.actions.toString().contains("send_private_message"))
     }
 
+    @Test fun oneReplyPlanRetainsSideVoiceAndSeparatesScheduledReminders() {
+        val voice = JSONArray().put(JSONObject().put("tool", "send_private_message")
+            .put("args", JSONObject()
+                .put("text", "晚安。")
+                .put("bubbleDeliveries", JSONArray().put("voice"))
+                .put("bubbleSpeechTracks", JSONArray().put("晚安。"))))
+        val grouped = singlePrivateInboundReply("我在呢。", voice)
+        assertEquals("我在呢。" + SemanticBubbleSeparator + "晚安。", grouped.text)
+        assertEquals(listOf("voice"), grouped.addedModes)
+        assertEquals(listOf("晚安。"), grouped.addedTracks)
+        assertNull(grouped.actions)
+
+        // Scheduled reminders are actual independently linked actions, not
+        // duplicate dialogue; preserve the executable planId and its receipt.
+        val reminder = JSONArray().put(JSONObject().put("tool", "send_private_message")
+            .put("args", JSONObject()
+                .put("text", "定时提醒：喝水")
+                .put("planId", "real-existing-scheduled-id")))
+        val selected = singlePrivateInboundReply("这轮先说别的。", reminder)
+        assertEquals(0, selected.absorbedSends)
+        assertEquals(1, selected.actions?.length())
+        assertEquals("real-existing-scheduled-id",
+            selected.actions!!.getJSONObject(0).getJSONObject("args").getString("planId"))
+    }
+
     @Test fun inboundReplyPreservesConditionalSendsAndIndependentSilence() {
         val actions = JSONArray()
             .put(JSONObject().put("tool", "send_private_message")
