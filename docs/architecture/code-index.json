@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T11:16:29.150282+00:00",
-  "commit": "0b85f3e475cd89d904ea21d7ae54270ed18ebdf4",
+  "generatedAt": "2026-11-04T11:20:07.820336+00:00",
+  "commit": "5fa7315d9bffa94b0f644504742c599246b0a94a",
   "branch": "main",
-  "sourceFingerprint": "3d2d7743fc9aeaf9cf2f594e3decb85233063f2f0dfeaf39e2f4cfaf332ad8b8",
+  "sourceFingerprint": "d6998fcf2e4cba8dcd151a7f09b1dfff5af61563c01e64da63a7844f074e0015",
   "summary": {
     "files": 1133,
     "lines": 237524,
@@ -33158,7 +33158,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt",
       "lines": 374,
-      "sha256": "e82e170de5b7c15ab5059f1bd26aaaa0a9b22da72f9c3978675875633f5a344a",
+      "sha256": "c9bd18de520e226e9daa83b47c7bae313d4755b21e1da447efa1199348ca8e91",
       "symbols": [
         {
           "name": "Kind",
